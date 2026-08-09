@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:simpleType name="versionsType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[vV]?[0-9]+(\.[0-9]+)*(\/[vV]?[0-9]+(\.[0-9]+)*)*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="trueType">
+        <xs:restriction base="xs:string"><xs:enumeration value="true"/></xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="resourceType">
+        <xs:sequence><xs:element name="versions" type="versionsType"/></xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="catalog" type="xs:string" use="required"/>
+        <xs:attribute name="schema" type="xs:string" use="required"/>
+        <xs:attribute name="skipPermission" type="trueType" use="optional"/>
+        <xs:attribute name="environment" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="functionType">
+        <xs:complexContent>
+            <xs:extension base="resourceType">
+                <xs:attribute name="aggregate" type="trueType" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element name="databaseResources">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="storedProcedures"><xs:complexType><xs:sequence><xs:element name="procedure" type="resourceType" minOccurs="0" maxOccurs="unbounded"/></xs:sequence></xs:complexType></xs:element>
+                <xs:element name="storedFunctions"><xs:complexType><xs:sequence><xs:element name="function" type="functionType" minOccurs="0" maxOccurs="unbounded"/></xs:sequence></xs:complexType></xs:element>
+                <xs:element name="tablesOrViews"><xs:complexType><xs:sequence><xs:element name="tableOrView" type="resourceType" minOccurs="0" maxOccurs="unbounded"/></xs:sequence></xs:complexType></xs:element>
+                <xs:element name="systemTypes"><xs:complexType><xs:sequence><xs:element name="systemType" type="resourceType" minOccurs="0" maxOccurs="unbounded"/></xs:sequence></xs:complexType></xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

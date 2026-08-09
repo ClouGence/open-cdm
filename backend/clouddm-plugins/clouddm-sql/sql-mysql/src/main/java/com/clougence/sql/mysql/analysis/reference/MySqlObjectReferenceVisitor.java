@@ -24,9 +24,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.mysql.analysis.sysobj.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser;
 import com.clougence.sql.mysql.parser.antlr.MySqlParserBaseVisitor;
@@ -78,15 +79,15 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         return null;
     }
 
-    public void addUnnamedFallback(SplitQueryType sqlType, TargetType targetType, ParserRuleContext ctx) {
+    public void addUnnamedFallback(StatementType sqlType, TargetType targetType, ParserRuleContext ctx) {
         addUnnamedResource(sqlType, targetType, true, ctx);
     }
 
-    protected final void addUnnamed(SplitQueryType sqlType, TargetType targetType, boolean require, Token token) {
+    protected final void addUnnamed(StatementType sqlType, TargetType targetType, boolean require, Token token) {
         references.add(new MySqlObjectReference(sqlType, targetType, require, line(token), column(token), endLine(token), endColumn(token), List.of()));
     }
 
-    protected final void addUnnamedAtCurrentSchema(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+    protected final void addUnnamedAtCurrentSchema(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
         List<String> nodes = new ArrayList<>();
         addPart(nodes, level(UmiTypes.Catalog));
         addPart(nodes, level(UmiTypes.Schema));
@@ -118,10 +119,10 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             FullIdContext fullId = custom.function.fullId();
             String functionName = fullId.identifierAfterDot != null ? fullId.identifierAfterDot.getText() : fullId.uid(fullId.uid().size() - 1).getText();
             if (resources.isUserDefinedFunction(functionName, fullId.DOT() != null, this.version)) {
-                add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, fullId);
+                add(StatementType.CALL_PROG_OBJ, TargetType.Function, fullId);
             }
         } else if (resources.isUserDefinedFunction(ctx.genericFunction().name.getText(), false, this.version)) {
-            add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, ctx.genericFunction().name);
+            add(StatementType.CALL_PROG_OBJ, TargetType.Function, ctx.genericFunction().name);
         }
         return visitChildren(ctx);
     }
@@ -130,7 +131,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
         String functionName = ctx.aggregateFunction().getStart().getText();
         if (!resources.isBuiltInAggregateFunction(functionName, exactVersion)) {
-            add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, ctx.aggregateFunction());
+            add(StatementType.CALL_PROG_OBJ, TargetType.Function, ctx.aggregateFunction());
         }
         return visitChildren(ctx);
     }
@@ -139,7 +140,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitSpatialAggregateFunctionCall(SpatialAggregateFunctionCallContext ctx) {
         String functionName = ctx.customFunctionName().getStart().getText();
         if (!resources.isBuiltInAggregateFunction(functionName, exactVersion)) {
-            add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, ctx.customFunctionName());
+            add(StatementType.CALL_PROG_OBJ, TargetType.Function, ctx.customFunctionName());
         }
         return visitChildren(ctx);
     }
@@ -182,10 +183,10 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateUser(CreateUserContext ctx) {
-        ctx.userAuthOption().forEach(option -> addDescendantAccounts(SplitQueryType.CREATE_USER, TargetType.User, false, option));
-        ctx.createUserAuthOption().forEach(option -> addDescendantAccounts(SplitQueryType.CREATE_USER, TargetType.User, false, option));
+        ctx.userAuthOption().forEach(option -> addDescendantAccounts(StatementType.CREATE_USER, TargetType.User, false, option));
+        ctx.createUserAuthOption().forEach(option -> addDescendantAccounts(StatementType.CREATE_USER, TargetType.User, false, option));
         if (ctx.defaultRoleClause() != null) {
-            descendants(ctx.defaultRoleClause(), RoleNameContext.class).forEach(role -> addAccount(SplitQueryType.CREATE_ROLE, TargetType.Role, true, role));
+            descendants(ctx.defaultRoleClause(), RoleNameContext.class).forEach(role -> addAccount(StatementType.CREATE_ROLE, TargetType.Role, true, role));
         }
         return null;
     }
@@ -193,57 +194,57 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitDropUser(DropUserContext ctx) {
         boolean require = ctx.ifExists() == null;
-        ctx.accountTarget().forEach(target -> addDescendantAccounts(SplitQueryType.DROP_USER, TargetType.User, require, target));
+        ctx.accountTarget().forEach(target -> addDescendantAccounts(StatementType.DROP_USER, TargetType.User, require, target));
         return null;
     }
 
     @Override
     public Void visitCreateRole(CreateRoleContext ctx) {
-        ctx.roleName().forEach(role -> addAccount(SplitQueryType.CREATE_ROLE, TargetType.Role, false, role));
+        ctx.roleName().forEach(role -> addAccount(StatementType.CREATE_ROLE, TargetType.Role, false, role));
         return null;
     }
 
     @Override
     public Void visitDropRole(DropRoleContext ctx) {
         boolean require = ctx.ifExists() == null;
-        ctx.roleName().forEach(role -> addAccount(SplitQueryType.DROP_ROLE, TargetType.Role, require, role));
+        ctx.roleName().forEach(role -> addAccount(StatementType.DROP_ROLE, TargetType.Role, require, role));
         return null;
     }
 
     @Override
     public Void visitRenameUser(RenameUserContext ctx) {
         for (RenameUserClauseContext clause : ctx.renameUserClause()) {
-            addDescendantAccounts(SplitQueryType.RENAME_USER, TargetType.User, true, clause.fromFirst);
-            addAccount(SplitQueryType.RENAME_USER, TargetType.User, false, clause.toFirst);
+            addDescendantAccounts(StatementType.RENAME_USER, TargetType.User, true, clause.fromFirst);
+            addAccount(StatementType.RENAME_USER, TargetType.User, false, clause.toFirst);
         }
         return null;
     }
 
     @Override
     public Void visitGrantStatement(GrantStatementContext ctx) {
-        addDescendantAccounts(SplitQueryType.GRANT, TargetType.UserOrRole, true, ctx);
-        descendants(ctx, RoleNameContext.class).forEach(role -> addAccount(SplitQueryType.GRANT, TargetType.UserOrRole, true, role));
-        addPrivilegeTarget(SplitQueryType.GRANT, ctx.privilegeObject, ctx.privilegeLevel());
+        addDescendantAccounts(StatementType.GRANT, TargetType.UserOrRole, true, ctx);
+        descendants(ctx, RoleNameContext.class).forEach(role -> addAccount(StatementType.GRANT, TargetType.UserOrRole, true, role));
+        addPrivilegeTarget(StatementType.GRANT, ctx.privilegeObject, ctx.privilegeLevel());
         return null;
     }
 
     @Override
     public Void visitRevokeStatement(RevokeStatementContext ctx) {
-        addDescendantAccounts(SplitQueryType.REVOKE, TargetType.UserOrRole, true, ctx);
-        descendants(ctx, RoleNameContext.class).forEach(role -> addAccount(SplitQueryType.REVOKE, TargetType.UserOrRole, true, role));
-        addPrivilegeTarget(SplitQueryType.REVOKE, ctx.privilegeObject, ctx.privilegeLevel());
+        addDescendantAccounts(StatementType.REVOKE, TargetType.UserOrRole, true, ctx);
+        descendants(ctx, RoleNameContext.class).forEach(role -> addAccount(StatementType.REVOKE, TargetType.UserOrRole, true, role));
+        addPrivilegeTarget(StatementType.REVOKE, ctx.privilegeObject, ctx.privilegeLevel());
         return null;
     }
 
     @Override
     public Void visitGrantProxy(GrantProxyContext ctx) {
-        addDescendantAccounts(SplitQueryType.GRANT, TargetType.UserOrRole, true, ctx);
+        addDescendantAccounts(StatementType.GRANT, TargetType.UserOrRole, true, ctx);
         return null;
     }
 
     @Override
     public Void visitRevokeProxy(RevokeProxyContext ctx) {
-        addDescendantAccounts(SplitQueryType.REVOKE, TargetType.UserOrRole, true, ctx);
+        addDescendantAccounts(StatementType.REVOKE, TargetType.UserOrRole, true, ctx);
         return null;
     }
 
@@ -252,10 +253,10 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         FlushTablesOptionContext tableOption = ctx.flushTablesOption();
         if (tableOption != null) {
             FlushTableOptionContext modifier = tableOption.flushTableOption();
-            SplitQueryType permission = modifier != null && modifier.EXPORT() != null ? SplitQueryType.DATA_EXPORT : SplitQueryType.ADMIN_TABLE;
+            StatementType permission = modifier != null && modifier.EXPORT() != null ? StatementType.DATA_EXPORT : StatementType.ADMIN_TABLE;
             addTables(tableOption.tables(), permission);
             if (modifier != null && modifier.READ() != null) {
-                addTables(tableOption.tables(), SplitQueryType.QUERY_LOCK);
+                addTables(tableOption.tables(), StatementType.QUERY_LOCK);
             }
         }
         return visitChildren(ctx);
@@ -304,24 +305,24 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         List<String> parts = new ArrayList<>();
         addPart(parts, unquoteIdentifier(token.getText()));
         List<String> nodes = resolveNodes(TargetType.Function, parts);
-        addWithNodes(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, token, nodes);
+        addWithNodes(StatementType.CALL_PROG_OBJ, TargetType.Function, true, token, nodes);
     }
 
     @Override
     public Void visitAtomTableItem(AtomTableItemContext ctx) {
-        add(SplitQueryType.SELECT, TargetType.Table, ctx.tableName());
+        add(StatementType.SELECT, TargetType.Table, ctx.tableName());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitColumnCreateTable(ColumnCreateTableContext ctx) {
-        add(SplitQueryType.CREATE_TABLE, TargetType.Table, false, ctx.tableName());
+        add(StatementType.CREATE_TABLE, TargetType.Table, false, ctx.tableName());
         return null;
     }
 
     @Override
     public Void visitQueryCreateTable(QueryCreateTableContext ctx) {
-        add(SplitQueryType.CREATE_TABLE, TargetType.Table, false, ctx.tableName());
+        add(StatementType.CREATE_TABLE, TargetType.Table, false, ctx.tableName());
         visit(ctx.createTableQueryExpression());
         return null;
     }
@@ -329,12 +330,12 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitCopyCreateTable(CopyCreateTableContext ctx) {
         if (!ctx.tableName().isEmpty()) {
-            add(SplitQueryType.CREATE_TABLE, TargetType.Table, false, ctx.tableName(0));
+            add(StatementType.CREATE_TABLE, TargetType.Table, false, ctx.tableName(0));
         }
         if (ctx.tableName().size() > 1) {
-            add(SplitQueryType.SELECT, TargetType.Table, ctx.tableName(1));
+            add(StatementType.SELECT, TargetType.Table, ctx.tableName(1));
         } else if (ctx.parenthesisTable != null) {
-            add(SplitQueryType.SELECT, TargetType.Table, ctx.parenthesisTable);
+            add(StatementType.SELECT, TargetType.Table, ctx.parenthesisTable);
         }
         return null;
     }
@@ -342,9 +343,9 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitCreateView(CreateViewContext ctx) {
         if (ctx.MATERIALIZED() == null) {
-            add(SplitQueryType.CREATE_VIEW, TargetType.View, false, ctx.fullId());
+            add(StatementType.CREATE_VIEW, TargetType.View, false, ctx.fullId());
         } else {
-            add(SplitQueryType.CREATE_VIEW, TargetType.Materialized, false, ctx.fullId());
+            add(StatementType.CREATE_VIEW, TargetType.Materialized, false, ctx.fullId());
         }
         return visitChildren(ctx);
     }
@@ -352,214 +353,214 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitAlterView(AlterViewContext ctx) {
         if (ctx.MATERIALIZED() == null) {
-            add(SplitQueryType.ALTER_VIEW, TargetType.View, ctx.fullId());
+            add(StatementType.ALTER_VIEW, TargetType.View, ctx.fullId());
         } else {
-            add(SplitQueryType.ALTER_VIEW, TargetType.Materialized, ctx.fullId());
+            add(StatementType.ALTER_VIEW, TargetType.Materialized, ctx.fullId());
         }
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitCreateProcedure(CreateProcedureContext ctx) {
-        add(SplitQueryType.CREATE_PROG_OBJ, TargetType.Procedure, false, ctx.fullId());
+        add(StatementType.CREATE_PROG_OBJ, TargetType.Procedure, false, ctx.fullId());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitCreateFunction(CreateFunctionContext ctx) {
-        add(SplitQueryType.CREATE_PROG_OBJ, TargetType.Function, false, ctx.fullId());
+        add(StatementType.CREATE_PROG_OBJ, TargetType.Function, false, ctx.fullId());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitCreateUdfFunction(CreateUdfFunctionContext ctx) {
-        add(SplitQueryType.CREATE_PROG_OBJ, TargetType.Function, false, ctx.uid());
-        addFile(SplitQueryType.CREATE_PROG_OBJ, true, ctx.textLiteralToken());
+        add(StatementType.CREATE_PROG_OBJ, TargetType.Function, false, ctx.uid());
+        addFile(StatementType.CREATE_PROG_OBJ, true, ctx.textLiteralToken());
         return null;
     }
 
     @Override
     public Void visitAlterSimpleDatabase(AlterSimpleDatabaseContext ctx) {
         if (ctx.databaseName() != null) {
-            add(SplitQueryType.ALTER_SCHEMA, TargetType.Schema, ctx.databaseName().uid());
+            add(StatementType.ALTER_SCHEMA, TargetType.Schema, ctx.databaseName().uid());
         } else {
             List<String> nodes = new ArrayList<>();
             addPart(nodes, level(UmiTypes.Catalog));
             addPart(nodes, level(UmiTypes.Schema));
-            addWithNodes(SplitQueryType.ALTER_SCHEMA, TargetType.Schema, true, ctx, nodes, false);
+            addWithNodes(StatementType.ALTER_SCHEMA, TargetType.Schema, true, ctx, nodes, false);
         }
         return null;
     }
 
     @Override
     public Void visitCreateLibrary(CreateLibraryContext ctx) {
-        add(SplitQueryType.CREATE_LIBRARY, TargetType.Library, false, ctx.fullId());
+        add(StatementType.CREATE_LIBRARY, TargetType.Library, false, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitCreateMaskingPolicy(CreateMaskingPolicyContext ctx) {
-        add(SplitQueryType.CREATE_POLICY, TargetType.MaskingPolicy, false, ctx.policyName);
+        add(StatementType.CREATE_POLICY, TargetType.MaskingPolicy, false, ctx.policyName);
         return null;
     }
 
     @Override
     public Void visitAlterProcedure(AlterProcedureContext ctx) {
-        add(SplitQueryType.ALTER_PROG_OBJ, TargetType.Procedure, ctx.fullId());
+        add(StatementType.ALTER_PROG_OBJ, TargetType.Procedure, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitAlterFunction(AlterFunctionContext ctx) {
-        add(SplitQueryType.ALTER_PROG_OBJ, TargetType.Function, ctx.fullId());
+        add(StatementType.ALTER_PROG_OBJ, TargetType.Function, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitAlterLibrary(AlterLibraryContext ctx) {
-        add(SplitQueryType.ALTER_LIBRARY, TargetType.Library, ctx.fullId());
+        add(StatementType.ALTER_LIBRARY, TargetType.Library, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitDropProcedure(DropProcedureContext ctx) {
-        add(SplitQueryType.DROP_PROG_OBJ, TargetType.Procedure, ctx.ifExists() == null, ctx.fullId());
+        add(StatementType.DROP_PROG_OBJ, TargetType.Procedure, ctx.ifExists() == null, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitDropFunction(DropFunctionContext ctx) {
-        add(SplitQueryType.DROP_PROG_OBJ, TargetType.Function, ctx.ifExists() == null, ctx.fullId());
+        add(StatementType.DROP_PROG_OBJ, TargetType.Function, ctx.ifExists() == null, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitDropLibrary(DropLibraryContext ctx) {
-        add(SplitQueryType.DROP_LIBRARY, TargetType.Library, ctx.ifExists() == null, ctx.fullId());
+        add(StatementType.DROP_LIBRARY, TargetType.Library, ctx.ifExists() == null, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitDropMaskingPolicy(DropMaskingPolicyContext ctx) {
-        add(SplitQueryType.DROP_POLICY, TargetType.MaskingPolicy, ctx.ifExists() == null, ctx.uid());
+        add(StatementType.DROP_POLICY, TargetType.MaskingPolicy, ctx.ifExists() == null, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitCreateTablespaceInnodb(CreateTablespaceInnodbContext ctx) {
-        add(SplitQueryType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid());
+        add(StatementType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitCreateTablespaceNdb(CreateTablespaceNdbContext ctx) {
         if (!ctx.uid().isEmpty()) {
-            add(SplitQueryType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid(0));
+            add(StatementType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid(0));
         }
         return null;
     }
 
     @Override
     public Void visitCreateUndoTablespace(CreateUndoTablespaceContext ctx) {
-        add(SplitQueryType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid());
+        add(StatementType.CREATE_TABLESPACE, TargetType.Tablespace, false, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitAlterTablespace(AlterTablespaceContext ctx) {
         for (UidContext uid : ctx.uid()) {
-            add(SplitQueryType.ALTER_TABLESPACE, TargetType.Tablespace, uid);
+            add(StatementType.ALTER_TABLESPACE, TargetType.Tablespace, uid);
         }
         return null;
     }
 
     @Override
     public Void visitAlterUndoTablespace(AlterUndoTablespaceContext ctx) {
-        add(SplitQueryType.ALTER_TABLESPACE, TargetType.Tablespace, ctx.uid());
+        add(StatementType.ALTER_TABLESPACE, TargetType.Tablespace, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitDropTablespace(DropTablespaceContext ctx) {
-        add(SplitQueryType.DROP_TABLESPACE, TargetType.Tablespace, ctx.uid());
+        add(StatementType.DROP_TABLESPACE, TargetType.Tablespace, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitDropUndoTablespace(DropUndoTablespaceContext ctx) {
-        add(SplitQueryType.DROP_TABLESPACE, TargetType.Tablespace, ctx.uid());
+        add(StatementType.DROP_TABLESPACE, TargetType.Tablespace, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitCreateLogfileGroup(CreateLogfileGroupContext ctx) {
-        add(SplitQueryType.CREATE_LOG, TargetType.Log, false, ctx.uid());
+        add(StatementType.CREATE_LOG, TargetType.Log, false, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitAlterLogfileGroup(AlterLogfileGroupContext ctx) {
-        add(SplitQueryType.ALTER_LOG, TargetType.Log, ctx.uid());
+        add(StatementType.ALTER_LOG, TargetType.Log, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitDropLogfileGroup(DropLogfileGroupContext ctx) {
-        add(SplitQueryType.DROP_LOG, TargetType.Log, ctx.uid());
+        add(StatementType.DROP_LOG, TargetType.Log, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitCreateResourceGroup(CreateResourceGroupContext ctx) {
-        add(SplitQueryType.CREATE_RESOURCE_GROUP, TargetType.ResourceGroup, false, ctx.uid());
+        add(StatementType.CREATE_RESOURCE_GROUP, TargetType.ResourceGroup, false, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitAlterResourceGroup(AlterResourceGroupContext ctx) {
-        add(SplitQueryType.ALTER_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
+        add(StatementType.ALTER_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitDropResourceGroup(DropResourceGroupContext ctx) {
-        add(SplitQueryType.DROP_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
+        add(StatementType.DROP_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitSetResourceGroup(SetResourceGroupContext ctx) {
-        add(SplitQueryType.ADMIN_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
+        add(StatementType.ADMIN_RESOURCE_GROUP, TargetType.ResourceGroup, ctx.uid());
         return null;
     }
 
     @Override
     public Void visitCreateServer(CreateServerContext ctx) {
-        addQuotedResourceName(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, false, ctx.serverObjectName());
+        addQuotedResourceName(StatementType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, false, ctx.serverObjectName());
         return null;
     }
 
     @Override
     public Void visitAlterServer(AlterServerContext ctx) {
-        addQuotedResourceName(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx.serverObjectName());
+        addQuotedResourceName(StatementType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx.serverObjectName());
         return null;
     }
 
     @Override
     public Void visitDropServer(DropServerContext ctx) {
-        addQuotedResourceName(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx.serverObjectName());
+        addQuotedResourceName(StatementType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx.serverObjectName());
         return null;
     }
 
     @Override
     public Void visitCreateSpatialReferenceSystem(CreateSpatialReferenceSystemContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, false, ctx.decimalLiteral());
+        add(StatementType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, false, ctx.decimalLiteral());
         return null;
     }
 
     @Override
     public Void visitDropSpatialReferenceSystem(DropSpatialReferenceSystemContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.decimalLiteral());
+        add(StatementType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.decimalLiteral());
         return null;
     }
 
@@ -590,7 +591,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
         if (ctx.tableName() != null) {
-            add(SplitQueryType.ADMIN_TABLE, TargetType.Table, ctx.tableName());
+            add(StatementType.ADMIN_TABLE, TargetType.Table, ctx.tableName());
         } else {
             addAdminTables(ctx.tables());
         }
@@ -599,7 +600,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
-        add(SplitQueryType.METADATA, TargetType.Table, ctx.tableName());
+        add(StatementType.METADATA, TargetType.Table, ctx.tableName());
         return null;
     }
 
@@ -618,16 +619,16 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitShowTables(ShowTablesContext ctx) {
         if (!ctx.uid().isEmpty()) {
-            add(SplitQueryType.METADATA, TargetType.Schema, ctx.uid(0));
+            add(StatementType.METADATA, TargetType.Schema, ctx.uid(0));
         } else {
-            addUnnamedResource(SplitQueryType.METADATA, TargetType.Schema, true, ctx);
+            addUnnamedResource(StatementType.METADATA, TargetType.Schema, true, ctx);
         }
         return null;
     }
 
     @Override
     public Void visitShowCreateDb(ShowCreateDbContext ctx) {
-        add(SplitQueryType.METADATA, TargetType.Schema, ctx.uid());
+        add(StatementType.METADATA, TargetType.Schema, ctx.uid());
         return null;
     }
 
@@ -642,68 +643,68 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             case "LIBRARY" -> TargetType.Library;
             default -> TargetType.Table;
         };
-        add(SplitQueryType.METADATA, type, ctx.fullId());
+        add(StatementType.METADATA, type, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitShowCreateUser(ShowCreateUserContext ctx) {
         if (ctx.userName() == null) {
-            addUnnamedResource(SplitQueryType.METADATA, TargetType.User, true, ctx);
+            addUnnamedResource(StatementType.METADATA, TargetType.User, true, ctx);
         } else {
-            addAccount(SplitQueryType.METADATA, TargetType.User, true, ctx.userName());
+            addAccount(StatementType.METADATA, TargetType.User, true, ctx.userName());
         }
         return null;
     }
 
     @Override
     public Void visitCacheIndexStatement(CacheIndexStatementContext ctx) {
-        add(SplitQueryType.ADMIN_PERFORMANCE, TargetType.Index, ctx.tableName());
+        add(StatementType.ADMIN_PERFORMANCE, TargetType.Index, ctx.tableName());
         for (TableIndexesContext tableIndexes : ctx.tableIndexes()) {
-            add(SplitQueryType.ADMIN_PERFORMANCE, TargetType.Index, tableIndexes.tableName());
+            add(StatementType.ADMIN_PERFORMANCE, TargetType.Index, tableIndexes.tableName());
         }
         return null;
     }
 
     @Override
     public Void visitAlterInstance(AlterInstanceContext ctx) {
-        addUnnamedResource(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
+        addUnnamedResource(StatementType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
         return null;
     }
 
     @Override
     public Void visitCloneStatement(CloneStatementContext ctx) {
-        addUnnamedResource(SplitQueryType.ADMIN, TargetType.Instance, true, ctx);
+        addUnnamedResource(StatementType.ADMIN, TargetType.Instance, true, ctx);
         return null;
     }
 
     @Override
     public Void visitBinlogStatement(BinlogStatementContext ctx) {
-        addUnnamedResource(SplitQueryType.ADMIN_LOG, TargetType.Log, true, ctx);
+        addUnnamedResource(StatementType.ADMIN_LOG, TargetType.Log, true, ctx);
         return null;
     }
 
     @Override
     public Void visitInstallComponent(InstallComponentContext ctx) {
-        addUnnamedResource(SplitQueryType.CREATE_LIBRARY, TargetType.Library, false, ctx);
+        addUnnamedResource(StatementType.CREATE_LIBRARY, TargetType.Library, false, ctx);
         return null;
     }
 
     @Override
     public Void visitInstallPlugin(InstallPluginContext ctx) {
-        addUnnamedResource(SplitQueryType.CREATE_LIBRARY, TargetType.Library, false, ctx);
+        addUnnamedResource(StatementType.CREATE_LIBRARY, TargetType.Library, false, ctx);
         return null;
     }
 
     @Override
     public Void visitUninstallComponent(UninstallComponentContext ctx) {
-        addUnnamedResource(SplitQueryType.DROP_LIBRARY, TargetType.Library, true, ctx);
+        addUnnamedResource(StatementType.DROP_LIBRARY, TargetType.Library, true, ctx);
         return null;
     }
 
     @Override
     public Void visitUninstallPlugin(UninstallPluginContext ctx) {
-        addUnnamedResource(SplitQueryType.DROP_LIBRARY, TargetType.Library, true, ctx);
+        addUnnamedResource(StatementType.DROP_LIBRARY, TargetType.Library, true, ctx);
         return null;
     }
 
@@ -727,7 +728,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         descendants(ctx, VariableClauseContext.class).stream()
             .filter(variable -> variable.LOCAL_ID() != null || variable.GLOBAL_ID() != null || variable.GLOBAL() != null || variable.SESSION() != null || variable.LOCAL() != null
                                 || variable.persistScope() != null)
-            .forEach(variable -> addConfigKey(SplitQueryType.SESSION_VARIABLE_RW, variable));
+            .forEach(variable -> addConfigKey(StatementType.SESSION_VARIABLE_RW, variable));
         return null;
     }
 
@@ -739,185 +740,182 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitSavepointStatement(SavepointStatementContext ctx) {
         String savepoint = name(ctx.uid());
-        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, false,
-                ctx.uid().getStart(), savepoint, BehaviorAction.CREATE);
+        addInstanceBehaviorResource(StatementType.TRANSACTION, TargetType.Savepoint, false, ctx.uid().getStart(), savepoint, BehaviorAction.CREATE);
         return null;
     }
 
     @Override
     public Void visitRollbackStatement(RollbackStatementContext ctx) {
         String savepoint = name(ctx.uid());
-        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, true,
-                ctx.uid().getStart(), savepoint, BehaviorAction.RESET);
+        addInstanceBehaviorResource(StatementType.TRANSACTION, TargetType.Savepoint, true, ctx.uid().getStart(), savepoint, BehaviorAction.RESET);
         return null;
     }
 
     @Override
     public Void visitReleaseStatement(ReleaseStatementContext ctx) {
         String savepoint = name(ctx.uid());
-        addInstanceBehaviorResource(SplitQueryType.TRANSACTION, TargetType.Savepoint, true,
-                ctx.uid().getStart(), savepoint, BehaviorAction.DROP);
+        addInstanceBehaviorResource(StatementType.TRANSACTION, TargetType.Savepoint, true, ctx.uid().getStart(), savepoint, BehaviorAction.DROP);
         return null;
     }
 
     @Override
     public Void visitChangeMaster(ChangeMasterContext ctx) {
-        addUnnamedResource(SplitQueryType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitChangeReplicationSource(ChangeReplicationSourceContext ctx) {
-        addUnnamedResource(SplitQueryType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitChangeReplicationFilter(ChangeReplicationFilterContext ctx) {
-        addUnnamedResource(SplitQueryType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ALTER_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitStartSlave(StartSlaveContext ctx) {
-        addUnnamedResource(SplitQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitStartReplica(StartReplicaContext ctx) {
-        addUnnamedResource(SplitQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitStartGroupReplication(StartGroupReplicationContext ctx) {
-        addUnnamedResource(SplitQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitStopSlave(StopSlaveContext ctx) {
-        addUnnamedResource(SplitQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitStopReplica(StopReplicaContext ctx) {
-        addUnnamedResource(SplitQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitStopGroupReplication(StopGroupReplicationContext ctx) {
-        addUnnamedResource(SplitQueryType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
+        addUnnamedResource(StatementType.ADMIN_REPLICATION, TargetType.Replication, true, ctx);
         return null;
     }
 
     @Override
     public Void visitCreateTrigger(CreateTriggerContext ctx) {
-        add(SplitQueryType.CREATE_TRIGGER, TargetType.Trigger, false, ctx.thisTrigger);
-        add(SplitQueryType.ALTER_TABLE, TargetType.Table, ctx.tableName());
+        add(StatementType.CREATE_TRIGGER, TargetType.Trigger, false, ctx.thisTrigger);
+        add(StatementType.ALTER_TABLE, TargetType.Table, ctx.tableName());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitDropTrigger(DropTriggerContext ctx) {
-        add(SplitQueryType.DROP_TRIGGER, TargetType.Trigger, ctx.ifExists() == null, ctx.fullId());
+        add(StatementType.DROP_TRIGGER, TargetType.Trigger, ctx.ifExists() == null, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitCreateEvent(CreateEventContext ctx) {
-        add(SplitQueryType.CREATE_EVENT, TargetType.Event, false, ctx.fullId());
+        add(StatementType.CREATE_EVENT, TargetType.Event, false, ctx.fullId());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitAlterEvent(AlterEventContext ctx) {
-        add(SplitQueryType.ALTER_EVENT, TargetType.Event, ctx.fullId(0));
+        add(StatementType.ALTER_EVENT, TargetType.Event, ctx.fullId(0));
         if (ctx.fullId().size() > 1) {
-            add(SplitQueryType.ALTER_EVENT, TargetType.Event, false, ctx.fullId(1));
+            add(StatementType.ALTER_EVENT, TargetType.Event, false, ctx.fullId(1));
         }
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitDropEvent(DropEventContext ctx) {
-        add(SplitQueryType.DROP_EVENT, TargetType.Event, ctx.ifExists() == null, ctx.fullId());
+        add(StatementType.DROP_EVENT, TargetType.Event, ctx.ifExists() == null, ctx.fullId());
         return null;
     }
 
     @Override
     public Void visitAlterTable(AlterTableContext ctx) {
-        add(SplitQueryType.ALTER_TABLE, TargetType.Table, ctx.tableName());
+        add(StatementType.ALTER_TABLE, TargetType.Table, ctx.tableName());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitDropView(DropViewContext ctx) {
         for (FullIdContext fullId : ctx.fullId()) {
-            add(SplitQueryType.DROP_VIEW, TargetType.View, ctx.ifExists() == null, fullId);
+            add(StatementType.DROP_VIEW, TargetType.View, ctx.ifExists() == null, fullId);
         }
         return null;
     }
 
     @Override
     public Void visitCreateIndex(CreateIndexContext ctx) {
-        add(SplitQueryType.ADD_INDEX, TargetType.Index, false, ctx.indexName());
-        add(SplitQueryType.ALTER_TABLE, TargetType.Table, ctx.tableName());
+        add(StatementType.ADD_INDEX, TargetType.Index, false, ctx.indexName());
+        add(StatementType.ALTER_TABLE, TargetType.Table, ctx.tableName());
         return null;
     }
 
     @Override
     public Void visitDropIndex(DropIndexContext ctx) {
-        add(SplitQueryType.DROP_INDEX, TargetType.Index, ctx.indexName());
-        add(SplitQueryType.ALTER_TABLE, TargetType.Table, ctx.tableName());
+        add(StatementType.DROP_INDEX, TargetType.Index, ctx.indexName());
+        add(StatementType.ALTER_TABLE, TargetType.Table, ctx.tableName());
         return null;
     }
 
     @Override
     public Void visitCreateDatabase(CreateDatabaseContext ctx) {
-        add(SplitQueryType.CREATE_SCHEMA, TargetType.Schema, false, ctx.databaseName());
+        add(StatementType.CREATE_SCHEMA, TargetType.Schema, false, ctx.databaseName());
         return null;
     }
 
     @Override
     public Void visitDropDatabase(DropDatabaseContext ctx) {
-        add(SplitQueryType.DROP_SCHEMA, TargetType.Schema, ctx.ifExists() == null, ctx.databaseName());
+        add(StatementType.DROP_SCHEMA, TargetType.Schema, ctx.ifExists() == null, ctx.databaseName());
         return null;
     }
 
     @Override
     public Void visitDropTable(DropTableContext ctx) {
         for (TableNameContext tableName : ctx.tables().tableName()) {
-            add(SplitQueryType.DROP_TABLE, TargetType.Table, ctx.ifExists() == null, tableName);
+            add(StatementType.DROP_TABLE, TargetType.Table, ctx.ifExists() == null, tableName);
         }
         return null;
     }
 
     @Override
     public Void visitRenameTableClause(RenameTableClauseContext ctx) {
-        add(SplitQueryType.RENAME_TABLE, TargetType.Table, ctx.tableName(0));
-        add(SplitQueryType.RENAME_TABLE, TargetType.Table, false, ctx.tableName(1));
+        add(StatementType.RENAME_TABLE, TargetType.Table, ctx.tableName(0));
+        add(StatementType.RENAME_TABLE, TargetType.Table, false, ctx.tableName(1));
         return null;
     }
 
     @Override
     public Void visitTruncateTable(TruncateTableContext ctx) {
-        add(SplitQueryType.TRUNCATE_TABLE, TargetType.Table, ctx.tableName());
+        add(StatementType.TRUNCATE_TABLE, TargetType.Table, ctx.tableName());
         return null;
     }
 
     @Override
     public Void visitCallStatement(CallStatementContext ctx) {
-        add(SplitQueryType.CALL_PROG_OBJ, TargetType.Procedure, ctx.procName());
+        add(StatementType.CALL_PROG_OBJ, TargetType.Procedure, ctx.procName());
         return null;
     }
 
     @Override
     public Void visitInsertStatement(InsertStatementContext ctx) {
-        SplitQueryType type = ctx.duplicatedFirst == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
+        StatementType type = ctx.duplicatedFirst == null ? StatementType.INSERT : StatementType.MERGE;
         add(type, TargetType.Table, ctx.tableName());
         if (ctx.insertStatementValue() != null) {
             visit(ctx.insertStatementValue());
@@ -927,7 +925,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitReplaceStatement(ReplaceStatementContext ctx) {
-        add(SplitQueryType.MERGE, TargetType.Table, ctx.tableName());
+        add(StatementType.MERGE, TargetType.Table, ctx.tableName());
         if (ctx.replaceStatementValue() != null) {
             visit(ctx.replaceStatementValue());
         }
@@ -936,39 +934,39 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitLoadDataStatement(LoadDataStatementContext ctx) {
-        add(SplitQueryType.DATA_IMPORT, TargetType.Table, ctx.tableName());
-        addFile(SplitQueryType.DATA_IMPORT, true, ctx.loadSource().textLiteralToken());
+        add(StatementType.DATA_IMPORT, TargetType.Table, ctx.tableName());
+        addFile(StatementType.DATA_IMPORT, true, ctx.loadSource().textLiteralToken());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitLoadXmlStatement(LoadXmlStatementContext ctx) {
-        add(SplitQueryType.DATA_IMPORT, TargetType.Table, ctx.tableName());
-        addFile(SplitQueryType.DATA_IMPORT, true, ctx.loadSource().textLiteralToken());
+        add(StatementType.DATA_IMPORT, TargetType.Table, ctx.tableName());
+        addFile(StatementType.DATA_IMPORT, true, ctx.loadSource().textLiteralToken());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitSelectIntoDumpFile(SelectIntoDumpFileContext ctx) {
-        addFile(SplitQueryType.DATA_EXPORT, false, ctx.textLiteralToken());
+        addFile(StatementType.DATA_EXPORT, false, ctx.textLiteralToken());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitSelectIntoTextFile(SelectIntoTextFileContext ctx) {
-        addFile(SplitQueryType.DATA_EXPORT, false, ctx.filename);
+        addFile(StatementType.DATA_EXPORT, false, ctx.filename);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitSelectIntoRemoteFile(SelectIntoRemoteFileContext ctx) {
-        addFile(SplitQueryType.DATA_EXPORT, false, ctx.textLiteralToken());
+        addFile(StatementType.DATA_EXPORT, false, ctx.textLiteralToken());
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitSelectIntoRemoteParameters(SelectIntoRemoteParametersContext ctx) {
-        addFile(SplitQueryType.DATA_EXPORT, false, ctx.textLiteralToken());
+        addFile(StatementType.DATA_EXPORT, false, ctx.textLiteralToken());
         return visitChildren(ctx);
     }
 
@@ -979,7 +977,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             while (variable.startsWith("@")) {
                 variable = variable.substring(1);
             }
-            addInstanceResource(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, unquote(variable));
+            addInstanceResource(StatementType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, unquote(variable));
         }
         return null;
     }
@@ -998,15 +996,15 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
                 continue;
             }
             String upper = name(variable).toUpperCase();
-            SplitQueryType permission;
+            StatementType permission;
             if (variable.LOCAL_ID() != null) {
-                permission = SplitQueryType.SESSION_VARIABLE_RW;
+                permission = StatementType.SESSION_VARIABLE_RW;
             } else if (upper.contains("GTID_") || upper.contains("SLAVE_") || upper.contains("REPLICA_")) {
-                permission = SplitQueryType.ALTER_REPLICATION;
+                permission = StatementType.ALTER_REPLICATION;
             } else if (variable.GLOBAL() != null || variable.persistScope() != null || upper.startsWith("@@GLOBAL.") || upper.startsWith("@@PERSIST.")) {
-                permission = SplitQueryType.SYSTEM_SETTING_WRITE;
+                permission = StatementType.SYSTEM_SETTING_WRITE;
             } else {
-                permission = SplitQueryType.SESSION_SETTING_WRITE;
+                permission = StatementType.SESSION_SETTING_WRITE;
             }
             if (variableName(variable).isEmpty()) {
                 addUnnamedResource(permission, TargetType.ConfigKey, true, ctx);
@@ -1083,48 +1081,48 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSetCharset(SetCharsetContext ctx) {
-        addUnnamedResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
+        addUnnamedResource(StatementType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
         return null;
     }
 
     @Override
     public Void visitSetNames(SetNamesContext ctx) {
-        addUnnamedResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
+        addUnnamedResource(StatementType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
         return null;
     }
 
     @Override
     public Void visitSetAutocommit(SetAutocommitContext ctx) {
         Token token = ctx.setAutocommitStatement().AUTOCOMMIT().getSymbol();
-        addInstanceResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, token, token.getText());
+        addInstanceResource(StatementType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, token, token.getText());
         return null;
     }
 
     @Override
     public Void visitResetPersist(ResetPersistContext ctx) {
         if (ctx.resetPersistVariable() == null) {
-            addUnnamedResource(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
+            addUnnamedResource(StatementType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, true, ctx);
         } else {
-            addInstanceResource(SplitQueryType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.EXISTS() == null, ctx.resetPersistVariable(), name(ctx.resetPersistVariable()));
+            addInstanceResource(StatementType.SYSTEM_SETTING_WRITE, TargetType.ConfigKey, ctx.EXISTS() == null, ctx.resetPersistVariable(), name(ctx.resetPersistVariable()));
         }
         return null;
     }
 
     @Override
     public Void visitPrepareStatement(PrepareStatementContext ctx) {
-        addInstanceResource(SplitQueryType.UNSAFE, TargetType.PrepareStatement, false, ctx.uid(), name(ctx.uid()));
+        addInstanceResource(StatementType.UNSAFE, TargetType.PrepareStatement, false, ctx.uid(), name(ctx.uid()));
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitExecuteStatement(ExecuteStatementContext ctx) {
-        addInstanceResource(SplitQueryType.UNSAFE, TargetType.PrepareStatement, true, ctx.uid(), name(ctx.uid()));
+        addInstanceResource(StatementType.UNSAFE, TargetType.PrepareStatement, true, ctx.uid(), name(ctx.uid()));
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitDeallocatePrepare(DeallocatePrepareContext ctx) {
-        addInstanceResource(SplitQueryType.UNSAFE, TargetType.PrepareStatement, true, ctx.uid(), name(ctx.uid()));
+        addInstanceResource(StatementType.UNSAFE, TargetType.PrepareStatement, true, ctx.uid(), name(ctx.uid()));
         return null;
     }
 
@@ -1133,7 +1131,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (ctx.withClause() != null) {
             visit(ctx.withClause());
         }
-        add(SplitQueryType.UPDATE, TargetType.Table, ctx.tableName());
+        add(StatementType.UPDATE, TargetType.Table, ctx.tableName());
         if (ctx.whereClause() != null) {
             visit(ctx.whereClause());
         }
@@ -1150,7 +1148,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSingleDeleteStatement(SingleDeleteStatementContext ctx) {
-        add(SplitQueryType.DELETE, TargetType.Table, ctx.tableName());
+        add(StatementType.DELETE, TargetType.Table, ctx.tableName());
         if (ctx.whereClause() != null) {
             visit(ctx.whereClause());
         }
@@ -1160,7 +1158,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitMultipleDeleteStatement(MultipleDeleteStatementContext ctx) {
         for (TableNameContext tableName : ctx.tableName()) {
-            add(SplitQueryType.DELETE, TargetType.Table, tableName);
+            add(StatementType.DELETE, TargetType.Table, tableName);
         }
         if (ctx.tableSources() != null) {
             visit(ctx.tableSources());
@@ -1171,18 +1169,18 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     private Void addAlterUsers(ParserRuleContext ctx) {
         List<UserNameContext> users = descendants(ctx, UserNameContext.class);
         if (users.isEmpty()) {
-            addUnnamedResource(SplitQueryType.ALTER_USER, TargetType.User, true, ctx);
+            addUnnamedResource(StatementType.ALTER_USER, TargetType.User, true, ctx);
         } else {
-            users.forEach(user -> addAccount(SplitQueryType.ALTER_USER, TargetType.User, true, user));
+            users.forEach(user -> addAccount(StatementType.ALTER_USER, TargetType.User, true, user));
         }
         return null;
     }
 
     private void addAdminTables(TablesContext tables) {
-        addTables(tables, SplitQueryType.ADMIN_TABLE);
+        addTables(tables, StatementType.ADMIN_TABLE);
     }
 
-    private void addTables(TablesContext tables, SplitQueryType permission) {
+    private void addTables(TablesContext tables, StatementType permission) {
         if (tables != null) {
             tables.tableName().forEach(table -> add(permission, TargetType.Table, table));
         }
@@ -1193,16 +1191,16 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             return;
         }
         if (explicitSchema == null || table.fullId().uid().size() > 1) {
-            add(SplitQueryType.METADATA, TargetType.Table, table);
+            add(StatementType.METADATA, TargetType.Table, table);
             return;
         }
         List<String> parts = new ArrayList<>();
         addPart(parts, name(explicitSchema));
         addPart(parts, name(table));
-        add(SplitQueryType.METADATA, TargetType.Table, true, table, parts);
+        add(StatementType.METADATA, TargetType.Table, true, table, parts);
     }
 
-    protected final void addPrivilegeTarget(SplitQueryType sqlType, PrivilegeObjectTypeContext objectType, PrivilegeLevelContext level) {
+    protected final void addPrivilegeTarget(StatementType sqlType, PrivilegeObjectTypeContext objectType, PrivilegeLevelContext level) {
         if (level == null) {
             return;
         }
@@ -1234,11 +1232,11 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         }
     }
 
-    protected final void addDescendantAccounts(SplitQueryType sqlType, TargetType targetType, boolean require, ParseTree tree) {
+    protected final void addDescendantAccounts(StatementType sqlType, TargetType targetType, boolean require, ParseTree tree) {
         descendants(tree, UserNameContext.class).forEach(user -> addAccount(sqlType, targetType, require, user));
     }
 
-    protected final void addAccount(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+    protected final void addAccount(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
         if (ctx == null) {
             return;
         }
@@ -1262,7 +1260,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         addInstanceResource(sqlType, targetType, require, ctx, account);
     }
 
-    private void addUnnamedResource(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+    private void addUnnamedResource(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
         references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), List.of()));
     }
 
@@ -1293,10 +1291,10 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (scopeSeparator >= 0 && scopeSeparator + 1 < variable.length()) {
             variable = variable.substring(scopeSeparator + 1);
         }
-        addInstanceResource(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, unquote(variable));
+        addInstanceResource(StatementType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, ctx, unquote(variable));
     }
 
-    private void addConfigKey(SplitQueryType permission, VariableClauseContext ctx) {
+    private void addConfigKey(StatementType permission, VariableClauseContext ctx) {
         ParserRuleContext nameContext = ctx.uid() == null ? ctx : ctx.uid();
         String name = variableName(ctx);
         if (nameContext == null || StringUtils.isBlank(name)) {
@@ -1304,9 +1302,15 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         }
         List<String> nodes = new ArrayList<>();
         addPart(nodes, name);
-        references.add(new MySqlObjectReference(permission, TargetType.ConfigKey, true,
-            line(nameContext), column(nameContext), endLine(nameContext), endColumn(nameContext),
-            nodes, BehaviorAction.CONFIGURE));
+        references.add(new MySqlObjectReference(permission,
+            TargetType.ConfigKey,
+            true,
+            line(nameContext),
+            column(nameContext),
+            endLine(nameContext),
+            endColumn(nameContext),
+            nodes,
+            BehaviorAction.CONFIGURE));
     }
 
     private String variableName(VariableClauseContext ctx) {
@@ -1327,7 +1331,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         return name(ctx.uid());
     }
 
-    private void addFile(SplitQueryType sqlType, boolean require, ParserRuleContext ctx) {
+    private void addFile(StatementType sqlType, boolean require, ParserRuleContext ctx) {
         if (ctx == null) {
             return;
         }
@@ -1337,7 +1341,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         addWithNodes(sqlType, TargetType.File, require, ctx, nodes);
     }
 
-    private void addQuotedResourceName(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+    private void addQuotedResourceName(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
         if (ctx == null) {
             return;
         }
@@ -1364,19 +1368,19 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         return String.join("/", nodes);
     }
 
-    protected final void addInstanceResource(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, String name) {
+    protected final void addInstanceResource(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, String name) {
         List<String> nodes = new ArrayList<>();
         addPart(nodes, name);
         addWithNodes(sqlType, targetType, require, ctx, nodes);
     }
 
-    protected final void addInstanceResource(SplitQueryType sqlType, TargetType targetType, boolean require, Token token, String name) {
+    protected final void addInstanceResource(StatementType sqlType, TargetType targetType, boolean require, Token token, String name) {
         List<String> nodes = new ArrayList<>();
         addPart(nodes, name);
         addWithNodes(sqlType, targetType, require, token, nodes);
     }
 
-    protected final void addInstanceBehaviorResource(SplitQueryType sqlType, TargetType targetType, boolean require, Token token, String name, BehaviorAction action) {
+    protected final void addInstanceBehaviorResource(StatementType sqlType, TargetType targetType, boolean require, Token token, String name, BehaviorAction action) {
         List<String> nodes = new ArrayList<>();
         addPart(nodes, name);
         if (token == null || nodes.isEmpty()) {
@@ -1385,7 +1389,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         references.add(new MySqlObjectReference(sqlType, targetType, require, line(token), column(token), endLine(token), endColumn(token), nodes, action));
     }
 
-    protected final void addBehaviorResource(SplitQueryType sqlType, TargetType targetType, boolean require, TableNameContext ctx, BehaviorAction action) {
+    protected final void addBehaviorResource(StatementType sqlType, TargetType targetType, boolean require, TableNameContext ctx, BehaviorAction action) {
         if (ctx == null) {
             return;
         }
@@ -1407,18 +1411,18 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes, action));
     }
 
-    private void addWithNodes(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes) {
+    private void addWithNodes(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes) {
         addWithNodes(sqlType, targetType, require, ctx, nodes, true);
     }
 
-    private void addWithNodes(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes, boolean explicitName) {
+    private void addWithNodes(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> nodes, boolean explicitName) {
         if (ctx == null || nodes.isEmpty()) {
             return;
         }
         references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes, null, explicitName));
     }
 
-    private void addWithNodes(SplitQueryType sqlType, TargetType targetType, boolean require, Token token, List<String> nodes) {
+    private void addWithNodes(StatementType sqlType, TargetType targetType, boolean require, Token token, List<String> nodes) {
         if (token == null || nodes.isEmpty()) {
             return;
         }
@@ -1450,7 +1454,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         return value;
     }
 
-    protected final void add(SplitQueryType sqlType, TargetType targetType, TableNameContext ctx) {
+    protected final void add(StatementType sqlType, TargetType targetType, TableNameContext ctx) {
         add(sqlType, targetType, true, ctx);
     }
 
@@ -1464,10 +1468,10 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         }
         List<String> nodes = new ArrayList<>();
         addPart(nodes, unquote(variable));
-        addWithNodes(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, token, nodes);
+        addWithNodes(StatementType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, token, nodes);
     }
 
-    protected final void addConfigKey(SplitQueryType sqlType, Token token, String variable) {
+    protected final void addConfigKey(StatementType sqlType, Token token, String variable) {
         if (token == null || StringUtils.isBlank(variable)) {
             return;
         }
@@ -1477,7 +1481,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         addWithNodes(sqlType, TargetType.ConfigKey, true, token, nodes);
     }
 
-    private void add(SplitQueryType sqlType, TargetType targetType, boolean require, TableNameContext ctx) {
+    private void add(StatementType sqlType, TargetType targetType, boolean require, TableNameContext ctx) {
         if (ctx == null) {
             return;
         }
@@ -1490,21 +1494,21 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         }
     }
 
-    private void add(SplitQueryType sqlType, TargetType targetType, ProcNameContext ctx) {
+    private void add(StatementType sqlType, TargetType targetType, ProcNameContext ctx) {
         add(sqlType, targetType, true, ctx);
     }
 
-    private void add(SplitQueryType sqlType, TargetType targetType, boolean require, ProcNameContext ctx) {
+    private void add(StatementType sqlType, TargetType targetType, boolean require, ProcNameContext ctx) {
         if (ctx != null) {
             add(sqlType, targetType, require, ctx.fullId());
         }
     }
 
-    private void add(SplitQueryType sqlType, TargetType targetType, FullIdContext ctx) {
+    private void add(StatementType sqlType, TargetType targetType, FullIdContext ctx) {
         add(sqlType, targetType, true, ctx);
     }
 
-    protected final void add(SplitQueryType sqlType, TargetType targetType, boolean require, FullIdContext ctx) {
+    protected final void add(StatementType sqlType, TargetType targetType, boolean require, FullIdContext ctx) {
         if (ctx == null) {
             return;
         }
@@ -1518,11 +1522,11 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         add(sqlType, targetType, require, ctx, parts);
     }
 
-    private void add(SplitQueryType sqlType, TargetType targetType, ParserRuleContext ctx) {
+    private void add(StatementType sqlType, TargetType targetType, ParserRuleContext ctx) {
         add(sqlType, targetType, true, ctx);
     }
 
-    protected final void add(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
+    protected final void add(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx) {
         if (ctx == null) {
             return;
         }
@@ -1531,7 +1535,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         add(sqlType, targetType, require, ctx, parts);
     }
 
-    protected final void add(SplitQueryType sqlType, TargetType targetType, boolean require, Token token) {
+    protected final void add(StatementType sqlType, TargetType targetType, boolean require, Token token) {
         if (token == null || StringUtils.isBlank(token.getText())) {
             return;
         }
@@ -1541,7 +1545,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         addWithNodes(sqlType, targetType, require, token, nodes);
     }
 
-    protected final void addTableChild(SplitQueryType sqlType, TargetType targetType, boolean require, TableNameContext table, ParserRuleContext child) {
+    protected final void addTableChild(StatementType sqlType, TargetType targetType, boolean require, TableNameContext table, ParserRuleContext child) {
         if (table == null || child == null) {
             return;
         }
@@ -1561,7 +1565,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         addWithNodes(sqlType, targetType, require, child, nodes);
     }
 
-    private void add(SplitQueryType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> parts) {
+    private void add(StatementType sqlType, TargetType targetType, boolean require, ParserRuleContext ctx, List<String> parts) {
         if (parts.isEmpty()) {
             return;
         }

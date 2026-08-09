@@ -18,24 +18,23 @@ package com.clougence.clouddm.ds.tidb.sql.analysis.reference;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 /** Neutral object fact emitted directly from the TiDB parse tree. */
-public record TiDBObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
-                                  List<String> nodes, BehaviorAction action, boolean explicitName) {
+public record TiDBObjectReference(StatementType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes,
+                                  BehaviorAction action, boolean explicitName) {
 
     public TiDBObjectReference{
         nodes = nodes == null ? List.of() : List.copyOf(nodes);
     }
 
-    public TiDBObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
-                               List<String> nodes){
+    public TiDBObjectReference(StatementType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes){
         this(sqlType, targetType, require, startLine, startColumn, endLine, endColumn, nodes, null, true);
     }
 
-    public TiDBObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
-                               List<String> nodes, BehaviorAction action){
+    public TiDBObjectReference(StatementType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes,
+                               BehaviorAction action){
         this(sqlType, targetType, require, startLine, startColumn, endLine, endColumn, nodes, action, true);
     }
 }

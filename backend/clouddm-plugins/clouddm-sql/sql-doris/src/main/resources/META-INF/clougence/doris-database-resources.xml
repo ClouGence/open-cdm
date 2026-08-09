@@ -1,0 +1,2825 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseResources>
+    <storedProcedures>
+        <procedure name="EXECUTE_STMT" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </procedure>
+        <procedure name="FLUSH_AUDIT_LOG" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </procedure>
+    </storedProcedures>
+
+    <storedFunctions>
+        <function name="ABS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ACOS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ACOSH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ACTIVITY_COUNT" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ADD_MONTHS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ADD_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ADDDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="AES_DECRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="AES_ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="AI_AGG" catalog="*" schema="*" aggregate="true">
+            <versions>4</versions>
+        </function>
+        <function name="AI_CLASSIFY" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_EXTRACT" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_FILTER" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_FIXGRAMMAR" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_GENERATE" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_MASK" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_SENTIMENT" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_SIMILARITY" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_SUMMARIZE" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="AI_TRANSLATE" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="ANY" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ANY_VALUE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="APPEND_TRAILING_CHAR_IF_ABSENT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="APPROX_COUNT_DISTINCT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="APPROX_TOP_K" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3</versions>
+        </function>
+        <function name="APPROX_TOP_SUM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3</versions>
+        </function>
+        <function name="ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_APPEND" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ARRAY_APPLY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_AVG" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_COMPACT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_CONCAT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_CONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_CONTAINS_ALL" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ARRAY_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_CROSS_PRODUCT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ARRAY_CUM_SUM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_DIFFERENCE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_DISTINCT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_ENUMERATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_ENUMERATE_UNIQ" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_EXCEPT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_EXISTS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_FILTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_FIRST" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_FIRST_INDEX" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_FLATTEN" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="ARRAY_INTERSECT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_JOIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_LAST" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_LAST_INDEX" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_MAP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_MATCH_ALL" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="ARRAY_MATCH_ANY" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="ARRAY_MAX" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_MIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_POPBACK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_POPFRONT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_POSITION" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_PRODUCT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_PUSHBACK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_PUSHFRONT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_RANGE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_REMOVE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_REPEAT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_REVERSE_SORT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_REVERSE_SPLIT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_SHUFFLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_SIZE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_SLICE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_SORT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_SORTBY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_SPLIT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_SUM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_UNION" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_WITH_CONSTANT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAY_ZIP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ARRAYS_OVERLAP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ASCII" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ASIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ASINH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ASSERT_TRUE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ATAN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ATAN2" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ATANH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="AUTO_PARTITION_NAME" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="AVG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="AVG_WEIGHTED" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BACKENDS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BIT_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BIT_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BIT_SHIFT_LEFT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BIT_SHIFT_RIGHT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BIT_TEST" catalog="*" schema="*" skipPermission="true">
+            <versions>2/4</versions>
+        </function>
+        <function name="BIT_TEST_ALL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/4</versions>
+        </function>
+        <function name="BITAND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="BITMAP_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_AND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_AND_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_AND_NOT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_AND_NOT_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_ANDNOT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_ANDNOT_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_CONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_EMPTY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_FROM_ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_FROM_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_FROM_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_HAS_ALL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_HAS_ANY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_HASH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_HASH64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_INTERSECT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_MAX" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_MIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_NOT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_OR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_OR_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_REMOVE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_SUBSET_IN_RANGE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_SUBSET_LIMIT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_TO_ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_TO_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_TO_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_UNION" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_UNION_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_UNION_INT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_XOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITMAP_XOR_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="BITNOT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="BITOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="BITXOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="BOOL_AND" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="BOOL_OR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="BOOL_XOR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="BOOLAND_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="BOOLOR_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="BOOLXOR_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="CARDINALITY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CAST" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CATALOGS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CBRT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CDC_STREAM" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CEILING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CENTURY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="CHAR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CHAR_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CHARACTER_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COALESCE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COLLECT_LIST" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COLLECT_SET" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COMPRESS" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="CONCAT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CONCAT_WS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CONNECTION_ID" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CONV" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CONVERT_TO" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CONVERT_TZ" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CORR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CORR_WELFORD" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="COS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COSEC" catalog="*" schema="*" skipPermission="true">
+            <versions>3</versions>
+        </function>
+        <function name="COSH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COSINE_DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COSINE_SIMILARITY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="COT" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COUNT_BY_ENUM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COUNT_SUBSTRINGS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COUNTEQUAL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COVAR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COVAR_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="COVAR_SAMP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CRC32" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CRC32_INTERNAL" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="CROSS_PRODUCT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="CSC" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="CUME_DIST" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURRENT" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURRENT_CATALOG" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURRENT_DATABASE" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="CURRENT_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURRENT_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURRENT_TIME_MILLIS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURRENT_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURRENT_USER" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CURTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CUT_IPV6" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="CUT_TO_FIRST_SIGNIFICANT_SUBDOMAIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DATABASE" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DATASKETCHES_HLL_ESTIMATE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DATASKETCHES_HLL_UNION_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DATE_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DATE_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="DATE_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="DATE_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DATE_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DATE_TRUNC" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DATEDIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DATEV2" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAY_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAY_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAY_HOUR" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DAY_MICROSECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DAY_MINUTE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DAY_SECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DAYNAME" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAYOFMONTH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAYOFWEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAYOFYEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAYS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAYS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DAYS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DCEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DECODE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DECODE_AS_VARCHAR" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="DEDUPLICATE_MAP" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DEGREES" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DENSE_RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DEXP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DFLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DICT_GET" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="DICT_GET_MANY" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="DIGITAL_MASKING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DLOG1" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DLOG10" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DOMAIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DOMAIN_WITHOUT_WWW" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DOW" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DOY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DPOW" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DROUND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="DS_HLL_ESTIMATE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="DSQRT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="E" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ELEMENT_AT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ELT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EMBED" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="ENCODE_AS_BIGINT" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="ENCODE_AS_INT" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="ENCODE_AS_LARGEINT" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="ENCODE_AS_SMALLINT" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="ENDS_WITH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ESQUERY" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EVEN" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="EXP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_BITMAP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_BITMAP_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_ARRAY_DOUBLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_ARRAY_DOUBLE_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_ARRAY_INT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_ARRAY_INT_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_ARRAY_JSON" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_ARRAY_JSON_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_ARRAY_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_ARRAY_STRING_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_OBJECT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_JSON_OBJECT_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_MAP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_MAP_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_NUMBERS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_NUMBERS_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_SPLIT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_SPLIT_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="EXPLODE_V1" catalog="*" schema="*" skipPermission="true">
+            <versions>2</versions>
+        </function>
+        <function name="EXPLODE_V1_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2</versions>
+        </function>
+        <function name="EXPLODE_V2" catalog="*" schema="*" skipPermission="true">
+            <versions>2</versions>
+        </function>
+        <function name="EXPLODE_V2_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2</versions>
+        </function>
+        <function name="EXPLODE_VARIANT_ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="EXPONENTIAL_MOVING_AVERAGE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="EXPORT_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="EXTRACT_URL_PARAMETER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FACTORIAL" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="FIELD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FILE" catalog="*" schema="*">
+            <versions>3/4</versions>
+        </function>
+        <function name="FIND_IN_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FIRST_SIGNIFICANT_SUBDOMAIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FIRST_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FMOD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="FORMAT_NUMBER" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="FORMAT_ROUND" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="FPOW" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FROM_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FROM_BASE64_BINARY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="FROM_BINARY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="FROM_DAYS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FROM_HEX" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="FROM_ISO8601_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FROM_MICROSECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FROM_MILLISECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FROM_SECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FROM_UNIXTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FRONTENDS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="FRONTENDS_DISKS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="G" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GCD" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="GET_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="GET_JSON_BIGINT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GET_JSON_DOUBLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GET_JSON_INT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GET_JSON_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GREATEST" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_ARRAY" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_ARRAY_INTERSECT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_ARRAY_UNION" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="GROUP_BIT_AND" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_BIT_OR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_BIT_XOR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_BITMAP_XOR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_COMMIT" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_CONCAT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUP_UNIQ_ARRAY" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUPING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="GROUPING_ID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HASSUBSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="HDFS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HEX" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HIST" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HISTOGRAM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HLL_CARDINALITY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HLL_EMPTY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HLL_FROM_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HLL_HASH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HLL_RAW_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HLL_TO_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HLL_UNION" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HLL_UNION_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HOUR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HOUR_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HOUR_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HOUR_FROM_UNIXTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="HOUR_MICROSECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="HOUR_MINUTE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="HOUR_SECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="HOURS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HOURS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HOURS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HTTP" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="HTTP_STREAM" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="HUDI_META" catalog="*" schema="*">
+            <versions>3/4</versions>
+        </function>
+        <function name="ICEBERG_META" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IFNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IGNORE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INET6_ATON" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INET6_NTOA" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INET_ATON" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INET_NTOA" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INITCAP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INNER_PRODUCT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INNER_PRODUCT_APPROXIMATE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="INSERT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="INSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INT_TO_UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INTERSECT_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="INTERVAL" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="IPV4_CIDR_TO_RANGE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV4_NUM_TO_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV4_STRING_TO_NUM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV4_STRING_TO_NUM_OR_DEFAULT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV4_STRING_TO_NUM_OR_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV4_TO_IPV6" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV6_CIDR_TO_RANGE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV6_FROM_UINT128_STRING_OR_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV6_NUM_TO_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV6_STRING_TO_NUM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV6_STRING_TO_NUM_OR_DEFAULT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IPV6_STRING_TO_NUM_OR_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IS_IP_ADDRESS_IN_RANGE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IS_IPV4" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="IS_IPV4_COMPAT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IS_IPV4_MAPPED" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IS_IPV4_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IS_IPV6" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="IS_IPV6_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="IS_NOT_NULL_PRED" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="IS_NULL_PRED" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="IS_VALID_UTF8" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ISINF" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ISNAN" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ISVALIDUTF8" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JOBS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_ARRAY_IGNORE_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSON_CONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EACH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSON_EACH_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSON_EACH_TEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSON_EACH_TEXT_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSON_EXISTS_PATH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT_BIGINT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT_BOOL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT_DOUBLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT_INT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT_ISNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT_LARGEINT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT_NO_QUOTES" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="JSON_EXTRACT_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_HASH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSON_INSERT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_KEYS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_OBJECT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_OBJECT_FLATTEN" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSON_PARSE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_PARSE_ERROR_TO_INVALID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSON_PARSE_ERROR_TO_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_PARSE_ERROR_TO_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_PARSE_NOTNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSON_PARSE_NOTNULL_ERROR_TO_INVALID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSON_PARSE_NOTNULL_ERROR_TO_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSON_PARSE_NULLABLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSON_PARSE_NULLABLE_ERROR_TO_INVALID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSON_PARSE_NULLABLE_ERROR_TO_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSON_PARSE_NULLABLE_ERROR_TO_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSON_QUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_REMOVE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSON_REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_SEARCH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_TYPE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_UNQUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSON_VALID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSONB_ARRAY_IGNORE_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSONB_EXISTS_PATH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_EXTRACT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_EXTRACT_BIGINT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_EXTRACT_BOOL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_EXTRACT_DOUBLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_EXTRACT_INT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_EXTRACT_ISNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_EXTRACT_LARGEINT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_EXTRACT_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_HASH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSONB_INSERT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSONB_KEYS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_OBJECT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSONB_PARSE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_PARSE_ERROR_TO_INVALID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSONB_PARSE_ERROR_TO_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_PARSE_ERROR_TO_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_PARSE_NOTNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSONB_PARSE_NOTNULL_ERROR_TO_INVALID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSONB_PARSE_NOTNULL_ERROR_TO_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSONB_PARSE_NULLABLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSONB_PARSE_NULLABLE_ERROR_TO_INVALID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSONB_PARSE_NULLABLE_ERROR_TO_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSONB_PARSE_NULLABLE_ERROR_TO_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="JSONB_REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSONB_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="JSONB_TYPE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="JSONB_VALID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="KURT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="KURT_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="KURTOSIS" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="L1_DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="L2_DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="L2_DISTANCE_APPROXIMATE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="LAG" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LAST_DAY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LAST_QUERY_ID" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LAST_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LCASE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LCM" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="LEAD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LEAST" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LEFT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LEN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LIKE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LINEAR_HISTOGRAM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="LN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LOCAL" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LOCALTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LOCALTIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LOCATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LOG" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LOG10" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LOG2" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LOWER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LPAD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LTRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="LTRIM_IN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAKE_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MAKEDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAKETIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MAP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAP_AGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAP_AGG_V1" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MAP_AGG_V2" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MAP_CONTAINS_ENTRY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MAP_CONTAINS_KEY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAP_CONTAINS_KEY_LIKE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="MAP_CONTAINS_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAP_ENTRIES" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MAP_KEYS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAP_SIZE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAP_VALUES" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MASK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MASK_FIRST_N" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MASK_LAST_N" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAX" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAX_BY" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAX_PART_DATE" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAX_PART_INT" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MAX_PART_STRING" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MD5" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MD5SUM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MEDIAN" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MICROSECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MICROSECOND_FROM_UNIXTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MICROSECOND_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MICROSECONDS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MICROSECONDS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MICROSECONDS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MID" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MILLISECOND_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MILLISECONDS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MILLISECONDS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MILLISECONDS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MIN" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MIN_BY" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MIN_PART_DATE" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MIN_PART_INT" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MIN_PART_STRING" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MINUTE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MINUTE_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MINUTE_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MINUTE_FROM_UNIXTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MINUTE_MICROSECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MINUTE_SECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MINUTES_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MINUTES_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MINUTES_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MOD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MONEY_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MONTH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MONTH_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MONTH_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MONTHNAME" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MONTHS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MONTHS_BETWEEN" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="MONTHS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MONTHS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MULTI_DISTINCT_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MULTI_DISTINCT_GROUP_CONCAT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MULTI_DISTINCT_SUM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MULTI_DISTINCT_SUM0" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MULTI_MATCH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MULTI_MATCH_ANY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MULTI_SEARCH_ALL_POSITIONS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MURMUR_HASH3_128" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MURMUR_HASH3_32" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MURMUR_HASH3_64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="MURMUR_HASH3_64_V2" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MURMUR_HASH3_U128" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MURMUR_HASH3_U64_V2" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="MV_INFOS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NAMED_STRUCT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NDV" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NEGATIVE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NEXT_DAY" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="NGRAM_SEARCH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NON_NULLABLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NORMAL_CDF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NORMALIZE_JSON_NUMBERS_TO_DOUBLE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="NORMALIZE_JSONB_NUMBERS_TO_DOUBLE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="NOT_NULL_OR_EMPTY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NOW" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NTH_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="NTILE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NULL_OR_EMPTY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NULLABLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NULLIF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NUMBERS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NVL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="NVL2" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="OCTET_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ORTHOGONAL_BITMAP_EXPR_CALCULATE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ORTHOGONAL_BITMAP_EXPR_CALCULATE_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ORTHOGONAL_BITMAP_INTERSECT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ORTHOGONAL_BITMAP_INTERSECT_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ORTHOGONAL_BITMAP_UNION_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="OVERLAY" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="PAIMON_META" catalog="*" schema="*">
+            <versions>3</versions>
+        </function>
+        <function name="PARQUET_BLOOM_PROBE" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="PARQUET_FILE_METADATA" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="PARQUET_KV_METADATA" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="PARQUET_META" catalog="*" schema="*">
+            <versions>4</versions>
+        </function>
+        <function name="PARSE_DATA_SIZE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="PARSE_URL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PART_COUNT" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PART_COUNT_BY" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PART_LOC" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PARTITION_VALUES" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PARTITIONS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PASSWORD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PERCENT_RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PERCENTILE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PERCENTILE_APPROX" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PERCENTILE_APPROX_WEIGHTED" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="PERCENTILE_ARRAY" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PERCENTILE_CONT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PERCENTILE_RESERVOIR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="PERIOD_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="PERIOD_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="PI" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PMOD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="POSEXPLODE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="POSEXPLODE_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="POSITION" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="POSITIVE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="POW" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="POWER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="PREVIOUS_DAY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="PROTOCOL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="QUANTILE_PERCENT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="QUANTILE_STATE_EMPTY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="QUANTILE_STATE_FROM_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="QUANTILE_STATE_TO_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="QUANTILE_UNION" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="QUARTER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="QUARTER_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="QUARTER_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="QUARTERS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="QUARTERS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="QUARTERS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="QUERY" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="QUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RADIANS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RAND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RANDOM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RANDOM_BYTES" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REGEXP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REGEXP_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="REGEXP_EXTRACT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REGEXP_EXTRACT_ALL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REGEXP_EXTRACT_OR_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REGEXP_REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REGEXP_REPLACE_ONE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REGEXP_SPLIT_TO_ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="REGR_INTERCEPT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="REGR_SLOPE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="REPEAT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REPLACE_EMPTY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RETENTION" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="REVERSE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RIGHT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RLIKE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="ROUND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ROUND_BANKERS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ROW_NUMBER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RPAD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RTRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="RTRIM_IN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="S3" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SCHEMA" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SCORE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SEARCH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SEC" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="SEC_TO_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SECOND_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SECOND_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SECOND_FROM_UNIXTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SECOND_MICROSECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SECOND_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SECONDS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SECONDS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SECONDS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SEM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SEQUENCE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SEQUENCE_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SEQUENCE_MATCH" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SESSION_USER" catalog="*" schema="*">
+            <versions>3/4</versions>
+        </function>
+        <function name="SHA" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SHA1" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SHA2" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SHUFFLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SIGN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SIGNBIT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SINH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SIZE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SKEW" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="SKEW_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="SKEWNESS" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="SLEEP" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SM3" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SM3SUM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SM4_DECRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SM4_ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SORT_JSON_OBJECT_KEYS" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SORT_JSONB_OBJECT_KEYS" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SOUNDEX" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SPACE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SPLIT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SPLIT_BY_CHAR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3</versions>
+        </function>
+        <function name="SPLIT_BY_REGEXP" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="SPLIT_BY_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SPLIT_PART" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SQRT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_ANGLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_ANGLE_SPHERE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_AREA_SQUARE_KM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_AREA_SQUARE_METERS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_ASBINARY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_ASTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_ASWKT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_AZIMUTH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_CIRCLE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_CONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_DISJOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ST_DISTANCE_SPHERE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_GEOMETRYFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_GEOMETRYFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_GEOMETRYTYPE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ST_GEOMFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_GEOMFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_INTERSECTS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="ST_LINEFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_LINESTRINGFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_POINT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_POLYFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_POLYGON" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_POLYGONFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_TOUCHES" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_X" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="ST_Y" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STARTS_WITH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STD" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="STDDEV" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STDDEV_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STDDEV_SAMP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STR_TO_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STR_TO_MAP" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="STRCMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STRIP_NULL_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="STRLEFT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STRRIGHT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STRUCT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="STRUCT_ELEMENT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SUB_BINARY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SUB_BITMAP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SUB_REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SUB_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="SUBDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SUBSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SUBSTRING" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SUBSTRING_INDEX" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SUM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SUM0" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="SYSDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TAN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TANH" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TASKS" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="TIME_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="TIME_TO_SEC" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TIMEDIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TIMESTAMP_ISO" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_BASE64_BINARY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="TO_BINARY" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="TO_BITMAP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_BITMAP_WITH_CHECK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_CHAR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_DATEV2" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_DAYS" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_HEX" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="TO_IPV4" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_IPV4_OR_DEFAULT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_IPV4_OR_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_IPV6" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_IPV6_OR_DEFAULT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_IPV6_OR_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_ISO8601" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_JSON" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="TO_MONDAY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_QUANTILE_STATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TO_SECONDS" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="TO_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TOKENIZE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TOP_LEVEL_DOMAIN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TOPN" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TOPN_ARRAY" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TOPN_WEIGHTED" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TRANSLATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TRIM_IN" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="TRUNCATE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="UCASE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="UNCOMPRESS" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="UNHEX" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="UNHEX_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="UNICODE_NORMALIZE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="UNIFORM" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="UNIX_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="UNNEST" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="UPPER" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="URL_DECODE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="URL_ENCODE" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="USER" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="UTC_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="UTC_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="UTC_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="UUID_NUMERIC" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="UUID_TO_INT" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="VAR_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="VAR_SAMP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="VARIANCE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="VARIANCE_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="VARIANCE_SAMP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="VARIANT_TYPE" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="VERSION" catalog="*" schema="*">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WEEK_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WEEK_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WEEKDAY" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WEEKOFYEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WEEKS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WEEKS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WEEKS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WIDTH_BUCKET" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WINDOW_FUNNEL" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="WINDOW_FUNNEL_V1" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="WINDOW_FUNNEL_V2" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="XOR" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="XPATH_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>3/4</versions>
+        </function>
+        <function name="XXHASH3_64" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="XXHASH_32" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="XXHASH_64" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YEAR_CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YEAR_FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YEAR_MONTH" catalog="*" schema="*" skipPermission="true">
+            <versions>4</versions>
+        </function>
+        <function name="YEAR_OF_WEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YEARS_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YEARS_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YEARS_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YEARWEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+        <function name="YOW" catalog="*" schema="*" skipPermission="true">
+            <versions>2/3/4</versions>
+        </function>
+    </storedFunctions>
+
+    <tablesOrViews>
+        <tableOrView name="AUDIT_LOG" catalog="*" schema="__INTERNAL_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="CLOUD_CACHE_HOTSPOT" catalog="*" schema="__INTERNAL_SCHEMA">
+            <versions>3/4</versions>
+        </tableOrView>
+        <tableOrView name="COLUMN_STATISTICS" catalog="*" schema="__INTERNAL_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="HISTOGRAM_STATISTICS" catalog="*" schema="__INTERNAL_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="PARTITION_STATISTICS" catalog="*" schema="__INTERNAL_SCHEMA">
+            <versions>3/4</versions>
+        </tableOrView>
+        <tableOrView name="ACTIVE_QUERIES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="AUTHENTICATION_INTEGRATIONS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="AUTHORS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="BACKEND_ACTIVE_TASKS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="BACKEND_CONFIGURATION" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>3/4</versions>
+        </tableOrView>
+        <tableOrView name="BACKEND_KERBEROS_TICKET_CACHE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>3/4</versions>
+        </tableOrView>
+        <tableOrView name="BACKEND_MS_RPC_TABLE_THROTTLERS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="BACKEND_TABLETS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>3/4</versions>
+        </tableOrView>
+        <tableOrView name="BE_COMPACTION_TASKS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="BLACKHOLE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="CATALOG_META_CACHE_STATISTICS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="CHARACTER_SETS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_SNAPSHOT_PROPERTIES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_SNAPSHOTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="COLLATION_CHARACTER_SET_APPLICABILITY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="COLLATIONS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="COLUMN_DATA_SIZES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="COLUMN_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="COLUMN_STATISTICS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="COLUMNS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="CREATE_TABLE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="ENCRYPTION_KEYS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>3/4</versions>
+        </tableOrView>
+        <tableOrView name="ENGINES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="FILE_CACHE_INFO" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="FILE_CACHE_STATISTICS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="FILES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_VARIABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="KEY_COLUMN_USAGE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="LOAD_JOBS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="METADATA_NAME_IDS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="OPEN_TABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="PARAMETERS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="PARTITIONS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="PLUGINS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="PROCESSLIST" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="PROFILES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="PROFILING" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="REFERENTIAL_CONSTRAINTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="ROLE_MAPPINGS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="ROUTINE_LOAD_JOBS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="ROUTINES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="ROWSETS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="SCHEMA_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="SCHEMATA" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="SESSION_STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="SESSION_VARIABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="SQL_BLOCK_RULE_STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="STATISTICS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_CONSTRAINTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_NAMES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_OPTIONS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_PROPERTIES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="TABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="TRIGGERS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="USER_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="VARIABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="VIEW_DEPENDENCY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>4</versions>
+        </tableOrView>
+        <tableOrView name="VIEWS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="WORKLOAD_GROUP_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="WORKLOAD_GROUP_RESOURCE_USAGE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="WORKLOAD_GROUPS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="WORKLOAD_POLICY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="PROCS_PRIV" catalog="*" schema="MYSQL">
+            <versions>2/3/4</versions>
+        </tableOrView>
+        <tableOrView name="USER" catalog="*" schema="MYSQL">
+            <versions>2/3/4</versions>
+        </tableOrView>
+    </tablesOrViews>
+
+    <systemTypes>
+    </systemTypes>
+</databaseResources>

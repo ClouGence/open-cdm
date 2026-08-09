@@ -1,0 +1,3176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseResources>
+    <storedProcedures>
+        <procedure name="create_synonym_db" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="diagnostics" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="execute_prepared_stmt" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_disable_background_threads" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_disable_consumer" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_disable_instrument" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_disable_thread" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_enable_background_threads" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_enable_consumer" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_enable_instrument" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_enable_thread" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_reload_saved" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_reset_to_default" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_save" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_show_disabled" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_show_disabled_consumers" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_show_disabled_instruments" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_show_enabled" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_show_enabled_consumers" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_setup_show_enabled_instruments" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_statement_avg_latency_histogram" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_trace_statement_digest" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_trace_thread" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="ps_truncate_all_tables" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="revoke_schema_privileges_from_all_accounts_except" catalog="*" schema="sys">
+            <versions>9.7</versions>
+        </procedure>
+        <procedure name="statement_performance_analyzer" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+        <procedure name="table_exists" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </procedure>
+    </storedProcedures>
+
+    <storedFunctions>
+        <function name="ABS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ACOS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ADDDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ADDTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AES_DECRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AES_ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ANY_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AREA" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ASBINARY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ASCII" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ASWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ASWKT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ASYMMETRIC_DECRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYMMETRIC_DERIVE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYMMETRIC_ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYMMETRIC_SIGN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYMMETRIC_VERIFY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_MANAGED" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_SOURCE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_MANAGED" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_SOURCE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ASYNCHRONOUS_CONNECTION_FAILOVER_RESET" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ATAN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ATAN2" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_API_MESSAGE_EMIT_UDF" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_ENCRYPTION_PASSWORD_GET" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_ENCRYPTION_PASSWORD_SET" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_FILTER_FLUSH" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_FILTER_REMOVE_FILTER" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_FILTER_REMOVE_USER" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_FILTER_SET_FILTER" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_FILTER_SET_USER" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_READ" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_READ_BOOKMARK" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="AUDIT_LOG_ROTATE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="AVG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="BENCHMARK" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="BIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="BIN_TO_UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="BIT_AND" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="BIT_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="BIT_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="BIT_OR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="BIT_XOR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="BUFFER" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="CAN_ACCESS_COLUMN" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAN_ACCESS_DATABASE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAN_ACCESS_EVENT" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAN_ACCESS_RESOURCE_GROUP" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAN_ACCESS_ROUTINE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAN_ACCESS_TABLE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAN_ACCESS_TRIGGER" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAN_ACCESS_USER" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAN_ACCESS_VIEW" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CAST" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CEILING" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CENTROID" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="CHAR" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CHAR_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CHARACTER_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CHARSET" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="COALESCE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="COERCIBILITY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="COLLATION" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="COMPRESS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONCAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONCAT_WS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONNECTION_ID" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="CONV" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONVERT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONVERT_CPU_ID_MASK" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONVERT_INTERVAL_TO_USER_INTERVAL" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONVERT_TZ" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CONVEXHULL" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7</versions>
+        </function>
+        <function name="COS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="COT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CRC32" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CREATE_ASYMMETRIC_PRIV_KEY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CREATE_ASYMMETRIC_PUB_KEY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CREATE_DH_PARAMETERS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CREATE_DIGEST" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CROSSES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="CUME_DIST" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CURDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CURRENT_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CURRENT_ROLE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="CURRENT_ROLE_IN" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="CURRENT_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CURRENT_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CURRENT_USER" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="CURRENT_USER_IN" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="CURTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DATABASE" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DATE_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DATE_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DATE_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DATEDIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DAY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DAYNAME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DAYOFMONTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DAYOFWEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DAYOFYEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DECODE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="DEFAULT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DEGREES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="DENSE_RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="DES_DECRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="DES_ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="DIMENSION" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="DISJOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/9.7</versions>
+        </function>
+        <function name="ELT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ENCODE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ENDPOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ENVELOPE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="EQUALS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ETAG" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="EXISTS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="EXP" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="EXPORT_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="EXTERIORRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="EXTRACT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="EXTRACTVALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FIELD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FIND_IN_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FIREWALL_GROUP_DELIST" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="FIREWALL_GROUP_ENLIST" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="FIREWALL_GROUP_REMOVE" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="FIREWALL_GROUP_RENAME" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="FIRST_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FLUSH_REWRITE_RULES" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FORMAT_BYTES" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="FORMAT_PICO_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="FOUND_ROWS" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FROM_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FROM_DAYS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FROM_UNIXTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="FROM_VECTOR" catalog="*" schema="*" skipPermission="true">
+            <versions>9.7</versions>
+        </function>
+        <function name="GEN_BLACKLIST" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_BLOCKLIST" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_DICTIONARY" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_DICTIONARY_DROP" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_DICTIONARY_LOAD" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RANGE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RND_CANADA_SIN" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RND_EMAIL" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RND_IBAN" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RND_PAN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RND_SSN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RND_UK_NIN" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RND_US_PHONE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEN_RND_UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEOMCOLLECTION" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEOMCOLLFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMCOLLFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMETRYCOLLECTION" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GEOMETRYCOLLECTIONFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMETRYCOLLECTIONFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMETRYFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMETRYFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMETRYN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMETRYTYPE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GEOMFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GET_DD_COLUMN_PRIVILEGES" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GET_DD_CREATE_OPTIONS" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GET_DD_INDEX_PRIVATE_DATA" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GET_DD_INDEX_SUB_PART_LENGTH" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GET_DD_PROPERTY_KEY_VALUE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GET_DD_SCHEMA_OPTIONS" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GET_DD_TABLESPACE_PRIVATE_DATA" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GET_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GET_JDV_PROPERTY_KEY_VALUE" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="GET_LOCK" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GLENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="GREATEST" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_CONCAT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_DISABLE_MEMBER_ACTION" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_ENABLE_MEMBER_ACTION" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_GET_COMMUNICATION_PROTOCOL" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_GET_WRITE_CONCURRENCY" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_RESET_MEMBER_ACTIONS" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_SET_AS_PRIMARY" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_SET_COMMUNICATION_PROTOCOL" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_SET_WRITE_CONCURRENCY" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_SWITCH_TO_MULTI_PRIMARY_MODE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUP_REPLICATION_SWITCH_TO_SINGLE_PRIMARY_MODE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GROUPING" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="GTID_SUBSET" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="GTID_SUBTRACT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="HEX" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="HOUR" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ICU_VERSION" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="IF" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="IFNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="IN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="INET6_ATON" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="INET6_NTOA" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="INET_ATON" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="INET_NTOA" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="INSERT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="INSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERIORRINGN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="INTERNAL_AUTO_INCREMENT" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_AVG_ROW_LENGTH" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_CHECK_TIME" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_CHECKSUM" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_DATA_FREE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_DATA_LENGTH" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_DD_CHAR_LENGTH" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_GET_COMMENT_OR_ERROR" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_GET_DD_COLUMN_EXTRA" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_GET_ENABLED_ROLE_JSON" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_GET_HOSTNAME" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_GET_MANDATORY_ROLES_JSON" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_GET_PARTITION_NODEGROUP" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_GET_USERNAME" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_GET_VIEW_WARNING_OR_ERROR" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_INDEX_COLUMN_CARDINALITY" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_INDEX_LENGTH" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_IS_ENABLED_ROLE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_IS_MANDATORY_ROLE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_KEYS_DISABLED" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_MAX_DATA_LENGTH" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLE_ROWS" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_AUTOEXTEND_SIZE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_DATA_FREE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_EXTENT_SIZE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_EXTRA" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_FREE_EXTENTS" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_ID" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_INITIAL_SIZE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_LOGFILE_GROUP_NAME" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_LOGFILE_GROUP_NUMBER" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_MAXIMUM_SIZE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_ROW_FORMAT" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_STATUS" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_TOTAL_EXTENTS" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_TYPE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_TABLESPACE_VERSION" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_UPDATE_TIME" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="INTERNAL_USE_TERMINOLOGY_PREVIOUS" catalog="*" schema="*">
+            <versions>8.4/9.7</versions>
+        </function>
+        <function name="INTERSECTS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="INTERVAL" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="IS_FREE_LOCK" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="IS_IPV4" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="IS_IPV4_COMPAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="IS_IPV4_MAPPED" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="IS_IPV6" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="IS_USED_LOCK" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="IS_UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="IS_VISIBLE_DD_OBJECT" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ISCLOSED" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ISEMPTY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ISNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ISSIMPLE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="JSON_APPEND" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7</versions>
+        </function>
+        <function name="JSON_ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_ARRAY_APPEND" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_ARRAY_INSERT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_ARRAYAGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_CONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_CONTAINS_PATH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_DEPTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_DUALITY_OBJECT" catalog="*" schema="*" skipPermission="true">
+            <versions>9.7</versions>
+        </function>
+        <function name="JSON_EXTRACT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_INSERT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_KEYS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_MERGE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_MERGE_PATCH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_MERGE_PRESERVE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_OBJECT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_OBJECTAGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_OVERLAPS" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_PRETTY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_QUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_REMOVE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_SCHEMA_VALID" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_SCHEMA_VALIDATION_REPORT" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_SEARCH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_STORAGE_FREE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_STORAGE_SIZE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_TABLE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_TYPE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_UNQUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_VALID" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="JSON_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_AWS_ROTATE_CMK" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_AWS_ROTATE_KEYS" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_HASHICORP_UPDATE_CONFIG" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_KEY_FETCH" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_KEY_GENERATE" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_KEY_LENGTH_FETCH" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_KEY_REMOVE" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_KEY_STORE" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="KEYRING_KEY_TYPE_FETCH" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LAG" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="LAST_DAY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LAST_INSERT_ID" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LAST_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="LCASE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LEAD" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="LEAST" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LEFT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LIKE_RANGE_MAX" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LIKE_RANGE_MIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LINEFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="LINEFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="LINESTRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LINESTRINGFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="LINESTRINGFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="LN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOAD_FILE" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOAD_REWRITE_RULES" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOCALTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOCALTIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOCATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOG" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOG10" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOG2" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LOWER" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LPAD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="LTRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MAKE_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MAKEDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MAKETIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_CANADA_SIN" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_IBAN" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_INNER" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_OUTER" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_PAN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_PAN_RELAXED" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_SSN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_UK_NIN" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASK_UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASKING_DICTIONARIES_FLUSH" catalog="*" schema="*">
+            <versions>8.4/9.7</versions>
+        </function>
+        <function name="MASKING_DICTIONARY_REMOVE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASKING_DICTIONARY_TERM_ADD" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASKING_DICTIONARY_TERM_REMOVE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="MASTER_POS_WAIT" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MATCH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MAX" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBRCONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBRCOVEREDBY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBRCOVERS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBRDISJOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBREQUAL" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MBREQUALS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBRINTERSECTS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBROVERLAPS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBRTOUCHES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MBRWITHIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MD5" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4</versions>
+        </function>
+        <function name="MICROSECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MID" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MIN" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MINUTE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MLE_SESSION_RESET" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="MLE_SESSION_STATE" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="MLE_SET_SESSION_STATE" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="MLINEFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MLINEFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MOD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MONTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MONTHNAME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MPOINTFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MPOINTFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MPOLYFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MPOLYFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MULTILINESTRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MULTILINESTRINGFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MULTILINESTRINGFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MULTIPOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MULTIPOINTFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MULTIPOINTFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MULTIPOLYGON" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MULTIPOLYGONFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MULTIPOLYGONFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="MYSQL_FIREWALL_FLUSH_STATUS" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="MYSQL_QUERY_ATTRIBUTE_STRING" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="NAME_CONST" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="NORMALIZE_STATEMENT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="NOW" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="NTH_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="NTILE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="NULLIF" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="NUMGEOMETRIES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="NUMINTERIORRINGS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="NUMPOINTS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="OCT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="OCTET_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="OLD_PASSWORD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6</versions>
+        </function>
+        <function name="OPTION_TRACKER_OPTION_REGISTER" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="OPTION_TRACKER_OPTION_UNREGISTER" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="OPTION_TRACKER_USAGE_GET" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="OPTION_TRACKER_USAGE_SET" catalog="*" schema="*">
+            <versions>9.7</versions>
+        </function>
+        <function name="ORD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="OVERLAPS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="PASSWORD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="PERCENT_RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="PERIOD_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="PERIOD_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="PI" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="POINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="POINTFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="POINTFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="POINTN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="POLYFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="POLYFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="POLYGON" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="POLYGONFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="POLYGONFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="POSITION" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="POW" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="POWER" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="PS_CURRENT_THREAD_ID" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="PS_THREAD_ID" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="QUARTER" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="QUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="RADIANS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="RAND" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="RANDOM_BYTES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="READ_FIREWALL_GROUP_ALLOWLIST" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="READ_FIREWALL_GROUPS" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="READ_FIREWALL_USERS" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="READ_FIREWALL_WHITELIST" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="REGEXP_INSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="REGEXP_LIKE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="REGEXP_REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="REGEXP_SUBSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="RELEASE_ALL_LOCKS" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="RELEASE_LOCK" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="REMOVE_DD_PROPERTY_KEY" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="REPEAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="REVERSE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="RIGHT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ROLES_GRAPHML" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ROUND" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ROW" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ROW_COUNT" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ROW_NUMBER" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="RPAD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="RTRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SCHEMA" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SEC_TO_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SERVICE_GET_READ_LOCKS" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SERVICE_GET_WRITE_LOCKS" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SERVICE_RELEASE_LOCKS" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SESSION_USER" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SET_FIREWALL_GROUP_MODE" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="SET_FIREWALL_MODE" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SHA" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4</versions>
+        </function>
+        <function name="SHA1" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4</versions>
+        </function>
+        <function name="SHA2" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SIGN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SLEEP" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SOUNDEX" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SOURCE_POS_WAIT" catalog="*" schema="*">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="SPACE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SQRT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SRID" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="ST_AREA" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ASBINARY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ASGEOJSON" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ASTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ASWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ASWKT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_BUFFER" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_BUFFER_STRATEGY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_CENTROID" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_COLLECT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_CONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_CONVEXHULL" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_CROSSES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_DIFFERENCE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_DIMENSION" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_DISJOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_DISTANCE_SPHERE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ENDPOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ENVELOPE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_EQUALS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_EXTERIORRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_FRECHETDISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOHASH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMCOLLFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMCOLLFROMTXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMCOLLFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMETRYCOLLECTIONFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMETRYCOLLECTIONFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMETRYFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMETRYFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMETRYN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMETRYTYPE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMFROMGEOJSON" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_GEOMFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_HAUSDORFFDISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_INTERIORRINGN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_INTERSECTION" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_INTERSECTS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ISCLOSED" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ISEMPTY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ISSIMPLE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_ISVALID" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LATFROMGEOHASH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LATITUDE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LINEFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LINEFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LINEINTERPOLATEPOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LINEINTERPOLATEPOINTS" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LINESTRINGFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LINESTRINGFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LONGFROMGEOHASH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_LONGITUDE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MAKEENVELOPE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MLINEFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MLINEFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MPOINTFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MPOINTFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MPOLYFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MPOLYFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MULTILINESTRINGFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MULTILINESTRINGFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MULTIPOINTFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MULTIPOINTFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MULTIPOLYGONFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_MULTIPOLYGONFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_NUMGEOMETRIES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_NUMINTERIORRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_NUMINTERIORRINGS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_NUMPOINTS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_OVERLAPS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POINTATDISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POINTFROMGEOHASH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POINTFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POINTFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POINTN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POLYFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POLYFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POLYGONFROMTEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_POLYGONFROMWKB" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_SIMPLIFY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_SRID" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_STARTPOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_SWAPXY" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_SYMDIFFERENCE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_TOUCHES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_TRANSFORM" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_UNION" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_VALIDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_WITHIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_X" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ST_Y" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="STARTPOINT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="STATEMENT_DIGEST" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="STATEMENT_DIGEST_TEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="STD" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="STDDEV" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="STDDEV_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="STDDEV_SAMP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="STR_TO_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="STRCMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="STRING_TO_VECTOR" catalog="*" schema="*" skipPermission="true">
+            <versions>9.7</versions>
+        </function>
+        <function name="SUBDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SUBSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SUBSTRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SUBSTRING_INDEX" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SUBTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SUM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SYSDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="SYSTEM_USER" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TAN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TIME_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TIME_TO_SEC" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TIMEDIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TIMESTAMPADD" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TIMESTAMPDIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TO_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TO_DAYS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TO_SECONDS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TO_VECTOR" catalog="*" schema="*" skipPermission="true">
+            <versions>9.7</versions>
+        </function>
+        <function name="TOUCHES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="TRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="TRUNCATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UCASE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UNCOMPRESS" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UNCOMPRESSED_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UNHEX" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UNIX_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UPDATEXML" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UPPER" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="USER" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UTC_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UTC_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UTC_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UUID_SHORT" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="UUID_TO_BIN" catalog="*" schema="*" skipPermission="true">
+            <versions>8.0/8.4/9.7</versions>
+        </function>
+        <function name="VALIDATE_PASSWORD_STRENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VALUES" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VAR_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VAR_SAMP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VARIANCE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VECTOR_DIM" catalog="*" schema="*" skipPermission="true">
+            <versions>9.7</versions>
+        </function>
+        <function name="VECTOR_TO_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>9.7</versions>
+        </function>
+        <function name="VERSION" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VERSION_TOKENS_DELETE" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VERSION_TOKENS_EDIT" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VERSION_TOKENS_LOCK_EXCLUSIVE" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VERSION_TOKENS_LOCK_SHARED" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VERSION_TOKENS_SET" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VERSION_TOKENS_SHOW" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="VERSION_TOKENS_UNLOCK" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="WAIT_FOR_EXECUTED_GTID_SET" catalog="*" schema="*">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS" catalog="*" schema="*">
+            <versions>5.6/5.7/8.0</versions>
+        </function>
+        <function name="WEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="WEEKDAY" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="WEEKOFYEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="WEIGHT_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="WITHIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="X" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="Y" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7</versions>
+        </function>
+        <function name="YEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="YEARWEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="extract_schema_from_file_name" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="extract_table_from_file_name" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="format_bytes" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="format_path" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="format_statement" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="format_time" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="list_add" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="list_drop" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_is_account_enabled" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_is_consumer_enabled" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_is_instrument_default_enabled" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_is_instrument_default_timed" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_is_thread_instrumented" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_thread_account" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_thread_id" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_thread_stack" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="ps_thread_trx_info" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="quote_identifier" catalog="*" schema="sys" skipPermission="true">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="sys_get_config" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="version_major" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="version_minor" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+        <function name="version_patch" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </function>
+    </storedFunctions>
+
+    <tablesOrViews>
+        <tableOrView name="administrable_role_authorizations" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="applicable_roles" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="character_sets" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="check_constraints" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="collation_character_set_applicability" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="collations" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="column_privileges" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="column_statistics" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="columns" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="columns_extensions" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="enabled_roles" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="engines" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="files" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="global_status" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="global_variables" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_buffer_page" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_buffer_page_lru" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_buffer_pool_stats" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_cached_indexes" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_cmp" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_cmp_per_index" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_cmp_per_index_reset" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_cmp_reset" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_cmpmem" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_cmpmem_reset" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_columns" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_datafiles" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_fields" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_foreign" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_foreign_cols" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_ft_being_deleted" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_ft_config" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_ft_default_stopword" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_ft_deleted" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_ft_index_cache" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_ft_index_table" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_indexes" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_lock_waits" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_locks" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_metrics" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_session_temp_tablespaces" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_columns" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_datafiles" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_fields" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_foreign" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_foreign_cols" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_indexes" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_tables" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_tablespaces" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_tablestats" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_sys_virtual" catalog="*" schema="information_schema">
+            <versions>5.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_tables" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_tablespaces" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_tablespaces_brief" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_tablestats" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_temp_table_info" catalog="*" schema="information_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_trx" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_virtual" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="json_duality_view_columns" catalog="*" schema="information_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="json_duality_view_links" catalog="*" schema="information_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="json_duality_view_tables" catalog="*" schema="information_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="json_duality_views" catalog="*" schema="information_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="key_column_usage" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="keywords" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="libraries" catalog="*" schema="information_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="optimizer_trace" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="parameters" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="partitions" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="plugins" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="processlist" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="profiling" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="referential_constraints" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="resource_groups" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="role_column_grants" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="role_routine_grants" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="role_table_grants" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="routine_libraries" catalog="*" schema="information_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="routines" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_privileges" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schemata" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schemata_extensions" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="session_status" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="session_variables" catalog="*" schema="information_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="st_geometry_columns" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="st_spatial_reference_systems" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="st_units_of_measure" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="statistics" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="table_constraints" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="table_constraints_extensions" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="table_privileges" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="tables" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="tables_extensions" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="tablespaces" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0</versions>
+        </tableOrView>
+        <tableOrView name="tablespaces_extensions" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="triggers" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_attributes" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_privileges" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="view_routine_usage" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="view_table_usage" catalog="*" schema="information_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="views" catalog="*" schema="information_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="columns_priv" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="component" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="db" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="default_roles" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="engine_cost" catalog="*" schema="mysql">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="event" catalog="*" schema="mysql">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="func" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="general_log" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="global_grants" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="gtid_executed" catalog="*" schema="mysql">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="help_category" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="help_keyword" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="help_relation" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="help_topic" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_index_stats" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_table_stats" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="ndb_binlog_index" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="password_history" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="plugin" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="proc" catalog="*" schema="mysql">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="procs_priv" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="proxies_priv" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_asynchronous_connection_failover" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_asynchronous_connection_failover_managed" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_group_configuration_version" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_group_member_actions" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="role_edges" catalog="*" schema="mysql">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="server_cost" catalog="*" schema="mysql">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="servers" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="slave_master_info" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="slave_relay_log_info" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="slave_worker_info" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="slow_log" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="tables_priv" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="time_zone" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="time_zone_leap_second" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="time_zone_name" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="time_zone_transition" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="time_zone_transition_type" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user" catalog="*" schema="mysql">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="accounts" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="binary_log_transaction_compression_stats" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="cond_instances" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="data_lock_waits" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="data_locks" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="error_log" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_errors_summary_by_account_by_error" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_errors_summary_by_host_by_error" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_errors_summary_by_thread_by_error" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_errors_summary_by_user_by_error" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_errors_summary_global_by_error" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_stages_current" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_stages_history" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_stages_history_long" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_stages_summary_by_account_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_stages_summary_by_host_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_stages_summary_by_thread_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_stages_summary_by_user_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_stages_summary_global_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_current" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_histogram_by_digest" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_histogram_global" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_history" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_history_long" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_summary_by_account_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_summary_by_digest" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_summary_by_host_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_summary_by_program" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_summary_by_thread_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_summary_by_user_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_statements_summary_global_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_transactions_current" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_transactions_history" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_transactions_history_long" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_transactions_summary_by_account_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_transactions_summary_by_host_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_transactions_summary_by_thread_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_transactions_summary_by_user_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_transactions_summary_global_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_current" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_history" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_history_long" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_summary_by_account_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_summary_by_host_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_summary_by_instance" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_summary_by_thread_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_summary_by_user_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="events_waits_summary_global_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="file_instances" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="file_summary_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="file_summary_by_instance" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="global_status" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="global_variable_attributes" catalog="*" schema="performance_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="global_variables" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="host_cache" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="hosts" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_redo_log_files" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="keyring_component_status" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="keyring_keys" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="log_status" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_summary_by_account_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_summary_by_host_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_summary_by_thread_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_summary_by_user_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_summary_global_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="metadata_locks" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="mutex_instances" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="objects_summary_global_by_type" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="performance_timers" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="persisted_variables" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="prepared_statements_instances" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="processlist" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_applier_configuration" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_applier_filters" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_applier_global_filters" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_applier_status" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_applier_status_by_coordinator" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_applier_status_by_worker" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_asynchronous_connection_failover" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_asynchronous_connection_failover_managed" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_connection_configuration" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_connection_status" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_group_member_stats" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="replication_group_members" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="rwlock_instances" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="session_account_connect_attrs" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="session_connect_attrs" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="session_status" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="session_variables" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_actors" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_consumers" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_instruments" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_loggers" catalog="*" schema="performance_schema">
+            <versions>8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_meters" catalog="*" schema="performance_schema">
+            <versions>8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_metrics" catalog="*" schema="performance_schema">
+            <versions>8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_objects" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_threads" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="setup_timers" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7</versions>
+        </tableOrView>
+        <tableOrView name="socket_instances" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="socket_summary_by_event_name" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="socket_summary_by_instance" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="status_by_account" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="status_by_host" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="status_by_thread" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="status_by_user" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="table_handles" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="table_io_waits_summary_by_index_usage" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="table_io_waits_summary_by_table" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="table_lock_waits_summary_by_table" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="temporary_account_locks" catalog="*" schema="performance_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="threads" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="tls_channel_status" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_defined_functions" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_variables_by_thread" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="users" catalog="*" schema="performance_schema">
+            <versions>5.6/5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="variables_by_thread" catalog="*" schema="performance_schema">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="variables_info" catalog="*" schema="performance_schema">
+            <versions>8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="variables_metadata" catalog="*" schema="performance_schema">
+            <versions>9.7</versions>
+        </tableOrView>
+        <tableOrView name="host_summary" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="host_summary_by_file_io" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="host_summary_by_file_io_type" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="host_summary_by_stages" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="host_summary_by_statement_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="host_summary_by_statement_type" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_buffer_stats_by_schema" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_buffer_stats_by_table" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="innodb_lock_waits" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="io_by_thread_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="io_global_by_file_by_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="io_global_by_file_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="io_global_by_wait_by_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="io_global_by_wait_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="latest_file_io" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_by_host_by_current_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_by_thread_by_current_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_by_user_by_current_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_global_by_current_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="memory_global_total" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="metrics" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="processlist" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="ps_check_lost_instrumentation" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_auto_increment_columns" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_index_statistics" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_object_overview" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_redundant_indexes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_table_lock_waits" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_table_statistics" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_table_statistics_with_buffer" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_tables_with_full_table_scans" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="schema_unused_indexes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="session" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="session_ssl_status" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="statement_analysis" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="statements_with_errors_or_warnings" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="statements_with_full_table_scans" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="statements_with_runtimes_in_95th_percentile" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="statements_with_sorting" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="statements_with_temp_tables" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="sys_config" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_summary" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_summary_by_file_io" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_summary_by_file_io_type" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_summary_by_stages" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_summary_by_statement_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="user_summary_by_statement_type" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="version" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="wait_classes_global_by_avg_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="wait_classes_global_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="waits_by_host_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="waits_by_user_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="waits_global_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$host_summary" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$host_summary_by_file_io" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$host_summary_by_file_io_type" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$host_summary_by_stages" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$host_summary_by_statement_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$host_summary_by_statement_type" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$innodb_buffer_stats_by_schema" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$innodb_buffer_stats_by_table" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$innodb_lock_waits" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$io_by_thread_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$io_global_by_file_by_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$io_global_by_file_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$io_global_by_wait_by_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$io_global_by_wait_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$latest_file_io" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$memory_by_host_by_current_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$memory_by_thread_by_current_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$memory_by_user_by_current_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$memory_global_by_current_bytes" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$memory_global_total" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$processlist" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$ps_digest_95th_percentile_by_avg_us" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$ps_digest_avg_latency_distribution" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$ps_schema_table_statistics_io" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$schema_flattened_keys" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$schema_index_statistics" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$schema_table_lock_waits" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$schema_table_statistics" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$schema_table_statistics_with_buffer" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$schema_tables_with_full_table_scans" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$session" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$statement_analysis" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$statements_with_errors_or_warnings" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$statements_with_full_table_scans" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$statements_with_runtimes_in_95th_percentile" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$statements_with_sorting" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$statements_with_temp_tables" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$user_summary" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$user_summary_by_file_io" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$user_summary_by_file_io_type" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$user_summary_by_stages" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$user_summary_by_statement_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$user_summary_by_statement_type" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$wait_classes_global_by_avg_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$wait_classes_global_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$waits_by_host_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$waits_by_user_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+        <tableOrView name="x$waits_global_by_latency" catalog="*" schema="sys">
+            <versions>5.7/8.0/8.4/9.7</versions>
+        </tableOrView>
+    </tablesOrViews>
+
+    <systemTypes>
+    </systemTypes>
+</databaseResources>

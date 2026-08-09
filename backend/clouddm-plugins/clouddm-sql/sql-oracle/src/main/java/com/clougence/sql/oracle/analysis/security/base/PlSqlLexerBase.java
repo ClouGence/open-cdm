@@ -28,6 +28,13 @@ public abstract class PlSqlLexerBase extends Lexer {
     }
 
     protected boolean IsNewlineAtPos(int pos) {
+        // The generated REM/PROMPT predicates call this after consuming the command prefix.
+        // UnbufferedCharStream intentionally discards characters before the current token and
+        // cannot service arbitrary negative LA calls. The token start column carries the exact
+        // line-boundary fact needed by those predicates without looking behind the stream.
+        if (pos < 0) {
+            return this._tokenStartCharPositionInLine == 0;
+        }
         int la = _input.LA(pos);
         return la == -1 || la == '\n';
     }

@@ -36,6 +36,11 @@ public class HanaSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
+    protected String performanceDialect() {
+        return "hana";
+    }
+
+    @Override
     protected Lexer createLexer(CharStream source) {
         return new HanaSplitLexer(source);
     }

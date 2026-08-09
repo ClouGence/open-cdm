@@ -18,8 +18,8 @@ package com.clougence.sql.mysql.analysis.reference;
 import java.util.List;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 /**
  * Neutral object fact emitted directly from the MySQL parse tree.
@@ -27,20 +27,19 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
  * <p>Behavior analysis consumes this parser fact before console-side resource action conversion.
  * It carries no permission-check policy.</p>
  */
-public record MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
-                                   List<String> nodes, BehaviorAction action, boolean explicitName) {
+public record MySqlObjectReference(StatementType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes,
+                                   BehaviorAction action, boolean explicitName) {
 
     public MySqlObjectReference{
         nodes = nodes == null ? List.of() : List.copyOf(nodes);
     }
 
-    public MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
-                                List<String> nodes){
+    public MySqlObjectReference(StatementType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes){
         this(sqlType, targetType, require, startLine, startColumn, endLine, endColumn, nodes, null, true);
     }
 
-    public MySqlObjectReference(SplitQueryType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn,
-                                List<String> nodes, BehaviorAction action){
+    public MySqlObjectReference(StatementType sqlType, TargetType targetType, boolean require, int startLine, int startColumn, int endLine, int endColumn, List<String> nodes,
+                                BehaviorAction action){
         this(sqlType, targetType, require, startLine, startColumn, endLine, endColumn, nodes, action, true);
     }
 }

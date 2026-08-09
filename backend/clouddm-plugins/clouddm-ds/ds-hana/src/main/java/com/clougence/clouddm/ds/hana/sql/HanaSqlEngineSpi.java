@@ -34,7 +34,6 @@ import com.clougence.dslpaser.antlr.DslProvider;
 /** @author mode */
 public class HanaSqlEngineSpi implements SqlEngineSpi {
     public static final String                     NAME          = "SAP Hana SQL";
-
     private final Map<String, SplitAnalysisSpi>    splitCache    = new ConcurrentHashMap<>();
     private final Map<String, BehaviorAnalysisSpi> behaviorCache = new ConcurrentHashMap<>();
 

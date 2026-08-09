@@ -24,6 +24,7 @@ dependencies {
 
     // project
     implementation project(':dsc-common-mysql')
+    implementation project(':sql-doris')
     implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
 
     // share lib (compileOnly)

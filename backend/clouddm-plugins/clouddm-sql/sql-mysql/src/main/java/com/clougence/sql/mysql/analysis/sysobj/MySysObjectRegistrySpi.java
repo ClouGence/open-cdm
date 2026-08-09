@@ -9,14 +9,17 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
 import com.clougence.sql.mysql.MySqlEngineSpi;
-import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
 import com.clougence.utils.StringUtils;
 
 /** MySQL permission-exempt resources backed by the parser resource registry. */
 public final class MySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
 
-    private final MySqlResourceRegistry resources = MySqlResourceRegistry.instance();
+    private final MySqlResourceRegistry resources;
+
+    public MySysObjectRegistrySpi(){
+        this.resources = MySqlResourceRegistry.instance();
+    }
 
     @Override
     public String name() {
@@ -32,7 +35,7 @@ public final class MySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
         if (targetType == TargetType.Procedure && action == BehaviorAction.CALL) {
             return schema != null && resources.isSystemProcedure(schema, objectName, version);
         }
-        if (targetType == TargetType.Table && action == BehaviorAction.READ) {
+        if ((targetType == TargetType.Table || targetType == TargetType.View || targetType == TargetType.Materialized) && action == BehaviorAction.READ) {
             return schema == null && StringUtils.equalsIgnoreCase("DUAL", objectName) || schema != null && resources.isMetadataTable(schema, objectName, version);
         }
         return false;

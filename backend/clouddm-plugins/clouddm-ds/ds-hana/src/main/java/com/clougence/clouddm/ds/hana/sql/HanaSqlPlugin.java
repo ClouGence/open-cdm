@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.hana.sql;
 
 import com.clougence.clouddm.ds.hana.i18n.HanaSqlI18nKeys;
+import com.clougence.clouddm.ds.hana.sql.analysis.sysobj.HanaSysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -27,5 +28,6 @@ public class HanaSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(HanaSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new HanaSqlEngineSpi());
+        dsPlugin.addGlobalSpi(new HanaSysObjectRegistrySpi());
     }
 }
