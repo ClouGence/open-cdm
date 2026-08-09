@@ -9,22 +9,13 @@ package com.clougence.sql.common.parser;
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonTokenFactory;
-import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.UnbufferedCharStream;
+import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.LexerATNSimulator;
 import org.antlr.v4.runtime.atn.PredictionContextCache;
@@ -35,6 +26,9 @@ import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.SyntaxErrorListener;
+import com.clougence.sql.common.parser.perf.ParserPerfCollector;
+import com.clougence.sql.common.parser.perf.ParserPerfCollectors;
+import com.clougence.sql.common.parser.perf.ParserPerfRecorder;
 
 /**
  * Streaming infrastructure for a datasource-owned lexer split policy.
@@ -45,12 +39,23 @@ import com.clougence.dslpaser.parse.SyntaxErrorListener;
  */
 public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
+    private final ParserPerfCollector performanceCollector = ParserPerfCollectors.create();
+
     protected DslProvider dslProvider() {
         throw new UnsupportedOperationException("This splitter creates its lexer directly");
     }
 
     protected Lexer createLexer(CharStream source) {
         return dslProvider().createLexer(source);
+    }
+
+    /** Datasource/dialect dimension used by the lexer performance monitor. */
+    protected String performanceDialect() {
+        String[] names = dslProvider().getDslName();
+        if (names.length == 0 || names[0].isBlank()) {
+            return getClass().getName();
+        }
+        return names[0];
     }
 
     /** Returns a new, unshared policy for one split stream. */
@@ -71,22 +76,23 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
     private final class LexerSplit extends Spliterators.AbstractSpliterator<SplitScript> implements AutoCloseable, LexerSplitContext {
 
-        private final WindowedReader            source;
-        private final Lexer                     lexer;
-        private final LexerSplitPolicy          policy;
-        private final List<QueryArg>            args;
-        private final AtomicBoolean             closed       = new AtomicBoolean();
-        private final Deque<PendingToken>       pending      = new ArrayDeque<>();
-        private Token                           offsetToken;
-        private TokenOffsets                    offsetValue;
-        private int                             sourceOffset;
-        private int                             line;
-        private int                             column;
-        private int                             lastContentStop = -1;
-        private int                             lastContentLine = -1;
-        private int                             lastVisibleLine = -1;
-        private boolean                         hasContent;
-        private boolean                         eof;
+        private final WindowedReader      source;
+        private final Lexer               lexer;
+        private final LexerSplitPolicy    policy;
+        private final ParserPerfRecorder  performance;
+        private final List<QueryArg>      args;
+        private final AtomicBoolean       closed          = new AtomicBoolean();
+        private final Deque<PendingToken> pending         = new ArrayDeque<>();
+        private Token                     offsetToken;
+        private TokenOffsets              offsetValue;
+        private int                       sourceOffset;
+        private int                       line;
+        private int                       column;
+        private int                       lastContentStop = -1;
+        private int                       lastContentLine = -1;
+        private int                       lastVisibleLine = -1;
+        private boolean                   hasContent;
+        private boolean                   eof;
 
         private LexerSplit(Reader reader, List<QueryArg> args, int baseLine, int baseColumn){
             super(Long.MAX_VALUE, Spliterator.ORDERED | Spliterator.NONNULL);
@@ -94,8 +100,11 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             this.args = args;
             this.line = Math.max(1, baseLine);
             this.column = Math.max(0, baseColumn);
-            this.source = new WindowedReader(new NonClosingReader(reader));
+            boolean performanceEnabled = AbstractSplitAnalysisSpi.this.performanceCollector.enabled();
+            this.source = new WindowedReader(new NonClosingReader(reader), performanceEnabled);
             this.lexer = createLexer(new UnbufferedCharStream(this.source));
+            this.performance = performanceEnabled ? ParserPerfRecorder
+                .begin(AbstractSplitAnalysisSpi.this.performanceCollector, performanceDialect(), this.lexer.getClass()) : null;
             isolatePredictionCache(this.lexer);
             this.lexer.setTokenFactory(new CommonTokenFactory(true));
             this.lexer.removeErrorListeners();
@@ -160,7 +169,23 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
         private Token nextToken() {
             if (this.pending.isEmpty()) {
-                return this.lexer.nextToken();
+                if (this.performance == null) {
+                    return this.lexer.nextToken();
+                }
+                long startedNanos = System.nanoTime();
+                try {
+                    Token token = this.lexer.nextToken();
+                    long elapsedNanos = System.nanoTime() - startedNanos;
+                    if (token.getType() == Token.EOF) {
+                        this.performance.addLexerTime(elapsedNanos);
+                    } else {
+                        this.performance.addToken(elapsedNanos);
+                    }
+                    return token;
+                } catch (RuntimeException | Error e) {
+                    this.performance.addLexerTime(System.nanoTime() - startedNanos);
+                    throw e;
+                }
             }
             PendingToken pendingToken = this.pending.removeFirst();
             this.offsetToken = pendingToken.token();
@@ -224,6 +249,9 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             split.setBodyStartCodeColumn(startColumn);
             split.setBodyEndCodeLine(endLine);
             split.setBodyEndCodeColumn(endColumn);
+            if (this.performance != null) {
+                this.performance.addStatement();
+            }
             return split;
         }
 
@@ -271,10 +299,10 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
                 start = this.source.utf16OffsetForCodePoint(token.getStartIndex());
                 end = this.source.utf16OffsetForCodePoint(token.getStopIndex() + 1);
             } catch (IllegalStateException e) {
-                throw new IllegalStateException("Lexer token offset is unavailable: type=" + token.getType() +
-                        ", start=" + token.getStartIndex() + ", stop=" + token.getStopIndex() +
-                        ", windowUtf16=" + this.source.startOffset() + ".." + this.source.endOffset() +
-                        ", windowCodePoints=" + this.source.startCodePointOffset() + ".." + this.source.endCodePointOffset(), e);
+                throw new IllegalStateException("Lexer token offset is unavailable: type=" + token.getType() + ", start=" + token.getStartIndex() + ", stop=" + token.getStopIndex()
+                                                + ", windowUtf16=" + this.source.startOffset() + ".." + this.source.endOffset() + ", windowCodePoints="
+                                                + this.source.startCodePointOffset() + ".." + this.source.endCodePointOffset(),
+                    e);
             }
             TokenOffsets offsets = new TokenOffsets(start, end);
             this.offsetToken = token;
@@ -354,6 +382,10 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         public void close() {
             if (this.closed.compareAndSet(false, true)) {
                 this.policy.reset();
+                if (this.performance != null) {
+                    this.performance.input(this.source.totalChars(), this.source.totalUtf8Bytes());
+                    this.performance.close();
+                }
                 afterSplitStream();
             }
         }
@@ -368,13 +400,18 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
     private static final class WindowedReader extends FilterReader {
 
         private final StringBuilder window = new StringBuilder();
+        private final boolean       countPerformance;
         private int                 startOffset;
         private int                 startCodePointOffset;
         private int                 mappedOffset;
         private int                 mappedCodePointOffset;
+        private long                totalChars;
+        private long                totalUtf8Bytes;
+        private boolean             pendingHighSurrogate;
 
-        private WindowedReader(Reader reader){
+        private WindowedReader(Reader reader, boolean countPerformance){
             super(reader);
+            this.countPerformance = countPerformance;
         }
 
         @Override
@@ -382,6 +419,9 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             int value = super.read();
             if (value >= 0) {
                 this.window.append((char) value);
+                countInput((char) value);
+            } else {
+                finishByteCount();
             }
             return value;
         }
@@ -391,8 +431,56 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             int read = super.read(cbuf, off, len);
             if (read > 0) {
                 this.window.append(cbuf, off, read);
+                for (int index = off; index < off + read; index++) {
+                    countInput(cbuf[index]);
+                }
+            } else if (read < 0) {
+                finishByteCount();
             }
             return read;
+        }
+
+        private void countInput(char value) {
+            if (!this.countPerformance) {
+                return;
+            }
+            this.totalChars++;
+            if (this.pendingHighSurrogate) {
+                if (Character.isLowSurrogate(value)) {
+                    this.totalUtf8Bytes += 4;
+                    this.pendingHighSurrogate = false;
+                    return;
+                }
+                this.totalUtf8Bytes++;
+                this.pendingHighSurrogate = false;
+            }
+            if (Character.isHighSurrogate(value)) {
+                this.pendingHighSurrogate = true;
+            } else if (value <= 0x7f) {
+                this.totalUtf8Bytes++;
+            } else if (value <= 0x7ff) {
+                this.totalUtf8Bytes += 2;
+            } else if (Character.isLowSurrogate(value)) {
+                this.totalUtf8Bytes++;
+            } else {
+                this.totalUtf8Bytes += 3;
+            }
+        }
+
+        private void finishByteCount() {
+            if (this.pendingHighSurrogate) {
+                this.totalUtf8Bytes++;
+                this.pendingHighSurrogate = false;
+            }
+        }
+
+        private long totalChars() {
+            return this.totalChars;
+        }
+
+        private long totalUtf8Bytes() {
+            finishByteCount();
+            return this.totalUtf8Bytes;
         }
 
         private int startOffset() {
