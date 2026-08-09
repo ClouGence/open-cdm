@@ -32,6 +32,8 @@ package com.clougence.sql.common.parser.perf;
  */
 public final class ParserPerfRecorder implements AutoCloseable {
 
+    private static final long TOKEN_CHECKPOINT_SIZE = 512;
+
     private final ParserPerfCollector collector;
     private final String              dialect;
     private final String              lexer;
@@ -40,6 +42,11 @@ public final class ParserPerfRecorder implements AutoCloseable {
     private long                      inputBytes;
     private long                      outputTokens;
     private long                      lexerNanos;
+    private long                      publishedStatements;
+    private long                      publishedInputChars;
+    private long                      publishedInputBytes;
+    private long                      publishedOutputTokens;
+    private long                      publishedLexerNanos;
     private boolean                   closed;
 
     private ParserPerfRecorder(ParserPerfCollector collector, String dialect, Class<? extends org.antlr.v4.runtime.Lexer> lexerType){
@@ -69,6 +76,17 @@ public final class ParserPerfRecorder implements AutoCloseable {
         this.lexerNanos += elapsedNanos;
     }
 
+    /** Whether enough tokens have accumulated to publish a low-overhead live interval. */
+    public boolean checkpointDue() {
+        return this.outputTokens - this.publishedOutputTokens >= TOKEN_CHECKPOINT_SIZE;
+    }
+
+    /** Publish progress while retaining complete invocation totals for persisted metrics. */
+    public void checkpoint(long charCount, long byteCount) {
+        input(charCount, byteCount);
+        publishProgress(false);
+    }
+
     /** Set cumulative input consumed by this lexer instance. */
     public void input(long charCount, long byteCount) {
         this.inputChars = charCount;
@@ -80,7 +98,26 @@ public final class ParserPerfRecorder implements AutoCloseable {
     public void close() {
         if (!this.closed) {
             this.closed = true;
-            this.collector.record(this.dialect, this.lexer, this.statements, this.inputChars, this.inputBytes, this.outputTokens, this.lexerNanos);
+            publishProgress(true);
+            this.collector.recordCompleted(this.dialect, this.lexer, this.statements, this.inputChars,
+                    this.inputBytes, this.outputTokens, this.lexerNanos);
+        }
+    }
+
+    private void publishProgress(boolean completed) {
+        long statementDelta = this.statements - this.publishedStatements;
+        long charDelta = this.inputChars - this.publishedInputChars;
+        long byteDelta = this.inputBytes - this.publishedInputBytes;
+        long tokenDelta = this.outputTokens - this.publishedOutputTokens;
+        long nanosDelta = this.lexerNanos - this.publishedLexerNanos;
+        if (completed || statementDelta != 0 || charDelta != 0 || byteDelta != 0 || tokenDelta != 0 || nanosDelta != 0) {
+            this.collector.recordProgress(this.dialect, this.lexer, statementDelta, charDelta, byteDelta,
+                    tokenDelta, nanosDelta, completed);
+            this.publishedStatements = this.statements;
+            this.publishedInputChars = this.inputChars;
+            this.publishedInputBytes = this.inputBytes;
+            this.publishedOutputTokens = this.outputTokens;
+            this.publishedLexerNanos = this.lexerNanos;
         }
     }
 }

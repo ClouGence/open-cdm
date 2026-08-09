@@ -98,9 +98,30 @@ public final class ParserPerfCollector {
         if (!this.enabled) {
             return;
         }
+        recordProgress(dialect, lexer, statements, inputChars, inputBytes, outputTokens, elapsedNanos, true);
+        recordCompleted(dialect, lexer, statements, inputChars, inputBytes, outputTokens, elapsedNanos);
+    }
+
+    void recordProgress(String dialect, String lexer, long statements, long inputChars, long inputBytes,
+                        long outputTokens, long elapsedNanos, boolean completed) {
+        if (!this.enabled) {
+            return;
+        }
         String tier = tierOf(inputChars / Math.max(1, statements));
         MetricKey key = new MetricKey(dialect, lexer, tier);
-        this.aggregators.computeIfAbsent(key, ignored -> new LexerAggregator(key)).add(statements, inputChars, inputBytes, outputTokens, elapsedNanos);
+        this.aggregators.computeIfAbsent(key, ignored -> new LexerAggregator(key))
+                .addInterval(completed ? 1 : 0, statements, inputChars, inputBytes, outputTokens, elapsedNanos);
+    }
+
+    void recordCompleted(String dialect, String lexer, long statements, long inputChars, long inputBytes,
+                         long outputTokens, long elapsedNanos) {
+        if (!this.enabled) {
+            return;
+        }
+        String tier = tierOf(inputChars / Math.max(1, statements));
+        MetricKey key = new MetricKey(dialect, lexer, tier);
+        this.aggregators.computeIfAbsent(key, ignored -> new LexerAggregator(key))
+                .addFile(statements, inputChars, inputBytes, outputTokens, elapsedNanos);
     }
 
     /**
@@ -160,9 +181,14 @@ public final class ParserPerfCollector {
             this.key = key;
         }
 
-        private synchronized void add(long statements, long inputChars, long inputBytes, long outputTokens, long elapsedNanos) {
+        private synchronized void addInterval(long invocations, long statements, long inputChars, long inputBytes,
+                                              long outputTokens, long elapsedNanos) {
+            this.interval.add(invocations, statements, inputChars, inputBytes, outputTokens, elapsedNanos);
+        }
+
+        private synchronized void addFile(long statements, long inputChars, long inputBytes, long outputTokens,
+                                          long elapsedNanos) {
             this.file.add(1, statements, inputChars, inputBytes, outputTokens, elapsedNanos);
-            this.interval.add(1, statements, inputChars, inputBytes, outputTokens, elapsedNanos);
             if (this.file.statements >= ParserPerfCollector.this.window) {
                 write(this.file.snapshotAndReset(this.key));
             }
@@ -214,7 +240,8 @@ public final class ParserPerfCollector {
         }
 
         private ParserPerfSnapshot snapshotAndReset(MetricKey key) {
-            if (this.invocations == 0) {
+            if (this.invocations == 0 && this.statements == 0 && this.inputChars == 0 && this.inputBytes == 0 &&
+                    this.outputTokens == 0 && this.elapsedNanos == 0) {
                 return null;
             }
             ParserPerfSnapshot snapshot = ParserPerfSnapshot

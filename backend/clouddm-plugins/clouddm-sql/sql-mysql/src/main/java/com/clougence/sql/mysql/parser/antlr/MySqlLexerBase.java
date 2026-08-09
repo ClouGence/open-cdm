@@ -2,10 +2,12 @@ package com.clougence.sql.mysql.parser.antlr;
 
 import org.antlr.v4.runtime.*;
 
-import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
+import com.clougence.sql.mysql.analysis.sysobj.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
 import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
 import com.clougence.sql.mysql.parser.MySqlVersion;
+import com.clougence.sql.common.parser.SplitLexerFastPath;
+import com.clougence.sql.common.parser.SplitLexerFastPath.CommentSyntax;
 
 public abstract class MySqlLexerBase extends Lexer {
 
@@ -42,6 +44,7 @@ public abstract class MySqlLexerBase extends Lexer {
         if (fastPathEnabled) {
             Token fast = fastPathToken();
             if (fast != null) {
+                rememberDefaultToken(fast);
                 return fast;
             }
         }
@@ -75,6 +78,12 @@ public abstract class MySqlLexerBase extends Lexer {
      * scan is nanoseconds. Returns null to fall back to {@link #super.nextToken()}.
      */
     private Token fastPathToken() {
+        if (splitFastPathEnabled()) {
+            Token token = SplitLexerFastPath.nextToken(this, MySqlLexer.ID, MySqlLexer.SPACE, CommentSyntax.MYSQL);
+            if (token != null) {
+                return token;
+            }
+        }
         int startIndex = _input.index();
         int marker = _input.mark();
         try {
@@ -131,6 +140,11 @@ public abstract class MySqlLexerBase extends Lexer {
             // streams slide their window and keep the emitted token text readable.
             _input.release(marker);
         }
+    }
+
+    /** Split-only lexers may bypass the full grammar for unambiguous tokens. */
+    protected boolean splitFastPathEnabled() {
+        return false;
     }
 
     private static boolean isSpace(int value) {

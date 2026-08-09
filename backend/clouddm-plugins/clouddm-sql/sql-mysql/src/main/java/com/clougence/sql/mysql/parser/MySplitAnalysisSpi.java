@@ -15,10 +15,12 @@
  */
 package com.clougence.sql.mysql.parser;
 
-import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Lexer;
 
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.sql.common.parser.*;
+import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
 import com.clougence.sql.mysql.parser.antlr.MySqlLexer;
 
 /** Lexer-only MySQL statement splitter. */
@@ -52,6 +54,10 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         private SplitLexer(CharStream input){
             super(input);
         }
-    }
 
+        @Override
+        protected boolean splitFastPathEnabled() {
+            return true;
+        }
+    }
 }

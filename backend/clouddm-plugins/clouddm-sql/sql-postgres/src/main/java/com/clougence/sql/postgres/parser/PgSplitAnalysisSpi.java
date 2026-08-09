@@ -15,9 +15,16 @@
  */
 package com.clougence.sql.postgres.parser;
 
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.Token;
+
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
 import com.clougence.sql.common.parser.LexerSplitPolicy;
+import com.clougence.sql.common.parser.SplitLexerFastPath;
+import com.clougence.sql.common.parser.SplitLexerFastPath.CommentSyntax;
+import com.clougence.sql.postgres.parser.antlr.PgSqlLexer;
 
 public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
@@ -43,6 +50,25 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     @Override
     protected LexerSplitPolicy createSplitPolicy() {
         return new PgLexerSplitPolicy();
+    }
+
+    @Override
+    protected Lexer createLexer(CharStream source) {
+        PgSqlLexer lexer = new SplitLexer(source);
+        lexer.setVersion(this.provider.version());
+        return lexer;
+    }
+
+    private static final class SplitLexer extends PgSqlLexer {
+        private SplitLexer(CharStream input){
+            super(input);
+        }
+
+        @Override
+        public Token nextToken() {
+            Token token = SplitLexerFastPath.nextToken(this, PgSqlLexer.Identifier, PgSqlLexer.Whitespace, CommentSyntax.POSTGRES);
+            return token != null ? token : super.nextToken();
+        }
     }
 
 }

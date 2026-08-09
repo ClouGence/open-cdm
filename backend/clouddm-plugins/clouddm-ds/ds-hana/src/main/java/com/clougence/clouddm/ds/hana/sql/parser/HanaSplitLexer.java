@@ -11,6 +11,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.WritableToken;
 
 import com.clougence.clouddm.ds.hana.sql.parser.antlr.HanaLexer;
+import com.clougence.sql.common.parser.SplitLexerFastPath;
+import com.clougence.sql.common.parser.SplitLexerFastPath.CommentSyntax;
 
 /**
  * HANA lexer with SQLScript boundary hints for the shared splitter.
@@ -36,7 +38,10 @@ final class HanaSplitLexer extends HanaLexer {
 
     @Override
     public Token nextToken() {
-        Token token = super.nextToken();
+        Token token = SplitLexerFastPath.nextToken(this, HanaLexer.WORD, HanaLexer.SPACE, CommentSyntax.STANDARD);
+        if (token == null) {
+            token = super.nextToken();
+        }
         if (token.getType() == WORD && token.getChannel() == Token.DEFAULT_CHANNEL) {
             String word = token.getText();
             if (this.visibleWords == 0) {

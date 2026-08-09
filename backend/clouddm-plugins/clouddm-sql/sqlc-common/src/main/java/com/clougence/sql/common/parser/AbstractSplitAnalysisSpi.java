@@ -180,6 +180,9 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
                         this.performance.addLexerTime(elapsedNanos);
                     } else {
                         this.performance.addToken(elapsedNanos);
+                        if (this.performance.checkpointDue()) {
+                            this.performance.checkpoint(this.source.totalChars(), this.source.totalUtf8Bytes());
+                        }
                     }
                     return token;
                 } catch (RuntimeException | Error e) {
@@ -251,6 +254,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             split.setBodyEndCodeColumn(endColumn);
             if (this.performance != null) {
                 this.performance.addStatement();
+                this.performance.checkpoint(this.source.totalChars(), this.source.totalUtf8Bytes());
             }
             return split;
         }

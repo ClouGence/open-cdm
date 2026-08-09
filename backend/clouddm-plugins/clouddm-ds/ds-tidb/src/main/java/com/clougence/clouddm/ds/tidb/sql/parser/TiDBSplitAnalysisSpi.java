@@ -15,9 +15,16 @@
  */
 package com.clougence.clouddm.ds.tidb.sql.parser;
 
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.Token;
+
+import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBLexer;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
 import com.clougence.sql.common.parser.LexerSplitPolicy;
+import com.clougence.sql.common.parser.SplitLexerFastPath;
+import com.clougence.sql.common.parser.SplitLexerFastPath.CommentSyntax;
 
 /**
  * TiDB lexer-only statement splitter.
@@ -41,5 +48,24 @@ public class TiDBSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     @Override
     protected LexerSplitPolicy createSplitPolicy() {
         return new TiDBLexerSplitPolicy();
+    }
+
+    @Override
+    protected Lexer createLexer(CharStream source) {
+        TiDBLexer lexer = new SplitLexer(source);
+        lexer.setConfig(this.provider.config());
+        return lexer;
+    }
+
+    private static final class SplitLexer extends TiDBLexer {
+        private SplitLexer(CharStream input){
+            super(input);
+        }
+
+        @Override
+        public Token nextToken() {
+            Token token = SplitLexerFastPath.nextToken(this, TiDBLexer.ID, TiDBLexer.SPACE, CommentSyntax.MYSQL);
+            return token != null ? token : super.nextToken();
+        }
     }
 }

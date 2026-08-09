@@ -2,7 +2,7 @@ package com.clougence.clouddm.ds.tidb.sql.parser.antlr;
 
 import org.antlr.v4.runtime.*;
 
-import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiDBResourceRegistry;
+import com.clougence.clouddm.ds.tidb.sql.analysis.sysobj.TiDBResourceRegistry;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBParserConfig;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBParserFeature;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBVersion;

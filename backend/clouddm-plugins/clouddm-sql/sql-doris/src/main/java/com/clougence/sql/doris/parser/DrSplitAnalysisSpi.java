@@ -15,9 +15,17 @@
  */
 package com.clougence.sql.doris.parser;
 
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.Token;
+
 import com.clougence.dslpaser.antlr.DslProvider;
+import com.clougence.dslpaser.parse.CaseInsensitiveStream;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
 import com.clougence.sql.common.parser.LexerSplitPolicy;
+import com.clougence.sql.common.parser.SplitLexerFastPath;
+import com.clougence.sql.common.parser.SplitLexerFastPath.CommentSyntax;
+import com.clougence.sql.doris.parser.antlr.DorisLexer;
 
 /** Doris lexer-only statement splitter. */
 public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
@@ -40,5 +48,24 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     @Override
     protected LexerSplitPolicy createSplitPolicy() {
         return new DrLexerSplitPolicy();
+    }
+
+    @Override
+    protected Lexer createLexer(CharStream source) {
+        DorisLexer lexer = new SplitLexer(new CaseInsensitiveStream(source));
+        lexer.setConfig(this.provider.config());
+        return lexer;
+    }
+
+    private static final class SplitLexer extends DorisLexer {
+        private SplitLexer(CharStream input){
+            super(input);
+        }
+
+        @Override
+        public Token nextToken() {
+            Token token = SplitLexerFastPath.nextToken(this, DorisLexer.IDENTIFIER, DorisLexer.WS, CommentSyntax.STANDARD);
+            return token != null ? token : super.nextToken();
+        }
     }
 }
