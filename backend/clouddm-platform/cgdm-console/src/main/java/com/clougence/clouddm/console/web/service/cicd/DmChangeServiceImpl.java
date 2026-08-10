@@ -240,7 +240,7 @@ public class DmChangeServiceImpl implements DmChangeService {
         if (startLine == 1) {
             List<DmChangeItemDO> diffItems = this.changeFlowDal.changeItemMapper().queryChangeItemMetaByChangeId(change.getOwnerUid(), changeId, ChangeItemType.SQL_BASELINE);
             if (diffItems.isEmpty()) {
-                diffItems = this.changeFlowDal.changeItemMapper().queryChangedItemMeta(change.getOwnerUid(), change.getRefFlowId(), changeId);
+                diffItems = this.changeFlowDal.queryChangedItemMeta(change.getOwnerUid(), change.getRefFlowId(), changeId);
             }
             List<String> contentNames = diffItems.stream().map(DmChangeItemDO::getContentName).toList();
             List<ChangeBodyItemVO> items;

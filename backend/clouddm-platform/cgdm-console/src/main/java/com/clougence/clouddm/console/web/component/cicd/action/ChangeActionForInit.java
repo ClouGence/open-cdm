@@ -252,7 +252,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
     }
 
     private void storeDiffBaselines(DmChangeDO change, Map<String, DmChangeFlowItemDO> itemMap) {
-        List<DmChangeItemDO> changedItems = this.changeFlowDal.changeItemMapper().queryChangedItemMeta(change.getOwnerUid(), change.getRefFlowId(), change.getId());
+        List<DmChangeItemDO> changedItems = this.changeFlowDal.queryChangedItemMeta(change.getOwnerUid(), change.getRefFlowId(), change.getId());
         for (DmChangeItemDO changedItem : changedItems) {
             DmChangeFlowItemDO baseline = itemMap.get(changedItem.getContentName());
             DmChangeItemDO snapshot = new DmChangeItemDO();

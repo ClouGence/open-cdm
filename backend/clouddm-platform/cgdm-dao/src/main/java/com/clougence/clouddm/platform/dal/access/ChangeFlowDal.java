@@ -16,10 +16,12 @@
 package com.clougence.clouddm.platform.dal.access;
 
 import java.io.OutputStream;
+import java.util.List;
 
 import com.clougence.clouddm.platform.dal.mapper.cicd.*;
 import com.clougence.clouddm.platform.dal.mapper.gitops.DmGitOpsScmMapper;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeItemType;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
 
 public interface ChangeFlowDal {
     DmChangeFlowMapper flowMapper();
@@ -41,6 +43,8 @@ public interface ChangeFlowDal {
     DmGitOpsScmMapper scmMapper();
 
     // ---------- dal service methods ----------
+
+    List<DmChangeItemDO> queryChangedItemMeta(String ownerUid, long flowId, long changeId);
 
     boolean readChangeItemContent(String ownerUid, long changeId, ChangeItemType itemType, OutputStream output);
 }
