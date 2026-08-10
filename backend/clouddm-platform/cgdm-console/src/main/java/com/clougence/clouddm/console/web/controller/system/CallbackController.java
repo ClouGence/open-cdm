@@ -249,6 +249,14 @@ public class CallbackController {
                 this.authDal.userMapper().updateUserName(login.getUid(), fetchUser.getUserName());
             }
 
+            if (login.isNeedMfa()) {
+                if (StringUtils.isBlank(login.getMfaPreActionToken())) {
+                    String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
+                    return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
+                }
+                return this.redirectToMfa(response, login.getMfaPreActionToken());
+            }
+
             return this.redirectToHome(request, response, login);
         } catch (Exception e) {
             if (e instanceof ErrorMessageException) {
@@ -304,7 +312,26 @@ public class CallbackController {
         return "needMore.";
     }
 
+    protected Object redirectToMfa(HttpServletResponse response, String mfaPreActionToken) throws IOException {
+        String contextPath = this.config.getDeployContextPath();
+        if (StringUtils.isBlank(contextPath)) {
+            contextPath = "/";
+        } else if (!StringUtils.endsWith(contextPath, "/")) {
+            contextPath += "/";
+        }
+
+        String redirectUrl = contextPath + "#/login?mfa=1&" +
+                             "mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8);
+        response.sendRedirect(redirectUrl);
+        return "needMfa.";
+    }
+
     protected Object redirectToHome(HttpServletRequest request, HttpServletResponse response, LoginMO login) throws IOException {
+        if (login.isNeedMfa() || login.isNeedMore() || StringUtils.isBlank(login.getToken())) {
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
+            return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
+        }
+
         int cookieAge = Math.max(JwtService.minLoginExpireSec, this.config.getLoginExpireTimeSec());
         Cookie cookie = RdpWebUtils.newCookie(JwtService.jwtTokenName, login.getToken(), false, cookieAge);
 

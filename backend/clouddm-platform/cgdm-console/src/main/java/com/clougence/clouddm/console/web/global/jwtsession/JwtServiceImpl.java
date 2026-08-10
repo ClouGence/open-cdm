@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.console.web.global.jwtsession;
 
-import static com.clougence.clouddm.console.web.service.auth.RdpUserService.MFA_TOKEN_EXPIRE_SEC;
 import static com.clougence.clouddm.console.web.service.auth.RdpUserService.OP_PASSWD_TOEKN_EXPIRE_MS;
 
 import java.time.LocalDateTime;
@@ -35,11 +34,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.constants.MfaPreActionType;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
-import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -154,21 +150,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public DecodedJWT verifyMfaActionToken(String mfaActionToken) {
-        if (StringUtils.isBlank(mfaActionToken)) {
-            throw new IllegalArgumentException("MFA action token can not be empty.");
-        }
-
-        try {
-            JWTVerifier verifier = JWT.require(algorithm()).withIssuer(issuer).build();
-            return verifier.verify(mfaActionToken);
-        } catch (IllegalArgumentException | JWTVerificationException e) {
-            log.error("JWT verify error,brief msg:" + ExceptionUtils.getRootCauseMessage(e));
-            return null;
-        }
-    }
-
-    @Override
     public String genJwtToken(DmAuthUserDO user) {
         return genJwtToken(user, null);
     }
@@ -205,17 +186,4 @@ public class JwtServiceImpl implements JwtService {
         return JWT.create().withIssuer(issuer).withIssuedAt(issueAt).withExpiresAt(expresAt).withJWTId(user.getUid()).sign(algorithm());
     }
 
-    @Override
-    public String genMfaActionToken(String uid, MfaPreActionType actionType, String jwtToken) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expireTime = now.plusSeconds(MFA_TOKEN_EXPIRE_SEC);
-        return JWT.create()
-            .withIssuer(issuer)
-            .withIssuedAt(now.atZone(ZoneId.systemDefault()).toInstant())
-            .withExpiresAt(expireTime.atZone(ZoneId.systemDefault()).toInstant())
-            .withJWTId(uid)
-            .withClaim(LoginMFAService.MFA_PRE_ACTION_TYPE, actionType.name())
-            .withClaim(LoginMFAService.MFA_LOGIN_JWT_TOKEN, jwtToken)
-            .sign(algorithm());
-    }
 }

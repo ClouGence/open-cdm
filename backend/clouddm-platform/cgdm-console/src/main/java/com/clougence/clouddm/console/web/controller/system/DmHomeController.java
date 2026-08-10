@@ -15,9 +15,6 @@
  */
 package com.clougence.clouddm.console.web.controller.system;
 
-import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR;
-import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.MFA_CODE_IS_INVALID;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
@@ -28,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
@@ -46,7 +42,6 @@ import com.clougence.clouddm.console.web.component.file.mode.FormatConvertDef;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.constants.MfaPreActionType;
 import com.clougence.clouddm.console.web.constants.SystemStatus;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -61,7 +56,6 @@ import com.clougence.clouddm.console.web.model.fo.user.CheckSubAccountBindInfoFO
 import com.clougence.clouddm.console.web.model.vo.*;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.login.LoginDefService;
-import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.console.web.service.login.LoginService;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.dsfamily.definition.ui.browser.RdbUiMenuDef;
@@ -107,8 +101,6 @@ public class DmHomeController {
     @Resource
     private LoginService        loginService;
     @Resource
-    private LoginMFAService     loginMFAService;
-    @Resource
     private AuthDal             authDal;
     @Resource
     private CsrfTokenService    csrfTokenService;
@@ -116,8 +108,6 @@ public class DmHomeController {
     private RdpOpAuditService   auditService;
     @Resource
     private DmDsConfigService   dmDsConfigService;
-    @Resource
-    private JwtService          jwtService;
     @Resource
     private UserConfigService   userConfigService;
 
@@ -137,42 +127,8 @@ public class DmHomeController {
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/loginMfaValid", method = { RequestMethod.POST })
     public ResWebData<?> loginMfaValid(@Valid @RequestBody LoginMfaValidFO validFO, HttpServletRequest request, HttpServletResponse response) {
-        DecodedJWT mfaJwt = jwtService.verifyMfaActionToken(validFO.getMfaPreActionToken());
-        if (mfaJwt == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
-        }
-
-        String uid = mfaJwt.getId();
-        String preActionTypeStr = mfaJwt.getClaim(LoginMFAService.MFA_PRE_ACTION_TYPE).asString();
-        String jwtTokenStr = mfaJwt.getClaim(LoginMFAService.MFA_LOGIN_JWT_TOKEN).asString();
-
-        DecodedJWT loginJwt = jwtService.verifyJwtToken(jwtTokenStr);
-        if (loginJwt == null || !loginJwt.getId().equals(uid)) {
-            throw new IllegalArgumentException("Uid in token is in-consistent.");
-        }
-
-        if (StringUtils.isBlank(uid) || StringUtils.isBlank(preActionTypeStr)) {
-            throw new IllegalArgumentException("Mfa pre-action token' properties is empty.");
-        }
-
-        MfaPreActionType actionType = MfaPreActionType.valueOf(preActionTypeStr);
-        if (actionType != MfaPreActionType.LOGIN) {
-            throw new IllegalArgumentException("MFA pre-action type (" + actionType + ") is illegal.");
-        }
-
-        if (!loginMFAService.validMFA(uid, validFO.getMfaCode())) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
-        }
-
-        DmAuthUserDO userDO = userService.getUserByUid(uid);
-
-        LoginMO re = new LoginMO();
-        re.setSuccess(true);
-        re.setUid(userDO.getUid());
-        re.setUsername(userDO.getUsername());
-        re.setToken(jwtTokenStr);
-        re.setLoginType(LoginAuthType.valueOfCode(loginJwt.getClaim(JwtService.LOGIN_TYPE).asString()));
-        return commonLoginResult(re, request, response);
+        LoginMO loginMO = loginService.loginMfaValid(validFO);
+        return commonLoginResult(loginMO, request, response);
     }
 
     protected ResWebData<?> commonLoginResult(LoginMO loginMO, HttpServletRequest request, HttpServletResponse response) {

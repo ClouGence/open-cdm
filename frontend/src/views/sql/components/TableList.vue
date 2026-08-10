@@ -60,29 +60,30 @@
         :class="!['TABLE', 'VIEW', 'PROC', 'FUNC'].includes(currentTab.leafType) ? 'no-indent' : ''"
       >
         <loading :active="tableListLoading" :is-full-page="false"></loading>
-        <v-tree
-          :emptyText="$t('dian-ji-jia-zai-shu-ju')"
-          class="table-list-tree"
-          ref="tableTree"
-          key-field="key"
-          :load="handleExpandLoadNode"
-          :render="renderNode"
-          :nodeIndent="20"
-          :renderNodeAmount="200"
-          @click="handleVTreeClick"
-          @node-right-click="handleNodeRightClick"
-        >
-          <template #empty>
-            <div v-if="!tableListLoading">
-              <span>{{ $t('zan-wu-shu-ju') }}</span>
-              <br />
-              <a-button type="text" ghost @click="handleRefreshTree">
-                <CustomIcon type="icon-v2-Refresh" />
-                <span style="padding-left: 5px">{{ $t('dian-ji-jia-zai-shu-ju') }}</span>
-              </a-button>
-            </div>
-          </template>
-        </v-tree>
+        <div class="table-list-tree">
+          <v-tree
+            :emptyText="$t('dian-ji-jia-zai-shu-ju')"
+            ref="tableTree"
+            key-field="key"
+            :load="handleExpandLoadNode"
+            :render="renderNode"
+            :nodeIndent="20"
+            :renderNodeAmount="200"
+            @click="handleVTreeClick"
+            @node-right-click="handleNodeRightClick"
+          >
+            <template #empty>
+              <div v-if="!tableListLoading">
+                <span>{{ $t('zan-wu-shu-ju') }}</span>
+                <br />
+                <a-button type="text" ghost @click="handleRefreshTree">
+                  <CustomIcon type="icon-v2-Refresh" />
+                  <span style="padding-left: 5px">{{ $t('dian-ji-jia-zai-shu-ju') }}</span>
+                </a-button>
+              </div>
+            </template>
+          </v-tree>
+        </div>
       </div>
       <div class="object-list-pagination">
         <span class="object-list-pagination__total">{{ $t('gong') }}{{ filteredObjectCount }}{{ $t('tiao') }}</span>
@@ -1015,6 +1016,7 @@ import i18n from '@/i18n';
 import { nanoid } from 'nanoid';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
+import TreeNodeLabel from '@/views/sql/components/TreeNodeLabel';
 
 const BG_COLOR = {
   Insert: 'rgb(236, 255, 220)',
@@ -2470,25 +2472,31 @@ export default {
       return rootNode;
     },
     renderNode(node) {
-      const { title, icon, tips, children, nodeType, objName, objAttr, isLeaf } = node;
+      const { title, icon, tips, children, nodeType, objName, objAttr } = node;
+      const labelText = objName || title;
+      let tooltipText = labelText;
+      if (tips) {
+        tooltipText = `${tooltipText} ${tips}`;
+      }
+      if (objAttr && objAttr.rdb_tips) {
+        tooltipText = `${tooltipText} ${objAttr.rdb_tips}`;
+      }
 
       return (
-        <div class={['node']} style={isLeaf ? 'position: relative; left: -20px;' : ''} key={title}>
+        <div class='node' key={title}>
           {icon && <cc-svg-icon name={icon} />}
-          {objAttr && objAttr.rdb_disabled === 'true' && (
-            <Tooltip content={'禁用'} transfer>
-              <Icon type={'md-close-circle'} color='red' />
-            </Tooltip>
+          {objAttr && objAttr.rdb_disabled === 'true' && <Icon type={'md-close-circle'} color='red' title='禁用' />}
+          {objAttr && objAttr.rdb_invalid === 'true' && <Icon type={'md-close-circle'} color='red' title='编译未通过' />}
+          <TreeNodeLabel
+            text={tooltipText}
+            html={this.highlight(labelText, this.currentTab[this.currentTab.leafType].searchKey)}
+            labelStyle={{ marginLeft: '3px' }}
+          />
+          {children && ['GROUP', 'RDB_PARAM'].includes(nodeType) && (
+            <div class='node-badge' style='font-weight: bold;color: #bbb;'>
+              [{children.length}]
+            </div>
           )}
-          {objAttr && objAttr.rdb_invalid === 'true' && (
-            <Tooltip content={'编译未通过'} transfer>
-              <Icon type={'md-close-circle'} color='red' />
-            </Tooltip>
-          )}
-          <div style={{ marginLeft: '3px' }} innerHTML={this.highlight(objName || title, this.currentTab[this.currentTab.leafType].searchKey)}></div>
-          {children && ['GROUP', 'RDB_PARAM'].includes(nodeType) && <div style='font-weight: bold;color: #bbb;'>[{children.length}]</div>}
-          {tips && <div style={{ marginLeft: '3px', color: '#ccc' }}>{tips}</div>}
-          {objAttr && objAttr.rdb_tips && <div style='color: #bbb;'>&nbsp;{objAttr.rdb_tips}</div>}
         </div>
       );
     },
@@ -4162,12 +4170,36 @@ export default {
 }
 
 .table-list-tree {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
   .ivu-btn-text:focus {
     box-shadow: none;
   }
 
   .ivu-btn:focus {
     box-shadow: none;
+  }
+
+  :deep(.vtree-tree__wrapper),
+  :deep(.ctree-tree__wrapper) {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  :deep(.node) {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
   }
 }
 
@@ -4221,6 +4253,9 @@ export default {
 :deep(.node) {
   display: flex;
   align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 :deep(.no-indent) {

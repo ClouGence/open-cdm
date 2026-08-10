@@ -51,3 +51,5 @@ install_upgrade.log
 /dist
 *.override.md
 *.local.md
+
+.claude
