@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2026 杭州开云集致科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -135,7 +135,6 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
 
         ApprovalStageMO execMO = new ApprovalStageMO();
         execMO.setExecUserName(Collections.singletonList(this.authDal.userMapper().queryByUid(uid).getUsername()));
-        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(fo.getTicketId(), ApprovalStage.APPROVAL);
         this.approvalDal.approvalMapper().updateComment(ticketDO.getId(), fo.getComment());
         if (fo.isRejected()) {
             // WAIT_APPROVAL -> REJECTED
@@ -144,7 +143,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
             } else {
                 execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_REJECTED_BY_APPROVAL.name()));
             }
-            this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.REJECT, JsonUtils.toJson(execMO));
+            this.approvalStateService.updateProcessStatus(ticketDO.getId(), ApprovalStage.APPROVAL, ApprovalProcessStatus.REJECT, JsonUtils.toJson(execMO));
             this.transitionTicketToTerminal(ticketDO.getId(), ApprovalStatus.REJECTED, null);
         } else {
             // WAIT_APPROVAL -> WAIT_CONFIRM
@@ -155,7 +154,7 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
             } else {
                 execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_ADOPT_BY_APPROVAL.name()));
             }
-            this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, JsonUtils.toJson(execMO));
+            this.approvalStateService.updateProcessStatus(ticketDO.getId(), ApprovalStage.APPROVAL, ApprovalProcessStatus.FINISH, JsonUtils.toJson(execMO));
         }
 
         //  update real approval person

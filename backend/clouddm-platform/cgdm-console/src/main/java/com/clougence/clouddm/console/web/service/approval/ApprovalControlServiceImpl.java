@@ -34,6 +34,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.analysis.AnalysisRuleOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
@@ -188,6 +189,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             .uids(Collections.singletonList(String.valueOf(userDO.getUid())))
             .ticketTitleName(fo.getTicketTitleName())
             .ticketId(fo.getTicketId())
+            .ticketBizId(fo.getTicketBizId())
             .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
             .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
             .build();
@@ -200,6 +202,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             .ticketStatus(fo.getTicketStatus())
             .ticketTitleName(fo.getTicketTitleName())
             .ticketId(fo.getTicketId())
+            .ticketBizId(fo.getTicketBizId())
             .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
             .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
             .approvalPersonUid(fo.getUid())
@@ -213,6 +216,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             .ticketStatus(fo.getTicketStatus())
             .ticketTitleName(fo.getTicketTitleName())
             .ticketId(fo.getTicketId())
+            .ticketBizId(fo.getTicketBizId())
             .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
             .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
             .build();
@@ -292,6 +296,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmApprovalDO approvalDO = checkTicket(fo.getTicketId());
         RdpTicketBaseInfoVO vo = new RdpTicketBaseInfoVO();
         vo.setId(approvalDO.getId());
+        vo.setBizId(approvalDO.getBizId());
         vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtCreate()));
         vo.setGmtModified(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtModified()));
         vo.setDataSourceId(approvalDO.getBindDsId());
@@ -347,7 +352,16 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             }
         }
 
-        vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getFinishTime()));
+        String ticketFinishTime = DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getFinishTime());
+        vo.setFinishTime(ticketFinishTime);
+        if (StringUtils.isNotEmpty(ticketFinishTime)) {
+            // Fill historical execution records created before finish_time was persisted.
+            processVOS.stream()
+                .filter(processVO -> processVO.getTicketStage() == ApprovalStage.EXECUTION)
+                .filter(processVO -> processVO.getTicketProcessStatus() == ApprovalProcessStatus.FINISH)
+                .filter(processVO -> StringUtils.isEmpty(processVO.getFinishTime()))
+                .forEach(processVO -> processVO.setFinishTime(ticketFinishTime));
+        }
         vo.setTicketProcessVOList(processVOS);
         DmAuthUserDO userByUid = this.authDal.userMapper().queryByUid(approvalDO.getOwnerUid());
         if (userByUid == null) {
@@ -601,6 +615,9 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         RdpAddAuthTicketFO fo = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
 
         RdpAuthTicketDetailVO vo = new RdpAuthTicketDetailVO();
+        if (!CollectionUtils.isEmpty(fo.getApplyAuths())) {
+            this.fillAuthInfo(fo.getApplyAuths());
+        }
         vo.setApplyAuths(fo.getApplyAuths().stream().map(this::labelI18).collect(Collectors.toList()));
         vo.setAuthKind(fo.getAuthKind());
         return vo;
@@ -611,7 +628,12 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         Map<String, String> collect = allAuthLabel.stream().collect(Collectors.toMap(AuthInfo::getKey, AuthInfo::getKeyI18n));
         List<String> labels = new ArrayList<>();
         for (String authLabel : applyAuth.getAuthLabels()) {
-            labels.add(DmI18nUtils.getMessage(collect.get(authLabel)));
+            String i18nKey = collect.get(authLabel);
+            if (i18nKey == null) {
+                labels.add(authLabel);
+                continue;
+            }
+            labels.add(DmI18nUtils.getMessage(i18nKey));
         }
 
         applyAuth.setAuthLabels(labels);
@@ -626,9 +648,11 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
         Map<Long, String> resInstIdMap = new HashMap<>();
         Map<Long, String> resDescMap = new HashMap<>();
+        Map<Long, DataSourceType> dataSourceTypeMap = new HashMap<>();
         List<DmDsDO> dss = datasourceDal.dsMapper().listByIds(new ArrayList<>(dsIds));
         for (DmDsDO ds : dss) {
             resInstIdMap.put(ds.getId(), ds.getInstanceId());
+            dataSourceTypeMap.put(ds.getId(), ds.getDataSourceType());
 
             if (StringUtils.isBlank(ds.getInstanceDesc())) {
                 resDescMap.put(ds.getId(), ds.getInstanceId());
@@ -638,8 +662,12 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         for (ApplyAuth applyAuth : applyAuths) {
-            applyAuth.setResInstId(resInstIdMap.get(applyAuth.getResId()));
-            applyAuth.setResDesc(resDescMap.get(applyAuth.getResId()));
+            long resId = applyAuth.getResId();
+            if (resInstIdMap.containsKey(resId)) {
+                applyAuth.setResInstId(resInstIdMap.get(resId));
+                applyAuth.setResDesc(resDescMap.get(resId));
+                applyAuth.setDataSourceType(dataSourceTypeMap.get(resId));
+            }
         }
 
         return applyAuths;
@@ -864,13 +892,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             cContext.setExecMsg(fo.getComment());
         }
 
-        // update processDO
-        DmApprovalProcessDO processDO = null;
-        processDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.CONFIRM);
-        this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, JsonUtils.toJson(cContext));
+        this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.CONFIRM, ApprovalProcessStatus.FINISH, JsonUtils.toJson(cContext));
 
-        // update processDO
-        processDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXECUTION);
         String execUser = execUserFromConfirmAction(fo.getConfirmActionType(), confirmUser);
         ApprovalStageMO nContext = new ApprovalStageMO();
         if (fo.getAutoExecConfig().getAutoExecType() != AutoExecType.MANUAL_EXEC) {
@@ -878,14 +901,12 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
         nContext.setExecUserName(Collections.singletonList(execUser));
         if (actionStatus == ApprovalStatus.REJECTED) {
-            processDO.setProcessStatus(ApprovalProcessStatus.REJECT);
-            this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.REJECT, JsonUtils.toJson(nContext));
+            this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.REJECT, JsonUtils.toJson(nContext));
         } else if (actionStatus == ApprovalStatus.FINISHED) {
-            processDO.setProcessStatus(ApprovalProcessStatus.FINISH);
             nContext.setExecMsg(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_STATUS_COMPLETE_MESSAGE.name()));
-            this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, JsonUtils.toJson(nContext));
+            this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH, JsonUtils.toJson(nContext));
         } else if (actionStatus == ApprovalStatus.WAIT_EXEC) {
-            this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.INIT, JsonUtils.toJson(nContext));
+            this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.INIT, JsonUtils.toJson(nContext));
             this.approvalStateService.initializeExecutionProgress(ticketId);
         }
         String statusMessage = actionStatus == ApprovalStatus.WAIT_EXEC ? DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name()) : fo.getComment();
@@ -926,10 +947,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 info.setAutoExec(false);
                 this.approvalDal.approvalMapper().updateTicketInfo(dmTicketDO.getId(), JsonUtils.toJson(info));
             }
-            DmApprovalProcessDO confirmProcess = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.CONFIRM);
-            DmApprovalProcessDO executionProcess = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXECUTION);
-            this.approvalDal.processMapper().updateTicketStatusByEnum(confirmProcess.getId(), ApprovalProcessStatus.INIT, null);
-            this.approvalDal.processMapper().updateTicketStatusByEnum(executionProcess.getId(), ApprovalProcessStatus.INIT, null);
+            this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.CONFIRM, ApprovalProcessStatus.INIT, null);
+            this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.INIT, null);
             this.approvalStateService.resetExecutionProgress(ticketId);
             this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_CONFIRM, message);
         });
@@ -1002,7 +1021,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
         this.approvalStateService.initializeExecutionProgress(ticketId);
         approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.WAIT_EXEC, null);
-        approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.INIT);
+        this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.INIT, null);
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -1038,7 +1057,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(uid);
         mo.setExecMsg(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_CLOSE_AT_CONSOLE_BY_END_JOB_MESSAGE.name(), rdpUserDO.getUsername()));
 
-        this.approvalDal.processMapper().updateTicketStatusByEnum(rdpTicketProcessDO.getId(), ApprovalProcessStatus.CLOSED, JsonUtils.toJson(mo));
+        this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.CLOSED, JsonUtils.toJson(mo));
         this.approvalFlowService.transitionTicketToTerminal(ticketDO.getId(), ApprovalStatus.CLOSED, null);
     }
 

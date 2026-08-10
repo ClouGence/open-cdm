@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.cicd;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowType;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 
 import lombok.Getter;
@@ -28,8 +29,10 @@ import lombok.Setter;
 public class ChangeFlowGitOpsVO {
 
     private long           flowId;
+    private ChangeFlowType flowType;
+    private Long           parentFlowId;
 
-    private long           scmId;
+    private Long           scmId;
     private String         scmDisplay;
     private ScmType        scmType;
     private String         scmTypeI18n;

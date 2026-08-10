@@ -15,75 +15,100 @@
         <result column="content_index" property="contentIndex"/>
         <result column="content" property="content"/>
     </resultMap>
-    <sql id="dmChangeItemDO_select">
+    <sql id="dmChangeItemColumns">
         id
         , gmt_create, gmt_modified, owner_uid, ref_flow_id, ref_change_id, ref_change_item_type,
         content_name, content_index, content
     </sql>
     <select id="queryChangeItemByChangeId" resultMap="dmChangeItemDO">
-        select
-        <include refid="dmChangeItemDO_select"/>
-        from dm_change_item
-        where owner_uid = #{ownerUid} and ref_change_id = #{refChangeId} and ref_change_item_type = #{itemType}
-        order by content_index asc
+        SELECT
+            <include refid="dmChangeItemColumns"/>
+        FROM
+            dm_change_item
+        WHERE
+            owner_uid            = #{ownerUid}
+            AND
+            ref_change_id        = #{refChangeId}
+            AND
+            ref_change_item_type = #{itemType}
+        ORDER BY content_index ASC;
+    </select>
+    <select id="queryChangeItemByChangeIds" resultMap="dmChangeItemDO">
+        SELECT
+            <include refid="dmChangeItemColumns"/>
+        FROM
+            dm_change_item
+        WHERE
+            owner_uid            = #{ownerUid}
+            AND
+            ref_change_item_type = #{itemType}
+            AND
+            ref_change_id        IN
+        <foreach collection="refChangeIds" item="refChangeId" separator="," open="(" close=")">
+            #{refChangeId}
+        </foreach>
+        ORDER BY ref_change_id ASC, content_index ASC;
+    </select>
+    <select id="queryChangeItemMetaByChangeId" resultMap="dmChangeItemDO">
+        SELECT
+            id, gmt_create, gmt_modified, owner_uid, ref_flow_id,
+            ref_change_id, ref_change_item_type, content_name, content_index
+        FROM
+            dm_change_item
+        WHERE
+            owner_uid            = #{ownerUid}
+            AND
+            ref_change_id        = #{refChangeId}
+            AND
+            ref_change_item_type = #{itemType}
+        ORDER BY content_index ASC;
     </select>
     <select id="queryChangeItemByName" resultMap="dmChangeItemDO">
-        select
-        <include refid="dmChangeItemDO_select"/>
-        from dm_change_item
-        where owner_uid = #{ownerUid}
-          and ref_change_id = #{refChangeId}
-          and ref_change_item_type = #{itemType}
-          and content_name = #{contentName}
-        limit 1
+        SELECT
+            <include refid="dmChangeItemColumns"/>
+        FROM
+            dm_change_item
+        WHERE
+            owner_uid            = #{ownerUid}
+            AND
+            ref_change_id        = #{refChangeId}
+            AND
+            ref_change_item_type = #{itemType}
+            AND
+            content_name         = #{contentName}
+        LIMIT 1;
     </select>
-    <select id="queryChangedItemMeta" resultMap="dmChangeItemDO">
-        select current_item.id,
-               current_item.owner_uid,
-               current_item.ref_flow_id,
-               current_item.ref_change_id,
-               current_item.ref_change_item_type,
-               current_item.content_name,
-               current_item.content_index
-        from dm_change_item current_item
-        left join dm_change_flow_item baseline
-          on baseline.owner_uid = current_item.owner_uid
-         and baseline.ref_flow_id = #{flowId}
-         and baseline.content_name = current_item.content_name
-        where current_item.owner_uid = #{ownerUid}
-          and current_item.ref_change_id = #{changeId}
-          and current_item.ref_change_item_type = 'SQL'
-          and (baseline.id is null or not (baseline.content &lt;=&gt; current_item.content))
-        union all
-        select baseline.id,
-               baseline.owner_uid,
-               baseline.ref_flow_id,
-               #{changeId},
-               'SQL',
-               baseline.content_name,
-               baseline.content_index
-        from dm_change_flow_item baseline
-        left join dm_change_item current_item
-          on current_item.owner_uid = baseline.owner_uid
-         and current_item.ref_change_id = #{changeId}
-         and current_item.ref_change_item_type = 'SQL'
-         and current_item.content_name = baseline.content_name
-        where baseline.owner_uid = #{ownerUid}
-          and baseline.ref_flow_id = #{flowId}
-          and current_item.id is null
-        order by content_index asc
+    <select id="queryBaselineItemByFlowId" resultMap="dmChangeItemDO">
+        SELECT
+            id, gmt_create, gmt_modified, owner_uid, ref_flow_id,
+            #{changeId} AS ref_change_id, 'SQL' AS ref_change_item_type,
+            content_name, content_index, content
+        FROM
+            dm_change_flow_item
+        WHERE
+            owner_uid   = #{ownerUid}
+            AND
+            ref_flow_id = #{flowId}
+        ORDER BY content_index ASC;
     </select>
     <delete id="deleteByChangeItemType">
-        delete
-        from dm_change_item
-        where owner_uid = #{ownerUid}
-          and ref_change_id = #{refChangeId}
-          and ref_change_item_type = #{itemType}
+        DELETE
+        FROM
+            dm_change_item
+        WHERE
+            owner_uid            = #{ownerUid}
+            AND
+            ref_change_id        = #{refChangeId}
+            AND
+            ref_change_item_type = #{itemType};
     </delete>
     <delete id="deleteByChangeItemAll">
-        delete
-        from dm_change_item
-        where owner_uid = #{ownerUid}
-          and ref_change_id = #{refChangeId}
+        DELETE
+        FROM
+            dm_change_item
+        WHERE
+            owner_uid     = #{ownerUid}
+            AND
+            ref_change_id = #{refChangeId};
     </delete>
 </mapper>

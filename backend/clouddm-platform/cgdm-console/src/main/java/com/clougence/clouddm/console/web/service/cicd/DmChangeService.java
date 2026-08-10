@@ -15,6 +15,9 @@
  */
 package com.clougence.clouddm.console.web.service.cicd;
 
+import java.util.Collection;
+import java.util.Map;
+
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfoResult;
 import com.clougence.clouddm.console.web.model.fo.cicd.ChangeListFO;
@@ -37,6 +40,8 @@ public interface DmChangeService {
 
     void retryChange(String curUid, long changeId);
 
+    Map<Long, Long> queryTicketIds(String ownerUid, Collection<Long> changeIds);
+
     void restartChange(String curUid, long changeId);
 
     void closeChange(String curUid, long changeId);
@@ -46,4 +51,6 @@ public interface DmChangeService {
     CreateSuggest createChangeSuggest(String ownerUid, long flowId, String commitId);
 
     ResWebData<String> triggerChangeSuggest(String ownerUid, long flowId, ChangeTriggerContext triggerContext);
+
+    void triggerBuiltInChange(String ownerUid, String triggerUid, long flowId, String sql);
 }

@@ -34,6 +34,18 @@ export default {
   computed: {
     ...mapState(['dmGlobalSetting', 'globalDsSetting'])
   },
+  watch: {
+    original(value) {
+      if (this.originalModel && this.originalModel.getValue() !== value) {
+        this.originalModel.setValue(value);
+      }
+    },
+    modified(value) {
+      if (this.modifiedModel && this.modifiedModel.getValue() !== value) {
+        this.modifiedModel.setValue(value);
+      }
+    }
+  },
   async mounted() {
     this.editor = monaco.editor.createDiffEditor(this.$refs.container, {
       theme: this.theme,
@@ -42,12 +54,12 @@ export default {
     });
 
     const language = await resolveSqlEditorLanguage(monaco, this.dsType, this.getDsSettings(), this.language);
-    const originalModel = monaco.editor.createModel(this.original, language);
-    const modifiedModel = monaco.editor.createModel(this.modified, language);
+    this.originalModel = monaco.editor.createModel(this.original, language);
+    this.modifiedModel = monaco.editor.createModel(this.modified, language);
 
     this.editor.setModel({
-      original: originalModel,
-      modified: modifiedModel
+      original: this.originalModel,
+      modified: this.modifiedModel
     });
   },
   methods: {
@@ -58,6 +70,12 @@ export default {
   beforeUnmount() {
     if (this.editor) {
       this.editor.dispose();
+    }
+    if (this.originalModel) {
+      this.originalModel.dispose();
+    }
+    if (this.modifiedModel) {
+      this.modifiedModel.dispose();
     }
   }
 };

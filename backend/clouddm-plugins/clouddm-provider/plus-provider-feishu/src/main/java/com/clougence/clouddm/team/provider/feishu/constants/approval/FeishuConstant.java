@@ -36,7 +36,7 @@ public class FeishuConstant {
 
     // for Change
     public static final String FORM_CHANGE_DESCRIPTION  = "需求描述";
-    public static final String FORM_CHANGE_FLOW         = "变更流";
+    public static final String FORM_CHANGE_FLOW         = "发布流";
     public static final String FORM_CHANGE_NAME         = "变更";
     public static final String FORM_CHANGE_BRANCH       = "分支";
     public static final String FORM_CHANGE_TARGET       = "目标数据源";

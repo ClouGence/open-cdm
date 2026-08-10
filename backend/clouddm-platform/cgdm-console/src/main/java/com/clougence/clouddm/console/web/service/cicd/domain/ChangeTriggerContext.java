@@ -30,22 +30,26 @@ public final class ChangeTriggerContext {
     private final String        commitId;
     private final String        deliveryId;
     private final String        triggerType;
+    private final String        triggerUid;
 
-    private ChangeTriggerContext(String commitId, String deliveryId, String triggerType){
+    private ChangeTriggerContext(String commitId, String deliveryId, String triggerType, String triggerUid){
         this.commitId = commitId;
         this.deliveryId = deliveryId;
         this.triggerType = triggerType;
+        this.triggerUid = triggerUid;
     }
 
     public static ChangeTriggerContext webhook(String commitId, String deliveryId, ScmEventType eventType) {
-        return new ChangeTriggerContext(commitId, deliveryId, WEBHOOK_PREFIX + eventType.name());
+        return new ChangeTriggerContext(commitId, deliveryId, WEBHOOK_PREFIX + eventType.name(), null);
     }
 
-    public static ChangeTriggerContext manual(String commitId) {
-        return new ChangeTriggerContext(commitId, null, "Manual");
+    public static ChangeTriggerContext manual(String commitId, String triggerUid) {
+        return new ChangeTriggerContext(commitId, null, "Manual", triggerUid);
     }
 
     public static ChangeTriggerContext remote(String commitId) {
-        return new ChangeTriggerContext(commitId, null, "Remote");
+        return new ChangeTriggerContext(commitId, null, "Remote", null);
     }
+
+    public boolean isManual() { return "Manual".equals(triggerType); }
 }

@@ -43,6 +43,10 @@ public class ChangeFlowDalImpl implements ChangeFlowDal {
     @Resource
     private DmChangeTriggerReceiptMapper triggerReceiptMapper;
     @Resource
+    private DmChangeBatchMapper          batchMapper;
+    @Resource
+    private DmChangeTransferMapper       transferMapper;
+    @Resource
     private DmGitOpsScmMapper            scmMapper;
     @Resource
     private JdbcTemplate                 jdbcTemplate;
@@ -75,6 +79,16 @@ public class ChangeFlowDalImpl implements ChangeFlowDal {
     @Override
     public DmChangeTriggerReceiptMapper triggerReceiptMapper() {
         return triggerReceiptMapper;
+    }
+
+    @Override
+    public DmChangeBatchMapper batchMapper() {
+        return batchMapper;
+    }
+
+    @Override
+    public DmChangeTransferMapper transferMapper() {
+        return transferMapper;
     }
 
     @Override

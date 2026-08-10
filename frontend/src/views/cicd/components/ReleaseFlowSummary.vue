@@ -27,22 +27,30 @@
           <strong>{{ summaryValue(selectedManagerName) }}</strong>
         </div>
         <div class="summary-row">
+          <span>{{ $t('bian-geng-lei-xing') }}</span>
+          <strong>{{ isBuiltIn ? $t('nei-zhi-bian-geng-liu') : $t('nav-git-ops') }}</strong>
+        </div>
+        <div v-if="isBuiltIn" class="summary-row">
+          <span>{{ $t('shang-ji-bian-geng-liu') }}</span>
+          <strong>{{ summaryValue(selectedParentFlowName) }}</strong>
+        </div>
+        <div v-if="!isBuiltIn" class="summary-row">
           <span>{{ $t('nav-git-ops') }}</span>
           <strong>{{ summaryValue(selectedScmName) }}</strong>
         </div>
-        <div class="summary-row">
+        <div v-if="!isBuiltIn" class="summary-row">
           <span>{{ $t('cang-ku') }}</span>
           <strong>{{ summaryValue(flowGitOpsForm.repoName) }}</strong>
         </div>
-        <div class="summary-row">
+        <div v-if="!isBuiltIn" class="summary-row">
           <span>{{ $t('mu-biao-fen-zhi') }}</span>
           <strong>{{ summaryValue(flowGitOpsForm.repoBranch) }}</strong>
         </div>
-        <div class="summary-row">
+        <div v-if="!isBuiltIn" class="summary-row">
           <span>{{ $t('jiao-ben-lu-jin') }}</span>
           <strong>{{ summaryValue(flowGitOpsForm.repoScriptPath) }}</strong>
         </div>
-        <div class="summary-row">
+        <div v-if="!isBuiltIn" class="summary-row">
           <span>{{ $t('chu-fa-fang-shi') }}</span>
           <strong>{{ summaryValue(flowGitOpsForm.eventType) }}</strong>
         </div>
@@ -64,7 +72,7 @@
           <span>{{ $t('schema') }}</span>
           <strong>{{ summaryValue(flowGitOpsForm.schemaName) }}</strong>
         </div>
-        <div class="summary-row">
+        <div v-if="!isBuiltIn" class="summary-row">
           <span>{{ $t('chu-shi-hua-fang-shi') }}</span>
           <strong>{{ summaryValue(selectedInitLabel) }}</strong>
         </div>
@@ -84,6 +92,27 @@
           <span>{{ $t('ding-yue-xiao-xi') }}</span>
           <strong>{{ subscriptionSummary }}</strong>
         </div>
+        <h3>{{ $t('zhi-xing-pei-zhi') }}</h3>
+        <div class="summary-row">
+          <span>{{ $t('sql-shen-he-0') }}</span>
+          <strong>{{ $t('cicd-work-order-auto-analysis') }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>{{ $t('shen-pi-liu') }}</span>
+          <strong>{{ $t('cicd-work-order-env-approval') }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>{{ $t('fa-bu-fang-shi') }}</span>
+          <strong>{{ $t('cicd-work-order-confirm-execution') }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>{{ $t('shi-yong-shi-wu') }}</span>
+          <strong>{{ $t('cicd-work-order-configured-in-ticket') }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>{{ $t('cuo-wu-ce-lve') }}</span>
+          <strong>{{ $t('cicd-work-order-configured-in-ticket') }}</strong>
+        </div>
       </div>
     </div>
   </aside>
@@ -102,7 +131,9 @@ export default {
     selectedInitLabel: { type: String, default: '' },
     summaryImChannel: { type: String, default: '' },
     selectedImProviderName: { type: String, default: '' },
-    subscriptionSummary: { type: String, default: '' }
+    subscriptionSummary: { type: String, default: '' },
+    isBuiltIn: { type: Boolean, default: false },
+    selectedParentFlowName: { type: String, default: '' }
   },
   emits: ['open-help'],
   methods: {

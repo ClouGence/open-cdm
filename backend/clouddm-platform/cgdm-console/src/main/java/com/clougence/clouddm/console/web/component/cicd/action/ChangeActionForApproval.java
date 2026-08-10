@@ -168,7 +168,11 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         String bizId = this.namingDao.genApprovalBizId();
         DmApprovalDO ticket = new DmApprovalDO();
         ticket.setBizId(bizId);
-        ticket.setOwnerUid(flowDO.getFlowManagerUid());
+        String applicantUid = change.getTriggerUid();
+        if (applicantUid == null) {
+            applicantUid = flowDO.getFlowManagerUid();
+        }
+        ticket.setOwnerUid(applicantUid);
         ticket.setPrimaryUid(change.getOwnerUid());
         ticket.setBindDsId(dsDO.getId());
         ticket.setTargetInfo(targetInfo);

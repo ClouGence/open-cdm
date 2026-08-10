@@ -28,6 +28,8 @@ public class RdpListTicketFO {
 
     private Long              ticketId;
 
+    private String            ticketBizId;
+
     private String            userName;
 
     private Long              startTimeMs;
@@ -36,11 +38,11 @@ public class RdpListTicketFO {
 
     private String            ticketTitleName;
 
-    private ApprovalStatus   ticketStatus;
+    private ApprovalStatus    ticketStatus;
 
     private RdpTicketListType ticketListType;
 
-    private PageObj page;
+    private PageObj           page;
 
     @JsonIgnore
     private String            uid;

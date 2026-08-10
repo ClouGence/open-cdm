@@ -34,7 +34,9 @@
             </div>
             <div v-if="partialSqlNotice && contentType === 'INLINE'" class="partial-sql-notice">
               <span>{{ $t('ticket-sql-partial-loaded') }}</span>
-              <button type="button" @click="partialSqlNotice = false" :aria-label="$t('guan-bi')"><Icon type="md-close" /></button>
+              <button type="button" @click="partialSqlNotice = false" :aria-label="$t('guan-bi')">
+                <Icon type="md-close" />
+              </button>
             </div>
             <div class="content sql-editor-content" @wheel="handlePreviewWheel">
               <ticket-editor
@@ -99,10 +101,10 @@
       </div>
       <div class="create-ticket-content">
         <a-form label-position="top" :labelCol="{ span: 24 }" :label-wrap="true" :model="ticketData" :rules="ticketRuleValidate" ref="ticketContent">
-          <a-form-item :label="$t('biao-ti')" prop="ticketTitle">
+          <a-form-item :label="$t('biao-ti')" name="ticketTitle">
             <Input v-model="ticketData.ticketTitle" />
           </a-form-item>
-          <a-form-item :label="$t('xu-qiu-miao-shu')" prop="description">
+          <a-form-item :label="$t('xu-qiu-miao-shu')" name="description">
             <Input type="textarea" v-model="ticketData.description" :rows="4" />
           </a-form-item>
           <a-form-item :label="$t('yu-gu-shou-ying-xiang-hang-shu')">
@@ -168,30 +170,13 @@
         <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
       </template>
     </CCModal>
-    <CCModal v-model="showSqlUploadModal" :title="$t('ticket-sql-upload-title')" :width="520">
-      <div class="sql-upload-dialog">
-        <label class="sql-upload-drop" @dragover.prevent @drop.prevent="handleSqlFileDrop">
-          <input type="file" accept=".sql" @change="handleSqlFileSelected" />
-          <Icon type="ios-cloud-upload-outline" size="32" />
-          <span>{{ $t('ticket-sql-select-file') }}</span>
-          <small>{{ $t('ticket-sql-upload-limit', { size: sqlFileMaxMegaByte }) }}</small>
-        </label>
-        <div v-if="selectedSqlFile" class="sql-upload-selected">
-          <span>{{ selectedSqlFile.name }}</span>
-          <span>{{ formatFileSize(selectedSqlFile.size) }}</span>
-        </div>
-      </div>
-      <template #footer>
-        <Button type="primary" :loading="sqlUploading" :disabled="!selectedSqlFile" @click="uploadSqlFile">
-          {{ $t('ticket-sql-confirm-upload') }}
-        </Button>
-      </template>
-    </CCModal>
+    <SqlFileUploadModal v-model="showSqlUploadModal" :loading="sqlUploading" :max-mega-byte="sqlFileMaxMegaByte" @confirm="uploadSqlFile" />
   </div>
 </template>
 <script lang="js">
 import DsSelect from '@/views/ticket/components/DsSelect';
 import TicketEditor from '@/components/editor/TicketEditor';
+import SqlFileUploadModal from '@/components/function/SqlFileUploadModal.vue';
 import { hasSchema, RULE_WARN_LEVEL } from '@/utils';
 import { mapState } from 'vuex';
 
@@ -199,7 +184,8 @@ export default {
   name: 'Ticket',
   components: {
     TicketEditor,
-    DsSelect
+    DsSelect,
+    SqlFileUploadModal
   },
   computed: {
     ...mapState(['dmGlobalSetting']),
@@ -262,7 +248,6 @@ export default {
       loading: false,
       contentType: 'INLINE',
       showSqlUploadModal: false,
-      selectedSqlFile: null,
       sqlUploading: false,
       sqlAttachment: null,
       previewStartLine: 1,
@@ -344,34 +329,18 @@ export default {
   },
   methods: {
     openSqlUploadModal() {
-      this.selectedSqlFile = null;
       this.showSqlUploadModal = true;
     },
-    handleSqlFileSelected(event) {
-      const file = event.target.files?.[0];
-      this.selectedSqlFile = file || null;
-    },
-    handleSqlFileDrop(event) {
-      const file = event.dataTransfer.files?.[0];
-      this.selectedSqlFile = file || null;
-    },
-    async uploadSqlFile() {
-      if (!this.selectedSqlFile || this.sqlUploading) {
-        return;
-      }
-      if (!this.selectedSqlFile.name.toLowerCase().endsWith('.sql')) {
-        this.$Message.error(this.$t('ticket-sql-only-sql'));
-        return;
-      }
-      if (this.selectedSqlFile.size > this.sqlFileMaxMegaByte * 1024 * 1024) {
-        this.$Message.error(this.$t('ticket-sql-upload-limit', { size: this.sqlFileMaxMegaByte }));
+    async uploadSqlFile(files) {
+      const file = files?.[0];
+      if (!file || this.sqlUploading) {
         return;
       }
 
       this.sqlUploading = true;
       try {
         const data = new FormData();
-        data.append('file', this.selectedSqlFile);
+        data.append('file', file);
         const res = await this.$services.dmTicketUploadSqlFile({
           data,
           headers: {
@@ -1078,44 +1047,6 @@ export default {
         }
       }
     }
-  }
-}
-
-.sql-upload-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  .sql-upload-drop {
-    min-height: 160px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border: 1px dashed var(--border-primary, #c7c7c7);
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--text-primary, #333840);
-
-    input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      opacity: 0;
-    }
-
-    small {
-      color: var(--text-secondary, #707070);
-    }
-  }
-
-  .sql-upload-selected {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 12px 0;
   }
 }
 </style>

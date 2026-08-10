@@ -24,28 +24,35 @@
           <div class="table-container flow-table-container flow-desktop-table">
             <Table
               :columns="flowTableColumns"
-              :data="flowList"
+              :data="tableFlowList"
               :loading="loading"
               :locale="{ emptyText: $t('zan-wu-shu-ju') }"
               size="small"
               border
               stripe
+              row-key="flowId"
             >
+              <template #flowName="{ row }">
+                <div class="flow-name-cell">
+                  <span class="flow-name-text">{{ row.flowName || '-' }}</span>
+                </div>
+              </template>
               <template #flowStatus="{ row }">
                 <span class="flow-status-tag" :class="flowStatusMeta(row).className">{{ flowStatusMeta(row).text }}</span>
               </template>
-              <template #gitOps="{ row }">
-                <div class="flow-list-inline flow-list-gitops">
-                  <CustomIcon
-                    v-if="row.scmType"
-                    :resource="getScmIconResource(row.scmType)"
-                    :alt="getScmDisplayName(row.scmType)"
-                    size="18px"
-                    rightMargin
-                  />
-                  <Tooltip :content="formatGitOps(row)">
+              <template #changeType="{ row }">
+                <div class="flow-type-cell" :title="flowTypeTooltip(row)">
+                  <div class="flow-type-main">
+                    <img v-if="row.flowType === 'BUILT_IN'" class="flow-product-icon" src="/dm.ico" alt="CloudDM" />
+                    <CustomIcon
+                      v-else-if="row.scmType"
+                      :resource="getScmIconResource(row.scmType)"
+                      :alt="getScmDisplayName(row.scmType)"
+                      size="18px"
+                      rightMargin
+                    />
                     <span class="flow-list-ellipsis">{{ formatGitOps(row) }}</span>
-                  </Tooltip>
+                  </div>
                 </div>
               </template>
               <template #databaseType="{ row }">
@@ -59,37 +66,37 @@
                   <span class="flow-action-item">
                     <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
                   </span>
-                  <Tooltip
-                    v-if="canManageFlow"
-                    :content="flowSwitchDisabledReason(row)"
-                    :disabled="!flowSwitchDisabledReason(row)"
-                    transfer
-                    placement="top"
-                  >
-                    <span class="flow-action-item">
-                      <Button type="text" :disabled="!!flowSwitchDisabledReason(row)" @click="handleSwitchFlow(row)">
-                        {{ flowSwitchText(row) }}
-                      </Button>
-                    </span>
-                  </Tooltip>
-                  <span v-if="canManageFlow" class="flow-action-item">
-                    <Button type="text" :disabled="rowFlowStatus(row) === 'DELETE'" @click="handleArchiveToggleFlow(row)">
-                      {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
-                    </Button>
+                  <span v-if="flowDescendantCount(row)" class="flow-action-item">
+                    <Button class="flow-dependency-action" type="text" @click="showDependency(row)">{{ $t('cicd-dependency-action') }}</Button>
                   </span>
-                  <Tooltip
+                  <Dropdown
                     v-if="canManageFlow"
-                    :content="flowDeleteDisabledReason(row)"
-                    :disabled="!flowDeleteDisabledReason(row)"
+                    class="flow-more-dropdown"
+                    trigger="click"
                     transfer
-                    placement="top"
+                    placement="bottom-end"
+                    @on-click="handleFlowMoreAction($event, row)"
                   >
-                    <span class="flow-action-item">
-                      <Button class="flow-action-danger" type="text" :disabled="!!flowDeleteDisabledReason(row)" @click="handleDeleteFlow(row)">
-                        {{ $t('shan-chu-xiang-mu') }}
-                      </Button>
-                    </span>
-                  </Tooltip>
+                    <Button type="text">
+                      {{ $t('geng-duo') }}
+                      <Icon type="ios-arrow-down" />
+                    </Button>
+                    <template #list>
+                      <DropdownMenu>
+                        <DropdownItem name="switch" :disabled="!!flowSwitchDisabledReason(row)">
+                          <span :title="flowSwitchDisabledReason(row)">{{ flowSwitchText(row) }}</span>
+                        </DropdownItem>
+                        <DropdownItem name="archive" :disabled="!!flowArchiveDisabledReason(row)">
+                          <span :title="flowArchiveDisabledReason(row)">
+                            {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
+                          </span>
+                        </DropdownItem>
+                        <DropdownItem class="flow-more-delete" name="delete" :disabled="!!flowDeleteDisabledReason(row)">
+                          <span :title="flowDeleteDisabledReason(row)">{{ $t('shan-chu-xiang-mu') }}</span>
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </template>
+                  </Dropdown>
                 </div>
               </template>
             </Table>
@@ -99,19 +106,24 @@
             <template v-if="flowList.length">
               <article class="flow-mobile-card" v-for="row in flowList" :key="row.flowId">
                 <div class="flow-mobile-card-header">
-                  <strong>{{ row.flowName || '-' }}</strong>
+                  <div class="flow-mobile-name">
+                    <strong>{{ row.flowName || '-' }}</strong>
+                  </div>
                   <span class="flow-status-tag" :class="flowStatusMeta(row).className">{{ flowStatusMeta(row).text }}</span>
                 </div>
                 <div class="flow-mobile-card-meta">
-                  <div class="flow-list-inline">
-                    <CustomIcon
-                      v-if="row.scmType"
-                      :resource="getScmIconResource(row.scmType)"
-                      :alt="getScmDisplayName(row.scmType)"
-                      size="18px"
-                      rightMargin
-                    />
-                    <span>{{ formatGitOps(row) }}</span>
+                  <div class="flow-type-cell" :title="flowTypeTooltip(row)">
+                    <div class="flow-type-main">
+                      <img v-if="row.flowType === 'BUILT_IN'" class="flow-product-icon" src="/dm.ico" alt="CloudDM" />
+                      <CustomIcon
+                        v-else-if="row.scmType"
+                        :resource="getScmIconResource(row.scmType)"
+                        :alt="getScmDisplayName(row.scmType)"
+                        size="18px"
+                        rightMargin
+                      />
+                      <span class="flow-list-ellipsis">{{ formatGitOps(row) }}</span>
+                    </div>
                   </div>
                   <div class="flow-list-inline">
                     <CustomIcon v-if="row.dsType" :type="row.dsType" size="18px" rightMargin />
@@ -124,37 +136,37 @@
                   <span class="flow-action-item">
                     <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
                   </span>
-                  <Tooltip
-                    v-if="canManageFlow"
-                    :content="flowSwitchDisabledReason(row)"
-                    :disabled="!flowSwitchDisabledReason(row)"
-                    transfer
-                    placement="top"
-                  >
-                    <span class="flow-action-item">
-                      <Button type="text" :disabled="!!flowSwitchDisabledReason(row)" @click="handleSwitchFlow(row)">
-                        {{ flowSwitchText(row) }}
-                      </Button>
-                    </span>
-                  </Tooltip>
-                  <span v-if="canManageFlow" class="flow-action-item">
-                    <Button type="text" :disabled="rowFlowStatus(row) === 'DELETE'" @click="handleArchiveToggleFlow(row)">
-                      {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
-                    </Button>
+                  <span v-if="flowDescendantCount(row)" class="flow-action-item">
+                    <Button class="flow-dependency-action" type="text" @click="showDependency(row)">{{ $t('cicd-dependency-action') }}</Button>
                   </span>
-                  <Tooltip
+                  <Dropdown
                     v-if="canManageFlow"
-                    :content="flowDeleteDisabledReason(row)"
-                    :disabled="!flowDeleteDisabledReason(row)"
+                    class="flow-more-dropdown"
+                    trigger="click"
                     transfer
-                    placement="top"
+                    placement="bottom-end"
+                    @on-click="handleFlowMoreAction($event, row)"
                   >
-                    <span class="flow-action-item">
-                      <Button class="flow-action-danger" type="text" :disabled="!!flowDeleteDisabledReason(row)" @click="handleDeleteFlow(row)">
-                        {{ $t('shan-chu-xiang-mu') }}
-                      </Button>
-                    </span>
-                  </Tooltip>
+                    <Button type="text">
+                      {{ $t('geng-duo') }}
+                      <Icon type="ios-arrow-down" />
+                    </Button>
+                    <template #list>
+                      <DropdownMenu>
+                        <DropdownItem name="switch" :disabled="!!flowSwitchDisabledReason(row)">
+                          <span :title="flowSwitchDisabledReason(row)">{{ flowSwitchText(row) }}</span>
+                        </DropdownItem>
+                        <DropdownItem name="archive" :disabled="!!flowArchiveDisabledReason(row)">
+                          <span :title="flowArchiveDisabledReason(row)">
+                            {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
+                          </span>
+                        </DropdownItem>
+                        <DropdownItem class="flow-more-delete" name="delete" :disabled="!!flowDeleteDisabledReason(row)">
+                          <span :title="flowDeleteDisabledReason(row)">{{ $t('shan-chu-xiang-mu') }}</span>
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </template>
+                  </Dropdown>
                 </div>
               </article>
             </template>
@@ -175,6 +187,37 @@
         />
       </div>
     </div>
+    <FlowDependencyModal v-model="dependencyVisible" :root-flow="dependencyRootFlow" @navigate="goDependencyDetail" />
+    <Modal
+      v-model="createTypeDialogVisible"
+      class-name="flow-create-type-modal"
+      :title="$t('cicd-create-flow-type-title')"
+      :width="560"
+      :mask-closable="false"
+    >
+      <div class="flow-create-type__options">
+        <button
+          v-for="option in createTypeOptions"
+          :key="option.value"
+          type="button"
+          class="flow-create-type__option"
+          :class="{ 'flow-create-type__option--selected': pendingCreationMode === option.value }"
+          @click="pendingCreationMode = option.value"
+        >
+          <span class="flow-create-type__radio" aria-hidden="true"></span>
+          <span>
+            <strong>{{ option.label }}</strong>
+            <small>{{ option.description }}</small>
+          </span>
+        </button>
+      </div>
+      <template #footer>
+        <div class="flow-create-type__footer">
+          <Button @click="createTypeDialogVisible = false">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" @click="confirmCreateFlowType">{{ $t('que-ding') }}</Button>
+        </div>
+      </template>
+    </Modal>
     <CCModal :title="getModalTitle" v-model="flowDialogShow" @on-cancel="handleCloseModal" :autoClean="false" :width="flowDialogWidth">
       <!-- Step BASIC1 -->
       <div v-show="step === FLOW_STEP.BASIC1" class="step-basic1">
@@ -493,6 +536,7 @@ import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { handleCopy } from '@/utils/clipboard';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import CCTitle from '@/components/widgets/CCTitle';
+import FlowDependencyModal from './components/FlowDependencyModal.vue';
 import {
   defaultLanguageMap,
   EVEN_TYPE_MAP,
@@ -512,6 +556,10 @@ export default {
   data() {
     return {
       searchKeywords: '',
+      dependencyVisible: false,
+      dependencyRootFlow: null,
+      createTypeDialogVisible: false,
+      pendingCreationMode: 'single',
       flowId: '',
       createLoading: false,
       mark: '',
@@ -581,13 +629,35 @@ export default {
     };
   },
   components: {
-    CCTitle
+    CCTitle,
+    FlowDependencyModal
   },
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'myCatLog', 'myAuth']),
     ...mapGetters(['isSaas']),
     canManageFlow() {
       return (this.myAuth || []).includes('DM_CICD_FLOW_MANAGE');
+    },
+    createTypeOptions() {
+      return [
+        {
+          value: 'single',
+          label: this.$t('cicd-create-single-flow'),
+          description: this.$t('cicd-create-single-flow-description')
+        },
+        {
+          value: 'batch',
+          label: this.$t('cicd-create-orchestration'),
+          description: this.$t('cicd-create-orchestration-description')
+        }
+      ];
+    },
+    tableFlowList() {
+      return this.flowList.map((flow) => {
+        const row = { ...flow, dependencyTree: flow };
+        delete row.children;
+        return row;
+      });
     },
     getModalTitle() {
       let prefix = `${this.step}/ 5`;
@@ -667,20 +737,41 @@ export default {
       if (status === 'DELETE') {
         return this.$t('cicd-disable-flow-unavailable-delete');
       }
+      if (this.rowFlowEnable(row) && row.cascadeRunning) {
+        return this.$t('cicd-disable-flow-unavailable-cascade-running');
+      }
+      return '';
+    },
+    flowArchiveDisabledReason(row = {}) {
+      if (this.rowFlowStatus(row) === 'DELETE') {
+        return this.$t('cicd-archive-flow-unavailable-delete');
+      }
+      if (row.parentFlowId) {
+        return this.$t('cicd-child-flow-lifecycle-managed-by-parent');
+      }
       return '';
     },
     flowDeleteDisabledReason(row = {}) {
       const status = this.rowFlowStatus(row);
-      if (status === 'ARCHIVE') {
-        return '';
-      }
       if (status === 'DELETE') {
         return this.$t('cicd-delete-flow-unavailable-delete');
+      }
+      if (row.parentFlowId) {
+        return this.$t('cicd-child-flow-lifecycle-managed-by-parent');
+      }
+      if (status === 'ARCHIVE') {
+        return '';
       }
       return this.$t('cicd-delete-flow-unavailable-normal');
     },
     formatGitOps(row = {}) {
+      if (row.flowType === 'BUILT_IN') {
+        return this.$t('nei-zhi-bian-geng-liu');
+      }
       return getScmDisplayName(row.scmType) || '-';
+    },
+    flowTypeTooltip(row = {}) {
+      return this.formatGitOps(row);
     },
     databaseTypeText(row = {}) {
       return row.dsType || '-';
@@ -703,22 +794,54 @@ export default {
       this.operateFlow(row, 'dmCicdFlowRecover');
     },
     handleArchiveToggleFlow(row) {
+      const descendantCount = this.flowDescendantCount(row);
       if (this.rowFlowStatus(row) === 'ARCHIVE') {
+        if (descendantCount > 0) {
+          this.$Modal.confirm({
+            title: this.$t('cicd-cascade-recover-confirm-title'),
+            content: this.$t('cicd-cascade-recover-confirm-desc', { count: descendantCount }),
+            onOk: () => this.handleRecoverFlow(row)
+          });
+          return;
+        }
         this.handleRecoverFlow(row);
         return;
       }
       if (this.rowFlowStatus(row) === 'NORMAL') {
+        if (descendantCount > 0) {
+          this.$Modal.confirm({
+            title: this.$t('cicd-cascade-archive-confirm-title'),
+            content: this.$t('cicd-cascade-archive-confirm-desc', { count: descendantCount }),
+            onOk: () => this.handleArchiveFlow(row)
+          });
+          return;
+        }
         this.handleArchiveFlow(row);
       }
+    },
+    flowDescendantCount(row = {}) {
+      const flow = row.dependencyTree || row;
+      return (flow.children || []).reduce((count, child) => count + 1 + this.flowDescendantCount(child), 0);
     },
     handleSwitchFlow(row) {
       if (this.rowFlowStatus(row) !== 'NORMAL') {
         return;
       }
       const enable = !this.rowFlowEnable(row);
+      const descendantCount = this.flowDescendantCount(row);
       this.$Modal.confirm({
-        title: enable ? this.$t('que-ren') : this.$t('que-ren-shi-fou-jin-yong'),
-        content: enable ? this.$t('shi-fou-qi-yong-fa-bu-liu') : this.$t('jin-yong-fa-bu-liu'),
+        title:
+          descendantCount > 0
+            ? this.$t(enable ? 'cicd-cascade-enable-confirm-title' : 'cicd-cascade-disable-confirm-title')
+            : enable
+              ? this.$t('que-ren')
+              : this.$t('que-ren-shi-fou-jin-yong'),
+        content:
+          descendantCount > 0
+            ? this.$t(enable ? 'cicd-cascade-enable-confirm-desc' : 'cicd-cascade-disable-confirm-desc', { count: descendantCount })
+            : enable
+              ? this.$t('shi-fou-qi-yong-fa-bu-liu')
+              : this.$t('jin-yong-fa-bu-liu'),
         onOk: async () => {
           const res = await this.$services.dmCicdFlowDevopsSwitch({
             data: {
@@ -739,20 +862,28 @@ export default {
       }
       this.$Modal.confirm({
         title: this.$t('que-ren-shan-chu-xiang-mu'),
+        content:
+          this.flowDescendantCount(row) > 0 ? this.$t('cicd-cascade-delete-confirm-desc', { count: this.flowDescendantCount(row) }) : undefined,
         onOk: async () => {
           await this.operateFlow(row, 'dmCicdFlowDelete');
         }
       });
     },
     handleQuery() {
+      this.pageNum = 1;
       this.fetchFlowList();
     },
     handleQueryClear() {
       this.searchKeywords = '';
-      this.fetchFlowList();
+      this.handleQuery();
     },
     goCreateFlow() {
-      this.$router.push('/cicd/create');
+      this.pendingCreationMode = 'single';
+      this.createTypeDialogVisible = true;
+    },
+    confirmCreateFlowType() {
+      this.createTypeDialogVisible = false;
+      this.$router.push({ path: '/cicd/create', query: { mode: this.pendingCreationMode } });
     },
     async fetchFlowList() {
       this.loading = true;
@@ -1145,6 +1276,23 @@ export default {
     goDetail(row) {
       this.$router.push(`/cicd/${row?.flowId || 1}`);
     },
+    handleFlowMoreAction(action, row) {
+      if (action === 'switch') {
+        this.handleSwitchFlow(row);
+      } else if (action === 'archive') {
+        this.handleArchiveToggleFlow(row);
+      } else if (action === 'delete') {
+        this.handleDeleteFlow(row);
+      }
+    },
+    showDependency(row) {
+      this.dependencyRootFlow = row.dependencyTree || row;
+      this.dependencyVisible = true;
+    },
+    goDependencyDetail(row) {
+      this.dependencyVisible = false;
+      this.goDetail(row);
+    },
     getLevels() {
       return this.devopsInsSelected?.objAttr.dsEnvId === 'aa'
         ? [this.devopsInsSelected?.objAttr.dsEnvId, this.flowGitOpsForm.instanceId, this.flowGitOpsForm.databaseName]
@@ -1198,14 +1346,118 @@ export default {
   flex-direction: column;
 }
 
+.flow-create-type__options {
+  display: grid;
+  gap: 12px;
+}
+
+.flow-create-type__footer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.flow-create-type__option {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.flow-create-type__option:hover {
+  border-color: #8bd7b6;
+}
+
+.flow-create-type__option--selected {
+  border-color: #24b47e;
+  background: #f4fbf8;
+}
+
+.flow-create-type__radio {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex: 0 0 auto;
+  border: 1px solid #c8d0cc;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.flow-create-type__option--selected .flow-create-type__radio {
+  border: 5px solid #24b47e;
+}
+
+.flow-create-type__option strong,
+.flow-create-type__option small {
+  display: block;
+}
+
+.flow-create-type__option strong {
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.flow-create-type__option small {
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
 .flow-list-inline {
   display: flex;
   align-items: center;
   min-width: 0;
 }
 
-.flow-list-gitops {
-  max-width: 100%;
+.flow-name-cell,
+.flow-mobile-name {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.flow-name-text {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-type-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.flow-type-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  color: var(--text-primary);
+  line-height: 20px;
+}
+
+.flow-product-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .flow-list-ellipsis {
@@ -1305,15 +1557,6 @@ export default {
   display: none;
 }
 
-.flow-action-danger:not(.ivu-btn-disabled):not([disabled]) {
-  color: #ed4014;
-}
-
-.flow-action-danger.ivu-btn-disabled,
-.flow-action-danger[disabled] {
-  color: #c5cedb !important;
-}
-
 .flow-action-item {
   display: inline-flex;
   align-items: center;
@@ -1323,6 +1566,24 @@ export default {
   :deep(.ivu-btn[disabled]) {
     pointer-events: none;
   }
+}
+
+.flow-more-dropdown {
+  display: inline-flex;
+  align-items: center;
+}
+
+.flow-more-delete:not(.ivu-dropdown-item-disabled) {
+  color: #ed4014;
+}
+
+.flow-dependency-action,
+.flow-dependency-action:hover,
+.flow-dependency-action:focus,
+.flow-dependency-action:active {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .flow-mobile-list {
@@ -1580,8 +1841,10 @@ export default {
       gap: 8px;
 
       .left {
+        display: grid;
         width: 100%;
-        flex-wrap: nowrap;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
 
         :deep(.ivu-input-wrapper) {
           width: auto !important;
@@ -1633,6 +1896,14 @@ export default {
 
       .flow-status-tag {
         flex: 0 0 auto;
+      }
+    }
+
+    .flow-mobile-name {
+      flex: 1;
+
+      strong {
+        min-width: 0;
       }
     }
 

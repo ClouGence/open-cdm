@@ -31,11 +31,13 @@ import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.service.cicd.ChangeCascadeService;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeTransferDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -49,6 +51,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
 
+    private static final long             STALE_TRANSFER_MILLIS = TimeUnit.MINUTES.toMillis(15);
+
     @Resource
     private SystemDal                     systemDal;
     @Resource
@@ -59,11 +63,14 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
     private ApplicationContext            applicationContext;
     @Resource
     protected ImSenderService             senderService;
+    @Resource
+    private ChangeCascadeService          changeCascadeService;
 
     private Set<Long>                     taskInQueueSet;
+    private Set<Long>                     transferInQueueSet;
     private ThreadPoolExecutor            threadPoolExecutor;
     private ScheduledThreadPoolExecutor   scheduledThreadPoolExecutor;
-    private final AtomicBoolean           inited = new AtomicBoolean();
+    private final AtomicBoolean           inited                = new AtomicBoolean();
     private Map<ChangeStep, ChangeAction> actionMap;
 
     @Override
@@ -71,7 +78,8 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
         if (!inited.compareAndSet(false, true)) {
             return;
         }
-        this.taskInQueueSet = new HashSet<>();
+        this.taskInQueueSet = ConcurrentHashMap.newKeySet();
+        this.transferInQueueSet = ConcurrentHashMap.newKeySet();
 
         LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.config.getAsyncTaskQueueSize());
         ThreadFactory workerTF = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "change-worker-%s");
@@ -108,12 +116,48 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
         date = new Date(date.getTime() - 5 * 1000);
 
         try {
+            int recovered = this.changeCascadeService.recoverStaleTransfers(new Date(System.currentTimeMillis() - STALE_TRANSFER_MILLIS));
+            if (recovered > 0) {
+                log.warn("recovered " + recovered + " stale change transfers");
+            }
+            int finishedBatches = this.changeCascadeService.finishCompletedBatches();
+            if (finishedBatches > 0) {
+                log.info("finished " + finishedBatches + " completed change batches");
+            }
             List<DmChangeDO> changeList = this.changeFlowDal.changeMapper().queryReadyChangeListByDate(date, 50);
             for (DmChangeDO change : changeList) {
                 submitTask(change);
             }
+            List<DmChangeTransferDO> transferList = this.changeCascadeService.queryReadyTransfers(date, 50);
+            for (DmChangeTransferDO transfer : transferList) {
+                submitTransfer(transfer);
+            }
         } catch (Exception e) {
             log.warn("changeSchedule scanPendingJob and submit failed,msg:" + ExceptionUtils.getRootCauseMessage(e), e);
+        }
+    }
+
+    private void submitTransfer(DmChangeTransferDO transfer) {
+        Long transferId = transfer.getId();
+        try {
+            if (this.transferInQueueSet.contains(transferId) || !this.changeCascadeService.assignTransfer(transferId)) {
+                return;
+            }
+            this.transferInQueueSet.add(transferId);
+            this.threadPoolExecutor.execute(() -> {
+                try {
+                    this.changeCascadeService.processTransfer(transfer);
+                } catch (Throwable e) {
+                    log.error("change transfer[" + transferId + "] failed " + e.getMessage(), e);
+                    this.changeCascadeService.markTransferFailure(transfer, e);
+                } finally {
+                    this.transferInQueueSet.remove(transferId);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            log.info("changeSchedule reject transferId:" + transferId + ",queue full.");
+            this.transferInQueueSet.remove(transferId);
+            this.changeCascadeService.releaseTransfer(transferId);
         }
     }
 

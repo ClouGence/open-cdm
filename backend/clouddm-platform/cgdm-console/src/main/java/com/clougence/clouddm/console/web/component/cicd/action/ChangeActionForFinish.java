@@ -25,6 +25,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.service.cicd.ChangeCascadeService;
 import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
@@ -32,12 +33,16 @@ import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 
 @Slf4j
 @Service
 public class ChangeActionForFinish extends AbstractChangeAction {
+
+    @Resource
+    private ChangeCascadeService changeCascadeService;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -56,8 +61,13 @@ public class ChangeActionForFinish extends AbstractChangeAction {
         this.storeToDevOps(locale, change);
         this.storeToSnapshot(locale, change);
 
-        changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FINISH, "");
-        changeFlowDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1);
+        if (changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FINISH, "") != 1) {
+            throw new IllegalStateException("change state changed while finishing");
+        }
+        if (changeFlowDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1) != 1) {
+            throw new IllegalStateException("change state changed while locking finished change");
+        }
+        this.changeCascadeService.onChangeFinished(change);
 
         // callback
         DmChangeFlowDO gitOpsFlowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());

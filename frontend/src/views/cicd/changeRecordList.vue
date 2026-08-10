@@ -1,5 +1,5 @@
 <template>
-  <div class="change-record-page">
+  <div class="change-record-page" :class="{ 'is-embedded': embedded }">
     <div class="table-list-layout">
       <div class="table-list">
         <div class="content">
@@ -26,12 +26,6 @@
               border
               stripe
             >
-              <template #status="{ row }">
-                <span class="flow-status-tag" :class="statusIconClass(row)">
-                  <Icon class="status-icon" :type="statusIcon(row)" />
-                  <span>{{ statusLabel(row) }}</span>
-                </span>
-              </template>
               <template #target="{ row }">
                 <div class="flow-list-inline flow-list-gitops">
                   <CustomIcon
@@ -42,19 +36,18 @@
                     rightMargin
                   />
                   <CustomIcon :type="row.dsType || 'icon-v2-DataBase2'" size="18px" rightMargin />
-                  <Tooltip :content="row.dsInstance || row.dsDisplay || '-'">
-                    <span class="flow-list-ellipsis">{{ compactText(row.dsInstance || row.dsDisplay, 24) }}</span>
-                  </Tooltip>
+                  <span class="flow-list-ellipsis">{{ compactText(row.dsInstance || row.dsDisplay, 24) }}</span>
                 </div>
-              </template>
-              <template #stage="{ row }">
-                <span class="stage-chip" :class="stageIconClass(row)">
-                  <span>{{ stageLabel(row) }}</span>
-                </span>
               </template>
               <template #action="{ row }">
                 <div class="action flow-actions">
-                  <Button type="text" @click="goChangeDetail(row)">{{ $t('xiang-qing') }}</Button>
+                  <Button type="text" @click="showSqlContent(row, 'sql')">{{ $t('sql-bian-geng') }}</Button>
+                  <Button v-if="row.flowType !== 'BUILT_IN'" type="text" @click="showSqlContent(row, 'diff')">
+                    {{ $t('bian-geng-diff') }}
+                  </Button>
+                  <Button v-if="row.rootChangeId" type="text" :loading="progressLoadingId === row.changeId" @click="showChangeProgress(row)">
+                    {{ $t('cicd-change-progress-action') }}
+                  </Button>
                 </div>
               </template>
             </Table>
@@ -74,14 +67,31 @@
         />
       </div>
     </div>
+    <ChangeRecordProgressModal v-model="changeProgressVisible" :record="selectedChangeRecord" :flow-tree="selectedChangeFlowTree" />
+    <ChangeRecordSqlModal v-model="sqlModalVisible" :record="selectedSqlRecord" :mode="sqlModalMode" />
   </div>
 </template>
 
 <script>
+import ChangeRecordProgressModal from './components/ChangeRecordProgressModal.vue';
+import ChangeRecordSqlModal from './components/ChangeRecordSqlModal.vue';
 import { getScmDisplayName, getScmIconResource } from './utils';
+
+const CHANGE_LIST_REFRESH_INTERVAL_MS = 3000;
 
 export default {
   name: 'CicdChangeRecordList',
+  components: { ChangeRecordProgressModal, ChangeRecordSqlModal },
+  props: {
+    embedded: {
+      type: Boolean,
+      default: false
+    },
+    targetFlowId: {
+      type: [String, Number],
+      default: ''
+    }
+  },
   data() {
     return {
       flowId: '',
@@ -90,18 +100,21 @@ export default {
       loading: false,
       pageNum: 1,
       pageSize: 10,
-      pageTotal: 0
+      pageTotal: 0,
+      refreshTimer: null,
+      refreshRequestPending: false,
+      progressLoadingId: null,
+      changeProgressVisible: false,
+      selectedChangeRecord: null,
+      selectedChangeFlowTree: null,
+      sqlModalVisible: false,
+      sqlModalMode: 'sql',
+      selectedSqlRecord: null
     };
   },
   computed: {
     changeRecordColumns() {
       return [
-        {
-          title: this.$t('zhuang-tai'),
-          slot: 'status',
-          width: 140,
-          align: 'center'
-        },
         {
           title: this.$t('bian-geng-ming-cheng'),
           key: 'changeName',
@@ -118,15 +131,9 @@ export default {
           minWidth: 220
         },
         {
-          title: this.$t('jie-duan'),
-          slot: 'stage',
-          width: 150,
-          align: 'center'
-        },
-        {
           title: this.$t('cao-zuo'),
           slot: 'action',
-          width: 100,
+          width: 280,
           align: 'center'
         }
       ];
@@ -135,18 +142,33 @@ export default {
   watch: {
     '$route.params.id': {
       handler() {
-        this.init();
+        if (!this.embedded) {
+          this.init();
+        }
+      }
+    },
+    targetFlowId: {
+      handler() {
+        if (this.targetFlowId) {
+          this.init();
+        }
       }
     }
   },
   mounted() {
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
     this.init();
+  },
+  beforeUnmount() {
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    this.stopRefresh();
   },
   methods: {
     getScmDisplayName,
     getScmIconResource,
     init() {
-      this.flowId = this.$route.params.id;
+      this.stopRefresh();
+      this.flowId = this.targetFlowId || this.$route.params.id;
       this.pageNum = 1;
       this.fetchChangeList();
     },
@@ -157,8 +179,15 @@ export default {
       }
       return `${text.slice(0, maxLength)}...`;
     },
-    async fetchChangeList() {
-      this.loading = true;
+    async fetchChangeList({ silent = false } = {}) {
+      this.stopRefresh();
+      if (this.refreshRequestPending) {
+        return;
+      }
+      this.refreshRequestPending = true;
+      if (!silent) {
+        this.loading = true;
+      }
       try {
         const res = await this.$services.dmCicdChangeList({
           data: {
@@ -181,8 +210,46 @@ export default {
           this.pageTotal = 0;
         }
       } finally {
-        this.loading = false;
+        if (!silent) {
+          this.loading = false;
+        }
+        this.refreshRequestPending = false;
+        this.scheduleRefresh();
       }
+    },
+    stopRefresh() {
+      if (this.refreshTimer) {
+        window.clearTimeout(this.refreshTimer);
+        this.refreshTimer = null;
+      }
+    },
+    scheduleRefresh() {
+      this.stopRefresh();
+      if (document.hidden) {
+        return;
+      }
+      this.refreshTimer = window.setTimeout(() => {
+        this.refreshChangeList();
+      }, CHANGE_LIST_REFRESH_INTERVAL_MS);
+    },
+    async refreshChangeList() {
+      this.refreshTimer = null;
+      if (document.hidden || this.refreshRequestPending) {
+        this.scheduleRefresh();
+        return;
+      }
+      await this.fetchChangeList({ silent: true });
+    },
+    handleVisibilityChange() {
+      if (document.hidden) {
+        this.stopRefresh();
+        return;
+      }
+      this.refreshChangeList();
+    },
+    async refreshAfterTrigger() {
+      this.pageNum = 1;
+      await this.fetchChangeList({ silent: true });
     },
     async handleQuery() {
       this.pageNum = 1;
@@ -202,71 +269,27 @@ export default {
       this.pageNum = 1;
       this.fetchChangeList();
     },
-    goChangeDetail(record) {
-      if (record.changeId) {
-        this.$router.push({
-          path: `/cicd/change/${record.changeId}`,
-          query: { flowId: this.flowId }
-        });
-      }
+    showSqlContent(record, mode) {
+      this.selectedSqlRecord = record;
+      this.sqlModalMode = mode;
+      this.sqlModalVisible = true;
     },
-    statusIcon(record) {
-      if (record.currentStatus === 'FAILED') {
-        return 'ios-close';
+    async showChangeProgress(record) {
+      this.progressLoadingId = record.changeId;
+      try {
+        const [changeRes, flowRes] = await Promise.all([
+          this.$services.dmCicdChangeDetail({ data: { changeId: record.rootChangeId } }),
+          this.$services.dmCicdFlowDetail({ data: { flowId: record.flowId } })
+        ]);
+        if (!changeRes.success || !flowRes.success) {
+          return;
+        }
+        this.selectedChangeRecord = changeRes.data;
+        this.selectedChangeFlowTree = flowRes.data.dependencyTree || flowRes.data;
+        this.changeProgressVisible = true;
+      } finally {
+        this.progressLoadingId = null;
       }
-      if (record.currentStatus === 'CLOSED') {
-        return 'ios-remove';
-      }
-      if (record.currentStatus === 'FINISH') {
-        return 'md-checkmark';
-      }
-      return 'ios-time-outline';
-    },
-    statusIconClass(record) {
-      if (record.currentStatus === 'FAILED') {
-        return 'is-danger';
-      }
-      if (record.currentStatus === 'CLOSED') {
-        return 'is-muted';
-      }
-      if (record.currentStatus === 'FINISH') {
-        return 'is-success';
-      }
-      return 'is-progress';
-    },
-    statusLabel(record) {
-      const statusMap = {
-        OPEN: this.$t('jin-hang-zhong'),
-        READY: this.$t('jin-hang-zhong'),
-        WAIT: this.$t('deng-dai-zhi-hang'),
-        FAILED: this.$t('shi-bai'),
-        FINISH: this.$t('wan-cheng'),
-        CLOSED: this.$t('yi-guan-bi')
-      };
-      return statusMap[record.currentStatus] || record.currentStatus || '-';
-    },
-    stageIconClass(record) {
-      if (record.currentStatus === 'FAILED') {
-        return 'is-danger';
-      }
-      if (record.currentStatus === 'CLOSED') {
-        return 'is-muted';
-      }
-      if (record.currentStatus === 'FINISH' || record.currentStep === 'FINISH' || record.currentStep === 'INIT_SNAPSHOT') {
-        return 'is-success';
-      }
-      return 'is-progress';
-    },
-    stageLabel(record) {
-      const stepMap = {
-        INIT_SNAPSHOT: this.$t('kuai-zhao-bian-geng'),
-        INIT: this.$t('di-jiao'),
-        CHECK: this.$t('sql-shen-he'),
-        APPROVAL: this.$t('shen-pi-liu'),
-        EXECUTE: this.$t('zhi-xing'),
-        FINISH: this.$t('wan-cheng')
-      };
-      return stepMap[record.currentStep] || record.currentStep || '-';
     }
   }
 };
@@ -278,6 +301,47 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.change-record-page.is-embedded {
+  flex: 1;
+  height: 100%;
+
+  :deep(.table-list-layout) {
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+  }
+
+  :deep(.table-list) {
+    flex: 1;
+    height: auto;
+    padding: 0;
+  }
+
+  :deep(.content) {
+    height: auto;
+    overflow: visible;
+  }
+
+  :deep(.content .option) {
+    min-height: 0;
+    margin: 0 0 16px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  :deep(.table-container) {
+    flex: 0 0 auto;
+    overflow-x: auto;
+  }
+
+  :deep(.footer) {
+    min-height: 0;
+    margin-top: auto;
+    padding: 16px 0 0;
+  }
 }
 
 .flow-list-inline {
@@ -299,44 +363,6 @@ export default {
   white-space: nowrap;
 }
 
-.flow-status-tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 64px;
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  gap: 4px;
-
-  &.is-success {
-    color: #19be6b;
-    background: #e7f8ee;
-  }
-
-  &.is-progress {
-    color: #2d6ccb;
-    background: #e8f2ff;
-  }
-
-  &.is-danger {
-    color: #ed4014;
-    background: #fff1f0;
-  }
-
-  &.is-muted {
-    color: #64748b;
-    background: #eef2f7;
-  }
-}
-
-.status-icon {
-  font-size: 14px;
-  font-weight: 700;
-}
-
 .flow-actions {
   display: flex;
   align-items: center;
@@ -346,7 +372,22 @@ export default {
   :deep(.ivu-btn-text) {
     height: 22px;
     padding: 0 2px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
     line-height: 20px;
+  }
+
+  :deep(.ivu-btn-text:hover),
+  :deep(.ivu-btn-text:focus),
+  :deep(.ivu-btn-text:active) {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  :deep(.ivu-btn-text span:hover) {
+    border-bottom: 0;
   }
 }
 
@@ -369,36 +410,5 @@ export default {
 .flow-table-container :deep(.ivu-table-fixed-right::before),
 .flow-table-container :deep(.ivu-table-fixed::before) {
   display: none;
-}
-
-.stage-chip {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-
-  &.is-success {
-    color: #19be6b;
-    background: #e7f8ee;
-  }
-
-  &.is-progress {
-    color: #2d6ccb;
-    background: #e8f2ff;
-  }
-
-  &.is-danger {
-    color: #ed4014;
-    background: #fff1f0;
-  }
-
-  &.is-muted {
-    color: #64748b;
-    background: #eef2f7;
-  }
 }
 </style>

@@ -38,8 +38,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
-import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowVO;
-import com.clougence.clouddm.console.web.model.vo.cicd.GuideCreateChangeFlowVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.*;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmBranchDef;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmScmDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
@@ -69,21 +68,23 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     @Resource
-    private SystemDal         systemDal;
+    private SystemDal            systemDal;
     @Resource
-    private ChangeFlowDal     changeFlowDal;
+    private ChangeFlowDal        changeFlowDal;
     @Resource
-    private DmDsConfigService dmDsConfigService;
+    private DmDsConfigService    dmDsConfigService;
     @Resource
-    private ObjectCacheDao    objectCacheDao;
+    private ObjectCacheDao       objectCacheDao;
     @Resource
-    private DmImService       dmImService;
+    private DmImService          dmImService;
     @Resource
-    private DmScmService      dmScmService;
+    private DmScmService         dmScmService;
     @Resource
-    private ImSenderService   senderService;
+    private ImSenderService      senderService;
     @Resource
-    private DsSchemaService   dmDsSchemaService;
+    private DsSchemaService      dmDsSchemaService;
+    @Resource
+    private ChangeCascadeService changeCascadeService;
 
     @Override
     public DmPageVO<ChangeFlowVO> queryChangeFlowListByPage(String ownerUid, ChangeFlowListFO fo) {
@@ -101,12 +102,77 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             return results;
         }
 
-        List<ChangeFlowVO> vos = records.stream().map(obj -> {
-            return DmConvertUtils.convertToChangeFlowVO(obj, this.objectCacheDao);
-        }).collect(Collectors.toList());
-
-        results.setRecords(vos);
+        List<ChangeFlowVO> groupedFlows = this.buildGroupedFlowList(ownerUid, records);
+        groupedFlows.forEach(flow -> flow.setCascadeRunning(this.changeFlowDal.batchMapper().countRunningByRootFlow(ownerUid, flow.getFlowId()) > 0));
+        results.setRecords(groupedFlows);
         return results;
+    }
+
+    @Override
+    public ChangeFlowVO queryChangeFlowDetail(String ownerUid, long flowId) {
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        if (flow == null) {
+            return null;
+        }
+        ChangeFlowVO detail = this.buildGroupedFlowList(ownerUid, Collections.singletonList(flow)).get(0);
+        DmChangeFlowDO rootFlow = flow;
+        while (rootFlow.getRefParentFlowId() != null) {
+            DmChangeFlowDO parentFlow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, rootFlow.getRefParentFlowId());
+            if (parentFlow == null) {
+                break;
+            }
+            rootFlow = parentFlow;
+        }
+        if (rootFlow.getId() != flow.getId()) {
+            detail.setDependencyTree(this.buildGroupedFlowList(ownerUid, Collections.singletonList(rootFlow)).get(0));
+        }
+        return detail;
+    }
+
+    private List<ChangeFlowVO> buildGroupedFlowList(String ownerUid, List<DmChangeFlowDO> records) {
+        Map<Long, DmChangeFlowDO> relatedFlows = records.stream().collect(Collectors.toMap(DmChangeFlowDO::getId, flow -> flow));
+        Map<Long, List<DmChangeFlowDO>> childFlowsByParentId = new HashMap<>();
+
+        Set<Long> parentIds = new HashSet<>(relatedFlows.keySet());
+        while (!parentIds.isEmpty()) {
+            List<DmChangeFlowDO> childFlows = this.changeFlowDal.flowMapper().queryChildrenByParentIds(ownerUid, parentIds);
+            Set<Long> nextParentIds = new HashSet<>();
+            for (DmChangeFlowDO childFlow : childFlows) {
+                if (relatedFlows.putIfAbsent(childFlow.getId(), childFlow) != null) {
+                    continue;
+                }
+                childFlowsByParentId.computeIfAbsent(childFlow.getRefParentFlowId(), key -> new ArrayList<>()).add(childFlow);
+                nextParentIds.add(childFlow.getId());
+            }
+            parentIds = nextParentIds;
+        }
+
+        Map<Long, String> flowNames = relatedFlows.values().stream().collect(Collectors.toMap(DmChangeFlowDO::getId, DmChangeFlowDO::getFlowName));
+        Set<Long> missingParentIds = relatedFlows.values()
+            .stream()
+            .map(DmChangeFlowDO::getRefParentFlowId)
+            .filter(Objects::nonNull)
+            .filter(parentId -> !flowNames.containsKey(parentId))
+            .collect(Collectors.toSet());
+        if (!missingParentIds.isEmpty()) {
+            this.changeFlowDal.flowMapper().listFlowByIds(ownerUid, missingParentIds).forEach(parent -> flowNames.put(parent.getId(), parent.getFlowName()));
+        }
+
+        return records.stream().map(flow -> this.buildGroupedFlowVO(flow, flowNames, childFlowsByParentId)).collect(Collectors.toList());
+    }
+
+    private ChangeFlowVO buildGroupedFlowVO(DmChangeFlowDO flow, Map<Long, String> flowNames, Map<Long, List<DmChangeFlowDO>> childFlowsByParentId) {
+        ChangeFlowVO vo = DmConvertUtils.convertToChangeFlowVO(flow, this.objectCacheDao);
+        if (flow.getRefParentFlowId() != null) {
+            vo.setParentFlowName(flowNames.get(flow.getRefParentFlowId()));
+        }
+        List<DmChangeFlowDO> childFlows = childFlowsByParentId.getOrDefault(flow.getId(), Collections.emptyList());
+        vo.setChildFlows(childFlows.stream().map(this::toRelationItem).collect(Collectors.toList()));
+        if (!childFlows.isEmpty()) {
+            vo.setChildren(childFlows.stream().map(child -> this.buildGroupedFlowVO(child, flowNames, childFlowsByParentId)).collect(Collectors.toList()));
+        }
+        vo.setHasRelations(flow.getRefParentFlowId() != null || !childFlows.isEmpty());
+        return vo;
     }
 
     @Override
@@ -189,8 +255,15 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public GuideCreateChangeFlowVO createChangeFlow(String ownerUid, String currentUser, GuideCreateFO fo) {
-        DmChangeFlowDO flowDO = checkAndCreateDevops(ownerUid, fo.getPipeline());
-        checkDevopsConflict(ownerUid, flowDO);
+        ChangeFlowType flowType = fo.getFlowType() == null ? ChangeFlowType.SCM : fo.getFlowType();
+        DmChangeFlowDO flowDO;
+        if (flowType == ChangeFlowType.BUILT_IN) {
+            flowDO = checkAndCreateBuiltInFlow(ownerUid, fo.getParentFlowId(), fo.getPipeline());
+        } else {
+            flowDO = checkAndCreateDevops(ownerUid, fo.getPipeline());
+            flowDO.setFlowType(ChangeFlowType.SCM);
+            checkDevopsConflict(ownerUid, flowDO);
+        }
 
         flowDO.setOwnerUid(ownerUid);
         flowDO.setFlowUid(RandomStrUtils.fixedLenRandomStr(12));
@@ -203,24 +276,111 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
 
         this.changeFlowDal.flowMapper().insert(flowDO);
 
-        if (fo.getOption() != null && fo.getOption().getInitScript() != null) {
+        if (flowType == ChangeFlowType.SCM && fo.getOption() != null && fo.getOption().getInitScript() != null) {
             this.initInitScript(flowDO, flowDO, fo.getOption().getInitScript());
-        } else {
+        } else if (flowType == ChangeFlowType.SCM) {
             this.initInitScript(flowDO, flowDO, DmInitScriptStrategy.None);
         }
 
         GuideCreateChangeFlowVO vo = new GuideCreateChangeFlowVO();
         vo.setFlowId(flowDO.getId());
         vo.setRepoUrl(flowDO.getScmRepoUrl());
-        vo.setWebHookUrl(DmConvertUtils.generateCicdWebhookEventUrl(flowDO));
-        vo.setWebHookPwd(flowDO.getScmBindWebhookPwd());
+        if (flowType == ChangeFlowType.SCM) {
+            vo.setWebHookUrl(DmConvertUtils.generateCicdWebhookEventUrl(flowDO));
+            vo.setWebHookPwd(flowDO.getScmBindWebhookPwd());
+        }
         vo.setWarnings(flowDO.getScmPreflightWarnings());
 
-        DmScmDef defByType = this.dmScmService.getScmDefByType(flowDO.getRefScmType());
+        DmScmDef defByType = flowDO.getRefScmType() == null ? null : this.dmScmService.getScmDefByType(flowDO.getRefScmType());
         if (defByType != null) {
             vo.setWebHookHelpUrl(defByType.getHelpUrl());
         }
         return vo;
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public GuideBatchCreateChangeFlowVO createChangeFlows(String ownerUid, String currentUser, GuideBatchCreateFO fo) {
+        List<GuideBatchCreateItemFO> orderedFlows = validateAndSortBatchCreateFlows(fo.getFlows());
+        Map<String, Long> createdIds = new LinkedHashMap<>();
+        List<GuideBatchCreateChangeFlowItemVO> results = new ArrayList<>();
+        long rootFlowId = 0;
+
+        for (GuideBatchCreateItemFO item : orderedFlows) {
+            GuideCreateFO flow = item.getFlow();
+            Long parentFlowId = StringUtils.isBlank(item.getParentClientId()) ? null : createdIds.get(item.getParentClientId());
+            flow.setParentFlowId(parentFlowId);
+            GuideCreateChangeFlowVO created = createChangeFlow(ownerUid, currentUser, flow);
+            createdIds.put(item.getClientId(), created.getFlowId());
+            if (parentFlowId == null) {
+                rootFlowId = created.getFlowId();
+            }
+
+            GuideBatchCreateChangeFlowItemVO result = new GuideBatchCreateChangeFlowItemVO();
+            result.setClientId(item.getClientId());
+            result.setFlowId(created.getFlowId());
+            results.add(result);
+        }
+
+        GuideBatchCreateChangeFlowVO vo = new GuideBatchCreateChangeFlowVO();
+        vo.setRootFlowId(rootFlowId);
+        vo.setFlowCount(results.size());
+        vo.setRelationCount(Math.max(0, results.size() - 1));
+        vo.setFlows(results);
+        return vo;
+    }
+
+    private List<GuideBatchCreateItemFO> validateAndSortBatchCreateFlows(List<GuideBatchCreateItemFO> flows) {
+        Map<String, GuideBatchCreateItemFO> items = new LinkedHashMap<>();
+        for (GuideBatchCreateItemFO item : flows) {
+            String clientId = item == null ? null : StringUtils.trimToNull(item.getClientId());
+            GuideCreateFO flow = item == null ? null : item.getFlow();
+            if (StringUtils.isBlank(clientId) || flow == null || items.put(clientId, item) != null) {
+                throw invalidBatchCreateGraph();
+            }
+            item.setClientId(clientId);
+            item.setParentClientId(StringUtils.trimToNull(item.getParentClientId()));
+            if (flow.getFlowType() != ChangeFlowType.BUILT_IN) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_BATCH_CREATE_BUILT_IN_ONLY_ERROR.name()));
+            }
+            if (flow.getParentFlowId() != null) {
+                throw invalidBatchCreateGraph();
+            }
+        }
+
+        List<GuideBatchCreateItemFO> roots = items.values().stream().filter(item -> item.getParentClientId() == null).collect(Collectors.toList());
+        if (roots.size() != 1) {
+            throw invalidBatchCreateGraph();
+        }
+
+        Map<String, List<GuideBatchCreateItemFO>> children = new LinkedHashMap<>();
+        for (GuideBatchCreateItemFO item : items.values()) {
+            String parentClientId = item.getParentClientId();
+            if (parentClientId == null) {
+                continue;
+            }
+            if (Objects.equals(parentClientId, item.getClientId()) || !items.containsKey(parentClientId)) {
+                throw invalidBatchCreateGraph();
+            }
+            children.computeIfAbsent(parentClientId, key -> new ArrayList<>()).add(item);
+        }
+
+        List<GuideBatchCreateItemFO> ordered = new ArrayList<>();
+        Deque<GuideBatchCreateItemFO> pending = new ArrayDeque<>();
+        pending.add(roots.get(0));
+        while (!pending.isEmpty()) {
+            GuideBatchCreateItemFO item = pending.removeFirst();
+            ordered.add(item);
+            pending.addAll(children.getOrDefault(item.getClientId(), Collections.emptyList()));
+        }
+        if (ordered.size() != items.size()) {
+            throw invalidBatchCreateGraph();
+        }
+        return ordered;
+    }
+
+    private ErrorMessageException invalidBatchCreateGraph() {
+        return new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_BATCH_CREATE_GRAPH_ERROR.name()));
     }
 
     private void mergeMsgConfig(DmChangeFlowDO flowDO, DmChangeFlowDO msgDO) {
@@ -267,26 +427,8 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     }
 
     private DmChangeFlowDO checkAndCreateDevops(String ownerUid, GuidePipelineFO pipeline) {
-        if (pipeline == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
-        }
-
-        if (pipeline.getDsLevels() == null || pipeline.getDsLevels().size() < 2) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
-        }
-        DsLevels dsLevels = this.dmDsConfigService.parseLevels(pipeline.getDsLevels());
+        DsLevels dsLevels = checkTarget(ownerUid, pipeline);
         DmDsDO dsDO = dsLevels.dsDO();
-        if (dsDO == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
-        }
-        this.objectCacheDao.ownDataSource(ownerUid, dsDO.getId());
-        if (!StringUtils.equals(String.valueOf(dsDO.getDsEnvId()), dsLevels.envId())) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
-        }
-        if (!dsLevels.levelsDef().isEmpty() && this.dmDsSchemaService.detailLevel(dsDO, dsLevels.levelsDef(), dsLevels.levelsParam()) == null) {
-            String target = dsLevels.dbLevels().isEmpty() ? "" : dsLevels.dbLevels().get(dsLevels.dbLevels().size() - 1);
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_SCHEMA_NOT_EXIST_ERROR.name(), target));
-        }
         DmGitOpsScmDO scmDO = this.dmScmService.queryScmById(ownerUid, pipeline.getRepoScmId());
         if (scmDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
@@ -371,6 +513,121 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         gitOpsFlowDO.setScmValidatedCommitId(canonicalRepo.getCommitId());
         gitOpsFlowDO.setScmPreflightWarnings(warnings);
         return gitOpsFlowDO;
+    }
+
+    private DmChangeFlowDO checkAndCreateBuiltInFlow(String ownerUid, Long parentFlowId, GuidePipelineFO pipeline) {
+        DsLevels dsLevels = checkTarget(ownerUid, pipeline);
+        DmDsDO dsDO = dsLevels.dsDO();
+        DmChangeFlowDO parent = null;
+        if (parentFlowId != null) {
+            parent = validateParent(ownerUid, 0, dsDO.getDataSourceType(), parentFlowId);
+            ensureCascadeRootIdleForRelation(ownerUid, parent.getId());
+            ensureRelationTreeIdle(ownerUid, parent.getId());
+        }
+
+        DmChangeFlowDO flow = new DmChangeFlowDO();
+        flow.setOwnerUid(ownerUid);
+        flow.setFlowType(ChangeFlowType.BUILT_IN);
+        if (parent != null) {
+            flow.setRefParentFlowId(parent.getId());
+        }
+        flow.setScmRepoSpace("");
+        flow.setScmRepoIdentifier("");
+        flow.setScmRepoName("");
+        flow.setScmRepoUrl("");
+        flow.setScmRepoBranch("");
+        flow.setScmRepoEvent(ScmEventType.Push);
+        flow.setScmRepoScript("");
+        flow.setFlowScmOptions(this.createDevopsOptions(null));
+        flow.setScmBindWebhookPwd(null);
+        flow.setEnableWebhook(false);
+        flow.setEnableTrigger(false);
+        flow.setTriggerToken("");
+        flow.setCallbackUrl("");
+        flow.setCallbackMethod("POST");
+        flow.setEnableCallback(false);
+        flow.setFlowHashcode(0);
+        flow.setEnable(true);
+        fillTarget(flow, pipeline, dsLevels);
+        return flow;
+    }
+
+    private DsLevels checkTarget(String ownerUid, GuidePipelineFO pipeline) {
+        if (pipeline == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+        }
+        if (pipeline.getDsLevels() == null || pipeline.getDsLevels().size() < 2) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
+        }
+        DsLevels dsLevels = this.dmDsConfigService.parseLevels(pipeline.getDsLevels());
+        DmDsDO dsDO = dsLevels.dsDO();
+        if (dsDO == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
+        }
+        this.objectCacheDao.ownDataSource(ownerUid, dsDO.getId());
+        if (!StringUtils.equals(String.valueOf(dsDO.getDsEnvId()), dsLevels.envId())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
+        }
+        if (!dsLevels.levelsDef().isEmpty() && this.dmDsSchemaService.detailLevel(dsDO, dsLevels.levelsDef(), dsLevels.levelsParam()) == null) {
+            String target = dsLevels.dbLevels().isEmpty() ? "" : dsLevels.dbLevels().get(dsLevels.dbLevels().size() - 1);
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_SCHEMA_NOT_EXIST_ERROR.name(), target));
+        }
+        return dsLevels;
+    }
+
+    private void fillTarget(DmChangeFlowDO flow, GuidePipelineFO pipeline, DsLevels dsLevels) {
+        DmDsDO dsDO = dsLevels.dsDO();
+        flow.setDsId(dsDO.getId());
+        flow.setDsType(dsDO.getDataSourceType());
+        flow.setDsInstance(dsDO.getInstanceId());
+        flow.setDsDesc(dsDO.getInstanceDesc());
+        flow.setDsPath("/" + StringUtils.join(pipeline.getDsLevels().toArray(), "/"));
+    }
+
+    private DmChangeFlowDO validateParent(String ownerUid, long childFlowId, com.clougence.clouddm.base.metadata.ds.DataSourceType dsType, Long parentFlowId) {
+        if (parentFlowId == null || parentFlowId <= 0) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_PARENT_NOT_EXIST_ERROR.name()));
+        }
+        DmChangeFlowDO parent = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, parentFlowId);
+        if (parent == null || parent.isDeleted() || !parent.isEnable() || parent.getChangeFlowStatus() != ChangeFlowStatus.NORMAL) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_PARENT_NOT_EXIST_ERROR.name()));
+        }
+        if (parent.getFlowType() != ChangeFlowType.BUILT_IN) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_PARENT_NOT_EXIST_ERROR.name()));
+        }
+        if (parent.isEnableWebhook() || parent.isEnableTrigger()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CASCADE_MANUAL_ONLY_ERROR.name()));
+        }
+        if (parent.getDsType() != dsType) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_PARENT_TYPE_MISMATCH_ERROR.name()));
+        }
+        if (parent.getId() == childFlowId) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_PARENT_CYCLE_ERROR.name()));
+        }
+        Set<Long> walked = new HashSet<>();
+        DmChangeFlowDO cursor = parent;
+        while (cursor != null && cursor.getRefParentFlowId() != null && walked.add(cursor.getId())) {
+            if (cursor.getId() == childFlowId || cursor.getRefParentFlowId() == childFlowId) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_PARENT_CYCLE_ERROR.name()));
+            }
+            cursor = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, cursor.getRefParentFlowId());
+        }
+        return parent;
+    }
+
+    private void ensureCascadeRootIdleForRelation(String ownerUid, long flowId) {
+        Set<Long> walked = new HashSet<>();
+        DmChangeFlowDO root = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        while (root != null && root.getRefParentFlowId() != null && walked.add(root.getId())) {
+            root = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, root.getRefParentFlowId());
+        }
+        if (root == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_PARENT_NOT_EXIST_ERROR.name()));
+        }
+        this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, root.getId());
+        if (this.changeFlowDal.batchMapper().queryRunningByRootFlow(ownerUid, root.getId()) != null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_RELATION_IN_USE_ERROR.name()));
+        }
     }
 
     private void checkDevopsConflict(String ownerUid, DmChangeFlowDO gitOpsFlowDO) {
@@ -467,6 +724,146 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     @Override
     public DmChangeFlowDO queryFlowById(String ownerUid, long flowId) {
         return this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+    }
+
+    @Override
+    public List<ChangeFlowRelationItemVO> queryParentCandidates(String ownerUid, Long excludeFlowId) {
+        return this.changeFlowDal.flowMapper()
+            .queryParentCandidates(ownerUid)
+            .stream()
+            .filter(flow -> flow.getFlowType() == ChangeFlowType.BUILT_IN)
+            .filter(flow -> excludeFlowId == null || flow.getId().longValue() != excludeFlowId)
+            .filter(flow -> excludeFlowId == null || !wouldCreateCycle(ownerUid, excludeFlowId, flow.getId()))
+            .map(this::toRelationItem)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public void updateParent(String ownerUid, long flowId, Long parentFlowId) {
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
+        if (flow == null || flow.isDeleted()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
+        }
+        if ((flow.getFlowType() == null ? ChangeFlowType.SCM : flow.getFlowType()) != ChangeFlowType.BUILT_IN) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+        }
+        if (parentFlowId != null && flow.getChangeFlowStatus() != ChangeFlowStatus.NORMAL) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_IS_ARCHIVE_OR_DELETE_ERROR.name()));
+        }
+        if (parentFlowId != null && !flow.isEnable()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IS_DISABLED_ERROR.name()));
+        }
+        if (flow.getRefParentFlowId() != null) {
+            ensureCascadeRootIdleForRelation(ownerUid, flow.getRefParentFlowId());
+        }
+        DmChangeFlowDO parent = null;
+        if (parentFlowId != null) {
+            parent = validateParent(ownerUid, flowId, flow.getDsType(), parentFlowId);
+            ensureCascadeRootIdleForRelation(ownerUid, parent.getId());
+        }
+        ensureRelationTreeIdle(ownerUid, flowId);
+        if (flow.getRefParentFlowId() != null) {
+            ensureRelationTreeIdle(ownerUid, flow.getRefParentFlowId());
+        }
+        if (parent != null) {
+            ensureRelationTreeIdle(ownerUid, parent.getId());
+        }
+        boolean enableWebhook = flow.isEnableWebhook();
+        boolean enableTrigger = flow.isEnableTrigger();
+        if (parentFlowId != null) {
+            enableWebhook = false;
+            enableTrigger = false;
+        }
+        this.changeFlowDal.flowMapper().updateParentByOwnerAndId(ownerUid, flowId, ChangeFlowType.BUILT_IN, parentFlowId, enableWebhook, enableTrigger);
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public void updateParents(String ownerUid, List<ChangeFlowParentConfigFO> changes) {
+        if (CollectionUtils.isEmpty(changes)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+        }
+
+        Map<Long, ChangeFlowParentConfigFO> uniqueChanges = new TreeMap<>();
+        for (ChangeFlowParentConfigFO change : changes) {
+            if (change == null || change.getFlowId() == null || change.getFlowId() <= 0 || Objects.equals(change.getFlowId(), change.getParentFlowId())
+                || uniqueChanges.put(change.getFlowId(), change) != null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            }
+        }
+
+        List<ChangeFlowParentConfigFO> effectiveChanges = uniqueChanges.values().stream().filter(change -> {
+            DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, change.getFlowId());
+            if (flow == null || flow.isDeleted()) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
+            }
+            return !Objects.equals(flow.getRefParentFlowId(), change.getParentFlowId());
+        }).collect(Collectors.toList());
+
+        // Detach every changed node first so validation is based on the final graph instead of request order.
+        for (ChangeFlowParentConfigFO change : effectiveChanges) {
+            updateParent(ownerUid, change.getFlowId(), null);
+        }
+        for (ChangeFlowParentConfigFO change : effectiveChanges) {
+            if (change.getParentFlowId() != null) {
+                updateParent(ownerUid, change.getFlowId(), change.getParentFlowId());
+            }
+        }
+    }
+
+    private void ensureRelationTreeIdle(String ownerUid, long flowId) {
+        Set<Long> visited = new HashSet<>();
+        Deque<Long> pending = new ArrayDeque<>();
+        pending.add(flowId);
+        while (!pending.isEmpty()) {
+            long currentId = pending.removeFirst();
+            if (!visited.add(currentId)) {
+                continue;
+            }
+            DmChangeFlowDO current = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, currentId);
+            if (current != null && current.getRefParentFlowId() != null) {
+                pending.addLast(current.getRefParentFlowId());
+            }
+            for (DmChangeFlowDO child : this.changeFlowDal.flowMapper().queryChildren(ownerUid, currentId)) {
+                pending.addLast(child.getId());
+            }
+        }
+        List<DmChangeDO> unfinishedChanges = this.changeFlowDal.changeMapper().queryUnlockedChangesByFlowIds(ownerUid, visited);
+        boolean runningBatch = this.changeCascadeService.hasRunningBatchForFlows(ownerUid, visited);
+        if (!unfinishedChanges.isEmpty() || runningBatch) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_RELATION_IN_USE_ERROR.name()));
+        }
+    }
+
+    private boolean wouldCreateCycle(String ownerUid, long childFlowId, long candidateId) {
+        Set<Long> walked = new HashSet<>();
+        DmChangeFlowDO cursor = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, candidateId);
+        while (cursor != null && walked.add(cursor.getId())) {
+            if (cursor.getId() == childFlowId) {
+                return true;
+            }
+            Long parentId = cursor.getRefParentFlowId();
+            cursor = parentId == null ? null : this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, parentId);
+        }
+        return false;
+    }
+
+    private ChangeFlowRelationItemVO toRelationItem(DmChangeFlowDO flow) {
+        ChangeFlowRelationItemVO vo = new ChangeFlowRelationItemVO();
+        vo.setFlowId(flow.getId());
+        vo.setFlowName(flow.getFlowName());
+        vo.setFlowType(flow.getFlowType() == null ? ChangeFlowType.SCM : flow.getFlowType());
+        vo.setDsType(flow.getDsType());
+        vo.setFlowManagerUid(flow.getFlowManagerUid());
+        UserCacheEntry manager = this.objectCacheDao.queryByUid(flow.getFlowManagerUid());
+        vo.setFlowManagerName(manager == null ? "UID:" + flow.getFlowManagerUid() : manager.getUserName());
+        boolean manualOnly = !flow.isEnableWebhook() && !flow.isEnableTrigger();
+        vo.setSelectable(manualOnly);
+        if (!manualOnly) {
+            vo.setUnavailableReason(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CASCADE_MANUAL_ONLY_ERROR.name()));
+        }
+        return vo;
     }
 
     @Override
@@ -586,6 +983,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
 
         DmChangeFlowDO flowDO = checkAndCreateDevops(ownerUid, fo.getPipeline());
+        flowDO.setFlowType(ChangeFlowType.SCM);
         flowDO.setFlowUid(RandomStrUtils.fixedLenRandomStr(12));
         flowDO.setFlowName(baseFlow.getFlowName());
         flowDO.setFlowDesc(baseFlow.getFlowDesc());
@@ -620,13 +1018,14 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void deleteGitOpsFlow(String ownerUid, long flowId) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
         }
         if (flow.getChangeFlowStatus() != ChangeFlowStatus.NORMAL) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_IS_ARCHIVE_OR_DELETE_ERROR.name()));
         }
+        ensureNoRelations(ownerUid, flow);
 
         int useCount = this.changeFlowDal.changeMapper().countUnfinishedChangeByFlowId(ownerUid, flowId);
         if (useCount > 0) {
@@ -639,9 +1038,10 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.senderService.sendMessage(ownerUid, flowId, ImMessageType.FlowConfig, textMsg);
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void enableGitOpsFlow(String ownerUid, long flowId) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
         }
@@ -649,27 +1049,34 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_IS_ARCHIVE_OR_DELETE_ERROR.name()));
         }
 
-        checkDevopsConflict(ownerUid, flow);
-        this.changeFlowDal.flowMapper().enableFlowByOwnerAndId(ownerUid, flowId);
+        List<DmChangeFlowDO> lifecycleFlows = collectLifecycleFlowsForUpdate(ownerUid, flow);
+        lifecycleFlows.forEach(item -> {
+            if (item.getFlowType() != ChangeFlowType.BUILT_IN) {
+                checkDevopsConflict(ownerUid, item);
+            }
+        });
+        lifecycleFlows.forEach(item -> this.changeFlowDal.flowMapper().enableFlowByOwnerAndId(ownerUid, item.getId()));
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void disableGitOpsFlow(String ownerUid, long flowId) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
         }
         if (flow.getChangeFlowStatus() != ChangeFlowStatus.NORMAL) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_IS_ARCHIVE_OR_DELETE_ERROR.name()));
         }
-
-        this.changeFlowDal.flowMapper().disableFlowByOwnerAndId(ownerUid, flowId);
+        List<DmChangeFlowDO> lifecycleFlows = collectLifecycleFlowsForUpdate(ownerUid, flow);
+        ensureCascadeLifecycleIdle(ownerUid, lifecycleFlows);
+        lifecycleFlows.forEach(item -> this.changeFlowDal.flowMapper().disableFlowByOwnerAndId(ownerUid, item.getId()));
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void configGitOpsWebhook(String ownerUid, long flowId, boolean enable, String signingToken, boolean clearSigningToken) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
         }
@@ -678,6 +1085,9 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
         if (!flow.isEnable()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IS_DISABLED_ERROR.name()));
+        }
+        if (enable && ((flow.getFlowType() == ChangeFlowType.BUILT_IN) || this.changeFlowDal.flowMapper().countChildren(ownerUid, flowId) > 0)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CASCADE_MANUAL_ONLY_ERROR.name()));
         }
 
         if (StringUtils.isNotBlank(signingToken)) {
@@ -707,9 +1117,10 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void configGitOpsTrigger(String ownerUid, long flowId, boolean enable) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
         }
@@ -718,6 +1129,9 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
         if (!flow.isEnable()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IS_DISABLED_ERROR.name()));
+        }
+        if (enable && ((flow.getFlowType() == ChangeFlowType.BUILT_IN) || this.changeFlowDal.flowMapper().countChildren(ownerUid, flowId) > 0)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CASCADE_MANUAL_ONLY_ERROR.name()));
         }
 
         if (enable) {
@@ -752,9 +1166,10 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.changeFlowDal.flowMapper().configCallBackByOwnerAndId(ownerUid, flowId, fo.isEnable(), fo.getMethod(), fo.getUrl());
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void archiveFlow(String ownerUid, long flowId, String operatorUid) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
         }
@@ -762,32 +1177,34 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             case DELETE:
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_DELETE_UN_SUPPORT_ARCHIVE_ERROR.name()));
             case ARCHIVE:
-                return;
+                break;
             case NORMAL:
                 break;
             default:
                 throw new UnsupportedOperationException();
         }
+        List<DmChangeFlowDO> lifecycleFlows = collectLifecycleFlowsForUpdate(ownerUid, flow);
 
-        int usingCount = this.changeFlowDal.changeMapper().countUnfinishedChangeByFlowId(ownerUid, flowId);
+        int usingCount = countUnfinishedLifecycleChanges(ownerUid, lifecycleFlows);
         if (usingCount > 0) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_ARCHIVE_CHANGE_ON_END_ERROR.name(), usingCount));
         }
+        ensureCascadeLifecycleIdle(ownerUid, lifecycleFlows);
 
-        // send message
         UserCacheEntry operatorUser = this.objectCacheDao.queryByUid(operatorUid);
         String operatorMsg = String.format("[%s] %s", DmI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
-        String textMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_STATUS_ARCHIVE_MESSAGE.name(), operatorMsg, flow.getFlowName());
-        this.senderService.sendMessage(ownerUid, flowId, ImMessageType.ChangeFlowStatus, textMsg);
-
-        //
-        this.changeFlowDal.flowMapper().disableFlowByOwnerAndId(ownerUid, flowId);
-        this.changeFlowDal.flowMapper().updateStatusByOwnerAndId(ownerUid, flowId, ChangeFlowStatus.ARCHIVE);
+        lifecycleFlows.forEach(item -> {
+            String textMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_STATUS_ARCHIVE_MESSAGE.name(), operatorMsg, item.getFlowName());
+            this.senderService.sendMessage(ownerUid, item.getId(), ImMessageType.ChangeFlowStatus, textMsg);
+            this.changeFlowDal.flowMapper().disableFlowByOwnerAndId(ownerUid, item.getId());
+            this.changeFlowDal.flowMapper().updateStatusByOwnerAndId(ownerUid, item.getId(), ChangeFlowStatus.ARCHIVE);
+        });
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void recoverFlowTo(String ownerUid, long flowId, ChangeFlowStatus toStatus) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
         }
@@ -795,19 +1212,22 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             throw new UnsupportedOperationException();
         }
 
-        if (flow.getChangeFlowStatus() != ChangeFlowStatus.NORMAL) {
-            this.changeFlowDal.flowMapper().updateStatusByOwnerAndId(ownerUid, flowId, toStatus);
-        }
-
-        if (toStatus == ChangeFlowStatus.NORMAL) {
-            this.changeFlowDal.flowMapper().enableFlowByOwnerAndId(ownerUid, flowId);
-        }
+        List<DmChangeFlowDO> lifecycleFlows = collectLifecycleFlowsForUpdate(ownerUid, flow);
+        ensureCascadeLifecycleIdle(ownerUid, lifecycleFlows);
+        lifecycleFlows.forEach(item -> {
+            if (item.getChangeFlowStatus() != ChangeFlowStatus.NORMAL) {
+                this.changeFlowDal.flowMapper().updateStatusByOwnerAndId(ownerUid, item.getId(), toStatus);
+            }
+            if (toStatus == ChangeFlowStatus.NORMAL) {
+                this.changeFlowDal.flowMapper().enableFlowByOwnerAndId(ownerUid, item.getId());
+            }
+        });
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void deleteFlow(String ownerUid, long flowId) {
-        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
         if (flow == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_NOT_EXIST_ERROR.name()));
         }
@@ -821,8 +1241,56 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             default:
                 throw new UnsupportedOperationException();
         }
+        List<DmChangeFlowDO> lifecycleFlows = collectLifecycleFlowsForUpdate(ownerUid, flow);
+        int usingCount = countUnfinishedLifecycleChanges(ownerUid, lifecycleFlows);
+        if (usingCount > 0) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_ARCHIVE_CHANGE_ON_END_ERROR.name(), usingCount));
+        }
+        ensureCascadeLifecycleIdle(ownerUid, lifecycleFlows);
+        Collections.reverse(lifecycleFlows);
+        lifecycleFlows.forEach(item -> this.changeFlowDal.flowMapper().deleteByOwnerAndId(ownerUid, item.getId()));
+    }
 
-        this.changeFlowDal.flowMapper().deleteByOwnerAndId(ownerUid, flowId);
+    private List<DmChangeFlowDO> collectLifecycleFlowsForUpdate(String ownerUid, DmChangeFlowDO rootFlow) {
+        if (rootFlow.getRefParentFlowId() != null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CHILD_LIFECYCLE_MANAGED_ERROR.name()));
+        }
+
+        List<DmChangeFlowDO> flows = new ArrayList<>();
+        Set<Long> visited = new HashSet<>();
+        Deque<DmChangeFlowDO> pending = new ArrayDeque<>();
+        pending.add(rootFlow);
+        while (!pending.isEmpty()) {
+            DmChangeFlowDO current = pending.removeFirst();
+            if (!visited.add(current.getId())) {
+                continue;
+            }
+            flows.add(current);
+            for (DmChangeFlowDO child : this.changeFlowDal.flowMapper().queryChildren(ownerUid, current.getId())) {
+                DmChangeFlowDO lockedChild = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, child.getId());
+                if (lockedChild != null && !lockedChild.isDeleted() && Objects.equals(lockedChild.getRefParentFlowId(), current.getId())) {
+                    pending.addLast(lockedChild);
+                }
+            }
+        }
+        return flows;
+    }
+
+    private void ensureCascadeLifecycleIdle(String ownerUid, List<DmChangeFlowDO> flows) {
+        List<Long> flowIds = flows.stream().map(DmChangeFlowDO::getId).collect(Collectors.toList());
+        if (this.changeCascadeService.hasRunningBatchForFlows(ownerUid, flowIds)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CASCADE_LIFECYCLE_IN_USE_ERROR.name()));
+        }
+    }
+
+    private int countUnfinishedLifecycleChanges(String ownerUid, List<DmChangeFlowDO> flows) {
+        return flows.stream().mapToInt(item -> this.changeFlowDal.changeMapper().countUnfinishedChangeByFlowId(ownerUid, item.getId())).sum();
+    }
+
+    private void ensureNoRelations(String ownerUid, DmChangeFlowDO flow) {
+        if (flow.getRefParentFlowId() != null || this.changeFlowDal.flowMapper().countChildren(ownerUid, flow.getId()) > 0) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_RELATION_LIFECYCLE_ERROR.name()));
+        }
     }
 
     @Override

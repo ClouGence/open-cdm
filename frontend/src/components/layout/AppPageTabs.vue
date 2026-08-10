@@ -39,7 +39,14 @@ export default {
   emits: ['update:modelValue', 'change'],
   methods: {
     selectTab(tab) {
-      if (tab.disabled || tab.name === this.modelValue) {
+      if (tab.disabled) {
+        return;
+      }
+      if (tab.actionOnly) {
+        this.$emit('change', tab.name);
+        return;
+      }
+      if (tab.name === this.modelValue) {
         return;
       }
       this.$emit('update:modelValue', tab.name);

@@ -34,6 +34,10 @@ public interface ChangeFlowDal {
 
     DmChangeTriggerReceiptMapper triggerReceiptMapper();
 
+    DmChangeBatchMapper batchMapper();
+
+    DmChangeTransferMapper transferMapper();
+
     DmGitOpsScmMapper scmMapper();
 
     // ---------- dal service methods ----------

@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.approval.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.ObjectProvider;
@@ -35,15 +36,15 @@ import jakarta.annotation.Resource;
 
 @Service
 public class ApprovalStateServiceImpl implements ApprovalStateService {
-    private static final List<String> TYPES = List.of(//
-            ApprovalExecutionStateMO.TYPE_PREPARATION,//
-            ApprovalExecutionStateMO.TYPE_DISPATCH,   //
+    private static final List<String>             TYPES = List.of(//
+            ApprovalExecutionStateMO.TYPE_PREPARATION,            //
+            ApprovalExecutionStateMO.TYPE_DISPATCH,               //
             ApprovalExecutionStateMO.TYPE_RUNNING);
 
     @Resource
-    private ApprovalDal               approvalDal;
+    private ApprovalDal                           approvalDal;
     @Resource
-    private ImSenderService           imSenderService;
+    private ImSenderService                       imSenderService;
     private final ObjectProvider<ApprovalHandler> approvalHandlers;
 
     public ApprovalStateServiceImpl(ObjectProvider<ApprovalHandler> approvalHandlers){
@@ -96,13 +97,20 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
     @Transactional(rollbackFor = Throwable.class)
     public void updateProcessStatus(long ticketId, ApprovalStage stage, ApprovalProcessStatus status, String context) {
         DmApprovalProcessDO process = this.requireProcess(ticketId, stage);
-        this.approvalDal.processMapper().updateTicketStatusByEnum(process.getId(), status, context == null ? process.getStageContext() : context);
+        Date finishTime = process.getFinishTime();
+        if (status == ApprovalProcessStatus.INIT) {
+            finishTime = null;
+        } else if (status == ApprovalProcessStatus.REJECT || status == ApprovalProcessStatus.FINISH || status == ApprovalProcessStatus.FAIL
+                   || status == ApprovalProcessStatus.CLOSED) {
+            finishTime = new Date();
+        }
+        this.approvalDal.processMapper().updateProcessStatus(process.getId(), status, context == null ? process.getStageContext() : context, finishTime);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public DmApprovalProcessActivityDO initializeActivity(long ticketId, ApprovalStage stage, String activityId, String activityTitle, int orderNumber, String status,
-            String context) {
+                                                          String context) {
         DmApprovalProcessDO process = this.requireProcess(ticketId, stage);
         DmApprovalProcessActivityDO activity = new DmApprovalProcessActivityDO();
         activity.setTicketId(ticketId);
@@ -138,7 +146,13 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
             return;
         }
         for (ApprovalAnalysisStateMO state : states) {
-            this.initializeActivity(ticketId, ApprovalStage.EXPLAIN, state.getAnalysisType(), state.getAnalysisType(), state.getDisplayOrder(), ApprovalAnalysisStateMO.STATUS_INIT,
+            this.initializeActivity(                     //
+                    ticketId,                            //
+                    ApprovalStage.EXPLAIN,               //
+                    state.getAnalysisType(),             //
+                    state.getAnalysisType(),             //
+                    state.getDisplayOrder(),             //
+                    ApprovalAnalysisStateMO.STATUS_INIT, //
                     JsonUtils.toJson(state));
         }
     }
