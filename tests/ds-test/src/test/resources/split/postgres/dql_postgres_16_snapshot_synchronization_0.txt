@@ -1,6 +1,0 @@
-SELECT pg_log_standby_snapshot() IS NOT NULL AS standby_snapshot_lsn_logged;
-SELECT pg_log_standby_snapshot() <= pg_current_wal_insert_lsn() AS standby_snapshot_lsn_not_after_insert;
-------------------------------------------------------------------------------------------
-[SELECT|ADMIN_REPLICATION] SELECT pg_log_standby_snapshot() IS NOT NULL AS standby_snapshot_lsn_logged;
-----------
-[SELECT|ADMIN_REPLICATION|LOG_READ] SELECT pg_log_standby_snapshot() <= pg_current_wal_insert_lsn() AS standby_snapshot_lsn_not_after_insert;

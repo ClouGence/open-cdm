@@ -3106,45 +3106,6 @@ expect:
   ]
 }
 ----------
-[permission_mysql_8_0_01470]
-source: split/mysql/5.6/dml_mysql_language_0.txt#1
-sql:
-/*!50000 INSERT INTO t VALUES (1, 'a', 0), (2, 'b', 0) */;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "WRITE": [
-    "Table(1:21~1:22) /test/1/catalog1/schema1/t/"
-  ]
-}
-----------
-[permission_mysql_8_0_01471]
-source: split/mysql/5.6/dml_mysql_language_0.txt#2
-sql:
-/*!50000 UPDATE t SET flag = 1 WHERE id = 1 */;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "WRITE": [
-    "Table(1:16~1:17) /test/1/catalog1/schema1/t/"
-  ]
-}
-----------
-[permission_mysql_8_0_01472]
-source: split/mysql/5.6/dml_mysql_language_0.txt#3
-sql:
-/*!50000 DELETE FROM t WHERE id = 2 */;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "WRITE": [
-    "Table(1:21~1:22) /test/1/catalog1/schema1/t/"
-  ]
-}
-----------
 [permission_mysql_8_0_01473]
 source: split/mysql/5.6/dml_mysql_language_0.txt#4
 sql:

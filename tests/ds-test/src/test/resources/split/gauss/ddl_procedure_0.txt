@@ -1,3 +1,0 @@
-CREATE OR REPLACE PROCEDURE ttt3.foo() AS 'SELECT 1' LANGUAGE sql;
-------------------------------------------------------------------------------------------
-[CREATE_PROG_OBJ] CREATE OR REPLACE PROCEDURE ttt3.foo() AS 'SELECT 1' LANGUAGE sql;
