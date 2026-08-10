@@ -19,6 +19,7 @@ import com.clougence.clouddm.ds.starrocks.sql.SrSqlEngineSpi;
 import com.clougence.clouddm.ds.tidb.sql.TiSqlEngineSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.sql.db2.Db2SqlEngineSpi;
 import com.clougence.sql.doris.DrSqlEngineSpi;
@@ -95,6 +96,13 @@ public final class SqlTestSupport {
             throw new IllegalStateException("No DataSourceType mapping for datasource: " + datasource);
         }
         return dataSourceType;
+    }
+
+    public static SqlParserParameters parserParameters(String datasource) {
+        return switch (datasource) {
+            case "adb", "mariadb", "mysql", "ob4my", "por4my", "por4x", "tidb" -> SqlParserParameters.ofVersion("8.0.46");
+            default -> SqlParserParameters.empty();
+        };
     }
 
     public static ContextInfo contextInfo(String datasource) {

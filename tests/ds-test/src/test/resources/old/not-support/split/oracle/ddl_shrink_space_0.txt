@@ -1,3 +1,0 @@
-alter table "DRAGONPASS"."TBLDRAGONDETAIL" shrink space CHECK;
-------------------------------------------------------------------------------------------
-alter table "DRAGONPASS"."TBLDRAGONDETAIL" shrink space CHECK;

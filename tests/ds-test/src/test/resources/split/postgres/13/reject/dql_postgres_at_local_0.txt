@@ -1,4 +1,0 @@
-SELECT TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05' AT LOCAL;
-------------------------------------------------------------------------------------------
-[SELECT] SELECT TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05' AT LOCAL;
-

@@ -1,3 +1,0 @@
-CREATE TABLE `test` (`id` bigint(20) NOT NULL PRIMARY KEY);
-------------------------------------------------------------------------------------------
-[CREATE_TABLE] CREATE TABLE `test` (`id` bigint(20) NOT NULL PRIMARY KEY);

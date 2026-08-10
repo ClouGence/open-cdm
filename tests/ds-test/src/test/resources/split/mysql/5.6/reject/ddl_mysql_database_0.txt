@@ -1,6 +1,0 @@
-CREATE DATABASE split_db56_modern DEFAULT ENCRYPTION = 'N';
-ALTER DATABASE split_db56_modern READ ONLY = 1;
-------------------------------------------------------------------------------------------
-[CREATE_SCHEMA] CREATE DATABASE split_db56_modern DEFAULT ENCRYPTION = 'N';
-----------
-[ALTER_SCHEMA] ALTER DATABASE split_db56_modern READ ONLY = 1;

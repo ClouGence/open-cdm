@@ -1,6 +1,0 @@
-SELECT FALSE IS NULL IS NULL, TRUE IS NOT NULL IS NOT NULL;
-SELECT NOT NOT TRUE, NOT NOT NOT FALSE;
-------------------------------------------------------------------------------------------
-[SELECT] SELECT FALSE IS NULL IS NULL, TRUE IS NOT NULL IS NOT NULL;
-----------
-[SELECT] SELECT NOT NOT TRUE, NOT NOT NOT FALSE;

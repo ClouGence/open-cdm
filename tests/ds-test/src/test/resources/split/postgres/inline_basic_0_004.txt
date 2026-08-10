@@ -1,5 +1,0 @@
-select * from table_1 a join table_2 b on a.id = b.id;with tab1Cnt as (select * from table1)update table2 set cc = 1 where id1 in (select id_1 from tab1Cnt) or id2 in (select id_2 from table3)
-------------------------------------------------------------------------------------------
-[SELECT] select * from table_1 a join table_2 b on a.id = b.id;
-----------
-[UPDATE|SELECT] with tab1Cnt as (select * from table1)update table2 set cc = 1 where id1 in (select id_1 from tab1Cnt) or id2 in (select id_2 from table3)

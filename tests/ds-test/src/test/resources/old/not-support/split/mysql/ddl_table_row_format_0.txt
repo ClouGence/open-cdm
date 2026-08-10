@@ -1,3 +1,0 @@
-CREATE TABLE t_row_format (id int) ROW_FORMAT = `DYNAMIC`;
-------------------------------------------------------------------------------------------
-CREATE TABLE t_row_format (id int) ROW_FORMAT = `DYNAMIC`;

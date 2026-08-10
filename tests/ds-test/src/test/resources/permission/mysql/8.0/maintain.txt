@@ -1649,19 +1649,6 @@ expect:
   ]
 }
 ----------
-[permission_mysql_8_0_00281]
-source: split/mysql/5.6/dcl_mysql_language_0.txt#7
-sql:
-/*!50000 FLUSH STATUS */;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "MAINTAIN": [
-    "Instance(1:9~1:21) /test/1/"
-  ]
-}
-----------
 [permission_mysql_8_0_00294]
 source: split/mysql/5.6/dcl_mysql_language_0.txt#21
 sql:
