@@ -41,7 +41,6 @@ public class DmI18nKeyDiffCheck implements UnifiedPostConstruct {
     @Override
     public void init() throws Exception {
         checkI18nFileByConfigKey();
-        checkConfigKeyByI18nFile();
     }
 
     @Override
@@ -60,26 +59,6 @@ public class DmI18nKeyDiffCheck implements UnifiedPostConstruct {
             }
         });
         log.info("[DM i18n key has message] total diff count:{}", count.get());
-    }
-
-    public void checkConfigKeyByI18nFile() {
-        log.info("[DM i18n message is used] start check i18n message is used.");
-        Set<String> allKeys = allKey();
-        AtomicInteger count = new AtomicInteger(0);
-        DmI18nUtils.fetchMessageKeys().forEach((resource, properties) -> {
-            if (resource.endsWith("/validation") || resource.endsWith("/request-label") || resource.endsWith("/ui-menus")
-                || resource.endsWith("/sec-rule-message") /*|| resource.endsWith("/label")*/) {
-                return;
-            }
-
-            properties.stringPropertyNames().parallelStream().forEach(key -> {
-                if (!allKeys.contains(key)) {
-                    count.incrementAndGet();
-                    log.warn("[DM i18n] key:{} not exist, but message exist", key);
-                }
-            });
-        });
-        log.info("[DM i18n message is used] total diff count:{}", count.get());
     }
 
     private Set<String> allKey() {
