@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -613,7 +614,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void triggerBuiltInChange(String ownerUid, String triggerUid, long flowId, String sql) {
         if (StringUtils.isBlank(sql)) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_MANUAL_SQL_REQUIRED_ERROR.name()));
@@ -678,7 +679,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public ResWebData<String> triggerChangeSuggest(String ownerUid, long flowId, ChangeTriggerContext triggerContext) {
         if (triggerContext == null || StringUtils.isBlank(triggerContext.getCommitId())) {
             throw new ErrorMessageException("change trigger commit is missing.");

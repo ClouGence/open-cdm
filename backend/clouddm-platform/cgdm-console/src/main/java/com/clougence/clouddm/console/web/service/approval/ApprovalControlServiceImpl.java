@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -536,7 +537,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     // auth Ticket
     //
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo) {
         DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
@@ -1011,7 +1012,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         return this.autoExecService.queryAutoExecJob(ticketDO.getBizId(), checkOperationEnableWithResult(ticketDO, uid));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void retryJob(String puid, String uid, long ticketId) {
         DmApprovalDO ticketDO = this.checkTicket(ticketId);
@@ -1024,7 +1025,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.INIT, null);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void skipTask(String puid, String uid, DmQueryAutoExecFO fo) {
         DmApprovalDO ticketDO = this.checkTicket(fo.getTicketId());
@@ -1040,7 +1041,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void endAutoExecJob(String puid, String uid, long ticketId) {
         DmApprovalDO ticketDO = this.checkTicket(ticketId);
         checkJobOperationEnable(ticketDO, uid);
@@ -1102,7 +1103,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     // ThirdParty support
     //
 
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public boolean refreshCache(DmApprovalDO ticketDO) {
         if (StringUtils.isEmpty(ticketDO.getApproIdentity())) {
             return false;

@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlAuditRService;
@@ -49,7 +50,7 @@ public class SqlAuditRServiceProvider extends AbstractBasicProvider implements S
     private AuditService            auditService;
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void reportSqlAudit(WorkerIdentity identity, Date sendTime, List<SqlExecNotifyDTO> audits) {
         if (!this.checkAccessKey(identity)) {
             throw new IllegalStateException("Worker authentication failed.");

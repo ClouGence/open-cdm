@@ -12,6 +12,7 @@ package com.clougence.clouddm.console.web.service.cicd;
 import java.util.*;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
@@ -55,7 +56,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
     @Resource
     private ImSenderService   senderService;
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void createRootBatch(DmChangeDO rootChange) {
         if (this.changeFlowDal.flowMapper().countChildren(rootChange.getOwnerUid(), rootChange.getRefFlowId()) == 0) {
@@ -73,7 +74,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
         rootChange.setRefBatchId(batch.getId());
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void onChangeFinished(DmChangeDO change) {
         if (change.getRefBatchId() == null) {
@@ -95,7 +96,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
         completeBatchIfPossible(change.getOwnerUid(), change.getRefBatchId());
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void onChangeTerminal(DmChangeDO change) {
         if (change.getRefBatchId() != null) {
@@ -123,7 +124,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
         return this.changeFlowDal.transferMapper().recoverStaleProcessing(staleBefore);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public int finishCompletedBatches() {
         List<DmChangeBatchDO> batches = this.changeFlowDal.batchMapper().queryRunningList();
@@ -299,7 +300,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
         return result;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void processTransfer(DmChangeTransferDO transfer) {
         DmChangeTransferDO current = this.changeFlowDal.transferMapper().queryById(transfer.getOwnerUid(), transfer.getId());
@@ -358,7 +359,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void markTransferFailure(DmChangeTransferDO transfer, Throwable error) {
         String errorMessage = ExceptionUtils.getRootCauseMessage(error);
@@ -372,7 +373,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void retryTransfer(String ownerUid, long transferId) {
         if (this.changeFlowDal.transferMapper().retryFailed(ownerUid, transferId) != 1) {

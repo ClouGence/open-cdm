@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
@@ -136,7 +137,7 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public List<Long> updateScmById(String ownerUid, DevopsScmUpdateFO fo) {
         DmGitOpsScmDO current = queryScmById(ownerUid, fo.getScmId());
         if (current == null) {

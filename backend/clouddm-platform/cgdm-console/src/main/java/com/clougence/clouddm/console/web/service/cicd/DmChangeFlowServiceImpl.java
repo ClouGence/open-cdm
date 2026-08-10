@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -252,7 +253,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         return strBuilder.toString();
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public GuideCreateChangeFlowVO createChangeFlow(String ownerUid, String currentUser, GuideCreateFO fo) {
         ChangeFlowType flowType = fo.getFlowType() == null ? ChangeFlowType.SCM : fo.getFlowType();
@@ -298,7 +299,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         return vo;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public GuideBatchCreateChangeFlowVO createChangeFlows(String ownerUid, String currentUser, GuideBatchCreateFO fo) {
         List<GuideBatchCreateItemFO> orderedFlows = validateAndSortBatchCreateFlows(fo.getFlows());
@@ -738,7 +739,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             .collect(Collectors.toList());
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void updateParent(String ownerUid, long flowId, Long parentFlowId) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
@@ -778,7 +779,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.changeFlowDal.flowMapper().updateParentByOwnerAndId(ownerUid, flowId, ChangeFlowType.BUILT_IN, parentFlowId, enableWebhook, enableTrigger);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void updateParents(String ownerUid, List<ChangeFlowParentConfigFO> changes) {
         if (CollectionUtils.isEmpty(changes)) {
@@ -923,7 +924,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void updateMessageByFlowId(String ownerUid, long flowId, ChangeFlowImConfigFO fo) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
@@ -971,7 +972,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.changeFlowDal.flowMapper().updateMessageConfigByOwnerAndId(ownerUid, flowId, msgDO);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public GuideCreateChangeFlowVO createGitOpsFlow(String ownerUid, long flowId, ChangeFlowGitOpsCreateFO fo) {
         DmChangeFlowDO baseFlow = this.changeFlowDal.flowMapper().queryByOwnerAndId(ownerUid, flowId);
@@ -1015,7 +1016,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         return result;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void deleteGitOpsFlow(String ownerUid, long flowId) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
@@ -1038,7 +1039,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.senderService.sendMessage(ownerUid, flowId, ImMessageType.FlowConfig, textMsg);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void enableGitOpsFlow(String ownerUid, long flowId) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
@@ -1058,7 +1059,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         lifecycleFlows.forEach(item -> this.changeFlowDal.flowMapper().enableFlowByOwnerAndId(ownerUid, item.getId()));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void disableGitOpsFlow(String ownerUid, long flowId) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
@@ -1073,7 +1074,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         lifecycleFlows.forEach(item -> this.changeFlowDal.flowMapper().disableFlowByOwnerAndId(ownerUid, item.getId()));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void configGitOpsWebhook(String ownerUid, long flowId, boolean enable, String signingToken, boolean clearSigningToken) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
@@ -1117,7 +1118,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void configGitOpsTrigger(String ownerUid, long flowId, boolean enable) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
@@ -1166,7 +1167,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         this.changeFlowDal.flowMapper().configCallBackByOwnerAndId(ownerUid, flowId, fo.isEnable(), fo.getMethod(), fo.getUrl());
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void archiveFlow(String ownerUid, long flowId, String operatorUid) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
@@ -1201,7 +1202,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         });
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void recoverFlowTo(String ownerUid, long flowId, ChangeFlowStatus toStatus) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);
@@ -1224,7 +1225,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         });
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void deleteFlow(String ownerUid, long flowId) {
         DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndIdForUpdate(ownerUid, flowId);

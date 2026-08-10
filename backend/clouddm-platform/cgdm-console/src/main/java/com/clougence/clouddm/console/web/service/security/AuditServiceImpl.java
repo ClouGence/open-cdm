@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
@@ -69,7 +70,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
     private RdpUserService              userService;
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void prepareAudit(Long dsId, String auditUid, QueryRequest request) {
         if (request == null) {
             return;
@@ -113,7 +114,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void recordAudit(SqlExecNotifyDTO audit, String wsn) {
         LogInfo logInfo = recodeSql(audit, wsn);
         if (logInfo != null) {

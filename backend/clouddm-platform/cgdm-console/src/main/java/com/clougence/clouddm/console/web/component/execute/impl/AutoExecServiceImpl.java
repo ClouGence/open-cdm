@@ -124,7 +124,7 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Resource
     private PlatformTransactionManager txManager;
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void createJob(AutoExecCreateMO request, Stream<SplitScript> scripts) {
         if (StringUtils.isBlank(request.getJobBizId())) {
@@ -217,7 +217,7 @@ public class AutoExecServiceImpl implements AutoExecService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void startJob(String jobBizId, String operatorUid) {
         DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByBizId(jobBizId);
@@ -233,7 +233,7 @@ public class AutoExecServiceImpl implements AutoExecService {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void deleteJob(String jobBizId) {
         DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByBizId(jobBizId);
@@ -606,14 +606,14 @@ public class AutoExecServiceImpl implements AutoExecService {
         return vo;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void stopJob(String bizId) {
         DmExecAutoJobDO job = requireJob(bizId);
         this.stopJob(job.getId());
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void endJob(String bizId) {
         DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBizId(bizId);
@@ -631,7 +631,7 @@ public class AutoExecServiceImpl implements AutoExecService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void retryJob(String bizId) {
         DmExecAutoJobDO job = requireJob(bizId);
         if (job.getStatus() != AutoExecJobStatus.FAILED && job.getStatus() != AutoExecJobStatus.PAUSE) {
@@ -700,7 +700,7 @@ public class AutoExecServiceImpl implements AutoExecService {
         return job;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     private void stopJob(Long jobId) {
         DmExecAutoJobDO job = execDal.autoJobMapper().queryByIdForUpdate(jobId);
 

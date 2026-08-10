@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Locale;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
@@ -44,7 +45,7 @@ public class ChangeActionForFinish extends AbstractChangeAction {
     @Resource
     private ChangeCascadeService changeCascadeService;
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void doAction(DmChangeDO change) {
         if (!super.doCommonAction(change)) {

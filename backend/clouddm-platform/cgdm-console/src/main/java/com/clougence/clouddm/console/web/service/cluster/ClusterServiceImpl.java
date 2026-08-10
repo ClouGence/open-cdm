@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.console.status.WorkerState;
@@ -63,7 +64,7 @@ public class ClusterServiceImpl implements ClusterService {
     private RdpUserService userService;
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public long addCluster(String puid, String uid, CreateClusterFO fo) {
         String clusterName = this.namingDao.genClusterName();
         DmSysClusterDO clusterDO = new DmSysClusterDO();
@@ -82,7 +83,7 @@ public class ClusterServiceImpl implements ClusterService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void deleteCluster(long clusterId) {
         List<DmSysWorkerDO> dos = this.systemDal.workerMapper().queryByCluster(clusterId);
         if (CollectionUtils.isNotEmpty(dos)) {

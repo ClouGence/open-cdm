@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
@@ -140,7 +141,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         return info;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public DmApprovalDO createApproval(DmChangeDO change, DsLevels dsLevels, Path sqlFile, Locale locale) {
         DmChangeFlowDO flowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
         DmDsDO dsDO = dsLevels.dsDO();
