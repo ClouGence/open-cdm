@@ -11,6 +11,8 @@ public interface AuthDal {
 
     DmAuthCsrfTokenMapper csrfTokenMapper();
 
+    DmAuthMfaChallengeMapper mfaChallengeMapper();
+
     DmAuthMFAMapper mfaMapper();
 
     DmAuthResMapper resMapper();

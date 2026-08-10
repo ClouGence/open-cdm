@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.clougence.detectrule.lang.CollectionAccess;
 import com.clougence.detectrule.lang.EnumAccess;
@@ -37,7 +38,7 @@ import com.clougence.utils.StringUtils;
 //
 public final class ReflectHelper {
 
-    private static Map<TypeType, Type> atomicTypeMap = new HashMap<>();
+    private static Map<TypeType, Type> atomicTypeMap = new ConcurrentHashMap<>();
     private static Set<String>         ignoreFields  = new HashSet<>();
 
     public static void addIgnoreField(String fieldName) {

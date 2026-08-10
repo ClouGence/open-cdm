@@ -13,6 +13,7 @@
       @click="handleClick"
       @error="handleResourceError"
     />
+    <img v-else-if="bundledIcon" :class="`custom-icon-image ${customStyle}`" :src="bundledIcon" alt="" :style="iconStyle" @click="handleClick" />
     <svg v-else :class="`icon-v2 ${customStyle}`" aria-hidden="true" :style="iconStyle" @click="handleClick">
       <use :xlink:href="`#icon-v2-${iconName}`"></use>
     </svg>
@@ -20,7 +21,12 @@
 </template>
 
 <script>
+import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
+
+const bundledIcons = {
+  Cloudberry: cloudberryIcon
+};
 
 /**
  * IconFont-v2, Customicon Component
@@ -93,6 +99,9 @@ export default {
         filter: this.disabled ? 'grayscale(100%)' : 'none'
       };
     },
+    bundledIcon() {
+      return bundledIcons[this.type] || '';
+    },
     resourceUrl() {
       return this.resource ? getPluginResourceUrl(this.resource) : '';
     },
@@ -112,7 +121,7 @@ export default {
         'margin-bottom': this.bottomMargin || '0'
       };
 
-      if (this.resource) {
+      if (this.resource || this.bundledIcon) {
         style.width = this.size;
         style.height = this.size;
         style['min-width'] = this.size;
@@ -167,6 +176,7 @@ export default {
 .data-source-icon .icon-v2 {
   vertical-align: middle;
 }
+.data-source-icon .custom-icon-image,
 .data-source-icon .custom-icon-resource {
   display: block;
   object-fit: contain;

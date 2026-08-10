@@ -30,11 +30,11 @@
       @change="handleEditorChange"
     />
     <div class="editor-resize" />
-    <div :class="`message ${tab.message.type}`" v-if="tab.message.text && tab.message.show && tab.connected">
+    <div :class="`query-message ${tab.message.type}`" v-if="tab.message.text && tab.message.show && tab.connected">
       <div v-html="tab.message.text"></div>
       <CustomIcon type="icon-v2-close2" @click="handleCloseError" hoverStyle />
     </div>
-    <div class="message Error" v-if="!tab.connected && tab.msgContent">
+    <div class="query-message Error" v-if="!tab.connected && tab.msgContent">
       {{ tab.msgContent }}
       <Button type="text" size="small" @click="handleClickDsStatusIcon">
         {{ $t('zhong-xin-lian-jie') }}
@@ -958,7 +958,7 @@ export default {
     background: rgba(0, 0, 0, 0);
   }
 
-  .message {
+  .query-message {
     position: absolute;
     bottom: 0;
     width: 100%;

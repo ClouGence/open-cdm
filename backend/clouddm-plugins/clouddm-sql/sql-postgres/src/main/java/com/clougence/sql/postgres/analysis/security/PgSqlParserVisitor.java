@@ -1466,6 +1466,12 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitDefinestmt(DefinestmtContext ctx) {
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.CREATE_TYPE, SecQueryKind.CREATE));
+        return null;
+    }
+
+    @Override
     public Void visitOpttablespace(OpttablespaceContext ctx) {
         return null;
     }

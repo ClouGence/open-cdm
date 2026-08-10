@@ -71,7 +71,12 @@
     <ssh-tunnel-field :field="field" :form="form" :cluster-id="dataSourceForm.queryClusterId" :disabled="isFieldDisabled(field)" />
     <span v-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
   </FormItem>
-  <FormItem v-else-if="field.type === 'CertificateInput'" :label="fieldLabel" :required="fieldRequired" :error="fieldError">
+  <FormItem
+    v-else-if="field.type === 'CertificateInput'"
+    :label="fieldLabel"
+    :class="{ 'ivu-form-item-required': fieldRequired }"
+    :error="fieldError"
+  >
     <certificate-input-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
     <span v-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
   </FormItem>

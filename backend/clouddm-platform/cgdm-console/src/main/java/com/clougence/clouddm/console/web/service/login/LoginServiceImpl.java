@@ -33,6 +33,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.model.fo.LoginAutoRegisterFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
+import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
@@ -44,6 +45,7 @@ import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthMfaChallengeDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
@@ -67,21 +69,23 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginServiceImpl implements LoginService {
 
     @Resource
-    private AuthDal          authDal;
+    private AuthDal             authDal;
     @Resource
-    private SystemDal        systemDal;
+    private SystemDal           systemDal;
     @Resource
-    private NamingDao        namingDao;
+    private NamingDao           namingDao;
     @Resource
-    private ConsoleConfig    config;
+    private ConsoleConfig       config;
     @Resource
-    private JwtService       jwtService;
+    private JwtService          jwtService;
     @Resource
-    private CsrfTokenService csrfTokenService;
+    private CsrfTokenService    csrfTokenService;
     @Resource
-    private RdpUserService   rdpUserService;
+    private RdpUserService      rdpUserService;
     @Resource
-    private LoginMFAService  loginMFAService;
+    private LoginMFAService     loginMFAService;
+    @Resource
+    private MfaChallengeService mfaChallengeService;
 
     @Override
     public LoginMO login(LoginFO loginFO) {
@@ -284,8 +288,6 @@ public class LoginServiceImpl implements LoginService {
         re.setUsername(user.getUsername());
         re.setLoginType(loginType);
 
-        String jwtToken = this.jwtService.genJwtToken(user, loginType);
-        re.setToken(jwtToken);
         if (user.getParentId() != null) {
             DmAuthUserDO rdpUserDO = authDal.userMapper().queryById(user.getParentId());
             if (rdpUserDO != null) {
@@ -293,15 +295,52 @@ public class LoginServiceImpl implements LoginService {
             }
         }
 
-        if (user.isUseMfa()) {
+        if (user.isUseMfa() && !config.isMfaLoginDisabled()) {
             if (this.loginMFAService.isInvalidMFA(user.getUid())) {
                 re.setMfaInvalid(true);
+                re.setToken(this.jwtService.genJwtToken(user, loginType));
             } else {
                 re.setNeedMfa(true);
-                re.setMfaPreActionToken(this.jwtService.genMfaActionToken(user.getUid(), MfaPreActionType.LOGIN, jwtToken));
+                re.setMfaPreActionToken(this.mfaChallengeService.createChallenge(user.getUid(), MfaPreActionType.LOGIN, loginType));
             }
+        } else {
+            re.setToken(this.jwtService.genJwtToken(user, loginType));
         }
 
+        return re;
+    }
+
+    @Override
+    public LoginMO loginMfaValid(LoginMfaValidFO validFO) {
+        DmAuthMfaChallengeDO challengeDO = mfaChallengeService.requirePendingChallenge(validFO.getMfaPreActionToken(), MfaPreActionType.LOGIN);
+        if (!mfaChallengeService.acquireAttempt(challengeDO)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(),
+                RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+        }
+
+        if (!loginMFAService.validMFA(challengeDO.getUid(), validFO.getMfaCode())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.MFA_CODE_IS_INVALID.name()));
+        }
+
+        if (!mfaChallengeService.consumeChallenge(challengeDO)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(),
+                RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+        }
+
+        DmAuthUserDO user = rdpUserService.getUserByUid(challengeDO.getUid());
+        LoginAuthType loginType = LoginAuthType.valueOfCode(challengeDO.getLoginType());
+        LoginMO re = new LoginMO();
+        re.setSuccess(true);
+        re.setUid(user.getUid());
+        re.setUsername(user.getUsername());
+        re.setLoginType(loginType);
+        re.setToken(jwtService.genJwtToken(user, loginType));
+        if (user.getParentId() != null) {
+            DmAuthUserDO primaryUser = authDal.userMapper().queryById(user.getParentId());
+            if (primaryUser != null) {
+                re.setPuid(primaryUser.getUid());
+            }
+        }
         return re;
     }
 

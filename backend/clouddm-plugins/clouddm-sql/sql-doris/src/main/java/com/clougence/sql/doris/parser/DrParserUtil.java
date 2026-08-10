@@ -99,7 +99,11 @@ public class DrParserUtil extends DorisParserBaseVisitor<Void> {
             rdbTable.setAttribute(DorisAttributeNames.DISTRIBUTED_BY_TYPE, "RANDOM");
         }
         if (ctx.BUCKETS() != null) {
-            rdbTable.setAttribute(DorisAttributeNames.BUCKET_NUMBER, ctx.INTEGER_VALUE().getText());
+            if (ctx.INTEGER_VALUE() != null) {
+                rdbTable.setAttribute(DorisAttributeNames.BUCKET_NUMBER, ctx.INTEGER_VALUE().getText());
+            } else {
+                rdbTable.setAttribute(DorisAttributeNames.BUCKET_NUMBER, ctx.autoBucket.getText());
+            }
         }
 
         if (ctx.KEY() != null) {

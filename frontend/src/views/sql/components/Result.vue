@@ -29,7 +29,7 @@
                   type="icon-v2-close2"
                   hoverStyle
                   customStyle="radius-hover"
-                  @click.native="handleCloseResultTab('current', res.resultId)"
+                  @click.native.stop="handleCloseResultTab('current', res.resultId)"
                 />
               </div>
             </template>
@@ -44,7 +44,11 @@
                       <CustomIcon type="icon-v2-Table" />
                       <div style="margin-left: 5px; white-space: nowrap">{{ `${$t('jie-guo')}${res.showIndex}` }}</div>
                       <div class="dropdown-item-close">
-                        <CustomIcon type="icon-v2-close2" customStyle="icon-v2-hover" @click.native="handleCloseResultTab('current', res.resultId)" />
+                        <CustomIcon
+                          type="icon-v2-close2"
+                          customStyle="icon-v2-hover"
+                          @click.native.stop="handleCloseResultTab('current', res.resultId)"
+                        />
                       </div>
                     </div>
                   </a-menu-item>
@@ -89,7 +93,7 @@
         </div>
       </div>
       <div
-        v-if="!['message', 'async'].includes(tab.result.active)"
+        v-if="!['message', 'async'].includes(tab.result.active) && selectedTab.resultId"
         class="result-content-wrapper"
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
@@ -197,10 +201,10 @@
               <template v-if="column.dataIndex !== 'seq'">
                 <div class="vxe-input-tpl" @dblclick.stop="handleCellDetail(record, column, index)">
                   <span v-if="record[column.dataIndex] === null" style="color: #ccc; font-style: italic">NULL</span>
-                  <pre v-else style="overflow: hidden; margin: 0" v-html="record[column.dataIndex]"></pre>
+                  <pre v-else style="overflow: hidden; margin: 0">{{ record[column.dataIndex] }}</pre>
                   <div v-if="!getCellComplete(column, index)" class="cell-incomplete-badge"></div>
                   <div class="op">
-                    <div @click.stop="handleCellCopy(record[column.dataIndex])" style="margin-right: 3px">
+                    <div @click.stop="handleCellCopy(record, column, index)" style="margin-right: 3px">
                       <cc-iconfont name="copy" :size="12" />
                     </div>
                     <div @click.stop="handleCellDetail(record, column, index)">
@@ -513,18 +517,11 @@ export default {
       ];
     },
     selectedTab() {
-      if (!['message'].includes(this.tab.result.active)) {
-        let tab = {};
-        for (let i = 0; i < this.tab.result.list.length; i++) {
-          if (this.tab.result.list[i].resultId === this.tab.result.active) {
-            tab = this.tab.result.list[i];
-            break;
-          }
-        }
-        return tab;
-      } else {
+      if (['message', 'async'].includes(this.tab.result.active)) {
         return {};
       }
+      const matched = this.tab.result.list.find((item) => item.resultId === this.tab.result.active);
+      return matched || {};
     },
     antdColumns() {
       if (!this.selectedTab || !this.selectedTab.columnListSeq) {
@@ -598,6 +595,11 @@ export default {
         for (let i = 0; i < resultIds.length; i++) {
           this.paginatedLoading[resultIds[i]] = false;
         }
+      }
+    },
+    'tab.result.list.length'(length) {
+      if (!length && !['message', 'async'].includes(this.tab.result.active)) {
+        this.tab.result.active = 'message';
       }
     },
     'tab.result.active'(activeKey) {
@@ -735,6 +737,9 @@ export default {
       appLogger.debug(type, key);
       if (type === 'current') {
         const deleteIndex = this.tab.result.list.findIndex((tab) => tab.resultId === key);
+        if (deleteIndex < 0) {
+          return;
+        }
         const closingTab = this.tab.result.list[deleteIndex];
         if (closingTab) {
           this.callCloseResultWindow(closingTab);
@@ -788,6 +793,13 @@ export default {
       });
     },
     handleResultTabChange(activeKey) {
+      if (activeKey !== 'message' && activeKey !== 'async') {
+        const exists = this.tab.result.list.some((item) => item.resultId === activeKey);
+        if (!exists) {
+          this.tab.result.active = 'message';
+          activeKey = 'message';
+        }
+      }
       this.tab.result.active = activeKey;
 
       // process message table scroll position
@@ -930,138 +942,159 @@ export default {
         minWidth: 100
       });
     },
-    handleCellCopy(value) {
-      if (value !== null && value !== undefined) {
-        if (XEClipboard.copy(value)) {
-          this.$message.success(this.$t('fu-zhi-cheng-gong'));
+    async handleCellCopy(record, column, rowIndex) {
+      const value = record[column.dataIndex];
+      if (value === null || value === undefined) {
+        return;
+      }
+
+      let text = String(value);
+      const cellMeta = this.getCellValueMeta(column, rowIndex);
+      if (cellMeta && !cellMeta.complete && !cellMeta.error && !cellMeta.mask && cellMeta.moreSize > 0) {
+        try {
+          text = await this.fetchFullCellText(cellMeta, text);
+        } catch (error) {
+          appLogger.error('复制单元格完整内容失败:', error);
+          this.$Message.error(this.$t('fu-zhi-shi-bai'));
+          return;
         }
       }
+
+      if (XEClipboard.copy(text)) {
+        this.$message.success(this.$t('fu-zhi-cheng-gong'));
+      }
+    },
+    getCellRowNumber(rowIndex) {
+      const receiveMode = this.selectedTab.receiveMode || 'PAGE_FULL';
+      if (receiveMode === 'PAGINATED') {
+        const pageSize = this.selectedTab.size || 30;
+        return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
+      }
+      if (receiveMode === 'STREAM') {
+        return rowIndex;
+      }
+      const pageSize = this.selectedTab.size || 50;
+      return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
+    },
+    getCellValueMeta(column, rowIndex) {
+      const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
+      if (colIndex < 0) {
+        return null;
+      }
+
+      const meta = {
+        resultId: this.selectedTab.resultId,
+        rowNumber: this.getCellRowNumber(rowIndex),
+        colIndex,
+        complete: true,
+        moreSize: 0,
+        totalSize: 0,
+        error: false,
+        mask: false
+      };
+
+      try {
+        const receiveMode = this.selectedTab.receiveMode || 'PAGE_FULL';
+        let cellValue = null;
+
+        if (receiveMode === 'PAGINATED') {
+          const currentPage = this.selectedTab.page || 1;
+          const rowSetCache = this.selectedTab.rowSetCache;
+          if (rowSetCache && rowSetCache[currentPage] && rowSetCache[currentPage][rowIndex]) {
+            const rowItem = rowSetCache[currentPage][rowIndex];
+            const rowData = rowItem.data || rowItem.row;
+            if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
+              cellValue = rowData[colIndex];
+            }
+          }
+        } else if (receiveMode === 'STREAM') {
+          const rowSetStream = this.selectedTab.rowSetStream;
+          const streamData = this.selectedTab.streamData || [];
+          const displayCount = 30;
+          const startIndex = streamData.length > displayCount ? streamData.length - displayCount : 0;
+          const actualIndex = startIndex + rowIndex;
+          if (rowSetStream && rowSetStream[actualIndex]) {
+            const rowItem = rowSetStream[actualIndex];
+            const rowData = rowItem.data || rowItem.row;
+            if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
+              cellValue = rowData[colIndex];
+            }
+          }
+        } else if (this.selectedTab.data && this.selectedTab.data[meta.rowNumber]) {
+          const rowItem = this.selectedTab.data[meta.rowNumber];
+          const rawData = Array.isArray(rowItem) ? rowItem : rowItem.data || rowItem.row;
+          if (rawData && Array.isArray(rawData) && rawData[colIndex]) {
+            cellValue = rawData[colIndex];
+          }
+        }
+
+        if (cellValue) {
+          meta.complete = cellValue.complete !== undefined ? cellValue.complete : true;
+          meta.moreSize = cellValue.moreSize || 0;
+          meta.totalSize = cellValue.totalSize || 0;
+          meta.error = cellValue.error || false;
+          meta.mask = cellValue.mask || false;
+        }
+      } catch (err) {
+        appLogger.debug('获取单元格元数据失败:', err);
+      }
+
+      return meta;
+    },
+    async fetchFullCellText(cellMeta, initialValue) {
+      let content = initialValue || '';
+      let moreSize = cellMeta.moreSize || 0;
+      const fetchSize = 128 * 1024;
+      let guard = 0;
+
+      while (moreSize > 0 && guard < 100) {
+        guard += 1;
+        const res = await this.$services.dmQueryFetchResultData({
+          data: {
+            resultId: cellMeta.resultId,
+            rowNumber: cellMeta.rowNumber,
+            colNumber: cellMeta.colIndex,
+            offset: content.length,
+            fetchSize
+          }
+        });
+
+        if (!res.success || !res.data) {
+          throw new Error(res.message || 'fetch failed');
+        }
+
+        const dataValue = res.data.value || res.data;
+        if (dataValue.error) {
+          throw new Error('fetch error');
+        }
+
+        const chunk = dataValue.value || '';
+        if (!chunk && (dataValue.moreSize || 0) > 0) {
+          throw new Error('empty chunk');
+        }
+
+        content += chunk;
+        moreSize = dataValue.moreSize || 0;
+        if (dataValue.complete) {
+          break;
+        }
+      }
+
+      return content;
     },
     // Get the cell's complete flag to decide whether to show the corner marker.
     getCellComplete(column, rowIndex) {
-      try {
-        const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
-        if (colIndex < 0) return true;
-
-        const receiveMode = this.selectedTab.receiveMode || 'PAGE_FULL';
-
-        if (receiveMode === 'PAGINATED') {
-          const currentPage = this.selectedTab.page || 1;
-          const rowSetCache = this.selectedTab.rowSetCache;
-
-          if (rowSetCache && rowSetCache[currentPage] && rowSetCache[currentPage][rowIndex]) {
-            const rowItem = rowSetCache[currentPage][rowIndex];
-            const rowData = rowItem.data || rowItem.row;
-
-            if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
-              return rowData[colIndex].complete !== undefined ? rowData[colIndex].complete : true;
-            }
-          }
-        } else if (receiveMode === 'STREAM') {
-          const rowSetStream = this.selectedTab.rowSetStream;
-          const streamData = this.selectedTab.streamData || [];
-
-          const displayCount = 30;
-          const startIndex = streamData.length > displayCount ? streamData.length - displayCount : 0;
-          const actualIndex = startIndex + rowIndex;
-
-          if (rowSetStream && rowSetStream[actualIndex]) {
-            const rowItem = rowSetStream[actualIndex];
-            const rowData = rowItem.data || rowItem.row;
-
-            if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
-              return rowData[colIndex].complete !== undefined ? rowData[colIndex].complete : true;
-            }
-          }
-        } else {
-          if (this.selectedTab.data && this.selectedTab.data[rowIndex]) {
-            const rowData = this.selectedTab.data[rowIndex];
-            if (Array.isArray(rowData) && rowData[colIndex]) {
-              return rowData[colIndex].complete !== undefined ? rowData[colIndex].complete : true;
-            }
-          }
-        }
-      } catch (err) {
-        appLogger.debug('获取单元格 complete 字段失败:', err);
+      const cellMeta = this.getCellValueMeta(column, rowIndex);
+      if (!cellMeta) {
+        return true;
       }
-      return true;
+      return cellMeta.complete;
     },
     handleCellDetail(record, column, rowIndex) {
-      const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
-
-      // Calculate the actual row number, accounting for pagination.
-      let rowNumber = rowIndex;
-      if (this.selectedTab.receiveMode === 'PAGINATED') {
-        const pageSize = 30;
-        rowNumber = (this.selectedTab.page - 1) * pageSize + rowIndex;
-      } else if (this.selectedTab.receiveMode === 'STREAM') {
-        rowNumber = rowIndex;
-      } else {
-        const pageSize = 50;
-        rowNumber = (this.selectedTab.page - 1) * pageSize + rowIndex;
-      }
-
+      const cellMeta = this.getCellValueMeta(column, rowIndex);
+      const colIndex = cellMeta ? cellMeta.colIndex : -1;
+      const rowNumber = cellMeta ? cellMeta.rowNumber : rowIndex;
       const cellValue = record[column.dataIndex || column.property] || '';
-
-      let moreSize = 0;
-      let totalSize = 0;
-      let complete = true;
-      let error = false;
-      let mask = false;
-      try {
-        const receiveMode = this.selectedTab.receiveMode || 'PAGE_FULL';
-
-        if (receiveMode === 'PAGINATED') {
-          const currentPage = this.selectedTab.page || 1;
-          const rowSetCache = this.selectedTab.rowSetCache;
-
-          if (rowSetCache && rowSetCache[currentPage] && rowSetCache[currentPage][rowIndex]) {
-            const rowItem = rowSetCache[currentPage][rowIndex];
-            const rowData = rowItem.data || rowItem.row;
-
-            if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
-              moreSize = rowData[colIndex].moreSize || 0;
-              totalSize = rowData[colIndex].totalSize || 0;
-              complete = rowData[colIndex].complete !== undefined ? rowData[colIndex].complete : true;
-              error = rowData[colIndex].error || false;
-              mask = rowData[colIndex].mask || false;
-            }
-          }
-        } else if (receiveMode === 'STREAM') {
-          const rowSetStream = this.selectedTab.rowSetStream;
-          const streamData = this.selectedTab.streamData || [];
-
-          const displayCount = 30;
-          const startIndex = streamData.length > displayCount ? streamData.length - displayCount : 0;
-          const actualIndex = startIndex + rowIndex;
-
-          if (rowSetStream && rowSetStream[actualIndex]) {
-            const rowItem = rowSetStream[actualIndex];
-            const rowData = rowItem.data || rowItem.row;
-
-            if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
-              moreSize = rowData[colIndex].moreSize || 0;
-              totalSize = rowData[colIndex].totalSize || 0;
-              complete = rowData[colIndex].complete !== undefined ? rowData[colIndex].complete : true;
-              error = rowData[colIndex].error || false;
-              mask = rowData[colIndex].mask || false;
-            }
-          }
-        } else {
-          if (this.selectedTab.data && this.selectedTab.data[rowIndex]) {
-            const rowData = this.selectedTab.data[rowIndex];
-            if (Array.isArray(rowData) && rowData[colIndex]) {
-              moreSize = rowData[colIndex].moreSize || 0;
-              totalSize = rowData[colIndex].totalSize || 0;
-              complete = rowData[colIndex].complete !== undefined ? rowData[colIndex].complete : true;
-              error = rowData[colIndex].error || false;
-              mask = rowData[colIndex].mask || false;
-            }
-          }
-        }
-      } catch (err) {
-        appLogger.debug('获取单元格原始数据失败:', err);
-      }
 
       this.$bus.emit('showCellDetailModal', {
         row: record,
@@ -1070,11 +1103,11 @@ export default {
         rowNumber,
         colNumber: colIndex,
         cellValue,
-        moreSize,
-        totalSize,
-        complete,
-        error,
-        mask
+        moreSize: cellMeta ? cellMeta.moreSize : 0,
+        totalSize: cellMeta ? cellMeta.totalSize : 0,
+        complete: cellMeta ? cellMeta.complete : true,
+        error: cellMeta ? cellMeta.error : false,
+        mask: cellMeta ? cellMeta.mask : false
       });
     },
     generateRowInsert(row) {
@@ -1790,7 +1823,6 @@ export default {
       }
 
       :deep(.ant-table-thead > tr > th .header-cell-content) {
-        position: relative;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -1806,10 +1838,10 @@ export default {
 
         .resize-handle {
           position: absolute;
-          right: 0;
+          right: -2px;
           top: 0;
           bottom: 0;
-          width: 4px;
+          width: 5px;
           cursor: col-resize;
           z-index: 10;
           background: transparent;
@@ -1817,7 +1849,59 @@ export default {
       }
 
       :deep(.ant-table-tbody > tr > td) {
-        padding: 2px 8px;
+        padding: 0;
+        position: relative;
+      }
+
+      :deep(.ant-table-tbody .ant-table-cell) {
+        padding: 0 !important;
+      }
+
+      :deep(.ant-table-tbody .ant-table-cell:hover) .vxe-input-tpl .op {
+        display: flex;
+        align-items: center;
+      }
+
+      .vxe-input-tpl {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        min-height: 24px;
+        height: auto;
+        padding: 3px 8px;
+        box-sizing: border-box;
+
+        pre {
+          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .op {
+          display: none;
+          position: absolute;
+          right: 4px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(255, 255, 255, 0.95);
+          padding: 2px 4px;
+          border-radius: 3px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+          div {
+            display: inline-block;
+            cursor: pointer;
+            padding: 2px;
+            transition: all 0.2s;
+
+            &:hover {
+              opacity: 0.7;
+            }
+          }
+        }
       }
 
       // Remove blank lines.
@@ -2246,6 +2330,6 @@ export default {
   padding: 0 !important;
 }
 :deep(.ant-table-tbody .ant-table-cell) {
-  padding: 3px !important;
+  padding: 0 !important;
 }
 </style>

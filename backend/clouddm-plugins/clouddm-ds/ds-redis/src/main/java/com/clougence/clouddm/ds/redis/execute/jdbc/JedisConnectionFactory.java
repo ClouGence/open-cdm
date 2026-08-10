@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.drivers.adapter.AdapterFactory;
 import com.clougence.drivers.adapter.AdapterTypeSupport;
 import com.clougence.drivers.adapter.TypeSupport;
@@ -55,8 +56,7 @@ public class JedisConnectionFactory implements AdapterFactory {
         String defaultCatalog = dsConfig.get(JedisKeys.DATABASE);
         String connTimeoutMsStr = dsConfig.get(JedisKeys.CONN_TIMEOUT);
         String soTimeoutSecStr = dsConfig.get(JedisKeys.SO_TIMEOUT);
-        String useTLSStr = "false";//dsConfig.getProperty(JedisKeys.SSL.getConfigKey());
-
+        String sslMode = dsConfig.get(JedisKeys.SSL_MODE);
         //
         username = "".equals(username) ? null : username;
         password = "".equals(password) ? null : password;
@@ -64,8 +64,6 @@ public class JedisConnectionFactory implements AdapterFactory {
         int database = StringUtils.isNotBlank(defaultCatalog) ? Integer.parseInt(defaultCatalog) : Protocol.DEFAULT_DATABASE;
         int connTimeoutMs = StringUtils.isBlank(connTimeoutMsStr) ? 5000 : Integer.parseInt(connTimeoutMsStr);
         int soTimeoutSec = (StringUtils.isBlank(soTimeoutSecStr) ? 10 : Integer.parseInt(soTimeoutSecStr)) * 1000;
-        boolean useTLS = !StringUtils.isBlank(useTLSStr) && Boolean.parseBoolean(useTLSStr);
-
         DefaultJedisClientConfig.Builder builder = DefaultJedisClientConfig.builder()
             .connectionTimeoutMillis(connTimeoutMs)
             .socketTimeoutMillis(soTimeoutSec)
@@ -74,13 +72,9 @@ public class JedisConnectionFactory implements AdapterFactory {
             .database(database)
             .clientName(clientName);
 
+        boolean useTLS = StringUtils.isNotBlank(sslMode) && !SslMode.DISABLED.name().equals(sslMode);
         if (useTLS) {
-            //builder.ssl(true);
-            //builder.sslSocketFactory(sslFactory(dsConfig));
-            //builder.sslParameters()
-            throw new UnsupportedOperationException();
-        } else {
-            builder.ssl(false);
+            RedisSslFactory.apply(builder, dsConfig);
         }
 
         return builder.build();
@@ -111,8 +105,9 @@ public class JedisConnectionFactory implements AdapterFactory {
     @Override
     public String[] getPropertyNames() {
         return new String[] { JedisKeys.SERVER, JedisKeys.ADAPTER_NAME, JedisKeys.INTERCEPTOR, JedisKeys.TIME_ZONE, JedisKeys.CONN_TIMEOUT, JedisKeys.SO_TIMEOUT,
-                              JedisKeys.USERNAME, JedisKeys.PASSWORD, JedisKeys.DATABASE, JedisKeys.CLIENT_NAME, JedisKeys.MAX_TOTAL, JedisKeys.MAX_IDLE, JedisKeys.MIN_IDLE,
-                              JedisKeys.TEST_WHILE_IDLE };
+                              JedisKeys.USERNAME, JedisKeys.PASSWORD, JedisKeys.DATABASE, JedisKeys.CLIENT_NAME, JedisKeys.SSL_MODE, JedisKeys.SSL_CA_FILE, JedisKeys.SSL_CA_FORMAT,
+                              JedisKeys.SSL_CA_PASSWORD, JedisKeys.SSL_CLIENT_CERT_FILE, JedisKeys.SSL_CLIENT_CERT_FORMAT, JedisKeys.SSL_CLIENT_KEY_FILE,
+                              JedisKeys.SSL_CLIENT_KEY_PASSWORD, JedisKeys.MAX_TOTAL, JedisKeys.MAX_IDLE, JedisKeys.MIN_IDLE, JedisKeys.TEST_WHILE_IDLE };
     }
 
     @Override
