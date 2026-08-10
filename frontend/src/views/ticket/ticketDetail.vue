@@ -314,6 +314,17 @@
             </div>
           </template>
 
+          <template v-else-if="item.activityTitle === 'DML_EXPLAIN'">
+            <div class="behavior-analysis-summary">{{ dmlExplainDetailText(item) }}</div>
+            <Table
+              v-if="item.explainResults && item.explainResults.length"
+              :columns="dmlExplainColumns"
+              :data="dmlExplainRows(item)"
+              border
+              size="small"
+            />
+          </template>
+
           <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
         </TabPane>
       </Tabs>
@@ -607,14 +618,64 @@
 <script>
 import appLogger from '@/utils/logger';
 import { mapState } from 'vuex';
+import { Tag } from 'view-ui-plus';
 import { TICKET_STATUS, TICKET_STATUS_COLOR, TICKET_PROCESS_STATUS } from '@/const';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import copyMixin from '@/mixins/copyMixin';
 import { RULE_WARN_LEVEL, isCk, isMongoDB } from '@/utils';
 import { APPROV_BIZ_MAP } from './constant';
+import DmlExplainPlan from './components/DmlExplainPlan';
 
 const TICKET_AUTO_REFRESH_INTERVAL_MS = 5000;
 const TICKET_TERMINAL_STATUSES = new Set(['REJECTED', 'FINISHED', 'CLOSED', 'CANCELED', 'FAILED']);
+
+const renderTagList = (h, values, color) =>
+  h(
+    'div',
+    (values || []).map((value, index) => h(Tag, { color, key: `${value}-${index}` }, () => value))
+  );
+
+const dmlExplainChange = (row) => ({
+  actions: [...(row.actions || [])].sort(),
+  subjects: [...(row.subjects || [])].sort()
+});
+
+const dmlExplainChangeKey = (row) => {
+  const change = dmlExplainChange(row);
+  return JSON.stringify([change.actions, change.subjects]);
+};
+
+const aggregateDmlExplainDetails = (details) => {
+  const groups = new Map();
+  details.forEach((row) => {
+    const key = dmlExplainChangeKey(row);
+    if (!groups.has(key)) {
+      groups.set(key, {
+        ...dmlExplainChange(row),
+        details: []
+      });
+    }
+    groups.get(key).details.push({
+      ...row,
+      _disableExpand: !row.explainPlan?.nodes?.length
+    });
+  });
+  return [...groups.values()].map((group) => {
+    const indices = [...new Set(group.details.map((row) => row.index))].sort((left, right) => left - right);
+    const statuses = [...new Set(group.details.map((row) => row.status).filter(Boolean))];
+    const skipReasons = [...new Set(group.details.map((row) => row.skipReason).filter(Boolean))];
+    const estimates = group.details.map((row) => row.estimatedAffectedRows);
+    const allEstimated = estimates.every((value) => value != null);
+    return {
+      ...group,
+      indices,
+      statementCount: indices.length,
+      status: statuses.join(' / '),
+      skipReason: skipReasons.join(' / '),
+      estimatedAffectedRows: allEstimated ? estimates.reduce((total, value) => total + value, 0) : null
+    };
+  });
+};
 
 const AUTO_EXEC_JOB_STATUS_I18N = {
   INIT: '待执行',
@@ -686,6 +747,91 @@ export default {
           title: this.$t('cao-zuo'),
           slot: 'actions',
           width: 320
+        }
+      ],
+      dmlExplainColumns: [
+        {
+          type: 'expand',
+          width: 50,
+          render: (h, params) =>
+            h('Table', {
+              props: {
+                columns: this.dmlExplainDetailColumns,
+                data: params.row.details,
+                border: true,
+                size: 'small'
+              }
+            })
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-index'),
+          render: (h, params) => renderTagList(h, params.row.indices),
+          width: 150
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-actions'),
+          render: (h, params) => renderTagList(h, params.row.actions, 'primary'),
+          width: 180
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-subjects'),
+          render: (h, params) => renderTagList(h, params.row.subjects)
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-statement-count'),
+          key: 'statementCount',
+          width: 110
+        },
+        {
+          title: this.$t('zhuang-tai'),
+          key: 'status',
+          width: 130
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-skip-reason'),
+          key: 'skipReason',
+          width: 220
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-rows'),
+          key: 'estimatedAffectedRows',
+          width: 150
+        }
+      ],
+      dmlExplainDetailColumns: [
+        {
+          type: 'expand',
+          width: 50,
+          render: (h, params) => h(DmlExplainPlan, { plan: params.row.explainPlan })
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-index'),
+          key: 'index',
+          width: 90
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-actions'),
+          render: (h, params) => renderTagList(h, params.row.actions, 'primary'),
+          width: 180
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-subjects'),
+          render: (h, params) => renderTagList(h, params.row.subjects)
+        },
+        {
+          title: this.$t('zhuang-tai'),
+          key: 'status',
+          width: 130
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-skip-reason'),
+          key: 'skipReason',
+          width: 220
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-rows'),
+          key: 'estimatedAffectedRows',
+          width: 150
         }
       ],
       showCheckedOnlyError: false,
@@ -1034,7 +1180,8 @@ export default {
       const keyMap = {
         SQL_RECOGNITION: 'ticket-analysis-sql-recognition',
         BEHAVIOR_ANALYSIS: 'ticket-analysis-behavior',
-        SECURITY_RULE: 'ticket-analysis-security-rule'
+        SECURITY_RULE: 'ticket-analysis-security-rule',
+        DML_EXPLAIN: 'ticket-analysis-dml-explain'
       };
       return this.$t(keyMap[type] || type);
     },
@@ -1131,7 +1278,26 @@ export default {
           ? this.$t('ticket-analysis-security-passed')
           : this.$t('ticket-analysis-security-result', { count: item.ruleCount });
       }
+      if (item.activityTitle === 'DML_EXPLAIN' && item.dmlStatementCount != null) {
+        return this.$t('ticket-analysis-dml-explain-result', {
+          total: item.dmlStatementCount,
+          skipped: (item.skippedBySizeLimit || 0) + (item.skippedByCountLimit || 0)
+        });
+      }
       return '--';
+    },
+    dmlExplainDetailText(item) {
+      const failed = item.failedExplainCount || 0;
+      let text = this.$t('ticket-analysis-dml-explain-detail', {
+        total: item.dmlStatementCount || 0,
+        sizeSkipped: item.skippedBySizeLimit || 0,
+        countSkipped: item.skippedByCountLimit || 0,
+        skipped: (item.skippedBySizeLimit || 0) + (item.skippedByCountLimit || 0)
+      });
+      if (failed > 0) {
+        text += this.$t('ticket-analysis-dml-explain-detail-failed', { failed });
+      }
+      return text;
     },
     analysisElapsed(item) {
       if (!item.startTimeUtc) {
@@ -1146,6 +1312,35 @@ export default {
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
       return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
+    },
+    dmlExplainRows(item) {
+      const statements = new Map();
+      [...(item.explainResults || [])]
+        .sort((left, right) => left.index - right.index)
+        .forEach((row) => {
+          if (!statements.has(row.index)) {
+            statements.set(row.index, []);
+          }
+          statements.get(row.index).push(row);
+        });
+
+      // A segment only combines adjacent SQL statements whose complete action and object sets match.
+      const segments = [];
+      for (const [index, details] of statements) {
+        const signature = JSON.stringify(details.map(dmlExplainChangeKey).sort());
+        const previous = segments[segments.length - 1];
+        if (previous && index === previous.lastIndex + 1 && signature === previous.signature) {
+          previous.lastIndex = index;
+          previous.details.push(...details);
+        } else {
+          segments.push({
+            signature,
+            lastIndex: index,
+            details: [...details]
+          });
+        }
+      }
+      return segments.flatMap((segment) => aggregateDmlExplainDetails(segment.details));
     },
     async loadSqlPreview() {
       this.sqlPreviewLineCount = this.$refs.sqlPreviewEditor?.getVisibleLineCount() || 25;

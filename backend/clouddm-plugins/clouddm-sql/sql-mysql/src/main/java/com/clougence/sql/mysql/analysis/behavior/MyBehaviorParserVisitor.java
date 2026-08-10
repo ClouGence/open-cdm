@@ -15,12 +15,17 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MyDslProvider;
+import com.clougence.sql.mysql.parser.antlr.MySqlParser.CommentInsertValueContext;
+import com.clougence.sql.mysql.parser.antlr.MySqlParser.InsertStatementContext;
+import com.clougence.sql.mysql.parser.antlr.MySqlParser.ReplaceStatementContext;
 
 final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
@@ -78,8 +83,44 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
         StatementBehavior behavior = new StatementBehavior();
         behavior.setStatementType(statementType);
-        behavior.setRelations(new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), levels).assemble());
+        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), levels).assemble();
+        Long insertRows = insertRows(context);
+        if (insertRows != null) {
+            relations.stream()
+                .filter(relation -> relation.getAction() == BehaviorAction.INSERT || relation.getAction() == BehaviorAction.MERGE || relation.getAction() == BehaviorAction.REPLACE)
+                .findFirst()
+                .ifPresent(relation -> relation.setInsertRows(insertRows));
+        }
+        behavior.setRelations(relations);
         behaviors.add(behavior);
+        return null;
+    }
+
+    private static Long insertRows(ParseTree tree) {
+        if (tree instanceof InsertStatementContext insert) {
+            if (insert.setFirst != null) {
+                return 1L;
+            }
+            if (insert.insertStatementValue() instanceof CommentInsertValueContext values) {
+                return (long) values.valuesRow().size();
+            }
+            return null;
+        }
+        if (tree instanceof ReplaceStatementContext replace) {
+            if (replace.setFirst != null) {
+                return 1L;
+            }
+            if (replace.replaceStatementValue() != null && replace.replaceStatementValue().insertFormat != null) {
+                return (long) replace.replaceStatementValue().valuesRow().size();
+            }
+            return null;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            Long rows = insertRows(tree.getChild(i));
+            if (rows != null) {
+                return rows;
+            }
+        }
         return null;
     }
 

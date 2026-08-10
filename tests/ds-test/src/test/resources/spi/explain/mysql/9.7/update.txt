@@ -1,0 +1,24 @@
+[update_subquery]
+sql:
+UPDATE target_orders t
+SET t.amount = t.amount + 1
+WHERE t.customer_id IN (
+  SELECT s.customer_id FROM source_orders s WHERE s.status = 'PENDING' AND s.amount > 500
+);
+input:
+[
+  {"id":1,"select_type":"UPDATE","table":"t","partitions":null,"type":"ALL","possible_keys":"idx_customer","key":null,"key_len":null,"ref":null,"rows":9893,"filtered":100,"Extra":null},
+  {"id":1,"select_type":"SIMPLE","table":"<subquery2>","partitions":null,"type":"eq_ref","possible_keys":"<auto_distinct_key>","key":"<auto_distinct_key>","key_len":"4","ref":"clouddm_explain_plan_test.t.customer_id","rows":1,"filtered":100,"Extra":null},
+  {"id":2,"select_type":"MATERIALIZED","table":"s","partitions":null,"type":"ref","possible_keys":"idx_status,idx_customer","key":"idx_status","key_len":"66","ref":"const","rows":1000,"filtered":33.33,"Extra":"Using where"}
+]
+expect:
+{
+  "source":"NATIVE",
+  "nodes":[
+    {"nodeId":"0","logical":"UPDATE","physical":"ALL","objectPath":"t","estimatedRows":9893.0,"properties":{"id":"1","select_type":"UPDATE","table":"t","type":"ALL","possible_keys":"idx_customer","rows":"9893","filtered":"100"}},
+    {"nodeId":"1","logical":"SIMPLE","physical":"eq_ref","objectPath":"<subquery2>","estimatedRows":1.0,"properties":{"id":"1","select_type":"SIMPLE","table":"<subquery2>","type":"eq_ref","possible_keys":"<auto_distinct_key>","key":"<auto_distinct_key>","key_len":"4","ref":"clouddm_explain_plan_test.t.customer_id","rows":"1","filtered":"100"}},
+    {"nodeId":"2","logical":"MATERIALIZED","physical":"ref","objectPath":"s","estimatedRows":1000.0,"properties":{"id":"2","select_type":"MATERIALIZED","table":"s","type":"ref","possible_keys":"idx_status,idx_customer","key":"idx_status","key_len":"66","ref":"const","rows":"1000","filtered":"33.33","Extra":"Using where"}}
+  ],
+  "properties":{}
+}
+

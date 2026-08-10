@@ -159,7 +159,8 @@ expect:
   "INSERT": [
     {
       "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
-      "action" : "INSERT"
+      "action" : "INSERT",
+      "insertRows": 3
     }
   ]
 }
@@ -175,6 +176,7 @@ expect:
     {
       "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
       "action" : "INSERT",
+      "insertRows": null,
       "target" : "Table(1:49~1:54) /test/1/catalog1/schema1/test2/"
     }
   ]
@@ -190,7 +192,8 @@ expect:
   "INSERT": [
     {
       "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
-      "action" : "INSERT"
+      "action" : "INSERT",
+      "insertRows": 1
     }
   ]
 }
@@ -205,7 +208,8 @@ expect:
   "MERGE": [
     {
       "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/test/",
-      "action" : "MERGE"
+      "action" : "MERGE",
+      "insertRows": 1
     }
   ]
 }
@@ -220,7 +224,8 @@ expect:
   "MERGE": [
     {
       "subject": "Table(1:13~1:17) /test/1/catalog1/schema1/test/",
-      "action" : "MERGE"
+      "action" : "MERGE",
+      "insertRows": 1
     }
   ]
 }
@@ -1683,6 +1688,42 @@ expect:
     },
     {
       "subject": "Function(1:41~1:44) /test/1/catalog1/schema1/SUM/",
+      "action" : "CALL"
+    }
+  ]
+}
+----------
+[insert_ignore__096]
+sql:
+INSERT IGNORE INTO test (id, name) VALUES (1, 'a'), (2, 'b');
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "INSERT": [
+    {
+      "subject": "Table(1:19~1:23) /test/1/catalog1/schema1/test/",
+      "action" : "INSERT",
+      "insertRows": 2
+    }
+  ]
+}
+----------
+[merge_values__097]
+sql:
+INSERT INTO test (id, name) VALUES (1, 'a'), (2, 'b') ON DUPLICATE KEY UPDATE name = VALUES(name);
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "MERGE": [
+    {
+      "subject": "Table(1:12~1:16) /test/1/catalog1/schema1/test/",
+      "action" : "MERGE",
+      "insertRows": 2
+    },
+    {
+      "subject": "Function(1:85~1:91) /test/1/catalog1/schema1/VALUES/",
       "action" : "CALL"
     }
   ]

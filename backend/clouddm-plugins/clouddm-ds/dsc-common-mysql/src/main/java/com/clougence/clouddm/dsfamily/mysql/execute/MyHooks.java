@@ -209,7 +209,7 @@ public class MyHooks implements SessionHook {
         String queryBody = query.getQueryBody();
         int pos = queryBody.length() - StringUtils.trimBlankStart(queryBody).length();
         StringBuilder explainBody = new StringBuilder(queryBody);
-        explainBody.insert(pos, "explain ");
+        explainBody.insert(pos, "explain format=traditional ");
 
         PreparedStatement stmt = conn.prepareStatement(explainBody.toString(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(200);

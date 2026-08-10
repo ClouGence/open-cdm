@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetMeta;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
@@ -20,6 +23,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.mysql.execute.explain.MyExplainPlanSpi;
 import com.clougence.sql.mysql.parser.MyDslProvider;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
 import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
@@ -165,6 +169,49 @@ public class MySqlVersionConfigurationTest {
                 stream.findFirst();
             }
         });
+    }
+
+    @Test
+    public void splitStatementsCarryStableIndexes() {
+        MySqlEngineSpi engine = new MySqlEngineSpi(null);
+        try (StringReader reader = new StringReader("UPDATE t1 SET value = 1; DELETE FROM t2;");
+                var stream = engine.splitAnalysisSpi(SqlParserParameters.empty()).splitScriptStream(reader, List.of(), 1, 0)) {
+            Assertions.assertEquals(List.of(0L, 1L), stream.map(script -> script.getIndex()).toList());
+        }
+    }
+
+    @Test
+    public void explainPlanConvertsRawResult() {
+        ResultSetMeta meta = new ResultSetMeta();
+        meta.setResultId("result-1");
+        meta.setColumnList(List.of("id", "select_type", "table", "type", "rows", "Extra"));
+        com.clougence.clouddm.sdk.execute.resultset.echo.ResultSet rows = new com.clougence.clouddm.sdk.execute.resultset.echo.ResultSet();
+        rows.setResultId("result-1");
+        ResultSetRow row = new ResultSetRow();
+        row.setData(List.of(value("1"), value("UPDATE"), value("orders"), value("range"), value("42"), value("Using where")));
+        rows.setRowSet(List.of(row));
+
+        var plan = new MyExplainPlanSpi().analyze(List.of(meta, rows), List.of());
+        Assertions.assertEquals(42D, plan.getNodes().get(0).getEstimatedRows());
+        Assertions.assertEquals("UPDATE", plan.getNodes().get(0).getLogical());
+        Assertions.assertEquals("range", plan.getNodes().get(0).getPhysical());
+        Assertions.assertEquals("Using where", plan.getNodes().get(0).getProperties().get("Extra"));
+    }
+
+    @Test
+    public void queryRequestClonePreservesExplainMode() {
+        QueryRequest request = new QueryRequest();
+        request.setQueryBody("DELETE FROM orders");
+        request.setUseExplain(true);
+
+        QueryRequest clone = request.clone();
+
+        Assertions.assertTrue(clone.isUseExplain());
+        Assertions.assertEquals("DELETE FROM orders", clone.getQueryBody());
+    }
+
+    private static ResultSetValue value(String value) {
+        return ResultSetValue.of(true, false, value, 0, value.length());
     }
 
     private static SqlParserParameters parserParameters(String sqlMode) {

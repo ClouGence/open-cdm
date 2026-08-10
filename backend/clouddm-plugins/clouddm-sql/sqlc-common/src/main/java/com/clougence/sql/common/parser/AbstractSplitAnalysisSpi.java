@@ -155,6 +155,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         private final LocationCursor             location;
         private final Consumer<SplitScript>      resultConsumer;
         private ParserRuleContext                lastStatement;
+        private long                             statementIndex;
 
         private SplitListener(StreamingCommonTokenStream tokens, LocationCursor location, Consumer<SplitScript> resultConsumer){
             this.tokens = tokens;
@@ -186,6 +187,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             ScriptLocation scriptLocation = this.location.locate(script, stopToken.getStopIndex());
 
             SplitScript split = new SplitScript();
+            split.setIndex(this.statementIndex++);
             split.setScript(script);
             split.setType(collectTypes(ctx, script));
             split.setChildren(collectChildren(ctx, this.tokens));

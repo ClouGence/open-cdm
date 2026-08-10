@@ -237,6 +237,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
         private QueryRequest analyze(SplitScript script) {
             QueryRequest request = new QueryRequest();
+            request.setIndex(script.getIndex());
             request.setQueryBody(script.getScript());
             request.setQueryArgs(script.getScriptArgs());
             request.setQueryTypes(script.getType());

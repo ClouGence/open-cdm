@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 import java.util.List;
 import java.util.Map;
 
+import com.clougence.clouddm.console.web.component.approval.model.DmlExplainResultMO;
 import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.constants.RdpTicketProcessActivityStatus;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
@@ -53,4 +54,11 @@ public class RdpTicketActivityVO {
     private Map<String, Long>              statementTypeCounts;
     private List<ApprovalBehavior>         behaviors;
     private List<TicketRuleCheckResult>    ruleResults;
+    private Long                           dmlStatementCount;
+    private Long                           cachedExplainCount;
+    private Long                           executedExplainCount;
+    private Long                           skippedBySizeLimit;
+    private Long                           skippedByCountLimit;
+    private Long                           failedExplainCount;
+    private List<DmlExplainResultMO>       explainResults;
 }

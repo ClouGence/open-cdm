@@ -499,11 +499,15 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             if (StringUtils.isBlank(activity.getContext())) {
                 continue;
             }
+
             String activityId = activity.getActivityId();
-            if (!ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(activityId) && !ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(activityId)
-                && !ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(activityId)) {
+            if (!ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(activityId) &&     //
+                !ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(activityId) &&   //
+                !ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(activityId) &&       //
+                !ApprovalAnalysisStateMO.TYPE_DML_EXPLAIN.equals(activityId)) {
                 continue;
             }
+
             ApprovalAnalysisStateMO state = JsonUtils.toObj(activity.getContext(), ApprovalAnalysisStateMO.class);
             if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(state.getAnalysisType())) {
                 vo.setTotalCount(state.getTotalCount());

@@ -1,0 +1,74 @@
+[select_join_aggregate]
+sql:
+SELECT s.customer_id, COUNT(*), SUM(s.amount)
+FROM source_orders s
+JOIN target_orders t ON t.id = s.id
+WHERE s.status = 'PENDING' AND t.amount > 100
+GROUP BY s.customer_id
+ORDER BY SUM(s.amount) DESC
+LIMIT 10;
+input:
+[
+  {"id":1,"select_type":"SIMPLE","table":"s","partitions":null,"type":"ref","possible_keys":"PRIMARY,idx_status,idx_customer","key":"idx_status","key_len":"66","ref":"const","rows":1000,"filtered":100,"Extra":"Using temporary; Using filesort"},
+  {"id":1,"select_type":"SIMPLE","table":"t","partitions":null,"type":"eq_ref","possible_keys":"PRIMARY","key":"PRIMARY","key_len":"4","ref":"clouddm_explain_plan_test.s.id","rows":1,"filtered":33.33,"Extra":"Using where"}
+]
+expect:
+{
+  "source":"NATIVE",
+  "nodes": [
+    {
+      "nodeId": "0",
+      "logical": "SIMPLE",
+      "physical": "ref",
+      "objectPath": "s",
+      "estimatedRows": 1000.0,
+      "properties": {"id":"1","select_type":"SIMPLE","table":"s","type":"ref","possible_keys":"PRIMARY,idx_status,idx_customer","key":"idx_status","key_len":"66","ref":"const","rows":"1000","filtered":"100","Extra":"Using temporary; Using filesort"}
+    },
+    {
+      "nodeId": "1",
+      "logical": "SIMPLE",
+      "physical": "eq_ref",
+      "objectPath": "t",
+      "estimatedRows": 1.0,
+      "properties": {"id":"1","select_type":"SIMPLE","table":"t","type":"eq_ref","possible_keys":"PRIMARY","key":"PRIMARY","key_len":"4","ref":"clouddm_explain_plan_test.s.id","rows":"1","filtered":"33.33","Extra":"Using where"}
+    }
+  ],
+  "properties": {}
+}
+----------
+[select_correlated_subquery]
+sql:
+SELECT s.id, s.amount
+FROM source_orders s
+WHERE s.amount > (
+  SELECT AVG(t.amount) FROM target_orders t WHERE t.customer_id = s.customer_id
+)
+AND EXISTS (
+  SELECT 1 FROM target_orders x WHERE x.id = s.id AND x.status = 'DONE'
+);
+input:
+[
+  {"id":1,"select_type":"PRIMARY","table":"x","partitions":null,"type":"ref","possible_keys":"PRIMARY,idx_status","key":"idx_status","key_len":"66","ref":"const","rows":9000,"filtered":100,"Extra":"Using index"},
+  {"id":1,"select_type":"PRIMARY","table":"s","partitions":null,"type":"eq_ref","possible_keys":"PRIMARY","key":"PRIMARY","key_len":"4","ref":"clouddm_explain_plan_test.x.id","rows":1,"filtered":100,"Extra":"Using where"},
+  {"id":2,"select_type":"DEPENDENT SUBQUERY","table":"t","partitions":null,"type":"ref","possible_keys":"idx_customer","key":"idx_customer","key_len":"4","ref":"clouddm_explain_plan_test.s.customer_id","rows":100,"filtered":100,"Extra":null}
+]
+expect:
+{
+  "source":"NATIVE",
+  "nodes": [
+    {
+      "nodeId":"0","logical":"PRIMARY","physical":"ref","objectPath":"x","estimatedRows":9000.0,
+      "properties":{"id":"1","select_type":"PRIMARY","table":"x","type":"ref","possible_keys":"PRIMARY,idx_status","key":"idx_status","key_len":"66","ref":"const","rows":"9000","filtered":"100","Extra":"Using index"}
+    },
+    {
+      "nodeId":"1","logical":"PRIMARY","physical":"eq_ref","objectPath":"s","estimatedRows":1.0,
+      "properties":{"id":"1","select_type":"PRIMARY","table":"s","type":"eq_ref","possible_keys":"PRIMARY","key":"PRIMARY","key_len":"4","ref":"clouddm_explain_plan_test.x.id","rows":"1","filtered":"100","Extra":"Using where"}
+    },
+    {
+      "nodeId":"2","logical":"DEPENDENT SUBQUERY","physical":"ref","objectPath":"t","estimatedRows":100.0,
+      "properties":{"id":"2","select_type":"DEPENDENT SUBQUERY","table":"t","type":"ref","possible_keys":"idx_customer","key":"idx_customer","key_len":"4","ref":"clouddm_explain_plan_test.s.customer_id","rows":"100","filtered":"100"}
+    }
+  ],
+  "properties": {}
+}
+

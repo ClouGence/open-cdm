@@ -188,6 +188,9 @@ public final class BehaviorTextTest {
         List<String> fields = fieldNames(expected);
         boolean hasTarget = expected.has("target");
         List<String> expectedFields = new ArrayList<>(List.of("subject", "action"));
+        if (expected.has("insertRows")) {
+            expectedFields.add("insertRows");
+        }
         if (expected.has("permission")) {
             expectedFields.add("permission");
         }
@@ -199,6 +202,9 @@ public final class BehaviorTextTest {
             return;
         }
         assertEnum(label + ".action", expected.get("action"), actual.getAction(), failures);
+        if (expected.has("insertRows")) {
+            assertNullableLong(label + ".insertRows", expected.get("insertRows"), actual.getInsertRows(), failures);
+        }
         verifyObjectText(label + ".subject", expected.get("subject"), actual.getSubject(), failures);
         verifyPermission(label, expected.get("permission"), actual, permissionVerifier, failures);
         if (!hasTarget) {
@@ -299,6 +305,13 @@ public final class BehaviorTextTest {
 
     private static void assertNullableText(String label, JsonNode expected, String actual, List<String> failures) {
         String expectedValue = expected == null || expected.isNull() ? null : expected.asText();
+        if (!Objects.equals(expectedValue, actual)) {
+            failures.add(label + ": expected=" + expectedValue + ", actual=" + actual);
+        }
+    }
+
+    private static void assertNullableLong(String label, JsonNode expected, Long actual, List<String> failures) {
+        Long expectedValue = expected == null || expected.isNull() ? null : expected.asLong();
         if (!Objects.equals(expectedValue, actual)) {
             failures.add(label + ": expected=" + expectedValue + ", actual=" + actual);
         }
