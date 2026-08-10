@@ -110,8 +110,6 @@ public class DmHomeController {
     private DmDsConfigService   dmDsConfigService;
     @Resource
     private UserConfigService   userConfigService;
-    @Resource
-    private UserConfigService   userConfigService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/healthcheck")

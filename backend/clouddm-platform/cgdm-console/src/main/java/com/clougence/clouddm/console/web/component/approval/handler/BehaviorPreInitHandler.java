@@ -37,7 +37,6 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 
 import jakarta.annotation.Resource;

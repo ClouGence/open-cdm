@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.sql.parser;
+package com.clougence.clouddm.ds.cloudberry.resource;
 
-import java.io.Reader;
-import java.util.List;
-import java.util.stream.Stream;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.dsfamily.postgres.resource.PgEditorResourceSpi;
 
-import com.clougence.clouddm.sdk.Spi;
-import com.clougence.clouddm.sdk.execute.session.QueryArg;
+public class CbEditorResourceSpi extends PgEditorResourceSpi {
 
-@FunctionalInterface
-public interface SplitAnalysisSpi extends Spi {
+    public CbEditorResourceSpi(ClassLoader loader){
+        super(loader);
+    }
 
-    /** The caller owns the reader and is responsible for closing it. */
-    Stream<SplitScript> splitScriptStream(Reader reader, List<QueryArg> args, int baseCodeLine, int baseCodeColumn);
+    @Override
+    public String name() {
+        return DataSourceType.Cloudberry.name();
+    }
 }
