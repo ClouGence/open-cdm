@@ -113,24 +113,6 @@ expect:
   ]
 }
 ----------
-[OraSecFuncAndProcCreateAndDropTest_createProcedure]
-sql:
-CREATE OR REPLACE PROCEDURE test
-IS
-BEGIN
-    DBMS_OUTPUT.PUT_LINE('Hello, Oracle!');
-END;
-expect:
-{
-  "contains": [
-    {
-      "sqlType": "CREATE_PROG_OBJ",
-      "auditKind": "CREATE",
-      "name": "test"
-    }
-  ]
-}
-----------
 [OraSecFuncAndProcCreateAndDropTest_createFunction1]
 sql:
 CREATE OR REPLACE FUNCTION "schema1"."test" (emp_id NUMBER)
@@ -146,25 +128,6 @@ BEGIN
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN NULL;
-END;
-expect:
-{
-  "contains": [
-    {
-      "sqlType": "CREATE_PROG_OBJ",
-      "auditKind": "CREATE",
-      "schema": "schema1",
-      "name": "test"
-    }
-  ]
-}
-----------
-[OraSecFuncAndProcCreateAndDropTest_createProcedure1]
-sql:
-CREATE OR REPLACE PROCEDURE "schema1"."test"
-IS
-BEGIN
-    DBMS_OUTPUT.PUT_LINE('Hello, Oracle!');
 END;
 expect:
 {

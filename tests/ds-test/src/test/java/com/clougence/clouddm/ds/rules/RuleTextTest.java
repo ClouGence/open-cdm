@@ -92,12 +92,7 @@ public final class RuleTextTest {
     }
 
     private static SecDomainResolveSpi secDomainResolveSpi(String datasource) {
-        String version = switch (datasource) {
-            case "mysql", "mariadb", "por4my" -> "8.0.46";
-            default -> null;
-        };
-        SqlParserParameters parameters = version == null ? SqlParserParameters.empty() : SqlParserParameters.ofVersion(version);
-        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(parameters);
+        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(SqlTestSupport.parserParameters(datasource));
         if (spi == null) {
             throw new IllegalStateException("No SecDomainResolveSpi for datasource: " + datasource);
         }
@@ -142,8 +137,7 @@ public final class RuleTextTest {
             return false;
         }
         String key = line.substring(0, split).trim();
-        return Objects.equals(key, "rule") || Objects.equals(key, "expect") || Objects.equals(key, "exception") || Objects.equals(key, "vars")
-                || Objects.equals(key, "sql");
+        return Objects.equals(key, "rule") || Objects.equals(key, "expect") || Objects.equals(key, "exception") || Objects.equals(key, "vars") || Objects.equals(key, "sql");
     }
 
     private static void flush(TestCase testCase, String key, StringBuilder value) {

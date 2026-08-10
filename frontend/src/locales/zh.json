@@ -3570,6 +3570,7 @@
   "mfa-guan-lian-ziduan-xiugai-tishi": "{0} 已经关联 MFA 登录，改动将会导致 MFA 失效，是否继续？",
   "mfa-yi-shi-xiao": "MFA 已失效",
   "mfa-yi-shi-xiao-deng-lu-ti-shi": "当前 MFA 配置已经失效，\n请前往个人资料安全页重新启用或关闭 MFA。",
+  "mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu": "MFA 登录状态无效，请重新登录。",
   "mfa-yi-shi-xiao-guan-bi-ti-shi": "当前 MFA 配置已经失效，关闭后登录将不再要求 MFA 验证，是否继续？",
   "mfa-code-you-xiao-qi-ti-shi": "MFA Code 10 分钟内有效，剩余 {0}",
   "mfa-code-yi-shi-xiao-qing-zhong-xin-sheng-cheng": "MFA Code 已失效，请重新生成",

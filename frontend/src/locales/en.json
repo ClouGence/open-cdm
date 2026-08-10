@@ -3595,6 +3595,7 @@
   "mfa-guan-lian-ziduan-xiugai-tishi": "{0} is linked to MFA sign-in. Changing it will invalidate MFA. Continue?",
   "mfa-yi-shi-xiao": "MFA is invalid",
   "mfa-yi-shi-xiao-deng-lu-ti-shi": "Your MFA settings are invalid.\nGo to Profile > Security to re-enable or close MFA.",
+  "mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu": "The MFA login state is invalid. Please sign in again.",
   "mfa-yi-shi-xiao-guan-bi-ti-shi": "Your MFA settings are invalid. After closing MFA, sign-in will no longer require MFA verification. Continue?",
   "mfa-code-you-xiao-qi-ti-shi": "MFA Code is valid for 10 minutes. Remaining {0}",
   "mfa-code-yi-shi-xiao-qing-zhong-xin-sheng-cheng": "MFA Code has expired. Please generate it again.",

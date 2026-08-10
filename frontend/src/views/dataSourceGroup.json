@@ -10,6 +10,7 @@
   "tunnel": ["Tunnel"],
   "db2": ["Db2"],
   "gp": ["Greenplum"],
+  "cloudberry": ["Cloudberry"],
   "mysql": ["MySQL", "GaussDBForMySQL", "AuroraMySQL"],
   "polar": ["PolarDbMySQL"],
   "pg": [
@@ -22,6 +23,7 @@
     "AuroraPostgreSQL",
     "GaussDBForOpenGauss",
     "Greenplum",
+    "Cloudberry",
     "SQLServer",
     "Db2",
     "OssFile",
@@ -49,6 +51,7 @@
     "GaussDBForOpenGauss",
     "AuroraPostgreSQL",
     "Greenplum",
+    "Cloudberry",
     "SQLServer",
     "Db2",
     "OssFile",

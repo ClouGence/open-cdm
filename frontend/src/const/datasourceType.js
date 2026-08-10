@@ -1,8 +1,8 @@
 export const MYSQL = 'MySQL';
 export const POLAR = ['PolarDbMySQL'];
-export const PG = ['PostgreSQL', 'Greenplum'];
+export const PG = ['PostgreSQL', 'Greenplum', 'Cloudberry'];
 export const ORACLE = ['Oracle'];
-export const HAS_SCHEMA = ['Oracle', 'PostgreSQL', 'Greenplum'];
+export const HAS_SCHEMA = ['Oracle', 'PostgreSQL', 'Greenplum', 'Cloudberry'];
 export const MQ = ['Kafka', 'RocketMQ', 'RabbitMQ'];
 export const ES = ['ElasticSearch'];
 export const HIVE = ['Hive'];

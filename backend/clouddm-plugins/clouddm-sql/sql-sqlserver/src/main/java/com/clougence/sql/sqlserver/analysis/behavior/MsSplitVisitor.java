@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.sql.sqlserver.parser;
+package com.clougence.sql.sqlserver.analysis.behavior;
 
-import static com.clougence.clouddm.sdk.sql.parser.SplitQueryType.*;
+import static com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,39 +26,39 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerParser;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerParserBaseVisitor;
 
-public class MsSplitVisitor extends SqlServerParserBaseVisitor<SplitQueryType> {
+public class MsSplitVisitor extends SqlServerParserBaseVisitor<StatementType> {
 
-    public static final AbstractParseTreeVisitor<SplitQueryType> INSTANCE = new MsSplitVisitor();
+    public static final AbstractParseTreeVisitor<StatementType> INSTANCE = new MsSplitVisitor();
 
     @Override
-    public SplitQueryType visitCreate_table(SqlServerParser.Create_tableContext ctx) {
-        return SplitQueryType.CREATE_TABLE;
+    public StatementType visitCreate_table(SqlServerParser.Create_tableContext ctx) {
+        return StatementType.CREATE_TABLE;
     }
 
     @Override
-    public SplitQueryType visitCreate_security_policy(SqlServerParser.Create_security_policyContext ctx) {
-        return SplitQueryType.CREATE_POLICY;
+    public StatementType visitCreate_security_policy(SqlServerParser.Create_security_policyContext ctx) {
+        return StatementType.CREATE_POLICY;
     }
 
     @Override
-    public SplitQueryType visitDrop_security_policy(SqlServerParser.Drop_security_policyContext ctx) {
-        return SplitQueryType.DROP_POLICY;
+    public StatementType visitDrop_security_policy(SqlServerParser.Drop_security_policyContext ctx) {
+        return StatementType.DROP_POLICY;
     }
 
     @Override
-    public SplitQueryType visitExecute_statement(SqlServerParser.Execute_statementContext ctx) {
-        SplitQueryType renameType = trySpRenameType(ctx);
+    public StatementType visitExecute_statement(SqlServerParser.Execute_statementContext ctx) {
+        StatementType renameType = trySpRenameType(ctx);
         if (renameType != null) {
             return renameType;
         }
         return CALL_PROG_OBJ;
     }
 
-    private SplitQueryType trySpRenameType(SqlServerParser.Execute_statementContext ctx) {
+    private StatementType trySpRenameType(SqlServerParser.Execute_statementContext ctx) {
         SqlServerParser.Execute_bodyContext body = ctx.execute_body();
         if (body == null || body.func_proc_name_server_database_schema() == null) {
             return null;
@@ -128,97 +128,97 @@ public class MsSplitVisitor extends SqlServerParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
-    public SplitQueryType visitDrop_table(SqlServerParser.Drop_tableContext ctx) {
-        return SplitQueryType.DROP_TABLE;
+    public StatementType visitDrop_table(SqlServerParser.Drop_tableContext ctx) {
+        return StatementType.DROP_TABLE;
     }
 
     @Override
-    public SplitQueryType visitDrop_aggregate(SqlServerParser.Drop_aggregateContext ctx) {
-        return SplitQueryType.DROP_PROG_OBJ;
+    public StatementType visitDrop_aggregate(SqlServerParser.Drop_aggregateContext ctx) {
+        return StatementType.DROP_PROG_OBJ;
     }
 
     @Override
-    public SplitQueryType visitAlter_table(SqlServerParser.Alter_tableContext ctx) {
-        return SplitQueryType.ALTER_TABLE;
+    public StatementType visitAlter_table(SqlServerParser.Alter_tableContext ctx) {
+        return StatementType.ALTER_TABLE;
     }
 
     @Override
-    public SplitQueryType visitBlock_statement(SqlServerParser.Block_statementContext ctx) {
+    public StatementType visitBlock_statement(SqlServerParser.Block_statementContext ctx) {
         return BLOCK;
     }
 
     @Override
-    public SplitQueryType visitDeclare_statement(SqlServerParser.Declare_statementContext ctx) {
+    public StatementType visitDeclare_statement(SqlServerParser.Declare_statementContext ctx) {
         return PROGRAM_CONTROL;
     }
 
     @Override
-    public SplitQueryType visitReturn_statement(SqlServerParser.Return_statementContext ctx) {
+    public StatementType visitReturn_statement(SqlServerParser.Return_statementContext ctx) {
         return PROGRAM_CONTROL;
     }
 
     @Override
-    public SplitQueryType visitIf_statement(SqlServerParser.If_statementContext ctx) {
+    public StatementType visitIf_statement(SqlServerParser.If_statementContext ctx) {
         return PROGRAM_CONTROL;
     }
 
     @Override
-    public SplitQueryType visitTry_catch_statement(SqlServerParser.Try_catch_statementContext ctx) {
+    public StatementType visitTry_catch_statement(SqlServerParser.Try_catch_statementContext ctx) {
         return PROGRAM_CONTROL;
     }
 
     @Override
-    public SplitQueryType visitWhile_statement(SqlServerParser.While_statementContext ctx) {
+    public StatementType visitWhile_statement(SqlServerParser.While_statementContext ctx) {
         return PROGRAM_CONTROL;
     }
 
     @Override
-    public SplitQueryType visitSet_statement(SqlServerParser.Set_statementContext ctx) {
+    public StatementType visitSet_statement(SqlServerParser.Set_statementContext ctx) {
         return ctx.set_special() == null ? SESSION_VARIABLE_RW : SESSION_SETTING_WRITE;
     }
 
     @Override
-    public SplitQueryType visitCreate_schema(SqlServerParser.Create_schemaContext ctx) {
-        return SplitQueryType.CREATE_SCHEMA;
+    public StatementType visitCreate_schema(SqlServerParser.Create_schemaContext ctx) {
+        return StatementType.CREATE_SCHEMA;
     }
 
     @Override
-    public SplitQueryType visitDrop_schema(SqlServerParser.Drop_schemaContext ctx) {
-        return SplitQueryType.DROP_SCHEMA;
+    public StatementType visitDrop_schema(SqlServerParser.Drop_schemaContext ctx) {
+        return StatementType.DROP_SCHEMA;
     }
 
     @Override
-    public SplitQueryType visitDrop_database(SqlServerParser.Drop_databaseContext ctx) {
-        return SplitQueryType.DROP_CATALOG;
+    public StatementType visitDrop_database(SqlServerParser.Drop_databaseContext ctx) {
+        return StatementType.DROP_CATALOG;
     }
 
     @Override
-    public SplitQueryType visitCreate_database(SqlServerParser.Create_databaseContext ctx) {
-        return SplitQueryType.CREATE_CATALOG;
+    public StatementType visitCreate_database(SqlServerParser.Create_databaseContext ctx) {
+        return StatementType.CREATE_CATALOG;
     }
 
     @Override
-    public SplitQueryType visitDrop_view(SqlServerParser.Drop_viewContext ctx) {
-        return SplitQueryType.DROP_VIEW;
+    public StatementType visitDrop_view(SqlServerParser.Drop_viewContext ctx) {
+        return StatementType.DROP_VIEW;
     }
 
     @Override
-    public SplitQueryType visitCreate_index(SqlServerParser.Create_indexContext ctx) {
-        return SplitQueryType.ADD_INDEX;
+    public StatementType visitCreate_index(SqlServerParser.Create_indexContext ctx) {
+        return StatementType.ADD_INDEX;
     }
 
     @Override
-    public SplitQueryType visitDrop_index(SqlServerParser.Drop_indexContext ctx) {
-        return SplitQueryType.DROP_INDEX;
+    public StatementType visitDrop_index(SqlServerParser.Drop_indexContext ctx) {
+        return StatementType.DROP_INDEX;
     }
 
     @Override
-    public SplitQueryType visitAlter_index(SqlServerParser.Alter_indexContext ctx) {
-        return SplitQueryType.ALTER_INDEX;
+    public StatementType visitAlter_index(SqlServerParser.Alter_indexContext ctx) {
+        return StatementType.ALTER_INDEX;
     }
 
     @Override
-    public SplitQueryType visitCreate_view(SqlServerParser.Create_viewContext ctx) {
+    public StatementType visitCreate_view(SqlServerParser.Create_viewContext ctx) {
         if (hasDirectToken(ctx, SqlServerParser.OR)) {
             return UNKNOWN;
         }
@@ -226,7 +226,7 @@ public class MsSplitVisitor extends SqlServerParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
-    public SplitQueryType visitCreate_or_alter_dml_trigger(SqlServerParser.Create_or_alter_dml_triggerContext ctx) {
+    public StatementType visitCreate_or_alter_dml_trigger(SqlServerParser.Create_or_alter_dml_triggerContext ctx) {
         if (hasDirectToken(ctx, SqlServerParser.OR)) {
             return UNKNOWN;
         }
@@ -234,7 +234,7 @@ public class MsSplitVisitor extends SqlServerParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
-    public SplitQueryType visitCreate_or_alter_ddl_trigger(SqlServerParser.Create_or_alter_ddl_triggerContext ctx) {
+    public StatementType visitCreate_or_alter_ddl_trigger(SqlServerParser.Create_or_alter_ddl_triggerContext ctx) {
         if (hasDirectToken(ctx, SqlServerParser.OR)) {
             return UNKNOWN;
         }
@@ -242,32 +242,32 @@ public class MsSplitVisitor extends SqlServerParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
-    public SplitQueryType visitDelete_statement(SqlServerParser.Delete_statementContext ctx) {
+    public StatementType visitDelete_statement(SqlServerParser.Delete_statementContext ctx) {
         return DELETE;
     }
 
     @Override
-    public SplitQueryType visitInsert_statement(SqlServerParser.Insert_statementContext ctx) {
+    public StatementType visitInsert_statement(SqlServerParser.Insert_statementContext ctx) {
         return INSERT;
     }
 
     @Override
-    public SplitQueryType visitUpdate_statement(SqlServerParser.Update_statementContext ctx) {
+    public StatementType visitUpdate_statement(SqlServerParser.Update_statementContext ctx) {
         return UPDATE;
     }
 
     @Override
-    public SplitQueryType visitCreate_synonym(SqlServerParser.Create_synonymContext ctx) {
+    public StatementType visitCreate_synonym(SqlServerParser.Create_synonymContext ctx) {
         return CREATE_SYNONYM;
     }
 
     @Override
-    public SplitQueryType visitCreate_sequence(SqlServerParser.Create_sequenceContext ctx) {
+    public StatementType visitCreate_sequence(SqlServerParser.Create_sequenceContext ctx) {
         return CREATE_SEQUENCE;
     }
 
     @Override
-    public SplitQueryType visitCreate_or_alter_function(SqlServerParser.Create_or_alter_functionContext ctx) {
+    public StatementType visitCreate_or_alter_function(SqlServerParser.Create_or_alter_functionContext ctx) {
         if (hasDirectToken(ctx, SqlServerParser.OR)) {
             return UNKNOWN;
         }
@@ -275,7 +275,7 @@ public class MsSplitVisitor extends SqlServerParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
-    public SplitQueryType visitCreate_or_alter_procedure(SqlServerParser.Create_or_alter_procedureContext ctx) {
+    public StatementType visitCreate_or_alter_procedure(SqlServerParser.Create_or_alter_procedureContext ctx) {
         if (hasDirectToken(ctx, SqlServerParser.OR)) {
             return UNKNOWN;
         }
@@ -283,22 +283,22 @@ public class MsSplitVisitor extends SqlServerParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
-    public SplitQueryType visitCreate_login_sql_server(SqlServerParser.Create_login_sql_serverContext ctx) {
+    public StatementType visitCreate_login_sql_server(SqlServerParser.Create_login_sql_serverContext ctx) {
         return CREATE_USER;
     }
 
     @Override
-    public SplitQueryType visitSelect_statement(SqlServerParser.Select_statementContext ctx) {
+    public StatementType visitSelect_statement(SqlServerParser.Select_statementContext ctx) {
         return SELECT;
     }
 
     @Override
-    public SplitQueryType visitSelect_statement_standalone(SqlServerParser.Select_statement_standaloneContext ctx) {
+    public StatementType visitSelect_statement_standalone(SqlServerParser.Select_statement_standaloneContext ctx) {
         return SELECT;
     }
 
     @Override
-    public SplitQueryType visitUse_statement(SqlServerParser.Use_statementContext ctx) {
+    public StatementType visitUse_statement(SqlServerParser.Use_statementContext ctx) {
         return SWITCH_CATALOG;
     }
 

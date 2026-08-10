@@ -4,7 +4,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Stream;
@@ -22,7 +21,6 @@ import com.clougence.clouddm.ds.TextCaseSupport.CaseBlock;
 import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -161,11 +159,7 @@ public final class SecDomainTextTest {
     }
 
     private static SecDomainResolveSpi secDomainResolveSpi(String datasource) {
-        String version = switch (datasource) {
-            case "mysql", "mariadb", "por4my" -> "8.0.46";
-            default -> null;
-        };
-        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(version == null ? SqlParserParameters.empty() : SqlParserParameters.ofVersion(version));
+        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(SqlTestSupport.parserParameters(datasource));
         if (spi == null) {
             throw new IllegalStateException("No SecDomainResolveSpi for datasource: " + datasource);
         }

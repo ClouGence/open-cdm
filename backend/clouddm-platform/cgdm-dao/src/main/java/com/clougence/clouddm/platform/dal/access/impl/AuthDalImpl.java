@@ -15,19 +15,21 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthDalImpl implements AuthDal {
 
     @Resource
-    private DmAuthApprovalMapper  approvalMapper;
+    private DmAuthApprovalMapper     approvalMapper;
     @Resource
-    private DmAuthCsrfTokenMapper csrfTokenMapper;
+    private DmAuthCsrfTokenMapper    csrfTokenMapper;
     @Resource
-    private DmAuthMFAMapper       mfaMapper;
+    private DmAuthMfaChallengeMapper mfaChallengeMapper;
     @Resource
-    private DmAuthResMapper       resMapper;
+    private DmAuthMFAMapper          mfaMapper;
     @Resource
-    private DmAuthRoleMapper      roleMapper;
+    private DmAuthResMapper          resMapper;
     @Resource
-    private DmAuthUserMapper      userMapper;
+    private DmAuthRoleMapper         roleMapper;
     @Resource
-    private DmAuthVerifyMapper    verifyMapper;
+    private DmAuthUserMapper         userMapper;
+    @Resource
+    private DmAuthVerifyMapper       verifyMapper;
 
     @Override
     public DmAuthApprovalMapper approvalMapper() {
@@ -37,6 +39,11 @@ public class AuthDalImpl implements AuthDal {
     @Override
     public DmAuthCsrfTokenMapper csrfTokenMapper() {
         return csrfTokenMapper;
+    }
+
+    @Override
+    public DmAuthMfaChallengeMapper mfaChallengeMapper() {
+        return mfaChallengeMapper;
     }
 
     @Override

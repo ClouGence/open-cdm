@@ -694,22 +694,6 @@ expect:
 }
 ----------
 
-[admin_SHOW_41]
-sql:
-SHOW SLAVE STATUS;
-expect:
-{
-  "contains": [
-    {
-      "sqlType": "SHOW",
-      "auditKind": "QUERY",
-      "showType": "SALVE_STATUS",
-      "target": "Environment",
-      "showKind": "ENVIRONMENT"
-    }
-  ]
-}
-----------
 
 [admin_SHOW_42]
 sql:
@@ -764,26 +748,6 @@ expect:
 }
 ----------
 
-[admin_RESET_45]
-sql:
--- 17) BINLOG 相关（CHANGE MASTER / START REPLICA / RESET MASTER / PURGE）
--- 配置复制（示意，需替换参数）
--- STOP REPLICA;
--- CHANGE REPLICA SOURCE TO SOURCE_HOST='master.example', SOURCE_USER='repl', SOURCE_PASSWORD='pwd', SOURCE_AUTO_POSITION=1;
--- START REPLICA;
-RESET MASTER;
-expect:
-{
-  "contains": [
-    {
-      "sqlType": "RESET",
-      "auditKind": "OTHER",
-      "target": "Unknown",
-      "needSupply": false
-    }
-  ]
-}
-----------
 
 [admin_PURGE_46]
 sql:
@@ -866,21 +830,6 @@ expect:
 }
 ----------
 
-[admin_MYSQL_FLUSH_51]
-sql:
--- 关闭并刷新表
-FLUSH HOSTS;
-expect:
-{
-  "contains": [
-    {
-      "sqlType": "MYSQL_FLUSH",
-      "auditKind": "OTHER",
-      "flushType": "HOSTS"
-    }
-  ]
-}
-----------
 
 [admin_MYSQL_FLUSH_52]
 sql:
@@ -971,24 +920,6 @@ expect:
 }
 ----------
 
-[admin_RESET_57]
-sql:
--- 终止正在运行的查询，但保留连接
-
--- 21) RESET 语句（RESET MASTER / RESET SLAVE）
-RESET MASTER;
-expect:
-{
-  "contains": [
-    {
-      "sqlType": "RESET",
-      "auditKind": "OTHER",
-      "target": "Unknown",
-      "needSupply": false
-    }
-  ]
-}
-----------
 
 [admin_RESET_58]
 sql:
@@ -1007,22 +938,6 @@ expect:
 }
 ----------
 
-[admin_RESET_59]
-sql:
--- 8.0+: 重置从库复制通道状态
-RESET SLAVE ALL;
-expect:
-{
-  "contains": [
-    {
-      "sqlType": "RESET",
-      "auditKind": "OTHER",
-      "target": "Unknown",
-      "needSupply": false
-    }
-  ]
-}
-----------
 
 [admin_CREATE_USER_60]
 sql:

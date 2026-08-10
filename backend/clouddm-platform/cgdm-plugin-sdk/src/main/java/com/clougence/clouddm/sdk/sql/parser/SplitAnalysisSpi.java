@@ -16,7 +16,7 @@
 package com.clougence.clouddm.sdk.sql.parser;
 
 import java.io.Reader;
-import java.util.List;
+import java.util.stream.Stream;
 import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.Spi;

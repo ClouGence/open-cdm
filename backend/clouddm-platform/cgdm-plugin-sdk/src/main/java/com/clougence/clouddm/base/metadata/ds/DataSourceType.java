@@ -54,6 +54,7 @@ public enum DataSourceType {
     SelectDB("sel", "SelectDB", 1, 30),
     ClickHouse("ck", "ClickHouse", 1, 40),
     Greenplum("gp", "Greenplum", 1, 50),
+    Cloudberry("cb", "Cloudberry", 1, 60),
 
     // non-relational db
     Redis("re", "Redis", 2, 10),

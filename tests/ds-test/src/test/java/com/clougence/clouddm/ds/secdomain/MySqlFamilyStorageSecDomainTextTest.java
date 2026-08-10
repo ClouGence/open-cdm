@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
-import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 
@@ -19,12 +18,7 @@ public final class MySqlFamilyStorageSecDomainTextTest {
     @TestFactory
     public Stream<DynamicTest> storageClassification() {
         return DATASOURCES.stream().flatMap(datasource -> {
-            String version = switch (datasource) {
-                case "mysql", "mariadb", "por4my" -> "8.0.46";
-                default -> null;
-            };
-            SqlParserParameters parameters = version == null ? SqlParserParameters.empty() : SqlParserParameters.ofVersion(version);
-            SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(parameters);
+            SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(SqlTestSupport.parserParameters(datasource));
             ContextInfo context = SqlTestSupport.contextInfo(datasource);
             return SecDomainTextTest.loadCases(RESOURCE)
                 .stream()

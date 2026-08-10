@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseResources>
+    <storedProcedures/>
+    <storedFunctions>
+        <function name="AVG" catalog="*" schema="*" aggregate="true"><versions>V1.0/2</versions></function>
+    </storedFunctions>
+    <tablesOrViews/>
+    <systemTypes/>
+</databaseResources>

@@ -1,0 +1,163 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.ds.cloudberry.execute;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.clougence.clouddm.dsfamily.postgres.execute.PgMetaProviderDm;
+import com.clougence.schema.metadata.MetaDataService;
+import com.clougence.schema.umi.special.rdb.RdbFunction;
+import com.clougence.schema.umi.special.rdb.RdbParam;
+import com.clougence.schema.umi.special.rdb.RdbTable;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.schema.umi.struts.Value;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Apache Cloudberry system catalog reference:
+ * <li>https://cloudberry.apache.org/docs/sys-catalogs/sys-tables/pg-class</li>
+ */
+@Slf4j
+public class CbMetaProviderDm extends PgMetaProviderDm implements MetaDataService {
+
+    private static final String QUERY_TABLE_DETAIL = "SELECT nc.nspname,\n"//
+                                                     + "       C.relname,\n"//
+                                                     + "       C.relkind,\n"//
+                                                     + "       C.relpersistence,\n"//
+                                                     + "       CASE WHEN ts.spcname IS NULL THEN 'pg_default' ELSE ts.spcname END AS spcname,\n"//
+                                                     + "       d.description AS table_comment,\n"//
+                                                     + "       inh.parent_table,\n"//
+                                                     + "       C.reloptions,\n"//
+                                                     + "       gdp.policytype,\n"//
+                                                     + "       dist.distkey_columns,\n"//
+                                                     + "       dist.distclass_opcname,\n"//
+                                                     + "       ao.relid IS NOT NULL AS append_optimized,\n"//
+                                                     + "       ao.blocksize,\n"//
+                                                     + "       CASE WHEN ao.relid IS NULL THEN NULL WHEN ao.columnstore THEN 'column' ELSE 'row' END AS orientation,\n"//
+                                                     + "       ao.checksum,\n"//
+                                                     + "       ao.compresstype,\n"//
+                                                     + "       ao.compresslevel\n"//
+                                                     + "FROM pg_namespace nc\n"//
+                                                     + "         LEFT JOIN pg_class C ON nc.oid = C.relnamespace\n"
+                                                     + "         LEFT JOIN pg_tablespace ts ON C.reltablespace = ts.oid\n"
+                                                     + "         LEFT JOIN pg_description d ON C.oid = d.objoid AND d.objsubid = 0\n"
+                                                     + "         LEFT JOIN pg_appendonly ao ON C.oid = ao.relid\n"
+                                                     + "         LEFT JOIN gp_distribution_policy gdp ON C.oid = gdp.localoid\n" + "         LEFT JOIN LATERAL (\n"
+                                                     + "    SELECT STRING_AGG(i.inhparent :: regclass :: TEXT, ',') AS parent_table\n" + "    FROM pg_inherits i\n"
+                                                     + "    WHERE i.inhrelid = C.oid\n" + ") inh ON true\n" + "         LEFT JOIN LATERAL (\n"
+                                                     + "    SELECT JSON_AGG(a.attname ORDER BY tmp.i)::text AS distkey_columns,\n"
+                                                     + "           JSON_AGG(pn.nspname || '.' || po.opcname ORDER BY tmp.i)::text AS distclass_opcname\n"
+                                                     + "    FROM generate_subscripts(gdp.distkey, 1) AS tmp(i)\n"
+                                                     + "             LEFT JOIN pg_attribute a ON a.attrelid = C.oid AND a.attnum = gdp.distkey[tmp.i]\n"
+                                                     + "             LEFT JOIN pg_opclass po ON gdp.distclass[tmp.i] = po.oid\n"
+                                                     + "             LEFT JOIN pg_namespace pn ON pn.oid = po.opcnamespace\n" + ") dist ON true\n"
+                                                     + "WHERE NOT pg_is_other_temp_schema(nc.oid)\n" + "  AND ###CONDITION###\n"//
+                                                     + "  AND nc.nspname = ###NSPNAME###\n"//
+                                                     + "  AND C.relname IN  ###RELNAME###";
+
+    public CbMetaProviderDm(Connection connection){
+        super(connection);
+        this.providerUtils = new CbMetaProviderUtils();
+    }
+
+    protected List<RdbTable> findByPart(Connection conn, String schema, List<String> tabs, String conditions) throws SQLException {
+        String sql = QUERY_TABLE_DETAIL.replace("###NSPNAME###", "?")//
+            .replace("###RELNAME###", buildWhereIn(tabs))//
+            .replace("###CONDITION###", conditions);
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            List<String> params = new ArrayList<>(tabs);
+            params.add(0, schema);
+            for (int i = 1; i <= params.size(); i++) {
+                ps.setString(i, params.get(i - 1));
+            }
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                List<RdbTable> tables = this.convertTable(resultSet, null);
+                if (tables == null) {
+                    return Collections.emptyList();
+                }
+                return tables;
+            }
+        }
+    }
+
+    @Override
+    public List<Value> selectFunctions(String catalog, String schema) throws SQLException {
+        try (Connection conn = this.connectSupplier.eGet()) {
+
+            if (!super.checkIsUseCurrentlyDataBase(conn, catalog)) {
+                return Collections.emptyList();
+            }
+
+            String sql = "select oid,aa.proname,format_type(aa.prorettype, NULL :: INTEGER ) returnType,format_type(  aa.paramtype, NULL :: INTEGER ) paramType  from (\n"
+                         + "    SELECT pn.oid as oid,proname,pn.prorettype,unnest(pn.proargtypes) paramtype  FROM pg_proc AS pn \n"
+                         + "    LEFT JOIN pg_namespace AS ns ON pn.pronamespace = ns.oid  WHERE ns.nspname = ? ) aa union all\n"
+                         + "SELECT pn.oid as oid,pn.proname as proname,format_type(pn.prorettype, NULL :: INTEGER ) returnType ,null as paramType FROM pg_proc AS pn\n"
+                         + " LEFT JOIN pg_namespace AS ns ON pn.pronamespace = ns.oid    WHERE ns.nspname = ? AND proargtypes = ''";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, schema);
+                ps.setString(2, schema);
+                try (ResultSet rs = ps.executeQuery()) {
+                    List<Value> schemas = this.providerUtils.convertFunction(rs);
+                    return schemas.stream().filter(value -> value.getUmiType() != null).collect(Collectors.toList());
+                }
+            }
+        }
+    }
+
+    @Override
+    protected List<RdbFunction> fetchFunctionByPart(Connection conn, String catalog, String schema, List<String> funs) throws SQLException {
+        String sql = "select pp.oid oid,proname,prosrc,nspname,format_type(pp.prorettype, NULL :: INTEGER) returnType \n" //
+                     + "from pg_proc pp left join pg_namespace pn on  pp.pronamespace = pn.oid \n" //
+                     + "where pn.nspname = ? and pp.oid in " + buildWhereIn(funs);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, schema);
+            for (int i = 0; i < funs.size(); i++) {
+                ps.setInt(i + 2, Integer.parseInt(funs.get(i)));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return this.convertFunctions(rs);
+            }
+        }
+    }
+
+    @Override
+    protected List<RdbParam> fetchParams(Connection conn, UmiTypes types, String schema, List<String> funs) throws SQLException {
+        String sql = "select  row_number() over () as ordinal,base.oid as oid,base.proname,format_type(  base.paramtype, NULL :: INTEGER ) as paramType,base.paramName,base.paramMode  from (\n"
+                     + "    SELECT pp.oid as oid,proname,unnest(pp.proargtypes) paramtype ,unnest(pp.proargnames) paramName ,unnest(pp.proargmodes) paramMode FROM pg_proc AS pp\n"
+                     + "    LEFT JOIN pg_namespace AS ns ON pp.pronamespace = ns.oid\n" + "    WHERE ns.nspname = ? AND pp.oid in " + buildWhereIn(funs) + "              ) base;";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, schema);
+            for (int i = 0; i < funs.size(); i++) {
+                ps.setInt(i + 2, Integer.parseInt(funs.get(i)));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                return this.convertParam(rs);
+            }
+        }
+    }
+}

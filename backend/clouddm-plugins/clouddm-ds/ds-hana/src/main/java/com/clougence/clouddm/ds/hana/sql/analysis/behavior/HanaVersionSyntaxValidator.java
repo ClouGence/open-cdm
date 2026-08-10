@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.hana.sql.parser;
+package com.clougence.clouddm.ds.hana.sql.analysis.behavior;
 
 import java.util.List;
 
 import org.antlr.v4.runtime.Token;
 
+import com.clougence.clouddm.ds.hana.sql.parser.HanaParserConfig;
+import com.clougence.clouddm.ds.hana.sql.parser.HanaVersion;
 import com.clougence.clouddm.ds.hana.sql.parser.antlr.HanaLexer;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 
