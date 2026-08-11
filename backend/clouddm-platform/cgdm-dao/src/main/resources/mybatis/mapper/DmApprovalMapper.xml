@@ -114,6 +114,13 @@
         where id = #{ticketId}
     </update>
 
+    <update id="updateExpectedAffectedRows">
+        update
+            dm_approval
+        set expected_affected_rows = #{expectedAffectedRows}
+        where id = #{ticketId}
+    </update>
+
     <select id="queryByBizId" resultMap="DmApprovalDO">
         select
             <include refid="all_ticket_col"/>

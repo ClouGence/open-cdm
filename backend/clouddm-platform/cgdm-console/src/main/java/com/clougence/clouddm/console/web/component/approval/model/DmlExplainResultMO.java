@@ -20,6 +20,7 @@ import lombok.Setter;
 public class DmlExplainResultMO {
 
     private long                 index;
+    private Integer              statementStartLine;
     private long                 statementSizeBytes;
     private Set<BehaviorAction>  actions;
     private List<String>         subjects;

@@ -39,6 +39,7 @@ public class QueryRequest implements Cloneable {
     private String                    queryId;
     private String                    queryBody;
     private List<QueryArg>            queryArgs;
+    private int                       bodyStartCodeLine;
     //
     private Set<SplitQueryType>       queryTypes;
     private Long                      dsId;
@@ -71,6 +72,7 @@ public class QueryRequest implements Cloneable {
         req.batchId = this.batchId;
         req.queryId = this.queryId;
         req.queryBody = this.queryBody;
+        req.bodyStartCodeLine = this.bodyStartCodeLine;
         if (this.queryArgs != null) {
             req.queryArgs = this.queryArgs.stream().map(QueryArg::clone).collect(Collectors.toList());
         }

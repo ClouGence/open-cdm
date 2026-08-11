@@ -3,7 +3,7 @@
     <div class="page-shell__body ticket-detail-container">
       <section class="page-section ticket-info-section">
         <div class="ticket-info-section__header">
-          <div class="page-section__title">{{ $t('ticket-information') }}</div>
+          <div class="page-section__title ticket-info-section__title">{{ ticketDetail.ticketTitle || '-' }}</div>
           <div class="ticket-overview__actions">
             <Button class="warning-btn" v-if="ticketDetail.canApproval" type="primary" @click="handleShowApprovalModal">
               {{ $t('shen-pi') }}
@@ -23,12 +23,6 @@
           </div>
         </div>
         <div class="ticket-overview">
-          <div class="ticket-overview__hero">
-            <div class="ticket-overview__headline">
-              <h2>{{ ticketDetail.ticketTitle || '-' }}</h2>
-            </div>
-          </div>
-
           <div
             :class="[
               'ticket-overview__primary-grid',
@@ -206,17 +200,20 @@
                   }
                 ]"
               >
-                <div class="analysis-summary-row">
-                  <button
-                    type="button"
-                    :class="['analysis-summary-row__expand', { 'is-expanded': isAnalysisResultExpanded(item.activityTitle) }]"
-                    :aria-label="isAnalysisResultExpanded(item.activityTitle) ? $t('ticket-collapse-details') : $t('ticket-expand-details')"
-                    :aria-expanded="isAnalysisResultExpanded(item.activityTitle)"
-                    :aria-controls="`analysis-result-${item.activityTitle}`"
-                    @click="toggleAnalysisResult(item.activityTitle)"
-                  >
+                <div
+                  class="analysis-summary-row"
+                  role="button"
+                  tabindex="0"
+                  :aria-label="isAnalysisResultExpanded(item.activityTitle) ? $t('ticket-collapse-details') : $t('ticket-expand-details')"
+                  :aria-expanded="isAnalysisResultExpanded(item.activityTitle)"
+                  :aria-controls="`analysis-result-${item.activityTitle}`"
+                  @click="toggleAnalysisResult(item.activityTitle)"
+                  @keydown.enter.prevent="toggleAnalysisResult(item.activityTitle)"
+                  @keydown.space.prevent="toggleAnalysisResult(item.activityTitle)"
+                >
+                  <span :class="['analysis-summary-row__expand', { 'is-expanded': isAnalysisResultExpanded(item.activityTitle) }]" aria-hidden="true">
                     <Icon type="ios-arrow-forward" />
-                  </button>
+                  </span>
                   <span class="analysis-summary-row__icon">
                     <Icon :type="item.activityTitle === 'SECURITY_RULE' ? 'ios-lock-outline' : 'ios-search'" />
                   </span>
@@ -225,7 +222,7 @@
                     {{ analysisStatusText(item.activityStatus) }}
                   </span>
                   <span class="analysis-summary-row__result">
-                    {{ item.activityTitle === 'BEHAVIOR_ANALYSIS' ? behaviorSummaryText(item) : analysisResultText(item) }}
+                    {{ analysisSummaryText(item) }}
                   </span>
                   <span class="analysis-summary-row__elapsed">
                     <span>{{ $t('hao-shi') }}</span>
@@ -297,7 +294,6 @@
                         </template>
 
                         <template v-else-if="item.activityTitle === 'DML_EXPLAIN'">
-                          <div class="behavior-analysis-summary">{{ dmlExplainDetailText(item) }}</div>
                           <Table
                             v-if="item.explainResults && item.explainResults.length"
                             :columns="dmlExplainColumns"
@@ -459,10 +455,11 @@
         <div class="ticket-sql-toolbar">
           <div class="ticket-sql-toolbar__meta">
             <div class="page-section__title">{{ $t('sql-nei-rong') }}</div>
-            <span class="ticket-sql-file">
+            <span v-if="ticketDetail.contentType === 'ATTACHMENT'" class="ticket-sql-file">
               <Icon type="ios-document-outline" />
-              <span>{{ ticketDetail.attachmentFileName || $t('ticket-inline-sql') }}</span>
-              <span v-if="ticketDetail.contentType === 'ATTACHMENT'">{{ formatFileSize(ticketDetail.attachmentFileSize || 0) }}</span>
+              <span>{{ $t('ticket-sql-attachment') }}</span>
+              <span>{{ ticketDetail.attachmentFileName }}</span>
+              <span>{{ formatFileSize(ticketDetail.attachmentFileSize || 0) }}</span>
             </span>
             <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">{{ ticketDetail.ticketMessage }}</span>
           </div>
@@ -711,6 +708,9 @@ const aggregateDmlExplainDetails = (details) => {
   });
   return [...groups.values()].map((group) => {
     const indices = [...new Set(group.details.map((row) => row.index))].sort((left, right) => left - right);
+    const statementStartLines = [...new Set(group.details.map((row) => row.statementStartLine).filter((line) => line > 0))].sort(
+      (left, right) => left - right
+    );
     const statuses = [...new Set(group.details.map((row) => row.status).filter(Boolean))];
     const skipReasons = [...new Set(group.details.map((row) => row.skipReason).filter(Boolean))];
     const estimates = group.details.map((row) => row.estimatedAffectedRows);
@@ -718,6 +718,7 @@ const aggregateDmlExplainDetails = (details) => {
     return {
       ...group,
       indices,
+      statementStartLines,
       statementCount: indices.length,
       status: statuses.join(' / '),
       skipReason: skipReasons.join(' / '),
@@ -1172,6 +1173,15 @@ export default {
         ? this.$t('ticket-analysis-behavior-summary-legacy', values)
         : this.$t('ticket-analysis-behavior-summary', values);
     },
+    analysisSummaryText(item) {
+      if (item.activityTitle === 'BEHAVIOR_ANALYSIS') {
+        return this.behaviorSummaryText(item);
+      }
+      if (item.activityTitle === 'DML_EXPLAIN' && item.activityStatus === 'COMPLETED') {
+        return this.dmlExplainDetailText(item);
+      }
+      return this.analysisResultText(item);
+    },
     behaviorActionText(action) {
       return action.count == null ? action.action : this.$t('ticket-analysis-action-summary', action);
     },
@@ -1267,9 +1277,14 @@ export default {
       return text;
     },
     dmlExplainStatementText(row) {
+      if (!row.statementStartLines.length) {
+        return this.$t('ticket-analysis-dml-explain-statement-summary-without-lines', {
+          count: row.statementCount
+        });
+      }
       return this.$t('ticket-analysis-dml-explain-statement-summary', {
         count: row.statementCount,
-        indices: row.indices.join(this.$t('ticket-analysis-dml-explain-index-separator'))
+        lines: row.statementStartLines.join(this.$t('ticket-analysis-dml-explain-line-separator'))
       });
     },
     dmlExplainDescription(row) {
@@ -2561,7 +2576,7 @@ export default {
 }
 
 .ticket-overview {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .ticket-info-section__header,
@@ -2591,25 +2606,9 @@ export default {
   gap: 24px;
 }
 
-.ticket-overview__hero {
-  padding: 6px 0 22px;
-}
-
-.ticket-overview__headline {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.ticket-info-section__title {
   min-width: 0;
-}
-
-.ticket-overview__headline h2 {
-  min-width: 0;
-  margin: 0;
-  color: var(--text-primary);
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 30px;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .ticket-overview__actions {
@@ -2648,8 +2647,8 @@ export default {
 .ticket-state-badge--running,
 .analysis-item-status.status-running,
 .analysis-item-status.status-active {
-  color: var(--info-color);
-  background: color-mix(in srgb, var(--info-color) 10%, var(--bg-card));
+  color: #1677ff;
+  background: #e6f4ff;
 }
 
 .ticket-state-badge--error,
@@ -3264,8 +3263,19 @@ export default {
 .analysis-summary-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.analysis-summary-list > .analysis-summary-item > .analysis-summary-row {
+  min-height: 48px;
+  padding: 6px 16px;
+}
+
+.analysis-summary-list .analysis-summary-row__icon {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
 }
 
 .analysis-summary-item {
@@ -3282,6 +3292,16 @@ export default {
   align-items: center;
   min-height: 72px;
   padding: 12px 16px;
+  cursor: pointer;
+}
+
+.analysis-summary-row:hover {
+  background: var(--bg-hover);
+}
+
+.analysis-summary-row:focus-visible {
+  outline: 2px solid #1677ff;
+  outline-offset: -2px;
 }
 
 .analysis-summary-row__icon {
@@ -3334,6 +3354,10 @@ export default {
 .analysis-summary-row__expand:hover {
   color: var(--primary-color);
   background: var(--bg-hover);
+}
+
+.analysis-summary-row:hover .analysis-summary-row__expand {
+  color: var(--primary-color);
 }
 
 .analysis-summary-row__expand :deep(.ivu-icon) {
@@ -3596,17 +3620,6 @@ export default {
   .ticket-overview__secondary-grid .ticket-meta-item:first-child {
     padding-top: 0;
     border-top: 0;
-  }
-
-  .ticket-overview__headline {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .ticket-overview__headline h2 {
-    font-size: 18px;
-    line-height: 28px;
   }
 
   .ticket-progress {

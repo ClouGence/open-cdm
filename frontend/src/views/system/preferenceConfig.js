@@ -305,7 +305,13 @@ export const PREFERENCE_TABS = [
             min: 1,
             max: 20,
             unitKey: 'preference-unit-mb'
-          },
+          }
+        ]
+      },
+      {
+        name: 'approval-analysis',
+        titleKey: 'preference-section-approval-analysis',
+        fields: [
           {
             key: 'approvalDmlExplainMaxStatements',
             labelKey: 'preference-approval-dml-explain-max-statements',

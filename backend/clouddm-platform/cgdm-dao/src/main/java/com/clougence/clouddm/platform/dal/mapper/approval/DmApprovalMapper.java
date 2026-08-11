@@ -60,4 +60,6 @@ public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
 
     void updateTicketInfo(@Param("ticketId") Long ticketId, @Param("ticketInfo") String ticketInfo);
 
+    void updateExpectedAffectedRows(@Param("ticketId") Long ticketId, @Param("expectedAffectedRows") Long expectedAffectedRows);
+
 }

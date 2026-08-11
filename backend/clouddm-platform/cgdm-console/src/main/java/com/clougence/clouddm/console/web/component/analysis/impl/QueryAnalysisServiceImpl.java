@@ -240,6 +240,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             request.setIndex(script.getIndex());
             request.setQueryBody(script.getScript());
             request.setQueryArgs(script.getScriptArgs());
+            request.setBodyStartCodeLine(script.getBodyStartCodeLine());
             request.setQueryTypes(script.getType());
             request.setDsType(this.dsConfig.getDataSourceType());
 

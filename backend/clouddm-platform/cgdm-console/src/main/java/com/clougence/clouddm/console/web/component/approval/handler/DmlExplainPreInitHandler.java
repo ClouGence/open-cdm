@@ -102,6 +102,12 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
             List<Path> requestFiles = this.buildRequestFiles(context, workDirectory, maxStatements, maxStatementBytes, dmlCount, cachedCount, skippedBySize, skippedByCount);
             List<Path> resultFiles = this.executeRequestFiles(context, workDirectory, requestFiles, executedCount, failedCount);
             results.addAll(this.mergeResults(workDirectory, resultFiles));
+            long expectedAffectedRows = results.stream()//
+                .map(DmlExplainResultMO::getEstimatedAffectedRows)
+                .filter(Objects::nonNull)
+                .mapToLong(Long::longValue)
+                .sum();
+            context.getApprovalDal().approvalMapper().updateExpectedAffectedRows(context.getApproval().getId(), expectedAffectedRows);
         } catch (IOException e) {
             throw new IllegalStateException("DML EXPLAIN local file processing failed", e);
         } finally {
@@ -279,6 +285,7 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         request.setQueryId(sessionSpi.newQueryId());
         request.setQueryBody(analyzed.getQueryBody());
         request.setQueryArgs(analyzed.getQueryArgs());
+        request.setBodyStartCodeLine(analyzed.getBodyStartCodeLine());
         request.setQueryTypes(analyzed.getQueryTypes());
         request.setRelations(analyzed.getRelations());
         request.setDsType(analyzed.getDsType());
@@ -370,6 +377,9 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         for (Map.Entry<String, Set<BehaviorAction>> entry : actionsBySubject.entrySet()) {
             DmlExplainResultMO result = new DmlExplainResultMO();
             result.setIndex(request.getIndex());
+            if (request.getBodyStartCodeLine() > 0) {
+                result.setStatementStartLine(request.getBodyStartCodeLine());
+            }
             result.setStatementSizeBytes(statementBytes);
             result.setActions(entry.getValue());
             if (entry.getKey() == null) {

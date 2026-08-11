@@ -776,7 +776,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             case INLINE -> ticket.setRawSql(fo.getRawSql());
             case ATTACHMENT -> ticket.setRawSql(null);
         }
-        ticket.setExpectedAffectedRows(fo.getAffectedRows());
         ticket.setTicketInfo(JsonUtils.toJson(mo));
         ticket.setLevels(dsLevels.dbLevels());
         if (StringUtils.isNotBlank(fo.getRollBackSql())) {
