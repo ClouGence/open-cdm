@@ -1,20 +1,13 @@
 <template>
-  <nav class="management-section-tabs">
-    <router-link
-      v-for="tab in tabs"
-      :key="tab.name"
-      :to="tab.to"
-      class="management-section-tabs__item"
-      :class="{ 'is-active': activeName === tab.name }"
-    >
-      {{ tab.label }}
-    </router-link>
-  </nav>
+  <AppPageTabs :model-value="activeName" :tabs="tabs" @change="handleTabChange" />
 </template>
 
 <script>
+import AppPageTabs from '@/components/layout/AppPageTabs';
+
 export default {
   name: 'ManagementSectionTabs',
+  components: { AppPageTabs },
   props: {
     tabs: {
       type: Array,
@@ -29,50 +22,14 @@ export default {
       }
       return this.tabs[0] ? this.tabs[0].name : '';
     }
-  }
-};
-</script>
-
-<style lang="less" scoped>
-.management-section-tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 0;
-  background: var(--bg-card);
-
-  &__item {
-    position: relative;
-    padding: 12px 20px 10px;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-    text-decoration: none;
-    border-bottom: none;
-    transition: color 0.12s ease;
-
-    &:hover {
-      color: var(--text-primary);
-      border-bottom: none;
-    }
-
-    &.is-active {
-      color: var(--text-primary);
-      font-weight: 500;
-
-      &::after {
-        content: '';
-        position: absolute;
-        left: 20px;
-        right: 20px;
-        bottom: 0;
-        height: 2px;
-        border-radius: 2px 2px 0 0;
-        background: var(--primary-color);
+  },
+  methods: {
+    handleTabChange(name) {
+      const tab = this.tabs.find((item) => item.name === name);
+      if (tab && tab.to !== this.$route.path) {
+        this.$router.push(tab.to);
       }
     }
   }
-}
-</style>
+};
+</script>
