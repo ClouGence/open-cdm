@@ -4,7 +4,7 @@ export const PostgreSQL = ['PostgreSQL'];
 export const Greenplum = ['Greenplum'];
 export const Cloudberry = ['Cloudberry'];
 export const Oracle = ['Oracle'];
-export const Redis = ['Redis'];
+export const Redis = ['Redis', 'Valkey'];
 export const TiDB = ['TiDB'];
 
 export const SqlServer = ['SQLServer'];

@@ -312,7 +312,7 @@ export default {
       const treeMap = {};
       if (res.success) {
         if (this.type !== 'auth') {
-          res.data = res.data.filter((ds) => ds.dataSourceType !== 'Redis');
+          res.data = res.data.filter((ds) => ds.dataSourceType !== 'Redis' && ds.dataSourceType !== 'Valkey');
         }
 
         if (this.isTicket) {
@@ -340,7 +340,7 @@ export default {
             title: instanceDesc,
             key,
             disabled: noAuth,
-            isLeaf: ['Redis'].includes(dataSourceType) || noAuth,
+            isLeaf: ['Redis', 'Valkey'].includes(dataSourceType) || noAuth,
             scopedSlots: {
               icon: 'dataSourceType',
               title: 'title'
@@ -373,7 +373,7 @@ export default {
       const treeNode = e.node.dataRef;
       let selectedEvent = null;
       this.selectedKeys = selectedKeys;
-      if (treeNode.dataSourceType === 'Redis') {
+      if (['Redis', 'Valkey'].includes(treeNode.dataSourceType)) {
         return;
       }
 

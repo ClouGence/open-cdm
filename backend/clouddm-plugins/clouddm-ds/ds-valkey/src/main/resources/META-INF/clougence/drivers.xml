@@ -1,0 +1,6 @@
+<drivers>
+    <driver driverFamily="Valkey GLIDE" version="2.5.1">
+        <driverName>com.clougence.clouddm.ds.valkey.execute.dsfactory.GlideDsFactory</driverName>
+        <resource type="maven">io.valkey:valkey-glide:2.5.1</resource>
+    </driver>
+</drivers>

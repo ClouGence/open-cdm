@@ -148,6 +148,7 @@ export default {
     ClickHouse: 'ClickHouse',
     MongoDB: 'MongoDB',
     Redis: 'Redis',
+    Valkey: 'Redis',
     SQLServer: 'SQLServer',
     OssFile: 'OssFile',
     DashScope: 'DashScope',
@@ -330,6 +331,7 @@ export default {
       ClickHouse: 'ClickHouse',
       MongoDB: 'MongoDB',
       Redis: 'Redis',
+      Valkey: 'Redis',
       SQLServer: 'SQLServer'
     },
     AWS_CLOUD_HOSTED: {

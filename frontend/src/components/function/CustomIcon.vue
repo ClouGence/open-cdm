@@ -22,10 +22,12 @@
 
 <script>
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
+import valkeyIcon from '@/assets/datasource/valkey.svg';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 
 const bundledIcons = {
-  Cloudberry: cloudberryIcon
+  Cloudberry: cloudberryIcon,
+  Valkey: valkeyIcon
 };
 
 /**

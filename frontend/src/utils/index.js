@@ -26,7 +26,7 @@ export const dsGroup = {
     'MaxCompute',
     'Hologres'
   ],
-  noStruct: ['Redis'],
+  noStruct: ['Redis', 'Valkey'],
   supportTransaction: ['MySQL', 'PostgreSQL', 'Greenplum', 'Cloudberry']
 };
 
@@ -94,6 +94,7 @@ export const separatePort = (type) =>
   ![
     'Kudu',
     'Redis',
+    'Valkey',
     'ElastiCache',
     'ClickHouse',
     'ElasticSearch',

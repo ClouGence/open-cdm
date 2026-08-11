@@ -12,11 +12,11 @@ export const KAFKA = ['Kafka'];
 export const DRDS = ['DRDS', 'PolarDbX'];
 export const DISABLE_EDIT_SOURCE_DATASOURCE = ['Kafka', 'RocketMQ', 'RabbitMQ', 'Oracle'];
 export const DISABLE_EDIT_TARGET_DATASOURCE = ['Oracle', 'ElasticSearch', 'Hive'];
-export const REDIS = ['Redis'];
+export const REDIS = ['Redis', 'Valkey'];
 export const KUDU = ['Kudu'];
 export const CK = ['ClickHouse'];
 export const MONGO = ['MongoDB'];
-export const NO_DB = ['Kafka', 'RocketMQ', 'RabbitMQ', 'MongoDB', 'Redis', 'ElasticSearch'];
+export const NO_DB = ['Kafka', 'RocketMQ', 'RabbitMQ', 'MongoDB', 'Redis', 'Valkey', 'ElasticSearch'];
 
 export default {
   MYSQL,

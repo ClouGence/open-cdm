@@ -58,6 +58,7 @@ public enum DataSourceType {
 
     // non-relational db
     Redis("re", "Redis", 2, 10),
+    Valkey("vk", "Valkey", 2, 15),
     MongoDB("mdb", "MongoDB", 2, 20),
 
     // cloud database

@@ -15,6 +15,8 @@ export const getLanguage = (type) => {
       return 'pgsql';
     case 'Redis':
       return 'redis';
+    case 'Valkey':
+      return 'redis';
     default:
       return 'sql';
   }

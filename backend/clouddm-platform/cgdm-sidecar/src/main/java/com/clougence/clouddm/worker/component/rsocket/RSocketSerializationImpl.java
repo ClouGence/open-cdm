@@ -21,11 +21,13 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.SerializationService;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class RSocketSerializationImpl implements RSocketSerialization {
 
     public static final RSocketSerialization DEFAULT      = new RSocketSerializationImpl();
@@ -44,12 +46,17 @@ public class RSocketSerializationImpl implements RSocketSerialization {
         }
     }
 
-    @SneakyThrows
     @Override
     public Object decode(String provider, String jsonData, Type tryType) {
         if (StringUtils.isBlank(provider)) {
             JavaType paramJavaType = objectMapper.getTypeFactory().constructType(tryType);
-            return this.objectMapper.readValue(jsonData, paramJavaType);
+            try {
+                return this.objectMapper.readValue(jsonData, paramJavaType);
+            } catch (JsonProcessingException e) {
+                String msg = "decode rsocket param failed, " + e.getMessage();
+                log.error(msg, e);
+                throw new RuntimeException(msg, e);
+            }
         } else {
             SerializationService service = findSerializationService(provider);
             return service.decode(jsonData, tryType);
