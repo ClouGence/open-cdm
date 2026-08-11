@@ -197,14 +197,6 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setLevels(dsLevels.dbLevels());
         ticket.setRollBackSql("");
 
-        //
-        if (approvalInfo.getApprovalType() == ApprovalType.Internal) {
-            DmApprovalPersonDO primary = new DmApprovalPersonDO();
-            primary.setPersonUid(flowDO.getFlowManagerUid());
-            primary.setTicketBzId(bizId);
-            this.approvalDal.personMapper().insert(primary);
-        }
-
         this.approvalDal.approvalMapper().insert(ticket);
         this.localFileService.addAsLocked(change.getOwnerUid(), sqlFile, "cicd-" + change.getId() + ".sql", SysAttachmentType.SQL_FILE, ticket.getId());
         this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_CHANGE, true);

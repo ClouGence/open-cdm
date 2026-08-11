@@ -25,12 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
+import com.clougence.clouddm.console.web.component.approval.ApprovalPersonService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpApprovalFO;
+import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
@@ -62,6 +64,8 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
     private ImSenderService                         imSenderService;
     @Resource
     private ApprovalStateService                    approvalStateService;
+    @Resource
+    private ApprovalPersonService                   approvalPersonService;
 
     private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
 
@@ -182,17 +186,11 @@ public class ApprovalFlowServiceImpl implements ApprovalFlowService {
         DmApprovalProcessDO lastProcessDO = null;
         DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryById(ticketId);
 
-        // set approval person to APPROVAL process
-        List<String> personList = new ArrayList<>();
-        List<DmApprovalPersonDO> personDOS = this.approvalDal.personMapper().queryByTicketBzId(approvalDO.getBizId());
-        personDOS.forEach(personDO -> {
-            personList.add(personDO.getPersonUid());
-        });
-
-        List<String> personName = new ArrayList<>();
-        personList.forEach(uid -> {
-            personName.add(this.authDal.userMapper().queryByUid(uid).getUsername());
-        });
+        List<String> personName = Collections.emptyList();
+        if (approvalDO.getApproType() == ApprovalType.Internal) {
+            List<PrimaryUserVO> persons = approvalHandler(approvalBiz).queryPerson(ticketId);
+            personName = this.approvalPersonService.replacePersons(approvalDO, persons);
+        }
 
         for (ApprovalStage stage : ApprovalStage.values()) {
             if (!stage.checkBiz(approvalBiz)) {

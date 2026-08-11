@@ -27,6 +27,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
+import com.clougence.clouddm.console.web.component.approval.ApprovalPersonService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
@@ -46,7 +47,6 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.utils.CollectionUtils;
@@ -94,6 +94,8 @@ public class ApprovalTaskProcessor {
     private ApprovalFlowService                     approvalFlowService;
     @Resource
     private ApprovalStateService                    approvalStateService;
+    @Resource
+    private ApprovalPersonService                   approvalPersonService;
     @Resource
     private PlatformTransactionManager              txManager;
     private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
@@ -324,16 +326,6 @@ public class ApprovalTaskProcessor {
         approvalHandler(approvalDO.getApproBiz()).runningCheck(approvalDO.getId(), approvalDO.getApproBiz(), imSenderService);
     }
 
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void processApprovalPerson(String puid, String uid, DmApprovalDO approvalDO) {
-        if (approvalDO.getApproType() == ApprovalType.Internal) {
-            // avoid dead lock
-            DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalDO.getId());
-            List<PrimaryUserVO> primaryUserVOS = approvalHandler(approvalDO.getApproBiz()).queryPerson(approvalDO.getId());
-            updatePerson(primaryUserVOS, ticketDO, ApprovalStage.APPROVAL);
-        }
-    }
-
     private ApprovalHandler approvalHandler(ApprovalBiz approvalBiz) {
         ApprovalHandler approvalHandler = this.approvalHandlers.get(approvalBiz);
         if (approvalHandler == null) {
@@ -343,49 +335,7 @@ public class ApprovalTaskProcessor {
     }
 
     private void updatePerson(List<PrimaryUserVO> primaryUserVOS, DmApprovalDO ticketDO, ApprovalStage rdpTicketStage) {
-        // query users with global datasource authorization.
-        List<DmAuthUserDO> allResUsers = this.authDal.resMapper().listEffectiveGlobalAuthUsersByPrimaryUid(ticketDO.getPrimaryUid(), AuthKind.DataSource);
-
-        List<String> newUids1 = primaryUserVOS.stream().map(PrimaryUserVO::getUid).collect(Collectors.toList());
-        List<String> newUids2 = allResUsers.stream().map(DmAuthUserDO::getUid).collect(Collectors.toList());
-        List<String> newUids = new ArrayList<>(newUids1);
-        for (String uid : newUids2) {
-            if (!newUids.contains(uid)) {
-                newUids.add(uid);
-            }
-        }
-
-        List<DmApprovalPersonDO> personDOS = this.approvalDal.personMapper().queryByTicketBzId(ticketDO.getBizId());
-        List<String> oldUids = personDOS.stream().map(DmApprovalPersonDO::getPersonUid).collect(Collectors.toList());
-
-        if (newUids.size() == oldUids.size()) {
-            Collections.sort(newUids);
-            Collections.sort(oldUids);
-            if (newUids.equals(oldUids)) {
-                return;
-            }
-        }
-
-        this.approvalDal.personMapper().deleteByTicketBzId(ticketDO.getBizId());
-        List<DmApprovalPersonDO> personDO = new ArrayList<>();
-        newUids.forEach(personUid -> {
-            DmApprovalPersonDO approvalPersonDO = new DmApprovalPersonDO();
-            approvalPersonDO.setTicketBzId(ticketDO.getBizId());
-            approvalPersonDO.setPersonUid(personUid);
-            personDO.add(approvalPersonDO);
-        });
-        approvalDal.personMapper().insertPersonBatch(personDO);
-
-        // update process person
-        List<String> approvalPersonList = new ArrayList<>();
-        personDO.forEach(person -> {
-            approvalPersonList.add(person.getPersonUid());
-        });
-
-        List<String> personName = new ArrayList<>();
-        approvalPersonList.forEach(personUid -> {
-            personName.add(this.authDal.userMapper().queryByUid(personUid).getUsername());
-        });
+        List<String> personName = this.approvalPersonService.replacePersons(ticketDO, primaryUserVOS);
 
         DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), rdpTicketStage);
         ApprovalStageMO mo = new ApprovalStageMO();

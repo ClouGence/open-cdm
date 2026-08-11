@@ -599,11 +599,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         authTicket.setApplyAuthInfo(JsonUtils.toJson(fo));
         authTicket.setKindType(fo.getAuthKind());
 
-        DmApprovalPersonDO primary = new DmApprovalPersonDO();
-        primary.setPersonUid(ownerUid);
-        primary.setTicketBzId(bizId);
-
-        this.approvalDal.personMapper().insert(primary);
         this.approvalDal.approvalMapper().insert(ticket);
         this.authDal.approvalMapper().insert(authTicket);
         this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DATA_SOURCE_AUTH, true);
@@ -786,13 +781,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         ticket.setLevels(dsLevels.dbLevels());
         if (StringUtils.isNotBlank(fo.getRollBackSql())) {
             ticket.setRollBackSql(fo.getRollBackSql());
-        }
-
-        if (ticket.getApproType() == ApprovalType.Internal) {
-            DmApprovalPersonDO primary = new DmApprovalPersonDO();
-            primary.setPersonUid(puid);
-            primary.setTicketBzId(bizId);
-            this.approvalDal.personMapper().insert(primary);
         }
 
         this.approvalDal.approvalMapper().insert(ticket);
