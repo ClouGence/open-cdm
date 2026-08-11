@@ -5,12 +5,17 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
-              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
+              <Select
+                v-if="!$route.meta.managementTab"
+                v-model="auditLogType"
+                style="width: 120px; margin-right: 10px"
+                @on-change="handleChangeAuditLogType"
+              >
                 <Option value="operation" :label="$t('cao-zuo-shen-ji')">
                   <span>{{ $t('cao-zuo-shen-ji') }}</span>
                 </Option>
-                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
-                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
+                <Option value="sql" :label="$t('sql-shen-ji')">
+                  <span>{{ $t('sql-shen-ji') }}</span>
                 </Option>
               </Select>
               <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>

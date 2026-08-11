@@ -366,7 +366,16 @@
           </Button>
         </div>
         <div class="manual-sql-editor">
-          <TicketEditor v-if="showManualSqlModal" ref="manualSqlEditor" :data-source-type="primaryDevops?.dsType || 'sql'" />
+          <TicketEditor
+            v-if="showManualSqlModal"
+            ref="manualSqlEditor"
+            :data-source-type="primaryDevops?.dsType || 'sql'"
+            :font-family="sqlEditorTypography.fontFamily"
+            :font-size="sqlEditorTypography.fontSize"
+            :font-weight="sqlEditorTypography.fontWeight"
+            :line-height="sqlEditorTypography.lineHeight"
+            :letter-spacing="sqlEditorTypography.letterSpacing"
+          />
         </div>
       </div>
       <template #footer>
@@ -624,6 +633,7 @@ import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { handleCopy } from '@/utils/clipboard';
 import TicketEditor from '@/components/editor/TicketEditor';
+import { SQL_CHANGE_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import SqlFileUploadModal from '@/components/function/SqlFileUploadModal.vue';
 import ChangeRecordList from './changeRecordList.vue';
 import FlowDependencyModal from './components/FlowDependencyModal.vue';
@@ -838,6 +848,7 @@ export default {
   },
   data() {
     return {
+      sqlEditorTypography: SQL_CHANGE_EDITOR_TYPOGRAPHY,
       loading: false,
       dependencyVisible: false,
       flowId: '',

@@ -1,17 +1,7 @@
 <template>
   <div class="ticket-container">
     <div class="table-list-layout">
-      <nav class="ticket-tabs">
-        <button
-          v-for="tab in ticketTabs"
-          :key="tab.name"
-          class="ticket-tabs__item"
-          :class="{ 'is-active': ticketListType === tab.name }"
-          @click="handleTabClick(tab.name)"
-        >
-          {{ tab.label }}
-        </button>
-      </nav>
+      <AppPageTabs :model-value="ticketListType" :tabs="ticketTabs" @change="handleTabClick" />
       <div class="table-list">
         <div class="content">
           <div class="option">
@@ -120,11 +110,12 @@
 import { mapState } from 'vuex';
 import { TICKET_STATUS, TICKET_STATUS_COLOR } from '@/const';
 import { APPROV_BIZ_MAP } from './constant';
+import AppPageTabs from '@/components/layout/AppPageTabs';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 
 export default {
   name: 'Ticket',
-  components: { CustomIcon },
+  components: { AppPageTabs, CustomIcon },
   data() {
     return {
       showTicketCreateModal: false,
@@ -308,48 +299,5 @@ export default {
   height: 100%;
   min-height: 0;
   overflow: hidden;
-}
-
-.ticket-tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 0;
-  background: var(--bg-card);
-
-  &__item {
-    position: relative;
-    padding: 12px 20px 10px;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-    border: none;
-    border-bottom: none;
-    background: none;
-    cursor: pointer;
-    transition: color 0.12s ease;
-
-    &:hover {
-      color: var(--text-primary);
-    }
-
-    &.is-active {
-      color: var(--text-primary);
-      font-weight: 500;
-
-      &::after {
-        content: '';
-        position: absolute;
-        left: 20px;
-        right: 20px;
-        bottom: 0;
-        height: 2px;
-        border-radius: 2px 2px 0 0;
-        background: var(--primary-color);
-      }
-    }
-  }
 }
 </style>

@@ -1,13 +1,6 @@
 <template>
   <div class="profile-page user-center">
-    <nav class="user-tabs">
-      <span class="user-tabs__item" :class="{ 'is-active': activeTab === 'profile' }" @click="handleTabClick('profile')">
-        {{ $t('zhang-hu-xin-xi') }}
-      </span>
-      <span class="user-tabs__item" :class="{ 'is-active': activeTab === 'security' }" @click="handleTabClick('security')">
-        {{ $t('an-quan') }}
-      </span>
-    </nav>
+    <AppPageTabs :model-value="activeTab" :tabs="userTabs" @change="handleTabClick" />
     <div class="profile-page__body">
       <div v-show="activeTab === 'profile'">
         <div>
@@ -263,6 +256,7 @@
 </template>
 <script>
 import { isNumber } from '@/components/util';
+import AppPageTabs from '@/components/layout/AppPageTabs';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { UPDATE_USERINFO } from '@/store/mutationTypes';
@@ -271,6 +265,7 @@ const DEFAULT_PASSWORD_MIN_LENGTH = 8;
 const MFA_SETTING_EXPIRE_MS = 10 * 60 * 1000;
 
 export default {
+  components: { AppPageTabs },
   mixins: [encryptMixin],
   data() {
     return {
@@ -340,6 +335,12 @@ export default {
     this.clearMfaExpireTimer();
   },
   computed: {
+    userTabs() {
+      return [
+        { name: 'profile', label: this.$t('zhang-hu-xin-xi') },
+        { name: 'security', label: this.$t('an-quan') }
+      ];
+    },
     ...mapGetters(['isInternalUser']),
     ...mapState(['userInfo']),
     mfaInvalid() {
@@ -805,48 +806,6 @@ export default {
   flex: 1;
   min-height: 0;
   overflow: auto;
-}
-
-.user-tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 0;
-  background: var(--bg-card);
-
-  &__item {
-    position: relative;
-    padding: 12px 20px 10px;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-    cursor: pointer;
-    border-bottom: none;
-    transition: color 0.12s ease;
-
-    &:hover {
-      color: var(--text-primary);
-      border-bottom: none;
-    }
-
-    &.is-active {
-      color: var(--text-primary);
-      font-weight: 500;
-
-      &::after {
-        content: '';
-        position: absolute;
-        left: 20px;
-        right: 20px;
-        bottom: 0;
-        height: 2px;
-        border-radius: 2px 2px 0 0;
-        background: var(--primary-color);
-      }
-    }
-  }
 }
 
 .user-center-title-container {

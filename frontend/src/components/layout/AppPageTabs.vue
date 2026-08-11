@@ -76,22 +76,24 @@ export default {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  min-height: 44px;
-  padding: 0 16px;
+  padding: 12px 20px 10px;
   color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   line-height: 1.4;
+  white-space: nowrap;
   cursor: pointer;
   outline: none;
+  transition: color 0.12s ease;
 }
 
 .app-page-tabs__tab::after {
   position: absolute;
-  right: 16px;
+  right: 20px;
   bottom: 0;
-  left: 16px;
+  left: 20px;
   height: 2px;
+  border-radius: 2px 2px 0 0;
   background: var(--primary-color);
   content: '';
   opacity: 0;
@@ -101,8 +103,13 @@ export default {
     transform 0.2s ease;
 }
 
+.app-page-tabs__tab:hover {
+  color: var(--text-primary);
+}
+
 .app-page-tabs__tab--active {
-  color: var(--primary-color);
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .app-page-tabs__tab--active::after {
