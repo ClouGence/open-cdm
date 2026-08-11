@@ -1915,7 +1915,7 @@
   "ti-jiao": "submit",
   "yi-bu-zhi-hang": "Asynchronous Execution",
   "zhi-hang": "Run",
-  "ji-hua": "Plan",
+  "ji-hua": "Explain Plan",
   "zhong-duan-zhi-hang": "Cancel",
   "zi-dong-guan-bi-shi-wu-zhi-hang-de-sql-zi-dong-ti-jiao": "Automatic: close the transaction and execute the SQL automatically submitted",
   "dao-chu": "Export",

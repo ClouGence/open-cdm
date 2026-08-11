@@ -84,6 +84,7 @@ public class QueryRequest implements Cloneable {
         req.usingValueProcess = this.usingValueProcess;
 
         req.useCallable = this.useCallable;
+        req.useExplain = this.useExplain;
         req.resultConf = this.resultConf == null ? null : this.resultConf.clone();
         return req;
     }
