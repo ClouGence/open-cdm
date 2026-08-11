@@ -2395,48 +2395,62 @@ export default {
 }
 
 .ticket-content-modal-editor {
-  padding-right: 18px;
+  padding-right: 28px;
 
   .ticket-virtual-scrollbar {
     position: absolute;
     z-index: 3;
-    top: 8px;
-    right: 3px;
-    width: 14px;
-    height: calc(100% - 16px);
+    top: 4px;
+    right: 2px;
+    width: 24px;
+    height: calc(100% - 8px);
     margin: 0;
     writing-mode: vertical-lr;
     direction: ltr;
     appearance: none;
     background: transparent;
     cursor: pointer;
+    touch-action: none;
 
     &::-webkit-slider-runnable-track {
-      width: 10px;
+      width: 12px;
       height: 100%;
-      background: transparent;
+      border-radius: 6px;
+      background: rgba(50, 50, 50, 0.08);
     }
 
     &::-webkit-slider-thumb {
-      width: 10px;
-      height: 20px;
+      width: 16px;
+      height: 48px;
       border: 0;
-      border-radius: 0;
+      border-radius: 8px;
       appearance: none;
-      background: rgba(100, 100, 100, 0.45);
+      background: rgba(80, 80, 80, 0.55);
     }
 
     &::-moz-range-track {
-      width: 10px;
-      background: transparent;
+      width: 12px;
+      height: 100%;
+      border-radius: 6px;
+      background: rgba(50, 50, 50, 0.08);
     }
 
     &::-moz-range-thumb {
-      width: 10px;
-      height: 20px;
+      width: 16px;
+      height: 48px;
       border: 0;
-      border-radius: 0;
-      background: rgba(100, 100, 100, 0.45);
+      border-radius: 8px;
+      background: rgba(80, 80, 80, 0.55);
+    }
+
+    &:hover::-webkit-slider-thumb,
+    &:focus-visible::-webkit-slider-thumb {
+      background: rgba(60, 60, 60, 0.8);
+    }
+
+    &:hover::-moz-range-thumb,
+    &:focus-visible::-moz-range-thumb {
+      background: rgba(60, 60, 60, 0.8);
     }
   }
 }
