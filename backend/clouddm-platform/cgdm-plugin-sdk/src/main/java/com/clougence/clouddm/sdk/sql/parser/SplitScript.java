@@ -27,6 +27,7 @@ import lombok.Setter;
 @Setter
 public class SplitScript {
 
+    private long                index;
     private Set<SplitQueryType> type;
     private String              script;
     private List<QueryArg>      scriptArgs;

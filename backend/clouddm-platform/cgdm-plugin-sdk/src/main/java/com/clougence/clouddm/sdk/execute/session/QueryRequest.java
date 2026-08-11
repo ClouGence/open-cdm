@@ -34,10 +34,12 @@ import lombok.Setter;
 public class QueryRequest implements Cloneable {
 
     // Request
+    private long                      index;
     private String                    batchId;
     private String                    queryId;
     private String                    queryBody;
     private List<QueryArg>            queryArgs;
+    private int                       bodyStartCodeLine;
     //
     private Set<SplitQueryType>       queryTypes;
     private Long                      dsId;
@@ -66,8 +68,11 @@ public class QueryRequest implements Cloneable {
     @Override
     public QueryRequest clone() {
         QueryRequest req = new QueryRequest();
+        req.index = this.index;
+        req.batchId = this.batchId;
         req.queryId = this.queryId;
         req.queryBody = this.queryBody;
+        req.bodyStartCodeLine = this.bodyStartCodeLine;
         if (this.queryArgs != null) {
             req.queryArgs = this.queryArgs.stream().map(QueryArg::clone).collect(Collectors.toList());
         }
@@ -82,9 +87,18 @@ public class QueryRequest implements Cloneable {
         req.requester = this.requester;
         req.requestTime = this.requestTime;
         req.usingValueProcess = this.usingValueProcess;
+        if (this.columnList != null) {
+            req.columnList = new LinkedHashMap<>(this.columnList);
+        }
 
         req.useCallable = this.useCallable;
         req.useExplain = this.useExplain;
+        req.useCompile = this.useCompile;
+        req.hasRewrite = this.hasRewrite;
+        if (this.rewriteTag != null) {
+            req.rewriteTag = new ArrayList<>(this.rewriteTag);
+        }
+        req.originalBody = this.originalBody;
         req.resultConf = this.resultConf == null ? null : this.resultConf.clone();
         return req;
     }

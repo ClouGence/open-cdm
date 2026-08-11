@@ -107,9 +107,6 @@
           <a-form-item :label="$t('xu-qiu-miao-shu')" name="description">
             <Input type="textarea" v-model="ticketData.description" :rows="4" />
           </a-form-item>
-          <a-form-item :label="$t('yu-gu-shou-ying-xiang-hang-shu')">
-            <Input v-model="ticketData.affectedRows" type="number" />
-          </a-form-item>
           <a-form-item>
             <Checkbox v-model="showRollbackSql">
               {{ $t('tian-xie-hui-gun-sql') }}
@@ -277,8 +274,7 @@ export default {
         dataSourceType: 'MySQL',
         envId: '',
         approPersonUids: [],
-        ticketTitle: '',
-        affectedRows: ''
+        ticketTitle: ''
       },
       ticketRuleValidate: {
         ticketTitle: [
@@ -574,7 +570,6 @@ export default {
           rollBackSql: this.showRollbackSql && this.$refs.rollbackSqlEditor ? this.$refs.rollbackSqlEditor?.getSql() : '',
           description: this.ticketData.description,
           ticketTitle: this.ticketData.ticketTitle,
-          affectedRows: this.ticketData.affectedRows,
           immediately: this.ticketData.immediately === 'immediately',
           templateIdentity: '',
           approTemplateName: '',

@@ -516,7 +516,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             }
             String activityId = activity.getActivityId();
             if (!ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(activityId) && !ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(activityId)
-                && !ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(activityId)) {
+                && !ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(activityId) && !ApprovalAnalysisStateMO.TYPE_DML_EXPLAIN.equals(activityId)) {
                 continue;
             }
             ApprovalAnalysisStateMO state = JsonUtils.toObj(activity.getContext(), ApprovalAnalysisStateMO.class);
@@ -776,7 +776,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             case INLINE -> ticket.setRawSql(fo.getRawSql());
             case ATTACHMENT -> ticket.setRawSql(null);
         }
-        ticket.setExpectedAffectedRows(fo.getAffectedRows());
         ticket.setTicketInfo(JsonUtils.toJson(mo));
         ticket.setLevels(dsLevels.dbLevels());
         if (StringUtils.isNotBlank(fo.getRollBackSql())) {

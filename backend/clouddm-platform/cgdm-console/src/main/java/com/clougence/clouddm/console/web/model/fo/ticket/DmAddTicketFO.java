@@ -41,7 +41,6 @@ public class DmAddTicketFO {
     private String                 rollBackSql;
     @NotBlank(message = "{ticket.title.notblank}")
     private String                 ticketTitle;
-    private Long                   affectedRows;
     private boolean                force;
 
 }
