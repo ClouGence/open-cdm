@@ -289,7 +289,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             try {
                 cgFuture.get(2, java.util.concurrent.TimeUnit.SECONDS);
             } catch (Exception e) {
-                log.info("call " + cachedTicketDO.getApproType() + " api is running");
+                log.error("call " + cachedTicketDO.getApproType() + " api failed", e);
             }
         }
 

@@ -155,7 +155,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
                 }
             });
         } catch (RejectedExecutionException e) {
-            log.info("changeSchedule reject transferId:" + transferId + ",queue full.");
+            log.error("changeSchedule reject transferId:" + transferId + ",queue full.", e);
             this.transferInQueueSet.remove(transferId);
             this.changeCascadeService.releaseTransfer(transferId);
         }
@@ -194,7 +194,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
                 }
             });
         } catch (RejectedExecutionException e) {
-            log.info("changeSchedule reject changeId:" + changeId + ",queue full.");
+            log.error("changeSchedule reject changeId:" + changeId + ",queue full.", e);
             this.taskInQueueSet.remove(changeId);
         }
     }
