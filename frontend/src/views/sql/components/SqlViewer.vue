@@ -310,9 +310,6 @@ export default {
     },
     async onRun(type = 'run', asyncForm) {
       this.storeQueryTabs();
-      if (window._hmt && this.isDesktop) {
-        window._hmt.push(['_trackEvent', 'execute sql', 'uid', 'personal']);
-      }
       const selection = this.monacoEditor.getSelection();
       const hasSelection =
         selection.selectionStartLineNumber !== selection.positionLineNumber || selection.selectionStartColumn !== selection.positionColumn;
