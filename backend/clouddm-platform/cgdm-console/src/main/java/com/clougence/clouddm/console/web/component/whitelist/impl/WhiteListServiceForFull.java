@@ -53,6 +53,7 @@ public class WhiteListServiceForFull implements WhiteListService, DsFeatureIDs, 
             this.userConfigRange.put(RootUserConfig.Fields.approvalDmlExplainMaxStatements, new Range(1, 10000));
             this.userConfigRange.put(RootUserConfig.Fields.approvalDmlExplainMaxStatementMegaByte, new Range(1, 20));
             this.userConfigRange.put(RootUserConfig.Fields.languageMaxRequestKiloByte, new Range(64, 16384));
+
         }
     }
 

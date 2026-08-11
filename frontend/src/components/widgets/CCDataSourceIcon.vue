@@ -23,12 +23,23 @@
     ></cc-iconfont>
     <cc-iconfont name="Greenplum" :color="color" :size="size" v-if="type === 'Greenplum' && instanceType !== 'ALIBABA_CLOUD_HOSTED'"></cc-iconfont>
     <cc-iconfont name="GP" :color="color" :size="size" v-if="type === 'Greenplum' && instanceType === 'ALIBABA_CLOUD_HOSTED'"></cc-iconfont>
+    <img
+      :src="cloudberryIcon"
+      :style="`width:${size || 16}px;height:${size || 16}px;vertical-align:middle`"
+      alt=""
+      v-if="type === 'Cloudberry' && instanceType !== 'ALIBABA_CLOUD_HOSTED'"
+    />
     <cc-iconfont name="redis" :color="color" :size="size" v-if="type === 'Redis'"></cc-iconfont>
     <cc-iconfont name="sql-server" :color="color" :size="size" v-if="type === 'SQLServer'"></cc-iconfont>
   </div>
 </template>
 <script>
+import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
+
 export default {
+  data() {
+    return { cloudberryIcon };
+  },
   props: {
     type: String,
     instanceType: String,

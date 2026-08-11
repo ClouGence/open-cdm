@@ -23,9 +23,6 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
 
 public interface LoginMFAService {
 
-    String MFA_PRE_ACTION_TYPE = "MFA_PRE_ACTION_TYPE";
-    String MFA_LOGIN_JWT_TOKEN = "MFA_LOGIN_JWT_TOKEN";
-
     MfaCodeVO initMFA(String uid, MfaAccountType mfaAccountType);
 
     MfaCodeVO resetMFA(String uid, MfaAccountType mfaAccountType);

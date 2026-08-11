@@ -12,7 +12,7 @@
           <Button size="small" v-if="isSupportExplain" :disabled="isRunning" @click="handlePlan('plan')">
             <div class="operator-btn-content">
               <CustomIcon type="icon-v2-ConsolePlan" :color="tab.running ? '#999' : isDark ? '#fff' : '#000'" size="14px" right-margin="4px" />
-              <span>{{ $t('ji-hua') }}</span>
+              <span>{{ $t('zhi-hang-ji-hua') }}</span>
             </div>
           </Button>
           <Button size="small" v-if="isSupportCancel" :disabled="isStoping" :loading="tab.stopping" @click="handleStop">
@@ -84,10 +84,10 @@
               </template>
             </Dropdown>
           </Button>
-          <Button size="small" v-if="isSupportTx && !tab.autoCommit" :disabled="isRunning" @click="handleCommit">
+          <Button size="small" v-if="showTxActions" @click="handleCommit">
             {{ $t('ti-jiao') }}
           </Button>
-          <Button size="small" v-if="isSupportTx && !tab.autoCommit" :disabled="isRunning" @click="handleRollback">
+          <Button size="small" v-if="showTxActions" @click="handleRollback">
             {{ $t('hui-gun') }}
           </Button>
           <Button size="small" v-if="isSupportReadOnly" class="readonly-operator-btn" @click="handleReadOnlyClick">
@@ -139,6 +139,9 @@ export default {
     },
     isSupportTx() {
       return this.tab.support.autoCommit.conf !== 'No';
+    },
+    showTxActions() {
+      return this.isSupportTx && !this.tab.autoCommit && !this.isRunning;
     },
     isSupportReadOnly() {
       return this.tab.support.readOnly.conf !== 'No';

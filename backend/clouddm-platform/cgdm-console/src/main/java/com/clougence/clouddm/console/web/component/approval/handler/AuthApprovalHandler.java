@@ -209,7 +209,12 @@ public class AuthApprovalHandler implements ApprovalHandler {
             Map<String, String> collect = allAuthLabel.stream().collect(Collectors.toMap(AuthInfo::getKey, AuthInfo::getKeyI18n));
 
             for (String authLabel : authLabels) {
-                auth.getAuthLabels().add(DmI18nUtils.getMessage(collect.get(authLabel)));
+                String i18nKey = collect.get(authLabel);
+                if (i18nKey == null) {
+                    auth.getAuthLabels().add(authLabel);
+                    continue;
+                }
+                auth.getAuthLabels().add(DmI18nUtils.getMessage(i18nKey));
             }
             auth.setResDesc(applyAuth.getResDesc());
             auth.setResPaths(applyAuth.getResPaths());

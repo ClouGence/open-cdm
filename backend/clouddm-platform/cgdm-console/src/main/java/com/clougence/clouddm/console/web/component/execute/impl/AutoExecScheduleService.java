@@ -23,6 +23,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
@@ -121,7 +122,7 @@ public class AutoExecScheduleService implements UnifiedPostConstruct, DmWorkerRe
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void notifyRegister(String wsn) {
         this.executionDal.autoJobMapper().updateWorkerErrorJob(wsn);
         this.executionDal.autoJobMapper().updateWorkerWaitExecuteJob(wsn);

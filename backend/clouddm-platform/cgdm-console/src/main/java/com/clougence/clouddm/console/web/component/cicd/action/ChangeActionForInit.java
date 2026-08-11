@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.cicd.CicdSqlFileUtils;
@@ -31,6 +32,7 @@ import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.file.LocalFileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.service.cicd.ChangeCascadeService;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -52,7 +54,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ChangeActionForInit extends AbstractChangeAction {
 
     @Resource
-    private LocalFileService localFileService;
+    private LocalFileService     localFileService;
+
+    @Resource
+    private ChangeCascadeService changeCascadeService;
 
     private boolean checkChange(String ownerUid, long changeId) {
         DmChangeDO changeDO = changeFlowDal.changeMapper().queryChangeById(changeId);
@@ -71,7 +76,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
         return scmDO != null;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void doAction(DmChangeDO change) throws Exception {
         if (!super.doCommonAction(change)) {
@@ -204,6 +209,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
 
     private void initDiffSql(Locale locale, DmChangeDO change) throws IOException {
         int res = this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
+        this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.SQL_BASELINE);
         this.localFileService.invalidateCache(CicdSqlFileUtils.cacheFile(change));
 
         // current content.
@@ -218,6 +224,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
 
         String diffResult = diffAlgorithm(changeList, itemMap);
         if (StringUtils.isNotBlank(diffResult)) {
+            this.storeDiffBaselines(change, itemMap);
             DmChangeItemDO itemDO = new DmChangeItemDO();
             itemDO.setOwnerUid(change.getOwnerUid());
             itemDO.setRefFlowId(change.getRefFlowId());
@@ -234,8 +241,29 @@ public class ChangeActionForInit extends AbstractChangeAction {
         } else {
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_SCM_NO_CHANGE.name(), locale, change.getChangeName());
             this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, message);
-            changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.CLOSED, message);
-            changeFlowDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1);
+            if (changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.CLOSED, message) != 1) {
+                throw new IllegalStateException("change state changed while closing empty change");
+            }
+            if (changeFlowDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1) != 1) {
+                throw new IllegalStateException("change state changed while locking empty change");
+            }
+            this.changeCascadeService.onChangeTerminal(change);
+        }
+    }
+
+    private void storeDiffBaselines(DmChangeDO change, Map<String, DmChangeFlowItemDO> itemMap) {
+        List<DmChangeItemDO> changedItems = this.changeFlowDal.queryChangedItemMeta(change.getOwnerUid(), change.getRefFlowId(), change.getId());
+        for (DmChangeItemDO changedItem : changedItems) {
+            DmChangeFlowItemDO baseline = itemMap.get(changedItem.getContentName());
+            DmChangeItemDO snapshot = new DmChangeItemDO();
+            snapshot.setOwnerUid(change.getOwnerUid());
+            snapshot.setRefFlowId(change.getRefFlowId());
+            snapshot.setRefChangeId(change.getId());
+            snapshot.setChangeItemType(ChangeItemType.SQL_BASELINE);
+            snapshot.setContentName(changedItem.getContentName());
+            snapshot.setContentIndex(changedItem.getContentIndex());
+            snapshot.setContent(baseline == null ? "" : baseline.getContent());
+            this.changeFlowDal.changeItemMapper().insert(snapshot);
         }
     }
 

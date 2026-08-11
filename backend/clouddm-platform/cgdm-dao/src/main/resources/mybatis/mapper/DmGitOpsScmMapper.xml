@@ -13,7 +13,7 @@
         <result column="scm_service_url" property="scmServiceUrl"/>
         <result column="scm_access_token" property="scmAccessToken"/>
     </resultMap>
-    <sql id="dmGitOpsScmDO_select">
+    <sql id="dmGitOpsScmColumns">
         id
         ,
         gmt_create,
@@ -26,13 +26,13 @@
     </sql>
     <select id="queryListByOwner" resultMap="dmGitOpsScmDO">
         select
-        <include refid="dmGitOpsScmDO_select"/>
+        <include refid="dmGitOpsScmColumns"/>
         from dm_git_ops_scm
         where owner_uid = #{ownerUid}
     </select>
     <select id="queryListByOwnerAndIds" resultMap="dmGitOpsScmDO">
         select
-        <include refid="dmGitOpsScmDO_select"/>
+        <include refid="dmGitOpsScmColumns"/>
         from dm_git_ops_scm
         where owner_uid = #{ownerUid} and
         id in
@@ -40,7 +40,7 @@
     </select>
     <select id="queryByOwnerAndId" resultMap="dmGitOpsScmDO">
         select
-        <include refid="dmGitOpsScmDO_select"/>
+        <include refid="dmGitOpsScmColumns"/>
         from dm_git_ops_scm
         where owner_uid = #{ownerUid} and id = #{scmId}
         limit 1
@@ -73,4 +73,3 @@
           and id = #{scmId}
     </update>
 </mapper>
-

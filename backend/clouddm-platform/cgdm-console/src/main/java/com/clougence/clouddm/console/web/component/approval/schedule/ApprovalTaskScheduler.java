@@ -184,7 +184,6 @@ public class ApprovalTaskScheduler {
     private void runApproval(Long approvalId) {
         DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryById(approvalId);
         String puid = approvalDO.getPrimaryUid();
-        String uid = approvalDO.getOwnerUid();
         DmApprovalDO afterCheck = this.approvalCheck(approvalDO, puid);
         if (afterCheck == null) {
             //            this.finishTask(FINISH_MSG);
@@ -223,7 +222,6 @@ public class ApprovalTaskScheduler {
             case WAIT_APPROVAL: {
                 try {
                     this.taskProcessor.processWaitApproval(afterCheck);
-                    this.taskProcessor.processApprovalPerson(puid, uid, afterCheck);
                 } catch (ThirdPartyApiException e) {
                     if (e.getErrorType() == ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS) {
                         this.approvalFlowService.failTicket(approvalId, DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), approvalDO.getPrimaryUid());

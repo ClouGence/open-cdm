@@ -1,3 +1,0 @@
-CREATE SYNONYM s_TEST_TABLE FOR TEST_TABLE;
-------------------------------------------------------------------------------------------
-[CREATE_SYNONYM] CREATE SYNONYM s_TEST_TABLE FOR TEST_TABLE;

@@ -64,7 +64,7 @@ public class AsyncTaskServiceServiceImpl implements AsyncTaskServiceService {
         this.activateTask(config.getDelayActivate(), taskList);
     }
 
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public List<DmExecAsyncTaskDO> storeTask(String uid, AsyncTaskConfig config) {
         List<DmExecAsyncTaskDO> taskList = new ArrayList<>();
 

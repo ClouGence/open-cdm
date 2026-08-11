@@ -153,6 +153,33 @@ public class RootUserConfig {
     @UserConfigDef(name = "oidcLoginRoleMap", defaultValue = "Developers", descKey = I18nUserConfigMsgKeys.OIDC_CONFIG_LOGIN_ROLE_MAP, configTagType = UserConfigTagType.OIDC, confBelong = ConfBelong.Common)
     private String        oidcLoginRoleMap;
 
+    //    /**
+    //     * RDP Email config
+    //     */
+    //
+    //    @UserConfigDef(name = "emailHost", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_HOST, valueRange = "smtp.gmail.com / smtp.office365.com / ...", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
+    //    private String        emailHost;
+    //    @UserConfigDef(name = "emailPort", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_PORT, valueRange = "25 / 465 / 587", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
+    //    private Integer       emailPort;
+    //    @UserConfigDef(name = "emailUserName", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SENDER_USERNAME, configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
+    //    private String        emailUserName;
+    //    @UserConfigDef(name = "emailPwd", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SENDER_PASSWORD, configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
+    //    private String        emailPwd;
+    //    @UserConfigDef(name = "emailDisplay", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SENDER_DISPLAY, configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
+    //    private String        emailDisplay;
+    //    @UserConfigDef(name = "emailFrom", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SENDER_FROM, configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
+    //    private String        emailFrom;
+    //    @UserConfigDef(name = "emailSmtpAuth", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_AUTH, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
+    //    private Boolean       emailSmtpAuth;
+    //    @UserConfigDef(name = "emailEnableTls", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_ENABLE_TLS, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
+    //    private Boolean       emailEnableTls;
+    //    @UserConfigDef(name = "emailRequiredTls", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_REQUIRED_TLS, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
+    //    private Boolean       emailRequiredTls;
+    //    @UserConfigDef(name = "emailEnableSsl", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_ENABLE_SSL, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
+    //    private Boolean       emailEnableSsl;
+    //    @UserConfigDef(name = "emailProtocol", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_TRANSFER_PROTOCOL, valueRange = "smtps / smtp", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
+    //    private String        emailProtocol;
+
     /**
      * Approval
      */
@@ -207,23 +234,19 @@ public class RootUserConfig {
     private Integer       cicdMaxFailedTimes;
 
     /**
-     * approval
+     * SQL Console
      */
 
+    @UserConfigDef(name = "dmEnableMCP", defaultValue = "false", descKey = I18nUserConfigMsgKeys.AI_DM_ENABLE_MCP, valueRange = "true / false", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
+    private Boolean       dmEnableMCP;
+    @UserConfigDef(name = "sqlAuditRetentionDays", defaultValue = "30", descKey = I18nUserConfigMsgKeys.SQL_AUDIT_RETENTION_DAYS, valueRange = "1 - 60", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
+    private String        sqlAuditRetentionDays;
     @UserConfigDef(name = "approvalSqlFileMaxMegaByte", defaultValue = "20", descKey = I18nUserConfigMsgKeys.APPROVAL_SQL_FILE_MAX_MB, valueRange = "1 ~ 20 MB", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
     private Integer       approvalSqlFileMaxMegaByte;
     @UserConfigDef(name = "approvalDmlExplainMaxStatements", defaultValue = "100", descKey = I18nUserConfigMsgKeys.APPROVAL_DML_EXPLAIN_MAX_STATEMENTS, valueRange = "1 ~ 10000", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
     private Integer       approvalDmlExplainMaxStatements;
     @UserConfigDef(name = "approvalDmlExplainMaxStatementMegaByte", defaultValue = "1", descKey = I18nUserConfigMsgKeys.APPROVAL_DML_EXPLAIN_MAX_STATEMENT_MB, valueRange = "1 ~ 20 MB", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
     private Integer       approvalDmlExplainMaxStatementMegaByte;
-
-    /**
-     * SQL Console
-     */
-    @UserConfigDef(name = "dmEnableMCP", defaultValue = "false", descKey = I18nUserConfigMsgKeys.AI_DM_ENABLE_MCP, valueRange = "true / false", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
-    private Boolean       dmEnableMCP;
-    @UserConfigDef(name = "sqlAuditRetentionDays", defaultValue = "30", descKey = I18nUserConfigMsgKeys.SQL_AUDIT_RETENTION_DAYS, valueRange = "1 - 60", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
-    private String        sqlAuditRetentionDays;
     @UserConfigDef(name = "defaultColumnDisplayChars", defaultValue = "250", valueRange = "10~500, default 250", descKey = I18nUserConfigMsgKeys.SQL_RESULT_COL_MAXIMUM_DISPLAY_SIZE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Integer       defaultColumnDisplayChars;
     @UserConfigDef(name = "consoleMetadataCache", defaultValue = "true", valueRange = "true, false", descKey = I18nUserConfigMsgKeys.SQL_RESULT_METADATA_CACHE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
@@ -262,4 +285,53 @@ public class RootUserConfig {
     private Integer       taskMaxColumnMegaByte;
     @UserConfigDef(name = "taskMaxElementMegaByte", defaultValue = "1", valueRange = "-1 ~ 2147483647 MB, '-1' wont limit, default 1MB", descKey = I18nUserConfigMsgKeys.SQL_RESULT_TASK_MAX_ELEMENT_MB, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Integer       taskMaxElementMegaByte;
+
+    //    /**
+    //     * CloudCanal IM config
+    //     */
+    //
+    //    @UserConfigDef(name = "alertImType", descKey = I18nUserConfigMsgKeys.USER_CONFIG_ALERT_IM_TYPE, valueRange = "dingtalk / weixin / feishu / slack / discord / custom", configTagType = UserConfigTagType.CC_IM_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private AlertImType           alertImType;
+    //    @UserConfigDef(name = "defaultImAlertUrl", descKey = I18nUserConfigMsgKeys.USER_CONFIG_DEFAULT_IM_ALERT_URL, configTagType = UserConfigTagType.CC_IM_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                defaultImAlertUrl;
+    //    @UserConfigDef(name = "criticalImAlertUrl", descKey = I18nUserConfigMsgKeys.USER_CONFIG_CRITICAL_IM_ALERT_URL, configTagType = UserConfigTagType.CC_IM_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                criticalImAlertUrl;
+    //    @UserConfigDef(name = "webHookProxyHost", descKey = I18nUserConfigMsgKeys.USER_CONFIG_WEBHOOK_PROXY_HOST, configTagType = UserConfigTagType.CC_IM_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                webHookProxyHost;
+    //    @UserConfigDef(name = "imAlertAtAll", defaultValue = "false", descKey = I18nUserConfigMsgKeys.USER_CONFIG_IM_ALERT_AT_ALL, configTagType = UserConfigTagType.CC_IM_ALERT, confBelong = ConfBelong.CloudCanal, kvConfWebOp = ConfigValType.BOOLEAN)
+    //    private Boolean               imAlertAtAll;
+    //
+    //    /**
+    //     * CloudCanal SMS config
+    //     */
+    //
+    //    @UserConfigDef(name = "alertSmsType", defaultValue = "alibaba_cloud", descKey = I18nUserConfigMsgKeys.USER_CONFIG_ALERT_SMS_TYPE, valueRange = "alibaba_cloud", configTagType = UserConfigTagType.CC_SMS_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private AlertSmsType          alertSmsType;
+    //    @UserConfigDef(name = "smsSignName", descKey = I18nUserConfigMsgKeys.USER_CONFIG_SMS_SIGN_NAME, valueRange = "Certified sms sender name", configTagType = UserConfigTagType.CC_SMS_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                smsSignName;
+    //    @UserConfigDef(name = "taskErrorSmsTc", descKey = I18nUserConfigMsgKeys.USER_CONFIG_TASK_ERROR_SMS_TC, valueRange = "SMS template code, content e.g.,CloudCanal DataJob error,message:${errMsg}", configTagType = UserConfigTagType.CC_SMS_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                taskErrorSmsTc;
+    //    @UserConfigDef(name = "taskRecoverSmsTc", descKey = I18nUserConfigMsgKeys.USER_CONFIG_TASK_RECOVER_SMS_TC, valueRange = "SMS template code, content e.g.,CloudCanal DataJob recover,message:${msg}", configTagType = UserConfigTagType.CC_SMS_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                taskRecoverSmsTc;
+    //    @UserConfigDef(name = "smsAccessKey", descKey = I18nUserConfigMsgKeys.USER_CONFIG_SMS_ACCESS_KEY, valueRange = "Access key for SMS service", configTagType = UserConfigTagType.CC_SMS_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                smsAccessKey;
+    //    @UserConfigDef(name = "smsSecretKey", descKey = I18nUserConfigMsgKeys.USER_CONFIG_SMS_SECRET_KEY, valueRange = "Secret key for SMS service", configTagType = UserConfigTagType.CC_SMS_ALERT, confBelong = ConfBelong.CloudCanal, isSecret = true)
+    //    private String                smsSecretKey;
+    //
+    //    /**
+    //     * CloudCanal Voice config
+    //     */
+    //
+    //    @UserConfigDef(name = "alertMobileType", defaultValue = "alibaba_cloud", descKey = I18nUserConfigMsgKeys.USER_CONFIG_ALERT_MOBILE_TYPE, valueRange = "alibaba_cloud", configTagType = UserConfigTagType.CC_MOBILE_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private AlertVoiceType        alertMobileType;
+    //    @UserConfigDef(name = "taskErrorMobileTc", descKey = I18nUserConfigMsgKeys.USER_CONFIG_TASK_ERROR_MOBILE_TC, valueRange = "Mobile template code, content e.g.,CloudCanal DataJob delay ${delaySecond} seconds,numberic ID:${jobId}", configTagType = UserConfigTagType.CC_MOBILE_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                taskErrorMobileTc;
+    //    @UserConfigDef(name = "taskRecoverMobileTc", descKey = I18nUserConfigMsgKeys.USER_CONFIG_TASK_RECOVER_MOBILE_TC, valueRange = "Mobile template code, content e.g.,CloudCanal DataJob recovery from delay,numberic ID:${jobId}", configTagType = UserConfigTagType.CC_MOBILE_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                taskRecoverMobileTc;
+    //    @UserConfigDef(name = "mobileAccessKey", descKey = I18nUserConfigMsgKeys.USER_CONFIG_MOBILE_ACCESS_KEY, valueRange = "Access key for mobile service", configTagType = UserConfigTagType.CC_MOBILE_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                mobileAccessKey;
+    //    @UserConfigDef(name = "mobileSecretKey", descKey = I18nUserConfigMsgKeys.USER_CONFIG_MOBILE_SECRET_KEY, valueRange = "Secret key for mobile service", configTagType = UserConfigTagType.CC_MOBILE_ALERT, confBelong = ConfBelong.CloudCanal, isSecret = true)
+    //    private String                mobileSecretKey;
+    //    @UserConfigDef(name = "mobileProxyAddr", descKey = I18nUserConfigMsgKeys.USER_CONFIG_MOBILE_PROXY_ADDR, valueRange = "http://ip:port or https://ip:port", configTagType = UserConfigTagType.CC_MOBILE_ALERT, confBelong = ConfBelong.CloudCanal)
+    //    private String                mobileProxyAddr;
 }

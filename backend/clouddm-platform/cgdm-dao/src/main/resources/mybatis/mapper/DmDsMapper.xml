@@ -307,7 +307,7 @@
 
     <select id="queryCurrentDsTypes" resultType="com.clougence.clouddm.base.metadata.ds.DataSourceType">
         select data_source_type
-        from dm_ds;
+        from dm_ds
     </select>
 
     <update id="cleanDataSourceAccount">

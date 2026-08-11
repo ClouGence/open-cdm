@@ -46,8 +46,9 @@ public class MySecDomainResolveSpi implements SecDomainResolveSpi, MySecDomainOp
     private final MySplitAnalysisSpi splitter;
 
     public MySecDomainResolveSpi(MetaService metaService, MySqlParserConfig config){
+        MySqlParserConfig resolvedConfig = config == null ? MySqlParserConfig.unknownSqlMode(null) : config;
         this.metaService = metaService;
-        this.provider = new MyDslProvider(config);
+        this.provider = new MyDslProvider(resolvedConfig);
         this.splitter = new MySplitAnalysisSpi((MyDslProvider) this.provider);
     }
 

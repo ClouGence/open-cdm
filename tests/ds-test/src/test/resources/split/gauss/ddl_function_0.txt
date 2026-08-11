@@ -1,3 +1,0 @@
-CREATE FUNCTION ttt3.foo() RETURNS integer AS 'SELECT 1' LANGUAGE sql;
-------------------------------------------------------------------------------------------
-[CREATE_PROG_OBJ] CREATE FUNCTION ttt3.foo() RETURNS integer AS 'SELECT 1' LANGUAGE sql;

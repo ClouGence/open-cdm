@@ -9,7 +9,9 @@ export function convertTableColumns(columns = []) {
       align: col.align,
       fixed: col.fixed,
       ellipsis: col.ellipsis,
-      __slot: col.slot
+      __slot: col.slot,
+      __legacyRender: col.render,
+      __legacyColumn: col
     };
   });
 }

@@ -1,5 +1,0 @@
-    COMMIT WORK     ;     ROLLBACK WORK     ;
-------------------------------------------------------------------------------------------
-[TRANSACTION] COMMIT WORK     ;
-----------
-[TRANSACTION] ROLLBACK WORK     ;

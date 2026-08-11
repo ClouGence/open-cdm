@@ -1,3 +1,0 @@
-CREATE SEQUENCE test_table_log_seq START WITH 1 INCREMENT BY 1;
-------------------------------------------------------------------------------------------
-[CREATE_SEQUENCE] CREATE SEQUENCE test_table_log_seq START WITH 1 INCREMENT BY 1;

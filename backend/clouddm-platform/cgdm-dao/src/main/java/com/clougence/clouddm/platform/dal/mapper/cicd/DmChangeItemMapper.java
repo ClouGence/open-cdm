@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.platform.dal.mapper.cicd;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -24,11 +25,13 @@ import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
 public interface DmChangeItemMapper extends BaseMapper<DmChangeItemDO> {
     List<DmChangeItemDO> queryChangeItemByChangeId(String ownerUid, long refChangeId, ChangeItemType itemType);
 
+    List<DmChangeItemDO> queryChangeItemByChangeIds(String ownerUid, Collection<Long> refChangeIds, ChangeItemType itemType);
+
     List<DmChangeItemDO> queryChangeItemMetaByChangeId(String ownerUid, long refChangeId, ChangeItemType itemType);
 
     DmChangeItemDO queryChangeItemByName(String ownerUid, long refChangeId, ChangeItemType itemType, String contentName);
 
-    List<DmChangeItemDO> queryChangedItemMeta(String ownerUid, long flowId, long changeId);
+    List<DmChangeItemDO> queryBaselineItemByFlowId(String ownerUid, long flowId, long changeId);
 
     int deleteByChangeItemType(String ownerUid, long refChangeId, ChangeItemType itemType);
 

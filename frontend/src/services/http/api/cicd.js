@@ -2,12 +2,15 @@ export const cicdApi = {
   dmCicdFlowList: '/api/entry/cicd/flow/list',
   dmCicdDevopsUsers: '/api/entry/cicd/flow/users',
   dmCicdCreate: '/api/entry/cicd/flow/create',
+  dmCicdBatchCreate: '/api/entry/cicd/flow/batchCreate',
   dmCicdDevopsScmList: '/api/entry/cicd/flow/gitOpsScmList',
   dmCicdDevopsRepos: '/api/entry/cicd/flow/gitOpsRepos',
   dmCicdDevopsDsInsLevels: '/api/entry/cicd/flow/dsInsLevels',
   dmCicdDevopsDsDbLevels: '/api/entry/cicd/flow/dsDbLevels',
 
   dmCicdFlowDetail: '/api/entry/cicd/flow/detail',
+  dmCicdFlowParentCandidates: '/api/entry/cicd/flow/parentCandidates',
+  dmCicdFlowParentConfig: '/api/entry/cicd/flow/parentConfig',
   dmCicdFlowUpdate: '/api/entry/cicd/flow/update',
   dmCicdFlowDevopsList: '/api/entry/cicd/flow/gitOpsList',
   dmCicdFlowFetchImConfig: '/api/entry/cicd/flow/fetchImConfig',
@@ -25,9 +28,5 @@ export const cicdApi = {
 
   dmCicdChangeList: '/api/entry/cicd/change/changeList',
   dmCicdChangeDetail: '/api/entry/cicd/change/changeDetail',
-  dmCicdChangeBody: '/api/entry/cicd/change/changeBody',
-  dmCicdChangeSqlPreview: '/api/entry/cicd/change/changeSqlPreview',
-  dmCicdChangeClose: '/api/entry/cicd/change/changeClose',
-  dmCicdChangeApproval: '/api/entry/cicd/change/changeApproval',
-  dmCicdChangeRetry: '/api/entry/cicd/change/changeRetry'
+  dmCicdChangeSqlPreview: '/api/entry/cicd/change/changeSqlPreview'
 };

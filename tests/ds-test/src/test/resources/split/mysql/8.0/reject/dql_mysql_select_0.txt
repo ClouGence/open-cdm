@@ -1,3 +1,0 @@
-SELECT * FROM t1 PROCEDURE ANALYSE();
-------------------------------------------------------------------------------------------
-[PERFORMANCE] SELECT * FROM t1 PROCEDURE ANALYSE();

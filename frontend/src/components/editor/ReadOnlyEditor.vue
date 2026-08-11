@@ -35,6 +35,10 @@ export default {
       type: Boolean,
       default: false
     },
+    viewportBottomOffset: {
+      type: Number,
+      default: 20
+    },
     virtualScrollMode: {
       type: Boolean,
       default: false
@@ -42,6 +46,10 @@ export default {
     lineNumberStart: {
       type: Number,
       default: 1
+    },
+    contentPadding: {
+      type: Number,
+      default: 0
     }
   },
   watch: {
@@ -119,7 +127,13 @@ export default {
               fontWeight: this.fontWeight,
               scrollBeyondLastLine: false,
               readOnly: true,
+              domReadOnly: true,
+              contextmenu: false,
               theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
+              padding: {
+                top: this.contentPadding,
+                bottom: this.contentPadding
+              },
               minimap: {
                 enabled: false
               },
@@ -153,7 +167,7 @@ export default {
       const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
       const editorTop = this.$el.getBoundingClientRect().top;
       const minimumHeight = 5 * DEFAULT_LINE_HEIGHT;
-      this.viewportHeight = Math.max(minimumHeight, viewportHeight - editorTop - 20);
+      this.viewportHeight = Math.max(minimumHeight, viewportHeight - editorTop - this.viewportBottomOffset);
       this.$nextTick(() => {
         if (this.monacoEditor) {
           this.monacoEditor.layout();
@@ -201,6 +215,15 @@ export default {
       const layout = this.monacoEditor.getLayoutInfo();
       const lineHeight = this.monacoEditor.getOption(monaco.editor.EditorOption.lineHeight);
       return Math.max(1, Math.floor(layout.height / lineHeight));
+    },
+    preventCommandPalette(event) {
+      const key = event.key.toLowerCase();
+      const isCommandPaletteShortcut = event.key === 'F1' || ((event.metaKey || event.ctrlKey) && event.shiftKey && key === 'p');
+      if (!isCommandPaletteShortcut) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }
   },
   beforeUnmount() {
@@ -215,7 +238,7 @@ export default {
 </script>
 
 <template>
-  <div class="read-only-editor-wrapper" :style="{ border: borderStyle }">
+  <div class="read-only-editor-wrapper" :style="{ border: borderStyle }" @keydown.capture="preventCommandPalette">
     <div class="read-only-editor" ref="readOnlyEditor" :style="`height: ${height}px;`"></div>
   </div>
 </template>

@@ -4,12 +4,13 @@
     <div class="release-grid">
       <div class="release-panel">
         <div class="panel-subheading">
-          <CustomIcon :resource="getScmIconResource(sourceScmType)" size="20px" />
-          <span>{{ $t('fa-bu-yuan') }}</span>
+          <img v-if="isBuiltIn" class="built-in-flow-icon built-in-flow-icon--heading" src="/dm.ico" alt="CloudDM" />
+          <CustomIcon v-else :resource="getScmIconResource(sourceScmType)" size="20px" />
+          <span>{{ $t('bian-geng-lei-xing') }}</span>
         </div>
 
         <Form ref="releaseSourceForm" :model="flowGitOpsForm" :rules="releaseRules" label-position="left" :label-width="112">
-          <FormItem :label="$t('fa-bu-yuan-lei-xing')" class="source-type-form-item force-required" required>
+          <FormItem :label="$t('bian-geng-lei-xing')" class="source-type-form-item force-required" required>
             <div class="type-card-group source-type-card-group">
               <button
                 v-for="sourceType in sourceTypeCardList"
@@ -20,92 +21,126 @@
                 :aria-pressed="sourceScmType === sourceType.value"
                 @click="$emit('source-type-select', sourceType.value)"
               >
-                <CustomIcon :resource="sourceType.iconResource || getScmIconResource(sourceType.value)" :alt="sourceType.label" size="18px" />
+                <img v-if="sourceType.value === 'BUILT_IN'" class="built-in-flow-icon" src="/dm.ico" alt="CloudDM" />
+                <CustomIcon v-else :resource="sourceType.iconResource || getScmIconResource(sourceType.value)" :alt="sourceType.label" size="18px" />
                 <span>{{ sourceType.label }}</span>
               </button>
             </div>
           </FormItem>
 
-          <FormItem :label="$t('nav-git-ops')" prop="repoScmId" class="force-required gitops-select-form-item" required>
+          <FormItem v-if="isBuiltIn" :label="$t('shang-ji-bian-geng-liu')" prop="parentFlowId">
             <Select
-              ref="gitOpsSelect"
-              v-if="filteredDevopsScmList.length"
-              v-model="flowGitOpsForm.repoScmId"
-              :placeholder="$t('qing-xuan-ze')"
+              ref="parentFlowSelect"
+              v-model="flowGitOpsForm.parentFlowId"
+              :loading="parentFlowLoading"
+              :placeholder="$t('qing-xuan-ze-shang-ji-bian-geng-liu')"
               placement="bottom-start"
               transfer
               transfer-class-name="release-flow-select-dropdown"
               events-enabled
-              @on-change="$emit('devops-scm-change', $event)"
-              @on-open-change="$emit('select-open-change', $event, $refs.gitOpsSelect)"
+              filterable
+              clearable
+              :not-found-text="$t('zan-wu-shu-ju')"
+              @on-change="$emit('parent-flow-change', $event)"
+              @on-open-change="$emit('select-open-change', $event, $refs.parentFlowSelect)"
             >
-              <Option v-for="item in filteredDevopsScmList" :value="item.scmId" :key="item.scmId" :label="item.scmDisplay">
-                <CustomIcon :resource="getScmIconResource(item.scmType)" :type="item.scmType" :alt="item.scmTypeI18n || ''" rightMargin />
-                {{ item.scmDisplay }}
+              <Option
+                v-for="flow in parentFlowList"
+                :value="flow.flowId"
+                :key="flow.flowId"
+                :label="flow.flowName"
+                :disabled="flow.selectable === false"
+              >
+                <span>{{ flow.flowName }}</span>
+                <span class="repo-empty-label">{{ parentFlowMeta(flow) }}</span>
+                <span v-if="flow.unavailableReason" class="repo-empty-label">{{ flow.unavailableReason }}</span>
               </Option>
             </Select>
-            <Button v-else type="text" @click="$emit('add-scm')">{{ $t('qu-pei-zhi') }}</Button>
+            <div class="field-hint">{{ $t('nei-zhi-bian-geng-liu-shang-ji-ke-xuan-shuo-ming') }}</div>
           </FormItem>
 
-          <FormItem :label="$t('cang-ku')" prop="repoSelectionKey">
-            <div class="inline-control repo-control">
+          <template v-else>
+            <FormItem :label="$t('nav-git-ops')" prop="repoScmId" class="force-required gitops-select-form-item" required>
               <Select
-                ref="repoSelect"
-                v-model="flowGitOpsForm.repoSelectionKey"
-                :disabled="!devopsScmSelected"
+                ref="gitOpsSelect"
+                v-if="filteredDevopsScmList.length"
+                v-model="flowGitOpsForm.repoScmId"
+                :placeholder="$t('qing-xuan-ze')"
                 placement="bottom-start"
                 transfer
                 transfer-class-name="release-flow-select-dropdown"
                 events-enabled
-                @on-change="$emit('devops-repo-change')"
-                @on-open-change="$emit('select-open-change', $event, $refs.repoSelect)"
-                filterable
-                :not-found-text="$t('zan-wu-shu-ju')"
+                @on-change="$emit('devops-scm-change', $event)"
+                @on-open-change="$emit('select-open-change', $event, $refs.gitOpsSelect)"
               >
-                <OptionGroup v-for="(repoGroup, namespace) in devopsRepoListByGroup" :label="namespace" :key="namespace">
-                  <Option
-                    v-for="repo in repoGroup"
-                    :value="getRepoSelectionKey(repo)"
-                    :key="getRepoSelectionKey(repo)"
-                    :label="repo.repoPath || repo.repoName"
-                    :disabled="repo.empty"
-                  >
-                    <span>{{ repo.repoName }}</span>
-                    <span v-if="repo.empty" class="repo-empty-label">{{ $t('kong-cang-ku') }}</span>
-                    <span class="repo-link">
-                      <CustomIcon type="icon-v2-jicheng" @click.stop="$emit('repo-jump', repo.repoHome)" />
-                    </span>
-                  </Option>
-                </OptionGroup>
+                <Option v-for="item in filteredDevopsScmList" :value="item.scmId" :key="item.scmId" :label="item.scmDisplay">
+                  <CustomIcon :resource="getScmIconResource(item.scmType)" :type="item.scmType" :alt="item.scmTypeI18n || ''" rightMargin />
+                  {{ item.scmDisplay }}
+                </Option>
               </Select>
-              <button
-                type="button"
-                class="repo-refresh-action"
-                :disabled="!devopsScmSelected || repoLoading"
-                @mousedown.stop
-                @click.stop.prevent="$emit('devops-scm-change')"
-              >
-                <span v-if="repoLoading" class="mini-spinner"></span>
-                <CustomIcon v-else type="icon-v2-Refresh" />
-              </button>
-            </div>
-          </FormItem>
+              <Button v-else type="text" @click="$emit('add-scm')">{{ $t('qu-pei-zhi') }}</Button>
+            </FormItem>
 
-          <FormItem :label="$t('mu-biao-fen-zhi')" prop="repoBranch">
-            <Input v-model="flowGitOpsForm.repoBranch" :placeholder="$t('qing-shu-ru-mu-biao-fen-zhi')" />
-          </FormItem>
+            <FormItem :label="$t('cang-ku')" prop="repoSelectionKey">
+              <div class="inline-control repo-control">
+                <Select
+                  ref="repoSelect"
+                  v-model="flowGitOpsForm.repoSelectionKey"
+                  :disabled="!devopsScmSelected"
+                  placement="bottom-start"
+                  transfer
+                  transfer-class-name="release-flow-select-dropdown"
+                  events-enabled
+                  @on-change="$emit('devops-repo-change')"
+                  @on-open-change="$emit('select-open-change', $event, $refs.repoSelect)"
+                  filterable
+                  :not-found-text="$t('zan-wu-shu-ju')"
+                >
+                  <OptionGroup v-for="(repoGroup, namespace) in devopsRepoListByGroup" :label="namespace" :key="namespace">
+                    <Option
+                      v-for="repo in repoGroup"
+                      :value="getRepoSelectionKey(repo)"
+                      :key="getRepoSelectionKey(repo)"
+                      :label="repo.repoPath || repo.repoName"
+                      :disabled="repo.empty"
+                    >
+                      <span>{{ repo.repoName }}</span>
+                      <span v-if="repo.empty" class="repo-empty-label">{{ $t('kong-cang-ku') }}</span>
+                      <span class="repo-link">
+                        <CustomIcon type="icon-v2-jicheng" @click.stop="$emit('repo-jump', repo.repoHome)" />
+                      </span>
+                    </Option>
+                  </OptionGroup>
+                </Select>
+                <button
+                  type="button"
+                  class="repo-refresh-action"
+                  :disabled="!devopsScmSelected || repoLoading"
+                  @mousedown.stop
+                  @click.stop.prevent="$emit('devops-scm-change')"
+                >
+                  <span v-if="repoLoading" class="mini-spinner"></span>
+                  <CustomIcon v-else type="icon-v2-Refresh" />
+                </button>
+              </div>
+            </FormItem>
 
-          <FormItem :label="$t('jiao-ben-lu-jin')" prop="repoScriptPath">
-            <Input v-model="flowGitOpsForm.repoScriptPath" :placeholder="$t('qing-shu-ru-jiao-ben-lu-jin-ke-xuan')" />
-            <div class="field-hint">{{ $t('devops-script-hint') }}</div>
-          </FormItem>
+            <FormItem :label="$t('mu-biao-fen-zhi')" prop="repoBranch">
+              <Input v-model="flowGitOpsForm.repoBranch" :placeholder="$t('qing-shu-ru-mu-biao-fen-zhi')" />
+            </FormItem>
 
-          <FormItem :label="$t('chu-fa-fang-shi')" prop="eventType">
-            <RadioGroup v-model="flowGitOpsForm.eventType">
-              <Radio label="Push">{{ eventTypeMap.push }}</Radio>
-              <Radio label="PullRequest">{{ eventTypeMap.pr }}</Radio>
-            </RadioGroup>
-          </FormItem>
+            <FormItem :label="$t('jiao-ben-lu-jin')" prop="repoScriptPath">
+              <Input v-model="flowGitOpsForm.repoScriptPath" :placeholder="$t('qing-shu-ru-jiao-ben-lu-jin-ke-xuan')" />
+              <div class="field-hint">{{ $t('devops-script-hint') }}</div>
+            </FormItem>
+
+            <FormItem :label="$t('chu-fa-fang-shi')" prop="eventType">
+              <RadioGroup v-model="flowGitOpsForm.eventType">
+                <Radio label="Push">{{ eventTypeMap.push }}</Radio>
+                <Radio label="PullRequest">{{ eventTypeMap.pr }}</Radio>
+              </RadioGroup>
+            </FormItem>
+          </template>
         </Form>
       </div>
 
@@ -133,49 +168,28 @@
           :label-width="112"
         >
           <FormItem :label="$t('shu-ju-ku-lei-xing')" prop="databaseType" class="target-select-form-item database-type-form-item force-required">
-            <Select
-              ref="databaseTypeSelect"
-              :model-value="flowGitOpsForm.databaseType"
-              :placeholder="$t('qing-xuan-ze')"
-              placement="bottom-start"
-              transfer
-              transfer-class-name="release-flow-select-dropdown"
-              events-enabled
-              filterable
-              :not-found-text="$t('zan-wu-shu-ju')"
-              @on-change="handleDatabaseTypeSelect"
-              @on-query-change="handleDatabaseTypeQueryChange"
-              @on-open-change="handleDatabaseTypeOpenChange"
-            >
-              <Option v-for="type in filteredDatabaseTypeOptions" :value="type" :key="type" :label="type">
-                <span class="database-type-option-content">
-                  <CustomIcon :type="type" size="18px" />
-                  <span>{{ type }}</span>
-                </span>
-              </Option>
-            </Select>
+            <ReleaseFlowDatabaseTypeSelect
+              :value="flowGitOpsForm.databaseType"
+              :options="databaseTypeOptions"
+              :disabled="databaseTypeLocked"
+              @change="handleDatabaseTypeSelect"
+              @open-change="handleDatabaseTypeOpenChange"
+            />
+            <div v-if="databaseTypeLocked" class="field-hint">
+              {{ $t('shu-ju-ku-lei-xing-yu-shang-ji-bian-geng-liu-yi-zhi') }}
+            </div>
           </FormItem>
 
           <FormItem :label="$t('shi-li-1')" prop="instanceId" class="target-select-form-item">
-            <Select
+            <ReleaseFlowInstanceSelect
               ref="instanceSelect"
               v-if="devopsInsList.length"
               v-model="flowGitOpsForm.instanceId"
+              :options="filteredDevopsInsList"
               :placeholder="$t('qing-xuan-ze-shu-ju-ku-shi-li')"
-              placement="bottom-start"
-              transfer
-              transfer-class-name="release-flow-select-dropdown"
-              events-enabled
-              @on-change="$emit('devops-ins-change')"
-              @on-open-change="$emit('select-open-change', $event, $refs.instanceSelect)"
-              filterable
-              :not-found-text="$t('zan-wu-shu-ju')"
-            >
-              <Option v-for="ins in filteredDevopsInsList" :value="ins.objId" :key="ins.objId" :label="ins.objName">
-                <CustomIcon :type="ins.objAttr.dsType" rightMargin />
-                {{ ins.objName }}
-              </Option>
-            </Select>
+              @change="$emit('devops-ins-change')"
+              @open-change="handleInstanceOpenChange"
+            />
             <Button v-else type="text" @click="$emit('ds-setting')">{{ $t('qu-pei-zhi') }}</Button>
           </FormItem>
 
@@ -231,7 +245,7 @@
             </div>
           </FormItem>
 
-          <FormItem prop="initScript" class="init-script-form-item">
+          <FormItem v-if="!isBuiltIn" prop="initScript" class="init-script-form-item">
             <div class="init-script-field">
               <div class="init-script-label">
                 <span>*</span>
@@ -257,14 +271,21 @@
 
 <script>
 import { getRepoSelectionKey, getScmIconResource } from '../utils';
+import ReleaseFlowDatabaseTypeSelect from './ReleaseFlowDatabaseTypeSelect.vue';
+import ReleaseFlowInstanceSelect from './ReleaseFlowInstanceSelect.vue';
 
 export default {
   name: 'ReleaseFlowPipelineConfig',
+  components: { ReleaseFlowDatabaseTypeSelect, ReleaseFlowInstanceSelect },
   props: {
     flowGitOpsForm: { type: Object, required: true },
     releaseRules: { type: Object, required: true },
     sourceScmType: { type: String, required: true },
     sourceTypeCardList: { type: Array, required: true },
+    isBuiltIn: { type: Boolean, default: false },
+    parentFlowList: { type: Array, default: () => [] },
+    parentFlowLoading: { type: Boolean, default: false },
+    databaseTypeLocked: { type: Boolean, default: false },
     filteredDevopsScmList: { type: Array, required: true },
     devopsScmSelected: { type: Object, default: null },
     devopsRepoListByGroup: { type: Object, required: true },
@@ -281,24 +302,9 @@ export default {
     eventTypeMap: { type: Object, required: true },
     flowGitOpsDescription: { type: Function, required: true }
   },
-  data() {
-    return {
-      databaseTypeDropdownOpen: false,
-      databaseTypeSearchKeyword: ''
-    };
-  },
-  computed: {
-    filteredDatabaseTypeOptions() {
-      if (!this.databaseTypeDropdownOpen || !this.databaseTypeSearchKeyword) {
-        return this.databaseTypeOptions;
-      }
-
-      const keyword = this.databaseTypeSearchKeyword.toLowerCase();
-      return this.databaseTypeOptions.filter((type) => String(type).toLowerCase().includes(keyword));
-    }
-  },
   emits: [
     'source-type-select',
+    'parent-flow-change',
     'devops-scm-change',
     'devops-repo-change',
     'repo-jump',
@@ -312,26 +318,19 @@ export default {
     'ds-setting'
   ],
   methods: {
+    parentFlowMeta(flow) {
+      return [flow?.flowManagerName, flow?.dsType].filter(Boolean).join(' · ');
+    },
     getRepoSelectionKey,
     getScmIconResource,
     handleDatabaseTypeSelect(type) {
-      this.databaseTypeSearchKeyword = '';
       this.$emit('database-type-select', type);
     },
-    handleDatabaseTypeQueryChange(query) {
-      if (!this.databaseTypeDropdownOpen) {
-        return;
-      }
-
-      const selectedType = this.flowGitOpsForm.databaseType || '';
-      this.databaseTypeSearchKeyword = query === selectedType ? '' : query.trim();
+    handleInstanceOpenChange(open, selectRef) {
+      this.$emit('select-open-change', open, selectRef);
     },
-    handleDatabaseTypeOpenChange(open) {
-      this.databaseTypeDropdownOpen = open;
-      if (!open) {
-        this.databaseTypeSearchKeyword = '';
-      }
-      this.$emit('select-open-change', open, this.$refs.databaseTypeSelect);
+    handleDatabaseTypeOpenChange(open, selectRef) {
+      this.$emit('select-open-change', open, selectRef);
     },
     async validate() {
       const result = await Promise.all([this.$refs.releaseSourceForm.validate(), this.$refs.releaseTargetForm.validate()]);
@@ -345,6 +344,19 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.built-in-flow-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.built-in-flow-icon--heading {
+  width: 20px;
+  height: 20px;
+}
+
 .repo-empty-label {
   margin-left: 8px;
   color: var(--text-tertiary);

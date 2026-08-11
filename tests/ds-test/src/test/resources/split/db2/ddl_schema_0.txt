@@ -1,6 +1,0 @@
-create schema app;
-drop schema app restrict;
-------------------------------------------------------------------------------------------
-[CREATE_SCHEMA] create schema app;
-----------
-[DROP_SCHEMA] drop schema app restrict;

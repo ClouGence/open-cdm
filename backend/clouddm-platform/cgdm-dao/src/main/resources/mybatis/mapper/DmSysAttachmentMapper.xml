@@ -22,61 +22,94 @@
     </sql>
 
     <select id="selectByIdForUpdate" resultMap="attachment">
-        select <include refid="metadata_columns"/>
-        from dm_sys_attachment
-        where id = #{id}
-        for update
+        SELECT
+            <include refid="metadata_columns"/>
+        FROM
+            dm_sys_attachment
+        WHERE
+            id = #{id}
+        FOR UPDATE
     </select>
 
     <select id="selectConfirmedByApprovalId" resultMap="attachment">
-        select <include refid="metadata_columns"/>
-        from dm_sys_attachment
-        where approval_id = #{approvalId}
-          and attachment_type = 'SQL_FILE'
-          and attachment_status = 'CONFIRMED'
+        SELECT
+            <include refid="metadata_columns"/>
+        FROM
+            dm_sys_attachment
+        WHERE
+            approval_id       = #{approvalId}
+            AND
+            attachment_type   = 'SQL_FILE'
+            AND
+            attachment_status = 'CONFIRMED'
     </select>
 
     <select id="listEditingByTypeAndFileName" resultMap="attachment">
-        select <include refid="metadata_columns"/>
-        from dm_sys_attachment
-        where attachment_type = #{attachmentType}
-          and attachment_status = 'EDITING'
-          and file_name = #{fileName}
+        SELECT
+            <include refid="metadata_columns"/>
+        FROM
+            dm_sys_attachment
+        WHERE
+            attachment_type   = #{attachmentType}
+            AND
+            attachment_status = 'EDITING'
+            AND
+            file_name         = #{fileName}
     </select>
 
     <select id="listExpiredEditing" resultMap="attachment">
-        select <include refid="metadata_columns"/>
-        from dm_sys_attachment
-        where attachment_status = 'EDITING'
-          and <![CDATA[ gmt_modified <= #{before} ]]>
-        order by gmt_modified
-        limit #{limit}
+        SELECT
+            <include refid="metadata_columns"/>
+        FROM
+            dm_sys_attachment
+        WHERE
+            attachment_status = 'EDITING'
+            AND
+            <![CDATA[gmt_modified <= #{before}]]>
+        ORDER BY gmt_modified
+        LIMIT #{limit}
     </select>
 
     <delete id="deleteExpiredEditing">
-        delete from dm_sys_attachment
-        where id = #{id}
-          and attachment_status = 'EDITING'
-          and <![CDATA[ gmt_modified <= #{before} ]]>
+        DELETE FROM
+            dm_sys_attachment
+        WHERE
+            id                = #{id}
+            AND
+            attachment_status = 'EDITING'
+            AND
+            <![CDATA[gmt_modified <= #{before}]]>
     </delete>
 
     <update id="touchEditing">
-        update dm_sys_attachment
-        set gmt_modified = now()
-        where id = #{id}
-          and owner_uid = #{ownerUid}
-          and attachment_status = 'EDITING'
-          and <![CDATA[ gmt_modified > #{before} ]]>
+        UPDATE
+            dm_sys_attachment
+        SET
+            gmt_modified = NOW()
+        WHERE
+            id                = #{id}
+            AND
+            owner_uid         = #{ownerUid}
+            AND
+            attachment_status = 'EDITING'
+            AND
+            <![CDATA[gmt_modified > #{before}]]>
     </update>
 
     <update id="lock">
-        update dm_sys_attachment
-        set approval_id = #{approvalId},
+        UPDATE
+            dm_sys_attachment
+        SET
+            approval_id       = #{approvalId},
             attachment_status = 'CONFIRMED',
-            gmt_modified = now()
-        where id = #{id}
-          and owner_uid = #{ownerUid}
-          and attachment_status = 'EDITING'
-          and <![CDATA[ gmt_modified > #{before} ]]>
+            gmt_modified      = NOW()
+        WHERE
+            id                = #{id}
+            AND
+            owner_uid         = #{ownerUid}
+            AND
+            attachment_status = 'EDITING'
+            AND
+            <![CDATA[gmt_modified > #{before}]]>
     </update>
 </mapper>

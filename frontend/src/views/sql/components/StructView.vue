@@ -379,7 +379,7 @@ export default {
       }
     },
     setOptionsAttr(attr, topItem, data) {
-      if (attr.type === 'Options') {
+      if (attr.type === 'Options' || attr.type === 'Radios') {
         if (attr.field in topItem) {
           data[attr.field] = topItem[attr.field];
           if (isUndefined(topItem[attr.field])) {

@@ -21,7 +21,9 @@ import java.util.Set;
 
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowRelationItemVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.GuideBatchCreateChangeFlowVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.GuideCreateChangeFlowVO;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
@@ -29,6 +31,8 @@ import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 public interface DmChangeFlowService {
 
     DmPageVO<ChangeFlowVO> queryChangeFlowListByPage(String ownerUid, ChangeFlowListFO fo);
+
+    ChangeFlowVO queryChangeFlowDetail(String ownerUid, long flowId);
 
     List<ChangeFlowVO> queryChangeFlowListByIds(String ownerUid, Set<Long> ids);
 
@@ -48,7 +52,15 @@ public interface DmChangeFlowService {
 
     GuideCreateChangeFlowVO createChangeFlow(String ownerUid, String currentUser, GuideCreateFO fo);
 
+    GuideBatchCreateChangeFlowVO createChangeFlows(String ownerUid, String currentUser, GuideBatchCreateFO fo);
+
     DmChangeFlowDO queryFlowById(String ownerUid, long flowId);
+
+    List<ChangeFlowRelationItemVO> queryParentCandidates(String ownerUid, Long excludeFlowId);
+
+    void updateParent(String ownerUid, long flowId, Long parentFlowId);
+
+    void updateParents(String ownerUid, List<ChangeFlowParentConfigFO> changes);
 
     void updateMessageByFlowId(String ownerUid, long flowId, ChangeFlowImConfigFO fo);
 

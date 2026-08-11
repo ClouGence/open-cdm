@@ -19,6 +19,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -165,7 +166,7 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public long addAsEditing(String userUid, Path temporaryFile, String fileName, SysAttachmentType attachmentType) {
         if (StringUtils.isBlank(userUid)) {
             throw new IllegalArgumentException("userUid cannot be blank");
@@ -223,7 +224,7 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public long addAsLocked(String userUid, Path sourceFile, String fileName, SysAttachmentType attachmentType, long approvalId) {
         if (StringUtils.isBlank(userUid)) {
             throw new IllegalArgumentException("userUid cannot be blank");
@@ -354,7 +355,7 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void lockEditing(String userUid, long fileId, long approvalId) {
         DmSysAttachmentDO attachment = this.systemDal.attachmentMapper().selectByIdForUpdate(fileId);
         if (attachment != null && attachment.getAttachmentStatus() == SysAttachmentStatus.CONFIRMED) {

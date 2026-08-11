@@ -8,7 +8,7 @@
         </div>
       </div>
       <div class="content flow-detail-content" v-if="flowInfo !== null">
-        <section class="page-section flow-overview-section">
+        <section v-if="!isConfigPage" class="page-section flow-overview-section">
           <div class="overview-card-header">
             <div class="overview-meta-line">
               <div class="overview-meta-segment overview-meta-segment-name">
@@ -33,18 +33,26 @@
               <span class="flow-status-pill" :class="flowStatusClass">{{ flowStatusText }}</span>
             </div>
             <div class="detail-toolbar">
-              <Button class="detail-toolbar-btn" @click="showRecordPanel">
-                <span>{{ $t('bian-geng-ji-lu') }}</span>
+              <Button class="detail-toolbar-btn" @click="showConfigPage">
+                <span>{{ $t('cicd-pei-zhi-xiang') }}</span>
               </Button>
-              <Button
-                class="detail-toolbar-btn detail-trigger-btn"
-                type="primary"
-                :disabled="flowReadOnly || !primaryDevops || !primaryDevops.enable"
-                @click="triggerPrimaryChange"
-              >
-                <span>{{ $t('chu-fa-bian-geng') }}</span>
+              <Button v-if="hasDownstreamRelations" class="detail-toolbar-btn" @click="dependencyVisible = true">
+                <span>{{ $t('cicd-dependency-action') }}</span>
               </Button>
+              <Tooltip :content="triggerChangeDisabledReason" :disabled="!triggerChangeDisabledReason" transfer placement="top">
+                <span>
+                  <Button
+                    class="detail-toolbar-btn detail-trigger-btn"
+                    type="primary"
+                    :disabled="flowReadOnly || isBuiltInChild || flowInfo.cascadeRunning || !primaryDevops || !primaryDevops.enable"
+                    @click="triggerPrimaryChange"
+                  >
+                    <span>{{ $t('chu-fa-bian-geng') }}</span>
+                  </Button>
+                </span>
+              </Tooltip>
               <Button
+                v-if="!isBuiltIn"
                 class="detail-toolbar-btn detail-snapshot-btn"
                 :disabled="flowReadOnly || !primaryDevops || !primaryDevops.enable"
                 @click="triggerPrimarySnapshot"
@@ -53,66 +61,74 @@
               </Button>
             </div>
           </div>
-          <div class="release-grid pipeline-overview">
-            <div class="release-panel">
-              <div class="panel-subheading">
+          <div class="flow-summary-strip">
+            <section class="flow-summary-endpoint flow-summary-source">
+              <div class="flow-summary-label">
                 <CustomIcon
+                  v-if="!isBuiltIn"
                   :resource="getScmIconResource(primaryDevops?.scmType)"
                   :type="scmIconType"
                   :alt="getScmDisplayName(primaryDevops?.scmType)"
-                  size="24px"
+                  size="18px"
                 />
-                <span>{{ $t('cicd-git-cang-ku') }}</span>
+                <CustomIcon v-else type="icon-v2-jiaobenrenwu" size="18px" />
+                <span>{{ sourcePanelTitle }}</span>
               </div>
-              <div class="endpoint-row">
-                <span>{{ $t('cicd-yuan-ma-cang-ku-colon') }}</span>
-                <Tooltip :content="repoNameText">
-                  <strong>{{ compactText(repoNameText, 26) }}</strong>
-                </Tooltip>
-              </div>
-              <div class="endpoint-row">
-                <span>{{ $t('fen-zhi') }}：</span>
-                <Tooltip :content="repoBranchText">
-                  <strong>{{ compactText(repoBranchText, 26) }}</strong>
-                </Tooltip>
-              </div>
-              <div class="endpoint-row">
-                <span>{{ $t('cicd-jiao-ben-lu-jin-colon') }}</span>
-                <Tooltip :content="repoScriptPathText">
-                  <strong>{{ compactText(repoScriptPathText, 28) }}</strong>
-                </Tooltip>
-              </div>
+              <template v-if="isBuiltIn">
+                <button
+                  v-if="isBuiltInChild"
+                  type="button"
+                  class="flow-summary-title flow-summary-title-link"
+                  @click="goToFlow(flowInfo.parentFlowId)"
+                >
+                  {{ flowInfo.parentFlowName || '-' }}
+                </button>
+                <div v-else class="flow-summary-title">{{ $t('cicd-manual-sql') }}</div>
+                <div class="flow-summary-description">
+                  <span>{{ isBuiltInChild ? $t('shang-ji-bian-geng-liu') : $t('shou-dong-shu-ru-huo-shang-chuan-sql') }}</span>
+                  <button v-if="!flowReadOnly" type="button" class="flow-summary-link" @click="openParentFlowModal">
+                    {{ $t('xiu-gai') }}
+                  </button>
+                </div>
+              </template>
+              <template v-else>
+                <div class="flow-summary-title">{{ repoNameText }}</div>
+                <div class="flow-summary-description">
+                  <span>{{ repoBranchText }}</span>
+                  <span v-if="repoScriptPathText && repoScriptPathText !== '-'">{{ $t('cicd-meta-separator') }} {{ repoScriptPathText }}</span>
+                </div>
+              </template>
+            </section>
+
+            <div class="flow-summary-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 12h16"></path>
+                <path d="m15 7 5 5-5 5"></path>
+              </svg>
             </div>
-            <div class="link-divider" aria-hidden="true">
-              <span>
-                <svg class="flow-link-arrows" viewBox="0 0 28 28" aria-hidden="true">
-                  <path d="M7 14h14" />
-                  <path d="m16.8 9.8 4.2 4.2-4.2 4.2" />
-                </svg>
-              </span>
-            </div>
-            <div class="release-panel">
-              <div class="panel-subheading database-title">
-                <CustomIcon :type="primaryDevops?.dsType || 'icon-v2-DataBase2'" size="22px" />
-                <span>{{ $t('shu-ju-ku') }}</span>
+
+            <section class="flow-summary-endpoint flow-summary-target">
+              <div class="flow-summary-label">
+                <CustomIcon :type="primaryDevops?.dsType || 'icon-v2-DataBase2'" size="18px" />
+                <span>{{ $t('cicd-publish-target') }}</span>
               </div>
-              <div class="endpoint-row">
-                <span>{{ $t('shu-ju-yuan-shi-li-0') }}</span>
-                <Tooltip :content="primaryDevops?.dsInstance || '-'">
-                  <strong>{{ compactText(primaryDevops?.dsInstance, 22) }}</strong>
-                </Tooltip>
+              <div class="flow-summary-title">{{ primaryDevops?.dsInstance || '-' }}</div>
+              <div class="flow-summary-description">
+                <span>{{ primaryDevops?.dsType || '-' }}</span>
+                <span v-if="targetDatabaseText && targetDatabaseText !== '-'">{{ $t('cicd-meta-separator') }} {{ targetDatabaseText }}</span>
               </div>
-              <div class="endpoint-row">
-                <span>{{ $t('schema') }}：</span>
-                <Tooltip :content="targetDatabaseText">
-                  <strong>{{ compactText(targetDatabaseText, 22) }}</strong>
-                </Tooltip>
-              </div>
-            </div>
+            </section>
           </div>
         </section>
 
-        <section class="page-section flow-config-section">
+        <section v-if="!isConfigPage" class="page-section flow-change-record-section">
+          <div class="page-section__title">{{ $t('bian-geng-ji-lu') }}</div>
+          <div class="flow-change-record-frame">
+            <ChangeRecordList ref="changeRecordList" embedded :target-flow-id="flowId" />
+          </div>
+        </section>
+
+        <section v-else class="page-section flow-config-section">
           <div class="page-section__title">{{ $t('cicd-pei-zhi-xiang') }}</div>
           <div class="config-list">
             <div class="config-row" v-for="item in configItems" :key="item.key">
@@ -139,6 +155,7 @@
         </section>
       </div>
     </div>
+    <FlowDependencyModal v-model="dependencyVisible" :root-flow="flowInfo?.dependencyTree || flowInfo" @navigate="goDependencyDetail" />
     <a-drawer
       :title="$t('git-ops-config')"
       width="420"
@@ -334,6 +351,69 @@
         <div class="config-modal-footer">
           <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
           <Button type="primary" @click="handleImSubmit" :disabled="isImSubmitDisabled">
+            {{ $t('bao-cun') }}
+          </Button>
+        </div>
+      </template>
+    </CCModal>
+    <CCModal v-model="showManualSqlModal" width="860px" class="manual-sql-modal-wrap">
+      <div class="manual-sql-modal">
+        <div class="callback-config-title">{{ $t('shou-dong-ti-gong-sql-bing-chu-fa') }}</div>
+        <div class="manual-sql-toolbar">
+          <span>{{ $t('shou-dong-ti-gong-sql-shuo-ming') }}</span>
+          <Button icon="ios-cloud-upload-outline" @click="showManualSqlUploadModal = true">
+            {{ $t('shang-chuan-sql-wen-jian') }}
+          </Button>
+        </div>
+        <div class="manual-sql-editor">
+          <TicketEditor v-if="showManualSqlModal" ref="manualSqlEditor" :data-source-type="primaryDevops?.dsType || 'sql'" />
+        </div>
+      </div>
+      <template #footer>
+        <div class="config-modal-footer manual-sql-footer">
+          <Button @click="showManualSqlModal = false">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" :loading="manualSqlSubmitting" @click="submitManualSqlChange">
+            {{ $t('chu-fa-bian-geng') }}
+          </Button>
+        </div>
+      </template>
+    </CCModal>
+    <SqlFileUploadModal
+      v-model="showManualSqlUploadModal"
+      :loading="manualSqlImporting"
+      :max-mega-byte="sqlFileMaxMegaByte"
+      @confirm="importManualSqlFile"
+    />
+    <CCModal v-model="showParentFlowModal" width="680px" class="parent-flow-config-modal-wrap">
+      <div class="parent-flow-config-modal">
+        <div class="callback-config-title">{{ $t('shang-ji-bian-geng-liu') }}</div>
+        <div class="parent-flow-selector">
+          <Select
+            v-model="parentFlowForm.parentFlowId"
+            :loading="parentFlowLoading"
+            :placeholder="$t('qing-xuan-ze-shang-ji-bian-geng-liu')"
+            clearable
+            filterable
+            transfer
+            :not-found-text="$t('zan-wu-shu-ju')"
+          >
+            <Option
+              v-for="flow in parentFlowCandidates"
+              :key="flow.flowId"
+              :value="flow.flowId"
+              :label="flow.flowName"
+              :disabled="!parentCandidateSelectable(flow)"
+            >
+              <span>{{ flow.flowName }}</span>
+              <span class="parent-flow-option-meta">{{ parentFlowOptionMeta(flow) }}</span>
+            </Option>
+          </Select>
+        </div>
+      </div>
+      <template #footer>
+        <div class="config-modal-footer">
+          <Button @click="showParentFlowModal = false">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" :loading="parentFlowSaving" @click="saveParentFlow">
             {{ $t('bao-cun') }}
           </Button>
         </div>
@@ -543,13 +623,15 @@ import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { handleCopy } from '@/utils/clipboard';
+import TicketEditor from '@/components/editor/TicketEditor';
+import SqlFileUploadModal from '@/components/function/SqlFileUploadModal.vue';
+import ChangeRecordList from './changeRecordList.vue';
+import FlowDependencyModal from './components/FlowDependencyModal.vue';
 import {
   BECOME_STATUS_MAP,
-  CHANGE_STATUS_MAP,
   defaultLanguageMap,
   EVEN_TYPE_MAP,
   FLOW_MARK_MAP,
-  FLOW_STEP_NUM,
   flowDetailTableColumns,
   formRule,
   GITOPS_DESCRIPTION,
@@ -560,10 +642,25 @@ import { getRepoSelectionKey, getScmDisplayName, getScmIconResource, groupByRepo
 
 export default {
   name: 'cicd-flow',
+  components: {
+    ChangeRecordList,
+    TicketEditor,
+    SqlFileUploadModal,
+    FlowDependencyModal
+  },
   mixins: [copyMixin, enterOpPwdMixin, encryptMixin],
+  props: {
+    pageMode: {
+      type: String,
+      default: 'detail'
+    }
+  },
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'myCatLog', 'myAuth']),
     ...mapGetters(['isSaas']),
+    isConfigPage() {
+      return this.pageMode === 'config';
+    },
     // Determines whether the IM configuration complete button should be disabled
     isImSubmitDisabled() {
       // Buttons are not disabled if the disabled type is selected
@@ -578,6 +675,45 @@ export default {
     },
     primaryDevops() {
       return this.devopsList?.[0] || null;
+    },
+    isBuiltIn() {
+      return this.flowInfo?.flowType === 'BUILT_IN';
+    },
+    isBuiltInRoot() {
+      return this.isBuiltIn && !this.flowInfo?.parentFlowId;
+    },
+    isBuiltInChild() {
+      return this.isBuiltIn && !!this.flowInfo?.parentFlowId;
+    },
+    sourcePanelTitle() {
+      if (this.isBuiltInChild) {
+        return this.$t('shang-ji-bian-geng-liu');
+      }
+      if (this.isBuiltInRoot) {
+        return this.$t('sql-lai-yuan');
+      }
+      return this.$t('cicd-git-cang-ku');
+    },
+    builtInTriggerDescription() {
+      return this.isBuiltInRoot ? this.$t('nei-zhi-gen-bian-geng-liu-shuo-ming') : this.$t('nei-zhi-bian-geng-liu-shuo-ming');
+    },
+    sqlFileMaxMegaByte() {
+      return this.dmGlobalSetting?.sqlFileMaxSize || 20;
+    },
+    triggerChangeDisabledReason() {
+      if (this.flowInfo?.cascadeRunning) {
+        return this.$t('cicd-cascade-running-trigger-unavailable');
+      }
+      if (this.isBuiltInChild) {
+        return this.$t('nei-zhi-bian-geng-liu-shuo-ming');
+      }
+      return '';
+    },
+    hasChildFlows() {
+      return !!this.flowInfo?.childFlows?.length;
+    },
+    hasDownstreamRelations() {
+      return !!this.flowInfo?.hasRelations;
     },
     scmIconType() {
       return this.primaryDevops?.scmType || 'icon-v2-Gitee';
@@ -632,7 +768,7 @@ export default {
       return this.flowInfo?.flowStatus === 'ARCHIVE';
     },
     triggerConfigured() {
-      return !!(this.primaryDevops && (this.primaryDevops.webHookEnable || this.primaryDevops.triggerEnable));
+      return this.isBuiltIn || !!(this.primaryDevops && (this.primaryDevops.webHookEnable || this.primaryDevops.triggerEnable));
     },
     callbackConfigured() {
       return !!(this.primaryDevops && this.primaryDevops.callbackEnable);
@@ -640,12 +776,15 @@ export default {
     imConfigured() {
       return this.imProviderInfo?.imType && this.imProviderInfo.imType !== 'none';
     },
-    recentOperationTime() {
-      return this.changeList?.[0]?.changeTime || this.flowInfo?.createTime || '-';
-    },
     configItems() {
       const statusClass = (configured) => (configured ? 'success' : 'muted');
       const statusText = (configured) => (configured ? this.$t('cicd-yi-pei-zhi') : this.$t('cicd-wei-pei-zhi'));
+      let triggerDisabledReason = '';
+      if (this.isBuiltIn) {
+        triggerDisabledReason = this.builtInTriggerDescription;
+      } else if (this.hasChildFlows) {
+        triggerDisabledReason = this.$t('cicd-flow-relation-trigger-manual-only');
+      }
 
       return [
         {
@@ -653,11 +792,13 @@ export default {
           title: this.$t('chu-fa-pei-zhi'),
           status: statusText(this.triggerConfigured),
           statusClass: statusClass(this.triggerConfigured),
-          desc: this.$t('cicd-pei-zhi-chu-fa-tiao-jian-yu-zhi-xing-ce-lve'),
+          desc: this.isBuiltIn ? this.builtInTriggerDescription : this.$t('cicd-pei-zhi-chu-fa-tiao-jian-yu-zhi-xing-ce-lve'),
           actions: [
             {
               label: this.$t('cha-kan-pei-zhi'),
-              type: this.triggerConfigured ? 'viewTrigger' : 'editTrigger'
+              type: this.triggerConfigured ? 'viewTrigger' : 'editTrigger',
+              disabled: this.isBuiltIn || this.hasChildFlows,
+              disabledReason: triggerDisabledReason
             }
           ]
         },
@@ -668,6 +809,14 @@ export default {
           statusClass: statusClass(this.callbackConfigured),
           desc: this.$t('cicd-pei-zhi-bian-geng-jie-guo-hui-diao-tong-zhi'),
           actions: [{ label: this.$t('cha-kan-pei-zhi'), type: 'editCallback' }]
+        },
+        {
+          key: 'workOrder',
+          title: this.$t('zhi-xing-pei-zhi'),
+          status: this.$t('cicd-yi-pei-zhi'),
+          statusClass: 'success',
+          desc: this.$t('cicd-work-order-processing-description'),
+          actions: [{ label: this.$t('gong-dan'), type: 'viewTickets' }]
         },
         {
           key: 'im',
@@ -690,6 +839,7 @@ export default {
   data() {
     return {
       loading: false,
+      dependencyVisible: false,
       flowId: '',
       flowInfo: null,
       flowReadOnly: true,
@@ -730,7 +880,18 @@ export default {
       formRule,
       repoLoading: false,
       //
+      showManualSqlModal: false,
+      showManualSqlUploadModal: false,
+      manualSqlImporting: false,
+      manualSqlSubmitting: false,
       showTriggerModal: false,
+      showParentFlowModal: false,
+      parentFlowLoading: false,
+      parentFlowSaving: false,
+      parentFlowCandidates: [],
+      parentFlowForm: {
+        parentFlowId: null
+      },
       triggerTab: 'WebHook',
       triggerOriginal: {},
       trigger: {
@@ -756,24 +917,23 @@ export default {
         method: 'POST',
         url: ''
       },
-      //
-      changeList: [],
-      pageTotal: 0,
-      pageNum: 1,
-      pageSize: 10,
-      keyword: '',
       devopsRepoListByGroup: [],
-      //
       flowDetailTableColumns,
       IM_PROVIDER_MAP,
       FLOW_MARK_MAP,
-      FLOW_STEP_NUM,
       BECOME_STATUS_MAP,
       INIT_TYPE_MAP,
       GITOPS_DESCRIPTION,
-      EVEN_TYPE_MAP,
-      CHANGE_STATUS_MAP
+      EVEN_TYPE_MAP
     };
+  },
+  watch: {
+    '$route.params.id'(flowId, previousFlowId) {
+      if (!flowId || flowId === previousFlowId) {
+        return;
+      }
+      this.init();
+    }
   },
   mounted() {
     this.init();
@@ -791,8 +951,6 @@ export default {
         this.fetchDetailApply();
         this.fetchMsgInfo();
         this.fetchListDevops();
-
-        this.fetchChangeList();
       });
     },
     initImProviderInfo() {
@@ -805,6 +963,46 @@ export default {
         eventChangeLife: false,
         eventChangeNotice: false
       };
+    },
+    parentCandidateSelectable(flow) {
+      return flow?.selectable !== false && flow?.dsType === this.primaryDevops?.dsType;
+    },
+    parentFlowOptionMeta(flow) {
+      const reason =
+        flow?.dsType !== this.primaryDevops?.dsType ? this.$t('shu-ju-ku-lei-xing-yu-shang-ji-bian-geng-liu-yi-zhi') : flow?.unavailableReason;
+      return [flow?.flowManagerName, flow?.dsType, reason].filter(Boolean).join(' · ');
+    },
+    async openParentFlowModal() {
+      this.parentFlowForm.parentFlowId = this.flowInfo?.parentFlowId || null;
+      this.showParentFlowModal = true;
+      this.parentFlowLoading = true;
+      try {
+        const res = await this.$services.dmCicdFlowParentCandidates({ data: { flowId: this.flowId } });
+        if (res.success) {
+          this.parentFlowCandidates = (res.data || []).filter((flow) => flow.flowType === 'BUILT_IN');
+        }
+      } finally {
+        this.parentFlowLoading = false;
+      }
+    },
+    async saveParentFlow() {
+      this.parentFlowSaving = true;
+      try {
+        const res = await this.$services.dmCicdFlowParentConfig({
+          data: {
+            flowId: this.flowId,
+            parentFlowId: this.parentFlowForm.parentFlowId || null
+          }
+        });
+        if (res.success) {
+          this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+          this.showParentFlowModal = false;
+          await this.fetchDetail();
+          await this.fetchDetailApply();
+        }
+      } finally {
+        this.parentFlowSaving = false;
+      }
     },
     // inner methods
     async fetchDetail(successCall) {
@@ -1073,16 +1271,82 @@ export default {
       }
       return `${text.slice(0, maxLength)}...`;
     },
-    showRecordPanel() {
-      this.$router.push(`/cicd/${this.flowId}/change-records`);
+    showConfigPage() {
+      this.$router.push(`/cicd/${this.flowId}/config`);
+    },
+    goDependencyDetail(flow) {
+      this.dependencyVisible = false;
+      this.goToFlow(flow?.flowId);
+    },
+    goToFlow(flowId) {
+      if (flowId) {
+        this.$router.push(`/cicd/${flowId}`);
+      }
     },
     triggerPrimaryChange() {
-      if (this.primaryDevops) {
-        this.triggerChange(this.primaryDevops);
+      if (!this.primaryDevops || this.isBuiltInChild) {
+        return;
+      }
+      if (this.isBuiltInRoot) {
+        this.manualSqlImportQueue = Promise.resolve();
+        this.showManualSqlUploadModal = false;
+        this.showManualSqlModal = true;
+        return;
+      }
+      this.triggerChange(this.primaryDevops);
+    },
+    importManualSqlFile(files) {
+      this.manualSqlImporting = true;
+      this.manualSqlImportQueue = (this.manualSqlImportQueue || Promise.resolve()).then(async () => {
+        try {
+          const decoder = new TextDecoder('utf-8', { fatal: true });
+          const editor = this.$refs.manualSqlEditor;
+          const file = files[0];
+          const content = decoder.decode(await file.arrayBuffer());
+          if (!content.trim()) {
+            this.$Message.warning(this.$t('sql-wen-jian-nei-rong-wei-kong'));
+            return;
+          }
+          const currentSql = (await editor?.getSqlAsync()) || '';
+          const safeName = file.name.replace(/\*\//g, '* /');
+          const fileSql = `/* sourceCode: ${safeName} */\n${content}`;
+          editor?.setSql(currentSql.trim() ? `${currentSql.trimEnd()}\n\n${fileSql}` : fileSql);
+          this.showManualSqlUploadModal = false;
+        } catch (error) {
+          appLogger.error(error);
+          this.$Message.error(this.$t('sql-wen-jian-du-qu-shi-bai'));
+        } finally {
+          this.manualSqlImporting = false;
+        }
+      });
+    },
+    async submitManualSqlChange() {
+      this.manualSqlSubmitting = true;
+      try {
+        await (this.manualSqlImportQueue || Promise.resolve());
+        const sql = (await this.$refs.manualSqlEditor?.getSqlAsync()) || '';
+        if (!sql.trim()) {
+          this.$Message.warning(this.$t('qing-shu-ru-huo-shang-chuan-sql'));
+          return;
+        }
+        const res = await this.$services.dmCicdFlowTriggerChange({
+          data: {
+            flowId: this.flowId,
+            sql
+          }
+        });
+        if (res?.success) {
+          this.$Message.success(this.$t('chu-fa-bian-geng-cheng-gong'));
+          this.showManualSqlModal = false;
+          this.init();
+          this.refreshChangeRecords();
+        }
+      } finally {
+        this.manualSqlSubmitting = false;
       }
     },
     triggerPrimarySnapshot() {
-      if (this.primaryDevops) {
+      if (this.primaryDevops && !this.isBuiltIn) {
         this.triggerSnapshot(this.primaryDevops);
       }
     },
@@ -1118,6 +1382,10 @@ export default {
       }
       if (type === 'addGitOps') {
         this.handleGitOpsAdd();
+        return;
+      }
+      if (type === 'viewTickets') {
+        this.$router.push('/ticket');
         return;
       }
       if (type === 'editIm') {
@@ -1304,7 +1572,7 @@ export default {
         if (reloadChange) {
           this.$nextTick(() => {
             this.fetchListDevops();
-            this.fetchChangeList();
+            this.refreshChangeRecords();
           });
         } else {
           this.$nextTick(() => this.fetchListDevops());
@@ -1437,102 +1705,6 @@ export default {
         this.callbackData.enable = !this.callbackData.enable;
       }
     },
-    //
-    async fetchChangeList() {
-      this.loading = true;
-
-      const res = await this.$services.dmCicdChangeList({
-        data: {
-          flowId: this.flowId,
-          searchKeywords: this.keyword,
-          page: {
-            pageSize: this.pageSize,
-            pageNum: this.pageNum
-          }
-        }
-      });
-
-      this.loading = false;
-      if (!res.success || !res.data) {
-        this.changeList = [];
-        this.pageTotal = 0;
-        return;
-      }
-
-      this.changeList = res.data.records || [];
-      this.pageNum = res.data.current || this.pageNum;
-      this.pageSize = res.data.size || this.pageSize;
-      this.pageTotal = res.data.total || 0;
-    },
-    changeStepColor(step, row) {
-      if (row.currentStep === 'INIT_SNAPSHOT') {
-        switch (row.currentStatus) {
-          case 'OPEN':
-          case 'READY':
-          case 'WAIT':
-            return '#1296DB';
-          case 'FAILED':
-            return '#E44245';
-          case 'FINISH':
-            return '#59c378';
-          case 'CLOSED':
-          default:
-            return '#636363';
-        }
-      }
-      if (FLOW_STEP_NUM[step] < FLOW_STEP_NUM[row.currentStep]) {
-        return '#59c378';
-      } else if (FLOW_STEP_NUM[step] > FLOW_STEP_NUM[row.currentStep]) {
-        return '#636363';
-      } else {
-        switch (row.currentStatus) {
-          case 'OPEN':
-          case 'READY':
-          case 'WAIT':
-            return '#1296DB';
-          case 'FAILED':
-            return '#E44245';
-          case 'FINISH':
-            return '#59c378';
-          case 'CLOSED':
-            return '#636363';
-          default:
-            return '#59c378';
-        }
-      }
-    },
-    changeStatueIcon(row) {
-      if (row.currentStep === 'INIT_SNAPSHOT') {
-        switch (row.currentStatus) {
-          case 'FAILED':
-            return 'icon-v2-Progress3';
-          case 'FINISH':
-            return 'icon-v2-Success3';
-          case 'CLOSED':
-            return 'icon-v2-Close3';
-          default:
-            return 'icon-v2-Progress1';
-        }
-      }
-
-      const isFinishStep = row.currentStep === 'FINISH';
-      const isFinishStatus = row.currentStatus === 'FINISH';
-      if (row.locked) {
-        return isFinishStatus && isFinishStep ? 'icon-v2-Success3' : 'icon-v2-Close3';
-      }
-      if (isFinishStep) {
-        return isFinishStatus ? 'icon-v2-Success3' : 'icon-v2-Progress1';
-      }
-      return 'icon-v2-Progress1';
-    },
-    async handleQuery() {
-      await this.fetchChangeList();
-      this.changeList = this.changeList || [];
-    },
-    async handleQueryClear() {
-      this.keyword = '';
-      await this.fetchChangeList();
-    },
     deleteDevops(data) {
       this.$Modal.confirm({
         title: this.$t('que-ren-shi-fou-shan-chu'),
@@ -1586,13 +1758,8 @@ export default {
         }
       });
     },
-    handlePageChange(pageNum) {
-      this.pageNum = pageNum;
-      this.fetchChangeList();
-    },
-    handlePageSizeChange(pageSize) {
-      this.pageSize = pageSize;
-      this.init();
+    refreshChangeRecords() {
+      this.$refs.changeRecordList?.refreshAfterTrigger();
     },
     async triggerChange(devopsItem) {
       this.$Modal.confirm({
@@ -1608,6 +1775,7 @@ export default {
           if (res?.success) {
             this.$message.success(this.$t('chu-fa-bian-geng-cheng-gong'));
             this.init();
+            this.refreshChangeRecords();
           }
         }
       });
@@ -1626,6 +1794,7 @@ export default {
           if (res.success) {
             this.$message.success(this.$t('cao-zuo-cheng-gong'));
             this.init();
+            this.refreshChangeRecords();
           }
         }
       });
@@ -2048,89 +2217,125 @@ export default {
   content: '';
 }
 
-.panel-subheading {
+.flow-summary-strip {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 44px minmax(240px, 1fr);
+  align-items: stretch;
+  min-width: 0;
+  margin-top: 24px;
+  background: var(--bg-secondary);
+}
+
+.flow-summary-endpoint {
+  min-width: 0;
+  min-height: 112px;
+  padding: 16px 24px;
+}
+
+.flow-summary-label {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
-  color: #181d26;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.4;
-
-  &.database-title {
-    :deep(.data-source-icon) {
-      color: #12b76a;
-    }
-  }
+  margin-bottom: 12px;
+  color: #586575;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.release-grid {
+.flow-summary-title {
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  color: #17202d;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+}
+
+.flow-summary-title-link {
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.flow-summary-title-link:hover {
+  color: var(--primary-color);
+}
+
+.flow-summary-description {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+  overflow: hidden;
+  color: #8a949f;
+  font-size: 12px;
+  line-height: 19px;
+}
+
+.flow-summary-description > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-summary-link {
+  padding: 0;
+  border: 0;
+  color: var(--primary-color);
+  font-size: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.flow-summary-arrow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
-  align-items: stretch;
-  gap: 24px;
+  place-items: center;
+  color: #24b879;
 }
 
-.release-panel {
-  min-width: 0;
-}
-
-.link-divider {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.link-divider::before {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  border-left: 1px dashed #d5e0eb;
-  content: '';
-  transform: translateX(-50%);
-}
-
-.link-divider span {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 74px;
-  width: 74px;
-  min-width: 74px;
-  max-width: 74px;
-  height: 74px;
-  min-height: 74px;
-  max-height: 74px;
-  box-sizing: border-box;
-  aspect-ratio: 1 / 1;
-  border: 1px dashed #d8ecdf;
-  border-radius: 999px;
-  background: #fff;
-  color: #0fa958;
-}
-
-.link-divider span::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 52px;
-  min-width: 52px;
-  height: 52px;
-  min-height: 52px;
-  aspect-ratio: 1 / 1;
-  border-radius: 999px;
-  background: #dff7eb;
-  content: '';
-  transform: translate(-50%, -50%);
+.flow-summary-arrow svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  transform: translateX(-1px);
 }
 
 .flow-overview-section {
   min-height: auto;
+}
+
+.flow-change-record-section {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.flow-change-record-frame {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 20px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: #fff;
 }
 
 .detail-toolbar {
@@ -2367,35 +2572,6 @@ export default {
   }
 }
 
-.pipeline-overview {
-  margin-top: 32px;
-}
-
-.endpoint-row {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  margin-top: 10px;
-  color: #111827;
-  font-size: 12px;
-  line-height: 18px;
-
-  span {
-    flex: 0 0 84px;
-    color: #5f6c80;
-    font-weight: 700;
-  }
-
-  strong {
-    min-width: 0;
-    overflow: hidden;
-    color: #111827;
-    font-weight: 800;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
 .pipeline-link {
   position: relative;
   display: flex;
@@ -2590,7 +2766,9 @@ export default {
 }
 
 .trigger-config-modal,
-.callback-config-modal {
+.callback-config-modal,
+.manual-sql-modal,
+.parent-flow-config-modal {
   padding: 6px 0 12px;
   color: #111827;
 }
@@ -2605,6 +2783,29 @@ export default {
   font-size: 20px;
   font-weight: 800;
   line-height: 1;
+}
+
+.manual-sql-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 14px 0;
+  color: #66758a;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.manual-sql-editor {
+  height: 380px;
+  min-height: 280px;
+  overflow: hidden;
+  border: 1px solid #d9e3ee;
+  border-radius: 6px;
+}
+
+.manual-sql-footer {
+  justify-content: flex-end;
 }
 
 .trigger-config-title::before,
@@ -2665,6 +2866,24 @@ export default {
 
 .callback-config-row {
   grid-template-columns: 150px minmax(260px, 1fr) minmax(180px, 0.75fr);
+}
+
+.parent-flow-config-modal {
+  padding: 12px 0 20px;
+}
+
+.parent-flow-selector {
+  margin-top: 24px;
+
+  :deep(.ivu-select-selection) {
+    min-height: 40px;
+  }
+}
+
+.parent-flow-option-meta {
+  margin-left: 8px;
+  color: var(--text-tertiary);
+  font-size: 12px;
 }
 
 .config-modal-label {
@@ -2991,16 +3210,6 @@ export default {
 }
 
 @media (max-width: 1280px) {
-  .release-grid,
-  .pipeline-overview {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .link-divider {
-    min-height: 72px;
-  }
-
   .config-row {
     grid-template-columns: 220px 140px minmax(180px, 1fr) minmax(220px, auto) 22px;
   }
@@ -3015,10 +3224,6 @@ export default {
   .overview-meta-grid {
     margin-top: 22px;
     padding-left: 18px;
-  }
-
-  .pipeline-overview {
-    margin-top: 22px;
   }
 }
 
@@ -3046,6 +3251,18 @@ export default {
     justify-content: flex-start;
   }
 
+  .flow-summary-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .flow-summary-arrow {
+    display: none;
+  }
+
+  .flow-summary-target {
+    padding-top: 24px;
+  }
+
   .overview-meta-grid {
     grid-template-columns: 1fr;
     row-gap: 10px;
@@ -3066,6 +3283,15 @@ export default {
     &:nth-last-child(2) {
       border-bottom: 1px dashed #d9e3ee;
     }
+  }
+
+  .manual-sql-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .manual-sql-editor {
+    height: 320px;
   }
 
   .execution-config-row {

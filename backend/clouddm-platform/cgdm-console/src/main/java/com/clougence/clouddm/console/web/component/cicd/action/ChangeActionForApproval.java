@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
@@ -140,7 +141,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         return info;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public DmApprovalDO createApproval(DmChangeDO change, DsLevels dsLevels, Path sqlFile, Locale locale) {
         DmChangeFlowDO flowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
         DmDsDO dsDO = dsLevels.dsDO();
@@ -168,7 +169,11 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         String bizId = this.namingDao.genApprovalBizId();
         DmApprovalDO ticket = new DmApprovalDO();
         ticket.setBizId(bizId);
-        ticket.setOwnerUid(flowDO.getFlowManagerUid());
+        String applicantUid = change.getTriggerUid();
+        if (applicantUid == null) {
+            applicantUid = flowDO.getFlowManagerUid();
+        }
+        ticket.setOwnerUid(applicantUid);
         ticket.setPrimaryUid(change.getOwnerUid());
         ticket.setBindDsId(dsDO.getId());
         ticket.setTargetInfo(targetInfo);
@@ -191,14 +196,6 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setTicketInfo(JsonUtils.toJson(ticketInfo));
         ticket.setLevels(dsLevels.dbLevels());
         ticket.setRollBackSql("");
-
-        //
-        if (approvalInfo.getApprovalType() == ApprovalType.Internal) {
-            DmApprovalPersonDO primary = new DmApprovalPersonDO();
-            primary.setPersonUid(flowDO.getFlowManagerUid());
-            primary.setTicketBzId(bizId);
-            this.approvalDal.personMapper().insert(primary);
-        }
 
         this.approvalDal.approvalMapper().insert(ticket);
         this.localFileService.addAsLocked(change.getOwnerUid(), sqlFile, "cicd-" + change.getId() + ".sql", SysAttachmentType.SQL_FILE, ticket.getId());

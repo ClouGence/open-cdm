@@ -199,8 +199,6 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
             if (explainSpi != null && hasRequests) {
                 SessionContextDTO sessionContext = DmDsUtils.createSessionCtx(context.getDsConfig(), context.getDsLevels().levelsParam());
                 sessionContext.setSessionId(UUID.randomUUID().toString().replace("-", ""));
-                // Keep the analysis transaction uncommitted if the EXPLAIN marker is lost unexpectedly.
-                sessionContext.setRdbAutoCommit(false);
                 sessionContext.setRdbReadOnly(true);
                 sessionId = this.queryService.createSession(context.getApproval().getOwnerUid(), context.getDsLevels(), sessionContext);
             }

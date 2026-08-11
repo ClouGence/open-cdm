@@ -3,6 +3,9 @@
     <ReleaseFlowSuccess
       v-if="createResult"
       :webhook="webhook"
+      :is-built-in="isBuiltIn"
+      :has-parent="Boolean(flowGitOpsForm.parentFlowId)"
+      :batch-result="batchCreateResult"
       @copy="handleCopyTemp"
       @open-url="handleJumpUrl"
       @jump-doc="jumpToWebhookDoc"
@@ -11,7 +14,8 @@
 
     <template v-else>
       <Spin v-if="loading" fix />
-      <div class="release-flow-shell" :class="`release-flow-shell-${currentStepKey}`">
+
+      <div v-if="!batchCreateMode" class="release-flow-shell" :class="`release-flow-shell-${currentStepKey}`">
         <div class="release-flow-main">
           <ReleaseFlowBasicInfo
             v-if="currentStepKey === 'basic'"
@@ -30,6 +34,10 @@
             :release-rules="releaseRules"
             :source-scm-type="sourceScmType"
             :source-type-card-list="sourceTypeCardList"
+            :is-built-in="isBuiltIn"
+            :parent-flow-list="parentFlowList"
+            :parent-flow-loading="parentFlowLoading"
+            :database-type-locked="isBuiltIn && Boolean(flowGitOpsForm.parentFlowId)"
             :filtered-devops-scm-list="filteredDevopsScmList"
             :devops-scm-selected="devopsScmSelected"
             :devops-repo-list-by-group="devopsRepoListByGroup"
@@ -46,6 +54,7 @@
             :event-type-map="EVEN_TYPE_MAP"
             :flow-git-ops-description="fetchFlowGitOpsDescription"
             @source-type-select="handleSourceTypeSelect"
+            @parent-flow-change="handleParentFlowSelected"
             @devops-scm-change="handleDevopsScmSelected"
             @devops-repo-change="handleDevopsRepoSelected"
             @repo-jump="handleDevopsJumpToRepo"
@@ -72,6 +81,7 @@
             @select-open-change="handleSelectDropdownOpen"
             @add-im="goToAddIm"
           />
+          <ReleaseFlowWorkOrderConfig v-if="currentStepKey === 'config'" />
         </div>
 
         <ReleaseFlowSummary
@@ -85,9 +95,42 @@
           :summary-im-channel="summaryImChannel"
           :selected-im-provider-name="selectedImProviderName"
           :subscription-summary="subscriptionSummary"
+          :is-built-in="isBuiltIn"
+          :selected-parent-flow-name="selectedParentFlowName"
           @open-help="openHelp"
         />
       </div>
+
+      <template v-else>
+        <ReleaseFlowBatchOrchestration
+          v-show="currentStepKey === 'basic'"
+          ref="batchOrchestration"
+          :devops-users="devopsUsers"
+          :devops-ins-list="devopsInsList"
+          :database-type-options="databaseTypeOptions"
+          :ds-setting-def="dmGlobalSetting.dsSettingDef || {}"
+          :initial-manager-uid="userInfo?.uid || ''"
+          @created="handleBatchCreated"
+        />
+
+        <div v-if="currentStepKey === 'config'" class="release-flow-shell release-flow-shell-config release-flow-batch-config-shell">
+          <div class="release-flow-main">
+            <ReleaseFlowNoticeConfig
+              :flow-im-form="flowImForm"
+              :im-def-list="imDefList"
+              :im-def-selected="imDefSelected"
+              :is-im-disabled="isImDisabled"
+              :im-provider-list="imProviderList"
+              :subscription-items="subscriptionItems"
+              @im-def-select="handleImDefOne"
+              @im-provider-change="handleImProviderSelected"
+              @select-open-change="handleSelectDropdownOpen"
+              @add-im="goToAddIm"
+            />
+            <ReleaseFlowWorkOrderConfig />
+          </div>
+        </div>
+      </template>
 
       <div class="page-footer">
         <Button v-if="currentStep > 1" @click="handlePreviousStep">{{ $t('shang-yi-bu') }}</Button>
@@ -103,10 +146,12 @@
 import { mapState } from 'vuex';
 import { handleCopy } from '@/utils/clipboard';
 import ReleaseFlowBasicInfo from './components/ReleaseFlowBasicInfo.vue';
+import ReleaseFlowBatchOrchestration from './components/ReleaseFlowBatchOrchestration.vue';
 import ReleaseFlowNoticeConfig from './components/ReleaseFlowNoticeConfig.vue';
 import ReleaseFlowPipelineConfig from './components/ReleaseFlowPipelineConfig.vue';
 import ReleaseFlowSuccess from './components/ReleaseFlowSuccess.vue';
 import ReleaseFlowSummary from './components/ReleaseFlowSummary.vue';
+import ReleaseFlowWorkOrderConfig from './components/ReleaseFlowWorkOrderConfig.vue';
 import { defaultLanguageMap, EVEN_TYPE_MAP, GITOPS_DESCRIPTION } from './constant';
 import { DEFAULT_DEVOPS_INFO, DEFAULT_FLOW_INFO, getRepoSelectionKey, getScmDisplayName, groupByRepoNamespace } from './utils';
 
@@ -114,22 +159,27 @@ const getDefaultFlowInfo = () => ({ ...DEFAULT_FLOW_INFO });
 
 const getDefaultGitOpsInfo = () => ({
   ...DEFAULT_DEVOPS_INFO,
-  databaseType: 'MySQL'
+  databaseType: 'MySQL',
+  parentFlowId: null
 });
 
 export default {
   name: 'CicdReleaseFlowPage',
   components: {
     ReleaseFlowBasicInfo,
+    ReleaseFlowBatchOrchestration,
     ReleaseFlowNoticeConfig,
     ReleaseFlowPipelineConfig,
     ReleaseFlowSuccess,
-    ReleaseFlowSummary
+    ReleaseFlowSummary,
+    ReleaseFlowWorkOrderConfig
   },
   data() {
     return {
       loading: false,
       submitting: false,
+      creationMode: 'single',
+      batchCreateResult: null,
       currentStep: 1,
       flowId: '',
       flowInfo: null,
@@ -152,7 +202,9 @@ export default {
         eventChangeNotice: false
       },
       devopsUsers: [],
-      sourceScmType: 'Gitee',
+      sourceScmType: 'BUILT_IN',
+      parentFlowList: [],
+      parentFlowLoading: false,
       devopsScmList: [],
       devopsScmSelected: null,
       devopsRepoList: [],
@@ -180,6 +232,9 @@ export default {
     ...mapState(['userInfo', 'dmGlobalSetting']),
     createFlowMode() {
       return this.$route.path === '/cicd/create';
+    },
+    batchCreateMode() {
+      return this.createFlowMode && this.creationMode === 'batch';
     },
     wizardSteps() {
       const steps = [{ key: 'basic', label: this.$t('ji-ben-xin-xi') }];
@@ -218,7 +273,13 @@ export default {
     releaseRules() {
       return {
         repoScmId: [{ validator: this.validateRepoScm, trigger: 'change' }],
-        repoSelectionKey: [{ required: true, message: this.$t('qing-xuan-ze-cang-ku'), trigger: 'change' }],
+        repoSelectionKey: [
+          {
+            required: true,
+            message: this.$t('qing-xuan-ze-cang-ku'),
+            trigger: 'change'
+          }
+        ],
         repoBranch: [
           {
             required: true,
@@ -302,15 +363,44 @@ export default {
         }
       });
 
+      if (this.createFlowMode) {
+        sourceTypeMap.set('built_in', {
+          value: 'BUILT_IN',
+          label: this.$t('nei-zhi-bian-geng-liu'),
+          iconResource: ''
+        });
+      }
+
+      const sourceTypeOrder = { built_in: 0, gitee: 1, gitlab: 2 };
       return [...sourceTypeMap.values()].sort((left, right) => {
-        if (this.normalizeSourceType(left.value) === 'gitee') return -1;
-        if (this.normalizeSourceType(right.value) === 'gitee') return 1;
+        const leftType = this.normalizeSourceType(left.value);
+        const rightType = this.normalizeSourceType(right.value);
+        const leftOrder = sourceTypeOrder[leftType] ?? Number.MAX_SAFE_INTEGER;
+        const rightOrder = sourceTypeOrder[rightType] ?? Number.MAX_SAFE_INTEGER;
+        if (leftOrder !== rightOrder) {
+          return leftOrder - rightOrder;
+        }
         return left.label.localeCompare(right.label);
       });
     },
     filteredDevopsScmList() {
       const selectedType = this.normalizeSourceType(this.sourceScmType);
       return this.devopsScmList.filter((item) => this.normalizeSourceType(item?.scmType) === selectedType);
+    },
+    isBuiltIn() {
+      return this.sourceScmType === 'BUILT_IN';
+    },
+    selectedParentFlow() {
+      return this.parentFlowList.find((flow) => String(flow.flowId) === String(this.flowGitOpsForm.parentFlowId)) || null;
+    },
+    selectedParentFlowName() {
+      if (this.selectedParentFlow?.flowName) {
+        return this.selectedParentFlow.flowName;
+      }
+      if (this.isBuiltIn) {
+        return this.$t('wu-shang-ji-bian-geng-liu-shou-dong-ti-gong-sql');
+      }
+      return '';
     },
     filteredDevopsInsList() {
       if (!this.flowGitOpsForm.databaseType) {
@@ -388,7 +478,12 @@ export default {
           await this.fetchFlowDetail();
         }
 
-        await Promise.all([this.fetchDevopsScmList(), this.fetchInsList(), this.createFlowMode ? this.fetchDevopsUsers() : Promise.resolve()]);
+        await Promise.all([
+          this.fetchDevopsScmList(),
+          this.fetchInsList(),
+          this.createFlowMode ? this.fetchDevopsUsers() : Promise.resolve(),
+          this.createFlowMode ? this.fetchParentFlows() : Promise.resolve()
+        ]);
         if (this.createFlowMode) {
           this.flowBasicForm.flowManagerUid = this.userInfo?.uid || '';
           await this.fetchImDefList();
@@ -399,6 +494,8 @@ export default {
     },
     resetState() {
       this.submitting = false;
+      this.creationMode = this.$route.query.mode === 'batch' ? 'batch' : 'single';
+      this.batchCreateResult = null;
       this.currentStep = 1;
       this.createResult = null;
       this.flowId = '';
@@ -412,6 +509,12 @@ export default {
       this.flowBasicForm = getDefaultFlowInfo();
       this.flowGitOpsForm = getDefaultGitOpsInfo();
       this.sourceScmType = 'Gitee';
+      if (this.createFlowMode) {
+        this.sourceScmType = 'BUILT_IN';
+        this.flowGitOpsForm.initScript = 'None';
+      }
+      this.parentFlowList = [];
+      this.parentFlowLoading = false;
       this.flowImForm = {
         imId: null,
         imType: 'none',
@@ -465,6 +568,15 @@ export default {
         this.syncSourceTypeWithProvider();
       }
     },
+    async fetchParentFlows() {
+      this.parentFlowLoading = true;
+      try {
+        const res = await this.$services.dmCicdFlowParentCandidates({ data: {} });
+        this.parentFlowList = res.success ? (res.data || []).filter((flow) => flow.flowType === 'BUILT_IN') : [];
+      } finally {
+        this.parentFlowLoading = false;
+      }
+    },
     normalizeSourceType(sourceType) {
       return String(sourceType || '')
         .replace(/^icon-v2-/i, '')
@@ -488,6 +600,24 @@ export default {
       this.sourceScmType = sourceType;
       this.flowGitOpsForm.repoScmId = '';
       this.handleDevopsScmSelected('');
+      this.flowGitOpsForm.parentFlowId = null;
+      if (sourceType === 'BUILT_IN') {
+        this.flowGitOpsForm.initScript = 'None';
+      } else if (this.createFlowMode) {
+        this.flowGitOpsForm.initScript = 'Snapshot';
+      }
+    },
+    handleParentFlowSelected(parentFlowId) {
+      this.flowGitOpsForm.parentFlowId = parentFlowId || null;
+      this.$nextTick(() => {
+        this.$refs.pipelineConfig?.clearSourceValidate?.('parentFlowId');
+      });
+      const parent = this.parentFlowList.find((flow) => String(flow.flowId) === String(parentFlowId));
+      if (!parent?.dsType) {
+        return;
+      }
+      this.flowGitOpsForm.databaseType = parent.dsType;
+      this.handleDatabaseTypeChange();
     },
     async handleDevopsScmSelected(repoScmId) {
       const nextRepoScmId = this.hasFormValue(repoScmId) && typeof repoScmId !== 'object' ? repoScmId : this.flowGitOpsForm.repoScmId;
@@ -685,6 +815,10 @@ export default {
       return this.getPromptMessage('qing-xuan-ze', labelKey);
     },
     validateRepoScm(rule, value, callback) {
+      if (this.isBuiltIn) {
+        callback();
+        return;
+      }
       if (!this.hasFormValue(value)) {
         callback(new Error(this.getSelectRequiredMessage('nav-git-ops')));
         return;
@@ -748,6 +882,33 @@ export default {
       }
     },
     async handleSubmit() {
+      if (this.batchCreateMode) {
+        if (this.currentStepKey === 'basic') {
+          const valid = this.$refs.batchOrchestration?.validate?.();
+          if (!valid) {
+            return;
+          }
+          this.currentStep += 1;
+          this.scrollToStepTop();
+          return;
+        }
+
+        const valid = await this.validateCurrentStep();
+        if (!valid) {
+          return;
+        }
+        this.submitting = true;
+        try {
+          await this.$refs.batchOrchestration?.submit?.({
+            option: this.buildFlowOptionPayload(),
+            messenger: this.buildMessengerPayload()
+          });
+        } finally {
+          this.submitting = false;
+        }
+        return;
+      }
+
       const valid = await this.validateCurrentStep();
       if (!valid) {
         return;
@@ -781,6 +942,14 @@ export default {
       }
       this.currentStep -= 1;
       this.scrollToStepTop();
+    },
+    handleBatchCreated(result) {
+      this.batchCreateResult = result || null;
+      this.createResult = result ? { ...result, batch: true } : null;
+      this.flowId = result?.rootFlowId || '';
+      if (result) {
+        this.$Message.success(this.$t('cicd-batch-create-success', { count: result.flowCount || 0 }));
+      }
     },
     scrollToStepTop() {
       this.$nextTick(() => {
@@ -919,6 +1088,12 @@ export default {
       return result.every(Boolean);
     },
     buildPipelinePayload() {
+      if (this.isBuiltIn) {
+        return {
+          repoScmId: 0,
+          dsLevels: this.fetchFormDsLevels()
+        };
+      }
       return {
         repoScmId: this.flowGitOpsForm.repoScmId,
         repoScmUrl: this.flowGitOpsForm.repoScmUrl,
@@ -957,6 +1132,8 @@ export default {
           flowName: this.flowBasicForm.flowName,
           flowDesc: this.flowBasicForm.flowDesc,
           flowManagerUid: this.flowBasicForm.flowManagerUid,
+          flowType: this.isBuiltIn ? 'BUILT_IN' : 'SCM',
+          parentFlowId: this.isBuiltIn ? this.flowGitOpsForm.parentFlowId : null,
           option: this.buildFlowOptionPayload(),
           pipeline: this.buildPipelinePayload(),
           messenger: this.buildMessengerPayload()
@@ -1822,10 +1999,6 @@ export default {
   border-bottom: 0;
 }
 
-.flow-config-row-reserved {
-  min-height: 82px;
-}
-
 .flow-execute-section .flow-config-row {
   grid-template-columns: 132px minmax(0, 1fr);
   align-items: center;
@@ -1837,10 +2010,6 @@ export default {
 
 .flow-execute-section .flow-config-row:last-child {
   border-bottom: 0;
-}
-
-.flow-execute-section .flow-config-row-reserved {
-  min-height: 72px;
 }
 
 .flow-config-label {
@@ -1867,16 +2036,6 @@ export default {
   gap: 30px;
 }
 
-.flow-config-radio-row {
-  min-height: 24px;
-}
-
-.flow-config-radio-row .ivu-radio-wrapper {
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 22px;
-}
-
 .flow-config-hint {
   max-width: 96%;
   margin-top: 12px;
@@ -1894,43 +2053,19 @@ export default {
   line-height: 1.55;
 }
 
-.flow-config-hint-reserved {
-  min-height: 36px;
-}
-
-.flow-execute-section .flow-config-hint-reserved {
-  min-height: 22px;
-}
-
-.strategy-radio-row,
-.execution-radio-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px 28px;
-  min-height: 34px;
-}
-
-.strategy-radio-row .ivu-radio-wrapper,
-.execution-radio-row .ivu-radio-wrapper {
+.work-order-config-value {
   display: inline-flex;
   align-items: center;
-  margin-right: 0;
-  color: #1f2937;
-  font-size: 16px;
+  gap: 7px;
+  min-height: 32px;
+  color: #0f9f55;
+  font-size: 14px;
   font-weight: 500;
-  line-height: 32px;
   white-space: nowrap;
 }
 
-.strategy-radio-row .ivu-radio,
-.execution-radio-row .ivu-radio {
-  margin-right: 8px;
-}
-
-.strategy-radio-row .ivu-radio-disabled + span,
-.execution-radio-row .ivu-radio-disabled + span {
-  color: #b4bfcc;
+.work-order-config-value .ivu-icon {
+  font-size: 18px;
 }
 
 .release-flow-summary.page-aside {
@@ -2089,8 +2224,6 @@ export default {
 
 .primary-action {
   min-width: 148px;
-  border-color: #0f9f55;
-  background: #0f9f55;
 }
 
 .release-flow-success {
@@ -2258,7 +2391,7 @@ export default {
   }
 
   .type-card-group {
-    grid-template-columns: repeat(auto-fit, minmax(96px, 104px));
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
     gap: 6px;
   }
 
@@ -2377,6 +2510,10 @@ export default {
   align-items: stretch;
 }
 
+.release-flow-batch-config-shell {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .release-flow-shell-config .release-flow-main {
   display: flex;
   flex-direction: column;
@@ -2479,23 +2616,6 @@ export default {
   border-bottom: 0;
 }
 
-.release-flow-shell-config .strategy-radio-row,
-.release-flow-shell-config .execution-radio-row {
-  gap: 8px 20px;
-  min-height: 30px;
-}
-
-.release-flow-shell-config .strategy-radio-row .ivu-radio-wrapper,
-.release-flow-shell-config .execution-radio-row .ivu-radio-wrapper {
-  font-size: 14px;
-  line-height: 28px;
-}
-
-.release-flow-shell-config .strategy-radio-row .ivu-radio,
-.release-flow-shell-config .execution-radio-row .ivu-radio {
-  margin-right: 6px;
-}
-
 .release-flow-shell-config .flow-config-list {
   gap: 18px;
 }
@@ -2518,33 +2638,14 @@ export default {
   padding: 0;
 }
 
-.release-flow-shell-config .flow-config-row-reserved {
-  min-height: 78px;
-}
-
-.release-flow-shell-config .flow-execute-section .flow-config-row-reserved {
-  min-height: 64px;
-}
-
 .release-flow-shell-config .flow-config-label {
   font-size: 14px;
   line-height: 22px;
 }
 
-.release-flow-shell-config .flow-config-radio-row {
-  gap: 8px 28px;
-  min-height: 22px;
-}
-
 .release-flow-shell-config .flow-execute-section .flow-config-control {
   grid-template-columns: minmax(190px, 0.76fr) minmax(220px, 1fr);
   gap: 22px;
-}
-
-.release-flow-shell-config .flow-config-radio-row .ivu-radio-wrapper {
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 22px;
 }
 
 .release-flow-shell-config .flow-config-hint {
@@ -2579,9 +2680,15 @@ export default {
     grid-row: auto;
   }
 
+  .release-flow-main {
+    height: max-content;
+    min-height: max-content;
+  }
+
   .release-flow-summary.page-aside {
     display: block;
     height: auto;
+    min-height: auto;
   }
 }
 

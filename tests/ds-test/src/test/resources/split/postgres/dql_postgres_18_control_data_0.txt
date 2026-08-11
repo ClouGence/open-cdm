@@ -1,6 +1,0 @@
-SELECT default_char_signedness FROM pg_control_init();
-SELECT (pg_control_init()).default_char_signedness;
-------------------------------------------------------------------------------------------
-[SELECT|LOG_READ] SELECT default_char_signedness FROM pg_control_init();
-----------
-[SELECT|LOG_READ] SELECT (pg_control_init()).default_char_signedness;

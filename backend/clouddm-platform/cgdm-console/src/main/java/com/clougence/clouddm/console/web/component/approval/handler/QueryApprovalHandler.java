@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
@@ -80,7 +81,7 @@ public class QueryApprovalHandler implements ApprovalHandler {
         return ApprovalBiz.DM_QUERY;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
@@ -92,7 +93,7 @@ public class QueryApprovalHandler implements ApprovalHandler {
         this.updateExecutionStatus(approvalId, jobDO.getStatus());
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
@@ -153,7 +154,7 @@ public class QueryApprovalHandler implements ApprovalHandler {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void createApproval(long approvalId, ImSenderService sender) {
         DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalId);
         if (ticketDO.getApproType() == ApprovalType.Internal) {

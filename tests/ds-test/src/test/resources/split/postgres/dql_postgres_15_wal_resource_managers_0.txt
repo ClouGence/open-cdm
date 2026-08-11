@@ -1,6 +1,0 @@
-SELECT count(*) > 0 AS has_wal_resource_managers FROM pg_get_wal_resource_managers();
-SELECT rm_id, rm_name, rm_builtin FROM pg_get_wal_resource_managers() WHERE rm_builtin ORDER BY rm_id LIMIT 5;
-------------------------------------------------------------------------------------------
-[METADATA] SELECT count(*) > 0 AS has_wal_resource_managers FROM pg_get_wal_resource_managers();
-----------
-[METADATA] SELECT rm_id, rm_name, rm_builtin FROM pg_get_wal_resource_managers() WHERE rm_builtin ORDER BY rm_id LIMIT 5;

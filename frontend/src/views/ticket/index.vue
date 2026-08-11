@@ -24,17 +24,11 @@
                 style="width: 300px; margin-right: 4px"
                 clearable
               />
-              <Select style="width: 120px; margin-right: 4px" v-model="searchKey.ticketStatus" clearable>
-                <Option v-for="(status, key) in ticketStatusList" :value="key" :key="key">
-                  {{ status }}
-                </Option>
+              <Select v-model="searchKey.queryType" style="width: 120px; margin-right: 4px">
+                <Option value="TITLE">{{ $t('biao-ti') }}</Option>
+                <Option value="BIZ_ID">{{ $t('gong-dan-hao') }}</Option>
               </Select>
-              <Input
-                :placeholder="$t('qing-shu-ru-gong-dan-biao-ti-guan-jian-zi-cha-xun')"
-                v-model="searchKey.ticketTitleName"
-                style="width: 280px; margin-right: 4px"
-                clearable
-              />
+              <Input :placeholder="ticketQueryPlaceholder" v-model="searchKey.queryValue" style="width: 280px; margin-right: 4px" clearable />
               <Button type="primary" ghost class="ticket-search-btn" @click="listTickets">
                 {{ $t('cha-xun') }}
               </Button>
@@ -114,7 +108,9 @@
       </div>
       <template #footer>
         <Button @click="handleCloseTicketCreateModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleCreateTicket" :disabled="!ticketType">{{ $t('ti-jiao-gong-dan') }}</Button>
+        <Button type="primary" @click="handleCreateTicket" :disabled="!ticketType">
+          {{ $t('ti-jiao-gong-dan') }}
+        </Button>
       </template>
     </CCModal>
   </div>
@@ -122,7 +118,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { TICKET_STATUS, TICKET_STATUS_COLOR, TICKET_WAIT_STATUS } from '@/const';
+import { TICKET_STATUS, TICKET_STATUS_COLOR } from '@/const';
 import { APPROV_BIZ_MAP } from './constant';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 
@@ -143,9 +139,9 @@ export default {
       ],
       searchKey: {
         daterange: [],
-        ticketStatus: '',
-        type: '',
-        ticketTitleName: ''
+        queryType: 'BIZ_ID',
+        queryValue: '',
+        type: ''
       },
       ticketColumns: [
         {
@@ -202,13 +198,11 @@ export default {
     this.listTickets();
   },
   computed: {
-    ticketStatusList() {
-      return this.ticketListType === 'WAIT_SELF_PROCESS' ? TICKET_WAIT_STATUS : TICKET_STATUS;
-    },
-    styleVar() {
-      return (ticketStatus) => ({
-        '--status-color': TICKET_STATUS_COLOR[ticketStatus]
-      });
+    ticketQueryPlaceholder() {
+      if (this.searchKey.queryType === 'BIZ_ID') {
+        return this.$t('qing-shu-ru-gong-dan-hao-cha-xun');
+      }
+      return this.$t('qing-shu-ru-gong-dan-biao-ti-guan-jian-zi-cha-xun');
     },
     TICKET_STATUS() {
       return TICKET_STATUS;
@@ -274,14 +268,22 @@ export default {
     },
     async listTickets() {
       this.loading = true;
+      let ticketBizId = null;
+      let ticketTitleName = null;
+      const queryValue = this.searchKey.queryValue.trim();
+      if (this.searchKey.queryType === 'BIZ_ID') {
+        ticketBizId = queryValue || null;
+      } else {
+        ticketTitleName = queryValue || null;
+      }
       const res = await this.$services.rdpTicketListBasic({
         data: {
           ticketId: null,
           userName: '',
           startTimeMs: new Date(this.searchKey.daterange[0]).getTime(),
           endTimeMs: new Date(this.searchKey.daterange[1]).getTime(),
-          ticketTitleName: this.searchKey.ticketTitleName,
-          ticketStatus: this.searchKey.ticketStatus,
+          ticketBizId,
+          ticketTitleName,
           ticketListType: this.ticketListType,
           page: {
             pageSize: this.pageSize,

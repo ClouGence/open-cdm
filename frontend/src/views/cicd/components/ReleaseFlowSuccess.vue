@@ -2,10 +2,24 @@
   <div class="release-flow-success">
     <div class="success-card">
       <CustomIcon type="icon-v2-SuccessColorful" size="72px" />
-      <h2>{{ $t('xiang-mu-chuang-jian-cheng-gong') }}</h2>
-      <p>{{ $t('xiang-mu-yi-jing-chuang-jian-nin-huan-xu-yao-dao') }} {{ $t('cang-ku-pei-zhi-webhook') }}</p>
+      <h2>{{ batchResult ? $t('cicd-batch-create-success-title') : $t('xiang-mu-chuang-jian-cheng-gong') }}</h2>
+      <p v-if="batchResult">
+        {{
+          $t('cicd-batch-create-success-description', {
+            count: batchResult.flowCount,
+            relations: batchResult.relationCount
+          })
+        }}
+      </p>
+      <p v-if="hasWebhook">{{ $t('xiang-mu-yi-jing-chuang-jian-nin-huan-xu-yao-dao') }} {{ $t('cang-ku-pei-zhi-webhook') }}</p>
+      <p v-else-if="!batchResult && isBuiltIn && hasParent">
+        {{ $t('nei-zhi-bian-geng-liu-chuang-jian-cheng-gong-shuo-ming') }}
+      </p>
+      <p v-else-if="!batchResult">
+        {{ $t('nei-zhi-gen-bian-geng-liu-chuang-jian-cheng-gong-shuo-ming') }}
+      </p>
 
-      <div class="webhook-fields">
+      <div v-if="hasWebhook" class="webhook-fields">
         <div class="webhook-row">
           <span>{{ $t('cang-ku-di-zhi') }}</span>
           <Input :model-value="webhook.repoUrl" readonly>
@@ -33,7 +47,9 @@
       </div>
 
       <div class="success-actions">
-        <Button type="primary" ghost @click="$emit('jump-doc')">{{ $t('cha-kan-wen-dang') }}</Button>
+        <Button v-if="hasWebhook" type="primary" ghost @click="$emit('jump-doc')">
+          {{ $t('cha-kan-wen-dang') }}
+        </Button>
         <Button type="primary" @click="$emit('go-created-flow')">{{ $t('jin-ru-bian-geng-liu') }}</Button>
       </div>
     </div>
@@ -47,8 +63,16 @@ export default {
     webhook: {
       type: Object,
       required: true
-    }
+    },
+    isBuiltIn: { type: Boolean, default: false },
+    hasParent: { type: Boolean, default: false },
+    batchResult: { type: Object, default: null }
   },
-  emits: ['copy', 'open-url', 'jump-doc', 'go-created-flow']
+  emits: ['copy', 'open-url', 'jump-doc', 'go-created-flow'],
+  computed: {
+    hasWebhook() {
+      return Boolean(this.webhook?.url);
+    }
+  }
 };
 </script>

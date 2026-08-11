@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
@@ -85,7 +86,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     @Resource
     private WorkerStatusRService statusRService;
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public DmSysWorkerDO createInitialWorker(String ownerUid, CreateInitialWorkerFO fo) {
         checkWorkerAndClusterPropMatch(fo.getCloudOrIdcName(), fo.getRegion(), fo.getClusterId());
@@ -144,7 +145,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void deleteWorker(long workerId, boolean force) {
         DmSysWorkerDO workerDO = this.systemDal.workerMapper().selectById(workerId);
         if (workerDO == null) {
