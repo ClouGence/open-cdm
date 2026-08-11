@@ -36,7 +36,7 @@
             AND
             ticket_stage = #{ticketStage,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStage}
             AND
-            deleted      = false;
+            deleted      = false
     </select>
 
     <select id="listByTicketId" resultMap="ticketProcessDO">
@@ -48,7 +48,7 @@
             ticket_id = #{ticketId}
             AND
             deleted   = false
-        ORDER BY id;
+        ORDER BY id
     </select>
 
     <update id="updateContextById">
@@ -57,7 +57,7 @@
         SET
             stage_context = #{context}
         WHERE
-            id = #{id};
+            id = #{id}
     </update>
     <update id="updateModified">
         UPDATE
@@ -65,7 +65,7 @@
         SET
             gmt_modified = NOW()
         WHERE
-            id = #{id};
+            id = #{id}
     </update>
     <update id="updateNotEndProcessByTicketId">
         UPDATE
@@ -75,7 +75,7 @@
         WHERE
             ticket_id      = #{ticketId}
             AND
-            process_status = 'INIT';
+            process_status = 'INIT'
     </update>
     <update id="updateProcessStatus">
         UPDATE
@@ -85,6 +85,6 @@
             stage_context  = #{context},
             finish_time    = #{finishTime}
         WHERE
-            id = #{id};
+            id = #{id}
     </update>
 </mapper>

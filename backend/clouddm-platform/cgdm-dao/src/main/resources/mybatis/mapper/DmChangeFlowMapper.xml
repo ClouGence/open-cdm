@@ -87,7 +87,7 @@
             AND
             flow_status        = #{param.status}
         </if>
-        ORDER BY gmt_create DESC;
+        ORDER BY gmt_create DESC
     </select>
     <select id="listFlowByIds" resultMap="dmChangeFlowDO">
         SELECT
@@ -101,7 +101,7 @@
         <foreach collection="ids" item="item" separator="," open="(" close=")">
             #{item}
         </foreach>
-        ORDER BY gmt_create DESC;
+        ORDER BY gmt_create DESC
     </select>
     <select id="queryByIds" resultMap="dmChangeFlowDO">
         SELECT
@@ -114,7 +114,7 @@
             id        IN
         <foreach collection="flowIds" item="item" separator="," open="(" close=")">
             #{item}
-        </foreach>;
+        </foreach>
     </select>
     <select id="queryByOwnerAndId" resultMap="dmChangeFlowDO">
         SELECT
@@ -125,7 +125,7 @@
             owner_uid = #{ownerUid}
             AND
             id        = #{flowId}
-        LIMIT 1;
+        LIMIT 1
     </select>
     <select id="queryByOwnerAndIdForUpdate" resultMap="dmChangeFlowDO">
         SELECT
@@ -137,7 +137,7 @@
             AND
             id        = #{flowId}
         LIMIT 1
-        FOR UPDATE;
+        FOR UPDATE
     </select>
     <select id="queryChildren" resultMap="dmChangeFlowDO">
         SELECT
@@ -152,7 +152,7 @@
             flow_status        != 'DELETE'
             AND
             deleted            = 0
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create ASC
     </select>
     <select id="queryChildrenByParentIds" resultMap="dmChangeFlowDO">
         SELECT
@@ -170,7 +170,7 @@
         <foreach item="parentFlowId" collection="parentFlowIds" open="(" separator="," close=")">
             #{parentFlowId}
         </foreach>
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create ASC
     </select>
     <select id="queryParentCandidates" resultMap="dmChangeFlowDO">
         SELECT
@@ -187,7 +187,7 @@
             enable      = 1
             AND
             deleted     = 0
-        ORDER BY gmt_create DESC;
+        ORDER BY gmt_create DESC
     </select>
     <select id="countChildren" resultType="int">
         SELECT
@@ -201,7 +201,7 @@
             AND
             flow_status        != 'DELETE'
             AND
-            deleted            = 0;
+            deleted            = 0
     </select>
     <select id="queryEnabledByOwnerAndDsId" resultMap="dmChangeFlowDO">
         SELECT
@@ -218,7 +218,7 @@
             enable      = 1
             AND
             deleted     = 0
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create ASC
     </select>
     <select id="queryEnabledByOwnerAndScmId" resultMap="dmChangeFlowDO">
         SELECT
@@ -235,7 +235,7 @@
             enable      = 1
             AND
             deleted     = 0
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create ASC
     </select>
     <select id="queryEnabledByOwnerAndImId" resultMap="dmChangeFlowDO">
         SELECT
@@ -252,7 +252,7 @@
             enable_msg  = 1
             AND
             deleted     = 0
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create ASC
     </select>
     <select id="queryEnabledByOwnerAndHash" resultMap="dmChangeFlowDO">
         SELECT
@@ -269,7 +269,7 @@
             enable        = 1
             AND
             deleted       = 0
-        ORDER BY gmt_create ASC;
+        ORDER BY gmt_create ASC
     </select>
     <update id="updateManagerByOwnerAndId">
         UPDATE
@@ -280,7 +280,7 @@
         WHERE
             owner_uid = #{ownerUid}
             AND
-            id        = #{flowId};
+            id        = #{flowId}
     </update>
     <update id="updateNameByOwnerAndId">
         UPDATE
@@ -291,7 +291,7 @@
         WHERE
             owner_uid = #{ownerUid}
             AND
-            id        = #{flowId};
+            id        = #{flowId}
     </update>
     <update id="updateDescByOwnerAndId">
         UPDATE
@@ -302,7 +302,7 @@
         WHERE
             owner_uid = #{ownerUid}
             AND
-            id        = #{flowId};
+            id        = #{flowId}
     </update>
     <update id="updateStatusByOwnerAndId">
         UPDATE
@@ -313,7 +313,7 @@
         WHERE
             owner_uid = #{ownerUid}
             AND
-            id        = #{flowId};
+            id        = #{flowId}
     </update>
     <update id="updateParentByOwnerAndId">
         UPDATE
@@ -329,7 +329,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="updateMessageConfigByOwnerAndId">
         UPDATE
@@ -347,7 +347,7 @@
         WHERE
             owner_uid = #{ownerUid}
             AND
-            id        = #{flowId};
+            id        = #{flowId}
     </update>
     <update id="disableByOwnerAndScmId">
         UPDATE
@@ -360,7 +360,7 @@
             AND
             ref_scm_id = #{scmId}
             AND
-            deleted    = 0;
+            deleted    = 0
     </update>
     <update id="disableByOwnerAndImId">
         UPDATE
@@ -373,7 +373,7 @@
             AND
             ref_msg_id = #{imId}
             AND
-            deleted    = 0;
+            deleted    = 0
     </update>
     <update id="deleteByOwnerAndId">
         UPDATE
@@ -389,7 +389,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="enableFlowByOwnerAndId">
         UPDATE
@@ -404,7 +404,7 @@
             AND
             flow_status = 'NORMAL'
             AND
-            deleted     = 0;
+            deleted     = 0
     </update>
     <update id="disableFlowByOwnerAndId">
         UPDATE
@@ -417,7 +417,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="enableWebHookByOwnerAndId">
         UPDATE
@@ -430,7 +430,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="disableWebHookByOwnerAndId">
         UPDATE
@@ -443,7 +443,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="enableTriggerByOwnerAndId">
         UPDATE
@@ -456,7 +456,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="disableTriggerByOwnerAndId">
         UPDATE
@@ -469,7 +469,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="configCallBackByOwnerAndId">
         UPDATE
@@ -484,7 +484,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="configTriggerByOwnerAndId">
         UPDATE
@@ -498,7 +498,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="updateScmRepoMetadata">
         UPDATE
@@ -513,7 +513,7 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
     <update id="updateWebhookSigningToken">
         UPDATE
@@ -526,6 +526,6 @@
             AND
             id        = #{flowId}
             AND
-            deleted   = 0;
+            deleted   = 0
     </update>
 </mapper>

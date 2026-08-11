@@ -27,7 +27,7 @@
             AND
             batch_status     = 'RUNNING'
         LIMIT 1
-        FOR UPDATE;
+        FOR UPDATE
     </select>
     <select id="queryById" resultMap="dmChangeBatchDO">
         SELECT
@@ -38,7 +38,7 @@
             owner_uid = #{ownerUid}
             AND
             id        = #{batchId}
-        LIMIT 1;
+        LIMIT 1
     </select>
     <select id="queryByIdForUpdate" resultMap="dmChangeBatchDO">
         SELECT
@@ -50,7 +50,7 @@
             AND
             id        = #{batchId}
         LIMIT 1
-        FOR UPDATE;
+        FOR UPDATE
     </select>
     <select id="queryByIds" resultMap="dmChangeBatchDO">
         SELECT
@@ -63,7 +63,7 @@
             id        IN
         <foreach collection="batchIds" item="batchId" open="(" separator="," close=")">
             #{batchId}
-        </foreach>;
+        </foreach>
     </select>
     <select id="queryRunningList" resultMap="dmChangeBatchDO">
         SELECT
@@ -72,7 +72,7 @@
             dm_change_batch
         WHERE
             batch_status = 'RUNNING'
-        ORDER BY id;
+        ORDER BY id
     </select>
     <select id="queryRunningByOwner" resultMap="dmChangeBatchDO">
         SELECT
@@ -83,7 +83,7 @@
             owner_uid    = #{ownerUid}
             AND
             batch_status = 'RUNNING'
-        ORDER BY id;
+        ORDER BY id
     </select>
     <update id="finishRunningBatch">
         UPDATE
@@ -96,7 +96,7 @@
             AND
             id           = #{batchId}
             AND
-            batch_status = 'RUNNING';
+            batch_status = 'RUNNING'
     </update>
     <select id="countRunningByRootFlow" resultType="int">
         SELECT
@@ -108,6 +108,6 @@
             AND
             ref_root_flow_id = #{rootFlowId}
             AND
-            batch_status     = 'RUNNING';
+            batch_status     = 'RUNNING'
     </select>
 </mapper>

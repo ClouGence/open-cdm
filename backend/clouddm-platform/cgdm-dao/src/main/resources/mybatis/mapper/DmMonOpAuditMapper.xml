@@ -80,7 +80,7 @@
 
     <delete id="clearData">
         delete
-        from operation_audit;
+        from operation_audit
     </delete>
 
     <select id="queryByConditionJoinUrlAuth" resultMap="rdpOperationAuditDO">

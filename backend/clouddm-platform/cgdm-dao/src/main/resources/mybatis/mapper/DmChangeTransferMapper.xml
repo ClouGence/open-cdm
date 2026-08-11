@@ -32,7 +32,7 @@
             (
                 #{ownerUid}, #{refBatchId}, #{refSourceFlowId}, #{refSourceChangeId},
                 #{refTargetFlowId}, #{transferStatus}, #{scheduleTime}, #{tryTimes}
-            );
+            )
     </insert>
     <select id="queryReadyList" resultMap="dmChangeTransferDO">
         SELECT
@@ -48,7 +48,7 @@
                 <![CDATA[schedule_time <= #{date}]]>
             )
         ORDER BY schedule_time ASC, id ASC
-        LIMIT ${limit};
+        LIMIT ${limit}
     </select>
     <select id="queryById" resultMap="dmChangeTransferDO">
         SELECT
@@ -59,7 +59,7 @@
             owner_uid = #{ownerUid}
             AND
             id        = #{transferId}
-        LIMIT 1;
+        LIMIT 1
     </select>
     <select id="queryBySourceChange" resultMap="dmChangeTransferDO">
         SELECT
@@ -70,7 +70,7 @@
             owner_uid            = #{ownerUid}
             AND
             ref_source_change_id = #{sourceChangeId}
-        ORDER BY id ASC;
+        ORDER BY id ASC
     </select>
     <select id="queryBySourceChanges" resultMap="dmChangeTransferDO">
         SELECT
@@ -84,7 +84,7 @@
         <foreach collection="sourceChangeIds" item="sourceChangeId" separator="," open="(" close=")">
             #{sourceChangeId}
         </foreach>
-        ORDER BY id ASC;
+        ORDER BY id ASC
     </select>
     <select id="queryByBatchIds" resultMap="dmChangeTransferDO">
         SELECT
@@ -98,7 +98,7 @@
         <foreach collection="batchIds" item="batchId" separator="," open="(" close=")">
             #{batchId}
         </foreach>
-        ORDER BY id;
+        ORDER BY id
     </select>
     <select id="queryByBatchIdForUpdate" resultMap="dmChangeTransferDO">
         SELECT
@@ -110,7 +110,7 @@
             AND
             ref_batch_id = #{batchId}
         ORDER BY id
-        FOR UPDATE;
+        FOR UPDATE
     </select>
     <update id="assignPending">
         UPDATE
@@ -121,7 +121,7 @@
         WHERE
             id              = #{transferId}
             AND
-            transfer_status = 'PENDING';
+            transfer_status = 'PENDING'
     </update>
     <update id="releaseProcessing">
         UPDATE
@@ -133,7 +133,7 @@
         WHERE
             id              = #{transferId}
             AND
-            transfer_status = 'PROCESSING';
+            transfer_status = 'PROCESSING'
     </update>
     <update id="recoverStaleProcessing">
         UPDATE
@@ -146,7 +146,7 @@
         WHERE
             transfer_status = 'PROCESSING'
             AND
-            <![CDATA[gmt_modified < #{staleBefore}]]>;
+            <![CDATA[gmt_modified < #{staleBefore}]]>
     </update>
     <update id="markSuccess">
         UPDATE
@@ -159,7 +159,7 @@
         WHERE
             id              = #{transferId}
             AND
-            transfer_status = 'PROCESSING';
+            transfer_status = 'PROCESSING'
     </update>
     <update id="markRetry">
         UPDATE
@@ -173,7 +173,7 @@
         WHERE
             id              = #{transferId}
             AND
-            transfer_status = 'PROCESSING';
+            transfer_status = 'PROCESSING'
     </update>
     <update id="markFailed">
         UPDATE
@@ -186,7 +186,7 @@
         WHERE
             id              = #{transferId}
             AND
-            transfer_status = 'PROCESSING';
+            transfer_status = 'PROCESSING'
     </update>
     <update id="retryFailed">
         UPDATE
@@ -202,6 +202,6 @@
             AND
             id              = #{transferId}
             AND
-            transfer_status = 'FAILED';
+            transfer_status = 'FAILED'
     </update>
 </mapper>

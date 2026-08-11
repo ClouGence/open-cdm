@@ -31,7 +31,7 @@
             ref_change_id        = #{refChangeId}
             AND
             ref_change_item_type = #{itemType}
-        ORDER BY content_index ASC;
+        ORDER BY content_index ASC
     </select>
     <select id="queryChangeItemByChangeIds" resultMap="dmChangeItemDO">
         SELECT
@@ -47,7 +47,7 @@
         <foreach collection="refChangeIds" item="refChangeId" separator="," open="(" close=")">
             #{refChangeId}
         </foreach>
-        ORDER BY ref_change_id ASC, content_index ASC;
+        ORDER BY ref_change_id ASC, content_index ASC
     </select>
     <select id="queryChangeItemMetaByChangeId" resultMap="dmChangeItemDO">
         SELECT
@@ -61,7 +61,7 @@
             ref_change_id        = #{refChangeId}
             AND
             ref_change_item_type = #{itemType}
-        ORDER BY content_index ASC;
+        ORDER BY content_index ASC
     </select>
     <select id="queryChangeItemByName" resultMap="dmChangeItemDO">
         SELECT
@@ -76,7 +76,7 @@
             ref_change_item_type = #{itemType}
             AND
             content_name         = #{contentName}
-        LIMIT 1;
+        LIMIT 1
     </select>
     <select id="queryBaselineItemByFlowId" resultMap="dmChangeItemDO">
         SELECT
@@ -89,7 +89,7 @@
             owner_uid   = #{ownerUid}
             AND
             ref_flow_id = #{flowId}
-        ORDER BY content_index ASC;
+        ORDER BY content_index ASC
     </select>
     <delete id="deleteByChangeItemType">
         DELETE
@@ -100,7 +100,7 @@
             AND
             ref_change_id        = #{refChangeId}
             AND
-            ref_change_item_type = #{itemType};
+            ref_change_item_type = #{itemType}
     </delete>
     <delete id="deleteByChangeItemAll">
         DELETE
@@ -109,6 +109,6 @@
         WHERE
             owner_uid     = #{ownerUid}
             AND
-            ref_change_id = #{refChangeId};
+            ref_change_id = #{refChangeId}
     </delete>
 </mapper>

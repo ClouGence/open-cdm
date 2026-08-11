@@ -28,7 +28,7 @@
             dm_sys_attachment
         WHERE
             id = #{id}
-        FOR UPDATE;
+        FOR UPDATE
     </select>
 
     <select id="selectConfirmedByApprovalId" resultMap="attachment">
@@ -41,7 +41,7 @@
             AND
             attachment_type   = 'SQL_FILE'
             AND
-            attachment_status = 'CONFIRMED';
+            attachment_status = 'CONFIRMED'
     </select>
 
     <select id="listEditingByTypeAndFileName" resultMap="attachment">
@@ -54,7 +54,7 @@
             AND
             attachment_status = 'EDITING'
             AND
-            file_name         = #{fileName};
+            file_name         = #{fileName}
     </select>
 
     <select id="listExpiredEditing" resultMap="attachment">
@@ -67,7 +67,7 @@
             AND
             <![CDATA[gmt_modified <= #{before}]]>
         ORDER BY gmt_modified
-        LIMIT #{limit};
+        LIMIT #{limit}
     </select>
 
     <delete id="deleteExpiredEditing">
@@ -78,7 +78,7 @@
             AND
             attachment_status = 'EDITING'
             AND
-            <![CDATA[gmt_modified <= #{before}]]>;
+            <![CDATA[gmt_modified <= #{before}]]>
     </delete>
 
     <update id="touchEditing">
@@ -93,7 +93,7 @@
             AND
             attachment_status = 'EDITING'
             AND
-            <![CDATA[gmt_modified > #{before}]]>;
+            <![CDATA[gmt_modified > #{before}]]>
     </update>
 
     <update id="lock">
@@ -110,6 +110,6 @@
             AND
             attachment_status = 'EDITING'
             AND
-            <![CDATA[gmt_modified > #{before}]]>;
+            <![CDATA[gmt_modified > #{before}]]>
     </update>
 </mapper>
