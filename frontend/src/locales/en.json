@@ -3247,7 +3247,7 @@
   "sso-field-wechat-secret": "App Secret",
   "nav-tong-yong": "Preferences",
   "nav-scm-provider": "Code Repository",
-  "nav-ri-zhi-shen-ji": "Log Audit",
+  "nav-ri-zhi-shen-ji": "SQL Audit",
   "fan-hui-gong-zuo-tai": "Back to Workspace",
   "fu-wu-di-zhi": "Service",
   "mi-yao": "Secret",

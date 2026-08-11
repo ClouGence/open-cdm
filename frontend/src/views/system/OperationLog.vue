@@ -14,8 +14,8 @@
                 <Option value="operation" :label="$t('cao-zuo-shen-ji')">
                   <span>{{ $t('cao-zuo-shen-ji') }}</span>
                 </Option>
-                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
-                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
+                <Option value="sql" :label="$t('sql-shen-ji')">
+                  <span>{{ $t('sql-shen-ji') }}</span>
                 </Option>
               </Select>
               <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>

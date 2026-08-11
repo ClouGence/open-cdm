@@ -35,7 +35,7 @@ export default {
       if (this.myCatLog.includes('CAT_DM_SQL_AUDIT')) {
         tabs.push({
           name: 'sql',
-          label: this.$t('nav-ri-zhi-shen-ji'),
+          label: this.$t('sql-shen-ji'),
           to: '/manager/logs/sql'
         });
       }
