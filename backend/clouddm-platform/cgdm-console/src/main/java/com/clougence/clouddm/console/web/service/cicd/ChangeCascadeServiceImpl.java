@@ -32,6 +32,7 @@ import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -161,7 +162,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
         }
         for (DmChangeDO change : candidates) {
             List<DmChangeItemDO> items = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.TICKET);
-            if (items.isEmpty() || StringUtils.isBlank(items.get(0).getContent())) {
+            if (CollectionUtils.isEmpty(items) || StringUtils.isBlank(items.get(0).getContent())) {
                 continue;
             }
             ChangeTicketInfo ticketInfo = JsonUtils.toObj(items.get(0).getContent(), ChangeTicketInfo.class);
@@ -180,11 +181,11 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
 
     @Override
     public boolean hasRunningBatchForFlows(String ownerUid, Collection<Long> flowIds) {
-        if (flowIds == null || flowIds.isEmpty()) {
+        if (CollectionUtils.isEmpty(flowIds)) {
             return false;
         }
         List<DmChangeBatchDO> batches = this.changeFlowDal.batchMapper().queryRunningByOwner(ownerUid);
-        if (batches.isEmpty()) {
+        if (CollectionUtils.isEmpty(batches)) {
             return false;
         }
         Set<Long> relatedFlowIds = new HashSet<>(flowIds);
@@ -228,7 +229,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
             pendingChanges.add(sourceChangeId);
             visitedChanges.add(sourceChangeId);
         }
-        while (!pendingChanges.isEmpty()) {
+        while (!CollectionUtils.isEmpty(pendingChanges)) {
             List<DmChangeTransferDO> transfers = this.changeFlowDal.transferMapper().queryBySourceChanges(ownerUid, pendingChanges);
             Set<Long> targetFlowIds = new HashSet<>();
             Set<Long> targetChangeIds = new HashSet<>();
@@ -241,7 +242,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
 
             Map<Long, DmChangeFlowDO> targetFlows = new HashMap<>();
             Map<Long, String> targetFlowManagerNames = new HashMap<>();
-            if (!targetFlowIds.isEmpty()) {
+            if (!CollectionUtils.isEmpty(targetFlowIds)) {
                 for (DmChangeFlowDO flow : this.changeFlowDal.flowMapper().queryByIds(ownerUid, targetFlowIds)) {
                     targetFlows.put(flow.getId(), flow);
                     UserCacheEntry manager = this.objectCacheDao.queryByUid(flow.getFlowManagerUid());
@@ -255,7 +256,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
                 }
             }
             Map<Long, DmChangeDO> targetChanges = new HashMap<>();
-            if (!targetChangeIds.isEmpty()) {
+            if (!CollectionUtils.isEmpty(targetChangeIds)) {
                 for (DmChangeDO change : this.changeFlowDal.changeMapper().queryByIds(ownerUid, targetChangeIds)) {
                     targetChanges.put(change.getId(), change);
                 }

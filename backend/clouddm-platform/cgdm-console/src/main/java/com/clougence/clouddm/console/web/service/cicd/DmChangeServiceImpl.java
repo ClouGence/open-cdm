@@ -131,7 +131,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
             scmMap = new HashMap<>();
             Set<Long> scmIds = devops.stream().map(DmChangeFlowDO::getRefScmId).filter(Objects::nonNull).collect(Collectors.toSet());
-            if (!scmIds.isEmpty()) {
+            if (!CollectionUtils.isEmpty(scmIds)) {
                 List<DmGitOpsScmDO> scmList = dmScmService.queryScmByIds(ownerUid, scmIds);
                 scmList.forEach(d -> scmMap.put(d.getId(), d));
             }
@@ -148,24 +148,24 @@ public class DmChangeServiceImpl implements DmChangeService {
 
         Set<Long> batchIds = records.stream().map(DmChangeDO::getRefBatchId).filter(Objects::nonNull).collect(Collectors.toSet());
         Map<Long, DmChangeBatchDO> batches = new HashMap<>();
-        if (!batchIds.isEmpty()) {
+        if (!CollectionUtils.isEmpty(batchIds)) {
             this.changeFlowDal.batchMapper().queryByIds(ownerUid, batchIds).forEach(batch -> batches.put(batch.getId(), batch));
         }
 
         Set<Long> parentChangeIds = records.stream().map(DmChangeDO::getRefParentChangeId).filter(Objects::nonNull).collect(Collectors.toSet());
         Map<Long, DmChangeDO> parentChanges = new HashMap<>();
-        if (!parentChangeIds.isEmpty()) {
+        if (!CollectionUtils.isEmpty(parentChangeIds)) {
             this.changeFlowDal.changeMapper().queryByIds(ownerUid, parentChangeIds).forEach(parentChange -> parentChanges.put(parentChange.getId(), parentChange));
         }
         Set<Long> parentFlowIds = parentChanges.values().stream().map(DmChangeDO::getRefFlowId).collect(Collectors.toSet());
         Map<Long, DmChangeFlowDO> parentFlows = new HashMap<>();
-        if (!parentFlowIds.isEmpty()) {
+        if (!CollectionUtils.isEmpty(parentFlowIds)) {
             this.changeFlowDal.flowMapper().queryByIds(ownerUid, parentFlowIds).forEach(parentFlow -> parentFlows.put(parentFlow.getId(), parentFlow));
         }
 
         Set<Long> cascadeChangeIds = records.stream().filter(change -> change.getRefBatchId() != null).map(DmChangeDO::getId).collect(Collectors.toSet());
         Map<Long, List<ChangeTransferVO>> downstream = Collections.emptyMap();
-        if (!cascadeChangeIds.isEmpty()) {
+        if (!CollectionUtils.isEmpty(cascadeChangeIds)) {
             downstream = this.changeCascadeService.queryDownstreamTransfers(ownerUid, cascadeChangeIds);
         }
         for (int i = 0; i < records.size(); i++) {
@@ -239,12 +239,12 @@ public class DmChangeServiceImpl implements DmChangeService {
         vo.setEof(preview.eof());
         if (startLine == 1) {
             List<DmChangeItemDO> diffItems = this.changeFlowDal.changeItemMapper().queryChangeItemMetaByChangeId(change.getOwnerUid(), changeId, ChangeItemType.SQL_BASELINE);
-            if (diffItems.isEmpty()) {
+            if (CollectionUtils.isEmpty(diffItems)) {
                 diffItems = this.changeFlowDal.queryChangedItemMeta(change.getOwnerUid(), change.getRefFlowId(), changeId);
             }
             List<String> contentNames = diffItems.stream().map(DmChangeItemDO::getContentName).toList();
             List<ChangeBodyItemVO> items;
-            if (contentNames.isEmpty()) {
+            if (CollectionUtils.isEmpty(contentNames)) {
                 items = this.changeSqlService.consumeSqlFile(changeId, file -> {
                     List<ChangeBodyItemVO> legacyItems = new ArrayList<>();
                     for (String name : readChangeSourceNames(file)) {

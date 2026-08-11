@@ -135,7 +135,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         Map<Long, List<DmChangeFlowDO>> childFlowsByParentId = new HashMap<>();
 
         Set<Long> parentIds = new HashSet<>(relatedFlows.keySet());
-        while (!parentIds.isEmpty()) {
+        while (!CollectionUtils.isEmpty(parentIds)) {
             List<DmChangeFlowDO> childFlows = this.changeFlowDal.flowMapper().queryChildrenByParentIds(ownerUid, parentIds);
             Set<Long> nextParentIds = new HashSet<>();
             for (DmChangeFlowDO childFlow : childFlows) {
@@ -155,7 +155,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             .filter(Objects::nonNull)
             .filter(parentId -> !flowNames.containsKey(parentId))
             .collect(Collectors.toSet());
-        if (!missingParentIds.isEmpty()) {
+        if (!CollectionUtils.isEmpty(missingParentIds)) {
             this.changeFlowDal.flowMapper().listFlowByIds(ownerUid, missingParentIds).forEach(parent -> flowNames.put(parent.getId(), parent.getFlowName()));
         }
 
@@ -169,10 +169,10 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
         List<DmChangeFlowDO> childFlows = childFlowsByParentId.getOrDefault(flow.getId(), Collections.emptyList());
         vo.setChildFlows(childFlows.stream().map(this::toRelationItem).collect(Collectors.toList()));
-        if (!childFlows.isEmpty()) {
+        if (!CollectionUtils.isEmpty(childFlows)) {
             vo.setChildren(childFlows.stream().map(child -> this.buildGroupedFlowVO(child, flowNames, childFlowsByParentId)).collect(Collectors.toList()));
         }
-        vo.setHasRelations(flow.getRefParentFlowId() != null || !childFlows.isEmpty());
+        vo.setHasRelations(flow.getRefParentFlowId() != null || !CollectionUtils.isEmpty(childFlows));
         return vo;
     }
 
@@ -369,7 +369,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         List<GuideBatchCreateItemFO> ordered = new ArrayList<>();
         Deque<GuideBatchCreateItemFO> pending = new ArrayDeque<>();
         pending.add(roots.get(0));
-        while (!pending.isEmpty()) {
+        while (!CollectionUtils.isEmpty(pending)) {
             GuideBatchCreateItemFO item = pending.removeFirst();
             ordered.add(item);
             pending.addAll(children.getOrDefault(item.getClientId(), Collections.emptyList()));
@@ -569,8 +569,8 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         if (!StringUtils.equals(String.valueOf(dsDO.getDsEnvId()), dsLevels.envId())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
-        if (!dsLevels.levelsDef().isEmpty() && this.dmDsSchemaService.detailLevel(dsDO, dsLevels.levelsDef(), dsLevels.levelsParam()) == null) {
-            String target = dsLevels.dbLevels().isEmpty() ? "" : dsLevels.dbLevels().get(dsLevels.dbLevels().size() - 1);
+        if (!CollectionUtils.isEmpty(dsLevels.levelsDef()) && this.dmDsSchemaService.detailLevel(dsDO, dsLevels.levelsDef(), dsLevels.levelsParam()) == null) {
+            String target = CollectionUtils.isEmpty(dsLevels.dbLevels()) ? "" : dsLevels.dbLevels().get(dsLevels.dbLevels().size() - 1);
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_SCHEMA_NOT_EXIST_ERROR.name(), target));
         }
         return dsLevels;
@@ -817,7 +817,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         Set<Long> visited = new HashSet<>();
         Deque<Long> pending = new ArrayDeque<>();
         pending.add(flowId);
-        while (!pending.isEmpty()) {
+        while (!CollectionUtils.isEmpty(pending)) {
             long currentId = pending.removeFirst();
             if (!visited.add(currentId)) {
                 continue;
@@ -832,7 +832,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
         List<DmChangeDO> unfinishedChanges = this.changeFlowDal.changeMapper().queryUnlockedChangesByFlowIds(ownerUid, visited);
         boolean runningBatch = this.changeCascadeService.hasRunningBatchForFlows(ownerUid, visited);
-        if (!unfinishedChanges.isEmpty() || runningBatch) {
+        if (!CollectionUtils.isEmpty(unfinishedChanges) || runningBatch) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_RELATION_IN_USE_ERROR.name()));
         }
     }
@@ -1261,7 +1261,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         Set<Long> visited = new HashSet<>();
         Deque<DmChangeFlowDO> pending = new ArrayDeque<>();
         pending.add(rootFlow);
-        while (!pending.isEmpty()) {
+        while (!CollectionUtils.isEmpty(pending)) {
             DmChangeFlowDO current = pending.removeFirst();
             if (!visited.add(current.getId())) {
                 continue;
