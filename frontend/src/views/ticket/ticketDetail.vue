@@ -455,7 +455,11 @@
           :text="ticketSqlContent"
           key="ticket-sql-content"
           :ds-type="ticketDetail.dataSourceType"
-          :font-weight="400"
+          :font-family="sqlEditorTypography.fontFamily"
+          :font-size="sqlEditorTypography.fontSize"
+          :font-weight="sqlEditorTypography.fontWeight"
+          :line-height="sqlEditorTypography.lineHeight"
+          :letter-spacing="sqlEditorTypography.letterSpacing"
           @reach-bottom="loadNextTicketSqlContent"
         />
       </section>
@@ -534,7 +538,11 @@
         key="ticket-sql-content-modal"
         :max-height="500"
         :ds-type="ticketDetail.dataSourceType"
-        :font-weight="400"
+        :font-family="sqlEditorTypography.fontFamily"
+        :font-size="sqlEditorTypography.fontSize"
+        :font-weight="sqlEditorTypography.fontWeight"
+        :line-height="sqlEditorTypography.lineHeight"
+        :letter-spacing="sqlEditorTypography.letterSpacing"
         @reach-bottom="loadNextTicketSqlContent"
       />
       <template #footer>
@@ -661,6 +669,7 @@ import appLogger from '@/utils/logger';
 import { mapState } from 'vuex';
 import { TICKET_PROCESS_STATUS } from '@/const';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
+import { SQL_CHANGE_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import copyMixin from '@/mixins/copyMixin';
 import { isCk, isMongoDB, RULE_WARN_LEVEL } from '@/utils';
 
@@ -696,6 +705,7 @@ export default {
   mixins: [copyMixin],
   data() {
     return {
+      sqlEditorTypography: SQL_CHANGE_EDITOR_TYPOGRAPHY,
       autoExec: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
