@@ -322,7 +322,23 @@
               :data="dmlExplainRows(item)"
               border
               size="small"
-            />
+            >
+              <template #estimatedAffectedRows="{ row }">
+                <span>{{ row.estimatedAffectedRows ?? '--' }}</span>
+              </template>
+              <template #actions="{ row }">
+                <Tag v-for="action in row.actions" :key="action" color="primary">{{ action }}</Tag>
+              </template>
+              <template #subjects="{ row }">
+                <span>{{ row.subjects.join($t('ticket-analysis-dml-explain-index-separator')) }}</span>
+              </template>
+              <template #statementCount="{ row }">
+                <span>{{ dmlExplainStatementText(row) }}</span>
+              </template>
+              <template #description="{ row }">
+                <span>{{ dmlExplainDescription(row) }}</span>
+              </template>
+            </Table>
           </template>
 
           <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
@@ -504,7 +520,8 @@
           step="1"
           :aria-label="$t('ticket-sql-virtual-scrollbar')"
           aria-orientation="vertical"
-          @input="scheduleSqlPreview"
+          @pointerdown="handleSqlPreviewDragStart"
+          @change="loadSqlPreview"
         />
       </div>
       <template #footer>
@@ -618,22 +635,14 @@
 <script>
 import appLogger from '@/utils/logger';
 import { mapState } from 'vuex';
-import { Tag } from 'view-ui-plus';
 import { TICKET_STATUS, TICKET_STATUS_COLOR, TICKET_PROCESS_STATUS } from '@/const';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import copyMixin from '@/mixins/copyMixin';
 import { RULE_WARN_LEVEL, isCk, isMongoDB } from '@/utils';
 import { APPROV_BIZ_MAP } from './constant';
-import DmlExplainPlan from './components/DmlExplainPlan';
 
 const TICKET_AUTO_REFRESH_INTERVAL_MS = 5000;
 const TICKET_TERMINAL_STATUSES = new Set(['REJECTED', 'FINISHED', 'CLOSED', 'CANCELED', 'FAILED']);
-
-const renderTagList = (h, values, color) =>
-  h(
-    'div',
-    (values || []).map((value, index) => h(Tag, { color, key: `${value}-${index}` }, () => value))
-  );
 
 const dmlExplainChange = (row) => ({
   actions: [...(row.actions || [])].sort(),
@@ -751,87 +760,28 @@ export default {
       ],
       dmlExplainColumns: [
         {
-          type: 'expand',
-          width: 50,
-          render: (h, params) =>
-            h('Table', {
-              props: {
-                columns: this.dmlExplainDetailColumns,
-                data: params.row.details,
-                border: true,
-                size: 'small'
-              }
-            })
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-index'),
-          render: (h, params) => renderTagList(h, params.row.indices),
+          title: this.$t('ticket-analysis-dml-explain-rows'),
+          slot: 'estimatedAffectedRows',
           width: 150
         },
         {
           title: this.$t('ticket-analysis-dml-explain-actions'),
-          render: (h, params) => renderTagList(h, params.row.actions, 'primary'),
+          slot: 'actions',
           width: 180
         },
         {
           title: this.$t('ticket-analysis-dml-explain-subjects'),
-          render: (h, params) => renderTagList(h, params.row.subjects)
+          slot: 'subjects'
         },
         {
           title: this.$t('ticket-analysis-dml-explain-statement-count'),
-          key: 'statementCount',
-          width: 110
+          slot: 'statementCount',
+          width: 320
         },
         {
-          title: this.$t('zhuang-tai'),
-          key: 'status',
-          width: 130
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-skip-reason'),
-          key: 'skipReason',
+          title: this.$t('shuo-ming'),
+          slot: 'description',
           width: 220
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-rows'),
-          key: 'estimatedAffectedRows',
-          width: 150
-        }
-      ],
-      dmlExplainDetailColumns: [
-        {
-          type: 'expand',
-          width: 50,
-          render: (h, params) => h(DmlExplainPlan, { plan: params.row.explainPlan })
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-index'),
-          key: 'index',
-          width: 90
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-actions'),
-          render: (h, params) => renderTagList(h, params.row.actions, 'primary'),
-          width: 180
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-subjects'),
-          render: (h, params) => renderTagList(h, params.row.subjects)
-        },
-        {
-          title: this.$t('zhuang-tai'),
-          key: 'status',
-          width: 130
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-skip-reason'),
-          key: 'skipReason',
-          width: 220
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-rows'),
-          key: 'estimatedAffectedRows',
-          width: 150
         }
       ],
       showCheckedOnlyError: false,
@@ -1288,16 +1238,43 @@ export default {
     },
     dmlExplainDetailText(item) {
       const failed = item.failedExplainCount || 0;
-      let text = this.$t('ticket-analysis-dml-explain-detail', {
-        total: item.dmlStatementCount || 0,
-        sizeSkipped: item.skippedBySizeLimit || 0,
-        countSkipped: item.skippedByCountLimit || 0,
-        skipped: (item.skippedBySizeLimit || 0) + (item.skippedByCountLimit || 0)
-      });
+      const total = item.dmlStatementCount || 0;
+      const sizeSkipped = item.skippedBySizeLimit || 0;
+      const countSkipped = item.skippedByCountLimit || 0;
+      const skipped = sizeSkipped + countSkipped;
+      let text = this.$t('ticket-analysis-dml-explain-detail-total', { total });
+      if (skipped > 0) {
+        text = this.$t('ticket-analysis-dml-explain-detail', {
+          total,
+          sizeSkipped,
+          countSkipped,
+          skipped
+        });
+      }
       if (failed > 0) {
         text += this.$t('ticket-analysis-dml-explain-detail-failed', { failed });
       }
       return text;
+    },
+    dmlExplainStatementText(row) {
+      return this.$t('ticket-analysis-dml-explain-statement-summary', {
+        count: row.statementCount,
+        indices: row.indices.join(this.$t('ticket-analysis-dml-explain-index-separator'))
+      });
+    },
+    dmlExplainDescription(row) {
+      const status = row.status
+        .split(' / ')
+        .map((value) => this.$t(`ticket-analysis-dml-explain-status-${value}`))
+        .join(' / ');
+      if (!row.skipReason) {
+        return status;
+      }
+      const reason = row.skipReason
+        .split(' / ')
+        .map((value) => this.$t(`ticket-analysis-dml-explain-reason-${value}`))
+        .join(' / ');
+      return this.$t('ticket-analysis-dml-explain-description-with-reason', { status, reason });
     },
     analysisElapsed(item) {
       if (!item.startTimeUtc) {
@@ -1366,6 +1343,12 @@ export default {
         this.sqlPreviewTimer = null;
         this.loadSqlPreview();
       }, 120);
+    },
+    handleSqlPreviewDragStart() {
+      if (this.sqlPreviewTimer) {
+        window.clearTimeout(this.sqlPreviewTimer);
+        this.sqlPreviewTimer = null;
+      }
     },
     handleSqlPreviewViewportChange(lineCount) {
       if (!this.ticketSqlContentInitialized || !lineCount || lineCount === this.sqlPreviewLineCount) {
