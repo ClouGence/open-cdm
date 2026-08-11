@@ -4435,7 +4435,6 @@
   "ticket-number": "工单编号",
   "ticket-information": "工单信息",
   "ticket-application-template": "应用模板",
-  "ticket-trigger-time": "触发时间",
   "ticket-step-details": "步骤详情",
   "ticket-current-step": "当前步骤",
   "ticket-inline-sql": "在线 SQL",

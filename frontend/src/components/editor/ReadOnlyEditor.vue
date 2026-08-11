@@ -115,7 +115,11 @@ export default {
     async createEditor() {
       if (this.text) {
         if (this.monacoEditor) {
+          const viewState = this.monacoEditor.saveViewState();
           this.monacoEditor.getModel().setValue(this.text);
+          if (viewState) {
+            this.monacoEditor.restoreViewState(viewState);
+          }
           this.applyLanguage();
         } else {
           const language = await this.resolveLanguage();
@@ -151,6 +155,16 @@ export default {
               autoIndent: true // Auto Indent
             })
           );
+          this.monacoEditor.onDidScrollChange((event) => {
+            if (!event.scrollTopChanged) {
+              return;
+            }
+            const viewportHeight = this.monacoEditor.getLayoutInfo().height;
+            const remainingHeight = this.monacoEditor.getScrollHeight() - event.scrollTop - viewportHeight;
+            if (remainingHeight <= DEFAULT_LINE_HEIGHT * 2) {
+              this.$emit('reach-bottom');
+            }
+          });
         }
         this.$nextTick(() => {
           this.updateViewportHeight();

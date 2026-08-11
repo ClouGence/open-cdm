@@ -366,7 +366,7 @@
           </Button>
         </div>
         <div class="manual-sql-editor">
-          <TicketEditor v-if="showManualSqlModal" ref="manualSqlEditor" :data-source-type="primaryDevops?.dsType || 'sql'" />
+          <TicketEditor v-if="showManualSqlModal" ref="manualSqlEditor" :data-source-type="primaryDevops?.dsType || 'sql'" :font-weight="400" />
         </div>
       </div>
       <template #footer>

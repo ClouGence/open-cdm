@@ -109,7 +109,7 @@
             <div class="ticket-meta-item">
               <span class="ticket-meta-item__label ticket-meta-item__label--with-icon">
                 <Icon type="ios-time-outline" />
-                {{ $t('ticket-trigger-time') }}
+                {{ $t('chuang-jian-shi-jian') }}
               </span>
               <span>{{ ticketDetail.gmtCreate || '-' }}</span>
             </div>
@@ -451,7 +451,13 @@
             </Button>
           </div>
         </div>
-        <read-only-editor :text="ticketSqlContent" key="ticket-sql-content" :ds-type="ticketDetail.dataSourceType" />
+        <read-only-editor
+          :text="ticketSqlContent"
+          key="ticket-sql-content"
+          :ds-type="ticketDetail.dataSourceType"
+          :font-weight="400"
+          @reach-bottom="loadNextTicketSqlContent"
+        />
       </section>
       <section v-if="ticketType === 'DATA_SOURCE_AUTH'" class="page-section ticket-auth-section">
         <div class="page-section__title">{{ $t('gong-dan-nei-rong') }}</div>
@@ -523,7 +529,14 @@
       </template>
     </CCModal>
     <CCModal v-model="showTicketContentModal" :title="$t('gong-dan-nei-rong')" width="80vw" centered :draggable="false" class="responsive-sql-modal">
-      <read-only-editor :text="ticketSqlContent" key="ticket-sql-content-modal" :max-height="500" :ds-type="ticketDetail.dataSourceType" />
+      <read-only-editor
+        :text="ticketSqlContent"
+        key="ticket-sql-content-modal"
+        :max-height="500"
+        :ds-type="ticketDetail.dataSourceType"
+        :font-weight="400"
+        @reach-bottom="loadNextTicketSqlContent"
+      />
       <template #footer>
         <Button type="primary" :loading="sqlContentAction === 'copy'" @click="handleCopyTicketSql">
           <Icon type="ios-copy-outline" />
@@ -834,6 +847,8 @@ export default {
       ticketDetail: {},
       ticketSqlContent: '',
       ticketSqlTotalLines: 1,
+      ticketSqlNextStartLine: 1,
+      ticketSqlLoadingMore: false,
       ticketSqlContentInitialized: false,
       ticketAutoRefreshActive: false,
       ticketAutoRefreshTimer: null,
@@ -1155,18 +1170,41 @@ export default {
       const seconds = totalSeconds % 60;
       return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
     },
-    async loadTicketSqlContent() {
-      const res = await this.$services.dmTicketPreviewApprovalSql({
-        data: {
-          ticketId: this.ticketId,
-          startLine: 1,
-          lineCount: 1000
-        }
-      });
-      if (res.success) {
-        this.ticketSqlContent = res.data?.content || '';
-        this.ticketSqlTotalLines = res.data?.totalLines || 1;
+    async loadTicketSqlContent(append = false) {
+      if (this.ticketSqlLoadingMore) {
+        return;
       }
+      const lineCount = 1000;
+      const startLine = append ? this.ticketSqlNextStartLine : 1;
+      if (append && startLine > this.ticketSqlTotalLines) {
+        return;
+      }
+      this.ticketSqlLoadingMore = true;
+      try {
+        const res = await this.$services.dmTicketPreviewApprovalSql({
+          data: {
+            ticketId: this.ticketId,
+            startLine,
+            lineCount
+          }
+        });
+        if (!res.success) {
+          return;
+        }
+        const content = res.data?.content || '';
+        this.ticketSqlTotalLines = res.data?.totalLines || 1;
+        this.ticketSqlNextStartLine = Math.min(this.ticketSqlTotalLines + 1, startLine + lineCount);
+        if (!append) {
+          this.ticketSqlContent = content;
+          return;
+        }
+        this.ticketSqlContent += `\n${content}`;
+      } finally {
+        this.ticketSqlLoadingMore = false;
+      }
+    },
+    async loadNextTicketSqlContent() {
+      await this.loadTicketSqlContent(true);
     },
     formatFileSize(size) {
       if (size < 1024) {

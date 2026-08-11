@@ -4439,7 +4439,6 @@
   "ticket-number": "Work Order No.",
   "ticket-information": "Work Order Information",
   "ticket-application-template": "Template",
-  "ticket-trigger-time": "Triggered At",
   "ticket-step-details": "Step Details",
   "ticket-current-step": "Current Step",
   "ticket-inline-sql": "Inline SQL",

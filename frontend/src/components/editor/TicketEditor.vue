@@ -16,6 +16,10 @@ export default {
       type: Boolean,
       default: false
     },
+    fontWeight: {
+      type: [Number, String],
+      default: 'bold'
+    },
     virtualScrollMode: {
       type: Boolean,
       default: false
@@ -55,7 +59,7 @@ export default {
             value: this.text, // The editor 's value
             language,
             fontSize: 14,
-            fontWeight: 'bold',
+            fontWeight: this.fontWeight,
             scrollBeyondLastLine: false,
             theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
             minimap: {
