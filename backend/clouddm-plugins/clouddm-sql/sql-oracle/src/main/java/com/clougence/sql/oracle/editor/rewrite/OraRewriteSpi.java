@@ -14,9 +14,11 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.sql.oracle.parser.OraDslProvider;
+import com.clougence.sql.oracle.parser.OraSplitVisitor;
 import com.clougence.sql.oracle.parser.OracleVersion;
 import com.clougence.sql.oracle.parser.antlr.PlSqlParser;
 import com.clougence.utils.HashUtils;
@@ -24,19 +26,19 @@ import com.clougence.utils.HashUtils;
 public class OraRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriteLimit(String query, RewriteContext context) {
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
         long maxLimit = context.getFetchLimit();
-        OracleVersion version = OracleVersion.parse(context.getDatabaseVersion());
+        OracleVersion version = OracleVersion.parse(context.getParameters().version());
         if (maxLimit <= 0 || !OracleVersion.ge(version, OracleVersion.ORACLE_8)) {
-            return query;
+            return queryStr;
         }
 
-        List<AstSplitScript> scripts = DslHelper.splitDsl(OraDslProvider.INSTANCE, new StringReader(query));
+        List<AstSplitScript> scripts = DslHelper.splitDsl(OraDslProvider.INSTANCE, new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
         PlSqlParser.Select_statementContext select = findSelectStatement(astTree);
         if (select == null || !isSafeSelect(select)) {
-            return query;
+            return queryStr;
         }
 
         CommonTokenStream tokens = (CommonTokenStream) parser.getTokenStream();
@@ -53,24 +55,24 @@ public class OraRewriteSpi implements RewriteSpi {
             return rewriter.getText();
         }
         if (fetch.PERCENT_KEYWORD() != null || fetch.WITH() != null || fetch.expression() == null) {
-            return query;
+            return queryStr;
         }
 
         String value = fetch.expression().getText();
         if (!isUnsignedInteger(value)) {
-            return query;
+            return queryStr;
         }
         long sqlLimit;
         try {
             sqlLimit = Long.parseLong(value);
         } catch (NumberFormatException e) {
-            return query;
+            return queryStr;
         }
         if (sqlLimit > maxLimit) {
             rewriter.replace(fetch.expression().getStart(), fetch.expression().getStop(), maxLimit);
             return rewriter.getText();
         }
-        return query;
+        return queryStr;
     }
 
     private static boolean isSafeSelect(PlSqlParser.Select_statementContext select) {
@@ -119,7 +121,17 @@ public class OraRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(OraDslProvider.INSTANCE, new StringReader(queryStr));
+        if (scripts.size() != 1) {
+            return null;
+        }
+
+        SplitQueryType type = OraSplitVisitor.INSTANCE.visit(scripts.get(0).getAstTree());
+        if (type == null || !type.isAllowPlan()) {
+            return null;
+        }
+
         int statementId = HashUtils.fnvHash(queryId);
         return "EXPLAIN PLAN SET STATEMENT_ID = '" + statementId + "' FOR " + queryStr;
     }

@@ -2730,7 +2730,7 @@ sql_routine_statement
     ;
 
 common_table_expression
-    : table_name column_name_list_paren? AS '(' (WITH common_table_expression)? ')'
+    : table_name column_name_list_paren? AS '(' (WITH common_table_expression_list)? fullselect ')'
     ;
 
 create_alias_statement
@@ -4859,11 +4859,11 @@ grant_total
     ;
 
 having_clause
-    : search_condition
+    : HAVING search_condition
     ;
 
 order_by_clause
-    : order_by_clause_opts (',' order_by_clause_opts)*
+    : ORDER BY order_by_clause_opts (',' order_by_clause_opts)*
     | INPUT SEQUENCE
     ;
 
@@ -4913,7 +4913,7 @@ offset_row_count
     ;
 
 fetch_clause
-    : FETCH NEXT fetch_row_count? row_rows ONLY
+    : FETCH (FIRST | NEXT) fetch_row_count? row_rows ONLY
     ;
 
 fetch_row_count
@@ -5388,6 +5388,8 @@ id_
     | ADDRESS
     | NAME
     | POSITION
+    | S_
+    | STATUS
     | TYPE
     | VALUE
     | VALUES
@@ -5441,7 +5443,7 @@ array_variable_name
     ;
 
 column_name
-    : id_
+    : (id_ '.')? id_
     ;
 
 constraint_name

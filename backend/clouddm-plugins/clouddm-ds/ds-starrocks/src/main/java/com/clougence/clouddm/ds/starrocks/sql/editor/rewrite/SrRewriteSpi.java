@@ -25,9 +25,11 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
+import com.clougence.clouddm.ds.starrocks.sql.parser.SrSplitVisitor;
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksParser;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.utils.StringUtils;
@@ -35,8 +37,8 @@ import com.clougence.utils.StringUtils;
 public class SrRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriteLimit(String query, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(SrDslProvider.INSTANCE, new StringReader(query));
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(SrDslProvider.INSTANCE, new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -88,7 +90,17 @@ public class SrRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
-        return "EXPLAIN " + queryStr;
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(SrDslProvider.INSTANCE, new StringReader(queryStr));
+        if (scripts.size() != 1) {
+            return null;
+        }
+
+        SplitQueryType type = new SrSplitVisitor().visit(scripts.get(0).getAstTree());
+        if (type == null || !type.isAllowPlan()) {
+            return null;
+        } else {
+            return "EXPLAIN " + queryStr;
+        }
     }
 }

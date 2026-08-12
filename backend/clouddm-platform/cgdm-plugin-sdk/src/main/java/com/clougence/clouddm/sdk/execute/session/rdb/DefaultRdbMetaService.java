@@ -16,6 +16,8 @@
 package com.clougence.clouddm.sdk.execute.session.rdb;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +58,30 @@ public abstract class DefaultRdbMetaService implements DsMetaService {
 
     @Override
     public Map<String, String> getSqlParserParameters() { return Map.of(); }
+
+    protected String fetchVersion(String sql) {
+        return this.fetchVersion(sql, 1);
+    }
+
+    protected String fetchVersion(String sql, int columnIndex) {
+        try {
+            return this.rdbSession.executeQuery(connection -> {
+                try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+                    if (!resultSet.next()) {
+                        return null;
+                    }
+                    String version = resultSet.getString(columnIndex);
+                    if (StringUtils.isBlank(version)) {
+                        return null;
+                    }
+                    return version.trim();
+                }
+            });
+        } catch (Exception e) {
+            log.warn("Fetch database version failed: {}", ExceptionUtils.getRootCauseMessage(e));
+            return null;
+        }
+    }
 
     @Override
     public String loadTableEditor(Map<UmiTypes, Object> levelsParam, String table) {

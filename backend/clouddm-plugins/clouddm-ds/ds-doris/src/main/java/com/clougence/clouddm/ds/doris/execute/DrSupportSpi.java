@@ -64,7 +64,7 @@ public class DrSupportSpi implements RdbSupportSpi {
 
     @Override
     public RdbSupportLevel supportExplain(DataSourceConfig dsConfig) {
-        return RdbSupportLevel.No;
+        return RdbSupportLevel.Allow;
     }
 
     @Override

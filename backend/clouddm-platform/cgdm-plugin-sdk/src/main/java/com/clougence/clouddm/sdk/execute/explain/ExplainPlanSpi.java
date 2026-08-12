@@ -15,11 +15,12 @@ import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 /** Builds a stable plan structure from datasource EXPLAIN output and statement behavior. */
 public interface ExplainPlanSpi extends Spi {
 
-    Set<BehaviorAction> ACTIONS = Collections.unmodifiableSet(EnumSet.of(//
+    Set<BehaviorAction> AFFECTED_ROW_ACTIONS = Collections.unmodifiableSet(EnumSet.of(//
             BehaviorAction.INSERT,  //
             BehaviorAction.UPDATE,  //
             BehaviorAction.DELETE,  //
@@ -27,4 +28,9 @@ public interface ExplainPlanSpi extends Spi {
             BehaviorAction.REPLACE));
 
     ExplainPlan analyze(List<Result> results, List<BehaviorRelation> relations);
+
+    /** Whether EXPLAIN analysis is supported for one statement with the given query types. */
+    default boolean supportByQueryType(Set<SplitQueryType> queryTypes) {
+        return queryTypes != null && queryTypes.stream().anyMatch(SplitQueryType::isAllowPlan);
+    }
 }

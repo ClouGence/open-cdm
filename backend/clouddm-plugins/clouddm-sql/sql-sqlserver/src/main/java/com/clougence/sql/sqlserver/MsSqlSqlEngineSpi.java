@@ -26,6 +26,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.sqlserver.analysis.behavior.MsBehaviorAnalysisSpi;
 import com.clougence.sql.sqlserver.analysis.security.MsSqlSecDomainResolveSpi;
+import com.clougence.sql.sqlserver.editor.rewrite.MsSqlRewriteSpi;
 import com.clougence.sql.sqlserver.parser.MsSqlDslProvider;
 import com.clougence.sql.sqlserver.parser.MsSqlSplitAnalysisSpi;
 
@@ -44,7 +45,7 @@ public class MsSqlSqlEngineSpi implements SqlEngineSpi {
         this.secDomainResolveSpi = new MsSqlSecDomainResolveSpi();
         this.behaviorAnalysisSpi = new MsBehaviorAnalysisSpi();
         this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
-        this.rewriteSpi = null;
+        this.rewriteSpi = new MsSqlRewriteSpi();
     }
 
     @Override

@@ -21,9 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.ds.dameng.definition.ui.editor.table.DmEditorProvider;
+import com.clougence.clouddm.ds.dameng.sql.parser.DmVersion;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.ExceptionUtils;
@@ -41,6 +43,12 @@ public class DmMetaService extends DefaultRdbMetaService {
 
     public DmMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SELECT DB_VERSION FROM V$INSTANCE");
+        return Map.of(SqlParserParameters.VERSION, DmVersion.parse(databaseVersion).versionString());
     }
 
     @Override

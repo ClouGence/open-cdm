@@ -28,8 +28,10 @@ import com.clougence.clouddm.ds.sqlserver.dialect.SqlServerDialect;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.sqlserver.parser.SqlServerVersion;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
@@ -44,6 +46,12 @@ public class MsSqlMetaService extends DefaultRdbMetaService {
 
     public MsSqlMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SELECT CONVERT(VARCHAR(128), SERVERPROPERTY('ProductVersion'))");
+        return Map.of(SqlParserParameters.VERSION, SqlServerVersion.parse(databaseVersion).versionString());
     }
 
     @Override

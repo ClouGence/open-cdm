@@ -154,9 +154,11 @@ public class MySqlVersionConfigurationTest {
 
         RewriteContext rewriteContext = new RewriteContext();
         rewriteContext.setFetchLimit(10);
-        Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriteLimit(sql, rewriteContext).contains("LIMIT 10"));
+        rewriteContext.setParameters(ansiQuotes);
+        Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriteLimit(null, sql, rewriteContext).contains("LIMIT 10"));
+        rewriteContext.setParameters(knownEmpty);
         Assertions.assertThrows(AntlerSyntaxException.class, () -> {
-            engine.rewriteSpi(knownEmpty).rewriteLimit(sql, rewriteContext);
+            engine.rewriteSpi(knownEmpty).rewriteLimit(null, sql, rewriteContext);
         });
     }
 

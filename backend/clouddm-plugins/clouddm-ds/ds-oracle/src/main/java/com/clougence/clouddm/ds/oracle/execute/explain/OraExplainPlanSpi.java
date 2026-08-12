@@ -106,7 +106,9 @@ public class OraExplainPlanSpi implements ExplainPlanSpi {
         if (relations == null) {
             return null;
         }
-        return relations.stream().filter(relation -> relation != null && ACTIONS.contains(relation.getAction())).findFirst().orElse(null);
+        return relations.stream().filter(relation -> {
+            return relation != null && AFFECTED_ROW_ACTIONS.contains(relation.getAction());
+        }).findFirst().orElse(null);
     }
 
     private static void source(ExplainPlan plan, List<Result> results, List<BehaviorRelation> relations) {

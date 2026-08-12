@@ -23,6 +23,7 @@ import com.clougence.clouddm.ds.doris.definition.ui.editor.table.DrEditorProvide
 import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.EditorHelperDm;
 import com.clougence.schema.editor.domain.ETable;
 import com.clougence.schema.editor.provider.SqlBuilder;
@@ -30,6 +31,7 @@ import com.clougence.schema.umi.service.RdbUmiServiceDm;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
+import com.clougence.sql.doris.parser.DorisVersion;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -46,6 +48,12 @@ public class DrMetaService extends MyMetaService {
 
     public DrMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SHOW VARIABLES LIKE 'version_comment'", 2);
+        return Map.of(SqlParserParameters.VERSION, DorisVersion.parse(databaseVersion).versionString());
     }
 
     @Override

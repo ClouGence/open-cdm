@@ -43,10 +43,6 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
     private boolean                   requiresSelectCarrier;
     private boolean                   currentNodeOnly;
 
-    public PgSplitVisitor(){
-        this(PostgresVersion.LATEST);
-    }
-
     public PgSplitVisitor(PostgresVersion version){
         this.version = version == null ? PostgresVersion.LATEST : version;
     }

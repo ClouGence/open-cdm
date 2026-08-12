@@ -6,9 +6,9 @@
  */
 package com.clougence.clouddm.ds.spi.explain.mysql;
 
+import com.clougence.clouddm.ds.mysql.execute.explain.MyExplainPlanSpi;
 import com.clougence.clouddm.ds.spi.explain.ExplainPlanTextTest;
 import com.clougence.clouddm.sdk.execute.explain.ExplainPlanSpi;
-import com.clougence.sql.mysql.execute.explain.MyExplainPlanSpi;
 
 public abstract class MySqlExplainPlanTextTest extends ExplainPlanTextTest {
 

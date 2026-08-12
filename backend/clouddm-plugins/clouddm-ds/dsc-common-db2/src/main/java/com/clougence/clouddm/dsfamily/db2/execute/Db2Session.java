@@ -26,25 +26,49 @@ import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.RandomUtils;
+import com.clougence.utils.HashUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author bucketli 2022/3/28 19:25:30
  */
+@Slf4j
 public class Db2Session extends DefaultRdbSession {
 
-    public static Integer STMT_NO               = RandomUtils.nextInt(1000000, Integer.MAX_VALUE);
-    private final String  QUERY_EXPLAIN_SQL     = "SELECT concat(OBJECT_SCHEMA ,concat('.',OBJECT_NAME)) as name,COLUMN_COUNT,ROW_COUNT,WIDTH,PAGES\n"
-                                                  + "FROM SYSTOOLS.EXPLAIN_STATEMENT a\n"
-                                                  + "         left join SYSTOOLS.EXPLAIN_OBJECT b on a.EXPLAIN_REQUESTER = b.EXPLAIN_REQUESTER\n"
-                                                  + "and a.EXPLAIN_TIME = b.EXPLAIN_TIME and a.SOURCE_NAME = b.SOURCE_NAME and a.SOURCE_SCHEMA = b.SOURCE_SCHEMA\n"
-                                                  + "and a.SOURCE_VERSION = b.SOURCE_VERSION and a.EXPLAIN_LEVEL = b.EXPLAIN_LEVEL and a.STMTNO = b.STMTNO\n"
-                                                  + "and a.SECTNO = b.SECTNO WHERE a.QUERYNO = ?   AND a.EXPLAIN_LEVEL = 'P' WITH UR;";
+    private final String QUERY_EXPLAIN_SQL     = """
+            SELECT O.OPERATOR_ID, O.OPERATOR_TYPE, X.OBJECT_SCHEMA, X.OBJECT_NAME, X.STREAM_COUNT, X.SOURCE_TYPE
+            FROM EXPLAIN_STATEMENT S
+            JOIN EXPLAIN_OPERATOR O
+                ON S.EXPLAIN_REQUESTER = O.EXPLAIN_REQUESTER
+                AND S.EXPLAIN_TIME     = O.EXPLAIN_TIME
+                AND S.SOURCE_NAME      = O.SOURCE_NAME
+                AND S.SOURCE_SCHEMA    = O.SOURCE_SCHEMA
+                AND S.SOURCE_VERSION   = O.SOURCE_VERSION
+                AND S.EXPLAIN_LEVEL    = O.EXPLAIN_LEVEL
+                AND S.STMTNO           = O.STMTNO
+                AND S.SECTNO           = O.SECTNO
+            LEFT JOIN EXPLAIN_STREAM X
+                ON O.EXPLAIN_REQUESTER = X.EXPLAIN_REQUESTER
+                AND O.EXPLAIN_TIME     = X.EXPLAIN_TIME
+                AND O.SOURCE_NAME      = X.SOURCE_NAME
+                AND O.SOURCE_SCHEMA    = X.SOURCE_SCHEMA
+                AND O.SOURCE_VERSION   = X.SOURCE_VERSION
+                AND O.EXPLAIN_LEVEL    = X.EXPLAIN_LEVEL
+                AND O.STMTNO           = X.STMTNO
+                AND O.SECTNO           = X.SECTNO
+                AND O.OPERATOR_ID      = X.TARGET_ID
+            WHERE S.QUERYNO      = ?
+                AND S.EXPLAIN_LEVEL = 'P'
+            ORDER BY O.OPERATOR_ID, X.STREAM_ID
+            WITH UR
+            """;
 
-    private final String  DELETE_EXPLAIN_RECODE = "DELETE FROM SYSTOOLS.EXPLAIN_INSTANCE I WHERE EXISTS (SELECT 1\n"
-                                                  + " FROM SYSTOOLS.EXPLAIN_STATEMENT S  WHERE S.EXPLAIN_TIME = I.EXPLAIN_TIME\n"
-                                                  + "  AND S.SOURCE_NAME = I.SOURCE_NAME AND S.SOURCE_SCHEMA = I.SOURCE_SCHEMA\n"
-                                                  + "  AND S.SOURCE_VERSION = I.SOURCE_VERSION AND QUERYNO = ?)";
+    private final String DELETE_EXPLAIN_RECODE = "DELETE FROM EXPLAIN_INSTANCE I WHERE EXISTS (SELECT 1\n" + " FROM EXPLAIN_STATEMENT S  WHERE S.EXPLAIN_TIME = I.EXPLAIN_TIME\n"
+                                                 + "  AND S.SOURCE_NAME = I.SOURCE_NAME AND S.SOURCE_SCHEMA = I.SOURCE_SCHEMA\n"
+                                                 + "  AND S.SOURCE_VERSION = I.SOURCE_VERSION AND QUERYNO = ?)";
+
+    private Integer      currentExplainQueryNo;
 
     public Db2Session(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject, Db2Hooks sessionHook){
         super(newSessionId, dsConfig, dsObject, sessionHook);
@@ -65,11 +89,12 @@ public class Db2Session extends DefaultRdbSession {
     @Override
     protected boolean executeStatement(Statement ps, QueryRequest query, ResultBuilder builder) throws SQLException {
         if (query.isUseExplain()) {
+            this.currentExplainQueryNo = HashUtils.fnvHash(query.getQueryId());
             try (PreparedStatement eps = (PreparedStatement) this.rdbHook().explainStatement(ps.getConnection(), query)) {
                 eps.execute();
             }
             PreparedStatement preparedStatement = (PreparedStatement) ps;
-            preparedStatement.setInt(1, STMT_NO);
+            preparedStatement.setInt(1, this.currentExplainQueryNo);
             return preparedStatement.execute();
         }
 
@@ -89,12 +114,32 @@ public class Db2Session extends DefaultRdbSession {
 
     @Override
     protected void afterQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
-        super.afterQueryRequest(beginTime, query, builder);
-        if (query.isUseExplain()) {
-            try (PreparedStatement dbStat = currentResource().prepareStatement(DELETE_EXPLAIN_RECODE)) {
-                dbStat.setInt(1, STMT_NO);
-                dbStat.execute();
-            }
+        try {
+            super.afterQueryRequest(beginTime, query, builder);
+        } finally {
+            this.cleanupExplainPlan();
+        }
+    }
+
+    @Override
+    protected void throwQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder, Exception e) {
+        try {
+            this.cleanupExplainPlan();
+        } catch (SQLException cleanupError) {
+            log.error("cleanup DB2 explain plan failed", cleanupError);
+        }
+        super.throwQueryRequest(beginTime, query, builder, e);
+    }
+
+    private void cleanupExplainPlan() throws SQLException {
+        if (this.currentExplainQueryNo == null) {
+            return;
+        }
+        try (PreparedStatement dbStat = currentResource().prepareStatement(DELETE_EXPLAIN_RECODE)) {
+            dbStat.setInt(1, this.currentExplainQueryNo);
+            dbStat.execute();
+        } finally {
+            this.currentExplainQueryNo = null;
         }
     }
 

@@ -100,7 +100,13 @@ public final class SqlTestSupport {
 
     public static SqlParserParameters parserParameters(String datasource) {
         return switch (datasource) {
-            case "adb", "mariadb", "mysql", "ob4my", "por4my", "por4x", "tidb" -> SqlParserParameters.ofVersion("8.0.46");
+            case "adb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "mariadb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "mysql" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "ob4my" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "por4my" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "por4x" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "tidb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
             default -> SqlParserParameters.empty();
         };
     }

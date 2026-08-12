@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
+import com.clougence.clouddm.ds.tidb.sql.parser.TiDbVersion;
 import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParser;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -33,8 +34,8 @@ import com.clougence.dslpaser.parse.AstSplitScript;
 public class TiRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriteLimit(String query, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(TiDBDslProvider.INSTANCE, new StringReader(query));
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(TiDBDslProvider.INSTANCE, new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -94,7 +95,17 @@ public class TiRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
-        return "EXPLAIN FORMAT='traditional' " + queryStr;
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(TiDBDslProvider.INSTANCE, new StringReader(queryStr));
+        if (scripts.size() != 1 || !(((TiDBParser.SqlStatementContext) scripts.get(0).getAstTree()).dmlStatement() instanceof TiDBParser.DmlStatementContext)) {
+            return null;
+        }
+
+        TiDbVersion version = TiDbVersion.parse(context.getParameters().version());
+        if (!TiDbVersion.ge(version, TiDbVersion.TIDB_5)) {
+            return "EXPLAIN " + queryStr;
+        } else {
+            return "EXPLAIN FORMAT='traditional' " + queryStr;
+        }
     }
 }

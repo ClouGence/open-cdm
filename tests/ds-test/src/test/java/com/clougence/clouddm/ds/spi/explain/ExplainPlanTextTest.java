@@ -37,19 +37,10 @@ public abstract class ExplainPlanTextTest {
 
     private static final ObjectMapper JSON = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-    private final String resourceDirectory;
+    private final String              resourceDirectory;
 
     protected ExplainPlanTextTest(String resourceDirectory){
         this.resourceDirectory = resourceDirectory;
-    }
-
-    protected abstract ExplainPlanSpi explainPlanSpi();
-
-    @TestFactory
-    public Stream<DynamicTest> explainPlans() {
-        return TextTestFramework.dynamicTests(TextCaseSupport.resourceFiles(this.resourceDirectory), ExplainPlanTextTest::loadCases, testCase -> {
-            return DynamicTest.dynamicTest(testCase.caseId() + " " + summarize(testCase.sql()), () -> assertCase(testCase, this.explainPlanSpi()));
-        });
     }
 
     static List<ExplainPlanTextCase> loadCases(String resourcePath) {
@@ -86,6 +77,32 @@ public abstract class ExplainPlanTextTest {
         }
         ExplainPlan actual = spi.analyze(rawResults(testCase), relations);
         JsonNode expectedJson = JSON.readTree(testCase.expectJson());
+        if (expectedJson.has("estimatedAffectedRows")) {
+            Assert.assertEquals(testCase.caseId(), expectedJson.path("source").asText(), actual.getSource().name());
+            JsonNode expectedRows = expectedJson.get("estimatedAffectedRows");
+            List<String> subjects = relations.stream()
+                .filter(relation -> relation.getSubject() != null)
+                .filter(relation -> ExplainPlanSpi.ACTIONS.contains(relation.getAction()))
+                .map(relation -> relation.getSubject().getObjectPath())
+                .distinct()
+                .toList();
+            List<Double> estimates = actual.getNodes()
+                .stream()
+                .filter(node -> subjects.contains(node.getObjectPath()))
+                .map(node -> node.getEstimatedRows())
+                .filter(rows -> rows != null)
+                .toList();
+            Double actualRows = null;
+            if (!estimates.isEmpty()) {
+                actualRows = estimates.stream().mapToDouble(Double::doubleValue).sum();
+            }
+            if (expectedRows.isNull()) {
+                Assert.assertNull(testCase.caseId(), actualRows);
+            } else {
+                Assert.assertEquals(testCase.caseId(), expectedRows.asDouble(), actualRows, 0.000001D);
+            }
+            return;
+        }
         JsonNode actualJson = JSON.valueToTree(actual);
         Assert.assertEquals(testCase.caseId(), expectedJson, actualJson);
     }
@@ -150,5 +167,14 @@ public abstract class ExplainPlanTextTest {
             return oneLine;
         }
         return oneLine.substring(0, 97) + "...";
+    }
+
+    protected abstract ExplainPlanSpi explainPlanSpi();
+
+    @TestFactory
+    public Stream<DynamicTest> explainPlans() {
+        return TextTestFramework.dynamicTests(TextCaseSupport.resourceFiles(this.resourceDirectory), ExplainPlanTextTest::loadCases, testCase -> {
+            return DynamicTest.dynamicTest(testCase.caseId() + " " + summarize(testCase.sql()), () -> assertCase(testCase, this.explainPlanSpi()));
+        });
     }
 }

@@ -23,18 +23,18 @@ import com.clougence.dslpaser.parse.AstSplitScript;
 public class DmRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriteLimit(String query, RewriteContext context) {
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
         long maxLimit = context.getFetchLimit();
-        DmVersion version = DmVersion.parse(context.getDatabaseVersion());
+        DmVersion version = DmVersion.parse(context.getParameters().version());
         if (maxLimit <= 0 || !DmVersion.ge(version, DmVersion.DM_7)) {
-            return query;
+            return queryStr;
         }
 
-        List<AstSplitScript> scripts = DslHelper.splitDsl(DmDslProvider.INSTANCE, new StringReader(query));
+        List<AstSplitScript> scripts = DslHelper.splitDsl(DmDslProvider.INSTANCE, new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         DmSqlParser.SelectStatementContext select = findSelectStatement(scripts.get(0).getAstTree());
         if (select == null || select.selectOperand().selectQuery() == null) {
-            return query;
+            return queryStr;
         }
 
         CommonTokenStream tokens = (CommonTokenStream) parser.getTokenStream();
@@ -42,9 +42,9 @@ public class DmRewriteSpi implements RewriteSpi {
         DmSqlParser.TopClauseContext top = select.selectOperand().selectQuery().topClause();
         if (top != null) {
             if (top.expression().size() != 1 || top.PERCENT_KEYWORD() != null || top.WITH() != null) {
-                return query;
+                return queryStr;
             }
-            return rewriteNumericLimit(query, rewriter, top.expression(0), maxLimit);
+            return rewriteNumericLimit(queryStr, rewriter, top.expression(0), maxLimit);
         }
 
         DmSqlParser.LimitConditionContext limitCondition = outerLimitCondition(select);
@@ -64,7 +64,7 @@ public class DmRewriteSpi implements RewriteSpi {
             if (limit.COMMA() != null || limit.getStart().getType() == DmSqlParser.OFFSET) {
                 countIndex = expressions.size() - 1;
             }
-            return rewriteNumericLimit(query, rewriter, expressions.get(countIndex), maxLimit);
+            return rewriteNumericLimit(queryStr, rewriter, expressions.get(countIndex), maxLimit);
         }
 
         DmSqlParser.RowLimitClauseContext rowLimit = limitCondition.rowLimitClause();
@@ -74,9 +74,9 @@ public class DmRewriteSpi implements RewriteSpi {
         }
         DmSqlParser.FetchClauseContext fetch = rowLimit.fetchClause();
         if (fetch.WITH() != null || fetch.fetchCountClause() == null || fetch.fetchCountClause().PERCENT_KEYWORD() != null) {
-            return query;
+            return queryStr;
         }
-        return rewriteNumericLimit(query, rewriter, fetch.fetchCountClause().expression(), maxLimit);
+        return rewriteNumericLimit(queryStr, rewriter, fetch.fetchCountClause().expression(), maxLimit);
     }
 
     private static String rewriteNumericLimit(String query, TokenStreamRewriter rewriter, DmSqlParser.ExpressionContext expression, long maxLimit) {
@@ -149,7 +149,31 @@ public class DmRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(DmDslProvider.INSTANCE, new StringReader(queryStr));
+        if (scripts.size() != 1) {
+            return null;
+        }
+        if (!isExplainable(scripts.get(0).getAstTree())) {
+            return null;
+        }
         return "EXPLAIN FOR " + queryStr;
+    }
+
+    private static boolean isExplainable(ParseTree tree) {
+        if (tree instanceof DmSqlParser.SelectStatementContext || //
+            tree instanceof DmSqlParser.InsertStatementContext || //
+            tree instanceof DmSqlParser.UpdateStatementContext || //
+            tree instanceof DmSqlParser.DeleteStatementContext || //
+            tree instanceof DmSqlParser.MergeStatementContext) {
+            return true;
+        }
+
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (isExplainable(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

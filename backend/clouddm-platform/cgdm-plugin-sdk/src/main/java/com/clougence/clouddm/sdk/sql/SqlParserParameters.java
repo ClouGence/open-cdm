@@ -35,13 +35,6 @@ public record SqlParserParameters(Map<String, String> values) {
         return EMPTY;
     }
 
-    public static SqlParserParameters ofVersion(String version) {
-        if (version == null || version.isBlank()) {
-            return EMPTY;
-        }
-        return new SqlParserParameters(Map.of(VERSION, version));
-    }
-
     public String get(String name) {
         return this.values.get(name);
     }

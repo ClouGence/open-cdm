@@ -16,10 +16,13 @@
 package com.clougence.clouddm.ds.db2i.execute;
 
 import java.sql.Connection;
+import java.util.Map;
 
 import com.clougence.clouddm.dsfamily.db2.execute.Db2MetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.sql.db2.parser.Db2Version;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +34,12 @@ public class Db2ForiMetaService extends Db2MetaService {
 
     public Db2ForiMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SELECT OS_VERSION CONCAT '.' CONCAT OS_RELEASE FROM SYSIBMADM.ENV_SYS_INFO");
+        return Map.of(SqlParserParameters.VERSION, Db2Version.parse(databaseVersion).versionString());
     }
 
     @Override

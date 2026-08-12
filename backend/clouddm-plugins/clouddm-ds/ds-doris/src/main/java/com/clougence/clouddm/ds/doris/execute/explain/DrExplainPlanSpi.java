@@ -15,6 +15,7 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.utils.StringUtils;
 
 /** Parses Doris' Nereids text plan without treating unknown cardinality zero as an estimate. */
 public class DrExplainPlanSpi implements ExplainPlanSpi {
@@ -29,7 +30,7 @@ public class DrExplainPlanSpi implements ExplainPlanSpi {
                 scan.setNodeId(String.valueOf(plan.getNodes().size()));
                 scan.setPhysical("VOlapScanNode");
                 plan.getNodes().add(scan);
-            } else if (scan != null && line.stripLeading().startsWith("TABLE:")) {
+            } else if (scan != null && StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(line, "TABLE:")) {
                 String table = line.substring(line.indexOf(':') + 1).trim();
                 int alias = table.indexOf('(');
                 scan.setObjectPath(alias < 0 ? table : table.substring(0, alias));
@@ -46,9 +47,9 @@ public class DrExplainPlanSpi implements ExplainPlanSpi {
     }
 
     private static Double cardinality(String line) {
-        String normalized = line.stripLeading();
+        String normalized = StringUtils.trimBlankStart(line);
         String prefix = "cardinality=";
-        if (!normalized.startsWith(prefix)) {
+        if (!StringUtils.startsWithIgnoreCase(normalized, prefix)) {
             return null;
         }
         int end = normalized.indexOf(',', prefix.length());
@@ -82,7 +83,9 @@ public class DrExplainPlanSpi implements ExplainPlanSpi {
         if (relations == null) {
             return;
         }
-        BehaviorRelation write = relations.stream().filter(relation -> relation != null && ACTIONS.contains(relation.getAction())).findFirst().orElse(null);
+        BehaviorRelation write = relations.stream().filter(relation -> {
+            return relation != null && AFFECTED_ROW_ACTIONS.contains(relation.getAction());
+        }).findFirst().orElse(null);
         if (write == null) {
             return;
         }

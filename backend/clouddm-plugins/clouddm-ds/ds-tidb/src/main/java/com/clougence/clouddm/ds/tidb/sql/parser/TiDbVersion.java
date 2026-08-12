@@ -24,7 +24,12 @@ public enum TiDbVersion {
     public static TiDbVersion parse(String version) {
         String value = version == null ? "" : version;
         int marker = value.indexOf("Release Version:");
-        int major = firstNumber(value, marker < 0 ? 0 : marker + "Release Version:".length());
+        int offset = marker < 0 ? 0 : marker + "Release Version:".length();
+        int tidbMarker = value.toLowerCase().indexOf("tidb-v");
+        if (tidbMarker >= 0) {
+            offset = tidbMarker + "tidb-v".length();
+        }
+        int major = firstNumber(value, offset);
         for (TiDbVersion candidate : values()) {
             if (candidate.major == major) {
                 return candidate;
@@ -35,6 +40,10 @@ public enum TiDbVersion {
 
     public String versionString() {
         return Integer.toString(this.major);
+    }
+
+    public static boolean ge(TiDbVersion source, TiDbVersion target) {
+        return source.major >= target.major;
     }
 
     private static int firstNumber(String value, int offset) {

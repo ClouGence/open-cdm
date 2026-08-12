@@ -66,7 +66,7 @@ public class HanaSupportSpi implements RdbSupportSpi {
 
     @Override
     public RdbSupportLevel supportExplain(DataSourceConfig dsConfig) {
-        return RdbSupportLevel.No;
+        return RdbSupportLevel.Allow;
     }
 
     @Override

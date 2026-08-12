@@ -20,9 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.ds.hana.definition.ui.editor.table.HanaEditorProvider;
+import com.clougence.clouddm.ds.hana.sql.parser.HanaVersion;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.ExceptionUtils;
@@ -38,6 +40,12 @@ public class HanaMetaService extends DefaultRdbMetaService {
 
     public HanaMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SELECT VERSION FROM M_DATABASE");
+        return Map.of(SqlParserParameters.VERSION, HanaVersion.parse(databaseVersion).versionString());
     }
 
     @Override

@@ -45,8 +45,8 @@ public class MyRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteLimit(String query, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), new StringReader(query));
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -112,7 +112,17 @@ public class MyRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(this.dslProvider(), new StringReader(queryStr));
+        if (scripts.size() != 1) {
+            return null;
+        }
+
+        ParseTree astTree = scripts.get(0).getAstTree();
+        if (!(astTree instanceof MySqlParser.SqlStatementContext statement) || statement.dmlStatement() == null) {
+            return null;
+        }
+
         return "EXPLAIN FORMAT=TRADITIONAL " + queryStr;
     }
 }

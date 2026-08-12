@@ -15,8 +15,7 @@
  */
 package com.clougence.clouddm.sdk.sql.editor.rewrite;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,13 +28,8 @@ import lombok.Setter;
 @Setter
 public class RewriteContext {
 
-    private long         fetchLimit;
+    private long                fetchLimit;
+    private SqlParserParameters parameters = SqlParserParameters.empty();
 
-    private List<String> rewriterTags = new ArrayList<>();
-
-    public void addRewriterInfo(String tag) {
-        if (!this.rewriterTags.contains(tag)) {
-            this.rewriterTags.add(tag);
-        }
-    }
+    public void setParameters(SqlParserParameters parameters) { this.parameters = SqlParserParameters.nullToEmpty(parameters); }
 }

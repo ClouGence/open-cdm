@@ -25,9 +25,11 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.sql.postgres.parser.PgDslProvider;
+import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
@@ -44,8 +46,8 @@ public class PgRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteLimit(String query, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, new StringReader(query));
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -93,7 +95,17 @@ public class PgRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, new StringReader(queryStr));
+        if (scripts.size() != 1) {
+            return null;
+        }
+
+        SplitQueryType type = new PgSplitVisitor(provider.version()).visit(scripts.get(0).getAstTree());
+        if (type == null || !type.isAllowPlan()) {
+            return null;
+        }
+
         return "EXPLAIN " + queryStr;
     }
 }

@@ -6,6 +6,7 @@ package com.clougence.clouddm.ds.hana.sql.editor.rewrite;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.antlr.v4.runtime.*;
 
@@ -17,13 +18,13 @@ import com.clougence.utils.HashUtils;
 public class HanaRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriteLimit(String query, RewriteContext context) {
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
         long maxLimit = context.getFetchLimit();
         if (maxLimit <= 0) {
-            return query;
+            return queryStr;
         }
 
-        Lexer lexer = Sql2003DslProvider.INSTANCE.createLexer(CharStreams.fromString(query));
+        Lexer lexer = Sql2003DslProvider.INSTANCE.createLexer(CharStreams.fromString(queryStr));
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
         tokenStream.fill();
         List<Token> tokens = tokenStream.getTokens().stream().filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF).toList();
@@ -31,19 +32,19 @@ public class HanaRewriteSpi implements RewriteSpi {
 
         int selectPosition = firstWordPosition(tokens, topLevel, "SELECT", 0);
         if (selectPosition < 0 || hasMultipleStatements(tokens, topLevel)) {
-            return query;
+            return queryStr;
         }
 
         TokenStreamRewriter rewriter = new TokenStreamRewriter(tokenStream);
         int limitPosition = firstWordPosition(tokens, topLevel, "LIMIT", selectPosition + 1);
         if (limitPosition >= 0) {
-            return rewriteNumericLimit(query, rewriter, tokens, topLevel, limitPosition, maxLimit);
+            return rewriteNumericLimit(queryStr, rewriter, tokens, topLevel, limitPosition, maxLimit);
         }
 
         if (countWord(tokens, topLevel, "SELECT") == 1 && selectPosition + 1 < topLevel.size()) {
             Token next = tokens.get(topLevel.get(selectPosition + 1));
             if (isWord(next, "TOP")) {
-                return rewriteNumericLimit(query, rewriter, tokens, topLevel, selectPosition + 1, maxLimit);
+                return rewriteNumericLimit(queryStr, rewriter, tokens, topLevel, selectPosition + 1, maxLimit);
             }
         }
 
@@ -173,8 +174,28 @@ public class HanaRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        Lexer lexer = Sql2003DslProvider.INSTANCE.createLexer(CharStreams.fromString(queryStr));
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        tokenStream.fill();
+        List<Token> tokens = tokenStream.getTokens().stream().filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF).toList();
+        List<Integer> topLevel = topLevelTokenIndexes(tokens);
+        if (tokens.isEmpty() || hasMultipleStatements(tokens, topLevel)) {
+            return null;
+        }
+
+        Token first = tokens.get(topLevel.get(0));
+        if (!isExplainableStatement(first)) {
+            return null;
+        }
         String statementName = "DM_DML_EXPLAIN_" + HashUtils.fnvHash(queryId);
         return "EXPLAIN PLAN SET STATEMENT_NAME = '" + statementName + "' FOR " + queryStr;
+    }
+
+    private static boolean isExplainableStatement(Token first) {
+        return switch (first.getText().toUpperCase(Locale.ROOT)) {
+            case "SELECT", "WITH", "INSERT", "UPDATE", "DELETE", "REPLACE", "UPSERT", "MERGE" -> true;
+            default -> false;
+        };
     }
 }

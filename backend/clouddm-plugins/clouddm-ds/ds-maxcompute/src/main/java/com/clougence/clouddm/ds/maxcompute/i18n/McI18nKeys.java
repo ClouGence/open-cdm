@@ -65,5 +65,4 @@ public interface McI18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nKeys,
     String EDITOR_ROLE_TYPE_TITLE                      = "UI_EDITOR_ROLE_TYPE_TITLE";
     String EDITOR_ROLE_TYPE_DESC                       = "UI_EDITOR_ROLE_TYPE_DESC";
 
-    String REWRITE_LIMIT_LABEL                         = "REWRITE_LIMIT_LABEL";
 }

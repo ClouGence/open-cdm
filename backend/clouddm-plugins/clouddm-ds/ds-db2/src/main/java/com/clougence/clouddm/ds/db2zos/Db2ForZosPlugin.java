@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.db2zos;
 import com.clougence.adapter.db2.Db2Types;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
+import com.clougence.clouddm.ds.db2.execute.explain.Db2ExplainPlanSpi;
 import com.clougence.clouddm.ds.db2zos.definition.Db2ForZosDefService;
 import com.clougence.clouddm.ds.db2zos.definition.ui.editor.table.Db2ForZosEditorProvider;
 import com.clougence.clouddm.ds.db2zos.dsconf.Db2ForZosConfigSpi;
@@ -86,6 +87,7 @@ public class Db2ForZosPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new Db2ForZosSessionSpi());
         dsPlugin.addPluginSpi(new Db2ForZosSupportSpi());
+        dsPlugin.addPluginSpi(new Db2ExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

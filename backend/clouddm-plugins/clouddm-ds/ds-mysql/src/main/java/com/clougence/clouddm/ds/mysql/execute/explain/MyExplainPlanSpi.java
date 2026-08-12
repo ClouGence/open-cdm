@@ -77,7 +77,7 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
 
     private static void enrichWithBehavior(ExplainPlan plan, List<BehaviorRelation> relations) {
         for (BehaviorRelation relation : relations) {
-            if (relation == null || !ACTIONS.contains(relation.getAction()) || relation.getSubject() == null) {
+            if (relation == null || !AFFECTED_ROW_ACTIONS.contains(relation.getAction()) || relation.getSubject() == null) {
                 continue;
             }
             ExplainPlanNode target = targetNode(plan, relation);

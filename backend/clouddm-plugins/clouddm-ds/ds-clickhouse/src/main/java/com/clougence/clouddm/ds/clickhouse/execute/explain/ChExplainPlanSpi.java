@@ -15,9 +15,23 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetMeta;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 /** Parses ClickHouse EXPLAIN ESTIMATE part and row estimates. */
 public class ChExplainPlanSpi implements ExplainPlanSpi {
+
+    private static final Set<SplitQueryType> UNSUPPORTED_DML = EnumSet.of(//
+            SplitQueryType.INSERT, //
+            SplitQueryType.UPDATE, //
+            SplitQueryType.DELETE, //
+            SplitQueryType.MERGE);
+
+    @Override
+    public boolean supportByQueryType(Set<SplitQueryType> queryTypes) {
+        return queryTypes != null && //
+               queryTypes.contains(SplitQueryType.SELECT) && //
+               Collections.disjoint(queryTypes, UNSUPPORTED_DML);
+    }
 
     @Override
     public ExplainPlan analyze(List<Result> results, List<BehaviorRelation> relations) {
@@ -40,7 +54,8 @@ public class ChExplainPlanSpi implements ExplainPlanSpi {
             for (ResultSetRow row : resultSet.getRowSet()) {
                 ExplainPlanNode node = new ExplainPlanNode();
                 node.setNodeId(String.valueOf(plan.getNodes().size()));
-                node.setPhysical("MergeTreeEstimate");
+                String explain = value(row, indexes.get("explain"));
+                node.setPhysical(explain == null ? "MergeTreeEstimate" : explain);
                 node.setObjectPath(value(row, indexes.get("table")));
                 node.setEstimatedRows(number(value(row, indexes.get("rows"))));
                 node.setProperties(properties(row, columns));
@@ -70,7 +85,10 @@ public class ChExplainPlanSpi implements ExplainPlanSpi {
         if (relations == null) {
             return null;
         }
-        return relations.stream().filter(relation -> relation != null && ACTIONS.contains(relation.getAction())).findFirst().orElse(null);
+
+        return relations.stream().filter(relation -> {
+            return relation != null && AFFECTED_ROW_ACTIONS.contains(relation.getAction());
+        }).findFirst().orElse(null);
     }
 
     private static void source(ExplainPlan plan, List<Result> results, List<BehaviorRelation> relations) {

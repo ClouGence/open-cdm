@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.db2i;
 import com.clougence.adapter.db2.Db2Types;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
+import com.clougence.clouddm.ds.db2.execute.explain.Db2ExplainPlanSpi;
 import com.clougence.clouddm.ds.db2i.definition.Db2ForiDefService;
 import com.clougence.clouddm.ds.db2i.dsconf.Db2ForiConfigSpi;
 import com.clougence.clouddm.ds.db2i.dsconf.Db2ForiSerializationSpi;
@@ -86,6 +87,7 @@ public class Db2ForiPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new Db2ForiSessionSpi());
         dsPlugin.addPluginSpi(new Db2ForiSupportSpi());
+        dsPlugin.addPluginSpi(new Db2ExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

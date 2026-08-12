@@ -15,20 +15,32 @@
  */
 package com.clougence.clouddm.ds.hana.execute;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HashUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author mode 2022/3/28 19:25:30
  */
+@Slf4j
 public class HanaSession extends DefaultRdbSession {
+
+    private static final String QUERY_EXPLAIN_SQL  = """
+            SELECT OPERATOR_ID, PARENT_OPERATOR_ID, OPERATOR_NAME, EXECUTION_ENGINE,
+                   TABLE_NAME, OUTPUT_SIZE, SUBTREE_COST, OPERATOR_DETAILS
+            FROM EXPLAIN_PLAN_TABLE
+            WHERE STATEMENT_NAME = ?
+            ORDER BY OPERATOR_ID
+            """;
+    private static final String DELETE_EXPLAIN_SQL = "DELETE FROM EXPLAIN_PLAN_TABLE WHERE STATEMENT_NAME = ?";
+    private String              currentExplainId;
 
     public HanaSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
         super(newSessionId, dsConfig, dsObject, new HanaHooks());
@@ -50,5 +62,73 @@ public class HanaSession extends DefaultRdbSession {
     @Override
     public long getUpdateCount(Statement ps) throws SQLException {
         return ps.getUpdateCount();
+    }
+
+    @Override
+    protected Statement createStatement(Connection conn, QueryRequest query) throws SQLException {
+        if (!query.isUseExplain()) {
+            return super.createStatement(conn, query);
+        }
+        query.setUsingValueProcess(false);
+        PreparedStatement stmt = conn.prepareStatement(QUERY_EXPLAIN_SQL, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        stmt.setFetchSize(200);
+        stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
+        return stmt;
+    }
+
+    @Override
+    protected boolean executeStatement(Statement ps, QueryRequest query, ResultBuilder builder) throws SQLException {
+        if (!query.isUseExplain()) {
+            return super.executeStatement(ps, query, builder);
+        }
+        this.currentExplainId = "DM_DML_EXPLAIN_" + HashUtils.fnvHash(query.getQueryId());
+        try (PreparedStatement stmt = ps.getConnection().prepareStatement(DELETE_EXPLAIN_SQL)) {
+            stmt.setString(1, this.currentExplainId);
+            stmt.executeUpdate();
+        }
+        try (PreparedStatement explain = (PreparedStatement) this.rdbHook().explainStatement(ps.getConnection(), query)) {
+            super.applyArgs(query, explain);
+            explain.execute();
+        }
+        ((PreparedStatement) ps).setString(1, this.currentExplainId);
+        return ((PreparedStatement) ps).execute();
+    }
+
+    @Override
+    protected void applyArgs(QueryRequest query, Statement statement) throws SQLException {
+        if (!query.isUseExplain()) {
+            super.applyArgs(query, statement);
+        }
+    }
+
+    @Override
+    protected void afterQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
+        try {
+            super.afterQueryRequest(beginTime, query, builder);
+        } finally {
+            this.cleanupExplainPlan();
+        }
+    }
+
+    @Override
+    protected void throwQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder, Exception e) {
+        try {
+            this.cleanupExplainPlan();
+        } catch (SQLException cleanupError) {
+            log.error("cleanup HANA explain plan failed", cleanupError);
+        }
+        super.throwQueryRequest(beginTime, query, builder, e);
+    }
+
+    private void cleanupExplainPlan() throws SQLException {
+        if (this.currentExplainId == null) {
+            return;
+        }
+        try (PreparedStatement stmt = this.currentResource().prepareStatement(DELETE_EXPLAIN_SQL)) {
+            stmt.setString(1, this.currentExplainId);
+            stmt.executeUpdate();
+        } finally {
+            this.currentExplainId = null;
+        }
     }
 }

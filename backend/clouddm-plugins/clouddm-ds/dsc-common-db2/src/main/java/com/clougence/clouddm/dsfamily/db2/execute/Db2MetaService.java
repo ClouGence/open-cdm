@@ -23,8 +23,10 @@ import java.util.Map;
 import com.clougence.clouddm.dsfamily.db2.definition.ui.editor.table.Db2EditorProvider;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.db2.parser.Db2Version;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
@@ -39,6 +41,12 @@ public abstract class Db2MetaService extends DefaultRdbMetaService {
 
     public Db2MetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SELECT PROD_RELEASE FROM SYSIBMADM.ENV_PROD_INFO");
+        return Map.of(SqlParserParameters.VERSION, Db2Version.parse(databaseVersion).versionString());
     }
 
     @Override
