@@ -147,7 +147,14 @@ public class ChHooks implements SessionHook {
     public PreparedStatement executeStatement(Connection conn, QueryRequest query) throws SQLException {
         try {
             PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            stmt.setFetchSize(Integer.MIN_VALUE);
+            // Negative fetch size would fail every statement: Integer.MIN_VALUE is the streaming idiom for
+            // MySQL Connector/J, but the bundled clickhouse-jdbc 0.9.x driver defaults to its V2
+            // implementation, whose StatementImpl#setFetchSize throws SQLException
+            // ("rows should be greater or equal to 0.") for any negative input. For ClickHouse, fetchSize
+            // is at most a client-side read buffer hint (V1) or a pure no-op (V2), never a row limit and
+            // not a streaming switch, so a fixed positive value is safe and consistent with
+            // explainStatement() below and the other JDBC plugins.
+            stmt.setFetchSize(200);
             return stmt;
         } catch (SQLException e) {
             throw ChExceptionUtils.toException(e);
