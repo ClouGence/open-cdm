@@ -32,6 +32,7 @@ import com.clougence.clouddm.ds.clickhouse.dsconf.ChConfigSpi;
 import com.clougence.clouddm.ds.clickhouse.dsconf.ChSerializationSpi;
 import com.clougence.clouddm.ds.clickhouse.execute.ChSessionFactory;
 import com.clougence.clouddm.ds.clickhouse.execute.ChSupportSpi;
+import com.clougence.clouddm.ds.clickhouse.execute.explain.ChExplainPlanSpi;
 import com.clougence.clouddm.ds.clickhouse.i18n.ChConfigI18nKeys;
 import com.clougence.clouddm.ds.clickhouse.i18n.ChDsI18nKeys;
 import com.clougence.clouddm.ds.clickhouse.language.ChLanguageSpi;
@@ -86,6 +87,7 @@ public class ChPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new RdbSessionSpi());
         dsPlugin.addPluginSpi(new ChSupportSpi());
+        dsPlugin.addPluginSpi(new ChExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

@@ -32,6 +32,7 @@ import com.clougence.clouddm.ds.hana.dsconf.HanaSerializationSpi;
 import com.clougence.clouddm.ds.hana.execute.HanaSessionFactory;
 import com.clougence.clouddm.ds.hana.execute.HanaSessionSpi;
 import com.clougence.clouddm.ds.hana.execute.HanaSupportSpi;
+import com.clougence.clouddm.ds.hana.execute.explain.HanaExplainPlanSpi;
 import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.ds.hana.language.HanaLanguageSpi;
 import com.clougence.clouddm.ds.hana.resource.HanaEditorResourceSpi;
@@ -84,6 +85,7 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new HanaSessionSpi());
         dsPlugin.addPluginSpi(new HanaSupportSpi());
+        dsPlugin.addPluginSpi(new HanaExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

@@ -15,19 +15,16 @@
  */
 package com.clougence.clouddm.ds.clickhouse.sql.editor.rewrite;
 
-import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.ds.clickhouse.i18n.ChDsI18nKeys;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.ChSqlDslProvider;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParser;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.DslHelper;
@@ -36,12 +33,8 @@ import com.clougence.dslpaser.parse.AstSplitScript;
 public class ChRewriteSpi implements RewriteSpi {
 
     @Override
-    public Stream<String> rewriterQueryStream(Reader queryReader, QueryRequest request, RewriteContext context) {
-        return Stream.of(rewriterQueryMaterialized(queryReader, request, context));
-    }
-
-    private String rewriterQueryMaterialized(Reader queryReader, QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(ChSqlDslProvider.INSTANCE, queryReader);
+    public String rewriteLimit(String query, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(ChSqlDslProvider.INSTANCE, new StringReader(query));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -50,9 +43,7 @@ public class ChRewriteSpi implements RewriteSpi {
 
         long maxLimit = context.getFetchLimit();
         if (maxLimit > 0) {
-            if (this.rewriterLimit(rewriter, astTree, maxLimit)) {
-                context.addRewriterInfo(ChDsI18nKeys.REWRITE_LIMIT_LABEL);
-            }
+            this.rewriterLimit(rewriter, astTree, maxLimit);
         }
 
         return rewriter.getText();
@@ -97,5 +88,36 @@ public class ChRewriteSpi implements RewriteSpi {
             }
         }
         return false;
+    }
+
+    @Override
+    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(ChSqlDslProvider.INSTANCE, new StringReader(queryStr));
+        Parser parser = scripts.get(0).getParser();
+        ParseTree astTree = scripts.get(0).getAstTree();
+        CommonTokenStream tokens = (CommonTokenStream) parser.getTokenStream();
+
+        String rewritten = queryStr;
+        if (astTree instanceof ClickHouseParser.QueryStmtDeleteContext query) {
+            ClickHouseParser.DeleteStmtContext delete = query.deleteStmt();
+            rewritten = "EXPLAIN ESTIMATE " + selectForFilter(tokens, delete.nestedIdentifier(), delete.whereClause());
+        } else if (astTree instanceof ClickHouseParser.QueryStmtUpdateContext query) {
+            ClickHouseParser.UpdateStmtContext update = query.updateStmt();
+            rewritten = "EXPLAIN ESTIMATE " + selectForFilter(tokens, update.nestedIdentifier(), update.whereClause());
+        } else if (astTree instanceof ClickHouseParser.QueryStmtInsertContext query && query.insertStmt().dataClause() instanceof ClickHouseParser.DataClauseSelectContext select) {
+            rewritten = "EXPLAIN ESTIMATE " + tokens.getText(select.selectUnionStmt().getSourceInterval());
+        } else if (astTree instanceof ClickHouseParser.QueryStmtQueryContext query && query.query().selectUnionStmt() != null) {
+            rewritten = "EXPLAIN ESTIMATE " + queryStr;
+        }
+        return rewritten;
+    }
+
+    private static String selectForFilter(CommonTokenStream tokens, ParseTree table, ClickHouseParser.WhereClauseContext where) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM ");
+        sql.append(tokens.getText(table.getSourceInterval()));
+        if (where != null) {
+            sql.append(' ').append(tokens.getText(where.getSourceInterval()));
+        }
+        return sql.toString();
     }
 }

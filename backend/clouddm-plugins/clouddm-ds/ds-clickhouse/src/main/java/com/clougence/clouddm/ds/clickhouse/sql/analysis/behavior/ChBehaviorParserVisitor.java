@@ -134,7 +134,12 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
     public Void visitInsertStmt(InsertStmtContext ctx) {
         List<BehaviorObject> sources = new ArrayList<>();
         addTableSources(sources, ctx.dataClause());
+        int relationCount = behavior.getRelations().size();
         add(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.tableIdentifier()), sources);
+        if (ctx.dataClause() instanceof DataClauseValuesContext values && behavior.getRelations().size() > relationCount) {
+            BehaviorRelation relation = behavior.getRelations().get(behavior.getRelations().size() - 1);
+            relation.setInsertRows((long) values.assignmentValues().size());
+        }
         return null;
     }
 

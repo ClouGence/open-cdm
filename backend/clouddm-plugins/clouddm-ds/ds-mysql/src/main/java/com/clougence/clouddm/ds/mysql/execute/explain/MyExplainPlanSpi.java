@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  */
-package com.clougence.sql.mysql.execute.explain;
+package com.clougence.clouddm.ds.mysql.execute.explain;
 
 import java.util.*;
 
@@ -18,15 +18,9 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** Converts MySQL's tabular EXPLAIN output into the common plan model. */
 public class MyExplainPlanSpi implements ExplainPlanSpi {
-
-    @Override
-    public String name() {
-        return MySqlEngineSpi.NAME;
-    }
 
     @Override
     public ExplainPlan analyze(List<Result> results, List<BehaviorRelation> relations) {
@@ -67,14 +61,14 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
             if (columns == null || resultSet.getRowSet() == null) {
                 continue;
             }
-            Map<String, Integer> columnIndexes = columnIndexes(columns);
+            Map<String, Integer> indexes = columnIndexes(columns);
             for (ResultSetRow row : resultSet.getRowSet()) {
                 ExplainPlanNode node = new ExplainPlanNode();
                 node.setNodeId(String.valueOf(nodeIndex++));
-                node.setObjectPath(value(row, columnIndexes.get("table")));
-                node.setLogical(value(row, columnIndexes.get("select_type")));
-                node.setPhysical(value(row, columnIndexes.get("type")));
-                node.setEstimatedRows(doubleValue(value(row, columnIndexes.get("rows"))));
+                node.setObjectPath(value(row, indexes.get("table")));
+                node.setLogical(value(row, indexes.get("select_type")));
+                node.setPhysical(value(row, indexes.get("type")));
+                node.setEstimatedRows(doubleValue(value(row, indexes.get("rows"))));
                 node.setProperties(properties(row, columns));
                 plan.getNodes().add(node);
             }
@@ -83,7 +77,7 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
 
     private static void enrichWithBehavior(ExplainPlan plan, List<BehaviorRelation> relations) {
         for (BehaviorRelation relation : relations) {
-            if (!isWrite(relation) || relation.getSubject() == null) {
+            if (relation == null || !ACTIONS.contains(relation.getAction()) || relation.getSubject() == null) {
                 continue;
             }
             ExplainPlanNode target = targetNode(plan, relation);
@@ -91,13 +85,11 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
                 target = new ExplainPlanNode();
                 target.setNodeId(String.valueOf(plan.getNodes().size()));
                 target.setLogical(relation.getAction().name());
-                target.setObjectPath(relation.getSubject().getObjectPath());
                 plan.getNodes().add(target);
             }
             if (target == null) {
                 continue;
             }
-
             target.setObjectPath(relation.getSubject().getObjectPath());
             if (relation.getInsertRows() != null) {
                 target.setEstimatedRows(relation.getInsertRows().doubleValue());
@@ -110,16 +102,10 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
     private static ExplainPlanNode targetNode(ExplainPlan plan, BehaviorRelation relation) {
         String action = relation.getAction().name();
         for (ExplainPlanNode node : plan.getNodes()) {
-            if (node.getLogical() == null) {
-                continue;
-            }
-            String logical = node.getLogical().toUpperCase(Locale.ROOT);
-            boolean mergeTarget = relation.getAction() == BehaviorAction.MERGE && (logical.equals("INSERT") || logical.equals("REPLACE"));
-            if (logical.equals(action) || mergeTarget) {
+            if (node.getLogical() != null && node.getLogical().toUpperCase(Locale.ROOT).equals(action)) {
                 return node;
             }
         }
-
         String objectName = objectName(relation.getSubject().getObjectPath());
         for (ExplainPlanNode node : plan.getNodes()) {
             if (objectName.equalsIgnoreCase(objectName(node.getObjectPath()))) {
@@ -135,8 +121,7 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
     private static Double selectOutputRows(ExplainPlan plan, ExplainPlanNode target) {
         List<ExplainPlanNode> sources = plan.getNodes()
             .stream()
-            .filter(node -> node != target)
-            .filter(node -> node.getEstimatedRows() != null)
+            .filter(node -> node != target && node.getEstimatedRows() != null)
             .filter(node -> node.getObjectPath() == null || !node.getObjectPath().startsWith("<"))
             .toList();
         if (sources.size() != 1) {
@@ -149,13 +134,6 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
             rows = rows * filtered / 100D;
         }
         return rows;
-    }
-
-    private static boolean isWrite(BehaviorRelation relation) {
-        if (relation == null) {
-            return false;
-        }
-        return ExplainPlanSpi.ACTIONS.contains(relation.getAction());
     }
 
     private static boolean isInsert(BehaviorRelation relation) {
@@ -172,10 +150,7 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
             normalized = normalized.substring(0, normalized.length() - 1);
         }
         int separator = normalized.lastIndexOf('/');
-        if (separator >= 0) {
-            return normalized.substring(separator + 1);
-        }
-        return normalized;
+        return separator >= 0 ? normalized.substring(separator + 1) : normalized;
     }
 
     private static Map<String, Integer> columnIndexes(List<String> columns) {
@@ -215,5 +190,4 @@ public class MyExplainPlanSpi implements ExplainPlanSpi {
             return null;
         }
     }
-
 }

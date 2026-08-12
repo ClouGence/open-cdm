@@ -31,6 +31,7 @@ import com.clougence.clouddm.ds.tidb.dsconf.TiConfigSpi;
 import com.clougence.clouddm.ds.tidb.dsconf.TiSqlSerializationSpi;
 import com.clougence.clouddm.ds.tidb.execute.TiSessionFactory;
 import com.clougence.clouddm.ds.tidb.execute.TiSupportSpi;
+import com.clougence.clouddm.ds.tidb.execute.explain.TiExplainPlanSpi;
 import com.clougence.clouddm.ds.tidb.i18n.TiConfigI18nKeys;
 import com.clougence.clouddm.ds.tidb.i18n.TiDsI18nKeys;
 import com.clougence.clouddm.ds.tidb.language.TiLanguageSpi;
@@ -87,6 +88,7 @@ public class TiDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new TiSupportSpi());
+        dsPlugin.addPluginSpi(new TiExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

@@ -32,6 +32,7 @@ import com.clougence.clouddm.ds.starrocks.dsconf.SrConfigSpi;
 import com.clougence.clouddm.ds.starrocks.dsconf.SrSqlSerializationSpi;
 import com.clougence.clouddm.ds.starrocks.execute.SrSessionFactory;
 import com.clougence.clouddm.ds.starrocks.execute.SrSupportSpi;
+import com.clougence.clouddm.ds.starrocks.execute.explain.SrExplainPlanSpi;
 import com.clougence.clouddm.ds.starrocks.i18n.SrConfigI18nKeys;
 import com.clougence.clouddm.ds.starrocks.i18n.SrDsI18nKeys;
 import com.clougence.clouddm.ds.starrocks.language.SrLanguageSpi;
@@ -87,6 +88,7 @@ public class SrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new RdbSessionSpi());
         dsPlugin.addPluginSpi(new SrSupportSpi());
+        dsPlugin.addPluginSpi(new SrExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

@@ -15,9 +15,8 @@
  */
 package com.clougence.sql.doris.editor.rewrite;
 
-import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
@@ -25,24 +24,18 @@ import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.sql.common.analysis.SqlAnalysisI18nKeys;
 import com.clougence.sql.doris.parser.DrDslProvider;
 import com.clougence.sql.doris.parser.antlr.DorisParser;
 
 public class DrRewriteSpi implements RewriteSpi {
 
     @Override
-    public Stream<String> rewriterQueryStream(Reader queryReader, QueryRequest request, RewriteContext context) {
-        return Stream.of(rewriterQueryMaterialized(queryReader, request, context));
-    }
-
-    private String rewriterQueryMaterialized(Reader queryReader, QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(DrDslProvider.INSTANCE, queryReader);
+    public String rewriteLimit(String query, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(DrDslProvider.INSTANCE, new StringReader(query));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -51,9 +44,7 @@ public class DrRewriteSpi implements RewriteSpi {
 
         long maxLimit = context.getFetchLimit();
         if (maxLimit > 0) {
-            if (this.rewriterLimit(rewriter, astTree, maxLimit)) {
-                context.addRewriterInfo(SqlAnalysisI18nKeys.REWRITE_LIMIT_LABEL);
-            }
+            this.rewriterLimit(rewriter, astTree, maxLimit);
         }
 
         return rewriter.getText();
@@ -103,5 +94,10 @@ public class DrRewriteSpi implements RewriteSpi {
             }
         }
         return false;
+    }
+
+    @Override
+    public String rewriteDmlToQuery(String queryId, String queryStr, RewriteContext context) {
+        return "EXPLAIN " + queryStr;
     }
 }

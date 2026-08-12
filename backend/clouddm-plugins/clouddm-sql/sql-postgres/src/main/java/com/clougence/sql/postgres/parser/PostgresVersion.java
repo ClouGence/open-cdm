@@ -21,7 +21,12 @@ public enum PostgresVersion {
             return LATEST;
         }
         try {
-            int majorVersion = Integer.parseInt(version.trim());
+            String value = version.trim();
+            int end = 0;
+            while (end < value.length() && Character.isDigit(value.charAt(end))) {
+                end++;
+            }
+            int majorVersion = Integer.parseInt(value.substring(0, end));
             for (PostgresVersion v : values()) {
                 if (v.major == majorVersion) {
                     return v;
@@ -32,21 +37,21 @@ public enum PostgresVersion {
         return LATEST;
     }
 
+    public String versionString() {
+        return Integer.toString(this.major);
+    }
+
     private final int major;
 
     PostgresVersion(int major){
         this.major = major;
     }
 
-    public boolean atLeast(PostgresVersion minimum) {
-        return this.major >= minimum.major;
+    public static boolean ge(PostgresVersion source, PostgresVersion target) {
+        return source.major >= target.major;
     }
 
-    public boolean atMost(PostgresVersion maximum) {
-        return this.major <= maximum.major;
-    }
-
-    public boolean between(PostgresVersion minimum, PostgresVersion maximum) {
-        return atLeast(minimum) && atMost(maximum);
+    public static boolean le(PostgresVersion source, PostgresVersion target) {
+        return source.major <= target.major;
     }
 }

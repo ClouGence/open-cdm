@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.dameng.sql;
 
 import com.clougence.clouddm.ds.dameng.sql.analysis.behavior.DmBehaviorAnalysisSpi;
 import com.clougence.clouddm.ds.dameng.sql.analysis.security.DmSecDomainResolveSpi;
+import com.clougence.clouddm.ds.dameng.sql.editor.rewrite.DmRewriteSpi;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmDslProvider;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
@@ -36,12 +37,14 @@ public class DmSqlEngineSpi implements SqlEngineSpi {
     private final SecDomainResolveSpi secDomainResolveSpi;
     private final BehaviorAnalysisSpi behaviorAnalysisSpi;
     private final LineageAnalysisSpi  lineageAnalysisSpi;
+    private final RewriteSpi          rewriteSpi;
 
     public DmSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new DmSplitAnalysisSpi();
         this.secDomainResolveSpi = new DmSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new DmBehaviorAnalysisSpi();
         this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
+        this.rewriteSpi = new DmRewriteSpi();
     }
 
     @Override
@@ -76,6 +79,6 @@ public class DmSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
-        return null;
+        return rewriteSpi;
     }
 }

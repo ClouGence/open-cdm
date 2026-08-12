@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.hana.sql;
 
 import com.clougence.clouddm.ds.hana.sql.analysis.behavior.HanaBehaviorAnalysisSpi;
+import com.clougence.clouddm.ds.hana.sql.editor.rewrite.HanaRewriteSpi;
 import com.clougence.clouddm.ds.hana.sql.parser.HanaSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -41,7 +42,7 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
         this.secDomainResolveSpi = null;
         this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi(splitAnalysisSpi);
         this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
-        this.rewriteSpi = null;
+        this.rewriteSpi = new HanaRewriteSpi();
     }
 
     public String name() {

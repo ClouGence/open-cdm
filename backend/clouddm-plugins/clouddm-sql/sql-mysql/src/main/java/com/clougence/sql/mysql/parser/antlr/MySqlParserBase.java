@@ -77,7 +77,7 @@ public abstract class MySqlParserBase extends Parser {
     protected final boolean isSqlModeKnown() { return config.isSqlModeKnown(); }
 
     protected final boolean isSetVariableAssignmentAllowed(MySqlParser.VariableClauseContext variable) {
-        if (config.grammarVersion().atMost(MySqlVersion.MYSQL_5_7)) {
+        if (MySqlVersion.le(config.grammarVersion(), MySqlVersion.MYSQL_5_7)) {
             return true;
         }
         String text = variable.getText().toUpperCase(Locale.ROOT);
@@ -160,23 +160,23 @@ public abstract class MySqlParserBase extends Parser {
     }
 
     protected final boolean atLeast(MySqlVersion minimum) {
-        return config.grammarVersion().atLeast(minimum);
+        return MySqlVersion.ge(config.grammarVersion(), minimum);
     }
 
     protected final boolean atMost(MySqlVersion maximum) {
-        return config.grammarVersion().atMost(maximum);
+        return MySqlVersion.le(config.grammarVersion(), maximum);
     }
 
     protected final boolean between(MySqlVersion minimum, MySqlVersion maximum) {
-        return config.grammarVersion().between(minimum, maximum);
+        return MySqlVersion.ge(config.grammarVersion(), minimum) && MySqlVersion.le(config.grammarVersion(), maximum);
     }
 
     protected final boolean atLeast(int major, int minor) {
-        return config.grammarVersion().atLeast(major, minor);
+        return MySqlVersion.ge(config.grammarVersion(), major * 100 + minor);
     }
 
     protected final boolean atMost(int major, int minor) {
-        return config.grammarVersion().atMost(major, minor);
+        return MySqlVersion.le(config.grammarVersion(), major * 100 + minor);
     }
 
     protected final boolean isPositiveIntegerAhead() {
@@ -231,7 +231,7 @@ public abstract class MySqlParserBase extends Parser {
     }
 
     protected final boolean between(int minMajor, int minMinor, int maxMajor, int maxMinor) {
-        return config.grammarVersion().between(minMajor, minMinor, maxMajor, maxMinor);
+        return MySqlVersion.ge(config.grammarVersion(), minMajor * 100 + minMinor) && MySqlVersion.le(config.grammarVersion(), maxMajor * 100 + maxMinor);
     }
 
     protected final boolean isQueryWhereAllowed(ParserRuleContext fromClause) {

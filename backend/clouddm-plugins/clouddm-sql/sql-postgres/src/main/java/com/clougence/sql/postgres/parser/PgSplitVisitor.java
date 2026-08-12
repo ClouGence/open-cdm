@@ -1126,17 +1126,17 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             case "brin_desummarize_range", "brin_summarize_new_values", "brin_summarize_range", "gin_clean_pending_list" -> this.types.add(SplitQueryType.ADMIN_PERFORMANCE);
             case "pg_blocking_pids", "pg_safe_snapshot_blocking_pids", "pg_notification_queue_usage", "pg_mcv_list_items" -> this.types.add(SplitQueryType.PERFORMANCE);
             case "pg_restore_relation_stats", "pg_clear_relation_stats", "pg_restore_attribute_stats", "pg_clear_attribute_stats" -> {
-                if (this.version.atLeast(PostgresVersion.POSTGRES_18)) {
+                if (PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_18)) {
                     this.types.add(SplitQueryType.ADMIN_PERFORMANCE);
                 }
             }
             case "pg_available_wal_summaries", "pg_wal_summary_contents" -> {
-                if (this.version.atLeast(PostgresVersion.POSTGRES_17)) {
+                if (PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_17)) {
                     this.types.add(SplitQueryType.LOG_READ);
                 }
             }
             case "pg_ls_summariesdir" -> {
-                if (this.version.atLeast(PostgresVersion.POSTGRES_18)) {
+                if (PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_18)) {
                     this.types.add(SplitQueryType.LOG_READ);
                 }
             }
@@ -1153,12 +1153,12 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return true;
         }
         if (name.equals("pg_database_collation_actual_version") || name.equals("pg_get_wal_resource_managers")) {
-            return this.version.atLeast(PostgresVersion.POSTGRES_15);
+            return PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_15);
         }
         if (name.equals("pg_column_toast_chunk_id")) {
-            return this.version.atLeast(PostgresVersion.POSTGRES_17);
+            return PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_17);
         }
-        return name.equals("pg_settings_get_flags") && this.version.atLeast(PostgresVersion.POSTGRES_18);
+        return name.equals("pg_settings_get_flags") && PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_18);
     }
 
     private void collectRelationType(Relation_exprContext relation) {
