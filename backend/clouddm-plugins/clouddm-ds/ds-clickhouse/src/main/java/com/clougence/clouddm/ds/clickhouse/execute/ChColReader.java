@@ -71,6 +71,8 @@ public class ChColReader extends AbstractColReader {
             case "ipv4":
             case "ipv6":
             case "uuid":
+            case "json":
+            case "object":
                 return STRING_VALUE_FETCHER;
             case "date":
             case "date32":

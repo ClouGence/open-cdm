@@ -94,7 +94,20 @@ public enum ClickHouseTypes implements FieldType {
     Polygon("Polygon", JDBCType.VARCHAR),
     MultiPolygon("MultiPolygon", JDBCType.VARCHAR),
     LowCardinality("LowCardinality", JDBCType.VARCHAR),
-    Ring("Ring", JDBCType.VARCHAR),;
+    Ring("Ring", JDBCType.VARCHAR),
+
+    // types introduced by newer ClickHouse servers (24.x ~ 26.x)
+    JSON("JSON", JDBCType.VARCHAR),
+    Object("Object", JDBCType.VARCHAR),
+    Dynamic("Dynamic", JDBCType.VARCHAR),
+    Variant("Variant", JDBCType.VARCHAR),
+    Vector("Vector", JDBCType.VARCHAR),
+    BFloat16("BFloat16", JDBCType.REAL),
+    Time("Time", JDBCType.TIME),
+    Time32("Time32", JDBCType.TIME),
+    Time64("Time64", JDBCType.TIME),
+    LineString("LineString", JDBCType.VARCHAR),
+    MultiLineString("MultiLineString", JDBCType.VARCHAR),;
 
     //    LowCardinality("LowCardinality", Fmt.of("LowCardinality(?)")),
     private final String           codeKey;
