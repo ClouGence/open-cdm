@@ -59,15 +59,20 @@
         </a-tabs>
       </div>
       <div id="result-info-container" class="result-info-container" style="height: 100%" v-if="tab.result.active === 'message'">
-        <div class="result-info-messages">
+        <div class="result-info-messages sql-editor-typography">
           <div v-for="(info, index) in tab.executeInfo" :key="index" class="result-info">
-            <div class="info" v-if="info.resultType === 'QueryScript'">
+            <div class="info info--query" v-if="info.resultType === 'QueryScript'">
               <div class="level">{{ info.line }}</div>
-              <div class="message">
-                {{ info.script }}
-              </div>
+              <ExecutionSqlText class="message" :sql="info.script" />
             </div>
-            <div class="info" v-else>
+            <div
+              class="info"
+              :class="{
+                'info--error': info.level === 'Error' || info.level === 'error',
+                'info--warn': info.level === 'Warn' || info.level === 'warn'
+              }"
+              v-else
+            >
               <div class="time">[{{ info.time }}]</div>
               <div :class="`message ${info.level}`">
                 {{ info.message }}
@@ -83,8 +88,8 @@
             <div class="btn-group-item" @click="handleScrollUpMessage">
               <CustomIcon type="icon-v2-scroll_up" size="18px" />
             </div>
-            <div class="btn-group-item" @click="handleScrollDownMessage">
-              <CustomIcon type="icon-v2-scroll_down" size="18px" :custom-style="tab.executeInfoScrollDown ? 'btn-group-item-hover' : ''" />
+            <div class="btn-group-item" :class="{ 'btn-group-item--active': tab.executeInfoScrollDown }" @click="handleScrollDownMessage">
+              <CustomIcon type="icon-v2-scroll_down" size="18px" />
             </div>
             <div class="btn-group-item" @click="handleClearMessage">
               <CustomIcon type="icon-v2-Delete2" size="18px" />
@@ -409,6 +414,7 @@ import copyMixin from '@/mixins/copyMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { mapGetters, mapState } from 'vuex';
 import CustomIcon from '@/components/function/CustomIcon.vue';
+import ExecutionSqlText from '@/views/sql/components/ExecutionSqlText.vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import XEClipboard from 'xe-clipboard';
 
@@ -419,7 +425,8 @@ export default {
     tab: Object
   },
   components: {
-    CustomIcon
+    CustomIcon,
+    ExecutionSqlText
     // AsyncJobDetail,
     // AsyncJobList
   },
@@ -729,8 +736,8 @@ export default {
           }
         ],
         event,
-        customClass: 'custom-class',
-        minWidth: 100
+        customClass: 'sql-context-menu',
+        minWidth: 176
       });
     },
     handleCloseResultTab(type, key) {
@@ -937,9 +944,9 @@ export default {
           }
         ],
         event,
-        customClass: 'custom-class',
+        customClass: 'sql-context-menu',
         zIndex: 99,
-        minWidth: 100
+        minWidth: 176
       });
     },
     async handleCellCopy(record, column, rowIndex) {
@@ -1929,47 +1936,66 @@ export default {
   }
 
   .result-info-container {
-    overflow-y: scroll;
+    display: flex;
+    align-items: stretch;
+    overflow: auto;
     width: 100%;
+    background: var(--bg-primary);
 
     .result-info-messages {
-      width: calc(100% - 28px);
+      flex: 1;
+      min-width: 0;
       min-height: 100%;
-      display: inline-block;
-      border-right: #c0c4cc solid 1px;
-      margin-left: 3px;
-      padding-top: 3px;
+      border-right: 1px solid var(--border-primary);
+      padding: 7px 10px 12px;
 
       .result-info {
-        margin-bottom: 1px;
-        font-weight: bold;
-        font-size: 12px;
+        margin-bottom: 2px;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 21px;
 
         .info {
           display: flex;
+          align-items: flex-start;
+          min-width: 0;
 
           .level {
-            border-radius: 1px;
-            height: 18px;
-            margin-right: 3px;
-            color: #19be6b;
+            flex: 0 0 auto;
+            margin-right: 6px;
+            color: #183995;
+            white-space: pre;
           }
 
           .time {
-            margin-right: 5px;
-            color: #aaa;
+            flex: 0 0 auto;
+            margin-right: 8px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+          }
+
+          &.info--warn .time {
+            color: #ad6800;
+          }
+
+          &.info--error .time {
+            color: #a8071a;
           }
 
           .message {
             flex: 1;
+            min-width: 0;
+            color: var(--text-primary);
             word-break: break-all;
 
-            &.Warn {
-              color: #f90;
+            &.Warn,
+            &.warn {
+              color: #ad6800;
             }
 
-            &.Error {
-              color: #ed4014;
+            &.Error,
+            &.error {
+              color: #a8071a;
             }
           }
         }
@@ -1977,24 +2003,33 @@ export default {
     }
 
     .result-info-buttons {
-      width: 24px;
-      display: inline-block;
-      vertical-align: top;
+      flex: 0 0 44px;
+      min-height: 100%;
+      padding-top: 8px;
+      display: flex;
+      justify-content: center;
+      box-sizing: border-box;
 
       .btn-group {
-        position: fixed;
+        position: sticky;
+        top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
 
         .btn-group-item {
-          padding: 0 2px;
-          margin: 2px 2px;
-          display: block;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-secondary);
+          border-radius: 6px;
         }
 
-        :deep(.btn-group-item-hover),
+        .btn-group-item--active,
         .btn-group-item:hover {
-          vertical-align: middle;
-          background: #e4e4e4;
-          border-radius: 3%;
+          background: var(--bg-tertiary);
           cursor: pointer;
         }
       }
@@ -2324,6 +2359,26 @@ export default {
 
   .vxe-input-tpl .op {
     background: rgba(0, 0, 0, 0.9);
+  }
+}
+
+:global([data-theme='dark']) {
+  .result-container .result-info-container .result-info-messages .result-info .info {
+    .level {
+      color: #9cdcfe;
+    }
+
+    .message.Warn,
+    .message.warn,
+    &.info--warn .time {
+      color: #dcdcaa;
+    }
+
+    .message.Error,
+    .message.error,
+    &.info--error .time {
+      color: #f48771;
+    }
   }
 }
 :deep(.ant-table .ant-table-tbody tr td) {

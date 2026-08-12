@@ -3,7 +3,7 @@ import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
-import { SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 const DEFAULT_LINE_HEIGHT = 22;
 const DEFAULT_VERTICAL_PADDING = 25;
@@ -139,9 +139,8 @@ export default {
               },
               lineNumbers: this.lineNumberOption(),
               scrollbar: {
+                ...SQL_EDITOR_SCROLLBAR,
                 vertical: this.virtualScrollMode ? 'hidden' : 'auto',
-                verticalScrollbarSize: 5,
-                horizontalScrollbarSize: 8,
                 handleMouseWheel: !this.virtualScrollMode,
                 alwaysConsumeMouseWheel: !this.virtualScrollMode
               },
@@ -197,9 +196,8 @@ export default {
     updateScrollbarMode(virtualScrollMode) {
       this.monacoEditor?.updateOptions({
         scrollbar: {
+          ...SQL_EDITOR_SCROLLBAR,
           vertical: virtualScrollMode ? 'hidden' : 'auto',
-          verticalScrollbarSize: 5,
-          horizontalScrollbarSize: 8,
           handleMouseWheel: !virtualScrollMode,
           alwaysConsumeMouseWheel: !virtualScrollMode
         }
@@ -270,15 +268,5 @@ export default {
 
 :deep(.below) {
   display: none;
-}
-
-:deep(.monaco-scrollable-element > .scrollbar) {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.1);
-}
-
-:deep(.monaco-scrollable-element > .scrollbar > .slider) {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.3) !important;
 }
 </style>

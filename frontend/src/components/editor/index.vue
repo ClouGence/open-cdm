@@ -9,7 +9,7 @@ import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { requestWebSocket } from '@/services/socket';
 import { WS_TYPE } from '@/utils';
 import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
-import { SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const LANGUAGE_SPLIT_DELAY_MS = 500;
@@ -48,6 +48,7 @@ export default {
         minimap: {
           enabled: false
         },
+        scrollbar: SQL_EDITOR_SCROLLBAR,
         automaticLayout: true,
         autoIndent: true // Auto Indent
       },

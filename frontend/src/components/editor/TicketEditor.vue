@@ -4,7 +4,7 @@ import { getLanguage } from '@/utils/tools';
 import { markRaw, nextTick } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
-import { SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 export default {
   name: 'TicketEditor',
@@ -81,6 +81,7 @@ export default {
     },
     scrollbarOptions(virtualScrollMode) {
       return {
+        ...SQL_EDITOR_SCROLLBAR,
         vertical: virtualScrollMode ? 'hidden' : 'auto',
         handleMouseWheel: !virtualScrollMode,
         alwaysConsumeMouseWheel: !virtualScrollMode

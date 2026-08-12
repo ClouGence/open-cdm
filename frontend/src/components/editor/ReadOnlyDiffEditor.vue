@@ -3,7 +3,7 @@ import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
 import { mapState } from 'vuex';
 import { resolveSqlEditorLanguage } from './sqlLanguage';
-import { SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 export default {
   name: 'ReadOnlyDiffEditor',
@@ -89,6 +89,7 @@ export default {
               minimap: {
                 enabled: false
               },
+              scrollbar: SQL_EDITOR_SCROLLBAR,
               automaticLayout: true,
               autoIndent: true // Auto Indent
             })

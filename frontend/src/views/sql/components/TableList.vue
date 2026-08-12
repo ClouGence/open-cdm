@@ -1010,7 +1010,7 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import CreateTableItem from '@/components/modal/CreateTableItem';
 import CCReadOnlyTable from '@/components/widgets/CCReadOnlyTable';
-import { SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import { Modal } from 'ant-design-vue';
 import i18n from '@/i18n';
 import { nanoid } from 'nanoid';
@@ -1260,6 +1260,7 @@ export default {
         minimap: {
           enabled: false
         },
+        scrollbar: SQL_EDITOR_SCROLLBAR,
         automaticLayout: true,
         lineNumbers: 'off',
         autoIndent: true // Auto Indent
@@ -2637,9 +2638,9 @@ export default {
             theme: 'flat',
             items,
             event,
-            customClass: 'custom-class',
+            customClass: 'sql-context-menu',
             zIndex: 99,
-            minWidth: 100
+            minWidth: 176
           });
         }
       }

@@ -13,8 +13,15 @@
   box-sizing: border-box;
 }
 
-// reset.css assigns a UI font directly to div/span, so SQL token nodes must inherit Monaco's configured metrics.
+// Shared SQL typography for editable, read-only, diff, and execution-output surfaces.
 .sql-editor-typography {
+  font-family: Menlo, Monaco, 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+
   .view-lines *,
   .margin-view-overlays * {
     font-family: inherit;
@@ -129,6 +136,31 @@ a[disabled] {
 
 .contextmenu_menu {
   z-index: 10 !important;
+}
+
+.sql-context-menu.mx-context-menu.flat {
+  --mx-menu-placeholder-width: 28px;
+  min-width: 176px;
+  padding: 8px 0;
+}
+
+.sql-context-menu.mx-context-menu.flat .mx-context-menu-item {
+  min-height: 36px;
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+.sql-context-menu .mx-context-menu-item:not(.disabled) {
+  cursor: pointer;
+}
+
+.sql-context-menu .mx-context-menu-item .label {
+  line-height: 20px;
+}
+
+.sql-context-menu .mx-context-menu-item-separator,
+.sql-context-menu .mx-context-menu-item-sperator {
+  padding: 4px 0;
 }
 
 .vld-overlay {

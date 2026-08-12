@@ -1295,6 +1295,17 @@ tr:hover .ivu-select-selection {
   background-color: rgba(50, 50, 50, 0.1);
 }
 
+// Monaco renders its scrollbars as divs, so the browser scrollbar rules above do not apply.
+.sql-editor-typography .monaco-scrollable-element > .scrollbar {
+  border-radius: 1em;
+  background-color: rgba(50, 50, 50, 0.1);
+}
+
+.sql-editor-typography .monaco-scrollable-element > .scrollbar > .slider {
+  border-radius: 1em;
+  background-color: rgba(50, 50, 50, 0.3) !important;
+}
+
 .ivu-table-tip {
   overflow-x: hidden !important;
 }
