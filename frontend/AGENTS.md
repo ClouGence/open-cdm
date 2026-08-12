@@ -160,6 +160,14 @@ cd frontend && npm run check-i18n
 - 正文固定 14px / 400；按钮与标签 16px / 500。
 - 定价子系统单独用 Inter Display + `rounded.pill` 药丸按钮，不与主编辑系统混用。
 
+**SQL 编辑器字体**
+
+- 所有可编辑、只读和 Diff SQL Monaco 编辑器统一复用
+  `src/components/editor/sqlEditorTypography.js` 导出的 `SQL_EDITOR_TYPOGRAPHY`，页面和组件不得另行定义一套 SQL 字体。
+- 默认规范固定为 `Menlo, Monaco, "Courier New", monospace`、14px、400 字重、21px 行高、0 字间距；SQL 工作台允许用户仅调整字号，
+  但不得改变统一字体族和默认字重。
+- JSON 等非 SQL 编辑器不套用该规范，按各自内容类型的编辑器约定处理。
+
 **间距与圆角**
 
 - 间距以 4px 为基准：`xs` 8 · `md` 16 · `lg` 24 · `xl` 32 · `xxl` 48 · `section` 96。

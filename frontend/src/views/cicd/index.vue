@@ -1512,13 +1512,13 @@ export default {
     align-items: center;
   }
 
-  :deep(.ivu-btn-text) {
+  :deep(.dm-button.ant-btn-link) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     height: 22px;
     padding: 0 2px;
-    line-height: 1;
+    line-height: 22px;
   }
 }
 
@@ -1571,6 +1571,11 @@ export default {
 .flow-more-dropdown {
   display: inline-flex;
   align-items: center;
+
+  :deep(.ivu-dropdown-rel) {
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 .flow-more-delete:not(.ivu-dropdown-item-disabled) {

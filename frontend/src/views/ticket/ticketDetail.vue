@@ -3,7 +3,12 @@
     <div class="page-shell__body ticket-detail-container">
       <section class="page-section ticket-info-section">
         <div class="ticket-info-section__header">
-          <div class="page-section__title ticket-info-section__title">{{ ticketDetail.ticketTitle || '-' }}</div>
+          <div class="ticket-info-section__heading">
+            <div class="ticket-info-section__label">{{ $t('ticket-information') }}</div>
+            <div class="ticket-info-section__title" :title="ticketDetail.ticketTitle || '-'">
+              {{ ticketDetail.ticketTitle || '-' }}
+            </div>
+          </div>
           <div class="ticket-overview__actions">
             <Button class="warning-btn" v-if="ticketDetail.canApproval" type="primary" @click="handleShowApprovalModal">
               {{ $t('shen-pi') }}
@@ -485,11 +490,6 @@
           :text="ticketSqlContent"
           key="ticket-sql-content"
           :ds-type="ticketDetail.dataSourceType"
-          :font-family="sqlEditorTypography.fontFamily"
-          :font-size="sqlEditorTypography.fontSize"
-          :font-weight="sqlEditorTypography.fontWeight"
-          :line-height="sqlEditorTypography.lineHeight"
-          :letter-spacing="sqlEditorTypography.letterSpacing"
           @reach-bottom="loadNextTicketSqlContent"
         />
       </section>
@@ -568,11 +568,6 @@
         key="ticket-sql-content-modal"
         :max-height="500"
         :ds-type="ticketDetail.dataSourceType"
-        :font-family="sqlEditorTypography.fontFamily"
-        :font-size="sqlEditorTypography.fontSize"
-        :font-weight="sqlEditorTypography.fontWeight"
-        :line-height="sqlEditorTypography.lineHeight"
-        :letter-spacing="sqlEditorTypography.letterSpacing"
         @reach-bottom="loadNextTicketSqlContent"
       />
       <template #footer>
@@ -699,7 +694,6 @@ import appLogger from '@/utils/logger';
 import { mapState } from 'vuex';
 import { TICKET_PROCESS_STATUS } from '@/const';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
-import { SQL_CHANGE_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import copyMixin from '@/mixins/copyMixin';
 import { isCk, isMongoDB, RULE_WARN_LEVEL } from '@/utils';
 
@@ -778,7 +772,6 @@ export default {
   mixins: [copyMixin],
   data() {
     return {
-      sqlEditorTypography: SQL_CHANGE_EDITOR_TYPOGRAPHY,
       autoExec: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
@@ -2628,6 +2621,7 @@ export default {
 }
 
 .ticket-info-section__header,
+.ticket-info-section__heading,
 .ticket-overview__actions,
 .ticket-meta-item__value,
 .ticket-meta-item__label--with-icon,
@@ -2650,13 +2644,34 @@ export default {
 }
 
 .ticket-info-section__header {
-  align-items: flex-start;
+  align-items: center;
   gap: 24px;
 }
 
-.ticket-info-section__title {
+.ticket-info-section__heading {
+  flex: 1;
+  gap: 24px;
   min-width: 0;
-  overflow-wrap: anywhere;
+}
+
+.ticket-info-section__label {
+  flex: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.ticket-info-section__title {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 28px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ticket-overview__actions {
@@ -2675,7 +2690,7 @@ export default {
   width: fit-content;
   min-height: 24px;
   padding: 2px 10px;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
   line-height: 20px;
@@ -3187,7 +3202,7 @@ export default {
   align-items: center;
   min-height: 24px;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 999px;
   color: var(--text-secondary);
   background: var(--bg-secondary);
   font-size: 12px;
@@ -3621,6 +3636,10 @@ export default {
   .ticket-sql-toolbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .ticket-info-section__heading {
+    width: 100%;
   }
 
   .ticket-overview__actions {

@@ -4,7 +4,7 @@ import { getLanguage } from '@/utils/tools';
 import { markRaw, nextTick } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
-import { SQL_CHANGE_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 export default {
   name: 'TicketEditor',
@@ -16,26 +16,6 @@ export default {
     readOnly: {
       type: Boolean,
       default: false
-    },
-    fontFamily: {
-      type: String,
-      default: SQL_CHANGE_EDITOR_TYPOGRAPHY.fontFamily
-    },
-    fontSize: {
-      type: Number,
-      default: SQL_CHANGE_EDITOR_TYPOGRAPHY.fontSize
-    },
-    fontWeight: {
-      type: [Number, String],
-      default: 'bold'
-    },
-    lineHeight: {
-      type: Number,
-      default: SQL_CHANGE_EDITOR_TYPOGRAPHY.lineHeight
-    },
-    letterSpacing: {
-      type: Number,
-      default: SQL_CHANGE_EDITOR_TYPOGRAPHY.letterSpacing
     },
     virtualScrollMode: {
       type: Boolean,
@@ -75,11 +55,7 @@ export default {
           monaco.editor.create(this.$refs.ticketEditor, {
             value: this.text, // The editor 's value
             language,
-            fontFamily: this.fontFamily,
-            fontSize: this.fontSize,
-            fontWeight: String(this.fontWeight),
-            lineHeight: this.lineHeight,
-            letterSpacing: this.letterSpacing,
+            ...SQL_EDITOR_TYPOGRAPHY,
             scrollBeyondLastLine: false,
             theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
             minimap: {

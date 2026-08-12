@@ -19,11 +19,6 @@
             :max-height="520"
             :ds-type="record?.dsType"
             :border="0"
-            :font-family="sqlEditorTypography.fontFamily"
-            :font-size="sqlEditorTypography.fontSize"
-            :font-weight="sqlEditorTypography.fontWeight"
-            :line-height="sqlEditorTypography.lineHeight"
-            :letter-spacing="sqlEditorTypography.letterSpacing"
             :content-padding="12"
             virtual-scroll-mode
             :line-number-start="sqlPreviewStartLine"
@@ -71,7 +66,6 @@
 
 <script>
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
-import { SQL_CHANGE_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import CCEmptyContent from '@/components/widgets/CCEmptyContent';
 import ChangeBodyDiff from '../changeBodyDiff.vue';
 
@@ -92,7 +86,6 @@ export default {
   emits: ['update:modelValue'],
   data() {
     return {
-      sqlEditorTypography: SQL_CHANGE_EDITOR_TYPOGRAPHY,
       loading: false,
       requestSequence: 0,
       sqlContent: '',

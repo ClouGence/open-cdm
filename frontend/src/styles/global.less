@@ -13,6 +13,18 @@
   box-sizing: border-box;
 }
 
+// reset.css assigns a UI font directly to div/span, so SQL token nodes must inherit Monaco's configured metrics.
+.sql-editor-typography {
+  .view-lines *,
+  .margin-view-overlays * {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+  }
+}
+
 html {
   font-size: 14px;
   box-sizing: border-box;

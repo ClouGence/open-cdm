@@ -3,7 +3,7 @@ import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
-import { SQL_CHANGE_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 const DEFAULT_LINE_HEIGHT = 22;
 const DEFAULT_VERTICAL_PADDING = 25;
@@ -19,26 +19,6 @@ export default {
     language: {
       type: String,
       default: 'sql'
-    },
-    fontFamily: {
-      type: String,
-      default: SQL_CHANGE_EDITOR_TYPOGRAPHY.fontFamily
-    },
-    fontSize: {
-      type: Number,
-      default: SQL_CHANGE_EDITOR_TYPOGRAPHY.fontSize
-    },
-    fontWeight: {
-      type: [Number, String],
-      default: 'bold'
-    },
-    lineHeight: {
-      type: Number,
-      default: SQL_CHANGE_EDITOR_TYPOGRAPHY.lineHeight
-    },
-    letterSpacing: {
-      type: Number,
-      default: SQL_CHANGE_EDITOR_TYPOGRAPHY.letterSpacing
     },
     dsType: {
       type: String,
@@ -144,11 +124,7 @@ export default {
             monaco.editor.create(this.$refs.readOnlyEditor, {
               value: this.text, // The editor 's value
               language,
-              fontFamily: this.fontFamily,
-              fontSize: this.fontSize,
-              fontWeight: String(this.fontWeight),
-              lineHeight: this.lineHeight,
-              letterSpacing: this.letterSpacing,
+              ...SQL_EDITOR_TYPOGRAPHY,
               scrollBeyondLastLine: false,
               readOnly: true,
               domReadOnly: true,

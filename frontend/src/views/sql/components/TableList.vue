@@ -1010,7 +1010,7 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import CreateTableItem from '@/components/modal/CreateTableItem';
 import CCReadOnlyTable from '@/components/widgets/CCReadOnlyTable';
-import * as monaco from 'monaco-editor';
+import { SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import { Modal } from 'ant-design-vue';
 import i18n from '@/i18n';
 import { nanoid } from 'nanoid';
@@ -1255,8 +1255,7 @@ export default {
       defaultOpts: {
         value: '', // The editor 's value
         language: 'mysql',
-        fontSize: 14,
-        fontWeight: 'bold',
+        ...SQL_EDITOR_TYPOGRAPHY,
         theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
