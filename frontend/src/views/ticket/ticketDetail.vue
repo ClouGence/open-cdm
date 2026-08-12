@@ -2511,6 +2511,10 @@ export default {
   box-shadow: 0 2px 8px rgba(31, 41, 55, 0.05);
 }
 
+.ticket-progress-card {
+  container-type: inline-size;
+}
+
 .ticket-auth-list {
   margin-top: 18px;
   border-top: 1px solid var(--border-light);
@@ -2901,23 +2905,41 @@ export default {
 .ticket-progress-scroll {
   width: 100%;
   overflow-x: auto;
-  scrollbar-width: none;
+  padding-bottom: 4px;
+  scrollbar-color: var(--border-primary) transparent;
+  scrollbar-width: thin;
 }
 
 .ticket-progress-scroll::-webkit-scrollbar {
-  display: none;
+  height: 6px;
+}
+
+.ticket-progress-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ticket-progress-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--border-primary);
 }
 
 .ticket-progress {
+  --ticket-progress-icon-size: clamp(26px, 2.6cqw, 32px);
+  --ticket-progress-content-width: clamp(104px, 11.5cqw, 140px);
+  --ticket-progress-step-gap: clamp(6px, 0.8cqw, 10px);
+  --ticket-progress-connector-width: clamp(16px, 3cqw, 36px);
+  --ticket-progress-connector-gap: clamp(4px, 0.8cqw, 12px);
+
   position: relative;
   align-items: flex-start;
-  min-width: 960px;
+  width: 100%;
+  min-width: 840px;
 }
 
 .ticket-progress-step {
   position: relative;
   flex: none;
-  gap: 10px;
+  gap: var(--ticket-progress-step-gap);
   min-width: 0;
   padding: 3px 0;
   border: 0;
@@ -2951,12 +2973,12 @@ export default {
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--ticket-progress-icon-size);
+  height: var(--ticket-progress-icon-size);
   border-radius: 50%;
   color: var(--text-tertiary);
   background: var(--bg-tertiary);
-  font-size: 17px;
+  font-size: clamp(15px, 1.4cqw, 17px);
   transition: transform 0.15s ease;
 }
 
@@ -2980,14 +3002,14 @@ export default {
   flex-direction: column;
   align-items: flex-start;
   gap: 3px;
-  width: 140px;
-  min-width: 140px;
+  width: var(--ticket-progress-content-width);
+  min-width: var(--ticket-progress-content-width);
   background: transparent;
 }
 
 .ticket-progress-step__content strong {
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: clamp(12px, 1.15cqw, 14px);
   font-weight: 600;
 }
 
@@ -2996,7 +3018,7 @@ export default {
   max-width: 100%;
   overflow: hidden;
   color: var(--text-tertiary);
-  font-size: 12px;
+  font-size: clamp(11px, 1cqw, 12px);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -3006,10 +3028,10 @@ export default {
 }
 
 .ticket-progress-connector {
-  flex: 1 1 48px;
-  min-width: 36px;
+  flex: 1 1 var(--ticket-progress-connector-width);
+  min-width: var(--ticket-progress-connector-width);
   height: 2px;
-  margin: 18px 12px 0;
+  margin: calc(var(--ticket-progress-icon-size) / 2 + 2px) var(--ticket-progress-connector-gap) 0;
   border-radius: 1px;
   background: var(--border-primary);
 }
@@ -3618,34 +3640,6 @@ export default {
   .analysis-summary-row__elapsed {
     grid-column: 3 / 6;
     justify-content: flex-start;
-  }
-
-  .ticket-progress {
-    min-width: 0;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .ticket-progress-scroll {
-    overflow-x: visible;
-  }
-
-  .ticket-progress-step {
-    width: 100%;
-    padding: 8px 0;
-  }
-
-  .ticket-progress-step__content {
-    width: auto;
-    min-width: 0;
-  }
-
-  .ticket-progress-connector {
-    flex: none;
-    width: 2px;
-    min-width: 2px;
-    height: 20px;
-    margin: 0 0 0 15px;
   }
 }
 

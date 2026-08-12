@@ -180,7 +180,7 @@ export default {
           slot: 'action'
         }
       ],
-      pageSize: 40,
+      pageSize: 20,
       pageNum: 1,
       total: 0
     };
