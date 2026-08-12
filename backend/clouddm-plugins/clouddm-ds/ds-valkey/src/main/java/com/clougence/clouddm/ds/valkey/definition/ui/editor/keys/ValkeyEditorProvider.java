@@ -24,8 +24,7 @@ import com.clougence.schema.editor.provider.SqlBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Ekko
- * @date 2023/8/18 10:07
+ * @author Betacat0
 */
 @Slf4j
 public class ValkeyEditorProvider extends AbstractSqlBuilder implements SqlBuilder {
@@ -33,7 +32,7 @@ public class ValkeyEditorProvider extends AbstractSqlBuilder implements SqlBuild
     public static final SqlBuilder INSTANCE = new ValkeyEditorProvider();
 
     @Override
-    public DsType getDataSourceType() { return DsType.Redis; }
+    public DsType getDataSourceType() { return DsType.Valkey; }
 
     public Dialect getDialect() { return ValkeyDialect.INSTANCE; }
 

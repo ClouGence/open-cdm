@@ -22,7 +22,7 @@ import com.clougence.drivers.adapter.AdapterType;
 import com.clougence.utils.StringUtils;
 
 /**
- * @author mode create time is 2021/1/12
+ * @author Betacat0
  **/
 public class ValkeyColReader extends AbstractColReader {
 

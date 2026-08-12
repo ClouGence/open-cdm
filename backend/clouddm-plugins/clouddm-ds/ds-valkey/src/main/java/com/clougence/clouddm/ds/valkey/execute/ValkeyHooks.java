@@ -29,7 +29,7 @@ import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.utils.StringUtils;
 
 /**
- * @author mode create time is 2021/1/12
+ * @author Betacat0
  **/
 public class ValkeyHooks implements SessionHook {
 

@@ -21,7 +21,7 @@ import com.clougence.utils.StringUtils;
 /**
  * SQLDialect
  * @version : 2020-10-31
- * @author 赵永春 (zyc@hasor.net)
+ * @author Betacat0
  */
 public class ValkeyDialect extends AbstractDialect {
 
@@ -29,7 +29,7 @@ public class ValkeyDialect extends AbstractDialect {
 
     @Override
     protected String keyWordsResource() {
-        return "/META-INF/clougence/db-keywords/redis.keywords";
+        return "/META-INF/clougence/db-keywords/valkey.keywords";
     }
 
     @Override

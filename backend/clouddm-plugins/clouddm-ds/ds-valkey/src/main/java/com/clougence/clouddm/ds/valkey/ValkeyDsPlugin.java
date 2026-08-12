@@ -42,7 +42,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /**
- * Valkey 数据源插件：基于 Valkey GLIDE Java SDK 驱动，复用 Redis 协议与 Schema 类型（DsType.Redis）。
+ * Valkey 数据源插件：基于 Valkey GLIDE Java SDK 驱动，协议与 Redis 完全兼容，Schema 类型复用 RedisTypes（挂载在 DsType.Valkey 下）。
  * selectSchemas 在 CONFIG 不可用时降级为 SELECT 嗅探真实 db 数量。
  */
 @Plugin(name = "i18n::" + ValkeyDsI18nKeys.PLUGIN_NAME_VALKEY,            //
@@ -53,8 +53,8 @@ public class ValkeyDsPlugin implements DsPlugin, SchemaPlugin {
 
     @Override
     public void init(SchemaBinder binder) {
-        binder.initMappingService(DsType.Redis);
-        binder.bindTypes(DsType.Redis, RedisTypes.values(), RedisTypes::valueOfCode);
+        binder.initMappingService(DsType.Valkey);
+        binder.bindTypes(DsType.Valkey, RedisTypes.values(), RedisTypes::valueOfCode);
     }
 
     @Override

@@ -24,7 +24,7 @@ import com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 
 /**
- * @author mode 2021/1/6 19:00
+ * @author Betacat0
  */
 public interface ValkeyDataAuthLabel {
 
