@@ -2660,6 +2660,7 @@ export default {
   font-size: 14px;
   font-weight: 500;
   line-height: 28px;
+  white-space: nowrap;
 }
 
 .ticket-info-section__title {
@@ -2871,6 +2872,10 @@ export default {
   max-width: 100%;
   line-height: 22px;
   overflow-wrap: anywhere;
+}
+
+.ticket-overview__secondary-grid > .ticket-meta-item:not(.ticket-meta-item--description) > span:last-child {
+  white-space: nowrap;
 }
 
 .ticket-meta-item--description :deep(.ivu-tooltip-rel) {
@@ -3571,9 +3576,9 @@ export default {
   color: var(--error-color);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1365px) {
   .ticket-overview__primary-grid,
-  .ticket-overview__primary-grid--with-target-database {
+  .ticket-overview__primary-grid.ticket-overview__primary-grid--with-target-database {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 22px;
   }
@@ -3583,19 +3588,20 @@ export default {
     border-left: 0;
   }
 
-  .ticket-overview__secondary-grid {
+  .ticket-overview__secondary-grid,
+  .ticket-overview__secondary-grid.ticket-overview__secondary-grid--with-target-database {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 22px;
   }
 
   .ticket-overview__secondary-grid .ticket-meta-item--description {
-    grid-column: 1 / -1;
+    grid-column: 1 / span 2;
     padding-left: 0;
     border-left: 0;
   }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1279px) {
   .ticket-step-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3613,9 +3619,37 @@ export default {
     grid-column: 3 / 6;
     justify-content: flex-start;
   }
+
+  .ticket-progress {
+    min-width: 0;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ticket-progress-scroll {
+    overflow-x: visible;
+  }
+
+  .ticket-progress-step {
+    width: 100%;
+    padding: 8px 0;
+  }
+
+  .ticket-progress-step__content {
+    width: auto;
+    min-width: 0;
+  }
+
+  .ticket-progress-connector {
+    flex: none;
+    width: 2px;
+    min-width: 2px;
+    height: 20px;
+    margin: 0 0 0 15px;
+  }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 1079px) {
   .ticket-detail-page .ticket-detail-container {
     gap: 20px;
     padding: 12px 16px 20px;
@@ -3647,7 +3681,9 @@ export default {
   }
 
   .ticket-overview__primary-grid,
+  .ticket-overview__primary-grid.ticket-overview__primary-grid--with-target-database,
   .ticket-overview__secondary-grid,
+  .ticket-overview__secondary-grid.ticket-overview__secondary-grid--with-target-database,
   .ticket-step-summary,
   .ticket-activity-row {
     grid-template-columns: 1fr;
@@ -3687,10 +3723,6 @@ export default {
   .ticket-overview__secondary-grid .ticket-meta-item:first-child {
     padding-top: 0;
     border-top: 0;
-  }
-
-  .ticket-progress {
-    min-width: 900px;
   }
 
   .analysis-summary-row {
@@ -3738,6 +3770,19 @@ export default {
 
   .ticket-auth-record__permissions-title {
     padding-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .ticket-detail-page .ticket-detail-container {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .ticket-info-section__heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
   }
 }
 
