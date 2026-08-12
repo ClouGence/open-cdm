@@ -2599,7 +2599,12 @@ export default {
       const node = this.$refs.tableTree.getSelectedNode();
       const isNotNode = event.target.classList && event.target.classList.length && event.target.classList[0] === 'vtree-tree__block-area';
       const items = [];
-      const menuList = this.getBrowserMenus(this.currentTab.dsType, isNotNode || !node ? this.currentTab.leafType : node.nodeType);
+      const targetType = isNotNode || !node ? this.currentTab.leafType : node.nodeType;
+      const browserMenus = this.getBrowserMenus(this.currentTab.dsType, targetType) || [];
+      let menuList = browserMenus;
+      if (targetType === 'TABLE') {
+        menuList = browserMenus.filter((menu) => menu.menuId !== TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PROPERTY);
+      }
       appLogger.debug(event, node, menuList);
       if (menuList && menuList.length) {
         if (isNotNode || !node) {

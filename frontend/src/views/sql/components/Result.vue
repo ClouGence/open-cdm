@@ -105,7 +105,7 @@
         <div class="tip-footer">
           <div class="tip-footer-main">
             <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
-              <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
+              <div v-if="tab.running && selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
                 <div class="loading-spinner"></div>
               </div>
               <Page
@@ -184,6 +184,7 @@
         <div class="result-table-container" v-if="selectedTab">
           <a-table
             class="result-set-style"
+            :class="{ 'result-set-style--empty': !selectedTab.showData?.length }"
             :ref="`result_table_${tab.result.active}`"
             :columns="antdColumns"
             :dataSource="selectedTab.showData"
@@ -486,7 +487,7 @@ export default {
       exportConfig: {},
       editorHeight: 250,
       paginatedLoading: {}, // Loading status for each result set
-      paginatedLoadingTimer: null, // Loading timer
+      paginatedLoadingTimers: {}, // Loading timers keyed by result set
       columnWidths: {}, // Stored column widths
       tableScrollY: 240,
       tableResizeObserver: null
@@ -530,6 +531,13 @@ export default {
       const matched = this.tab.result.list.find((item) => item.resultId === this.tab.result.active);
       return matched || {};
     },
+    selectedResultProgress() {
+      return {
+        resultId: this.selectedTab.resultId,
+        receiveMode: this.selectedTab.receiveMode,
+        fetchCount: this.selectedTab.fetchCount
+      };
+    },
     antdColumns() {
       if (!this.selectedTab || !this.selectedTab.columnListSeq) {
         return [];
@@ -570,22 +578,27 @@ export default {
     }
   },
   watch: {
-    // Show loading when fetchCount changes in PAGINATED mode.
-    'selectedTab.fetchCount': {
-      handler(newVal, oldVal) {
-        if (this.selectedTab?.receiveMode === 'PAGINATED' && this.selectedTab?.resultId) {
-          if (newVal !== undefined && oldVal !== undefined && newVal > oldVal) {
-            this.paginatedLoading[this.selectedTab.resultId] = true;
-            if (this.paginatedLoadingTimer) {
-              clearTimeout(this.paginatedLoadingTimer);
-            }
-            this.paginatedLoadingTimer = setTimeout(() => {
-              if (this.selectedTab?.resultId) {
-                this.paginatedLoading[this.selectedTab.resultId] = false;
-              }
-            }, 2000);
-          }
+    selectedResultProgress: {
+      handler(current, previous) {
+        if (!this.tab.running || current.receiveMode !== 'PAGINATED' || !current.resultId) {
+          return;
         }
+        if (!previous || current.resultId !== previous.resultId) {
+          return;
+        }
+        if (current.fetchCount === undefined || previous.fetchCount === undefined || current.fetchCount <= previous.fetchCount) {
+          return;
+        }
+
+        const resultId = current.resultId;
+        this.paginatedLoading[resultId] = true;
+        if (this.paginatedLoadingTimers[resultId]) {
+          clearTimeout(this.paginatedLoadingTimers[resultId]);
+        }
+        this.paginatedLoadingTimers[resultId] = setTimeout(() => {
+          this.paginatedLoading[resultId] = false;
+          delete this.paginatedLoadingTimers[resultId];
+        }, 2000);
       },
       immediate: false
     },
@@ -594,10 +607,11 @@ export default {
         if (running) {
           return;
         }
-        if (this.paginatedLoadingTimer) {
-          clearTimeout(this.paginatedLoadingTimer);
-          this.paginatedLoadingTimer = null;
+        const loadingTimerIds = Object.keys(this.paginatedLoadingTimers);
+        for (let i = 0; i < loadingTimerIds.length; i++) {
+          clearTimeout(this.paginatedLoadingTimers[loadingTimerIds[i]]);
         }
+        this.paginatedLoadingTimers = {};
         const resultIds = Object.keys(this.paginatedLoading);
         for (let i = 0; i < resultIds.length; i++) {
           this.paginatedLoading[resultIds[i]] = false;
@@ -671,8 +685,9 @@ export default {
     this.$bus.off('consoleMessageAppend');
     this.$bus.off(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO);
     this.$bus.off(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT);
-    if (this.paginatedLoadingTimer) {
-      clearTimeout(this.paginatedLoadingTimer);
+    const loadingTimerIds = Object.keys(this.paginatedLoadingTimers);
+    for (let i = 0; i < loadingTimerIds.length; i++) {
+      clearTimeout(this.paginatedLoadingTimers[loadingTimerIds[i]]);
     }
   },
   methods: {
@@ -1914,6 +1929,33 @@ export default {
       // Remove blank lines.
       :deep(.ant-table-placeholder) {
         display: none;
+      }
+    }
+
+    .result-set-style--empty {
+      height: 100%;
+
+      :deep(.ant-spin-nested-loading),
+      :deep(.ant-spin-container),
+      :deep(.ant-table),
+      :deep(.ant-table-container) {
+        height: 100%;
+        min-height: 0;
+      }
+
+      :deep(.ant-table-container) {
+        display: flex;
+        flex-direction: column;
+      }
+
+      :deep(.ant-table-header) {
+        flex: none;
+      }
+
+      :deep(.ant-table-body) {
+        flex: 1;
+        min-height: 0;
+        overflow-x: auto !important;
       }
     }
 
