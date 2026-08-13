@@ -1,8 +1,5 @@
 <template>
   <div class="console-job-wrapper" style="padding: 16px">
-    <a-breadcrumb style="margin-bottom: 14px">
-      <a-breadcrumb-item>{{ $t('xiao-xi-zhong-xin') }}</a-breadcrumb-item>
-    </a-breadcrumb>
     <div class="page-header-container border-radius-card">
       <a-form style="padding-right: 300px" layout="inline">
         <a-form-item>

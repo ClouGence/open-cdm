@@ -9,10 +9,6 @@
       :handle-confirm="handleConfirmDeleteCluster"
       :handle-close="handleCancelUpdateAlarm"
     />
-    <Breadcrumb>
-      <BreadcrumbItem to="/ccsystem/resource">{{ $t('tong-bu-ji-qi') }}</BreadcrumbItem>
-      <BreadcrumbItem>{{ $t('ji-qi-lie-biao') }}</BreadcrumbItem>
-    </Breadcrumb>
     <div class="worker-list-content">
       <div class="job-header border-radius-card-top">
         <span class="job-header-db">

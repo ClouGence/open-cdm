@@ -2,12 +2,16 @@
   <header class="app-content-header">
     <div class="app-content-header__left">
       <h1 class="app-content-header__title">
+        <span v-if="pageBreadcrumbs.length > 2" class="app-content-header__mobile-ellipsis" aria-hidden="true" />
         <template v-for="(item, index) in pageBreadcrumbs" :key="`${item.label}-${index}`">
           <button
             v-if="item.event"
             type="button"
             class="app-content-header__crumb app-content-header__crumb-button"
-            :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }"
+            :class="{
+              'is-current': index === pageBreadcrumbs.length - 1,
+              'is-mobile-previous': index === pageBreadcrumbs.length - 2
+            }"
             @click="handleBreadcrumbEvent(item.event)"
           >
             {{ item.label }}
@@ -15,15 +19,31 @@
           <router-link
             v-else-if="item.to"
             class="app-content-header__crumb"
-            :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }"
+            :class="{
+              'is-current': index === pageBreadcrumbs.length - 1,
+              'is-mobile-previous': index === pageBreadcrumbs.length - 2
+            }"
             :to="item.to"
           >
             {{ item.label }}
           </router-link>
-          <span v-else class="app-content-header__crumb" :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }">
+          <span
+            v-else
+            class="app-content-header__crumb"
+            :class="{
+              'is-current': index === pageBreadcrumbs.length - 1,
+              'is-mobile-previous': index === pageBreadcrumbs.length - 2
+            }"
+          >
             {{ item.label }}
           </span>
-          <span v-if="index < pageBreadcrumbs.length - 1" class="app-content-header__separator">/</span>
+          <span
+            v-if="index < pageBreadcrumbs.length - 1"
+            class="app-content-header__separator"
+            :class="{ 'is-mobile-visible': index === pageBreadcrumbs.length - 2 }"
+          >
+            /
+          </span>
         </template>
       </h1>
     </div>
@@ -134,253 +154,21 @@ export default {
 
       return this.$t('pei-zhi');
     },
-    pageSubTitle() {
-      const path = this.$route.path;
-
-      if (path === '/cicd/create') {
-        return this.$t('chuang-jian-xiang-mu');
-      }
-      if (/^\/cicd\/[^/]+\/config$/.test(path)) {
-        return this.$t('cicd-pei-zhi-xiang');
-      }
-      if (/^\/cicd\/[^/]+$/.test(path)) {
-        return this.$t('cicd-bian-geng-liu-gai-lan');
-      }
-
-      return '';
-    },
     pageBreadcrumbs() {
-      const path = this.$route.path;
-      const securityRoot = {
-        label: this.$t('an-quan-gui-fan'),
-        to: {
-          path: '/data-access/rules',
-          query: { tab: 'security' }
-        }
-      };
-      const securityTemplateRoot = {
-        ...securityRoot,
-        to: {
-          path: '/data-access/rules',
-          query: { tab: 'template' }
-        }
-      };
-      const securityDetail = (specId) => ({
-        label: this.$t('gui-ze-xiang-qing'),
-        to: {
-          path: `/system/dmspec/${specId}`,
-          query: this.$route.query.ruleKind ? { ruleKind: this.$route.query.ruleKind } : {}
-        }
-      });
-      const cicdRoot = { label: this.$t('nav-ci-cd'), to: '/cicd' };
-      const ticketRoot = { label: this.$t('gong-dan'), to: '/ticket' };
-      const flowDetail = (flowId) => ({
-        label: this.$t('cicd-bian-geng-liu-xiang-qing'),
-        to: flowId ? `/cicd/${flowId}` : ''
-      });
-      const machineRoot = {
-        label: this.$t('nav-cha-xun-ji-qi-lie-biao'),
-        to: '/data-access/cluster'
-      };
-      const roleRoot = {
-        label: this.$t('jiao-se'),
-        to: '/manager/role'
-      };
-      const accountRoot = {
-        label: this.$t('nav-zhang-hu'),
-        to: '/manager/account'
-      };
+      if (this.$route.meta.breadcrumbType === 'datasource-form') {
+        return this.dataSourceBreadcrumbs();
+      }
 
-      if (path === '/manager/account/batch_authorization') {
-        return [accountRoot, { label: this.$t('pi-liang-shou-quan'), to: this.$route.fullPath }];
+      const routeBreadcrumbs = this.$route.meta.breadcrumbs;
+      if (!Array.isArray(routeBreadcrumbs) || !routeBreadcrumbs.length) {
+        return [{ label: this.pageTitle, to: '' }];
       }
-      if (
-        path === '/manager/account/batch_authorization/permissions' ||
-        (path === '/system/account/authdm/batch' && this.$route.query.type === 'batch')
-      ) {
-        const batchAuthorizationQuery = {
-          operation: this.$route.query.operation,
-          uids: this.$route.query.uids
-        };
-        return [
-          accountRoot,
-          {
-            label: this.$t('pi-liang-shou-quan'),
-            to: { path: '/manager/account/batch_authorization', query: batchAuthorizationQuery }
-          },
-          { label: this.$t('xuan-ze-quan-xian'), to: this.$route.fullPath }
-        ];
-      }
-      if (path === '/system/authdm' || /^\/system\/account\/authdm\/[^/]+$/.test(path)) {
-        return [accountRoot, { label: this.$t('shou-quan'), to: this.$route.fullPath }];
-      }
-      if (path === '/data-access/rules' || path === '/data-access/rules/') {
-        return [{ ...securityRoot, to: this.$route.fullPath }];
-      }
-      if (path === '/data-access/rules/create') {
-        return [
-          securityTemplateRoot,
-          {
-            label: this.$t('xin-jian-gui-ze-mo-ban'),
-            to: this.$route.fullPath
-          }
-        ];
-      }
-      if (/^\/data-access\/rules\/detail\/[^/]+$/.test(path)) {
-        return [
-          securityTemplateRoot,
-          {
-            label: this.$t('gui-ze-mo-ban-xiang-qing'),
-            to: this.$route.fullPath
-          }
-        ];
-      }
-      if (/^\/system\/dmspec\/[^/]+$/.test(path)) {
-        return [
-          securityRoot,
-          {
-            ...securityDetail(this.$route.params.specId),
-            to: this.$route.fullPath
-          }
-        ];
-      }
-      if (/^\/system\/dmspec\/[^/]+\/rule\/[^/]+\/range$/.test(path)) {
-        return [
-          securityRoot,
-          securityDetail(this.$route.params.specId),
-          {
-            label: this.$t('gui-ze-fan-wei'),
-            to: this.$route.fullPath
-          }
-        ];
-      }
-      if (/^\/system\/dmspec\/[^/]+\/rule\/[^/]+\/detail$/.test(path)) {
-        return [
-          securityRoot,
-          securityDetail(this.$route.params.specId),
-          {
-            label: this.$route.query.ruleName || this.$t('gui-ze-xiang-qing'),
-            to: this.$route.fullPath
-          }
-        ];
-      }
-      if (path === '/cicd' || path === '/cicd/') {
-        return [cicdRoot];
-      }
-      if (path === '/cicd/create') {
-        return [cicdRoot, { label: this.$t('chuang-jian-xiang-mu'), to: path }];
-      }
-      if (/^\/ticket\/[^/]+$/.test(path)) {
-        return [ticketRoot, { label: this.$t('gong-dan-xiang-qing'), to: this.$route.fullPath }];
-      }
-      if (path === '/datasource/add') {
-        const dsType = this.$route.query.dsType;
-        const instanceId = this.$route.query.instanceId;
-        const isEditMode = this.$route.query.mode === 'edit';
-        const dsDisplayName = this.dataSourceDisplayName(dsType);
-        const actionLabel = isEditMode ? this.$t('bian-ji') : this.$t('xin-zeng-shu-ju-yuan');
-        const actionBreadcrumb = isEditMode
-          ? { label: actionLabel, to: '/datasource' }
-          : { label: actionLabel, event: EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL };
-        const breadcrumbs = [
-          {
-            label: this.$t('nav-shu-ju-ku-guan-li'),
-            to: '/datasource'
-          },
-          actionBreadcrumb
-        ];
-        if (dsDisplayName) {
-          breadcrumbs.push({
-            label: isEditMode && instanceId ? `${dsDisplayName}(${instanceId})` : dsDisplayName,
-            to: ''
-          });
-        }
-        return breadcrumbs;
-      }
-      if (/^\/cicd\/[^/]+\/release-flow\/add$/.test(path)) {
-        const flowId = this.$route.params.id;
-        return [cicdRoot, flowDetail(flowId), { label: this.$t('tian-jia-git-ops'), to: path }];
-      }
-      if (/^\/cicd\/[^/]+\/config$/.test(path)) {
-        const flowId = this.$route.params.id;
-        return [cicdRoot, flowDetail(flowId), { label: this.$t('cicd-pei-zhi-xiang'), to: path }];
-      }
-      if (/^\/cicd\/[^/]+$/.test(path)) {
-        return [cicdRoot, { label: this.$t('cicd-bian-geng-liu-xiang-qing'), to: path }];
-      }
-      if (path === '/data-access/cluster' || path === '/data-access/cluster/') {
-        return [{ ...machineRoot, to: this.$route.fullPath }];
-      }
-      if (/^\/data-access\/cluster\/list\/[^/]+$/.test(path)) {
-        return [machineRoot, { label: this.$t('ji-qi-lie-biao'), to: this.$route.fullPath }];
-      }
-      if (path === '/manager/role' || path === '/manager/role/') {
-        return [{ ...roleRoot, to: this.$route.fullPath }];
-      }
-      if (path === '/manager/role/create') {
-        return [roleRoot, { label: this.$t('chuang-jian-jiao-se'), to: this.$route.fullPath }];
-      }
-      if (/^\/manager\/role\/[^/]+\/edit$/.test(path)) {
-        return [roleRoot, { label: this.$t('bian-ji-jue-se'), to: this.$route.fullPath }];
-      }
-      if (/^\/manager\/role\/[^/]+\/view$/.test(path)) {
-        return [roleRoot, { label: this.$t('cha-kan-jue-se'), to: this.$route.fullPath }];
-      }
-      if (path === '/integrations/git/create') {
-        return [
-          { label: this.$t('nav-git-ops'), to: '/integrations/git' },
-          { label: this.$t('xin-zeng'), to: path }
-        ];
-      }
-      if (/^\/integrations\/git\/[^/]+\/edit$/.test(path)) {
-        return [
-          { label: this.$t('nav-git-ops'), to: '/integrations/git' },
-          { label: this.$t('bian-ji'), to: path }
-        ];
-      }
-      if (path === '/integrations/im/create') {
-        return [
-          { label: this.$t('nav-webhook'), to: '/integrations/im' },
-          { label: this.$t('xin-zeng'), to: path }
-        ];
-      }
-      if (/^\/integrations\/im\/[^/]+\/edit$/.test(path)) {
-        return [
-          { label: this.$t('nav-webhook'), to: '/integrations/im' },
-          { label: this.$t('bian-ji'), to: path }
-        ];
-      }
-      if (path === '/integrations/sso/create') {
-        return [
-          { label: this.$t('nav-sso'), to: '/integrations/sso' },
-          { label: this.$t('xin-zeng'), to: path }
-        ];
-      }
-      if (/^\/integrations\/sso\/[^/]+\/edit$/.test(path)) {
-        return [
-          { label: this.$t('nav-sso'), to: '/integrations/sso' },
-          { label: this.$t('pei-zhi'), to: path }
-        ];
-      }
-      if (path === '/integrations/approval/create') {
-        return [
-          { label: this.$t('nav-shen-pi-yin-qing'), to: '/integrations/approval' },
-          { label: this.$t('xin-zeng'), to: path }
-        ];
-      }
-      if (/^\/integrations\/approval\/[^/]+\/edit$/.test(path)) {
-        return [
-          { label: this.$t('nav-shen-pi-yin-qing'), to: '/integrations/approval' },
-          { label: this.$t('pei-zhi'), to: path }
-        ];
-      }
-      if (this.pageSubTitle) {
-        return [
-          { label: this.pageTitle, to: path },
-          { label: this.pageSubTitle, to: path }
-        ];
-      }
-      return [{ label: this.pageTitle, to: path }];
+
+      return routeBreadcrumbs.map((item, index) => ({
+        label: this.resolveBreadcrumbLabel(item),
+        to: index === routeBreadcrumbs.length - 1 ? '' : this.resolveBreadcrumbTarget(item.to),
+        event: index === routeBreadcrumbs.length - 1 ? '' : item.event
+      }));
     }
   },
   methods: {
@@ -394,6 +182,32 @@ export default {
       }
       this.$bus.emit(eventName);
     },
+    resolveBreadcrumbLabel(item) {
+      const label = item.queryLabel ? this.$route.query[item.queryLabel] || this.$t(item.labelKey) : this.$t(item.labelKey);
+      const value = item.param ? this.$route.params[item.param] : '';
+      return value ? `${label} #${value}` : label;
+    },
+    resolveBreadcrumbTarget(target) {
+      return typeof target === 'function' ? target(this.$route) : target || '';
+    },
+    dataSourceBreadcrumbs() {
+      const dsType = this.$route.query.dsType;
+      const instanceId = this.$route.query.instanceId;
+      const isEditMode = this.$route.query.mode === 'edit';
+      const dsDisplayName = this.dataSourceDisplayName(dsType);
+      const actionBreadcrumb = isEditMode
+        ? { label: this.$t('bian-ji'), to: '/datasource' }
+        : { label: this.$t('xin-zeng-shu-ju-yuan'), event: EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL };
+      const breadcrumbs = [{ label: this.$t('nav-shu-ju-ku-guan-li'), to: '/datasource' }, actionBreadcrumb];
+      if (dsDisplayName) {
+        breadcrumbs.push({ label: isEditMode && instanceId ? `${dsDisplayName} (${instanceId})` : dsDisplayName, to: '' });
+      }
+      return breadcrumbs.map((item, index) => ({
+        ...item,
+        to: index === breadcrumbs.length - 1 ? '' : item.to,
+        event: index === breadcrumbs.length - 1 ? '' : item.event
+      }));
+    },
     dataSourceDisplayName(dsType) {
       if (!dsType) {
         return '';
@@ -406,18 +220,21 @@ export default {
 
 <style lang="less" scoped>
 .app-content-header__title {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  width: 100%;
   min-width: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .app-content-header__crumb {
-  color: #4b5563;
-  font-size: 18px;
-  font-weight: 600;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
   line-height: 24px;
+  white-space: nowrap;
   text-decoration: none;
   transition: color 0.18s ease;
 
@@ -426,7 +243,17 @@ export default {
   }
 
   &.is-current {
-    color: #1f2937;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+
+    &:hover {
+      color: var(--text-primary);
+    }
   }
 }
 
@@ -440,7 +267,31 @@ export default {
 }
 
 .app-content-header__separator {
-  color: #6b7280;
-  font-weight: 600;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.app-content-header__mobile-ellipsis {
+  display: none;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-size: 14px;
+
+  &::before {
+    content: '\2026';
+  }
+}
+
+@media (max-width: 767px) {
+  .app-content-header__crumb:not(.is-current):not(.is-mobile-previous),
+  .app-content-header__separator:not(.is-mobile-visible) {
+    display: none;
+  }
+
+  .app-content-header__mobile-ellipsis {
+    display: inline;
+  }
 }
 </style>
