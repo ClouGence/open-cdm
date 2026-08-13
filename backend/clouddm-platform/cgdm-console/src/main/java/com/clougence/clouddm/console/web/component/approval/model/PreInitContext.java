@@ -70,6 +70,8 @@ public class PreInitContext {
             state.setProcessedCount(0L);
             state.setProcessedBytes(0L);
             state.setTotalBytes(null);
+            state.setTotalCount(null);
+            state.setAnalysisPhase(null);
             state.setErrorMessage(null);
         });
         log.info("[TicketAnalysis] ticketId={}, analysisType={}, status=STARTED", this.approval.getId(), this.taskType);
@@ -84,7 +86,7 @@ public class PreInitContext {
         return Files.newBufferedReader(path, StandardCharsets.UTF_8);
     }
 
-    public void itemProcessed(String processedContent) {
+    public synchronized void itemProcessed(String processedContent) {
         this.processedCount++;
         if (processedContent != null) {
             this.processedBytes = Math.min(this.totalBytes, this.processedBytes + processedContent.getBytes(StandardCharsets.UTF_8).length);
@@ -92,13 +94,28 @@ public class PreInitContext {
         this.saveProgressIfDue();
     }
 
-    public void itemProcessed() {
+    public synchronized void itemProcessed() {
         this.processedCount++;
         this.saveProgressIfDue();
     }
 
     public void writeResult(Consumer<ApprovalAnalysisStateMO> writer) {
         this.resultWriter = Objects.requireNonNull(writer, "writer");
+    }
+
+    public synchronized void startPhase(String phase, Long totalCount) {
+        this.processedCount = 0L;
+        this.processedBytes = 0L;
+        this.totalBytes = 0L;
+        this.lastSavedAt = 0L;
+        this.updateState(state -> {
+            state.setProcessedCount(0L);
+            state.setProcessedBytes(0L);
+            state.setTotalBytes(0L);
+            state.setTotalCount(totalCount);
+            state.setAnalysisPhase(phase);
+            this.resultWriter.accept(state);
+        });
     }
 
     public void finish() {
@@ -109,6 +126,7 @@ public class PreInitContext {
             state.setProcessedCount(this.processedCount);
             state.setProcessedBytes(this.processedBytes);
             state.setTotalBytes(this.totalBytes);
+            state.setAnalysisPhase(null);
             state.setErrorMessage(null);
             this.resultWriter.accept(state);
         });
@@ -116,13 +134,14 @@ public class PreInitContext {
             .getId(), this.taskType, this.processedCount, System.currentTimeMillis() - this.startedAt);
     }
 
-    public void fail(RuntimeException error) {
+    public void fail(Exception error) {
         this.completeState(ApprovalAnalysisStateMO.STATUS_FAILED, state -> {
             state.setAnalysisStatus(ApprovalAnalysisStateMO.STATUS_FAILED);
             state.setFinishTimeUtc(System.currentTimeMillis());
             state.setProcessedCount(this.processedCount);
             state.setProcessedBytes(this.processedBytes);
             state.setTotalBytes(this.totalBytes);
+            state.setAnalysisPhase(null);
             state.setErrorMessage(error.getMessage());
             this.resultWriter.accept(state);
         });

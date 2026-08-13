@@ -6,6 +6,7 @@
  */
 package com.clougence.clouddm.console.web.component.approval.handler;
 
+import java.io.IOException;
 import com.clougence.clouddm.console.web.component.approval.PreInitHandler;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
@@ -28,7 +29,7 @@ public abstract class AbstractPreInitHandler implements PreInitHandler {
     }
 
     @Override
-    public final boolean handle(PreInitContext context) {
+    public final boolean handle(PreInitContext context) throws IOException {
         if (!context.claim()) {
             return false;
         }
@@ -37,7 +38,7 @@ public abstract class AbstractPreInitHandler implements PreInitHandler {
             context.start();
             this.doHandle(context);
             context.finish();
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             context.fail(e);
             throw e;
         }
@@ -46,5 +47,5 @@ public abstract class AbstractPreInitHandler implements PreInitHandler {
 
     protected abstract String analysisType();
 
-    protected abstract void doHandle(PreInitContext context);
+    protected abstract void doHandle(PreInitContext context) throws IOException;
 }

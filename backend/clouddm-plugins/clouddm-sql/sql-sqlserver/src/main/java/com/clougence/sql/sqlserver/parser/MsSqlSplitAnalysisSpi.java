@@ -25,6 +25,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -34,14 +35,10 @@ import com.clougence.sql.sqlserver.parser.antlr.SqlServerParser;
 
 public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
-    private final boolean showPlan;
+    private final SqlParserParameters parameters;
 
-    public MsSqlSplitAnalysisSpi(){
-        this(false);
-    }
-
-    public MsSqlSplitAnalysisSpi(boolean showPlan){
-        this.showPlan = showPlan;
+    public MsSqlSplitAnalysisSpi(SqlParserParameters parameters){
+        this.parameters = SqlParserParameters.nullToEmpty(parameters);
     }
 
     protected DslProvider dslProvider() {
@@ -54,12 +51,13 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        if (this.showPlan) {
+        if (Boolean.parseBoolean(this.parameters.get(SqlParserParameters.EXPECT_PLAN))) {
             return Set.of(SplitQueryType.SELECT);
         }
-        if (findContext(context, SqlServerParser.Create_viewContext.class) != null || findContext(context, SqlServerParser.Create_or_alter_triggerContext.class) != null
-            || findContext(context, SqlServerParser.Create_or_alter_procedureContext.class) != null
-            || findContext(context, SqlServerParser.Create_or_alter_functionContext.class) != null) {
+        if (findContext(context, SqlServerParser.Create_viewContext.class) != null ||               //
+            findContext(context, SqlServerParser.Create_or_alter_triggerContext.class) != null ||   //
+            findContext(context, SqlServerParser.Create_or_alter_procedureContext.class) != null || //
+            findContext(context, SqlServerParser.Create_or_alter_functionContext.class) != null) {
             return Set.of(normalizeType(context.accept(splitVisitor())));
         }
         return super.collectTypes(context, script);

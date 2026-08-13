@@ -90,7 +90,7 @@ public class ApprovalPreInitService {
     private void executeChild(PreInitHandler handler, DataSourceConfig dsConfig, DsLevels dsLevels, DmApprovalDO approvalDO, LongConsumer callback) {
         try {
             handler.handle(new PreInitContext(approvalDO, dsConfig, dsLevels, handler.taskType(), this.approvalDal));
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             log.error("PRE_INIT child task failed, ticketId={}, taskType={}", approvalDO.getId(), handler.taskType(), e);
         } finally {
             try {

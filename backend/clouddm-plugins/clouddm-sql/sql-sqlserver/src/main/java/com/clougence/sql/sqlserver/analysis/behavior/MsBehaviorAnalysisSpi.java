@@ -12,8 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
@@ -23,26 +24,24 @@ import com.clougence.sql.sqlserver.parser.MsSqlSplitAnalysisSpi;
 
 public class MsBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
-    private final boolean showPlan;
+    private final SqlParserParameters parameters;
+    private final MsSqlSplitAnalysisSpi splitter;
 
-    public MsBehaviorAnalysisSpi(){
-        this(false);
-    }
-
-    public MsBehaviorAnalysisSpi(boolean showPlan){
-        this.showPlan = showPlan;
+    public MsBehaviorAnalysisSpi(SqlParserParameters parameters){
+        this.parameters = SqlParserParameters.nullToEmpty(parameters);
+        this.splitter = new MsSqlSplitAnalysisSpi(this.parameters);
     }
 
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        var scripts = new MsSqlSplitAnalysisSpi(this.showPlan).splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        var scripts = this.splitter.splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
         return scripts.flatMap(script -> {
             StringReader reader = new StringReader(script.getScript());
             int codeLine = script.getBodyStartCodeLine();
             int codeColumn = script.getBodyStartCodeColumn();
 
             List<StatementBehavior> behaviors = analyzeStatement(reader, levels, codeLine, codeColumn);
-            if (this.showPlan) {
+            if (Boolean.parseBoolean(this.parameters.get(SqlParserParameters.EXPECT_PLAN))) {
                 behaviors.forEach(behavior -> {
                     behavior.setStatementType(SplitQueryType.SELECT);
                     behavior.getRelations().forEach(relation -> relation.setAction(BehaviorAction.READ));

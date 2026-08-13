@@ -601,6 +601,7 @@ public class RdpConvertUtils {
     public static RdpTicketActivityVO convertToAnalysisActivityVO(ApprovalAnalysisStateMO item) {
         RdpTicketActivityVO vo = new RdpTicketActivityVO();
         vo.setActivityTitle(item.getAnalysisType());
+        vo.setAnalysisPhase(item.getAnalysisPhase());
         vo.setDisplayOrder(item.getDisplayOrder());
         vo.setActivityStatus(switch (item.getAnalysisStatus()) {
             case ApprovalAnalysisStateMO.STATUS_RUNNING -> RdpTicketProcessActivityStatus.RUNNING;
@@ -613,6 +614,7 @@ public class RdpConvertUtils {
         vo.setProcessedCount(item.getProcessedCount());
         vo.setProcessedBytes(item.getProcessedBytes());
         vo.setTotalBytes(item.getTotalBytes());
+        vo.setTotalCount(item.getTotalCount());
         vo.setRemark(item.getErrorMessage());
         if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(item.getAnalysisType())) {
             vo.setStatementCount(item.getTotalCount());
@@ -628,7 +630,6 @@ public class RdpConvertUtils {
         } else if (ApprovalAnalysisStateMO.TYPE_DML_EXPLAIN.equals(item.getAnalysisType())) {
             vo.setStatementCount(item.getDmlStatementCount());
             vo.setDmlStatementCount(item.getDmlStatementCount());
-            vo.setCachedExplainCount(item.getCachedExplainCount());
             vo.setExecutedExplainCount(item.getExecutedExplainCount());
             vo.setSkippedBySizeLimit(item.getSkippedBySizeLimit());
             vo.setSkippedByCountLimit(item.getSkippedByCountLimit());

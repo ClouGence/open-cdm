@@ -152,6 +152,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
         }
 
         SqlParserParameters parameters = this.configService.fetchSqlParserParameters(dsConfig, safeLevels);
+        parameters = parameters.putAll(options.getParameters().values());
         SplitAnalysisSpi splitSpi = sqlEngine.splitAnalysisSpi(parameters);
         if (splitSpi == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SPI_NOT_SUPPORTED_ERROR.name(), sqlEngine.name(), "SplitAnalysisSpi"));

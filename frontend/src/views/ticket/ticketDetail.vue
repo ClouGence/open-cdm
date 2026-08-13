@@ -1221,18 +1221,31 @@ export default {
         return '--';
       }
       if (item.activityStatus === 'RUNNING') {
+        let progressText;
         if (item.totalBytes > 0 && item.processedBytes != null) {
           const percentage = Math.min(100, Math.floor((item.processedBytes * 100) / item.totalBytes));
-          return this.$t('ticket-analysis-read-progress', {
+          progressText = this.$t('ticket-analysis-read-progress', {
             processed: this.formatFileSize(item.processedBytes),
             total: this.formatFileSize(item.totalBytes),
             percentage,
             count: item.processedCount || 0
           });
+        } else if (item.totalCount > 0) {
+          const processed = item.processedCount || 0;
+          const percentage = Math.min(100, Math.floor((processed * 100) / item.totalCount));
+          progressText = this.$t('ticket-analysis-count-progress', {
+            processed,
+            total: item.totalCount,
+            percentage
+          });
+        } else {
+          progressText =
+            item.processedCount == null
+              ? this.$t('ticket-analysis-running')
+              : this.$t('ticket-analysis-processed-count', { count: item.processedCount });
         }
-        return item.processedCount == null
-          ? this.$t('ticket-analysis-running')
-          : this.$t('ticket-analysis-processed-count', { count: item.processedCount });
+        const phaseKey = item.analysisPhase ? `ticket-analysis-phase-${item.analysisPhase}` : null;
+        return phaseKey ? this.$t('ticket-analysis-phase-progress', { phase: this.$t(phaseKey), progress: progressText }) : progressText;
       }
       if (item.activityTitle === 'SQL_RECOGNITION' && item.statementCount != null) {
         return this.$t('ticket-analysis-sql-result', { count: item.statementCount });
@@ -1299,14 +1312,12 @@ export default {
     },
     dmlExplainRows(item) {
       const statements = new Map();
-      [...(item.explainResults || [])]
-        .sort((left, right) => left.index - right.index)
-        .forEach((row) => {
-          if (!statements.has(row.index)) {
-            statements.set(row.index, []);
-          }
-          statements.get(row.index).push(row);
-        });
+      (item.explainResults || []).forEach((row) => {
+        if (!statements.has(row.index)) {
+          statements.set(row.index, []);
+        }
+        statements.get(row.index).push(row);
+      });
 
       // A segment only combines adjacent SQL statements whose complete action and object sets match.
       const segments = [];

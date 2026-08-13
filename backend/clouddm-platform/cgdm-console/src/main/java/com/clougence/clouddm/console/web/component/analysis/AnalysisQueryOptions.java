@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import lombok.Getter;
@@ -31,12 +32,14 @@ public final class AnalysisQueryOptions {
     private final String                    currentUid;
     private final long                      dsId;
     private final Map<UmiTypes, Object>     levels;
+    private final SqlParserParameters       parameters;
 
     private AnalysisQueryOptions(Builder builder){
         this.skippedFeatures = Set.copyOf(builder.skippedFeatures);
         this.currentUid = builder.currentUid;
         this.dsId = builder.dataSourceId;
         this.levels = builder.levels;
+        this.parameters = builder.parameters;
     }
 
     public static AnalysisQueryOptions defaults() {
@@ -57,6 +60,7 @@ public final class AnalysisQueryOptions {
         private String                          currentUid;
         private long                            dataSourceId;
         private Map<UmiTypes, Object>           levels;
+        private SqlParserParameters             parameters      = SqlParserParameters.empty();
 
         private Builder(){
         }
@@ -73,6 +77,11 @@ public final class AnalysisQueryOptions {
 
         public Builder levels(Map<UmiTypes, Object> levels) {
             this.levels = levels;
+            return this;
+        }
+
+        public Builder parameters(SqlParserParameters parameters) {
+            this.parameters = parameters;
             return this;
         }
 
