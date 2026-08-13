@@ -101,11 +101,27 @@ public class PgRewriteSpi implements RewriteSpi {
             return null;
         }
 
-        SplitQueryType type = new PgSplitVisitor(provider.version()).visit(scripts.get(0).getAstTree());
+        ParseTree astTree = scripts.get(0).getAstTree();
+        if (containsExplain(astTree)) {
+            return queryStr;
+        }
+        SplitQueryType type = new PgSplitVisitor(provider.version()).visit(astTree);
         if (type == null || !type.isAllowPlan()) {
             return null;
         }
 
         return "EXPLAIN " + queryStr;
+    }
+
+    private static boolean containsExplain(ParseTree tree) {
+        if (tree instanceof PgSqlParser.ExplainstmtContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsExplain(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

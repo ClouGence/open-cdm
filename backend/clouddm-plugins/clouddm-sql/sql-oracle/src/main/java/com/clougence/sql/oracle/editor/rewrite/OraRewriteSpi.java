@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -127,12 +128,54 @@ public class OraRewriteSpi implements RewriteSpi {
             return null;
         }
 
-        SplitQueryType type = OraSplitVisitor.INSTANCE.visit(scripts.get(0).getAstTree());
+        ParseTree astTree = scripts.get(0).getAstTree();
+        PlSqlParser.Explain_statementContext explain = findExplainStatement(astTree);
+        if (explain != null) {
+            ParserRuleContext target = explainTarget(explain);
+            if (target == null) {
+                return null;
+            }
+            queryStr = queryStr.substring(target.getStart().getStartIndex(), target.getStop().getStopIndex() + 1);
+        }
+
+        SplitQueryType type = OraSplitVisitor.INSTANCE.visit(astTree);
+        if (explain != null) {
+            type = OraSplitVisitor.INSTANCE.visit(explainTarget(explain));
+        }
         if (type == null || !type.isAllowPlan()) {
             return null;
         }
 
         int statementId = HashUtils.fnvHash(queryId);
         return "EXPLAIN PLAN SET STATEMENT_ID = '" + statementId + "' FOR " + queryStr;
+    }
+
+    private static PlSqlParser.Explain_statementContext findExplainStatement(ParseTree tree) {
+        if (tree instanceof PlSqlParser.Explain_statementContext explain) {
+            return explain;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            PlSqlParser.Explain_statementContext explain = findExplainStatement(tree.getChild(i));
+            if (explain != null) {
+                return explain;
+            }
+        }
+        return null;
+    }
+
+    private static ParserRuleContext explainTarget(PlSqlParser.Explain_statementContext explain) {
+        if (explain.select_statement() != null) {
+            return explain.select_statement();
+        }
+        if (explain.update_statement() != null) {
+            return explain.update_statement();
+        }
+        if (explain.delete_statement() != null) {
+            return explain.delete_statement();
+        }
+        if (explain.insert_statement() != null) {
+            return explain.insert_statement();
+        }
+        return explain.merge_statement();
     }
 }

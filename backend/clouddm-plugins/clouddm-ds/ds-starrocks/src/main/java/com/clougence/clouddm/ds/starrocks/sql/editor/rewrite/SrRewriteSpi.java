@@ -96,11 +96,26 @@ public class SrRewriteSpi implements RewriteSpi {
             return null;
         }
 
-        SplitQueryType type = new SrSplitVisitor().visit(scripts.get(0).getAstTree());
+        ParseTree astTree = scripts.get(0).getAstTree();
+        if (containsExplain(astTree)) {
+            return queryStr;
+        }
+        SplitQueryType type = new SrSplitVisitor().visit(astTree);
         if (type == null || !type.isAllowPlan()) {
             return null;
-        } else {
-            return "EXPLAIN " + queryStr;
         }
+        return "EXPLAIN " + queryStr;
+    }
+
+    private static boolean containsExplain(ParseTree tree) {
+        if (tree instanceof StarRocksParser.ExplainDescContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsExplain(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

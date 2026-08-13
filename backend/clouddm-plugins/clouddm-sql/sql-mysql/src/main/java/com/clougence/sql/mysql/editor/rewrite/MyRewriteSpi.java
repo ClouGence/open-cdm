@@ -119,10 +119,28 @@ public class MyRewriteSpi implements RewriteSpi {
         }
 
         ParseTree astTree = scripts.get(0).getAstTree();
+        if (isExplainStatement(astTree)) {
+            return queryStr;
+        }
         if (!(astTree instanceof MySqlParser.SqlStatementContext statement) || statement.dmlStatement() == null) {
             return null;
         }
 
         return "EXPLAIN FORMAT=TRADITIONAL " + queryStr;
+    }
+
+    private static boolean isExplainStatement(ParseTree tree) {
+        if (tree instanceof MySqlParser.SimpleDescribeStatementContext statement) {
+            return "EXPLAIN".equalsIgnoreCase(statement.command.getText());
+        }
+        if (tree instanceof MySqlParser.FullDescribeStatementContext statement) {
+            return "EXPLAIN".equalsIgnoreCase(statement.command.getText());
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (isExplainStatement(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

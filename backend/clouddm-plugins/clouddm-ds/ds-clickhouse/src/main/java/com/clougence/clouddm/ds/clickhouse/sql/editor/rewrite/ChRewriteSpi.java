@@ -99,12 +99,27 @@ public class ChRewriteSpi implements RewriteSpi {
         }
 
         ParseTree astTree = scripts.get(0).getAstTree();
+        if (containsExplain(astTree)) {
+            return queryStr;
+        }
         if (!(astTree instanceof ClickHouseParser.QueryStmtQueryContext query) || query.query().selectUnionStmt() == null) {
             return null;
         }
 
         String explain = supportsEstimate(context.getParameters().version()) ? "EXPLAIN ESTIMATE " : "EXPLAIN ";
         return explain + queryStr;
+    }
+
+    private static boolean containsExplain(ParseTree tree) {
+        if (tree instanceof ClickHouseParser.ExplainStmtContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsExplain(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean supportsEstimate(String version) {

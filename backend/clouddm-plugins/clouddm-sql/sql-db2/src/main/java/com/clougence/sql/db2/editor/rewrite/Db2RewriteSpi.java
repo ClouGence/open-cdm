@@ -74,12 +74,32 @@ public class Db2RewriteSpi implements RewriteSpi {
     public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
         CommonTokenStream tokens = new CommonTokenStream(Db2DslProvider.INSTANCE.createLexer(CharStreams.fromString(queryStr)));
         tokens.fill();
-        Token first = tokens.getTokens().stream().filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL).findFirst().orElse(null);
+        List<Token> defaultTokens = tokens.getTokens().stream()
+                .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF)
+                .toList();
+        Token first = defaultTokens.isEmpty() ? null : defaultTokens.get(0);
+        if (first != null && first.getType() == Db2SqlLexer.EXPLAIN) {
+            Token target = explainTarget(defaultTokens);
+            if (target == null) {
+                return null;
+            }
+            queryStr = queryStr.substring(target.getStartIndex());
+            first = target;
+        }
         if (first == null || !isExplainable(first.getType())) {
             return null;
         }
         int queryNo = HashUtils.fnvHash(queryId);
         return "EXPLAIN PLAN SET QUERYNO = " + queryNo + " FOR " + queryStr;
+    }
+
+    private static Token explainTarget(List<Token> tokens) {
+        for (int i = 1; i + 1 < tokens.size(); i++) {
+            if (tokens.get(i).getType() == Db2SqlLexer.FOR && isExplainable(tokens.get(i + 1).getType())) {
+                return tokens.get(i + 1);
+            }
+        }
+        return null;
     }
 
     private static boolean isExplainable(int tokenType) {

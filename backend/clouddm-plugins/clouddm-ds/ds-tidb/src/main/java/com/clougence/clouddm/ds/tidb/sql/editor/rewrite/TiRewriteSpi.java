@@ -30,6 +30,7 @@ import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
+import com.clougence.utils.StringUtils;
 
 public class TiRewriteSpi implements RewriteSpi {
 
@@ -96,8 +97,19 @@ public class TiRewriteSpi implements RewriteSpi {
 
     @Override
     public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        if (StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(queryStr, "EXPLAIN ")) {
+            return queryStr;
+        }
         List<AstSplitScript> scripts = DslHelper.splitDsl(TiDBDslProvider.INSTANCE, new StringReader(queryStr));
-        if (scripts.size() != 1 || !(((TiDBParser.SqlStatementContext) scripts.get(0).getAstTree()).dmlStatement() instanceof TiDBParser.DmlStatementContext)) {
+        if (scripts.size() != 1) {
+            return null;
+        }
+
+        ParseTree astTree = scripts.get(0).getAstTree();
+        if (isExplainStatement(astTree)) {
+            return queryStr;
+        }
+        if (!(astTree instanceof TiDBParser.SqlStatementContext statement) || statement.dmlStatement() == null) {
             return null;
         }
 
@@ -107,5 +119,20 @@ public class TiRewriteSpi implements RewriteSpi {
         } else {
             return "EXPLAIN FORMAT='traditional' " + queryStr;
         }
+    }
+
+    private static boolean isExplainStatement(ParseTree tree) {
+        if (tree instanceof TiDBParser.SimpleDescribeStatementContext statement) {
+            return "EXPLAIN".equalsIgnoreCase(statement.command.getText());
+        }
+        if (tree instanceof TiDBParser.FullDescribeStatementContext statement) {
+            return "EXPLAIN".equalsIgnoreCase(statement.command.getText());
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (isExplainStatement(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

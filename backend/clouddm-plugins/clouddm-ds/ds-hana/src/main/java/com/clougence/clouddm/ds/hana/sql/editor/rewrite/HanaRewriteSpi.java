@@ -185,11 +185,28 @@ public class HanaRewriteSpi implements RewriteSpi {
         }
 
         Token first = tokens.get(topLevel.get(0));
+        if (isWord(first, "EXPLAIN")) {
+            int targetPosition = explainTargetPosition(tokens, topLevel);
+            if (targetPosition < 0) {
+                return null;
+            }
+            queryStr = queryStr.substring(tokens.get(topLevel.get(targetPosition)).getStartIndex());
+            first = tokens.get(topLevel.get(targetPosition));
+        }
         if (!isExplainableStatement(first)) {
             return null;
         }
         String statementName = "DM_DML_EXPLAIN_" + HashUtils.fnvHash(queryId);
         return "EXPLAIN PLAN SET STATEMENT_NAME = '" + statementName + "' FOR " + queryStr;
+    }
+
+    private static int explainTargetPosition(List<Token> tokens, List<Integer> topLevel) {
+        for (int i = 1; i + 1 < topLevel.size(); i++) {
+            if (isWord(tokens.get(topLevel.get(i)), "FOR") && isExplainableStatement(tokens.get(topLevel.get(i + 1)))) {
+                return i + 1;
+            }
+        }
+        return -1;
     }
 
     private static boolean isExplainableStatement(Token first) {

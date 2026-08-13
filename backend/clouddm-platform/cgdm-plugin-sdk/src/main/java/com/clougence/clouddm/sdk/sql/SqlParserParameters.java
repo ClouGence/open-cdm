@@ -24,6 +24,7 @@ public record SqlParserParameters(Map<String, String> values) {
     public static final String GRAMMAR_VERSION = "grammarVersion";
     public static final String EXACT_VERSION = "exactVersion";
     public static final String SQL_MODE = "sqlMode";
+    public static final String SHOW_PLAN = "showPlan";
 
     private static final SqlParserParameters EMPTY = new SqlParserParameters(Map.of());
 

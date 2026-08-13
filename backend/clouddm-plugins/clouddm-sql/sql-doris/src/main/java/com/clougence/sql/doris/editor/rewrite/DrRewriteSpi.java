@@ -105,10 +105,26 @@ public class DrRewriteSpi implements RewriteSpi {
             return null;
         }
 
-        SplitQueryType type = DrSplitVisitor.INSTANCE.visit(scripts.get(0).getAstTree());
+        ParseTree astTree = scripts.get(0).getAstTree();
+        if (containsExplain(astTree)) {
+            return queryStr;
+        }
+        SplitQueryType type = DrSplitVisitor.INSTANCE.visit(astTree);
         if (type == null || !type.isAllowPlan()) {
             return null;
         }
         return "EXPLAIN " + queryStr;
+    }
+
+    private static boolean containsExplain(ParseTree tree) {
+        if (tree instanceof DorisParser.ExplainContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsExplain(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

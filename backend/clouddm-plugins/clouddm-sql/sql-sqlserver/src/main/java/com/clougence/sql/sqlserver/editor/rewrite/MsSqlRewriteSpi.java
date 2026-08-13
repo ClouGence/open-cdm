@@ -6,13 +6,16 @@ package com.clougence.sql.sqlserver.editor.rewrite;
 
 import java.io.StringReader;
 import java.math.BigInteger;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
@@ -22,6 +25,7 @@ import com.clougence.sql.sqlserver.parser.MsSplitVisitor;
 import com.clougence.sql.sqlserver.parser.MsSqlDslProvider;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerParser;
 import com.clougence.utils.HashUtils;
+import com.clougence.utils.StringUtils;
 
 public class MsSqlRewriteSpi implements RewriteSpi {
 
@@ -99,6 +103,14 @@ public class MsSqlRewriteSpi implements RewriteSpi {
 
     @Override
     public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        String markerPrefix = "/* " + SHOWPLAN_MARKER_PREFIX;
+        if (StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(queryStr, markerPrefix)) {
+            int markerEnd = queryStr.indexOf("*/");
+            if (markerEnd < 0) {
+                return null;
+            }
+            queryStr = queryStr.substring(markerEnd + 2).stripLeading();
+        }
         List<AstSplitScript> scripts = DslHelper.splitDsl(MsSqlDslProvider.INSTANCE, new StringReader(queryStr));
         if (scripts.size() != 1) {
             return null;
@@ -109,6 +121,9 @@ public class MsSqlRewriteSpi implements RewriteSpi {
             return null;
         }
 
+        Map<String, String> values = new LinkedHashMap<>(context.getParameters().values());
+        values.put(SqlParserParameters.SHOW_PLAN, Boolean.TRUE.toString());
+        context.setParameters(new SqlParserParameters(values));
         return showPlanMarker(queryId) + queryStr;
     }
 

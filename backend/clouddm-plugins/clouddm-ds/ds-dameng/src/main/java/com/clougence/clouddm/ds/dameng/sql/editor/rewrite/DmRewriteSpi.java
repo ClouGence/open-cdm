@@ -154,10 +154,26 @@ public class DmRewriteSpi implements RewriteSpi {
         if (scripts.size() != 1) {
             return null;
         }
-        if (!isExplainable(scripts.get(0).getAstTree())) {
+        ParseTree astTree = scripts.get(0).getAstTree();
+        if (containsExplain(astTree)) {
+            return queryStr;
+        }
+        if (!isExplainable(astTree)) {
             return null;
         }
         return "EXPLAIN FOR " + queryStr;
+    }
+
+    private static boolean containsExplain(ParseTree tree) {
+        if (tree instanceof DmSqlParser.ExplainStatementContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsExplain(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isExplainable(ParseTree tree) {
