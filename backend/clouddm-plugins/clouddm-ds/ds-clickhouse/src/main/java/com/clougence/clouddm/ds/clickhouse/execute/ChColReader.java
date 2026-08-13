@@ -27,6 +27,8 @@ import com.clougence.utils.StringUtils;
  **/
 public class ChColReader extends AbstractColReader {
 
+    private static final ValueFetcher TUPLE_VALUE_FETCHER = new ChTupleValueFetcher();
+
     @Override
     public ValueFetcher readColumn(String col, ColMetaData colMetaData) {
         String colType = StringUtils.defaultString(colMetaData.getColumnType(), "").toLowerCase();
@@ -39,6 +41,16 @@ public class ChColReader extends AbstractColReader {
             colType = "decimal";
         } else if (colType.startsWith("datetime64")) {
             colType = "datetime64";
+        } else if (colType.startsWith("map")) {
+            colType = "map";
+        } else if (colType.startsWith("array")) {
+            colType = "array";
+        } else if (colType.startsWith("tuple")) {
+            colType = "tuple";
+        } else if (colType.startsWith("dynamic")) {
+            colType = "dynamic";
+        } else if (colType.startsWith("variant")) {
+            colType = "variant";
         }
         switch (colType) {
             case "bool":
@@ -73,7 +85,13 @@ public class ChColReader extends AbstractColReader {
             case "uuid":
             case "json":
             case "object":
+            case "map":
+            case "array":
+            case "dynamic":
+            case "variant":
                 return STRING_VALUE_FETCHER;
+            case "tuple":
+                return TUPLE_VALUE_FETCHER;
             case "date":
             case "date32":
                 return DATE_VALUE_FETCHER;
