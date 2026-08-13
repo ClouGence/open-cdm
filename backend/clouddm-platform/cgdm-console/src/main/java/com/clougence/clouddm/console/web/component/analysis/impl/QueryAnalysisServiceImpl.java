@@ -32,6 +32,7 @@ import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
+import com.clougence.clouddm.console.web.constants.RewriteTags;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
@@ -259,21 +260,18 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
                 return;
             }
             String beforeRewrite = request.getQueryBody();
-            String afterRewrite;
             RewriteContext rewriteCtx = new RewriteContext();
             rewriteCtx.setFetchLimit(this.rewriteFetchLimit);
-            try (StringReader reader = new StringReader(beforeRewrite); Stream<String> stream = this.rewriteSpi.rewriterQueryStream(reader, request, rewriteCtx)) {
-                afterRewrite = stream.findFirst().orElseThrow(() -> new IllegalStateException("Rewrite SPI returned no result"));
-            }
+            rewriteCtx.setParameters(this.parameters);
+            String afterRewrite = this.rewriteSpi.rewriteLimit(request.getQueryId(), beforeRewrite, rewriteCtx);
 
             request.setOriginalBody(beforeRewrite);
             if (StringUtils.equals(beforeRewrite, afterRewrite)) {
                 request.setHasRewrite(false);
-                request.setRewriteTag(Collections.emptyList());
                 request.setQueryBody(beforeRewrite);
             } else {
                 request.setHasRewrite(true);
-                request.setRewriteTag(rewriteCtx.getRewriterTags());
+                request.addRewriteTag(RewriteTags.LIMIT);
                 request.setQueryBody(afterRewrite);
             }
         }

@@ -1295,11 +1295,7 @@ export default {
       if (!row.skipReason) {
         return status;
       }
-      const reason = row.skipReason
-        .split(' / ')
-        .map((value) => this.$t(`ticket-analysis-dml-explain-reason-${value}`))
-        .join(' / ');
-      return this.$t('ticket-analysis-dml-explain-description-with-reason', { status, reason });
+      return this.$t('ticket-analysis-dml-explain-description-with-reason', { status, reason: row.skipReason });
     },
     dmlExplainRows(item) {
       const statements = new Map();

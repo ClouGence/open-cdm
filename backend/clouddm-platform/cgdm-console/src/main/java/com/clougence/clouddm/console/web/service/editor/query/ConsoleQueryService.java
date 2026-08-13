@@ -48,6 +48,7 @@ import com.clougence.clouddm.console.web.component.detectrule.SecRulesEngine;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
+import com.clougence.clouddm.console.web.constants.RewriteTags;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
@@ -82,6 +83,8 @@ import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
@@ -336,6 +339,16 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             temp.getResultConf().setReceiveMode(queryDTO.getReceiveMode() == null ? ReceiveMode.PAGE_FULL : queryDTO.getReceiveMode());
         }
 
+        // for Explain
+        RewriteSpi rewriteSpi = null;
+        SqlParserParameters parameters = SqlParserParameters.empty();
+        if (isExplain) {
+            parameters = this.dmDsConfigService.fetchSqlParserParameters(ctx.getDsConfig(), ctx.getLevels().levelsParam());
+            rewriteSpi = ctx.getSqlEngine().rewriteSpi(parameters);
+            if (rewriteSpi == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name()));
+            }
+        }
         temp.setUseExplain(isExplain);
 
         for (int i = 0; i < requests.size(); i++) {
@@ -353,6 +366,20 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             clone.setHasRewrite(analyzed.isHasRewrite());
             clone.setRewriteTag(analyzed.getRewriteTag());
             clone.setOriginalBody(analyzed.getOriginalBody());
+            if (isExplain) {
+                RewriteContext rewriteContext = new RewriteContext();
+                rewriteContext.setParameters(parameters);
+                String beforeExplain = clone.getQueryBody();
+                String explainQuery = rewriteSpi.rewriteToExplain(clone.getQueryId(), beforeExplain, rewriteContext);
+                if (StringUtils.isBlank(explainQuery)) {
+                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name()));
+                }
+
+                clone.setOriginalBody(StringUtils.defaultIfBlank(clone.getOriginalBody(), beforeExplain));
+                clone.setHasRewrite(true);
+                clone.addRewriteTag(RewriteTags.EXPLAIN);
+                clone.setQueryBody(explainQuery);
+            }
             clone.getResultConf().setRefreshStatus(i == requests.size() - 1);
             requests.set(i, clone);
         }

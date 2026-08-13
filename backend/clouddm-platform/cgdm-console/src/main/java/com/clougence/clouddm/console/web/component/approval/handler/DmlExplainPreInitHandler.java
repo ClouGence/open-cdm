@@ -20,19 +20,25 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.model.*;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
+import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.explain.ExplainPlan;
+import com.clougence.clouddm.sdk.execute.explain.ExplainPlanNode;
 import com.clougence.clouddm.sdk.execute.explain.ExplainPlanSpi;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
@@ -41,9 +47,14 @@ import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.utils.JsonUtils;
+import com.clougence.utils.StringUtils;
+import com.clougence.utils.i18n.I18nUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -61,11 +72,13 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
     @Resource
     private QueryAnalysisService queryAnalysisService;
     @Resource
-    private DmDsConfigService    dmDsConfigService;
-    @Resource
     private QueryService         queryService;
     @Resource
+    private DmDsConfigService    dmDsConfigService;
+    @Resource
     private SystemDal            systemDal;
+    @Resource
+    private UserConfigService    userConfigService;
 
     @Override
     protected String analysisType() {
@@ -84,6 +97,7 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         int maxStatementMegaBytes = this.systemDal.fetchSystemConf(//
                 RootUserConfig.Fields.approvalDmlExplainMaxStatementMegaByte, Integer.class, DEFAULT_MAX_STATEMENT_MEGABYTES);
         long maxStatementBytes = maxStatementMegaBytes * BYTES_PER_MEGABYTE;
+        Locale locale = I18nUtils.getLocale(this.userConfigService.defaultLanguage());
         Path workDirectory = Path.of(GlobalConfUtils.getTempDataHome(), "approval", "explain-" + context.getApproval().getId());
 
         AtomicLong dmlCount = new AtomicLong();

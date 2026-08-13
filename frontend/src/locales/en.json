@@ -4486,7 +4486,6 @@
   "ticket-analysis-dml-explain-status-SKIPPED": "Skipped",
   "ticket-analysis-dml-explain-status-FAILED": "Failed",
   "ticket-analysis-dml-explain-status-UNSUPPORTED": "Unsupported",
-  "ticket-analysis-dml-explain-reason-STATEMENT_SIZE_LIMIT": "Statement size limit exceeded",
   "ticket-analysis-running": "Analyzing",
   "ticket-analysis-running-count": "Analyzing ({count} running)",
   "ticket-analysis-complete": "Complete",

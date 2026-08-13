@@ -19,14 +19,14 @@ import lombok.Setter;
 @Setter
 public class DmlExplainResultMO {
 
-    private long                 index;
-    private Integer              statementStartLine;
-    private long                 statementSizeBytes;
-    private Set<BehaviorAction>  actions;
-    private List<String>         subjects;
-    private DmlExplainStatus     status;
-    private DmlExplainSkipReason skipReason;
-    private Long                 estimatedAffectedRows;
-    private ExplainPlan          explainPlan;
-    private String               message;
+    private long                index;
+    private Integer             statementStartLine;
+    private long                statementSizeBytes;
+    private Set<BehaviorAction> actions;
+    private List<String>        subjects;
+    private DmlExplainStatus    status;
+    private String              skipReason;
+    private Long                estimatedAffectedRows;
+    private ExplainPlan         explainPlan;
+    private String              message;
 }

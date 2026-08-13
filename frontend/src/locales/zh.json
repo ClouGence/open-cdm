@@ -4482,7 +4482,6 @@
   "ticket-analysis-dml-explain-status-SKIPPED": "已跳过",
   "ticket-analysis-dml-explain-status-FAILED": "失败",
   "ticket-analysis-dml-explain-status-UNSUPPORTED": "不支持",
-  "ticket-analysis-dml-explain-reason-STATEMENT_SIZE_LIMIT": "语句尺寸超限",
   "ticket-analysis-running": "分析中",
   "ticket-analysis-running-count": "分析中（{count} 项进行中）",
   "ticket-analysis-complete": "完成",
