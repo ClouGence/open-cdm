@@ -36,7 +36,7 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 public class PgPriorBackupSpi implements PriorBackupSpi {
 
-    /** WHERE CURRENT OF cursor 形态无法转成 SELECT，排除备份 */
+    /** WHERE CURRENT OF cannot be converted into a backup SELECT. */
     private static final Pattern WHERE_CURRENT_OF = Pattern.compile("^WHERE\\s+CURRENT\\s+OF\\b", Pattern.CASE_INSENSITIVE);
 
     private final PgDslProvider  provider;
@@ -77,7 +77,7 @@ public class PgPriorBackupSpi implements PriorBackupSpi {
     }
 
     private BackupStatement analysisUpdate(PgSqlParser.UpdatestmtContext ctx) {
-        // CTE、多表 FROM 参照、RETURNING 均不是纯单表变更，跳过备份
+        // CTEs, additional FROM relations, and RETURNING are not simple single-table changes.
         if (ctx.with_clause_() != null || ctx.from_clause() != null || ctx.returning_clause() != null) {
             return null;
         }
@@ -85,7 +85,7 @@ public class PgPriorBackupSpi implements PriorBackupSpi {
     }
 
     private BackupStatement analysisDelete(PgSqlParser.DeletestmtContext ctx) {
-        // CTE、USING 多表、RETURNING 跳过备份
+        // Skip CTEs, multi-table USING clauses, and RETURNING clauses.
         if (ctx.with_clause_() != null || ctx.using_clause() != null || ctx.returning_clause() != null) {
             return null;
         }
@@ -94,7 +94,7 @@ public class PgPriorBackupSpi implements PriorBackupSpi {
 
     private BackupStatement buildStatement(SplitQueryType type, PgSqlParser.Relation_expr_opt_aliasContext relationCtx,
                                            PgSqlParser.Where_or_current_clauseContext whereCtx) {
-        // FROM 片段保留语句里的别名原文，保证 WHERE 中的别名引用在备份 SELECT 中依然成立
+        // Preserve the original alias so references in the WHERE clause remain valid.
         String fromText = originalText(relationCtx);
         String sourceTable = originalText(relationCtx.relation_expr().qualified_name());
 
@@ -151,7 +151,7 @@ public class PgPriorBackupSpi implements PriorBackupSpi {
     }
 
     private String reverseCreateTable(PgSqlParser.CreatestmtContext ctx) {
-        // IF NOT EXISTS 语义下表可能本来就存在，逆向 DROP 会误删旧表，跳过
+        // Skip IF NOT EXISTS because the table may have existed before the statement.
         if (ctx.if_not_exists_() != null) {
             return null;
         }
@@ -163,12 +163,12 @@ public class PgPriorBackupSpi implements PriorBackupSpi {
     }
 
     private String reverseCreateIndex(PgSqlParser.IndexstmtContext ctx) {
-        // 匿名索引名字由数据库生成，无法静态推导；IF NOT EXISTS 同 CREATE TABLE 的顾虑，均跳过
+        // Anonymous index names cannot be inferred, and IF NOT EXISTS may refer to an existing index.
         if (ctx.index_name_() == null || ctx.IF_P() != null) {
             return null;
         }
         String indexName = originalText(ctx.index_name_()).trim();
-        // 索引与表同 schema：表名带 schema 前缀时，DROP INDEX 也补同样前缀
+        // Qualify the index with the table schema when the table name is schema-qualified.
         String schemaPrefix = "";
         if (ctx.relation_expr() != null) {
             String table = originalText(ctx.relation_expr());
@@ -181,15 +181,15 @@ public class PgPriorBackupSpi implements PriorBackupSpi {
     }
 
     private String reverseAlterTable(PgSqlParser.AltertablestmtContext ctx) {
-        // 只逆向"全部子命令都是 ADD COLUMN"的 ALTER：混入其他操作（DROP/ALTER TYPE/ADD CONSTRAINT）时整条放弃
+        // Reverse only ALTER statements whose subcommands are all ADD COLUMN operations.
         if (ctx.relation_expr() == null || ctx.alter_table_cmds() == null) {
             return null;
         }
         String table = originalText(ctx.relation_expr());
         List<String> dropColumns = new ArrayList<>();
         for (PgSqlParser.Alter_table_cmdContext cmd : ctx.alter_table_cmds().alter_table_cmd()) {
-            // 文法按 label 生成子类：只有 ADD [COLUMN]（AddColumnContext）可逆；
-            // IF NOT EXISTS 存在时列可能本来就有，逆向 DROP 会误删旧列，整条放弃
+            // The grammar labels ADD [COLUMN] as AddColumnContext, the only reversible form here.
+            // Skip IF NOT EXISTS because the column may have existed before the statement.
             if (!(cmd instanceof PgSqlParser.AddColumnContext)) {
                 return null;
             }
@@ -206,7 +206,7 @@ public class PgPriorBackupSpi implements PriorBackupSpi {
         return String.join("\n", dropColumns);
     }
 
-    /** 从原始输入流取 ctx 的原文，保留大小写、引号和内部空白 */
+    /** Returns the original source text while preserving case, quoting, and internal whitespace. */
     private String originalText(ParserRuleContext ctx) {
         return ctx.start.getInputStream().getText(Interval.of(ctx.start.getStartIndex(), ctx.stop.getStopIndex()));
     }

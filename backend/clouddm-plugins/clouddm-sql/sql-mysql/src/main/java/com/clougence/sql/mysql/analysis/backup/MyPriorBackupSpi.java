@@ -34,9 +34,10 @@ import com.clougence.sql.mysql.parser.MySqlParserConfig;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser;
 
 /**
- * MySQL 方言的 prior backup 解析：与 PG 版语义对齐。
- * 备份仅覆盖纯单表 UPDATE/DELETE；多表变更、CTE、ORDER BY/LIMIT（影响行集与备份 SELECT 不保证一致）、
- * PARTITION 子句形态一律返回 null 跳过。DDL 逆语句覆盖建表/建索引/加列。
+ * Prior-backup analysis for the MySQL dialect, aligned with the PostgreSQL implementation.
+ * Backups cover only simple, single-table UPDATE and DELETE statements. Multi-table changes,
+ * CTEs, ORDER BY/LIMIT clauses, and PARTITION clauses return {@code null}. Reverse DDL covers
+ * table creation, index creation, and column addition.
  */
 public class MyPriorBackupSpi implements PriorBackupSpi {
 
@@ -68,12 +69,12 @@ public class MyPriorBackupSpi implements PriorBackupSpi {
     }
 
     private BackupStatement analysisUpdate(MySqlParser.UpdateStatementContext ctx) {
-        // 多表 UPDATE 无法用单一 SELECT 备份，跳过
+        // A multi-table UPDATE cannot be backed up with a single SELECT.
         MySqlParser.SingleUpdateStatementContext single = ctx.singleUpdateStatement();
         if (single == null) {
             return null;
         }
-        // CTE、PARTITION、ORDER BY、LIMIT 形态的受影响行集与备份 SELECT 不保证一致，跳过
+        // These clauses may make the backup SELECT target a different row set.
         if (single.withClause() != null || single.uidList() != null || single.orderByClause() != null || single.limitClause() != null) {
             return null;
         }
@@ -132,8 +133,8 @@ public class MyPriorBackupSpi implements PriorBackupSpi {
     }
 
     private String reverseCreateTable(MySqlParser.CreateTableContext ctx) {
-        // 三种建表形态（常规/CTAS/LIKE 复制）都建出了新表，逆操作统一 DROP；
-        // IF NOT EXISTS 语义下表可能本来就存在，逆向 DROP 会误删旧表，跳过
+        // All three forms (regular, CTAS, and LIKE) create a table, so their reverse operation is DROP.
+        // Skip IF NOT EXISTS because the table may have existed before the statement.
         if (ctx instanceof MySqlParser.ColumnCreateTableContext) {
             MySqlParser.ColumnCreateTableContext create = (MySqlParser.ColumnCreateTableContext) ctx;
             return create.ifNotExists() != null ? null : "DROP TABLE " + originalText(create.tableName()) + ";";
@@ -147,7 +148,7 @@ public class MyPriorBackupSpi implements PriorBackupSpi {
             if (create.ifNotExists() != null) {
                 return null;
             }
-            // LIKE 复制形态有两个 tableName，文法顺序第一个是新建的表
+            // The LIKE form has two table names; the grammar lists the newly created table first.
             List<MySqlParser.TableNameContext> names = create.tableName();
             if (names == null || names.isEmpty()) {
                 return null;
@@ -161,12 +162,12 @@ public class MyPriorBackupSpi implements PriorBackupSpi {
         if (ctx.indexName() == null || ctx.tableName() == null) {
             return null;
         }
-        // MySQL 删索引语法要求带表名
+        // MySQL requires the table name when dropping an index.
         return "DROP INDEX " + originalText(ctx.indexName()) + " ON " + originalText(ctx.tableName()) + ";";
     }
 
     private String reverseAlterTable(MySqlParser.AlterTableContext ctx) {
-        // 只逆向"全部子命令都是 ADD COLUMN"的 ALTER，混入其他操作时整条放弃
+        // Reverse only ALTER statements whose subcommands are all ADD COLUMN operations.
         if (ctx.tableName() == null || ctx.alterSpecification() == null || ctx.alterSpecification().isEmpty()) {
             return null;
         }
@@ -192,7 +193,7 @@ public class MyPriorBackupSpi implements PriorBackupSpi {
         return String.join("\n", dropColumns);
     }
 
-    /** 解析并要求恰好一条语句，返回其 SqlStatementContext；解析失败或多条返回 null */
+    /** Parses exactly one statement and returns {@code null} on failure or multiple statements. */
     private MySqlParser.SqlStatementContext parseSingle(String query) {
         List<AstSplitScript> scripts;
         try {
@@ -210,7 +211,7 @@ public class MyPriorBackupSpi implements PriorBackupSpi {
         return (MySqlParser.SqlStatementContext) astTree;
     }
 
-    /** 从原始输入流取 ctx 的原文，保留大小写、引号和内部空白 */
+    /** Returns the original source text while preserving case, quoting, and internal whitespace. */
     private String originalText(ParserRuleContext ctx) {
         return ctx.start.getInputStream().getText(Interval.of(ctx.start.getStartIndex(), ctx.stop.getStopIndex()));
     }
