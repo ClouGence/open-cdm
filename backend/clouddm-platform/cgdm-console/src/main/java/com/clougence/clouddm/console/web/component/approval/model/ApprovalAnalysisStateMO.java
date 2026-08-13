@@ -23,6 +23,7 @@ public class ApprovalAnalysisStateMO {
     public static final String          PHASE_ANALYZING        = "ANALYZING";
 
     private String                      analysisType;
+    private String                      runId;
     private Integer                     displayOrder;
     private String                      analysisStatus;
     private String                      analysisPhase;

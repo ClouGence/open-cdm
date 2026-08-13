@@ -7,6 +7,10 @@
 package com.clougence.clouddm.console.web.component.approval.schedule;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.LongConsumer;
 import java.util.stream.Collectors;
 
@@ -28,7 +32,9 @@ import com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivi
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
+import com.clougence.utils.ThreadUtils;
 
+import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,16 +45,25 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApprovalPreInitService {
 
+    private static final int               HEARTBEAT_THREAD_COUNT     = 2;
+    private static final long              HEARTBEAT_INTERVAL_SECONDS = 5;
+    private final ScheduledExecutorService heartbeatExecutor          = Executors.newScheduledThreadPool(//
+            HEARTBEAT_THREAD_COUNT, ThreadUtils.daemonThreadFactory(ApprovalPreInitService.class.getClassLoader(), "Ticket-analysis-heartbeat-%s"));
     @Resource
-    private DataSourceDal              dataSourceDal;
+    private DataSourceDal                  dataSourceDal;
     @Resource
-    private DmDsConfigService          dmDsConfigService;
+    private DmDsConfigService              dmDsConfigService;
     @Resource
-    private ApprovalDal                approvalDal;
-    private final List<PreInitHandler> preInitHandlers;
+    private ApprovalDal                    approvalDal;
+    private final List<PreInitHandler>     preInitHandlers;
 
     public ApprovalPreInitService(List<PreInitHandler> preInitHandlers){
         this.preInitHandlers = List.copyOf(preInitHandlers);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        this.heartbeatExecutor.shutdownNow();
     }
 
     public List<ApprovalAnalysisStateMO> initialStates(DmApprovalDO approvalDO) {
@@ -76,28 +91,48 @@ public class ApprovalPreInitService {
 
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
-        Map<String, String> taskStatuses = this.approvalDal.activityMapper()
+        Map<String, DmApprovalProcessActivityDO> tasks = this.approvalDal.activityMapper()
             .queryByTicketId(approvalDO.getId())
             .stream()//
             .filter(a -> a.getTaskStatus() != null)
-            .collect(Collectors.toMap(DmApprovalProcessActivityDO::getActivityId, DmApprovalProcessActivityDO::getTaskStatus, (left, right) -> left));
+            .collect(Collectors.toMap(DmApprovalProcessActivityDO::getActivityId, a -> a, (left, right) -> left));
+        long now = System.currentTimeMillis();
         this.preInitHandlers.stream()//
-            .filter(h -> ApprovalAnalysisStateMO.STATUS_INIT.equals(taskStatuses.get(h.taskType())))
+            .filter(h -> PreInitContext.isClaimable(tasks.get(h.taskType()), now))
             .filter(handler -> handler.supports(approvalDO))
             .forEach(h -> taskSubmitter.submit(() -> this.executeChild(h, dsConfig, dsLevels, approvalDO, callback)));
     }
 
     private void executeChild(PreInitHandler handler, DataSourceConfig dsConfig, DsLevels dsLevels, DmApprovalDO approvalDO, LongConsumer callback) {
+        ScheduledFuture<?> heartbeatTask = null;
         try {
-            handler.handle(new PreInitContext(approvalDO, dsConfig, dsLevels, handler.taskType(), this.approvalDal));
+            PreInitContext context = new PreInitContext(approvalDO, dsConfig, dsLevels, handler.taskType(), this.approvalDal);
+            if (!context.claim()) {
+                return;
+            }
+            heartbeatTask = this.startHeartbeat(context);
+            handler.handle(context);
         } catch (Exception e) {
             log.error("PRE_INIT child task failed, ticketId={}, taskType={}", approvalDO.getId(), handler.taskType(), e);
         } finally {
+            if (heartbeatTask != null) {
+                heartbeatTask.cancel(false);
+            }
             try {
                 callback.accept(approvalDO.getId());
             } catch (RuntimeException e) {
                 log.error("PRE_INIT parent callback failed, ticketId={}, taskType={}", approvalDO.getId(), handler.taskType(), e);
             }
         }
+    }
+
+    private ScheduledFuture<?> startHeartbeat(PreInitContext context) {
+        return this.heartbeatExecutor.scheduleAtFixedRate(() -> {
+            try {
+                this.approvalDal.activityMapper().heartbeatPreInitTask(context.getProcessId(), context.getTaskType(), context.getRunId());
+            } catch (RuntimeException e) {
+                log.warn("heartbeat analysis task failed, ticketId={}, analysisType={}", context.getApproval().getId(), context.getTaskType(), e);
+            }
+        }, HEARTBEAT_INTERVAL_SECONDS, HEARTBEAT_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 }

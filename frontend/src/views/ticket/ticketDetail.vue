@@ -261,7 +261,7 @@
                               </Tag>
                             </template>
                           </Table>
-                          <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+                          <div v-else class="analysis-result-empty">{{ analysisEmptyText(item) }}</div>
                         </template>
 
                         <template v-else-if="item.activityTitle === 'SECURITY_RULE'">
@@ -287,16 +287,14 @@
                             </div>
                           </div>
                           <div v-else class="analysis-result-empty">
-                            {{
-                              analysisRuleResults.length && showCheckedOnlyError ? $t('ticket-analysis-security-passed') : analysisResultText(item)
-                            }}
+                            {{ analysisRuleResults.length && showCheckedOnlyError ? $t('ticket-analysis-security-passed') : analysisEmptyText(item) }}
                           </div>
                         </template>
 
                         <template v-else-if="item.activityTitle === 'DML_EXPLAIN'">
                           <Table
                             v-if="item.explainResults && item.explainResults.length"
-                            :columns="dmlExplainColumns"
+                            :columns="dmlExplainTableColumns()"
                             :data="dmlExplainRows(item)"
                             border
                             size="small"
@@ -317,10 +315,10 @@
                               <span>{{ dmlExplainDescription(row) }}</span>
                             </template>
                           </Table>
-                          <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+                          <div v-else class="analysis-result-empty">{{ analysisEmptyText(item) }}</div>
                         </template>
 
-                        <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+                        <div v-else class="analysis-result-empty">{{ analysisEmptyText(item) }}</div>
                       </div>
                     </div>
                   </div>
@@ -778,32 +776,6 @@ export default {
           width: 320
         }
       ],
-      dmlExplainColumns: [
-        {
-          title: this.$t('ticket-analysis-dml-explain-rows'),
-          slot: 'estimatedAffectedRows',
-          width: 150
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-actions'),
-          slot: 'actions',
-          width: 180
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-subjects'),
-          slot: 'subjects'
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-statement-count'),
-          slot: 'statementCount',
-          width: 320
-        },
-        {
-          title: this.$t('shuo-ming'),
-          slot: 'description',
-          width: 220
-        }
-      ],
       showCheckedOnlyError: false,
       showContinueSkipAutoExecTaskModal: false,
       showSkipAutoExecTaskModal: false,
@@ -982,7 +954,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userInfo', 'myAuth']),
+    ...mapState(['userInfo', 'myAuth', 'dmGlobalSetting']),
     ticketProgressSteps() {
       const steps = [
         {
@@ -1163,6 +1135,41 @@ export default {
     behaviorStatementCount(item) {
       return item.statementCount ?? this.analysisSqlCount;
     },
+    dmlExplainTableColumns() {
+      let statementCountTitle = this.$t('ticket-analysis-dml-explain-statement-count');
+      const maxStatements = this.dmGlobalSetting.approvalExplainMaxSize;
+      if (maxStatements > 0) {
+        statementCountTitle = this.$t('ticket-analysis-dml-explain-statement-count-with-limit', {
+          count: maxStatements
+        });
+      }
+      return [
+        {
+          title: this.$t('ticket-analysis-dml-explain-rows'),
+          slot: 'estimatedAffectedRows',
+          width: 150
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-actions'),
+          slot: 'actions',
+          width: 180
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-subjects'),
+          slot: 'subjects'
+        },
+        {
+          title: statementCountTitle,
+          slot: 'statementCount',
+          width: 320
+        },
+        {
+          title: this.$t('shuo-ming'),
+          slot: 'description',
+          width: 220
+        }
+      ];
+    },
     behaviorSummaryText(item) {
       const values = {
         statementCount: this.behaviorStatementCount(item) || 0,
@@ -1174,7 +1181,7 @@ export default {
         : this.$t('ticket-analysis-behavior-summary', values);
     },
     analysisSummaryText(item) {
-      if (item.activityTitle === 'BEHAVIOR_ANALYSIS') {
+      if (item.activityTitle === 'BEHAVIOR_ANALYSIS' && item.activityStatus === 'COMPLETED') {
         return this.behaviorSummaryText(item);
       }
       if (item.activityTitle === 'DML_EXPLAIN' && item.activityStatus === 'COMPLETED') {
@@ -1269,23 +1276,42 @@ export default {
       }
       return '--';
     },
+    analysisEmptyText(item) {
+      if (item.activityStatus === 'RUNNING') {
+        return this.$t('ticket-analysis-running-detail');
+      }
+      return this.analysisResultText(item);
+    },
     dmlExplainDetailText(item) {
       const failed = item.failedExplainCount || 0;
       const total = item.dmlStatementCount || 0;
       const sizeSkipped = item.skippedBySizeLimit || 0;
       const countSkipped = item.skippedByCountLimit || 0;
       const skipped = sizeSkipped + countSkipped;
-      let text = this.$t('ticket-analysis-dml-explain-detail-total', { total });
+      const estimates = (item.explainResults || []).map((result) => result.estimatedAffectedRows).filter((value) => value != null);
+      let text;
+      if (estimates.length) {
+        const affectedRows = estimates.reduce((sum, value) => sum + value, 0);
+        const summaryKey = skipped > 0 || failed > 0 ? 'ticket-analysis-dml-explain-summary-minimum' : 'ticket-analysis-dml-explain-summary';
+        text = this.$t(summaryKey, { total, affectedRows });
+      } else {
+        text = this.$t('ticket-analysis-dml-explain-summary-without-estimate', { total });
+      }
       if (skipped > 0) {
-        text = this.$t('ticket-analysis-dml-explain-detail', {
-          total,
-          sizeSkipped,
-          countSkipped,
-          skipped
+        const reasons = [];
+        if (sizeSkipped > 0) {
+          reasons.push(this.$t('ticket-analysis-dml-explain-summary-oversized', { count: sizeSkipped }));
+        }
+        if (countSkipped > 0) {
+          reasons.push(this.$t('ticket-analysis-dml-explain-summary-over-count', { count: countSkipped }));
+        }
+        text += this.$t('ticket-analysis-dml-explain-summary-skipped', {
+          skipped,
+          reasons: reasons.join(this.$t('ticket-analysis-dml-explain-summary-reason-separator'))
         });
       }
       if (failed > 0) {
-        text += this.$t('ticket-analysis-dml-explain-detail-failed', { failed });
+        text += this.$t('ticket-analysis-dml-explain-summary-failed', { failed });
       }
       return text;
     },

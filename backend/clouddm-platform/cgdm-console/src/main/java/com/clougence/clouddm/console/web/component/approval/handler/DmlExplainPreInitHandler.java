@@ -24,6 +24,7 @@ import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.model.*;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
@@ -46,6 +47,8 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -56,7 +59,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
 
-    private static final int     DEFAULT_MAX_STATEMENTS          = 100;
     private static final int     DEFAULT_MAX_STATEMENT_MEGABYTES = 1;
     private static final long    BYTES_PER_MEGABYTE              = 1024L * 1024L;
     @Resource
@@ -69,6 +71,8 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
     private DmDsConfigService    dmDsConfigService;
     @Resource
     private SystemDal            systemDal;
+    @Resource
+    private UserConfigService    userConfigService;
 
     @Override
     protected String analysisType() {
@@ -137,11 +141,20 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
 
     private void buildRequests(PreInitContext context, File requestCache, DmlExplainStatistics statistics) throws IOException {
         context.startPhase(ApprovalAnalysisStateMO.PHASE_PREPARING, null);
+        try (BufferedWriter writer = Files.newBufferedWriter(requestCache.toPath(), StandardCharsets.UTF_8)) {
+            this.approvalService.consumeSqlFile(context.getApproval().getId(), sql -> {
+                this.buildRequests4File(context, sql, writer, statistics);
+                return null;
+            });
+        }
+    }
+
+    private void buildRequests4File(PreInitContext context, Path sql, BufferedWriter writer, DmlExplainStatistics statistics) throws IOException {
         ExplainPlanSpi explainSpi = findExplainSpi(context.getDsConfig().getDataSourceType());
         if (explainSpi == null) {
             return;
         }
-        int maxStatements = this.systemDal.fetchSystemConf(RootUserConfig.Fields.approvalDmlExplainMaxStatements, Integer.class, DEFAULT_MAX_STATEMENTS);
+        int maxStatements = this.userConfigService.approvalExplainMaxSize();
         int maxStatementMegaBytes = this.systemDal.fetchSystemConf(RootUserConfig.Fields.approvalDmlExplainMaxStatementMegaByte, Integer.class, DEFAULT_MAX_STATEMENT_MEGABYTES);
         long maxStatementBytes = maxStatementMegaBytes * BYTES_PER_MEGABYTE;
         SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(context.getDsConfig());
@@ -149,66 +162,92 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         RewriteSpi rewriteSpi = sqlEngine.rewriteSpi(parameters);
 
         DmApprovalDO approval = context.getApproval();
-        try (BufferedWriter writer = Files.newBufferedWriter(requestCache.toPath(), StandardCharsets.UTF_8)) {
-            this.approvalService.consumeSqlFile(approval.getId(), sql -> {
-                try (Reader reader = context.openReader(sql)) {
-                    AnalysisQueryOptions options = AnalysisQueryOptions.builder()
-                        .currentUid(approval.getOwnerUid())
-                        .dataSourceId(approval.getBindDsId())
-                        .levels(context.getDsLevels().levelsParam())
-                        .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
-                        .build();
-                    try (Stream<QueryRequest> stream = this.queryAnalysisService.analysisRequestsStream(context.getDsConfig(), reader, Collections.emptyList(), 1, 0, options)) {
-                        stream.parallel().forEach(request -> {
-                            this.cacheExplainRequest(context, request, statistics, explainSpi, rewriteSpi, parameters, writer, maxStatements, maxStatementBytes);
-                        });
-                        return null;
-                    }
-                }
-            });
+        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
+            .currentUid(approval.getOwnerUid())
+            .dataSourceId(approval.getBindDsId())
+            .levels(context.getDsLevels().levelsParam())
+            .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
+            .build();
+        DmlExplainPreInitHandlerState buildState = DmlExplainPreInitHandlerState.builder()
+            .context(context)
+            .statistics(statistics)
+            .options(options)
+            .explainSpi(explainSpi)
+            .rewriteSpi(rewriteSpi)
+            .parameters(parameters)
+            .writer(writer)
+            .maxStatements(maxStatements)
+            .maxStatementBytes(maxStatementBytes)
+            .build();
+        try (Reader reader = context.openReader(sql)) {
+            try (Stream<SplitScript> scripts = this.queryAnalysisService.analysisSplitStream(context.getDsConfig(), reader, Collections.emptyList(), 1, 0)) {
+                scripts.forEachOrdered(s -> this.buildRequest4Script(buildState, s));
+            }
+        }
+        buildState.await();
+    }
+
+    private void buildRequest4Script(DmlExplainPreInitHandlerState buildState, SplitScript script) {
+        try {
+            Set<SplitQueryType> queryTypes = script.getType();
+            if (!isDml(queryTypes)) {
+                return;
+            }
+            buildState.getStatistics().incrementDmlCount();
+            long statementBytes = script.getScript().getBytes(StandardCharsets.UTF_8).length;
+            if (!queryTypes.contains(SplitQueryType.INSERT) && !buildState.getExplainSpi().supportByQueryType(queryTypes)) {
+                return;
+            }
+            if (statementBytes > buildState.getMaxStatementBytes()) {
+                buildState.getStatistics().incrementSkippedBySize();
+                return;
+            }
+            if (!buildState.select()) {
+                buildState.getStatistics().incrementSkippedByCount();
+                return;
+            }
+            buildState.submit(() -> this.cacheExplainRequest(buildState, script, statementBytes));
+        } finally {
+            buildState.getContext().itemProcessed(script.getScript());
         }
     }
 
-    private void cacheExplainRequest(PreInitContext context, QueryRequest request, DmlExplainStatistics statistics,     //
-                                     ExplainPlanSpi explainSpi, RewriteSpi rewriteSpi, SqlParserParameters parameters,  //
-                                     BufferedWriter writer, int maxStatements, long maxStatementBytes) {
-        try {
-            if (!isDml(request.getRelations())) {
-                return;
+    private void cacheExplainRequest(DmlExplainPreInitHandlerState buildState, SplitScript script, long statementBytes) {
+        DmlExplainRequestMO record = this
+            .prepareCachedExplainRequest(buildState.getContext(), script, buildState.getOptions(), buildState.getRewriteSpi(), buildState.getParameters(), statementBytes);
+        if (record == null) {
+            return;
+        }
+        synchronized (buildState.getWriter()) {
+            try {
+                buildState.getWriter().write(JsonUtils.toJson(record));
+                buildState.getWriter().newLine();
+                buildState.getStatistics().incrementCachedCount();
+            } catch (IOException error) {
+                throw new UncheckedIOException(error);
             }
-            statistics.incrementDmlCount();
-            long statementBytes = request.getQueryBody().getBytes(StandardCharsets.UTF_8).length;
-            if (!hasInsertStatement(request.getRelations()) && !explainSpi.supportByQueryType(request.getQueryTypes())) {
-                return;
-            }
-            if (statementBytes > maxStatementBytes) {
-                statistics.incrementSkippedBySize();
-                return;
+        }
+    }
+
+    private DmlExplainRequestMO prepareCachedExplainRequest(PreInitContext context, SplitScript script, AnalysisQueryOptions options, RewriteSpi rewriteSpi,
+                                                            SqlParserParameters parameters, long statementBytes) {
+        try (Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(context.getDsConfig(), new StringReader(script.getScript()), script
+            .getScriptArgs(), script.getBodyStartCodeLine(), script.getBodyStartCodeColumn(), options)) {
+            QueryRequest request = requests.findFirst().orElse(null);
+            if (request == null) {
+                return null;
             }
 
-            synchronized (writer) {
-                if (statistics.getCachedCount() >= maxStatements) {
-                    statistics.incrementSkippedByCount();
-                    return;
-                }
-                QueryRequest explainRequest = this.prepareExplainRequest(context, request, rewriteSpi, parameters);
-                if (explainRequest == null) {
-                    return;
-                }
-                DmlExplainRequestMO record = new DmlExplainRequestMO();
-                record.setIndex(request.getIndex());
-                record.setStatementSizeBytes(statementBytes);
-                record.setRequest(explainRequest);
-                try {
-                    writer.write(JsonUtils.toJson(record));
-                    writer.newLine();
-                    statistics.incrementCachedCount();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
+            request.setIndex(script.getIndex());
+            QueryRequest explainRequest = this.prepareExplainRequest(context, request, rewriteSpi, parameters);
+            if (explainRequest == null) {
+                return null;
             }
-        } finally {
-            context.itemProcessed(request.getQueryBody());
+            DmlExplainRequestMO record = new DmlExplainRequestMO();
+            record.setIndex(request.getIndex());
+            record.setStatementSizeBytes(statementBytes);
+            record.setRequest(explainRequest);
+            return record;
         }
     }
 
@@ -245,10 +284,11 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         return request;
     }
 
-    private static boolean isDml(List<BehaviorRelation> relations) {
-        return relations != null && relations.stream().anyMatch(r -> {
-            return r != null && ExplainPlanSpi.AFFECTED_ROW_ACTIONS.contains(r.getAction());
-        });
+    private static boolean isDml(Set<SplitQueryType> queryTypes) {
+        return queryTypes != null && (queryTypes.contains(SplitQueryType.INSERT) ||//
+                                      queryTypes.contains(SplitQueryType.UPDATE) ||//
+                                      queryTypes.contains(SplitQueryType.DELETE) ||//
+                                      queryTypes.contains(SplitQueryType.MERGE));
     }
 
     //

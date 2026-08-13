@@ -49,4 +49,6 @@ public interface UserConfigService {
     String defaultLanguage();
 
     int sqlFileMaxSize();
+
+    int approvalExplainMaxSize();
 }

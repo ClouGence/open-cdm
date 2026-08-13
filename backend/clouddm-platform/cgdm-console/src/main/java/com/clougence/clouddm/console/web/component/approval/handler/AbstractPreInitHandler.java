@@ -30,10 +30,6 @@ public abstract class AbstractPreInitHandler implements PreInitHandler {
 
     @Override
     public final boolean handle(PreInitContext context) throws IOException {
-        if (!context.claim()) {
-            return false;
-        }
-
         try {
             context.start();
             this.doHandle(context);

@@ -52,6 +52,7 @@ public class UserConfigServiceImpl implements UserConfigService {
     private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 4;
     private static final int       DEFAULT_LANGUAGE_MAX_REQUEST_KB       = 1024;
     private static final int       DEFAULT_SQL_FILE_MAX_SIZE             = 20;
+    private static final int       DEFAULT_DML_EXPLAIN_MAX_STATEMENTS    = 100;
     private static final String    DEFAULT_LANGUAGE                      = "zh_CN";
 
     @Resource
@@ -320,6 +321,12 @@ public class UserConfigServiceImpl implements UserConfigService {
     public int sqlFileMaxSize() {
         int maxSize = this.systemDal.fetchSystemConf(RootUserConfig.Fields.approvalSqlFileMaxMegaByte, Integer.class, DEFAULT_SQL_FILE_MAX_SIZE);
         return Math.max(1, Math.min(DEFAULT_SQL_FILE_MAX_SIZE, maxSize));
+    }
+
+    @Override
+    public int approvalExplainMaxSize() {
+        return this.systemDal
+            .fetchSystemConf(RootUserConfig.Fields.approvalDmlExplainMaxStatements, Integer.class, DEFAULT_DML_EXPLAIN_MAX_STATEMENTS);
     }
 
     @Override

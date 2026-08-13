@@ -39,5 +39,6 @@ public class ConsoleSettingsVO {
     private List<FormatConvertDef>        fmtConvertDef;
     private Integer                       sqlFileMaxSize;
     private Integer                       languageMaxRequestKiloByte;
+    private Integer                       approvalExplainMaxSize;
 
 }
