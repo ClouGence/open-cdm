@@ -58,8 +58,8 @@
           </template>
         </a-tabs>
       </div>
-      <div id="result-info-container" class="result-info-container" style="height: 100%" v-if="tab.result.active === 'message'">
-        <div class="result-info-messages sql-editor-typography">
+      <div class="result-info-container" style="height: 100%" v-if="tab.result.active === 'message'">
+        <div ref="resultInfoMessages" class="result-info-messages sql-editor-typography">
           <div v-for="(info, index) in tab.executeInfo" :key="index" class="result-info">
             <div class="info info--query" v-if="info.resultType === 'QueryScript'">
               <div class="level">{{ info.line }}</div>
@@ -830,7 +830,7 @@ export default {
       }
 
       setTimeout(() => {
-        const ele = document.getElementById('result-info-container');
+        const ele = this.$refs.resultInfoMessages;
         if (!ele) {
           return;
         }
@@ -852,14 +852,14 @@ export default {
       });
     },
     handleScrollUpMessage() {
-      const ele = document.getElementById('result-info-container');
+      const ele = this.$refs.resultInfoMessages;
       if (ele) {
         ele.scrollTop = 0;
       }
     },
     handleScrollDownMessage() {
       this.tab.executeInfoScrollDown = !this.tab.executeInfoScrollDown;
-      const ele = document.getElementById('result-info-container');
+      const ele = this.$refs.resultInfoMessages;
       if (ele) {
         ele.scrollTop = ele.scrollHeight;
       }
@@ -871,7 +871,7 @@ export default {
       }
 
       setTimeout(() => {
-        const ele = document.getElementById('result-info-container');
+        const ele = this.$refs.resultInfoMessages;
         if (!ele) {
           return;
         }
@@ -1980,14 +1980,15 @@ export default {
   .result-info-container {
     display: flex;
     align-items: stretch;
-    overflow: auto;
+    overflow: hidden;
     width: 100%;
     background: var(--bg-primary);
 
     .result-info-messages {
       flex: 1;
       min-width: 0;
-      min-height: 100%;
+      min-height: 0;
+      overflow: auto;
       border-right: 1px solid var(--border-primary);
       padding: 7px 10px 12px;
 
@@ -2046,15 +2047,13 @@ export default {
 
     .result-info-buttons {
       flex: 0 0 44px;
-      min-height: 100%;
+      height: 100%;
       padding-top: 8px;
       display: flex;
       justify-content: center;
       box-sizing: border-box;
 
       .btn-group {
-        position: sticky;
-        top: 8px;
         display: flex;
         flex-direction: column;
         gap: 8px;

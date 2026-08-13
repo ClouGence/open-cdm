@@ -22,7 +22,6 @@
       :set-editor-instance="setEditorInstance"
       :current-tab="tab"
       ref="editor"
-      style="border-bottom: 1px solid #ccc"
       :completion-data="completionData"
       :store-query-tabs="storeQueryTabs"
       :rdb-object-detail="rdbObjectDetail"
@@ -114,7 +113,7 @@ export default {
           width: 200
         },
         {
-          title: this.$t('miao-shu'),
+          title: this.$t('wei-gui-ti-shi'),
           key: 'ruleDesc'
         }
       ];

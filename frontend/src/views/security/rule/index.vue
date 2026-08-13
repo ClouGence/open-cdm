@@ -317,7 +317,7 @@ export default {
           width: 200
         },
         {
-          title: this.$t('gui-ze-miao-shu'),
+          title: this.$t('wei-gui-ti-shi'),
           key: 'ruleDesc',
           width: 360
         },

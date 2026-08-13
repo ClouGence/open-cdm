@@ -16,6 +16,8 @@ const LANGUAGE_SPLIT_DELAY_MS = 500;
 const DEFAULT_MAX_LANGUAGE_REQUEST_KILO_BYTE = 1024;
 const DS_LANGUAGE_ERROR = '10111';
 const STATIC_KEYWORD_WEIGHT = 100;
+const SQL_EDITOR_FONT_SIZE_STORAGE_KEY = 'clouddm_sql_editor_font_size';
+const SQL_EDITOR_FONT_SIZE_OPTIONS = [12, 16, 20];
 
 export default {
   name: 'Editor',
@@ -32,6 +34,12 @@ export default {
   },
   mixins: [browseMixin],
   data() {
+    const storedFontSize = Number(localStorage.getItem(SQL_EDITOR_FONT_SIZE_STORAGE_KEY));
+    let editorFontSize = SQL_EDITOR_TYPOGRAPHY.fontSize;
+    if (SQL_EDITOR_FONT_SIZE_OPTIONS.includes(storedFontSize)) {
+      editorFontSize = storedFontSize;
+    }
+
     return {
       language: 'sql',
       currentSql: null,
@@ -41,6 +49,7 @@ export default {
         value: '', // The editor 's value
         language: 'mysql',
         ...SQL_EDITOR_TYPOGRAPHY,
+        fontSize: editorFontSize,
         tabSize: 4,
         lineNumbersMinChars: 3,
         scrollBeyondLastLine: false,
@@ -53,7 +62,7 @@ export default {
         autoIndent: true // Auto Indent
       },
       monacoEditor: null,
-      monacoEditorFountCss: 'font-size-14',
+      monacoEditorFountCss: `font-size-${editorFontSize}`,
       completionItemProviderList: [],
       commandList: [],
       actionList: [],
@@ -1413,10 +1422,13 @@ export default {
       return this.getCurrentSqlTarget().sql;
     },
     setFontSize(size) {
-      if (this.monacoEditor) {
-        this.monacoEditor.updateOptions({ fontSize: size });
-        this.monacoEditorFountCss = `font-size-${size}`;
+      if (!SQL_EDITOR_FONT_SIZE_OPTIONS.includes(size)) {
+        return;
       }
+
+      localStorage.setItem(SQL_EDITOR_FONT_SIZE_STORAGE_KEY, String(size));
+      this.monacoEditor?.updateOptions({ fontSize: size });
+      this.monacoEditorFountCss = `font-size-${size}`;
     },
     getSQLSuggest(keywords) {
       const list = keywords.map((key) => ({
