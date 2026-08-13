@@ -29,6 +29,17 @@
                   {{ status }}
                 </Option>
               </Select>
+              <Select
+                style="width: 220px; margin-right: 4px"
+                v-model="searchKey.dsIds"
+                multiple
+                clearable
+                :placeholder="$t('an-shu-ju-yuan-shai-xuan')"
+              >
+                <Option v-for="ds in dsList" :key="ds.objId" :value="Number(ds.objId)">
+                  {{ ds.objAttr && ds.objAttr.dsInstance ? ds.objAttr.dsInstance : ds.objName }}
+                </Option>
+              </Select>
               <Input
                 :placeholder="$t('qing-shu-ru-gong-dan-biao-ti-guan-jian-zi-cha-xun')"
                 v-model="searchKey.ticketTitleName"
@@ -40,6 +51,10 @@
               </Button>
             </div>
             <div class="right">
+              <Button @click="handleExportSql" :loading="exportLoading" style="margin-right: 10px" type="primary" ghost>
+                {{ $t('dao-chu-sql-jiao-ben') }}
+              </Button>
+              <Button @click="handleShowStat" style="margin-right: 10px" type="primary" ghost>{{ $t('an-ku-hui-zong') }}</Button>
               <Button
                 @click="handleShowTicketCreateModal"
                 style="margin-right: 10px"
@@ -115,6 +130,20 @@
       <template #footer>
         <Button @click="handleCloseTicketCreateModal">{{ $t('qu-xiao') }}</Button>
         <Button type="primary" @click="handleCreateTicket" :disabled="!ticketType">{{ $t('ti-jiao-gong-dan') }}</Button>
+      </template>
+    </CCModal>
+    <CCModal v-model="showStatModal" :title="$t('gong-dan-an-ku-hui-zong')" width="760px" :footer-hide="true">
+      <div v-if="statLoading" class="stat-center">{{ $t('jia-zai-zhong-0') }}</div>
+      <template v-else>
+        <Table size="small" :columns="statColumns" :data="statData" border>
+          <template #statusCount="{ row }">
+            <span v-for="(cnt, status) in row.statusCount" :key="status" style="margin-right: 8px">
+              {{ TICKET_STATUS[status] || status }}: {{ cnt }}
+            </span>
+            <span v-if="!row.statusCount || Object.keys(row.statusCount).length === 0">-</span>
+          </template>
+        </Table>
+        <div v-if="statData.length === 0" class="stat-center">{{ $t('gai-shi-jian-duan-nei-mei-you-gong-dan') }}</div>
       </template>
     </CCModal>
   </div>
@@ -195,10 +224,22 @@ export default {
       ],
       pageSize: 40,
       pageNum: 1,
-      total: 0
+      total: 0,
+      dsList: [],
+      exportLoading: false,
+      showStatModal: false,
+      statData: [],
+      statLoading: false,
+      statColumns: [
+        { title: this.$t('shu-ju-ku'), key: 'dsName', minWidth: 160 },
+        { title: this.$t('huan-jing-0'), key: 'envName', width: 120 },
+        { title: this.$t('gong-dan-zong-shu'), key: 'totalCount', width: 100, align: 'center' },
+        { title: this.$t('zhuang-tai-fen-bu'), slot: 'statusCount', minWidth: 280 }
+      ]
     };
   },
   mounted() {
+    this.getDsList();
     this.listTickets();
   },
   computed: {
@@ -283,6 +324,7 @@ export default {
           ticketTitleName: this.searchKey.ticketTitleName,
           ticketStatus: this.searchKey.ticketStatus,
           ticketListType: this.ticketListType,
+          dsIds: this.searchKey.dsIds && this.searchKey.dsIds.length ? this.searchKey.dsIds : null,
           page: {
             pageSize: this.pageSize,
             pageNum: this.pageNum
@@ -293,6 +335,76 @@ export default {
       if (res.success) {
         this.ticketData = res.data.records;
         this.total = res.data.total;
+      }
+    },
+    async getDsList() {
+      try {
+        const res = await this.$services.dmTicketListDsInsLevels();
+        if (res.success) {
+          this.dsList = res.data || [];
+        }
+      } catch (error) {
+        console.error('获取数据源列表失败:', error);
+      }
+    },
+    handleShowStat() {
+      this.showStatModal = true;
+      this.loadStat();
+    },
+    async loadStat() {
+      this.statLoading = true;
+      try {
+        const res = await this.$services.rdpTicketStatByDs({
+          data: {
+            ticketId: null,
+            userName: '',
+            startTimeMs: new Date(this.searchKey.daterange[0]).getTime(),
+            endTimeMs: new Date(this.searchKey.daterange[1]).getTime(),
+            ticketTitleName: this.searchKey.ticketTitleName,
+            ticketStatus: this.searchKey.ticketStatus,
+            ticketListType: this.ticketListType,
+            dsIds: this.searchKey.dsIds && this.searchKey.dsIds.length ? this.searchKey.dsIds : null
+          }
+        });
+        this.statData = res.success ? res.data || [] : [];
+      } catch (error) {
+        console.error('工单按库汇总失败:', error);
+        this.statData = [];
+      } finally {
+        this.statLoading = false;
+      }
+    },
+    async handleExportSql() {
+      this.exportLoading = true;
+      try {
+        const res = await this.$services.rdpTicketExportSql({
+          data: {
+            ticketId: null,
+            userName: '',
+            startTimeMs: new Date(this.searchKey.daterange[0]).getTime(),
+            endTimeMs: new Date(this.searchKey.daterange[1]).getTime(),
+            ticketTitleName: this.searchKey.ticketTitleName,
+            ticketStatus: this.searchKey.ticketStatus,
+            ticketListType: this.ticketListType,
+            dsIds: this.searchKey.dsIds && this.searchKey.dsIds.length ? this.searchKey.dsIds : null
+          }
+        });
+        if (res.success && res.data) {
+          const blob = new Blob([res.data], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `工单脚本_${new Date().getTime()}.sql`;
+          link.click();
+          URL.revokeObjectURL(url);
+        } else {
+          this.$Message.warning((res && res.msg) || this.$t('mei-you-fu-he-tiao-jian-de-gong-dan-jiao-ben-ke-dao-chu'));
+        }
+      } catch (error) {
+        console.error('导出工单脚本失败:', error);
+        this.$Message.error(this.$t('dao-chu-shi-bai'));
+      } finally {
+        this.exportLoading = false;
       }
     }
   }
@@ -349,5 +461,10 @@ export default {
       }
     }
   }
+}
+.stat-center {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--text-secondary);
 }
 </style>

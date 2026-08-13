@@ -632,8 +632,10 @@ export default {
 
     syncTimeRangeQuery() {
       if (Array.isArray(this.timeRange) && this.timeRange[0] && this.timeRange[1]) {
-        this.searchData.opStart = dayjs(this.timeRange[0]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd = dayjs(this.timeRange[1]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        // 按本地时区(+08:00)原样下发，不再做 8 小时偏移；
+        // 容器 JVM 时区已统一为 Asia/Shanghai，与库内 gmt_create(+08:00) 对齐
+        this.searchData.opStart = dayjs(this.timeRange[0]).format('YYYY-MM-DDTHH:mm:ss.SSS');
+        this.searchData.opEnd = dayjs(this.timeRange[1]).format('YYYY-MM-DDTHH:mm:ss.SSS');
         return;
       }
       this.searchData.opStart = '';

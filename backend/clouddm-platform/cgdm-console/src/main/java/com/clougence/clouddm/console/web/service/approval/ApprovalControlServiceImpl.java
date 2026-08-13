@@ -629,6 +629,117 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     @Override
+    public List<DmTicketStatDsVO> statTicketByDs(String puid, RdpListTicketFO fo) {
+        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
+            .ticketStatus(fo.getTicketStatus())
+            .dsIds(fo.getDsIds())
+            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
+            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
+            .build();
+        List<DmTicketStatRow> rows = this.approvalDal.approvalMapper().statTicketByDs(puid, queryParams);
+        if (rows == null || rows.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // 按数据源分组，合并状态分布
+        Map<Long, List<DmTicketStatRow>> grouped = rows.stream()
+            .filter(r -> r.getBindDsId() != null)
+            .collect(Collectors.groupingBy(DmTicketStatRow::getBindDsId));
+        List<DmTicketStatDsVO> result = new ArrayList<>();
+        for (Map.Entry<Long, List<DmTicketStatRow>> e : grouped.entrySet()) {
+            DmTicketStatDsVO vo = new DmTicketStatDsVO();
+            vo.setDsId(e.getKey());
+            long total = 0;
+            Map<String, Long> statusCount = new HashMap<>();
+            for (DmTicketStatRow r : e.getValue()) {
+                total += r.getCnt();
+                statusCount.merge(r.getStatus(), r.getCnt(), Long::sum);
+            }
+            vo.setTotalCount(total);
+            vo.setStatusCount(statusCount);
+            result.add(vo);
+        }
+        // 解析数据源名称与环境
+        Map<Long, DmDsDO> dsMap = resolveDsNameMap(grouped.keySet());
+        for (DmTicketStatDsVO vo : result) {
+            DmDsDO ds = dsMap.get(vo.getDsId());
+            if (ds != null) {
+                vo.setDsName(ds.getInstanceDesc());
+                vo.setEnvName(ds.getDsEnvDO() != null ? ds.getDsEnvDO().getEnvName() : null);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public String exportTicketSql(String puid, RdpListTicketFO fo) {
+        ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
+            .ticketStatus(fo.getTicketStatus())
+            .dsIds(fo.getDsIds())
+            .ticketId(fo.getTicketId())
+            .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
+            .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
+            .build();
+        List<DmTicketExportRow> rows = this.approvalDal.approvalMapper().listTicketExportRows(puid, queryParams);
+        if (rows == null || rows.isEmpty()) {
+            return null;
+        }
+        Map<Long, DmDsDO> dsMap = resolveDsNameMap(rows.stream().map(DmTicketExportRow::getBindDsId).filter(Objects::nonNull).collect(Collectors.toSet()));
+        StringBuilder sb = new StringBuilder();
+        sb.append("-- =====================================================\n");
+        sb.append("-- CloudDM 工单脚本导出\n");
+        sb.append("-- 导出时间: ").append(DateFormatType.s_yyyyMMdd_HHmmss.format(new Date())).append('\n');
+        sb.append("-- 工单数量: ").append(rows.size()).append('\n');
+        sb.append("-- =====================================================\n\n");
+        for (DmTicketExportRow r : rows) {
+            DmDsDO ds = r.getBindDsId() == null ? null : dsMap.get(r.getBindDsId());
+            String dsDesc = ds == null ? String.valueOf(r.getBindDsId()) : ds.getInstanceDesc();
+            sb.append("-- ------------------------------------------------------------------\n");
+            sb.append("-- 工单 #").append(r.getId())
+              .append(" | 标题: ").append(r.getTicketTitle())
+              .append(" | 数据源: ").append(dsDesc)
+              .append(" | 状态: ").append(r.getStatus())
+              .append(" | 创建时间: ").append(r.getGmtCreate() == null ? "" : DateFormatType.s_yyyyMMdd_HHmmss.format(r.getGmtCreate()))
+              .append('\n');
+            sb.append("-- ------------------------------------------------------------------\n");
+            if (r.getRawSql() != null) {
+                sb.append(r.getRawSql()).append('\n');
+            }
+            if (r.getRollBackSql() != null) {
+                sb.append("\n-- 回滚脚本:\n");
+                sb.append(r.getRollBackSql()).append('\n');
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 批量解析数据源信息（含环境），key = dsId。
+     */
+    private Map<Long, DmDsDO> resolveDsNameMap(Collection<Long> dsIds) {
+        Map<Long, DmDsDO> dsMap = new HashMap<>();
+        if (dsIds == null || dsIds.isEmpty()) {
+            return dsMap;
+        }
+        List<DmDsDO> dsList = this.datasourceDal.dsMapper().listByIdsIncludeDeleted(dsIds);
+        for (DmDsDO ds : dsList) {
+            dsMap.put(ds.getId(), ds);
+        }
+        Collection<Long> envIds = dsList.stream().map(DmDsDO::getDsEnvId).collect(Collectors.toSet());
+        if (!envIds.isEmpty()) {
+            List<DmSysEnvDO> envs = this.systemDal.envMapper().selectBatchIds(envIds);
+            Map<Long, DmSysEnvDO> envMap = new HashMap<>();
+            for (DmSysEnvDO env : envs) {
+                envMap.put(env.getId(), env);
+            }
+            for (DmDsDO ds : dsList) {
+                ds.setDsEnvDO(envMap.get(ds.getDsEnvId()));
+            }
+        }
+        return dsMap;
+    }
+
+    @Override
     public RdpTicketBaseInfoVO queryTicketBaseInfo(String puid, String uid, RdpQueryTicketDetailFO fo) {
         updateStatusFromThirdPartyIfNecessary(fo);
         DmApprovalDO approvalDO = checkTicket(fo.getTicketId(), puid);
@@ -933,6 +1044,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             .ticketId(fo.getTicketId())
             .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
             .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
+            .dsIds(fo.getDsIds())
             .approvalPersonUid(fo.getUid())
             .build();
         return this.approvalDal.approvalMapper().listConfirmTicketByConditionAndPage(page, queryParams);
@@ -984,6 +1096,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             .ticketId(fo.getTicketId())
             .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
             .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
+            .dsIds(fo.getDsIds())
             .build();
         return this.approvalDal.approvalMapper().listTicketByConditionAndPage(page, queryParams, puid);
     }
@@ -996,6 +1109,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             .ticketId(fo.getTicketId())
             .startTime(getDateTimeOfTimestamp(fo.getStartTimeMs()))
             .endTime(getDateTimeOfTimestamp(fo.getEndTimeMs()))
+            .dsIds(fo.getDsIds())
             .build();
 
         return this.approvalDal.approvalMapper().listTicketByConditionAndPage(page, queryParams, puid);

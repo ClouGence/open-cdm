@@ -215,6 +215,7 @@
         <if test="ticketQuery.ticketBizId != null"><![CDATA[ AND a.biz_id = #{ticketQuery.ticketBizId} ]]></if>
         <if test="ticketQuery.ticketTitleName != null"><![CDATA[ AND a.ticket_title LIKE concat('%',#{ticketQuery.ticketTitleName},'%') ]]></if>
         <if test="ticketQuery.ticketStatus != null"><![CDATA[ AND a.ticket_status =#{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]></if>
+        <if test="ticketQuery.dsIds != null and ticketQuery.dsIds.size() >0"> AND a.bind_ds_id in <foreach collection="ticketQuery.dsIds" item="item" separator="," open="(" close=")">#{item}</foreach></if>
         <if test="ticketQuery.approvalPersonUid != null"><![CDATA[ AND b.person_uid = #{ticketQuery.approvalPersonUid} ]]></if>
         and a.deleted = false
         and a.ticket_status in ('WAIT_CONFIRM','WAIT_APPROVAL','WAIT_EXEC')
@@ -223,6 +224,50 @@
             a.id
         order by
             a.gmt_create desc
+    </select>
+
+    <select id="statTicketByDs" resultType="com.clougence.clouddm.platform.dal.model.approval.DmTicketStatRow">
+        select
+            bind_ds_id as bindDsId,
+            ticket_status as status,
+            count(*) as cnt
+        from
+        dm_approval
+        <where>
+        primary_uid = #{puid}
+        and deleted = false
+        and bind_ds_id is not null
+        <if test="ticketQuery.startTime != null"><![CDATA[ AND gmt_create > #{ticketQuery.startTime} ]]></if>
+        <if test="ticketQuery.endTime != null"><![CDATA[ AND gmt_create < #{ticketQuery.endTime} ]]></if>
+        <if test="ticketQuery.ticketStatus != null"><![CDATA[ AND ticket_status =#{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]></if>
+        <if test="ticketQuery.dsIds != null and ticketQuery.dsIds.size() >0"> AND bind_ds_id in <foreach collection="ticketQuery.dsIds" item="item" separator="," open="(" close=")">#{item}</foreach></if>
+        </where>
+        group by bind_ds_id, ticket_status
+        order by cnt desc
+    </select>
+
+    <select id="listTicketExportRows" resultType="com.clougence.clouddm.platform.dal.model.approval.DmTicketExportRow">
+        select
+            id,
+            ticket_title as ticketTitle,
+            bind_ds_id as bindDsId,
+            gmt_create as gmtCreate,
+            ticket_status as status,
+            raw_sql as rawSql,
+            roll_back_sql as rollBackSql
+        from
+        dm_approval
+        <where>
+        primary_uid = #{puid}
+        and deleted = false
+        and raw_sql is not null
+        <if test="ticketQuery.startTime != null"><![CDATA[ AND gmt_create > #{ticketQuery.startTime} ]]></if>
+        <if test="ticketQuery.endTime != null"><![CDATA[ AND gmt_create < #{ticketQuery.endTime} ]]></if>
+        <if test="ticketQuery.ticketStatus != null"><![CDATA[ AND ticket_status =#{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]></if>
+        <if test="ticketQuery.dsIds != null and ticketQuery.dsIds.size() >0"> AND bind_ds_id in <foreach collection="ticketQuery.dsIds" item="item" separator="," open="(" close=")">#{item}</foreach></if>
+        <if test="ticketQuery.ticketId != null"><![CDATA[ AND id = #{ticketQuery.ticketId} ]]></if>
+        </where>
+        order by gmt_create desc
     </select>
 
     <select id="queryByApproIdentity" resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO">

@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
+import java.util.List;
+
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 import com.clougence.clouddm.platform.dal.util.PageObj;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,6 +41,9 @@ public class RdpListTicketFO {
     private ApprovalStatus   ticketStatus;
 
     private RdpTicketListType ticketListType;
+
+    /** 按数据源(数据库)过滤，空则不限制 */
+    private List<Long>       dsIds;
 
     private PageObj page;
 

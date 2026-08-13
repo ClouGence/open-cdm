@@ -57,6 +57,8 @@ export const ticketApi = {
 
   // rdp
   rdpTicketListBasic: '/api/entry/approval/listBasic',
+  rdpTicketStatByDs: '/api/entry/approval/statByDs',
+  rdpTicketExportSql: '/api/entry/approval/exportSql',
   rdpTicketClose: '/api/entry/approval/close',
   rdpTicketCreateDataSourceAuthTicket: '/api/entry/approval/createDataSourceAuthApproval',
   rdpTicketQueryDataSourceAuthTicketDetail: '/api/entry/approval/queryDataSourceAuthApprovalDetail',

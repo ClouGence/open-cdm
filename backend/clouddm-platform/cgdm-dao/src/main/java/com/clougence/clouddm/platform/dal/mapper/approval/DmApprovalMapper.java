@@ -25,6 +25,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.approval.ArgApprovalQueryObj;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
+import com.clougence.clouddm.platform.dal.model.approval.DmTicketExportRow;
+import com.clougence.clouddm.platform.dal.model.approval.DmTicketStatRow;
 
 /**
  * @author Ekko
@@ -39,6 +42,16 @@ public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
     IPage<DmApprovalDO> listConfirmTicketByConditionAndPage(Page page, @Param("ticketQuery") ArgApprovalQueryObj ticketQueryObject);
 
     IPage<DmApprovalDO> listAuthTicketByConditionAndPage(Page page, @Param("ticketQuery") ArgApprovalQueryObj ticketQueryObject);
+
+    /**
+     * 一段时间内工单按数据源汇总（GROUP BY bind_ds_id, ticket_status）。
+     */
+    List<DmTicketStatRow> statTicketByDs(@Param("puid") String puid, @Param("ticketQuery") ArgApprovalQueryObj ticketQueryObject);
+
+    /**
+     * 按条件取工单脚本用于导出（无分页，取全部匹配且有 raw_sql 的工单）。
+     */
+    List<DmTicketExportRow> listTicketExportRows(@Param("puid") String puid, @Param("ticketQuery") ArgApprovalQueryObj ticketQueryObject);
 
     DmApprovalDO queryByBizId(@Param("bizId") String bizId);
 

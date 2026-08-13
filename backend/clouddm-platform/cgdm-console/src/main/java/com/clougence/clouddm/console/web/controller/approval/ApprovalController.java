@@ -207,6 +207,37 @@ public class ApprovalController {
         return ResWebDataUtils.buildSuccess(result);
     }
 
+    /**
+     * 一段时间内工单按数据源(数据库)汇总。
+     */
+    @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
+    @RequestMapping(value = "/statByDs", method = RequestMethod.POST)
+    public ResWebData<?> statTicketByDs(@Valid @RequestBody RdpListTicketFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        fo.setUid(uid);
+
+        List<DmTicketStatDsVO> result = this.approvalControlService.statTicketByDs(puid, fo);
+        return ResWebDataUtils.buildSuccess(result);
+    }
+
+    /**
+     * 把一批工单的脚本（raw_sql + roll_back_sql）聚合成一个 .sql 文件下载。
+     */
+    @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
+    @RequestMapping(value = "/exportSql", method = RequestMethod.POST)
+    public ResWebData<String> exportTicketSql(@Valid @RequestBody RdpListTicketFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        fo.setUid(uid);
+
+        String sqlContent = this.approvalControlService.exportTicketSql(puid, fo);
+        if (sqlContent == null) {
+            return ResWebDataUtils.buildError("没有符合条件的工单脚本可导出");
+        }
+        return ResWebDataUtils.buildSuccess(sqlContent);
+    }
+
     @RequestAuth(RDP_WORKER_ORDER_REQUEST)
     @RequestMapping(value = "/listDsInsLevels", method = RequestMethod.POST)
     public ResWebData<?> listLevels(HttpServletRequest request) {

@@ -58,6 +58,24 @@ public interface ApprovalControlService {
 
     IPage<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo);
 
+    /**
+     * 一段时间内工单按数据源(数据库)汇总。
+     *
+     * @param puid 主用户 UID
+     * @param fo   查询条件（时间范围、可选数据源/状态过滤）
+     * @return 按数据源分组的工单统计
+     */
+    List<DmTicketStatDsVO> statTicketByDs(String puid, RdpListTicketFO fo);
+
+    /**
+     * 按条件把一批工单的脚本（raw_sql + roll_back_sql）聚合成一个 .sql 文件内容。
+     *
+     * @param puid 主用户 UID
+     * @param fo   查询条件（时间范围、可选数据源/状态过滤）
+     * @return .sql 文件文本内容；无匹配工单返回 null
+     */
+    String exportTicketSql(String puid, RdpListTicketFO fo);
+
     IPage<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo);
 
     RdpTicketBaseInfoVO queryTicketBaseInfo(String puid, String uid, RdpQueryTicketDetailFO fo);
