@@ -1,23 +1,21 @@
 ## Highlights
 
-- Upgraded the end-to-end large-SQL ticket workflow with SQL file uploads, paged previews, and streaming analysis, approval, dispatch, and execution to reduce memory and disk usage.
-- Added cascading database CI/CD release-flow orchestration for batching parent-child changes and tracking transfer, retry, and execution states.
-- Expanded database support with Apache Cloudberry, substantially improved Dameng (DM8) SQL capabilities, and MongoDB Atlas, MongoDB SSL, and Redis SSL connectivity.
-- Rebuilt the SQL analysis and execution pipeline around shared statement splitting, behavior analysis, authorization, security rules, auditing, and result masking.
-- Improved offline delivery with bundled database drivers, multi-architecture offline image archives, and rendered deployment manifests.
+- SQL approval tickets now support SQL file uploads and stage-specific content for paged preview and analysis, approval, dispatch, and execution.
+- Database CI/CD now supports cascading release-flow orchestration for batching database changes through parent-child flows.
+- Added Apache Cloudberry and Dameng support, together with MongoDB Atlas, MongoDB SSL, and Redis SSL connectivity.
 
 ## Added
 
-- Added SQL file uploads for approval tickets, with UTF-8 validation, configurable size limits, line-based paged previews, and switching between inline and file-backed SQL.
+- Added SQL file uploads for approval tickets, with UTF-8 validation, configurable size limits, and line-based paged previews.
 - Added cascading CI/CD release-flow orchestration with parent-child flows, batch orchestration, change transfer, failure retries, and trigger permissions ([#55](https://github.com/ClouGence/open-cdm/issues/55)).
 - Added private, self-hosted GitLab as a CI/CD release source, supporting HTTP/HTTPS, non-standard ports, subpath deployments, and push and merge-request webhooks ([#169](https://github.com/ClouGence/open-cdm/issues/169)).
 - Added first-class Apache Cloudberry support for connection configuration, metadata browsing, SQL queries, and PostgreSQL-compatible table tooling ([#183](https://github.com/ClouGence/open-cdm/issues/183)).
-- Improved Dameng (DM8) datasource support with a dedicated SQL engine covering statement splitting, behavior and permission analysis, security rules, and system function and object recognition ([#95](https://github.com/ClouGence/open-cdm/issues/95)).
+- Improved Dameng datasource support with a dedicated SQL engine covering statement splitting, behavior and permission analysis, security rules, and system function and object recognition ([#95](https://github.com/ClouGence/open-cdm/issues/95)).
 - Added MongoDB Atlas SRV connection support ([#221](https://github.com/ClouGence/open-cdm/issues/221)).
 - Added MongoDB SSL connection support, contributed by community contributor [@BetaCat0](https://github.com/BetaCat0)—thank you! ([#242](https://github.com/ClouGence/open-cdm/issues/242)).
 - Added Redis SSL connections with CA certificate, TrustStore, KeyStore, and client-certificate options ([#220](https://github.com/ClouGence/open-cdm/issues/220)).
 - Added batch resource-permission grants and revocations for applying the same permissions to multiple accounts ([#176](https://github.com/ClouGence/open-cdm/issues/176), [#177](https://github.com/ClouGence/open-cdm/issues/177)).
-- Added offline delivery artifacts: Alone, Console, and Sidecar packages now bundle 11 common driver families, with x86_64 and arm64 offline image archives plus Docker Compose and Kubernetes manifests.
+- Added 11 commonly used database drivers, bundled with the installation package.
 
 ## Improved
 
@@ -25,7 +23,7 @@
 - Improved the SQL engine architecture with shared cross-database statement splitting, behavior and resource analysis, execution authorization, and auditing; MySQL result masking can now use column lineage to identify source fields.
 - Improved ticket and CI/CD details with progress, counts, logs, and failure reasons for SQL recognition, behavior analysis, security-rule checks, and execution stages.
 - Improved preferences by organizing account security, CI/CD, data query, and approval settings into tabs with typed controls, dirty-state handling, and server-side validation ([#228](https://github.com/ClouGence/open-cdm/issues/228)).
-- Improved MFA login security by replacing the pre-MFA JWT with database-backed one-time challenges, including atomic retry limits across Console nodes, expiry cleanup, and one-time consumption.
+- Improved MFA login security by replacing the pre-MFA JWT with database-backed one-time challenges, including atomic retry limits across Console nodes, expiry cleanup, and one-time consumption ([#232](https://github.com/ClouGence/open-cdm/issues/232)).
 - Improved the SQL workspace datasource tree, empty-result tabs, and column resizing; copying truncated cells now retrieves the complete value, and Monaco SQL diagnostic messages are visible again ([#181](https://github.com/ClouGence/open-cdm/issues/181)).
 - Unified page-tab styling across tickets, security rules, the user center, preferences, and management logs, and refined log-table scrolling, SQL editor typography, and paged large-SQL reading.
 - Improved SQL audit consistency by creating audit records before dispatch and updating their lifecycle through stable query identifiers, including asynchronous execution and Sidecar reporting.
