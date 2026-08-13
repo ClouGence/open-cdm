@@ -17,9 +17,8 @@ package com.clougence.clouddm.console.web.controller.openapi;
 
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -31,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -65,13 +65,15 @@ public class QueryApi {
     private DsQueryEditorService queryEditorService;
     @Resource
     private ConsoleQueryApi      consoleQueryApi;
+    @Resource
+    private ConsoleConfig        consoleConfig;
 
     @McpTool(value = DmMcpI18nKey.M_EXECUTE_QUERY)
     @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/syncQuery", method = RequestMethod.POST)
     public ResWebData<DmApiQueryResultVO> syncQuery(@Valid @RequestBody DmApiDsQueryFO fo, HttpServletRequest request) {
         String requestId = (String) request.getAttribute(OpenApiSessionManager.OPEN_API_REQUEST_ID);
-        log.info("syncQuery for open api request id :" + requestId);
+        log.info("syncQuery for open api, requestId: {}", requestId);
 
         // prepare query
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -97,25 +99,30 @@ public class QueryApi {
         this.consoleQueryApi.offerQueryRequest(queryFO, msg -> applyMessageResult(queryFO, msg, resultData, future));
 
         // wait result
-        int DEFAULT_QUERY_TIMEOUT_SEC = 54;
+        int queryTimeout = this.consoleConfig.getOpenApiQueryTimeout();
         try {
-            DmApiQueryResultVO r = future.get(DEFAULT_QUERY_TIMEOUT_SEC, TimeUnit.SECONDS);
-            return ResWebDataUtils.buildSuccess(r);
+            DmApiQueryResultVO result = future.get(queryTimeout, TimeUnit.SECONDS);
+            return ResWebDataUtils.buildSuccess(requestId, result);
         } catch (TimeoutException e) {
-            return ResWebDataUtils.buildError("Query timeout(" + DEFAULT_QUERY_TIMEOUT_SEC + " sec) in CloudDM");
+            this.closeSession(puid, uid, sessionId, requestId);
+            return ResWebDataUtils.buildError("QUERY_TIMEOUT", "Query timeout(" + queryTimeout + " sec) in CloudDM", requestId);
         } catch (InterruptedException e) {
-            return ResWebDataUtils.buildError("Query interrupted in CloudDM");
+            this.closeSession(puid, uid, sessionId, requestId);
+            Thread.currentThread().interrupt();
+            return ResWebDataUtils.buildError("QUERY_INTERRUPTED", "Query interrupted in CloudDM", requestId);
         } catch (Exception e) {
-            Throwable root = e;
-            if (e instanceof ExecutionException) {
-                root = e.getCause();
-            }
-            String msg = "Error convert data.cause:" + ExceptionUtils.getRootCauseMessage(root);
-            log.error(msg, root);
+            this.closeSession(puid, uid, sessionId, requestId);
+            Throwable root = e instanceof ExecutionException && e.getCause() != null ? e.getCause() : e;
+            log.error("syncQuery failed, requestId: {}", requestId, root);
+            return ResWebDataUtils.buildError("QUERY_FAILED", "Query failed: " + ExceptionUtils.getRootCauseMessage(root), requestId);
+        }
+    }
 
-            StringWriter sw = new StringWriter();
-            root.printStackTrace(new PrintWriter(sw));
-            return ResWebDataUtils.buildError("Query Error in CloudDM, Message:" + sw);
+    private void closeSession(String puid, String uid, String sessionId, String requestId) {
+        try {
+            this.queryEditorService.closeSession(puid, uid, List.of(sessionId));
+        } catch (Exception e) {
+            log.warn("close timed out open api session failed, requestId: {}, sessionId: {}", requestId, sessionId, e);
         }
     }
 

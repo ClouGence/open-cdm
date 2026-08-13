@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import com.clougence.rdp.component.openapi.exception.ClientException;
 import com.clougence.rdp.component.openapi.exception.ServerException;
@@ -61,7 +62,12 @@ public class OpenApiHttpClient {
             Map<String, String> commonParams = genCommonParams();
             String url = genFullUrl(uri, commonParams);
 
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder()//
+                .connectTimeout(openApiTimeout, TimeUnit.SECONDS)//
+                .readTimeout(openApiTimeout, TimeUnit.SECONDS)//
+                .writeTimeout(openApiTimeout, TimeUnit.SECONDS)//
+                .callTimeout(openApiTimeout, TimeUnit.SECONDS)//
+                .build();
             RequestBody body = RequestBody.create(JSON, content);
             Request request = new Request.Builder().url(url).post(body).build();
             response = client.newCall(request).execute();
