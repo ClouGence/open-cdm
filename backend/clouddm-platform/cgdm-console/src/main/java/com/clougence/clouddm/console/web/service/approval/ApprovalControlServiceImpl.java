@@ -261,7 +261,25 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         for (DmApprovalDO tdo : records) {
             RdpTicketBasicVO t;
             if (tdo.getApproBiz() == ApprovalBiz.DM_QUERY || tdo.getApproBiz() == ApprovalBiz.DM_CHANGE) {
-                t = RdpConvertUtils.convertToTicketBasicVO(tdo, ticketDsMap.get(tdo.getBindDsId()).getDataSourceType().getTypeName(), ticketUserMap.get(tdo.getId()));
+                DmDsDO dsDO = ticketDsMap.get(tdo.getBindDsId());
+                if (dsDO == null) {
+                    String resourceName = StringUtils.substringBefore(StringUtils.trimStart(tdo.getTargetInfo(), '/'), "/");
+                    if (StringUtils.isBlank(resourceName)) {
+                        resourceName = String.valueOf(tdo.getBindDsId());
+                    }
+                    t = RdpConvertUtils.convertToTicketBasicVO(tdo, "DataBase", ticketUserMap.get(tdo.getId()));
+                    t.setResourceName(resourceName);
+                    t.setResourceDesc(resourceName);
+                    vos.add(t);
+                    continue;
+                }
+                t = RdpConvertUtils.convertToTicketBasicVO(tdo, dsDO.getDataSourceType().getTypeName(), ticketUserMap.get(tdo.getId()));
+                t.setResourceName(dsDO.getInstanceId());
+                if (StringUtils.isBlank(dsDO.getInstanceDesc())) {
+                    t.setResourceDesc(dsDO.getInstanceId());
+                } else {
+                    t.setResourceDesc(dsDO.getInstanceDesc());
+                }
             } else {
                 t = RdpConvertUtils.convertToTicketBasicVO(tdo, tdo.getApproBiz().name(), ticketUserMap.get(tdo.getId()));
             }
@@ -301,13 +319,26 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtCreate()));
         vo.setGmtModified(DateFormatType.s_yyyyMMdd_HHmmss.format(approvalDO.getGmtModified()));
         vo.setDataSourceId(approvalDO.getBindDsId());
+        vo.setTargetInfo(approvalDO.getTargetInfo());
         if (approvalDO.getBindDsId() != null) {
             DmDsDO dsDO = this.datasourceDal.dsMapper().queryDsIdentityById(approvalDO.getBindDsId());
             if (dsDO != null) {
                 vo.setDataSourceType(dsDO.getDataSourceType());
+                vo.setDataSourceInstName(dsDO.getInstanceId());
+                if (StringUtils.isBlank(dsDO.getInstanceDesc())) {
+                    vo.setDataSourceDesc(dsDO.getInstanceId());
+                } else {
+                    vo.setDataSourceDesc(dsDO.getInstanceDesc());
+                }
+            } else {
+                String dataSourceInstName = StringUtils.substringBefore(StringUtils.trimStart(approvalDO.getTargetInfo(), '/'), "/");
+                if (StringUtils.isBlank(dataSourceInstName)) {
+                    dataSourceInstName = String.valueOf(approvalDO.getBindDsId());
+                }
+                vo.setDataSourceInstName(dataSourceInstName);
+                vo.setDataSourceDesc(dataSourceInstName);
             }
         }
-        vo.setTargetInfo(approvalDO.getTargetInfo());
         vo.setApproType(approvalDO.getApproType());
         vo.setApproBiz(approvalDO.getApproBiz());
         vo.setApproIdentity(approvalDO.getApproIdentity());
@@ -645,7 +676,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         Map<Long, String> resInstIdMap = new HashMap<>();
         Map<Long, String> resDescMap = new HashMap<>();
         Map<Long, DataSourceType> dataSourceTypeMap = new HashMap<>();
-        List<DmDsDO> dss = datasourceDal.dsMapper().listByIds(new ArrayList<>(dsIds));
+        List<DmDsDO> dss = datasourceDal.dsMapper().listByIdsIncludeDeleted(dsIds);
         for (DmDsDO ds : dss) {
             resInstIdMap.put(ds.getId(), ds.getInstanceId());
             dataSourceTypeMap.put(ds.getId(), ds.getDataSourceType());
@@ -663,6 +694,10 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 applyAuth.setResInstId(resInstIdMap.get(resId));
                 applyAuth.setResDesc(resDescMap.get(resId));
                 applyAuth.setDataSourceType(dataSourceTypeMap.get(resId));
+            } else {
+                String resourceId = String.valueOf(resId);
+                applyAuth.setResInstId(resourceId);
+                applyAuth.setResDesc(resourceId);
             }
         }
 

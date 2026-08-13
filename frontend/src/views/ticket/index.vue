@@ -47,6 +47,18 @@
                   <CustomIcon type="icon-v2-TicketAuth" />
                   {{ row.targetInfo }}
                 </span>
+                <div v-else-if="['DM_QUERY', 'DM_CHANGE'].includes(row.approBiz)" class="ticket-resource">
+                  <DataSourceIcon
+                    class="ticket-resource__icon"
+                    size="24px"
+                    :type="row.resourceType || 'DataBase'"
+                    :instanceType="row.deployEnvType"
+                    leftMargin="0"
+                  />
+                  <div class="ticket-resource__name" :title="row.resourceDesc || row.resourceName || '-'">
+                    {{ row.resourceDesc || row.resourceName || '-' }}
+                  </div>
+                </div>
                 <span v-else>
                   <CustomIcon :type="`icon-v2-${row.resourceType}`" :instanceType="row.deployEnvType"></CustomIcon>
                   {{ row.targetInfo }}
@@ -112,10 +124,11 @@ import { TICKET_STATUS, TICKET_STATUS_COLOR } from '@/const';
 import { APPROV_BIZ_MAP } from './constant';
 import AppPageTabs from '@/components/layout/AppPageTabs';
 import CustomIcon from '@/components/function/CustomIcon.vue';
+import DataSourceIcon from '@/components/function/DataSourceIcon';
 
 export default {
   name: 'Ticket',
-  components: { AppPageTabs, CustomIcon },
+  components: { AppPageTabs, CustomIcon, DataSourceIcon },
   data() {
     return {
       showTicketCreateModal: false,
@@ -299,5 +312,32 @@ export default {
   height: 100%;
   min-height: 0;
   overflow: hidden;
+}
+
+.ticket-resource {
+  display: flex;
+  min-width: 0;
+  min-height: 32px;
+  align-items: center;
+  gap: 8px;
+}
+
+.ticket-resource__icon {
+  display: inline-flex;
+  width: 28px;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+}
+
+.ticket-resource__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
 }
 </style>

@@ -66,14 +66,20 @@
               <Tooltip transfer :content="ticketDetail.targetInfo">
                 <span class="ticket-meta-item__value ticket-meta-item__database">
                   <DataSourceIcon
-                    v-if="ticketDetail.dataSourceType"
                     class="ticket-meta-item__database-icon"
-                    :type="ticketDetail.dataSourceType"
+                    :type="ticketDetail.dataSourceType || 'DataBase'"
                     :instanceType="ticketDetail.dsDeployType"
                     size="24px"
                     leftMargin="0"
                   />
-                  <span>{{ ticketDetail.targetInfo || '-' }}</span>
+                  <span class="ticket-meta-item__database-info">
+                    <span class="ticket-meta-item__database-name">
+                      {{ ticketDetail.dataSourceDesc || ticketDetail.dataSourceInstName || '-' }}
+                    </span>
+                    <span class="ticket-meta-item__database-path">
+                      {{ formatResourcePath(ticketDetail.targetInfo) }}
+                    </span>
+                  </span>
                 </span>
               </Tooltip>
             </div>
@@ -501,8 +507,11 @@
               <div class="ticket-auth-record__field">
                 <span>{{ $t('shu-ju-yuan-shi-li') }}</span>
                 <strong class="ticket-auth-record__datasource">
-                  <DataSourceIcon v-if="authItem.dataSourceType" :type="authItem.dataSourceType" size="22px" leftMargin="0" />
-                  <span>{{ authItem.resInstId }}</span>
+                  <DataSourceIcon :type="authItem.dataSourceType || 'DataBase'" size="22px" leftMargin="0" />
+                  <span class="ticket-auth-record__datasource-info">
+                    <span class="ticket-auth-record__datasource-name">{{ authItem.resDesc }}</span>
+                    <span class="ticket-auth-record__datasource-id">{{ authItem.resInstId }}</span>
+                  </span>
                 </strong>
               </div>
               <div class="ticket-auth-record__field">
@@ -1084,7 +1093,8 @@ export default {
         }
         return {
           resId: authItem.resId,
-          resInstId: authItem.resInstId,
+          resInstId: authItem.resInstId || String(authItem.resId),
+          resDesc: authItem.resDesc || authItem.resInstId || String(authItem.resId),
           dataSourceType: authItem.dataSourceType,
           resPaths: `/${authItem.resPaths.join(' / ')}`,
           authLabels: authItem.authLabels,
@@ -1163,6 +1173,12 @@ export default {
   methods: {
     isCk,
     isMongoDB,
+    formatResourcePath(targetInfo) {
+      if (!targetInfo) {
+        return '-';
+      }
+      return targetInfo.replace(/^\/+/, '');
+    },
     selectTicketStep(step) {
       this.ticketStepManuallySelected = true;
       this.selectedStepKey = step.key;
@@ -2563,6 +2579,33 @@ export default {
   align-items: center;
 }
 
+.ticket-auth-record__datasource-info {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.ticket-auth-record__datasource-name,
+.ticket-auth-record__datasource-id {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-auth-record__datasource-name {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.ticket-auth-record__datasource-id {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
 .ticket-auth-record__permissions {
   display: grid;
   grid-template-columns: 112px minmax(0, 1fr);
@@ -2854,11 +2897,31 @@ export default {
   line-height: 1;
 }
 
-.ticket-meta-item__database > span:last-child {
+.ticket-meta-item__database-info {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.ticket-meta-item__database-name,
+.ticket-meta-item__database-path {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ticket-meta-item__database-name {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.ticket-meta-item__database-path {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 18px;
 }
 
 .ticket-meta-item--target-database :deep(.ivu-tooltip-rel) {
