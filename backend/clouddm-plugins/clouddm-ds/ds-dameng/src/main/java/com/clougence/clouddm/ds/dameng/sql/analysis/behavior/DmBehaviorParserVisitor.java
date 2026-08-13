@@ -3001,8 +3001,11 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitExplainStatement(DmSqlParser.ExplainStatementContext ctx) {
-        behavior.setStatementType(SplitQueryType.PERFORMANCE);
-        return visitChildren(ctx);
+        for (BehaviorObject table : tableSources(ctx)) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, table);
+        }
+        addFunctionCalls(ctx);
+        return null;
     }
 
     @Override

@@ -34,16 +34,12 @@ import com.clougence.sql.sqlserver.parser.MsSqlSplitAnalysisSpi;
 public class MsSqlSqlEngineSpi implements SqlEngineSpi {
     public static final String        NAME = "MS T-SQL";
 
-    private final SplitAnalysisSpi    splitAnalysisSpi;
     private final SecDomainResolveSpi secDomainResolveSpi;
-    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
     private final LineageAnalysisSpi  lineageAnalysisSpi;
     private final RewriteSpi          rewriteSpi;
 
     public MsSqlSqlEngineSpi(MetaService metaService){
-        this.splitAnalysisSpi = new MsSqlSplitAnalysisSpi();
         this.secDomainResolveSpi = new MsSqlSecDomainResolveSpi();
-        this.behaviorAnalysisSpi = new MsBehaviorAnalysisSpi();
         this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new MsSqlRewriteSpi();
     }
@@ -60,7 +56,8 @@ public class MsSqlSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        return splitAnalysisSpi;
+        SqlParserParameters safeParameters = SqlParserParameters.nullToEmpty(parameters);
+        return new MsSqlSplitAnalysisSpi(Boolean.parseBoolean(safeParameters.get(SqlParserParameters.SHOW_PLAN)));
     }
 
     @Override
@@ -70,7 +67,8 @@ public class MsSqlSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return behaviorAnalysisSpi;
+        SqlParserParameters safeParameters = SqlParserParameters.nullToEmpty(parameters);
+        return new MsBehaviorAnalysisSpi(Boolean.parseBoolean(safeParameters.get(SqlParserParameters.SHOW_PLAN)));
     }
 
     @Override

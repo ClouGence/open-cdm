@@ -153,6 +153,9 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitQueryStatement(QueryStatementContext ctx) {
+        if (ctx.explainDesc() != null) {
+            return explainType(ctx.explainDesc());
+        }
         return SplitQueryType.SELECT;
     }
 
@@ -163,11 +166,17 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitInsertStatement(InsertStatementContext ctx) {
+        if (ctx.explainDesc() != null) {
+            return explainType(ctx.explainDesc());
+        }
         return ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
     }
 
     @Override
     public SplitQueryType visitDeleteStatement(DeleteStatementContext ctx) {
+        if (ctx.explainDesc() != null) {
+            return explainType(ctx.explainDesc());
+        }
         return SplitQueryType.DELETE;
     }
 
@@ -283,7 +292,17 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitUpdateStatement(UpdateStatementContext ctx) {
+        if (ctx.explainDesc() != null) {
+            return explainType(ctx.explainDesc());
+        }
         return SplitQueryType.UPDATE;
+    }
+
+    private static SplitQueryType explainType(ExplainDescContext ctx) {
+        if (ctx.ANALYZE() != null) {
+            return SplitQueryType.UNSAFE;
+        }
+        return SplitQueryType.SELECT;
     }
 
     @Override

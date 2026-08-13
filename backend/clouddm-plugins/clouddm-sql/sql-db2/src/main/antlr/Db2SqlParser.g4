@@ -1839,6 +1839,9 @@ integer_constant
 
 integer_value
     : DECIMAL_LITERAL
+    | SINGLE_DIGIT
+    | L_ZERO
+    | L_ONE
     ;
 
 positive_integer
@@ -2151,7 +2154,11 @@ explain_statement
     ;
 
 explainable_sql_statement
-    : todo
+    : select_statement
+    | insert_statement
+    | update_statement
+    | delete_statement
+    | merge_statement
     ;
 
 fetch_statement

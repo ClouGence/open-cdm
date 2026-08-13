@@ -66,6 +66,14 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitExplain_statement(Explain_statementContext ctx) {
+        for (BehaviorObject table : sourceTables(ctx, Set.of())) {
+            addUnary(SplitQueryType.SELECT, BehaviorAction.READ, table);
+        }
+        return null;
+    }
+
+    @Override
     public Void visitDml_table_expression_clause(Dml_table_expression_clauseContext ctx) {
         if (ctx.tableview_name() != null) {
             addUnary(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableview_name()));

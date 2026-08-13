@@ -95,6 +95,15 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
+        if (ctx.analyze != null) {
+            add(SplitQueryType.UNSAFE, BehaviorAction.UNSAFE, objects.instanceObject(TargetType.Instance, ctx.getStart()), List.of());
+            return null;
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
     public Void visitTableName(TableNameContext ctx) {
         add(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx), List.of());
         return null;

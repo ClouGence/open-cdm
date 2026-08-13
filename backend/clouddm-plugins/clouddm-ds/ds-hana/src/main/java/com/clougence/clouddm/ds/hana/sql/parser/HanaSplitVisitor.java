@@ -6,18 +6,13 @@
  */
 package com.clougence.clouddm.ds.hana.sql.parser;
 
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.sql.iso.sql2003.parser.antlr.Sql2003ParserBaseVisitor;
+import com.clougence.sql.iso.sql2003.parser.Sql2003SplitVisitor;
 
-final class HanaSplitVisitor extends Sql2003ParserBaseVisitor<SplitQueryType> {
+final class HanaSplitVisitor extends Sql2003SplitVisitor {
 
     static final HanaSplitVisitor INSTANCE = new HanaSplitVisitor();
 
     private HanaSplitVisitor(){
     }
 
-    @Override
-    protected SplitQueryType defaultResult() {
-        return SplitQueryType.UNKNOWN;
-    }
 }

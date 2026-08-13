@@ -21,13 +21,13 @@ final class MyBehaviorStatementTypeResolver {
 
     static SplitQueryType resolve(String sql, List<MySqlObjectReference> references) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        if (normalized.startsWith("EXPLAIN ANALYZE ")) {
-            int optionsStart = indexAfterPrefix(sql, "EXPLAIN ANALYZE");
-            int statementStart = MyBehaviorText.findWord(sql, optionsStart, "SELECT", "WITH", "UPDATE", "DELETE", "INSERT", "REPLACE");
-            return statementStart >= 0 ? resolve(sql.substring(statementStart), references) : SplitQueryType.PERFORMANCE;
-        }
         if (normalized.startsWith("EXPLAIN")) {
-            return SplitQueryType.PERFORMANCE;
+            int statementStart = MyBehaviorText.findWord(sql, 0, "SELECT", "WITH", "UPDATE", "DELETE", "INSERT", "REPLACE");
+            int analyzeStart = MyBehaviorText.findWord(sql, 0, "ANALYZE");
+            if (analyzeStart >= 0 && (statementStart < 0 || analyzeStart < statementStart)) {
+                return SplitQueryType.UNSAFE;
+            }
+            return SplitQueryType.SELECT;
         }
         if (normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE ")) {
             return SplitQueryType.METADATA;
@@ -268,12 +268,6 @@ final class MyBehaviorStatementTypeResolver {
             return SplitQueryType.PERFORMANCE;
         }
         return SplitQueryType.METADATA;
-    }
-
-    private static int indexAfterPrefix(String sql, String prefix) {
-        String upper = sql.toUpperCase(Locale.ROOT);
-        int start = upper.indexOf(prefix);
-        return start < 0 ? 0 : start + prefix.length();
     }
 
     private static int findWithWrite(String sql) {

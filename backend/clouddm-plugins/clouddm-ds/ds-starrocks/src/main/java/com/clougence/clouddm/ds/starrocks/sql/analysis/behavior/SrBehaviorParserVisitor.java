@@ -28,13 +28,15 @@ final class SrBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     private final Map<UmiTypes, Object>   levels;
     private final int                     baseLine;
     private final int                     baseColumn;
+    private final SplitQueryType          statementType;
     private final List<StatementBehavior> behaviors = new ArrayList<>();
 
-    SrBehaviorParserVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    SrBehaviorParserVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, SplitQueryType statementType){
         this.parser = parser;
         this.levels = levels;
         this.baseLine = baseLine;
         this.baseColumn = baseColumn;
+        this.statementType = statementType;
     }
 
     List<StatementBehavior> behaviors() {
@@ -43,7 +45,7 @@ final class SrBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     @Override
     public Void visit(ParseTree tree) {
-        SrStatementBehaviorVisitor visitor = new SrStatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
+        SrStatementBehaviorVisitor visitor = new SrStatementBehaviorVisitor(parser, levels, baseLine, baseColumn, statementType);
         visitor.visit(tree);
         behaviors.add(visitor.behavior());
         return null;
@@ -54,15 +56,26 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
     private final StatementBehavior        behavior = new StatementBehavior();
+    private final SplitQueryType           statementType;
 
-    SrStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    SrStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, SplitQueryType statementType){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
+        this.statementType = statementType;
         behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    @Override
+    public Void visitQueryStatement(QueryStatementContext ctx) {
+        if (statementType == SplitQueryType.UNSAFE || isExplainAnalyze(ctx.explainDesc())) {
+            addUnsafe(ctx);
+            return null;
+        }
+        return visitChildren(ctx);
     }
 
     @Override
@@ -178,6 +191,14 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitInsertStatement(InsertStatementContext ctx) {
+        if (statementType == SplitQueryType.UNSAFE || isExplainAnalyze(ctx.explainDesc())) {
+            addUnsafe(ctx);
+            return null;
+        }
+        if (statementType == SplitQueryType.SELECT || ctx.explainDesc() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
+            return null;
+        }
         SplitQueryType type = ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
         add(type, type == SplitQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
         return null;
@@ -185,18 +206,42 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitUpdateStatement(UpdateStatementContext ctx) {
+        if (statementType == SplitQueryType.UNSAFE || isExplainAnalyze(ctx.explainDesc())) {
+            addUnsafe(ctx);
+            return null;
+        }
         List<BehaviorObject> sources = tableSources(ctx.fromClause());
         addTableSources(sources, ctx.expression());
+        if (statementType == SplitQueryType.SELECT || ctx.explainDesc() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.qualifiedName()), sources);
+            return null;
+        }
         add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.qualifiedName()), sources);
         return null;
     }
 
     @Override
     public Void visitDeleteStatement(DeleteStatementContext ctx) {
+        if (statementType == SplitQueryType.UNSAFE || isExplainAnalyze(ctx.explainDesc())) {
+            addUnsafe(ctx);
+            return null;
+        }
         List<BehaviorObject> sources = tableSources(ctx.relations());
         addTableSources(sources, ctx.expression());
+        if (statementType == SplitQueryType.SELECT || ctx.explainDesc() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.qualifiedName()), sources);
+            return null;
+        }
         add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.qualifiedName()), sources);
         return null;
+    }
+
+    private boolean isExplainAnalyze(ExplainDescContext ctx) {
+        return ctx != null && ctx.ANALYZE() != null;
+    }
+
+    private void addUnsafe(ParserRuleContext ctx) {
+        add(SplitQueryType.UNSAFE, BehaviorAction.UNSAFE, objects.instanceObject(TargetType.Instance, ctx.getStart()));
     }
 
     private List<BehaviorObject> tableSources(ParseTree tree) {

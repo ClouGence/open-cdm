@@ -447,6 +447,9 @@ LEFT_PAREN  : '(';
 RIGHT_PAREN : ')';
 COMMA       : ',';
 DOT         : '.';
+EXPLAIN     : 'EXPLAIN';
+PLAN        : 'PLAN';
+STATEMENT_NAME : 'STATEMENT_NAME';
 
 IDENTIFIER
     : [a-zA-Z_] [a-zA-Z0-9_]*

@@ -34,6 +34,16 @@ import com.clougence.sql.sqlserver.parser.antlr.SqlServerParser;
 
 public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
+    private final boolean showPlan;
+
+    public MsSqlSplitAnalysisSpi(){
+        this(false);
+    }
+
+    public MsSqlSplitAnalysisSpi(boolean showPlan){
+        this.showPlan = showPlan;
+    }
+
     protected DslProvider dslProvider() {
         return MsSqlDslProvider.INSTANCE;
     }
@@ -44,6 +54,9 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        if (this.showPlan) {
+            return Set.of(SplitQueryType.SELECT);
+        }
         if (findContext(context, SqlServerParser.Create_viewContext.class) != null || findContext(context, SqlServerParser.Create_or_alter_triggerContext.class) != null
             || findContext(context, SqlServerParser.Create_or_alter_procedureContext.class) != null
             || findContext(context, SqlServerParser.Create_or_alter_functionContext.class) != null) {

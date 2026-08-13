@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -64,8 +65,25 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        ParserRuleContext explainContext = findContext(context, PgSqlParser.ExplainstmtContext.class);
+        if (explainContext instanceof PgSqlParser.ExplainstmtContext explain) {
+            return Set.of(normalizeType(explain.accept(splitVisitor())));
+        }
         Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(context);
         return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
+    }
+
+    private static ParserRuleContext findContext(ParseTree tree, Class<? extends ParserRuleContext> contextType) {
+        if (contextType.isInstance(tree)) {
+            return contextType.cast(tree);
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            ParserRuleContext context = findContext(tree.getChild(i), contextType);
+            if (context != null) {
+                return context;
+            }
+        }
+        return null;
     }
 
     @Override

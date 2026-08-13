@@ -40,7 +40,7 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
     public HanaSqlEngineSpi(){
         this.splitAnalysisSpi = new HanaSplitAnalysisSpi();
         this.secDomainResolveSpi = null;
-        this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi(splitAnalysisSpi);
+        this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi();
         this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new HanaRewriteSpi();
     }

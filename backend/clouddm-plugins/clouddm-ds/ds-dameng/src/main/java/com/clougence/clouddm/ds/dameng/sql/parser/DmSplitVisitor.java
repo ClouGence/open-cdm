@@ -393,7 +393,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitExplainStatement(DmSqlParser.ExplainStatementContext ctx) {
-        return SplitQueryType.PERFORMANCE;
+        return SplitQueryType.SELECT;
     }
 
     @Override

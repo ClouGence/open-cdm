@@ -55,6 +55,7 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
     private final StatementBehavior        behavior = new StatementBehavior();
+    private boolean                        explain;
 
     Db2StatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
@@ -155,8 +156,18 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitExplain_statement(Db2SqlParser.Explain_statementContext ctx) {
+        explain = true;
+        return visitChildren(ctx);
+    }
+
+    @Override
     public Void visitInsert_statement(Db2SqlParser.Insert_statementContext ctx) {
         ParserRuleContext target = ctx.table_or_view_name() == null ? ctx.nick_name() : ctx.table_or_view_name();
+        if (explain) {
+            addRelation(SplitQueryType.SELECT, BehaviorAction.READ, table(target), sources(ctx));
+            return null;
+        }
         addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, table(target), sources(ctx));
         return null;
     }
@@ -166,6 +177,10 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
         Db2SqlParser.Update_statement_searched_updateContext searched = ctx.update_statement_searched_update();
         if (searched != null) {
             ParserRuleContext target = searched.table_or_view_name() == null ? searched.nick_name() : searched.table_or_view_name();
+            if (explain) {
+                addRelation(SplitQueryType.SELECT, BehaviorAction.READ, table(target), sources(searched.where_clause()));
+                return null;
+            }
             addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table(target), sources(searched.where_clause()));
         }
         return null;
@@ -176,6 +191,10 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
         Db2SqlParser.Delete_statement_searched_deleteContext searched = ctx.delete_statement_searched_delete();
         if (searched != null) {
             ParserRuleContext target = searched.table_or_view_name() == null ? searched.nick_name() : searched.table_or_view_name();
+            if (explain) {
+                addRelation(SplitQueryType.SELECT, BehaviorAction.READ, table(target), sources(searched.where_clause()));
+                return null;
+            }
             addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, table(target), sources(searched.where_clause()));
         }
         return null;

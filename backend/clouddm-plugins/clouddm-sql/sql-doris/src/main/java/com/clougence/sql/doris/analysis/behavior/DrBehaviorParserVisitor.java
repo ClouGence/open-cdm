@@ -72,6 +72,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitInsertTable(InsertTableContext ctx) {
+        if (ctx.explain() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), tableSources(ctx.query()));
+            return null;
+        }
         SplitQueryType type = ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
         add(type, type == SplitQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.tableName), tableSources(ctx.query()));
         return null;
@@ -81,6 +85,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitUpdate(UpdateContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx.fromClause());
         addTableSources(sources, ctx.whereClause());
+        if (ctx.explain() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), sources);
+            return null;
+        }
         add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.tableName), sources);
         return null;
     }
@@ -89,6 +97,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitDelete(DeleteContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx.relations());
         addTableSources(sources, ctx.whereClause());
+        if (ctx.explain() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), sources);
+            return null;
+        }
         add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.tableName), sources);
         return null;
     }

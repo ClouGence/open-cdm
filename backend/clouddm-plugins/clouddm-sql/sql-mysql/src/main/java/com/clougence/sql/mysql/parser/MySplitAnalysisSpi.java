@@ -49,6 +49,14 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        ParserRuleContext describe = findContext(context, MySqlParser.FullDescribeStatementContext.class);
+        if (describe instanceof MySqlParser.FullDescribeStatementContext fullDescribe) {
+            return Set.of(normalizeType(fullDescribe.accept(splitVisitor())));
+        }
+        describe = findContext(context, MySqlParser.SimpleDescribeStatementContext.class);
+        if (describe instanceof MySqlParser.SimpleDescribeStatementContext simpleDescribe && simpleDescribe.command.getType() == MySqlParser.EXPLAIN) {
+            return Set.of(SplitQueryType.SELECT);
+        }
         Set<SplitQueryType> types = new MySplitVisitor(this.provider.version()).collectTypes(context);
         return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
     }
