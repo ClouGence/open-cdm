@@ -37,7 +37,7 @@
                 :placeholder="$t('an-shu-ju-yuan-shai-xuan')"
               >
                 <Option v-for="ds in dsList" :key="ds.objId" :value="Number(ds.objId)">
-                  {{ ds.objAttr && ds.objAttr.dsInstance ? ds.objAttr.dsInstance : ds.objName }}
+                  {{ ds.objName }}
                 </Option>
               </Select>
               <Input
