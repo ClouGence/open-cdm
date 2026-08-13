@@ -4556,5 +4556,20 @@
   "cicd-create-orchestration-description": "Create a root release flow and all downstream release flows together.",
   "fa-bu-mu-biao": "Release target",
   "qing-xuan-ze-fu-ze-ren": "Select an owner",
-  "qing-kong-xuan-ze": "Clear selection"
+  "qing-kong-xuan-ze": "Clear selection",
+  "result-search-open": "Find in results",
+  "result-search-placeholder": "Search result data",
+  "result-search-enter-keyword": "Enter a keyword",
+  "result-search-no-match": "No matches",
+  "result-search-previous": "Previous match",
+  "result-search-next": "Next match",
+  "result-search-loaded-pages-only": "Loaded pages",
+  "result-search-visible-rows-only": "Visible rows",
+  "result-column-picker-open": "Choose columns to show first",
+  "result-column-picker-label": "Priority columns",
+  "result-column-picker-none": "None selected",
+  "result-column-picker-more": "+{0}",
+  "result-column-picker-search": "Search columns",
+  "result-column-picker-clear": "Clear all",
+  "result-column-picker-empty": "No matching columns"
 }

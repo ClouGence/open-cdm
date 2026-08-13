@@ -99,7 +99,9 @@
       </div>
       <div
         v-if="!['message', 'async'].includes(tab.result.active) && selectedTab.resultId"
+        ref="resultContentWrapper"
         class="result-content-wrapper"
+        tabindex="-1"
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
         <div class="tip-footer">
@@ -181,6 +183,110 @@
             </div>
           </div>
         </div>
+        <div class="result-tools-bar">
+          <a-dropdown
+            v-model:open="resultColumnPickerOpen"
+            :trigger="['click']"
+            placement="bottomLeft"
+            :disabled="!resultColumnOptions.length"
+            @openChange="handleResultColumnPickerOpenChange"
+          >
+            <button type="button" class="result-column-picker-trigger" :aria-label="$t('result-column-picker-open')">
+              <span class="result-column-picker-label">{{ $t('result-column-picker-label') }}</span>
+              <span v-if="!selectedResultColumnOptions.length" class="result-column-picker-empty-selection">
+                {{ $t('result-column-picker-none') }}
+              </span>
+              <span
+                v-for="(option, index) in selectedResultColumnOptions.slice(0, 2)"
+                :key="option.value"
+                class="result-column-picker-chip"
+                :title="`${index + 1}. ${option.label}`"
+              >
+                <span class="result-column-picker-order">{{ index + 1 }}</span>
+                <span class="result-column-picker-chip-label">{{ option.label }}</span>
+              </span>
+              <span v-if="selectedResultColumnOptions.length > 2" class="result-column-picker-more">
+                {{ $t('result-column-picker-more', [selectedResultColumnOptions.length - 2]) }}
+              </span>
+              <DownOutlined />
+            </button>
+            <template #overlay>
+              <div class="result-column-picker" @click.stop @mousedown.stop>
+                <a-input
+                  v-model:value="resultColumnSearch"
+                  size="small"
+                  allow-clear
+                  :placeholder="$t('result-column-picker-search')"
+                  @keydown.esc.prevent="resultColumnPickerOpen = false"
+                >
+                  <template #prefix><SearchOutlined /></template>
+                </a-input>
+                <div class="result-column-picker-actions">
+                  <button type="button" :disabled="resultColumnSelection.length === resultColumnOptions.length" @click="selectAllResultColumns">
+                    {{ $t('quan-xuan') }}
+                  </button>
+                  <button type="button" :disabled="!resultColumnSelection.length" @click="clearResultColumnSelection">
+                    {{ $t('result-column-picker-clear') }}
+                  </button>
+                </div>
+                <div class="result-column-picker-list">
+                  <div v-for="option in filteredResultColumnOptions" :key="option.value" class="result-column-picker-option">
+                    <a-checkbox
+                      :checked="resultColumnSelection.includes(option.value)"
+                      @change="toggleResultColumn(option.value, $event.target.checked)"
+                    >
+                      <span class="result-column-picker-option-label" :title="option.label">{{ option.label }}</span>
+                      <span v-if="resultColumnSelection.includes(option.value)" class="result-column-picker-option-order">
+                        {{ resultColumnSelection.indexOf(option.value) + 1 }}
+                      </span>
+                    </a-checkbox>
+                  </div>
+                  <div v-if="!filteredResultColumnOptions.length" class="result-column-picker-empty">
+                    {{ $t('result-column-picker-empty') }}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </a-dropdown>
+          <div class="result-find-bar" role="search" :aria-label="$t('result-search-open')">
+            <a-input
+              v-model:value="resultSearchKeyword"
+              class="result-find-input"
+              size="small"
+              allow-clear
+              :placeholder="$t('result-search-placeholder')"
+              @keydown.enter.prevent="handleResultSearchEnter"
+              @keydown.esc.prevent="clearResultSearch"
+            >
+              <template #prefix><SearchOutlined /></template>
+              <template #suffix>
+                <kbd class="result-find-shortcut">{{ resultSearchShortcutLabel }}</kbd>
+              </template>
+            </a-input>
+            <span class="result-find-count" aria-live="polite">{{ resultSearchPositionText }}</span>
+            <span v-if="resultSearchScopeText" class="result-find-scope">{{ resultSearchScopeText }}</span>
+            <a-button
+              class="result-find-action"
+              type="text"
+              size="small"
+              :disabled="!resultSearchState.matches?.length"
+              :aria-label="$t('result-search-previous')"
+              @click="moveResultSearch(-1)"
+            >
+              <UpOutlined />
+            </a-button>
+            <a-button
+              class="result-find-action"
+              type="text"
+              size="small"
+              :disabled="!resultSearchState.matches?.length"
+              :aria-label="$t('result-search-next')"
+              @click="moveResultSearch(1)"
+            >
+              <DownOutlined />
+            </a-button>
+          </div>
+        </div>
         <div class="result-table-container" v-if="selectedTab">
           <a-table
             class="result-set-style"
@@ -205,7 +311,12 @@
             </template>
             <template #bodyCell="{ column, record, index }">
               <template v-if="column.dataIndex !== 'seq'">
-                <div class="vxe-input-tpl" @dblclick.stop="handleCellDetail(record, column, index)">
+                <div
+                  class="vxe-input-tpl"
+                  :class="getResultCellSearchClass(column, index)"
+                  :data-result-search-key="getResultSearchCellKey(selectedTab.page || 1, index, column.searchColumnIndex)"
+                  @dblclick.stop="handleCellDetail(record, column, index)"
+                >
                   <span v-if="record[column.dataIndex] === null" style="color: #ccc; font-style: italic">NULL</span>
                   <pre v-else style="overflow: hidden; margin: 0">{{ record[column.dataIndex] }}</pre>
                   <div v-if="!getCellComplete(column, index)" class="cell-incomplete-badge"></div>
@@ -418,6 +529,9 @@ import CustomIcon from '@/components/function/CustomIcon.vue';
 import ExecutionSqlText from '@/views/sql/components/ExecutionSqlText.vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import XEClipboard from 'xe-clipboard';
+import { DownOutlined, SearchOutlined, UpOutlined } from '@ant-design/icons-vue';
+
+const RESULT_SEARCH_MATCH_LIMIT = 20000;
 
 export default {
   name: 'Result',
@@ -427,7 +541,10 @@ export default {
   },
   components: {
     CustomIcon,
-    ExecutionSqlText
+    DownOutlined,
+    ExecutionSqlText,
+    SearchOutlined,
+    UpOutlined
     // AsyncJobDetail,
     // AsyncJobList
   },
@@ -438,6 +555,12 @@ export default {
       actionType: '',
       currentTableName: '',
       columnsList: [],
+      resultColumnStates: {},
+      resultColumnSearch: '',
+      resultColumnPickerOpen: false,
+      resultSearchStates: {},
+      resultSearchScopeActive: false,
+      resultSearchTimer: null,
       searchText: '',
       sqls: [],
       showInsertSqlModal: false,
@@ -538,13 +661,96 @@ export default {
         fetchCount: this.selectedTab.fetchCount
       };
     },
+    resultColumnOptions() {
+      return (this.selectedTab?.columnListSeq || [])
+        .map((column, index) => ({
+          label: column.title || column.field,
+          value: index,
+          column
+        }))
+        .filter((option) => option.column.type !== 'seq' && option.column.field);
+    },
+    filteredResultColumnOptions() {
+      const keyword = this.resultColumnSearch.trim().toLocaleLowerCase();
+      if (!keyword) {
+        return this.resultColumnOptions;
+      }
+      return this.resultColumnOptions.filter((option) => option.label.toLocaleLowerCase().includes(keyword));
+    },
+    resultColumnSelection: {
+      get() {
+        const resultId = this.selectedTab?.resultId;
+        const selection = this.resultColumnStates[resultId];
+        if (!selection) {
+          return [];
+        }
+        const validValues = new Set(this.resultColumnOptions.map((option) => option.value));
+        return selection.filter((value) => validValues.has(value));
+      },
+      set(values) {
+        this.setResultColumnSelection(values);
+      }
+    },
+    selectedResultColumnOptions() {
+      const options = new Map(this.resultColumnOptions.map((option) => [option.value, option]));
+      return this.resultColumnSelection.map((value) => options.get(value)).filter(Boolean);
+    },
+    resultSearchState() {
+      return this.resultSearchStates[this.selectedTab?.resultId] || {};
+    },
+    resultSearchKeyword: {
+      get() {
+        return this.resultSearchState.keyword || '';
+      },
+      set(value) {
+        const state = this.ensureResultSearchState();
+        if (!state) {
+          return;
+        }
+        state.keyword = value;
+        state.currentIndex = -1;
+        this.scheduleResultSearch();
+      }
+    },
+    resultSearchShortcutLabel() {
+      const platform = typeof navigator === 'undefined' ? '' : navigator.userAgentData?.platform || navigator.platform || '';
+      return /Mac|iPhone|iPad|iPod/i.test(platform) ? '⌘F' : 'Ctrl F';
+    },
+    resultSearchPositionText() {
+      if (!this.resultSearchState.keyword) {
+        return this.$t('result-search-enter-keyword');
+      }
+      if (!this.resultSearchState.matches?.length) {
+        return this.$t('result-search-no-match');
+      }
+      return `${this.resultSearchState.currentIndex + 1}/${this.resultSearchState.matches.length}${this.resultSearchState.truncated ? '+' : ''}`;
+    },
+    resultSearchScopeText() {
+      if (this.selectedTab?.receiveMode === 'PAGINATED') {
+        return this.$t('result-search-loaded-pages-only');
+      }
+      if (this.selectedTab?.receiveMode === 'STREAM') {
+        return this.$t('result-search-visible-rows-only');
+      }
+      return '';
+    },
     antdColumns() {
       if (!this.selectedTab || !this.selectedTab.columnListSeq) {
         return [];
       }
-      return this.selectedTab.columnListSeq.map((col, index) => {
+      const columns = this.selectedTab.columnListSeq.map((col, index) => ({ col, index }));
+      const columnsByIndex = new Map(columns.map((column) => [column.index, column]));
+      const selectedColumns = new Set(this.resultColumnSelection);
+      const orderedColumns = [
+        ...columns.filter(({ col }) => col.type === 'seq'),
+        ...this.resultColumnSelection.map((index) => columnsByIndex.get(index)).filter((column) => column && column.col.type !== 'seq'),
+        ...columns.filter(({ col, index }) => col.type !== 'seq' && !selectedColumns.has(index))
+      ];
+
+      return orderedColumns.map(({ col, index }) => {
         const colKey = col.type === 'seq' ? 'seq' : col.field;
         const currentWidth = this.columnWidths[colKey] || (col.type === 'seq' ? 50 : col.width || 100);
+        const priorityColumn = selectedColumns.has(index);
 
         if (col.type === 'seq') {
           return {
@@ -554,7 +760,8 @@ export default {
             width: currentWidth,
             fixed: 'left',
             align: 'center',
-            resizable: false
+            resizable: false,
+            searchColumnIndex: index
           };
         }
         return {
@@ -566,7 +773,10 @@ export default {
             showTitle: true
           },
           resizable: true,
-          originalTitle: col.title
+          originalTitle: col.title,
+          searchColumnIndex: index,
+          customHeaderCell: () => ({ class: priorityColumn ? 'result-column-priority-header' : '' }),
+          customCell: () => ({ class: priorityColumn ? 'result-column-priority-cell' : '' })
         };
       });
     },
@@ -616,18 +826,32 @@ export default {
         for (let i = 0; i < resultIds.length; i++) {
           this.paginatedLoading[resultIds[i]] = false;
         }
+        if (this.resultSearchState.keyword) {
+          this.scheduleResultSearch();
+        }
       }
     },
     'tab.result.list.length'(length) {
+      if (!length) {
+        this.resultColumnStates = {};
+        this.resultSearchStates = {};
+      }
       if (!length && !['message', 'async'].includes(this.tab.result.active)) {
         this.tab.result.active = 'message';
       }
     },
     'tab.result.active'(activeKey) {
+      this.resultColumnPickerOpen = false;
+      this.resultColumnSearch = '';
+      if (this.resultSearchTimer) {
+        clearTimeout(this.resultSearchTimer);
+        this.resultSearchTimer = null;
+      }
       if (activeKey === 'message' || activeKey === 'async') {
         this.destroyTableScrollObserver();
         return;
       }
+      this.ensureResultSearchState();
       this.$nextTick(() => {
         this.initTableScrollObserver();
       });
@@ -675,6 +899,9 @@ export default {
     this.$nextTick(() => {
       this.initTableScrollObserver();
     });
+    document.addEventListener('pointerdown', this.handleResultSearchPointerDown, true);
+    document.addEventListener('focusin', this.handleResultSearchFocusIn, true);
+    window.addEventListener('keydown', this.handleResultSearchShortcut, true);
     // Initialize default SQL export options.
     this.resetInsertOption();
     this.initDsTypeOptions();
@@ -689,8 +916,263 @@ export default {
     for (let i = 0; i < loadingTimerIds.length; i++) {
       clearTimeout(this.paginatedLoadingTimers[loadingTimerIds[i]]);
     }
+    document.removeEventListener('pointerdown', this.handleResultSearchPointerDown, true);
+    document.removeEventListener('focusin', this.handleResultSearchFocusIn, true);
+    window.removeEventListener('keydown', this.handleResultSearchShortcut, true);
+    if (this.resultSearchTimer) {
+      clearTimeout(this.resultSearchTimer);
+    }
   },
   methods: {
+    handleResultColumnPickerOpenChange(open) {
+      this.resultColumnPickerOpen = open;
+      if (open) {
+        this.resultColumnSearch = '';
+      }
+    },
+    setResultColumnSelection(values) {
+      const resultId = this.selectedTab?.resultId;
+      if (!resultId) {
+        return;
+      }
+      const validValues = new Set(this.resultColumnOptions.map((option) => option.value));
+      this.resultColumnStates[resultId] = values.filter((value) => validValues.has(value));
+      this.$nextTick(() => {
+        const tableBody = this.$el?.querySelector('.result-table-container .ant-table-body');
+        if (tableBody) {
+          tableBody.scrollLeft = 0;
+        }
+      });
+    },
+    selectAllResultColumns() {
+      this.setResultColumnSelection(this.resultColumnOptions.map((option) => option.value));
+    },
+    clearResultColumnSelection() {
+      this.setResultColumnSelection([]);
+    },
+    toggleResultColumn(value, checked) {
+      const values = this.resultColumnSelection.filter((column) => column !== value);
+      if (checked) {
+        values.push(value);
+      }
+      this.setResultColumnSelection(values);
+    },
+    ensureResultSearchState() {
+      const resultId = this.selectedTab?.resultId;
+      if (!resultId) {
+        return null;
+      }
+      if (!this.resultSearchStates[resultId]) {
+        this.resultSearchStates[resultId] = {
+          keyword: '',
+          matches: [],
+          matchKeyMap: {},
+          currentIndex: -1,
+          truncated: false
+        };
+      }
+      return this.resultSearchStates[resultId];
+    },
+    handleResultSearchPointerDown(event) {
+      this.resultSearchScopeActive = !!this.$refs.resultContentWrapper?.contains(event.target);
+    },
+    handleResultSearchFocusIn(event) {
+      this.resultSearchScopeActive = !!this.$refs.resultContentWrapper?.contains(event.target);
+    },
+    handleResultSearchShortcut(event) {
+      if (!this.resultSearchScopeActive || !this.selectedTab?.resultId || (!event.metaKey && !event.ctrlKey)) {
+        return;
+      }
+      const key = event.key.toLowerCase();
+      if (key === 'f') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.openResultSearch();
+      } else if (key === 'g' && this.resultSearchState.matches?.length) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.moveResultSearch(event.shiftKey ? -1 : 1);
+      }
+    },
+    openResultSearch() {
+      const state = this.ensureResultSearchState();
+      if (!state) {
+        return;
+      }
+      this.resultSearchScopeActive = true;
+      if (state.keyword && !state.matches.length) {
+        this.refreshResultSearch();
+      }
+      this.$nextTick(() => {
+        const input = this.$el?.querySelector('.result-find-input input');
+        input?.focus();
+        input?.select();
+      });
+    },
+    clearResultSearch() {
+      if (this.resultSearchTimer) {
+        clearTimeout(this.resultSearchTimer);
+        this.resultSearchTimer = null;
+      }
+      const state = this.ensureResultSearchState();
+      if (state) {
+        state.keyword = '';
+        state.matches = [];
+        state.matchKeyMap = {};
+        state.currentIndex = -1;
+        state.truncated = false;
+      }
+      this.resultSearchScopeActive = true;
+      this.$nextTick(() => {
+        this.$refs.resultContentWrapper?.focus({ preventScroll: true });
+      });
+    },
+    scheduleResultSearch() {
+      if (this.resultSearchTimer) {
+        clearTimeout(this.resultSearchTimer);
+      }
+      const resultId = this.selectedTab?.resultId;
+      this.resultSearchTimer = setTimeout(() => {
+        this.resultSearchTimer = null;
+        if (resultId === this.selectedTab?.resultId) {
+          this.refreshResultSearch();
+        }
+      }, 120);
+    },
+    getResultSearchPages() {
+      const tab = this.selectedTab;
+      const currentPage = tab.page || 1;
+      if (tab.receiveMode === 'PAGINATED') {
+        const pageCache = { ...(tab.pageCache || {}) };
+        if (!pageCache[currentPage] && tab.showData) {
+          pageCache[currentPage] = tab.showData;
+        }
+        return Object.keys(pageCache)
+          .map(Number)
+          .filter((page) => Number.isFinite(page))
+          .sort((a, b) => a - b)
+          .map((page) => ({ page, rows: pageCache[page] || [] }));
+      }
+      if (tab.receiveMode === 'STREAM') {
+        return [{ page: currentPage, rows: tab.showData || [] }];
+      }
+      if (tab.dataArr?.length) {
+        return tab.dataArr.map((rows, index) => ({ page: index + 1, rows: rows || [] }));
+      }
+      return [{ page: currentPage, rows: tab.showData || [] }];
+    },
+    getResultSearchCellKey(page, rowIndex, columnIndex) {
+      return `${page}:${rowIndex}:${columnIndex}`;
+    },
+    normalizeResultSearchValue(value) {
+      if (value === null) {
+        return 'NULL';
+      }
+      if (value === undefined) {
+        return '';
+      }
+      if (typeof value === 'object') {
+        try {
+          return JSON.stringify(value);
+        } catch (error) {
+          appLogger.debug('serialize result search value failed:', error);
+        }
+      }
+      return String(value);
+    },
+    refreshResultSearch(focusFirst = true) {
+      const state = this.ensureResultSearchState();
+      if (!state) {
+        return;
+      }
+      const keyword = state.keyword.trim().toLocaleLowerCase();
+      if (!keyword) {
+        state.matches = [];
+        state.matchKeyMap = {};
+        state.currentIndex = -1;
+        state.truncated = false;
+        return;
+      }
+
+      const columns = (this.selectedTab.columnListSeq || [])
+        .map((column, index) => ({ ...column, searchColumnIndex: index }))
+        .filter((column) => column.type !== 'seq' && column.field);
+      const matches = [];
+      const matchKeyMap = {};
+      let truncated = false;
+
+      searchPages: for (const pageData of this.getResultSearchPages()) {
+        for (let rowIndex = 0; rowIndex < pageData.rows.length; rowIndex++) {
+          const row = pageData.rows[rowIndex];
+          for (const column of columns) {
+            if (this.normalizeResultSearchValue(row[column.field]).toLocaleLowerCase().includes(keyword)) {
+              const key = this.getResultSearchCellKey(pageData.page, rowIndex, column.searchColumnIndex);
+              matches.push({ key, page: pageData.page });
+              matchKeyMap[key] = true;
+              if (matches.length >= RESULT_SEARCH_MATCH_LIMIT) {
+                truncated = true;
+                break searchPages;
+              }
+            }
+          }
+        }
+      }
+
+      state.matches = matches;
+      state.matchKeyMap = matchKeyMap;
+      state.currentIndex = focusFirst && matches.length ? 0 : -1;
+      state.truncated = truncated;
+      if (focusFirst && matches.length) {
+        this.focusResultSearchMatch(0);
+      }
+    },
+    handleResultSearchEnter(event) {
+      if (this.resultSearchTimer) {
+        clearTimeout(this.resultSearchTimer);
+        this.resultSearchTimer = null;
+        this.refreshResultSearch(false);
+      }
+      this.moveResultSearch(event.shiftKey ? -1 : 1);
+    },
+    moveResultSearch(direction) {
+      const state = this.ensureResultSearchState();
+      if (!state?.matches.length) {
+        return;
+      }
+      const currentIndex = state.currentIndex < 0 ? (direction < 0 ? 0 : -1) : state.currentIndex;
+      const nextIndex = (currentIndex + direction + state.matches.length) % state.matches.length;
+      this.focusResultSearchMatch(nextIndex);
+    },
+    async focusResultSearchMatch(index) {
+      const state = this.ensureResultSearchState();
+      const match = state?.matches[index];
+      if (!match) {
+        return;
+      }
+      state.currentIndex = index;
+      if (this.selectedTab.receiveMode !== 'STREAM' && this.selectedTab.page !== match.page) {
+        await this.changePage(match.page);
+      }
+      await this.$nextTick();
+      const target = this.$el?.querySelector(`[data-result-search-key="${match.key}"]`);
+      target?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
+    },
+    getResultCellSearchClass(column, rowIndex) {
+      const state = this.resultSearchState;
+      if (!state.matchKeyMap || column.dataIndex === 'seq') {
+        return {};
+      }
+      const key = this.getResultSearchCellKey(this.selectedTab.page || 1, rowIndex, column.searchColumnIndex);
+      const currentMatch = state.matches?.[state.currentIndex];
+      return {
+        'result-cell-search-match': !!state.matchKeyMap[key],
+        'result-cell-search-current': currentMatch?.key === key
+      };
+    },
     handleClickCostPop() {
       appLogger.warn(123, this.tab);
     },
@@ -770,6 +1252,8 @@ export default {
           }
         }
         this.tab.result.list.splice(deleteIndex, 1);
+        delete this.resultColumnStates[key];
+        delete this.resultSearchStates[key];
         const activeIndex = deleteIndex ? deleteIndex - 1 : 0;
         this.tab.result.active = this.tab.result.list.length ? this.tab.result.list[activeIndex].resultId : 'message';
       } else if (type === 'other') {
@@ -782,6 +1266,8 @@ export default {
             }
           });
           this.tab.result.list = [];
+          this.resultColumnStates = {};
+          this.resultSearchStates = {};
         } else if (type === 'other') {
           const deleteIndex = this.tab.result.list.findIndex((tab) => tab.resultId === this.contextData.resultId);
           this.tab.result.active = this.contextData.resultId;
@@ -795,6 +1281,12 @@ export default {
             }
           });
           this.tab.result.list = [keepTab];
+          this.resultColumnStates = this.resultColumnStates[keepTab.resultId]
+            ? { [keepTab.resultId]: this.resultColumnStates[keepTab.resultId] }
+            : {};
+          this.resultSearchStates = this.resultSearchStates[keepTab.resultId]
+            ? { [keepTab.resultId]: this.resultSearchStates[keepTab.resultId] }
+            : {};
         }
       }
     },
@@ -1802,6 +2294,171 @@ export default {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 1px var(--border-primary);
+    }
+  }
+
+  .result-tools-bar {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    min-height: 36px;
+    padding: 4px 10px;
+    gap: 8px;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+    z-index: 11;
+  }
+
+  .result-column-picker-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 220px;
+    max-width: 560px;
+    height: 28px;
+    padding: 0 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 12px;
+    line-height: 26px;
+    cursor: pointer;
+
+    &:disabled {
+      color: var(--text-disabled);
+      cursor: not-allowed;
+    }
+
+    > .anticon {
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+  }
+
+  .result-column-picker-label,
+  .result-column-picker-empty-selection,
+  .result-column-picker-more {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .result-column-picker-label {
+    font-weight: 500;
+  }
+
+  .result-column-picker-empty-selection {
+    color: var(--text-tertiary);
+  }
+
+  .result-column-picker-chip {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 170px;
+    height: 22px;
+    padding: 0 6px 0 3px;
+    gap: 4px;
+    border: 1px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  .result-column-picker-order {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    line-height: 16px;
+  }
+
+  .result-column-picker-chip-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .result-column-picker-more {
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-find-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+    margin-left: auto;
+    gap: 4px;
+  }
+
+  .result-find-input {
+    width: 45vw;
+    min-width: 220px;
+    max-width: 320px;
+
+    :deep(.ant-input-prefix) {
+      color: var(--text-tertiary);
+    }
+  }
+
+  .result-find-shortcut {
+    padding: 0 4px;
+    border: 1px solid var(--border-primary);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    background: var(--bg-card);
+    color: var(--text-tertiary);
+    font-family: inherit;
+    font-size: 10px;
+    line-height: 15px;
+    white-space: nowrap;
+  }
+
+  .result-find-count {
+    min-width: 72px;
+    padding: 0 6px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .result-find-scope {
+    padding: 0 4px;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    line-height: 20px;
+    white-space: nowrap;
+  }
+
+  .result-find-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0;
+    color: var(--text-secondary);
   }
 
   .result-table-container {
@@ -1875,6 +2532,23 @@ export default {
         position: relative;
       }
 
+      :deep(.ant-table-thead > tr > th.result-column-priority-header) {
+        background: var(--bg-secondary) !important;
+        box-shadow: inset 0 2px 0 var(--text-secondary);
+
+        .header-title {
+          font-weight: 600;
+        }
+      }
+
+      :deep(.ant-table-tbody > tr > td.result-column-priority-cell) {
+        background: var(--bg-secondary);
+      }
+
+      :deep(.ant-table-tbody > tr:hover > td.result-column-priority-cell) {
+        background: var(--bg-tertiary) !important;
+      }
+
       :deep(.ant-table-tbody .ant-table-cell) {
         padding: 0 !important;
       }
@@ -1924,6 +2598,19 @@ export default {
             }
           }
         }
+      }
+
+      .vxe-input-tpl.result-cell-search-match {
+        border-radius: 2px;
+        background: rgba(250, 173, 20, 0.2);
+        box-shadow: inset 0 0 0 1px rgba(212, 136, 6, 0.42);
+      }
+
+      .vxe-input-tpl.result-cell-search-current {
+        background: rgba(250, 219, 20, 0.42);
+        box-shadow:
+          inset 0 0 0 2px #d48806,
+          0 0 0 1px rgba(250, 173, 20, 0.2);
       }
 
       // Remove blank lines.
@@ -2075,6 +2762,97 @@ export default {
         }
       }
     }
+  }
+}
+
+.result-column-picker {
+  width: 280px;
+  padding: 8px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  .result-column-picker-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 2px 4px;
+
+    button {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 12px;
+      line-height: 20px;
+      cursor: pointer;
+
+      &:disabled {
+        color: var(--text-disabled);
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .result-column-picker-list {
+    max-height: 240px;
+    overflow-y: auto;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .result-column-picker-option {
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 4px 2px;
+
+    :deep(.ant-checkbox-wrapper) {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+      color: var(--text-primary);
+      font-size: 12px;
+    }
+
+    :deep(.ant-checkbox-wrapper > span:last-child) {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .result-column-picker-option-label {
+      display: block;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .result-column-picker-option-order {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-left: 8px;
+      border-radius: 4px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+      line-height: 18px;
+    }
+  }
+
+  .result-column-picker-empty {
+    padding: 16px 4px;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    text-align: center;
   }
 }
 
