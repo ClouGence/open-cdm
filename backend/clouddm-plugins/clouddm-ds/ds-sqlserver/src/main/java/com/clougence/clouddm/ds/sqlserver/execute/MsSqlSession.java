@@ -72,6 +72,15 @@ public class MsSqlSession extends DefaultRdbSession {
     }
 
     @Override
+    protected boolean executeStatement(Statement statement, QueryRequest query, ResultBuilder builder) throws SQLException {
+        if (query.isUseExplain()) {
+            return statement.execute(query.getQueryBody());
+        } else {
+            return super.executeStatement(statement, query, builder);
+        }
+    }
+
+    @Override
     protected void throwQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder, Exception e) {
         try {
             this.disableShowPlan();

@@ -126,8 +126,8 @@ public class MsSqlHooks implements SessionHook {
     }
 
     @Override
-    public PreparedStatement explainStatement(Connection conn, QueryRequest query) throws SQLException {
-        return conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+    public Statement explainStatement(Connection conn, QueryRequest query) throws SQLException {
+        return conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
     }
 
     @Override
