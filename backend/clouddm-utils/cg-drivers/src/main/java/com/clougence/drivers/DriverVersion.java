@@ -34,6 +34,8 @@ public interface DriverVersion {
 
     String getDsFactory();
 
+    boolean isDefault();
+
     boolean isPrepared();
 
     void setPrepared(boolean prepared);

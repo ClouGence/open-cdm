@@ -42,6 +42,7 @@ public class VerDef implements DriverVersion {
     private String                         driverName;
     @Getter
     private String                         comment;
+    private boolean                        defaultVersion;
     @Getter
     private ResourceLoader                 loader;
     @Getter
@@ -121,6 +122,18 @@ public class VerDef implements DriverVersion {
 
     @Override
     public String getDsFactory() { return this.driverName; }
+
+    @Override
+    public boolean isDefault() { return this.defaultVersion; }
+
+    public void setDefault(boolean defaultVersion) {
+        if (this.defaultVersion == defaultVersion) {
+            return;
+        }
+
+        this.defaultVersion = defaultVersion;
+        this.refreshTimestamp();
+    }
 
     public void setDsFactory(String driverName) {
         String normalized = StringUtils.trimToNull(driverName);

@@ -44,6 +44,15 @@ public class FamilyDef implements DriverFamily {
     }
 
     @Override
+    public String getDefaultVersion() {
+        return this.versions.stream()//
+            .filter(VerDef::isDefault)
+            .map(VerDef::getVersion)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
     public VerDef findVersion(String version) {
         if (this.versions.isEmpty()) {
             return null;

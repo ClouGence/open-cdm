@@ -1,6 +1,6 @@
 <drivers>
     <!-- ClickHouse JDBC-->
-    <driver driverFamily="ClickHouse JDBC" version="0.9.7">
+    <driver driverFamily="ClickHouse JDBC" version="0.9.7" default="true">
         <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChJdbcDsFactory</driverName>
         <resource type="maven">com.clickhouse:clickhouse-jdbc:0.9.7</resource>
     </driver>

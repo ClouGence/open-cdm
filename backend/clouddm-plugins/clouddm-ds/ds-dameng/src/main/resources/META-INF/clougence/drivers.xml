@@ -1,5 +1,5 @@
 <drivers>
-    <driver driverFamily="Dameng JDBC Driver" version="8.1.3.140">
+    <driver driverFamily="Dameng JDBC Driver" version="8.1.3.140" default="true">
         <driverName>com.clougence.clouddm.ds.dameng.execute.dsfactory.DmDsFactory</driverName>
         <resource type="maven">com.dameng:DmJdbcDriver18:8.1.3.140</resource>
     </driver>

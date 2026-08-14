@@ -1,5 +1,5 @@
 <drivers>
-    <driver driverFamily="Oracle JDBC Driver" version="23.26.2.0.0">
+    <driver driverFamily="Oracle JDBC Driver" version="23.26.2.0.0" default="true">
         <driverName>com.clougence.clouddm.dsfamily.oracle.execute.dsfactory.OracleDsFactory</driverName>
         <resource type="maven">com.oracle.database.jdbc:ojdbc11:23.26.2.0.0</resource>
         <resource type="maven">com.oracle.database.xml:xdb:23.26.2.0.0</resource>

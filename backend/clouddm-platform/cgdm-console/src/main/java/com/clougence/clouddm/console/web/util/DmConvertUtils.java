@@ -2306,6 +2306,7 @@ public class DmConvertUtils {
         DsDriverFamily r = new DsDriverFamily();
         r.setName(df.getFamilyName());
         r.setVersions(df.getVersions());
+        r.setDefaultVersion(df.getDefaultVersion());
         return r;
     }
 }

@@ -122,6 +122,7 @@ public class DriverXmlLoader {
         String driverName = firstNotBlank(attributeOrChildValue(driverElement, "driverName"));
         String withFamily = firstNotBlank(attributeOrChildValue(driverElement, "driverFamily"));
         String withVersion = firstNotBlank(attributeOrChildValue(driverElement, "version"));
+        boolean defaultVersion = Boolean.parseBoolean(firstNotBlank(attributeOrChildValue(driverElement, "default")));
 
         boolean valid = StringUtils.isNotBlank(withFamily);
         valid = valid && StringUtils.isNotBlank(withVersion);
@@ -133,6 +134,7 @@ public class DriverXmlLoader {
         driverDescription.familyName = withFamily;
         VerDef driverVersion = driverDescription.addVersion(withVersion);
         driverVersion.setDsFactory(driverName);
+        driverVersion.setDefault(defaultVersion);
         for (ResDef resource : resources) {
             if (resource != null) {
                 driverVersion.addResource(resource);
@@ -258,6 +260,9 @@ public class DriverXmlLoader {
         }
         if (StringUtils.isNotBlank(source.getComment())) {
             target.setComment(source.getComment());
+        }
+        if (source.isDefault()) {
+            target.setDefault(true);
         }
         if (source.getLoader() != null) {
             target.setLoader(source.getLoader());
