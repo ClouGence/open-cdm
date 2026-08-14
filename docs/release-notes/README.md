@@ -4,6 +4,7 @@ Release notes are grouped by version. Each version directory contains one file p
 
 | Version | Chinese | English |
 |---------|---------|---------|
+| v4.1.1 | [中文](v4.1.1/index.cn.md) | [English](v4.1.1/index.en.md) |
 | v4.1.0 | [中文](v4.1.0/index.cn.md) | [English](v4.1.0/index.en.md) |
 | v4.0.1 | [中文](v4.0.1/index.cn.md) | [English](v4.0.1/index.en.md) |
 | v4.0.0 | [中文](v4.0.1/index.cn.md) | [English](v4.0.1/index.en.md) |
