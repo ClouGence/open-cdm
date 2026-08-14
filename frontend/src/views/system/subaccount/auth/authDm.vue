@@ -741,10 +741,28 @@ export default {
       if (this.canCheckedChange) {
         const originalRightTreeData = this.curNode?.originalRightTreeData?.length ? this.curNode.originalRightTreeData : this.lastRightTreeData;
         const comparableCheckedNodes = this.getComparableCheckedAuthNodes(checkedAuthNodes, originalRightTreeData);
-        this.markLeftTreeEdited(this.curNode, this.curElementType, originalRightTreeData, comparableCheckedNodes);
+        // 批量模式: 把授权项统一应用到所有已勾选的同类型资源节点, 而非仅当前节点
+        const batchKeys = this.batchMode && !this.isSingleSelect ? this.getCheckedResourceKeysOfType(this.curNode?.objType) : null;
+        this.markLeftTreeEdited(this.curNode, this.curElementType, originalRightTreeData, comparableCheckedNodes, batchKeys);
         this.upsertParentAuthTree(this.curNode?.key, currentAuthTree);
         this.syncDescendantInheritedAuth(this.curNode);
       }
+    },
+    // 批量模式: 收集所有已勾选的同类型资源节点 key(供授权项统一应用)
+    getCheckedResourceKeysOfType(objType) {
+      const keys = [];
+      const walk = (nodes) => {
+        (nodes || []).forEach((n) => {
+          if (n.checked && n.key && (!objType || n.objType === objType)) {
+            keys.push(n.key);
+          }
+          if (n.children && n.children.length) {
+            walk(n.children);
+          }
+        });
+      };
+      walk(this.originLeftTree);
+      return keys;
     },
     cancelAuth() {
       this.$router
@@ -2323,14 +2341,16 @@ export default {
       }
       return traverse(tree);
     },
-    markLeftTreeEdited(node, type = this.curElementType, oldTree, newTree) {
+    markLeftTreeEdited(node, type = this.curElementType, oldTree, newTree, batchKeys = null) {
       let markedWithActionRightTree = [];
 
       [markedWithActionRightTree] = this.markRightTreeActions(oldTree, newTree);
 
-      const updateNodeInTree = function (tree, targetKey) {
+      // 批量模式: batchKeys 为所有勾选节点 key, 授权项统一应用到全部; 否则只应用到当前节点
+      const targetKeys = batchKeys && batchKeys.length ? batchKeys : [node?.key];
+      const updateNodeInTree = function (tree, keys) {
         return tree?.map?.((item) => {
-          if (item?.key === targetKey) {
+          if (keys.includes(item?.key)) {
             let isEdit = false;
             // Rights change judgement
             if (markedWithActionRightTree) {
@@ -2353,12 +2373,12 @@ export default {
             item.authTime = this.authTime;
           }
           if (item.children && item.children.length > 0) {
-            item.children = updateNodeInTree(item.children, targetKey);
+            item.children = updateNodeInTree(item.children, keys);
           }
           return item;
         });
       }.bind(this);
-      const res = updateNodeInTree(this.originLeftTree, node?.key);
+      const res = updateNodeInTree(this.originLeftTree, targetKeys);
       this.originLeftTree = res;
       this.$refs.dataSourceTree.setData(this.getFilterOfTypeAndSearch(res));
       return markedWithActionRightTree;
