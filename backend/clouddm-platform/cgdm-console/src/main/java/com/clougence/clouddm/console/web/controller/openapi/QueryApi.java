@@ -93,11 +93,11 @@ public class QueryApi {
         // do query
         final CgFuture<DmApiQueryResultVO> future = new CgFutureObj<>();
         final DmApiQueryResultVO resultData = new DmApiQueryResultVO();
-        this.consoleQueryApi.offerQueryRequest(queryFO, msg -> applyMessageResult(queryFO, msg, resultData, future));
 
         // wait result
         int queryTimeout = 54;
         try {
+            this.consoleQueryApi.offerQueryRequest(queryFO, msg -> applyMessageResult(queryFO, msg, resultData, future));
             DmApiQueryResultVO result = future.get(queryTimeout, TimeUnit.SECONDS);
             return ResWebDataUtils.buildSuccess(requestId, result);
         } catch (TimeoutException e) {
