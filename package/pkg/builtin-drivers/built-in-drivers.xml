@@ -40,6 +40,9 @@
     <driver driverFamily="MongoDB Driver" version="5.9.0">
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.9.0</resource>
     </driver>
+    <driver driverFamily="ClickHouse JDBC" version="0.9.8">
+        <resource type="maven">com.clickhouse:clickhouse-jdbc:0.9.8</resource>
+    </driver>
     <driver driverFamily="ClickHouse JDBC" version="0.9.7">
         <resource type="maven">com.clickhouse:clickhouse-jdbc:0.9.7</resource>
     </driver>
