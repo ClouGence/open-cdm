@@ -200,7 +200,11 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
             return null;
         }
         SplitQueryType type = ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
-        add(type, type == SplitQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.qualifiedName()), tableSources(ctx.queryStatement()));
+        BehaviorRelation relation = add(type, type == SplitQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx
+            .qualifiedName()), tableSources(ctx.queryStatement()));
+        if (relation != null && !ctx.expressionsWithDefault().isEmpty()) {
+            relation.setInsertRows((long) ctx.expressionsWithDefault().size());
+        }
         return null;
     }
 
@@ -283,13 +287,13 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         return value;
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
-        add(type, action, subject, List.of());
+    private BehaviorRelation add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
+        return add(type, action, subject, List.of());
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -303,6 +307,7 @@ final class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         if (behavior.getStatementType() == SplitQueryType.UNKNOWN || type != SplitQueryType.SELECT) {
             behavior.setStatementType(type);
         }
+        return relation;
     }
 
     private <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {

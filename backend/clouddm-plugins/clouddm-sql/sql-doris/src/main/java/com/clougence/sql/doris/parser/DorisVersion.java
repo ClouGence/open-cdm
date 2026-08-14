@@ -43,6 +43,61 @@ public enum DorisVersion {
         return LATEST;
     }
 
+    public static int parseExactVersion(String version) {
+        String value = version == null ? "" : version;
+        for (int start = 0; start < value.length(); start++) {
+            if (!Character.isDigit(value.charAt(start))) {
+                continue;
+            }
+            int majorEnd = digitEnd(value, start);
+            if (majorEnd >= value.length() || value.charAt(majorEnd) != '.') {
+                start = majorEnd;
+                continue;
+            }
+            int minorStart = majorEnd + 1;
+            int minorEnd = digitEnd(value, minorStart);
+            if (minorEnd == minorStart || minorEnd >= value.length() || value.charAt(minorEnd) != '.') {
+                start = minorEnd;
+                continue;
+            }
+            int releaseStart = minorEnd + 1;
+            int releaseEnd = digitEnd(value, releaseStart);
+            if (releaseEnd == releaseStart) {
+                start = releaseEnd;
+                continue;
+            }
+            int major = Integer.parseInt(value.substring(start, majorEnd));
+            int minor = Integer.parseInt(value.substring(minorStart, minorEnd));
+            int release = Integer.parseInt(value.substring(releaseStart, releaseEnd));
+            if (major > 99 || minor > 99 || release > 99) {
+                break;
+            }
+            return major * 10000 + minor * 100 + release;
+        }
+        throw new IllegalArgumentException("Invalid Doris version: " + version);
+    }
+
+    public static int parseExactVersionCode(String exactVersion) {
+        String value = exactVersion == null ? "" : exactVersion.trim();
+        if (value.length() < 5 || value.length() > 6) {
+            throw new IllegalArgumentException("Invalid Doris exact version: " + exactVersion);
+        }
+        for (int i = 0; i < value.length(); i++) {
+            if (!Character.isDigit(value.charAt(i))) {
+                throw new IllegalArgumentException("Invalid Doris exact version: " + exactVersion);
+            }
+        }
+        return Integer.parseInt(value);
+    }
+
+    private static int digitEnd(String value, int start) {
+        int offset = start;
+        while (offset < value.length() && Character.isDigit(value.charAt(offset))) {
+            offset++;
+        }
+        return offset;
+    }
+
     public String versionString() {
         return Integer.toString(this.major);
     }

@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.doris.execute;
 
 import java.sql.Connection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +54,16 @@ public class DrMetaService extends MyMetaService {
     @Override
     public Map<String, String> getSqlParserParameters() {
         String databaseVersion = this.fetchVersion("SHOW VARIABLES LIKE 'version_comment'", 2);
-        return Map.of(SqlParserParameters.VERSION, DorisVersion.parse(databaseVersion).versionString());
+        Map<String, String> parameters = new LinkedHashMap<>();
+        parameters.put(SqlParserParameters.VERSION, DorisVersion.parse(databaseVersion).versionString());
+        if (StringUtils.isNotBlank(databaseVersion)) {
+            try {
+                parameters.put(SqlParserParameters.EXACT_VERSION, Integer.toString(DorisVersion.parseExactVersion(databaseVersion)));
+            } catch (IllegalArgumentException e) {
+                log.warn("Parse Doris exact version failed: {}", databaseVersion);
+            }
+        }
+        return parameters;
     }
 
     @Override

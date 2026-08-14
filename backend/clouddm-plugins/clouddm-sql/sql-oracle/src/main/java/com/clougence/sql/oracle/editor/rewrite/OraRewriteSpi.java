@@ -26,6 +26,92 @@ import com.clougence.utils.HashUtils;
 
 public class OraRewriteSpi implements RewriteSpi {
 
+    private static boolean isSafeSelect(PlSqlParser.Select_statementContext select) {
+        if (!select.for_update_clause().isEmpty()) {
+            return false;
+        }
+        PlSqlParser.SubqueryContext subquery = select.select_only_statement().subquery();
+        if (!subquery.subquery_operation_part().isEmpty()) {
+            return false;
+        }
+        PlSqlParser.Query_blockContext queryBlock = subquery.subquery_basic_elements().query_block();
+        return queryBlock != null && queryBlock.from_clause() != null;
+    }
+
+    private static PlSqlParser.Fetch_clauseContext outerFetchClause(PlSqlParser.Select_statementContext select) {
+        if (!select.fetch_clause().isEmpty()) {
+            return select.fetch_clause(select.fetch_clause().size() - 1);
+        }
+        PlSqlParser.Query_blockContext queryBlock = select.select_only_statement().subquery().subquery_basic_elements().query_block();
+        return queryBlock.fetch_clause();
+    }
+
+    private static PlSqlParser.Select_statementContext findSelectStatement(ParseTree tree) {
+        if (tree instanceof PlSqlParser.Select_statementContext select) {
+            return select;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            PlSqlParser.Select_statementContext select = findSelectStatement(tree.getChild(i));
+            if (select != null) {
+                return select;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isUnsignedInteger(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < value.length(); i++) {
+            if (!Character.isDigit(value.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean hasMultipleValuesRows(ParseTree tree) {
+        if (tree instanceof PlSqlParser.Values_clauseContext values) {
+            return values.expressions_().size() > 1;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (hasMultipleValuesRows(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static PlSqlParser.Explain_statementContext findExplainStatement(ParseTree tree) {
+        if (tree instanceof PlSqlParser.Explain_statementContext explain) {
+            return explain;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            PlSqlParser.Explain_statementContext explain = findExplainStatement(tree.getChild(i));
+            if (explain != null) {
+                return explain;
+            }
+        }
+        return null;
+    }
+
+    private static ParserRuleContext explainTarget(PlSqlParser.Explain_statementContext explain) {
+        if (explain.select_statement() != null) {
+            return explain.select_statement();
+        }
+        if (explain.update_statement() != null) {
+            return explain.update_statement();
+        }
+        if (explain.delete_statement() != null) {
+            return explain.delete_statement();
+        }
+        if (explain.insert_statement() != null) {
+            return explain.insert_statement();
+        }
+        return explain.merge_statement();
+    }
+
     @Override
     public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
         long maxLimit = context.getFetchLimit();
@@ -76,51 +162,6 @@ public class OraRewriteSpi implements RewriteSpi {
         return queryStr;
     }
 
-    private static boolean isSafeSelect(PlSqlParser.Select_statementContext select) {
-        if (!select.for_update_clause().isEmpty()) {
-            return false;
-        }
-        PlSqlParser.SubqueryContext subquery = select.select_only_statement().subquery();
-        if (!subquery.subquery_operation_part().isEmpty()) {
-            return false;
-        }
-        PlSqlParser.Query_blockContext queryBlock = subquery.subquery_basic_elements().query_block();
-        return queryBlock != null && queryBlock.from_clause() != null;
-    }
-
-    private static PlSqlParser.Fetch_clauseContext outerFetchClause(PlSqlParser.Select_statementContext select) {
-        if (!select.fetch_clause().isEmpty()) {
-            return select.fetch_clause(select.fetch_clause().size() - 1);
-        }
-        PlSqlParser.Query_blockContext queryBlock = select.select_only_statement().subquery().subquery_basic_elements().query_block();
-        return queryBlock.fetch_clause();
-    }
-
-    private static PlSqlParser.Select_statementContext findSelectStatement(ParseTree tree) {
-        if (tree instanceof PlSqlParser.Select_statementContext select) {
-            return select;
-        }
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            PlSqlParser.Select_statementContext select = findSelectStatement(tree.getChild(i));
-            if (select != null) {
-                return select;
-            }
-        }
-        return null;
-    }
-
-    private static boolean isUnsignedInteger(String value) {
-        if (value == null || value.isEmpty()) {
-            return false;
-        }
-        for (int i = 0; i < value.length(); i++) {
-            if (!Character.isDigit(value.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     @Override
     public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
         List<AstSplitScript> scripts = DslHelper.splitDsl(OraDslProvider.INSTANCE, new StringReader(queryStr));
@@ -145,37 +186,16 @@ public class OraRewriteSpi implements RewriteSpi {
         if (type == null || !type.isAllowPlan()) {
             return null;
         }
+        OracleVersion version = OracleVersion.parse(context.getParameters().version());
+        if (type == SplitQueryType.INSERT && !OracleVersion.ge(version, OracleVersion.ORACLE_23) && hasMultipleValuesRows(astTree)) {
+            return null;
+        }
 
+        queryStr = queryStr.stripTrailing();
+        if (queryStr.endsWith(";")) {
+            queryStr = queryStr.substring(0, queryStr.length() - 1);
+        }
         int statementId = HashUtils.fnvHash(queryId);
         return "EXPLAIN PLAN SET STATEMENT_ID = '" + statementId + "' FOR " + queryStr;
-    }
-
-    private static PlSqlParser.Explain_statementContext findExplainStatement(ParseTree tree) {
-        if (tree instanceof PlSqlParser.Explain_statementContext explain) {
-            return explain;
-        }
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            PlSqlParser.Explain_statementContext explain = findExplainStatement(tree.getChild(i));
-            if (explain != null) {
-                return explain;
-            }
-        }
-        return null;
-    }
-
-    private static ParserRuleContext explainTarget(PlSqlParser.Explain_statementContext explain) {
-        if (explain.select_statement() != null) {
-            return explain.select_statement();
-        }
-        if (explain.update_statement() != null) {
-            return explain.update_statement();
-        }
-        if (explain.delete_statement() != null) {
-            return explain.delete_statement();
-        }
-        if (explain.insert_statement() != null) {
-            return explain.insert_statement();
-        }
-        return explain.merge_statement();
     }
 }

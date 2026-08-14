@@ -120,7 +120,16 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitInsertstmt(InsertstmtContext ctx) {
-        addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.insert_target().qualified_name()), tableReferences(ctx.insert_rest()));
+        BehaviorRelation relation = addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.insert_target().qualified_name()), tableReferences(ctx
+            .insert_rest()));
+        if (relation != null) {
+            Values_clauseContext values = ctx.insert_rest().values_clause();
+            if (values != null) {
+                relation.setInsertRows((long) values.expr_list().size());
+            } else if (ctx.insert_rest().selectstmt() == null) {
+                relation.setInsertRows(1L);
+            }
+        }
         return null;
     }
 
@@ -409,9 +418,9 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         behavior.setStatementType(type);
     }
 
-    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -423,6 +432,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         }
         behavior.getRelations().add(relation);
         behavior.setStatementType(type);
+        return relation;
     }
 
     private List<BehaviorObject> tableReferences(ParseTree tree) {

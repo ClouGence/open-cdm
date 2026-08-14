@@ -24,16 +24,71 @@ import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
+import com.clougence.sql.doris.parser.DorisVersion;
 import com.clougence.sql.doris.parser.DrDslProvider;
 import com.clougence.sql.doris.parser.DrSplitVisitor;
 import com.clougence.sql.doris.parser.antlr.DorisParser;
 
 public class DrRewriteSpi implements RewriteSpi {
+
+    private static boolean appendWhereForExplain(ParseTree tree, TokenStreamRewriter rewriter) {
+        if (tree instanceof DorisParser.UpdateContext update && update.whereClause() == null) {
+            rewriter.insertAfter(update.getStop(), " WHERE 1=1");
+            return true;
+        }
+        if (tree instanceof DorisParser.DeleteContext delete && delete.whereClause() == null) {
+            rewriter.insertAfter(delete.getStop(), " WHERE 1=1");
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (appendWhereForExplain(tree.getChild(i), rewriter)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean supportsDeleteExplain(RewriteContext context) {
+        SqlParserParameters parameters = SqlParserParameters.nullToEmpty(context == null ? null : context.getParameters());
+        String exactVersion = parameters.get(SqlParserParameters.EXACT_VERSION);
+        if (exactVersion != null) {
+            try {
+                return DorisVersion.parseExactVersionCode(exactVersion) >= 20105;
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        return DorisVersion.parse(parameters.version()).ordinal() >= DorisVersion.DORIS_3.ordinal();
+    }
+
+    private static boolean containsDelete(ParseTree tree) {
+        if (tree instanceof DorisParser.DeleteContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsDelete(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsExplain(ParseTree tree) {
+        if (tree instanceof DorisParser.ExplainContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsExplain(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
@@ -105,26 +160,22 @@ public class DrRewriteSpi implements RewriteSpi {
             return null;
         }
 
+        Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
-        if (containsExplain(astTree)) {
-            return queryStr;
+        if (containsDelete(astTree) && !supportsDeleteExplain(context)) {
+            return null;
         }
         SplitQueryType type = DrSplitVisitor.INSTANCE.visit(astTree);
         if (type == null || !type.isAllowPlan()) {
             return null;
         }
-        return "EXPLAIN " + queryStr;
-    }
 
-    private static boolean containsExplain(ParseTree tree) {
-        if (tree instanceof DorisParser.ExplainContext) {
-            return true;
+        TokenStreamRewriter rewriter = new TokenStreamRewriter(parser.getTokenStream());
+        boolean appendedWhere = appendWhereForExplain(astTree, rewriter);
+        String rewritten = appendedWhere ? rewriter.getText() : queryStr;
+        if (containsExplain(astTree)) {
+            return rewritten;
         }
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            if (containsExplain(tree.getChild(i))) {
-                return true;
-            }
-        }
-        return false;
+        return "EXPLAIN " + rewritten;
     }
 }

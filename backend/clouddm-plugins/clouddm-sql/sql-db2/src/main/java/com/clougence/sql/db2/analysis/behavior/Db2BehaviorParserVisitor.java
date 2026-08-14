@@ -168,7 +168,10 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
             addRelation(SplitQueryType.SELECT, BehaviorAction.READ, table(target), sources(ctx));
             return null;
         }
-        addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, table(target), sources(ctx));
+        BehaviorRelation relation = addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, table(target), sources(ctx));
+        if (relation != null && ctx.VALUES() != null) {
+            relation.setInsertRows((long) ctx.values_item().size());
+        }
         return null;
     }
 
@@ -245,9 +248,9 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
         addRelation(type, action, subject, List.of());
     }
 
-    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -261,6 +264,7 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
         if (behavior.getStatementType() == SplitQueryType.UNKNOWN) {
             behavior.setStatementType(type);
         }
+        return relation;
     }
 
     private <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {

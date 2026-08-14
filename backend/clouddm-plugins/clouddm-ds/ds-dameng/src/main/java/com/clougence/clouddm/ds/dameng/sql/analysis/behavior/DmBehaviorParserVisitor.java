@@ -194,11 +194,11 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 addObject(sources, object(TargetType.Table, source.qualifiedName(), schemaScoped(NameParts.from(source.qualifiedName()))));
             }
             if (ctx.singleInsertStatement() != null) {
-                addInsertTarget(ctx.singleInsertStatement().insertTarget(), sources);
+                addInsertTarget(ctx.singleInsertStatement().insertTarget(), sources, insertRows(ctx.singleInsertStatement()));
                 addErrorLoggingTarget(SplitQueryType.INSERT, ctx.singleInsertStatement().dmlErrorLoggingClause(), sources);
             }
             for (DmSqlParser.MultiInsertIntoContext into : descendants(ctx, DmSqlParser.MultiInsertIntoContext.class)) {
-                addInsertTarget(into.insertTarget(), sources);
+                addInsertTarget(into.insertTarget(), sources, insertRows(into));
             }
             addFunctionCalls(ctx);
             return null;
@@ -3376,22 +3376,34 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         }
     }
 
-    private void addInsertTarget(DmSqlParser.InsertTargetContext ctx, List<BehaviorObject> sources) {
+    private void addInsertTarget(DmSqlParser.InsertTargetContext ctx, List<BehaviorObject> sources, Long insertRows) {
         if (ctx == null) {
             return;
         }
         if (ctx.qualifiedName() != null) {
             if (ctx.partitionExtensionClause().isEmpty()) {
-                add(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), sources);
+                setInsertRows(add(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx
+                    .qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), sources), insertRows);
             } else {
                 for (DmSqlParser.PartitionExtensionClauseContext partition : ctx.partitionExtensionClause()) {
-                    add(SplitQueryType.INSERT, BehaviorAction.INSERT, partitionObject(ctx.qualifiedName(), partition), sources);
+                    setInsertRows(add(SplitQueryType.INSERT, BehaviorAction.INSERT, partitionObject(ctx.qualifiedName(), partition), sources), insertRows);
                 }
             }
         } else {
             for (BehaviorObject target : tableSources(ctx.selectStatement())) {
-                add(SplitQueryType.INSERT, BehaviorAction.INSERT, target, sources);
+                setInsertRows(add(SplitQueryType.INSERT, BehaviorAction.INSERT, target, sources), insertRows);
             }
+        }
+    }
+
+    private Long insertRows(ParseTree tree) {
+        List<DmSqlParser.ValueRowsContext> values = descendants(tree, DmSqlParser.ValueRowsContext.class);
+        return values.isEmpty() ? null : (long) values.get(0).LPAREN().size();
+    }
+
+    private void setInsertRows(BehaviorRelation relation, Long insertRows) {
+        if (relation != null && insertRows != null) {
+            relation.setInsertRows(insertRows);
         }
     }
 
@@ -4223,13 +4235,13 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         return BehaviorAction.CREATE;
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
-        add(type, action, subject, List.of());
+    private BehaviorRelation add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
+        return add(type, action, subject, List.of());
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -4242,12 +4254,13 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                    && sameTargets(existing.getTarget(), relation.getTarget());
         });
         if (duplicate) {
-            return;
+            return null;
         }
         behavior.getRelations().add(relation);
         if (behavior.getStatementType() == SplitQueryType.UNKNOWN || behavior.getStatementType() == SplitQueryType.SELECT && type == SplitQueryType.SESSION_VARIABLE_RW) {
             behavior.setStatementType(type);
         }
+        return relation;
     }
 
     private boolean sameTargets(List<BehaviorObject> left, List<BehaviorObject> right) {

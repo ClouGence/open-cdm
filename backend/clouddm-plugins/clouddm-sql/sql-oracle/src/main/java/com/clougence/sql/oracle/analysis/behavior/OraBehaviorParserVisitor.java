@@ -214,8 +214,13 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
             }
         }
         List<BehaviorObject> sources = sourceTables(ctx, insertTargets);
+        List<Values_clauseContext> values = descendants(ctx, Values_clauseContext.class);
+        Long insertRows = values.size() == 1 && !values.get(0).expressions_().isEmpty() ? (long) values.get(0).expressions_().size() : null;
         for (Dml_table_expression_clauseContext target : insertTargets) {
-            addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, target.tableview_name()), sources);
+            BehaviorRelation relation = addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, target.tableview_name()), sources);
+            if (relation != null && insertRows != null) {
+                relation.setInsertRows(insertRows);
+            }
         }
         return null;
     }
@@ -273,9 +278,9 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         behavior.setStatementType(type);
     }
 
-    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -287,6 +292,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         }
         behavior.getRelations().add(relation);
         behavior.setStatementType(type);
+        return relation;
     }
 
     private List<BehaviorObject> sourceTables(ParseTree tree, Set<Dml_table_expression_clauseContext> excluded) {
