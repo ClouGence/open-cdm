@@ -1,0 +1,128 @@
+[insert_values]
+sql:
+INSERT INTO target_orders(id, customer_id, status, amount)
+VALUES (20001, 1, 'PENDING', 10.00), (20002, 2, 'DONE', 20.00);
+input:
+[
+  {"id":1,"select_type":"INSERT","table":"target_orders","partitions":null,"type":"ALL","possible_keys":null,"key":null,"key_len":null,"ref":null,"rows":null,"filtered":null,"Extra":null}
+]
+relations:
+[
+  {"subject":{"objectPath":"/test/1/catalog1/schema1/target_orders/"},"action":"INSERT","insertRows":2}
+]
+expect:
+{
+  "source":"MERGE",
+  "nodes": [
+    {
+      "nodeId":"0","logical":"INSERT","physical":"ALL","objectPath":"/test/1/catalog1/schema1/target_orders/","estimatedRows":2.0,
+      "properties":{"id":"1","select_type":"INSERT","table":"target_orders","type":"ALL"}
+    }
+  ],
+  "properties": {}
+}
+----------
+[insert_values_statement_only]
+sql:
+INSERT INTO target_orders(id, customer_id, status, amount)
+VALUES (1, 1, 'PENDING', 10.00), (2, 2, 'DONE', 20.00), (3, 3, 'DONE', 30.00);
+input:
+[]
+relations:
+[
+  {"subject":{"objectPath":"/test/1/catalog1/schema1/target_orders/"},"action":"INSERT","insertRows":3}
+]
+expect:
+{
+  "source":"STATEMENT",
+  "nodes":[
+    {"nodeId":"0","logical":"INSERT","objectPath":"/test/1/catalog1/schema1/target_orders/","estimatedRows":3.0,"properties":{}}
+  ],
+  "properties":{}
+}
+----------
+[replace_values]
+sql:
+REPLACE INTO target_orders(id, customer_id, status, amount)
+VALUES (20001, 1, 'PENDING', 10.00), (20002, 2, 'DONE', 20.00);
+input:
+[
+  {"id":1,"select_type":"REPLACE","table":"target_orders","partitions":null,"type":"ALL","possible_keys":null,"key":null,"key_len":null,"ref":null,"rows":null,"filtered":null,"Extra":null}
+]
+relations:
+[
+  {"subject":{"objectPath":"/test/1/catalog1/schema1/target_orders/"},"action":"MERGE","insertRows":2}
+]
+expect:
+{
+  "source":"MERGE",
+  "nodes":[
+    {
+      "nodeId":"0","logical":"REPLACE","physical":"ALL","objectPath":"/test/1/catalog1/schema1/target_orders/","estimatedRows":2.0,
+      "properties":{"id":"1","select_type":"REPLACE","table":"target_orders","type":"ALL"}
+    }
+  ],
+  "properties":{}
+}
+----------
+[replace_select]
+sql:
+REPLACE INTO target_orders(id, customer_id, status, amount)
+SELECT id + 30000, customer_id, status, amount
+FROM source_orders
+WHERE status = 'PENDING';
+input:
+[
+  {"id":1,"select_type":"REPLACE","table":"target_orders","partitions":null,"type":"ALL","possible_keys":null,"key":null,"key_len":null,"ref":null,"rows":null,"filtered":null,"Extra":null},
+  {"id":1,"select_type":"SIMPLE","table":"source_orders","partitions":null,"type":"ref","possible_keys":"idx_status","key":"idx_status","key_len":"66","ref":"const","rows":1000,"filtered":100,"Extra":null}
+]
+relations:
+[
+  {"subject":{"objectPath":"/test/1/catalog1/schema1/target_orders/"},"action":"MERGE","insertRows":null}
+]
+expect:
+{
+  "source":"MERGE",
+  "nodes":[
+    {
+      "nodeId":"0","logical":"REPLACE","physical":"ALL","objectPath":"/test/1/catalog1/schema1/target_orders/","estimatedRows":1000.0,
+      "properties":{"id":"1","select_type":"REPLACE","table":"target_orders","type":"ALL"}
+    },
+    {
+      "nodeId":"1","logical":"SIMPLE","physical":"ref","objectPath":"source_orders","estimatedRows":1000.0,
+      "properties":{"id":"1","select_type":"SIMPLE","table":"source_orders","type":"ref","possible_keys":"idx_status","key":"idx_status","key_len":"66","ref":"const","rows":"1000","filtered":"100"}
+    }
+  ],
+  "properties":{}
+}
+----------
+[insert_select]
+sql:
+INSERT INTO target_orders(id, customer_id, status, amount)
+SELECT id + 30000, customer_id, status, amount
+FROM source_orders
+WHERE status = 'PENDING';
+input:
+[
+  {"id":1,"select_type":"INSERT","table":"target_orders","partitions":null,"type":"ALL","possible_keys":null,"key":null,"key_len":null,"ref":null,"rows":null,"filtered":null,"Extra":null},
+  {"id":1,"select_type":"SIMPLE","table":"source_orders","partitions":null,"type":"ref","possible_keys":"idx_status","key":"idx_status","key_len":"66","ref":"const","rows":1000,"filtered":100,"Extra":null}
+]
+relations:
+[
+  {"subject":{"objectPath":"/test/1/catalog1/schema1/target_orders/"},"action":"INSERT","insertRows":null}
+]
+expect:
+{
+  "source":"MERGE",
+  "nodes": [
+    {
+      "nodeId":"0","logical":"INSERT","physical":"ALL","objectPath":"/test/1/catalog1/schema1/target_orders/","estimatedRows":1000.0,
+      "properties":{"id":"1","select_type":"INSERT","table":"target_orders","type":"ALL"}
+    },
+    {
+      "nodeId":"1","logical":"SIMPLE","physical":"ref","objectPath":"source_orders","estimatedRows":1000.0,
+      "properties":{"id":"1","select_type":"SIMPLE","table":"source_orders","type":"ref","possible_keys":"idx_status","key":"idx_status","key_len":"66","ref":"const","rows":"1000","filtered":"100"}
+    }
+  ],
+  "properties": {}
+}

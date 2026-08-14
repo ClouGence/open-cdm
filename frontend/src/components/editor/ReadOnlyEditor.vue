@@ -3,6 +3,7 @@ import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 const DEFAULT_LINE_HEIGHT = 22;
 const DEFAULT_VERTICAL_PADDING = 25;
@@ -18,10 +19,6 @@ export default {
     language: {
       type: String,
       default: 'sql'
-    },
-    fontWeight: {
-      type: [Number, String],
-      default: 'bold'
     },
     dsType: {
       type: String,
@@ -115,7 +112,11 @@ export default {
     async createEditor() {
       if (this.text) {
         if (this.monacoEditor) {
+          const viewState = this.monacoEditor.saveViewState();
           this.monacoEditor.getModel().setValue(this.text);
+          if (viewState) {
+            this.monacoEditor.restoreViewState(viewState);
+          }
           this.applyLanguage();
         } else {
           const language = await this.resolveLanguage();
@@ -123,8 +124,7 @@ export default {
             monaco.editor.create(this.$refs.readOnlyEditor, {
               value: this.text, // The editor 's value
               language,
-              fontSize: 14,
-              fontWeight: this.fontWeight,
+              ...SQL_EDITOR_TYPOGRAPHY,
               scrollBeyondLastLine: false,
               readOnly: true,
               domReadOnly: true,
@@ -139,9 +139,8 @@ export default {
               },
               lineNumbers: this.lineNumberOption(),
               scrollbar: {
+                ...SQL_EDITOR_SCROLLBAR,
                 vertical: this.virtualScrollMode ? 'hidden' : 'auto',
-                verticalScrollbarSize: 5,
-                horizontalScrollbarSize: 8,
                 handleMouseWheel: !this.virtualScrollMode,
                 alwaysConsumeMouseWheel: !this.virtualScrollMode
               },
@@ -151,6 +150,16 @@ export default {
               autoIndent: true // Auto Indent
             })
           );
+          this.monacoEditor.onDidScrollChange((event) => {
+            if (!event.scrollTopChanged) {
+              return;
+            }
+            const viewportHeight = this.monacoEditor.getLayoutInfo().height;
+            const remainingHeight = this.monacoEditor.getScrollHeight() - event.scrollTop - viewportHeight;
+            if (remainingHeight <= DEFAULT_LINE_HEIGHT * 2) {
+              this.$emit('reach-bottom');
+            }
+          });
         }
         this.$nextTick(() => {
           this.updateViewportHeight();
@@ -187,9 +196,8 @@ export default {
     updateScrollbarMode(virtualScrollMode) {
       this.monacoEditor?.updateOptions({
         scrollbar: {
+          ...SQL_EDITOR_SCROLLBAR,
           vertical: virtualScrollMode ? 'hidden' : 'auto',
-          verticalScrollbarSize: 5,
-          horizontalScrollbarSize: 8,
           handleMouseWheel: !virtualScrollMode,
           alwaysConsumeMouseWheel: !virtualScrollMode
         }
@@ -260,15 +268,5 @@ export default {
 
 :deep(.below) {
   display: none;
-}
-
-:deep(.monaco-scrollable-element > .scrollbar) {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.1);
-}
-
-:deep(.monaco-scrollable-element > .scrollbar > .slider) {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.3) !important;
 }
 </style>

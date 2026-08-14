@@ -1,0 +1,43 @@
+[delete_join]
+sql:
+DELETE t
+FROM target_orders t
+JOIN source_orders s ON s.id = t.id
+WHERE s.status = 'PENDING' AND s.amount > 500;
+input:
+[
+  {"id":1,"select_type":"SIMPLE","table":"s","partitions":null,"type":"ref","possible_keys":"PRIMARY,idx_status","key":"idx_status","key_len":"66","ref":"const","rows":1000,"filtered":33.33,"Extra":"Using where"},
+  {"id":1,"select_type":"DELETE","table":"t","partitions":null,"type":"eq_ref","possible_keys":"PRIMARY","key":"PRIMARY","key_len":"4","ref":"clouddm_explain_plan_test.s.id","rows":1,"filtered":100,"Extra":null}
+]
+expect:
+{
+  "source":"NATIVE",
+  "nodes":[
+    {"nodeId":"0","logical":"SIMPLE","physical":"ref","objectPath":"s","estimatedRows":1000.0,"properties":{"id":"1","select_type":"SIMPLE","table":"s","type":"ref","possible_keys":"PRIMARY,idx_status","key":"idx_status","key_len":"66","ref":"const","rows":"1000","filtered":"33.33","Extra":"Using where"}},
+    {"nodeId":"1","logical":"DELETE","physical":"eq_ref","objectPath":"t","estimatedRows":1.0,"properties":{"id":"1","select_type":"DELETE","table":"t","type":"eq_ref","possible_keys":"PRIMARY","key":"PRIMARY","key_len":"4","ref":"clouddm_explain_plan_test.s.id","rows":"1","filtered":"100"}}
+  ],
+  "properties":{}
+}
+----------
+[delete_with_simple_select_type]
+sql:
+DELETE FROM dm_sql_upload_10mb_test;
+input:
+[
+  {"id":1,"select_type":"SIMPLE","table":"dm_sql_upload_10mb_test","partitions":null,"type":"ALL","possible_keys":null,"key":null,"key_len":null,"ref":null,"rows":5475,"filtered":100,"Extra":null}
+]
+expect:
+{
+  "source":"NATIVE",
+  "nodes": [
+    {
+      "nodeId":"0",
+      "logical":"SIMPLE",
+      "physical":"ALL",
+      "objectPath":"dm_sql_upload_10mb_test",
+      "estimatedRows":5475.0,
+      "properties":{"id":"1","select_type":"SIMPLE","table":"dm_sql_upload_10mb_test","type":"ALL","rows":"5475","filtered":"100"}
+    }
+  ],
+  "properties":{}
+}

@@ -6,6 +6,7 @@
   display: flex;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: var(--shell-bg);
 }
@@ -14,6 +15,7 @@
   width: @shell-sidebar-width;
   flex-shrink: 0;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background: transparent;
@@ -245,6 +247,7 @@
   flex: 1;
   min-width: 0;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -343,6 +346,67 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+
+    > * {
+      min-width: 0;
+    }
+  }
+}
+
+// MacBook-sized viewports and browser zoom reduce the effective CSS width
+// before they become phone-sized. Keep navigation usable while returning
+// space to the work area at those intermediate widths.
+@media (max-width: 1439px) {
+  .app-sidebar {
+    width: 208px;
+  }
+
+  .app-main-body {
+    padding: 12px 12px 12px 6px;
+  }
+}
+
+@media (max-width: 1199px) {
+  .app-sidebar {
+    width: 176px;
+
+    .app-sidebar-section {
+      padding: 0 8px;
+    }
+
+    .app-sidebar-item,
+    .app-sidebar-group-toggle {
+      padding-right: 10px;
+      padding-left: 10px;
+    }
+  }
+
+  .app-content-header {
+    padding: 12px 16px;
+
+    &__right {
+      gap: 8px;
+    }
+
+    &__link {
+      width: 32px;
+      padding: 0;
+      justify-content: center;
+
+      span {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 1023px) {
+  .app-sidebar {
+    width: 160px;
+  }
+
+  .app-main-body {
+    padding: 8px 8px 8px 4px;
   }
 }
 
@@ -435,6 +499,7 @@
   flex-direction: column;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: var(--bg-primary);
 }
@@ -515,6 +580,7 @@
 
 .home--sql {
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 

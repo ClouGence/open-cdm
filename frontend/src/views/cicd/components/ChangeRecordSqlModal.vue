@@ -19,7 +19,6 @@
             :max-height="520"
             :ds-type="record?.dsType"
             :border="0"
-            :font-weight="400"
             :content-padding="12"
             virtual-scroll-mode
             :line-number-start="sqlPreviewStartLine"

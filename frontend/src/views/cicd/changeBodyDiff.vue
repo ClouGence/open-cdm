@@ -6,6 +6,7 @@
 import * as monaco from 'monaco-editor';
 import { mapState } from 'vuex';
 import { resolveSqlEditorLanguage } from '@/components/editor/sqlLanguage';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 
 export default {
   name: 'MonacoDiff',
@@ -49,6 +50,8 @@ export default {
   async mounted() {
     this.editor = monaco.editor.createDiffEditor(this.$refs.container, {
       theme: this.theme,
+      ...SQL_EDITOR_TYPOGRAPHY,
+      scrollbar: SQL_EDITOR_SCROLLBAR,
       automaticLayout: true,
       readOnly: true
     });

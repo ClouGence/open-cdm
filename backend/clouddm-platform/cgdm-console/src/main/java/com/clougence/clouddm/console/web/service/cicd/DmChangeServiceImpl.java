@@ -168,9 +168,24 @@ public class DmChangeServiceImpl implements DmChangeService {
         if (!CollectionUtils.isEmpty(cascadeChangeIds)) {
             downstream = this.changeCascadeService.queryDownstreamTransfers(ownerUid, cascadeChangeIds);
         }
+
+        Set<Long> changeIds = records.stream().map(DmChangeDO::getId).collect(Collectors.toSet());
+        downstream.values().stream().flatMap(Collection::stream).map(ChangeTransferVO::getTargetChangeId).filter(Objects::nonNull).forEach(changeIds::add);
+        Map<Long, Long> ticketIds = this.queryTicketIds(ownerUid, changeIds);
+
         for (int i = 0; i < records.size(); i++) {
             DmChangeDO change = records.get(i);
             ChangeVO vo = vos.get(i);
+            Long currentTicketId = ticketIds.get(change.getId());
+            List<ChangeTransferVO> transfers = downstream.getOrDefault(change.getId(), Collections.emptyList());
+            for (ChangeTransferVO transfer : transfers) {
+                Long targetTicketId = ticketIds.get(transfer.getTargetChangeId());
+                transfer.setTargetTicketId(targetTicketId);
+                if (targetTicketId != null) {
+                    currentTicketId = targetTicketId;
+                }
+            }
+            vo.setTicketId(currentTicketId);
             if (change.getRefBatchId() != null) {
                 DmChangeBatchDO batch = batches.get(change.getRefBatchId());
                 if (batch != null) {
@@ -188,7 +203,7 @@ public class DmChangeServiceImpl implements DmChangeService {
                     }
                 }
             }
-            vo.setDownstream(downstream.getOrDefault(change.getId(), Collections.emptyList()));
+            vo.setDownstream(transfers);
         }
 
         results.setRecords(vos);

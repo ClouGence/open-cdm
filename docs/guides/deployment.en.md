@@ -97,11 +97,11 @@ The system automatically enters the initialization wizard. After completing data
 
 ```bash
 # One-click startup
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.0.1
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.1.0
 
 # China registry acceleration
 docker run -d --name cgdm-alone -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.0.1
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.1.0
 ```
 
 Persistent data volumes:
@@ -114,7 +114,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.0.1
+  bladepipe/cgdm-alone:4.1.0
 
 # Mount to host directories
 mkdir -p /data/cgdm/{conf,logs,data,mysql}
@@ -125,7 +125,7 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.0.1
+  bladepipe/cgdm-alone:4.1.0
 ```
 
 When `/data/cgdm/conf` is empty, the container initializes it with the default configuration files on startup.
@@ -137,7 +137,7 @@ After the build is complete, deployment files named `docker-alone-xxx.yml` will 
 ```yml
 services:
   dm_alone:
-    image: clougence/cgdm-alone:4.0.1
+    image: clougence/cgdm-alone:4.1.0
     container_name: cgdm-alone
     restart: always
     ports:
@@ -277,7 +277,7 @@ docker run -d --name dm_console \
   -e DB_DATABASE=cdmgr \
   -e DB_USERNAME=root \
   -e DB_PASSWORD=123456 \
-  bladepipe/cgdm-console:4.0.1
+  bladepipe/cgdm-console:4.1.0
 
 # Start Sidecar
 docker run -d --name dm_sidecar \
@@ -288,13 +288,13 @@ docker run -d --name dm_sidecar \
   -e DM_CLIENT_WSN=<replace_with_actual_value> \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
-  bladepipe/cgdm-sidecar:4.0.1
+  bladepipe/cgdm-sidecar:4.1.0
 ```
 
 For China deployment, simply replace the images with:
 
-- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-console:4.0.1`
-- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-sidecar:4.0.1`
+- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-console:4.1.0`
+- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-sidecar:4.1.0`
 
 ### 4.3 Use Docker Compose
 
@@ -316,7 +316,7 @@ services:
     command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
 
   dm_console:
-    image: clougence/cgdm-console:x86_64-4.0.1
+    image: clougence/cgdm-console:x86_64-4.1.0
     container_name: cgdm-console
     restart: always
     ports:
@@ -341,7 +341,7 @@ services:
       DB_PASSWORD: 123456
 
   dm_sidecar:
-    image: clougence/cgdm-sidecar:x86_64-4.0.1
+    image: clougence/cgdm-sidecar:x86_64-4.1.0
     container_name: cgdm-sidecar
     restart: always
     depends_on:

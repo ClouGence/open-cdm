@@ -58,16 +58,21 @@
           </template>
         </a-tabs>
       </div>
-      <div id="result-info-container" class="result-info-container" style="height: 100%" v-if="tab.result.active === 'message'">
-        <div class="result-info-messages">
+      <div class="result-info-container" style="height: 100%" v-if="tab.result.active === 'message'">
+        <div ref="resultInfoMessages" class="result-info-messages sql-editor-typography">
           <div v-for="(info, index) in tab.executeInfo" :key="index" class="result-info">
-            <div class="info" v-if="info.resultType === 'QueryScript'">
+            <div class="info info--query" v-if="info.resultType === 'QueryScript'">
               <div class="level">{{ info.line }}</div>
-              <div class="message">
-                {{ info.script }}
-              </div>
+              <ExecutionSqlText class="message" :sql="info.script" />
             </div>
-            <div class="info" v-else>
+            <div
+              class="info"
+              :class="{
+                'info--error': info.level === 'Error' || info.level === 'error',
+                'info--warn': info.level === 'Warn' || info.level === 'warn'
+              }"
+              v-else
+            >
               <div class="time">[{{ info.time }}]</div>
               <div :class="`message ${info.level}`">
                 {{ info.message }}
@@ -83,8 +88,8 @@
             <div class="btn-group-item" @click="handleScrollUpMessage">
               <CustomIcon type="icon-v2-scroll_up" size="18px" />
             </div>
-            <div class="btn-group-item" @click="handleScrollDownMessage">
-              <CustomIcon type="icon-v2-scroll_down" size="18px" :custom-style="tab.executeInfoScrollDown ? 'btn-group-item-hover' : ''" />
+            <div class="btn-group-item" :class="{ 'btn-group-item--active': tab.executeInfoScrollDown }" @click="handleScrollDownMessage">
+              <CustomIcon type="icon-v2-scroll_down" size="18px" />
             </div>
             <div class="btn-group-item" @click="handleClearMessage">
               <CustomIcon type="icon-v2-Delete2" size="18px" />
@@ -100,7 +105,7 @@
         <div class="tip-footer">
           <div class="tip-footer-main">
             <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
-              <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
+              <div v-if="tab.running && selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
                 <div class="loading-spinner"></div>
               </div>
               <Page
@@ -179,6 +184,7 @@
         <div class="result-table-container" v-if="selectedTab">
           <a-table
             class="result-set-style"
+            :class="{ 'result-set-style--empty': !selectedTab.showData?.length }"
             :ref="`result_table_${tab.result.active}`"
             :columns="antdColumns"
             :dataSource="selectedTab.showData"
@@ -409,6 +415,7 @@ import copyMixin from '@/mixins/copyMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { mapGetters, mapState } from 'vuex';
 import CustomIcon from '@/components/function/CustomIcon.vue';
+import ExecutionSqlText from '@/views/sql/components/ExecutionSqlText.vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import XEClipboard from 'xe-clipboard';
 
@@ -419,7 +426,8 @@ export default {
     tab: Object
   },
   components: {
-    CustomIcon
+    CustomIcon,
+    ExecutionSqlText
     // AsyncJobDetail,
     // AsyncJobList
   },
@@ -479,7 +487,7 @@ export default {
       exportConfig: {},
       editorHeight: 250,
       paginatedLoading: {}, // Loading status for each result set
-      paginatedLoadingTimer: null, // Loading timer
+      paginatedLoadingTimers: {}, // Loading timers keyed by result set
       columnWidths: {}, // Stored column widths
       tableScrollY: 240,
       tableResizeObserver: null
@@ -523,6 +531,13 @@ export default {
       const matched = this.tab.result.list.find((item) => item.resultId === this.tab.result.active);
       return matched || {};
     },
+    selectedResultProgress() {
+      return {
+        resultId: this.selectedTab.resultId,
+        receiveMode: this.selectedTab.receiveMode,
+        fetchCount: this.selectedTab.fetchCount
+      };
+    },
     antdColumns() {
       if (!this.selectedTab || !this.selectedTab.columnListSeq) {
         return [];
@@ -563,22 +578,27 @@ export default {
     }
   },
   watch: {
-    // Show loading when fetchCount changes in PAGINATED mode.
-    'selectedTab.fetchCount': {
-      handler(newVal, oldVal) {
-        if (this.selectedTab?.receiveMode === 'PAGINATED' && this.selectedTab?.resultId) {
-          if (newVal !== undefined && oldVal !== undefined && newVal > oldVal) {
-            this.paginatedLoading[this.selectedTab.resultId] = true;
-            if (this.paginatedLoadingTimer) {
-              clearTimeout(this.paginatedLoadingTimer);
-            }
-            this.paginatedLoadingTimer = setTimeout(() => {
-              if (this.selectedTab?.resultId) {
-                this.paginatedLoading[this.selectedTab.resultId] = false;
-              }
-            }, 2000);
-          }
+    selectedResultProgress: {
+      handler(current, previous) {
+        if (!this.tab.running || current.receiveMode !== 'PAGINATED' || !current.resultId) {
+          return;
         }
+        if (!previous || current.resultId !== previous.resultId) {
+          return;
+        }
+        if (current.fetchCount === undefined || previous.fetchCount === undefined || current.fetchCount <= previous.fetchCount) {
+          return;
+        }
+
+        const resultId = current.resultId;
+        this.paginatedLoading[resultId] = true;
+        if (this.paginatedLoadingTimers[resultId]) {
+          clearTimeout(this.paginatedLoadingTimers[resultId]);
+        }
+        this.paginatedLoadingTimers[resultId] = setTimeout(() => {
+          this.paginatedLoading[resultId] = false;
+          delete this.paginatedLoadingTimers[resultId];
+        }, 2000);
       },
       immediate: false
     },
@@ -587,10 +607,11 @@ export default {
         if (running) {
           return;
         }
-        if (this.paginatedLoadingTimer) {
-          clearTimeout(this.paginatedLoadingTimer);
-          this.paginatedLoadingTimer = null;
+        const loadingTimerIds = Object.keys(this.paginatedLoadingTimers);
+        for (let i = 0; i < loadingTimerIds.length; i++) {
+          clearTimeout(this.paginatedLoadingTimers[loadingTimerIds[i]]);
         }
+        this.paginatedLoadingTimers = {};
         const resultIds = Object.keys(this.paginatedLoading);
         for (let i = 0; i < resultIds.length; i++) {
           this.paginatedLoading[resultIds[i]] = false;
@@ -664,8 +685,9 @@ export default {
     this.$bus.off('consoleMessageAppend');
     this.$bus.off(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO);
     this.$bus.off(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT);
-    if (this.paginatedLoadingTimer) {
-      clearTimeout(this.paginatedLoadingTimer);
+    const loadingTimerIds = Object.keys(this.paginatedLoadingTimers);
+    for (let i = 0; i < loadingTimerIds.length; i++) {
+      clearTimeout(this.paginatedLoadingTimers[loadingTimerIds[i]]);
     }
   },
   methods: {
@@ -729,8 +751,8 @@ export default {
           }
         ],
         event,
-        customClass: 'custom-class',
-        minWidth: 100
+        customClass: 'sql-context-menu',
+        minWidth: 176
       });
     },
     handleCloseResultTab(type, key) {
@@ -808,7 +830,7 @@ export default {
       }
 
       setTimeout(() => {
-        const ele = document.getElementById('result-info-container');
+        const ele = this.$refs.resultInfoMessages;
         if (!ele) {
           return;
         }
@@ -830,14 +852,14 @@ export default {
       });
     },
     handleScrollUpMessage() {
-      const ele = document.getElementById('result-info-container');
+      const ele = this.$refs.resultInfoMessages;
       if (ele) {
         ele.scrollTop = 0;
       }
     },
     handleScrollDownMessage() {
       this.tab.executeInfoScrollDown = !this.tab.executeInfoScrollDown;
-      const ele = document.getElementById('result-info-container');
+      const ele = this.$refs.resultInfoMessages;
       if (ele) {
         ele.scrollTop = ele.scrollHeight;
       }
@@ -849,7 +871,7 @@ export default {
       }
 
       setTimeout(() => {
-        const ele = document.getElementById('result-info-container');
+        const ele = this.$refs.resultInfoMessages;
         if (!ele) {
           return;
         }
@@ -937,9 +959,9 @@ export default {
           }
         ],
         event,
-        customClass: 'custom-class',
+        customClass: 'sql-context-menu',
         zIndex: 99,
-        minWidth: 100
+        minWidth: 176
       });
     },
     async handleCellCopy(record, column, rowIndex) {
@@ -1910,6 +1932,33 @@ export default {
       }
     }
 
+    .result-set-style--empty {
+      height: 100%;
+
+      :deep(.ant-spin-nested-loading),
+      :deep(.ant-spin-container),
+      :deep(.ant-table),
+      :deep(.ant-table-container) {
+        height: 100%;
+        min-height: 0;
+      }
+
+      :deep(.ant-table-container) {
+        display: flex;
+        flex-direction: column;
+      }
+
+      :deep(.ant-table-header) {
+        flex: none;
+      }
+
+      :deep(.ant-table-body) {
+        flex: 1;
+        min-height: 0;
+        overflow-x: auto !important;
+      }
+    }
+
     :deep(.seq-content) {
       padding: 0 4px !important;
     }
@@ -1929,47 +1978,67 @@ export default {
   }
 
   .result-info-container {
-    overflow-y: scroll;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
     width: 100%;
+    background: var(--bg-primary);
 
     .result-info-messages {
-      width: calc(100% - 28px);
-      min-height: 100%;
-      display: inline-block;
-      border-right: #c0c4cc solid 1px;
-      margin-left: 3px;
-      padding-top: 3px;
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      overflow: auto;
+      border-right: 1px solid var(--border-primary);
+      padding: 7px 10px 12px;
 
       .result-info {
-        margin-bottom: 1px;
-        font-weight: bold;
-        font-size: 12px;
+        margin-bottom: 2px;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 21px;
 
         .info {
           display: flex;
+          align-items: flex-start;
+          min-width: 0;
 
           .level {
-            border-radius: 1px;
-            height: 18px;
-            margin-right: 3px;
-            color: #19be6b;
+            flex: 0 0 auto;
+            margin-right: 6px;
+            color: #183995;
+            white-space: pre;
           }
 
           .time {
-            margin-right: 5px;
-            color: #aaa;
+            flex: 0 0 auto;
+            margin-right: 8px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+          }
+
+          &.info--warn .time {
+            color: #ad6800;
+          }
+
+          &.info--error .time {
+            color: #a8071a;
           }
 
           .message {
             flex: 1;
+            min-width: 0;
+            color: var(--text-primary);
             word-break: break-all;
 
-            &.Warn {
-              color: #f90;
+            &.Warn,
+            &.warn {
+              color: #ad6800;
             }
 
-            &.Error {
-              color: #ed4014;
+            &.Error,
+            &.error {
+              color: #a8071a;
             }
           }
         }
@@ -1977,24 +2046,31 @@ export default {
     }
 
     .result-info-buttons {
-      width: 24px;
-      display: inline-block;
-      vertical-align: top;
+      flex: 0 0 44px;
+      height: 100%;
+      padding-top: 8px;
+      display: flex;
+      justify-content: center;
+      box-sizing: border-box;
 
       .btn-group {
-        position: fixed;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
 
         .btn-group-item {
-          padding: 0 2px;
-          margin: 2px 2px;
-          display: block;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-secondary);
+          border-radius: 6px;
         }
 
-        :deep(.btn-group-item-hover),
+        .btn-group-item--active,
         .btn-group-item:hover {
-          vertical-align: middle;
-          background: #e4e4e4;
-          border-radius: 3%;
+          background: var(--bg-tertiary);
           cursor: pointer;
         }
       }
@@ -2324,6 +2400,26 @@ export default {
 
   .vxe-input-tpl .op {
     background: rgba(0, 0, 0, 0.9);
+  }
+}
+
+:global([data-theme='dark']) {
+  .result-container .result-info-container .result-info-messages .result-info .info {
+    .level {
+      color: #9cdcfe;
+    }
+
+    .message.Warn,
+    .message.warn,
+    &.info--warn .time {
+      color: #dcdcaa;
+    }
+
+    .message.Error,
+    .message.error,
+    &.info--error .time {
+      color: #f48771;
+    }
   }
 }
 :deep(.ant-table .ant-table-tbody tr td) {

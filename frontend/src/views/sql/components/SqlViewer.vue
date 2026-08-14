@@ -22,7 +22,6 @@
       :set-editor-instance="setEditorInstance"
       :current-tab="tab"
       ref="editor"
-      style="border-bottom: 1px solid #ccc"
       :completion-data="completionData"
       :store-query-tabs="storeQueryTabs"
       :rdb-object-detail="rdbObjectDetail"
@@ -114,7 +113,7 @@ export default {
           width: 200
         },
         {
-          title: this.$t('miao-shu'),
+          title: this.$t('wei-gui-ti-shi'),
           key: 'ruleDesc'
         }
       ];
@@ -310,9 +309,6 @@ export default {
     },
     async onRun(type = 'run', asyncForm) {
       this.storeQueryTabs();
-      if (window._hmt && this.isDesktop) {
-        window._hmt.push(['_trackEvent', 'execute sql', 'uid', 'personal']);
-      }
       const selection = this.monacoEditor.getSelection();
       const hasSelection =
         selection.selectionStartLineNumber !== selection.positionLineNumber || selection.selectionStartColumn !== selection.positionColumn;

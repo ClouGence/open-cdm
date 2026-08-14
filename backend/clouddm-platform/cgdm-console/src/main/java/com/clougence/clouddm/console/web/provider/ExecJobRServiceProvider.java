@@ -283,6 +283,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setAffectRow(0L);
         taskDO.setGmtLastEnd(message.getTime());
         execDal.autoTaskMapper().updateById(taskDO);
+
+        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.ERROR,
+            message.getMessage(),
+            LogDependBizType.AUTO_EXEC_TASK, //
+            taskDO.getBizId());
+        monitorDal.bizLogMapper().insert(logDO);
     }
 
     private void taskStart(AutoExecMessageDTO message) {

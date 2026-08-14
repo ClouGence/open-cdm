@@ -1,17 +1,7 @@
 <template>
   <div class="ticket-container">
     <div class="table-list-layout">
-      <nav class="ticket-tabs">
-        <button
-          v-for="tab in ticketTabs"
-          :key="tab.name"
-          class="ticket-tabs__item"
-          :class="{ 'is-active': ticketListType === tab.name }"
-          @click="handleTabClick(tab.name)"
-        >
-          {{ tab.label }}
-        </button>
-      </nav>
+      <AppPageTabs :model-value="ticketListType" :tabs="ticketTabs" @change="handleTabClick" />
       <div class="table-list">
         <div class="content">
           <div class="option">
@@ -57,6 +47,18 @@
                   <CustomIcon type="icon-v2-TicketAuth" />
                   {{ row.targetInfo }}
                 </span>
+                <div v-else-if="['DM_QUERY', 'DM_CHANGE'].includes(row.approBiz)" class="ticket-resource">
+                  <DataSourceIcon
+                    class="ticket-resource__icon"
+                    size="24px"
+                    :type="row.resourceType || 'DataBase'"
+                    :instanceType="row.deployEnvType"
+                    leftMargin="0"
+                  />
+                  <div class="ticket-resource__name" :title="row.resourceDesc || row.resourceName || '-'">
+                    {{ row.resourceDesc || row.resourceName || '-' }}
+                  </div>
+                </div>
                 <span v-else>
                   <CustomIcon :type="`icon-v2-${row.resourceType}`" :instanceType="row.deployEnvType"></CustomIcon>
                   {{ row.targetInfo }}
@@ -120,11 +122,13 @@
 import { mapState } from 'vuex';
 import { TICKET_STATUS, TICKET_STATUS_COLOR } from '@/const';
 import { APPROV_BIZ_MAP } from './constant';
+import AppPageTabs from '@/components/layout/AppPageTabs';
 import CustomIcon from '@/components/function/CustomIcon.vue';
+import DataSourceIcon from '@/components/function/DataSourceIcon';
 
 export default {
   name: 'Ticket',
-  components: { CustomIcon },
+  components: { AppPageTabs, CustomIcon, DataSourceIcon },
   data() {
     return {
       showTicketCreateModal: false,
@@ -189,7 +193,7 @@ export default {
           slot: 'action'
         }
       ],
-      pageSize: 40,
+      pageSize: 20,
       pageNum: 1,
       total: 0
     };
@@ -310,46 +314,30 @@ export default {
   overflow: hidden;
 }
 
-.ticket-tabs {
+.ticket-resource {
   display: flex;
+  min-width: 0;
+  min-height: 32px;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 0;
-  background: var(--bg-card);
+  gap: 8px;
+}
 
-  &__item {
-    position: relative;
-    padding: 12px 20px 10px;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-    border: none;
-    border-bottom: none;
-    background: none;
-    cursor: pointer;
-    transition: color 0.12s ease;
+.ticket-resource__icon {
+  display: inline-flex;
+  width: 28px;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+}
 
-    &:hover {
-      color: var(--text-primary);
-    }
-
-    &.is-active {
-      color: var(--text-primary);
-      font-weight: 500;
-
-      &::after {
-        content: '';
-        position: absolute;
-        left: 20px;
-        right: 20px;
-        bottom: 0;
-        height: 2px;
-        border-radius: 2px 2px 0 0;
-        background: var(--primary-color);
-      }
-    }
-  }
+.ticket-resource__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
 }
 </style>

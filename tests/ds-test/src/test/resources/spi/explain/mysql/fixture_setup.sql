@@ -1,0 +1,35 @@
+-- Common fixture used to capture plans from MySQL 5.6, 5.7, 8.0, 8.4 and 9.7.
+DROP DATABASE IF EXISTS clouddm_explain_plan_test;
+CREATE DATABASE clouddm_explain_plan_test;
+USE clouddm_explain_plan_test;
+
+CREATE TABLE source_orders (
+    id          INT PRIMARY KEY,
+    customer_id INT           NOT NULL,
+    status      VARCHAR(16)   NOT NULL,
+    amount      DECIMAL(10,2) NOT NULL,
+    KEY idx_status (status),
+    KEY idx_customer (customer_id)
+);
+
+CREATE TABLE target_orders LIKE source_orders;
+
+INSERT INTO source_orders
+SELECT n,
+       MOD(n, 100),
+       IF(MOD(n, 10) = 0, 'PENDING', 'DONE'),
+       MOD(n * 37, 10000) / 10
+FROM (
+    SELECT a.n + b.n * 10 + c.n * 100 + d.n * 1000 + 1 AS n
+    FROM (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+          UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a
+    CROSS JOIN (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
+    CROSS JOIN (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) c
+    CROSS JOIN (SELECT 0 n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+                UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) d
+) seq;
+
+INSERT INTO target_orders SELECT * FROM source_orders;
+ANALYZE TABLE source_orders, target_orders;

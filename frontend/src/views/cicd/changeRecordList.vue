@@ -45,6 +45,7 @@
                   <Button v-if="row.flowType !== 'BUILT_IN'" type="text" @click="showSqlContent(row, 'diff')">
                     {{ $t('bian-geng-diff') }}
                   </Button>
+                  <Button v-if="row.ticketId" type="text" @click="goToTicket(row.ticketId)">{{ $t('gong-dan') }}</Button>
                   <Button v-if="row.rootChangeId" type="text" :loading="progressLoadingId === row.changeId" @click="showChangeProgress(row)">
                     {{ $t('cicd-change-progress-action') }}
                   </Button>
@@ -133,7 +134,7 @@ export default {
         {
           title: this.$t('cao-zuo'),
           slot: 'action',
-          width: 280,
+          width: 340,
           align: 'center'
         }
       ];
@@ -273,6 +274,9 @@ export default {
       this.selectedSqlRecord = record;
       this.sqlModalMode = mode;
       this.sqlModalVisible = true;
+    },
+    goToTicket(ticketId) {
+      this.$router.push(`/ticket/${ticketId}`);
     },
     async showChangeProgress(record) {
       this.progressLoadingId = record.changeId;

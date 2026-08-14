@@ -26,6 +26,7 @@ public interface ExplainPlanSpi extends Spi {
             BehaviorAction.DELETE,  //
             BehaviorAction.MERGE,   //
             BehaviorAction.REPLACE));
+    Set<BehaviorAction> ACTIONS              = AFFECTED_ROW_ACTIONS;
 
     ExplainPlan analyze(List<Result> results, List<BehaviorRelation> relations);
 

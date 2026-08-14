@@ -1,0 +1,21 @@
+[insert_select]
+sql:
+INSERT INTO target_orders(id, customer_id, status, amount)
+SELECT id + 30000, customer_id, status, amount FROM source_orders WHERE status = 'PENDING';
+input:
+[
+  {"id":1,"select_type":"SIMPLE","table":"source_orders","type":"ref","possible_keys":"idx_status","key":"idx_status","key_len":"18","ref":"const","rows":999,"Extra":"Using index condition"}
+]
+relations:
+[
+  {"subject":{"objectPath":"/test/1/catalog1/schema1/target_orders/"},"action":"INSERT","insertRows":null}
+]
+expect:
+{
+  "source":"MERGE",
+  "nodes":[
+    {"nodeId":"0","logical":"SIMPLE","physical":"ref","objectPath":"source_orders","estimatedRows":999.0,"properties":{"id":"1","select_type":"SIMPLE","table":"source_orders","type":"ref","possible_keys":"idx_status","key":"idx_status","key_len":"18","ref":"const","rows":"999","Extra":"Using index condition"}},
+    {"nodeId":"1","logical":"INSERT","objectPath":"/test/1/catalog1/schema1/target_orders/","estimatedRows":999.0,"properties":{}}
+  ],
+  "properties":{}
+}

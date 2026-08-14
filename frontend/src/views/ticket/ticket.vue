@@ -91,12 +91,6 @@
               </div>
             </div>
           </div>
-          <div class="collapse rollback" v-if="showRollbackSql">
-            <div class="title">{{ $t('hui-gun-sql') }}</div>
-            <div class="content">
-              <ticket-editor ref="rollbackSqlEditor" :data-source-type="ticketData.dataSourceType" />
-            </div>
-          </div>
         </div>
       </div>
       <div class="create-ticket-content">
@@ -106,11 +100,6 @@
           </a-form-item>
           <a-form-item :label="$t('xu-qiu-miao-shu')" name="description">
             <Input type="textarea" v-model="ticketData.description" :rows="4" />
-          </a-form-item>
-          <a-form-item>
-            <Checkbox v-model="showRollbackSql">
-              {{ $t('tian-xie-hui-gun-sql') }}
-            </Checkbox>
           </a-form-item>
         </a-form>
         <div class="create-ticket-form-btn">
@@ -239,7 +228,6 @@ export default {
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
       showRawSql: true,
-      showRollbackSql: false,
       showCheckedOnlyError: false,
       checkedSql: '',
       loading: false,
@@ -309,11 +297,6 @@ export default {
     window.removeEventListener('resize', this.handleWindowResize);
   },
   watch: {
-    showRollbackSql() {
-      this.$nextTick(() => {
-        this.initializeHeights();
-      });
-    },
     noPassedRuleList: {
       handler() {
         this.$nextTick(() => {
@@ -457,7 +440,7 @@ export default {
     },
 
     layoutEditors() {
-      const editors = [this.$refs.rawSqlEditor, this.$refs.rollbackSqlEditor];
+      const editors = [this.$refs.rawSqlEditor];
       editors.forEach((editor) => {
         editor?.monacoEditor?.layout();
       });
@@ -567,7 +550,6 @@ export default {
           contentType: this.contentType,
           attachmentId: this.contentType === 'ATTACHMENT' ? this.sqlAttachment.attachmentId : null,
           rawSql: this.contentType === 'INLINE' && this.$refs.rawSqlEditor ? this.$refs.rawSqlEditor?.getSql() : null,
-          rollBackSql: this.showRollbackSql && this.$refs.rollbackSqlEditor ? this.$refs.rollbackSqlEditor?.getSql() : '',
           description: this.ticketData.description,
           ticketTitle: this.ticketData.ticketTitle,
           immediately: this.ticketData.immediately === 'immediately',
@@ -847,11 +829,6 @@ export default {
                 }
               }
             }
-          }
-
-          &.rollback {
-            flex: none;
-            height: 200px;
           }
 
           .title {

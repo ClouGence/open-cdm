@@ -30,12 +30,17 @@ import com.clougence.clouddm.platform.dal.mapper.execution.DmExecAutoJobMapper;
 import com.clougence.clouddm.platform.dal.mapper.execution.DmExecAutoTaskMapper;
 import com.clougence.clouddm.platform.dal.mapper.monitor.DmMonBizLogMapper;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 
 public class ExecJobRServiceProviderTest {
 
     private DmExecAutoJobMapper     jobMapper;
+    private DmExecAutoTaskMapper    taskMapper;
     private DmMonBizLogMapper       bizLogMapper;
     private ApprovalStateService    approvalStateService;
     private ExecJobRServiceProvider provider;
@@ -44,7 +49,7 @@ public class ExecJobRServiceProviderTest {
     public void setUp() {
         ExecutionDal executionDal = mock(ExecutionDal.class);
         jobMapper = mock(DmExecAutoJobMapper.class);
-        DmExecAutoTaskMapper taskMapper = mock(DmExecAutoTaskMapper.class);
+        taskMapper = mock(DmExecAutoTaskMapper.class);
         when(executionDal.autoJobMapper()).thenReturn(jobMapper);
         when(executionDal.autoTaskMapper()).thenReturn(taskMapper);
 
@@ -64,9 +69,12 @@ public class ExecJobRServiceProviderTest {
         DmExecAutoTaskDO task = new DmExecAutoTaskDO();
         task.setId(9L);
         task.setAutoExecJobId(6L);
+        task.setBizId("ticket-task");
         task.setExecOrder(1);
         task.setExecSql("select 1");
         task.setQueryId("task-query");
+        task.setStatus(AutoExecTaskStatus.EXECUTING);
+        task.setExecCount(0);
         when(taskMapper.queryByQueryId("task-query")).thenReturn(task);
         when(jobMapper.markJobFailedIfActive(6L)).thenReturn(1);
         when(jobMapper.finishJobIfActive(6L)).thenReturn(1);
@@ -85,6 +93,18 @@ public class ExecJobRServiceProviderTest {
 
         verify(jobMapper).markJobFailedIfActive(6L);
         verify(approvalStateService).failExecution("approval-biz", null);
+    }
+
+    @Test
+    public void shouldPersistTaskFailureReason() {
+        AutoExecMessageDTO message = AutoExecMessageDTO.taskFailMessage("task-query", "Table already exists", 1);
+        ReflectionTestUtils.invokeMethod(provider, "taskFailed", message);
+
+        verify(taskMapper).updateById(argThat((DmExecAutoTaskDO task) -> task.getStatus() == AutoExecTaskStatus.FAILED));
+        verify(bizLogMapper).insert(argThat((DmMonBizLogDO log) -> log.getLogLevel() == Loglevel.ERROR
+            && log.getDependOnBizType() == LogDependBizType.AUTO_EXEC_TASK
+            && "ticket-task".equals(log.getDependOnBizId())
+            && "Table already exists".equals(log.getContent())));
     }
 
     @Test
