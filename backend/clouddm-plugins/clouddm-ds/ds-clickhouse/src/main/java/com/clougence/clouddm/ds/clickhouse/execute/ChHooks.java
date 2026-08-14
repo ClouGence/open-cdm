@@ -29,6 +29,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.utils.StringUtils;
+import com.clougence.utils.Version;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +42,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChHooks implements SessionHook {
 
-    private final boolean changeSchema;
-    private final boolean transaction;
+    private static final Version CONNECTION_ID_MIN_VERSION = new Version("22.8");
+
+    private final boolean        changeSchema;
+    private final boolean        transaction;
 
     public ChHooks(DataSourceConfig config){
         ChSupportSpi supportSpi = new ChSupportSpi();
@@ -165,6 +168,11 @@ public class ChHooks implements SessionHook {
 
     @Override
     public String getQueryID(Connection conn) throws SQLException {
+        Version serverVersion = new Version(conn.getMetaData().getDatabaseProductVersion());
+        if (serverVersion.compareTo(CONNECTION_ID_MIN_VERSION) < 0) {
+            return "0";
+        }
+
         try (Statement s = conn.createStatement(); ResultSet resultSet = s.executeQuery("select connection_id()")) {
             return ((SingleValueRowMapper<String>) (rs, columnType, columnTypeName, columnClassName) -> rs.getString(1)).mapRow(resultSet);
         } catch (SQLException e) {

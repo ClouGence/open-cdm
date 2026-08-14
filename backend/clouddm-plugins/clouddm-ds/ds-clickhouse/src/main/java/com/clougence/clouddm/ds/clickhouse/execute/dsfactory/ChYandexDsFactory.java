@@ -83,6 +83,7 @@ public class ChYandexDsFactory implements DsFactory<Connection> {
             properties.setSessionTimeout(Long.parseLong(chSessionTimeoutMs) / 1000);
         }
         if (StringUtils.isNotBlank(clientTimeZone)) {
+            properties.setUseServerTimeZone(false);
             properties.setUseTimeZone(clientTimeZone);
         }
 
