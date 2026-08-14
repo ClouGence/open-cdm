@@ -41,10 +41,6 @@ public class Db2ForZosConfig extends DataSourceConfig {
     @ConfigDef(name = Fields.defaultCatalog, //
             group = DsConfigGroup.GENERAL, labelKey = Db2ForZosConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = Db2ForZosConfigI18nKeys.CONFIG_DB2_DEFAULT_DB_DESC, readOnly = false)
     private String  defaultCatalog;
-    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, //
-            group = DsConfigGroup.OPTIONS, labelKey = Db2ForZosConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = Db2ForZosConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
-    private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
     @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
             group = DsConfigGroup.ADVANCED, labelKey = Db2ForZosConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = Db2ForZosConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
@@ -67,7 +63,6 @@ public class Db2ForZosConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
-        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty("progressiveStreaming", "1");
         return properties;
     }
