@@ -274,9 +274,8 @@
         {{ $t('shang-yi-bu') }}
       </Button>
       <!-- main ,next flow -->
-      <!-- 20250310本期暂禁用批量授权 -->
-      <!-- TODO: Open lot authorization capacity -->
-      <Button v-if="false" @click="handleSwitchBatchModeForDm" style="margin-right: 10px">
+      <!-- 批量授权已启用(验证通过后如需保留) -->
+      <Button v-if="!previewMode && isEdit" @click="handleSwitchBatchModeForDm" style="margin-right: 10px">
         {{ batchMode ? $t('tui-chu-pi-liang-shou-quan') : $t('pi-liang-shou-quan') }}
       </Button>
       <!--      <Button-->
