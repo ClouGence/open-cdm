@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +63,7 @@ public class UserConfigServiceImpl implements UserConfigService {
     @Resource
     private ConsoleConfig          rdpConfig;
     @Resource
+    @Lazy
     private List<RdpNotifyService> notifyServices;
 
     @Override

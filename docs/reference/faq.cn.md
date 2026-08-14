@@ -15,7 +15,7 @@ CloudDM 是一款免费且开源的团队化数据库管理平台，提供数据
 使用单机模式 Docker 镜像，并访问 `http://localhost:8222`：
 
 ```bash
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.1.0
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.1.1
 ```
 
 ### 评估或试用时应该选择哪种部署模式？

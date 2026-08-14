@@ -15,7 +15,7 @@ Yes. CloudDM is released under the Apache License 2.0. See [LICENSE.txt](../../L
 Use the standalone Docker image and open `http://localhost:8222`:
 
 ```bash
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.1.0
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.1.1
 ```
 
 ### Which deployment mode should I use for evaluation?
