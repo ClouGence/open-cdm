@@ -37,6 +37,8 @@ import com.clougence.clouddm.sdk.execute.explain.ExplainPlanNode;
 import com.clougence.clouddm.sdk.execute.explain.ExplainPlanSpi;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultMessage;
+import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
@@ -49,6 +51,7 @@ import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
+import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -143,7 +146,11 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         context.startPhase(ApprovalAnalysisStateMO.PHASE_PREPARING, null);
         try (BufferedWriter writer = Files.newBufferedWriter(requestCache.toPath(), StandardCharsets.UTF_8)) {
             this.approvalService.consumeSqlFile(context.getApproval().getId(), sql -> {
-                this.buildRequests4File(context, sql, writer, statistics);
+                try {
+                    this.buildRequests4File(context, sql, writer, statistics);
+                } catch (AntlerSyntaxException e) {
+                    throw this.sqlAnalysisError(e);
+                }
                 return null;
             });
         }
@@ -195,9 +202,6 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
             }
             buildState.getStatistics().incrementDmlCount();
             long statementBytes = script.getScript().getBytes(StandardCharsets.UTF_8).length;
-            if (!queryTypes.contains(SplitQueryType.INSERT) && !buildState.getExplainSpi().supportByQueryType(queryTypes)) {
-                return;
-            }
             if (statementBytes > buildState.getMaxStatementBytes()) {
                 buildState.getStatistics().incrementSkippedBySize();
                 return;
@@ -213,8 +217,13 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
     }
 
     private void cacheExplainRequest(DmlExplainPreInitHandlerState buildState, SplitScript script, long statementBytes) {
-        DmlExplainRequestMO record = this
-            .prepareCachedExplainRequest(buildState.getContext(), script, buildState.getOptions(), buildState.getRewriteSpi(), buildState.getParameters(), statementBytes);
+        DmlExplainRequestMO record;
+        try {
+            record = this.prepareCachedExplainRequest(//
+                    buildState.getContext(), script, buildState.getOptions(), buildState.getExplainSpi(), buildState.getRewriteSpi(), buildState.getParameters(), statementBytes);
+        } catch (AntlerSyntaxException e) {
+            throw this.sqlAnalysisError(e);
+        }
         if (record == null) {
             return;
         }
@@ -229,8 +238,8 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         }
     }
 
-    private DmlExplainRequestMO prepareCachedExplainRequest(PreInitContext context, SplitScript script, AnalysisQueryOptions options, RewriteSpi rewriteSpi,
-                                                            SqlParserParameters parameters, long statementBytes) {
+    private DmlExplainRequestMO prepareCachedExplainRequest(PreInitContext context, SplitScript script, AnalysisQueryOptions options, ExplainPlanSpi explainSpi,
+                                                            RewriteSpi rewriteSpi, SqlParserParameters parameters, long statementBytes) {
         try (Stream<QueryRequest> requests = this.queryAnalysisService.analysisRequestsStream(context.getDsConfig(), new StringReader(script.getScript()), script
             .getScriptArgs(), script.getBodyStartCodeLine(), script.getBodyStartCodeColumn(), options)) {
             QueryRequest request = requests.findFirst().orElse(null);
@@ -239,19 +248,12 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
             }
 
             request.setIndex(script.getIndex());
-            QueryRequest explainRequest = this.prepareExplainRequest(context, request, rewriteSpi, parameters);
-            if (explainRequest == null) {
-                return null;
-            }
-            DmlExplainRequestMO record = new DmlExplainRequestMO();
-            record.setIndex(request.getIndex());
-            record.setStatementSizeBytes(statementBytes);
-            record.setRequest(explainRequest);
-            return record;
+            return this.prepareExplainRequest(context, request, explainSpi, rewriteSpi, parameters, statementBytes);
         }
     }
 
-    private QueryRequest prepareExplainRequest(PreInitContext context, QueryRequest analyzed, RewriteSpi rewriteSpi, SqlParserParameters parameters) {
+    private DmlExplainRequestMO prepareExplainRequest(PreInitContext context, QueryRequest analyzed, ExplainPlanSpi explainSpi, RewriteSpi rewriteSpi,
+                                                      SqlParserParameters parameters, long statementBytes) {
         SessionSpi sessionSpi = PluginManager.findSessionSpi(context.getDsConfig().getDataSourceType());
         QueryRequest request = sessionSpi.createQueryRequest(context.getDsConfig());
         request.setIndex(analyzed.getIndex());
@@ -263,25 +265,33 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         request.setRelations(analyzed.getRelations());
         request.setDsType(analyzed.getDsType());
         request.setRequester(Requester.TICKET);
-        if (!hasInsertStatement(request.getRelations())) {
+        boolean hasStatementEstimate = hasInsertStatement(request.getRelations());
+        boolean supportsNativeExplain = explainSpi.supportByQueryType(request.getQueryTypes());
+        if (!hasStatementEstimate && supportsNativeExplain) {
             if (rewriteSpi == null) {
-                return null;
+                supportsNativeExplain = false;
+            } else {
+                RewriteContext rewriteContext = new RewriteContext();
+                rewriteContext.setParameters(parameters);
+                String explainQuery = rewriteSpi.rewriteToExplain(request.getQueryId(), request.getQueryBody(), rewriteContext);
+                if (StringUtils.isBlank(explainQuery)) {
+                    supportsNativeExplain = false;
+                } else {
+                    request.setQueryBody(explainQuery);
+                    request.setUseExplain(true);
+                }
             }
-
-            RewriteContext rewriteContext = new RewriteContext();
-            rewriteContext.setParameters(parameters);
-            String explainQuery = rewriteSpi.rewriteToExplain(request.getQueryId(), request.getQueryBody(), rewriteContext);
-            if (StringUtils.isBlank(explainQuery)) {
-                return null;
-            }
-
-            request.setQueryBody(explainQuery);
-            request.setUseExplain(true);
         }
         request.getResultConf().setCacheResult(false);
         request.getResultConf().setReceiveMode(ReceiveMode.PAGE_FULL);
         request.getResultConf().setRefreshStatus(true);
-        return request;
+
+        DmlExplainRequestMO record = new DmlExplainRequestMO();
+        record.setIndex(request.getIndex());
+        record.setStatementSizeBytes(statementBytes);
+        record.setRequest(request);
+        record.setNativeExplainSupported(supportsNativeExplain);
+        return record;
     }
 
     private static boolean isDml(Set<SplitQueryType> queryTypes) {
@@ -289,6 +299,10 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
                                       queryTypes.contains(SplitQueryType.UPDATE) ||//
                                       queryTypes.contains(SplitQueryType.DELETE) ||//
                                       queryTypes.contains(SplitQueryType.MERGE));
+    }
+
+    private static boolean requiresNativeExplain(DmlExplainRequestMO record) {
+        return record.isNativeExplainSupported() && !hasInsertStatement(record.getRequest().getRelations());
     }
 
     //
@@ -304,13 +318,12 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
 
         String sessionId = null;
         try (BufferedReader reader = Files.newBufferedReader(requestCache.toPath(), StandardCharsets.UTF_8)) {
-            if (statistics.getCachedCount() > 0) {
-                sessionId = this.createExplainSession(context);
-            }
-
             String line;
             while ((line = reader.readLine()) != null) {
                 DmlExplainRequestMO request = JsonUtils.toObj(line, DmlExplainRequestMO.class);
+                if (sessionId == null && requiresNativeExplain(request)) {
+                    sessionId = this.createExplainSession(context);
+                }
                 List<DmlExplainResultMO> requestResults = this.executeOne(context, sessionId, request, explainSpi, statistics);
                 results.addAll(requestResults);
                 context.itemProcessed();
@@ -325,12 +338,9 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
     private String createExplainSession(PreInitContext context) {
         SessionContextDTO sessionContext = DmDsUtils.createSessionCtx(context.getDsConfig(), context.getDsLevels().levelsParam());
         sessionContext.setSessionId(UUID.randomUUID().toString().replace("-", ""));
-        DataSourceType dsType = context.getDsConfig().getDataSourceType();
-        boolean usesExplainTable = dsType == DataSourceType.Oracle ||   //
-                                   dsType == DataSourceType.Db2 ||      //
-                                   dsType == DataSourceType.Db2Fori ||  //
-                                   dsType == DataSourceType.Hana;
-        sessionContext.setRdbReadOnly(!usesExplainTable);
+        // Work-order pre-analysis uses an isolated transaction that is always rolled back before the session closes.
+        sessionContext.setRdbAutoCommit(false);
+        sessionContext.setRdbReadOnly(false);
         return this.queryService.createSession(context.getApproval().getOwnerUid(), context.getDsLevels(), sessionContext);
     }
 
@@ -357,6 +367,8 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         try {
             if (hasInsertStatement(request.getRelations())) {
                 return executeOne4Insert(request, explainSpi, results);
+            } else if (!record.isNativeExplainSupported()) {
+                return executeOne4Unsupported(results);
             } else {
                 return this.executeOne4NativeExplain(context, sessionId, request, explainSpi, statistics, results);
             }
@@ -381,13 +393,25 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
         return results;
     }
 
+    private static List<DmlExplainResultMO> executeOne4Unsupported(List<DmlExplainResultMO> results) {
+        for (DmlExplainResultMO result : results) {
+            result.setStatus(DmlExplainStatus.UNSUPPORTED);
+        }
+        return results;
+    }
+
     private List<DmlExplainResultMO> executeOne4NativeExplain(PreInitContext context, String sessionId, QueryRequest request, ExplainPlanSpi explainSpi,
                                                               DmlExplainStatistics statistics, List<DmlExplainResultMO> results) {
         statistics.incrementExecutedCount();
         request.setUseExplain(true);
         ResultList resultList = this.queryService.syncExecuteQuery(context.getApproval().getOwnerUid(), sessionId, request);
         List<Result> rawResults = resultList == null ? Collections.emptyList() : resultList.getResultList();
-        Result failure = rawResults == null ? null : rawResults.stream().filter(value -> !value.isSuccess()).findFirst().orElse(null);
+        Result failure = rawResults == null ? null : rawResults.stream().filter(value -> {
+            if (!value.isSuccess()) {
+                return true;
+            }
+            return value instanceof ResultMessage message && message.getLevel() == MessageLevel.Error;
+        }).findFirst().orElse(null);
         if (failure != null) {
             for (DmlExplainResultMO result : results) {
                 result.setStatus(DmlExplainStatus.FAILED);

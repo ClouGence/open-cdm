@@ -25,7 +25,6 @@ public class DmlExplainResultMO {
     private Set<BehaviorAction> actions;
     private List<String>        subjects;
     private DmlExplainStatus    status;
-    private String              skipReason;
     private Long                estimatedAffectedRows;
     private ExplainPlan         explainPlan;
     private String              message;

@@ -735,7 +735,7 @@ const aggregateDmlExplainDetails = (details) => {
       (left, right) => left - right
     );
     const statuses = [...new Set(group.details.map((row) => row.status).filter(Boolean))];
-    const skipReasons = [...new Set(group.details.map((row) => row.skipReason).filter(Boolean))];
+    const messages = [...new Set(group.details.map((row) => row.message).filter(Boolean))];
     const estimates = group.details.map((row) => row.estimatedAffectedRows);
     const allEstimated = estimates.every((value) => value != null);
     return {
@@ -744,7 +744,7 @@ const aggregateDmlExplainDetails = (details) => {
       statementStartLines,
       statementCount: indices.length,
       status: statuses.join(' / '),
-      skipReason: skipReasons.join(' / '),
+      message: messages.join(' / '),
       estimatedAffectedRows: allEstimated ? estimates.reduce((total, value) => total + value, 0) : null
     };
   });
@@ -1320,6 +1320,9 @@ export default {
     dmlExplainDetailText(item) {
       const failed = item.failedExplainCount || 0;
       const total = item.dmlStatementCount || 0;
+      if (total === 0) {
+        return this.$t('ticket-analysis-dml-explain-summary-empty', { total });
+      }
       const sizeSkipped = item.skippedBySizeLimit || 0;
       const countSkipped = item.skippedByCountLimit || 0;
       const skipped = sizeSkipped + countSkipped;
@@ -1366,10 +1369,10 @@ export default {
         .split(' / ')
         .map((value) => this.$t(`ticket-analysis-dml-explain-status-${value}`))
         .join(' / ');
-      if (!row.skipReason) {
+      if (!row.message) {
         return status;
       }
-      return this.$t('ticket-analysis-dml-explain-description-with-reason', { status, reason: row.skipReason });
+      return this.$t('ticket-analysis-dml-explain-description-with-reason', { status, reason: row.message });
     },
     dmlExplainRows(item) {
       const statements = new Map();
@@ -2563,6 +2566,12 @@ export default {
   box-shadow: 0 2px 8px rgba(31, 41, 55, 0.05);
 }
 
+.ticket-info-section,
+.ticket-progress-card {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
 .ticket-progress-card {
   container-type: inline-size;
 }
@@ -2700,7 +2709,7 @@ export default {
 }
 
 .ticket-overview {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .ticket-info-section__header,
@@ -2816,7 +2825,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
-  padding: 22px 0;
+  padding: 14px 0;
   border-top: 1px solid var(--border-light);
 }
 
@@ -2829,13 +2838,13 @@ export default {
 }
 
 .ticket-overview__secondary-grid {
-  padding-bottom: 4px;
+  padding-bottom: 0;
 }
 
 .ticket-meta-item {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 4px;
   min-width: 0;
   padding: 0 20px;
   border-left: 1px solid var(--border-light);
@@ -2998,7 +3007,7 @@ export default {
 }
 
 .ticket-progress-section {
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 .ticket-progress-scroll {
@@ -3140,7 +3149,7 @@ export default {
 }
 
 .ticket-sql-section {
-  padding: 20px 24px;
+  padding: 16px 24px 20px;
   border: 1px solid var(--border-primary);
   border-radius: 8px;
   background: var(--bg-card);
@@ -3169,8 +3178,7 @@ export default {
 }
 
 .ticket-step-detail {
-  margin-top: 20px;
-  padding-top: 20px;
+  margin-top: 16px;
 }
 
 .page-section__title {
@@ -3197,8 +3205,8 @@ export default {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
-  margin-top: 12px;
-  padding: 18px 0 20px;
+  margin-top: 8px;
+  padding: 12px 0 4px;
   background: var(--bg-card);
 }
 
@@ -3206,7 +3214,7 @@ export default {
 .ticket-activity-row > div {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -3647,8 +3655,9 @@ export default {
 }
 
 .ticket-sql-toolbar {
+  align-items: flex-start;
   gap: 24px;
-  min-height: 44px;
+  min-height: 32px;
   margin-bottom: 12px;
 }
 
