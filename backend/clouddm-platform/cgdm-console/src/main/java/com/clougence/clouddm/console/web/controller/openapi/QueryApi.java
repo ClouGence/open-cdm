@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -65,8 +64,6 @@ public class QueryApi {
     private DsQueryEditorService queryEditorService;
     @Resource
     private ConsoleQueryApi      consoleQueryApi;
-    @Resource
-    private ConsoleConfig        consoleConfig;
 
     @McpTool(value = DmMcpI18nKey.M_EXECUTE_QUERY)
     @RequestAuth(DM_QUERY_CONSOLE)
@@ -99,7 +96,7 @@ public class QueryApi {
         this.consoleQueryApi.offerQueryRequest(queryFO, msg -> applyMessageResult(queryFO, msg, resultData, future));
 
         // wait result
-        int queryTimeout = this.consoleConfig.getOpenApiQueryTimeout();
+        int queryTimeout = 54;
         try {
             DmApiQueryResultVO result = future.get(queryTimeout, TimeUnit.SECONDS);
             return ResWebDataUtils.buildSuccess(requestId, result);
