@@ -22,6 +22,7 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 
 import jakarta.annotation.Resource;
 
@@ -70,6 +71,8 @@ public class RuleCheckPreInitHandler extends AbstractPreInitHandler {
                     context.itemProcessed();
                 });
                 return null;
+            } catch (AntlerSyntaxException e) {
+                throw this.sqlAnalysisError(e);
             }
         });
 

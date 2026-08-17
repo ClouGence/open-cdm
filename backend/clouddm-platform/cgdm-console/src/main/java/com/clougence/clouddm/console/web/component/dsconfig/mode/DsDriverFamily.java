@@ -30,12 +30,14 @@ public class DsDriverFamily {
 
     private String       name;
     private List<String> versions;
+    private String       defaultVersion;
 
     @Override
     public DsDriverFamily clone() {
         DsDriverFamily f = new DsDriverFamily();
         f.setName(this.name);
         f.setVersions(new ArrayList<>(this.versions));
+        f.setDefaultVersion(this.defaultVersion);
         return f;
     }
 }

@@ -19,10 +19,14 @@ public class ApprovalAnalysisStateMO {
     public static final String          STATUS_RUNNING         = "RUNNING";
     public static final String          STATUS_FINISHED        = "FINISHED";
     public static final String          STATUS_FAILED          = "FAILED";
+    public static final String          PHASE_PREPARING        = "PREPARING";
+    public static final String          PHASE_ANALYZING        = "ANALYZING";
 
     private String                      analysisType;
+    private String                      runId;
     private Integer                     displayOrder;
     private String                      analysisStatus;
+    private String                      analysisPhase;
     private Long                        startTimeUtc;
     private Long                        finishTimeUtc;
     private Long                        processedCount;
@@ -39,7 +43,6 @@ public class ApprovalAnalysisStateMO {
     private List<TicketRuleCheckResult> checkedInfo;
     // DML explain
     private Long                        dmlStatementCount;
-    private Long                        cachedExplainCount;
     private Long                        executedExplainCount;
     private Long                        skippedBySizeLimit;
     private Long                        skippedByCountLimit;

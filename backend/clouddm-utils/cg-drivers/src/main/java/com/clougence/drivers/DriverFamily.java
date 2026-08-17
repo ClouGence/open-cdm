@@ -23,6 +23,8 @@ public interface DriverFamily {
 
     List<String> getVersions();
 
+    String getDefaultVersion();
+
     DriverVersion findVersion(String version);
 
     DriverVersion addVersion(String version);

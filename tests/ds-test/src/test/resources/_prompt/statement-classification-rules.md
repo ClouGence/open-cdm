@@ -754,22 +754,22 @@ Performance Schema 等对象被删除，TiDB 自己的 `CLUSTER_*`、`METRICS_SC
 
 | Code | 授权 | 目标 | 审计 | 适用范围 |
 |---|---|---|---|---|
-| `PERFORMANCE` | `READ` | `Query` | `QUERY` | 不产生业务数据副作用的执行计划、解析树、性能诊断、运行状态、Session 诊断区、Profile、Processlist 以及优化器专属统计视图读取。以 `SELECT` 查询 `pg_stats*`、`pg_statistic*` 等 PostgreSQL 优化器统计关系时与 `SELECT` 共存。 |
+| `PERFORMANCE` | `READ` | `Query` | `QUERY` | 不产生业务数据副作用的解析树、性能诊断、运行状态、Session 诊断区、Profile、Processlist 以及优化器专属统计视图读取。以 `SELECT` 查询 `pg_stats*`、`pg_statistic*` 等 PostgreSQL 优化器统计关系时与 `SELECT` 共存。 |
 | `ADMIN_PERFORMANCE` | `ADMIN` | `Unknown` | `ADMIN` | 创建、修改或删除优化器统计等性能对象，或者改变缓存、统计、优化器成本及其他性能运行状态。PostgreSQL `CREATE/ALTER/DROP STATISTICS` 统一使用本分类；`ALTER STATISTICS ... OWNER TO ...` 只使用 `TRANSFER_PRIVILEGE`。 |
 
-普通 `EXPLAIN` 只生成估算计划，即使内部写着 DML 也只归 `PERFORMANCE`：
+普通 `EXPLAIN` 只生成估算计划，统一按 `SELECT` 授权，即使内部写着 DML 也不要求对应的写权限：
 
 ```text
-[PERFORMANCE] EXPLAIN UPDATE t SET c = 1 WHERE id = 10;
+[SELECT] EXPLAIN UPDATE t SET c = 1 WHERE id = 10;
 ```
 
-只展示解析树而不执行内层语句的方言能力同样只使用 `PERFORMANCE`，不附加内层类型。
+只展示解析树而不执行内层语句的方言能力同样只使用 `SELECT`，不附加内层类型。
 
-实际执行计划必须按内部真实操作分类，不再附加 `PERFORMANCE`：
+会执行内层语句的实际执行计划统一归入 `UNSAFE`：
 
 ```text
-[SELECT] EXPLAIN ANALYZE SELECT * FROM t;
-[UPDATE] EXPLAIN ANALYZE UPDATE t SET c = 1 WHERE id = 10;
+[UNSAFE] EXPLAIN ANALYZE SELECT * FROM t;
+[UNSAFE] EXPLAIN ANALYZE UPDATE t SET c = 1 WHERE id = 10;
 ```
 
 是否真正执行内部语句必须根据当前数据源及版本的执行计划语义判断。不能仅凭
@@ -1224,8 +1224,7 @@ cache slot 可以按机器配置调整，但不得改变 testcase 语义。统�
   `PERFORMANCE`。
 - `SLEEP()` 按普通内置函数处理，不追加 `PERFORMANCE`、`UNSAFE` 或 Session 类型；
   阻塞时长和资源风险属于函数级执行策略。
-- MySQL 的 `EXPLAIN ANALYZE` 会执行内部语句，按内部真实操作分类，不附加
-  `PERFORMANCE`。
+- MySQL 的 `EXPLAIN ANALYZE` 会执行内部语句，统一使用 `UNSAFE`。
 - 只读的 `XA RECOVER [CONVERT XID]` 使用 `TRANSACTION`，不叠加 `METADATA` 或
   `PERFORMANCE`。
 

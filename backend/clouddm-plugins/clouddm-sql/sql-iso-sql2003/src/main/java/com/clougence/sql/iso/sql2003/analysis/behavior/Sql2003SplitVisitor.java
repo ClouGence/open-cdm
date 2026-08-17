@@ -34,6 +34,11 @@ public class Sql2003SplitVisitor extends Sql2003ParserBaseVisitor<StatementType>
     }
 
     @Override
+    public StatementType visitExplainPlanStatement(Sql2003Parser.ExplainPlanStatementContext ctx) {
+        return StatementType.SELECT;
+    }
+
+    @Override
     public StatementType visitDropSchemaStatement(Sql2003Parser.DropSchemaStatementContext ctx) {
         return StatementType.DROP_SCHEMA;
     }

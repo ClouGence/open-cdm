@@ -458,6 +458,9 @@ final class MyBehaviorRelationAssembler {
     private BehaviorAction action(MySqlObjectReference reference) {
         BehaviorAction action = reference.action() == null ? defaultAction(reference.sqlType()) : reference.action();
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (normalized.startsWith("EXPLAIN") && statementAction == BehaviorAction.READ) {
+            return BehaviorAction.READ;
+        }
         if (statementAction == BehaviorAction.UNSAFE && isUnsafeReference(reference, action)) {
             return BehaviorAction.UNSAFE;
         }
@@ -555,6 +558,9 @@ final class MyBehaviorRelationAssembler {
 
     private boolean isUnsafeReference(MySqlObjectReference reference, BehaviorAction action) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (normalized.startsWith("EXPLAIN")) {
+            return true;
+        }
         if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
             || normalized.startsWith("UNINSTALL COMPONENT")) {
             return reference.targetType() == TargetType.Library || reference.targetType() == TargetType.File;

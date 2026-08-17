@@ -37,6 +37,11 @@ public class Db2SplitVisitor extends Db2SqlParserBaseVisitor<StatementType> {
     }
 
     @Override
+    public StatementType visitExplain_statement(Db2SqlParser.Explain_statementContext ctx) {
+        return StatementType.SELECT;
+    }
+
+    @Override
     public StatementType visitCreate_schema_statement(Db2SqlParser.Create_schema_statementContext ctx) {
         return StatementType.CREATE_SCHEMA;
     }

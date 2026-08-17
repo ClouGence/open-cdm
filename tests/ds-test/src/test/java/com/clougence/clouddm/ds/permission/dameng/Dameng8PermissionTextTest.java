@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.permission.dameng;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
@@ -47,7 +48,7 @@ public final class Dameng8PermissionTextTest {
     public Stream<DynamicTest> permissionScripts() {
         ThreadLocal<BehaviorAnalysisSpi> spi = ThreadLocal.withInitial(() -> {
             BehaviorAnalysisSpi analysisSpi = SqlTestSupport.sqlEngine("dameng").behaviorAnalysisSpi(//
-                    SqlParserParameters.ofVersion(VERSION));
+                    new SqlParserParameters(Map.of(SqlParserParameters.VERSION, VERSION)));
             if (analysisSpi == null) {
                 throw new IllegalStateException("No BehaviorAnalysisSpi for Dameng " + VERSION);
             }

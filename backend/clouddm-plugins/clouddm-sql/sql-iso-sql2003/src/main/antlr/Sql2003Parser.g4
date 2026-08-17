@@ -6648,11 +6648,16 @@ directSqlStatement
 // <directly executable statement>
 directlyExecutableStatement
     : directSqlDataStatement
+    | explainPlanStatement
     | sqlSchemaStatement
     | sqlTransactionStatement
     | sqlConnectionStatement
     | sqlSessionStatement
     | directImplementation_definedStatement
+    ;
+
+explainPlanStatement
+    : EXPLAIN PLAN (T__28 STATEMENT_NAME T__13 STRING)? T__85 directSqlDataStatement
     ;
 
 // <direct SQL data statement>

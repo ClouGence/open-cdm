@@ -7,7 +7,7 @@
         <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
         <resource type="maven">com.mysql:mysql-connector-j:9.5.0</resource>
     </driver>
-    <driver driverFamily="MySQL Connector/J" version="8.4.0">
+    <driver driverFamily="MySQL Connector/J" version="8.4.0" default="true">
         <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
         <resource type="maven">com.mysql:mysql-connector-j:8.4.0</resource>
     </driver>

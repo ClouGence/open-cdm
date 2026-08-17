@@ -925,9 +925,9 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<StatementType> {
     @Override
     public StatementType visitExplainstmt(ExplainstmtContext ctx) {
         if (isExplainAnalyze(ctx)) {
-            return ctx.explainablestmt().accept(this);
+            return StatementType.UNSAFE;
         }
-        return StatementType.PERFORMANCE;
+        return StatementType.SELECT;
     }
 
     private boolean isExplainAnalyze(ExplainstmtContext ctx) {

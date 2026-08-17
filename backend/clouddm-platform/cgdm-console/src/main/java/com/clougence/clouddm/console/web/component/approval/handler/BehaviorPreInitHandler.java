@@ -92,14 +92,14 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
                 });
                 return null;
             } catch (AntlerSyntaxException e) {
-                throw this.lineError(e.getLine(), e.getMessage());
+                throw this.sqlAnalysisError(e);
             }
         });
     }
 
     private long analyzeRequest(QueryRequest request, Map<String, ApprovalBehavior> behaviors) {
         if (request.hasQueryType(StatementType.TRANSACTION)) {
-            throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
         }
 
         long behaviorCount = 0;
@@ -124,10 +124,6 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             behaviorCount++;
         }
         return behaviorCount;
-    }
-
-    private ErrorMessageException lineError(int line, String message) {
-        return new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_ANALYSIS_LINE_ERROR.name(), Math.max(1, line), message));
     }
 
 }

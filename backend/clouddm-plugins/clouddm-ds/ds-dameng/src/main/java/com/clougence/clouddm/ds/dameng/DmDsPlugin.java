@@ -32,6 +32,7 @@ import com.clougence.clouddm.ds.dameng.dsconf.DmSerializationSpi;
 import com.clougence.clouddm.ds.dameng.execute.DmSessionFactory;
 import com.clougence.clouddm.ds.dameng.execute.DmSessionSpi;
 import com.clougence.clouddm.ds.dameng.execute.DmSupportSpi;
+import com.clougence.clouddm.ds.dameng.execute.explain.DmExplainPlanSpi;
 import com.clougence.clouddm.ds.dameng.i18n.DmDsI18nKeys;
 import com.clougence.clouddm.ds.dameng.language.DmLanguageSpi;
 import com.clougence.clouddm.ds.dameng.resource.DmEditorResourceSpi;
@@ -84,6 +85,7 @@ public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new DmSessionSpi());
         dsPlugin.addPluginSpi(new DmSupportSpi());
+        dsPlugin.addPluginSpi(new DmExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

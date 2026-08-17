@@ -6,6 +6,7 @@
 package com.clougence.clouddm.ds.dameng.sql.analysis.sysobj;
 
 import com.clougence.clouddm.ds.dameng.sql.DmSqlEngineSpi;
+import com.clougence.clouddm.ds.dameng.sql.parser.DmVersion;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
@@ -27,11 +28,11 @@ public final class DmSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
 
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
-        if (databaseVersion != null && !databaseVersion.isBlank()) {
-            if (!databaseVersion.equals("8") && !databaseVersion.startsWith("8.")) {
-                return false;
-            }
+        DmVersion parserVersion = DmVersion.parse(databaseVersion);
+        if (!DmVersion.ge(parserVersion, DmVersion.DM_8)) {
+            return false;
         }
+
         int version = DmResourceRegistry.DM8;
         if (targetType == TargetType.Function) {
             BehaviorAction expectedAction = resources.functionBehavior(objectName, version);

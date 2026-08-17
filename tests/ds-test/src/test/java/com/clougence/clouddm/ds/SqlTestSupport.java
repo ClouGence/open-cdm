@@ -10,6 +10,7 @@ import com.clougence.clouddm.ds.ads.sql.ads4my.AdsMySqlEngineSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.ChSqlEngineSpi;
 import com.clougence.clouddm.ds.dameng.sql.DmSqlEngineSpi;
 import com.clougence.clouddm.ds.gauss.sql.GaussSqlEngineSpi;
+import com.clougence.clouddm.ds.hana.sql.HanaSqlEngineSpi;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.ds.maxcompute.sql.McSqlEngineSpi;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.ObSqlEngineSpi;
@@ -52,6 +53,7 @@ public final class SqlTestSupport {
         bind("gauss", DataSourceType.GaussDB, GaussSqlEngineSpi::new);
         bind("gauss_og", DataSourceType.GaussDBForOpenGauss, GaussSqlEngineSpi::new);
         bind("greenplum", DataSourceType.Greenplum, PgSqlEngineSpi::new);
+        bind("hana", DataSourceType.Hana, metaService -> new HanaSqlEngineSpi());
         bind("hologres", DataSourceType.Hologres, PgSqlEngineSpi::new);
         bind("mariadb", DataSourceType.MariaDB, MySqlEngineSpi::new);
         bind("maxcompute", DataSourceType.MaxCompute, McSqlEngineSpi::new);
@@ -100,7 +102,13 @@ public final class SqlTestSupport {
 
     public static SqlParserParameters parserParameters(String datasource) {
         return switch (datasource) {
-            case "adb", "mariadb", "mysql", "ob4my", "por4my", "por4x", "tidb" -> SqlParserParameters.ofVersion("8.0.46");
+            case "adb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "mariadb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "mysql" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "ob4my" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "por4my" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "por4x" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "tidb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
             default -> SqlParserParameters.empty();
         };
     }

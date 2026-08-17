@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.approval;
 
+import java.io.IOException;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 
@@ -31,5 +32,5 @@ public interface PreInitHandler {
 
     boolean supports(DmApprovalDO approval);
 
-    boolean handle(PreInitContext context);
+    boolean handle(PreInitContext context) throws IOException;
 }

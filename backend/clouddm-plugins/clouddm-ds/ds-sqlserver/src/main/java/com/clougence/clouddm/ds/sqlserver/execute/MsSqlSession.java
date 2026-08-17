@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.sqlserver.execute;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -25,24 +24,22 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.drivers.DsObject;
+import com.clougence.sql.sqlserver.editor.rewrite.MsSqlRewriteSpi;
+import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author bucketli 2022/3/28 19:25:30
  */
+@Slf4j
 public class MsSqlSession extends DefaultRdbSession {
+
+    private boolean showPlanEnabled;
 
     public MsSqlSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
         super(newSessionId, dsConfig, dsObject, new MsSqlHooks());
-    }
-
-    @Override
-    protected boolean executeStatement(Statement ps, QueryRequest query, ResultBuilder builder) throws SQLException {
-        if (query.isUseExplain()) {
-            return ps.execute(query.getQueryBody());
-        } else {
-            return ((PreparedStatement) ps).execute();
-        }
     }
 
     @Override
@@ -50,9 +47,14 @@ public class MsSqlSession extends DefaultRdbSession {
         super.beforeQueryRequest(beginTime, query, builder);
 
         if (query.isUseExplain()) {
+            if (!StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), MsSqlRewriteSpi.showPlanMarker(query.getQueryId()))) {
+                throw new SQLException("Explain request does not contain a SHOWPLAN query");
+            }
+
             Statement statement = this.currentResource().createStatement();
             try {
                 statement.execute("set showplan_all on;");
+                this.showPlanEnabled = true;
             } finally {
                 IOUtils.closeQuietly(statement);
             }
@@ -62,15 +64,40 @@ public class MsSqlSession extends DefaultRdbSession {
 
     @Override
     protected void afterQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
-        super.afterQueryRequest(beginTime, query, builder);
+        try {
+            super.afterQueryRequest(beginTime, query, builder);
+        } finally {
+            this.disableShowPlan();
+        }
+    }
 
+    @Override
+    protected boolean executeStatement(Statement statement, QueryRequest query, ResultBuilder builder) throws SQLException {
         if (query.isUseExplain()) {
-            Statement statement = this.currentResource().createStatement();
-            try {
-                statement.execute("set showplan_all off;");
-            } finally {
-                IOUtils.closeQuietly(statement);
-            }
+            return statement.execute(query.getQueryBody());
+        } else {
+            return super.executeStatement(statement, query, builder);
+        }
+    }
+
+    @Override
+    protected void throwQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder, Exception e) {
+        try {
+            this.disableShowPlan();
+        } catch (SQLException cleanupError) {
+            log.error("cleanup SQL Server SHOWPLAN failed", cleanupError);
+        }
+        super.throwQueryRequest(beginTime, query, builder, e);
+    }
+
+    private void disableShowPlan() throws SQLException {
+        if (!this.showPlanEnabled) {
+            return;
+        }
+        try (Statement statement = this.currentResource().createStatement()) {
+            statement.execute("set showplan_all off;");
+        } finally {
+            this.showPlanEnabled = false;
         }
     }
 }

@@ -16,6 +16,7 @@ import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
 import com.clougence.clouddm.ds.starrocks.sql.parser.SrSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 
@@ -28,15 +29,16 @@ public class SrBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             int codeLine = script.getBodyStartCodeLine();
             int codeColumn = script.getBodyStartCodeColumn();
 
-            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+            SplitQueryType statementType = script.getType().stream().findFirst().orElse(SplitQueryType.UNKNOWN);
+            return analyzeStatement(reader, levels, codeLine, codeColumn, statementType).stream();
         }).onClose(scripts::close);
     }
 
-    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, SplitQueryType statementType) {
 
         SrBehaviorParserVisitor[] holder = new SrBehaviorParserVisitor[1];
         DslHelper.doVisitor(SrDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
-            holder[0] = new SrBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
+            holder[0] = new SrBehaviorParserVisitor(parser, levels, baseLine, baseColumn, statementType);
             return holder[0];
         });
         return holder[0].behaviors();

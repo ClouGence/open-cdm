@@ -87,6 +87,9 @@ public class DmDriverDownloadTaskTest {
         public String getDsFactory() { return null; }
 
         @Override
+        public boolean isDefault() { return false; }
+
+        @Override
         public boolean isPrepared() { return this.prepared; }
 
         @Override

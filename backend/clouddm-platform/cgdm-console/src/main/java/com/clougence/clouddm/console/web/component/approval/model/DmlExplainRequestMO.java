@@ -18,4 +18,5 @@ public class DmlExplainRequestMO {
     private long         index;
     private long         statementSizeBytes;
     private QueryRequest request;
+    private boolean      nativeExplainSupported;
 }

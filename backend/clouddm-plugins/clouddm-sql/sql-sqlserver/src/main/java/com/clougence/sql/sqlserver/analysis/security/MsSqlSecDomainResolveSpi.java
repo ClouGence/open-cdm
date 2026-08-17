@@ -27,6 +27,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -60,7 +61,7 @@ public class MsSqlSecDomainResolveSpi implements SecDomainResolveSpi {
 
     @Override
     public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
-        var scripts = new MsSqlSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        var scripts = new MsSqlSplitAnalysisSpi(SqlParserParameters.empty()).splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
         return scripts.flatMap(script -> {
             StringReader reader = new StringReader(script.getScript());
             int codeLine = script.getBodyStartCodeLine();

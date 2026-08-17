@@ -149,13 +149,18 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
     @Override
     public Void visitInsert_statement(SqlServerParser.Insert_statementContext ctx) {
         SqlServerParser.Full_table_nameContext tableName = first(ctx.ddl_object(), SqlServerParser.Full_table_nameContext.class);
-        addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, tableName), sourceTables(ctx.insert_statement_value()));
+        BehaviorRelation relation = addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, tableName), sourceTables(ctx.insert_statement_value()));
+        SqlServerParser.Table_value_constructorContext values = first(ctx.insert_statement_value(), SqlServerParser.Table_value_constructorContext.class);
+        if (relation != null && values != null) {
+            relation.setInsertRows((long) values.exps.size());
+        }
         return null;
     }
 
     @Override
     public Void visitUpdate_statement(SqlServerParser.Update_statementContext ctx) {
         SqlServerParser.Full_table_nameContext tableName = first(ctx.ddl_object(), SqlServerParser.Full_table_nameContext.class);
+        tableName = resolveAlias(tableName, ctx.table_sources());
         addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, tableName), sourceTables(ctx));
         return null;
     }
@@ -165,6 +170,8 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
         SqlServerParser.Full_table_nameContext tableName = first(ctx.delete_statement_from(), SqlServerParser.Full_table_nameContext.class);
         if (tableName == null) {
             tableName = first(ctx.table_sources(), SqlServerParser.Full_table_nameContext.class);
+        } else {
+            tableName = resolveAlias(tableName, ctx.table_sources());
         }
         addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, tableName), sourceTables(ctx));
         return null;
@@ -206,9 +213,9 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
         behavior.setStatementType(type);
     }
 
-    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -220,6 +227,7 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
         }
         behavior.getRelations().add(relation);
         behavior.setStatementType(type);
+        return relation;
     }
 
     private List<BehaviorObject> sourceTables(ParseTree tree) {
@@ -230,6 +238,24 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
             }
         }
         return result;
+    }
+
+    private SqlServerParser.Full_table_nameContext resolveAlias(SqlServerParser.Full_table_nameContext target, SqlServerParser.Table_sourcesContext sources) {
+        if (target == null || sources == null) {
+            return target;
+        }
+        String targetName = parser.getTokenStream().getText(target.getStart(), target.getStop());
+        for (SqlServerParser.Table_source_itemContext source : descendants(sources, SqlServerParser.Table_source_itemContext.class)) {
+            if (source.full_table_name() == null || source.as_table_alias() == null) {
+                continue;
+            }
+            SqlServerParser.Id_Context alias = source.as_table_alias().table_alias().id_();
+            String aliasName = parser.getTokenStream().getText(alias.getStart(), alias.getStop());
+            if (unquote(targetName).equalsIgnoreCase(unquote(aliasName))) {
+                return source.full_table_name();
+            }
+        }
+        return target;
     }
 
     private List<BehaviorObject> objects(BehaviorObject... values) {

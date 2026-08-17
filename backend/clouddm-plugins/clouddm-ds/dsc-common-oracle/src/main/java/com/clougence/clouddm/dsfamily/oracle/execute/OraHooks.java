@@ -154,12 +154,11 @@ public class OraHooks implements SessionHook {
 
     @Override
     public PreparedStatement explainStatement(Connection conn, QueryRequest query) throws SQLException {
-        String queryBody = query.getQueryBody();
-        int pos = queryBody.length() - StringUtils.trimBlankStart(queryBody).length();
-        StringBuilder explainBody = new StringBuilder(queryBody);
-        explainBody.insert(pos, "explain plan for ");
+        if (!StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), "EXPLAIN ")) {
+            throw new SQLException("Explain request does not contain an EXPLAIN statement");
+        }
 
-        PreparedStatement stmt = conn.prepareStatement(explainBody.toString(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(200);
         stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
         return stmt;

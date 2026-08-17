@@ -1,5 +1,5 @@
 <drivers>
-    <driver driverFamily="ODPS JDBC" version="3.10.5">
+    <driver driverFamily="ODPS JDBC" version="3.10.5" default="true">
         <driverName>com.clougence.clouddm.ds.maxcompute.execute.dsfactory.McDsFactory</driverName>
         <resource type="maven">com.aliyun.odps:odps-jdbc:3.10.5</resource>
     </driver>

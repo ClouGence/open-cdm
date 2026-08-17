@@ -46,6 +46,10 @@ public enum PostgresVersion {
         return LATEST;
     }
 
+    public String versionString() {
+        return Integer.toString(this.major);
+    }
+
     private final int major;
 
     PostgresVersion(int major){
@@ -66,5 +70,13 @@ public enum PostgresVersion {
 
     public boolean between(PostgresVersion minimum, PostgresVersion maximum) {
         return atLeast(minimum) && atMost(maximum);
+    }
+
+    public static boolean ge(PostgresVersion source, PostgresVersion target) {
+        return source.major >= target.major;
+    }
+
+    public static boolean le(PostgresVersion source, PostgresVersion target) {
+        return source.major <= target.major;
     }
 }

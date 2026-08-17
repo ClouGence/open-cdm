@@ -106,4 +106,13 @@ public class QueryRequest implements Cloneable {
     public boolean hasQueryType(StatementType queryType) {
         return this.queryTypes != null && this.queryTypes.contains(queryType);
     }
+
+    public void addRewriteTag(String tag) {
+        if (this.rewriteTag != null && this.rewriteTag.contains(tag)) {
+            return;
+        }
+        List<String> tags = this.rewriteTag == null ? new ArrayList<>() : new ArrayList<>(this.rewriteTag);
+        tags.add(tag);
+        this.rewriteTag = tags;
+    }
 }

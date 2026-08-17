@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
@@ -29,9 +28,9 @@ public class MySqlVersionConfigurationTest {
 
     @Test
     public void versionsAreOrderedAndLatestIsTheDefault() {
-        Assertions.assertTrue(MySqlVersion.MYSQL_8_0.atLeast(MySqlVersion.MYSQL_5_7));
-        Assertions.assertTrue(MySqlVersion.MYSQL_8_0.atMost(MySqlVersion.MYSQL_8_4));
-        Assertions.assertTrue(MySqlVersion.MYSQL_8_0.between(MySqlVersion.MYSQL_5_7, MySqlVersion.MYSQL_8_4));
+        Assertions.assertTrue(MySqlVersion.ge(MySqlVersion.MYSQL_8_0, MySqlVersion.MYSQL_5_7));
+        Assertions.assertTrue(MySqlVersion.le(MySqlVersion.MYSQL_8_0, MySqlVersion.MYSQL_8_4));
+        Assertions.assertTrue(MySqlVersion.ge(MySqlVersion.MYSQL_8_0, MySqlVersion.MYSQL_5_7) && MySqlVersion.le(MySqlVersion.MYSQL_8_0, MySqlVersion.MYSQL_8_4));
         Assertions.assertEquals(MySqlVersion.MYSQL_9_7, MySqlVersion.LATEST);
         Assertions.assertEquals(MySqlVersion.LATEST, new MyDslProvider(MySqlParserConfig.unknownSqlMode(null)).version());
         Assertions.assertEquals(90700, new MyDslProvider(MySqlParserConfig.unknownSqlMode(null)).exactVersion());
@@ -51,7 +50,7 @@ public class MySqlVersionConfigurationTest {
     @Test
     public void engineKeepsItsExplicitParserVersion() {
         MySqlEngineSpi engine = new MySqlEngineSpi(null);
-        MyDslProvider provider = (MyDslProvider) engine.dslProvider(SqlParserParameters.ofVersion("5.7.44"));
+        MyDslProvider provider = (MyDslProvider) engine.dslProvider(new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "5.7.44")));
         Assertions.assertEquals(MySqlVersion.MYSQL_5_7, provider.version());
         Assertions.assertEquals(50744, provider.exactVersion());
 
@@ -104,7 +103,7 @@ public class MySqlVersionConfigurationTest {
     public void engineMapsSqlModeParametersToParserProperties() {
         MySqlEngineSpi engine = new MySqlEngineSpi(null);
 
-        MyDslProvider unknownProvider = (MyDslProvider) engine.dslProvider(SqlParserParameters.ofVersion("8.4.10"));
+        MyDslProvider unknownProvider = (MyDslProvider) engine.dslProvider(new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.4.10")));
         Assertions.assertFalse(unknownProvider.config().isSqlModeKnown());
 
         MyDslProvider emptyProvider = (MyDslProvider) engine.dslProvider(parserParameters(""));
@@ -161,17 +160,13 @@ public class MySqlVersionConfigurationTest {
             engine.lineageAnalysisSpi(knownEmpty).analyze(sql, columnContextInfo);
         });
 
-        QueryRequest request = new QueryRequest();
-        request.setQueryBody(sql);
         RewriteContext rewriteContext = new RewriteContext();
         rewriteContext.setFetchLimit(10);
-        try (StringReader reader = new StringReader(sql); Stream<String> stream = engine.rewriteSpi(ansiQuotes).rewriterQueryStream(reader, request, rewriteContext)) {
-            Assertions.assertTrue(stream.findFirst().orElseThrow().contains("LIMIT 10"));
-        }
+        rewriteContext.setParameters(ansiQuotes);
+        Assertions.assertTrue(engine.rewriteSpi(ansiQuotes).rewriteLimit(null, sql, rewriteContext).contains("LIMIT 10"));
+        rewriteContext.setParameters(knownEmpty);
         Assertions.assertThrows(AntlerSyntaxException.class, () -> {
-            try (StringReader reader = new StringReader(sql); Stream<String> stream = engine.rewriteSpi(knownEmpty).rewriterQueryStream(reader, request, rewriteContext)) {
-                stream.findFirst();
-            }
+            engine.rewriteSpi(knownEmpty).rewriteLimit(null, sql, rewriteContext);
         });
     }
 

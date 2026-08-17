@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.ds.hana.sql.analysis.behavior.HanaBehaviorAnalysisSpi;
+import com.clougence.clouddm.ds.hana.sql.editor.rewrite.HanaRewriteSpi;
 import com.clougence.clouddm.ds.hana.sql.parser.HanaParserConfig;
 import com.clougence.clouddm.ds.hana.sql.parser.HanaSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
@@ -36,6 +37,7 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
     public static final String                     NAME          = "SAP Hana SQL";
     private final Map<String, SplitAnalysisSpi>    splitCache    = new ConcurrentHashMap<>();
     private final Map<String, BehaviorAnalysisSpi> behaviorCache = new ConcurrentHashMap<>();
+    private final RewriteSpi                       rewriteSpi    = new HanaRewriteSpi();
 
     public String name() {
         return NAME;
@@ -62,7 +64,7 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
         SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
         String key = parserKey(parserParameters);
-        return behaviorCache.computeIfAbsent(key, value -> new HanaBehaviorAnalysisSpi((HanaSplitAnalysisSpi) splitAnalysisSpi(parserParameters)));
+        return behaviorCache.computeIfAbsent(key, value -> new HanaBehaviorAnalysisSpi());
     }
 
     @Override
@@ -72,7 +74,7 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
-        return null;
+        return rewriteSpi;
     }
 
     private static HanaParserConfig parserConfig(SqlParserParameters parameters) {
@@ -82,5 +84,4 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
     private static String parserKey(SqlParserParameters parameters) {
         return parameters.values().entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&"));
     }
-
 }

@@ -48,7 +48,6 @@ public class Db2ForZosConfigSpi extends AbstractDsConfigSpi {
         config.setDefaultCatalog(defaultConfig.get(Db2ForZosConfig.Fields.defaultCatalog));
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
-        config.setClientTimeZone(defaultConfig.get(Db2ForZosConfig.Fields.clientTimeZone));
         return dsConfig;
     }
 

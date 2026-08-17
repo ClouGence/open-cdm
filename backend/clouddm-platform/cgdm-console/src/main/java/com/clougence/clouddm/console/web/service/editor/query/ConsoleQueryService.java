@@ -33,10 +33,7 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPhaseOfBatch;
 import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions;
-import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
-import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
+import com.clougence.clouddm.console.web.component.analysis.*;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
@@ -48,6 +45,7 @@ import com.clougence.clouddm.console.web.component.detectrule.SecRulesEngine;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
+import com.clougence.clouddm.console.web.constants.RewriteTags;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
@@ -83,6 +81,8 @@ import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
+import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -319,9 +319,10 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         int codeColumn = queryDTO.getBasicCodeColumn();
         List<QueryArg> queryArgs = queryDTO.getQueryArgs();
         List<QueryRequest> requests;
-        try (StringReader reader = new StringReader(queryDTO.getQueryString());
-                Stream<QueryRequest> analyzed = this.analysisService.analysisRequestsStream(ctx.getDsConfig(), reader, queryArgs, codeLine, codeColumn, options)) {
-            requests = analyzed.collect(Collectors.toCollection(ArrayList::new));
+        try (StringReader reader = new StringReader(queryDTO.getQueryString())) {
+            try (Stream<QueryRequest> analyzed = this.analysisService.analysisRequestsStream(ctx.getDsConfig(), reader, queryArgs, codeLine, codeColumn, options)) {
+                requests = analyzed.collect(Collectors.toCollection(ArrayList::new));
+            }
         }
 
         //
@@ -336,6 +337,17 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             temp.getResultConf().setReceiveMode(queryDTO.getReceiveMode() == null ? ReceiveMode.PAGE_FULL : queryDTO.getReceiveMode());
         }
 
+        // for Explain
+        RewriteSpi rewriteSpi = null;
+        SqlParserParameters parameters = SqlParserParameters.empty();
+        if (isExplain) {
+            parameters = this.dmDsConfigService.fetchSqlParserParameters(ctx.getDsConfig(), ctx.getLevels().levelsParam());
+            parameters = parameters.put(SqlParserParameters.EXPECT_PLAN, Boolean.TRUE.toString());
+            rewriteSpi = ctx.getSqlEngine().rewriteSpi(parameters);
+            if (rewriteSpi == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name()));
+            }
+        }
         temp.setUseExplain(isExplain);
 
         for (int i = 0; i < requests.size(); i++) {
@@ -353,10 +365,50 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             clone.setHasRewrite(analyzed.isHasRewrite());
             clone.setRewriteTag(analyzed.getRewriteTag());
             clone.setOriginalBody(analyzed.getOriginalBody());
+            if (isExplain) {
+                this.prepareQueryRequests4Explain(queryDTO, ctx, clone, rewriteSpi, parameters);
+            }
             clone.getResultConf().setRefreshStatus(i == requests.size() - 1);
             requests.set(i, clone);
         }
         return requests;
+    }
+
+    private void prepareQueryRequests4Explain(WsQueryFO queryDTO, QueryCtx ctx, QueryRequest request, RewriteSpi rewriteSpi, SqlParserParameters parameters) {
+        RewriteContext rewriteContext = new RewriteContext();
+        rewriteContext.setParameters(parameters);
+        String beforeExplain = request.getQueryBody();
+        String explainQuery = rewriteSpi.rewriteToExplain(request.getQueryId(), beforeExplain, rewriteContext);
+        if (StringUtils.isBlank(explainQuery)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name()));
+        }
+
+        request.setOriginalBody(StringUtils.defaultIfBlank(request.getOriginalBody(), beforeExplain));
+        request.setHasRewrite(true);
+        request.addRewriteTag(RewriteTags.EXPLAIN);
+        request.setQueryBody(explainQuery);
+
+        List<QueryRequest> explainRequests;
+        try (StringReader reader = new StringReader(explainQuery)) {
+            AnalysisQueryOptions options = AnalysisQueryOptions.builder()
+                .currentUid(queryDTO.getCurrentUserId())
+                .dataSourceId(ctx.getLevels().dsDO().getId())
+                .levels(ctx.getLevels().levelsParam())
+                .parameters(parameters)
+                .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
+                .build();
+            try (Stream<QueryRequest> analyzed = this.analysisService
+                .analysisRequestsStream(ctx.getDsConfig(), reader, request.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn(), options)) {
+                explainRequests = analyzed.toList();
+            }
+        }
+
+        if (explainRequests.size() != 1) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name()));
+        }
+        QueryRequest analyzed = explainRequests.get(0);
+        request.setQueryTypes(analyzed.getQueryTypes());
+        request.setRelations(analyzed.getRelations());
     }
 
     private ExitCode asyncQueryPrepare(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx, boolean isExplain) {
@@ -497,14 +549,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             if (CollectionUtils.isEmpty(queryTypes) || queryTypes.contains(StatementType.UNKNOWN)) {
                 String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), request.getQueryBody());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
-            }
-
-            if (request.isUseExplain() && queryTypes.stream().noneMatch(StatementType::isAllowPlan)) {
-                String hintMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NOT_SUPPORT_EXPLAIN_SQL.name(), queryTypes);
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hintMessage, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
                 return false;

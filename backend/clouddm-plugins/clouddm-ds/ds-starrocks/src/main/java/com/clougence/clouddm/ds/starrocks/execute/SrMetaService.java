@@ -20,9 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.ds.starrocks.definition.ui.editor.table.SrEditorProvider;
+import com.clougence.clouddm.ds.starrocks.sql.parser.StarRocksVersion;
 import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.EditorHelperDm;
 import com.clougence.schema.editor.domain.ETable;
 import com.clougence.schema.editor.provider.SqlBuilder;
@@ -46,6 +48,12 @@ public class SrMetaService extends MyMetaService {
 
     public SrMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SHOW VARIABLES LIKE 'version_comment'", 2);
+        return Map.of(SqlParserParameters.VERSION, StarRocksVersion.parse(databaseVersion).versionString());
     }
 
     @Override

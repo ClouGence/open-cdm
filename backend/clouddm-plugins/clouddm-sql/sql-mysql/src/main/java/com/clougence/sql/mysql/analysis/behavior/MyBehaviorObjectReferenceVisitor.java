@@ -45,6 +45,92 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         this.resources = resources;
     }
 
+    private static int variableEnd(String text, int start) {
+        int index = start;
+        if (index + 1 < text.length() && text.charAt(index) == '@' && text.charAt(index + 1) == '@') {
+            index += 2;
+            int scopeEnd = scopeEnd(text, index);
+            if (scopeEnd >= 0 && scopeEnd < text.length() && text.charAt(scopeEnd) == '.') {
+                index = scopeEnd + 1;
+            }
+        }
+        if (index < text.length() && text.charAt(index) == '`') {
+            int closing = text.indexOf('`', index + 1);
+            return closing < 0 ? start : closing + 1;
+        }
+        if (index >= text.length() || !MyBehaviorText.isIdentifierStart(text.charAt(index))) {
+            return start;
+        }
+        index++;
+        while (index < text.length() && MyBehaviorText.isIdentifierPart(text.charAt(index))) {
+            index++;
+        }
+        return index;
+    }
+
+    private static int scopeEnd(String text, int start) {
+        String[] scopes = { "GLOBAL", "SESSION", "LOCAL" };
+        for (String scope : scopes) {
+            if (MyBehaviorText.startsWithWord(text, start, scope)) {
+                return start + scope.length();
+            }
+        }
+        return -1;
+    }
+
+    private static boolean isDual(TableNameContext tableName) {
+        return tableName != null && tableName.fullId() != null && tableName.fullId().DOT() == null && StringUtils.equalsIgnoreCase("DUAL", tableName.fullId().uid(0).getText());
+    }
+
+    private static <T extends ParseTree> List<T> descendants(ParseTree tree, Class<T> type) {
+        List<T> result = new java.util.ArrayList<>();
+        collect(tree, type, result);
+        return result;
+    }
+
+    private static <T extends ParseTree> void collect(ParseTree tree, Class<T> type, List<T> result) {
+        if (tree == null) {
+            return;
+        }
+        if (type.isInstance(tree)) {
+            result.add(type.cast(tree));
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collect(tree.getChild(i), type, result);
+        }
+    }
+
+    private static Token subToken(Token source, int offset, String text) {
+        String prefix = source.getText().substring(0, offset);
+        int lineBreak = prefix.lastIndexOf('\n');
+        int line = source.getLine();
+        int column = source.getCharPositionInLine() + offset;
+        for (int i = 0; i < prefix.length(); i++) {
+            if (prefix.charAt(i) == '\n') {
+                line++;
+            }
+        }
+        if (lineBreak >= 0) {
+            column = prefix.length() - lineBreak - 1;
+        }
+        CommonToken token = new CommonToken(0, text);
+        token.setLine(line);
+        token.setCharPositionInLine(column);
+        return token;
+    }
+
+    private static boolean isUnnamedTable(TableNameContext table) {
+        return table != null && table.getText().replace("`", "").isBlank();
+    }
+
+    private static String normalizeIdentifier(String identifier) {
+        String value = identifier;
+        if (value.length() >= 2 && value.startsWith("`") && value.endsWith("`")) {
+            value = value.substring(1, value.length() - 1).replace("``", "`");
+        }
+        return value.toLowerCase(Locale.ROOT);
+    }
+
     void prepareStatement(ParserRuleContext statement) {
         collectCteNames(statement);
     }
@@ -92,39 +178,6 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
                 searchFrom = setVar + "SET_VAR".length();
             }
         }
-    }
-
-    private static int variableEnd(String text, int start) {
-        int index = start;
-        if (index + 1 < text.length() && text.charAt(index) == '@' && text.charAt(index + 1) == '@') {
-            index += 2;
-            int scopeEnd = scopeEnd(text, index);
-            if (scopeEnd >= 0 && scopeEnd < text.length() && text.charAt(scopeEnd) == '.') {
-                index = scopeEnd + 1;
-            }
-        }
-        if (index < text.length() && text.charAt(index) == '`') {
-            int closing = text.indexOf('`', index + 1);
-            return closing < 0 ? start : closing + 1;
-        }
-        if (index >= text.length() || !MyBehaviorText.isIdentifierStart(text.charAt(index))) {
-            return start;
-        }
-        index++;
-        while (index < text.length() && MyBehaviorText.isIdentifierPart(text.charAt(index))) {
-            index++;
-        }
-        return index;
-    }
-
-    private static int scopeEnd(String text, int start) {
-        String[] scopes = { "GLOBAL", "SESSION", "LOCAL" };
-        for (String scope : scopes) {
-            if (MyBehaviorText.startsWithWord(text, start, scope)) {
-                return start + scope.length();
-            }
-        }
-        return -1;
     }
 
     @Override
@@ -293,10 +346,6 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         add(SplitQueryType.SELECT, TargetType.Table, tableName);
     }
 
-    private static boolean isDual(TableNameContext tableName) {
-        return tableName != null && tableName.fullId() != null && tableName.fullId().DOT() == null && StringUtils.equalsIgnoreCase("DUAL", tableName.fullId().uid(0).getText());
-    }
-
     @Override
     public Void visitInsertStatement(InsertStatementContext ctx) {
         if (!isUnnamedTable(ctx.tableName())) {
@@ -452,6 +501,63 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         }
         addUnnamedAtCurrentSchema(SplitQueryType.MERGE, TargetType.Table, true, ctx.tableName());
         return null;
+    }
+
+    @Override
+    public Void visitMultipleUpdateStatement(MultipleUpdateStatementContext ctx) {
+        List<AtomTableItemContext> tables = descendants(ctx.tableSources(), AtomTableItemContext.class);
+        if (tables.isEmpty()) {
+            return null;
+        }
+        String qualifier = null;
+        if (!ctx.updatedElement().isEmpty()) {
+            FullColumnNameContext column = ctx.updatedElement(0).fullColumnName();
+            if (!column.dottedId().isEmpty()) {
+                qualifier = unquote(column.uid().getText());
+            }
+        }
+        AtomTableItemContext target = resolveAlias(qualifier, tables);
+        add(SplitQueryType.UPDATE, TargetType.Table, target.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitMultipleDeleteStatement(MultipleDeleteStatementContext ctx) {
+        List<AtomTableItemContext> tables = descendants(ctx.tableSources(), AtomTableItemContext.class);
+        for (TableNameContext deleteTarget : ctx.tableName()) {
+            AtomTableItemContext target = resolveAlias(unquote(text(deleteTarget)), tables);
+            if (target == null) {
+                add(SplitQueryType.DELETE, TargetType.Table, deleteTarget);
+            } else {
+                add(SplitQueryType.DELETE, TargetType.Table, target.tableName());
+            }
+        }
+        return null;
+    }
+
+    private AtomTableItemContext resolveAlias(String qualifier, List<AtomTableItemContext> tables) {
+        if (qualifier != null) {
+            for (AtomTableItemContext table : tables) {
+                if (table.aliasName() != null && qualifier.equalsIgnoreCase(unquote(text(table.aliasName())))) {
+                    return table;
+                }
+            }
+        }
+        return tables.isEmpty() ? null : tables.get(0);
+    }
+
+    private String text(ParserRuleContext context) {
+        return parser.getTokenStream().getText(context.getStart(), context.getStop());
+    }
+
+    private String unquote(String value) {
+        if (value != null && value.length() >= 2) {
+            char quote = value.charAt(0);
+            if ((quote == '`' || quote == '"') && value.charAt(value.length() - 1) == quote) {
+                return value.substring(1, value.length() - 1);
+            }
+        }
+        return value;
     }
 
     @Override
@@ -771,25 +877,6 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         }
     }
 
-    private static Token subToken(Token source, int offset, String text) {
-        String prefix = source.getText().substring(0, offset);
-        int lineBreak = prefix.lastIndexOf('\n');
-        int line = source.getLine();
-        int column = source.getCharPositionInLine() + offset;
-        for (int i = 0; i < prefix.length(); i++) {
-            if (prefix.charAt(i) == '\n') {
-                line++;
-            }
-        }
-        if (lineBreak >= 0) {
-            column = prefix.length() - lineBreak - 1;
-        }
-        CommonToken token = new CommonToken(0, text);
-        token.setLine(line);
-        token.setCharPositionInLine(column);
-        return token;
-    }
-
     private void collectCteNames(ParseTree tree) {
         if (tree instanceof WithSelectExprContext cte) {
             cteNames.add(normalizeIdentifier(cte.uid().getText()));
@@ -804,17 +891,5 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
             return false;
         }
         return cteNames.contains(normalizeIdentifier(table.getText()));
-    }
-
-    private static boolean isUnnamedTable(TableNameContext table) {
-        return table != null && table.getText().replace("`", "").isBlank();
-    }
-
-    private static String normalizeIdentifier(String identifier) {
-        String value = identifier;
-        if (value.length() >= 2 && value.startsWith("`") && value.endsWith("`")) {
-            value = value.substring(1, value.length() - 1).replace("``", "`");
-        }
-        return value.toLowerCase(Locale.ROOT);
     }
 }

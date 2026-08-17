@@ -133,7 +133,14 @@ public class DmHooks implements SessionHook {
 
     @Override
     public PreparedStatement explainStatement(Connection conn, QueryRequest query) throws SQLException {
-        throw new UnsupportedOperationException("explain supported yet.");
+        if (!StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), "EXPLAIN ")) {
+            throw new SQLException("Explain request does not contain an EXPLAIN statement");
+        }
+
+        PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        stmt.setFetchSize(200);
+        stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
+        return stmt;
     }
 
     @Override

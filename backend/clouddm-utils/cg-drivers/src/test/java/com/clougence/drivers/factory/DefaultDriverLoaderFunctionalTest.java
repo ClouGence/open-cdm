@@ -17,11 +17,7 @@ package com.clougence.drivers.factory;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -52,6 +48,7 @@ import com.clougence.drivers.factory.prepare.FileResourcePreparer;
 import com.clougence.drivers.testsupport.TestDsFactory;
 import com.clougence.drivers.testsupport.TestPrepareMarker;
 import com.clougence.utils.loader.AbstractResourceLoader;
+
 public class DefaultDriverLoaderFunctionalTest {
 
     private Path tempDir;
@@ -70,31 +67,36 @@ public class DefaultDriverLoaderFunctionalTest {
 
     @Test
     public void loadDriverXml_shouldMergeDuplicateResourcesAndSortVersions() {
-        // @formatter:off
         DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         loader.loadDriverXml(xmlStream(
-            "<drivers>" +
-                "<driver driverFamily=\"functional-driver\" version=\"1.0.0\">" +
-                "<driverName>" + TestDsFactory.class.getName() + "</driverName>" +
-                "<resource type=\"class\">" + TestPrepareMarker.class.getName() + "</resource>" +
-                "</driver>" +
-                "<driver driverFamily=\"functional-driver\" version=\"2.0.0\">" +
-                "<driverName>" + TestDsFactory.class.getName() + "</driverName>" +
-                "<resource type=\"resource\">driver-tests/sample-resource.txt</resource>" +
-                "</driver>" +
-            "</drivers>"));
+            """
+                <drivers>
+                    <driver driverFamily="functional-driver" version="1.0.0">
+                        <driverName>%s</driverName>
+                        <resource type="class">%s</resource>
+                    </driver>
+                    <driver driverFamily="functional-driver" version="2.0.0" default="true">
+                        <driverName>%s</driverName>
+                        <resource type="resource">driver-tests/sample-resource.txt</resource>
+                    </driver>
+                </drivers>
+                """.formatted(TestDsFactory.class.getName(), TestPrepareMarker.class.getName(), TestDsFactory.class.getName())));
         loader.loadDriverXml(xmlStream(
-            "<drivers>" +
-                "<driver driverFamily=\"functional-driver\" version=\"2.0.0\">" +
-                "<resource type=\"class\">" + TestPrepareMarker.class.getName() + "</resource>" +
-                "<resource type=\"resource\">driver-tests/sample-resource.txt</resource>" +
-                "</driver>" +
-            "</drivers>"));
-        // @formatter:on
+            """
+                <drivers>
+                    <driver driverFamily="functional-driver" version="2.0.0">
+                        <resource type="class">%s</resource>
+                        <resource type="resource">driver-tests/sample-resource.txt</resource>
+                    </driver>
+                </drivers>
+                """.formatted(TestPrepareMarker.class.getName())));
 
         DriverFamily family = loader.findDriver("functional-driver");
         assertNotNull(family);
         assertEquals("2.0.0", family.findVersion(null).getVersion());
+        assertEquals("2.0.0", family.getDefaultVersion());
+        assertTrue(family.findVersion("2.0.0").isDefault());
+        assertFalse(family.findVersion("1.0.0").isDefault());
 
         DriverVersion version = loader.findDriver("functional-driver", "2.0.0");
         assertNotNull(version);
@@ -157,8 +159,7 @@ public class DefaultDriverLoaderFunctionalTest {
         // @formatter:on
 
         DriverVersion version = loader.findDriver("default-prepare-driver", "1.0");
-        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
-        });
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {});
 
         assertTrue(version.isPrepared());
         assertEquals(1, version.getFiles().size());
@@ -210,8 +211,7 @@ public class DefaultDriverLoaderFunctionalTest {
         assertFalse(version.isPrepared());
 
         Files.write(targetFile, "ok".getBytes(StandardCharsets.UTF_8));
-        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
-        });
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {});
         assertTrue(version.isPrepared());
 
         Files.delete(targetFile);
@@ -356,14 +356,13 @@ public class DefaultDriverLoaderFunctionalTest {
         Files.write(versionFile, "ok".getBytes(StandardCharsets.UTF_8));
 
         DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
-        loader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"family-b\" version=\"2.0\">" + "<resource type=\"file\">nested/driver.jar"
-                                       + "</resource>" + "</driver>" + "</drivers>"));
+        loader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"family-b\" version=\"2.0\">" + "<resource type=\"file\">nested/driver.jar" + "</resource>"
+                                       + "</driver>" + "</drivers>"));
 
         DriverVersion version = loader.findDriver("family-b", "2.0");
         assertNotNull(version);
 
-        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
-        });
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {});
         loader.refreshDriverVersion(version);
 
         assertTrue(version.isPrepared());
@@ -376,18 +375,13 @@ public class DefaultDriverLoaderFunctionalTest {
     public void refreshResources_shouldRecoverPreparedFilesFromFilesIdxAfterRestart() throws Exception {
         DefaultDriverLoader prepareLoader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         prepareLoader.registerPreparer("downloaded", IndexedDownloadPreparer::new);
-        prepareLoader.loadDriverXml(xmlStream(
-            "<drivers>"
-                + "<driver driverFamily=\"indexed-driver\" version=\"1.0\">"
-                + "<resource type=\"downloaded\">asset.bin</resource>"
-                + "</driver>"
-                + "</drivers>"));
+        prepareLoader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"indexed-driver\" version=\"1.0\">" + "<resource type=\"downloaded\">asset.bin</resource>"
+                                              + "</driver>" + "</drivers>"));
 
         DriverVersion preparedVersion = prepareLoader.findDriver("indexed-driver", "1.0");
         assertNotNull(preparedVersion);
 
-        prepareLoader.prepareDriverVersion(preparedVersion, resource -> false, new DriverPrepareProgress() {
-        });
+        prepareLoader.prepareDriverVersion(preparedVersion, resource -> false, new DriverPrepareProgress() {});
 
         Path versionDir = this.tempDir.resolve("indexed-driver").resolve("1.0");
         Path indexFile = versionDir.resolve("files.idx");
@@ -397,12 +391,8 @@ public class DefaultDriverLoaderFunctionalTest {
 
         DefaultDriverLoader refreshLoader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         refreshLoader.registerPreparer("downloaded", IndexedDownloadPreparer::new);
-        refreshLoader.loadDriverXml(xmlStream(
-            "<drivers>"
-                + "<driver driverFamily=\"indexed-driver\" version=\"1.0\">"
-                + "<resource type=\"downloaded\">asset.bin</resource>"
-                + "</driver>"
-                + "</drivers>"));
+        refreshLoader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"indexed-driver\" version=\"1.0\">" + "<resource type=\"downloaded\">asset.bin</resource>"
+                                              + "</driver>" + "</drivers>"));
 
         DriverVersion refreshedVersion = refreshLoader.findDriver("indexed-driver", "1.0");
         assertNotNull(refreshedVersion);
@@ -425,30 +415,21 @@ public class DefaultDriverLoaderFunctionalTest {
 
         DefaultDriverLoader prepareLoader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         prepareLoader.registerPreparer("downloaded", IndexedDownloadPreparer::new);
-        prepareLoader.loadDriverXml(xmlStream(
-            "<drivers>"
-                + "<driver driverFamily=\"indexed-driver\" version=\"1.1\">"
-                + "<resource type=\"downloaded\">asset.bin</resource>"
-                + "</driver>"
-                + "</drivers>"));
+        prepareLoader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"indexed-driver\" version=\"1.1\">" + "<resource type=\"downloaded\">asset.bin</resource>"
+                                              + "</driver>" + "</drivers>"));
 
         DriverVersion preparedVersion = prepareLoader.findDriver("indexed-driver", "1.1");
         assertNotNull(preparedVersion);
 
-        prepareLoader.prepareDriverVersion(preparedVersion, resource -> false, new DriverPrepareProgress() {
-        });
+        prepareLoader.prepareDriverVersion(preparedVersion, resource -> false, new DriverPrepareProgress() {});
         assertEquals(1, IndexedDownloadPreparer.analysisCount);
 
         IndexedDownloadPreparer.resetCounters();
 
         DefaultDriverLoader refreshLoader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         refreshLoader.registerPreparer("downloaded", IndexedDownloadPreparer::new);
-        refreshLoader.loadDriverXml(xmlStream(
-            "<drivers>"
-                + "<driver driverFamily=\"indexed-driver\" version=\"1.1\">"
-                + "<resource type=\"downloaded\">asset.bin</resource>"
-                + "</driver>"
-                + "</drivers>"));
+        refreshLoader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"indexed-driver\" version=\"1.1\">" + "<resource type=\"downloaded\">asset.bin</resource>"
+                                              + "</driver>" + "</drivers>"));
 
         DriverVersion refreshedVersion = refreshLoader.findDriver("indexed-driver", "1.1");
         assertNotNull(refreshedVersion);
@@ -464,19 +445,13 @@ public class DefaultDriverLoaderFunctionalTest {
     public void refreshResources_shouldRecoverFilesForMatchingResDefOnly() throws Exception {
         DefaultDriverLoader prepareLoader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         prepareLoader.registerPreparer("downloaded", IndexedDownloadPreparer::new);
-        prepareLoader.loadDriverXml(xmlStream(
-            "<drivers>"
-                + "<driver driverFamily=\"indexed-driver\" version=\"2.0\">"
-                + "<resource type=\"downloaded\">asset-a.bin</resource>"
-                + "<resource type=\"downloaded\">asset-b.bin</resource>"
-                + "</driver>"
-                + "</drivers>"));
+        prepareLoader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"indexed-driver\" version=\"2.0\">" + "<resource type=\"downloaded\">asset-a.bin</resource>"
+                                              + "<resource type=\"downloaded\">asset-b.bin</resource>" + "</driver>" + "</drivers>"));
 
         DriverVersion preparedVersion = prepareLoader.findDriver("indexed-driver", "2.0");
         assertNotNull(preparedVersion);
 
-        prepareLoader.prepareDriverVersion(preparedVersion, resource -> false, new DriverPrepareProgress() {
-        });
+        prepareLoader.prepareDriverVersion(preparedVersion, resource -> false, new DriverPrepareProgress() {});
 
         Path versionDir = this.tempDir.resolve("indexed-driver").resolve("2.0");
         Path indexFile = versionDir.resolve("files.idx");
@@ -491,13 +466,8 @@ public class DefaultDriverLoaderFunctionalTest {
 
         DefaultDriverLoader refreshLoader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         refreshLoader.registerPreparer("downloaded", IndexedDownloadPreparer::new);
-        refreshLoader.loadDriverXml(xmlStream(
-            "<drivers>"
-                + "<driver driverFamily=\"indexed-driver\" version=\"2.0\">"
-                + "<resource type=\"downloaded\">asset-a.bin</resource>"
-                + "<resource type=\"downloaded\">asset-b.bin</resource>"
-                + "</driver>"
-                + "</drivers>"));
+        refreshLoader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"indexed-driver\" version=\"2.0\">" + "<resource type=\"downloaded\">asset-a.bin</resource>"
+                                              + "<resource type=\"downloaded\">asset-b.bin</resource>" + "</driver>" + "</drivers>"));
 
         DriverVersion refreshedVersion = refreshLoader.findDriver("indexed-driver", "2.0");
         assertNotNull(refreshedVersion);

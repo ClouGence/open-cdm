@@ -37,6 +37,7 @@ public class RdpTicketActivityVO {
     private String                         gmtModified;
     private RdpTicketProcessActivityStatus activityStatus;
     private String                         activityTitle;
+    private String                         analysisPhase;
     private Integer                        displayOrder;
     private String                         finishTime;
     private String                         remark;
@@ -47,6 +48,7 @@ public class RdpTicketActivityVO {
     private Long                           processedCount;
     private Long                           processedBytes;
     private Long                           totalBytes;
+    private Long                           totalCount;
     private Long                           statementCount;
     private Long                           objectCount;
     private Long                           behaviorCount;
@@ -55,7 +57,6 @@ public class RdpTicketActivityVO {
     private List<ApprovalBehavior>         behaviors;
     private List<TicketRuleCheckResult>    ruleResults;
     private Long                           dmlStatementCount;
-    private Long                           cachedExplainCount;
     private Long                           executedExplainCount;
     private Long                           skippedBySizeLimit;
     private Long                           skippedByCountLimit;

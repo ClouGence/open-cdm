@@ -907,6 +907,9 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<StatementType> {
 
     @Override
     public StatementType visitInsertTable(InsertTableContext ctx) {
+        if (ctx.explain() != null) {
+            return StatementType.SELECT;
+        }
         return ctx.OVERWRITE() == null ? StatementType.INSERT : StatementType.MERGE;
     }
 
@@ -927,6 +930,9 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<StatementType> {
 
     @Override
     public StatementType visitUpdate(UpdateContext ctx) {
+        if (ctx.explain() != null) {
+            return StatementType.SELECT;
+        }
         return StatementType.UPDATE;
     }
 
@@ -947,6 +953,9 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<StatementType> {
 
     @Override
     public StatementType visitDelete(DeleteContext ctx) {
+        if (ctx.explain() != null) {
+            return StatementType.SELECT;
+        }
         return StatementType.DELETE;
     }
 

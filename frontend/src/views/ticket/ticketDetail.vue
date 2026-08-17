@@ -272,7 +272,7 @@
                               </Tag>
                             </template>
                           </Table>
-                          <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+                          <div v-else class="analysis-result-empty">{{ analysisEmptyText(item) }}</div>
                         </template>
 
                         <template v-else-if="item.activityTitle === 'SECURITY_RULE'">
@@ -298,16 +298,14 @@
                             </div>
                           </div>
                           <div v-else class="analysis-result-empty">
-                            {{
-                              analysisRuleResults.length && showCheckedOnlyError ? $t('ticket-analysis-security-passed') : analysisResultText(item)
-                            }}
+                            {{ analysisRuleResults.length && showCheckedOnlyError ? $t('ticket-analysis-security-passed') : analysisEmptyText(item) }}
                           </div>
                         </template>
 
                         <template v-else-if="item.activityTitle === 'DML_EXPLAIN'">
                           <Table
                             v-if="item.explainResults && item.explainResults.length"
-                            :columns="dmlExplainColumns"
+                            :columns="dmlExplainTableColumns()"
                             :data="dmlExplainRows(item)"
                             border
                             size="small"
@@ -328,10 +326,10 @@
                               <span>{{ dmlExplainDescription(row) }}</span>
                             </template>
                           </Table>
-                          <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+                          <div v-else class="analysis-result-empty">{{ analysisEmptyText(item) }}</div>
                         </template>
 
-                        <div v-else class="analysis-result-empty">{{ analysisResultText(item) }}</div>
+                        <div v-else class="analysis-result-empty">{{ analysisEmptyText(item) }}</div>
                       </div>
                     </div>
                   </div>
@@ -737,7 +735,7 @@ const aggregateDmlExplainDetails = (details) => {
       (left, right) => left - right
     );
     const statuses = [...new Set(group.details.map((row) => row.status).filter(Boolean))];
-    const skipReasons = [...new Set(group.details.map((row) => row.skipReason).filter(Boolean))];
+    const messages = [...new Set(group.details.map((row) => row.message).filter(Boolean))];
     const estimates = group.details.map((row) => row.estimatedAffectedRows);
     const allEstimated = estimates.every((value) => value != null);
     return {
@@ -746,7 +744,7 @@ const aggregateDmlExplainDetails = (details) => {
       statementStartLines,
       statementCount: indices.length,
       status: statuses.join(' / '),
-      skipReason: skipReasons.join(' / '),
+      message: messages.join(' / '),
       estimatedAffectedRows: allEstimated ? estimates.reduce((total, value) => total + value, 0) : null
     };
   });
@@ -801,32 +799,6 @@ export default {
           title: this.$t('cao-zuo'),
           slot: 'actions',
           width: 320
-        }
-      ],
-      dmlExplainColumns: [
-        {
-          title: this.$t('ticket-analysis-dml-explain-rows'),
-          slot: 'estimatedAffectedRows',
-          width: 150
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-actions'),
-          slot: 'actions',
-          width: 180
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-subjects'),
-          slot: 'subjects'
-        },
-        {
-          title: this.$t('ticket-analysis-dml-explain-statement-count'),
-          slot: 'statementCount',
-          width: 320
-        },
-        {
-          title: this.$t('shuo-ming'),
-          slot: 'description',
-          width: 220
         }
       ],
       showCheckedOnlyError: false,
@@ -1009,7 +981,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userInfo', 'myAuth']),
+    ...mapState(['userInfo', 'myAuth', 'dmGlobalSetting']),
     ticketProgressSteps() {
       const steps = [
         {
@@ -1207,8 +1179,43 @@ export default {
         ? this.$t('ticket-analysis-behavior-summary-legacy', values)
         : this.$t('ticket-analysis-behavior-summary', values);
     },
+    dmlExplainTableColumns() {
+      let statementCountTitle = this.$t('ticket-analysis-dml-explain-statement-count');
+      const maxStatements = this.dmGlobalSetting.approvalExplainMaxSize;
+      if (maxStatements > 0) {
+        statementCountTitle = this.$t('ticket-analysis-dml-explain-statement-count-with-limit', {
+          count: maxStatements
+        });
+      }
+      return [
+        {
+          title: this.$t('ticket-analysis-dml-explain-rows'),
+          slot: 'estimatedAffectedRows',
+          width: 150
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-actions'),
+          slot: 'actions',
+          width: 180
+        },
+        {
+          title: this.$t('ticket-analysis-dml-explain-subjects'),
+          slot: 'subjects'
+        },
+        {
+          title: statementCountTitle,
+          slot: 'statementCount',
+          width: 320
+        },
+        {
+          title: this.$t('shuo-ming'),
+          slot: 'description',
+          width: 220
+        }
+      ];
+    },
     analysisSummaryText(item) {
-      if (item.activityTitle === 'BEHAVIOR_ANALYSIS') {
+      if (item.activityTitle === 'BEHAVIOR_ANALYSIS' && item.activityStatus === 'COMPLETED') {
         return this.behaviorSummaryText(item);
       }
       if (item.activityTitle === 'DML_EXPLAIN' && item.activityStatus === 'COMPLETED') {
@@ -1264,9 +1271,23 @@ export default {
             count: item.processedCount || 0
           });
         }
-        return item.processedCount == null
-          ? this.$t('ticket-analysis-running')
-          : this.$t('ticket-analysis-processed-count', { count: item.processedCount });
+        let progressText;
+        if (item.totalCount > 0) {
+          const processed = item.processedCount || 0;
+          const percentage = Math.min(100, Math.floor((processed * 100) / item.totalCount));
+          progressText = this.$t('ticket-analysis-count-progress', {
+            processed,
+            total: item.totalCount,
+            percentage
+          });
+        } else {
+          progressText =
+            item.processedCount == null
+              ? this.$t('ticket-analysis-running')
+              : this.$t('ticket-analysis-processed-count', { count: item.processedCount });
+        }
+        const phaseKey = item.analysisPhase ? `ticket-analysis-phase-${item.analysisPhase}` : null;
+        return phaseKey ? this.$t('ticket-analysis-phase-progress', { phase: this.$t(phaseKey), progress: progressText }) : progressText;
       }
       if (item.activityTitle === 'SQL_RECOGNITION' && item.statementCount != null) {
         return this.$t('ticket-analysis-sql-result', { count: item.statementCount });
@@ -1290,23 +1311,45 @@ export default {
       }
       return '--';
     },
+    analysisEmptyText(item) {
+      if (item.activityStatus === 'RUNNING') {
+        return this.$t('ticket-analysis-running-detail');
+      }
+      return this.analysisResultText(item);
+    },
     dmlExplainDetailText(item) {
       const failed = item.failedExplainCount || 0;
       const total = item.dmlStatementCount || 0;
+      if (total === 0) {
+        return this.$t('ticket-analysis-dml-explain-summary-empty', { total });
+      }
       const sizeSkipped = item.skippedBySizeLimit || 0;
       const countSkipped = item.skippedByCountLimit || 0;
       const skipped = sizeSkipped + countSkipped;
-      let text = this.$t('ticket-analysis-dml-explain-detail-total', { total });
+      const estimates = (item.explainResults || []).map((result) => result.estimatedAffectedRows).filter((value) => value != null);
+      let text;
+      if (estimates.length) {
+        const affectedRows = estimates.reduce((sum, value) => sum + value, 0);
+        const summaryKey = skipped > 0 || failed > 0 ? 'ticket-analysis-dml-explain-summary-minimum' : 'ticket-analysis-dml-explain-summary';
+        text = this.$t(summaryKey, { total, affectedRows });
+      } else {
+        text = this.$t('ticket-analysis-dml-explain-summary-without-estimate', { total });
+      }
       if (skipped > 0) {
-        text = this.$t('ticket-analysis-dml-explain-detail', {
-          total,
-          sizeSkipped,
-          countSkipped,
-          skipped
+        const reasons = [];
+        if (sizeSkipped > 0) {
+          reasons.push(this.$t('ticket-analysis-dml-explain-summary-oversized', { count: sizeSkipped }));
+        }
+        if (countSkipped > 0) {
+          reasons.push(this.$t('ticket-analysis-dml-explain-summary-over-count', { count: countSkipped }));
+        }
+        text += this.$t('ticket-analysis-dml-explain-summary-skipped', {
+          skipped,
+          reasons: reasons.join(this.$t('ticket-analysis-dml-explain-summary-reason-separator'))
         });
       }
       if (failed > 0) {
-        text += this.$t('ticket-analysis-dml-explain-detail-failed', { failed });
+        text += this.$t('ticket-analysis-dml-explain-summary-failed', { failed });
       }
       return text;
     },
@@ -1326,14 +1369,10 @@ export default {
         .split(' / ')
         .map((value) => this.$t(`ticket-analysis-dml-explain-status-${value}`))
         .join(' / ');
-      if (!row.skipReason) {
+      if (!row.message) {
         return status;
       }
-      const reason = row.skipReason
-        .split(' / ')
-        .map((value) => this.$t(`ticket-analysis-dml-explain-reason-${value}`))
-        .join(' / ');
-      return this.$t('ticket-analysis-dml-explain-description-with-reason', { status, reason });
+      return this.$t('ticket-analysis-dml-explain-description-with-reason', { status, reason: row.message });
     },
     dmlExplainRows(item) {
       const statements = new Map();
@@ -2527,6 +2566,12 @@ export default {
   box-shadow: 0 2px 8px rgba(31, 41, 55, 0.05);
 }
 
+.ticket-info-section,
+.ticket-progress-card {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
 .ticket-progress-card {
   container-type: inline-size;
 }
@@ -2664,7 +2709,7 @@ export default {
 }
 
 .ticket-overview {
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .ticket-info-section__header,
@@ -2780,7 +2825,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
-  padding: 22px 0;
+  padding: 14px 0;
   border-top: 1px solid var(--border-light);
 }
 
@@ -2793,13 +2838,13 @@ export default {
 }
 
 .ticket-overview__secondary-grid {
-  padding-bottom: 4px;
+  padding-bottom: 0;
 }
 
 .ticket-meta-item {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 4px;
   min-width: 0;
   padding: 0 20px;
   border-left: 1px solid var(--border-light);
@@ -2962,7 +3007,7 @@ export default {
 }
 
 .ticket-progress-section {
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 .ticket-progress-scroll {
@@ -3104,7 +3149,7 @@ export default {
 }
 
 .ticket-sql-section {
-  padding: 20px 24px;
+  padding: 16px 24px 20px;
   border: 1px solid var(--border-primary);
   border-radius: 8px;
   background: var(--bg-card);
@@ -3133,8 +3178,7 @@ export default {
 }
 
 .ticket-step-detail {
-  margin-top: 20px;
-  padding-top: 20px;
+  margin-top: 16px;
 }
 
 .page-section__title {
@@ -3161,8 +3205,8 @@ export default {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
-  margin-top: 12px;
-  padding: 18px 0 20px;
+  margin-top: 8px;
+  padding: 12px 0 4px;
   background: var(--bg-card);
 }
 
@@ -3170,7 +3214,7 @@ export default {
 .ticket-activity-row > div {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -3611,8 +3655,9 @@ export default {
 }
 
 .ticket-sql-toolbar {
+  align-items: flex-start;
   gap: 24px;
-  min-height: 44px;
+  min-height: 32px;
   margin-bottom: 12px;
 }
 

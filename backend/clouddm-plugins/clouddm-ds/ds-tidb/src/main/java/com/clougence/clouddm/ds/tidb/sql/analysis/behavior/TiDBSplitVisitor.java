@@ -1232,9 +1232,9 @@ public class TiDBSplitVisitor extends TiDBParserBaseVisitor<StatementType> {
     @Override
     public StatementType visitFullDescribeStatement(FullDescribeStatementContext ctx) {
         if (ctx.analyze != null) {
-            return ctx.describeObjectClause() == null ? StatementType.PERFORMANCE : firstNestedStatement(ctx.describeObjectClause(), false);
+            return StatementType.UNSAFE;
         }
-        return StatementType.PERFORMANCE;
+        return StatementType.SELECT;
     }
 
     @Override
@@ -1396,7 +1396,7 @@ public class TiDBSplitVisitor extends TiDBParserBaseVisitor<StatementType> {
 
     @Override
     public StatementType visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
-        return "EXPLAIN".equalsIgnoreCase(ctx.command.getText()) ? StatementType.PERFORMANCE : StatementType.METADATA;
+        return "EXPLAIN".equalsIgnoreCase(ctx.command.getText()) ? StatementType.SELECT : StatementType.METADATA;
     }
 
     @Override

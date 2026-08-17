@@ -126,7 +126,20 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
 
     @Override
     public Void visitAlterTableStmt(AlterTableStmtContext ctx) {
-        add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.tableIdentifier()), tableSources(ctx));
+        BehaviorObject table = object(TargetType.Table, ctx.tableIdentifier());
+        boolean hasAlter = false;
+        for (AlterTableClauseContext clause : ctx.alterTableClause()) {
+            if (clause instanceof AlterTableClauseUpdateContext) {
+                add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table, tableSources(clause));
+            } else if (clause instanceof AlterTableClauseDeleteContext) {
+                add(SplitQueryType.DELETE, BehaviorAction.DELETE, table, tableSources(clause));
+            } else {
+                hasAlter = true;
+            }
+        }
+        if (hasAlter) {
+            add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, table, tableSources(ctx));
+        }
         return null;
     }
 
@@ -134,7 +147,12 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
     public Void visitInsertStmt(InsertStmtContext ctx) {
         List<BehaviorObject> sources = new ArrayList<>();
         addTableSources(sources, ctx.dataClause());
+        int relationCount = behavior.getRelations().size();
         add(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.tableIdentifier()), sources);
+        if (ctx.dataClause() instanceof DataClauseValuesContext values && behavior.getRelations().size() > relationCount) {
+            BehaviorRelation relation = behavior.getRelations().get(behavior.getRelations().size() - 1);
+            relation.setInsertRows((long) values.assignmentValues().size());
+        }
         return null;
     }
 

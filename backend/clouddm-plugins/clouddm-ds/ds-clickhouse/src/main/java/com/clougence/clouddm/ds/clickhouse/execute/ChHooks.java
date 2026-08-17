@@ -29,6 +29,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.utils.StringUtils;
+import com.clougence.utils.Version;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +42,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChHooks implements SessionHook {
 
-    private final boolean changeSchema;
-    private final boolean transaction;
+    private static final Version CONNECTION_ID_MIN_VERSION = new Version("22.8");
+
+    private final boolean        changeSchema;
+    private final boolean        transaction;
 
     public ChHooks(DataSourceConfig config){
         ChSupportSpi supportSpi = new ChSupportSpi();
@@ -153,12 +156,11 @@ public class ChHooks implements SessionHook {
 
     @Override
     public PreparedStatement explainStatement(Connection conn, QueryRequest query) throws SQLException {
-        String queryBody = query.getQueryBody();
-        int pos = queryBody.length() - StringUtils.trimBlankStart(queryBody).length();
-        StringBuilder explainBody = new StringBuilder(queryBody);
-        explainBody.insert(pos, "explain ");
+        if (!StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), "EXPLAIN ")) {
+            throw new SQLException("Explain request does not contain an EXPLAIN statement");
+        }
 
-        PreparedStatement stmt = conn.prepareStatement(explainBody.toString(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(200);
         stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
         return stmt;
@@ -166,6 +168,11 @@ public class ChHooks implements SessionHook {
 
     @Override
     public String getQueryID(Connection conn) throws SQLException {
+        Version serverVersion = new Version(conn.getMetaData().getDatabaseProductVersion());
+        if (serverVersion.compareTo(CONNECTION_ID_MIN_VERSION) < 0) {
+            return "0";
+        }
+
         try (Statement s = conn.createStatement(); ResultSet resultSet = s.executeQuery("select connection_id()")) {
             return ((SingleValueRowMapper<String>) (rs, columnType, columnTypeName, columnClassName) -> rs.getString(1)).mapRow(resultSet);
         } catch (SQLException e) {

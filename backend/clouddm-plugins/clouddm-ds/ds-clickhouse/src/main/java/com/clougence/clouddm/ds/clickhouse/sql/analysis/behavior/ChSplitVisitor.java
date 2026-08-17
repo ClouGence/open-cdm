@@ -24,6 +24,11 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<StatementType> {
     public static ChSplitVisitor INSTANCE = new ChSplitVisitor();
 
     @Override
+    public StatementType visitExplainStmt(ExplainStmtContext ctx) {
+        return StatementType.SELECT;
+    }
+
+    @Override
     public StatementType visitQueryStmtInsert(QueryStmtInsertContext ctx) {
         return StatementType.INSERT;
     }

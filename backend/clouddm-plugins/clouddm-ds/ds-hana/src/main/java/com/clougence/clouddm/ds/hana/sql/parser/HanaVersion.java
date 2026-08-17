@@ -62,4 +62,8 @@ public enum HanaVersion {
     public boolean atMost(HanaVersion maximum) {
         return this.major <= maximum.major;
     }
+
+    public String versionString() {
+        return Integer.toString(this.major);
+    }
 }

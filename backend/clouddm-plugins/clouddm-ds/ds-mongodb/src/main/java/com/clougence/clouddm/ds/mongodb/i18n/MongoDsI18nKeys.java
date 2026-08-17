@@ -27,5 +27,4 @@ public interface MongoDsI18nKeys {
 
     String PLUGIN_NAME_MONGODB = "PLUGIN_NAME_MONGODB";
 
-    String REWRITE_LIMIT_LABEL = "REWRITE_LIMIT_LABEL";
 }

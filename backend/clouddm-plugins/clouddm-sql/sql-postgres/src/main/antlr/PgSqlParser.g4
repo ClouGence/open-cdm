@@ -3108,6 +3108,7 @@ insert_rest
     : values_clause
     | selectstmt
     | OVERRIDING override_kind VALUE_P selectstmt
+    | OPEN_PAREN insert_column_list CLOSE_PAREN (OVERRIDING override_kind VALUE_P)? values_clause
     | OPEN_PAREN insert_column_list CLOSE_PAREN (OVERRIDING override_kind VALUE_P)? selectstmt
     | DEFAULT VALUES
     ;

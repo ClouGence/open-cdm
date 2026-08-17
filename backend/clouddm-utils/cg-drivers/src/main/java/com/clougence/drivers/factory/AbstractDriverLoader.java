@@ -166,6 +166,9 @@ public abstract class AbstractDriverLoader implements DriverLoader {
                 if (StringUtils.isNotBlank(loadedVersion.getComment())) {
                     targetVersion.setComment(loadedVersion.getComment());
                 }
+                if (loadedVersion.isDefault()) {
+                    targetVersion.setDefault(true);
+                }
                 if (loadedVersion.getLoader() != null) {
                     targetVersion.setLoader(loadedVersion.getLoader());
                 }

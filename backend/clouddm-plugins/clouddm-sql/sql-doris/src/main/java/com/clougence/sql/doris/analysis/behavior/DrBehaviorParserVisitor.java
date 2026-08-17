@@ -419,8 +419,16 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitInsertTable(InsertTableContext ctx) {
+        if (ctx.explain() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), tableSources(ctx.query()));
+            return null;
+        }
         SplitQueryType type = ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
-        add(type, type == SplitQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.tableName), tableSources(ctx.query()));
+        BehaviorRelation relation = add(type, type == SplitQueryType.INSERT ? BehaviorAction.INSERT : BehaviorAction.MERGE, object(TargetType.Table, ctx.tableName), tableSources(ctx.query()));
+        InlineTableContext values = first(ctx.query(), InlineTableContext.class);
+        if (relation != null && values != null) {
+            relation.setInsertRows((long) values.rowConstructor().size());
+        }
         addNestedReads(ctx);
         return null;
     }
@@ -429,6 +437,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitUpdate(UpdateContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx.fromClause());
         addTableSources(sources, ctx.whereClause());
+        if (ctx.explain() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), sources);
+            return null;
+        }
         add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.tableName), sources);
         addNestedReads(ctx);
         return null;
@@ -438,6 +450,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitDelete(DeleteContext ctx) {
         List<BehaviorObject> sources = tableSources(ctx.relations());
         addTableSources(sources, ctx.whereClause());
+        if (ctx.explain() != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), sources);
+            return null;
+        }
         add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.tableName), sources);
         addNestedReads(ctx);
         return null;
@@ -1557,13 +1573,13 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         return unquote(value);
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
-        add(type, action, subject, List.of());
+    private BehaviorRelation add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
+        return add(type, action, subject, List.of());
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -1577,6 +1593,12 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         if (behavior.getStatementType() == SplitQueryType.UNKNOWN || type != SplitQueryType.SELECT) {
             behavior.setStatementType(type);
         }
+        return relation;
+    }
+
+    private <T extends ParserRuleContext> T first(ParseTree tree, Class<T> type) {
+        List<T> values = descendants(tree, type);
+        return values.isEmpty() ? null : values.get(0);
     }
 
     private <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {

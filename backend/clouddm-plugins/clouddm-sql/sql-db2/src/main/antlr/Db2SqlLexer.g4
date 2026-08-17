@@ -363,6 +363,7 @@ GROUP                               : 'GROUP';
 GROUPING                            : 'GROUPING';
 HARD                                : 'HARD';
 HASH                                : 'HASH';
+HAVING                              : 'HAVING';
 HIDDEN_                             : 'HIDDEN';
 HIERARCHY                           : 'HIERARCHY';
 HIGH                                : 'HIGH';

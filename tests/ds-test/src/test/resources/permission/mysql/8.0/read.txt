@@ -102,6 +102,19 @@ expect:
   ]
 }
 ----------
+[permission_mysql_8_0_02002]
+source: permission/mysql/8.0/read.txt#explain_update
+sql:
+EXPLAIN UPDATE json_op SET c = 1 WHERE id = 10;
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "READ": [
+    "Table(1:15~1:22) /test/1/catalog1/schema1/json_op/"
+  ]
+}
+----------
 [permission_mysql_8_0_00020]
 source: permission/mysql/8.0/read.txt#insert_select
 sql:
