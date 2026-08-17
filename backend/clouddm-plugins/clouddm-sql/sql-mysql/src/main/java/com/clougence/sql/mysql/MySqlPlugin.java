@@ -9,6 +9,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.sql.mysql.execute.explain.MyExplainPlanSpi;
 import com.clougence.sql.mysql.analysis.sysobj.MySysObjectRegistrySpi;
 import com.clougence.sql.mysql.i18n.MySqlI18nKeys;
 
@@ -19,6 +20,7 @@ public class MySqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(MySqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new MySqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new MyExplainPlanSpi());
         dsPlugin.addGlobalSpi(new MySysObjectRegistrySpi());
     }
 }

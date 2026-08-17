@@ -342,6 +342,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             QueryRequest analyzed = requests.get(i);
             QueryRequest clone = temp.clone();
             clone.setQueryId(sessionSpi.newQueryId());
+            clone.setUseExplain(isExplain);
             clone.setQueryBody(analyzed.getQueryBody());
             clone.setQueryArgs(analyzed.getQueryArgs());
             clone.setQueryTypes(analyzed.getQueryTypes());

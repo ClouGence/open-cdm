@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.fo.cicd;
 
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowType;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +29,8 @@ public class GuideCreateFO {
     private String             flowName;
     private String             flowDesc;
     private String             flowManagerUid;
+    private ChangeFlowType     flowType;
+    private Long               parentFlowId;
     private GuidePipelineFO    pipeline;
     private GuideImFO          messenger;
     private ChangeFlowOptionFO option;

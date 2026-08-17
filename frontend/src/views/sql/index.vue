@@ -344,9 +344,9 @@ export default {
           }
         ],
         event,
-        customClass: 'custom-class',
+        customClass: 'sql-context-menu',
         zIndex: 3,
-        minWidth: 100
+        minWidth: 176
       });
     },
     async handleCloseConnectedModal(reConnected = true) {

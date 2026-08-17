@@ -12,7 +12,7 @@
           <Button size="small" v-if="isSupportExplain" :disabled="isRunning" @click="handlePlan('plan')">
             <div class="operator-btn-content">
               <CustomIcon type="icon-v2-ConsolePlan" :color="tab.running ? '#999' : isDark ? '#fff' : '#000'" size="14px" right-margin="4px" />
-              <span>{{ $t('ji-hua') }}</span>
+              <span>{{ $t('zhi-hang-ji-hua') }}</span>
             </div>
           </Button>
           <Button size="small" v-if="isSupportCancel" :disabled="isStoping" :loading="tab.stopping" @click="handleStop">

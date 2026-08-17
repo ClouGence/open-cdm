@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeTransferMapper">
+    <resultMap id="dmChangeTransferDO" type="com.clougence.clouddm.platform.dal.model.cicd.DmChangeTransferDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="ref_batch_id" property="refBatchId"/>
+        <result column="ref_source_flow_id" property="refSourceFlowId"/>
+        <result column="ref_source_change_id" property="refSourceChangeId"/>
+        <result column="ref_target_flow_id" property="refTargetFlowId"/>
+        <result column="ref_target_change_id" property="refTargetChangeId"/>
+        <result column="transfer_status" property="transferStatus"
+                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeTransferStatus"/>
+        <result column="schedule_time" property="scheduleTime"/>
+        <result column="try_times" property="tryTimes"/>
+        <result column="last_error" property="lastError"/>
+    </resultMap>
+    <sql id="dmChangeTransferColumns">
+        id, gmt_create, gmt_modified, owner_uid, ref_batch_id, ref_source_flow_id, ref_source_change_id,
+        ref_target_flow_id, ref_target_change_id, transfer_status, schedule_time, try_times, last_error
+    </sql>
+    <insert id="insertIgnore" useGeneratedKeys="true" keyProperty="id">
+        INSERT IGNORE INTO
+            dm_change_transfer (
+                owner_uid, ref_batch_id, ref_source_flow_id, ref_source_change_id,
+                ref_target_flow_id, transfer_status, schedule_time, try_times
+            )
+        VALUES
+            (
+                #{ownerUid}, #{refBatchId}, #{refSourceFlowId}, #{refSourceChangeId},
+                #{refTargetFlowId}, #{transferStatus}, #{scheduleTime}, #{tryTimes}
+            )
+    </insert>
+    <select id="queryReadyList" resultMap="dmChangeTransferDO">
+        SELECT
+            <include refid="dmChangeTransferColumns"/>
+        FROM
+            dm_change_transfer
+        WHERE
+            transfer_status = 'PENDING'
+            AND
+            (
+                schedule_time   IS NULL
+                OR
+                <![CDATA[schedule_time <= #{date}]]>
+            )
+        ORDER BY schedule_time ASC, id ASC
+        LIMIT ${limit}
+    </select>
+    <select id="queryById" resultMap="dmChangeTransferDO">
+        SELECT
+            <include refid="dmChangeTransferColumns"/>
+        FROM
+            dm_change_transfer
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{transferId}
+        LIMIT 1
+    </select>
+    <select id="queryBySourceChange" resultMap="dmChangeTransferDO">
+        SELECT
+            <include refid="dmChangeTransferColumns"/>
+        FROM
+            dm_change_transfer
+        WHERE
+            owner_uid            = #{ownerUid}
+            AND
+            ref_source_change_id = #{sourceChangeId}
+        ORDER BY id ASC
+    </select>
+    <select id="queryBySourceChanges" resultMap="dmChangeTransferDO">
+        SELECT
+            <include refid="dmChangeTransferColumns"/>
+        FROM
+            dm_change_transfer
+        WHERE
+            owner_uid            = #{ownerUid}
+            AND
+            ref_source_change_id IN
+        <foreach collection="sourceChangeIds" item="sourceChangeId" separator="," open="(" close=")">
+            #{sourceChangeId}
+        </foreach>
+        ORDER BY id ASC
+    </select>
+    <select id="queryByBatchIds" resultMap="dmChangeTransferDO">
+        SELECT
+            <include refid="dmChangeTransferColumns"/>
+        FROM
+            dm_change_transfer
+        WHERE
+            owner_uid    = #{ownerUid}
+            AND
+            ref_batch_id IN
+        <foreach collection="batchIds" item="batchId" separator="," open="(" close=")">
+            #{batchId}
+        </foreach>
+        ORDER BY id
+    </select>
+    <select id="queryByBatchIdForUpdate" resultMap="dmChangeTransferDO">
+        SELECT
+            <include refid="dmChangeTransferColumns"/>
+        FROM
+            dm_change_transfer
+        WHERE
+            owner_uid    = #{ownerUid}
+            AND
+            ref_batch_id = #{batchId}
+        ORDER BY id
+        FOR UPDATE
+    </select>
+    <update id="assignPending">
+        UPDATE
+            dm_change_transfer
+        SET
+            transfer_status = 'PROCESSING',
+            gmt_modified    = NOW()
+        WHERE
+            id              = #{transferId}
+            AND
+            transfer_status = 'PENDING'
+    </update>
+    <update id="releaseProcessing">
+        UPDATE
+            dm_change_transfer
+        SET
+            transfer_status = 'PENDING',
+            schedule_time   = NOW(),
+            gmt_modified    = NOW()
+        WHERE
+            id              = #{transferId}
+            AND
+            transfer_status = 'PROCESSING'
+    </update>
+    <update id="recoverStaleProcessing">
+        UPDATE
+            dm_change_transfer
+        SET
+            transfer_status = 'PENDING',
+            schedule_time   = NOW(),
+            last_error      = 'Recovered stale processing transfer',
+            gmt_modified    = NOW()
+        WHERE
+            transfer_status = 'PROCESSING'
+            AND
+            <![CDATA[gmt_modified < #{staleBefore}]]>
+    </update>
+    <update id="markSuccess">
+        UPDATE
+            dm_change_transfer
+        SET
+            transfer_status      = 'SUCCESS',
+            ref_target_change_id = #{targetChangeId},
+            last_error           = NULL,
+            gmt_modified         = NOW()
+        WHERE
+            id              = #{transferId}
+            AND
+            transfer_status = 'PROCESSING'
+    </update>
+    <update id="markRetry">
+        UPDATE
+            dm_change_transfer
+        SET
+            transfer_status = 'PENDING',
+            schedule_time   = #{scheduleTime},
+            try_times       = try_times + 1,
+            last_error      = #{errorMessage},
+            gmt_modified    = NOW()
+        WHERE
+            id              = #{transferId}
+            AND
+            transfer_status = 'PROCESSING'
+    </update>
+    <update id="markFailed">
+        UPDATE
+            dm_change_transfer
+        SET
+            transfer_status = 'FAILED',
+            try_times       = try_times + 1,
+            last_error      = #{errorMessage},
+            gmt_modified    = NOW()
+        WHERE
+            id              = #{transferId}
+            AND
+            transfer_status = 'PROCESSING'
+    </update>
+    <update id="retryFailed">
+        UPDATE
+            dm_change_transfer
+        SET
+            transfer_status = 'PENDING',
+            schedule_time   = NOW(),
+            try_times       = 0,
+            last_error      = NULL,
+            gmt_modified    = NOW()
+        WHERE
+            owner_uid       = #{ownerUid}
+            AND
+            id              = #{transferId}
+            AND
+            transfer_status = 'FAILED'
+    </update>
+</mapper>

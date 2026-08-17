@@ -3,6 +3,7 @@ import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
 import { mapState } from 'vuex';
 import { resolveSqlEditorLanguage } from './sqlLanguage';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 export default {
   name: 'ReadOnlyDiffEditor',
@@ -76,8 +77,7 @@ export default {
           this.monacoEditor = markRaw(
             monaco.editor.createDiffEditor(this.$refs.readOnlyEditor, {
               language: this.language,
-              fontSize: 14,
-              fontWeight: 'bold',
+              ...SQL_EDITOR_TYPOGRAPHY,
               scrollBeyondLastLine: false,
               renderSideBySide: true,
               splitViewDefaultRatio: 0.5, // always split into two equal panes
@@ -89,6 +89,7 @@ export default {
               minimap: {
                 enabled: false
               },
+              scrollbar: SQL_EDITOR_SCROLLBAR,
               automaticLayout: true,
               autoIndent: true // Auto Indent
             })

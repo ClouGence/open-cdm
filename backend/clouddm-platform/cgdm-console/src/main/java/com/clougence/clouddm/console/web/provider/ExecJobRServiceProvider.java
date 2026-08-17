@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.console.autoexec.ExecJobRService;
@@ -57,7 +58,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     private AutoExecService      autoExecService;
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public boolean startJob(WorkerIdentity identity, Long jobId) {
         if (!checkAccessKey(identity)) {
             return false;
@@ -91,7 +92,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         this.execDal.autoJobMapper().updateReportTime(jobIdList);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void reportMessage(WorkerIdentity identity, List<AutoExecMessageDTO> messages) {
         if (!checkAccessKey(identity) || CollectionUtils.isEmpty(messages)) {
@@ -282,6 +283,12 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         taskDO.setAffectRow(0L);
         taskDO.setGmtLastEnd(message.getTime());
         execDal.autoTaskMapper().updateById(taskDO);
+
+        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.ERROR,
+            message.getMessage(),
+            LogDependBizType.AUTO_EXEC_TASK, //
+            taskDO.getBizId());
+        monitorDal.bizLogMapper().insert(logDO);
     }
 
     private void taskStart(AutoExecMessageDTO message) {

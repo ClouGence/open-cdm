@@ -15,14 +15,12 @@
  */
 package com.clougence.clouddm.console.web.global.i18n;
 
-import java.io.InputStream;
 import java.util.*;
 
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.ResourceLoader;
 
+import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
 import com.clougence.clouddm.platform.dal.i18n.I18nDaoKeys;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys;
@@ -55,7 +53,7 @@ public class DmI18nUtils {
         I18N_UTILS.loadResources("/i18n/desktop");
         I18N_UTILS.loadResources("/i18n/validation");
         I18N_UTILS.loadResources("/i18n/sec-rule-message");
-        I18N_UTILS.loadResources("/i18n/mcp");
+        I18N_UTILS.loadResources(DmMcpI18nKey.class);
         I18N_UTILS.loadResources(I18nDmLabelKeys.class);
         I18N_UTILS.loadResources(I18nDmMsgKeys.class);
         I18N_UTILS.loadResources(I18nDaoKeys.class);
@@ -78,27 +76,6 @@ public class DmI18nUtils {
     }
 
     public static I18nUtils getInstance() { return I18N_UTILS; }
-
-    public static Map<String, Properties> fetchMessageKeys() {
-        Map<String, Properties> result = new LinkedHashMap<>();
-        for (String f : I18N_UTILS.getI18nSources()) {
-            String defaultPropFile = f + ".properties";
-            ResourceLoader resourceLoader = new DefaultResourceLoader(I18N_UTILS.getI18nSourceLoader(f));
-            try (InputStream srcStream = resourceLoader.getResource(defaultPropFile).getInputStream()) {
-                Properties properties = new Properties();
-                properties.load(srcStream);
-                result.put(f, properties);
-            } catch (Exception e) {
-                if (StringUtils.endsWith(f, "/desktop")) {
-                    continue;
-                }
-
-                log.error("open i18n file failed, file :{}", defaultPropFile);
-                throw new RuntimeException(e);
-            }
-        }
-        return result;
-    }
 
     public static Locale getLocale() {
         LocaleContext localeContext = LocaleContextHolder.getLocaleContext();

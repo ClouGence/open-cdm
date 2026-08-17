@@ -26,6 +26,7 @@ import lombok.Setter;
 @Setter
 public class SplitScript {
 
+    private long                index;
     private String              script;
     private List<QueryArg>      scriptArgs;
 

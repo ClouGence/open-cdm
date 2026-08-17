@@ -3,6 +3,13 @@ import { APPROVAL_MANAGED_FIELDS, APPROVAL_PROVIDERS } from '@/views/system/appr
 
 const INTEGER_MAX = 2147483647;
 
+function assertUniqueConfigKeys(registryName, configKeys) {
+  const duplicateKeys = configKeys.filter((key, index) => configKeys.indexOf(key) !== index);
+  if (duplicateKeys.length) {
+    throw new Error(`${registryName} contains duplicate config keys: ${[...new Set(duplicateKeys)].join(', ')}.`);
+  }
+}
+
 export const PREFERENCE_TABS = [
   {
     name: 'account',
@@ -302,6 +309,31 @@ export const PREFERENCE_TABS = [
         ]
       },
       {
+        name: 'approval-analysis',
+        titleKey: 'preference-section-approval-analysis',
+        fields: [
+          {
+            key: 'approvalDmlExplainMaxStatements',
+            labelKey: 'preference-approval-dml-explain-max-statements',
+            helpKey: 'preference-approval-dml-explain-max-statements-help',
+            widget: 'number',
+            defaultValue: 100,
+            min: 1,
+            max: 10000
+          },
+          {
+            key: 'approvalDmlExplainMaxStatementMegaByte',
+            labelKey: 'preference-approval-dml-explain-max-statement-mb',
+            helpKey: 'preference-approval-dml-explain-max-statement-mb-help',
+            widget: 'number',
+            defaultValue: 1,
+            min: 1,
+            max: 20,
+            unitKey: 'preference-unit-mb'
+          }
+        ]
+      },
+      {
         name: 'approval-sync',
         titleKey: 'preference-section-approval-sync',
         fields: [
@@ -345,10 +377,7 @@ export const PREFERENCE_TABS = [
 
 export const PREFERENCE_CONFIG_KEYS = PREFERENCE_TABS.flatMap((tab) => tab.sections.flatMap((section) => section.fields.map((field) => field.key)));
 
-const preferenceUniqueKeys = new Set(PREFERENCE_CONFIG_KEYS);
-if (PREFERENCE_CONFIG_KEYS.length !== 25 || preferenceUniqueKeys.size !== PREFERENCE_CONFIG_KEYS.length) {
-  throw new Error('Preference config registry must contain 25 unique config keys.');
-}
+assertUniqueConfigKeys('Preference config registry', PREFERENCE_CONFIG_KEYS);
 
 const preferenceFeatures = PREFERENCE_TABS.flatMap((tab, tabIndex) =>
   tab.sections.map((section, sectionIndex) => ({
@@ -415,10 +444,7 @@ const existingFeatureConfigs = [
 export const USER_CONFIG_FEATURE_REGISTRY = [...preferenceFeatures, ...existingFeatureConfigs];
 export const REGISTERED_USER_CONFIG_KEYS = USER_CONFIG_FEATURE_REGISTRY.flatMap((feature) => feature.configKeys);
 
-const registeredUniqueKeys = new Set(REGISTERED_USER_CONFIG_KEYS);
-if (REGISTERED_USER_CONFIG_KEYS.length !== 87 || registeredUniqueKeys.size !== REGISTERED_USER_CONFIG_KEYS.length) {
-  throw new Error('User config feature registry must contain 87 unique config keys.');
-}
+assertUniqueConfigKeys('User config feature registry', REGISTERED_USER_CONFIG_KEYS);
 
 export function getPreferenceTab(tabName) {
   return PREFERENCE_TABS.find((tab) => tab.name === tabName) || PREFERENCE_TABS[0];

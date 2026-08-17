@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
@@ -281,7 +282,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public DmSecSpecDO createSpec(String ownerUid, String specName, String specDesc, boolean initSpec) {
         DmSecSpecDO specDO = new DmSecSpecDO();
         specDO.setOwnerUid(ownerUid);
@@ -335,7 +336,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void deleteSpec(String ownerUid, long specId) {
         this.secRuleDal.rangeMapper().deleteBySpecId(ownerUid, specId);
         this.secRuleDal.refererMapper().deleteBySpecId(ownerUid, specId);
@@ -343,7 +344,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public SpecUpdateVO saveSpecRules(String ownerUid, SpecSaveRulesFO fo) {
         if (fo == null || CollectionUtils.isEmpty(fo.getSpecIds()) || CollectionUtils.isEmpty(fo.getRules())) {
             throw new ErrorMessageException("specIds or rules is empty.");
@@ -388,7 +389,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void saveSpecRules(String ownerUid, long specId, List<SpecRulesFO> rules) {
         List<Long> queryRuleIds = new ArrayList<>();
         List<Long> senRuleIds = new ArrayList<>();
@@ -441,7 +442,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void deleteSpecRules(String ownerUid, long specId, List<SpecRulesFO> rules) {
         for (SpecRulesFO r : rules) {
             this.secRuleDal.rangeMapper().deleteByRefId(ownerUid, r.getRefId());
@@ -561,7 +562,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void deleteRule(String ownerUid, long refRuleOrSenId, RuleKind ruleKind) {
         // delete referer and range
         List<DmSecRefererDO> refs = this.secRuleDal.refererMapper().listByRuleId(ownerUid, refRuleOrSenId, ruleKind);

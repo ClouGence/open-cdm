@@ -25,10 +25,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.service.cicd.DmChangeFlowService;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
+import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.utils.i18n.I18nUtils;
 
@@ -86,12 +83,15 @@ public abstract class AbstractChangeAction implements ChangeAction {
             return false;
         }
 
-        DmGitOpsScmDO scmDO = changeFlowDal.scmMapper().queryByOwnerAndId(change.getOwnerUid(), gitOpsFlowDO.getRefScmId());
-        if (scmDO == null) {
-            String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_SCM_NOT_EXIST_ERROR.name(), locale, change.getChangeName());
-            this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, errorMsg);
-            int res = changeFlowDal.changeMapper().updateStatusTo(change.getId(), newVersion, ChangeStatus.FAILED, errorMsg);
-            return false;
+        ChangeFlowType flowType = gitOpsFlowDO.getFlowType() == null ? ChangeFlowType.SCM : gitOpsFlowDO.getFlowType();
+        if (flowType == ChangeFlowType.SCM) {
+            DmGitOpsScmDO scmDO = changeFlowDal.scmMapper().queryByOwnerAndId(change.getOwnerUid(), gitOpsFlowDO.getRefScmId());
+            if (scmDO == null) {
+                String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_SCM_NOT_EXIST_ERROR.name(), locale, change.getChangeName());
+                this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, errorMsg);
+                int res = changeFlowDal.changeMapper().updateStatusTo(change.getId(), newVersion, ChangeStatus.FAILED, errorMsg);
+                return false;
+            }
         }
 
         return true;

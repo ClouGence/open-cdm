@@ -76,18 +76,21 @@ const routes = [
       },
       {
         path: 'cicd/:id/change-records',
-        name: 'cicd/change-records',
-        component: () => import(/* webpackChunkName: "cicd-change-records" */ '@/views/cicd/changeRecordList')
+        redirect: (to) => `/cicd/${to.params.id}`
+      },
+      {
+        path: 'cicd/:id/config',
+        name: 'cicd/config',
+        component: () => import(/* webpackChunkName: "cicd-release-flow-config" */ '@/views/cicd/flowConfig')
+      },
+      {
+        path: 'cicd/change/:id',
+        redirect: (to) => (to.query.flowId ? `/cicd/${to.query.flowId}` : '/cicd')
       },
       {
         path: 'cicd/:id',
         name: 'cicd/id',
         component: () => import(/* webpackChunkName: "ticket" */ '../views/cicd/flowDetail')
-      },
-      {
-        path: 'cicd/change/:id',
-        name: 'cicd/change/id',
-        component: () => import(/* webpackChunkName: "ticket" */ '@/views/cicd/changeDetail')
       },
       {
         path: 'ticket',

@@ -1,0 +1,21 @@
+[update_subquery]
+sql:
+UPDATE target_orders t
+SET t.amount = t.amount + 1
+WHERE t.customer_id IN (
+  SELECT s.customer_id FROM source_orders s WHERE s.status = 'PENDING' AND s.amount > 500
+);
+input:
+[
+  {"id":1,"select_type":"PRIMARY","table":"t","type":"index","possible_keys":null,"key":"PRIMARY","key_len":"4","ref":null,"rows":10041,"Extra":"Using where"},
+  {"id":2,"select_type":"DEPENDENT SUBQUERY","table":"s","type":"index_subquery","possible_keys":"idx_status,idx_customer","key":"idx_customer","key_len":"4","ref":"func","rows":50,"Extra":"Using where"}
+]
+expect:
+{
+  "source":"NATIVE",
+  "nodes":[
+    {"nodeId":"0","logical":"PRIMARY","physical":"index","objectPath":"t","estimatedRows":10041.0,"properties":{"id":"1","select_type":"PRIMARY","table":"t","type":"index","key":"PRIMARY","key_len":"4","rows":"10041","Extra":"Using where"}},
+    {"nodeId":"1","logical":"DEPENDENT SUBQUERY","physical":"index_subquery","objectPath":"s","estimatedRows":50.0,"properties":{"id":"2","select_type":"DEPENDENT SUBQUERY","table":"s","type":"index_subquery","possible_keys":"idx_status,idx_customer","key":"idx_customer","key_len":"4","ref":"func","rows":"50","Extra":"Using where"}}
+  ],
+  "properties":{}
+}

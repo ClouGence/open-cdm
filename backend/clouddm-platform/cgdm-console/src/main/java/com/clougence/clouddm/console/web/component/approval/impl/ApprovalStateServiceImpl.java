@@ -15,10 +15,12 @@
  */
 package com.clougence.clouddm.console.web.component.approval.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
@@ -35,15 +37,15 @@ import jakarta.annotation.Resource;
 
 @Service
 public class ApprovalStateServiceImpl implements ApprovalStateService {
-    private static final List<String> TYPES = List.of(//
-            ApprovalExecutionStateMO.TYPE_PREPARATION,//
-            ApprovalExecutionStateMO.TYPE_DISPATCH,   //
+    private static final List<String>             TYPES = List.of(//
+            ApprovalExecutionStateMO.TYPE_PREPARATION,            //
+            ApprovalExecutionStateMO.TYPE_DISPATCH,               //
             ApprovalExecutionStateMO.TYPE_RUNNING);
 
     @Resource
-    private ApprovalDal               approvalDal;
+    private ApprovalDal                           approvalDal;
     @Resource
-    private ImSenderService           imSenderService;
+    private ImSenderService                       imSenderService;
     private final ObjectProvider<ApprovalHandler> approvalHandlers;
 
     public ApprovalStateServiceImpl(ObjectProvider<ApprovalHandler> approvalHandlers){
@@ -51,13 +53,13 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void updateApprovalStatus(long ticketId, ApprovalStatus status, String message) {
         this.approvalDal.approvalMapper().updateStatusByEnum(ticketId, status, message);
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void finalizeApproval(long ticketId, ApprovalStatus status, String message) {
         if (!ApprovalStatus.isEndStatus(status)) {
             throw new IllegalArgumentException("Approval status is not terminal: " + status);
@@ -81,7 +83,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public DmApprovalProcessDO initializeProcess(long ticketId, ApprovalStage stage, ApprovalProcessStatus status, String context) {
         DmApprovalProcessDO process = new DmApprovalProcessDO();
         process.setTicketId(ticketId);
@@ -93,16 +95,23 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void updateProcessStatus(long ticketId, ApprovalStage stage, ApprovalProcessStatus status, String context) {
         DmApprovalProcessDO process = this.requireProcess(ticketId, stage);
-        this.approvalDal.processMapper().updateTicketStatusByEnum(process.getId(), status, context == null ? process.getStageContext() : context);
+        Date finishTime = process.getFinishTime();
+        if (status == ApprovalProcessStatus.INIT) {
+            finishTime = null;
+        } else if (status == ApprovalProcessStatus.REJECT || status == ApprovalProcessStatus.FINISH || status == ApprovalProcessStatus.FAIL
+                   || status == ApprovalProcessStatus.CLOSED) {
+            finishTime = new Date();
+        }
+        this.approvalDal.processMapper().updateProcessStatus(process.getId(), status, context == null ? process.getStageContext() : context, finishTime);
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public DmApprovalProcessActivityDO initializeActivity(long ticketId, ApprovalStage stage, String activityId, String activityTitle, int orderNumber, String status,
-            String context) {
+                                                          String context) {
         DmApprovalProcessDO process = this.requireProcess(ticketId, stage);
         DmApprovalProcessActivityDO activity = new DmApprovalProcessActivityDO();
         activity.setTicketId(ticketId);
@@ -117,7 +126,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void updateActivityStatus(long ticketId, ApprovalStage stage, String activityId, String status, String context) {
         DmApprovalProcessDO process = this.requireProcess(ticketId, stage);
         DmApprovalProcessActivityDO activity = this.approvalDal.activityMapper().queryByProcessIdAndActivityId(process.getId(), activityId);
@@ -129,7 +138,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         this.approvalDal.activityMapper().updateById(activity);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void initializeAnalysisActivities(long ticketId, List<ApprovalAnalysisStateMO> states) {
         DmApprovalProcessDO process = this.requireProcess(ticketId, ApprovalStage.EXPLAIN);
@@ -138,12 +147,18 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
             return;
         }
         for (ApprovalAnalysisStateMO state : states) {
-            this.initializeActivity(ticketId, ApprovalStage.EXPLAIN, state.getAnalysisType(), state.getAnalysisType(), state.getDisplayOrder(), ApprovalAnalysisStateMO.STATUS_INIT,
+            this.initializeActivity(                     //
+                    ticketId,                            //
+                    ApprovalStage.EXPLAIN,               //
+                    state.getAnalysisType(),             //
+                    state.getAnalysisType(),             //
+                    state.getDisplayOrder(),             //
+                    ApprovalAnalysisStateMO.STATUS_INIT, //
                     JsonUtils.toJson(state));
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void initializeExecutionProgress(long ticketId) {
         DmApprovalProcessDO process = this.ensureActivities(ticketId);
@@ -160,7 +175,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         this.reset(process.getId(), ApprovalExecutionStateMO.TYPE_RUNNING);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void resetExecutionProgress(long ticketId) {
         DmApprovalProcessDO process = this.ensureActivities(ticketId);
@@ -169,7 +184,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void reportExecutionPreparationProgress(String approvalBizId, long processedCount, long totalCount) {
         DmApprovalProcessDO process = this.executionProcess(approvalBizId);
@@ -192,7 +207,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void markExecutionDispatched(String approvalBizId) {
         DmApprovalProcessDO process = this.executionProcess(approvalBizId);
@@ -209,7 +224,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         });
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void markExecutionRunning(String approvalBizId) {
         DmApprovalDO approval = this.approval(approvalBizId);
@@ -235,7 +250,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         this.updateApprovalStatus(approval.getId(), ApprovalStatus.RUNNING, null);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void completeExecution(String approvalBizId) {
         DmApprovalDO approval = this.approval(approvalBizId);
@@ -248,7 +263,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         this.finalizeApproval(approval.getId(), ApprovalStatus.FINISHED, null);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void failExecution(String approvalBizId, String errorMessage) {
         DmApprovalDO approval = this.approval(approvalBizId);
@@ -275,7 +290,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         this.updateApprovalStatus(approval.getId(), ApprovalStatus.EXEC_FAIL, errorMessage);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void cancelExecution(String approvalBizId) {
         DmApprovalProcessDO process = this.executionProcess(approvalBizId);

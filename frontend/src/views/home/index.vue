@@ -260,27 +260,6 @@ export default {
         }
       }
     },
-    /* eslint-disable */
-    setupBaiduTongji() {
-      var _hmt = _hmt || [];
-      _hmt.push([
-        '_requirePlugin',
-        'UrlChangeTracker',
-        {
-          shouldTrackUrlChange: function (newPath, oldPath) {
-            return newPath && oldPath;
-          }
-        }
-      ]);
-      window._hmt = _hmt; // Change to Window Global Variable
-      (function () {
-        var hm = document.createElement('script');
-        hm.src = 'https://hm.baidu.com/hm.js?b86e2e73fd7517d78d5ccdf0cd12384c'; //Please replace your station.
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(hm, s);
-      })();
-    },
-    /* eslint-enable */
     handleDetailCopy() {
       if (XEClipboard.copy(this.cellDetailContent)) {
         this.$Message.success(this.$t('fu-zhi-cheng-gong'));

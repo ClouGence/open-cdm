@@ -14,7 +14,7 @@
         <result column="enable" property="enable"/>
     </resultMap>
 
-    <sql id="dmMessengerDO_select">
+    <sql id="dmMessengerColumns">
         id,
         gmt_create,
         gmt_modified,
@@ -28,7 +28,7 @@
 
     <select id="queryMessengerByOwner" resultMap="dmMessengerDO">
         select
-            <include refid="dmMessengerDO_select"/>
+            <include refid="dmMessengerColumns"/>
         from
             dm_sys_messenger
         where
@@ -39,7 +39,7 @@
 
     <select id="queryMessengerByOwnerAndType" resultMap="dmMessengerDO">
         select
-            <include refid="dmMessengerDO_select"/>
+            <include refid="dmMessengerColumns"/>
         from
             dm_sys_messenger
         where
@@ -53,7 +53,7 @@
 
     <select id="queryImById" resultMap="dmMessengerDO">
         select
-            <include refid="dmMessengerDO_select"/>
+            <include refid="dmMessengerColumns"/>
         from
             dm_sys_messenger
         where

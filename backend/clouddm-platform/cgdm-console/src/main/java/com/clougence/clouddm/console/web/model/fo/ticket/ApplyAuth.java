@@ -17,6 +17,8 @@ package com.clougence.clouddm.console.web.model.fo.ticket;
 
 import java.util.List;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,18 +26,20 @@ import lombok.Setter;
 @Setter
 public class ApplyAuth {
 
-    private long         resId;
+    private long           resId;
 
-    private List<String> resPaths;
+    private List<String>   resPaths;
 
-    private List<String> authLabels;
+    private List<String>   authLabels;
 
-    private String       startTime;
+    private String         startTime;
 
-    private String       endTime;
+    private String         endTime;
 
-    private String       resInstId;
+    private String         resInstId;
 
-    private String       resDesc;
+    private String         resDesc;
+
+    private DataSourceType dataSourceType;
 
 }

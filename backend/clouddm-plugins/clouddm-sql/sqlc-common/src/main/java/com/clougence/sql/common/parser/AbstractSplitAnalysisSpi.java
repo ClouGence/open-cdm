@@ -91,6 +91,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         private int                       lastContentStop = -1;
         private int                       lastContentLine = -1;
         private int                       lastVisibleLine = -1;
+        private long                      statementIndex;
         private boolean                   hasContent;
         private boolean                   eof;
 
@@ -246,6 +247,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
                 return null;
             }
             SplitScript split = new SplitScript();
+            split.setIndex(this.statementIndex++);
             split.setScript(script);
             split.setScriptArgs(this.args);
             split.setBodyStartCodeLine(startLine);

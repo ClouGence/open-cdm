@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.platform.dal.mapper.approval;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -49,11 +50,5 @@ public interface DmApprovalProcessMapper extends BaseMapper<DmApprovalProcessDO>
 
     void updateNotEndProcessByTicketId(long ticketId, ApprovalProcessStatus status);
 
-    void updateProcessStatusByTicketIdAndStage(@Param("ticketId") long ticketId, @Param("stage") ApprovalStage stage, @Param("status") ApprovalProcessStatus status);
-
-    void updateProcessStatus(@Param("id") Long id, @Param("status") String status, @Param("context") String context);
-
-    default void updateTicketStatusByEnum(Long id, ApprovalProcessStatus status, String context) {
-        this.updateProcessStatus(id, status.name(), context);
-    }
+    void updateProcessStatus(@Param("id") Long id, @Param("status") ApprovalProcessStatus status, @Param("context") String context, @Param("finishTime") Date finishTime);
 }

@@ -1,0 +1,22 @@
+[insert_select]
+sql:
+INSERT INTO target_orders(id, customer_id, status, amount)
+SELECT id + 30000, customer_id, status, amount FROM source_orders WHERE status = 'PENDING';
+input:
+[
+  {"id":1,"select_type":"INSERT","table":"target_orders","partitions":null,"type":"ALL","possible_keys":null,"key":null,"key_len":null,"ref":null,"rows":null,"filtered":null,"Extra":null},
+  {"id":1,"select_type":"SIMPLE","table":"source_orders","partitions":null,"type":"ref","possible_keys":"idx_status","key":"idx_status","key_len":"66","ref":"const","rows":1000,"filtered":100,"Extra":null}
+]
+relations:
+[
+  {"subject":{"objectPath":"/test/1/catalog1/schema1/target_orders/"},"action":"INSERT","insertRows":null}
+]
+expect:
+{
+  "source":"MERGE",
+  "nodes":[
+    {"nodeId":"0","logical":"INSERT","physical":"ALL","objectPath":"/test/1/catalog1/schema1/target_orders/","estimatedRows":1000.0,"properties":{"id":"1","select_type":"INSERT","table":"target_orders","type":"ALL"}},
+    {"nodeId":"1","logical":"SIMPLE","physical":"ref","objectPath":"source_orders","estimatedRows":1000.0,"properties":{"id":"1","select_type":"SIMPLE","table":"source_orders","type":"ref","possible_keys":"idx_status","key":"idx_status","key_len":"66","ref":"const","rows":"1000","filtered":"100"}}
+  ],
+  "properties":{}
+}

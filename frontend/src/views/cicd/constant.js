@@ -3,8 +3,9 @@ import i18n from '@/i18n';
 const flowTableColumns = [
   {
     title: i18n.global.t('xiang-mu-ming-cheng'),
-    key: 'flowName',
-    minWidth: 180
+    slot: 'flowName',
+    minWidth: 180,
+    display: 'inline-block'
   },
   {
     title: i18n.global.t('zhuang-tai'),
@@ -13,9 +14,9 @@ const flowTableColumns = [
     align: 'center'
   },
   {
-    title: 'GitOps',
-    slot: 'gitOps',
-    width: 130
+    title: i18n.global.t('bian-geng-lei-xing'),
+    slot: 'changeType',
+    width: 210
   },
   {
     title: i18n.global.t('shu-ju-ku-lei-xing'),
@@ -35,7 +36,7 @@ const flowTableColumns = [
   {
     title: i18n.global.t('cao-zuo'),
     slot: 'action',
-    width: 260
+    width: 280
   }
 ];
 
@@ -72,27 +73,9 @@ const flowDetailTableColumns = [
   }
 ];
 
-const sqlReviewTableColumns = [
-  {
-    title: i18n.global.t('deng-ji'),
-    slot: 'level',
-    width: 120
-  },
-  {
-    title: i18n.global.t('ming-cheng'),
-    key: 'ruleName',
-    minWidth: 200
-  },
-  {
-    title: i18n.global.t('miao-shu'),
-    key: 'ruleDesc',
-    minWidth: 600
-  }
-];
-
 const flowFormBasicRule = {
-  flowName: [{ required: true, message: '变更流名称不能为空' }],
-  flowDesc: [{ required: false, message: '变更流描述不能为空' }],
+  flowName: [{ required: true, message: '发布流名称不能为空' }],
+  flowDesc: [{ required: false, message: '发布流描述不能为空' }],
   flowManagerUid: [{ required: true, message: '管理员不能为空' }]
 };
 
@@ -271,7 +254,6 @@ export {
   formDevopsRules,
   formRule,
   flowDetailTableColumns,
-  sqlReviewTableColumns,
   ERROR_LEVEL_MAP,
   ERROR_LEVEL_COLOR_MAP,
   IM_PROVIDER_MAP,

@@ -6,16 +6,17 @@
 
 - 本文件适用于当前目录为根的整个 open-cdm 仓库。
 - 如果某个子目录下存在更深层的 `AGENTS.md`，则该子目录及其后代目录以内层文件为准。
-- 本文件约束源码、文档、配置、脚本和测试变更；默认不要修改生成产物、依赖目录和构建输出，例如 `backend/**/build/`、`frontend/node_modules/`、`frontend/dist/`、`package/build/`。
+- 本文件约束源码、文档、配置、脚本和测试变更；默认不要修改生成产物、依赖目录和构建输出，例如 `backend/**/build/`、
+  `frontend/node_modules/`、`frontend/dist/`、`package/build/`。
 
 ## 项目定位
 
 - open-cdm 是 CloudDM 的开源工程，面向团队数据库管理。
 - 核心能力包括数据源管理、数据查询、权限控制、数据脱敏、SQL 审核、数据库 CI/CD、工单协作和多部署形态。
 - 主要技术栈：
-  - 后端：Java、JDK 17+、Gradle 9.5.0+、Spring / Spring Boot、MyBatis。
-  - 前端：Vue 3、Vue CLI、JavaScript / TypeScript、Node.js 22.22.1。
-  - 运行数据库：MySQL 8.0+。
+    - 后端：Java、JDK 17+、Gradle 9.5.0+、Spring / Spring Boot、MyBatis。
+    - 前端：Vue 3、Vue CLI、JavaScript / TypeScript、Node.js 22.22.1。
+    - 运行数据库：MySQL 8.0+。
 
 ## 项目结构
 
@@ -26,7 +27,8 @@
 - `backend/clouddm-plugins/`：数据源、认证 Provider、特性插件和内置插件。
 - `backend/clouddm-utils/`：通用工具、驱动、RPC、schema、SQL / DSL 解析等基础能力。
 - `backend/clouddm-platform/cgdm-dao/src/main/resources/mybatis/mapper/`：MyBatis XML mapper 目录。
-- `backend/clouddm-boot/boot-initialization/src/main/java/com/clougence/clouddm/init/component/scripts/`：Flyway Java 初始化和升级脚本目录。
+- `backend/clouddm-boot/boot-initialization/src/main/java/com/clougence/clouddm/init/component/scripts/`：Flyway Java
+  初始化和升级脚本目录。
 - `frontend/`：CloudDM Web 前端工程，也是后端 Gradle 中的 `cgdm-web` 模块。
 - `frontend/src/locales/`：前端国际化文案目录。
 - `package/`：统一构建、tgz 打包、Docker 镜像和部署清单生成入口。
@@ -109,7 +111,8 @@ cd frontend && npm run check-i18n
 ```
 
 - 前端使用 `package-lock.json`，默认使用 `npm`，不要擅自切换到其他包管理器。
-- 修改任何前端源码后，必须从仓库根目录执行 `cd package && ./all_build.sh web`，且命令必须成功（退出码为 0）；若构建失败，必须修复所有阻塞错误后才能认定任务完成，不得以“既有问题”或“与本次改动无关”为由跳过。
+- 修改任何前端源码后，必须从仓库根目录执行 `cd package && ./all_build.sh web`，且命令必须成功（退出码为
+  0）；若构建失败，必须修复所有阻塞错误后才能认定任务完成，不得以“既有问题”或“与本次改动无关”为由跳过。
 - 修改用户可见文案时，同步维护 `frontend/src/locales/`。
 
 ## 编码规则
@@ -120,13 +123,14 @@ cd frontend && npm run check-i18n
 - 避免长条件和层层 `if` 堆叠导致代码难读；如果必须校验，优先让边界、契约和数据结构保持清晰。
 - 代码要干净直接，好读优先，不要为了抽象而抽象。
 - 尽量不写三元表达式，能用 `if` 表达清楚的逻辑，优先使用 `if`。
-  - 连续条件判断的三元表达式只有在完整表达式能控制在 100 个字符以内时才允许使用；超过后必须退化为显式 `if`，避免嵌套三元和换行三元影响阅读。
+    - 连续条件判断的三元表达式只有在完整表达式能控制在 100 个字符以内时才允许使用；超过后必须退化为显式 `if`
+      ，避免嵌套三元和换行三元影响阅读。
 - 写代码时不要过分抽方法；没有明显复用、没有降低理解成本的短逻辑，正常内联写在调用处即可。
 - 不写没必要的小 helper，只有复用明显且能降低理解成本时才抽。拆小方法的规则是：
-  - 2~3 行的代码在 3~5 处以上重复出现，那么适合拆小方法，但是优先考虑使用 JDK 自带工具及 utils 包的工具方法。
-  - 一个独立的业务逻辑具有 20行以上的代码量那么适合拆小方法。否则优先 在代码中使用注释分段执行并标记注释。
-  - 一个方法超过 40 行就适合评估拆方法。
-  - 大段 `if/else` 分支承载独立业务流程时，即使只有一个调用点，也可以抽成有业务含义的小方法。
+    - 2~3 行的代码在 3~5 处以上重复出现，那么适合拆小方法，但是优先考虑使用 JDK 自带工具及 utils 包的工具方法。
+    - 一个独立的业务逻辑具有 20行以上的代码量那么适合拆小方法。否则优先 在代码中使用注释分段执行并标记注释。
+    - 一个方法超过 40 行就适合评估拆方法。
+    - 大段 `if/else` 分支承载独立业务流程时，即使只有一个调用点，也可以抽成有业务含义的小方法。
 - 不为了测试扩大生产代码的 public API。
 - 不要增加只为测试存在的生产方法。
 - 没用到的字段、方法、分支、返回值要删掉。
@@ -155,7 +159,8 @@ cd frontend && npm run check-i18n
 
 ## 前端规则
 
-- 前端以 Vue 3 和 Vue CLI 为主，优先沿用 `frontend/src/components/`、`frontend/src/services/`、`frontend/src/store/`、`frontend/src/router/`、`frontend/src/views/` 的既有模式。
+- 前端以 Vue 3 和 Vue CLI 为主，优先沿用 `frontend/src/components/`、`frontend/src/services/`、`frontend/src/store/`、
+  `frontend/src/router/`、`frontend/src/views/` 的既有模式。
 - 用户可见文案必须维护在 `frontend/src/locales/`，不要在组件、服务或 store 中直接硬编码展示文案。
 - 修改接口字段、枚举、状态或错误码时，要同步检查后端 VO / API、前端 service、页面逻辑和测试。
 - 后端已经删除的字段，前端不要继续保留 fallback 行为。
@@ -166,10 +171,16 @@ cd frontend && npm run check-i18n
 ## 数据库变更
 
 - 不要修改已经发布或已用于升级路径的历史 Flyway Java migration。
-- 新增结构或数据变更时，在 `backend/clouddm-boot/boot-initialization/src/main/java/com/clougence/clouddm/init/component/scripts/` 下新增 migration，并沿用现有命名和执行模式。
+- 新增结构或数据变更时，在
+  `backend/clouddm-boot/boot-initialization/src/main/java/com/clougence/clouddm/init/component/scripts/` 下新增
+  migration，并沿用现有命名和执行模式。
 - SQL 只负责必要的数据查询、过滤和排序；不要把复杂业务计算写进 SQL。
 - 跨日期统计、多口径聚合等复杂计算优先放在 Java 内存里做，数据库侧只拉取必要字段。
 - MyBatis XML 中 SQL 比较符统一使用 `<![CDATA[ ... ]]>`，不要写 `&lt;`、`&gt;` 这类 XML 转义符。
+- MyBatis XML 中的 SQL 关键字统一大写；`SELECT`、`FROM`、`WHERE`、`ORDER BY`、`UPDATE`、`SET`、`INSERT`、
+  `VALUES`、`DELETE` 等主要子句分行，表名或列清单缩进一层；同一条件块或赋值块的比较、赋值运算符纵向对齐，
+  多个条件每行一个，`AND`、`OR` 独立占一行并与条件字段保持同级缩进。`<sql>` 公共列片段保持现有紧凑格式，
+  不做机械展开。
 - 修改表结构、字段语义或默认数据时，同步检查 DAO、DO、mapper、初始化脚本、升级脚本、前端展示和测试。
 
 ## 前后端契约
@@ -194,6 +205,9 @@ cd frontend && npm run check-i18n
 - 重点覆盖网络断开、重连、终态、不可恢复、重复执行、慢连接、资源释放等场景。
 - 后端改动优先运行相关模块测试；影响公共模块、DAO、初始化、权限、SQL 执行或插件协议时扩大验证范围。
 - 前端改动优先运行 `npm run lint`、`npm run check-i18n` 和相关单测；用户可见流程变更要做浏览器级检查。
+- 可重复执行的前端浏览器测试流程统一维护在 `tests/frontend/`；一个用户流程只维护一份长期有效的流程文档，不按执行日期生成测试报告。
+- 前端用户可见行为、交互、布局、路由、权限、表单、状态流或接口契约发生变化时，浏览器测试前必须读取相关流程文档，测试后必须按当前真实实现创建或更新文档；具体格式和
+  Chrome 复测规则遵循 `frontend/AGENTS.md` 的“可复用的前端复测流程”章节。
 
 ## Review 规则
 
@@ -204,7 +218,8 @@ cd frontend && npm run check-i18n
 ## PR 与提交
 
 - PR 说明要清楚描述改了什么、为什么改、如何验证。
-- 提交信息使用 Conventional Commits，例如 `feat(mysql): support prepared statement` 或 `fix(auth): avoid stale role cache`。
+- 提交信息使用 Conventional Commits，例如 `feat(mysql): support prepared statement` 或
+  `fix(auth): avoid stale role cache`。
 - 提交前确认没有把本地构建产物、依赖目录、日志、临时文件或无关格式化改动带入 diff。
 
 @AGENTS.local.md

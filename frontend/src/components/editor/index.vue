@@ -9,12 +9,15 @@ import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { requestWebSocket } from '@/services/socket';
 import { WS_TYPE } from '@/utils';
 import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const LANGUAGE_SPLIT_DELAY_MS = 500;
 const DEFAULT_MAX_LANGUAGE_REQUEST_KILO_BYTE = 1024;
 const DS_LANGUAGE_ERROR = '10111';
 const STATIC_KEYWORD_WEIGHT = 100;
+const SQL_EDITOR_FONT_SIZE_STORAGE_KEY = 'clouddm_sql_editor_font_size';
+const SQL_EDITOR_FONT_SIZE_OPTIONS = [12, 16, 20];
 
 export default {
   name: 'Editor',
@@ -31,6 +34,12 @@ export default {
   },
   mixins: [browseMixin],
   data() {
+    const storedFontSize = Number(localStorage.getItem(SQL_EDITOR_FONT_SIZE_STORAGE_KEY));
+    let editorFontSize = SQL_EDITOR_TYPOGRAPHY.fontSize;
+    if (SQL_EDITOR_FONT_SIZE_OPTIONS.includes(storedFontSize)) {
+      editorFontSize = storedFontSize;
+    }
+
     return {
       language: 'sql',
       currentSql: null,
@@ -39,8 +48,8 @@ export default {
       defaultOpts: {
         value: '', // The editor 's value
         language: 'mysql',
-        fontSize: 12,
-        fontWeight: 'bold',
+        ...SQL_EDITOR_TYPOGRAPHY,
+        fontSize: editorFontSize,
         tabSize: 4,
         lineNumbersMinChars: 3,
         scrollBeyondLastLine: false,
@@ -48,11 +57,12 @@ export default {
         minimap: {
           enabled: false
         },
+        scrollbar: SQL_EDITOR_SCROLLBAR,
         automaticLayout: true,
         autoIndent: true // Auto Indent
       },
       monacoEditor: null,
-      monacoEditorFountCss: 'font-size-14',
+      monacoEditorFountCss: `font-size-${editorFontSize}`,
       completionItemProviderList: [],
       commandList: [],
       actionList: [],
@@ -68,7 +78,8 @@ export default {
       currentStatementOverlayFrame: null,
       splitStatements: [],
       splitModelVersionId: 0,
-      activeSplitStatement: null,
+      activeStatement: null,
+      activeStatementModelVersionId: 0,
       languageServiceErrorMessage: '',
       languageServiceErrorTimer: null,
       completionIconMap: {},
@@ -157,6 +168,7 @@ export default {
         this.$emit('change', toRaw(this.monacoEditor.getValue()));
       });
       this.debounceSplitSql(0);
+      this.debounceValidateSql(0);
     },
     async validateSql() {
       const language = this.getDsLanguageCapability();
@@ -619,29 +631,39 @@ export default {
     invalidateSplitStatements() {
       this.splitStatements = [];
       this.splitModelVersionId = 0;
-      this.activeSplitStatement = null;
-      this.clearCurrentStatementDecorations();
+      this.activeStatement = null;
+      this.activeStatementModelVersionId = 0;
+      this.clearCurrentStatementOverlay();
+      this.updateCurrentSqlStatementDecoration();
     },
     clearCurrentStatementDecorations() {
       this.clearCurrentStatementOverlay();
-      this.activeSplitStatement = null;
+      this.activeStatement = null;
+      this.activeStatementModelVersionId = 0;
       this.emitExecutableSqlTargetChange();
     },
     updateCurrentSqlStatementDecoration() {
       const model = this.monacoEditor?.getModel();
       const position = this.monacoEditor?.getPosition();
-      if (!model || !position || model.getVersionId() !== this.splitModelVersionId) {
+      if (!model || !position) {
         this.clearCurrentStatementDecorations();
         return;
       }
 
-      const statement = this.findStatementAtPosition(position, model);
+      let statement = null;
+      if (model.getVersionId() === this.splitModelVersionId) {
+        statement = this.findStatementAtPosition(position, model);
+      }
+      if (!statement) {
+        statement = this.findLocalStatementAtPosition(position, model);
+      }
       if (!statement) {
         this.clearCurrentStatementDecorations();
         return;
       }
 
-      this.activeSplitStatement = statement;
+      this.activeStatement = statement;
+      this.activeStatementModelVersionId = model.getVersionId();
       this.applyCurrentStatementDecoration(statement.range);
       this.emitExecutableSqlTargetChange();
     },
@@ -670,6 +692,40 @@ export default {
 
       const trailingText = model.getValue().slice(candidate.range.endOffset, cursorOffset);
       return /^[;\t ]*$/.test(trailingText) ? candidate.statement : null;
+    },
+    findLocalStatementAtPosition(position, model) {
+      const text = model.getValue();
+      const cursorOffset = model.getOffsetAt(position);
+      const fragmentRange = this.findSqlFragmentRange(text, cursorOffset);
+      const fragmentSql = text.slice(fragmentRange.startOffset, fragmentRange.endOffset);
+      const firstSqlCharacter = fragmentSql.search(/\S/);
+      if (firstSqlCharacter < 0) {
+        return null;
+      }
+
+      const lastSqlCharacter = fragmentSql.search(/\s*$/);
+      const startOffset = fragmentRange.startOffset + firstSqlCharacter;
+      const endOffset = fragmentRange.startOffset + lastSqlCharacter;
+      if (cursorOffset < startOffset || cursorOffset > endOffset) {
+        return null;
+      }
+
+      const start = model.getPositionAt(startOffset);
+      const end = model.getPositionAt(endOffset);
+      const statement = {
+        sql: text.slice(startOffset, endOffset),
+        range: {
+          startPosition: {
+            lineNumber: start.lineNumber,
+            columnNumber: start.column - 1
+          },
+          endPosition: {
+            lineNumber: end.lineNumber,
+            columnNumber: end.column - 1
+          }
+        }
+      };
+      return statement;
     },
     positionInLanguageRange(position, range, model = this.monacoEditor?.getModel()) {
       const monacoRange = this.toMonacoLanguageRange(range, model);
@@ -735,14 +791,14 @@ export default {
     doRenderCurrentStatementOverlay() {
       const overlayElement = this.currentStatementOverlayElement;
       const model = this.monacoEditor?.getModel();
-      if (!overlayElement || !model || !this.activeSplitStatement) {
+      if (!overlayElement || !model || !this.activeStatement) {
         if (overlayElement) {
           overlayElement.innerHTML = '';
         }
         return;
       }
 
-      const range = this.toCurrentStatementVisualRange(this.toMonacoLanguageRange(this.activeSplitStatement.range, model), model);
+      const range = this.toCurrentStatementVisualRange(this.toMonacoLanguageRange(this.activeStatement.range, model), model);
       if (!range) {
         overlayElement.innerHTML = '';
         return;
@@ -1301,10 +1357,10 @@ export default {
         };
       }
 
-      if (this.activeSplitStatement && model.getVersionId() === this.splitModelVersionId) {
+      if (this.activeStatement && model.getVersionId() === this.activeStatementModelVersionId) {
         return {
-          sql: this.activeSplitStatement.sql,
-          position: this.toSelectionFromLanguageRange(this.activeSplitStatement.range)
+          sql: this.activeStatement.sql,
+          position: this.toSelectionFromLanguageRange(this.activeStatement.range)
         };
       }
 
@@ -1352,7 +1408,7 @@ export default {
         };
       }
 
-      const hasStatement = !!this.activeSplitStatement && model.getVersionId() === this.splitModelVersionId;
+      const hasStatement = !!this.activeStatement && model.getVersionId() === this.activeStatementModelVersionId;
       return {
         canRun: hasStatement,
         hasSelection: false,
@@ -1366,10 +1422,13 @@ export default {
       return this.getCurrentSqlTarget().sql;
     },
     setFontSize(size) {
-      if (this.monacoEditor) {
-        this.monacoEditor.updateOptions({ fontSize: size });
-        this.monacoEditorFountCss = `font-size-${size}`;
+      if (!SQL_EDITOR_FONT_SIZE_OPTIONS.includes(size)) {
+        return;
       }
+
+      localStorage.setItem(SQL_EDITOR_FONT_SIZE_STORAGE_KEY, String(size));
+      this.monacoEditor?.updateOptions({ fontSize: size });
+      this.monacoEditorFountCss = `font-size-${size}`;
     },
     getSQLSuggest(keywords) {
       const list = keywords.map((key) => ({
@@ -1558,7 +1617,9 @@ export default {
 :deep(.current-sql-statement-box) {
   position: absolute;
   box-sizing: border-box;
-  border: 1px solid rgba(47, 143, 73, 0.9);
+  border: 1px solid rgba(47, 143, 73, 0.45);
+  border-radius: 4px;
+  background: rgba(47, 143, 73, 0.04);
 }
 
 :deep(.monaco-editor .view-overlays .current-line) {

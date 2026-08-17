@@ -625,6 +625,15 @@ public class RdpConvertUtils {
         } else if (ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(item.getAnalysisType())) {
             vo.setRuleCount(item.getCheckedInfo() == null ? null : (long) item.getCheckedInfo().size());
             vo.setRuleResults(item.getCheckedInfo());
+        } else if (ApprovalAnalysisStateMO.TYPE_DML_EXPLAIN.equals(item.getAnalysisType())) {
+            vo.setStatementCount(item.getDmlStatementCount());
+            vo.setDmlStatementCount(item.getDmlStatementCount());
+            vo.setCachedExplainCount(item.getCachedExplainCount());
+            vo.setExecutedExplainCount(item.getExecutedExplainCount());
+            vo.setSkippedBySizeLimit(item.getSkippedBySizeLimit());
+            vo.setSkippedByCountLimit(item.getSkippedByCountLimit());
+            vo.setFailedExplainCount(item.getFailedExplainCount());
+            vo.setExplainResults(item.getExplainResults());
         }
         return vo;
     }

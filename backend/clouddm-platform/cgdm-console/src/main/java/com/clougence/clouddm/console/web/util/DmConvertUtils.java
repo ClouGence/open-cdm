@@ -85,6 +85,7 @@ import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowType;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
@@ -1767,6 +1768,8 @@ public class DmConvertUtils {
         flowVO.setFlowUid(flowDO.getFlowUid());
         flowVO.setMark("");
         flowVO.setFlowStatus(flowDO.getChangeFlowStatus());
+        flowVO.setFlowType(flowDO.getFlowType() == null ? ChangeFlowType.SCM : flowDO.getFlowType());
+        flowVO.setParentFlowId(flowDO.getRefParentFlowId());
         flowVO.setFlowName(flowDO.getFlowName());
         flowVO.setFlowDesc(flowDO.getFlowDesc());
         flowVO.setOptions(flowDO.getOptions());
@@ -1910,10 +1913,17 @@ public class DmConvertUtils {
 
         ChangeFlowGitOpsVO vo = new ChangeFlowGitOpsVO();
         vo.setFlowId(gitOpsFlowDO.getId());
+        ChangeFlowType flowType = gitOpsFlowDO.getFlowType() == null ? ChangeFlowType.SCM : gitOpsFlowDO.getFlowType();
+        vo.setFlowType(flowType);
+        vo.setParentFlowId(gitOpsFlowDO.getRefParentFlowId());
         vo.setScmId(gitOpsFlowDO.getRefScmId());
         vo.setScmType(gitOpsFlowDO.getRefScmType());
-        vo.setScmTypeI18n(DmI18nUtils.getMessage(gitOpsFlowDO.getRefScmType().getI18nKey()));
-        if (scmDO != null) {
+        if (gitOpsFlowDO.getRefScmType() != null) {
+            vo.setScmTypeI18n(DmI18nUtils.getMessage(gitOpsFlowDO.getRefScmType().getI18nKey()));
+        }
+        if (flowType == ChangeFlowType.BUILT_IN) {
+            vo.setScmDisplay(null);
+        } else if (scmDO != null) {
             vo.setScmDisplay(scmDO.getScmDisplay());
         } else {
             vo.setScmDisplay(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_MISSING_SCM_ERROR.name()));
@@ -1938,11 +1948,13 @@ public class DmConvertUtils {
         }
 
         vo.setDsLevels(StringUtils.stringToList(gitOpsFlowDO.getDsPath().substring(1), "/"));
-        vo.setWebHookUrl(generateCicdWebhookEventUrl(gitOpsFlowDO));
-        vo.setWebHookPwd(gitOpsFlowDO.getScmBindWebhookPwd());
-        DmScmDef defByType = dmScmService.getScmDefByType(gitOpsFlowDO.getRefScmType());
-        if (defByType != null) {
-            vo.setWebHookHelpUrl(defByType.getHelpUrl());
+        if (flowType == ChangeFlowType.SCM) {
+            vo.setWebHookUrl(generateCicdWebhookEventUrl(gitOpsFlowDO));
+            vo.setWebHookPwd(gitOpsFlowDO.getScmBindWebhookPwd());
+            DmScmDef defByType = dmScmService.getScmDefByType(gitOpsFlowDO.getRefScmType());
+            if (defByType != null) {
+                vo.setWebHookHelpUrl(defByType.getHelpUrl());
+            }
         }
         vo.setWebHookEnable(gitOpsFlowDO.isEnable() && gitOpsFlowDO.isEnableWebhook());
         vo.setWebHookSigningTokenConfigured(StringUtils.isNotBlank(gitOpsFlowDO.getScmBindWebhookSigningToken()));
@@ -1951,7 +1963,7 @@ public class DmConvertUtils {
         vo.setCallbackMethod(gitOpsFlowDO.getCallbackMethod());
         vo.setCallbackEnable(gitOpsFlowDO.isEnable() && gitOpsFlowDO.isEnableCallback());
 
-        vo.setTriggerUrl(generateCicdTriggerUrl(gitOpsFlowDO));
+        vo.setTriggerUrl(flowType == ChangeFlowType.SCM ? generateCicdTriggerUrl(gitOpsFlowDO) : null);
         vo.setTriggerEnable(gitOpsFlowDO.isEnableTrigger());
         vo.setTriggerToken(gitOpsFlowDO.getTriggerToken());
 
@@ -1959,14 +1971,24 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static ChangeVO convertToChangeVO(DmChangeFlowDO flowDO, DmChangeDO obj, Map<Long, DmChangeFlowDO> devopsMap, Map<Long, DmDsDO> dsMap, Map<Long, DmGitOpsScmDO> scmMap) {
+    public static ChangeVO convertToChangeVO(DmChangeFlowDO flowDO, DmChangeDO obj, Map<Long, DmChangeFlowDO> devopsMap, Map<Long, DmDsDO> dsMap, Map<Long, DmGitOpsScmDO> scmMap,
+                                             ObjectCacheDao objectCacheDao) {
         DmChangeFlowDO gitOpsFlowDO = devopsMap.get(obj.getRefFlowId());
         DmDsDO dsDO = dsMap.get(gitOpsFlowDO.getDsId());
         DmGitOpsScmDO scmDO = scmMap.get(gitOpsFlowDO.getRefScmId());
 
         ChangeVO vo = new ChangeVO();
         vo.setChangeId(obj.getId());
+        vo.setBatchId(obj.getRefBatchId());
+        vo.setParentChangeId(obj.getRefParentChangeId());
+        vo.setFlowType(gitOpsFlowDO.getFlowType() == null ? ChangeFlowType.SCM : gitOpsFlowDO.getFlowType());
         vo.setFlowId(obj.getRefFlowId());
+        UserCacheEntry flowManager = objectCacheDao.queryByUid(gitOpsFlowDO.getFlowManagerUid());
+        if (flowManager == null) {
+            vo.setFlowManagerName("UID:" + gitOpsFlowDO.getFlowManagerUid());
+        } else {
+            vo.setFlowManagerName(flowManager.getUserName());
+        }
         vo.setChangeName(obj.getChangeName());
         vo.setChangeTime(WellKnowFormat.WKF_DATE_TIME24.format(obj.getChangeTime()));
         vo.setCurrentStatus(obj.getCurrentStatus());
@@ -1980,9 +2002,11 @@ public class DmConvertUtils {
         vo.setLocked(obj.isLockStatus());
 
         vo.setScmId(gitOpsFlowDO.getRefScmId());
-        vo.setScmDisplay(scmDO == null ? "(Deleted)" : scmDO.getScmDisplay());
+        vo.setScmDisplay(gitOpsFlowDO.getRefScmId() == null ? null : scmDO == null ? "(Deleted)" : scmDO.getScmDisplay());
         vo.setScmType(gitOpsFlowDO.getRefScmType());
-        vo.setScmTypeI18n(DmI18nUtils.getMessage(gitOpsFlowDO.getRefScmType().getI18nKey()));
+        if (gitOpsFlowDO.getRefScmType() != null) {
+            vo.setScmTypeI18n(DmI18nUtils.getMessage(gitOpsFlowDO.getRefScmType().getI18nKey()));
+        }
         vo.setRepoUrl(gitOpsFlowDO.getScmRepoUrl());
         vo.setRepoName(gitOpsFlowDO.getScmRepoName());
         vo.setRepoBranch(gitOpsFlowDO.getScmRepoBranch());
@@ -1992,13 +2016,17 @@ public class DmConvertUtils {
         vo.setDsType(gitOpsFlowDO.getDsType());
         vo.setDsInstance(gitOpsFlowDO.getDsInstance());
         vo.setDsDesc(gitOpsFlowDO.getDsDesc());
-        if (RdpConvertUtils.removeNoDescription(dsDO.getInstanceDesc()) == null) {
+        if (dsDO == null) {
+            vo.setDsDisplay(gitOpsFlowDO.getDsInstance());
+            vo.setDsHost(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_MISSING_DS_ERROR.name()));
+        } else if (RdpConvertUtils.removeNoDescription(dsDO.getInstanceDesc()) == null) {
             vo.setDsDisplay(dsDO.getInstanceId());
         } else {
             vo.setDsDisplay(dsDO.getInstanceDesc());
         }
-
-        vo.setDsHost(dsDO.getHost());
+        if (dsDO != null) {
+            vo.setDsHost(dsDO.getHost());
+        }
         vo.setDsLevels(Collections.emptyList());
         return vo;
     }

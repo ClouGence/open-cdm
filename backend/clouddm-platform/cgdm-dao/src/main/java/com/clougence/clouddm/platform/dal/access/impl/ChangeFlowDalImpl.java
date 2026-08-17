@@ -17,6 +17,7 @@ package com.clougence.clouddm.platform.dal.access.impl;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.mapper.cicd.*;
 import com.clougence.clouddm.platform.dal.mapper.gitops.DmGitOpsScmMapper;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeItemType;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
 
 import jakarta.annotation.Resource;
 
@@ -42,6 +44,10 @@ public class ChangeFlowDalImpl implements ChangeFlowDal {
     private DmChangeVersionMapper        versionMapper;
     @Resource
     private DmChangeTriggerReceiptMapper triggerReceiptMapper;
+    @Resource
+    private DmChangeBatchMapper          batchMapper;
+    @Resource
+    private DmChangeTransferMapper       transferMapper;
     @Resource
     private DmGitOpsScmMapper            scmMapper;
     @Resource
@@ -78,8 +84,44 @@ public class ChangeFlowDalImpl implements ChangeFlowDal {
     }
 
     @Override
+    public DmChangeBatchMapper batchMapper() {
+        return batchMapper;
+    }
+
+    @Override
+    public DmChangeTransferMapper transferMapper() {
+        return transferMapper;
+    }
+
+    @Override
     public DmGitOpsScmMapper scmMapper() {
         return scmMapper;
+    }
+
+    @Override
+    public List<DmChangeItemDO> queryChangedItemMeta(String ownerUid, long flowId, long changeId) {
+        List<DmChangeItemDO> currentItems = changeItemMapper.queryChangeItemByChangeId(ownerUid, changeId, ChangeItemType.SQL);
+        List<DmChangeItemDO> baselineItems = changeItemMapper.queryBaselineItemByFlowId(ownerUid, flowId, changeId);
+
+        // Match the current change against the release flow baseline by SQL file name.
+        Map<String, DmChangeItemDO> baselineByName = new LinkedHashMap<>();
+        for (DmChangeItemDO baseline : baselineItems) {
+            baselineByName.put(baseline.getContentName(), baseline);
+        }
+
+        // Treat new files and files whose content differs from the baseline as changed items.
+        List<DmChangeItemDO> changedItems = new ArrayList<>();
+        for (DmChangeItemDO current : currentItems) {
+            DmChangeItemDO baseline = baselineByName.remove(current.getContentName());
+            if (baseline == null || !Objects.equals(baseline.getContent(), current.getContent())) {
+                changedItems.add(current);
+            }
+        }
+
+        // Baseline files left unmatched were deleted from the current version and remain part of the diff metadata.
+        changedItems.addAll(baselineByName.values());
+        changedItems.sort(Comparator.comparingInt(DmChangeItemDO::getContentIndex));
+        return changedItems;
     }
 
     @Override

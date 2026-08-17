@@ -14,6 +14,7 @@ public class ApprovalAnalysisStateMO {
     public static final String          TYPE_SQL_RECOGNITION   = "SQL_RECOGNITION";
     public static final String          TYPE_BEHAVIOR_ANALYSIS = "BEHAVIOR_ANALYSIS";
     public static final String          TYPE_SECURITY_RULE     = "SECURITY_RULE";
+    public static final String          TYPE_DML_EXPLAIN       = "DML_EXPLAIN";
     public static final String          STATUS_INIT            = "INIT";
     public static final String          STATUS_RUNNING         = "RUNNING";
     public static final String          STATUS_FINISHED        = "FINISHED";
@@ -29,10 +30,21 @@ public class ApprovalAnalysisStateMO {
     private Long                        totalBytes;
     private String                      errorMessage;
     private Long                        totalCount;
-    private Long                        behaviorCount;
+    // SQL recognition
     private Map<String, Long>           statementTypeCounts;
+    // Behavior analysis
+    private Long                        behaviorCount;
     private List<ApprovalBehavior>      behaviors;
+    // Security rule
     private List<TicketRuleCheckResult> checkedInfo;
+    // DML explain
+    private Long                        dmlStatementCount;
+    private Long                        cachedExplainCount;
+    private Long                        executedExplainCount;
+    private Long                        skippedBySizeLimit;
+    private Long                        skippedByCountLimit;
+    private Long                        failedExplainCount;
+    private List<DmlExplainResultMO>    explainResults;
 
     public ApprovalAnalysisStateMO(){
     }

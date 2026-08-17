@@ -3,6 +3,7 @@ import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 const DEFAULT_LINE_HEIGHT = 22;
 const DEFAULT_VERTICAL_PADDING = 25;
@@ -19,10 +20,6 @@ export default {
       type: String,
       default: 'sql'
     },
-    fontWeight: {
-      type: [Number, String],
-      default: 'bold'
-    },
     dsType: {
       type: String,
       default: ''
@@ -35,6 +32,10 @@ export default {
       type: Boolean,
       default: false
     },
+    viewportBottomOffset: {
+      type: Number,
+      default: 20
+    },
     virtualScrollMode: {
       type: Boolean,
       default: false
@@ -42,6 +43,10 @@ export default {
     lineNumberStart: {
       type: Number,
       default: 1
+    },
+    contentPadding: {
+      type: Number,
+      default: 0
     }
   },
   watch: {
@@ -107,7 +112,11 @@ export default {
     async createEditor() {
       if (this.text) {
         if (this.monacoEditor) {
+          const viewState = this.monacoEditor.saveViewState();
           this.monacoEditor.getModel().setValue(this.text);
+          if (viewState) {
+            this.monacoEditor.restoreViewState(viewState);
+          }
           this.applyLanguage();
         } else {
           const language = await this.resolveLanguage();
@@ -115,19 +124,23 @@ export default {
             monaco.editor.create(this.$refs.readOnlyEditor, {
               value: this.text, // The editor 's value
               language,
-              fontSize: 14,
-              fontWeight: this.fontWeight,
+              ...SQL_EDITOR_TYPOGRAPHY,
               scrollBeyondLastLine: false,
               readOnly: true,
+              domReadOnly: true,
+              contextmenu: false,
               theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
+              padding: {
+                top: this.contentPadding,
+                bottom: this.contentPadding
+              },
               minimap: {
                 enabled: false
               },
               lineNumbers: this.lineNumberOption(),
               scrollbar: {
+                ...SQL_EDITOR_SCROLLBAR,
                 vertical: this.virtualScrollMode ? 'hidden' : 'auto',
-                verticalScrollbarSize: 5,
-                horizontalScrollbarSize: 8,
                 handleMouseWheel: !this.virtualScrollMode,
                 alwaysConsumeMouseWheel: !this.virtualScrollMode
               },
@@ -137,6 +150,16 @@ export default {
               autoIndent: true // Auto Indent
             })
           );
+          this.monacoEditor.onDidScrollChange((event) => {
+            if (!event.scrollTopChanged) {
+              return;
+            }
+            const viewportHeight = this.monacoEditor.getLayoutInfo().height;
+            const remainingHeight = this.monacoEditor.getScrollHeight() - event.scrollTop - viewportHeight;
+            if (remainingHeight <= DEFAULT_LINE_HEIGHT * 2) {
+              this.$emit('reach-bottom');
+            }
+          });
         }
         this.$nextTick(() => {
           this.updateViewportHeight();
@@ -153,7 +176,7 @@ export default {
       const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
       const editorTop = this.$el.getBoundingClientRect().top;
       const minimumHeight = 5 * DEFAULT_LINE_HEIGHT;
-      this.viewportHeight = Math.max(minimumHeight, viewportHeight - editorTop - 20);
+      this.viewportHeight = Math.max(minimumHeight, viewportHeight - editorTop - this.viewportBottomOffset);
       this.$nextTick(() => {
         if (this.monacoEditor) {
           this.monacoEditor.layout();
@@ -173,9 +196,8 @@ export default {
     updateScrollbarMode(virtualScrollMode) {
       this.monacoEditor?.updateOptions({
         scrollbar: {
+          ...SQL_EDITOR_SCROLLBAR,
           vertical: virtualScrollMode ? 'hidden' : 'auto',
-          verticalScrollbarSize: 5,
-          horizontalScrollbarSize: 8,
           handleMouseWheel: !virtualScrollMode,
           alwaysConsumeMouseWheel: !virtualScrollMode
         }
@@ -201,6 +223,15 @@ export default {
       const layout = this.monacoEditor.getLayoutInfo();
       const lineHeight = this.monacoEditor.getOption(monaco.editor.EditorOption.lineHeight);
       return Math.max(1, Math.floor(layout.height / lineHeight));
+    },
+    preventCommandPalette(event) {
+      const key = event.key.toLowerCase();
+      const isCommandPaletteShortcut = event.key === 'F1' || ((event.metaKey || event.ctrlKey) && event.shiftKey && key === 'p');
+      if (!isCommandPaletteShortcut) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }
   },
   beforeUnmount() {
@@ -215,7 +246,7 @@ export default {
 </script>
 
 <template>
-  <div class="read-only-editor-wrapper" :style="{ border: borderStyle }">
+  <div class="read-only-editor-wrapper" :style="{ border: borderStyle }" @keydown.capture="preventCommandPalette">
     <div class="read-only-editor" ref="readOnlyEditor" :style="`height: ${height}px;`"></div>
   </div>
 </template>
@@ -237,15 +268,5 @@ export default {
 
 :deep(.below) {
   display: none;
-}
-
-:deep(.monaco-scrollable-element > .scrollbar) {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.1);
-}
-
-:deep(.monaco-scrollable-element > .scrollbar > .slider) {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.3) !important;
 }
 </style>

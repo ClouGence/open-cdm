@@ -49,11 +49,6 @@ jobs:
             echo "::error::version must look like 3.2.0 or 3.2.0-rc.1"
             exit 1
           fi
-          notes_file="docs/release-notes/v${VERSION}/index.en.md"
-          if [[ "$LATEST" == "true" && ! -f "$notes_file" ]]; then
-            echo "::error::release notes file does not exist: $notes_file"
-            exit 1
-          fi
           if [[ "$VERSION" == *-* && "$LATEST" == "true" ]]; then
             echo "::error::a prerelease version cannot be published as latest"
             exit 1

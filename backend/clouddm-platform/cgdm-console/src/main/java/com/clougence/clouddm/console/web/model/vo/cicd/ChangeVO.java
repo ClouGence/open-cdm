@@ -18,9 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.cicd;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
+import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 
 import lombok.Getter;
@@ -30,34 +28,45 @@ import lombok.Setter;
 @Setter
 public class ChangeVO {
 
-    private long             changeId;
-    private long             flowId;
-    private String           flowName;
-    private ChangeFlowStatus flowStatus;
-    private long             scmId;
-    private String           scmDisplay;
-    private ScmType          scmType;
-    private String           scmTypeI18n;
+    private long                   changeId;
+    private Long                   ticketId;
+    private Long                   batchId;
+    private ChangeBatchStatus      batchStatus;
+    private Long                   rootChangeId;
+    private Long                   parentChangeId;
+    private Long                   parentFlowId;
+    private String                 parentFlowName;
+    private List<ChangeTransferVO> downstream;
+    private ChangeFlowType         flowType;
+    private long                   flowId;
+    private String                 flowName;
+    private String                 flowManagerName;
+    private ChangeFlowStatus       flowStatus;
 
-    private String           repoUrl;
-    private String           repoName;
-    private String           repoBranch;
-    private String           repoScriptPath;
+    private Long                   scmId;
+    private String                 scmDisplay;
+    private ScmType                scmType;
+    private String                 scmTypeI18n;
 
-    private long             dsId;
-    private DataSourceType   dsType;
-    private String           dsInstance;
-    private String           dsDesc;
-    private String           dsDisplay;
-    private String           dsHost;
-    private List<String>     dsLevels;
+    private String                 repoUrl;
+    private String                 repoName;
+    private String                 repoBranch;
+    private String                 repoScriptPath;
 
-    private String           changeName;
-    private String           changeTime;
-    private ChangeStep       currentStep;
-    private ChangeStatus     currentStatus;
-    private String           remark;
-    private boolean          locked;
+    private long                   dsId;
+    private DataSourceType         dsType;
+    private String                 dsInstance;
+    private String                 dsDesc;
+    private String                 dsDisplay;
+    private String                 dsHost;
+    private List<String>           dsLevels;
+
+    private String                 changeName;
+    private String                 changeTime;
+    private ChangeStep             currentStep;
+    private ChangeStatus           currentStatus;
+    private String                 remark;
+    private boolean                locked;
 
     public ChangeFlowStatus getChangeFlowStatus() { return flowStatus; }
 

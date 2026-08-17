@@ -1062,9 +1062,9 @@ export default {
             y: event.y,
             theme: 'flat',
             items,
-            customClass: 'custom-class',
+            customClass: 'sql-context-menu',
             zIndex: 3,
-            minWidth: 100
+            minWidth: 176
           });
         }
       }

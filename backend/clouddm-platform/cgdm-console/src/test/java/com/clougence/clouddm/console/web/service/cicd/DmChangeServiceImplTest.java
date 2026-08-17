@@ -36,10 +36,7 @@ import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeFlowMapper;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeMapper;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeTriggerReceiptMapper;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeTriggerReceiptDO;
+import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 
 public class DmChangeServiceImplTest {
@@ -64,6 +61,8 @@ public class DmChangeServiceImplTest {
         flow.setId(1L);
         flow.setOwnerUid("owner");
         flow.setRefScmType(ScmType.Gitlab);
+        flow.setChangeFlowStatus(ChangeFlowStatus.NORMAL);
+        flow.setEnable(true);
         when(flowMapper.queryByOwnerAndId("owner", 1L)).thenReturn(flow);
         when(flowMapper.queryByOwnerAndIdForUpdate("owner", 1L)).thenReturn(flow);
 
@@ -75,7 +74,7 @@ public class DmChangeServiceImplTest {
     public void shouldIgnoreDuplicateCommitAcrossTriggerSources() {
         when(receiptMapper.reserve(any(DmChangeTriggerReceiptDO.class))).thenReturn(0);
 
-        ResWebData<String> result = changeService.triggerChangeSuggest("owner", 1L, ChangeTriggerContext.manual("abc123"));
+        ResWebData<String> result = changeService.triggerChangeSuggest("owner", 1L, ChangeTriggerContext.manual("abc123", "operator"));
 
         assertTrue(result.isSuccess());
         assertEquals("duplicate change trigger ignored.", result.getData());
@@ -94,11 +93,10 @@ public class DmChangeServiceImplTest {
 
     @Test
     public void shouldRollbackReceiptWhenChangeCreationFails() throws Exception {
-        Transactional transactional = DmChangeServiceImpl.class
-            .getMethod("triggerChangeSuggest", String.class, long.class, ChangeTriggerContext.class)
+        Transactional transactional = DmChangeServiceImpl.class.getMethod("triggerChangeSuggest", String.class, long.class, ChangeTriggerContext.class)
             .getAnnotation(Transactional.class);
         assertNotNull(transactional);
-        assertArrayEquals(new Class<?>[] {Throwable.class}, transactional.rollbackFor());
+        assertArrayEquals(new Class<?>[] { Throwable.class }, transactional.rollbackFor());
 
         when(receiptMapper.reserve(any(DmChangeTriggerReceiptDO.class))).thenReturn(1);
         when(changeMapper.queryUnlockedChange("owner", 1L)).thenThrow(new IllegalStateException("transient"));

@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'i-clouddm'; /* Project id 2313900 */
   src:
-    url('//at.alicdn.com/t/c/font_2313900_wnvvzvxjsyr.woff2?t=1714273155846') format('woff2'),
-    url('//at.alicdn.com/t/c/font_2313900_wnvvzvxjsyr.woff?t=1714273155846') format('woff'),
-    url('//at.alicdn.com/t/c/font_2313900_wnvvzvxjsyr.ttf?t=1714273155846') format('truetype');
+    url('iconfont.woff2') format('woff2'),
+    url('iconfont.woff') format('woff'),
+    url('iconfont.ttf') format('truetype');
 }
 
 .i-clouddm {

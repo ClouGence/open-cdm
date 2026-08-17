@@ -4,6 +4,7 @@ import { getLanguage } from '@/utils/tools';
 import { markRaw, nextTick } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 export default {
   name: 'TicketEditor',
@@ -54,8 +55,7 @@ export default {
           monaco.editor.create(this.$refs.ticketEditor, {
             value: this.text, // The editor 's value
             language,
-            fontSize: 14,
-            fontWeight: 'bold',
+            ...SQL_EDITOR_TYPOGRAPHY,
             scrollBeyondLastLine: false,
             theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
             minimap: {
@@ -81,6 +81,7 @@ export default {
     },
     scrollbarOptions(virtualScrollMode) {
       return {
+        ...SQL_EDITOR_SCROLLBAR,
         vertical: virtualScrollMode ? 'hidden' : 'auto',
         handleMouseWheel: !virtualScrollMode,
         alwaysConsumeMouseWheel: !virtualScrollMode

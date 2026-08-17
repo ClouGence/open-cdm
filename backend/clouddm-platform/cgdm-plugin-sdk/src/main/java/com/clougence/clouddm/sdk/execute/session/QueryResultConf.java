@@ -55,6 +55,7 @@ public class QueryResultConf extends ResultLimit implements Cloneable {
         conf.setQueryTimeoutSec(this.getQueryTimeoutSec());
         conf.fetchMoreResult = this.fetchMoreResult;
         conf.cacheResult = this.cacheResult;
+        conf.refreshStatus = this.refreshStatus;
         conf.returnAutoIncrKey = this.returnAutoIncrKey;
         conf.receiveMode = this.receiveMode;
         conf.displayChars = this.displayChars;

@@ -22,5 +22,6 @@ import lombok.Setter;
 @Setter
 public class ChangeFlowTriggerFO {
 
-    private long flowId;
+    private long   flowId;
+    private String sql;
 }
