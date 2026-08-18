@@ -34,7 +34,7 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 /**
- * Valkey（GLIDE 驱动）数据源连接配置。
+ * Valkey (GLIDE driver) datasource connection configuration.
  */
 @Getter
 @Setter

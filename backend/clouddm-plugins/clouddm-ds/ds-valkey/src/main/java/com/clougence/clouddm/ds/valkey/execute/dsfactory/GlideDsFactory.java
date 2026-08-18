@@ -29,7 +29,7 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Valkey GLIDE 驱动的 DsFactory：通过 JDBC adapter 机制创建连接。
+ * DsFactory for the Valkey GLIDE driver: creates connections through the JDBC adapter mechanism.
  */
 @Slf4j
 public class GlideDsFactory implements DsFactory<Connection> {

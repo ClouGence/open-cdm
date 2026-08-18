@@ -37,7 +37,7 @@ class GlideCallForBit extends GlideUtils {
             case NOT:
                 return typeEnum.name();
             default:
-                // BITOP 的 DIFF/DIFF1/ANDOR/ONE 为 Redis 7.x 扩展，GLIDE 暂不支持。
+                // BITOP DIFF/DIFF1/ANDOR/ONE are Redis 7.x extensions; GLIDE does not support them yet.
                 throw new UnsupportedOperationException("Unsupported BitOPTypeEnum: " + typeEnum);
         }
     }

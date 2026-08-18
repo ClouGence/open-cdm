@@ -29,7 +29,8 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Valkey 元数据访问工具，在 Redis 家族实现基础上补充 db 数量嗅探所需的纯函数。
+ * Valkey metadata utilities; adds the pure functions needed for database-count probing on top
+ * of the Redis family implementation.
  */
 @Slf4j
 public class ValkeyMetaProviderUtils {

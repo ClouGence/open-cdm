@@ -128,7 +128,7 @@ class GlideUtils {
     }
 
     /**
-     * ZSet 带分数结果（member -> score，来自 GLIDE zrangeWithScores 等）。
+     * ZSet result with scores (member -> score, from GLIDE zrangeWithScores etc.).
      */
     protected static AdapterResultCursor listResult(AdapterRequest request, Map<String, Double> result) throws SQLException {
         AdapterResultCursor receiveCur = new AdapterResultCursor(request, Arrays.asList(//
@@ -188,8 +188,9 @@ class GlideUtils {
     }
 
     /**
-     * GLIDE scan 系列命令返回 Object[]{cursor, elements}，elements 运行时是 Object[] 而非 String[]，
-     * 统一转成字符串列表，避免直接强转抛 ClassCastException。
+     * GLIDE scan commands return Object[]{cursor, elements}; at runtime elements is an Object[]
+     * rather than String[]. Convert it to a string list uniformly to avoid a ClassCastException
+     * from direct casting.
      */
     public static List<String> toStringList(Object array) {
         if (array == null) {

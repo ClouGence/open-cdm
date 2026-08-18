@@ -35,7 +35,7 @@ import glide.api.models.configuration.ServerCredentials;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 基于 Valkey GLIDE 客户端（io.valkey:valkey-glide）的连接工厂。
+ * Connection factory based on the Valkey GLIDE client (io.valkey:valkey-glide).
  */
 @Slf4j
 public class GlideConnectionFactory implements AdapterFactory {

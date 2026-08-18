@@ -180,7 +180,7 @@ class GlideCallForString extends GlideUtils {
         String key1 = argAsString(request, command.getKey1Name());
         String key2 = argAsString(request, command.getKey2Name());
 
-        // GLIDE 仅提供基础 LCS（返回匹配字符串），LEN/IDX 选项暂不支持。
+        // GLIDE only provides basic LCS (returns the matched string); the LEN/IDX options are not supported yet.
         String match = glideCmd.lcs(key1, key2);
 
         receive.responseResult(request, singleResult(request, new JdbcColumn("Match", AdapterType.String, "", "", ""), match));

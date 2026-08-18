@@ -37,18 +37,18 @@ class GlideCallForSortedSet extends GlideUtils {
 
     public static CgFuture<?> cmdBZMPopRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, BZMPopRedisCmd command, AdapterRequest request,
                                                 AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdBZPopMaxRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, BZPopMaxRedisCmd command, AdapterRequest request,
                                                   AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdBZPopMinRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, BZPopMinRedisCmd command, AdapterRequest request,
                                                   AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZAddRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZAddRedisCmd command, AdapterRequest request, AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZCardRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZCardRedisCmd command, AdapterRequest request,
                                                AdapterReceive receive) throws SQLException {
@@ -74,11 +74,11 @@ class GlideCallForSortedSet extends GlideUtils {
 
     public static CgFuture<?> cmdZDiffRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZDiffRedisCmd command, AdapterRequest request,
                                                AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZDiffStoreRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZDiffStoreRedisCmd command, AdapterRequest request,
                                                     AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZIncrByRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZIncrByRedisCmd command, AdapterRequest request,
                                                  AdapterReceive receive) throws SQLException {
@@ -94,23 +94,23 @@ class GlideCallForSortedSet extends GlideUtils {
 
     public static CgFuture<?> cmdZInterRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZInterRedisCmd command, AdapterRequest request,
                                                 AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZInterCardRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZInterCardRedisCmd command, AdapterRequest request,
                                                     AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZInterStoreRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZInterStoreRedisCmd command, AdapterRequest request,
                                                      AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZLexCountRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZLexCountRedisCmd command, AdapterRequest request,
                                                    AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZMPopRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZMPopRedisCmd command, AdapterRequest request,
                                                AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZMSCoreRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZMScoreRedisCmd command, AdapterRequest request,
                                                  AdapterReceive receive) throws SQLException {
@@ -157,23 +157,23 @@ class GlideCallForSortedSet extends GlideUtils {
 
     public static CgFuture<?> cmdZRAndMemberRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRAndMemberRedisCmd command, AdapterRequest request,
                                                      AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZRangeRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRangeRedisCmd command, AdapterRequest request,
                                                 AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZRangeByLexRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRangeByLexRedisCmd command, AdapterRequest request,
                                                      AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZRangeByScoreRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRangeByScoreRedisCmd command, AdapterRequest request,
                                                        AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZRangeStoreRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRangeStoreRedisCmd command, AdapterRequest request,
                                                      AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZRankRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRankRedisCmd command, AdapterRequest request,
                                                AdapterReceive receive) throws SQLException {
@@ -253,15 +253,15 @@ class GlideCallForSortedSet extends GlideUtils {
 
     public static CgFuture<?> cmdZRevRangeRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRevRangeRedisCmd command, AdapterRequest request,
                                                    AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZRevRangeByLexRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRevRangeByLexRedisCmd command, AdapterRequest request,
                                                         AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZRevRangeByScoreRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRevRangeByScoreRedisCmd command, AdapterRequest request,
                                                           AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZRevRankRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZRevRankRedisCmd command, AdapterRequest request,
                                                   AdapterReceive receive) throws SQLException {
@@ -292,7 +292,7 @@ class GlideCallForSortedSet extends GlideUtils {
 
     public static CgFuture<?> cmdZScanRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZSCanRedisCmd command, AdapterRequest request,
                                                AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZScoreRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZScoreRedisCmd command, AdapterRequest request,
                                                 AdapterReceive receive) throws SQLException {
@@ -307,10 +307,10 @@ class GlideCallForSortedSet extends GlideUtils {
 
     public static CgFuture<?> cmdZUnionRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZUnionRedisCmd command, AdapterRequest request,
                                                 AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
     public static CgFuture<?> cmdZUnionStoreRedisCmd(CgFuture<Object> sync, GlideCmd glideCmd, ZUnionStoreRedisCmd command, AdapterRequest request,
                                                      AdapterReceive receive) throws SQLException {
-        throw new UnsupportedOperationException("GLIDE 暂不支持该命令，待适配。");
+        throw new UnsupportedOperationException("GLIDE does not support this command yet.");
     }
 }

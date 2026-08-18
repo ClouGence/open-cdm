@@ -22,7 +22,8 @@ import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthInfoSpi;
 
 /**
- * 使用 {@link ValkeyDataAuthLabel} 的标签定义，按 {@link DataSourceType#Valkey} 查找授权信息。
+ * Resolves authorization information for {@link DataSourceType#Valkey} using the labels
+ * defined by {@link ValkeyDataAuthLabel}.
  */
 public class ValkeyAuthInfoSpi implements AuthInfoSpi {
 

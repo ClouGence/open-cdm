@@ -46,8 +46,9 @@ import glide.api.models.commands.scan.ScanOptions;
 import glide.api.models.commands.scan.ZScanOptions;
 
 /**
- * Valkey GLIDE 客户端的同步命令封装：GLIDE 全部命令为异步（CompletableFuture），
- * 此处统一转同步并包装异常，命令方法签名对齐 Jedis 语义以便上层复用命令分发逻辑。
+ * Synchronous command wrapper for the Valkey GLIDE client: all GLIDE commands are asynchronous
+ * (CompletableFuture) and are converted to synchronous calls here with wrapped exceptions.
+ * Command signatures align with Jedis semantics so the upper layer can reuse the dispatch logic.
  */
 public class GlideCmd {
 
@@ -65,7 +66,7 @@ public class GlideCmd {
         try {
             this.client.close();
         } catch (Exception e) {
-            // GLIDE 连接关闭失败不影响上层释放
+            // A GLIDE connection close failure does not block the upper-layer release
         }
     }
 
@@ -648,7 +649,7 @@ public class GlideCmd {
     }
 
     public String[] spop(String key, long count) throws SQLException {
-        // GLIDE 暂不支持带 count 的 SPOP
+        // GLIDE does not support SPOP with count yet
         throw new UnsupportedOperationException("SPOP with count Unsupported by GLIDE.");
     }
 

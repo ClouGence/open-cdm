@@ -45,14 +45,15 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Valkey 元数据访问（基于 Valkey GLIDE 驱动），selectSchemas 在 CONFIG 不可用时
- * 降级为 SELECT 递增嗅探真实 db 数量。
+ * Valkey metadata access based on the Valkey GLIDE driver. When CONFIG is unavailable,
+ * selectSchemas falls back to probing the real database count with incremental SELECT.
  */
 @Slf4j
 public class ValkeyMetaProviderDm extends AbstractMetadataProvider implements MetaDataService {
 
-    // db 数量嗅探上限，Valkey 实际 databases 配置远小于此值，仅用于防止异常场景下的无限探测。
-    static final int PROBE_LIMIT = 256;
+    // Upper bound for the database-count probe. Real Valkey deployments configure far fewer
+    // databases; this only guards against endless probing in abnormal cases.
+    private static final int PROBE_LIMIT = 256;
 
     public ValkeyMetaProviderDm(Connection connection){
         super(connection);
@@ -78,8 +79,9 @@ public class ValkeyMetaProviderDm extends AbstractMetadataProvider implements Me
             try {
                 return querySchemasByConfig(conn);
             } catch (SQLException e) {
-                // 部分云托管服务禁用了 CONFIG 命令，典型报错为 "ERR unknown command 'CONFIG'..."；
-                // 此类情况降级为 SELECT 嗅探真实 db 数量，权限等其他错误保持原样抛出。
+                // Some managed cloud services disable the CONFIG command (typical error:
+                // "ERR unknown command 'CONFIG'..."). In that case fall back to probing the real
+                // database count with SELECT; permission and other errors are still rethrown.
                 if (!isConfigUnsupported(e)) {
                     throw e;
                 }
@@ -96,7 +98,8 @@ public class ValkeyMetaProviderDm extends AbstractMetadataProvider implements Me
     }
 
     /**
-     * CONFIG 命令被禁用时，典型报错信息包含 "unknown command 'CONFIG'"；权限等其他错误不在此列。
+     * Whether CONFIG is disabled: the typical error message contains "unknown command 'CONFIG'".
+     * Permission and other errors do not match.
      */
     private boolean isConfigUnsupported(SQLException e) {
         Throwable cur = e;
@@ -111,10 +114,11 @@ public class ValkeyMetaProviderDm extends AbstractMetadataProvider implements Me
     }
 
     /**
-     * CONFIG 不可用时，通过 SELECT 以递增步长（0, 3, 7, 12, 18, ...）嗅探真实 db 数量：
-     * 跳跃探测找到首个越界的 db，再在上一成功点与越界点之间逐个精确定位边界。
+     * When CONFIG is unavailable, probe the real database count with SELECT using an increasing
+     * step (0, 3, 7, 12, 18, ...): jump-probe until the first out-of-range database, then locate
+     * the exact boundary one by one between the last good point and the failure point.
      */
-    int probeDatabaseCount(Connection conn) {
+    public int probeDatabaseCount(Connection conn) {
         if (!selectDatabase(conn, 0)) {
             return 0;
         }
@@ -134,7 +138,7 @@ public class ValkeyMetaProviderDm extends AbstractMetadataProvider implements Me
         return lastGood + 1;
     }
 
-    int refineDatabaseCount(Connection conn, int lastGood, int failPoint) {
+    public int refineDatabaseCount(Connection conn, int lastGood, int failPoint) {
         int count = lastGood + 1;
         for (int i = lastGood + 1; i < failPoint; i++) {
             if (selectDatabase(conn, i)) {
@@ -152,7 +156,8 @@ public class ValkeyMetaProviderDm extends AbstractMetadataProvider implements Me
             ps.execute();
             return true;
         } catch (SQLException e) {
-            // CONFIG 被禁用的托管服务上 SELECT 仍可用，失败视为 db 越界。
+            // SELECT still works on managed services where CONFIG is disabled; a failure means
+            // the database is out of range.
             log.warn("SELECT db {} failed during schema probe, treat as out of range: {}", db, e.getMessage());
             return false;
         }

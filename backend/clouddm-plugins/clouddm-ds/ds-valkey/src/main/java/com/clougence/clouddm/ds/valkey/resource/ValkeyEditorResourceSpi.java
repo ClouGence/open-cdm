@@ -27,7 +27,7 @@ import com.clougence.utils.loader.ResourceLoader;
 import com.clougence.utils.loader.providers.ClassPathResourceLoader;
 
 /**
- * 编辑器资源：加载 valkey.keywords（与 redis 命令关键字一致）。
+ * Editor resources: loads valkey.keywords (the same command keywords as Redis).
  */
 public class ValkeyEditorResourceSpi implements ResourceSpi {
 
