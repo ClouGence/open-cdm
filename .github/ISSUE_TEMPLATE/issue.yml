@@ -1,24 +1,24 @@
-name: Issue 反馈
-description: 报告缺陷、提出功能建议或文档改进意见。
+name: Issue report
+description: Report a bug, request a feature, or suggest a documentation improvement.
 body:
   - type: markdown
     attributes:
       value: |
-        感谢你帮助改进 CloudDM。
+        Thank you for helping improve CloudDM.
 
-        请简单描述遇到的问题或你的建议，不要包含密码、令牌等敏感信息。
+        Briefly describe the issue or suggestion. Do not include passwords, tokens, or other sensitive information.
 
   - type: textarea
     id: description
     attributes:
-      label: 问题或建议
-      description: 请告诉我们发生了什么，或者你希望 CloudDM 支持什么。
-      placeholder: 在这里填写内容。
+      label: Issue or suggestion
+      description: Tell us what happened or what you would like CloudDM to support.
+      placeholder: Enter the details here.
     validations:
       required: true
 
   - type: textarea
     id: additional-context
     attributes:
-      label: 补充信息（可选）
-      description: 可以添加截图、日志、环境信息或关联 issue。
+      label: Additional context (optional)
+      description: Add screenshots, logs, environment details, or related issues if helpful.

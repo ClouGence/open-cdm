@@ -1,32 +1,32 @@
-## 变更摘要
+## Summary
 
-<!-- 简要说明本次改动的内容和原因。 -->
+<!-- Briefly describe what changed and why. -->
 
-## 关联 Issue
+## Related Issues
 
-<!-- 填写关联 issue，或写“无”。例如：Closes #123 -->
+<!-- Link related issues or write "None". Example: Closes #123 -->
 
-## 测试计划（必填）
+## Test Plan (Required)
 
-<!-- 请勿删除或留空。至少勾选一项，并在“详细说明”中写明测试范围、步骤和结果；如未测试，请说明原因。 -->
+<!-- Do not remove or leave this section blank. Select at least one option and describe the test scope, steps, and results under "Details". If not tested, explain why. -->
 
-- [ ] 未测试（请在下方说明原因）
-- [ ] 单元测试
-- [ ] 集成测试
-- [ ] 前端 lint / 构建
-- [ ] 后端构建
-- [ ] 人工验证
+- [ ] Not tested (explain why below)
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Frontend lint / build
+- [ ] Backend build
+- [ ] Manual verification
 
-详细说明：
+Details:
 
 ```text
 
 ```
 
-## 检查清单
+## Checklist
 
-- [ ] PR 标题清楚描述了改动内容。
-- [ ] 改动符合仓库编码规范。
-- [ ] 当行为或用法发生变化时，已更新文档。
-- [ ] 已为行为变更补充或更新测试。
-- [ ] 已确认不包含生成文件、依赖目录、日志和本地构建产物。
+- [ ] The PR title clearly describes the change.
+- [ ] The change follows the repository coding standards.
+- [ ] Documentation was updated when behavior or usage changed.
+- [ ] Tests were added or updated for behavior changes.
+- [ ] I confirmed that generated files, dependency directories, logs, and local build artifacts are not included.
