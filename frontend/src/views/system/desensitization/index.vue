@@ -127,7 +127,7 @@
 <script>
 import * as Vue from 'vue';
 import EditRuleModal from '@/views/system/desensitization/components/EditRuleModal';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
   name: 'Desensitization',
@@ -154,7 +154,6 @@ export default {
           element: 'COLUMN'
         }
       ],
-      dsTypes: [],
       dsList: [],
       queryForm: {
         dataSourceType: 'MySQL',
@@ -216,6 +215,13 @@ export default {
   },
   computed: {
     ...mapGetters(['hasCatalogAndSchema']),
+    ...mapState(['dmGlobalSetting']),
+    dsTypes() {
+      return (this.dmGlobalSetting.dsSupportNames || []).flat().map((type) => ({
+        type: type.dsKey,
+        name: type.displayName
+      }));
+    },
     getDsType() {
       return (record) => {
         let type = '';
@@ -272,12 +278,6 @@ export default {
     },
     hideEditRuleModal() {
       this.showEditRuleModal = false;
-    },
-    async getAllDsType() {
-      const res = await this.$services.dmConstantListDsTypesWithoutEnv();
-      if (res.success) {
-        this.dsTypes = res.data;
-      }
     },
     async getAllDsList() {
       const res = await this.$services.rdpDataSourceListByCondition({
@@ -402,7 +402,6 @@ export default {
     this.getDesensitizeRuleTypeList();
     this.getDesensitizeList();
     this.getAllDsList();
-    this.getAllDsType();
     this.getPageElementsLevelList();
   }
 };

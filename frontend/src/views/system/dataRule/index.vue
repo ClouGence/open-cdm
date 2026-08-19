@@ -139,7 +139,7 @@
 <script>
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import * as Vue from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
   name: 'DataRule',
@@ -200,18 +200,23 @@ export default {
       currentPage: 1,
       showPageNumber: 5,
       pageSize: 20,
-      startId: 0,
-      dsTypes: []
+      startId: 0
     };
   },
   mounted() {
-    this.getAllDsType();
     this.handleRefresh();
     this.listPkg();
     this.getAllDs();
   },
   computed: {
     ...mapGetters(['hasCatalogAndSchema']),
+    ...mapState(['dmGlobalSetting']),
+    dsTypes() {
+      return (this.dmGlobalSetting.dsSupportNames || []).flat().map((type) => ({
+        type: type.dsKey,
+        name: type.displayName
+      }));
+    },
     getDsType() {
       return (record) => {
         let type = '';
@@ -240,12 +245,6 @@ export default {
   methods: {
     filterOption(input, option) {
       return option.componentOptions.children[1] && option.componentOptions.children[1].text.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-    },
-    async getAllDsType() {
-      const res = await this.$services.dmConstantListDsTypesWithoutEnv();
-      if (res.success) {
-        this.dsTypes = res.data;
-      }
     },
     async handleDsTypeChange(value) {
       this.queryForm.dataSourceType = value;
