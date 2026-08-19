@@ -113,22 +113,6 @@ const routes = [
         redirect: '/datasource'
       },
       {
-        path: 'ccdatasource',
-        redirect: (to) => ({
-          path: '/datasource',
-          query: to.query,
-          hash: to.hash
-        })
-      },
-      {
-        path: 'ccdatasource/add',
-        redirect: (to) => ({
-          path: '/datasource/add',
-          query: to.query,
-          hash: to.hash
-        })
-      },
-      {
         path: 'dmspeclist',
         redirect: (to) => ({
           path: '/data-access/rules',
@@ -211,7 +195,7 @@ const routes = [
       {
         path: 'system',
         name: 'System',
-        component: () => import(/* webpackChunkName: "ccsystem" */ '@/views/system/index'),
+        component: () => import(/* webpackChunkName: "system" */ '@/views/system/index'),
         children: systemChildren
         // children: [
         //   {

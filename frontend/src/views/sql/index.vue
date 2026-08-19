@@ -198,7 +198,7 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import LuckySheetDataView from '@/views/sql/components/LuckySheetDataView';
 import browseMixin from '@/mixins/browseMixin';
 import { UPDATE_EDITOR_SET } from '@/store/mutationTypes';
-import { ASYNC_TASK_STATUS, SOCKET_TYPE, hasSchema, noStruct, WS_REQ_QUERY_TYPE, WS_TYPE } from '@/utils';
+import { ASYNC_TASK_STATUS, SOCKET_TYPE, noStruct, WS_REQ_QUERY_TYPE, WS_TYPE } from '@/utils';
 import { sendWebSocket } from '@/services/socket';
 import sqlMixin from '@/mixins/sqlMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
@@ -276,7 +276,6 @@ export default {
       },
       showCount: 20,
       spinning: false,
-      hasSchema,
       noStruct,
       datasourceList: [],
       hasDatasource: false

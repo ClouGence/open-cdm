@@ -51,7 +51,6 @@ const ELEMENT_REVERSE_TYPE_MAP = {
 };
 
 const AUTH_ELEMENT_TYPES = [
-  'DataJob',
   'Instance',
   'Catalog',
   'Schema',

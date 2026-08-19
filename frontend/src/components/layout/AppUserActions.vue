@@ -11,7 +11,7 @@
           <CustomIcon type="icon-v2-icon_contact" hoverStyle size="18px" />
         </button>
       </Tooltip>
-      <a-dropdown v-if="userInfo.menuItems && userInfo.menuItems.includes('/ccsystem/console_job')" :trigger="['click']">
+      <a-dropdown :trigger="['click']">
         <span class="message-icon">
           <cc-iconfont :size="20" name="message" />
           <span v-if="messageList.length > 0" class="message-point"></span>

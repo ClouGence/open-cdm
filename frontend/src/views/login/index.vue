@@ -173,7 +173,6 @@ import { mapGetters, mapState, mapActions } from 'vuex';
 import { UPDATE_DM_GLOBAL_SETTING, UPDATE_GLOBAL_SETTING, UPDATE_PUBLIC_KEY } from '@/store/mutationTypes';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { isNumber } from '@/components/util';
-import { filterGlobalSettingByBuild, supportsCloudDMBuild } from '@/utils/product';
 import formatError from '@/services/formatError';
 import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
 import loginBgPattern from '@/assets/login/login-bg-pattern.svg';
@@ -573,24 +572,21 @@ export default {
         return;
       }
 
-      const filteredGlobalSetting = filterGlobalSettingByBuild(res.data);
-      this.globalSettings = filteredGlobalSetting;
-      this.$store.commit(UPDATE_GLOBAL_SETTING, filteredGlobalSetting);
-      if (supportsCloudDMBuild) {
-        const dmRes = await this.$services.dmGlobalSettings();
-        if (dmRes.success) {
-          this.$store.commit(UPDATE_DM_GLOBAL_SETTING, dmRes.data);
-          if (dmRes.data.publicKey) {
-            this.$store.commit(UPDATE_PUBLIC_KEY, dmRes.data.publicKey);
-          }
-          this.loginDef = Array.isArray(dmRes.data.loginDef) ? dmRes.data.loginDef : [];
-          this.setCurrentLoginType(dmRes.data.loginDefault || this.loginDef[0]?.loginType || LOGIN_TYPE.LOGIN_PASSWORD, false);
-          if (dmRes.data.personal) {
-            this.$i18n.global.locale.value = 'zh-CN';
-            this.loginForm.account = dmRes.data.personal.account;
-            this.loginForm.password = dmRes.data.personal.password;
-            await this.handleLogin();
-          }
+      this.globalSettings = res.data;
+      this.$store.commit(UPDATE_GLOBAL_SETTING, res.data);
+      const dmRes = await this.$services.dmGlobalSettings();
+      if (dmRes.success) {
+        this.$store.commit(UPDATE_DM_GLOBAL_SETTING, dmRes.data);
+        if (dmRes.data.publicKey) {
+          this.$store.commit(UPDATE_PUBLIC_KEY, dmRes.data.publicKey);
+        }
+        this.loginDef = Array.isArray(dmRes.data.loginDef) ? dmRes.data.loginDef : [];
+        this.setCurrentLoginType(dmRes.data.loginDefault || this.loginDef[0]?.loginType || LOGIN_TYPE.LOGIN_PASSWORD, false);
+        if (dmRes.data.personal) {
+          this.$i18n.global.locale.value = 'zh-CN';
+          this.loginForm.account = dmRes.data.personal.account;
+          this.loginForm.password = dmRes.data.personal.password;
+          await this.handleLogin();
         }
       }
 

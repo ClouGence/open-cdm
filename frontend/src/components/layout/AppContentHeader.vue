@@ -49,10 +49,10 @@ export default {
   components: { AppUserActions },
   emits: ['check-version'],
   computed: {
-    ...mapGetters(['includesDM', 'isDesktop']),
+    ...mapGetters(['isDesktop']),
     ...mapState(['dmGlobalSetting', 'myCatLog', 'mySystemMenuItems', 'sidebarMenu', 'userInfo']),
     showSqlLink() {
-      return this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE') && !this.$route.path.startsWith('/sql');
+      return this.myCatLog.includes('CAT_DM_CONSOLE') && !this.$route.path.startsWith('/sql');
     },
     pageTitle() {
       const path = this.$route.path;
@@ -81,7 +81,7 @@ export default {
         }
         return this.$t('my-permissions');
       }
-      if (path.indexOf('/datasource') === 0 || path.indexOf('/system/ccdatasource') > -1) {
+      if (path.indexOf('/datasource') === 0) {
         return this.$t('nav-shu-ju-ku-guan-li');
       }
       if (path === '/env' || path.indexOf('/env/') === 0 || path.indexOf('/system/env') > -1) {

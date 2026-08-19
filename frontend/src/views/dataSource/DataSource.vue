@@ -642,7 +642,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['productClusterList', 'myAuth']),
+    ...mapState(['myAuth']),
     ...mapState(['globalDsSetting', 'dmGlobalSetting']),
     ...mapGetters(['isDesktop']),
     SECOND_CONFIRM_EVENT_LIST() {
@@ -1092,7 +1092,7 @@ export default {
       };
     },
     handleGoConsoleJob(row) {
-      this.$router.push({ path: `/ccsystem/state/task/${row.consoleJobId}` });
+      this.$router.push({ path: `/system/console_job/${row.consoleJobId}` });
     },
     handleChangeSearchType() {
       // Reset all search values when switching query type

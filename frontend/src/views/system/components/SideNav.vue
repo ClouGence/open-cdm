@@ -20,7 +20,7 @@
             {{ $t('ge-ren-zi-liao') }}
           </a>
         </MenuItem>
-        <MenuItem name="permission" key="/system/permission" v-if="this.userInfo.accountType !== 'PRIMARY_ACCOUNT' && this.includesDM">
+        <MenuItem name="permission" key="/system/permission" v-if="this.userInfo.accountType !== 'PRIMARY_ACCOUNT'">
           <a href="/#/system/permission">
             <CustomIcon type="icon-v2-MyAuth" rightMargin />
             {{ $t('my-permissions') }}
@@ -68,7 +68,6 @@ export default {
     this.$bus.off('changeSidebar');
   },
   computed: {
-    ...mapGetters(['includesDM']),
     ...mapState(['myCatLog', 'userInfo', 'globalSetting', 'mySystemMenuItems', 'theme'])
   }
 };

@@ -286,8 +286,5 @@
     "MYSQL_TIMESTAMP_POS": "时间戳位点",
     "ORACLE_TIMESTAMP_POS": "时间戳位点",
     "ORACLE_SCN_POS": "SCN 位点"
-  },
-  "columnMapping": {
-    "clougence_cloudcanal_filter_after_mapping_column": "仅订阅不写入对端"
   }
 }

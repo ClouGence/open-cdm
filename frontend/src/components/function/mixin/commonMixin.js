@@ -1,13 +1,10 @@
 import {
-  CHECK_MODE,
-  getColumnMapping,
   isAmazonMsk,
   isDDLFilter,
   isDeltaLake,
   isDrDs,
   isES,
   isGrepTime,
-  isHasSchema,
   isHive,
   isHudi,
   isIceberg,
@@ -25,27 +22,12 @@ import {
   isStarRocks,
   isTDengine,
   isTdsqlCMySQL,
-  isTdsqlMySQL,
-  JOB_MODE,
-  JOB_TYPE
+  isTdsqlMySQL
 } from '@/utils';
-import DataSourceGroup from '@/views/dataSourceGroup.json';
 
 export default {
   name: 'CommonMixin',
   methods: {
-    getColumnMapping,
-    // mode type
-    isEditMode: (mode) => [JOB_MODE.EDIT, JOB_MODE.FULL_EDIT].includes(mode),
-    isCreateMode: (mode) => [JOB_MODE.CREATE, JOB_MODE.SIMILAR].includes(mode),
-
-    // job type
-    isSyncJob: (type) => type === JOB_TYPE.SYNC,
-    isMigrationJob: (type) => type === JOB_TYPE.MIGRATION,
-    isReviseJob: (type) => type === JOB_TYPE.REVISE,
-    isCheckJob: (type) => type === JOB_TYPE.CHECK,
-    isStructMigrationJob: (type) => type === JOB_TYPE.STRUCT_MIGRATION,
-
     // datasource
     isMongoDB,
     isIceberg,
@@ -60,7 +42,6 @@ export default {
     isMySQL,
     isRedis,
     isDDLFilter,
-    isHasSchema,
     isRocketMQ,
     isKafka,
     isNoStruct,
@@ -72,11 +53,6 @@ export default {
     isDeltaLake,
     isTdsqlMySQL,
     isTdsqlCMySQL,
-
-    // check mode
-    isCheckOneMode: (mode) => mode === CHECK_MODE.CHECK_ONCE,
-    isCheckPeriodMode: (mode) => mode === CHECK_MODE.CHECK_PERIOD,
-    isNoCheckMode: (mode) => mode === CHECK_MODE.NO_CHECK,
 
     // util
     async copyText(value, msg = this.$t('fu-zhi-cheng-gong')) {

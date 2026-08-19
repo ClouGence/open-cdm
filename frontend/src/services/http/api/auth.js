@@ -13,7 +13,6 @@ export const authApi = {
   // listMyAuthOfRes: '/api/entry/auth/listMyAuthOfRes',
   // listMyAuthRes: '/api/entry/auth/listMyAuthRes',
   // modifyUserAuth: '/api/entry/auth/modifyUserAuth',
-  // listMyAuthResForCC: '/api/entry/auth/listMyAuthRes',
 
   //dm
   // listElementsOfLevelForDM: '/api/entry/auth/listElementsOfLevel',
@@ -22,13 +21,6 @@ export const authApi = {
   // listUserLevelLeaf: '/api/entry/auth/listUserElementOfLeaf',
   // listMyElementsOfLevelForDM: '/api/entry/auth/listMyElementsOfLevel',
   // listMyLevelLeaf: '/api/entry/auth/listMyElementOfLeaf',
-
-  // cc
-  // listElementsOfLevelForCC: '/cloudcanal/console/api/v1/inner/auth/listElementsOfLevel',
-  // listUserAuthOfResForCC: '/cloudcanal/console/api/v1/inner/auth/listUserAuthOfRes',
-  // listUserAuthResForCC: '/cloudcanal/console/api/v1/inner/auth/listUserAuthRes',
-  // listMyAuthOfResForCC: '/cloudcanal/console/api/v1/inner/auth/listMyAuthOfRes',
-  // modifyUserAuthForCC: '/cloudcanal/console/api/v1/inner/auth/modifyUserAuth',
 
   // rdp
   rdpAuthFetchAuthTreeDef: '/api/entry/auth/fetchAuthTreeDef',
@@ -45,13 +37,5 @@ export const authApi = {
   dmAuthListUserElementsOfLevel: '/api/entry/auth/listUserElementsOfLevel',
   dmAuthListUserElementOfLeaf: '/api/entry/auth/listUserElementOfLeaf',
   dmAuthListMyElementsOfLevel: '/api/entry/auth/listMyElementsOfLevel',
-  dmAuthListMyElementOfLeaf: '/api/entry/auth/listMyElementOfLeaf',
-
-  // cc
-  ccAuthListElementsOfLevel: '/cloudcanal/console/api/v1/inner/auth/listElementsOfLevel',
-  ccAuthListUserAuthOfRes: '/cloudcanal/console/api/v1/inner/auth/listUserAuthOfRes',
-  ccAuthListUserAuthRes: '/cloudcanal/console/api/v1/inner/auth/listUserAuthRes',
-  ccAuthListMyAuthOfRes: '/cloudcanal/console/api/v1/inner/auth/listMyAuthOfRes',
-  ccAuthModifyUserAuth: '/cloudcanal/console/api/v1/inner/auth/modifyUserAuth',
-  ccAuthListCatalog: '/cloudcanal/console/api/v1/auth/listcatalog'
+  dmAuthListMyElementOfLeaf: '/api/entry/auth/listMyElementOfLeaf'
 };

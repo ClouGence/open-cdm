@@ -3,7 +3,6 @@ import {
   REMAIN_TRIAL_DAY,
   SET_MENU_ITEMS,
   SET_THEME,
-  UPDATE_CC_GLOBAL_SETTING,
   UPDATE_CLUSTER_LIST,
   UPDATE_DEPLOY_ENV_LIST_MAP,
   UPDATE_DM_GLOBAL_SETTING,
@@ -12,11 +11,9 @@ import {
   UPDATE_GLOBAL_SETTING,
   UPDATE_MY_AUTH,
   UPDATE_MY_CATALOG,
-  UPDATE_PRODUCT_CLUSTER,
   UPDATE_PUBLIC_KEY,
   UPDATE_REGION_LIST_MAP,
   UPDATE_RULE_SETTING,
-  UPDATE_SELECT_PRODUCT_CLUSTER,
   UPDATE_SOCKET_STATUS,
   UPDATE_TASK_INFO_DB_MAP_HISTORY,
   UPDATE_TASK_INFO_HISTORY,
@@ -24,17 +21,14 @@ import {
 } from '@/store/mutationTypes';
 import router from '@/router';
 import { buildSidebarMenu, flattenSidebarMenu } from '@/utils/buildSidebarMenu';
-import { supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
 
 const URL_AUTH_MAPPING = {};
 
 function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.globalSetting, myAuth = state.myAuth) {
-  const includesDM = supportsCloudDMBuild;
   const isDesktop = !!state.dmGlobalSetting.personal;
   const sidebarMenu = buildSidebarMenu({
     myCatLog,
     myAuth,
-    includesDM,
     isDesktop,
     accountType: state.userInfo?.accountType
   });
@@ -123,13 +117,6 @@ export default {
   [UPDATE_DS_TYPE_LIST](state, list) {
     state.dsTypeList = list;
   },
-  [UPDATE_PRODUCT_CLUSTER](state, list) {
-    state.productClusterList = list;
-  },
-  [UPDATE_SELECT_PRODUCT_CLUSTER](state, cluster) {
-    appLogger.debug('UPDATE_SELECT_PRODUCT_CLUSTER', cluster);
-    state.selectCcProductCluster = cluster;
-  },
   [UPDATE_MY_CATALOG](state, data) {
     state.myCatLog = data;
     applyMenuItems(state, data);
@@ -160,9 +147,6 @@ export default {
   },
   getUrlLabels(state, list) {
     state.urlLabels = list;
-  },
-  updateSelectProductCluster(state, cluster) {
-    state.selectCcProductCluster = cluster;
   },
   updateUserInfo(state, userInfo) {
     state.userInfo = userInfo;
@@ -255,15 +239,12 @@ export default {
   [UPDATE_GLOBAL_SETTING](state, globalSetting) {
     appLogger.warn(UPDATE_GLOBAL_SETTING);
     state.globalSetting = globalSetting;
-    const includesCC = supportsCloudCanalBuild;
-    const includesDM = supportsCloudDMBuild;
     applyMenuItems(state, state.myCatLog, globalSetting);
     // Set menu entry after initialization of globalSetting
     let url = '';
     if (state.mySystemMenuItems.length) {
       url = state.mySystemMenuItems[0].key;
     }
-    state.docUrlPrefix = 'https://www.clougence.com/cc-doc';
     state.contactUsUrl = 'https://www.cdmgr.com/';
     state.dmDocUrlPrefix = 'https://www.clougence.com/dm-doc';
     state.bladePipeApply = 'https://www.clougence.com/dm-doc/clouddm';
@@ -282,7 +263,7 @@ export default {
     }
 
     if (!url) {
-      url = includesDM ? '/sql' : '/system';
+      url = '/sql';
     }
 
     appLogger.debug(url);
@@ -291,13 +272,6 @@ export default {
     if (window.location.hash === '#/') {
       router.push(url);
     }
-  },
-  [UPDATE_CC_GLOBAL_SETTING](state, ccGlobalSetting) {
-    if (!supportsCloudCanalBuild) {
-      return;
-    }
-
-    state.ccGlobalSetting = ccGlobalSetting;
   },
   [UPDATE_DM_GLOBAL_SETTING](state, dmGlobalSetting = {}) {
     state.dmGlobalSetting = dmGlobalSetting;

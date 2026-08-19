@@ -65,7 +65,7 @@
 import appLogger from '@/utils/logger';
 import { cloneDeep } from '@/utils/lodash';
 import * as Vue from 'vue';
-import { CATALOG_SCHEMA_TYPES } from '@/const';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'AddDataRule',
@@ -114,6 +114,7 @@ export default {
     this.listPkg();
   },
   computed: {
+    ...mapGetters(['hasCatalogAndSchema']),
     getPkgName() {
       return (id) => {
         let name = '';
@@ -150,16 +151,17 @@ export default {
       this.loading = true;
       this.diff();
       const { id: dataSourceId, schemaName, tableName, dsEnvName, instanceId, parentData = '', dataSourceType, key: selectTableKey } = selectedTable;
+      const includesCatalog = this.hasCatalogAndSchema(dataSourceType);
       let catalogName = '';
 
       let arr = [];
-      if (CATALOG_SCHEMA_TYPES.includes(dataSourceType)) {
+      if (includesCatalog) {
         arr = selectTableKey.split('/');
         catalogName = arr[2];
       }
       let currentTableRules = [];
       const currentTableRulesObj = {};
-      const data = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
+      const data = includesCatalog
         ? {
             dataSourceId,
             ruleCatalog: catalogName,
@@ -193,11 +195,11 @@ export default {
         if (res.success) {
           const rawColumnListObj = {};
           currentTableRules = res.data;
-          const tableKey = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
+          const tableKey = includesCatalog
             ? `${dsEnvName}/${instanceId}/${catalogName}/${schemaName}/${tableName}`
             : `${dsEnvName}/${instanceId}/${schemaName}/${tableName}`;
           res.data.map((column) => {
-            const key = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
+            const key = includesCatalog
               ? `${dsEnvName}/${instanceId}/${catalogName}/${schemaName}/${tableName}/${column.name}`
               : `${dsEnvName}/${instanceId}/${schemaName}/${tableName}/${column.name}`;
             column.key = key;

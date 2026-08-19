@@ -307,9 +307,6 @@ export default {
     TDSQLC_MY_LOG_FILE_POS: i18n.global.t('wen-jian-wei-dian'),
     TDSQLC_MY_TIMESTAMP_POS: i18n.global.t('shi-jian-chuo-wei-dian')
   },
-  columnMapping: {
-    clougence_cloudcanal_filter_after_mapping_column: i18n.global.t('jin-ding-yue-bu-xie-ru-dui-duan')
-  },
   deployDsMap: {
     SELF_MAINTENANCE: {
       PolarDbX: 'PolarDB-X',

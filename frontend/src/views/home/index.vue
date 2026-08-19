@@ -155,7 +155,7 @@ export default {
   },
   mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
   computed: {
-    ...mapGetters(['isDesktop', 'displayVersion', 'includesDM', 'isInternalUser']),
+    ...mapGetters(['isDesktop', 'displayVersion', 'isInternalUser']),
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
     isSqlRoute() {
@@ -213,9 +213,7 @@ export default {
     this.$bus.on('showEnterOpPwdModal', this.showEnterOpPwdModal);
     this.$bus.on('dingDingSettingModal', this.setApprovalProcessModal);
     this.$bus.on(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL, (msg) => this.handleShowInactiveModal(msg));
-    if (this.includesDM) {
-      await this.checkVersion();
-    }
+    await this.checkVersion();
   },
   unmounted() {
     this.$bus.off('setOpPasswordModal');
@@ -362,9 +360,6 @@ export default {
         return;
       }
       this.handleGoBackHome();
-    },
-    goAsyncJobList() {
-      this.$router.push({ name: 'ASYNC_JOB_LIST' });
     },
     _setApprovalProcessModal() {
       this.$store.dispatch('getUserInfo');

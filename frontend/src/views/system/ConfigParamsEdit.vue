@@ -134,7 +134,7 @@
 </template>
 <script>
 import appLogger from '@/utils/logger';
-import { pick } from '@/components/function/monitor/utils/colors';
+import { pick } from '@/utils/colors';
 import { handleCopy } from '@/utils/clipboard';
 
 export default {

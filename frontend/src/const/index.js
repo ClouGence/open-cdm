@@ -1,13 +1,6 @@
 import DATASOURCE_TYPE from '@/const/datasourceType';
 import i18n from '../i18n';
 
-const CREATE_TASK_STEPS = {
-  ORIGINAL: 'ORIGINAL',
-  FUNCTIONAL: 'FUNCTIONAL',
-  TABLE_FILTER: 'TABLE_FILTER',
-  CLEAN_DATA: 'CLEAN_DATA'
-};
-
 export const DATASOURCE_DEPLOY_TYPE = {
   SELF_MAINTENANCE: 'SELF_MAINTENANCE',
   ALIBABA_CLOUD_HOSTED: 'ALIBABA_CLOUD_HOSTED'
@@ -25,6 +18,19 @@ export const HOST_TYPE = {
   PRIVATE: 'PRIVATE'
 };
 
+export const CONNECT_TYPE = {
+  ORACLE: [
+    {
+      label: 'ORACLE_SID',
+      value: 'ORACLE_SID'
+    },
+    {
+      label: 'ORACLE_SERVICE',
+      value: 'ORACLE_SERVICE'
+    }
+  ]
+};
+
 export const SECOND_CONFIRM_EVENT_LIST = {
   DELETE_POSITION: 'DELETE_POSITION',
   DELETE_JOB: 'DELETE_JOB',
@@ -33,7 +39,7 @@ export const SECOND_CONFIRM_EVENT_LIST = {
   RESET_POSITION: 'RESET_POSITION'
 };
 
-export { DATASOURCE_TYPE, CREATE_TASK_STEPS };
+export { DATASOURCE_TYPE };
 
 export const MYSQL_DEFAULT_STRATEGY = [
   {
@@ -80,14 +86,6 @@ export const EDITIONS_I18N = {
   EXPERIENCE_VERSION: i18n.global.t('ti-yan-ban'),
   UNLIMITED: 'SVIP',
   FLAGSHIP_VERSION: i18n.global.t('qi-jian-ban')
-};
-
-export const JOB_TYPE_ICON = {
-  MIGRATION: 'iconshujuqianyi',
-  SYNC: 'iconshujutongbu',
-  SUBSCRIBE: 'md-checkmark-circle-outline',
-  CHECK: 'iconshujujiaoyan',
-  STRUCT_MIGRATION: 'iconjiegouqianyi'
 };
 
 export const EDITIONS = {
@@ -380,8 +378,6 @@ export const ALGORITHM_TYPES_PLACEHOLDER = {
   4: '目标字符',
   5: 'format：(1, 4), (8, 10), (-4)'
 };
-
-export const CATALOG_SCHEMA_TYPES = ['PostgreSQL', 'Greenplum', 'Cloudberry', 'KingbaseESPostgreSQL', 'SQLServer', 'KingbaseESSQLServer'];
 
 export const BIZ_TYPE = {
   TICKETS_WORKFLOW: 'TICKETS_WORKFLOW',

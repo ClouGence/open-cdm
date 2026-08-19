@@ -35,9 +35,6 @@ export const userApi = {
   // getCurrUserConfigs: '/api/entry/user/config/getCurrUserConfigs',
   // updateUserConfigs: '/api/entry/user/config/upsertUserConfigs',
   // queryPrimaryUser: '/api/entry/user/queryPrimaryUser',
-  // queryRemainingTrialDay: '/cloudcanal/console/api/v1/inner/saas/queryremainingtrialday',
-  // saasCcProductNames: '/api/entry/saas/ccproductnames',
-
   auth: '/auth',
   signin: '/signin',
   login: '/login',
@@ -86,9 +83,5 @@ export const userApi = {
 
   rdpUserConfigGetUserSpecifiedConfs: '/api/entry/user/config/getUserSpecifiedConfs',
   rdpUserConfigGetCurrUserConfigs: '/api/entry/user/config/getCurrUserConfigs',
-  rdpUserConfigUpsertUserConfigs: '/api/entry/user/config/upsertUserConfigs',
-
-  // cc
-  ccUserQueryLoginUser: '/cloudcanal/console/api/v1/inner/user/queryLoginUser',
-  ccUserAddUserForPremise: '/cloudcanal/console/api/v1/inner/user/adduserforpremise'
+  rdpUserConfigUpsertUserConfigs: '/api/entry/user/config/upsertUserConfigs'
 };

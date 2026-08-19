@@ -129,8 +129,9 @@ import * as Vue from 'vue';
 import { cloneDeep } from '@/utils/lodash';
 import { Modal } from 'ant-design-vue';
 import PreviewModal from '@/views/system/desensitization/components/PreviewModal';
-import { ALGORITHM_TYPES_PLACEHOLDER, CATALOG_SCHEMA_TYPES } from '@/const';
+import { ALGORITHM_TYPES_PLACEHOLDER } from '@/const';
 import RulesConfirmModal from '@/views/system/desensitization/components/RulesConfirmModal';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'AddDesensitization',
@@ -191,6 +192,9 @@ export default {
       currentTableRulesObj: {},
       modifiedTableNumObj: {}
     };
+  },
+  computed: {
+    ...mapGetters(['hasCatalogAndSchema'])
   },
   methods: {
     checkRuleExpr() {
@@ -411,11 +415,12 @@ export default {
       }
       this.diff();
       const { dsEnvName, instanceId, id: dataSourceId, schemaName, tableName, parentData = '', dataSourceType, key: selectTableKey } = selectedTable;
+      const includesCatalog = this.hasCatalogAndSchema(dataSourceType);
 
       let catalogName = '';
 
       let arr = [];
-      if (CATALOG_SCHEMA_TYPES.includes(dataSourceType)) {
+      if (includesCatalog) {
         arr = selectTableKey.split('/');
         catalogName = arr[2];
       }
@@ -425,7 +430,7 @@ export default {
       let currentTableRules = [];
       const currentTableRulesObj = {};
 
-      const data = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
+      const data = includesCatalog
         ? {
             dataSourceId,
             ruleCatalog: catalogName,
@@ -462,7 +467,7 @@ export default {
 
       if (res2.success) {
         const rawColumnListObj = {};
-        const tableKey = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
+        const tableKey = includesCatalog
           ? `${dsEnvName}/${instanceId}/${catalogName}/${schemaName}/${tableName}`
           : `${dsEnvName}/${instanceId}/${schemaName}/${tableName}`;
         res2.data.forEach((column) => {

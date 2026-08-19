@@ -33,7 +33,6 @@ export default {
   globalSetting: {
     features: {}
   },
-  ccGlobalSetting: {},
   dmGlobalSetting: {},
   globalDsSetting: {},
   dsTypeList: {},
@@ -41,8 +40,6 @@ export default {
   allClusterWorkers: 0,
   allClusterRunningWorkers: 0,
   deployEnvListMap: {},
-  productClusterList: [],
-  selectCcProductCluster: null,
   aliyunRegionListMap: {},
   selfRegionListMap: {},
   regionList: [],
@@ -90,7 +87,6 @@ export default {
   licenseStatus: {
     success: false
   },
-  docUrlPrefix: 'https://www.clougence.com/cc-doc',
   contactUsUrl: 'https://www.cdmgr.com/',
   dmDocUrlPrefix: 'https://www.clougence.com/dm-doc',
   bladePipeApply: 'https://www.clougence.com/dm-doc/clouddm',

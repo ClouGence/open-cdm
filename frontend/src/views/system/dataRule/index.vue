@@ -34,10 +34,10 @@
         </div>
         <div class="section">
           <div class="label">{{ $t('ku-ming') }}</div>
-          <a-input v-if="hasSchema(queryForm.dataSourceType)" v-model="queryForm.ruleCatalog" style="width: 120px; margin-right: 4px" />
-          <a-input v-if="!hasSchema(queryForm.dataSourceType)" v-model="queryForm.ruleSchema" style="width: 120px; margin-right: 4px" />
+          <a-input v-if="hasCatalogAndSchema(queryForm.dataSourceType)" v-model="queryForm.ruleCatalog" style="width: 120px; margin-right: 4px" />
+          <a-input v-if="!hasCatalogAndSchema(queryForm.dataSourceType)" v-model="queryForm.ruleSchema" style="width: 120px; margin-right: 4px" />
         </div>
-        <div v-if="hasSchema(queryForm.dataSourceType)" class="section">
+        <div v-if="hasCatalogAndSchema(queryForm.dataSourceType)" class="section">
           <div class="label">SCHEMA</div>
           <a-input v-model="queryForm.ruleSchema" style="width: 120px" />
         </div>
@@ -72,13 +72,13 @@
           {{ record.resourcePathList[0] }}
         </template>
         <template #schema="record">
-          {{ hasSchema(getDsType(record)) ? record.resourcePathList[1] : '' }}
+          {{ hasCatalogAndSchema(getDsType(record)) ? record.resourcePathList[1] : '' }}
         </template>
         <template #table="record">
-          {{ hasSchema(getDsType(record)) ? record.resourcePathList[2] : record.resourcePathList[1] }}
+          {{ hasCatalogAndSchema(getDsType(record)) ? record.resourcePathList[2] : record.resourcePathList[1] }}
         </template>
         <template #columnName="record">
-          {{ hasSchema(getDsType(record)) ? record.resourcePathList[3] : record.resourcePathList[2] }}
+          {{ hasCatalogAndSchema(getDsType(record)) ? record.resourcePathList[3] : record.resourcePathList[2] }}
         </template>
         <template #pkgId="record">{{ record.pkgDesc }}/{{ record.pkgInstanceName }}</template>
         <template #status="record">
@@ -138,14 +138,13 @@
 
 <script>
 import { cloneDeep as deepClone } from '@/utils/lodash';
-import { hasSchema } from '@/utils';
 import * as Vue from 'vue';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'DataRule',
   data() {
     return {
-      hasSchema,
       queryForm: {
         dataSourceId: '',
         ruleCatalog: '',
@@ -212,6 +211,7 @@ export default {
     this.getAllDs();
   },
   computed: {
+    ...mapGetters(['hasCatalogAndSchema']),
     getDsType() {
       return (record) => {
         let type = '';

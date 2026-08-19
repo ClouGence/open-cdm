@@ -314,7 +314,7 @@ import appLogger from '@/utils/logger';
 import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
-import { mapGetters, mapState } from 'vuex';
+import { mapState } from 'vuex';
 import i18n from '@/i18n';
 import { AUTH_ELEMENT_TYPES, ELEMENT_REVERSE_TYPE_MAP, ELEMENT_TYPE_MAP, ELEMENT_TYPE_REF_MAP, START_RECORD_NAMES_CONUT } from './constant';
 import { getResTypeToNames, findNodeByKey, fetchWithTimeout, flattenTree } from './utils';
@@ -340,7 +340,6 @@ export default {
       },
       selectedNodeKey: null,
       canCheckedChange: false,
-      selectedCcCluster: '',
       leftWidth: 360,
       isDragging: false,
       curRangeKey: 'permanent',
@@ -356,15 +355,6 @@ export default {
       isView: false,
       loadingAuth: false,
       activeAuthTab: 'DataSource',
-      activeAuthType: 'datasource',
-      authTabs: [
-        {
-          label: i18n.global.t('shu-ju-yuan'),
-          value: 'DataSource',
-          type: 'datasource'
-        },
-        { label: i18n.global.t('ren-wu'), value: 'DataJob', type: 'task' }
-      ],
       ranges1: [
         {
           key: '2',
@@ -401,16 +391,6 @@ export default {
         originalTreeData: [],
         searchType: 'all',
         searchKey: '',
-        loading: false,
-        selectedNode: null
-      },
-      task: {
-        batchCheckedKeys: [],
-        treeData: [],
-        stashTreeData: [],
-        originalTreeData: [],
-        searchKey: '',
-        searchType: 'all',
         loading: false,
         selectedNode: null
       },
@@ -463,17 +443,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['includesDM', 'includesCC']),
-    ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'productClusterList', 'myAuth']),
-    getCcProductClusterList() {
-      const ccList = [];
-      this.productClusterList.forEach((cluster) => {
-        if (cluster.product === 'CloudCanal') {
-          ccList.push(cluster);
-        }
-      });
-      return ccList;
-    },
+    ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'myAuth']),
     resourceManageDisabled() {
       return !this.isEdit || this.previewMode || this.authTarget.disable || this.resourceManageLoading || !this.myAuth.includes('RDP_AUTH_MANAGE');
     },
@@ -485,34 +455,22 @@ export default {
     },
     datasourceTreeSearchKey: {
       get() {
-        return this.activeAuthType === 'datasource' ? this.datasource.searchKey : this.task.searchKey;
+        return this.datasource.searchKey;
       },
       set(value) {
-        if (this.activeAuthType === 'datasource') {
-          this.datasource.searchKey = value;
-        } else {
-          this.task.searchKey = value;
-        }
+        this.datasource.searchKey = value;
       }
     },
     datasourceTreeSearchType: {
       get() {
-        return this.activeAuthType === 'datasource' ? this.datasource.searchType : this.task.searchType;
+        return this.datasource.searchType;
       },
       set(value) {
-        if (this.activeAuthType === 'datasource') {
-          this.datasource.searchType = value;
-        } else {
-          this.task.searchType = value;
-        }
+        this.datasource.searchType = value;
       }
     },
     showAuthTree() {
-      if (this.activeAuthType === 'datasource') {
-        return this.datasource.selectedNode || this.batchMode;
-      } else {
-        return this.task.selectedNode || this.batchMode;
-      }
+      return this.datasource.selectedNode || this.batchMode;
     },
     authStartTime: {
       get() {
@@ -531,16 +489,7 @@ export default {
       }
     },
     disableAuthTab() {
-      return (auth) => {
-        let disable = false;
-        if (this.previewMode) {
-          return true;
-        }
-        if (!this.includesCC && auth === 'DataJob') {
-          disable = true;
-        }
-        return disable;
-      };
+      return () => this.previewMode;
     },
     processedTimeList() {
       if (this.timeList[this.curNode?.key]) {
@@ -656,7 +605,6 @@ export default {
         this.curRangeKey = 'permanent';
         await this.loadAuthTarget();
         this.activeAuthTab = 'DataSource';
-        this.activeAuthType = 'datasource';
         this.lastRightTreeData = [];
         this.lastLeftTreeClickNode = '';
         this.parentAuthTree = [];
@@ -2480,144 +2428,6 @@ export default {
       return [traverse(originalTree), isEdit];
     },
 
-    async handleSwitchAuth(value, type) {
-      if (this.activeAuthTab === value) {
-        return;
-      }
-      if (value === 'DataJob') {
-        this.$router.push({
-          path: `/system/account/authdm/${this.uid}`,
-          query: {
-            name: this.subAccount,
-            type: this.isEdit ? 'edit' : 'view'
-          }
-        });
-        return;
-      }
-
-      this.datasourceTreeSearchType = 'all';
-      await this.handleGetPreviewData();
-      if (
-        this.authedData.appends &&
-        this.authedData.appends.length === 0 &&
-        this.authedData.deletes.length === 0 &&
-        this.authedData.updates.length === 0
-      ) {
-        this.activeAuthTab = value;
-        this.activeAuthType = type;
-        this.datasource.selectedNode = null;
-        this.task.selectedNode = null;
-        this.auth = {
-          checkedKeys: [],
-          startTime: null,
-          endTime: null,
-          originalTreeData: [],
-          batchTreeData: [],
-          diffuse: false,
-          treeData: [],
-          searchKey: '',
-          loading: false
-        };
-        if (this.activeAuthTab === 'DataJob' && this.getCcProductClusterList.length > 0) {
-          this.selectedCcCluster = this.getCcProductClusterList[0].clusterCode;
-        }
-        await this.listLevelsForDM();
-
-        this.authedData = [];
-        this.datasource.searchKey = '';
-        this.task.searchKey = '';
-      } else {
-        this.$Modal.confirm({
-          title: this.$t('zi-yuan-shou-quan-ti-shi'),
-          content: this.$t(
-            'dang-qian-lei-xing-de-zi-yuan-you-wei-ti-jiao-de-shou-quan-qing-ti-jiao-hou-zai-qie-huan-zi-yuan-lei-xing-ru-xuan-ze-hu-lve-bing-ji-xu-ben-ci-bian-geng-jiang-qing-kong'
-          ),
-          okText: this.$t('guan-bi'),
-          cancelText: this.$t('hu-lve-bing-ji-xu'),
-          onCancel: () => {
-            this.datasource.authedTreeData = [];
-            this.task.authedTreeData = [];
-
-            this.authedData = [];
-            this.datasource.searchKey = '';
-            this.task.searchKey = '';
-            this.activeAuthTab = value;
-            this.activeAuthType = type;
-            this.datasource.selectedNode = null;
-            this.task.selectedNode = null;
-            this.auth = {
-              checkedKeys: [],
-              startTime: null,
-              endTime: null,
-              originalTreeData: [],
-              batchTreeData: [],
-              diffuse: false,
-              treeData: [],
-              searchKey: '',
-              loading: false
-            };
-            this.listLevelsForDM();
-          }
-        });
-      }
-    },
-    handleChangeCcCluster(data) {
-      this.handleGetPreviewData();
-      if (
-        this.authedData.appends &&
-        this.authedData.appends.length === 0 &&
-        this.authedData.deletes.length === 0 &&
-        this.authedData.updates.length === 0
-      ) {
-        this.selectedCcCluster = data;
-        this.datasource.selectedNode = null;
-        this.task.selectedNode = null;
-        this.auth = {
-          checkedKeys: [],
-          startTime: null,
-          endTime: null,
-          originalTreeData: [],
-          batchTreeData: [],
-          diffuse: false,
-          treeData: [],
-          searchKey: '',
-          loading: false
-        };
-        this.listLevelsForDM();
-      } else {
-        this.$Modal.confirm({
-          title: this.$t('zi-yuan-shou-quan-ti-shi'),
-          content: this.$t(
-            'dang-qian-chan-pin-ji-qun-xia-you-wei-ti-jiao-de-shou-quan-qing-ti-jiao-hou-zai-qie-huan-chan-pin-ji-qun-ru-xuan-ze-hu-lve-bing-ji-xu-ben-ci-bian-geng-jiang-qing-kong'
-          ),
-          onText: this.$t('guan-bi'),
-          cancelText: this.$t('hu-lve-bing-ji-xu'),
-          onCancel: () => {
-            this.datasource.authedTreeData = [];
-            this.task.authedTreeData = [];
-
-            this.authedData = [];
-            this.selectedCcCluster = data;
-            this.datasource.searchKey = '';
-            this.task.searchKey = '';
-            this.datasource.selectedNode = null;
-            this.task.selectedNode = null;
-            this.auth = {
-              checkedKeys: [],
-              startTime: null,
-              endTime: null,
-              originalTreeData: [],
-              batchTreeData: [],
-              diffuse: false,
-              treeData: [],
-              searchKey: '',
-              loading: false
-            };
-            this.listLevelsForDM();
-          }
-        });
-      }
-    },
     onSearchTypChange() {
       let res = [];
       res = this.filterTreeOfType(deepClone(this.originLeftTree));
@@ -2807,14 +2617,8 @@ export default {
         this.batchMode = !this.batchMode;
       }
       if (this.batchMode) {
-        if (this.activeAuthType === 'task') {
-          await this.handleGetAuthTree('DataJob');
-          this.auth.batchTreeData = deepClone(this.authList.DataJob);
-        }
-        if (this.activeAuthType === 'datasource') {
-          await this.handleGetAuthTree('Instance');
-          this.auth.batchTreeData = deepClone(this.authList.Instance);
-        }
+        await this.handleGetAuthTree('Instance');
+        this.auth.batchTreeData = deepClone(this.authList.Instance);
         this.$refs.authTree.setData(this.auth.batchTreeData);
       } else {
         this.handleReloadPage();

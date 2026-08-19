@@ -163,8 +163,8 @@
 import DsSelect from '@/views/ticket/components/DsSelect';
 import TicketEditor from '@/components/editor/TicketEditor';
 import SqlFileUploadModal from '@/components/function/SqlFileUploadModal.vue';
-import { hasSchema, RULE_WARN_LEVEL } from '@/utils';
-import { mapState } from 'vuex';
+import { RULE_WARN_LEVEL } from '@/utils';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
   name: 'Ticket',
@@ -175,6 +175,7 @@ export default {
   },
   computed: {
     ...mapState(['dmGlobalSetting']),
+    ...mapGetters(['hasCatalogAndSchema']),
     sqlFileMaxMegaByte() {
       return this.dmGlobalSetting?.sqlFileMaxSize || 20;
     },
@@ -536,7 +537,7 @@ export default {
         await this.$refs.ticketContent.validate();
         const dbLevels = [this.ticketData.envId, this.ticketData.instanceId];
 
-        if (this.ticketData.catalog && hasSchema(this.ticketData.dataSourceType)) {
+        if (this.ticketData.catalog && this.hasCatalogAndSchema(this.ticketData.dataSourceType)) {
           dbLevels.push(this.ticketData.catalog);
         }
 

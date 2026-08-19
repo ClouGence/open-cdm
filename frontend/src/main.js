@@ -93,14 +93,8 @@ import 'vue-sonner/style.css';
 import Toast from '@/utils/toast';
 import { LocaleProvider } from 'ant-design-vue';
 import * as filters from '@/filters';
-import { supportsCloudCanalBuild } from '@/utils/product';
-
 // Include Theme Styles
 import './styles/themes/theme.less';
-
-if (supportsCloudCanalBuild) {
-  import('./styles/cloudCanal.less');
-}
 
 // Determines whether the browser supports vue3
 checkES5Support();

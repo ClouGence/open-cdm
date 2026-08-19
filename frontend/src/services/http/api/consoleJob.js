@@ -12,12 +12,5 @@ export const consolejobApi = {
   dmConsoleJobList: '/api/entry/consolejob/list',
   dmConsoleJobRetryTask: '/api/entry/consolejob/retrytask',
   dmConsoleJobSkipTask: '/api/entry/consolejob/skiptask',
-  dmConsoleJobCancel: '/api/entry/consolejob/cancel',
-
-  // cc
-  ccConsoleJobList: '/cloudcanal/console/api/v1/inner/consolejob/list',
-  ccConsoleJobCancel: '/cloudcanal/console/api/v1/inner/consolejob/cancel',
-  ccConsoleJobRetryTask: '/cloudcanal/console/api/v1/inner/consolejob/retrytask',
-  ccConsoleJobSkipTask: '/cloudcanal/console/api/v1/inner/consolejob/skiptask',
-  ccConsoleJobQueryConsoleJob: '/cloudcanal/console/api/v1/inner/consolejob/queryconsolejob'
+  dmConsoleJobCancel: '/api/entry/consolejob/cancel'
 };

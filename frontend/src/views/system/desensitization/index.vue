@@ -36,10 +36,10 @@
         </div>
         <div class="section">
           <div class="label">{{ $t('ku-ming') }}</div>
-          <a-input v-if="hasSchema(queryForm.dataSourceType)" v-model="queryForm.ruleCatalog" style="width: 120px; margin-right: 4px" />
-          <a-input v-if="!hasSchema(queryForm.dataSourceType)" v-model="queryForm.ruleSchema" style="width: 120px; margin-right: 4px" />
+          <a-input v-if="hasCatalogAndSchema(queryForm.dataSourceType)" v-model="queryForm.ruleCatalog" style="width: 120px; margin-right: 4px" />
+          <a-input v-if="!hasCatalogAndSchema(queryForm.dataSourceType)" v-model="queryForm.ruleSchema" style="width: 120px; margin-right: 4px" />
         </div>
-        <div v-if="hasSchema(queryForm.dataSourceType)" class="section">
+        <div v-if="hasCatalogAndSchema(queryForm.dataSourceType)" class="section">
           <div class="label">SCHEMA</div>
           <a-input v-model="queryForm.ruleSchema" style="width: 120px" />
         </div>
@@ -127,14 +127,13 @@
 <script>
 import * as Vue from 'vue';
 import EditRuleModal from '@/views/system/desensitization/components/EditRuleModal';
-import { hasSchema } from '@/utils';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'Desensitization',
   components: { EditRuleModal },
   data() {
     return {
-      hasSchema,
       pageLevel: [],
       currentPage: 1,
       showPageNumber: 5,
@@ -216,6 +215,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['hasCatalogAndSchema']),
     getDsType() {
       return (record) => {
         let type = '';

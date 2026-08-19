@@ -9,8 +9,9 @@ Dialect 和 Session 能力。该流程防止只显示类型、只通过连接测
 
 - 路由：`/#/datasource`、四种 `/#/datasource/add?dsType=...`、`/#/sql`；
 - 类型：`KingbaseESPostgreSQL`、`KingbaseESMySQL`、`KingbaseESOracle`、`KingbaseESSQLServer`；
-- 能力：创建/编辑、对象树、查询、DML、事务、DDL、Explain、中断恢复、错误模式；
-- 不覆盖：CloudCanal 数据同步、生产数据源、未经矩阵验证的 KingbaseES/JDBC 版本。
+- 能力：创建/编辑、对象树、查询、DML、事务、DDL、Explain、中断恢复、错误模式，以及由
+  `/api/entry/dmConsoleSettings` 返回的 Catalog/Schema 层级能力；
+- 不覆盖：生产数据源、未经矩阵验证的 KingbaseES/JDBC 版本。open-cdm 前端不再包含 CloudCanal 产品兼容分支。
 
 ## Preconditions
 
@@ -47,6 +48,16 @@ Dialect 和 Session 能力。该流程防止只显示类型、只通过连接测
 每种类型分别填写对应端口、Catalog `test`、Schema `public` 和隔离账号，点击“测试连接”后保存。
 
 预期：正确模式成功；错误密码/端口有明确错误；把某类型指向另一模式端口时显示 expected/actual 模式不匹配，不自动回退。
+
+### KES-UI-02A Catalog/Schema 能力契约
+
+1. 读取 `/api/entry/dmConsoleSettings`，确认 `data.dsSettingDef[dsType].categories.levels` 是页面层级能力的唯一来源。
+2. 对四个 KingbaseES 类型分别记录 `levels`，并检查数据规则、脱敏规则、工单和安全规则范围页面生成的资源 key。
+3. Catalog + Schema 类型的 key 必须同时包含 catalog 和 schema；只有 Schema 的类型不得补空 catalog。
+4. 新增数据源类型后不修改前端静态类型数组，刷新页面即可按接口返回层级生效。
+
+预期：页面不再依赖 `CATALOG_SCHEMA_TYPES`、`hasSchema` 或数据源类型硬编码；接口层级变更后四个入口使用一致的资源路径，
+Chrome Console error 为 0。
 
 ### KES-UI-03 对象树和结果类型
 
@@ -175,6 +186,16 @@ CloudDM 已通过，必须同时确认 CloudDM 对应 SQL Engine 的解析、切
 
 预期：公共实现的直接消费者都有明确结果；本轮 `dsc-common-postgres` TRIM 修改至少在原生 PostgreSQL 和 KingbaseES 相关模式
 上完成真实 UI metadata 回归。
+
+### KES-UI-13 CloudDM 单产品前端
+
+1. 进入 `/#/datasource`、`/#/data-access/cluster`、`/#/system/permission` 和 `/#/sql`。
+2. 确认页面只走 CloudDM 路由、权限和 `/api/entry/**` API，不请求 `/cloudcanal/**`。
+3. 新增数据源弹窗仍显示四个 KingbaseES 类型；集群页只显示 CloudDM 字段和 `DM_WORKER_MANAGE` 对应操作。
+4. 账号资源授权只展示数据源资源，不展示 CloudCanal DataJob/产品集群切换入口。
+5. 刷新并往返切换上述页面，检查 Chrome Console。
+
+预期：不存在 CloudCanal 产品开关、回退路由、服务定义、DataJob 授权入口或品牌文案；CloudDM 页面正常加载且 Console error 为 0。
 
 ## Cleanup
 

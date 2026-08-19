@@ -175,7 +175,7 @@ export default {
       this.$router.push({
         name: 'System_Machine'
       });
-      this.$bus.emit('changeSidebar', '/ccsystem/machine');
+      this.$bus.emit('changeSidebar', '/data-access/cluster');
     },
     handleEnvChange(envId) {
       this.stepOneData.envName = this.envListMap[envId].envName;

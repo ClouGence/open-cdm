@@ -1,6 +1,5 @@
 import appLogger from '@/utils/logger';
-import { EDITIONS, VERIFY_TYPE } from '@/const/ccIndex';
-import { supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
+import { VERIFY_TYPE } from '@/const';
 import { resolveVersionBadgeText } from '@/utils/version';
 
 const RULE_KIND_CONF_MAP = {
@@ -12,15 +11,9 @@ export default {
   userInfo: (state) => state.userInfo,
   isDesktop: (state) => !!state.dmGlobalSetting.personal,
   isSaas: () => false,
-  upgradeSidecar: (state) => supportsCloudCanalBuild && state.ccGlobalSetting.productConsolePackageMode === 'TGZ',
   blackUri: (state) => state.blackUri,
   globalConfig: (state) => state.globalConfig,
-  isProductTrail: (state) => supportsCloudCanalBuild && state.ccGlobalSetting.productAuthType === EDITIONS.COMMUNITY_VERSION,
-  isExperienceVersion: (state) => supportsCloudCanalBuild && state.ccGlobalSetting.productAuthType === EDITIONS.EXPERIENCE_VERSION,
   verifyType: () => VERIFY_TYPE.SMS_VERIFY_CODE,
-  productClusterList: (state) => state.productClusterList,
-  includesCC: () => false,
-  includesDM: () => true,
   ifShowDsExtraConf: (state) => state.globalSetting.enableValidateDsExtraConf,
   displayVersion: (state) => resolveVersionBadgeText(state.dmGlobalSetting),
   getNodeType: (state) => (type, deep) => state.globalDsSetting[type].categories.levels[deep],
@@ -29,6 +22,10 @@ export default {
       return state.globalDsSetting[type]?.categories.levels;
     }
     return [];
+  },
+  hasCatalogAndSchema: (state) => (type) => {
+    const levels = state.globalDsSetting[type]?.categories?.levels || [];
+    return levels.includes('CATALOG') && levels.includes('SCHEMA');
   },
   getLeafGroup: (state) => (type, level) => state.globalDsSetting[type]?.categories?.leafGroup?.[level],
   getLeafExpand: (state) => (type) => state.globalDsSetting[type]?.categories.leafExpand,

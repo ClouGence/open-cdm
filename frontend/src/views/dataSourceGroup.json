@@ -39,31 +39,6 @@
   "oracle": ["Oracle", "KingbaseESOracle"],
   "hana": ["Hana"],
   "googleDrive": ["GoogleDrive"],
-  "hasSchema": [
-    "Tunnel",
-    "Hudi",
-    "Oracle",
-    "Hana",
-    "PostgreSQL",
-    "PolarDBPg",
-    "DuckDB",
-    "Redshift",
-    "GaussDBForOpenGauss",
-    "AuroraPostgreSQL",
-    "Greenplum",
-    "Cloudberry",
-    "SQLServer",
-    "Db2",
-    "OssFile",
-    "S3File",
-    "SshFile",
-    "GoogleDrive",
-    "GaussDB",
-    "Yuque",
-    "KingbaseESPostgreSQL",
-    "KingbaseESOracle",
-    "KingbaseESSQLServer"
-  ],
   "noStruct": [
     "Kafka",
     "RocketMQ",
@@ -78,9 +53,6 @@
     "DynamoDB",
     "AmazonMSK"
   ],
-  "columnMapping": {
-    "clougence_cloudcanal_filter_after_mapping_column": "仅订阅不写入对端"
-  },
   "mq": ["Kafka", "RocketMQ", "RabbitMQ", "AutoMQ", "Pulsar", "AmazonMSK"],
   "es": ["ElasticSearch"],
   "hive": ["Hive"],

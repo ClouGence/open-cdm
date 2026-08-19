@@ -181,8 +181,7 @@
 import * as Vue from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import datasourceMixin from '@/mixins/datasourceMixin';
-import { APPROVAL_BIZ_TYPE, SECURITY_TYPE } from '@/const';
-import { CONNECT_TYPE } from '@/const/ccIndex';
+import { APPROVAL_BIZ_TYPE, SECURITY_TYPE, CONNECT_TYPE } from '@/const';
 import { isDb2 } from '@/const/dataSource';
 import { isOracle } from '@/utils';
 

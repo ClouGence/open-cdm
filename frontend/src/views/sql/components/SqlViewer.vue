@@ -99,7 +99,7 @@ export default {
   },
   computed: {
     ...mapGetters(['isDesktop']),
-    ...mapState(['productClusterList', 'dmGlobalSetting']),
+    ...mapState(['dmGlobalSetting']),
     noPassedRuleColumns() {
       const columns = [
         {

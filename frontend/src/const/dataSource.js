@@ -13,8 +13,6 @@ export const Db2 = ['Db2'];
 
 export const Dameng = ['Dameng'];
 
-export const HasSchema = [...Oracle, ...PostgreSQL, ...Greenplum, ...Cloudberry, ...SqlServer];
-
 export const isMySQL = (type) => MySQL.includes(type);
 export const isPostgreSQL = (type) => PostgreSQL.includes(type);
 export const isGreenplum = (type) => Greenplum.includes(type);
@@ -28,8 +26,6 @@ export const isDb2 = (type) => Db2.includes(type);
 export const isSqlServer = (type) => SqlServer.includes(type);
 
 export const isDameng = (type) => Dameng.includes(type);
-
-export const isHasSchema = (type) => HasSchema.includes(type);
 
 export const NO_DDL = (type) => [...Redis].includes(type);
 

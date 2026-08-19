@@ -4,7 +4,7 @@
       <div class="content">
         <ClusterHeader :handleSearch="handleRefresh" :handleAddCluster="handleAddCluster" :params="searchData"></ClusterHeader>
         <div class="table-container cluster-table-container">
-          <Table border :columns="displayResourceColumns" :data="showData" size="small" :loading="refreshLoading">
+          <Table border :columns="resourceColumns" :data="showData" size="small" :loading="refreshLoading">
             <template #cluster="{ row }">
               <div>
                 <a @click="handleCluster(row)">{{ row.clusterName }}</a>
@@ -60,20 +60,7 @@
           <FormItem :label="$t('ji-qun-miao-shu')">
             <Input style="width: 280px" v-model="addCluster.clusterDesc" />
           </FormItem>
-          <FormItem v-if="type !== 'dm'" :label="$t('yun-huo-ji-fang-ming-cheng')">
-            <RadioGroup v-model="addCluster.cloudOrIdcName" type="button" class="radio-group-radius-cluster" @on-change="handleChangeCloudOrIdcName">
-              <Radio v-for="cloudOrIdcName of cloudOrIdcNames" :label="cloudOrIdcName.cloudOrIdcName" :key="cloudOrIdcName.cloudOrIdcName">
-                {{ cloudOrIdcName.i18nName }}
-              </Radio>
-            </RadioGroup>
-          </FormItem>
           <FormItem :label="$t('di-yu-0')">
-            <!--            <RadioGroup v-model="addCluster.region" type="button">-->
-            <!--              <Radio v-for="(region) of regions" :label="region.region" :key="region.region"-->
-            <!--                     :disabled="supportedRegions.indexOf(region.region)===-1">-->
-            <!--                {{ region.i18nName }}-->
-            <!--              </Radio>-->
-            <!--            </RadioGroup>-->
             <Dropdown trigger="click" style="margin-left: 20px" placement="bottom-start" transfer>
               <a href="javascript:void(0)">
                 <span class="selected-region">{{ getRegionI18n(addCluster.region) }}</span>
@@ -119,11 +106,9 @@
   </div>
 </template>
 <script>
-import appLogger from '@/utils/logger';
 import _ from '@/utils/lodash';
 import { handleCopy as handleCopyUtil } from '@/utils/clipboard';
-import { mapGetters, mapState } from 'vuex';
-import store from '@/store';
+import { mapState } from 'vuex';
 import ClusterHeader from '@/components/function/cluster/ClusterHeader';
 import fecha from 'fecha';
 import UtilMapping from '../util';
@@ -133,12 +118,6 @@ export default {
     ClusterHeader
   },
   computed: {
-    displayResourceColumns() {
-      if (this.type === 'dm') {
-        return this.resourceColumns.filter((column) => !['cloudOrIdcName', 'region', 'ownerName'].includes(column.key));
-      }
-      return this.resourceColumns;
-    },
     getRegions() {
       return (area) => {
         const regionsByArea = [];
@@ -163,16 +142,7 @@ export default {
     },
     ...mapState(['myAuth', 'userInfo']),
     hasManageAuth() {
-      if (this.$route.name === 'System_Machine') {
-        return this.myAuth.includes('DM_WORKER_MANAGE');
-      } else {
-        return this.myAuth.includes('CC_WORKER_MANAGE');
-      }
-    }
-  },
-  created() {
-    if (this.$route.name === 'System_Machine') {
-      this.type = 'dm';
+      return this.myAuth.includes('DM_WORKER_MANAGE');
     }
   },
   mounted() {
@@ -180,25 +150,20 @@ export default {
   },
   data() {
     return {
-      type: 'cc',
       page: 1,
       size: 20,
       total: 0,
       showEditDesc: false,
       selectedRow: '',
       clusterDesc: '',
-      deployMode: '',
       supportedRegions: [],
       UtilMapping,
-      store,
       refreshLoading: false,
       isEdit: true,
       showAddCluster: false,
       showConfirmDelete: false,
       selectedCluster: {},
-      regions: [],
       regionAreas: [],
-      cloudOrIdcNames: [],
       addCluster: {
         clusterName: '',
         region: 'customer',
@@ -235,23 +200,6 @@ export default {
         {
           title: this.$t('bu-ke-yong-shu-liang'),
           key: 'abnormalCount',
-          width: 120
-        },
-        {
-          title: this.$t('bu-shu-lei-xing'),
-          key: 'cloudOrIdcName',
-          width: 160,
-          render: (h, params) => h('div', {}, UtilMapping.cloudOrIdcName[params.row.cloudOrIdcName])
-        },
-        {
-          title: this.$t('di-yu-0'),
-          key: 'region',
-          width: 200,
-          render: (h, params) => h('div', {}, UtilMapping.region[params.row.region])
-        },
-        {
-          title: this.$t('chuang-jian-ren'),
-          key: 'ownerName',
           width: 120
         },
         {
@@ -294,21 +242,8 @@ export default {
       ];
     },
     init() {
-      appLogger.debug('this.type', this.type);
-      if (this.type === 'dm') {
-        this.regions = this.buildDmRegions();
-        this.supportedRegions = this.buildDmRegions();
-        this.regionAreas = this.buildDmRegionAreas();
-      } else {
-        // queryDeployMode()
-        //   .then((res) => {
-        //     if (res.data.code === '1') {
-        //       this.deployMode = res.data.data;
-        //     }
-        //   });
-        this.listRegions();
-        this.listCloudOrIdcNames();
-      }
+      this.supportedRegions = this.buildDmRegions();
+      this.regionAreas = this.buildDmRegionAreas();
       this.getClusterList(this.searchData);
     },
     handleRefresh(data, type) {
@@ -316,26 +251,12 @@ export default {
       this.getClusterList(data, type);
     },
     handleCluster(row) {
-      if (this.type === 'dm') {
-        localStorage.setItem(`dmcluster-${row.id}`, JSON.stringify(row));
-        this.$router.push({ path: `/data-access/cluster/list/${row.id}` });
-      } else {
-        localStorage.setItem(`cluster-${row.id}`, JSON.stringify(row));
-        this.$router.push({ path: `/ccsystem/resource/${row.id}` });
-      }
+      localStorage.setItem(`dmcluster-${row.id}`, JSON.stringify(row));
+      this.$router.push({ path: `/data-access/cluster/list/${row.id}` });
     },
     handleAddCluster() {
       this.isEdit = false;
       this.addCluster = this.getDefaultAddCluster();
-      if (this.type !== 'dm' && store.getters.isProductTrail) {
-        this.cloudOrIdcNames = [
-          {
-            cloudOrIdcName: 'SELF_MAINTENANCE',
-            defaultCheck: true,
-            i18nName: 'Self Maintenance'
-          }
-        ];
-      }
       this.showAddCluster = true;
     },
     handleDeleteCluster(row) {
@@ -345,66 +266,28 @@ export default {
     handleConfirmDeleteCluster() {
       this.showConfirmDelete = false;
       this.selectedCluster.clusterId = this.selectedCluster.id;
-      if (this.type === 'dm') {
-        this.$services.dmClusterDelete({ data: this.selectedCluster }).then((res) => {
-          if (res.success) {
-            this.getClusterList(this.searchData);
-            this.$Message.success(this.$t('shan-chu-cheng-gong'));
-          }
-        });
-      } else {
-        this.$services.ccClusterDelete({ data: this.selectedCluster }).then((res) => {
-          if (res.success) {
-            this.getClusterList(this.searchData);
-            this.$Message.success(this.$t('shan-chu-cheng-gong'));
-          }
-        });
-      }
-    },
-    handleEditCluster(row) {
-      this.addCluster = _.cloneDeep(row);
-      if (this.type === 'dm' && !this.addCluster.cloudOrIdcName) {
-        this.addCluster.cloudOrIdcName = 'SELF_MAINTENANCE';
-      }
-      if (this.type === 'dm' && !this.addCluster.region) {
-        this.addCluster.region = 'customer';
-      }
-      this.isEdit = true;
-      this.showAddCluster = true;
+      this.$services.dmClusterDelete({ data: this.selectedCluster }).then((res) => {
+        if (res.success) {
+          this.getClusterList(this.searchData);
+          this.$Message.success(this.$t('shan-chu-cheng-gong'));
+        }
+      });
     },
     handleConfirmAddCluster() {
       this.showAddCluster = false;
-      if (this.type === 'dm') {
-        this.$services.dmClusterCreate({ data: this.addCluster }).then((res) => {
-          if (res.success) {
-            this.getClusterList(this.searchData);
-            this.$Message.success(this.$t('tian-jia-cheng-gong'));
-            this.addCluster = this.getDefaultAddCluster();
-          }
-        });
-      } else {
-        this.$services.ccClusterCreate({ data: this.addCluster }).then((res) => {
-          if (res.success) {
-            this.getClusterList(this.searchData);
-            this.$Message.success(this.$t('tian-jia-cheng-gong'));
-            this.addCluster = this.getDefaultAddCluster();
-          }
-        });
-      }
+      this.$services.dmClusterCreate({ data: this.addCluster }).then((res) => {
+        if (res.success) {
+          this.getClusterList(this.searchData);
+          this.$Message.success(this.$t('tian-jia-cheng-gong'));
+          this.addCluster = this.getDefaultAddCluster();
+        }
+      });
     },
     getDefaultAddCluster() {
-      if (this.type === 'dm') {
-        return {
-          clusterName: '',
-          region: 'customer',
-          cloudOrIdcName: 'SELF_MAINTENANCE'
-        };
-      }
-
       return {
         clusterName: '',
-        region: 'hangzhou',
-        cloudOrIdcName: 'ALIBABA_CLOUD'
+        region: 'customer',
+        cloudOrIdcName: 'SELF_MAINTENANCE'
       };
     },
     handleCopy(data) {
@@ -415,94 +298,26 @@ export default {
     },
     getClusterList(data, searchType) {
       this.refreshLoading = true;
-      if (this.type === 'dm') {
-        this.$services
-          .dmClusterListByCondition({ data })
-          .then((res) => {
-            this.resourceData = res.data;
-            this.total = this.resourceData.length;
-            this.pagingData = _.cloneDeep(this.resourceData);
-            if (searchType) {
-              this.page = 1;
-            }
-            this.showData = this.resourceData.slice((this.page - 1) * this.size, this.page * this.size);
-            this.refreshLoading = false;
-          })
-          .catch(() => {
-            this.refreshLoading = false;
-          });
-      } else {
-        this.$services
-          .ccClusterListByCondition({ data })
-          .then((res) => {
-            this.resourceData = res.data;
-            this.total = this.resourceData.length;
-            this.pagingData = _.cloneDeep(this.resourceData);
-            if (searchType) {
-              this.page = 1;
-            }
-            this.showData = this.resourceData.slice((this.page - 1) * this.size, this.page * this.size);
-            this.refreshLoading = false;
-          })
-          .catch(() => {
-            this.refreshLoading = false;
-          });
-      }
-    },
-    listRegions() {
-      this.$services.ccConstantRegion().then((res) => {
-        if (res.success) {
-          this.regions = res.data;
-          this.$services.ccConstantSupportedRegion({ data: { cloudOrIdcName: this.addCluster.cloudOrIdcName } }).then((res2) => {
-            if (res2.success) {
-              this.supportedRegions = res2.data;
-              this.regionAreas = this.buildRegionAreas(this.supportedRegions);
-            }
-          });
-        }
-      });
-    },
-    buildRegionAreas(regions) {
-      const regionAreas = Array.from(new Set((regions || []).map((region) => region.regionArea).filter(Boolean)));
-      if (regionAreas.length === 0) {
-        return this.buildDmRegionAreas();
-      }
-      return regionAreas.map((regionArea) => ({
-        regionArea,
-        i18nName: UtilMapping.region[regionArea] || regionArea
-      }));
-    },
-    listCloudOrIdcNames() {
-      this.$services.ccConstantCloudOrIdcName().then((res) => {
-        if (res.success) {
-          this.cloudOrIdcNames = res.data;
-          // if (store.state.globalConfig.product_trial) {
-          //   this.cloudOrIdcNames = ['SELF_MAINTENANCE'];
-          // }
-        }
-      });
+      this.$services
+        .dmClusterListByCondition({ data })
+        .then((res) => {
+          this.resourceData = res.data;
+          this.total = this.resourceData.length;
+          this.pagingData = _.cloneDeep(this.resourceData);
+          if (searchType) {
+            this.page = 1;
+          }
+          this.showData = this.resourceData.slice((this.page - 1) * this.size, this.page * this.size);
+          this.refreshLoading = false;
+        })
+        .catch(() => {
+          this.refreshLoading = false;
+        });
     },
     handleCancel() {
       this.showAddCluster = false;
       this.addCluster = this.getDefaultAddCluster();
       this.showConfirmDelete = false;
-    },
-    handleChangeCloudOrIdcName(data) {
-      appLogger.debug('data', data);
-      if (this.type === 'dm') {
-        this.regions = this.buildDmRegions();
-        this.supportedRegions = this.buildDmRegions();
-        this.regionAreas = this.buildDmRegionAreas();
-      } else {
-        this.listRegions();
-      }
-      if (data === 'SELF_MAINTENANCE') {
-        this.addCluster.region = 'customer';
-      } else if (data === 'ALIBABA_CLOUD') {
-        this.addCluster.region = 'virginia';
-      } else if (data === 'AWS_CLOUD_HOSTED') {
-        this.addCluster.region = 'virginia';
-      }
     },
     handlePageChange(page) {
       this.page = page;
@@ -523,50 +338,20 @@ export default {
     },
     async handleConfirmEditDesc() {
       this.showEditDesc = false;
-      if (this.type === 'dm') {
-        const res = await this.$services.dmClusterUpdateDesc({
-          data: {
-            clusterId: this.selectedRow.id,
-            clusterDesc: this.clusterDesc
-          }
-        });
-        if (res.success) {
-          this.getClusterList(this.searchData);
-          this.$Message.success(this.$t('xiu-gai-cheng-gong'));
-          this.addCluster = this.getDefaultAddCluster();
+      const res = await this.$services.dmClusterUpdateDesc({
+        data: {
+          clusterId: this.selectedRow.id,
+          clusterDesc: this.clusterDesc
         }
-      } else {
-        this.$services
-          .ccClusterUpdateDesc({
-            data: {
-              clusterId: this.selectedRow.id,
-              clusterName: this.selectedRow.clusterName,
-              region: this.selectedRow.region,
-              cloudOrIdcName: this.selectedRow.cloudOrIdcName,
-              clusterDesc: this.clusterDesc
-            }
-          })
-          .then((res) => {
-            if (res.success) {
-              this.getClusterList(this.searchData);
-              this.$Message.success(this.$t('xiu-gai-cheng-gong'));
-              this.addCluster = this.getDefaultAddCluster();
-            }
-          });
+      });
+      if (res.success) {
+        this.getClusterList(this.searchData);
+        this.$Message.success(this.$t('xiu-gai-cheng-gong'));
+        this.addCluster = this.getDefaultAddCluster();
       }
     },
     handleCancelEdit() {
       this.showEditDesc = false;
-    }
-  },
-  watch: {
-    $route(val) {
-      if (val.name === 'System_Machine') {
-        this.type = 'dm';
-      } else {
-        this.type = 'cc';
-      }
-      this.init();
     }
   }
 };

@@ -47,7 +47,7 @@
 <script>
 import { mapState } from 'vuex';
 import datasourceMixin from '@/mixins/datasourceMixin';
-import { CONNECT_TYPE } from '@/const/ccIndex';
+import { CONNECT_TYPE } from '@/const';
 import { isOracle } from '@/utils';
 
 export default {
