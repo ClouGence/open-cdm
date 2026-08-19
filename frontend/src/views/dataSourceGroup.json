@@ -11,7 +11,7 @@
   "db2": ["Db2"],
   "gp": ["Greenplum"],
   "cloudberry": ["Cloudberry"],
-  "mysql": ["MySQL", "GaussDBForMySQL", "AuroraMySQL"],
+  "mysql": ["MySQL", "KingbaseESMySQL", "GaussDBForMySQL", "AuroraMySQL"],
   "polar": ["PolarDbMySQL"],
   "pg": [
     "Hana",
@@ -31,12 +31,12 @@
     "SshFile",
     "GaussDB",
     "Yuque",
-    "KingbaseES"
+    "KingbaseESPostgreSQL"
   ],
   "duckDB": ["DuckDB"],
   "dynamoDB": ["DynamoDB"],
-  "sqlServer": ["SQLServer"],
-  "oracle": ["Oracle"],
+  "sqlServer": ["SQLServer", "KingbaseESSQLServer"],
+  "oracle": ["Oracle", "KingbaseESOracle"],
   "hana": ["Hana"],
   "googleDrive": ["GoogleDrive"],
   "hasSchema": [
@@ -60,7 +60,9 @@
     "GoogleDrive",
     "GaussDB",
     "Yuque",
-    "KingbaseES"
+    "KingbaseESPostgreSQL",
+    "KingbaseESOracle",
+    "KingbaseESSQLServer"
   ],
   "noStruct": [
     "Kafka",

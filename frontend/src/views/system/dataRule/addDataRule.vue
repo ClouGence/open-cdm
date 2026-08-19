@@ -65,7 +65,7 @@
 import appLogger from '@/utils/logger';
 import { cloneDeep } from '@/utils/lodash';
 import * as Vue from 'vue';
-import { PG_GP } from '@/const';
+import { CATALOG_SCHEMA_TYPES } from '@/const';
 
 export default {
   name: 'AddDataRule',
@@ -153,13 +153,13 @@ export default {
       let catalogName = '';
 
       let arr = [];
-      if (PG_GP.includes(dataSourceType)) {
+      if (CATALOG_SCHEMA_TYPES.includes(dataSourceType)) {
         arr = selectTableKey.split('/');
         catalogName = arr[2];
       }
       let currentTableRules = [];
       const currentTableRulesObj = {};
-      const data = PG_GP.includes(dataSourceType)
+      const data = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
         ? {
             dataSourceId,
             ruleCatalog: catalogName,
@@ -193,11 +193,11 @@ export default {
         if (res.success) {
           const rawColumnListObj = {};
           currentTableRules = res.data;
-          const tableKey = PG_GP.includes(dataSourceType)
+          const tableKey = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
             ? `${dsEnvName}/${instanceId}/${catalogName}/${schemaName}/${tableName}`
             : `${dsEnvName}/${instanceId}/${schemaName}/${tableName}`;
           res.data.map((column) => {
-            const key = PG_GP.includes(dataSourceType)
+            const key = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
               ? `${dsEnvName}/${instanceId}/${catalogName}/${schemaName}/${tableName}/${column.name}`
               : `${dsEnvName}/${instanceId}/${schemaName}/${tableName}/${column.name}`;
             column.key = key;

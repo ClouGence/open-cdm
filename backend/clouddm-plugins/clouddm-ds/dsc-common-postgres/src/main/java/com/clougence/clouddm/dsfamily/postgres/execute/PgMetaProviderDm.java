@@ -45,125 +45,125 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PgMetaProviderDm extends AbstractMetadataProvider implements MetaDataService {
 
-    private Long                      serverVersionNumber;
+    private Long                  serverVersionNumber;
 
-    private static final String       QUERY_TABLE_DETAIL   = "SELECT   nc.nspname, ###SPECIALCOLUMN### C.relname,  C.relkind,  C.relpersistence,  CASE\n"
-                                                             + "        WHEN ts.spcname IS NULL THEN 'pg_default'    ELSE ts.spcname    END AS spcname,\n"
-                                                             + "    d.description AS table_comment,\n"
-                                                             + "    STRING_AGG(inh.inhparent::regclass::text, ',') AS parent_table,   C.reloptions FROM\n"
-                                                             + "    pg_namespace nc LEFT JOIN pg_class C ON nc.oid = C.relnamespace\n"
-                                                             + "LEFT JOIN pg_tablespace ts ON C.reltablespace = ts.oid LEFT JOIN pg_inherits inh ON C.oid = inh.inhrelid LEFT JOIN pg_description d ON C.oid = d.objoid AND d.objsubid=0\n"
-                                                             + "WHERE   NOT pg_is_other_temp_schema(nc.oid)   AND ###CONDITION###\n"
-                                                             + "    AND nc.nspname = ###NSPNAME###    AND C.relname  IN ###RELNAME###  GROUP BY    nc.nspname,\n"
-                                                             + "    C.relname,    C.relkind,   C.relpersistence,   ts.spcname,  ###SPECIALCOLUMN###  C.relfilenode, C.reloptions,  d.description;";
+    private static final String   QUERY_TABLE_DETAIL   = "SELECT   nc.nspname, ###SPECIALCOLUMN### C.relname,  C.relkind,  C.relpersistence,  CASE\n"
+                                                         + "        WHEN ts.spcname IS NULL THEN 'pg_default'    ELSE ts.spcname    END AS spcname,\n"
+                                                         + "    d.description AS table_comment,\n"
+                                                         + "    STRING_AGG(inh.inhparent::regclass::text, ',') AS parent_table,   C.reloptions FROM\n"
+                                                         + "    pg_namespace nc LEFT JOIN pg_class C ON nc.oid = C.relnamespace\n"
+                                                         + "LEFT JOIN pg_tablespace ts ON C.reltablespace = ts.oid LEFT JOIN pg_inherits inh ON C.oid = inh.inhrelid LEFT JOIN pg_description d ON C.oid = d.objoid AND d.objsubid=0\n"
+                                                         + "WHERE   NOT pg_is_other_temp_schema(nc.oid)   AND ###CONDITION###\n"
+                                                         + "    AND nc.nspname = ###NSPNAME###    AND C.relname  IN ###RELNAME###  GROUP BY    nc.nspname,\n"
+                                                         + "    C.relname,    C.relkind,   C.relpersistence,   ts.spcname,  ###SPECIALCOLUMN###  C.relfilenode, C.reloptions,  d.description;";
 
-    private static final String       QUERY_VIEW_DETAIL    = "SELECT   nc.nspname, ###SPECIALCOLUMN### C.relname,  C.relkind,  C.relpersistence, V.definition, CASE\n"
-                                                             + "        WHEN ts.spcname IS NULL THEN 'pg_default'    ELSE ts.spcname    END AS spcname,\n"
-                                                             + "    d.description AS table_comment,\n"
-                                                             + "    STRING_AGG(inh.inhparent::regclass::text, ',') AS parent_table,   C.reloptions FROM\n"
-                                                             + "    pg_namespace nc LEFT JOIN pg_class C ON nc.oid = C.relnamespace\n"
-                                                             + "LEFT JOIN pg_tablespace ts ON C.reltablespace = ts.oid LEFT JOIN pg_inherits inh ON C.oid = inh.inhrelid LEFT JOIN pg_description d ON C.oid = d.objoid AND d.objsubid=0\n"
-                                                             + "LEFT JOIN pg_views V ON V.viewname = C.relname\n"
-                                                             + "WHERE   NOT pg_is_other_temp_schema(nc.oid)   AND ###CONDITION###\n"
-                                                             + "    AND nc.nspname = ###NSPNAME###    AND C.relname  IN ###RELNAME###  GROUP BY    nc.nspname,\n"
-                                                             + "    C.relname,    C.relkind,   C.relpersistence,   ts.spcname,  ###SPECIALCOLUMN###  C.relfilenode, C.reloptions,  d.description,V.definition;";
-    private static final String       QUERY_VERSION        = "select version()";
+    private static final String   QUERY_VIEW_DETAIL    = "SELECT   nc.nspname, ###SPECIALCOLUMN### C.relname,  C.relkind,  C.relpersistence, V.definition, CASE\n"
+                                                         + "        WHEN ts.spcname IS NULL THEN 'pg_default'    ELSE ts.spcname    END AS spcname,\n"
+                                                         + "    d.description AS table_comment,\n"
+                                                         + "    STRING_AGG(inh.inhparent::regclass::text, ',') AS parent_table,   C.reloptions FROM\n"
+                                                         + "    pg_namespace nc LEFT JOIN pg_class C ON nc.oid = C.relnamespace\n"
+                                                         + "LEFT JOIN pg_tablespace ts ON C.reltablespace = ts.oid LEFT JOIN pg_inherits inh ON C.oid = inh.inhrelid LEFT JOIN pg_description d ON C.oid = d.objoid AND d.objsubid=0\n"
+                                                         + "LEFT JOIN pg_views V ON V.viewname = C.relname\n"
+                                                         + "WHERE   NOT pg_is_other_temp_schema(nc.oid)   AND ###CONDITION###\n"
+                                                         + "    AND nc.nspname = ###NSPNAME###    AND C.relname  IN ###RELNAME###  GROUP BY    nc.nspname,\n"
+                                                         + "    C.relname,    C.relkind,   C.relpersistence,   ts.spcname,  ###SPECIALCOLUMN###  C.relfilenode, C.reloptions,  d.description,V.definition;";
+    private static final String   QUERY_VERSION        = "select version()";
 
-    private static final String       COLUMNS_BASIS        = "  SELECT c.* ###RESULT_SET### FROM (  SELECT  n.nspname AS SCHEMA_NAME,\n"
-                                                             + "      C.relname AS TABLE_NAME,   A.attname AS COLUMN_NAME,  A.atttypid AS type_oid,\n"
-                                                             + "      A.atttypmod AS type_mod,  CASE      WHEN T.typtype = 'd' THEN\n"
-                                                             + "         format_type ( T.typbasetype, NULL :: INTEGER ) ELSE format_type ( A.atttypid, NULL :: INTEGER ) \n"
-                                                             + "      END AS type_name,   ( T.typelem <> 0 :: oid AND T.typlen = '-1' :: INTEGER ) AS type_is_array,\n"
-                                                             + "         T.typbasetype,    T.typtype,   A.attnotnull \n"
-                                                             + "         OR ( T.typtype = 'd' AND T.typnotnull ) AS not_null,A.attndims, A.attlen,\n"
-                                                             + "         information_schema._pg_char_max_length ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS character_maximum_length,\n"
-                                                             + "         information_schema._pg_char_octet_length ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS character_octet_length,\n"
-                                                             + "         information_schema._pg_numeric_precision ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS numeric_precision,\n"
-                                                             + "         information_schema._pg_numeric_precision_radix ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS numeric_precision_radix,\n"
-                                                             + "         information_schema._pg_numeric_scale ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS numeric_scale,\n"
-                                                             + "         information_schema._pg_datetime_precision ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS datetime_precision,\n"
-                                                             + "         T.typtypmod,    ROW_NUMBER ( ) OVER ( PARTITION BY A.attrelid ORDER BY A.attnum ) AS attnum,\n"
-                                                             + "         dsc.description AS comments,   sch.column_default AS column_default,\n"
-                                                             + "         sch.identity_generation,   sch.identity_increment,   sch.identity_minimum,\n"
-                                                             + "         sch.identity_maximum,     sch.identity_start,     sch.identity_cycle,\n"
-                                                             + "         sch.generation_expression, co.collname AS COLLATION_NAME,\n"
-                                                             + "         nc.nspname AS collation_schema_name     FROM    pg_catalog.pg_namespace n\n"
-                                                             + "         JOIN pg_catalog.pg_class C ON ( C.relnamespace = n.oid )\n"
-                                                             + "         JOIN pg_catalog.pg_attribute A ON ( A.attrelid = C.oid )\n"
-                                                             + "         LEFT JOIN pg_catalog.pg_type T ON ( A.atttypid = T.oid )\n"
-                                                             + "         LEFT JOIN pg_catalog.pg_attrdef def ON ( A.attrelid = def.adrelid AND A.attnum = def.adnum )\n"
-                                                             + "         LEFT JOIN pg_catalog.pg_description dsc ON ( C.oid = dsc.objoid AND A.attnum = dsc.objsubid )\n"
-                                                             + "         LEFT JOIN pg_catalog.pg_class dc ON ( dc.oid = dsc.classoid AND dc.relname = 'pg_class' )\n"
-                                                             + "         LEFT JOIN pg_catalog.pg_namespace dn ON ( dc.relnamespace = dn.oid AND dn.nspname = 'pg_catalog' )\n"
-                                                             + "         LEFT JOIN information_schema.COLUMNS sch ON ( sch.TABLE_NAME = C.relname AND sch.COLUMN_NAME = A.attname AND sch.table_schema = n.nspname ) "
-                                                             + "         LEFT JOIN pg_catalog.pg_collation co ON ( A.attcollation = co.oid )\n"
-                                                             + "         LEFT JOIN pg_catalog.pg_namespace nc ON ( co.collnamespace = nc.oid )   WHERE\n"
-                                                             + "         C.relkind IN ( 'r', 'p', 'v', 'f', 'm' )     AND A.attnum > 0 \n"
-                                                             + "         AND NOT A.attisdropped    AND n.nspname =  ###SCHEMA_NAME### AND C.relname IN ###TABLE_NAME### "
-                                                             + "      ) C ###JOIN_TABLE###   WHERE   TRUE   ORDER BY     SCHEMA_NAME,   C.TABLE_NAME,    attnum;";
-    private static final String       COLUMNS_VERSION_GT10 = COLUMNS_BASIS.replace("###RESULT_SET###", ",s.cache_size")
+    private static final String   COLUMNS_BASIS        = "  SELECT c.* ###RESULT_SET### FROM (  SELECT  n.nspname AS SCHEMA_NAME,\n"
+                                                         + "      C.relname AS TABLE_NAME,   A.attname AS COLUMN_NAME,  A.atttypid AS type_oid,\n"
+                                                         + "      A.atttypmod AS type_mod,  CASE      WHEN T.typtype = 'd' THEN\n"
+                                                         + "         format_type ( T.typbasetype, NULL :: INTEGER ) ELSE format_type ( A.atttypid, NULL :: INTEGER ) \n"
+                                                         + "      END AS type_name,   ( T.typelem <> 0 :: oid AND T.typlen = '-1' :: INTEGER ) AS type_is_array,\n"
+                                                         + "         T.typbasetype,    T.typtype,   A.attnotnull \n"
+                                                         + "         OR ( T.typtype = 'd' AND T.typnotnull ) AS not_null,A.attndims, A.attlen,\n"
+                                                         + "         information_schema._pg_char_max_length ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS character_maximum_length,\n"
+                                                         + "         information_schema._pg_char_octet_length ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS character_octet_length,\n"
+                                                         + "         information_schema._pg_numeric_precision ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS numeric_precision,\n"
+                                                         + "         information_schema._pg_numeric_precision_radix ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS numeric_precision_radix,\n"
+                                                         + "         information_schema._pg_numeric_scale ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS numeric_scale,\n"
+                                                         + "         information_schema._pg_datetime_precision ( information_schema._pg_truetypid ( A.*, T.* ), information_schema._pg_truetypmod ( A.*, T.* ) ) AS datetime_precision,\n"
+                                                         + "         T.typtypmod,    ROW_NUMBER ( ) OVER ( PARTITION BY A.attrelid ORDER BY A.attnum ) AS attnum,\n"
+                                                         + "         dsc.description AS comments,   sch.column_default AS column_default,\n"
+                                                         + "         sch.identity_generation,   sch.identity_increment,   sch.identity_minimum,\n"
+                                                         + "         sch.identity_maximum,     sch.identity_start,     sch.identity_cycle,\n"
+                                                         + "         sch.generation_expression, co.collname AS COLLATION_NAME,\n"
+                                                         + "         nc.nspname AS collation_schema_name     FROM    pg_catalog.pg_namespace n\n"
+                                                         + "         JOIN pg_catalog.pg_class C ON ( C.relnamespace = n.oid )\n"
+                                                         + "         JOIN pg_catalog.pg_attribute A ON ( A.attrelid = C.oid )\n"
+                                                         + "         LEFT JOIN pg_catalog.pg_type T ON ( A.atttypid = T.oid )\n"
+                                                         + "         LEFT JOIN pg_catalog.pg_attrdef def ON ( A.attrelid = def.adrelid AND A.attnum = def.adnum )\n"
+                                                         + "         LEFT JOIN pg_catalog.pg_description dsc ON ( C.oid = dsc.objoid AND A.attnum = dsc.objsubid )\n"
+                                                         + "         LEFT JOIN pg_catalog.pg_class dc ON ( dc.oid = dsc.classoid AND dc.relname = 'pg_class' )\n"
+                                                         + "         LEFT JOIN pg_catalog.pg_namespace dn ON ( dc.relnamespace = dn.oid AND dn.nspname = 'pg_catalog' )\n"
+                                                         + "         LEFT JOIN information_schema.COLUMNS sch ON ( sch.TABLE_NAME = C.relname AND sch.COLUMN_NAME = A.attname AND sch.table_schema = n.nspname ) "
+                                                         + "         LEFT JOIN pg_catalog.pg_collation co ON ( A.attcollation = co.oid )\n"
+                                                         + "         LEFT JOIN pg_catalog.pg_namespace nc ON ( co.collnamespace = nc.oid )   WHERE\n"
+                                                         + "         C.relkind IN ( 'r', 'p', 'v', 'f', 'm' )     AND A.attnum > 0 \n"
+                                                         + "         AND NOT A.attisdropped    AND n.nspname =  ###SCHEMA_NAME### AND C.relname IN ###TABLE_NAME### "
+                                                         + "      ) C ###JOIN_TABLE###   WHERE   TRUE   ORDER BY     SCHEMA_NAME,   C.TABLE_NAME,    attnum;";
+    private static final String   COLUMNS_VERSION_GT10 = COLUMNS_BASIS.replace("###RESULT_SET###", ",s.cache_size")
         .replace("###JOIN_TABLE###", " LEFT JOIN pg_catalog.pg_sequences S ON (S.schemaname = C.SCHEMA_NAME AND S.sequencename = (C.TABLE_NAME || '_' || C.COLUMN_NAME || '_seq'))\n");
 
-    private static final String       COLUMNS_VERSION_LE10 = COLUMNS_BASIS.replace("###RESULT_SET###", "").replace("###JOIN_TABLE###", "");
+    private static final String   COLUMNS_VERSION_LE10 = COLUMNS_BASIS.replace("###RESULT_SET###", "").replace("###JOIN_TABLE###", "");
 
-    private static final String       CONST_PUI            = "SELECT tmp.table_schema, tmp.TABLE_NAME, tmp.isunique, tmp.isprimary, tmp.index_name, tmp.TYPE, tmp.attnum,\n"
-                                                             + "\tTRIM ( BOTH '\\\"' FROM pg_catalog.pg_get_indexdef ( tmp.ci_oid, tmp.attnum, FALSE ) ) AS COLUMN_NAME, CASE\n"
-                                                             + " WHEN tmp.am_name = 'btree' THEN CASE "
-                                                             + "\t\t\tWHEN tmp.i_indoption [ tmp.attnum - 1 ] & 1 = 1 THEN 'D' ELSE 'A'  END ELSE NULL \n"
-                                                             + "\tEND AS asc_or_desc, CASE WHEN tmp.am_name = 'btree' THEN CASE "
-                                                             + "\t\t\tWHEN tmp.i_indoption [ tmp.attnum - 1 ] & 2 = 2 THEN 'NULLS FIRST' ELSE 'NULLS LAST'  END ELSE NULL \n"
-                                                             + "\tEND AS nullsFirst, tmp.am_name, tmp.DEFERRABLE, tmp.INITIALLY, tmp.COLLATION_NAME,\n"
-                                                             + "\ttmp.collation_schema_name, tmp.opcname, tmp.opcname_schema_name,\n"
-                                                             + "\tpd.description AS description,tmp.attcollation,tmp.reloptions,   tmp.tablespace,  tmp.predicate  FROM ( SELECT n.nspname AS table_schema,\n"
-                                                             + "\t\tct.relname AS TABLE_NAME, i.indisunique AS isunique, i.indisprimary AS isprimary,\n"
-                                                             + "\t\tci.relname AS index_name, A.attnum, CASE  WHEN i.indisclustered = TRUE THEN 1 ELSE CASE "
-                                                             + "\t\t\t\tWHEN am.amname = 'hash' THEN 2 ELSE 3 END END AS TYPE,\n"
-                                                             + "\t\t\tci.oid AS ci_oid, i.indoption AS i_indoption, am.amname AS am_name,\n"
-                                                             + "\t\t\tcon.condeferrable AS DEFERRABLE, CASE WHEN con.condeferred = FALSE THEN\n"
-                                                             + "\t\t\t\t'INITIALLY IMMEDIATE' ELSE 'INITIALLY DEFERRED' END AS INITIALLY, co.collname AS COLLATION_NAME,\n"
-                                                             + "\t\t\tnc.nspname AS collation_schema_name, po.opcname, np.nspname AS opcname_schema_name,a.attcollation,ci.reloptions,pt.spcname        as tablespace,  pg_get_expr(i.indpred, i.indrelid) AS predicate\n"
-                                                             + "\t\tFROM pg_catalog.pg_class ct LEFT JOIN pg_catalog.pg_namespace n ON ( ct.relnamespace = n.oid )\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_index i ON ( ct.oid = i.indrelid )\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_class ci ON ( ci.oid = i.indexrelid )\n"
-                                                             + "\t\t\tleft join pg_catalog.pg_tablespace pt on (pt.oid = ci.reltablespace)\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_am am ON ( ci.relam = am.oid )\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_constraint con ON ( con.conname = ci.relname AND con.connamespace = n.oid )\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_attribute A ON ( A.attrelid = ci.oid )\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_collation co ON ( A.attcollation = co.oid )\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_namespace nc ON ( co.collnamespace = nc.oid )\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_opclass po ON ( po.oid = i.indclass [ A.attnum - 1 ] )\n"
-                                                             + "\t\t\tLEFT JOIN pg_catalog.pg_namespace np ON ( po.opcnamespace = np.oid ) WHERE TRUE \n"
-                                                             + "\t\t\tAND n.nspname = ###SCHEMA_NAME### AND ct.relname IN  ###TABLE_NAME### ###PUI### ) AS tmp\n"
-                                                             + "\t\tLEFT JOIN pg_catalog.pg_description pd ON ( tmp.ci_oid = pd.objoid )  ORDER BY tmp.isunique,\n"
-                                                             + "\t\ttmp.TYPE, tmp.index_name, tmp.attnum";
-    private static final String       CONST_PKUK           = CONST_PUI.replace("###PUI###", "and (i.indisprimary or i.indisunique)");
-    private static final String       CONST_INDEX          = CONST_PUI.replace("###PUI###", "and (i.indisprimary = false and i.indisunique = false)");
-    private static final String       FK                   = "select pkic.relname as pk_name, pkn.nspname as pk_table_schema, pkc.relname as pk_table_name, pka.attname as pk_column_name,\n"                                                                             //
-                                                             + "       con.conname  as fk_name, fkn.nspname as fk_table_schema, fkc.relname as fk_table_name, fka.attname as fk_column_name,\n"                                                                           //
-                                                             + "       pos.n        as key_seq,\n"                                                                                                                                                                        //
-                                                             + "       case con.confmatchtype when 'f' then 'FULL' when 'p' then 'PARTIAL' when 's' then 'NONE' else null end as match_option,\n"                                                                         //
-                                                             + "       case con.confupdtype   when 'c' then 'CASCADE' when 'n' then 'SET NULL' when 'd' then 'SET DEFAULT' when 'r' then 'RESTRICT' when 'a' then 'NO ACTION' else null end as update_rule,\n"            //
-                                                             + "       case con.confdeltype   when 'c' then 'CASCADE' when 'n' then 'SET NULL' when 'd' then 'SET DEFAULT' when 'r' then 'RESTRICT' when 'a' then 'NO ACTION' else null end as delete_rule\n"             //
-                                                             + "from pg_catalog.pg_namespace pkn, pg_catalog.pg_class pkc, pg_catalog.pg_attribute pka,\n"                                                                                                                //
-                                                             + "     pg_catalog.pg_namespace fkn, pg_catalog.pg_class fkc, pg_catalog.pg_attribute fka,\n"                                                                                                                //
-                                                             + "     pg_catalog.pg_constraint con,\n"                                                                                                                                                                     //
-                                                             + "     pg_catalog.generate_series(1, 32) pos(n),\n"                                                                                                                                                         //
-                                                             + "     pg_catalog.pg_class pkic\n"                                                                                                                                                                          //
-                                                             + "where pkn.oid = pkc.relnamespace\n"                                                                                                                                                                       //
-                                                             + "  and pkc.oid = pka.attrelid\n"                                                                                                                                                                           //
-                                                             + "  and pka.attnum = con.confkey[pos.n]\n"                                                                                                                                                                  //
-                                                             + "  and con.confrelid = pkc.oid\n"                                                                                                                                                                          //
-                                                             + "  and fkn.oid = fkc.relnamespace\n"                                                                                                                                                                       //
-                                                             + "  and fkc.oid = fka.attrelid\n"                                                                                                                                                                           //
-                                                             + "  and fka.attnum = con.conkey[pos.n]\n"                                                                                                                                                                   //
-                                                             + "  and con.conrelid = fkc.oid\n"                                                                                                                                                                           //
-                                                             + "  and con.contype = 'f'\n"                                                                                                                                                                                //
-                                                             + "  and (pkic.relkind = 'i' or pkic.relkind = 'i')\n"                                                                                                                                                       //
-                                                             + "  and pkic.oid = con.conindid\n"                                                                                                                                                                          //
-                                                             + "  and fkn.nspname = ###SCHEMA_NAME### and fkc.relname in ###TABLE_NAME###\n"                                                                                                                              //
-                                                             + "order by pkn.nspname, pkc.relname, con.conname, pos.n";
+    private static final String   CONST_PUI            = "SELECT tmp.table_schema, tmp.TABLE_NAME, tmp.isunique, tmp.isprimary, tmp.index_name, tmp.TYPE, tmp.attnum,\n"
+                                                         + "\tTRIM ( BOTH '\"' FROM pg_catalog.pg_get_indexdef ( tmp.ci_oid, tmp.attnum, FALSE ) ) AS COLUMN_NAME, CASE\n"
+                                                         + " WHEN tmp.am_name = 'btree' THEN CASE "
+                                                         + "\t\t\tWHEN tmp.i_indoption [ tmp.attnum - 1 ] & 1 = 1 THEN 'D' ELSE 'A'  END ELSE NULL \n"
+                                                         + "\tEND AS asc_or_desc, CASE WHEN tmp.am_name = 'btree' THEN CASE "
+                                                         + "\t\t\tWHEN tmp.i_indoption [ tmp.attnum - 1 ] & 2 = 2 THEN 'NULLS FIRST' ELSE 'NULLS LAST'  END ELSE NULL \n"
+                                                         + "\tEND AS nullsFirst, tmp.am_name, tmp.DEFERRABLE, tmp.INITIALLY, tmp.COLLATION_NAME,\n"
+                                                         + "\ttmp.collation_schema_name, tmp.opcname, tmp.opcname_schema_name,\n"
+                                                         + "\tpd.description AS description,tmp.attcollation,tmp.reloptions,   tmp.tablespace,  tmp.predicate  FROM ( SELECT n.nspname AS table_schema,\n"
+                                                         + "\t\tct.relname AS TABLE_NAME, i.indisunique AS isunique, i.indisprimary AS isprimary,\n"
+                                                         + "\t\tci.relname AS index_name, A.attnum, CASE  WHEN i.indisclustered = TRUE THEN 1 ELSE CASE "
+                                                         + "\t\t\t\tWHEN am.amname = 'hash' THEN 2 ELSE 3 END END AS TYPE,\n"
+                                                         + "\t\t\tci.oid AS ci_oid, i.indoption AS i_indoption, am.amname AS am_name,\n"
+                                                         + "\t\t\tcon.condeferrable AS DEFERRABLE, CASE WHEN con.condeferred = FALSE THEN\n"
+                                                         + "\t\t\t\t'INITIALLY IMMEDIATE' ELSE 'INITIALLY DEFERRED' END AS INITIALLY, co.collname AS COLLATION_NAME,\n"
+                                                         + "\t\t\tnc.nspname AS collation_schema_name, po.opcname, np.nspname AS opcname_schema_name,a.attcollation,ci.reloptions,pt.spcname        as tablespace,  pg_get_expr(i.indpred, i.indrelid) AS predicate\n"
+                                                         + "\t\tFROM pg_catalog.pg_class ct LEFT JOIN pg_catalog.pg_namespace n ON ( ct.relnamespace = n.oid )\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_index i ON ( ct.oid = i.indrelid )\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_class ci ON ( ci.oid = i.indexrelid )\n"
+                                                         + "\t\t\tleft join pg_catalog.pg_tablespace pt on (pt.oid = ci.reltablespace)\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_am am ON ( ci.relam = am.oid )\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_constraint con ON ( con.conname = ci.relname AND con.connamespace = n.oid )\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_attribute A ON ( A.attrelid = ci.oid )\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_collation co ON ( A.attcollation = co.oid )\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_namespace nc ON ( co.collnamespace = nc.oid )\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_opclass po ON ( po.oid = i.indclass [ A.attnum - 1 ] )\n"
+                                                         + "\t\t\tLEFT JOIN pg_catalog.pg_namespace np ON ( po.opcnamespace = np.oid ) WHERE TRUE \n"
+                                                         + "\t\t\tAND n.nspname = ###SCHEMA_NAME### AND ct.relname IN  ###TABLE_NAME### ###PUI### ) AS tmp\n"
+                                                         + "\t\tLEFT JOIN pg_catalog.pg_description pd ON ( tmp.ci_oid = pd.objoid )  ORDER BY tmp.isunique,\n"
+                                                         + "\t\ttmp.TYPE, tmp.index_name, tmp.attnum";
+    private static final String   CONST_PKUK           = CONST_PUI.replace("###PUI###", "and (i.indisprimary or i.indisunique)");
+    private static final String   CONST_INDEX          = CONST_PUI.replace("###PUI###", "and (i.indisprimary = false and i.indisunique = false)");
+    private static final String   FK                   = "select pkic.relname as pk_name, pkn.nspname as pk_table_schema, pkc.relname as pk_table_name, pka.attname as pk_column_name,\n"                                                                             //
+                                                         + "       con.conname  as fk_name, fkn.nspname as fk_table_schema, fkc.relname as fk_table_name, fka.attname as fk_column_name,\n"                                                                           //
+                                                         + "       pos.n        as key_seq,\n"                                                                                                                                                                        //
+                                                         + "       case con.confmatchtype when 'f' then 'FULL' when 'p' then 'PARTIAL' when 's' then 'NONE' else null end as match_option,\n"                                                                         //
+                                                         + "       case con.confupdtype   when 'c' then 'CASCADE' when 'n' then 'SET NULL' when 'd' then 'SET DEFAULT' when 'r' then 'RESTRICT' when 'a' then 'NO ACTION' else null end as update_rule,\n"            //
+                                                         + "       case con.confdeltype   when 'c' then 'CASCADE' when 'n' then 'SET NULL' when 'd' then 'SET DEFAULT' when 'r' then 'RESTRICT' when 'a' then 'NO ACTION' else null end as delete_rule\n"             //
+                                                         + "from pg_catalog.pg_namespace pkn, pg_catalog.pg_class pkc, pg_catalog.pg_attribute pka,\n"                                                                                                                //
+                                                         + "     pg_catalog.pg_namespace fkn, pg_catalog.pg_class fkc, pg_catalog.pg_attribute fka,\n"                                                                                                                //
+                                                         + "     pg_catalog.pg_constraint con,\n"                                                                                                                                                                     //
+                                                         + "     pg_catalog.generate_series(1, 32) pos(n),\n"                                                                                                                                                         //
+                                                         + "     pg_catalog.pg_class pkic\n"                                                                                                                                                                          //
+                                                         + "where pkn.oid = pkc.relnamespace\n"                                                                                                                                                                       //
+                                                         + "  and pkc.oid = pka.attrelid\n"                                                                                                                                                                           //
+                                                         + "  and pka.attnum = con.confkey[pos.n]\n"                                                                                                                                                                  //
+                                                         + "  and con.confrelid = pkc.oid\n"                                                                                                                                                                          //
+                                                         + "  and fkn.oid = fkc.relnamespace\n"                                                                                                                                                                       //
+                                                         + "  and fkc.oid = fka.attrelid\n"                                                                                                                                                                           //
+                                                         + "  and fka.attnum = con.conkey[pos.n]\n"                                                                                                                                                                   //
+                                                         + "  and con.conrelid = fkc.oid\n"                                                                                                                                                                           //
+                                                         + "  and con.contype = 'f'\n"                                                                                                                                                                                //
+                                                         + "  and (pkic.relkind = 'i' or pkic.relkind = 'i')\n"                                                                                                                                                       //
+                                                         + "  and pkic.oid = con.conindid\n"                                                                                                                                                                          //
+                                                         + "  and fkn.nspname = ###SCHEMA_NAME### and fkc.relname in ###TABLE_NAME###\n"                                                                                                                              //
+                                                         + "order by pkn.nspname, pkc.relname, con.conname, pos.n";
 
-    protected PgMetaProviderUtils     providerUtils        = new PgMetaProviderUtils();
+    protected PgMetaProviderUtils providerUtils        = new PgMetaProviderUtils();
 
     public PgMetaProviderDm(Connection connection){
         super(connection);
@@ -236,9 +236,7 @@ public class PgMetaProviderDm extends AbstractMetadataProvider implements MetaDa
                 List<Value> schemas = this.providerUtils.convertSchema(rs);
                 return schemas.stream().filter(schema -> {
                     String schemaName = schema.asValue();
-                    return !StringUtils.equals(schemaName, "pg_toast")
-                        && !schemaName.startsWith("pg_temp_")
-                        && !schemaName.startsWith("pg_toast_temp_");
+                    return !StringUtils.equals(schemaName, "pg_toast") && !schemaName.startsWith("pg_temp_") && !schemaName.startsWith("pg_toast_temp_");
                 }).collect(Collectors.toList());
             }
         }

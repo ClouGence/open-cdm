@@ -129,7 +129,7 @@ import * as Vue from 'vue';
 import { cloneDeep } from '@/utils/lodash';
 import { Modal } from 'ant-design-vue';
 import PreviewModal from '@/views/system/desensitization/components/PreviewModal';
-import { ALGORITHM_TYPES_PLACEHOLDER, PG_GP } from '@/const';
+import { ALGORITHM_TYPES_PLACEHOLDER, CATALOG_SCHEMA_TYPES } from '@/const';
 import RulesConfirmModal from '@/views/system/desensitization/components/RulesConfirmModal';
 
 export default {
@@ -415,7 +415,7 @@ export default {
       let catalogName = '';
 
       let arr = [];
-      if (PG_GP.includes(dataSourceType)) {
+      if (CATALOG_SCHEMA_TYPES.includes(dataSourceType)) {
         arr = selectTableKey.split('/');
         catalogName = arr[2];
       }
@@ -425,7 +425,7 @@ export default {
       let currentTableRules = [];
       const currentTableRulesObj = {};
 
-      const data = PG_GP.includes(dataSourceType)
+      const data = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
         ? {
             dataSourceId,
             ruleCatalog: catalogName,
@@ -462,7 +462,7 @@ export default {
 
       if (res2.success) {
         const rawColumnListObj = {};
-        const tableKey = PG_GP.includes(dataSourceType)
+        const tableKey = CATALOG_SCHEMA_TYPES.includes(dataSourceType)
           ? `${dsEnvName}/${instanceId}/${catalogName}/${schemaName}/${tableName}`
           : `${dsEnvName}/${instanceId}/${schemaName}/${tableName}`;
         res2.data.forEach((column) => {

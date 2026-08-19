@@ -470,8 +470,11 @@ export default {
             refreshCache: isRefreshCache
           }
         });
-        if (levelRes.success && levelRes.data && levelRes.data.length) {
+        if (levelRes.success && Array.isArray(levelRes.data)) {
           const children = [];
+          if (node && isRefreshCache) {
+            this.completionData[node.key] = [];
+          }
           levelRes.data.forEach((level) => {
             const { objId, objName, objType, objAttr = null } = level;
             if (node) {
@@ -544,25 +547,21 @@ export default {
           //   this.$refs.dataSourceTree.handleSetExpandedKeys(node);
           // }
 
-          if (levelRes.data.length) {
-            if (node) {
-              if (resolve) {
-                resolve(children);
-              } else {
-                this.$refs.dataSourceTree.handleAppendList(node.key, children);
-              }
-            } else {
-              await this.$refs.dataSourceTree.handleSetData(this.treeData, true);
-            }
-            // await this.$refs.dataSourceTree.handleSetData(this.treeData, true);
-            // if (node) {
-            //   await this.$refs.dataSourceTree.handleSetSelected(node.key);
-            // }
-          } else {
+          if (node) {
             if (resolve) {
-              resolve();
+              resolve(children);
+            } else if (isRefreshCache) {
+              await this.$refs.dataSourceTree.handleUpdateNode(node.key, { children });
+            } else {
+              this.$refs.dataSourceTree.handleAppendList(node.key, children);
             }
+          } else {
+            await this.$refs.dataSourceTree.handleSetData(this.treeData, true);
           }
+          // await this.$refs.dataSourceTree.handleSetData(this.treeData, true);
+          // if (node) {
+          //   await this.$refs.dataSourceTree.handleSetSelected(node.key);
+          // }
         } else {
           appLogger.debug('fail', levelRes);
           if (typeof levelRes === 'object' && levelRes.toString().includes('Cancel')) {
@@ -665,7 +664,8 @@ export default {
       );
     },
     async listLeaf(isRefreshCache = false) {
-      const { node, leafType } = this.currentTab;
+      const currentTab = this.currentTab;
+      const { node, leafType } = currentTab;
 
       this.tableListLoading = true;
 
@@ -681,7 +681,7 @@ export default {
       try {
         const leafRes = await this.$services.dmBrowseListLeaf({
           data: {
-            levels: node.levels.map((l) => this.currentTab.node[l].id),
+            levels: node.levels.map((l) => node[l].id),
             leafType,
             refreshCache: isRefreshCache
           }
@@ -714,18 +714,20 @@ export default {
             this.completionData[completionKey] = { [leafType]: obj };
           }
 
-          this.currentTab[leafType].treeData = leafList;
-          await this.$refs.tableList.handleSetData(leafList);
-          await this.$refs.tableList.handleFilter(this.currentTab[this.currentTab.leafType].searchKey);
+          currentTab[leafType].treeData = leafList;
+          if (this.currentTab.key === currentTab.key) {
+            await this.$refs.tableList.handleSetData(leafList);
+            await this.$refs.tableList.handleFilter(currentTab[leafType].searchKey);
+          }
         } else {
-          this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
-          if (this.$refs.tableList) {
+          this.setInstanceErrorIcon(node?.INSTANCE?.id);
+          if (this.$refs.tableList && this.currentTab.key === currentTab.key) {
             await this.$refs.tableList.handleSetData(leafList);
           }
         }
       } catch (e) {
-        this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
-        if (this.$refs.tableList) {
+        this.setInstanceErrorIcon(node?.INSTANCE?.id);
+        if (this.$refs.tableList && this.currentTab.key === currentTab.key) {
           await this.$refs.tableList.handleSetData(leafList);
         }
       } finally {
@@ -1198,19 +1200,25 @@ export default {
     },
     async rdbObjectDetail(tableName, params = { expand: true, selected: true }, resolve = () => {}, isRefreshCache = false) {
       const { expand, selected, selectedNode } = params;
-      const { node } = this.currentTab;
+      const currentTab = this.currentTab;
+      const { node, leafType } = currentTab;
       try {
         const res = await this.$services.dmBrowseRdbObjectDetail({
           data: {
-            levels: this.browseGenLevelsData(this.currentTab.node),
+            levels: this.browseGenLevelsData(node),
             targetName: tableName,
-            targetType: this.currentTab.leafType,
+            targetType: leafType,
             refreshCache: isRefreshCache
           }
         });
 
         if (res.success) {
-          const curNode = this.getNodeByKey(this.currentTab[this.currentTab.leafType].treeData, `${node.key}.\`${tableName}\``);
+          const curNode = this.getNodeByKey(currentTab[leafType].treeData, `${node.key}.\`${tableName}\``);
+          const completionItem = this.completionData[node.key]?.[leafType]?.[tableName];
+          if (!curNode || !completionItem) {
+            resolve();
+            return;
+          }
           const children = [];
           const columnList = [];
           res.data.group.forEach((groupItem) => {
@@ -1247,25 +1255,25 @@ export default {
           });
 
           curNode.children = children;
-          this.completionData[this.currentTab.node.key][this.currentTab.leafType][tableName].columnList = columnList;
+          completionItem.columnList = columnList;
           // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
-          if (selected) {
+          if (selected && this.currentTab.key === currentTab.key) {
             if (selectedNode) {
               this.$refs.tableList.handleSetSelected(selectedNode);
             } else {
               this.$refs.tableList.handleSetSelected(curNode);
             }
           }
-          this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id, true);
+          this.setInstanceErrorIcon(node?.INSTANCE?.id, true);
           resolve(children);
         } else {
-          this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
+          this.setInstanceErrorIcon(node?.INSTANCE?.id);
           // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
           resolve();
         }
       } catch (e) {
         appLogger.error(e);
-        this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
+        this.setInstanceErrorIcon(node?.INSTANCE?.id);
         // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
         resolve();
       }

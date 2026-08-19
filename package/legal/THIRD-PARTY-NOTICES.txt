@@ -63,6 +63,18 @@ Checker Qual and Waffle include:
 
 See BSD-2-Clause.txt, MIT.txt, Apache-2.0.txt, and EPL-1.0.txt.
 
+Kingbase8 JDBC 9.0.1
+--------------------
+
+Component:
+  - cn.com.kingbase:kingbase8:9.0.1 [Apache-2.0]
+
+The driver is distributed as an unmodified JAR from Maven Central. It includes
+relocated SCRAM and BouncyCastle-derived utility classes under the
+com.kingbase8.shaded namespace.
+
+See Apache-2.0.txt.
+
 MariaDB Java Client 3.5.8
 -------------------------
 

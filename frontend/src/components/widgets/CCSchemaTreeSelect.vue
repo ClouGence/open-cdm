@@ -70,7 +70,6 @@ import { cloneDeep } from '@/utils/lodash';
 import { APPROVAL_BIZ_TYPE } from '@/const';
 import AuthModal from '../modal/AuthModal';
 // import * as Vue from 'vue';
-// import { PG_GP } from '../../const';
 
 const TAG = 'schema_tree_select';
 

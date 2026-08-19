@@ -137,7 +137,11 @@ export default {
         MySQL: this.instanceType !== 'ALIBABA_CLOUD_HOSTED' ? 'MySQL' : 'RDSforMySQL',
         PostgreSQL: this.instanceType !== 'ALIBABA_CLOUD_HOSTED' ? 'PostgreSQL' : 'RDSforPostgreSQL',
         Greenplum: this.instanceType !== 'ALIBABA_CLOUD_HOSTED' ? 'Greenplum' : 'ADBforPG',
-        SQLServer: this.instanceType === 'ALIBABA_CLOUD_HOSTED' ? 'SQLServerBlue' : 'SQLServer'
+        SQLServer: this.instanceType === 'ALIBABA_CLOUD_HOSTED' ? 'SQLServerBlue' : 'SQLServer',
+        KingbaseESPostgreSQL: 'KingbaseES',
+        KingbaseESMySQL: 'KingbaseES',
+        KingbaseESOracle: 'KingbaseES',
+        KingbaseESSQLServer: 'KingbaseES'
       };
 
       // Based on current theme

@@ -17,6 +17,8 @@ export const dsGroup = {
     'PostgreSQL',
     'Greenplum',
     'Cloudberry',
+    'KingbaseESPostgreSQL',
+    'KingbaseESSQLServer',
     'SQLServer',
     'Hana',
     'GaussDBForOpenGauss',
