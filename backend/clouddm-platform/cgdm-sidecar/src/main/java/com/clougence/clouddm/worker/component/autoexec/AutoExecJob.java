@@ -22,9 +22,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.security.MessageDigest;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -47,13 +49,16 @@ import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultCount;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultMessage;
+import com.clougence.clouddm.sdk.execute.dsconf.DsConfigField;
 import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.worker.component.report.ReportUtils;
 import com.clougence.clouddm.worker.component.resource.TaskDsResourceManager;
 import com.clougence.clouddm.worker.component.session.SessionAgent;
 import com.clougence.clouddm.worker.component.session.SessionManager;
 import com.clougence.utils.JsonUtils;
+import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -126,7 +131,12 @@ public class AutoExecJob implements Runnable {
 
             // create session
             try {
-                DataSourceConfig dsConfig = this.configRService.fetchDsConfig(this.job.getDsId());
+                // The catalog/schema chosen for the ticket only lives in SessionContextDTO. Databases such as
+                // PostgreSQL cannot switch database on an open connection, so the connection has to be opened
+                // against the target database. Mirrors sessionConfigOverrides on the console side.
+                Map<String, String> configOverrides = sessionConfigOverrides(this.job.getContextDTO());
+                DataSourceConfig dsConfig = configOverrides.isEmpty() ? this.configRService.fetchDsConfig(this.job.getDsId())
+                    : this.configRService.fetchDsConfigWithOverrides(this.job.getDsId(), configOverrides);
                 this.sessionAgent = this.sessionManager.createSession(backgroundRM, dsConfig, this.job.getContextDTO());
                 String currentQueryId = this.sessionAgent.getCurrentQueryId();
                 sendMessage(AutoExecMessageDTO.createQueryIdMessage(this.job.getJobId(), currentQueryId), true);
@@ -421,6 +431,26 @@ public class AutoExecJob implements Runnable {
             this.workerIdentity = ReportUtils.getIdentity();
         }
         return this.workerIdentity;
+    }
+
+    /**
+     * Turns the ticket's target catalog/schema into datasource config overrides so the session is opened
+     * against the database the ticket actually selected. Returns an empty map when no context is available,
+     * in which case the caller keeps the datasource defaults.
+     */
+    private Map<String, String> sessionConfigOverrides(SessionContextDTO context) {
+        Map<String, String> configOverrides = new HashMap<>();
+        if (context == null) {
+            return configOverrides;
+        }
+
+        if (StringUtils.isNotBlank(context.getRdbCatalog())) {
+            configOverrides.put(DsConfigField.DEFAULT_DATABASE.getConfigName(), context.getRdbCatalog());
+        }
+        if (StringUtils.isNotBlank(context.getRdbSchema())) {
+            configOverrides.put(DsConfigField.DEFAULT_SCHEMA.getConfigName(), context.getRdbSchema());
+        }
+        return configOverrides;
     }
 
     private void sendMessage(AutoExecMessageDTO message, boolean immediately) {
