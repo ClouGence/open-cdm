@@ -203,6 +203,9 @@ findConstarint:
     | SHOW_RECORD_ID LS_BRACKET bool=(TRUE|FALSE) RS_BRACKET #findShowRecordIdConstraint
     | LET LS_BRACKET jsonString RS_BRACKET #findLetConstraint
     | EXPLAIN LS_BRACKET verbosity=STRING? RS_BRACKET #explainConstraint
+    // mongosh uses toArray() to materialize the cursor; the result set is already
+    // materialized here, so it is accepted syntactically without changing semantics
+    | TO_ARRAY LS_BRACKET RS_BRACKET #findToArrayConstraint
     ;
 
 findOne:
@@ -302,6 +305,7 @@ keyWordId:
     | S_SKIP
     | LIMIT
     | SORT
+    | TO_ARRAY
     | MAX
     | MIN
     | ALLOW_DISK_USE
