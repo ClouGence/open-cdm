@@ -1,73 +1,24 @@
-name: Issue report
-description: Report a bug, suggest a feature, or propose a documentation improvement.
+name: Issue 反馈
+description: 报告缺陷、提出功能建议或文档改进意见。
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for helping improve CloudDM.
+        感谢你帮助改进 CloudDM。
 
-        Use a clear title prefixed with `[Bug]`, `[Feature]`, or `[Docs]`. For security vulnerabilities, do not include secrets or other sensitive information in a public issue.
+        请简单描述遇到的问题或你的建议，不要包含密码、令牌等敏感信息。
 
-  - type: dropdown
-    id: issue-type
+  - type: textarea
+    id: description
     attributes:
-      label: Issue type
-      description: Select the category that best describes this issue.
-      options:
-        - Bug report
-        - Feature request
-        - Documentation
-        - Other
+      label: 问题或建议
+      description: 请告诉我们发生了什么，或者你希望 CloudDM 支持什么。
+      placeholder: 在这里填写内容。
     validations:
       required: true
-
-  - type: textarea
-    id: summary
-    attributes:
-      label: Summary
-      description: Briefly describe the issue or request.
-      placeholder: What happened, or what would you like CloudDM to support?
-    validations:
-      required: true
-
-  - type: textarea
-    id: actual-behavior
-    attributes:
-      label: Actual behavior
-      description: For bugs, describe what happened instead, including any visible error messages.
-      placeholder: What did CloudDM do?
-
-  - type: textarea
-    id: environment
-    attributes:
-      label: Environment
-      description: For bugs, include every relevant version and deployment detail.
-      value: |
-        - CloudDM version:
-        - Deployment mode: Alone / Console + Sidecar
-        - Operating system:
-        - Browser and version:
-        - Database type and version:
-
-  - type: textarea
-    id: logs
-    attributes:
-      label: Logs or screenshots
-      description: Paste relevant logs or attach screenshots. Remove passwords, tokens, connection strings, and other sensitive data.
-      placeholder: Add logs, screenshots, or a minimal reproduction here.
 
   - type: textarea
     id: additional-context
     attributes:
-      label: Additional context
-      description: Add related issues, possible solutions, or comparable implementations.
-
-  - type: checkboxes
-    id: checklist
-    attributes:
-      label: Checklist
-      options:
-        - label: I searched existing issues and did not find a duplicate.
-          required: true
-        - label: I removed passwords, tokens, connection strings, and other sensitive data.
-          required: true
+      label: 补充信息（可选）
+      description: 可以添加截图、日志、环境信息或关联 issue。
