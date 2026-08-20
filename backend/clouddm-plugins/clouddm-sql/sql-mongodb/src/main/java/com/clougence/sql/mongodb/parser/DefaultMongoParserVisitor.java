@@ -693,6 +693,12 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
         return null;
     }
 
+    /** toArray() only materializes the cursor in mongosh; the result set is already materialized here */
+    @Override
+    public Object visitFindToArrayConstraint(MongoParser.FindToArrayConstraintContext ctx) {
+        return null;
+    }
+
     @Override
     public Object visitFindCollationConstraint(MongoParser.FindCollationConstraintContext ctx) {
         FindFunc func = (FindFunc) this.instStack.peek();
