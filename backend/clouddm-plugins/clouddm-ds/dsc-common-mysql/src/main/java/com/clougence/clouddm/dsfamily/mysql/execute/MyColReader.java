@@ -19,6 +19,8 @@ import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.dsfamily.execute.AbstractColReader;
 import com.clougence.clouddm.dsfamily.mysql.execute.fetcher.BitValueFetcher;
 import com.clougence.clouddm.dsfamily.mysql.execute.fetcher.MyGeometryValueFetcher;
+import com.clougence.clouddm.dsfamily.mysql.execute.fetcher.TimeStringValueFetcher;
+import com.clougence.clouddm.dsfamily.mysql.execute.fetcher.VectorValueFetcher;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
 import com.clougence.utils.StringUtils;
 
@@ -30,8 +32,10 @@ import com.clougence.utils.StringUtils;
  **/
 public class MyColReader extends AbstractColReader {
 
-    public static final ValueFetcher BIT_VALUE_FETCHER   = new BitValueFetcher();
-    public static final ValueFetcher MY_GEOMETRY_FETCHER = new MyGeometryValueFetcher();
+    public static final ValueFetcher BIT_VALUE_FETCHER    = new BitValueFetcher();
+    public static final ValueFetcher MY_GEOMETRY_FETCHER  = new MyGeometryValueFetcher();
+    private static final ValueFetcher TIME_STRING_FETCHER  = new TimeStringValueFetcher();
+    private static final ValueFetcher VECTOR_VALUE_FETCHER = new VectorValueFetcher();
 
     @Override
     public ValueFetcher readColumn(String col, ColMetaData colMetaData) {
@@ -88,14 +92,17 @@ public class MyColReader extends AbstractColReader {
             case "longtext":
             case "json":
                 return STRING_AS_CLOB_FETCHER;
+            case "vector":
+                return VECTOR_VALUE_FETCHER;
             case "mediumblob":
             case "longblob":
                 return BYTES_AS_STREAM_FETCHER;
             case "date":     // '0000-00-00'
-            case "time":     // '-838:59:59'/'838:59:59'
             case "datetime": // '0000-00-00 00:00:00'
             case "timestamp":// '0000-00-00 00:00:00'
                 return STRING_VALUE_FETCHER;
+            case "time":     // '-838:59:59'/'838:59:59'
+                return TIME_STRING_FETCHER;
             case "year":
                 return SHORT_VALUE_FETCHER;
             case "geometry":

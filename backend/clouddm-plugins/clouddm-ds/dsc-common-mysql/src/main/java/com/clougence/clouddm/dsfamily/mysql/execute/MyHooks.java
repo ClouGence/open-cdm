@@ -18,6 +18,7 @@ package com.clougence.clouddm.dsfamily.mysql.execute;
 import java.sql.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.dsfamily.mysql.execute.fetcher.MyGeometryValueFetcher;
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
@@ -29,6 +30,7 @@ import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.jdbc.mapper.SingleRowMapper;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
+import com.mysql.cj.jdbc.ConnectionImpl;
 
 /**
  * only for integration test
@@ -189,15 +191,31 @@ public class MyHooks implements SessionHook {
 
     @Override
     public PreparedStatement executeStatement(Connection conn, QueryRequest query) throws SQLException {
+        MyGeometryValueFetcher.prepareSpatialReferenceAxes(conn);
         PreparedStatement stmt;
         if (query.getResultConf().isReturnAutoIncrKey()) {
             stmt = conn.prepareStatement(query.getQueryBody(), Statement.RETURN_GENERATED_KEYS);
         } else {
-            stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            stmt = this.prepareStatement(conn, query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         }
 
         this.setFetchSize(stmt);
         return stmt;
+    }
+
+    private PreparedStatement prepareStatement(Connection conn, String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+        if (this.requiresClientPreparedStatement(conn)) {
+            return conn.unwrap(ConnectionImpl.class).clientPrepareStatement(sql, resultSetType, resultSetConcurrency);
+        }
+        return conn.prepareStatement(sql, resultSetType, resultSetConcurrency);
+    }
+
+    private boolean requiresClientPreparedStatement(Connection conn) throws SQLException {
+        DatabaseMetaData metaData = conn.getMetaData();
+        // Connector/J 8.4 cannot decode MySQL 9 VECTOR (protocol type 242) in a
+        // binary server-prepared result set. Its text protocol exposes the same
+        // value as bytes, which lets VectorValueFetcher handle it normally.
+        return metaData.getDatabaseMajorVersion() >= 9 && metaData.getDriverMajorVersion() <= 8 && conn.isWrapperFor(ConnectionImpl.class);
     }
 
     protected void setFetchSize(PreparedStatement stmt) throws SQLException {

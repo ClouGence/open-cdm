@@ -1,0 +1,84 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.dsfamily.mysql.execute.fetcher;
+
+import java.nio.charset.StandardCharsets;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Locale;
+
+import com.clougence.clouddm.dsfamily.execute.fetcher.StringAsClobFetcher;
+import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcherContext;
+
+public class TimeStringValueFetcher extends StringAsClobFetcher {
+
+    @Override
+    protected StringValueFCD fetchState(String columnName, ResultSet rs, ValueFetcherContext ctx) throws SQLException {
+        StringValueFCD fcd;
+        if (ctx.getContext() == null || !(ctx.getContext() instanceof StringValueFCD)) {
+            byte[] valueBytes = rs.getBytes(columnName);
+            if (valueBytes == null) {
+                fcd = StringValueFCD.ofInMemory(true, 0, 0, null, null);
+            } else {
+                String value = decodeTime(columnName, rs, valueBytes);
+                byte[] displayBytes = value.getBytes(StandardCharsets.UTF_8);
+                fcd = StringValueFCD.ofInMemory(true, value.length(), value.length(), value, displayBytes);
+            }
+            ctx.setContext(fcd);
+        } else {
+            fcd = (StringValueFCD) ctx.getContext();
+        }
+        return fcd;
+    }
+
+    private String decodeTime(String columnName, ResultSet rs, byte[] valueBytes) throws SQLException {
+        if (valueBytes.length != 0 && !isBinaryTime(valueBytes)) {
+            return new String(valueBytes, StandardCharsets.UTF_8);
+        }
+
+        boolean negative = valueBytes.length > 0 && valueBytes[0] != 0;
+        long days = valueBytes.length > 0 ? readUnsignedIntLittleEndian(valueBytes, 1) : 0;
+        long hours = days * 24 + (valueBytes.length > 0 ? Byte.toUnsignedInt(valueBytes[5]) : 0);
+        int minutes = valueBytes.length > 0 ? Byte.toUnsignedInt(valueBytes[6]) : 0;
+        int seconds = valueBytes.length > 0 ? Byte.toUnsignedInt(valueBytes[7]) : 0;
+        String value = String.format(Locale.ROOT, "%s%02d:%02d:%02d", negative ? "-" : "", hours, minutes, seconds);
+
+        int columnIndex = rs.findColumn(columnName);
+        int scale = rs.getMetaData().getScale(columnIndex);
+        if (scale == 0) {
+            int precision = rs.getMetaData().getPrecision(columnIndex);
+            scale = precision > 10 ? precision - 11 : 0;
+        }
+        if (scale > 0) {
+            long micros = valueBytes.length == 12 ? readUnsignedIntLittleEndian(valueBytes, 8) : 0;
+            String fraction = String.format(Locale.ROOT, "%06d", micros);
+            value += "." + fraction.substring(0, Math.min(scale, fraction.length()));
+        }
+        return value;
+    }
+
+    private boolean isBinaryTime(byte[] valueBytes) {
+        return (valueBytes.length == 8 || valueBytes.length == 12)
+                && (valueBytes[0] == 0 || valueBytes[0] == 1);
+    }
+
+    private long readUnsignedIntLittleEndian(byte[] valueBytes, int offset) {
+        return Integer.toUnsignedLong(Byte.toUnsignedInt(valueBytes[offset])
+                | Byte.toUnsignedInt(valueBytes[offset + 1]) << 8
+                | Byte.toUnsignedInt(valueBytes[offset + 2]) << 16
+                | Byte.toUnsignedInt(valueBytes[offset + 3]) << 24);
+    }
+}
