@@ -156,15 +156,13 @@ export default {
   mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
   computed: {
     ...mapGetters(['isDesktop', 'displayVersion', 'isInternalUser']),
-    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay', 'mySystemMenuItems']),
+    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
     isSqlRoute() {
       return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
     }
   },
   async created() {
-    await this.$store.dispatch('getRegionList');
-
     await this.$store.dispatch('getDmGlobalConfig');
 
     if (this.$route.path === '/') {
@@ -172,7 +170,6 @@ export default {
     }
 
     this.showChild = true;
-    await this.$store.dispatch('getRegionList');
     if (this.globalSetting.enableWaterMark) {
       const waterMark = await this.$services.rdpUserWatermark();
       this.watermarkStr = `${waterMark.data.user_name}_${waterMark.data.user_phone}`;

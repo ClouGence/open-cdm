@@ -1,4 +1,3 @@
-import { createApp } from 'vue';
 import request from './request';
 import { api } from './api';
 
@@ -11,10 +10,6 @@ Object.entries(api).forEach((item) => {
   // }
   services[item[0]] = (options = {}) => request({ url, ...options });
 });
-
-// Set global properties using app.config. globalProperties
-const app = createApp({});
-app.config.globalProperties.$services = services;
 
 export default services;
 export { services };

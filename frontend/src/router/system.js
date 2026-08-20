@@ -295,31 +295,6 @@ export default [
     component: () => import(/* webpackChunkName: "system-datasource" */ '@/views/security/spec/ruleDetail')
   },
   {
-    path: 'desensitization',
-    name: 'System_Desensitization',
-    component: () => import(/* webpackChunkName: "system-desensitization" */ '@/views/system/desensitization/index')
-  },
-  {
-    path: 'desensitization/add',
-    name: 'System_Desensitization_Add',
-    component: () => import(/* webpackChunkName: "system-desensitization" */ '@/views/system/desensitization/addDesensitization')
-  },
-  {
-    path: 'data_rules',
-    name: 'System_Data_Rules',
-    component: () => import(/* webpackChunkName: "system-data-rules" */ '@/views/system/dataRule/index')
-  },
-  {
-    path: 'data_rules/add',
-    name: 'System_Data_Rules_Add',
-    component: () => import(/* webpackChunkName: "system-data-rules-add" */ '@/views/system/dataRule/addDataRule')
-  },
-  {
-    path: 'data_code',
-    name: 'System_Data_Code',
-    component: () => import(/* webpackChunkName: "system-env" */ '@/views/system/dataCode/index')
-  },
-  {
     path: 'operation_log',
     name: 'rdpOperationLog',
     component: () => import(/* webpackChunkName: "system-env" */ '@/views/system/OperationLog'),

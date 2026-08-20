@@ -1,6 +1,5 @@
 export const datasourceApi = {
   // datasource
-  rdpDataSourceListByCondition: '/api/entry/datasource/listByCondition',
   rdpDataSourceDelete: '/api/entry/datasource/delete',
   rdpDataSourceUpdateDsDesc: '/api/entry/datasource/updateDsDesc',
   rdpDataSourceDeleteAccount: '/api/entry/datasource/deleteAccount',
@@ -13,17 +12,12 @@ export const datasourceApi = {
 
   // dm
   dmDataSourceConnectDs: '/api/entry/datasource/connectDs',
-  dmDataSourceAddDs: '/api/entry/datasource/addDs',
   dmDataSourceListByCondition: '/api/entry/datasource/listByCondition',
-  dmDataSourceQueryDs: '/api/entry/datasource/queryDs',
-  dmDataSourceUpdateDsAccount: '/api/entry/datasource/updateDsAccount',
   dmDataSourceFetchDsConfig: '/api/entry/datasource/fetchDsConfig',
   dmDataSourceFetchBindInfo: '/api/entry/datasource/fetchBindInfo',
   dmDataSourceUploadCertificate: '/api/entry/datasource/uploadCertificate',
   dmDataSourceTestConnect: '/api/entry/datasource/testConnect',
   dmDataSourceSpecialRedisTopKeysWithLimit: '/api/entry/datasource/special/redis/top_keys_with_limit',
   dmDataSourceSchemaListFirstLevel: '/api/entry/datasource/schema/listfirstlevel',
-  dmDataSourceSchemaListSchemas: '/api/entry/datasource/schema/listschemas',
-  dmDataSourceSchemaListTables: '/api/entry/datasource/schema/listtables',
-  dmDataSourceSchemaListColumns: '/api/entry/datasource/schema/listcolumns'
+  dmDataSourceSchemaListSchemas: '/api/entry/datasource/schema/listschemas'
 };

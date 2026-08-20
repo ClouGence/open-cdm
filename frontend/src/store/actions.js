@@ -1,14 +1,10 @@
 import {
-  UPDATE_CLUSTER_LIST,
-  UPDATE_DEPLOY_ENV_LIST_MAP,
-  UPDATE_DS_TYPE_LIST,
   UPDATE_GLOBAL_SETTING,
   UPDATE_USERINFO,
   UPDATE_DM_GLOBAL_SETTING,
   UPDATE_MY_AUTH,
   UPDATE_MY_CATALOG,
   UPDATE_RULE_SETTING,
-  REMAIN_TRIAL_DAY,
   SET_MENU_ITEMS,
   SET_THEME
 } from '@/store/mutationTypes';
@@ -50,12 +46,6 @@ export default {
   async getUserInfo({ commit }) {
     const userInfoRes = await services.rdpUserQueryLoginUser();
     if (userInfoRes.success) {
-      // if (!process.env.VUE_APP_IS_SAAS || process.env.VUE_APP_IS_TEST) {
-      // const userConfigRes = await services.rdpUserConfigGetCurrUserConfigs();
-      // if (userConfigRes.success) {
-      //   userInfoRes.data.userConfig = userConfigRes.data;
-      // }
-      // }
       commit(UPDATE_USERINFO, userInfoRes.data);
       const userAuthRes = await services.rdpUserListMyAuth();
       if (userAuthRes.success) {
@@ -71,8 +61,6 @@ export default {
     if (globalSettingRes.success) {
       commit('SET_MENU_ITEMS', {
         myCatLog: this.state.myCatLog,
-        globalSetting: globalSettingRes.data,
-        userInfo: this.state.userInfo,
         myAuth: this.state.myAuth
       });
 
@@ -101,43 +89,6 @@ export default {
       commit(UPDATE_DM_GLOBAL_SETTING, dmSetting);
     }
   },
-  async getDeployEnvList({ commit }) {
-    const res = await services.dmConstantListDeployEnv();
-    if (res.success) {
-      commit(UPDATE_DEPLOY_ENV_LIST_MAP, res.data);
-    }
-  },
-  async getRegionList({ commit }) {
-    // const res = await request({
-    //   url: api.getRegionList,
-    //   data: { deployEnvType: CLUSTER_ENV.ALIBABA_CLOUD_HOSTED }
-    // });
-    // const res2 = await request({
-    //   url: api.getRegionList,
-    //   data: { deployEnvType: CLUSTER_ENV.SELF_MAINTENANCE }
-    // });
-    //
-    // if (res.success && res2.success) {
-    //   const data = {
-    //     aliyun: res.data,
-    //     self: res2.data
-    //   };
-    //   commit(UPDATE_REGION_LIST_MAP, data);
-    // }
-  },
-  async getClusterList({ commit }) {
-    const res = await services.dmClusterListByCondition({ data: {} });
-    if (res.success) {
-      commit(UPDATE_CLUSTER_LIST, res.data);
-    }
-  },
-  async getDsTypeList({ commit }, deployEnvType) {
-    const res = await services.dmConstantListDsTypes({ data: { deployEnvType } });
-
-    if (res.success) {
-      commit(UPDATE_DS_TYPE_LIST, res.data);
-    }
-  },
   // Theme-related actions
   toggleTheme({ commit, state }) {
     const newTheme = state.theme === 'light' ? 'dark' : 'light';
@@ -161,13 +112,4 @@ export default {
       commit(SET_THEME, 'light');
     }
   }
-};
-
-export const ACTIONS_TYPE = {
-  GET_USER_INFO: 'getUserInfo',
-  GET_DEPLOY_ENV_LIST: 'getDeployEnvList',
-  GET_REGION_LIST: 'getRegionList',
-  GET_CLUSTER_LIST: 'getClusterList',
-  GET_DS_TYPE_LIST: 'getDsTypeList',
-  GET_DS_LIST: 'getDsList'
 };

@@ -52,7 +52,7 @@ Dialect 和 Session 能力。该流程防止只显示类型、只通过连接测
 ### KES-UI-02A Catalog/Schema 能力契约
 
 1. 读取 `/api/entry/dmConsoleSettings`，确认 `data.dsSettingDef[dsType].categories.levels` 是页面层级能力的唯一来源。
-2. 对四个 KingbaseES 类型分别记录 `levels`，并检查数据规则、脱敏规则、工单和安全规则范围页面生成的资源 key。
+2. 对四个 KingbaseES 类型分别记录 `levels`，并检查工单和安全规则范围页面生成的资源 key。
 3. Catalog + Schema 类型的 key 必须同时包含 catalog 和 schema；只有 Schema 的类型不得补空 catalog。
 4. 新增数据源类型后不修改前端静态类型数组，刷新页面即可按接口返回层级生效。
 
@@ -194,6 +194,8 @@ CloudDM 已通过，必须同时确认 CloudDM 对应 SQL Engine 的解析、切
 3. 新增数据源弹窗仍显示四个 KingbaseES 类型；集群页只显示 CloudDM 字段和 `DM_WORKER_MANAGE` 对应操作。
 4. 账号资源授权只展示数据源资源，不展示 CloudCanal DataJob/产品集群切换入口。
 5. 刷新并往返切换上述页面，检查 Chrome Console。
+6. 访问已移除的 `/system/data_rules`、`/system/desensitization` 和 `/system/data_code`，确认不会再加载旧页面或请求
+   `datahandle`、`datadesensitizerule` 等不存在的接口。
 
 预期：不存在 CloudCanal 产品开关、回退路由、服务定义、DataJob 授权入口或品牌文案；CloudDM 页面正常加载且 Console error 为 0。
 

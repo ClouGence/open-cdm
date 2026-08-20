@@ -29,7 +29,7 @@
     - Vue 3、Vue CLI 5、Vue Router 4、Vuex 4。
     - JavaScript 为主，局部 TypeScript；Node.js 22.22.1。
     - UI：View UI Plus（主）、Ant Design Vue（局部）、Tailwind CSS、Less。
-    - 编辑器：Monaco Editor；图表/监控：Highcharts、自研 monitor 面板。
+    - 编辑器：Monaco Editor。
     - 国际化：vue-i18n；HTTP：axios；实时：reconnecting-websocket。
 
 ## 项目结构
@@ -52,7 +52,6 @@
     - `modal/`、`form/`、`editor/`：弹窗、表单、编辑器
 - `src/services/`：接口与通信层：
     - `http/`：面向 DM Console 的 REST API（`request.js` 为 axios 封装）
-    - `cc/`：面向 RDP / CloudCanal 相关 API
     - `socket.js`：WebSocket 连接
 - `src/locales/`：国际化文案（`en.json`、`zh.json`）。
 - `src/i18n.js`：i18n 初始化与语言切换。

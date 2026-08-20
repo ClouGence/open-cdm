@@ -1,12 +1,4 @@
 export const workerApi = {
-  // createWorker: '/api/entry/worker/createInitialWorker',
-  // getWorkerList: '/api/entry/worker/listWorkers',
-  // getDownloadUrl: '/api/entry/worker/downloadClientUrl',
-  // deleteWorker: '/api/entry/worker/deleteWorker',
-  // startWorker: '/api/entry/worker/waitToOnline',
-  // stopWorker: '/api/entry/worker/waitToOffline',
-
-  // dm
   dmWorkerCreateInitialWorker: '/api/entry/worker/createInitialWorker',
   dmWorkerListWorkers: '/api/entry/worker/listWorkers',
   dmWorkerDownloadClientUrl: '/api/entry/worker/downloadClientUrl',

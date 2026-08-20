@@ -8,14 +8,6 @@ export function isDmSystemReady(dmGlobalSettingsRes) {
   return getDmSystemStatus(dmGlobalSettingsRes).status === 'Ready';
 }
 
-export function isDmSystemInitial(dmGlobalSettingsRes) {
-  return getDmSystemStatus(dmGlobalSettingsRes).status === 'Initial';
-}
-
-export function isDmSystemUpgrade(dmGlobalSettingsRes) {
-  return getDmSystemStatus(dmGlobalSettingsRes).status === 'Upgrade';
-}
-
 export function isDmSystemStarting(dmGlobalSettingsRes) {
   return getDmSystemStatus(dmGlobalSettingsRes).status === 'Starting';
 }

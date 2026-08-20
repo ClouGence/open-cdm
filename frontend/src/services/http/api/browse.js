@@ -1,21 +1,4 @@
 export const browseApi = {
-  // listLevels: '/api/entry/browse/listLevels',
-  // detailLevels: '/api/entry/browse/detailLevels',
-  // listLeaf: '/api/entry/browse/listLeaf',
-  // genAction: '/api/entry/browse/actions/genAction',
-  // doAction: '/api/entry/browse/actions/doAction',
-  // instanceRemark: '/api/entry/browse/actions/instanceRemark',
-  // instanceDelete: '/api/entry/browse/actions/instanceDelete',
-  // requestScript: '/api/entry/browse/actions/requestScript',
-  // generateScript: '/api/entry/browse/actions/generateScript',
-  // convertDDL: '/api/entry/browse/actions/convertDDL',
-  // rdbObjectDetail: '/api/entry/browse/rdbObjectDetail',
-  // getCreateObjectScript: '/api/entry/browse/object/getCreateObjectScript',
-  // loadObject: '/api/entry/browse/actions/loadObject',
-  // fetchParamOptions: '/api/entry/browse/actions/fetchParamOptions',
-  // actionEditorDef: '/api/entry/browse/actions/editorDef',
-
-  // dm
   dmBrowseListLevels: '/api/entry/browse/listLevels',
   dmBrowseDetailLevels: '/api/entry/browse/detailLevels',
   dmBrowseListLeaf: '/api/entry/browse/listLeaf',

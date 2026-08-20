@@ -1,5 +1,4 @@
 import appLogger from '@/utils/logger';
-import { VERIFY_TYPE } from '@/const';
 import { resolveVersionBadgeText } from '@/utils/version';
 
 const RULE_KIND_CONF_MAP = {
@@ -11,10 +10,6 @@ export default {
   userInfo: (state) => state.userInfo,
   isDesktop: (state) => !!state.dmGlobalSetting.personal,
   isSaas: () => false,
-  blackUri: (state) => state.blackUri,
-  globalConfig: (state) => state.globalConfig,
-  verifyType: () => VERIFY_TYPE.SMS_VERIFY_CODE,
-  ifShowDsExtraConf: (state) => state.globalSetting.enableValidateDsExtraConf,
   displayVersion: (state) => resolveVersionBadgeText(state.dmGlobalSetting),
   getNodeType: (state) => (type, deep) => state.globalDsSetting[type].categories.levels[deep],
   getLevels: (state) => (type) => {
