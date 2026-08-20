@@ -19,7 +19,7 @@ import java.sql.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetConfig;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.Session;
@@ -44,7 +44,7 @@ public class OraHooks implements SessionHook {
 
     public OraHooks(DataSourceConfig config){
         this.changeCatalog = new OraSupportSpi().supportChangeCatalog(config) == RdbSupportLevel.Allow;
-        this.clientCharset = config instanceof ClientCharsetConfig charsetConfig ? charsetConfig.getClientCharset() : null;
+        this.clientCharset = config instanceof ClientCharsetExtProperties e ? e.getClientCharset() : null;
     }
 
     @Override

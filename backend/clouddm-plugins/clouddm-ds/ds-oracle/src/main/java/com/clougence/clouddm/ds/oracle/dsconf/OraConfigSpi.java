@@ -33,6 +33,8 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.clouddm.dsfamily.oracle.i18n.OraConfigI18nKeys;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
@@ -80,7 +82,7 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
     }
 
     private static void optionsPanel(UiPanel optionsPanel) {
-        UiPanelField clientCharset = optionsPanel.findField(OraConfig.Fields.clientCharset);
+        UiPanelField clientCharset = optionsPanel.findField(ClientCharsetExtProperties.CLIENT_CHARSET_FIELD);
         if (clientCharset == null) {
             return;
         }
@@ -125,8 +127,8 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         config.setPdbName(defaultConfig.get(OraConfig.Fields.pdbName));
         config.setTnsAdmin(defaultConfig.get(OraConfig.Fields.tnsAdmin));
         config.setTnsName(defaultConfig.get(OraConfig.Fields.tnsName));
-        config.setClientTimeZone(defaultConfig.get(OraConfig.Fields.clientTimeZone));
-        config.setClientCharset(defaultConfig.get(OraConfig.Fields.clientCharset));
+        config.setClientTimeZone(defaultConfig.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD));
+        config.setClientCharset(defaultConfig.get(ClientCharsetExtProperties.CLIENT_CHARSET_FIELD));
         if (StringUtils.isNotBlank(config.getHost())) {
             String[] ipPort = config.getHost().split(":");
             if (ipPort.length == 3) {

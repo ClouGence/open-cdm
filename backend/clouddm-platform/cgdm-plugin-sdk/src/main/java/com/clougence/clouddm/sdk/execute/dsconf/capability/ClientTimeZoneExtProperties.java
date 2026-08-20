@@ -16,9 +16,11 @@
 package com.clougence.clouddm.sdk.execute.dsconf.capability;
 
 /**
- * Datasource configuration capability for specifying a client character set.
+ * Extended datasource properties for specifying a client time zone.
  */
-public interface ClientCharsetConfig {
+public interface ClientTimeZoneExtProperties {
 
-    String getClientCharset();
+    String CLIENT_TIME_ZONE_FIELD = "clientTimeZone";
+
+    String getClientTimeZone();
 }

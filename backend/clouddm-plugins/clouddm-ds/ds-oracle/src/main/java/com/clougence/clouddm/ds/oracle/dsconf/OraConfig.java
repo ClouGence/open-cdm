@@ -20,7 +20,8 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.dsfamily.oracle.i18n.OraConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
-import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetConfig;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -38,7 +39,7 @@ import lombok.experimental.FieldNameConstants;
 @Serialization(provider = OraSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OraConfig extends DataSourceConfig implements //
-        ClientCharsetConfig {
+        ClientCharsetExtProperties, ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.connectType, defaultValue = "sid", //
             group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_CONNECT_TYPE_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
@@ -59,10 +60,10 @@ public class OraConfig extends DataSourceConfig implements //
             group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_TNS_NAME_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private String         tnsName;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, //
             group = DsConfigGroup.OPTIONS, labelKey = OraConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = OraConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String         clientTimeZone;
-    @ConfigDef(name = Fields.clientCharset, //
+    @ConfigDef(name = ClientCharsetExtProperties.CLIENT_CHARSET_FIELD, //
             group = DsConfigGroup.OPTIONS, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_CLIENT_CHARSET_LABEL, descKey = OraConfigI18nKeys.CONFIG_ORACLE_CLIENT_CHARSET_DESC, readOnly = false)
     private String         clientCharset;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED

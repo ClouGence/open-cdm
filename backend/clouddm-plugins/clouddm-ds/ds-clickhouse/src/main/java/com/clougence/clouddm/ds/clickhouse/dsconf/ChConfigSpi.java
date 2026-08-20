@@ -23,6 +23,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
@@ -47,7 +48,7 @@ public class ChConfigSpi extends AbstractDsConfigSpi {
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setSessionTimeout(StringUtils.defaultIfBlank(defaultConfig.get(ChConfig.Fields.sessionTimeout), "15000"));
-        config.setClientTimeZone(defaultConfig.get(ChConfig.Fields.clientTimeZone));
+        config.setClientTimeZone(defaultConfig.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD));
         return dsConfig;
     }
 

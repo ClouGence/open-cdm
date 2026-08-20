@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.ds.cloudberry.i18n.CbConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -33,7 +34,8 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = CbSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CbConfig extends DataSourceConfig {
+public class CbConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultCatalog, //
             group = DsConfigGroup.GENERAL, labelKey = CbConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = CbConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
@@ -42,7 +44,7 @@ public class CbConfig extends DataSourceConfig {
             group = DsConfigGroup.GENERAL, labelKey = CbConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = CbConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, //
             group = DsConfigGroup.OPTIONS, labelKey = CbConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = CbConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED

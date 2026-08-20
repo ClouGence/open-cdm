@@ -32,6 +32,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.utils.StringUtils;
@@ -281,8 +282,10 @@ public class DmDsConfigUiPanelFactory {
         }
 
         // timeZone
-        DsConfigKvDef clientTimeZone = fields.get(CLIENT_TIME_ZONE_FIELD);
-        if (clientTimeZone != null) {
+        DsConfigKvDef clientTimeZone = fields.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD);
+        fields.remove(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD);
+        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
+        if (clientTimeZone != null && configSpi != null && ClientTimeZoneExtProperties.class.isAssignableFrom(configSpi.newConfig())) {
             panel.addField(timeZoneField(clientTimeZone));
         }
 
