@@ -1,0 +1,293 @@
+schema_version: 1
+datasource: MySQL
+fixture_schema: cdm_data_types
+table_prefix: cdm_dt_
+
+references:
+  declared_versions: backend/clouddm-plugins/clouddm-sql/sql-mysql/src/main/resources/META-INF/clougence/mysql-skip-permission-resources.json
+  metadata_types: backend/clouddm-utils/cg-schema/src/main/java/com/clougence/adapter/mysql/MySQLTypes.java
+  result_reader: backend/clouddm-plugins/clouddm-ds/dsc-common-mysql/src/main/java/com/clougence/clouddm/dsfamily/mysql/execute/MyColReader.java
+  result_file_reader: backend/clouddm-platform/cgdm-components/cg-com-results-file/src/main/java/com/clougence/clouddm/component/resultfile/ResultFileReader.java
+  frontend_renderer: frontend/src/views/sql/components/Result.vue
+  frontend_type_constants: frontend/src/views/sql/components/typeGroup.js
+  result_limits: backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/util/DmDsUtils.java
+
+versions:
+  - family: "5.6"
+    evidence_version: "5.6.51"
+    required: true
+    exceptions: [json, vector, geomcollection_alias]
+  - family: "5.7"
+    evidence_version: "5.7.44"
+    required: true
+    exceptions: [vector, geomcollection_alias]
+  - family: "8.0"
+    evidence_version: "8.0.46"
+    required: true
+    exceptions: [vector]
+  - family: "8.4"
+    evidence_version: "8.4.11"
+    required: true
+    primary_template: true
+    exceptions: [vector]
+  - family: "9.7"
+    evidence_version: "9.7.1"
+    required: true
+    exceptions: []
+
+feature_gates:
+  limit_plus_one_fixture:
+    minimum_max_allowed_packet: 4194306
+    setup_behavior: omitted with an explicit verify status when the server cannot generate a 4194305-byte value
+  geomcollection_alias:
+    minimum_version: "8.0"
+    setup_behavior: GEOMCOLLECTION alias column is added only on MySQL 8.0 or newer
+  json:
+    minimum_version: "5.7"
+    setup_behavior: created only when the server is MySQL 5.7 or newer
+  vector:
+    mysql_minimum_version: "9.0"
+    declared_acceptance_family: "9.7"
+    setup_behavior: created only when the server is MySQL 9.0 or newer
+
+cloud_limits:
+  preview_characters:
+    default: 256
+    boundaries: [255, 256, 257]
+  online_column_bytes:
+    default: 4194304
+    boundaries: [4194303, 4194304, 4194305]
+    fixture_precondition: max_allowed_packet must be greater than 4194305 for the plus-one row
+  intermediate_stream_boundary_bytes: 1048576
+
+acceptance_chains:
+  - metadata_object_tree
+  - sql_workbench_result
+  - read_only_table_browse
+
+required_observation_channels:
+  - visible_page
+  - http_status_and_business_result
+  - sql_websocket_terminal_state
+  - chrome_console_and_backend_log
+
+static_findings:
+  - id: MYSQL-AUDIT-001
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: Connector/J exposes VECTOR as little-endian float bytes and rejects getString; MyColReader now maps it to VectorValueFetcher array text instead of Unsupported.
+  - id: MYSQL-AUDIT-002
+    severity_if_reproduced: P1
+    state: not_reproduced
+    finding: Connector/J 9.6 normalizes every tested spatial result column to columnTypeName GEOMETRY, so all declarations select MyGeometryValueFetcher.
+  - id: MYSQL-AUDIT-003
+    severity_if_reproduced: P2
+    state: informational
+    finding: mysqlTypeGroup omits MULTI spatial types but currently has no consumer; Result.vue renders all values through the same pre element.
+  - id: MYSQL-AUDIT-004
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: Connector/J returns BIT(64) max from getString as -1; BitValueFetcher now converts the unsigned raw bytes to base-2 text.
+  - id: MYSQL-AUDIT-005
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: Generic TIME conversion dropped the sign and corrupted MySQL duration values; TIME now uses TimeStringValueFetcher over the raw JDBC bytes.
+  - id: MYSQL-AUDIT-006
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: Geographic internal WKB uses longitude-latitude storage order and the SRID header is little-endian; MyGeometryValueFetcher now restores SRS-defined latitude-first axes when required.
+  - id: MYSQL-AUDIT-007
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: BLOB detail paging mixed raw-byte sizes with hexadecimal-character offsets and stopped halfway; binary result metadata and detail ranges now consistently use hexadecimal character units.
+  - id: MYSQL-AUDIT-008
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: Detail copy previously copied only the currently loaded chunks; it now loads every available remaining chunk before copying.
+  - id: MYSQL-AUDIT-009
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: Full-mode table browsing failed because DsDataEditorServiceImpl did not inject DmDsConfigService; the dependency is now injected and the read-only editor opens normally.
+  - id: MYSQL-AUDIT-010
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: Full-mode table browsing rejected the current ResultSetMeta plus ResultSet protocol; the editor now combines the split messages into one EditorResultSet.
+  - id: MYSQL-AUDIT-011
+    severity_if_reproduced: P1
+    state: code_fixed_runtime_verified
+    finding: Connector/J 8.4 cannot decode MySQL 9 VECTOR protocol type 242 in binary server-prepared results; MySQL 9 sessions on Connector/J 8 now use client-prepared text results so VectorValueFetcher receives the raw bytes.
+
+type_families:
+  - family: bit_and_integer
+    table: cdm_dt_numeric
+    cases: [NULL, ZERO, NORMAL, MIN, MAX]
+    types:
+      - declaration: BIT(64)
+        aliases: []
+        metadata_type: BIT
+        reader_by_column_type_name: BitValueFetcher
+        expected_display: unsigned base-2 text
+      - declaration: TINYINT
+        aliases: [BOOL, BOOLEAN]
+        metadata_type: TINYINT
+        reader_by_column_type_name: ByteValueFetcher
+        expected_display: exact signed decimal
+      - declaration: TINYINT UNSIGNED
+        aliases: []
+        metadata_type: TINYINT
+        reader_by_column_type_name: ShortValueFetcher
+        expected_display: exact unsigned decimal
+      - declaration: SMALLINT
+        aliases: []
+        metadata_type: SMALLINT
+        reader_by_column_type_name: ShortValueFetcher
+        expected_display: exact signed decimal
+      - declaration: SMALLINT UNSIGNED
+        aliases: []
+        metadata_type: SMALLINT
+        reader_by_column_type_name: IntegerValueFetcher
+        expected_display: exact unsigned decimal
+      - declaration: MEDIUMINT
+        aliases: []
+        metadata_type: MEDIUMINT
+        reader_by_column_type_name: IntegerValueFetcher
+        expected_display: exact signed decimal
+      - declaration: MEDIUMINT UNSIGNED
+        aliases: []
+        metadata_type: MEDIUMINT
+        reader_by_column_type_name: IntegerValueFetcher
+        expected_display: exact unsigned decimal
+      - declaration: INT
+        aliases: [INTEGER]
+        metadata_type: INT
+        reader_by_column_type_name: IntegerValueFetcher
+        expected_display: exact signed decimal
+      - declaration: INT UNSIGNED
+        aliases: [INTEGER UNSIGNED]
+        metadata_type: INT
+        reader_by_column_type_name: LongValueFetcher
+        expected_display: exact unsigned decimal
+      - declaration: BIGINT
+        aliases: []
+        metadata_type: BIGINT
+        reader_by_column_type_name: LongValueFetcher
+        expected_display: exact signed decimal
+      - declaration: BIGINT UNSIGNED
+        aliases: [SERIAL]
+        metadata_type: BIGINT
+        reader_by_column_type_name: BigIntegerValueFetcher
+        expected_display: exact unsigned decimal without JavaScript precision loss
+
+  - family: fixed_and_floating
+    table: cdm_dt_numeric
+    cases: [NULL, ZERO, NORMAL, MIN, MAX]
+    types:
+      - declaration: DECIMAL(65,30)
+        aliases: [DEC, NUMERIC, FIXED]
+        metadata_type: DECIMAL
+        reader_by_column_type_name: StringValueFetcher
+        expected_display: exact plain decimal with scale preserved by database output
+      - declaration: FLOAT
+        aliases: []
+        metadata_type: FLOAT
+        reader_by_column_type_name: FloatValueFetcher
+        expected_display: Connector/J single-precision value
+      - declaration: FLOAT UNSIGNED
+        aliases: []
+        metadata_type: FLOAT
+        reader_by_column_type_name: DoubleValueFetcher
+        expected_display: Connector/J approximate value
+      - declaration: DOUBLE
+        aliases: [DOUBLE PRECISION, REAL]
+        metadata_type: DOUBLE
+        reader_by_column_type_name: DoubleValueFetcher
+        expected_display: Connector/J double-precision value
+
+  - family: temporal
+    table: cdm_dt_temporal
+    cases: [NULL, ZERO, NORMAL, MIN, MAX, NEGATIVE_TIME]
+    types:
+      - { declaration: DATE, metadata_type: DATE, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: TIME, metadata_type: TIME, reader_by_column_type_name: TimeStringValueFetcher }
+      - { declaration: TIME(6), metadata_type: TIME, reader_by_column_type_name: TimeStringValueFetcher }
+      - { declaration: DATETIME, metadata_type: DATETIME, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: DATETIME(6), metadata_type: DATETIME, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: TIMESTAMP, metadata_type: TIMESTAMP, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: TIMESTAMP(6), metadata_type: TIMESTAMP, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: YEAR, metadata_type: YEAR, reader_by_column_type_name: ShortValueFetcher }
+
+  - family: character
+    table: cdm_dt_character
+    cases: [NULL, EMPTY, NORMAL, UNICODE, BOUNDARY]
+    types:
+      - { declaration: CHAR(16), metadata_type: CHAR, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: VARCHAR(1024), metadata_type: VARCHAR, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: TINYTEXT, metadata_type: TINYTEXT, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: TEXT, metadata_type: TEXT, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: MEDIUMTEXT, metadata_type: MEDIUMTEXT, reader_by_column_type_name: StringAsClobFetcher }
+      - { declaration: LONGTEXT, metadata_type: LONGTEXT, reader_by_column_type_name: StringAsClobFetcher }
+      - { declaration: ENUM, metadata_type: ENUM, reader_by_column_type_name: StringValueFetcher }
+      - { declaration: SET, metadata_type: SET, reader_by_column_type_name: StringValueFetcher }
+
+  - family: binary_and_lob
+    table: cdm_dt_binary_lob
+    cases: [NULL, EMPTY, BYTES, BOUNDARY_256, BOUNDARY_257, ONE_MIB]
+    expected_display: uppercase hexadecimal text, with NULL distinct from an empty byte string
+    types:
+      - { declaration: BINARY(8), metadata_type: BINARY, reader_by_column_type_name: BytesValueFetcher }
+      - { declaration: VARBINARY(257), metadata_type: VARBINARY, reader_by_column_type_name: BytesValueFetcher }
+      - { declaration: TINYBLOB, metadata_type: TINYBLOB, reader_by_column_type_name: BytesValueFetcher }
+      - { declaration: BLOB, metadata_type: BLOB, reader_by_column_type_name: BytesValueFetcher }
+      - { declaration: MEDIUMBLOB, metadata_type: MEDIUMBLOB, reader_by_column_type_name: BytesAsStreamFetcher }
+      - { declaration: LONGBLOB, metadata_type: LONGBLOB, reader_by_column_type_name: BytesAsStreamFetcher }
+
+  - family: json
+    table: cdm_dt_json
+    minimum_version: "5.7"
+    cases: [SQL_NULL, JSON_NULL, SCALAR, OBJECT, ARRAY, DEEP, UNICODE, LONG]
+    types:
+      - declaration: JSON
+        metadata_type: JSON
+        reader_by_column_type_name: StringAsClobFetcher
+        expected_display: valid database-normalized JSON text
+
+  - family: spatial
+    table: cdm_dt_spatial
+    cases: [NULL, SRID_0, SRID_4326]
+    expected_display: valid WKT in the SRS-defined axis order used by ST_AsText, without binary garbage or WKB Error
+    types:
+      - { declaration: GEOMETRY, metadata_type: GEOMETRY, reader_by_column_type_name: MyGeometryValueFetcher }
+      - { declaration: POINT, metadata_type: POINT, reader_by_column_type_name: MyGeometryValueFetcher }
+      - { declaration: LINESTRING, metadata_type: LINESTRING, reader_by_column_type_name: MyGeometryValueFetcher }
+      - { declaration: POLYGON, metadata_type: POLYGON, reader_by_column_type_name: MyGeometryValueFetcher }
+      - { declaration: MULTIPOINT, metadata_type: MULTIPOINT, reader_by_column_type_name: MyGeometryValueFetcher }
+      - { declaration: MULTILINESTRING, metadata_type: MULTILINESTRING, reader_by_column_type_name: MyGeometryValueFetcher }
+      - { declaration: MULTIPOLYGON, metadata_type: MULTIPOLYGON, reader_by_column_type_name: MyGeometryValueFetcher }
+      - { declaration: GEOMETRYCOLLECTION, metadata_type: GEOMETRY_COLLECTION, reader_by_column_type_name: MyGeometryValueFetcher }
+      - { declaration: GEOMCOLLECTION, minimum_version: "8.0", metadata_type: GEOM_COLLECTION, reader_by_column_type_name: MyGeometryValueFetcher }
+
+  - family: vector
+    table: cdm_dt_vector
+    mysql_minimum_version: "9.0"
+    declared_acceptance_family: "9.7"
+    cases: [NULL, ONE_DIMENSION, NORMAL, LONG]
+    types:
+      - declaration: VECTOR(N)
+        metadata_type: VECTOR
+        reader_by_column_type_name: VectorValueFetcher
+        required_display_contract: numeric-equivalent array text
+
+frontend_contract:
+  renderer: Result.vue bodyCell
+  null_display: italic NULL
+  non_null_display: preformatted text
+  long_value_contract:
+    preview: first configured display characters with incomplete marker
+    detail: fetches all remaining chunks within the column byte limit
+    copy: fetches every available remaining cached chunk before writing to clipboard
+  prohibited_values:
+    - Unsupported
+    - undefined
+    - "[object Object]"
+    - WKB Error
+    - binary replacement characters for spatial values
