@@ -1,5 +1,13 @@
 <template>
-  <Select v-model="form[field.field]" :multiple="field.type === 'MultipleOptions'" :disabled="disabled" filterable transfer style="width: 280px">
+  <Select
+    v-model="form[field.field]"
+    :multiple="field.type === 'MultipleOptions'"
+    :disabled="disabled"
+    :allow-create="field.props?.allowCreate === true"
+    filterable
+    transfer
+    style="width: 280px"
+  >
     <Option v-for="option in normalizedOptions" :key="option.value" :value="option.value">
       {{ option.label }}
     </Option>

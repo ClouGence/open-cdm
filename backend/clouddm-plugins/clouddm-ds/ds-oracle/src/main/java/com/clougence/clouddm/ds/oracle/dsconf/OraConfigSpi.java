@@ -79,6 +79,30 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         return field;
     }
 
+    private static void optionsPanel(UiPanel optionsPanel) {
+        UiPanelField clientCharset = optionsPanel.findField(OraConfig.Fields.clientCharset);
+        if (clientCharset == null) {
+            return;
+        }
+
+        List<String> commonCharsets = List.of("AL32UTF8", "UTF8", "ZHS16GBK", "WE8MSWIN1252", "WE8ISO8859P1", "JA16SJIS", "KO16MSWIN949");
+        List<ValueDef> options = new ArrayList<>();
+        for (String charset : commonCharsets) {
+            options.add(strValueDef(charset));
+        }
+        if (clientCharset.getDefaultValue() != null && clientCharset.getDefaultValue().asValue() != null) {
+            String currentCharset = String.valueOf(clientCharset.getDefaultValue().asValue());
+            boolean isCommonCharset = commonCharsets.stream().anyMatch(item -> StringUtils.equalsIgnoreCase(item, currentCharset));
+            if (StringUtils.isNotBlank(currentCharset) && !isCommonCharset) {
+                options.add(strValueDef(currentCharset));
+            }
+        }
+
+        clientCharset.setType(UiPanelFieldType.Options);
+        clientCharset.setOptions(options);
+        clientCharset.setProps(Map.of("allowCreate", true));
+    }
+
     @Override
     public String defaultPort() {
         return "1521";
@@ -102,6 +126,7 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         config.setTnsAdmin(defaultConfig.get(OraConfig.Fields.tnsAdmin));
         config.setTnsName(defaultConfig.get(OraConfig.Fields.tnsName));
         config.setClientTimeZone(defaultConfig.get(OraConfig.Fields.clientTimeZone));
+        config.setClientCharset(defaultConfig.get(OraConfig.Fields.clientCharset));
         if (StringUtils.isNotBlank(config.getHost())) {
             String[] ipPort = config.getHost().split(":");
             if (ipPort.length == 3) {
@@ -283,5 +308,10 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         }
 
         generalPanel(general);
+
+        UiPanel options = panels.get(DsConfigGroup.OPTIONS);
+        if (options != null) {
+            optionsPanel(options);
+        }
     }
 }

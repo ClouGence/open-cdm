@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.dsfamily.oracle.i18n.OraConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetConfig;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,7 +37,8 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = OraSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OraConfig extends DataSourceConfig {
+public class OraConfig extends DataSourceConfig implements //
+        ClientCharsetConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.connectType, defaultValue = "sid", //
             group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_CONNECT_TYPE_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
@@ -60,6 +62,9 @@ public class OraConfig extends DataSourceConfig {
     @ConfigDef(name = Fields.clientTimeZone, //
             group = DsConfigGroup.OPTIONS, labelKey = OraConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = OraConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String         clientTimeZone;
+    @ConfigDef(name = Fields.clientCharset, //
+            group = DsConfigGroup.OPTIONS, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_CLIENT_CHARSET_LABEL, descKey = OraConfigI18nKeys.CONFIG_ORACLE_CLIENT_CHARSET_DESC, readOnly = false)
+    private String         clientCharset;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
     @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
             group = DsConfigGroup.ADVANCED, labelKey = OraConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = OraConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
