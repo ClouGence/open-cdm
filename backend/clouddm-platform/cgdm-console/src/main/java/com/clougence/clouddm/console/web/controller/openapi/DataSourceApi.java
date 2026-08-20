@@ -15,6 +15,9 @@
  */
 package com.clougence.clouddm.console.web.controller.openapi;
 
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_DS_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_DS_READ;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +41,7 @@ import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.global.mcp.McpApiProvider;
 import com.clougence.clouddm.console.web.global.mcp.model.McpTool;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsDetailFO;
@@ -288,7 +292,7 @@ public class DataSourceApi extends BasicApi {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
     @RequestMapping(value = "/deleteds", method = RequestMethod.POST)
     public ResApiData<?> deleteDs(@RequestBody @Valid ApiDeleteDsFO data, HttpServletRequest request) {
         String requestId = (String) request.getAttribute(OpenApiSessionManager.OPEN_API_REQUEST_ID);
@@ -300,7 +304,7 @@ public class DataSourceApi extends BasicApi {
         return ResApiDataUtils.buildSuccess(requestId, null);
     }
 
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestAuth(RDP_DS_MANAGE)
     @RequestMapping(value = "/updatedatasourcedesc", method = RequestMethod.POST)
     public ResApiData<?> updateDataSourceDesc(@RequestBody @Valid ApiUpdateDsDescFO updateFO, HttpServletRequest request) {
         String requestId = (String) request.getAttribute(OpenApiSessionManager.OPEN_API_REQUEST_ID);
@@ -312,7 +316,7 @@ public class DataSourceApi extends BasicApi {
         return ResApiDataUtils.buildSuccess(requestId);
     }
 
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
     @RequestMapping(value = "/updateaccountandpassword", method = RequestMethod.POST)
     public ResApiData<?> updateAccountAndPassword(@RequestParam("DataSourceUpdateData") String data,
                                                   @RequestParam(value = "securityFile", required = false) MultipartFile securityFile,
@@ -325,7 +329,7 @@ public class DataSourceApi extends BasicApi {
         return ResApiDataUtils.buildSuccess(requestId);
     }
 
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestAuth(RDP_DS_READ)
     @RequestMapping(value = "/querydsconfig", method = RequestMethod.POST)
     public ResApiData<?> queryDsCOnfig(@RequestBody @Valid ApiListDsKvConfigsByDsIdFO fo, HttpServletRequest request) {
         String requestId = (String) request.getAttribute(OpenApiSessionManager.OPEN_API_REQUEST_ID);
@@ -337,7 +341,7 @@ public class DataSourceApi extends BasicApi {
         return ResApiDataUtils.buildSuccess(requestId, apiConfVos);
     }
 
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
     @RequestMapping(value = "/upsertdsconfig", method = RequestMethod.POST)
     public ResApiData<?> upsertDsConfig(@RequestBody @Valid ApiUpsertDsKvConfigFO configFO, HttpServletRequest request) {
         String requestId = (String) request.getAttribute(OpenApiSessionManager.OPEN_API_REQUEST_ID);
