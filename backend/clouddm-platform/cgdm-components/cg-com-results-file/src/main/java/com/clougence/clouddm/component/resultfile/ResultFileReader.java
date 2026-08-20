@@ -179,7 +179,8 @@ public class ResultFileReader implements ResultReader {
 
     public ResultSetValue readAsString(ColMetaData meta, QueryResultConf conf) throws IOException {
         DataHeader header = this.resultInput.nextDataHeader();
-        return readAsString(meta, conf, 0, header.getLength());
+        long displayLength = header.getType() == EntityType.Bytes ? hexadecimalDisplaySize(header.getLength()) : header.getLength();
+        return readAsString(meta, conf, 0, displayLength);
     }
 
     @Override
@@ -283,11 +284,23 @@ public class ResultFileReader implements ResultReader {
             case EntityType.Bytes: {
                 try {
                     this.resultInput.readStream(header);
+                    totalSize = hexadecimalDisplaySize(header.getLength());
+                    long safeOffset = Math.max(0, Math.min(offset, totalSize));
+                    long safeLength = Math.max(0, length);
+                    long remainingCharacters = totalSize - safeOffset;
+                    long requestedCharacters = Math.min(safeLength, remainingCharacters);
+                    long byteOffset = safeOffset / 2;
+                    int leadingNibble = (int) (safeOffset % 2);
+                    long byteLength = (leadingNibble + requestedCharacters + 1) / 2;
+
                     ByteArrayOutputStream tmp = new ByteArrayOutputStream();
-                    IOUtils.copyLarge(this.resultInput, tmp, offset, length);
+                    IOUtils.copyLarge(this.resultInput, tmp, byteOffset, byteLength);
                     byte[] tmpBytes = tmp.toByteArray();
-                    value = HexadecimalUtils.bytes2hex(tmpBytes);
-                    moreSize = this.resultInput.available();
+                    String hexadecimal = HexadecimalUtils.bytes2hex(tmpBytes);
+                    int valueStart = Math.min(leadingNibble, hexadecimal.length());
+                    int valueEnd = (int) Math.min(hexadecimal.length(), valueStart + requestedCharacters);
+                    value = hexadecimal.substring(valueStart, valueEnd);
+                    moreSize = Math.max(0, totalSize - safeOffset - value.length());
                 } finally {
                     this.resultInput.finishReadData();
                 }
@@ -346,5 +359,9 @@ public class ResultFileReader implements ResultReader {
         } else {
             return ResultSetValue.of(complete, mask, value, moreSize, totalSize);
         }
+    }
+
+    private static long hexadecimalDisplaySize(long byteSize) {
+        return byteSize > Long.MAX_VALUE / 2 ? Long.MAX_VALUE : byteSize * 2;
     }
 }

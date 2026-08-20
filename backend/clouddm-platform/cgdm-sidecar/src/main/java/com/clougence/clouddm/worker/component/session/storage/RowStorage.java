@@ -388,8 +388,9 @@ public class RowStorage implements Closeable {
                 try {
                     byte[] sample = ctx.sampleData(this.displayChars);
                     String displayed = HexadecimalUtils.bytes2hex(sample);
-                    long moreSize = fullSize - sample.length;
-                    return ResultSetValue.of(complete, mask, displayed, moreSize, fullSize);
+                    long displaySize = hexadecimalDisplaySize(fullSize);
+                    long moreSize = displaySize - displayed.length();
+                    return ResultSetValue.of(complete, mask, displayed, moreSize, displaySize);
                 } catch (IOException e) {
                     return ResultSetValue.ofError(complete, mask, e.getMessage());
                 }
@@ -402,8 +403,9 @@ public class RowStorage implements Closeable {
 
                 long fullSize = v.length;
                 String displayed = HexadecimalUtils.bytes2hex(sample);
-                long moreSize = fullSize - sample.length;
-                return ResultSetValue.of(complete, mask, displayed, moreSize, fullSize);
+                long displaySize = hexadecimalDisplaySize(fullSize);
+                long moreSize = displaySize - displayed.length();
+                return ResultSetValue.of(complete, mask, displayed, moreSize, displaySize);
             }
         }
     }
@@ -431,8 +433,9 @@ public class RowStorage implements Closeable {
             try {
                 byte[] sample = ctx.sampleData(this.displayChars);
                 String displayed = HexadecimalUtils.bytes2hex(sample);
-                long moreSize = fullSize - sample.length;
-                return ResultSetValue.of(complete, mask, displayed, moreSize, fullSize);
+                long displaySize = hexadecimalDisplaySize(fullSize);
+                long moreSize = displaySize - displayed.length();
+                return ResultSetValue.of(complete, mask, displayed, moreSize, displaySize);
             } catch (IOException e) {
                 return ResultSetValue.ofError(complete, mask, e.getMessage());
             }
@@ -625,5 +628,9 @@ public class RowStorage implements Closeable {
         boolean mask = tag == (tag | ResultDataTag.DATA_MASK_TAG);
         String columnType = ctx.getColumnType();
         return ResultSetValue.ofError(complete, mask, RowDataHelper.displayUnsupported(this.displayChars, columnType));
+    }
+
+    private static long hexadecimalDisplaySize(long byteSize) {
+        return byteSize > Long.MAX_VALUE / 2 ? Long.MAX_VALUE : byteSize * 2;
     }
 }

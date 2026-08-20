@@ -57,7 +57,7 @@
         <a-button v-if="hasMoreData && !cellDetailLoading && !selectedCellDetail.error && !selectedCellDetail.mask" @click="handleLoadMoreCellData">
           {{ $t('jia-zai-geng-duo') }}
         </a-button>
-        <a-button type="primary" @click="handleDetailCopy">{{ $t('fu-zhi') }}</a-button>
+        <a-button type="primary" :loading="cellDetailLoading" @click="handleDetailCopy">{{ $t('fu-zhi') }}</a-button>
         <a-button @click="handleCloseCellDetailModal">{{ $t('guan-bi') }}</a-button>
       </template>
     </CCModal>
@@ -260,9 +260,53 @@ export default {
         }
       }
     },
-    handleDetailCopy() {
-      if (XEClipboard.copy(this.cellDetailContent)) {
+    async handleDetailCopy() {
+      if (this.cellDetailLoading) {
+        return;
+      }
+
+      let copyContent = this.cellDetailContent || '';
+      let moreSize = this.hasMoreData ? this.selectedCellDetail.moreSize || 0 : 0;
+      const { resultId, rowNumber, colNumber } = this.selectedCellDetail;
+      const fetchSize = 128 * 1024;
+
+      this.cellDetailLoading = true;
+      try {
+        while (moreSize > 0) {
+          const previousLength = copyContent.length;
+          const res = await this.$services.dmQueryFetchResultData({
+            data: {
+              resultId,
+              rowNumber,
+              colNumber,
+              offset: previousLength,
+              fetchSize
+            }
+          });
+          if (!res.success || !res.data) {
+            throw new Error(res.message || this.$t('jia-zai-shu-ju-shi-bai'));
+          }
+
+          const dataValue = res.data.value || res.data;
+          if (dataValue.error) {
+            throw new Error(this.$t('jia-zai-shu-ju-shi-bai'));
+          }
+
+          copyContent += dataValue.value || '';
+          moreSize = dataValue.moreSize || 0;
+          if (copyContent.length <= previousLength) {
+            throw new Error(this.$t('jia-zai-shu-ju-shi-bai'));
+          }
+        }
+        if (!XEClipboard.copy(copyContent)) {
+          throw new Error(this.$t('fu-zhi-shi-bai'));
+        }
         this.$Message.success(this.$t('fu-zhi-cheng-gong'));
+      } catch (error) {
+        appLogger.error(this.$t('fu-zhi-shi-bai'), error);
+        this.$Message.error(this.$t('fu-zhi-shi-bai'));
+      } finally {
+        this.cellDetailLoading = false;
       }
     },
     handleCloseCellDetailModal() {
