@@ -67,27 +67,25 @@ public class EditorConvertUtils {
         return dto;
     }
 
-    public static EditorResultSet convertToEditorResultSet(ResultSet r) {
+    public static EditorResultSet convertToEditorResultSet(ResultSetMeta meta, ResultSet rows) {
         EditorResultSet dto = new EditorResultSet();
 
-        dto.setFetchTimeMs(r.getCostTimeMs());
-        dto.setResultId(r.getResultId());
-        dto.setFetchCount(r.getFetchCount());
+        dto.setFetchTimeMs(rows.getCostTimeMs());
+        dto.setResultId(rows.getResultId());
+        dto.setFetchCount(rows.getFetchCount());
 
-        dto.setSuccess(r.isSuccess());
-        dto.setMessage(r.getMessage());
+        dto.setSuccess(meta.isSuccess() && rows.isSuccess());
+        dto.setMessage(StringUtils.isNotBlank(rows.getMessage()) ? rows.getMessage() : meta.getMessage());
 
         dto.setUpdateCountResult(false);
         dto.setUpdateCount(0);
-        //dto.setGeneratedKeys(r.getGeneratedKeys());
 
-        dto.setSql(r.getQuerySql());
-        //dto.setColumnList(r.getColumnList());
-        //dto.setColumnType(r.getColumnType());
-        //dto.setRowSet(r.getRowSet());
-        //dto.setCacheFile(r.getCacheFileUri());
-        throw new UnsupportedOperationException("convertToEditorResultSet not support ResultSetRows temporarily");
-        //return dto;
+        dto.setSql(rows.getQuerySql());
+        dto.setColumnList(meta.getColumnList());
+        dto.setColumnType(meta.getColumnType());
+        dto.setRowSet(rows.getRowSet());
+        dto.setCacheFile(meta.getCacheFileUri());
+        return dto;
     }
 
     public static DataEditorResultDTO convertToDataEditorResultDTO(EditorResultSet result) {

@@ -72,6 +72,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class DsDataEditorServiceImpl implements DsDataEditorService {
 
+    @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
     private DsSchemaService     dsSchemaService;
@@ -288,25 +289,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         // execute sql
         try {
             ResultList result = this.queryService.syncExecuteQuery(uid, sessionId, request);
-            for (Result r : result.getResultList()) {
-                if (r.getResultType() == ResultType.ResultSet) {
-                    return EditorConvertUtils.convertToEditorResultSet((ResultSet) r);
-                }
-                if (r.getResultType() == ResultType.Message) {
-                    ResultMessage resultMessage = (ResultMessage) r;
-                    if (resultMessage.getLevel() == MessageLevel.Error) {
-                        EditorResultSet resultDTO = new EditorResultSet();
-                        resultDTO.setSuccess(false);
-                        resultDTO.setMessage(resultMessage.getMessage());
-                        return resultDTO;
-                    }
-                }
-            }
-
-            EditorResultSet resultDTO = new EditorResultSet();
-            resultDTO.setSuccess(false);
-            resultDTO.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_QUERY_MISSING_RESULT_ERROR.name()));
-            return resultDTO;
+            return convertQueryResult(result);
         } catch (Exception e) {
             EditorResultSet resultDTO = new EditorResultSet();
             resultDTO.setSuccess(false);
@@ -331,31 +314,42 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         // execute sql
         try {
             ResultList result = this.queryService.syncExecuteQuery(uid, sessionId, request);
-            for (Result r : result.getResultList()) {
-                if (r.getResultType() == ResultType.ResultSet) {
-                    return EditorConvertUtils.convertToEditorResultSet((ResultSet) r);
-                }
-                if (r.getResultType() == ResultType.Message) {
-                    ResultMessage resultMessage = (ResultMessage) r;
-                    if (resultMessage.getLevel() == MessageLevel.Error) {
-                        EditorResultSet resultDTO = new EditorResultSet();
-                        resultDTO.setSuccess(false);
-                        resultDTO.setMessage(resultMessage.getMessage());
-                        return resultDTO;
-                    }
-                }
-            }
-
-            EditorResultSet resultDTO = new EditorResultSet();
-            resultDTO.setSuccess(false);
-            resultDTO.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_QUERY_MISSING_RESULT_ERROR.name()));
-            return resultDTO;
+            return convertQueryResult(result);
         } catch (Exception e) {
             EditorResultSet resultDTO = new EditorResultSet();
             resultDTO.setSuccess(false);
             resultDTO.setMessage(e.getMessage());
             return resultDTO;
         }
+    }
+
+    private EditorResultSet convertQueryResult(ResultList result) {
+        ResultSetMeta meta = null;
+        ResultSet rows = null;
+        for (Result r : result.getResultList()) {
+            if (r.getResultType() == ResultType.ResultSetMeta) {
+                meta = (ResultSetMeta) r;
+            } else if (r.getResultType() == ResultType.ResultSet) {
+                rows = (ResultSet) r;
+            } else if (r.getResultType() == ResultType.Message) {
+                ResultMessage resultMessage = (ResultMessage) r;
+                if (resultMessage.getLevel() == MessageLevel.Error) {
+                    EditorResultSet resultDTO = new EditorResultSet();
+                    resultDTO.setSuccess(false);
+                    resultDTO.setMessage(resultMessage.getMessage());
+                    return resultDTO;
+                }
+            }
+        }
+
+        if (meta != null && rows != null) {
+            return EditorConvertUtils.convertToEditorResultSet(meta, rows);
+        }
+
+        EditorResultSet resultDTO = new EditorResultSet();
+        resultDTO.setSuccess(false);
+        resultDTO.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_QUERY_MISSING_RESULT_ERROR.name()));
+        return resultDTO;
     }
 
     private Reload doExecuteDml(String puid, String uid, String clientIp, String sessionId, DsLevels levels,//
