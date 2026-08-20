@@ -74,7 +74,6 @@ FIND: 'find';
 S_SKIP: 'skip';
 LIMIT:  'limit';
 SORT:   'sort';
-TO_ARRAY: 'toArray';
 S_COMMENT: 'comment';
 BATCH_SIZE: 'batchSize';
 MAX_TIME_MS: 'maxTimeMS';
