@@ -50,7 +50,8 @@ import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + Ora18nKeys.PLUGIN_NAME_ORACLE,                      //
-        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",       //
+        includePackages = { "com.clougence.clouddm.ds.oracle.execute.*",      //
+                            "com.clougence.clouddm.dsfamily.execute.*",       //
                             "com.clougence.clouddm.dsfamily.oracle.execute.*" //
         }, dsProduct = DataSourceType.Oracle)
 public class OraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {

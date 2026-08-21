@@ -89,6 +89,7 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
 
         List<String> commonCharsets = List.of("AL32UTF8", "UTF8", "ZHS16GBK", "WE8MSWIN1252", "WE8ISO8859P1", "JA16SJIS", "KO16MSWIN949");
         List<ValueDef> options = new ArrayList<>();
+        options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_CLIENT_CHARSET_EMPTY_LABEL, ""));
         for (String charset : commonCharsets) {
             options.add(strValueDef(charset));
         }

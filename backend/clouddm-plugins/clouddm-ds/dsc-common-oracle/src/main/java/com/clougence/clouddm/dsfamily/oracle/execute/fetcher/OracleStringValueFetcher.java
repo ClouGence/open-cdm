@@ -23,8 +23,6 @@ import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcherCont
 import com.clougence.utils.ArrayUtils;
 import com.clougence.utils.StringUtils;
 
-import oracle.jdbc.OracleResultSet;
-import oracle.sql.CHAR;
 import oracle.sql.CharacterSet;
 
 public class OracleStringValueFetcher extends StringValueFetcher {
@@ -44,20 +42,16 @@ public class OracleStringValueFetcher extends StringValueFetcher {
             return (StringValueFCD) ctx.getContext();
         }
 
-        OracleResultSet oracleResultSet = rs.unwrap(OracleResultSet.class);
-        CHAR rawValue = oracleResultSet.getCHAR(columnName);
+        byte[] rawBytes = rs.getBytes(columnName);
         StringValueFCD fcd;
-        if (rawValue == null) {
+        if (rawBytes == null) {
             fcd = StringValueFCD.ofInMemory(true, 0, 0, null, null);
+        } else if (rawBytes.length == 0) {
+            fcd = StringValueFCD.ofInMemory(true, 0, 0, "", ArrayUtils.EMPTY_BYTE_ARRAY);
         } else {
-            byte[] rawBytes = rawValue.getBytes();
-            if (rawBytes.length == 0) {
-                fcd = StringValueFCD.ofInMemory(true, 0, 0, "", ArrayUtils.EMPTY_BYTE_ARRAY);
-            } else {
-                CharacterSet characterSet = OracleClientCharsetRegistry.resolve(rs.getStatement().getConnection(), this.clientCharset);
-                String value = characterSet.toString(rawBytes, 0, rawBytes.length);
-                fcd = StringValueFCD.ofInMemory(true, value.length(), value.length(), value, value.getBytes());
-            }
+            CharacterSet characterSet = OracleClientCharsetRegistry.resolve(rs.getStatement().getConnection(), this.clientCharset);
+            String value = characterSet.toString(rawBytes, 0, rawBytes.length);
+            fcd = StringValueFCD.ofInMemory(true, value.length(), value.length(), value, value.getBytes());
         }
         ctx.setContext(fcd);
         return fcd;
