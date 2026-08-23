@@ -17,12 +17,11 @@ package com.clougence.clouddm.faker.types;
 
 import java.sql.SQLException;
 
+import com.clougence.utils.StringUtils;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.*;
-
-import net.hasor.cobble.StringUtils;
 
 /**
  * @author 赵永春 (zyc@hasor.net)
