@@ -174,7 +174,7 @@
             </div>
             <div class="download-warp">
               <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="resetTabExportState">{{ $t('fan-hui') }}</a>
-              <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="downloadExportedFile">{{ $t('xia-zai') }}</a>
+              <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="openDownloadFileNameModal">{{ $t('xia-zai') }}</a>
               <div v-if="selectedTab.exportState?.exporting" class="export-progress-modal">
                 <a-progress :percent="selectedTab.exportState?.percent || 0" size="small" style="width: 100px" />
               </div>
@@ -404,6 +404,32 @@
         <Button type="primary" @click="confirmExportOption">{{ $t('que-ren-dao-chu') }}</Button>
       </template>
     </CCModal>
+
+    <CCModal
+      v-model="downloadFileNameModalVisible"
+      :title="$t('xia-zai-wen-jian')"
+      :width="480"
+      :mask-closable="false"
+      transfer
+      @on-cancel="closeDownloadFileNameModal"
+    >
+      <a-form layout="vertical">
+        <a-form-item :label="$t('wen-jian-ming')" :validate-status="downloadFileNameError ? 'error' : ''" :help="downloadFileNameError">
+          <a-input
+            v-model:value="downloadFileName"
+            :addon-after="downloadFileSuffix"
+            :placeholder="$t('qing-shu-ru')"
+            autofocus
+            @input="downloadFileNameError = ''"
+            @keyup.enter="confirmDownloadExportedFile"
+          />
+        </a-form-item>
+      </a-form>
+      <template #footer>
+        <Button :disabled="downloadLoading" @click="closeDownloadFileNameModal">{{ $t('qu-xiao') }}</Button>
+        <Button type="primary" :loading="downloadLoading" @click="confirmDownloadExportedFile">{{ $t('xia-zai') }}</Button>
+      </template>
+    </CCModal>
   </div>
 </template>
 <script lang="jsx">
@@ -443,6 +469,12 @@ export default {
       showInsertSqlModal: false,
       showSqlExportOptionModal: false,
       showExportOptionModal: false,
+      downloadFileNameModalVisible: false,
+      downloadFileName: '',
+      downloadFileSuffix: '',
+      downloadFileNameError: '',
+      downloadTrackId: '',
+      downloadLoading: false,
       exportModalTitle: '',
       currentExportType: '', // Export format
       exportRangeType: 'all', // Export range: 'single' single row, 'page' single page, 'all' all rows
@@ -1572,15 +1604,62 @@ export default {
         appLogger.error('err:', error);
       }
     },
-    async downloadExportedFile() {
-      if (!this.selectedTab.resultId) {
+    openDownloadFileNameModal() {
+      const downloadFile = this.selectedTab.exportState?.downloadFile;
+      if (!downloadFile?.trackId) {
         return;
       }
 
+      let fileName = downloadFile.trackId;
+      if (downloadFile.file) {
+        try {
+          const decodedFilePath = decodeURIComponent(downloadFile.file.replace(/\+/g, '%20'));
+          fileName = decodedFilePath.split(/[\\/]/).pop() || fileName;
+        } catch (error) {
+          appLogger.debug(error);
+        }
+      }
+
+      const suffixIndex = fileName.lastIndexOf('.');
+      this.downloadFileName = fileName;
+      this.downloadFileSuffix = '';
+      if (suffixIndex > 0) {
+        this.downloadFileName = fileName.substring(0, suffixIndex);
+        this.downloadFileSuffix = fileName.substring(suffixIndex);
+      }
+      this.downloadTrackId = downloadFile.trackId;
+      this.downloadFileNameError = '';
+      this.downloadFileNameModalVisible = true;
+    },
+    closeDownloadFileNameModal() {
+      if (this.downloadLoading) {
+        return;
+      }
+      this.downloadFileNameModalVisible = false;
+      this.downloadFileNameError = '';
+      this.downloadTrackId = '';
+    },
+    async confirmDownloadExportedFile() {
+      if (this.downloadLoading) {
+        return;
+      }
+
+      const fileName = this.downloadFileName.trim();
+      if (!fileName) {
+        this.downloadFileNameError = this.$t('wen-jian-ming-bu-neng-wei-kong');
+        return;
+      }
+      const hasControlCharacter = Array.from(fileName).some((character) => character.charCodeAt(0) < 32);
+      if (fileName === '.' || fileName === '..' || /[<>:"/\\|?*]/.test(fileName) || hasControlCharacter) {
+        this.downloadFileNameError = this.$t('wen-jian-ming-bao-han-fei-fa-zi-fu');
+        return;
+      }
+
+      this.downloadLoading = true;
       try {
         const res = await this.$services.dmQueryDownloadResult({
           data: {
-            resultId: this.selectedTab.exportState.downloadFile.trackId
+            resultId: this.downloadTrackId
           },
           responseType: 'blob',
           modal: false
@@ -1592,29 +1671,20 @@ export default {
           throw new Error('响应数据格式不正确');
         }
 
-        // Parse the file name from Content-Disposition.
-        let fileName = '';
-        try {
-          const dispositionRaw = res && res.headers ? res.headers['Content-Disposition'] || res.headers['content-disposition'] || '' : '';
-          const disposition = typeof dispositionRaw === 'string' ? dispositionRaw.trim() : '';
-          fileName = disposition.split('filename=')[1];
-        } catch (e) {
-          appLogger.debug(e);
-        }
-
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = fileName;
+        a.download = `${fileName}${this.downloadFileSuffix}`;
         document.body.appendChild(a);
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
+        this.downloadFileNameModalVisible = false;
+        this.downloadTrackId = '';
       } catch (error) {
         appLogger.error('err:', error);
-        if (this.selectedTab.exportState) {
-          // this.selectedTab.exportState.exporting = false;
-        }
+      } finally {
+        this.downloadLoading = false;
       }
     },
 
