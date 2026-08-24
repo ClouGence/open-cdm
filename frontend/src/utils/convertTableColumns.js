@@ -11,7 +11,9 @@ export function convertTableColumns(columns = []) {
       ellipsis: col.ellipsis,
       __slot: col.slot,
       __legacyRender: col.render,
-      __legacyColumn: col
+      __legacyColumn: col,
+      __tooltip: col.tooltip,
+      __tooltipMaxWidth: col.tooltipMaxWidth
     };
   });
 }

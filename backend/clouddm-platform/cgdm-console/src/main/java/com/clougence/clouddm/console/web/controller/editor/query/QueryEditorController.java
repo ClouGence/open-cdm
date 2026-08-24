@@ -55,8 +55,11 @@ import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
@@ -70,6 +73,7 @@ import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.drivers.DsConfigKeys;
+import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -104,6 +108,8 @@ public class QueryEditorController {
     private DmAuthServiceForBiz  dmAuthServiceForBiz;
     @Resource
     private DmSupportSpiWrapper  dmSupportSpiWrapper;
+    @Resource
+    private RdpOpAuditService    opAuditService;
 
     @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/createSession", method = RequestMethod.POST)
@@ -299,6 +305,10 @@ public class QueryEditorController {
 
         String optionJson = fo.getOption() == null ? null : JsonUtils.toJson(fo.getOption());
         FileSaveAsDTO taskId = this.queryService.resultSetFileSaveAs(puid, uid, fo.getResultId(), null, fo.getDstFormatName(), true, optionJson);
+        URI exportFileUri = DmConvertUtils.createFileUri(taskId.getNewFile());
+        String exportFileName = FilenameUtils.getName(exportFileUri.getPath());
+        this.opAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), taskId
+            .getTrackId(), fo, SecurityLevel.HIGH, AuditType.EXPORT_QUERY_RESULT, ResourceType.DATA_EXPORT, exportFileName);
         return ResWebDataUtils.buildSuccess(taskId);
     }
 
@@ -355,6 +365,9 @@ public class QueryEditorController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        this.opAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fileDO
+            .getUniqueId(), fo, SecurityLevel.HIGH, AuditType.DOWNLOAD_QUERY_RESULT, ResourceType.DATA_EXPORT, fileName);
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)
