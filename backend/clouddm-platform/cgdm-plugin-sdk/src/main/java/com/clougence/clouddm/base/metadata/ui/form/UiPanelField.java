@@ -16,6 +16,7 @@
 package com.clougence.clouddm.base.metadata.ui.form;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
@@ -68,6 +69,25 @@ public class UiPanelField extends UiChildren implements UiI18n {
         }
 
         super.initI18n(i18nMessages);
+    }
+
+    @Override
+    public void initI18n(I18nUtils i18nMessages, Locale locale) {
+        this.titleI18N = i18nMessages.getMessage(this.titleI18N, null, locale);
+        this.descI18N = i18nMessages.getMessage(this.descI18N, null, locale);
+
+        if (this.defaultValue instanceof UiI18n) {
+            ((UiI18n) this.defaultValue).initI18n(i18nMessages, locale);
+        }
+        if (this.options != null) {
+            for (ValueDef def : this.options) {
+                if (def instanceof UiI18n) {
+                    ((UiI18n) def).initI18n(i18nMessages, locale);
+                }
+            }
+        }
+
+        super.initI18n(i18nMessages, locale);
     }
 
     public UiPanelField addField(UiPanelField fieldDef) {

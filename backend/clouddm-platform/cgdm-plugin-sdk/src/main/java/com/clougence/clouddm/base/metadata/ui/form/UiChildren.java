@@ -17,6 +17,7 @@ package com.clougence.clouddm.base.metadata.ui.form;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
@@ -34,6 +35,13 @@ public abstract class UiChildren implements UiI18n {
     public void initI18n(I18nUtils messages) {
         for (UiPanelField field : this.children) {
             field.initI18n(messages);
+        }
+    }
+
+    @Override
+    public void initI18n(I18nUtils messages, Locale locale) {
+        for (UiPanelField field : this.children) {
+            field.initI18n(messages, locale);
         }
     }
 

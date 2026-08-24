@@ -28,6 +28,7 @@ import com.clougence.clouddm.base.metadata.ui.form.value.FieldOptionValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.MapValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -71,7 +72,7 @@ public class DmDsConfigUiPanelFactory {
             configSpi.customizePanels(panels);
         }
         for (UiPanel panel : panels.values()) {
-            panel.initI18n(PluginManager.findDsI18nUtil(dsType));
+            panel.initI18n(PluginManager.findDsI18nUtil(dsType), DmI18nUtils.getLocale());
         }
         return new ArrayList<>(panels.values());
     }

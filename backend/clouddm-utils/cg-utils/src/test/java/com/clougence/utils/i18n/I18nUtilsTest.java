@@ -16,6 +16,7 @@
 package com.clougence.utils.i18n;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.net.URL;
 import java.util.Locale;
@@ -29,6 +30,14 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 public class I18nUtilsTest {
+
+    @Test
+    public void blankMessageCodeReturnsItselfForLocaleLookup() {
+        I18nUtils i18nUtils = I18nUtils.initI18n();
+
+        assertNull(i18nUtils.getMessage(null, null, Locale.US));
+        assertEquals("", i18nUtils.getMessage("", null, Locale.US));
+    }
 
     @Test
     public void loadResourcesWhileReadingMessages() throws Exception {

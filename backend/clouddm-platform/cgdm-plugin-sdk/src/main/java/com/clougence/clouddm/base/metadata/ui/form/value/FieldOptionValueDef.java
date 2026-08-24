@@ -16,6 +16,7 @@
 package com.clougence.clouddm.base.metadata.ui.form.value;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.clougence.clouddm.base.metadata.ui.form.UiChildren;
 import com.clougence.clouddm.base.metadata.ui.form.UiI18n;
@@ -51,6 +52,13 @@ public class FieldOptionValueDef extends UiChildren implements ValueDef, UiI18n 
         this.labelI18N = i18nMessages.getMessage(this.labelI18N);
         this.descI18N = i18nMessages.getMessage(this.descI18N);
         super.initI18n(i18nMessages);
+    }
+
+    @Override
+    public void initI18n(I18nUtils i18nMessages, Locale locale) {
+        this.labelI18N = i18nMessages.getMessage(this.labelI18N, null, locale);
+        this.descI18N = i18nMessages.getMessage(this.descI18N, null, locale);
+        super.initI18n(i18nMessages, locale);
     }
 
     public FieldOptionValueDef addField(UiPanelField fieldDef) {
