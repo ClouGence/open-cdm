@@ -12,7 +12,7 @@ export default {
   methods: {
     handleGoDmConsole() {
       if (this.includesDM) {
-        this.$router.push({ path: '/sql' });
+        window.open(this.$router.resolve({ path: '/sql' }).href, '_blank', 'noopener');
       } else {
         this.$Modal.warning({
           title: this.$t('cao-zuo-ti-shi'),
