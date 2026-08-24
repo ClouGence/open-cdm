@@ -1657,9 +1657,11 @@ export default {
 
       this.downloadLoading = true;
       try {
+        const downloadFileName = `${fileName}${this.downloadFileSuffix}`;
         const res = await this.$services.dmQueryDownloadResult({
           data: {
-            resultId: this.downloadTrackId
+            resultId: this.downloadTrackId,
+            downloadFileName
           },
           responseType: 'blob',
           modal: false
@@ -1674,7 +1676,7 @@ export default {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${fileName}${this.downloadFileSuffix}`;
+        a.download = downloadFileName;
         document.body.appendChild(a);
         a.click();
         a.remove();

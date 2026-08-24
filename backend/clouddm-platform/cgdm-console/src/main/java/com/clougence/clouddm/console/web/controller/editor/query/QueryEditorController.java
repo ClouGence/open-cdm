@@ -19,7 +19,9 @@ import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QU
 
 import java.net.URI;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -329,7 +331,11 @@ public class QueryEditorController {
 
         DmExecFileDO fileDO = this.queryService.queryUserFileByUniqueId(puid, uid, fo.getResultId());
         URI fileUri = DmConvertUtils.createFileUri(fileDO.getFileUri());
-        String fileName = FilenameUtils.getName(fileUri.getPath());
+        String originalFileName = FilenameUtils.getName(fileUri.getPath());
+        String downloadFileName = fo.getDownloadFileName();
+        if (StringUtils.isBlank(downloadFileName)) {
+            downloadFileName = originalFileName;
+        }
         long fileSize = this.queryService.fetchFileSizeByUri(puid, uid, fileDO.getFileUri());
         String fileSizeStr = FileUtils.readableFileSize(fileSize);
         if (fileSize <= 0) {
@@ -337,7 +343,7 @@ public class QueryEditorController {
         }
 
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+        response.setHeader("Content-Disposition", "attachment;filename=" + originalFileName);
         response.setContentLengthLong(fileSize);
 
         this.executionDal.fileMapper().updateAccessTimeByUniqueId(fileDO.getUniqueId(), "download 0% of " + fileSizeStr);
@@ -366,8 +372,13 @@ public class QueryEditorController {
             throw new RuntimeException(e);
         }
 
+        Map<String, String> auditInfo = new LinkedHashMap<>();
+        auditInfo.put("resultId", fo.getResultId());
+        auditInfo.put("downloadFileName", downloadFileName);
+        auditInfo.put("originalFileName", originalFileName);
         this.opAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fileDO
-            .getUniqueId(), fo, SecurityLevel.HIGH, AuditType.DOWNLOAD_QUERY_RESULT, ResourceType.DATA_EXPORT, fileName);
+            .getUniqueId(), auditInfo, SecurityLevel.HIGH, AuditType.DOWNLOAD_QUERY_RESULT, ResourceType.DATA_EXPORT,
+            downloadFileName);
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)
