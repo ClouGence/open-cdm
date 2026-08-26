@@ -312,11 +312,10 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     }
 
     private void jobLog(Loglevel logLevel, I18nDmMsgKeys messageKey, Long jobId, Object... args) {
-        DmExecAutoJobDO job = execDal.autoJobMapper().selectById(jobId);
+        DmExecAutoJobDO job = execDal.autoJobMapper().queryById(jobId);
         Locale locale = DmI18nUtils.getLocale();
-        String languageTag = job.getConfig().getLanguageTag();
-        if (StringUtils.isNotBlank(languageTag)) {
-            locale = Locale.forLanguageTag(languageTag);
+        if (job.getConfig() != null && StringUtils.isNotBlank(job.getConfig().getLanguageTag())) {
+            locale = Locale.forLanguageTag(job.getConfig().getLanguageTag());
         }
         String message = DmI18nUtils.getMessage(messageKey.name(), locale, args);
         DmMonBizLogDO logDO = new DmMonBizLogDO(logLevel, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
