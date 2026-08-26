@@ -429,7 +429,9 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 vo.setMobileUrl(urlDTO.getMobileUrl());
             }
         } else {
-            vo.setApproTypeName(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
+            String internalTemplateName = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name());
+            vo.setApproTemplateName(internalTemplateName);
+            vo.setApproTypeName(internalTemplateName);
         }
 
         return vo;
@@ -847,8 +849,9 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         ApprovalStatus actionStatus = statusFromConfirmAction(fo.getConfirmActionType(), fo.getAutoExecConfig().getAutoExecType());
         if (actionStatus == ApprovalStatus.WAIT_EXEC) {
             String jobBizId = DmTeamUtils.nextExecJobBizId();
+            Locale locale = DmI18nUtils.getLocale();
             this.confirmTicketInNewTransaction(ticketId, fo, actionStatus);
-            if (!this.approvalTaskScheduler.submitControlTask(ticketId, () -> this.prepareExecJobAsync(ticketId, fo, jobBizId))) {
+            if (!this.approvalTaskScheduler.submitControlTask(ticketId, () -> this.prepareExecJobAsync(ticketId, fo, jobBizId, locale))) {
                 String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_EXEC_TASK_SUBMIT_BUSY.name());
                 this.restoreExecutionConfirmation(ticketId, message);
                 throw new ErrorMessageException(message);
@@ -859,7 +862,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         return null;
     }
 
-    private void prepareExecJobAsync(long ticketId, DmConfirmTicketFO fo, String jobBizId) {
+    private void prepareExecJobAsync(long ticketId, DmConfirmTicketFO fo, String jobBizId, Locale locale) {
         try {
             DmApprovalDO rdpTicketDO = this.checkTicket(ticketId);
             checkJobOperationEnable(rdpTicketDO, fo.getConfirmUid());
@@ -871,7 +874,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             if (dmTicketDO == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
             }
-            this.createExecJob(fo, rdpTicketDO, dmTicketDO, jobBizId);
+            this.createExecJob(fo, rdpTicketDO, dmTicketDO, jobBizId, locale);
             this.updateAutoExecFlag(ticketId, true);
             this.autoExecService.startJob(jobBizId, fo.getConfirmUid());
         } catch (RuntimeException e) {
@@ -883,7 +886,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 log.error("Cleanup prepared auto execution job failed, jobBizId={}", jobBizId, cleanupError);
             }
             String failure = StringUtils.isBlank(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PREPARE_ERROR_MESSAGE.name(), failure);
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PREPARE_ERROR_MESSAGE.name(), locale, failure);
             this.restoreExecutionConfirmation(ticketId, message);
         }
     }
@@ -977,7 +980,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         });
     }
 
-    private void createExecJob(DmConfirmTicketFO fo, DmApprovalDO rdpTicket, DmApprovalDO dmTicket, String jobBizId) {
+    private void createExecJob(DmConfirmTicketFO fo, DmApprovalDO rdpTicket, DmApprovalDO dmTicket, String jobBizId, Locale locale) {
         DsCacheEntry dsCacheEntry = objectCacheDao.queryByDsId(rdpTicket.getBindDsId());
         Long dsEnvId = dsCacheEntry.getEnvId();
 
@@ -1005,6 +1008,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             .retryWaitTime(config.getRetryWaitTime())
             .retryCount(config.getRetryCount())
             .execTime(config.getExecTime())
+            .languageTag(locale.toLanguageTag())
             .build();
         this.approvalService.consumeSqlFile(dmTicket.getId(), sqlFile -> {
             try (Reader reader = Files.newBufferedReader(sqlFile, StandardCharsets.UTF_8);
