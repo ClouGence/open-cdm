@@ -4443,7 +4443,7 @@
   "object-browser-search-generic-placeholder": "Search object name",
   "object-browser-search-datasource-placeholder": "Search data source name",
   "ticket-current-stage": "Current Stage",
-  "ticket-number": "Work Order No.",
+  "ticket-number": "Work Order ID",
   "ticket-information": "Title",
   "ticket-application-template": "Template",
   "ticket-step-details": "Step Details",
