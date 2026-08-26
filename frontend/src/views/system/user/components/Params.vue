@@ -2,12 +2,6 @@
   <div class="param-list">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem to="/datasource">{{ $t('cha-xun-pei-zhi') }}</BreadcrumbItem>
-            <BreadcrumbItem>{{ $t('xiu-gai-can-shu-pei-zhi') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <DmDsParamsPanel :data-source-id="dataSourceId" />
       </div>
     </div>

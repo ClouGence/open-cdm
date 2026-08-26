@@ -33,7 +33,10 @@ const systemChildren = [
     path: '/settings/preferences',
     name: '/settings/preferences',
     component: Preference,
-    meta: { requiredAuth: 'RDP_PRI_USER_KV_CONF_R' }
+    meta: {
+      requiredAuth: 'RDP_PRI_USER_KV_CONF_R',
+      breadcrumbs: [{ labelKey: 'nav-tong-yong' }]
+    }
   },
   {
     path: 'preference',
@@ -60,19 +63,30 @@ const routes = [
       {
         path: 'cicd',
         name: 'CICD',
-        component: () => import(/* webpackChunkName: "cicd" */ '@/views/cicd/index')
+        component: () => import(/* webpackChunkName: "cicd" */ '@/views/cicd/index'),
+        meta: { breadcrumbs: [{ labelKey: 'nav-ci-cd' }] }
       },
       {
         path: 'cicd/create',
         name: 'cicd/create',
         component: () => import(/* webpackChunkName: "cicd-release-flow" */ '@/views/cicd/ReleaseFlowPage'),
-        meta: { requiredAuth: 'DM_CICD_FLOW_MANAGE' }
+        meta: {
+          requiredAuth: 'DM_CICD_FLOW_MANAGE',
+          breadcrumbs: [{ labelKey: 'nav-ci-cd', to: '/cicd' }, { labelKey: 'chuang-jian-xiang-mu' }]
+        }
       },
       {
         path: 'cicd/:id/release-flow/add',
         name: 'cicd/release-flow/add',
         component: () => import(/* webpackChunkName: "cicd-release-flow" */ '@/views/cicd/ReleaseFlowPage'),
-        meta: { requiredAuth: 'DM_CICD_FLOW_MANAGE' }
+        meta: {
+          requiredAuth: 'DM_CICD_FLOW_MANAGE',
+          breadcrumbs: [
+            { labelKey: 'nav-ci-cd', to: '/cicd' },
+            { labelKey: 'cicd-bian-geng-liu-xiang-qing', param: 'id', to: (route) => `/cicd/${route.params.id}` },
+            { labelKey: 'tian-jia-git-ops' }
+          ]
+        }
       },
       {
         path: 'cicd/:id/change-records',
@@ -81,7 +95,14 @@ const routes = [
       {
         path: 'cicd/:id/config',
         name: 'cicd/config',
-        component: () => import(/* webpackChunkName: "cicd-release-flow-config" */ '@/views/cicd/flowConfig')
+        component: () => import(/* webpackChunkName: "cicd-release-flow-config" */ '@/views/cicd/flowConfig'),
+        meta: {
+          breadcrumbs: [
+            { labelKey: 'nav-ci-cd', to: '/cicd' },
+            { labelKey: 'cicd-bian-geng-liu-xiang-qing', param: 'id', to: (route) => `/cicd/${route.params.id}` },
+            { labelKey: 'cicd-pei-zhi-xiang' }
+          ]
+        }
       },
       {
         path: 'cicd/change/:id',
@@ -90,22 +111,38 @@ const routes = [
       {
         path: 'cicd/:id',
         name: 'cicd/id',
-        component: () => import(/* webpackChunkName: "ticket" */ '../views/cicd/flowDetail')
+        component: () => import(/* webpackChunkName: "ticket" */ '../views/cicd/flowDetail'),
+        meta: {
+          breadcrumbs: [
+            { labelKey: 'nav-ci-cd', to: '/cicd' },
+            { labelKey: 'cicd-bian-geng-liu-xiang-qing', param: 'id' }
+          ]
+        }
       },
       {
         path: 'ticket',
         name: 'Ticket',
-        component: Ticket
+        component: Ticket,
+        meta: { breadcrumbs: [{ labelKey: 'gong-dan' }] }
       },
       {
         path: '/ticket/:id',
         name: 'Ticket/id',
-        component: () => import(/* webpackChunkName: "ticket" */ '../views/ticket/ticketDetail')
+        component: () => import(/* webpackChunkName: "ticket" */ '../views/ticket/ticketDetail'),
+        meta: {
+          breadcrumbs: [
+            { labelKey: 'gong-dan', to: '/ticket' },
+            { labelKey: 'gong-dan-xiang-qing', param: 'id' }
+          ]
+        }
       },
       {
         path: '/ticket_create',
         name: 'Ticket_create',
-        component: () => import(/* webpackChunkName: "ticket" */ '../views/ticket/ticket')
+        component: () => import(/* webpackChunkName: "ticket" */ '../views/ticket/ticket'),
+        meta: {
+          breadcrumbs: [{ labelKey: 'gong-dan', to: '/ticket' }, { labelKey: 'xin-jian' }]
+        }
       },
       {
         path: 'dmdatasource',

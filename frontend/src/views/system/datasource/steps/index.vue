@@ -1,11 +1,5 @@
 <template>
   <div class="add-datasource-steps">
-    <a-breadcrumb style="margin-bottom: 20px">
-      <a-breadcrumb-item>
-        <a href="/#/datasource">{{ $t('shu-ju-yuan-guan-li') }}</a>
-      </a-breadcrumb-item>
-      <a-breadcrumb-item>{{ $t('xin-zeng-shu-ju-yuan') }}</a-breadcrumb-item>
-    </a-breadcrumb>
     <div v-if="step !== 1" class="info">
       <section>
         <div>{{ $t('bu-shu-lei-xing') }}</div>

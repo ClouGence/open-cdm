@@ -1,13 +1,5 @@
 <template>
   <div class="add-desensitization">
-    <a-breadcrumb>
-      <a-breadcrumb-item>
-        <router-link :to="{ name: 'System_Desensitization' }">
-          {{ $t('shu-ju-tuo-min') }}
-        </router-link>
-      </a-breadcrumb-item>
-      <a-breadcrumb-item>{{ $t('xin-zeng-tuo-min-ce-lve') }}</a-breadcrumb-item>
-    </a-breadcrumb>
     <div class="tip">
       <b>{{ $t('ban-zhe-yan-tuo-min-can-shu-ge-shi') }}:</b>
       {{ $t('36-biao-shi-di-3456-wei-zhe-yan-5-biao-shi-zui-hou-5-wei-zhe-yan-geng-duo-can-shu-ge-shi-can-kao') }}

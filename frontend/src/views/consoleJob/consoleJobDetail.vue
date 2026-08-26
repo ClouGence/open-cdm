@@ -1,11 +1,5 @@
 <template>
   <div class="console-job-detail-wrapper">
-    <a-breadcrumb style="margin-bottom: 14px">
-      <a-breadcrumb-item>
-        <a href="/#/system/info_center">{{ $t('xiao-xi-zhong-xin') }}</a>
-      </a-breadcrumb-item>
-      <a-breadcrumb-item>{{ $t('xiang-qing') }}</a-breadcrumb-item>
-    </a-breadcrumb>
     <div class="console-job-detail-container">
       <div class="console-job-detail-title">
         <span class="console-job-detail-label">{{ $t('yi-bu-ren-wu-ming-cheng') }}:</span>

@@ -1,13 +1,5 @@
 <template>
   <div class="add-data-rule">
-    <a-breadcrumb>
-      <a-breadcrumb-item>
-        <router-link :to="{ name: 'System_Data_Rules' }">
-          {{ $t('shu-ju-chu-li-gui-ze-guan-li') }}
-        </router-link>
-      </a-breadcrumb-item>
-      <a-breadcrumb-item>{{ $t('xin-zeng-gui-ze') }}</a-breadcrumb-item>
-    </a-breadcrumb>
     <div class="content">
       <cc-table-tree-select :get-columns="getColumns" :nums="modifiedTableNumObj" :check-errors="checkRuleExpr" />
       <div class="columns">
