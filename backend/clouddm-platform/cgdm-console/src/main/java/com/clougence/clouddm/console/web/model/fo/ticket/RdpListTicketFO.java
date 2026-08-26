@@ -38,6 +38,10 @@ public class RdpListTicketFO {
 
     private String            ticketTitleName;
 
+    private String            ticketDescription;
+
+    private String            ticketContent;
+
     private ApprovalStatus    ticketStatus;
 
     private RdpTicketListType ticketListType;

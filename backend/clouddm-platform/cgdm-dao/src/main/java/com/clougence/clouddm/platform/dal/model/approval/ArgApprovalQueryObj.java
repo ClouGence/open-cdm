@@ -45,6 +45,10 @@ public class ArgApprovalQueryObj {
 
     private String          ticketTitleName;
 
+    private String          ticketDescription;
+
+    private String          ticketContent;
+
     private List<Long>      dsIds;
 
     private String          approvalPersonUid;
