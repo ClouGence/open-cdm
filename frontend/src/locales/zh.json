@@ -4439,7 +4439,7 @@
   "object-browser-search-generic-placeholder": "搜索对象名称",
   "object-browser-search-datasource-placeholder": "搜索数据源名称",
   "ticket-current-stage": "当前阶段",
-  "ticket-number": "工单编号",
+  "ticket-number": "工单号",
   "ticket-information": "标题",
   "ticket-application-template": "应用模板",
   "ticket-step-details": "步骤详情",
