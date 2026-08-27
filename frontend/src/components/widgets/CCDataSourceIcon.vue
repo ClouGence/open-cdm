@@ -30,15 +30,17 @@
       v-if="type === 'Cloudberry' && instanceType !== 'ALIBABA_CLOUD_HOSTED'"
     />
     <cc-iconfont name="redis" :color="color" :size="size" v-if="type === 'Redis'"></cc-iconfont>
+    <img :src="valkeyIcon" :style="`width:${size || 16}px;height:${size || 16}px;vertical-align:middle`" alt="" v-if="type === 'Valkey'" />
     <cc-iconfont name="sql-server" :color="color" :size="size" v-if="type === 'SQLServer'"></cc-iconfont>
   </div>
 </template>
 <script>
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
+import valkeyIcon from '@/assets/datasource/valkey.svg';
 
 export default {
   data() {
-    return { cloudberryIcon };
+    return { cloudberryIcon, valkeyIcon };
   },
   props: {
     type: String,

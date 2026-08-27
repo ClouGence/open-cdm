@@ -11,7 +11,7 @@ export const toUtcISOString = (value) => {
 
 export const generateData = (list) => list;
 
-export const noStruct = (type) => type === 'Redis';
+export const noStruct = (type) => ['Redis', 'Valkey'].includes(type);
 
 export const isPG = (type) => DataSourceGroup.pg.includes(type);
 export const isMySQL = (type) => DataSourceGroup.mysql.includes(type);

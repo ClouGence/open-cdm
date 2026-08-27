@@ -49,4 +49,7 @@
     <driver driverFamily="Jedis" version="7.4.1">
         <resource type="maven">redis.clients:jedis:7.4.1</resource>
     </driver>
+    <driver driverFamily="Valkey GLIDE" version="2.5.1">
+        <resource type="maven">io.valkey:valkey-glide:2.5.1</resource>
+    </driver>
 </drivers>

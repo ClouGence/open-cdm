@@ -29,6 +29,7 @@ export default {
       ClickHouse: 'ClickHouse',
       MongoDB: 'MongoDB',
       Redis: 'Redis',
+      Valkey: 'Redis',
       SQLServer: 'SQLServer'
     },
     AWS_CLOUD_HOSTED: {

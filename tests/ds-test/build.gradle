@@ -48,6 +48,7 @@ dependencies {
     testImplementation(project(':ds-starrocks'))
     testImplementation(project(':ds-clickhouse'))
     testImplementation(project(':ds-redis'))
+    testImplementation(project(':ds-valkey'))
     testImplementation(project(':ds-hologres'))
     testImplementation(project(':ds-mongodb'))
     testImplementation 'junit:junit:4.12'
