@@ -361,7 +361,7 @@
                       <Icon type="ios-alert-outline" />
                     </Poptip>
                     <span :class="['ticket-execution-status', `is-${autoExecJobInfo.status || 'INIT'}`]">
-                      {{ AUTO_EXEC_JOB_STATUS_I18N[autoExecJobInfo.status] }}
+                      {{ autoExecJobStatusText(autoExecJobInfo.status) }}
                     </span>
                   </span>
                   <div class="ticket-execution-context">
@@ -371,7 +371,7 @@
                   </div>
                   <div class="ticket-execution-actions">
                     <Button v-if="autoExecJobInfo.canEnd" type="text" size="small" @click="handleShowEndAutoExecJobModal">
-                      {{ $t('zhong-zhi') }}
+                      {{ $t('ticket-execution-action-terminate') }}
                     </Button>
                     <Button v-if="autoExecJobInfo.canPause" type="text" size="small" @click="handleShowStopAutoExecJobModal">
                       {{ $t('zan-ting') }}
@@ -384,7 +384,7 @@
                     </Button>
                     <Button type="text" size="small" @click="handleAutoExecLog(null)">
                       <Icon type="ios-list-box-outline" />
-                      {{ $t('tiao-du-ri-zhi') }}
+                      {{ $t('ticket-execution-scheduling-log') }}
                     </Button>
                     <Button type="text" size="small" @click="handleRefreshTaskList">
                       <Icon type="md-refresh" />
@@ -405,7 +405,7 @@
                         <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border size="small">
                           <template #status="{ row }">
                             <span :class="['ticket-task-status', `is-${row.status}`]">
-                              {{ AUTO_EXEC_TASK_STATUS_I18N[row.status] }}
+                              {{ autoExecTaskStatusText(row.status) }}
                             </span>
                           </template>
                           <template #action="{ row }">
@@ -413,10 +413,10 @@
                               {{ $t('cha-kan') }}
                             </Button>
                             <Button type="text" size="small" @click="handleAutoExecLog(row)">
-                              {{ $t('ri-zhi') }}
+                              {{ $t('ticket-execution-action-log') }}
                             </Button>
                             <Button v-if="row.canSkip" type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)">
-                              {{ $t('tiao-guo') }}
+                              {{ $t('ticket-execution-action-skip') }}
                             </Button>
                             <Button v-if="row.canCancelSkip" type="text" size="small" @click="handleShowContinueAutoExecTaskModal(row)">
                               {{ $t('qu-xiao-tiao-guo') }}
@@ -651,10 +651,10 @@
         <Button @click="handleCloseModal">{{ $t('qu-xiao') }}</Button>
       </template>
     </CCModal>
-    <CCModal v-model="showAutoExecJobLogModal" :title="$t('ri-zhi')" @ok="handleCloseModal" :width="800">
+    <CCModal v-model="showAutoExecJobLogModal" :title="$t('ticket-execution-scheduling-log')" @ok="handleCloseModal" :width="800">
       <Table :columns="autoExecJobLogColumns" :data="autoExecJobLogList" border size="small" />
     </CCModal>
-    <CCModal v-model="showAutoExecTaskLogModal" :title="$t('ri-zhi')" @ok="handleCloseModal" :width="800">
+    <CCModal v-model="showAutoExecTaskLogModal" :title="$t('ticket-execution-action-log')" @ok="handleCloseModal" :width="800">
       <Table :columns="autoExecJobLogColumns" :data="autoExecTaskLogList" border size="small" />
     </CCModal>
     <CCModal v-model="showAutoExecTaskSQLModal" :title="$t('sql-yu-ju')" width="80vw" centered :draggable="false" class="responsive-sql-modal">
@@ -684,10 +684,10 @@
     <CCModal v-model="showRetryAutoExecJobModal" :title="$t('zhong-shi')" @ok="handleRetryAutoExecJob">
       {{ $t('jiang-zhong-xin-zhi-hang-yi-shi-bai-dai-zhi-hang-hui-gun-he-dai-que-ren-de-ren-wu') }}
     </CCModal>
-    <CCModal v-model="showEndAutoExecJobModal" :title="$t('zhong-zhi')" @ok="handleEndAutoExecJob">
+    <CCModal v-model="showEndAutoExecJobModal" :title="$t('ticket-execution-action-terminate')" @ok="handleEndAutoExecJob">
       {{ $t('zhong-zhi-hou-jiang-wu-fa-zhi-hang-ren-wu-qie-hui-guan-bi-gong-dan') }}
     </CCModal>
-    <CCModal v-model="showSkipAutoExecTaskModal" :title="$t('tiao-guo')" @ok="handleSkipAutoExecTask">
+    <CCModal v-model="showSkipAutoExecTaskModal" :title="$t('ticket-execution-action-skip')" @ok="handleSkipAutoExecTask">
       {{ $t('tiao-guo-hou-zhong-shi-ren-wu-shi-jiang-hui-tiao-guo-gai-sql-zhi-hang') }}
     </CCModal>
     <CCModal v-model="showContinueSkipAutoExecTaskModal" :title="$t('qu-xiao-tiao-guo')" @ok="handleContinueAutoExecTask">
@@ -750,25 +750,25 @@ const aggregateDmlExplainDetails = (details) => {
   });
 };
 
-const AUTO_EXEC_JOB_STATUS_I18N = {
-  INIT: '待执行',
-  WAIT_EXEC: '待执行',
-  EXECUTING: '执行中',
-  FAILED: '失败',
-  PAUSE: '暂停',
-  PAUSING: '暂停中',
-  FINISH: '已完成',
-  TERMINATION: '终止'
+const AUTO_EXEC_JOB_STATUS_I18N_KEYS = {
+  INIT: 'ticket-execution-waiting',
+  WAIT_EXEC: 'ticket-execution-waiting',
+  EXECUTING: 'ticket-execution-running',
+  FAILED: 'ticket-execution-failed',
+  PAUSE: 'ticket-execution-paused',
+  PAUSING: 'ticket-execution-pausing',
+  FINISH: 'ticket-execution-complete',
+  TERMINATION: 'ticket-execution-terminated'
 };
 
-const AUTO_EXEC_TASK_STATUS_I18N = {
-  WAIT_EXEC: '待执行',
-  EXECUTING: '执行中',
-  WAIT_CONFIRM: '等待确认',
-  FAILED: '失败',
-  FINISH: '完成',
-  ROLLBACK: '回滚',
-  CANCELED: '取消'
+const AUTO_EXEC_TASK_STATUS_I18N_KEYS = {
+  WAIT_EXEC: 'ticket-execution-waiting',
+  EXECUTING: 'ticket-execution-running',
+  WAIT_CONFIRM: 'ticket-execution-awaiting-confirmation',
+  FAILED: 'ticket-execution-failed',
+  FINISH: 'ticket-execution-complete',
+  ROLLBACK: 'ticket-execution-rollback',
+  CANCELED: 'ticket-execution-canceled'
 };
 
 export default {
@@ -812,17 +812,17 @@ export default {
       showAutoExecTaskLogModal: false,
       autoExecJobLogColumns: [
         {
-          title: '等级',
+          title: this.$t('deng-ji'),
           key: 'logLevel',
           width: 100
         },
         {
-          title: '时间',
+          title: this.$t('shi-jian'),
           key: 'time',
           width: 200
         },
         {
-          title: '内容',
+          title: this.$t('nei-rong'),
           key: 'content'
         }
       ],
@@ -834,12 +834,12 @@ export default {
       autoExecTaskColumns: [],
       autoExecTaskColumnsWithTrans: [
         {
-          title: '序号',
+          title: this.$t('xu-hao'),
           key: 'executeOrder',
           width: 80
         },
         {
-          title: '执行次数',
+          title: this.$t('zhi-xing-ci-shu'),
           key: 'execCount',
           width: 100
         },
@@ -854,17 +854,17 @@ export default {
         //   width: 100
         // },
         {
-          title: '状态',
+          title: this.$t('zhuang-tai'),
           slot: 'status',
           width: 100
         },
         {
-          title: 'SQL 语句',
+          title: this.$t('sql-yu-ju'),
           key: 'execSql',
           ellipsis: true
         },
         {
-          title: '操作',
+          title: this.$t('cao-zuo'),
           width: 200,
           fixed: 'right',
           slot: 'action'
@@ -872,12 +872,12 @@ export default {
       ],
       autoExecTaskColumnsWithoutTrans: [
         {
-          title: '序号',
+          title: this.$t('xu-hao'),
           key: 'executeOrder',
           width: 80
         },
         {
-          title: '执行次数',
+          title: this.$t('zhi-xing-ci-shu'),
           key: 'execCount',
           width: 100
         },
@@ -887,24 +887,22 @@ export default {
         //   width: 100
         // },
         {
-          title: '状态',
+          title: this.$t('zhuang-tai'),
           slot: 'status',
           width: 100
         },
         {
-          title: 'SQL 语句',
+          title: this.$t('sql-yu-ju'),
           key: 'execSql',
           ellipsis: true
         },
         {
-          title: '操作',
+          title: this.$t('cao-zuo'),
           width: 200,
           fixed: 'right',
           slot: 'action'
         }
       ],
-      AUTO_EXEC_JOB_STATUS_I18N,
-      AUTO_EXEC_TASK_STATUS_I18N,
       autoExecJobInfo: {},
       autoExecTaskList: [],
       page: 1,
@@ -1145,6 +1143,14 @@ export default {
   methods: {
     isCk,
     isMongoDB,
+    autoExecJobStatusText(status) {
+      const key = AUTO_EXEC_JOB_STATUS_I18N_KEYS[status];
+      return key ? this.$t(key) : status || '-';
+    },
+    autoExecTaskStatusText(status) {
+      const key = AUTO_EXEC_TASK_STATUS_I18N_KEYS[status];
+      return key ? this.$t(key) : status || '-';
+    },
     formatResourcePath(targetInfo) {
       if (!targetInfo) {
         return '-';
@@ -1521,7 +1527,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('终止成功');
+        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1535,7 +1541,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('重试成功');
+        this.$Message.success(this.$t('zhong-shi-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1550,7 +1556,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('暂停成功');
+        this.$Message.success(this.$t('zan-ting-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1566,7 +1572,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('跳过成功');
+        this.$Message.success(this.$t('tiao-guo-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1582,7 +1588,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('取消跳过成功');
+        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -3309,25 +3315,22 @@ export default {
 
 .ticket-execution-context {
   min-width: 0;
+  align-items: flex-start;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 4px;
   color: var(--text-secondary);
   font-size: 13px;
+  line-height: 20px;
+}
+
+.ticket-execution-context > span {
+  display: block;
+  white-space: nowrap;
 }
 
 .ticket-execution-context > span + span {
-  position: relative;
-  padding-left: 13px;
-}
-
-.ticket-execution-context > span + span::before {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--border-primary);
-  transform: translateY(-50%);
-  content: '';
+  padding-left: 0;
 }
 
 .ticket-execution-status,

@@ -13,3 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.clougence.clouddm.sdk.execute.dsconf.capability;
+
+/**
+ * Extended datasource properties for specifying a client time zone.
+ */
+public interface ClientTimeZoneExtProperties {
+
+    String CLIENT_TIME_ZONE_FIELD = "clientTimeZone";
+
+    String getClientTimeZone();
+}

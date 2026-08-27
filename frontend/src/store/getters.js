@@ -80,7 +80,15 @@ export default {
     }
   },
   getEditor: (state) => (id) => state.editorSet[id],
-  getTargetType: (state) => (targetType) => state.ruleSetting.queryConf.targets.find((target) => target.name === targetType),
+  getTargetType: (state) => (targetType) => {
+    const targets = state.ruleSetting.queryConf.targets || {};
+    if (Array.isArray(targets)) {
+      return targets.find((target) => target.name === targetType);
+    }
+    return Object.values(targets)
+      .flat()
+      .find((target) => target.name === targetType);
+  },
   getSenMode: (state) => (senMode) => state.ruleSetting.senConf.senMode.find((sen) => sen.name === senMode),
   getMatchMode: (state) => (ruleKind, matchMode) =>
     state.ruleSetting[RULE_KIND_CONF_MAP[ruleKind]].matchMode.find((match) => match.name === matchMode),

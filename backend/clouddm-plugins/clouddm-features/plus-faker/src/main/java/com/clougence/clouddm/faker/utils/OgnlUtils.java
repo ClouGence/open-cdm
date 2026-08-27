@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.faker.utils;
 
-import net.hasor.cobble.ExceptionUtils;
+import com.clougence.utils.ExceptionUtils;
 import ognl.Ognl;
 import ognl.OgnlContext;
 

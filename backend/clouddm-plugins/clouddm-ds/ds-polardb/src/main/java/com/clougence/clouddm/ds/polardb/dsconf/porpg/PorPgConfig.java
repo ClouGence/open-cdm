@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.ds.polardb.i18n.PorPgConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,7 +37,8 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = PorPgSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PorPgConfig extends DataSourceConfig {
+public class PorPgConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultCatalog, //
             group = DsConfigGroup.GENERAL, labelKey = PorPgConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = PorPgConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
@@ -45,7 +47,7 @@ public class PorPgConfig extends DataSourceConfig {
             group = DsConfigGroup.GENERAL, labelKey = PorPgConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = PorPgConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, //
             group = DsConfigGroup.OPTIONS, labelKey = PorPgConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = PorPgConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED

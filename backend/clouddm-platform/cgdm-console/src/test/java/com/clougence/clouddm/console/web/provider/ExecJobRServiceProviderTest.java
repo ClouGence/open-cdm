@@ -65,6 +65,7 @@ public class ExecJobRServiceProviderTest {
         job.setDependOnBizId("approval-biz");
         job.setStatus(AutoExecJobStatus.EXECUTING);
         when(jobMapper.selectById(6L)).thenReturn(job);
+        when(jobMapper.queryById(6L)).thenReturn(job);
 
         DmExecAutoTaskDO task = new DmExecAutoTaskDO();
         task.setId(9L);

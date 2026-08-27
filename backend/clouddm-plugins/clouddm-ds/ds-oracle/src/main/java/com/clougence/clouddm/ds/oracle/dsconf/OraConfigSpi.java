@@ -33,6 +33,8 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.clouddm.dsfamily.oracle.i18n.OraConfigI18nKeys;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
@@ -79,6 +81,31 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         return field;
     }
 
+    private static void optionsPanel(UiPanel optionsPanel) {
+        UiPanelField clientCharset = optionsPanel.findField(ClientCharsetExtProperties.CLIENT_CHARSET_FIELD);
+        if (clientCharset == null) {
+            return;
+        }
+
+        List<String> commonCharsets = List.of("AL32UTF8", "UTF8", "ZHS16GBK", "WE8MSWIN1252", "WE8ISO8859P1", "JA16SJIS", "KO16MSWIN949");
+        List<ValueDef> options = new ArrayList<>();
+        options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_CLIENT_CHARSET_EMPTY_LABEL, ""));
+        for (String charset : commonCharsets) {
+            options.add(strValueDef(charset));
+        }
+        if (clientCharset.getDefaultValue() != null && clientCharset.getDefaultValue().asValue() != null) {
+            String currentCharset = String.valueOf(clientCharset.getDefaultValue().asValue());
+            boolean isCommonCharset = commonCharsets.stream().anyMatch(item -> StringUtils.equalsIgnoreCase(item, currentCharset));
+            if (StringUtils.isNotBlank(currentCharset) && !isCommonCharset) {
+                options.add(strValueDef(currentCharset));
+            }
+        }
+
+        clientCharset.setType(UiPanelFieldType.Options);
+        clientCharset.setOptions(options);
+        clientCharset.setProps(Map.of("allowCreate", true));
+    }
+
     @Override
     public String defaultPort() {
         return "1521";
@@ -101,7 +128,8 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         config.setPdbName(defaultConfig.get(OraConfig.Fields.pdbName));
         config.setTnsAdmin(defaultConfig.get(OraConfig.Fields.tnsAdmin));
         config.setTnsName(defaultConfig.get(OraConfig.Fields.tnsName));
-        config.setClientTimeZone(defaultConfig.get(OraConfig.Fields.clientTimeZone));
+        config.setClientTimeZone(defaultConfig.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD));
+        config.setClientCharset(defaultConfig.get(ClientCharsetExtProperties.CLIENT_CHARSET_FIELD));
         if (StringUtils.isNotBlank(config.getHost())) {
             String[] ipPort = config.getHost().split(":");
             if (ipPort.length == 3) {
@@ -283,5 +311,10 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         }
 
         generalPanel(general);
+
+        UiPanel options = panels.get(DsConfigGroup.OPTIONS);
+        if (options != null) {
+            optionsPanel(options);
+        }
     }
 }

@@ -23,6 +23,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.clickhouse.i18n.ChConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DriverSpecUtils;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -37,7 +38,8 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = ChSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChConfig extends DataSourceConfig {
+public class ChConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultSchema, //
             group = DsConfigGroup.GENERAL, labelKey = ChConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = ChConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
@@ -46,7 +48,7 @@ public class ChConfig extends DataSourceConfig {
     @ConfigDef(name = Fields.sessionTimeout, defaultValue = "15000", //
             group = DsConfigGroup.OPTIONS, labelKey = ChConfigI18nKeys.CONFIG_CLICKHOUSE_SESSION_TIME_OUT_LABEL, descKey = ChConfigI18nKeys.CONFIG_CLICKHOUSE_SESSION_TIME_OUT, readOnly = false)
     private String  sessionTimeout;
-    @ConfigDef(name = Fields.clientTimeZone, //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, //
             group = DsConfigGroup.OPTIONS, labelKey = ChConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = ChConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED

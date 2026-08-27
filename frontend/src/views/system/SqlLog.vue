@@ -524,7 +524,7 @@ export default {
     },
 
     formatDsRemark(dsRemark) {
-      return `备注: ${dsRemark || ''}`;
+      return `${this.$t('bei-zhu')}: ${dsRemark || ''}`;
     },
 
     syncTimeRangeQuery() {

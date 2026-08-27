@@ -69,6 +69,23 @@
         features
     </sql>
 
+    <sql id="basic_ticket_col">
+        id,
+        biz_id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        bind_ds_id,
+        target_info,
+        appro_type,
+        appro_biz,
+        appro_template_name,
+        description,
+        ticket_title,
+        ticket_status,
+        finish_time
+    </sql>
+
     <!--   =============================== ========================================================================-->
 
     <update id="updateStatusByEnum">
@@ -167,7 +184,7 @@
 
     <select id="listTicketByConditionAndPage" resultMap="DmApprovalDO">
         select
-        <include refid="all_ticket_col"/>
+        <include refid="basic_ticket_col"/>
         from
         dm_approval
         <where>
@@ -177,6 +194,16 @@
         <if test="ticketQuery.ticketId != null"><![CDATA[ AND id = #{ticketQuery.ticketId} ]]></if>
         <if test="ticketQuery.ticketBizId != null"><![CDATA[ AND biz_id = #{ticketQuery.ticketBizId} ]]></if>
         <if test="ticketQuery.ticketTitleName != null"><![CDATA[ AND ticket_title LIKE concat('%',#{ticketQuery.ticketTitleName},'%') ]]></if>
+        <if test="ticketQuery.ticketDescription != null"><![CDATA[
+            AND
+                description LIKE CONCAT('%', #{ticketQuery.ticketDescription}, '%')
+        ]]></if>
+        <if test="ticketQuery.ticketContent != null"><![CDATA[
+            AND
+                content_type = 'INLINE'
+            AND
+                raw_sql LIKE CONCAT('%', #{ticketQuery.ticketContent}, '%')
+        ]]></if>
         <if test="ticketQuery.ticketStatus != null"><![CDATA[ AND ticket_status =#{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]></if>
         <if test="ticketQuery.dsIds != null and ticketQuery.dsIds.size() >0"> AND bind_ds_id in <foreach collection="ticketQuery.dsIds" item="item" separator="," open="(" close=")">#{item}</foreach></if>
         and primary_uid = #{puid}
@@ -209,14 +236,7 @@
         a.deleted,
         a.primary_uid,
         a.env_name,
-        a.approval_url,
-        a.raw_sql,
-        a.content_type,
-        a.expected_affected_rows,
-        a.roll_back_sql,
-        a.ticket_info,
-        a.levels,
-        a.features
+        a.approval_url
         from
         dm_approval a
         left join dm_approval_person b on a.biz_id = b.ticket_bz_id
@@ -227,6 +247,16 @@
         <if test="ticketQuery.ticketId != null"><![CDATA[ AND a.id = #{ticketQuery.ticketId} ]]></if>
         <if test="ticketQuery.ticketBizId != null"><![CDATA[ AND a.biz_id = #{ticketQuery.ticketBizId} ]]></if>
         <if test="ticketQuery.ticketTitleName != null"><![CDATA[ AND a.ticket_title LIKE concat('%',#{ticketQuery.ticketTitleName},'%') ]]></if>
+        <if test="ticketQuery.ticketDescription != null"><![CDATA[
+            AND
+                a.description LIKE CONCAT('%', #{ticketQuery.ticketDescription}, '%')
+        ]]></if>
+        <if test="ticketQuery.ticketContent != null"><![CDATA[
+            AND
+                a.content_type = 'INLINE'
+            AND
+                a.raw_sql LIKE CONCAT('%', #{ticketQuery.ticketContent}, '%')
+        ]]></if>
         <if test="ticketQuery.ticketStatus != null"><![CDATA[ AND a.ticket_status =#{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]></if>
         <if test="ticketQuery.approvalPersonUid != null"><![CDATA[ AND b.person_uid = #{ticketQuery.approvalPersonUid} ]]></if>
         and a.deleted = false

@@ -35,4 +35,5 @@ public class AutoExecCreateMO {
     private final Long          retryWaitTime;
     private final Long          retryCount;
     private final Long          execTime;
+    private final String        languageTag;
 }

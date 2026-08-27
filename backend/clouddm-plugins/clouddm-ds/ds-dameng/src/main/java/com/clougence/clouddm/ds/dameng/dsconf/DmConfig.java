@@ -22,6 +22,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.dameng.i18n.DmConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -38,13 +39,14 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = DmSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DmConfig extends DataSourceConfig {
+public class DmConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultSchema, //
             group = DsConfigGroup.GENERAL, labelKey = DmConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = DmConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, //
             group = DsConfigGroup.OPTIONS, labelKey = DmConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = DmConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED

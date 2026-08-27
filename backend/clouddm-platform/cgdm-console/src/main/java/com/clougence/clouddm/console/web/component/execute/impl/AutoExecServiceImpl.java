@@ -153,6 +153,7 @@ public class AutoExecServiceImpl implements AutoExecService {
         jobConfig.setRetryWaitTime(request.getRetryWaitTime());
         jobConfig.setErrorStrategy(request.getErrorStrategy());
         jobConfig.setRetryCount(request.getRetryCount());
+        jobConfig.setLanguageTag(request.getLanguageTag());
         job.setConfig(jobConfig);
         if (job.getExecType() == AutoExecType.IMMEDIATE) {
             job.setScheduleTime(new Date());

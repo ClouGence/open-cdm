@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.base.metadata.ui.form;
 
+import java.util.Locale;
+
 import com.clougence.utils.i18n.I18nUtils;
 
 import lombok.Getter;
@@ -33,6 +35,13 @@ public class UiPanel extends UiChildren implements UiI18n {
         this.titleI18N = messages.getMessage(this.titleI18N);
         this.descI18N = messages.getMessage(this.descI18N);
         super.initI18n(messages);
+    }
+
+    @Override
+    public void initI18n(I18nUtils messages, Locale locale) {
+        this.titleI18N = messages.getMessage(this.titleI18N, null, locale);
+        this.descI18N = messages.getMessage(this.descI18N, null, locale);
+        super.initI18n(messages, locale);
     }
 
     public UiPanel addField(UiPanelField fieldDef) {

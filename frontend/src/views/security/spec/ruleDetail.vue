@@ -46,7 +46,8 @@ export default {
       if (!this.ruleDetail.targetType) {
         return '-';
       }
-      return this.ruleDetail.targetTypeI18n || this.getTargetType(this.ruleDetail.targetType).i18n || this.ruleDetail.targetType;
+      const targetType = this.getTargetType(this.ruleDetail.targetType);
+      return targetType?.i18n || this.ruleDetail.targetTypeI18n || this.ruleDetail.targetType;
     },
     warnLevelText() {
       return this.RULE_WARN_LEVEL[this.ruleDetail.warnLevel] || this.ruleDetail.warnLevel || '-';
