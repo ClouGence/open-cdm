@@ -1,6 +1,6 @@
-# Codex Skills
+# Skills
 
-This directory contains project-specific Codex skills for maintaining open-cdm.
+This directory contains project-specific skills for maintaining open-cdm.
 
 ## Available Skills
 
