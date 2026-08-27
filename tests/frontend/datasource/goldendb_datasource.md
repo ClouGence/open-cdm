@@ -29,7 +29,6 @@ GoldenDB Lite 7.3.02.02 可作为标准 JDBC、元信息、DML 和事务的补�
   的运行时驱动目录约定安装；
 - IDEA 中 `DmAloneLauncher` 为 `RUNNING`，运行时加载的是本次构建的 `ds-goldendb-lib.jar`；
 - Chrome 已登录隔离测试账号，任务标签页位于 `codex` 组；
-- 已读取 `.design_docs/goldendb-datasource-support-design.md`；
 - 不读取浏览器 Cookie、Token、保存密码或 local storage。
 
 ## Test Data
