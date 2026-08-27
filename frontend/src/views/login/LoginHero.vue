@@ -59,6 +59,8 @@ const FOUNTAIN_TYPES = [
   'StarRocks',
   'Db2',
   'Dameng',
+  'GoldenDBMySQL',
+  'GoldenDBOracle',
   'KingbaseESPostgreSQL',
   'KingbaseESMySQL',
   'KingbaseESOracle',

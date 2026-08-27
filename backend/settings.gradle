@@ -82,6 +82,7 @@ include 'ds-oracle'; project(":ds-oracle").projectDir = file('clouddm-plugins/cl
 include 'ds-greenplum'; project(":ds-greenplum").projectDir = file('clouddm-plugins/clouddm-ds/ds-greenplum')
 include 'ds-cloudberry'; project(":ds-cloudberry").projectDir = file('clouddm-plugins/clouddm-ds/ds-cloudberry')
 include 'ds-kingbasees'; project(":ds-kingbasees").projectDir = file('clouddm-plugins/clouddm-ds/ds-kingbasees')
+include 'ds-goldendb'; project(":ds-goldendb").projectDir = file('clouddm-plugins/clouddm-ds/ds-goldendb')
 include 'ds-postgres'; project(":ds-postgres").projectDir = file('clouddm-plugins/clouddm-ds/ds-postgres')
 include 'ds-sqlserver'; project(":ds-sqlserver").projectDir = file('clouddm-plugins/clouddm-ds/ds-sqlserver')
 include 'ds-mongodb'; project(":ds-mongodb").projectDir = file('clouddm-plugins/clouddm-ds/ds-mongodb')

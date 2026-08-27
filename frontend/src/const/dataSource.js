@@ -1,6 +1,6 @@
-export const MySQL = ['MySQL'];
+export const MySQL = ['MySQL', 'GoldenDBMySQL'];
 export const PostgreSQL = ['PostgreSQL'];
-export const Oracle = ['Oracle'];
+export const Oracle = ['Oracle', 'GoldenDBOracle'];
 export const Redis = ['Redis'];
 
 export const isMySQL = (type) => MySQL.includes(type);

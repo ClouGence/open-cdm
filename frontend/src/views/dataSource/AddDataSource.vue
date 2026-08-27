@@ -23,7 +23,7 @@
             :aria-pressed="selectedAddDataSourceType === type.dsKey"
             @click="handleSelectAddDataSourceType(type.dsKey)"
           >
-            <span class="add-datasource-type-icon">
+            <span class="add-datasource-type-icon" :class="{ 'is-goldendb': ['GoldenDBMySQL', 'GoldenDBOracle'].includes(type.dsKey) }">
               <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
             </span>
             <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
@@ -654,6 +654,11 @@ export default {
   flex: 0 0 20px;
   align-items: center;
   justify-content: center;
+
+  &.is-goldendb {
+    width: 40px;
+    flex-basis: 40px;
+  }
 }
 
 .add-datasource-type-name {

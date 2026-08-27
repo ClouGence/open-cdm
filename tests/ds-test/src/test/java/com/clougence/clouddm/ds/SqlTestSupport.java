@@ -52,6 +52,7 @@ public final class SqlTestSupport {
         bind("doris", DataSourceType.Doris, DrSqlEngineSpi::new);
         bind("gauss", DataSourceType.GaussDB, GaussSqlEngineSpi::new);
         bind("gauss_og", DataSourceType.GaussDBForOpenGauss, GaussSqlEngineSpi::new);
+        bind("goldendb", DataSourceType.GoldenDBMySQL, MySqlEngineSpi::new);
         bind("greenplum", DataSourceType.Greenplum, PgSqlEngineSpi::new);
         bind("hana", DataSourceType.Hana, metaService -> new HanaSqlEngineSpi());
         bind("hologres", DataSourceType.Hologres, PgSqlEngineSpi::new);
@@ -104,6 +105,7 @@ public final class SqlTestSupport {
         return switch (datasource) {
             case "adb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
             case "mariadb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "goldendb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.25"));
             case "mysql" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
             case "ob4my" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
             case "por4my" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));

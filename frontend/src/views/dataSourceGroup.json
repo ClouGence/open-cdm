@@ -1,5 +1,5 @@
 {
-  "mysql": ["MySQL", "KingbaseESMySQL", "GaussDBForMySQL", "AuroraMySQL"],
+  "mysql": ["MySQL", "GoldenDBMySQL", "KingbaseESMySQL", "GaussDBForMySQL", "AuroraMySQL"],
   "pg": [
     "Hana",
     "Hudi",
@@ -20,7 +20,7 @@
     "Yuque",
     "KingbaseESPostgreSQL"
   ],
-  "oracle": ["Oracle", "KingbaseESOracle"],
+  "oracle": ["Oracle", "GoldenDBOracle", "KingbaseESOracle"],
   "mongo": ["MongoDB", "DocumentDB", "DynamoDB"],
   "ck": ["ClickHouse"]
 }

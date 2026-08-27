@@ -35,6 +35,7 @@ public enum DsType {
     PolarDBMySQL("pmy", "PolarDBMySQL"),
     PolarDbX("pox", "PolarDbX"),
     TiDB("ti", "TiDB"),
+    GoldenDB("gdb", "GoldenDB"),
     Lindorm("ld", "Lindorm"),
 
     // PostgreSQL family

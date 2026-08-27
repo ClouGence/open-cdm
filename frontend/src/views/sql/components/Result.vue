@@ -413,6 +413,7 @@ import { Modal, Tooltip } from 'ant-design-vue';
 import { mysqlInsert, pgInsert } from '@/views/sql/components/typeGroup';
 import copyMixin from '@/mixins/copyMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import { isMySQL } from '@/utils';
 import { mapGetters, mapState } from 'vuex';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 import ExecutionSqlText from '@/views/sql/components/ExecutionSqlText.vue';
@@ -1145,7 +1146,7 @@ export default {
       columnList.forEach((key1, index) => {
         const value = row[key1];
         let insertType;
-        if (this.tab.dataSourceType === 'MySQL') {
+        if (isMySQL(this.tab.dataSourceType)) {
           insertType = mysqlInsert;
         } else {
           insertType = pgInsert;

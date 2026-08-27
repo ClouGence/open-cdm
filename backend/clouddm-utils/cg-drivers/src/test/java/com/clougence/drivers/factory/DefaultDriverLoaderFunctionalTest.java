@@ -68,8 +68,7 @@ public class DefaultDriverLoaderFunctionalTest {
     @Test
     public void loadDriverXml_shouldMergeDuplicateResourcesAndSortVersions() {
         DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
-        loader.loadDriverXml(xmlStream(
-            """
+        loader.loadDriverXml(xmlStream("""
                 <drivers>
                     <driver driverFamily="functional-driver" version="1.0.0">
                         <driverName>%s</driverName>
@@ -81,8 +80,7 @@ public class DefaultDriverLoaderFunctionalTest {
                     </driver>
                 </drivers>
                 """.formatted(TestDsFactory.class.getName(), TestPrepareMarker.class.getName(), TestDsFactory.class.getName())));
-        loader.loadDriverXml(xmlStream(
-            """
+        loader.loadDriverXml(xmlStream("""
                 <drivers>
                     <driver driverFamily="functional-driver" version="2.0.0">
                         <resource type="class">%s</resource>
@@ -142,6 +140,27 @@ public class DefaultDriverLoaderFunctionalTest {
         assertEquals(4, progress.started.size());
         assertEquals(4, progress.completed.size());
         assertTrue(progress.errors.isEmpty());
+    }
+
+    @Test
+    public void resetDriverVersion_shouldPreserveUserManagedFileResources() throws Exception {
+        Path driverFile = this.tempDir.resolve("user-managed-driver").resolve("1.0").resolve("vendor-driver.jar");
+        Files.createDirectories(driverFile.getParent());
+        Files.write(driverFile, "vendor-driver".getBytes(StandardCharsets.UTF_8));
+
+        DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
+        loader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"user-managed-driver\" version=\"1.0\">" + "<resource type=\"file\">vendor-driver.jar</resource>"
+                                       + "</driver>" + "</drivers>"));
+
+        DriverVersion version = loader.findDriver("user-managed-driver", "1.0");
+        assertNotNull(version);
+
+        loader.resetDriverVersion(version);
+
+        assertTrue(Files.isRegularFile(driverFile));
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {});
+        assertTrue(version.isPrepared());
+        assertTrue(Files.isRegularFile(driverFile.getParent().resolve("files.idx")));
     }
 
     @Test
