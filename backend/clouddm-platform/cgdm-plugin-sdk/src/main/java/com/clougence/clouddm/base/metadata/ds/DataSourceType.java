@@ -34,6 +34,7 @@ public enum DataSourceType {
     Oracle("ora", "Oracle", 0, 20),
     SQLServer("ms", "SQLServer", 0, 30),
     PostgreSQL("pg", "PostgreSQL", 0, 40),
+    CockroachDB("crdb", "CockroachDB", 0, 45),
     MariaDB("mar", "MariaDB", 0, 50),
     TiDB("ti", "TiDB", 0, 60),
     Dameng("dm", "Dameng", 0, 70),

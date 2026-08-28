@@ -28,7 +28,7 @@ Use Cluster mode, also called Console + Sidecar. It is designed for unified auth
 
 ### What databases does CloudDM support?
 
-CloudDM supports MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase, SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum, Hologres, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB, and more.
+CloudDM supports MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase, SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum, Hologres, CockroachDB, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB, and more.
 
 ### What does SQL auditing do?
 

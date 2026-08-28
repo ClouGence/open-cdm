@@ -22,6 +22,7 @@
 
 <script>
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
+import cockroachdbIcon from '@/assets/datasource/cockroachdb.svg';
 import goldendbIcon from '@/assets/datasource/goldendb.png';
 import valkeyIcon from '@/assets/datasource/valkey.svg';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
@@ -29,6 +30,7 @@ import { getPluginResourceUrl } from '@/utils/pluginResource';
 const goldenDBTypes = ['GoldenDB', 'GoldenDBMySQL', 'GoldenDBOracle'];
 const bundledIcons = {
   Cloudberry: cloudberryIcon,
+  CockroachDB: cockroachdbIcon,
   GoldenDB: goldendbIcon,
   GoldenDBMySQL: goldendbIcon,
   GoldenDBOracle: goldendbIcon,

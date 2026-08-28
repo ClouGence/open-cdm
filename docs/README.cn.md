@@ -44,7 +44,7 @@
 - 支持丰富的数据源类型
     - MySQL、Oracle、MariaDB、PostgreSQL、IBM DB2、SQL Server、OceanBase
     - SAP Hana、StarRocks、Doris、SelectDB、ClickHouse、PolarDB、TiDB、Greenplum
-    - Hologres、达梦、高斯数据库、AnalyticDB MySQL、MaxCompute、Redis、MongoDB
+    - Hologres、CockroachDB、达梦、高斯数据库、AnalyticDB MySQL、MaxCompute、Redis、MongoDB
 - 通过统一 Web 控制台访问数据库，支持事务、隔离级别和查询计划
 - 提供查询编辑器、语法高亮、智能提示、执行计划、结果导出等能力
 

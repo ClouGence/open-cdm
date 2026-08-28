@@ -12,6 +12,7 @@ export const getLanguage = (type) => {
     case 'MySQL':
       return 'mysql';
     case 'PostgreSQL':
+    case 'CockroachDB':
       return 'pgsql';
     case 'Redis':
       return 'redis';

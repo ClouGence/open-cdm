@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.postgres.definition.ui.ddl;
+package com.clougence.clouddm.ds.cockroachdb.definition.ui.ddl;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.ddl.PgFamilyConvertTableDDLSpi;
 import com.clougence.clouddm.sdk.ui.ddl.DDLType;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
-/**
- * @Author: mode
- * @Date: 2024-01-22 10:10
- */
-public class PgConvertTableDDLSpi extends PgFamilyConvertTableDDLSpi {
+public class CrdbConvertTableDDLSpi extends PgFamilyConvertTableDDLSpi {
 
-    public PgConvertTableDDLSpi(){
+    public CrdbConvertTableDDLSpi(){
         // for PG Family
         targetList.add(DataSourceType.PostgreSQL);
         targetList.add(DataSourceType.CockroachDB);
@@ -53,7 +49,6 @@ public class PgConvertTableDDLSpi extends PgFamilyConvertTableDDLSpi {
         targetList.add(DataSourceType.Hana);
         targetList.add(DataSourceType.Db2);
 
-        // ddlType
         ddlTypeList.add(DDLType.Convert);
     }
 }

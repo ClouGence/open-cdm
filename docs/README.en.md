@@ -43,7 +43,7 @@
 - Rich data source support covering many database types
     - MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase
     - SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum
-    - Hologres, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB
+    - Hologres, CockroachDB, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB
 - Unified web console access to databases, with support for transactions, isolation levels, and execution plans
 - Query editor, syntax highlighting, intelligent suggestions, execution plans, and result export
 
