@@ -2,27 +2,61 @@
   <div class="ticket-create-container">
     <div class="create-content-container">
       <div class="create-ticket-editor">
-        <div class="create-ticket-editor-operator">
-          <DsSelect
-            :ticketData="ticketData"
-            :handleChangeInstance="handleChangeInstance"
-            :allDsList="allDsList"
-            :handle-catalog-change="handleCatalogChange"
-            :selectedDs="selectedDs"
-            required
-            :error="instanceRequiredError"
-            @restore-schema="restoreSchema"
-            @restore-catalog="restoreCatalog"
-          ></DsSelect>
+        <div class="create-ticket-editor-toolbar">
+          <div class="create-ticket-editor-operator">
+            <DsSelect
+              :ticketData="ticketData"
+              :handleChangeInstance="handleChangeInstance"
+              :allDsList="allDsList"
+              :handle-catalog-change="handleCatalogChange"
+              :selectedDs="selectedDs"
+              required
+              :error="instanceRequiredError"
+              @restore-schema="restoreSchema"
+              @restore-catalog="restoreCatalog"
+            ></DsSelect>
+          </div>
+          <div class="sql-mode-actions">
+            <Button size="small" :type="contentType === 'INLINE' ? 'primary' : 'default'" @click="switchToInline">
+              {{ $t('ticket-sql-online-edit') }}
+            </Button>
+            <Button size="small" :type="contentType === 'ATTACHMENT' ? 'primary' : 'default'" @click="handleAttachmentModeAction">
+              {{ $t(contentType === 'ATTACHMENT' && sqlAttachment ? 'ticket-sql-reupload' : 'ticket-sql-file-upload') }}
+            </Button>
+          </div>
         </div>
         <div class="editor">
           <div class="collapse raw">
-            <div class="title">
-              <b style="color: #f5222d">*</b>
-              <span style="padding-left: 3px">{{ $t('zhi-hang-sql') }}</span>
+            <div v-if="contentType === 'ATTACHMENT' && sqlAttachment" class="sql-file-meta">
+              <span class="sql-file-name">{{ sqlAttachment.fileName }}</span>
+              <span>{{ formatFileSize(sqlAttachment.fileSize) }}</span>
+              <span>{{ $t('ticket-sql-readonly') }}</span>
             </div>
-            <div class="content">
-              <ticket-editor ref="rawSqlEditor" :data-source-type="ticketData.dataSourceType" />
+            <div v-if="partialSqlNotice && contentType === 'INLINE'" class="partial-sql-notice">
+              <span>{{ $t('ticket-sql-partial-loaded') }}</span>
+              <button type="button" @click="partialSqlNotice = false" :aria-label="$t('guan-bi')">
+                <Icon type="md-close" />
+              </button>
+            </div>
+            <div class="content sql-editor-content" @wheel="handlePreviewWheel">
+              <ticket-editor
+                ref="rawSqlEditor"
+                :data-source-type="ticketData.dataSourceType"
+                :read-only="contentType === 'ATTACHMENT'"
+                :virtual-scroll-mode="contentType === 'ATTACHMENT'"
+              />
+              <input
+                v-if="contentType === 'ATTACHMENT' && sqlAttachment"
+                v-model.number="previewStartLine"
+                class="virtual-scrollbar"
+                type="range"
+                min="1"
+                :max="previewMaxStartLine"
+                step="1"
+                :aria-label="$t('ticket-sql-virtual-scrollbar')"
+                aria-orientation="vertical"
+                @input="schedulePreview"
+              />
             </div>
           </div>
           <div class="resize-handle" v-if="showValidationResult" @mousedown="startResize"></div>
@@ -47,6 +81,9 @@
                     <div v-if="rule.lines && rule.lines.length" class="rule-lines">
                       <span class="lines-label">{{ $t('wei-zhi-0') }}:</span>
                       <span v-for="line in rule.lines" :key="line" class="lines-content">{{ line }}</span>
+                      <span v-if="rule.hitCount > rule.lines.length" class="lines-content">
+                        {{ $t('ticket-rule-location-total', { count: rule.hitCount }) }}
+                      </span>
                     </div>
                   </div>
                   <div class="rule-desc">{{ rule.desc }}</div>
@@ -54,29 +91,15 @@
               </div>
             </div>
           </div>
-          <div class="collapse rollback" v-if="showRollbackSql">
-            <div class="title">{{ $t('hui-gun-sql') }}</div>
-            <div class="content">
-              <ticket-editor ref="rollbackSqlEditor" :data-source-type="ticketData.dataSourceType" />
-            </div>
-          </div>
         </div>
       </div>
       <div class="create-ticket-content">
         <a-form label-position="top" :labelCol="{ span: 24 }" :label-wrap="true" :model="ticketData" :rules="ticketRuleValidate" ref="ticketContent">
-          <a-form-item :label="$t('biao-ti')" prop="ticketTitle">
+          <a-form-item :label="$t('biao-ti')" name="ticketTitle">
             <Input v-model="ticketData.ticketTitle" />
           </a-form-item>
-          <a-form-item :label="$t('xu-qiu-miao-shu')" prop="description">
+          <a-form-item :label="$t('xu-qiu-miao-shu')" name="description">
             <Input type="textarea" v-model="ticketData.description" :rows="4" />
-          </a-form-item>
-          <a-form-item :label="$t('yu-gu-shou-ying-xiang-hang-shu')">
-            <Input v-model="ticketData.expectedAffectedRows" type="number" />
-          </a-form-item>
-          <a-form-item>
-            <Checkbox v-model="showRollbackSql">
-              {{ $t('tian-xie-hui-gun-sql') }}
-            </Checkbox>
           </a-form-item>
         </a-form>
         <div class="create-ticket-form-btn">
@@ -97,9 +120,9 @@
           </Tag>
         </template>
         <template #lines="{ row }">
-          <Poptip :content="row.lines" trigger="hover" transfer>
+          <Poptip :content="formatRuleLocations(row)" trigger="hover" transfer>
             <span style="width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              {{ row.lines.join(', ') }}
+              {{ formatRuleLocations(row) }}
             </span>
           </Poptip>
         </template>
@@ -119,9 +142,9 @@
           </Tag>
         </template>
         <template #lines="{ row }">
-          <Poptip :content="row.lines" trigger="hover" transfer>
+          <Poptip :content="formatRuleLocations(row)" trigger="hover" transfer>
             <span style="width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              {{ row.lines }}
+              {{ formatRuleLocations(row) }}
             </span>
           </Poptip>
         </template>
@@ -133,22 +156,29 @@
         <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
       </template>
     </CCModal>
+    <SqlFileUploadModal v-model="showSqlUploadModal" :loading="sqlUploading" :max-mega-byte="sqlFileMaxMegaByte" @confirm="uploadSqlFile" />
   </div>
 </template>
 <script lang="js">
 import DsSelect from '@/views/ticket/components/DsSelect';
 import TicketEditor from '@/components/editor/TicketEditor';
-import { hasSchema, RULE_WARN_LEVEL } from '@/utils';
-import { mapState } from 'vuex';
+import SqlFileUploadModal from '@/components/function/SqlFileUploadModal.vue';
+import { RULE_WARN_LEVEL } from '@/utils';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
   name: 'Ticket',
   components: {
     TicketEditor,
-    DsSelect
+    DsSelect,
+    SqlFileUploadModal
   },
   computed: {
     ...mapState(['dmGlobalSetting']),
+    ...mapGetters(['hasCatalogAndSchema']),
+    sqlFileMaxMegaByte() {
+      return this.dmGlobalSetting?.sqlFileMaxSize || 20;
+    },
     showValidationResult() {
       const hasResults = this.noPassedRuleList && this.noPassedRuleList.length > 0;
 
@@ -160,6 +190,9 @@ export default {
     },
     hasError() {
       return this.noPassedRuleList.some((rule) => rule.ruleLevel !== 'SUGGEST');
+    },
+    previewMaxStartLine() {
+      return Math.max(1, this.previewTotalLines - this.previewLineCount + 1);
     },
     noPassedRuleColumns() {
       const columns = [
@@ -196,10 +229,18 @@ export default {
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
       showRawSql: true,
-      showRollbackSql: false,
       showCheckedOnlyError: false,
       checkedSql: '',
       loading: false,
+      contentType: 'INLINE',
+      showSqlUploadModal: false,
+      sqlUploading: false,
+      sqlAttachment: null,
+      previewStartLine: 1,
+      previewTotalLines: 1,
+      previewLineCount: 30,
+      previewTimer: null,
+      partialSqlNotice: false,
       currentMethod: '',
       allDsList: [],
       templateList: [],
@@ -222,8 +263,7 @@ export default {
         dataSourceType: 'MySQL',
         envId: '',
         approPersonUids: [],
-        ticketTitle: '',
-        expectedAffectedRows: ''
+        ticketTitle: ''
       },
       ticketRuleValidate: {
         ticketTitle: [
@@ -254,14 +294,10 @@ export default {
   },
   beforeDestroy() {
     this.stopResize();
+    clearTimeout(this.previewTimer);
     window.removeEventListener('resize', this.handleWindowResize);
   },
   watch: {
-    showRollbackSql() {
-      this.$nextTick(() => {
-        this.initializeHeights();
-      });
-    },
     noPassedRuleList: {
       handler() {
         this.$nextTick(() => {
@@ -272,6 +308,121 @@ export default {
     }
   },
   methods: {
+    openSqlUploadModal() {
+      this.showSqlUploadModal = true;
+    },
+    async uploadSqlFile(files) {
+      const file = files?.[0];
+      if (!file || this.sqlUploading) {
+        return;
+      }
+
+      this.sqlUploading = true;
+      try {
+        const data = new FormData();
+        data.append('file', file);
+        const res = await this.$services.dmTicketUploadSqlFile({
+          data,
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        if (res.success) {
+          this.sqlAttachment = res.data;
+          this.contentType = 'ATTACHMENT';
+          this.previewStartLine = 1;
+          this.previewTotalLines = 1;
+          this.partialSqlNotice = false;
+          this.showSqlUploadModal = false;
+          await this.$nextTick();
+          await this.loadSqlPreview();
+        }
+      } finally {
+        this.sqlUploading = false;
+      }
+    },
+    async switchToInline() {
+      if (this.contentType === 'INLINE') {
+        return;
+      }
+      if (!this.sqlAttachment) {
+        this.contentType = 'INLINE';
+        return;
+      }
+      const res = await this.$services.dmTicketPreviewSqlFile({
+        data: {
+          attachmentId: this.sqlAttachment.attachmentId,
+          startLine: 1,
+          lineCount: 1000
+        }
+      });
+      if (res.success) {
+        this.contentType = 'INLINE';
+        await this.$nextTick();
+        this.$refs.rawSqlEditor?.setSql(res.data.content || '');
+        this.partialSqlNotice = res.data.totalLines >= 1000;
+      }
+    },
+    async switchToAttachment() {
+      if (!this.sqlAttachment) {
+        this.openSqlUploadModal();
+        return;
+      }
+      this.contentType = 'ATTACHMENT';
+      this.partialSqlNotice = false;
+      await this.$nextTick();
+      await this.loadSqlPreview();
+    },
+    async handleAttachmentModeAction() {
+      if (this.contentType === 'ATTACHMENT' && this.sqlAttachment) {
+        this.openSqlUploadModal();
+        return;
+      }
+      await this.switchToAttachment();
+    },
+    schedulePreview() {
+      clearTimeout(this.previewTimer);
+      this.previewTimer = setTimeout(() => {
+        this.loadSqlPreview();
+      }, 120);
+    },
+    async loadSqlPreview() {
+      if (this.contentType !== 'ATTACHMENT' || !this.sqlAttachment) {
+        return;
+      }
+      this.previewLineCount = this.$refs.rawSqlEditor?.getVisibleLineCount() || 30;
+      const res = await this.$services.dmTicketPreviewSqlFile({
+        data: {
+          attachmentId: this.sqlAttachment.attachmentId,
+          startLine: this.previewStartLine,
+          lineCount: this.previewLineCount
+        }
+      });
+      if (res.success) {
+        this.previewStartLine = res.data.startLine || 1;
+        this.previewTotalLines = res.data.totalLines || 1;
+        this.$refs.rawSqlEditor?.setSql(res.data.content || '', res.data.startLine || 1);
+      }
+    },
+    handlePreviewWheel(event) {
+      if (this.contentType !== 'ATTACHMENT' || !this.sqlAttachment) {
+        return;
+      }
+      event.preventDefault();
+      const step = Math.max(1, Math.floor(this.previewLineCount / 3));
+      const delta = event.deltaY > 0 ? step : -step;
+      this.previewStartLine = Math.max(1, Math.min(this.previewMaxStartLine, this.previewStartLine + delta));
+      this.schedulePreview();
+    },
+    formatFileSize(size) {
+      if (size < 1024) {
+        return `${size} B`;
+      }
+      if (size < 1024 * 1024) {
+        return `${(size / 1024).toFixed(1)} KB`;
+      }
+      return `${(size / 1024 / 1024).toFixed(1)} MB`;
+    },
     startResize(e) {
       this.isResizing = true;
       this.startY = e.clientY;
@@ -290,7 +441,7 @@ export default {
     },
 
     layoutEditors() {
-      const editors = [this.$refs.rawSqlEditor, this.$refs.rollbackSqlEditor];
+      const editors = [this.$refs.rawSqlEditor];
       editors.forEach((editor) => {
         editor?.monacoEditor?.layout();
       });
@@ -376,13 +527,17 @@ export default {
         this.$Message.error(this.$t('qing-xuan-ze-shu-ju-yuan-shi-li'));
         return;
       }
+      if (this.contentType === 'ATTACHMENT' && !this.sqlAttachment) {
+        this.$Message.error(this.$t('ticket-sql-select-file'));
+        return;
+      }
       this.loading = true;
 
       try {
         await this.$refs.ticketContent.validate();
         const dbLevels = [this.ticketData.envId, this.ticketData.instanceId];
 
-        if (this.ticketData.catalog && hasSchema(this.ticketData.dataSourceType)) {
+        if (this.ticketData.catalog && this.hasCatalogAndSchema(this.ticketData.dataSourceType)) {
           dbLevels.push(this.ticketData.catalog);
         }
 
@@ -393,11 +548,11 @@ export default {
         const data = {
           approvalType: this.ticketData.approvalType,
           dbLevels,
-          rawSql: this.$refs.rawSqlEditor ? this.$refs.rawSqlEditor?.getSql() : '',
-          rollBackSql: this.showRollbackSql && this.$refs.rollbackSqlEditor ? this.$refs.rollbackSqlEditor?.getSql() : '',
+          contentType: this.contentType,
+          attachmentId: this.contentType === 'ATTACHMENT' ? this.sqlAttachment.attachmentId : null,
+          rawSql: this.contentType === 'INLINE' && this.$refs.rawSqlEditor ? this.$refs.rawSqlEditor?.getSql() : null,
           description: this.ticketData.description,
           ticketTitle: this.ticketData.ticketTitle,
-          expectedAffectedRows: this.ticketData.expectedAffectedRows,
           immediately: this.ticketData.immediately === 'immediately',
           templateIdentity: '',
           approTemplateName: '',
@@ -526,6 +681,14 @@ export default {
       } else {
         return this.noPassedRuleList.filter((rule) => rule.ruleLevel !== 'SUGGEST');
       }
+    },
+    formatRuleLocations(rule) {
+      const lines = rule.lines || [];
+      const locations = lines.join(', ');
+      if (rule.hitCount > lines.length) {
+        return `${locations} ${this.$t('ticket-rule-location-total', { count: rule.hitCount })}`.trim();
+      }
+      return locations;
     }
   }
 };
@@ -554,9 +717,24 @@ export default {
       display: flex;
       flex-direction: column;
 
-      .create-ticket-editor-operator {
+      .create-ticket-editor-toolbar {
         flex-shrink: 0;
         padding-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+
+        .create-ticket-editor-operator {
+          min-width: 0;
+        }
+
+        .sql-mode-actions {
+          flex: none;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
       }
 
       .editor {
@@ -654,11 +832,6 @@ export default {
             }
           }
 
-          &.rollback {
-            flex: none;
-            height: 200px;
-          }
-
           .title {
             position: relative;
             height: 36px;
@@ -683,12 +856,110 @@ export default {
             }
           }
 
+          .sql-file-meta {
+            flex: none;
+            display: flex;
+            min-width: 0;
+            min-height: 36px;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary, #f8fafc);
+            color: var(--text-secondary, #707070);
+            font-size: 13px;
+            font-weight: 400;
+
+            .sql-file-name {
+              max-width: 320px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+
+          .partial-sql-notice {
+            flex: none;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary, #f8fafc);
+            color: var(--text-primary, #333840);
+            font-size: 13px;
+
+            button {
+              margin-left: auto;
+              border: 0;
+              background: transparent;
+              cursor: pointer;
+              color: var(--text-secondary, #41454d);
+            }
+          }
+
           .content {
             flex: 1;
             min-height: 0;
             border: 1px solid #eaeaea;
             border-radius: 6px;
             overflow: hidden;
+          }
+
+          .sql-editor-content {
+            position: relative;
+
+            .virtual-scrollbar {
+              position: absolute;
+              z-index: 3;
+              top: 8px;
+              right: 4px;
+              width: 14px;
+              height: calc(100% - 16px);
+              margin: 0;
+              writing-mode: vertical-lr;
+              direction: ltr;
+              appearance: none;
+              background: transparent;
+              cursor: pointer;
+
+              &::-webkit-slider-runnable-track {
+                width: 10px;
+                height: 100%;
+                background: transparent;
+              }
+
+              &::-webkit-slider-thumb {
+                width: 10px;
+                height: 20px;
+                border: 0;
+                border-radius: 0;
+                appearance: none;
+                background: rgba(100, 100, 100, 0.45);
+              }
+
+              &::-moz-range-track {
+                width: 10px;
+                background: transparent;
+              }
+
+              &::-moz-range-thumb {
+                width: 10px;
+                height: 20px;
+                border: 0;
+                border-radius: 0;
+                background: rgba(100, 100, 100, 0.45);
+              }
+
+              &:hover::-webkit-slider-thumb {
+                background: rgba(100, 100, 100, 0.7);
+              }
+
+              &:hover::-moz-range-thumb {
+                background: rgba(100, 100, 100, 0.7);
+              }
+            }
           }
         }
 

@@ -19,6 +19,7 @@ import java.sql.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.Session;
@@ -39,14 +40,16 @@ import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
 public class OraHooks implements SessionHook {
 
     private final boolean changeCatalog;
+    private final String  clientCharset;
 
     public OraHooks(DataSourceConfig config){
         this.changeCatalog = new OraSupportSpi().supportChangeCatalog(config) == RdbSupportLevel.Allow;
+        this.clientCharset = config instanceof ClientCharsetExtProperties e ? e.getClientCharset() : null;
     }
 
     @Override
     public ColReader createColReader() {
-        return new OraColReader();
+        return new OraColReader(this.clientCharset);
     }
 
     @Override
@@ -154,12 +157,11 @@ public class OraHooks implements SessionHook {
 
     @Override
     public PreparedStatement explainStatement(Connection conn, QueryRequest query) throws SQLException {
-        String queryBody = query.getQueryBody();
-        int pos = queryBody.length() - StringUtils.trimBlankStart(queryBody).length();
-        StringBuilder explainBody = new StringBuilder(queryBody);
-        explainBody.insert(pos, "explain plan for ");
+        if (!StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), "EXPLAIN ")) {
+            throw new SQLException("Explain request does not contain an EXPLAIN statement");
+        }
 
-        PreparedStatement stmt = conn.prepareStatement(explainBody.toString(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(200);
         stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
         return stmt;

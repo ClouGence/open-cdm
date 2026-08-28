@@ -155,16 +155,14 @@ export default {
   },
   mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
   computed: {
-    ...mapGetters(['isDesktop', 'displayVersion', 'includesDM', 'isInternalUser']),
-    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay', 'mySystemMenuItems']),
+    ...mapGetters(['isDesktop', 'displayVersion', 'isInternalUser']),
+    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
     isSqlRoute() {
       return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
     }
   },
   async created() {
-    await this.$store.dispatch('getRegionList');
-
     await this.$store.dispatch('getDmGlobalConfig');
 
     if (this.$route.path === '/') {
@@ -172,7 +170,6 @@ export default {
     }
 
     this.showChild = true;
-    await this.$store.dispatch('getRegionList');
     if (this.globalSetting.enableWaterMark) {
       const waterMark = await this.$services.rdpUserWatermark();
       this.watermarkStr = `${waterMark.data.user_name}_${waterMark.data.user_phone}`;
@@ -213,9 +210,7 @@ export default {
     this.$bus.on('showEnterOpPwdModal', this.showEnterOpPwdModal);
     this.$bus.on('dingDingSettingModal', this.setApprovalProcessModal);
     this.$bus.on(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL, (msg) => this.handleShowInactiveModal(msg));
-    if (this.includesDM) {
-      await this.checkVersion();
-    }
+    await this.checkVersion();
   },
   unmounted() {
     this.$bus.off('setOpPasswordModal');
@@ -260,27 +255,6 @@ export default {
         }
       }
     },
-    /* eslint-disable */
-    setupBaiduTongji() {
-      var _hmt = _hmt || [];
-      _hmt.push([
-        '_requirePlugin',
-        'UrlChangeTracker',
-        {
-          shouldTrackUrlChange: function (newPath, oldPath) {
-            return newPath && oldPath;
-          }
-        }
-      ]);
-      window._hmt = _hmt; // Change to Window Global Variable
-      (function () {
-        var hm = document.createElement('script');
-        hm.src = 'https://hm.baidu.com/hm.js?b86e2e73fd7517d78d5ccdf0cd12384c'; //Please replace your station.
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(hm, s);
-      })();
-    },
-    /* eslint-enable */
     handleDetailCopy() {
       if (XEClipboard.copy(this.cellDetailContent)) {
         this.$Message.success(this.$t('fu-zhi-cheng-gong'));
@@ -383,9 +357,6 @@ export default {
         return;
       }
       this.handleGoBackHome();
-    },
-    goAsyncJobList() {
-      this.$router.push({ name: 'ASYNC_JOB_LIST' });
     },
     _setApprovalProcessModal() {
       this.$store.dispatch('getUserInfo');

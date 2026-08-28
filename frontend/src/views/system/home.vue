@@ -27,7 +27,7 @@
         <card
           :handleClickBtn="() => handleClickAddBtn('/data-access/cluster')"
           :num="summary.workerCounts"
-          :show-btn="userInfo.menuItems.includes('/ccsystem/machine')"
+          :show-btn="myAuth.includes('DM_WORKER_MANAGE')"
           :btn-text="$t('tian-jia')"
           name="worker"
           :quantifier="$t('tai')"
@@ -37,7 +37,7 @@
         <card
           :handleClickBtn="() => handleClickAddBtn('/datasource')"
           :num="summary.dsCounts"
-          :show-btn="userInfo.menuItems.includes('/ccsystem/datasource')"
+          :show-btn="myAuth.includes('RDP_DS_MANAGE') || myAuth.includes('RDP_ALL_DATASOURCE_MANAGE')"
           :btn-text="$t('tian-jia')"
           name="datasource"
           :quantifier="$t('ge')"
@@ -192,7 +192,8 @@ export default {
   },
   computed: {
     ...mapState({
-      userInfo: (state) => state.userInfo
+      userInfo: (state) => state.userInfo,
+      myAuth: (state) => state.myAuth
     })
   },
   watch: {

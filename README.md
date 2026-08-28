@@ -31,7 +31,7 @@
 | Homepage | https://www.cdmgr.com/                          |
 | Documentation | https://www.cdmgr.com/docs/intro/product_intro  |
 | License | Apache License 2.0                              |
-| Current version | 4.0.1                                           |
+| Current version | 4.1.2                                           |
 | Main languages | Java, JavaScript / TypeScript                   |
 | Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
 | Deployment targets | Install package, Docker, Kubernetes             |
@@ -93,7 +93,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.0.1
+  bladepipe/cgdm-alone:4.1.2
 
 # Faster image pulls in China
 docker run -d --name cgdm-alone \
@@ -102,7 +102,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.0.1
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.1.2
 ```
 
 Host directory mount example:
@@ -116,7 +116,7 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.0.1
+  bladepipe/cgdm-alone:4.1.2
 ```
 
 When `/data/cgdm/conf` is empty, CloudDM initializes it with the default configuration files on startup.
@@ -140,25 +140,25 @@ Before upgrading, back up Docker volumes or database data. To upgrade, remove th
 ```bash
 # Default image
 docker rm -f cgdm-alone
-docker pull bladepipe/cgdm-alone:4.0.1
+docker pull bladepipe/cgdm-alone:4.1.2
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.0.1
+  bladepipe/cgdm-alone:4.1.2
 
 # China acceleration image
 docker rm -f cgdm-alone
-docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.0.1
+docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.1.2
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.0.1
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.1.2
 ```
 
 ### Initialization

@@ -34,22 +34,23 @@ import lombok.Setter;
 public class QueryRequest implements Cloneable {
 
     // Request
+    private long                      index;
     private String                    batchId;
     private String                    queryId;
     private String                    queryBody;
     private List<QueryArg>            queryArgs;
+    private int                       bodyStartCodeLine;
+    //
     private Set<SplitQueryType>       queryTypes;
+    private Long                      dsId;
+    private DataSourceType            dsType;
     private List<BehaviorRelation>    relations;
-    private DataSourceType            queryDsType;
     private Requester                 requester;
     private Date                      requestTime;
 
     // for masking
     private boolean                   usingValueProcess;
     private Map<String, ColumnConfig> columnList;
-
-    // for env, see  ExecuteVariables
-    private Map<String, String>       variables;
 
     // for execute config
     private boolean                   useCallable = false;
@@ -67,8 +68,11 @@ public class QueryRequest implements Cloneable {
     @Override
     public QueryRequest clone() {
         QueryRequest req = new QueryRequest();
+        req.index = this.index;
+        req.batchId = this.batchId;
         req.queryId = this.queryId;
         req.queryBody = this.queryBody;
+        req.bodyStartCodeLine = this.bodyStartCodeLine;
         if (this.queryArgs != null) {
             req.queryArgs = this.queryArgs.stream().map(QueryArg::clone).collect(Collectors.toList());
         }
@@ -78,21 +82,37 @@ public class QueryRequest implements Cloneable {
         if (this.relations != null) {
             req.relations = List.copyOf(this.relations);
         }
-        req.queryDsType = this.queryDsType;
+        req.dsId = this.dsId;
+        req.dsType = this.dsType;
         req.requester = this.requester;
         req.requestTime = this.requestTime;
         req.usingValueProcess = this.usingValueProcess;
-
-        if (this.variables != null) {
-            req.setVariables(new HashMap<>(this.variables));
+        if (this.columnList != null) {
+            req.columnList = new LinkedHashMap<>(this.columnList);
         }
 
         req.useCallable = this.useCallable;
+        req.useExplain = this.useExplain;
+        req.useCompile = this.useCompile;
+        req.hasRewrite = this.hasRewrite;
+        if (this.rewriteTag != null) {
+            req.rewriteTag = new ArrayList<>(this.rewriteTag);
+        }
+        req.originalBody = this.originalBody;
         req.resultConf = this.resultConf == null ? null : this.resultConf.clone();
         return req;
     }
 
     public boolean hasQueryType(SplitQueryType queryType) {
         return this.queryTypes != null && this.queryTypes.contains(queryType);
+    }
+
+    public void addRewriteTag(String tag) {
+        if (this.rewriteTag != null && this.rewriteTag.contains(tag)) {
+            return;
+        }
+        List<String> tags = this.rewriteTag == null ? new ArrayList<>() : new ArrayList<>(this.rewriteTag);
+        tags.add(tag);
+        this.rewriteTag = tags;
     }
 }

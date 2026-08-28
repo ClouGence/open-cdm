@@ -69,6 +69,11 @@ public class Sql2003SplitVisitor extends Sql2003ParserBaseVisitor<SplitQueryType
     }
 
     @Override
+    public SplitQueryType visitExplainPlanStatement(Sql2003Parser.ExplainPlanStatementContext ctx) {
+        return SplitQueryType.SELECT;
+    }
+
+    @Override
     public SplitQueryType visitSelectStatement_SingleRow(Sql2003Parser.SelectStatement_SingleRowContext ctx) {
         return SplitQueryType.SELECT;
     }

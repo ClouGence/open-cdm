@@ -1,6 +1,6 @@
 <drivers>
     <!-- Microsoft JDBC Driver For SQL Server -->
-    <driver driverFamily="SQL Server JDBC Driver" version="13.4.0">
+    <driver driverFamily="SQL Server JDBC Driver" version="13.4.0" default="true">
         <driverName>com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JdbcSqlServerDsFactory</driverName>
         <resource type="maven">com.microsoft.sqlserver:mssql-jdbc:13.4.0.jre8</resource>
     </driver>

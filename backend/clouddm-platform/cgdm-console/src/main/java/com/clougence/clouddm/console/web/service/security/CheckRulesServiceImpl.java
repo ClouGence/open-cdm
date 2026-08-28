@@ -15,10 +15,12 @@
  */
 package com.clougence.clouddm.console.web.service.security;
 
+import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
@@ -69,7 +71,6 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     @Resource
     private DmEnvParamService                    rdpDsEnvService;
     private Map<DataSourceType, DmSecRuleConfig> ruleSupportDsTypes;
-    private SecSettingDef                        ruleSettingDef;
 
     @Override
     public void init() throws Exception {
@@ -97,10 +98,6 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
                 this.ruleSupportDsTypes.put(dsType, ruleConf);
             }
         }
-
-        this.ruleSettingDef = new SecSettingDef();
-        this.ruleSettingDef.setQueryConf(this.createQueryConf());
-        this.ruleSettingDef.setSenConf(this.createSensitiveRuleDef());
     }
 
     @Override
@@ -264,7 +261,10 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     @Override
     public SecSettingDef ruleSettingDef() {
-        return this.ruleSettingDef;
+        SecSettingDef ruleSettingDef = new SecSettingDef();
+        ruleSettingDef.setQueryConf(this.createQueryConf());
+        ruleSettingDef.setSenConf(this.createSensitiveRuleDef());
+        return ruleSettingDef;
     }
 
     @Override
@@ -280,7 +280,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public DmSecSpecDO createSpec(String ownerUid, String specName, String specDesc, boolean initSpec) {
         DmSecSpecDO specDO = new DmSecSpecDO();
         specDO.setOwnerUid(ownerUid);
@@ -334,7 +334,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void deleteSpec(String ownerUid, long specId) {
         this.secRuleDal.rangeMapper().deleteBySpecId(ownerUid, specId);
         this.secRuleDal.refererMapper().deleteBySpecId(ownerUid, specId);
@@ -342,7 +342,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public SpecUpdateVO saveSpecRules(String ownerUid, SpecSaveRulesFO fo) {
         if (fo == null || CollectionUtils.isEmpty(fo.getSpecIds()) || CollectionUtils.isEmpty(fo.getRules())) {
             throw new ErrorMessageException("specIds or rules is empty.");
@@ -387,7 +387,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void saveSpecRules(String ownerUid, long specId, List<SpecRulesFO> rules) {
         List<Long> queryRuleIds = new ArrayList<>();
         List<Long> senRuleIds = new ArrayList<>();
@@ -440,7 +440,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void deleteSpecRules(String ownerUid, long specId, List<SpecRulesFO> rules) {
         for (SpecRulesFO r : rules) {
             this.secRuleDal.rangeMapper().deleteByRefId(ownerUid, r.getRefId());
@@ -560,7 +560,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void deleteRule(String ownerUid, long refRuleOrSenId, RuleKind ruleKind) {
         // delete referer and range
         List<DmSecRefererDO> refs = this.secRuleDal.refererMapper().listByRuleId(ownerUid, refRuleOrSenId, ruleKind);
@@ -677,8 +677,8 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_SCRIPT_EMPTY_ERROR.name()));
         }
 
-        try {
-            StatementSet statementSet = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, scriptContent);
+        try (StringReader reader = new StringReader(scriptContent)) {
+            StatementSet statementSet = DslHelper.parserDsl(DetectRuleDslProvider.INSTANCE, reader);
             long codeLines = statementSet.getStatements().stream().filter(s -> {
                 return !s.getClass().getSimpleName().equals("DefineStatement");
             }).count();
@@ -698,7 +698,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     private void checkQueryRuleSupport(RuleSaveFO fo) {
         for (DataSourceType dsType : fo.getDsRange()) {
-            if (!this.ruleSettingDef.getQueryConf().getTargets().containsKey(dsType)) {
+            if (!this.ruleSupportDsTypes.containsKey(dsType)) {
                 throw new UnsupportedOperationException();
             }
 

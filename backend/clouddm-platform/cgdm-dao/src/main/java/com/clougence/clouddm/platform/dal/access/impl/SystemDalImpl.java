@@ -1,7 +1,12 @@
 package com.clougence.clouddm.platform.dal.access.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.Locale;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.platform.dal.access.AuthDal;
@@ -20,21 +25,30 @@ import lombok.extern.slf4j.Slf4j;
 public class SystemDalImpl implements SystemDal {
 
     @Resource
-    private DmSysClusterMapper   clusterMapper;
+    private DmSysAttachmentMapper attachmentMapper;
     @Resource
-    private DmSysEnvMapper       envMapper;
+    private DmSysClusterMapper    clusterMapper;
     @Resource
-    private DmSysEnvParamMapper  envParamMapper;
+    private DmSysEnvMapper        envMapper;
     @Resource
-    private DmSysMessengerMapper messengerMapper;
+    private DmSysEnvParamMapper   envParamMapper;
     @Resource
-    private DmSysUserConfMapper  userConfMapper;
+    private DmSysMessengerMapper  messengerMapper;
     @Resource
-    private DmSysWorkerMapper    workerMapper;
+    private DmSysUserConfMapper   userConfMapper;
     @Resource
-    private DmSshConfigMapper    sshConfigMapper;
+    private DmSysWorkerMapper     workerMapper;
     @Resource
-    private AuthDal              authDal;
+    private DmSshConfigMapper     sshConfigMapper;
+    @Resource
+    private AuthDal               authDal;
+    @Resource
+    private JdbcTemplate          jdbcTemplate;
+
+    @Override
+    public DmSysAttachmentMapper attachmentMapper() {
+        return attachmentMapper;
+    }
 
     @Override
     public DmSysClusterMapper clusterMapper() {
@@ -72,6 +86,34 @@ public class SystemDalImpl implements SystemDal {
     }
 
     // ---------- dal service methods ----------
+
+    @Override
+    public void writeAttachment(long attachmentId, InputStream input, long contentLength) {
+        this.jdbcTemplate.update(connection -> {
+            var statement = connection.prepareStatement("update dm_sys_attachment set blob_content = ? where id = ?");
+            statement.setBinaryStream(1, input, contentLength);
+            statement.setLong(2, attachmentId);
+            return statement;
+        });
+    }
+
+    @Override
+    public boolean readAttachment(long attachmentId, OutputStream output) {
+        Boolean found = this.jdbcTemplate.query("select blob_content from dm_sys_attachment where id = ?", ps -> {
+            ps.setLong(1, attachmentId);
+        }, rs -> {
+            if (!rs.next()) {
+                return false;
+            }
+            try (InputStream input = rs.getBinaryStream(1)) {
+                input.transferTo(output);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            return true;
+        });
+        return Boolean.TRUE.equals(found);
+    }
 
     private DmSysUserConfDO querySpecifiedConfig(String uid, String configName) {
         return userConfMapper.queryByUidAndConfigName(uid, configName);

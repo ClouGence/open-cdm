@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.platform.dal.mapper.approval;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -26,7 +27,18 @@ public interface DmApprovalProcessActivityMapper extends BaseMapper<DmApprovalPr
 
     List<DmApprovalProcessActivityDO> queryByTicketId(Long ticketId);
 
+    DmApprovalProcessActivityDO queryByProcessIdAndActivityId(@Param("processId") Long processId, @Param("activityId") String activityId);
+
     DmApprovalProcessActivityDO queryByProcessIdAndActivityIdForUpdate(@Param("processId") Long processId, @Param("activityId") String activityId);
 
     void updateContext(@Param("processId") Long processId, @Param("activityId") String activityId, @Param("context") String context);
+
+    int claimPreInitTask(@Param("processId") Long processId, @Param("activityId") String activityId, @Param("expiredBefore") Date expiredBefore, @Param("context") String context);
+
+    int heartbeatPreInitTask(@Param("processId") Long processId, @Param("activityId") String activityId, @Param("runId") String runId);
+
+    int updatePreInitContext(@Param("processId") Long processId, @Param("activityId") String activityId, @Param("runId") String runId, @Param("context") String context);
+
+    int completePreInitTask(@Param("processId") Long processId, @Param("activityId") String activityId, @Param("taskStatus") String taskStatus, @Param("runId") String runId,
+                            @Param("context") String context);
 }

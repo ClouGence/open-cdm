@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.redis.parser.ast.commands;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -25,17 +26,18 @@ import com.clougence.sql.redis.parser.ast.AbstractRedisAst;
 import com.clougence.sql.redis.parser.ast.RedisCmdType;
 import com.clougence.sql.redis.parser.ast.token.*;
 
-import lombok.SneakyThrows;
-
 public abstract class AbstractRedisCmd extends AbstractRedisAst implements Statement {
 
     public abstract RedisCmdType getCmdType();
 
-    @SneakyThrows
     public String toString() {
-        StringWriter writer = new StringWriter();
-        this.doFormat(new FmtWriter(writer, Collections.emptyMap()));
-        return writer.toString();
+        try {
+            StringWriter writer = new StringWriter();
+            this.doFormat(new FmtWriter(writer, Collections.emptyMap()));
+            return writer.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("format redis command failed, " + e.getMessage(), e);
+        }
     }
 
     protected String fmtString(StrToken v) {

@@ -1,5 +1,5 @@
 <drivers>
-    <driver driverFamily="MariaDB Java Client" version="3.5.8">
+    <driver driverFamily="MariaDB Java Client" version="3.5.8" default="true">
         <driverName>com.clougence.clouddm.ds.mariadb.execute.dsfactory.MarSqlDsFactory</driverName>
         <resource type="maven">org.mariadb.jdbc:mariadb-java-client:3.5.8</resource>
     </driver>

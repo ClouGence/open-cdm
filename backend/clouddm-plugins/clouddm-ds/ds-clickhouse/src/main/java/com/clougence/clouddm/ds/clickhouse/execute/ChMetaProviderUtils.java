@@ -114,9 +114,12 @@ public class ChMetaProviderUtils {
             }
 
             rdbColumn.setSqlType(safeToChTypes(dataType));
-            passerDatetime(dataType, rdbColumn);
-            passerNumeric(dataType, rdbColumn);
-            passerLength(dataType, rdbColumn);
+            // unknown server types not in ClickHouseTypes resolve to null; skip the passers to avoid NPE
+            if (rdbColumn.getSqlType() != null) {
+                passerDatetime(dataType, rdbColumn);
+                passerNumeric(dataType, rdbColumn);
+                passerLength(dataType, rdbColumn);
+            }
 
             // default
             String defaultDataKind = rs.getString("default_kind");

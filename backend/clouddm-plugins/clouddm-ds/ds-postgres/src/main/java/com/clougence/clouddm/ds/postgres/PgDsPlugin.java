@@ -24,6 +24,7 @@ import com.clougence.clouddm.ds.postgres.definition.ui.ddl.PgConvertTableDDLSpi;
 import com.clougence.clouddm.ds.postgres.dsconf.PgConfigSpi;
 import com.clougence.clouddm.ds.postgres.dsconf.PgSerializationSpi;
 import com.clougence.clouddm.ds.postgres.execute.PgSessionFactory;
+import com.clougence.clouddm.ds.postgres.execute.explain.PgExplainPlanSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.browser.PgDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
@@ -86,6 +87,7 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new PgSessionSpi());
         dsPlugin.addPluginSpi(new PgSupportSpi());
+        dsPlugin.addPluginSpi(new PgExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

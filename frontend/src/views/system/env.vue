@@ -1021,15 +1021,19 @@ export default {
 }
 
 .ticket-info {
-  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .ticket-config-btn {
-  position: absolute;
-  top: 0;
-  right: 4px;
-  z-index: 1;
-  padding: 0 4px;
+  position: static;
+  flex: 0 0 auto;
+  order: 1;
+  margin-left: auto;
+  padding: 0;
   height: 20px;
   line-height: 20px;
   font-size: 12px;

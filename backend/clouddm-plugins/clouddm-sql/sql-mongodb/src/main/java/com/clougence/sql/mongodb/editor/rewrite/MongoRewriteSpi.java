@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.mongodb.editor.rewrite;
 
+import java.io.StringReader;
 import java.util.List;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -22,12 +23,10 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.sql.common.analysis.SqlAnalysisI18nKeys;
 import com.clougence.sql.mongodb.parser.MongoDslProvider;
 import com.clougence.sql.mongodb.parser.antlr.MongoParser;
 import com.clougence.sql.mongodb.parser.ast.MongoConstant;
@@ -35,8 +34,8 @@ import com.clougence.sql.mongodb.parser.ast.MongoConstant;
 public class MongoRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(MongoDslProvider.INSTANCE, request.getQueryBody());
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(MongoDslProvider.INSTANCE, new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -48,16 +47,16 @@ public class MongoRewriteSpi implements RewriteSpi {
             MongoParser.CommandContext command = (MongoParser.CommandContext) astTree;
             ParseTree child = command.functionCommand().collectionFunction().collectionMethod().getChild(0);
             if (child instanceof MongoParser.FindContext) {
-                return findRewrite(context, (MongoParser.FindContext) child, maxLimit, rewriter);
+                return findRewrite((MongoParser.FindContext) child, maxLimit, rewriter);
             } else if (child instanceof MongoParser.AggregateContext) {
-                return aggregateRewrite(context, (MongoParser.AggregateContext) child, maxLimit, rewriter);
+                return aggregateRewrite((MongoParser.AggregateContext) child, maxLimit, rewriter);
             }
         }
 
         return rewriter.getText();
     }
 
-    private String aggregateRewrite(RewriteContext context, MongoParser.AggregateContext agg, long maxLimit, TokenStreamRewriter rewriter) {
+    private String aggregateRewrite(MongoParser.AggregateContext agg, long maxLimit, TokenStreamRewriter rewriter) {
         if (agg.arr() == null) {
             rewriter.insertBefore(agg.RS_BRACKET().getSymbol(), "[{$limit:" + maxLimit + "}]");
         } else {
@@ -68,16 +67,14 @@ public class MongoRewriteSpi implements RewriteSpi {
             }
         }
 
-        context.addRewriterInfo(SqlAnalysisI18nKeys.REWRITE_LIMIT_LABEL);
         return rewriter.getText();
     }
 
-    private String findRewrite(RewriteContext context, MongoParser.FindContext child, long maxLimit, TokenStreamRewriter rewriter) {
+    private String findRewrite(MongoParser.FindContext child, long maxLimit, TokenStreamRewriter rewriter) {
         MongoParser.FindContext find = child;
         for (int i = find.findConstarint().size() - 1; i >= 0; i--) {
             if (find.findConstarint(i) instanceof MongoParser.FindLimitConstraintContext limit) {
                 if (parserLimit(limit.NUMBER().getText()) > maxLimit) {
-                    context.addRewriterInfo(SqlAnalysisI18nKeys.REWRITE_LIMIT_LABEL);
                     rewriter.replace(limit.NUMBER().getSymbol().getTokenIndex(), maxLimit);
                 }
                 return rewriter.getText();
@@ -88,7 +85,6 @@ public class MongoRewriteSpi implements RewriteSpi {
             for (int i = find.options.pair().size() - 1; i >= 0; i--) {
                 if (MongoConstant.LIMIT.equals(getString(find.options.pair(i).key().getText()))) {
                     if (parserLimit(getString(find.options.pair(i).value().getText())) > maxLimit) {
-                        context.addRewriterInfo(SqlAnalysisI18nKeys.REWRITE_LIMIT_LABEL);
                         rewriter.replace(find.options.pair(i).value().NUMBER().getSymbol().getTokenIndex(), maxLimit);
                     }
                     return rewriter.getText();
@@ -96,7 +92,6 @@ public class MongoRewriteSpi implements RewriteSpi {
             }
         }
 
-        context.addRewriterInfo(SqlAnalysisI18nKeys.REWRITE_LIMIT_LABEL);
         return rewriter.getText() + ".limit(" + maxLimit + ")";
     }
 
@@ -113,5 +108,10 @@ public class MongoRewriteSpi implements RewriteSpi {
             return text.substring(1, text.length() - 1);
         }
         return text;
+    }
+
+    @Override
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        return null;
     }
 }

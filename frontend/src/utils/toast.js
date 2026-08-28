@@ -9,17 +9,23 @@ function stripHtml(html) {
   return tmp.textContent || tmp.innerText || '';
 }
 
+function normalizeDuration(duration) {
+  if (duration === undefined || duration === null) return DEFAULT_DURATION;
+  // iView uses 0 for persistent messages, while vue-sonner uses Infinity.
+  return duration === 0 ? Infinity : duration;
+}
+
 function resolve(msg, duration, onClose) {
   if (typeof msg === 'object' && msg !== null) {
     return {
       content: stripHtml(msg.content || ''),
-      duration: msg.duration ?? DEFAULT_DURATION,
+      duration: normalizeDuration(msg.duration),
       onClose: msg.onClose
     };
   }
   return {
     content: stripHtml(msg || ''),
-    duration: duration ?? DEFAULT_DURATION,
+    duration: normalizeDuration(duration),
     onClose
   };
 }

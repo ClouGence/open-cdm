@@ -1,3 +1,0 @@
-ALTER DATABASE split_db80 UPGRADE DATA DIRECTORY NAME;
-------------------------------------------------------------------------------------------
-[ALTER_SCHEMA] ALTER DATABASE split_db80 UPGRADE DATA DIRECTORY NAME;

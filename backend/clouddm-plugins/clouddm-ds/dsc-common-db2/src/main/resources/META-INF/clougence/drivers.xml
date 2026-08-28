@@ -33,7 +33,7 @@
         <resource type="maven">com.ibm.db2:jcc:11.5.6.0</resource>
     </driver>
     <!-- IBM JTOpen -->
-    <driver driverFamily="IBM JTOpen" version="21.0.6">
+    <driver driverFamily="IBM JTOpen" version="21.0.6" default="true">
         <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JtOpenDsFactory</driverName>
         <resource type="maven">net.sf.jt400:jt400:21.0.6</resource>
     </driver>

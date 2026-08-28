@@ -3,7 +3,9 @@
 <ruleSet>
     <queryRules>
         <!-- catalog -->
-        <ruleDef id="rule_catalog_001" ruleName="i18n::DEPRECATED_RULE_N_CATALOG_CHARACTER_SET" ruleDesc="i18n::DEPRECATED_RULE_D_CATALOG_CHARACTER_SET" ruleTarget="Catalog" scriptType="DetectRules" oldId="2" deprecated="true"><![CDATA[
+        <ruleDef id="rule_catalog_001" ruleName="i18n::DEPRECATED_RULE_N_CATALOG_CHARACTER_SET"
+                 ruleDesc="i18n::DEPRECATED_RULE_D_CATALOG_CHARACTER_SET" ruleTarget="Catalog" scriptType="DetectRules"
+                 oldId="2" deprecated="true"><![CDATA[
 #define "require" as bool
         default "true"
         enum ["true", "false"]
@@ -50,7 +52,9 @@ if @domain.sqlType == 'CREATE_CATALOG' then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_catalog_002" ruleName="i18n::DEPRECATED_RULE_N_CATALOG_COLLATE" ruleDesc="i18n::DEPRECATED_RULE_D_CATALOG_COLLATE" ruleTarget="Catalog" scriptType="DetectRules" oldId="1" deprecated="true"><![CDATA[
+        <ruleDef id="rule_catalog_002" ruleName="i18n::DEPRECATED_RULE_N_CATALOG_COLLATE"
+                 ruleDesc="i18n::DEPRECATED_RULE_D_CATALOG_COLLATE" ruleTarget="Catalog" scriptType="DetectRules"
+                 oldId="1" deprecated="true"><![CDATA[
 #define "require" as bool
         default "true"
         enum ["true", "false"]
@@ -97,7 +101,8 @@ if @domain.sqlType == 'CREATE_CATALOG' then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_catalog_003" ruleName="i18n::RULE_N_CATALOG_NAME_CASE_TYPE" ruleDesc="i18n::RULE_D_CATALOG_NAME_CASE_TYPE" ruleTarget="Catalog" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_catalog_003" ruleName="i18n::RULE_N_CATALOG_NAME_CASE_TYPE"
+                 ruleDesc="i18n::RULE_D_CATALOG_NAME_CASE_TYPE" ruleTarget="Catalog" scriptType="DetectRules"><![CDATA[
 #define "caseType" as string
         default "Lower case"
         enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
@@ -133,7 +138,8 @@ end
 ]]></ruleDef>
 
         <!-- schema -->
-        <ruleDef id="rule_schema_001" ruleName="i18n::RULE_N_SCHEMA_CHARACTER_SET" ruleDesc="i18n::RULE_D_SCHEMA_CHARACTER_SET" ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_schema_001" ruleName="i18n::RULE_N_SCHEMA_CHARACTER_SET"
+                 ruleDesc="i18n::RULE_D_SCHEMA_CHARACTER_SET" ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
 #define "require" as bool
         default "true"
         enum ["true", "false"]
@@ -180,7 +186,8 @@ if @domain.sqlType == 'CREATE_CATALOG' then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_schema_002" ruleName="i18n::RULE_N_SCHEMA_COLLATE" ruleDesc="i18n::RULE_D_SCHEMA_COLLATE" ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_schema_002" ruleName="i18n::RULE_N_SCHEMA_COLLATE" ruleDesc="i18n::RULE_D_SCHEMA_COLLATE"
+                 ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
 #define "require" as bool
         default "true"
         enum ["true", "false"]
@@ -227,7 +234,8 @@ if @domain.sqlType == 'CREATE_CATALOG' then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_schema_003" ruleName="i18n::RULE_N_SCHEMA_NAME_CASE_TYPE" ruleDesc="i18n::RULE_D_SCHEMA_NAME_CASE_TYPE" ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_schema_003" ruleName="i18n::RULE_N_SCHEMA_NAME_CASE_TYPE"
+                 ruleDesc="i18n::RULE_D_SCHEMA_NAME_CASE_TYPE" ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
 #define "caseType" as string
         default "Lower case"
         enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
@@ -261,7 +269,8 @@ else
   return false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_schema_004" ruleName="i18n::RULE_N_SCHEMA_REDIS_COMMAND_CHECK" ruleDesc="i18n::RULE_D_SCHEMA_REDIS_COMMAND_CHECK" ruleTarget="" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_schema_004" ruleName="i18n::RULE_N_SCHEMA_REDIS_COMMAND_CHECK"
+                 ruleDesc="i18n::RULE_D_SCHEMA_REDIS_COMMAND_CHECK" ruleTarget="" scriptType="DetectRules"><![CDATA[
 #define "checkMode" as string
         default "Allow"
         enum ["Allow", "Reject"]
@@ -284,7 +293,8 @@ else
   return true
 end
 ]]></ruleDef>
-        <ruleDef id="rule_schema_005" ruleName="i18n::RULE_N_SCHEMA_MONGO_COMMAND_CHECK" ruleDesc="i18n::RULE_D_SCHEMA_MONGO_COMMAND_CHECK" ruleTarget="" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_schema_005" ruleName="i18n::RULE_N_SCHEMA_MONGO_COMMAND_CHECK"
+                 ruleDesc="i18n::RULE_D_SCHEMA_MONGO_COMMAND_CHECK" ruleTarget="" scriptType="DetectRules"><![CDATA[
 #define "checkMode" as string
         default "Allow"
         enum ["Allow", "Reject"]
@@ -310,7 +320,9 @@ end
 ]]></ruleDef>
 
         <!-- table -->
-        <ruleDef id="rule_table_001" ruleName="i18n::RULE_N_TABLE_AUTO_INCREMENT" ruleDesc="i18n::RULE_D_TABLE_AUTO_INCREMENT" ruleTarget="Table" scriptType="DetectRules" oldId="3"><![CDATA[
+        <ruleDef id="rule_table_001" ruleName="i18n::RULE_N_TABLE_AUTO_INCREMENT"
+                 ruleDesc="i18n::RULE_D_TABLE_AUTO_INCREMENT" ruleTarget="Table" scriptType="DetectRules" oldId="3">
+            <![CDATA[
 #define "require" as bool
         default "false"
         enum ["true", "false"]
@@ -337,7 +349,9 @@ else
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_table_002" ruleName="i18n::RULE_N_TABLE_CREATE_MAX_COLUMNS" ruleDesc="i18n::RULE_D_TABLE_CREATE_MAX_COLUMNS" ruleTarget="Table" scriptType="DetectRules" oldId="4"><![CDATA[
+        <ruleDef id="rule_table_002" ruleName="i18n::RULE_N_TABLE_CREATE_MAX_COLUMNS"
+                 ruleDesc="i18n::RULE_D_TABLE_CREATE_MAX_COLUMNS" ruleTarget="Table" scriptType="DetectRules" oldId="4">
+            <![CDATA[
 #define "maxCount" as int
         default "50"
         hint "表最大字段数量"
@@ -350,7 +364,9 @@ end
 
 return @func.array.size(@domain.columns) <= cast(#{maxCount} as int)
 ]]></ruleDef>
-        <ruleDef id="rule_table_003" ruleName="i18n::RULE_N_TABLE_NAME_CASE_TYPE" ruleDesc="i18n::RULE_D_TABLE_NAME_CASE_TYPE" ruleTarget="Table" scriptType="DetectRules" oldId="5"><![CDATA[
+        <ruleDef id="rule_table_003" ruleName="i18n::RULE_N_TABLE_NAME_CASE_TYPE"
+                 ruleDesc="i18n::RULE_D_TABLE_NAME_CASE_TYPE" ruleTarget="Table" scriptType="DetectRules" oldId="5">
+            <![CDATA[
 #define "caseType" as string
         default "Lower case"
         enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
@@ -384,7 +400,9 @@ else
   return false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_table_004" ruleName="i18n::RULE_N_TABLE_NEED_COMMENT" ruleDesc="i18n::RULE_D_TABLE_NEED_COMMENT" ruleTarget="Table" scriptType="DetectRules" oldId="6"><![CDATA[
+        <ruleDef id="rule_table_004" ruleName="i18n::RULE_N_TABLE_NEED_COMMENT"
+                 ruleDesc="i18n::RULE_D_TABLE_NEED_COMMENT" ruleTarget="Table" scriptType="DetectRules" oldId="6">
+            <![CDATA[
 if
   @domain.sqlType == 'CREATE_TABLE'
 then
@@ -398,14 +416,18 @@ then
   return @func.string.isNotBlank(@domain.comment)
 end
 ]]></ruleDef>
-        <ruleDef id="rule_table_005" ruleName="i18n::RULE_N_TABLE_NEED_PRIMARY" ruleDesc="i18n::RULE_D_TABLE_NEED_PRIMARY" ruleTarget="Table" scriptType="DetectRules" oldId="7"><![CDATA[
+        <ruleDef id="rule_table_005" ruleName="i18n::RULE_N_TABLE_NEED_PRIMARY"
+                 ruleDesc="i18n::RULE_D_TABLE_NEED_PRIMARY" ruleTarget="Table" scriptType="DetectRules" oldId="7">
+            <![CDATA[
 if
   @domain.sqlType == 'CREATE_TABLE'
 then
   return @domain.hasPrimary
 end
 ]]></ruleDef>
-        <ruleDef id="rule_table_006" ruleName="i18n::RULE_N_TABLE_NAME_NOT_IN_KEYWORDS" ruleDesc="i18n::RULE_D_TABLE_NAME_NOT_IN_KEYWORDS" ruleTarget="Table" scriptType="DetectRules" oldId="8"><![CDATA[
+        <ruleDef id="rule_table_006" ruleName="i18n::RULE_N_TABLE_NAME_NOT_IN_KEYWORDS"
+                 ruleDesc="i18n::RULE_D_TABLE_NAME_NOT_IN_KEYWORDS" ruleTarget="Table" scriptType="DetectRules"
+                 oldId="8"><![CDATA[
 if
   @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE']
 then
@@ -426,7 +448,7 @@ else
   return true
 end
 
-if @domain.dsType in ['MySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
+if @domain.dsType in ['MySQL', 'GoldenDBMySQL', 'KingbaseESMySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
   return @func.string.upperCase(testName) not in
     ['ACCESSIBLE','ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','ASENSITIVE',
      'BEFORE','BETWEEN','BIGINT','BINARY','BLOB','BOTH','BY',
@@ -453,7 +475,7 @@ if @domain.dsType in ['MySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'Pola
      'WRITE','XOR','YEAR_MONTH','ZEROFILL']
 end
 
-if @domain.dsType in ['PostgreSQL', 'Greenplum', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
+if @domain.dsType in ['PostgreSQL', 'Greenplum', 'Cloudberry', 'CockroachDB', 'KingbaseESPostgreSQL', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
   return @func.string.upperCase(testName) not in
     ['ALL','ALWAYS','ANALYSE','ANALYZE','AND','ANY','ARRAY','AS','ASC','ASYMMETRIC','AUTHORIZATION',
      'BETWEEN','BINARY','BOTH','CASE','CAST','CHECK','COLLATE','COLLATION','COLUMN','CONCURRENTLY','CONSTRAINT',
@@ -525,7 +547,9 @@ if @domain.dsType in ['TiDB'] then
      'YEAR','YEAR_MONTH','ZEROFILL']
 end
 ]]></ruleDef>
-        <ruleDef id="rule_table_007" ruleName="i18n::RULE_N_TABLE_CHARACTER_SET" ruleDesc="i18n::RULE_D_TABLE_CHARACTER_SET" ruleTarget="Table" scriptType="DetectRules" oldId="9"><![CDATA[
+        <ruleDef id="rule_table_007" ruleName="i18n::RULE_N_TABLE_CHARACTER_SET"
+                 ruleDesc="i18n::RULE_D_TABLE_CHARACTER_SET" ruleTarget="Table" scriptType="DetectRules" oldId="9">
+            <![CDATA[
 #define "require" as bool
         default "true"
         enum ["true", "false"]
@@ -572,7 +596,8 @@ if @domain.sqlType == 'CREATE_TABLE' then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_table_008" ruleName="i18n::RULE_N_TABLE_COLLATE" ruleDesc="i18n::RULE_D_TABLE_COLLATE" ruleTarget="Table" scriptType="DetectRules" oldId="10"><![CDATA[
+        <ruleDef id="rule_table_008" ruleName="i18n::RULE_N_TABLE_COLLATE" ruleDesc="i18n::RULE_D_TABLE_COLLATE"
+                 ruleTarget="Table" scriptType="DetectRules" oldId="10"><![CDATA[
 #define "require" as bool
         default "true"
         enum ["true", "false"]
@@ -619,7 +644,8 @@ if @domain.sqlType == 'CREATE_TABLE' then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_table_009" ruleName="i18n::RULE_N_TABLE_ENGINE" ruleDesc="i18n::RULE_D_TABLE_ENGINE" ruleTarget="Table" scriptType="DetectRules" oldId="11"><![CDATA[
+        <ruleDef id="rule_table_009" ruleName="i18n::RULE_N_TABLE_ENGINE" ruleDesc="i18n::RULE_D_TABLE_ENGINE"
+                 ruleTarget="Table" scriptType="DetectRules" oldId="11"><![CDATA[
 #define "require" as bool
         default "true"
         enum ["true", "false"]
@@ -666,7 +692,9 @@ if @domain.sqlType == 'CREATE_TABLE' then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_table_010" ruleName="i18n::RULE_N_TABLE_NEED_COLUMNS" ruleDesc="i18n::RULE_D_TABLE_NEED_COLUMNS" ruleTarget="Table" scriptType="DetectRules" oldId="12"><![CDATA[
+        <ruleDef id="rule_table_010" ruleName="i18n::RULE_N_TABLE_NEED_COLUMNS"
+                 ruleDesc="i18n::RULE_D_TABLE_NEED_COLUMNS" ruleTarget="Table" scriptType="DetectRules" oldId="12">
+            <![CDATA[
 #define "columns" as string
         default "id,create_gmt,modify_gmt"
         hint "需要包含的列名称，多个列使用逗号区分"
@@ -679,7 +707,8 @@ end
 
 return @func.string.split(#{columns}, ',') in @domain.columns
 ]]></ruleDef>
-        <ruleDef id="rule_table_011" ruleName="i18n::RULE_N_TABLE_NAME_LENGTH" ruleDesc="i18n::RULE_D_TABLE_NAME_LENGTH" ruleTarget="Table" scriptType="DetectRules" oldId="13"><![CDATA[
+        <ruleDef id="rule_table_011" ruleName="i18n::RULE_N_TABLE_NAME_LENGTH" ruleDesc="i18n::RULE_D_TABLE_NAME_LENGTH"
+                 ruleTarget="Table" scriptType="DetectRules" oldId="13"><![CDATA[
 #define "length" as int
         default "30"
         hint "表名的最大长度"
@@ -694,7 +723,9 @@ end
 
 return @func.string.length(checkName) <= cast(#{length} as int)
 ]]></ruleDef>
-        <ruleDef id="rule_table_012" ruleName="i18n::RULE_N_TABLE_USE_TABLE_CONVERT" ruleDesc="i18n::RULE_D_TABLE_USE_TABLE_CONVERT" ruleTarget="Table" scriptType="DetectRules" oldId="14"><![CDATA[
+        <ruleDef id="rule_table_012" ruleName="i18n::RULE_N_TABLE_USE_TABLE_CONVERT"
+                 ruleDesc="i18n::RULE_D_TABLE_USE_TABLE_CONVERT" ruleTarget="Table" scriptType="DetectRules" oldId="14">
+            <![CDATA[
 if
   @domain.sqlType != 'ALTER_TABLE'
 then
@@ -710,7 +741,9 @@ end
 ]]></ruleDef>
 
         <!-- column -->
-        <ruleDef id="rule_column_001" ruleName="i18n::RULE_N_COLUMN_CHARACTER_SET" ruleDesc="i18n::RULE_D_COLUMN_CHARACTER_SET" ruleTarget="Column" scriptType="DetectRules" oldId="15"><![CDATA[
+        <ruleDef id="rule_column_001" ruleName="i18n::RULE_N_COLUMN_CHARACTER_SET"
+                 ruleDesc="i18n::RULE_D_COLUMN_CHARACTER_SET" ruleTarget="Column" scriptType="DetectRules" oldId="15">
+            <![CDATA[
 #define "require" as bool
         default "false"
         enum ["true", "false"]
@@ -757,7 +790,8 @@ if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_002" ruleName="i18n::RULE_N_COLUMN_COLLATE" ruleDesc="i18n::RULE_D_COLUMN_COLLATE" ruleTarget="Column" scriptType="DetectRules" oldId="16"><![CDATA[
+        <ruleDef id="rule_column_002" ruleName="i18n::RULE_N_COLUMN_COLLATE" ruleDesc="i18n::RULE_D_COLUMN_COLLATE"
+                 ruleTarget="Column" scriptType="DetectRules" oldId="16"><![CDATA[
 #define "require" as bool
         default "false"
         enum ["true", "false"]
@@ -804,7 +838,9 @@ if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_003" ruleName="i18n::RULE_N_COLUMN_CHARACTER_OR_COLLATE" ruleDesc="i18n::RULE_D_COLUMN_CHARACTER_OR_COLLATE" ruleTarget="Column" scriptType="DetectRules" oldId="17"><![CDATA[
+        <ruleDef id="rule_column_003" ruleName="i18n::RULE_N_COLUMN_CHARACTER_OR_COLLATE"
+                 ruleDesc="i18n::RULE_D_COLUMN_CHARACTER_OR_COLLATE" ruleTarget="Column" scriptType="DetectRules"
+                 oldId="17"><![CDATA[
 #define "allow" as string
         default "Both"
         enum ["Nothing", "Both", "Character set", "Collate"]
@@ -828,7 +864,9 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_004" ruleName="i18n::RULE_N_COLUMN_ALLOW_ZEROFILL" ruleDesc="i18n::RULE_D_COLUMN_ALLOW_ZEROFILL" ruleTarget="Column" scriptType="DetectRules" oldId="18"><![CDATA[
+        <ruleDef id="rule_column_004" ruleName="i18n::RULE_N_COLUMN_ALLOW_ZEROFILL"
+                 ruleDesc="i18n::RULE_D_COLUMN_ALLOW_ZEROFILL" ruleTarget="Column" scriptType="DetectRules" oldId="18">
+            <![CDATA[
 if
   @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
 then
@@ -837,7 +875,9 @@ end
 
 return !cast(@domain.zerofill as bool)
 ]]></ruleDef>
-        <ruleDef id="rule_column_005" ruleName="i18n::RULE_N_COLUMN_NEED_COMMENT" ruleDesc="i18n::RULE_D_COLUMN_NEED_COMMENT" ruleTarget="Column" scriptType="DetectRules" oldId="19"><![CDATA[
+        <ruleDef id="rule_column_005" ruleName="i18n::RULE_N_COLUMN_NEED_COMMENT"
+                 ruleDesc="i18n::RULE_D_COLUMN_NEED_COMMENT" ruleTarget="Column" scriptType="DetectRules" oldId="19">
+            <![CDATA[
 if
   @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
 then
@@ -851,7 +891,9 @@ then
   return @func.string.isNotBlank(@domain.comment)
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_006" ruleName="i18n::DEPRECATED_RULE_N_COLUMN_NEED_DEFAULT" ruleDesc="i18n::DEPRECATED_RULE_D_COLUMN_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules" oldId="20" deprecated="true"><![CDATA[
+        <ruleDef id="rule_column_006" ruleName="i18n::DEPRECATED_RULE_N_COLUMN_NEED_DEFAULT"
+                 ruleDesc="i18n::DEPRECATED_RULE_D_COLUMN_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules"
+                 oldId="20" deprecated="true"><![CDATA[
 if
   @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALERT_TABLE_ADD_COLUMN']
 then
@@ -865,7 +907,9 @@ then
   return @func.string.isNotBlank(@domain.defaultValue)
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_007" ruleName="i18n::RULE_N_COLUMN_NAME_NOT_IN_KEYWORDS" ruleDesc="i18n::RULE_D_COLUMN_NAME_NOT_IN_KEYWORDS" ruleTarget="Column" scriptType="DetectRules" oldId="21"><![CDATA[
+        <ruleDef id="rule_column_007" ruleName="i18n::RULE_N_COLUMN_NAME_NOT_IN_KEYWORDS"
+                 ruleDesc="i18n::RULE_D_COLUMN_NAME_NOT_IN_KEYWORDS" ruleTarget="Column" scriptType="DetectRules"
+                 oldId="21"><![CDATA[
 if
   @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE']
 then
@@ -886,7 +930,7 @@ else
   return true
 end
 
-if @domain.dsType in ['MySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
+if @domain.dsType in ['MySQL', 'GoldenDBMySQL', 'KingbaseESMySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
   return @func.string.upperCase(testName) not in
     ['ACCESSIBLE','ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','ASENSITIVE',
      'BEFORE','BETWEEN','BIGINT','BINARY','BLOB','BOTH','BY',
@@ -913,7 +957,7 @@ if @domain.dsType in ['MySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'Pola
      'WRITE','XOR','YEAR_MONTH','ZEROFILL']
 end
 
-if @domain.dsType in ['PostgreSQL', 'Greenplum', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
+if @domain.dsType in ['PostgreSQL', 'Greenplum', 'Cloudberry', 'CockroachDB', 'KingbaseESPostgreSQL', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
   return @func.string.upperCase(testName) not in
     ['ALL','ALWAYS','ANALYSE','ANALYZE','AND','ANY','ARRAY','AS','ASC','ASYMMETRIC','AUTHORIZATION',
      'BETWEEN','BINARY','BOTH','CASE','CAST','CHECK','COLLATE','COLLATION','COLUMN','CONCURRENTLY','CONSTRAINT',
@@ -985,7 +1029,9 @@ if @domain.dsType in ['TiDB'] then
      'YEAR','YEAR_MONTH','ZEROFILL']
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_008" ruleName="i18n::RULE_N_COLUMN_NAME_CASE_TYPE" ruleDesc="i18n::RULE_D_COLUMN_NAME_CASE_TYPE" ruleTarget="Column" scriptType="DetectRules" oldId="22"><![CDATA[
+        <ruleDef id="rule_column_008" ruleName="i18n::RULE_N_COLUMN_NAME_CASE_TYPE"
+                 ruleDesc="i18n::RULE_D_COLUMN_NAME_CASE_TYPE" ruleTarget="Column" scriptType="DetectRules" oldId="22">
+            <![CDATA[
 #define "caseType" as string
         default "Lower case"
         enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
@@ -1019,7 +1065,9 @@ else
   return false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_009" ruleName="i18n::RULE_N_COLUMN_NAME_LENGTH" ruleDesc="i18n::RULE_D_COLUMN_NAME_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="23"><![CDATA[
+        <ruleDef id="rule_column_009" ruleName="i18n::RULE_N_COLUMN_NAME_LENGTH"
+                 ruleDesc="i18n::RULE_D_COLUMN_NAME_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="23">
+            <![CDATA[
 #define "length" as int
         default "30"
         hint "列名的最大长度"
@@ -1034,7 +1082,9 @@ end
 
 return @func.string.length(checkName) <= cast(#{length} as int)
 ]]></ruleDef>
-        <ruleDef id="rule_column_010" ruleName="i18n::RULE_N_COLUMN_CHAR_LENGTH" ruleDesc="i18n::RULE_D_COLUMN_CHAR_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="24"><![CDATA[
+        <ruleDef id="rule_column_010" ruleName="i18n::RULE_N_COLUMN_CHAR_LENGTH"
+                 ruleDesc="i18n::RULE_D_COLUMN_CHAR_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="24">
+            <![CDATA[
 #define "allowEmpty" as bool
         default "false"
         enum ["true", "false"]
@@ -1069,7 +1119,9 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_011" ruleName="i18n::RULE_N_COLUMN_VARCHAR_LENGTH" ruleDesc="i18n::RULE_D_COLUMN_VARCHAR_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="25"><![CDATA[
+        <ruleDef id="rule_column_011" ruleName="i18n::RULE_N_COLUMN_VARCHAR_LENGTH"
+                 ruleDesc="i18n::RULE_D_COLUMN_VARCHAR_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="25">
+            <![CDATA[
 #define "allowEmpty" as bool
         default "false"
         enum ["true", "false"]
@@ -1104,7 +1156,9 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_012" ruleName="i18n::RULE_N_COLUMN_ALLOW_DROP" ruleDesc="i18n::RULE_D_COLUMN_ALLOW_DROP" ruleTarget="Column" scriptType="DetectRules" oldId="26"><![CDATA[
+        <ruleDef id="rule_column_012" ruleName="i18n::RULE_N_COLUMN_ALLOW_DROP"
+                 ruleDesc="i18n::RULE_D_COLUMN_ALLOW_DROP" ruleTarget="Column" scriptType="DetectRules" oldId="26">
+            <![CDATA[
 #define "allow" as string
         default "true"
         enum ["true", "false"]
@@ -1117,7 +1171,8 @@ then
   return false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_013" ruleName="i18n::RULE_N_COLUMN_TYPES" ruleDesc="i18n::RULE_D_COLUMN_TYPES" ruleTarget="Column" scriptType="DetectRules" oldId="27"><![CDATA[
+        <ruleDef id="rule_column_013" ruleName="i18n::RULE_N_COLUMN_TYPES" ruleDesc="i18n::RULE_D_COLUMN_TYPES"
+                 ruleTarget="Column" scriptType="DetectRules" oldId="27"><![CDATA[
 #define "ruleType" as string
         default "AllowList"
         enum ["AllowList", "BlockList"]
@@ -1152,14 +1207,18 @@ end
 
 return false
 ]]></ruleDef>
-        <ruleDef id="rule_column_014" ruleName="i18n::RULE_N_COLUMN_NEED_NOTNULL" ruleDesc="i18n::RULE_D_COLUMN_NEED_NOTNULL" ruleTarget="Column" scriptType="DetectRules" oldId="28"><![CDATA[
+        <ruleDef id="rule_column_014" ruleName="i18n::RULE_N_COLUMN_NEED_NOTNULL"
+                 ruleDesc="i18n::RULE_D_COLUMN_NEED_NOTNULL" ruleTarget="Column" scriptType="DetectRules" oldId="28">
+            <![CDATA[
 if
   @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
 then
   return !@domain.nullable
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_015" ruleName="i18n::RULE_N_COLUMN_AUTO_UNSIGNED_CHECK" ruleDesc="i18n::RULE_D_COLUMN_AUTO_UNSIGNED_CHECK" ruleTarget="Column" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_column_015" ruleName="i18n::RULE_N_COLUMN_AUTO_UNSIGNED_CHECK"
+                 ruleDesc="i18n::RULE_D_COLUMN_AUTO_UNSIGNED_CHECK" ruleTarget="Column" scriptType="DetectRules">
+            <![CDATA[
 #define "columnName" as string
         default "id"
         hint "自增的列名"
@@ -1194,14 +1253,18 @@ else
   return true
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_016" ruleName="i18n::RULE_N_COLUMN_CREATE_NEED_DEFAULT" ruleDesc="i18n::RULE_D_COLUMN_CREATE_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_column_016" ruleName="i18n::RULE_N_COLUMN_CREATE_NEED_DEFAULT"
+                 ruleDesc="i18n::RULE_D_COLUMN_CREATE_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules">
+            <![CDATA[
 if
   @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
 then
   return @domain.defaultValue != null
 end
 ]]></ruleDef>
-        <ruleDef id="rule_column_017" ruleName="i18n::RULE_N_COLUMN_ALERT_NEED_DEFAULT" ruleDesc="i18n::RULE_D_COLUMN_ALERT_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_column_017" ruleName="i18n::RULE_N_COLUMN_ALERT_NEED_DEFAULT"
+                 ruleDesc="i18n::RULE_D_COLUMN_ALERT_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules">
+            <![CDATA[
 if
   @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
   @domain.defaultValue != null
@@ -1211,7 +1274,9 @@ end
 ]]></ruleDef>
 
         <!-- constraint -->
-        <ruleDef id="rule_const_001" ruleName="i18n::RULE_N_CONSTRAINT_NEED_FOREIGN" ruleDesc="i18n::RULE_D_CONSTRAINT_NEED_FOREIGN" ruleTarget="Constraint" scriptType="DetectRules" oldId="29"><![CDATA[
+        <ruleDef id="rule_const_001" ruleName="i18n::RULE_N_CONSTRAINT_NEED_FOREIGN"
+                 ruleDesc="i18n::RULE_D_CONSTRAINT_NEED_FOREIGN" ruleTarget="Constraint" scriptType="DetectRules"
+                 oldId="29"><![CDATA[
 #define "allow" as bool
         default "false"
         enum ["true", "false"]
@@ -1231,7 +1296,9 @@ end
 ]]></ruleDef>
 
         <!-- query -->
-        <ruleDef id="rule_query_001" ruleName="i18n::DEPRECATED_RULE_N_QUERY_ALLOW_TYPE" ruleDesc="i18n::DEPRECATED_RULE_D_QUERY_ALLOW_TYPE" ruleTarget="Query" scriptType="DetectRules" deprecated="true"><![CDATA[
+        <ruleDef id="rule_query_001" ruleName="i18n::DEPRECATED_RULE_N_QUERY_ALLOW_TYPE"
+                 ruleDesc="i18n::DEPRECATED_RULE_D_QUERY_ALLOW_TYPE" ruleTarget="Query" scriptType="DetectRules"
+                 deprecated="true"><![CDATA[
 #define "allow" as string
         default "Select and With Select"
         enum ["Select", "Select and With Select"]
@@ -1252,7 +1319,8 @@ then
   end
 end
 ]]></ruleDef>
-        <ruleDef id="rule_query_002" ruleName="i18n::RULE_N_QUERY_ALLOW_EMPTY_WHERE" ruleDesc="i18n::RULE_D_QUERY_ALLOW_EMPTY_WHERE" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_query_002" ruleName="i18n::RULE_N_QUERY_ALLOW_EMPTY_WHERE"
+                 ruleDesc="i18n::RULE_D_QUERY_ALLOW_EMPTY_WHERE" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1262,7 +1330,7 @@ if
   @domain.sqlType in ['SELECT']
 then
 
-  if @func.string.isBlank(@domain.table)  and @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer'])  then
+  if @func.string.isBlank(@domain.table)  and @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer','KingbaseESSQLServer'])  then
     return true
   end
 
@@ -1273,7 +1341,8 @@ then
   return false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_query_003" ruleName="i18n::RULE_N_QUERY_ALLOW_AS" ruleDesc="i18n::RULE_D_QUERY_ALLOW_AS" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_query_003" ruleName="i18n::RULE_N_QUERY_ALLOW_AS" ruleDesc="i18n::RULE_D_QUERY_ALLOW_AS"
+                 ruleTarget="Query" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1294,7 +1363,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_query_004" ruleName="i18n::RULE_N_QUERY_ALLOW_JOIN" ruleDesc="i18n::RULE_D_QUERY_ALLOW_JOIN" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_query_004" ruleName="i18n::RULE_N_QUERY_ALLOW_JOIN" ruleDesc="i18n::RULE_D_QUERY_ALLOW_JOIN"
+                 ruleTarget="Query" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "true"
         enum ["true", "false"]
@@ -1308,7 +1378,7 @@ then
      return true
   end
 
-  if @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer']) == false
+  if @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer','KingbaseESSQLServer']) == false
     then
       if @func.array.size(@domain.joinTypes) > 0
       then
@@ -1328,7 +1398,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_query_005" ruleName="i18n::RULE_N_QUERY_ALLOW_CROSS" ruleDesc="i18n::RULE_D_QUERY_ALLOW_CROSS" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_query_005" ruleName="i18n::RULE_N_QUERY_ALLOW_CROSS" ruleDesc="i18n::RULE_D_QUERY_ALLOW_CROSS"
+                 ruleTarget="Query" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1342,7 +1413,7 @@ then
     return true
   end
 
-  if @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer']) == false
+  if @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer','KingbaseESSQLServer']) == false
   then
     if @func.array.containAny(@domain.joinTypes , ['INNER_JOIN','CROSS_JOIN'])
     then
@@ -1360,7 +1431,9 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_query_006" ruleName="i18n::DEPRECATED_RULE_N_QUERY_ALLOW_SUB_QUERY" ruleDesc="i18n::DEPRECATED_RULE_D_QUERY_ALLOW_SUB_QUERY" ruleTarget="Query" scriptType="DetectRules" deprecated="true"><![CDATA[
+        <ruleDef id="rule_query_006" ruleName="i18n::DEPRECATED_RULE_N_QUERY_ALLOW_SUB_QUERY"
+                 ruleDesc="i18n::DEPRECATED_RULE_D_QUERY_ALLOW_SUB_QUERY" ruleTarget="Query" scriptType="DetectRules"
+                 deprecated="true"><![CDATA[
 if
   @domain.sqlType in ['SELECT', 'WITH_SELECT']
 then
@@ -1369,7 +1442,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_query_007" ruleName="i18n::RULE_N_QUERY_ALLOW_UNION" ruleDesc="i18n::RULE_D_QUERY_ALLOW_UNION" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_query_007" ruleName="i18n::RULE_N_QUERY_ALLOW_UNION" ruleDesc="i18n::RULE_D_QUERY_ALLOW_UNION"
+                 ruleTarget="Query" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1390,7 +1464,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_query_008" ruleName="i18n::RULE_N_QUERY_ALLOW_WITH" ruleDesc="i18n::RULE_D_QUERY_ALLOW_WITH" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_query_008" ruleName="i18n::RULE_N_QUERY_ALLOW_WITH" ruleDesc="i18n::RULE_D_QUERY_ALLOW_WITH"
+                 ruleTarget="Query" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "true"
         enum ["true", "false"]
@@ -1408,7 +1483,8 @@ then
 end
 
 ]]></ruleDef>
-        <ruleDef id="rule_query_009" ruleName="i18n::RULE_N_QUERY_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_QUERY_ALLOW_SUB_QUERY" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_query_009" ruleName="i18n::RULE_N_QUERY_ALLOW_SUB_QUERY"
+                 ruleDesc="i18n::RULE_D_QUERY_ALLOW_SUB_QUERY" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "None"
         enum ["Any", "Select", "From", "Where", "None"]
@@ -1447,7 +1523,8 @@ then
 end
 ]]></ruleDef>
         <!-- update -->
-        <ruleDef id="rule_update_001" ruleName="i18n::RULE_N_UPDATE_ALLOW_EMPTY_WHERE" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_EMPTY_WHERE" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_update_001" ruleName="i18n::RULE_N_UPDATE_ALLOW_EMPTY_WHERE"
+                 ruleDesc="i18n::RULE_D_UPDATE_ALLOW_EMPTY_WHERE" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1461,7 +1538,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_update_002" ruleName="i18n::RULE_N_UPDATE_NEED_COLUMNS" ruleDesc="i18n::RULE_D_UPDATE_NEED_COLUMNS" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_update_002" ruleName="i18n::RULE_N_UPDATE_NEED_COLUMNS"
+                 ruleDesc="i18n::RULE_D_UPDATE_NEED_COLUMNS" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
 #define "columns" as string
         default ""
         hint "更新必须包含的列，多个用逗号分割"
@@ -1476,7 +1554,9 @@ end
 
 return @func.string.split(#{columns}, ',') in @domain.setColumns
 ]]></ruleDef>
-        <ruleDef id="rule_update_003" ruleName="i18n::DEPRECATED_RULE_N_UPDATE_TYPE" ruleDesc="i18n::DEPRECATED_RULE_D_UPDATE_TYPE" ruleTarget="Update" scriptType="DetectRules" deprecated="true"><![CDATA[
+        <ruleDef id="rule_update_003" ruleName="i18n::DEPRECATED_RULE_N_UPDATE_TYPE"
+                 ruleDesc="i18n::DEPRECATED_RULE_D_UPDATE_TYPE" ruleTarget="Update" scriptType="DetectRules"
+                 deprecated="true"><![CDATA[
 #define "allow" as string
         default "UPDATE"
         enum ["UPDATE", "UPDATE and UPDATE_SET_SELECT"]
@@ -1498,7 +1578,8 @@ then
 end
 
 ]]></ruleDef>
-        <ruleDef id="rule_update_004" ruleName="i18n::RULE_N_UPDATE_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_SUB_QUERY" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_update_004" ruleName="i18n::RULE_N_UPDATE_ALLOW_SUB_QUERY"
+                 ruleDesc="i18n::RULE_D_UPDATE_ALLOW_SUB_QUERY" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "Any"
         enum ["Any", "Set", "Where", "None"]
@@ -1526,7 +1607,8 @@ then
   return false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_update_005" ruleName="i18n::RULE_N_UPDATE_ALLOW_MULTI" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_MULTI" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_update_005" ruleName="i18n::RULE_N_UPDATE_ALLOW_MULTI"
+                 ruleDesc="i18n::RULE_D_UPDATE_ALLOW_MULTI" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1536,7 +1618,8 @@ if @domain.sqlType == 'UPDATE' then
   return #{allow} == 'true' or @domain.multiUpdate == false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_update_006" ruleName="i18n::RULE_N_UPDATE_ALLOW_IGNORE" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_IGNORE" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_update_006" ruleName="i18n::RULE_N_UPDATE_ALLOW_IGNORE"
+                 ruleDesc="i18n::RULE_D_UPDATE_ALLOW_IGNORE" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1557,7 +1640,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_update_007" ruleName="i18n::RULE_N_UPDATE_NEED_LIMIT" ruleDesc="i18n::RULE_D_UPDATE_NEED_LIMIT" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_update_007" ruleName="i18n::RULE_N_UPDATE_NEED_LIMIT"
+                 ruleDesc="i18n::RULE_D_UPDATE_NEED_LIMIT" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
 if
   @domain.sqlType in ['UPDATE']
 then
@@ -1569,7 +1653,8 @@ end
         <!--]]></ruleDef>-->
 
         <!-- insert -->
-        <ruleDef id="rule_insert_001" ruleName="i18n::RULE_N_INSERT_NEED_COLUMNS" ruleDesc="i18n::RULE_D_INSERT_NEED_COLUMNS" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_insert_001" ruleName="i18n::RULE_N_INSERT_NEED_COLUMNS"
+                 ruleDesc="i18n::RULE_D_INSERT_NEED_COLUMNS" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
 #define "require" as string
         default "true"
         enum ["true", "false"]
@@ -1588,14 +1673,17 @@ end
 
 return @func.string.split(#{columns}, ',') in @domain.columns
 ]]></ruleDef>
-        <ruleDef id="rule_insert_002" ruleName="i18n::DEPRECATED_RULE_N_INSERT_ONLY_VALUES" ruleDesc="i18n::DEPRECATED_RULE_D_INSERT_ONLY_VALUES" ruleTarget="Insert" scriptType="DetectRules" deprecated="true"><![CDATA[
+        <ruleDef id="rule_insert_002" ruleName="i18n::DEPRECATED_RULE_N_INSERT_ONLY_VALUES"
+                 ruleDesc="i18n::DEPRECATED_RULE_D_INSERT_ONLY_VALUES" ruleTarget="Insert" scriptType="DetectRules"
+                 deprecated="true"><![CDATA[
 if
   @domain.sqlType in ['INSERT']
 then
   return cast(@domain.hasSpecifyColumn as bool)
 end
 ]]></ruleDef>
-        <ruleDef id="rule_insert_003" ruleName="i18n::RULE_N_INSERT_ALLOW_IGNORE" ruleDesc="i18n::RULE_D_INSERT_ALLOW_IGNORE" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_insert_003" ruleName="i18n::RULE_N_INSERT_ALLOW_IGNORE"
+                 ruleDesc="i18n::RULE_D_INSERT_ALLOW_IGNORE" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1616,7 +1704,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_insert_004" ruleName="i18n::RULE_N_INSERT_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_INSERT_ALLOW_SUB_QUERY" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_insert_004" ruleName="i18n::RULE_N_INSERT_ALLOW_SUB_QUERY"
+                 ruleDesc="i18n::RULE_D_INSERT_ALLOW_SUB_QUERY" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "true"
         enum ["true", "false"]
@@ -1639,7 +1728,8 @@ end
         <!--]]></ruleDef>-->
 
         <!-- delete -->
-        <ruleDef id="rule_delete_001" ruleName="i18n::RULE_N_DELETE_ALLOW_EMPTY_WHERE" ruleDesc="i18n::RULE_D_DELETE_ALLOW_EMPTY_WHERE" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_delete_001" ruleName="i18n::RULE_N_DELETE_ALLOW_EMPTY_WHERE"
+                 ruleDesc="i18n::RULE_D_DELETE_ALLOW_EMPTY_WHERE" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1653,7 +1743,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_delete_002" ruleName="i18n::RULE_N_DELETE_ALLOW_MULTI" ruleDesc="i18n::RULE_D_DELETE_ALLOW_MULTI" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_delete_002" ruleName="i18n::RULE_N_DELETE_ALLOW_MULTI"
+                 ruleDesc="i18n::RULE_D_DELETE_ALLOW_MULTI" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1671,7 +1762,8 @@ then
 
 end
 ]]></ruleDef>
-        <ruleDef id="rule_delete_003" ruleName="i18n::RULE_N_DELETE_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_DELETE_ALLOW_SUB_QUERY" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_delete_003" ruleName="i18n::RULE_N_DELETE_ALLOW_SUB_QUERY"
+                 ruleDesc="i18n::RULE_D_DELETE_ALLOW_SUB_QUERY" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "Any"
         enum ["Any", "Where", "None"]
@@ -1692,14 +1784,16 @@ then
   return false
 end
 ]]></ruleDef>
-        <ruleDef id="rule_delete_004" ruleName="i18n::RULE_N_DELETE_NEED_LIMIT" ruleDesc="i18n::RULE_D_DELETE_NEED_LIMIT" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_delete_004" ruleName="i18n::RULE_N_DELETE_NEED_LIMIT"
+                 ruleDesc="i18n::RULE_D_DELETE_NEED_LIMIT" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
 if
   @domain.sqlType in ['DELETE']
 then
   return cast(@domain.hasLimit as bool)
 end
 ]]></ruleDef>
-        <ruleDef id="rule_delete_005" ruleName="i18n::RULE_N_DELETE_ALLOW_IGNORE" ruleDesc="i18n::RULE_D_DELETE_ALLOW_IGNORE" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_delete_005" ruleName="i18n::RULE_N_DELETE_ALLOW_IGNORE"
+                 ruleDesc="i18n::RULE_D_DELETE_ALLOW_IGNORE" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
 #define "allow" as string
         default "false"
         enum ["true", "false"]
@@ -1725,7 +1819,8 @@ end
         <!--]]></ruleDef>-->
     </queryRules>
     <sensitiveRules>
-        <ruleDef id="rule_sensitive_001" ruleName="i18n::SEN_N_ALGORITHM" ruleDesc="i18n::SEN_D_ALGORITHM" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_sensitive_001" ruleName="i18n::SEN_N_ALGORITHM" ruleDesc="i18n::SEN_D_ALGORITHM"
+                 senMode="VALUE" scriptType="DetectRules"><![CDATA[
 if
   @domain.hasRange
 then
@@ -1734,7 +1829,8 @@ else
   return "algorithm::ORIGINAL"
 end
 ]]></ruleDef>
-        <ruleDef id="rule_sensitive_002" ruleName="i18n::SEN_N_VALUE_MATCH" ruleDesc="i18n::SEN_D_VALUE_MATCH" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_sensitive_002" ruleName="i18n::SEN_N_VALUE_MATCH" ruleDesc="i18n::SEN_D_VALUE_MATCH"
+                 senMode="VALUE" scriptType="DetectRules"><![CDATA[
 #define "match" as string
         default ""
         hint "匹配出现的字符，多个请按逗号分割"
@@ -1748,7 +1844,8 @@ else
   return "algorithm::ORIGINAL"
 end
 ]]></ruleDef>
-        <ruleDef id="rule_sensitive_003" ruleName="i18n::SEN_N_COLUMN_MATCH" ruleDesc="i18n::SEN_D_COLUMN_MATCH" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_sensitive_003" ruleName="i18n::SEN_N_COLUMN_MATCH" ruleDesc="i18n::SEN_D_COLUMN_MATCH"
+                 senMode="VALUE" scriptType="DetectRules"><![CDATA[
 #define "match" as string
         default ""
         hint "匹配出现的字符，多个请按逗号分割"
@@ -1762,7 +1859,8 @@ else
   return "algorithm::ORIGINAL"
 end
 ]]></ruleDef>
-        <ruleDef id="rule_sensitive_004" ruleName="i18n::SEN_N_CHINA_PHONE" ruleDesc="i18n::SEN_D_CHINA_PHONE" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_sensitive_004" ruleName="i18n::SEN_N_CHINA_PHONE" ruleDesc="i18n::SEN_D_CHINA_PHONE"
+                 senMode="VALUE" scriptType="DetectRules"><![CDATA[
 #define "match" as string
         default "130,131,132,140,145,146,155,156,166,167,170,171,175,176,185,186,196,134,135,136,137,138,139,144,147,148,150,151,152,157,158,159,165,172,178,182,183,184,187,188,195,197,198,133,141,149,153,162,173,174,177,180,181,189,190,191,193,199,192"
         hint "匹配出现的号段，多个请按逗号分割"
@@ -1776,7 +1874,8 @@ else
   return "algorithm::ORIGINAL"
 end
 ]]></ruleDef>
-        <ruleDef id="rule_sensitive_005" ruleName="i18n::SEN_N_COL_AND_VALUE_MATCH" ruleDesc="i18n::SEN_D_COL_AND_VALUE_MATCH" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+        <ruleDef id="rule_sensitive_005" ruleName="i18n::SEN_N_COL_AND_VALUE_MATCH"
+                 ruleDesc="i18n::SEN_D_COL_AND_VALUE_MATCH" senMode="VALUE" scriptType="DetectRules"><![CDATA[
 #define "match_col" as string
         default ""
         hint "匹配出现的列名"

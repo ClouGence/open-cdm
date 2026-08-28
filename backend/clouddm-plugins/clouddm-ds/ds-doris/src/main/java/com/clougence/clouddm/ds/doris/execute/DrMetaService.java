@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.doris.execute;
 
 import java.sql.Connection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import com.clougence.clouddm.ds.doris.definition.ui.editor.table.DrEditorProvide
 import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.EditorHelperDm;
 import com.clougence.schema.editor.domain.ETable;
 import com.clougence.schema.editor.provider.SqlBuilder;
@@ -30,6 +32,7 @@ import com.clougence.schema.umi.service.RdbUmiServiceDm;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
+import com.clougence.sql.doris.parser.DorisVersion;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -46,6 +49,21 @@ public class DrMetaService extends MyMetaService {
 
     public DrMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SHOW VARIABLES LIKE 'version_comment'", 2);
+        Map<String, String> parameters = new LinkedHashMap<>();
+        parameters.put(SqlParserParameters.VERSION, DorisVersion.parse(databaseVersion).versionString());
+        if (StringUtils.isNotBlank(databaseVersion)) {
+            try {
+                parameters.put(SqlParserParameters.EXACT_VERSION, Integer.toString(DorisVersion.parseExactVersion(databaseVersion)));
+            } catch (IllegalArgumentException e) {
+                log.warn("Parse Doris exact version failed: {}", databaseVersion);
+            }
+        }
+        return parameters;
     }
 
     @Override

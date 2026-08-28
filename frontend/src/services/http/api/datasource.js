@@ -1,6 +1,5 @@
 export const datasourceApi = {
   // datasource
-  rdpDataSourceListByCondition: '/api/entry/datasource/listByCondition',
   rdpDataSourceDelete: '/api/entry/datasource/delete',
   rdpDataSourceUpdateDsDesc: '/api/entry/datasource/updateDsDesc',
   rdpDataSourceDeleteAccount: '/api/entry/datasource/deleteAccount',
@@ -10,34 +9,15 @@ export const datasourceApi = {
   rdpDataSourceCheckDriverStatus: '/api/entry/datasource/checkDriverStatus',
   rdpDataSourceDownloadDriver: '/api/entry/datasource/downloadDriver',
   rdpDataSourceUpdateAccountAndPassword: '/api/entry/datasource/updateAccountAndPassword',
-  ccDataSourceListDbTablesUniqs: '/cloudcanal/console/api/v1/inner/datasource/listdbtablesuniqs',
-  ccDataSourceGetTypeMapping: '/cloudcanal/console/api/v1/inner/datasource/gettypemapping',
-  ccDataSourceDbList: '/cloudcanal/console/api/v1/inner/datasource/db/list',
-  ccDataSourceSchemaQuerySchema: '/cloudcanal/console/api/v1/inner/schema/queryschema',
-  ccDataSourceTableList: '/cloudcanal/console/api/v1/inner/datasource/table/list',
-  ccDataSourceTableListNew: '/cloudcanal/console/api/v1/inner/datasource/table/listNew',
-  ccDataSourceColumnBatchList: '/cloudcanal/console/api/v1/inner/datasource/column/batchlist',
-  ccDataSourceListForCc: '/cloudcanal/console/api/v1/inner/datasource/listforcc',
-  ccDataSourceConnection: '/cloudcanal/console/api/v1/inner/datasource/connection',
-  ccDataSourceTestConnectionBeforeAdd: '/cloudcanal/console/api/v1/inner/datasource/testconnectionbeforeadd',
-  ccDataSourceValidatePartitionExpr: '/cloudcanal/console/api/v1/inner/datasource/validatePartitionExpr',
-  ccDataSourceSchemasTableCount: '/cloudcanal/console/api/v1/inner/datasource/schemastablecount',
-  ccDataSourceQueryDsAttrs: '/cloudcanal/console/api/v1/inner/datasource/querydsattrs',
-  ccDataSourceEsIndexQuery: '/cloudcanal/console/api/v1/inner/datasource/es/index/query',
 
   // dm
   dmDataSourceConnectDs: '/api/entry/datasource/connectDs',
-  dmDataSourceAddDs: '/api/entry/datasource/addDs',
   dmDataSourceListByCondition: '/api/entry/datasource/listByCondition',
-  dmDataSourceQueryDs: '/api/entry/datasource/queryDs',
-  dmDataSourceUpdateDsAccount: '/api/entry/datasource/updateDsAccount',
   dmDataSourceFetchDsConfig: '/api/entry/datasource/fetchDsConfig',
   dmDataSourceFetchBindInfo: '/api/entry/datasource/fetchBindInfo',
   dmDataSourceUploadCertificate: '/api/entry/datasource/uploadCertificate',
   dmDataSourceTestConnect: '/api/entry/datasource/testConnect',
   dmDataSourceSpecialRedisTopKeysWithLimit: '/api/entry/datasource/special/redis/top_keys_with_limit',
   dmDataSourceSchemaListFirstLevel: '/api/entry/datasource/schema/listfirstlevel',
-  dmDataSourceSchemaListSchemas: '/api/entry/datasource/schema/listschemas',
-  dmDataSourceSchemaListTables: '/api/entry/datasource/schema/listtables',
-  dmDataSourceSchemaListColumns: '/api/entry/datasource/schema/listcolumns'
+  dmDataSourceSchemaListSchemas: '/api/entry/datasource/schema/listschemas'
 };

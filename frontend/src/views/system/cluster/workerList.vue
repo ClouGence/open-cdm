@@ -367,7 +367,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['userInfo', 'regionList', 'myAuth']),
+    ...mapState(['userInfo', 'myAuth']),
     getRegionName() {
       let regionName = '';
       this.regions.forEach((region) => {

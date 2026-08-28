@@ -29,6 +29,11 @@ public class OraSplitVisitor extends PlSqlParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitExplain_statement(Explain_statementContext ctx) {
+        return SplitQueryType.SELECT;
+    }
+
+    @Override
     public SplitQueryType visitCreate_table(Create_tableContext ctx) {
         return SplitQueryType.CREATE_TABLE;
     }

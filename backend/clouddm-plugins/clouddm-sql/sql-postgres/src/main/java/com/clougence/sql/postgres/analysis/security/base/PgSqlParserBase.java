@@ -51,20 +51,18 @@ public abstract class PgSqlParserBase extends Parser {
         super(input);
     }
 
-    public final void setVersion(PostgresVersion version) {
-        this.version = version == null ? PostgresVersion.LATEST : version;
-    }
+    public final void setVersion(PostgresVersion version) { this.version = version == null ? PostgresVersion.LATEST : version; }
 
     protected final boolean atLeast(PostgresVersion minimum) {
-        return version.atLeast(minimum);
+        return PostgresVersion.ge(version, minimum);
     }
 
     protected final boolean atMost(PostgresVersion maximum) {
-        return version.atMost(maximum);
+        return PostgresVersion.le(version, maximum);
     }
 
     protected final boolean between(PostgresVersion minimum, PostgresVersion maximum) {
-        return version.between(minimum, maximum);
+        return PostgresVersion.ge(version, minimum) && PostgresVersion.le(version, maximum);
     }
 
     ParserRuleContext GetParsedSqlTree(String script, int line) {

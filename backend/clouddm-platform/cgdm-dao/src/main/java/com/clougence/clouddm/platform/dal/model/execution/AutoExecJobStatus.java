@@ -16,7 +16,9 @@
 package com.clougence.clouddm.platform.dal.model.execution;
 
 public enum AutoExecJobStatus {
+    PREPARING,
     INIT,
+    PACKAGING,
     WAIT_EXEC,
     EXECUTING,
     FAILED,

@@ -19,4 +19,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeVersionDO;
 
 public interface DmChangeVersionMapper extends BaseMapper<DmChangeVersionDO> {
+    int insertReviewSnapshot(String ownerUid, long flowId, long changeId, String commitId);
 }

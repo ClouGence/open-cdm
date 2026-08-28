@@ -395,6 +395,7 @@ export default {
         }
         this.$Message.success(this.$t('preference-save-success'));
         await this.loadTab(this.activeTab, true);
+        await this.$store.dispatch('getDmGlobalConfig');
       } finally {
         state.saving = false;
       }

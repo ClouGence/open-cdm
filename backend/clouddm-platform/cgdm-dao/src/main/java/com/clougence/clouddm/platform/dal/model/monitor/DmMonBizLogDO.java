@@ -18,8 +18,6 @@ package com.clougence.clouddm.platform.dal.model.monitor;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
-import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,30 +28,24 @@ import lombok.Setter;
 public class DmMonBizLogDO {
 
     @TableId(type = IdType.AUTO)
-    private Long               id;
-
+    private Long             id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date               gmtCreate;
-
+    private Date             gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date               gmtModified;
-
-    private String             dependOnBizId;
-
+    private Date             gmtModified;
+    private String           dependOnBizId;
     private LogDependBizType dependOnBizType;
+    private String           content;
+    private Loglevel         logLevel;
 
-    private String             content;
-
-    private Loglevel           logLevel;
+    public DmMonBizLogDO(){
+    }
 
     public DmMonBizLogDO(Loglevel logLevel, String content, LogDependBizType dependOnBizType, String dependOnBizId){
         this.logLevel = logLevel;
         this.content = content;
         this.dependOnBizType = dependOnBizType;
         this.dependOnBizId = dependOnBizId;
-    }
-
-    public DmMonBizLogDO(){
     }
 
 }

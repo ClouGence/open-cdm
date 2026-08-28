@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.permission.mysql;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DynamicTest;
@@ -54,7 +55,9 @@ public abstract class MySqlPermissionTextTest {
     public Stream<DynamicTest> permissionScripts() {
         ThreadLocal<BehaviorAnalysisSpi> spi = ThreadLocal.withInitial(() -> {
             MySqlEngineSpi engine = new MySqlEngineSpi(SqlTestSupport.metaService());
-            BehaviorAnalysisSpi analysisSpi = engine.behaviorAnalysisSpi(SqlParserParameters.ofVersion(version));
+            SqlParserParameters parameters = new SqlParserParameters(
+                Map.of(SqlParserParameters.VERSION, version));
+            BehaviorAnalysisSpi analysisSpi = engine.behaviorAnalysisSpi(parameters);
             if (analysisSpi == null) {
                 throw new IllegalStateException("No BehaviorAnalysisSpi for MySQL " + version);
             }

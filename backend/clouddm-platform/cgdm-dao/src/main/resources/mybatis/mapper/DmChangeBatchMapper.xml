@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeBatchMapper">
+    <resultMap id="dmChangeBatchDO" type="com.clougence.clouddm.platform.dal.model.cicd.DmChangeBatchDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="ref_root_flow_id" property="refRootFlowId"/>
+        <result column="ref_root_change_id" property="refRootChangeId"/>
+        <result column="batch_status" property="batchStatus"
+                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeBatchStatus"/>
+    </resultMap>
+    <sql id="dmChangeBatchColumns">
+        id, gmt_create, gmt_modified, owner_uid, ref_root_flow_id, ref_root_change_id, batch_status
+    </sql>
+    <select id="queryRunningByRootFlow" resultMap="dmChangeBatchDO">
+        SELECT
+            <include refid="dmChangeBatchColumns"/>
+        FROM
+            dm_change_batch
+        WHERE
+            owner_uid        = #{ownerUid}
+            AND
+            ref_root_flow_id = #{rootFlowId}
+            AND
+            batch_status     = 'RUNNING'
+        LIMIT 1
+        FOR UPDATE
+    </select>
+    <select id="queryById" resultMap="dmChangeBatchDO">
+        SELECT
+            <include refid="dmChangeBatchColumns"/>
+        FROM
+            dm_change_batch
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{batchId}
+        LIMIT 1
+    </select>
+    <select id="queryByIdForUpdate" resultMap="dmChangeBatchDO">
+        SELECT
+            <include refid="dmChangeBatchColumns"/>
+        FROM
+            dm_change_batch
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{batchId}
+        LIMIT 1
+        FOR UPDATE
+    </select>
+    <select id="queryByIds" resultMap="dmChangeBatchDO">
+        SELECT
+            <include refid="dmChangeBatchColumns"/>
+        FROM
+            dm_change_batch
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        IN
+        <foreach collection="batchIds" item="batchId" open="(" separator="," close=")">
+            #{batchId}
+        </foreach>
+    </select>
+    <select id="queryRunningList" resultMap="dmChangeBatchDO">
+        SELECT
+            <include refid="dmChangeBatchColumns"/>
+        FROM
+            dm_change_batch
+        WHERE
+            batch_status = 'RUNNING'
+        ORDER BY id
+    </select>
+    <select id="queryRunningByOwner" resultMap="dmChangeBatchDO">
+        SELECT
+            <include refid="dmChangeBatchColumns"/>
+        FROM
+            dm_change_batch
+        WHERE
+            owner_uid    = #{ownerUid}
+            AND
+            batch_status = 'RUNNING'
+        ORDER BY id
+    </select>
+    <update id="finishRunningBatch">
+        UPDATE
+            dm_change_batch
+        SET
+            batch_status = 'FINISH',
+            gmt_modified = NOW()
+        WHERE
+            owner_uid    = #{ownerUid}
+            AND
+            id           = #{batchId}
+            AND
+            batch_status = 'RUNNING'
+    </update>
+    <select id="countRunningByRootFlow" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            dm_change_batch
+        WHERE
+            owner_uid        = #{ownerUid}
+            AND
+            ref_root_flow_id = #{rootFlowId}
+            AND
+            batch_status     = 'RUNNING'
+    </select>
+</mapper>

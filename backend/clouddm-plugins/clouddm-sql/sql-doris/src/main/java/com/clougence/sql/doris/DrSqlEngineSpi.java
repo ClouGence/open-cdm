@@ -25,7 +25,6 @@ import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.doris.analysis.behavior.DrBehaviorAnalysisSpi;
-import com.clougence.sql.doris.analysis.lineage.DrLineageAnalysisSpi;
 import com.clougence.sql.doris.analysis.security.DrSecDomainResolveSpi;
 import com.clougence.sql.doris.editor.rewrite.DrRewriteSpi;
 import com.clougence.sql.doris.parser.DrDslProvider;
@@ -45,7 +44,7 @@ public class DrSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new DrSplitAnalysisSpi();
         this.secDomainResolveSpi = new DrSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new DrBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new DrLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new DrRewriteSpi();
     }
 

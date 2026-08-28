@@ -2,7 +2,6 @@
 import appLogger from '@/utils/logger';
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { cloneDeep as deepClone } from '@/utils/lodash';
-import { hasSchema } from '@/utils';
 
 const EMPTY_RANGE = {
   rangeId: '',
@@ -112,7 +111,14 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['getMatchMode', 'getScopeByMatchMode', 'getMatchModeList', 'getScopeListByMatchMode', 'getScopeListByInstance']),
+    ...mapGetters([
+      'getMatchMode',
+      'getScopeByMatchMode',
+      'getMatchModeList',
+      'getScopeListByMatchMode',
+      'getScopeListByInstance',
+      'hasCatalogAndSchema'
+    ]),
     ...mapState(['myAuth']),
     scopeSelectList() {
       return this.scopeList.filter((scope) => !scope.hidden);
@@ -330,7 +336,7 @@ export default {
 
             if (dsType) {
               this.dsType = dsType;
-              this.dsHasSchema = hasSchema(dsType);
+              this.dsHasSchema = this.hasCatalogAndSchema(dsType);
             }
             if (matchMode === 'EXACT') {
               this.rangeForm[rangeType.toLowerCase()] = nodes.map((node) => node.value);
@@ -615,7 +621,7 @@ export default {
         scope.list.forEach((item) => {
           if (item.objId === selectedItem.value) {
             this.dsType = item.objAttr.dsType;
-            dsHasSchema = hasSchema(this.dsType);
+            dsHasSchema = this.hasCatalogAndSchema(this.dsType);
           }
         });
 

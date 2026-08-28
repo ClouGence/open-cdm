@@ -17,6 +17,8 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import java.util.List;
 
+import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,8 +30,8 @@ import lombok.Setter;
 @Setter
 public class DmTicketResultVO {
 
-    private Long            ticketId;
-    private List<CheckedVO> checkedVOS;
-    private boolean         confirm;
-    private boolean         failure;
+    private Long                        ticketId;
+    private List<TicketRuleCheckResult> checkedVOS;
+    private boolean                     confirm;
+    private boolean                     failure;
 }

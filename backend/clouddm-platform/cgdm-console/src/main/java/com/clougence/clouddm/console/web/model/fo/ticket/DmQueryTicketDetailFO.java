@@ -29,7 +29,6 @@ import lombok.Setter;
 public class DmQueryTicketDetailFO {
 
     private Long    ticketId;
-
     private boolean refreshCache;
     @JsonIgnore
     private String  uid;

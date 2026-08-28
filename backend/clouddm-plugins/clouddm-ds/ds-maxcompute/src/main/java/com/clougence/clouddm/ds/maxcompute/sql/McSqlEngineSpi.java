@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.maxcompute.sql;
 
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.behavior.McBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.maxcompute.sql.analysis.lineage.McLineageAnalysisSpi;
 import com.clougence.clouddm.ds.maxcompute.sql.analysis.security.McSecDomainResolveSpi;
 import com.clougence.clouddm.ds.maxcompute.sql.editor.rewrite.McRewriteSpi;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.McSplitAnalysisSpi;
@@ -45,7 +44,7 @@ public class McSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new McSplitAnalysisSpi();
         this.secDomainResolveSpi = new McSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new McBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new McLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new McRewriteSpi();
     }
 

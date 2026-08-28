@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.config.impl;
+package com.clougence.rdp.service.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +84,11 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
 
     @PostConstruct
     private void init() {
-        resourceTypes.addAll(Arrays.asList(ResourceType.DATASOURCE, ResourceType.ACCOUNT, ResourceType.ROLE, ResourceType.DS_ENV));
+        resourceTypes.addAll(Arrays.asList(ResourceType.DATASOURCE, //
+                ResourceType.DATA_EXPORT, //
+                ResourceType.ACCOUNT, //
+                ResourceType.ROLE, //
+                ResourceType.DS_ENV));
 
         auditTypes.addAll(Arrays.asList(AuditType.ADD_DATA_SOURCE, //
                 AuditType.DELETE_DATA_SOURCE, //
@@ -93,6 +97,8 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                 AuditType.UPDATE_DATA_SOURCE_DESC, //
                 AuditType.UPDATE_DS_ACCOUNT_PASSWD, //
                 AuditType.DELETE_DS_ACCOUNT_PASSWD, //
+                AuditType.EXPORT_QUERY_RESULT, //
+                AuditType.DOWNLOAD_QUERY_RESULT, //
                 AuditType.ADD_SUB_ACCOUNT, //
                 AuditType.UPDATE_SUB_ACCOUNT, //
                 AuditType.MODIFY_SUB_ACCOUNT_AUTH, //
@@ -397,7 +403,8 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                 auditVO.setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), resourceFlagDesc(ResourceType.ROLE)));
             } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.DS_ENV.name()) && NumberUtils.isNumber(auditVO.getResourceValue())) {
                 auditVO.setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), resourceFlagDesc(ResourceType.DS_ENV)));
-
+            } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.DATA_EXPORT.name())) {
+                auditVO.setResourceVO(new ResourceVO(null, auditVO.getResourceName(), resourceFlagDesc(ResourceType.DATA_EXPORT)));
             }
         });
     }
@@ -408,6 +415,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             case ACCOUNT -> "Username";
             case ROLE -> "RoleName";
             case DS_ENV -> "DsEnvName";
+            case DATA_EXPORT -> "FileName";
             default -> null;
         };
     }
@@ -457,7 +465,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     }
 
     private long prepareAuditResultFile(ExportOpAuditFO fo, String requesterUid, String exportId, File resultFile) throws IOException {
-        ResultFileRequests.ResultFileRequest resultRequest = ResultFileRequests.fromColumns(exportId, "operation audit export", this.exportColumns(), this.exportVariables());
+        ResultFileRequests.ResultFileRequest resultRequest = ResultFileRequests.fromColumns(exportId, "operation audit export", this.exportColumns());
         long preparedRows = 0;
         int offset = 0;
         int batchSize = 1000;
@@ -513,14 +521,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_SECURITY_LEVEL"), JDBCType.VARCHAR);
         columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_UUID_KEY"), JDBCType.VARCHAR);
         return columns;
-    }
-
-    private Map<String, String> exportVariables() {
-        Map<String, String> variables = new LinkedHashMap<>();
-        variables.put("Environment", "DM");
-        variables.put("DataSource", "operation_audit");
-        variables.put("User", "DM");
-        return variables;
     }
 
     private List<String> exportRow(RdpOpAuditVO auditVO) {

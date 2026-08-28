@@ -34,7 +34,5 @@ public class ContextInfo {
     private long                  dsId;
     private Map<UmiTypes, Object> levelsParam;
 
-    // query meta info
-    private boolean               deepParser;
     private DataSourceConfig      dataSourceConfig;
 }

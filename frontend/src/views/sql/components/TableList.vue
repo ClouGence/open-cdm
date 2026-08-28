@@ -1010,7 +1010,7 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import CreateTableItem from '@/components/modal/CreateTableItem';
 import CCReadOnlyTable from '@/components/widgets/CCReadOnlyTable';
-import * as monaco from 'monaco-editor';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import { Modal } from 'ant-design-vue';
 import i18n from '@/i18n';
 import { nanoid } from 'nanoid';
@@ -1255,12 +1255,12 @@ export default {
       defaultOpts: {
         value: '', // The editor 's value
         language: 'mysql',
-        fontSize: 14,
-        fontWeight: 'bold',
+        ...SQL_EDITOR_TYPOGRAPHY,
         theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
         },
+        scrollbar: SQL_EDITOR_SCROLLBAR,
         automaticLayout: true,
         lineNumbers: 'off',
         autoIndent: true // Auto Indent
@@ -2599,7 +2599,12 @@ export default {
       const node = this.$refs.tableTree.getSelectedNode();
       const isNotNode = event.target.classList && event.target.classList.length && event.target.classList[0] === 'vtree-tree__block-area';
       const items = [];
-      const menuList = this.getBrowserMenus(this.currentTab.dsType, isNotNode || !node ? this.currentTab.leafType : node.nodeType);
+      const targetType = isNotNode || !node ? this.currentTab.leafType : node.nodeType;
+      const browserMenus = this.getBrowserMenus(this.currentTab.dsType, targetType) || [];
+      let menuList = browserMenus;
+      if (targetType === 'TABLE') {
+        menuList = browserMenus.filter((menu) => menu.menuId !== TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PROPERTY);
+      }
       appLogger.debug(event, node, menuList);
       if (menuList && menuList.length) {
         if (isNotNode || !node) {
@@ -2638,9 +2643,9 @@ export default {
             theme: 'flat',
             items,
             event,
-            customClass: 'custom-class',
+            customClass: 'sql-context-menu',
             zIndex: 99,
-            minWidth: 100
+            minWidth: 176
           });
         }
       }

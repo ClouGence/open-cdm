@@ -16,7 +16,6 @@
 package com.clougence.clouddm.sdk.sql.editor.rewrite;
 
 import com.clougence.clouddm.sdk.Spi;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
 /**
  * @author mode 2020-01-20 21:04
@@ -24,5 +23,7 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
  */
 public interface RewriteSpi extends Spi {
 
-    String rewriterQuery(QueryRequest request, RewriteContext context);
+    String rewriteLimit(String queryId, String queryStr, RewriteContext context);
+
+    String rewriteToExplain(String queryId, String queryStr, RewriteContext context);
 }

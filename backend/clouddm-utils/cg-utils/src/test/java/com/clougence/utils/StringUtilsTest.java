@@ -88,4 +88,15 @@ public class StringUtilsTest {
         assert StringUtils.trimBlank(" \n abc \n ").equals("abc");
         assert StringUtils.trimBlank("1 \n abc \n ").equals("1 \n abc");
     }
+
+    @Test
+    public void startsWithIgnoreCaseIgnoringLeadingWhitespace_01() {
+        assert !StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(null, "EXPLAIN ");
+        assert StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(null, null);
+        assert !StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("", "EXPLAIN ");
+        assert StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("EXPLAIN SELECT 1", "EXPLAIN ");
+        assert StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("  explain SELECT 1", "EXPLAIN ");
+        assert StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("\n\tExPlAiN SELECT 1", "EXPLAIN ");
+        assert !StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("SELECT 1", "EXPLAIN ");
+    }
 }

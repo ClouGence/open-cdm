@@ -20,7 +20,11 @@ WAIT_DB_TIMEOUT_SECONDS=${WAIT_DB_TIMEOUT_SECONDS:-120}
 WAIT_MYSQL_STOP_SECONDS=${WAIT_MYSQL_STOP_SECONDS:-30}
 
 sql_escape() {
-  printf '%s' "$1" | sed "s/'/''/g"
+  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e "s/'/''/g"
+}
+
+sql_identifier_escape() {
+  printf '%s' "$1" | sed 's/`/``/g'
 }
 
 sed_replacement_escape() {
@@ -120,14 +124,14 @@ configure_embedded_mysql() {
   local escaped_db_password
 
   escaped_root_password=$(sql_escape "$MYSQL_ROOT_PASSWORD")
-  escaped_db_name=$(sql_escape "$DB_DATABASE")
+  escaped_db_name=$(sql_identifier_escape "$DB_DATABASE")
 
   mysql_sql <<SQL
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${escaped_root_password}';
 CREATE USER IF NOT EXISTS 'root'@'127.0.0.1' IDENTIFIED BY '${escaped_root_password}';
 ALTER USER 'root'@'127.0.0.1' IDENTIFIED BY '${escaped_root_password}';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;
-CREATE DATABASE IF NOT EXISTS ${escaped_db_name};
+CREATE DATABASE IF NOT EXISTS \`${escaped_db_name}\`;
 FLUSH PRIVILEGES;
 SQL
 
@@ -137,7 +141,7 @@ SQL
     mysql_sql <<SQL
 CREATE USER IF NOT EXISTS '${escaped_db_user}'@'%' IDENTIFIED BY '${escaped_db_password}';
 ALTER USER '${escaped_db_user}'@'%' IDENTIFIED BY '${escaped_db_password}';
-GRANT ALL PRIVILEGES ON ${escaped_db_name}.* TO '${escaped_db_user}'@'%';
+GRANT ALL PRIVILEGES ON \`${escaped_db_name}\`.* TO '${escaped_db_user}'@'%';
 FLUSH PRIVILEGES;
 SQL
   fi
@@ -225,6 +229,57 @@ wait_for_embedded_mysql() {
   echo "embedded mysql is ready."
 }
 
+persisted_conf_value() {
+  awk -v key="$1" 'index($0, key "=") == 1 { print substr($0, length(key) + 2) }' "$DST_CONF_FILE" | tail -n 1 | tr -d '\r'
+}
+
+# The persisted alone.properties is the source of truth for the embedded mysql
+# application account: env vars are not replayed on container recreate, so a
+# restart must recover the account (or its password) from the persisted config.
+load_persisted_datasource_conf() {
+  local jdbc_url jdbc_target jdbc_host db_name db_user db_password
+
+  if [ ! -f "$DST_CONF_FILE" ]; then
+    return
+  fi
+
+  jdbc_url=$(persisted_conf_value spring.datasource.jdbcurl)
+  jdbc_target="${jdbc_url#jdbc:mysql://}"
+  if [ -z "$jdbc_target" ] || [ "$jdbc_target" = "$jdbc_url" ]; then
+    echo "persisted alone.properties has no mysql jdbc url, keep env datasource settings."
+    return
+  fi
+  jdbc_host="${jdbc_target%%/*}"
+  jdbc_host="${jdbc_host%%:*}"
+  if [ "$jdbc_host" != "127.0.0.1" ] && [ "$jdbc_host" != "localhost" ]; then
+    echo "persisted jdbc url does not target the embedded mysql, keep env datasource settings."
+    return
+  fi
+
+  db_user=$(persisted_conf_value spring.datasource.username)
+  if [ -z "$db_user" ]; then
+    echo "persisted alone.properties has no datasource username, keep env datasource settings."
+    return
+  fi
+  db_password=$(persisted_conf_value spring.datasource.password)
+
+  db_name=""
+  case "$jdbc_target" in
+    */*)
+      db_name="${jdbc_target#*/}"
+      db_name="${db_name%%\?*}"
+      db_name="${db_name%%;*}"
+      ;;
+  esac
+
+  echo "reconciling embedded mysql application account from persisted alone.properties."
+  if [ -n "$db_name" ]; then
+    DB_DATABASE="$db_name"
+  fi
+  DB_USERNAME="$db_user"
+  DB_PASSWORD="$db_password"
+}
+
 bootstrap_embedded_mysql() {
   setup_mysql_directories
   if [ ! -d "$MYSQL_DATADIR/mysql" ]; then
@@ -295,6 +350,7 @@ fi
 
 if [ "$MYSQL_EMBEDDED" = "true" ]; then
   DB_HOST=127.0.0.1
+  load_persisted_datasource_conf
   bootstrap_embedded_mysql
 elif [ -n "$DB_HOST" ]; then
   wait_for_db "$DB_HOST" "$DB_PORT"

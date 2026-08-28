@@ -585,11 +585,17 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitInsertTable(InsertTableContext ctx) {
+        if (ctx.explain() != null) {
+            return SplitQueryType.SELECT;
+        }
         return ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
     }
 
     @Override
     public SplitQueryType visitUpdate(UpdateContext ctx) {
+        if (ctx.explain() != null) {
+            return SplitQueryType.SELECT;
+        }
         return SplitQueryType.UPDATE;
     }
 
@@ -610,6 +616,9 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitDelete(DeleteContext ctx) {
+        if (ctx.explain() != null) {
+            return SplitQueryType.SELECT;
+        }
         return SplitQueryType.DELETE;
     }
 

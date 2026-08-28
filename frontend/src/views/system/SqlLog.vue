@@ -5,6 +5,19 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
+              <Select
+                v-if="!$route.meta.managementTab"
+                v-model="auditLogType"
+                style="width: 120px; margin-right: 10px"
+                @on-change="handleChangeAuditLogType"
+              >
+                <Option value="operation" :label="$t('cao-zuo-shen-ji')">
+                  <span>{{ $t('cao-zuo-shen-ji') }}</span>
+                </Option>
+                <Option value="sql" :label="$t('sql-shen-ji')">
+                  <span>{{ $t('sql-shen-ji') }}</span>
+                </Option>
+              </Select>
               <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>
               <a-range-picker
                 v-model:value="timeRange"
@@ -146,12 +159,12 @@
 
 <script>
 import appLogger from '@/utils/logger';
-import fecha from 'fecha';
 import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import ReadOnlyDiffEditor from '@/components/editor/ReadOnlyDiffEditor.vue';
 import dayjs from '@/utils/dayjsSetup';
+import { formatTime, toUtcISOString } from '@/utils';
 
 const SQL_AUDIT_RETENTION_DAYS_KEY = 'sqlAuditRetentionDays';
 
@@ -160,6 +173,7 @@ export default {
   components: { ReadOnlyDiffEditor, ReadOnlyEditor },
   data() {
     return {
+      auditLogType: 'sql',
       searchType: 'user',
       refreshLoading: false,
       page: 1,
@@ -226,7 +240,7 @@ export default {
             if (isNaN(date.getTime())) {
               return h('div', {}, '-');
             }
-            return h('div', {}, fecha.format(date, 'YYYY-MM-DD HH:mm:ss'));
+            return h('div', {}, formatTime(date, 'YYYY-MM-DD HH:mm:ss'));
           }
         },
         {
@@ -260,13 +274,14 @@ export default {
                         placement: 'top',
                         transfer: true
                       },
-                      [
-                        h(resolveComponent('CustomIcon'), {
-                          type: 'help',
-                          size: 16,
-                          style: { color: '#aaa', marginLeft: '4px', cursor: 'pointer' }
-                        })
-                      ]
+                      {
+                        default: () =>
+                          h(resolveComponent('CustomIcon'), {
+                            type: 'help',
+                            size: '16',
+                            style: { color: '#aaa', marginLeft: '4px', cursor: 'pointer' }
+                          })
+                      }
                     )
                   : null
               ]
@@ -382,6 +397,14 @@ export default {
         e.preventDefault();
         this.handleRefresh();
       }
+    },
+
+    handleChangeAuditLogType(value) {
+      if (value === 'operation') {
+        this.$router.push('/manager/logs');
+        return;
+      }
+      this.auditLogType = 'sql';
     },
 
     handleRefresh() {
@@ -501,13 +524,13 @@ export default {
     },
 
     formatDsRemark(dsRemark) {
-      return `备注: ${dsRemark || ''}`;
+      return `${this.$t('bei-zhu')}: ${dsRemark || ''}`;
     },
 
     syncTimeRangeQuery() {
       if (Array.isArray(this.timeRange) && this.timeRange[0] && this.timeRange[1]) {
-        this.searchData.opStart = dayjs(this.timeRange[0]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd = dayjs(this.timeRange[1]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        this.searchData.opStart = toUtcISOString(this.timeRange[0]);
+        this.searchData.opEnd = toUtcISOString(this.timeRange[1]);
         return;
       }
       this.searchData.opStart = '';

@@ -6,8 +6,12 @@
  */
 package com.clougence.sql.redis.analysis.behavior;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
@@ -17,6 +21,7 @@ import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.redis.analysis.security.RedisAnalysisHelper;
 import com.clougence.sql.redis.parser.RedisDslProvider;
+import com.clougence.sql.redis.parser.RedisSplitAnalysisSpi;
 import com.clougence.sql.redis.parser.ast.RedisCmdType;
 import com.clougence.sql.redis.parser.ast.commands.AbstractRedisCmd;
 import com.clougence.sql.redis.parser.ast.commands.control.SwapDbRedisCmd;
@@ -24,16 +29,34 @@ import com.clougence.sql.redis.parser.ast.token.ArgToken;
 import com.clougence.sql.redis.parser.ast.token.IntToken;
 import com.clougence.sql.redis.parser.ast.token.StrToken;
 import com.clougence.utils.StringUtils;
+import com.clougence.utils.io.IOUtils;
 
 public class RedisBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        var scripts = new RedisSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
+    }
+
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        String query;
+        try {
+            query = IOUtils.readToString(queryReader);
+        } catch (java.io.IOException e) {
+            throw new UncheckedIOException(e);
         }
 
-        StatementSet statementSet = DslHelper.parserDsl(RedisDslProvider.INSTANCE, query);
+        StatementSet statementSet;
+        try (StringReader reader = new StringReader(query)) {
+            statementSet = DslHelper.parserDsl(RedisDslProvider.INSTANCE, reader);
+        }
         List<StatementBehavior> result = new ArrayList<>();
         int searchOffset = 0;
         for (Statement statement : statementSet.getStatements()) {

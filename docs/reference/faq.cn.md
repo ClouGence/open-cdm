@@ -15,7 +15,7 @@ CloudDM 是一款免费且开源的团队化数据库管理平台，提供数据
 使用单机模式 Docker 镜像，并访问 `http://localhost:8222`：
 
 ```bash
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.0.1
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.1.2
 ```
 
 ### 评估或试用时应该选择哪种部署模式？
@@ -28,7 +28,7 @@ docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.0.1
 
 ### CloudDM 支持哪些数据库？
 
-CloudDM 支持 MySQL、Oracle、MariaDB、PostgreSQL、IBM DB2、SQL Server、OceanBase、SAP Hana、StarRocks、Doris、SelectDB、ClickHouse、PolarDB、TiDB、Greenplum、Hologres、达梦、高斯数据库、AnalyticDB MySQL、MaxCompute、Redis、MongoDB 等数据源。
+CloudDM 支持 MySQL、Oracle、MariaDB、PostgreSQL、IBM DB2、SQL Server、OceanBase、SAP Hana、StarRocks、Doris、SelectDB、ClickHouse、PolarDB、TiDB、Greenplum、Hologres、CockroachDB、达梦、高斯数据库、AnalyticDB MySQL、MaxCompute、Redis、MongoDB 等数据源。
 
 ### SQL 审核有什么作用？
 

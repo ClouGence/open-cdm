@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.messaging.rsocket.RSocketRequester;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
@@ -65,7 +66,7 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     private final Map<String, RSocketRequester> workerRequesterMap = new ConcurrentHashMap<>();
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void register(RSocketRegisterInfo registerInfo) {
         try {
             String workerSeqNumber = registerInfo.getWorkerSeqNumber();
@@ -116,7 +117,7 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void unRegister(String workerSeqNumber) {
         try {
             DmSysWorkerDO workerStatusDO = new DmSysWorkerDO();

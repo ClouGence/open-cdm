@@ -281,6 +281,8 @@ For maximum brand fidelity when Circular isn't licensed, use **Inter** (open-sou
 
 Code blocks use **system mono** (`ui-monospace`, with Menlo / Monaco / Consolas fallbacks).
 
+SQL content uses one product-wide typography rule: `Menlo, Monaco, "Courier New", monospace`, 14px regular weight, 21px line height, no letter spacing, and no ligatures. Apply the shared `sql-editor-typography` class to SQL editors, read-only SQL, diffs, and execution logs; do not introduce page-local SQL font stacks.
+
 ### Hierarchy
 
 | Token | Size | Weight | Line Height | Letter Spacing | Use |

@@ -953,9 +953,9 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitFullDescribeStatement(FullDescribeStatementContext ctx) {
         if (ctx.analyze != null) {
-            return firstNestedStatement(ctx.describeObjectClause(), false);
+            return SplitQueryType.UNSAFE;
         }
-        return SplitQueryType.PERFORMANCE;
+        return SplitQueryType.SELECT;
     }
 
     @Override
@@ -1097,7 +1097,7 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
-        return "EXPLAIN".equalsIgnoreCase(ctx.command.getText()) ? SplitQueryType.PERFORMANCE : SplitQueryType.METADATA;
+        return "EXPLAIN".equalsIgnoreCase(ctx.command.getText()) ? SplitQueryType.SELECT : SplitQueryType.METADATA;
     }
 
     @Override

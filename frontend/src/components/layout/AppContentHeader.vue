@@ -49,10 +49,10 @@ export default {
   components: { AppUserActions },
   emits: ['check-version'],
   computed: {
-    ...mapGetters(['includesDM', 'isDesktop']),
+    ...mapGetters(['isDesktop']),
     ...mapState(['dmGlobalSetting', 'myCatLog', 'mySystemMenuItems', 'sidebarMenu', 'userInfo']),
     showSqlLink() {
-      return this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE') && !this.$route.path.startsWith('/sql');
+      return this.myCatLog.includes('CAT_DM_CONSOLE') && !this.$route.path.startsWith('/sql');
     },
     pageTitle() {
       const path = this.$route.path;
@@ -81,7 +81,7 @@ export default {
         }
         return this.$t('my-permissions');
       }
-      if (path.indexOf('/datasource') === 0 || path.indexOf('/system/ccdatasource') > -1) {
+      if (path.indexOf('/datasource') === 0) {
         return this.$t('nav-shu-ju-ku-guan-li');
       }
       if (path === '/env' || path.indexOf('/env/') === 0 || path.indexOf('/system/env') > -1) {
@@ -140,8 +140,8 @@ export default {
       if (path === '/cicd/create') {
         return this.$t('chuang-jian-xiang-mu');
       }
-      if (/^\/cicd\/[^/]+\/change-records$/.test(path)) {
-        return this.$t('bian-geng-ji-lu');
+      if (/^\/cicd\/[^/]+\/config$/.test(path)) {
+        return this.$t('cicd-pei-zhi-xiang');
       }
       if (/^\/cicd\/[^/]+$/.test(path)) {
         return this.$t('cicd-bian-geng-liu-gai-lan');
@@ -173,13 +173,10 @@ export default {
         }
       });
       const cicdRoot = { label: this.$t('nav-ci-cd'), to: '/cicd' };
+      const ticketRoot = { label: this.$t('gong-dan'), to: '/ticket' };
       const flowDetail = (flowId) => ({
         label: this.$t('cicd-bian-geng-liu-xiang-qing'),
         to: flowId ? `/cicd/${flowId}` : ''
-      });
-      const changeRecords = (flowId) => ({
-        label: this.$t('bian-geng-ji-lu'),
-        to: flowId ? `/cicd/${flowId}/change-records` : ''
       });
       const machineRoot = {
         label: this.$t('nav-cha-xun-ji-qi-lie-biao'),
@@ -221,22 +218,50 @@ export default {
         return [{ ...securityRoot, to: this.$route.fullPath }];
       }
       if (path === '/data-access/rules/create') {
-        return [securityTemplateRoot, { label: this.$t('xin-jian-gui-ze-mo-ban'), to: this.$route.fullPath }];
+        return [
+          securityTemplateRoot,
+          {
+            label: this.$t('xin-jian-gui-ze-mo-ban'),
+            to: this.$route.fullPath
+          }
+        ];
       }
       if (/^\/data-access\/rules\/detail\/[^/]+$/.test(path)) {
-        return [securityTemplateRoot, { label: this.$t('gui-ze-mo-ban-xiang-qing'), to: this.$route.fullPath }];
+        return [
+          securityTemplateRoot,
+          {
+            label: this.$t('gui-ze-mo-ban-xiang-qing'),
+            to: this.$route.fullPath
+          }
+        ];
       }
       if (/^\/system\/dmspec\/[^/]+$/.test(path)) {
-        return [securityRoot, { ...securityDetail(this.$route.params.specId), to: this.$route.fullPath }];
+        return [
+          securityRoot,
+          {
+            ...securityDetail(this.$route.params.specId),
+            to: this.$route.fullPath
+          }
+        ];
       }
       if (/^\/system\/dmspec\/[^/]+\/rule\/[^/]+\/range$/.test(path)) {
-        return [securityRoot, securityDetail(this.$route.params.specId), { label: this.$t('gui-ze-fan-wei'), to: this.$route.fullPath }];
+        return [
+          securityRoot,
+          securityDetail(this.$route.params.specId),
+          {
+            label: this.$t('gui-ze-fan-wei'),
+            to: this.$route.fullPath
+          }
+        ];
       }
       if (/^\/system\/dmspec\/[^/]+\/rule\/[^/]+\/detail$/.test(path)) {
         return [
           securityRoot,
           securityDetail(this.$route.params.specId),
-          { label: this.$route.query.ruleName || this.$t('gui-ze-xiang-qing'), to: this.$route.fullPath }
+          {
+            label: this.$route.query.ruleName || this.$t('gui-ze-xiang-qing'),
+            to: this.$route.fullPath
+          }
         ];
       }
       if (path === '/cicd' || path === '/cicd/') {
@@ -244,6 +269,9 @@ export default {
       }
       if (path === '/cicd/create') {
         return [cicdRoot, { label: this.$t('chuang-jian-xiang-mu'), to: path }];
+      }
+      if (/^\/ticket\/[^/]+$/.test(path)) {
+        return [ticketRoot, { label: this.$t('gong-dan-xiang-qing'), to: this.$route.fullPath }];
       }
       if (path === '/datasource/add') {
         const dsType = this.$route.query.dsType;
@@ -254,9 +282,18 @@ export default {
         const actionBreadcrumb = isEditMode
           ? { label: actionLabel, to: '/datasource' }
           : { label: actionLabel, event: EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL };
-        const breadcrumbs = [{ label: this.$t('nav-shu-ju-ku-guan-li'), to: '/datasource' }, actionBreadcrumb];
+        const breadcrumbs = [
+          {
+            label: this.$t('nav-shu-ju-ku-guan-li'),
+            to: '/datasource'
+          },
+          actionBreadcrumb
+        ];
         if (dsDisplayName) {
-          breadcrumbs.push({ label: isEditMode && instanceId ? `${dsDisplayName}(${instanceId})` : dsDisplayName, to: '' });
+          breadcrumbs.push({
+            label: isEditMode && instanceId ? `${dsDisplayName}(${instanceId})` : dsDisplayName,
+            to: ''
+          });
         }
         return breadcrumbs;
       }
@@ -264,13 +301,9 @@ export default {
         const flowId = this.$route.params.id;
         return [cicdRoot, flowDetail(flowId), { label: this.$t('tian-jia-git-ops'), to: path }];
       }
-      if (/^\/cicd\/[^/]+\/change-records$/.test(path)) {
+      if (/^\/cicd\/[^/]+\/config$/.test(path)) {
         const flowId = this.$route.params.id;
-        return [cicdRoot, flowDetail(flowId), changeRecords(flowId)];
-      }
-      if (/^\/cicd\/change\/[^/]+$/.test(path)) {
-        const flowId = this.$route.query.flowId;
-        return [cicdRoot, flowDetail(flowId), changeRecords(flowId), { label: this.$t('ji-lu-xiang-qing'), to: this.$route.fullPath }];
+        return [cicdRoot, flowDetail(flowId), { label: this.$t('cicd-pei-zhi-xiang'), to: path }];
       }
       if (/^\/cicd\/[^/]+$/.test(path)) {
         return [cicdRoot, { label: this.$t('cicd-bian-geng-liu-xiang-qing'), to: path }];

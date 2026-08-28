@@ -1,5 +1,5 @@
 <drivers>
-    <driver driverFamily="PostgreSQL JDBC" version="42.7.10">
+    <driver driverFamily="PostgreSQL JDBC" version="42.7.10" default="true">
         <driverName>com.clougence.clouddm.dsfamily.postgres.execute.dsfactory.PostgresqlDsFactory</driverName>
         <resource type="maven">org.postgresql:postgresql:42.7.10</resource>
     </driver>

@@ -20,9 +20,11 @@ import java.util.List;
 import java.util.Locale;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
@@ -30,14 +32,18 @@ import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfo;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
+import com.clougence.clouddm.console.web.service.cicd.ChangeCascadeService;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalActivityInfo;
 import com.clougence.clouddm.sdk.approval.ApprovalCreateInstanceResult;
@@ -58,11 +64,17 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ChangeApprovalHandler implements ApprovalHandler {
     @Resource
-    private ChangeFlowDal changeFlowDal;
+    private ChangeFlowDal        changeFlowDal;
     @Resource
-    private AuthDal       authDal;
+    private ExecutionDal         execDal;
     @Resource
-    private ApprovalDal   approvalDal;
+    private AuthDal              authDal;
+    @Resource
+    private ApprovalDal          approvalDal;
+    @Resource
+    private ApprovalStateService approvalStateService;
+    @Resource
+    private ChangeCascadeService changeCascadeService;
 
     @Override
     public ApprovalBiz handleType() {
@@ -70,13 +82,44 @@ public class ChangeApprovalHandler implements ApprovalHandler {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
-        // do nothing
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
+        if (jobDO == null) {
+            return;
+        }
+
+        this.updateExecutionStatus(approvalId, jobDO.getStatus(), sender);
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
-        // do nothing
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
+        this.updateExecutionStatus(approvalId, jobDO.getStatus(), sender);
+    }
+
+    private void updateExecutionStatus(long approvalId, AutoExecJobStatus status, ImSenderService sender) {
+        switch (status) {
+            case FINISH -> {
+                this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH, null);
+                this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.FINISHED, null);
+                this.approvalCompleted(approvalId, ApprovalBiz.DM_CHANGE, sender);
+            }
+            case FAILED -> {
+                this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FAIL, null);
+                this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.EXEC_FAIL, null);
+            }
+            case PAUSE -> {
+                this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.PAUSE, null);
+                this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.EXEC_PAUSE, null);
+            }
+            default -> {
+                // Execution progress states are synchronized by execution callbacks.
+            }
+        }
     }
 
     @Override
@@ -113,7 +156,7 @@ public class ChangeApprovalHandler implements ApprovalHandler {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void createApproval(long approvalId, ImSenderService sender) {
         DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalId);
         if (ticketDO.getApproType() == ApprovalType.Internal) {
@@ -127,16 +170,14 @@ public class ChangeApprovalHandler implements ApprovalHandler {
             ApprovalProviderSpi approvalSdkService = PluginManager.findSpi(ApprovalProviderSpi.class, ticketDO.getApproType().name());
             createInstance = approvalSdkService.createApprovalInstance(ticketDO.getPrimaryUid(), form);
         } catch (ThirdPartyApiException e) {
-            this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.FAILED, e.getMessage());
+            this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.FAILED, e.getMessage());
             this.approvalFailed(approvalId, ticketDO.getApproBiz(), sender);
             return;
         }
 
-        List<ApprovalActivityInfo> aaList = createInstance.getActivityList();
-        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), ApprovalStage.APPROVAL);
-        List<DmApprovalProcessActivityDO> approvalProcessActivityDOS = convertToDmApprovalProcessActivityDO(aaList, processDO.getId(), ticketDO.getId());
-        for (DmApprovalProcessActivityDO approvalProcessActivityDO : approvalProcessActivityDOS) {
-            approvalDal.activityMapper().insert(approvalProcessActivityDO);
+        for (ApprovalActivityInfo activity : createInstance.getActivityList()) {
+            this.approvalStateService
+                .initializeActivity(ticketDO.getId(), ApprovalStage.APPROVAL, activity.getActivityId(), activity.getActivityName(), activity.getOrder(), null, null);
         }
 
         String url = null;
@@ -148,14 +189,18 @@ public class ChangeApprovalHandler implements ApprovalHandler {
 
     @Override
     public void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
-        this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.FINISHED, null);
-        this.updateChange(approvalId, ChangeStep.EXECUTE, ChangeStatus.READY, sender, (ticket, change, locale) -> {
+        this.updateChange(approvalId, ChangeStep.FINISH, ChangeStatus.READY, sender, (ticket, change, locale) -> {
             return DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_TICKET_FINISH_MESSAGE.name(), locale, change.getChangeName());
         });
     }
 
     @Override
-    public void approvalRefuse(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+    public void approvalApproved(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.WAIT_CONFIRM, null);
+    }
+
+    @Override
+    public void approvalRejected(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         this.updateChange(approvalId, ChangeStep.APPROVAL, ChangeStatus.FAILED, sender, (ticket, change, locale) -> {
             return DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_TICKET_REFUSE_MESSAGE.name(), locale, change.getChangeName());
         });
@@ -182,7 +227,7 @@ public class ChangeApprovalHandler implements ApprovalHandler {
             return;
         }
 
-        DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(info.getChangeOwnerUid(), info.getChangeId());
+        DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(info.getChangeId());
         List<DmChangeItemDO> changeItems = this.changeFlowDal.changeItemMapper().queryChangeItemByChangeId(info.getChangeOwnerUid(), info.getChangeId(), ChangeItemType.TICKET);
         DmChangeItemDO item = changeItems.isEmpty() ? null : changeItems.get(0);
         if (item == null || StringUtils.isBlank(item.getContent())) {
@@ -202,35 +247,29 @@ public class ChangeApprovalHandler implements ApprovalHandler {
         ImMessageType sendMessageAndType = null;
         int version = changeDO.getVersion();
         if (changeDO.getCurrentStep() != changeStep) {
-            int res1 = this.changeFlowDal.changeMapper().updateStepTo(changeDO.getId(), version, changeStep, changeMessageStr);
+            if (this.changeFlowDal.changeMapper().updateStepTo(changeDO.getId(), version, changeStep, changeMessageStr) != 1) {
+                throw new IllegalStateException("change state changed while applying approval step");
+            }
             version++;
             sendMessageAndType = ImMessageType.ChangeLife;
         }
         if (changeDO.getCurrentStatus() != changeStatus) {
-            int res2 = this.changeFlowDal.changeMapper().updateStatusTo(changeDO.getId(), version, changeStatus, changeMessageStr);
+            if (this.changeFlowDal.changeMapper().updateStatusTo(changeDO.getId(), version, changeStatus, changeMessageStr) != 1) {
+                throw new IllegalStateException("change state changed while applying approval status");
+            }
             sendMessageAndType = ImMessageType.ChangeNotice;
         }
 
-        //
+        if (changeStatus == ChangeStatus.FAILED) {
+            DmChangeDO updated = this.changeFlowDal.changeMapper().queryChangeById(changeDO.getId());
+            if (this.changeFlowDal.changeMapper().lockChangeById(updated.getId(), updated.getVersion()) != 1) {
+                throw new IllegalStateException("change state changed while locking terminal approval change");
+            }
+            this.changeCascadeService.onChangeTerminal(updated);
+        }
         if (sendMessageAndType != null) {
             sender.sendMessage(changeDO.getOwnerUid(), changeDO.getRefFlowId(), sendMessageAndType, changeMessageStr);
         }
-    }
-
-    private List<DmApprovalProcessActivityDO> convertToDmApprovalProcessActivityDO(List<ApprovalActivityInfo> activityDTOList, Long processId, long approvalId) {
-        List<DmApprovalProcessActivityDO> result = new ArrayList<>();
-        for (ApprovalActivityInfo aaObj : activityDTOList) {
-            DmApprovalProcessActivityDO activityDO = new DmApprovalProcessActivityDO();
-            activityDO.setActivityId(aaObj.getActivityId());
-            // activityDO.setActivityType(approvalActivity.getApprovalMethod());
-            // activityDO.setActivityStatus(RdpTicketProcessActivityStatus.NEW);
-            activityDO.setActivityTitle(aaObj.getActivityName());
-            activityDO.setProcessId(processId);
-            activityDO.setTicketId(approvalId);
-            activityDO.setOrderNumber(aaObj.getOrder());
-            result.add(activityDO);
-        }
-        return result;
     }
 
     private ChangeForm convertToChangeForm(DmApprovalDO ticketDO, String templateId) {
@@ -239,7 +278,7 @@ public class ChangeApprovalHandler implements ApprovalHandler {
             throw new IllegalArgumentException("ticket info is null");
         }
 
-        DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(info.getChangeOwnerUid(), info.getChangeId());
+        DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(info.getChangeId());
         DmChangeFlowDO flowDO = this.changeFlowDal.flowMapper().queryByOwnerAndId(changeDO.getOwnerUid(), changeDO.getRefFlowId());
         DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(ticketDO.getOwnerUid());
 

@@ -15,7 +15,7 @@ Yes. CloudDM is released under the Apache License 2.0. See [LICENSE.txt](../../L
 Use the standalone Docker image and open `http://localhost:8222`:
 
 ```bash
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.0.1
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.1.2
 ```
 
 ### Which deployment mode should I use for evaluation?
@@ -28,7 +28,7 @@ Use Cluster mode, also called Console + Sidecar. It is designed for unified auth
 
 ### What databases does CloudDM support?
 
-CloudDM supports MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase, SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum, Hologres, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB, and more.
+CloudDM supports MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase, SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum, Hologres, CockroachDB, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB, and more.
 
 ### What does SQL auditing do?
 

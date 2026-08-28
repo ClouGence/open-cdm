@@ -6,7 +6,14 @@
  */
 package com.clougence.sql.mongodb.analysis.behavior;
 
-import java.util.*;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
@@ -15,20 +22,39 @@ import com.clougence.dslpaser.ast.Statement;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mongodb.parser.MongoDslProvider;
+import com.clougence.sql.mongodb.parser.MongoSplitAnalysisSpi;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.CollectionFunc;
 import com.clougence.utils.StringUtils;
+import com.clougence.utils.io.IOUtils;
 
 public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        var scripts = new MongoSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
+    }
+
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        String query;
+        try {
+            query = IOUtils.readToString(queryReader);
+        } catch (java.io.IOException e) {
+            throw new UncheckedIOException(e);
         }
 
-        StatementSet statementSet = DslHelper.parserDsl(MongoDslProvider.INSTANCE, query);
+        StatementSet statementSet;
+        try (StringReader reader = new StringReader(query)) {
+            statementSet = DslHelper.parserDsl(MongoDslProvider.INSTANCE, reader);
+        }
         List<StatementBehavior> result = new ArrayList<>();
         int searchOffset = 0;
         for (Statement statement : statementSet.getStatements()) {

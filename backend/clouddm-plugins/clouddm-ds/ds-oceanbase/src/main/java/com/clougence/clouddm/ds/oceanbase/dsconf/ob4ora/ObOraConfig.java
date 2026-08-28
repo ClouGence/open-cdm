@@ -23,6 +23,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.oceanbase.i18n.ObConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -39,7 +40,8 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = ObForOraSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ObOraConfig extends DataSourceConfig {
+public class ObOraConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.tenant, //
             group = DsConfigGroup.GENERAL, labelKey = ObConfigI18nKeys.CONFIG_OCEANBASE_TENANT_LABEL, descKey = ObConfigI18nKeys.CONFIG_OCEANBASE_TENANT_DESC, readOnly = false)
@@ -51,7 +53,7 @@ public class ObOraConfig extends DataSourceConfig {
             group = DsConfigGroup.GENERAL, labelKey = ObConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = ObConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, defaultValue = "Asia/Shanghai", //
             group = DsConfigGroup.OPTIONS, labelKey = ObConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = ObConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED

@@ -48,7 +48,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
         Set<SplitQueryType> types = new LinkedHashSet<>();
-        SplitQueryType primaryType = normalizeType(context.accept(splitVisitor()), script);
+        SplitQueryType primaryType = normalizeType(context.accept(splitVisitor()));
         types.add(primaryType);
         if (primaryType == SplitQueryType.BLOCK) {
             return types;

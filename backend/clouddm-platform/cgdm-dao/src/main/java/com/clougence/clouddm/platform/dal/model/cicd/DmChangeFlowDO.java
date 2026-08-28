@@ -50,18 +50,16 @@ public class DmChangeFlowDO {
     private String                   flowManagerUid;
     @TableField("flow_status")
     private ChangeFlowStatus         flowStatus;
-    @TableField("flow_check")
-    private ChangeCheckStrategy      flowCheck;
-    @TableField("flow_approve")
-    private ChangeApproveStrategy    flowApprove;
-    @TableField("flow_execute")
-    private ChangeExecStrategy       flowExecute;
+    @TableField("flow_type")
+    private ChangeFlowType           flowType;
+    @TableField("ref_parent_flow_id")
+    private Long                     refParentFlowId;
     @TableField(value = "flow_options", typeHandler = JacksonTypeHandler.class)
     private RsChangeFlowOptionObj    flowOptions;
     @TableField(value = "flow_scm_options", typeHandler = JacksonTypeHandler.class)
     private RsChangeFlowScmOptionObj flowScmOptions;
     @TableField("ref_scm_id")
-    private long                     refScmId;
+    private Long                     refScmId;
     @TableField("ref_scm_type")
     private ScmType                  refScmType;
     @TableField("scm_repo_space")

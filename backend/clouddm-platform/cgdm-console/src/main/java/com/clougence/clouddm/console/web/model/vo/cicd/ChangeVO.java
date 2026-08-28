@@ -28,38 +28,45 @@ import lombok.Setter;
 @Setter
 public class ChangeVO {
 
-    private long                  changeId;
-    private long                  flowId;
-    private String                flowName;
-    private ChangeFlowStatus      flowStatus;
-    private ChangeCheckStrategy   flowCheck;
-    private ChangeApproveStrategy flowApprove;
-    private ChangeExecStrategy    flowExecute;
+    private long                   changeId;
+    private Long                   ticketId;
+    private Long                   batchId;
+    private ChangeBatchStatus      batchStatus;
+    private Long                   rootChangeId;
+    private Long                   parentChangeId;
+    private Long                   parentFlowId;
+    private String                 parentFlowName;
+    private List<ChangeTransferVO> downstream;
+    private ChangeFlowType         flowType;
+    private long                   flowId;
+    private String                 flowName;
+    private String                 flowManagerName;
+    private ChangeFlowStatus       flowStatus;
 
-    private long                  scmId;
-    private String                scmDisplay;
-    private ScmType               scmType;
-    private String                scmTypeI18n;
+    private Long                   scmId;
+    private String                 scmDisplay;
+    private ScmType                scmType;
+    private String                 scmTypeI18n;
 
-    private String                repoUrl;
-    private String                repoName;
-    private String                repoBranch;
-    private String                repoScriptPath;
+    private String                 repoUrl;
+    private String                 repoName;
+    private String                 repoBranch;
+    private String                 repoScriptPath;
 
-    private long                  dsId;
-    private DataSourceType        dsType;
-    private String                dsInstance;
-    private String                dsDesc;
-    private String                dsDisplay;
-    private String                dsHost;
-    private List<String>          dsLevels;
+    private long                   dsId;
+    private DataSourceType         dsType;
+    private String                 dsInstance;
+    private String                 dsDesc;
+    private String                 dsDisplay;
+    private String                 dsHost;
+    private List<String>           dsLevels;
 
-    private String                changeName;
-    private String                changeTime;
-    private ChangeStep            currentStep;
-    private ChangeStatus          currentStatus;
-    private String                remark;
-    private boolean               locked;
+    private String                 changeName;
+    private String                 changeTime;
+    private ChangeStep             currentStep;
+    private ChangeStatus           currentStatus;
+    private String                 remark;
+    private boolean                locked;
 
     public ChangeFlowStatus getChangeFlowStatus() { return flowStatus; }
 

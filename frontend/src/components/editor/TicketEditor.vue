@@ -4,6 +4,7 @@ import { getLanguage } from '@/utils/tools';
 import { markRaw, nextTick } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
+import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 
 export default {
   name: 'TicketEditor',
@@ -11,6 +12,14 @@ export default {
     dataSourceType: {
       type: String,
       default: 'sql'
+    },
+    readOnly: {
+      type: Boolean,
+      default: false
+    },
+    virtualScrollMode: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -26,6 +35,12 @@ export default {
     dataSourceType(newVal) {
       this.dsType = newVal;
       this.applyLanguage();
+    },
+    readOnly(newVal) {
+      this.monacoEditor?.updateOptions({ readOnly: newVal });
+    },
+    virtualScrollMode(newVal) {
+      this.updateScrollbarMode(newVal);
     }
   },
   mounted() {
@@ -40,14 +55,16 @@ export default {
           monaco.editor.create(this.$refs.ticketEditor, {
             value: this.text, // The editor 's value
             language,
-            fontSize: 14,
-            fontWeight: 'bold',
+            ...SQL_EDITOR_TYPOGRAPHY,
             scrollBeyondLastLine: false,
             theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
             minimap: {
               enabled: false
             },
+            lineNumbers: 'on',
+            scrollbar: this.scrollbarOptions(this.virtualScrollMode),
             automaticLayout: true,
+            readOnly: this.readOnly,
             autoIndent: true // Auto Indent
           })
         );
@@ -61,6 +78,19 @@ export default {
     },
     getDsSettings() {
       return this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
+    },
+    scrollbarOptions(virtualScrollMode) {
+      return {
+        ...SQL_EDITOR_SCROLLBAR,
+        vertical: virtualScrollMode ? 'hidden' : 'auto',
+        handleMouseWheel: !virtualScrollMode,
+        alwaysConsumeMouseWheel: !virtualScrollMode
+      };
+    },
+    updateScrollbarMode(virtualScrollMode) {
+      this.monacoEditor?.updateOptions({
+        scrollbar: this.scrollbarOptions(virtualScrollMode)
+      });
     },
     getSql() {
       if (this.monacoEditor) {
@@ -85,10 +115,25 @@ export default {
       }
       return '';
     },
-    setSql(sql) {
+    setSql(sql, lineNumberStart = 1) {
       if (this.monacoEditor) {
+        this.monacoEditor.updateOptions({
+          lineNumbers: this.lineNumberOption(lineNumberStart)
+        });
         this.monacoEditor.setValue(sql);
       }
+    },
+    lineNumberOption(lineNumberStart) {
+      const start = Math.max(1, Number(lineNumberStart) || 1);
+      return start === 1 ? 'on' : (lineNumber) => String(start + lineNumber - 1);
+    },
+    getVisibleLineCount() {
+      if (!this.monacoEditor) {
+        return 30;
+      }
+      const layout = this.monacoEditor.getLayoutInfo();
+      const lineHeight = this.monacoEditor.getOption(monaco.editor.EditorOption.lineHeight);
+      return Math.max(1, Math.floor(layout.height / lineHeight));
     }
   },
   beforeUnmount() {

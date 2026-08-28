@@ -15,8 +15,12 @@
  */
 package com.clougence.clouddm.console.web.model.vo.cicd;
 
+import java.util.List;
+
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.platform.dal.model.cicd.*;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowType;
+import com.clougence.clouddm.platform.dal.model.cicd.RsChangeFlowOptionObj;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 
 import lombok.Getter;
@@ -26,23 +30,28 @@ import lombok.Setter;
 @Setter
 public class ChangeFlowVO {
 
-    private long                  flowId;
-    private String                flowUid;
-    private ChangeFlowStatus      flowStatus;
-    private String                mark;
-    private String                flowName;
-    private String                flowDesc;
-    private String                flowManagerName;
-    private String                flowManagerUid;
-    private ChangeCheckStrategy   flowCheck;
-    private ChangeApproveStrategy flowApprove;
-    private ChangeExecStrategy    flowExecute;
-    private RsChangeFlowOptionObj options;
-    private ScmType               scmType;
-    private String                repoName;
-    private String                repoBranch;
-    private DataSourceType        dsType;
-    private boolean               enable;
-    private String                createTime;
+    private long                           flowId;
+    private String                         flowUid;
+    private ChangeFlowStatus               flowStatus;
+    private ChangeFlowType                 flowType;
+    private Long                           parentFlowId;
+    private String                         parentFlowName;
+    private List<ChangeFlowRelationItemVO> childFlows;
+    private List<ChangeFlowVO>             children;
+    private ChangeFlowVO                   dependencyTree;
+    private boolean                        hasRelations;
+    private boolean                        cascadeRunning;
+    private String                         mark;
+    private String                         flowName;
+    private String                         flowDesc;
+    private String                         flowManagerName;
+    private String                         flowManagerUid;
+    private RsChangeFlowOptionObj          options;
+    private ScmType                        scmType;
+    private String                         repoName;
+    private String                         repoBranch;
+    private DataSourceType                 dsType;
+    private boolean                        enable;
+    private String                         createTime;
 
 }

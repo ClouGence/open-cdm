@@ -20,19 +20,19 @@ function group(key, labelKey, iconName, children) {
   };
 }
 
-export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, accountType }) {
+export function buildSidebarMenu({ myCatLog, myAuth, isDesktop, accountType }) {
   const primary = [];
 
   if (myCatLog.includes('CAT_RDP_DS')) {
     primary.push(linkItem('/datasource', '/#/datasource', 'nav-shu-ju-ku-guan-li', 'icon-v2-peizhishujuyuan'));
   }
-  if (includesDM && myCatLog.includes('CAT_DM_CICD_FLOW') && !isDesktop) {
+  if (myCatLog.includes('CAT_DM_CICD_FLOW') && !isDesktop) {
     primary.push(linkItem('cicd', '/#/cicd', 'nav-ci-cd', 'icon-v2-DataBase2'));
   }
   if (myCatLog.includes('CAT_RDP_ENV')) {
     primary.push(linkItem('/env', '/#/env', 'huan-jing', 'icon-v2-env'));
   }
-  if (includesDM && myCatLog.includes('CAT_RDP_WORKER_ORDER') && !isDesktop) {
+  if (myCatLog.includes('CAT_RDP_WORKER_ORDER') && !isDesktop) {
     primary.push(linkItem('ticket', '/#/ticket', 'gong-dan', 'icon-v2-TicketAuth'));
   }
 
@@ -72,10 +72,10 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, acco
   if (myCatLog.includes('CAT_DM_GIT_OPS')) {
     integrationChildren.push(linkItem('/integrations/git', '/#/integrations/git', 'nav-git-ops', 'icon-v2-sub_account'));
   }
-  if (includesDM && accountType === 'PRIMARY_ACCOUNT') {
+  if (accountType === 'PRIMARY_ACCOUNT') {
     integrationChildren.push(linkItem('/integrations/approval', '/#/integrations/approval', 'nav-shen-pi-yin-qing', 'icon-v2-sub_account'));
   }
-  if (includesDM && accountType === 'PRIMARY_ACCOUNT') {
+  if (accountType === 'PRIMARY_ACCOUNT') {
     integrationChildren.push(linkItem('/integrations/sso', '/#/integrations/sso', 'nav-sso', 'icon-v2-sub_account'));
   }
   if (integrationChildren.length) {

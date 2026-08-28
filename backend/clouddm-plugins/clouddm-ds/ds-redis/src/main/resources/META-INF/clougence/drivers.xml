@@ -1,5 +1,5 @@
 <drivers>
-    <driver driverFamily="Jedis" version="7.4.1">
+    <driver driverFamily="Jedis" version="7.4.1" default="true">
         <driverName>com.clougence.clouddm.ds.redis.execute.dsfactory.JdbcDsFactory</driverName>
         <resource type="maven">redis.clients:jedis:7.4.1</resource>
     </driver>

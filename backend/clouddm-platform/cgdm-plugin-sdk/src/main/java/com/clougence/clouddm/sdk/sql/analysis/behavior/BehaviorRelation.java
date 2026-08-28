@@ -30,5 +30,6 @@ public class BehaviorRelation {
 
     private BehaviorObject       subject;
     private BehaviorAction       action;
+    private Long                 insertRows;
     private List<BehaviorObject> target = new ArrayList<>();
 }

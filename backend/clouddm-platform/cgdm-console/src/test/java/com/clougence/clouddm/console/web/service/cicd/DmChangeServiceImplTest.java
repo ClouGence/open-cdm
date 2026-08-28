@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggest;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggestType;
@@ -37,11 +36,7 @@ import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeFlowMapper;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeMapper;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeTriggerReceiptMapper;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeTriggerReceiptDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
+import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 
 public class DmChangeServiceImplTest {
@@ -50,7 +45,6 @@ public class DmChangeServiceImplTest {
     private DmChangeFlowMapper           flowMapper;
     private DmChangeMapper               changeMapper;
     private DmChangeTriggerReceiptMapper receiptMapper;
-    private AutoExecService              autoExecService;
     private DmChangeServiceImpl          changeService;
 
     @Before
@@ -59,7 +53,6 @@ public class DmChangeServiceImplTest {
         flowMapper = mock(DmChangeFlowMapper.class);
         changeMapper = mock(DmChangeMapper.class);
         receiptMapper = mock(DmChangeTriggerReceiptMapper.class);
-        autoExecService = mock(AutoExecService.class);
         when(changeFlowDal.flowMapper()).thenReturn(flowMapper);
         when(changeFlowDal.changeMapper()).thenReturn(changeMapper);
         when(changeFlowDal.triggerReceiptMapper()).thenReturn(receiptMapper);
@@ -68,19 +61,20 @@ public class DmChangeServiceImplTest {
         flow.setId(1L);
         flow.setOwnerUid("owner");
         flow.setRefScmType(ScmType.Gitlab);
+        flow.setChangeFlowStatus(ChangeFlowStatus.NORMAL);
+        flow.setEnable(true);
         when(flowMapper.queryByOwnerAndId("owner", 1L)).thenReturn(flow);
         when(flowMapper.queryByOwnerAndIdForUpdate("owner", 1L)).thenReturn(flow);
 
         changeService = new DmChangeServiceImpl();
         ReflectionTestUtils.setField(changeService, "changeFlowDal", changeFlowDal);
-        ReflectionTestUtils.setField(changeService, "autoExecService", autoExecService);
     }
 
     @Test
     public void shouldIgnoreDuplicateCommitAcrossTriggerSources() {
         when(receiptMapper.reserve(any(DmChangeTriggerReceiptDO.class))).thenReturn(0);
 
-        ResWebData<String> result = changeService.triggerChangeSuggest("owner", 1L, ChangeTriggerContext.manual("abc123"));
+        ResWebData<String> result = changeService.triggerChangeSuggest("owner", 1L, ChangeTriggerContext.manual("abc123", "operator"));
 
         assertTrue(result.isSuccess());
         assertEquals("duplicate change trigger ignored.", result.getData());
@@ -99,11 +93,10 @@ public class DmChangeServiceImplTest {
 
     @Test
     public void shouldRollbackReceiptWhenChangeCreationFails() throws Exception {
-        Transactional transactional = DmChangeServiceImpl.class
-            .getMethod("triggerChangeSuggest", String.class, long.class, ChangeTriggerContext.class)
+        Transactional transactional = DmChangeServiceImpl.class.getMethod("triggerChangeSuggest", String.class, long.class, ChangeTriggerContext.class)
             .getAnnotation(Transactional.class);
         assertNotNull(transactional);
-        assertArrayEquals(new Class<?>[] {Throwable.class}, transactional.rollbackFor());
+        assertArrayEquals(new Class<?>[] { Throwable.class }, transactional.rollbackFor());
 
         when(receiptMapper.reserve(any(DmChangeTriggerReceiptDO.class))).thenReturn(1);
         when(changeMapper.queryUnlockedChange("owner", 1L)).thenThrow(new IllegalStateException("transient"));
@@ -133,15 +126,4 @@ public class DmChangeServiceImplTest {
         assertEquals(CreateSuggestType.Restart, sameCommit.getSuggestType());
     }
 
-    @Test
-    public void shouldContinueSkippedChangeExecutionTask() {
-        DmChangeDO change = new DmChangeDO();
-        change.setId(23L);
-        change.setCurrentStep(ChangeStep.FINISH);
-        when(changeMapper.queryChangeById("owner", 23L)).thenReturn(change);
-
-        changeService.continueExecTask("owner", 23L, 12L);
-
-        verify(autoExecService).continueTask("23", SQLJobBizType.CHANGE, 12L);
-    }
 }

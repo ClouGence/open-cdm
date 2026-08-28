@@ -135,8 +135,10 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     @Override
     public void handleTransportError(WebSocketSession wss, Throwable e) throws Exception {
         String message = ExceptionUtils.getRootCauseMessage(e);
-        log.error(e.getMessage(), message);
-        WsUtils.writeToSocket(wss, WsType.WS_RES_ERROR, message);
+        log.error("WS[" + WsUtils.getChannelKey(wss) + "]:TRANSPORT_ERROR " + message, e);
+        if (wss.isOpen()) {
+            WsUtils.writeToSocket(wss, WsType.WS_RES_ERROR, message);
+        }
         wss.close(CloseStatus.NORMAL);
     }
 

@@ -1,22 +1,16 @@
 import {
-  UPDATE_CLUSTER_LIST,
-  UPDATE_DEPLOY_ENV_LIST_MAP,
-  UPDATE_DS_TYPE_LIST,
   UPDATE_GLOBAL_SETTING,
   UPDATE_USERINFO,
   UPDATE_DM_GLOBAL_SETTING,
-  UPDATE_CC_GLOBAL_SETTING,
   UPDATE_MY_AUTH,
   UPDATE_MY_CATALOG,
   UPDATE_RULE_SETTING,
-  REMAIN_TRIAL_DAY,
   SET_MENU_ITEMS,
   SET_THEME
 } from '@/store/mutationTypes';
 import i18n from '@/i18n';
 import { createWebSocket, hasWebSocketInstance } from '@/services/socket';
 import { services } from '@/services/http';
-import { filterGlobalSettingByBuild, supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
 import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
 
 const initWebsocket = (globalSetting, loggedIn) => {
@@ -29,10 +23,6 @@ const initWebsocket = (globalSetting, loggedIn) => {
   }
 
   if (window.location.hash.startsWith('#/initialization')) {
-    return;
-  }
-
-  if (!supportsCloudDMBuild) {
     return;
   }
 
@@ -56,17 +46,7 @@ export default {
   async getUserInfo({ commit }) {
     const userInfoRes = await services.rdpUserQueryLoginUser();
     if (userInfoRes.success) {
-      // if (!process.env.VUE_APP_IS_SAAS || process.env.VUE_APP_IS_TEST) {
-      // const userConfigRes = await services.rdpUserConfigGetCurrUserConfigs();
-      // if (userConfigRes.success) {
-      //   userInfoRes.data.userConfig = userConfigRes.data;
-      // }
-      // }
       commit(UPDATE_USERINFO, userInfoRes.data);
-      // const remainingTrialDay = await request({ url: api.ccSaasQueryRemainingTrialDay });
-      // if (remainingTrialDay.success) {
-      //   commit(REMAIN_TRIAL_DAY, remainingTrialDay.data.data.trailEndTimeMs);
-      // }
       const userAuthRes = await services.rdpUserListMyAuth();
       if (userAuthRes.success) {
         commit(UPDATE_MY_AUTH, userAuthRes.data);
@@ -79,54 +59,19 @@ export default {
 
     const globalSettingRes = await services.getGlobalSettings();
     if (globalSettingRes.success) {
-      const filteredGlobalSetting = filterGlobalSettingByBuild(globalSettingRes.data);
       commit('SET_MENU_ITEMS', {
         myCatLog: this.state.myCatLog,
-        globalSetting: filteredGlobalSetting,
-        userInfo: this.state.userInfo,
         myAuth: this.state.myAuth
       });
 
-      commit(UPDATE_GLOBAL_SETTING, filteredGlobalSetting);
-      initWebsocket(filteredGlobalSetting, userInfoRes.success);
-
-      if (supportsCloudDMBuild && !supportsCloudCanalBuild) {
-        commit(SET_THEME, 'light');
-      }
-
-      let icon_url = '';
-      let title = '';
-      if (supportsCloudDMBuild && !supportsCloudCanalBuild) {
-        icon_url = WEBSIDE_FAVICON;
-        title = 'CloudDM';
-      }
-      if (supportsCloudDMBuild && supportsCloudCanalBuild) {
-        icon_url = '/rdp.ico';
-        title = 'ClouGence RDP';
-      }
-      if (!supportsCloudDMBuild && supportsCloudCanalBuild) {
-        icon_url = '/cc.ico';
-        title = 'CloudCanal';
-      }
-      setPageIcon(icon_url);
-      document.title = title;
-    }
-  },
-  async getCcGlobalConfig({ commit }) {
-    if (!supportsCloudCanalBuild) {
-      return;
-    }
-
-    const ccGlobalSettingRes = await services.ccCcGlobalConfig();
-    if (ccGlobalSettingRes.success) {
-      commit(UPDATE_CC_GLOBAL_SETTING, ccGlobalSettingRes.data);
+      commit(UPDATE_GLOBAL_SETTING, globalSettingRes.data);
+      initWebsocket(globalSettingRes.data, userInfoRes.success);
+      commit(SET_THEME, 'light');
+      setPageIcon(WEBSIDE_FAVICON);
+      document.title = 'CloudDM';
     }
   },
   async getDmGlobalConfig({ commit, state }) {
-    if (!supportsCloudDMBuild) {
-      return;
-    }
-
     const consoleSettingRes = await services.dmConsoleSettings();
     if (consoleSettingRes.success) {
       const dmSetting = consoleSettingRes.data;
@@ -142,43 +87,6 @@ export default {
       }
 
       commit(UPDATE_DM_GLOBAL_SETTING, dmSetting);
-    }
-  },
-  async getDeployEnvList({ commit }) {
-    const res = await services.dmConstantListDeployEnv();
-    if (res.success) {
-      commit(UPDATE_DEPLOY_ENV_LIST_MAP, res.data);
-    }
-  },
-  async getRegionList({ commit }) {
-    // const res = await request({
-    //   url: api.getRegionList,
-    //   data: { deployEnvType: CLUSTER_ENV.ALIBABA_CLOUD_HOSTED }
-    // });
-    // const res2 = await request({
-    //   url: api.getRegionList,
-    //   data: { deployEnvType: CLUSTER_ENV.SELF_MAINTENANCE }
-    // });
-    //
-    // if (res.success && res2.success) {
-    //   const data = {
-    //     aliyun: res.data,
-    //     self: res2.data
-    //   };
-    //   commit(UPDATE_REGION_LIST_MAP, data);
-    // }
-  },
-  async getClusterList({ commit }) {
-    const res = await services.dmClusterListByCondition({ data: {} });
-    if (res.success) {
-      commit(UPDATE_CLUSTER_LIST, res.data);
-    }
-  },
-  async getDsTypeList({ commit }, deployEnvType) {
-    const res = await services.dmConstantListDsTypes({ data: { deployEnvType } });
-
-    if (res.success) {
-      commit(UPDATE_DS_TYPE_LIST, res.data);
     }
   },
   // Theme-related actions
@@ -204,13 +112,4 @@ export default {
       commit(SET_THEME, 'light');
     }
   }
-};
-
-export const ACTIONS_TYPE = {
-  GET_USER_INFO: 'getUserInfo',
-  GET_DEPLOY_ENV_LIST: 'getDeployEnvList',
-  GET_REGION_LIST: 'getRegionList',
-  GET_CLUSTER_LIST: 'getClusterList',
-  GET_DS_TYPE_LIST: 'getDsTypeList',
-  GET_DS_LIST: 'getDsList'
 };

@@ -20,16 +20,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigValType;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalExecutionStateMO;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.config.UserConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.RdpTicketProcessActivityStatus;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForDelete;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForUpdate;
 import com.clougence.clouddm.console.web.model.fo.ticket.ApplyAuth;
+import com.clougence.clouddm.console.web.model.fo.ticket.RdpTicketBasicVO;
 import com.clougence.clouddm.console.web.model.vo.*;
 import com.clougence.clouddm.console.web.model.vo.role.RoleAuthTreeVO;
 import com.clougence.clouddm.console.web.model.vo.role.RoleInfoVO;
@@ -37,6 +41,7 @@ import com.clougence.clouddm.console.web.model.vo.role.RoleVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.RdpTicketActivityVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.RdpTicketProcessVO;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalProcessStatus;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessDO;
 import com.clougence.clouddm.platform.dal.model.auth.*;
@@ -590,6 +595,86 @@ public class RdpConvertUtils {
         vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(processDO.getFinishTime()));
         vo.setStageContext(processDO.getStageContext());
         vo.setTicketProcessStatus(processDO.getProcessStatus());
+        return vo;
+    }
+
+    public static RdpTicketActivityVO convertToAnalysisActivityVO(ApprovalAnalysisStateMO item) {
+        RdpTicketActivityVO vo = new RdpTicketActivityVO();
+        vo.setActivityTitle(item.getAnalysisType());
+        vo.setAnalysisPhase(item.getAnalysisPhase());
+        vo.setDisplayOrder(item.getDisplayOrder());
+        vo.setActivityStatus(switch (item.getAnalysisStatus()) {
+            case ApprovalAnalysisStateMO.STATUS_RUNNING -> RdpTicketProcessActivityStatus.RUNNING;
+            case ApprovalAnalysisStateMO.STATUS_FINISHED -> RdpTicketProcessActivityStatus.COMPLETED;
+            case ApprovalAnalysisStateMO.STATUS_FAILED -> RdpTicketProcessActivityStatus.REFUSE;
+            default -> RdpTicketProcessActivityStatus.NEW;
+        });
+        vo.setStartTimeUtc(item.getStartTimeUtc());
+        vo.setFinishTimeUtc(item.getFinishTimeUtc());
+        vo.setProcessedCount(item.getProcessedCount());
+        vo.setProcessedBytes(item.getProcessedBytes());
+        vo.setTotalBytes(item.getTotalBytes());
+        vo.setTotalCount(item.getTotalCount());
+        vo.setRemark(item.getErrorMessage());
+        if (ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(item.getAnalysisType())) {
+            vo.setStatementCount(item.getTotalCount());
+            vo.setStatementTypeCounts(item.getStatementTypeCounts());
+        } else if (ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(item.getAnalysisType())) {
+            vo.setStatementCount(item.getTotalCount());
+            vo.setObjectCount(item.getBehaviors() == null ? null : (long) item.getBehaviors().size());
+            vo.setBehaviorCount(item.getBehaviorCount());
+            vo.setBehaviors(item.getBehaviors());
+        } else if (ApprovalAnalysisStateMO.TYPE_SECURITY_RULE.equals(item.getAnalysisType())) {
+            vo.setRuleCount(item.getCheckedInfo() == null ? null : (long) item.getCheckedInfo().size());
+            vo.setRuleResults(item.getCheckedInfo());
+        } else if (ApprovalAnalysisStateMO.TYPE_DML_EXPLAIN.equals(item.getAnalysisType())) {
+            vo.setStatementCount(item.getDmlStatementCount());
+            vo.setDmlStatementCount(item.getDmlStatementCount());
+            vo.setExecutedExplainCount(item.getExecutedExplainCount());
+            vo.setSkippedBySizeLimit(item.getSkippedBySizeLimit());
+            vo.setSkippedByCountLimit(item.getSkippedByCountLimit());
+            vo.setFailedExplainCount(item.getFailedExplainCount());
+            vo.setExplainResults(item.getExplainResults());
+        }
+        return vo;
+    }
+
+    public static RdpTicketActivityVO convertToExecutionActivityVO(ApprovalExecutionStateMO item) {
+        RdpTicketActivityVO vo = new RdpTicketActivityVO();
+        vo.setActivityTitle(item.getExecutionType());
+        vo.setDisplayOrder(item.getDisplayOrder());
+        vo.setActivityStatus(switch (item.getExecutionStatus()) {
+            case ApprovalExecutionStateMO.STATUS_RUNNING -> RdpTicketProcessActivityStatus.RUNNING;
+            case ApprovalExecutionStateMO.STATUS_FINISHED -> RdpTicketProcessActivityStatus.COMPLETED;
+            case ApprovalExecutionStateMO.STATUS_FAILED -> RdpTicketProcessActivityStatus.REFUSE;
+            case ApprovalExecutionStateMO.STATUS_CANCELED -> RdpTicketProcessActivityStatus.CANCELED;
+            default -> RdpTicketProcessActivityStatus.NEW;
+        });
+        vo.setStartTimeUtc(item.getStartTimeUtc());
+        vo.setFinishTimeUtc(item.getFinishTimeUtc());
+        vo.setProcessedCount(item.getProcessedCount());
+        vo.setStatementCount(item.getTotalCount());
+        vo.setRemark(item.getErrorMessage());
+        return vo;
+    }
+
+    public static RdpTicketBasicVO convertToTicketBasicVO(DmApprovalDO ticketDO, String resourceType, DmAuthUserDO ownerUserDO) {
+        RdpTicketBasicVO vo = new RdpTicketBasicVO();
+        vo.setId(ticketDO.getId());
+        vo.setBizId(ticketDO.getBizId());
+        vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(ticketDO.getGmtCreate()));
+        vo.setGmtModified(DateFormatType.s_yyyyMMdd_HHmmss.format(ticketDO.getGmtModified()));
+        vo.setResId(ticketDO.getBindDsId());
+        vo.setTargetInfo(ticketDO.getTargetInfo());
+        vo.setApproType(ticketDO.getApproType());
+        vo.setApproBiz(ticketDO.getApproBiz());
+        vo.setApproTemplateName(ticketDO.getApproTemplateName());
+        vo.setDescription(ticketDO.getDescription());
+        vo.setTicketTitle(ticketDO.getTicketTitle());
+        vo.setTicketStatus(ticketDO.getTicketStatus());
+        vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(ticketDO.getFinishTime()));
+        vo.setUserName(ownerUserDO == null ? DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()) : ownerUserDO.getUsername());
+        vo.setResourceType(resourceType);
         return vo;
     }
 

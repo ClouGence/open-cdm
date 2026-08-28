@@ -63,10 +63,6 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Verify built-in driver metadata
-        working-directory: backend
-        run: ./gradlew :cgdm-web:verifyBuiltinDriversJson
-
       - name: Set up Node.js 22.22.1
         uses: actions/setup-node@v7
         with:

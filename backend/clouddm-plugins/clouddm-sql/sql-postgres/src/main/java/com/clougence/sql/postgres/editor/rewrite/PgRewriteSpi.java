@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.postgres.editor.rewrite;
 
+import java.io.StringReader;
 import java.util.List;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -22,13 +23,13 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.sql.common.analysis.SqlAnalysisI18nKeys;
 import com.clougence.sql.postgres.parser.PgDslProvider;
+import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
@@ -45,8 +46,8 @@ public class PgRewriteSpi implements RewriteSpi {
     }
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, request.getQueryBody());
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -55,9 +56,7 @@ public class PgRewriteSpi implements RewriteSpi {
 
         long maxLimit = context.getFetchLimit();
         if (maxLimit > 0) {
-            if (this.rewriterLimit(rewriter, astTree, maxLimit)) {
-                context.addRewriterInfo(SqlAnalysisI18nKeys.REWRITE_LIMIT_LABEL);
-            }
+            this.rewriterLimit(rewriter, astTree, maxLimit);
         }
 
         return rewriter.getText();
@@ -93,5 +92,36 @@ public class PgRewriteSpi implements RewriteSpi {
             rewriter.insertAfter(simple.getStop(), " LIMIT " + maxLimit);
             return true;
         }
+    }
+
+    @Override
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(provider, new StringReader(queryStr));
+        if (scripts.size() != 1) {
+            return null;
+        }
+
+        ParseTree astTree = scripts.get(0).getAstTree();
+        if (containsExplain(astTree)) {
+            return queryStr;
+        }
+        SplitQueryType type = new PgSplitVisitor(provider.version()).visit(astTree);
+        if (type == null || !type.isAllowPlan()) {
+            return null;
+        }
+
+        return "EXPLAIN " + queryStr;
+    }
+
+    private static boolean containsExplain(ParseTree tree) {
+        if (tree instanceof PgSqlParser.ExplainstmtContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsExplain(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

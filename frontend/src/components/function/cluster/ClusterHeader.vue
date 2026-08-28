@@ -9,33 +9,13 @@
           <Option value="clusterName" :label="$t('ji-qun-ming-cheng')">
             <span>{{ $t('ji-qun-ming-cheng') }}</span>
           </Option>
-          <!--                    <Option value="owner" label="创建人">-->
-          <!--                        <span>创建人</span>-->
-          <!--                    </Option>-->
-          <Option v-if="!isDmPage" value="type" :label="$t('lei-xing')">
-            <span>{{ $t('lei-xing') }}</span>
-          </Option>
         </Select>
-      </FormItem>
-      <FormItem v-if="searchType === 'owner'">
-        <Input v-model="searchData.owner" style="width: 280px" @on-keydown="handleEnterSearch" />
       </FormItem>
       <FormItem v-if="searchType === 'clusterDesc'">
         <Input v-model="searchData.clusterDescLike" style="width: 280px" @on-keydown="handleEnterSearch" />
       </FormItem>
       <FormItem v-if="searchType === 'clusterName'">
         <Input v-model="searchData.clusterNameLike" style="width: 280px" @on-keydown="handleEnterSearch" />
-      </FormItem>
-      <FormItem v-if="searchType === 'type' && !isDmPage">
-        <Select v-model="searchData.cloudOrIdcName" style="width: 250px">
-          <Option value="ALIBABA_CLOUD" :label="$t('a-li-yun')">
-            <span>{{ $t('a-li-yun') }}</span>
-          </Option>
-          <Option value="SELF_MAINTENANCE" :label="$t('zi-jian-ji-fang')">
-            <span>{{ $t('zi-jian-ji-fang') }}</span>
-          </Option>
-          <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-        </Select>
       </FormItem>
       <FormItem>
         <Button type="primary" ghost @click="_handleSearch(searchType, searchData)">
@@ -75,7 +55,7 @@ export default {
   created() {
     const params = JSON.parse(sessionStorage.getItem('cluster_search_params'));
     if (params) {
-      if (this.isDmPage && params.searchType === 'type') {
+      if (params.searchType === 'type') {
         params.searchType = 'clusterName';
         params.cloudOrIdcName = '';
       }
@@ -88,15 +68,8 @@ export default {
   },
   computed: {
     ...mapState(['myAuth']),
-    isDmPage() {
-      return this.$route.name === 'System_Machine';
-    },
     hasManageAuth() {
-      if (this.$route.name === 'System_Machine') {
-        return this.myAuth.includes('DM_WORKER_MANAGE');
-      } else {
-        return this.myAuth.includes('CC_WORKER_MANAGE');
-      }
+      return this.myAuth.includes('DM_WORKER_MANAGE');
     }
   },
   methods: {

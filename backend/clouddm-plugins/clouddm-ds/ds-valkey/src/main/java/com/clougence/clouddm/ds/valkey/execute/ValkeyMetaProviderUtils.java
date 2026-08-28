@@ -1,0 +1,91 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.ds.valkey.execute;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import com.clougence.schema.umi.special.rdb.RdbValue;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.schema.umi.struts.Value;
+import com.clougence.utils.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Valkey metadata utilities; adds the pure functions needed for database-count probing on top
+ * of the Redis family implementation.
+ */
+@Slf4j
+public class ValkeyMetaProviderUtils {
+
+    public static List<Value> convertSchema(ResultSet rs) throws SQLException {
+        Properties properties = convertServerInfo(rs);
+        String dbStr = properties.getProperty("databases");
+        int databases = StringUtils.isBlank(dbStr) ? 0 : Integer.parseInt(dbStr);
+
+        List<Value> result = new ArrayList<>();
+        for (int i = 0; i < databases; i++) {
+            RdbValue schema = new RdbValue();
+            schema.setValue(String.valueOf(i));
+            schema.setUmiType(UmiTypes.Schema);
+            result.add(schema);
+        }
+        return result;
+    }
+
+    public static List<Value> buildSchemaValues(int databases) {
+        List<Value> result = new ArrayList<>();
+        for (int i = 0; i < databases; i++) {
+            RdbValue schema = new RdbValue();
+            schema.setValue(String.valueOf(i));
+            schema.setUmiType(UmiTypes.Schema);
+            result.add(schema);
+        }
+        return result;
+    }
+
+    public static Properties convertServerInfo(ResultSet rs) throws SQLException {
+        Properties result = new Properties();
+        while (rs.next()) {
+            String name = rs.getString("NAME");
+            String value = rs.getString("VALUE");
+            result.put(name, value);
+        }
+        return result;
+    }
+
+    public static String keyTypeDesc(String oriType) {
+        switch (oriType.toLowerCase()) {
+            case "string":
+                return "String";
+            case "list":
+                return "List";
+            case "set":
+                return "Set";
+            case "zset":
+                return "ZSet";
+            case "hash":
+                return "Hash";
+            case "none":
+            default:
+                return "Null";
+        }
+    }
+}

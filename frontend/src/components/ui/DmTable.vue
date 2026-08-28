@@ -14,7 +14,19 @@
     :locale="tableLocale"
   >
     <template #bodyCell="{ column, record, index }">
-      <slot v-if="column.__slot" :name="column.__slot" :row="record" :index="index" />
+      <DmTableRenderCell
+        v-if="column.__legacyRender"
+        :render-cell="column.__legacyRender"
+        :row="record"
+        :column="column.__legacyColumn"
+        :index="index"
+      />
+      <slot v-else-if="column.__slot" :name="column.__slot" :row="record" :index="index" />
+      <DmTableOverflowCell
+        v-else-if="column.__tooltip && column.dataIndex !== undefined && column.dataIndex !== null"
+        :content="record[column.dataIndex]"
+        :max-width="column.__tooltipMaxWidth"
+      />
       <template v-else-if="column.dataIndex !== undefined && column.dataIndex !== null">
         {{ record[column.dataIndex] }}
       </template>
@@ -26,10 +38,126 @@
 </template>
 
 <script>
+import { h, resolveComponent } from 'vue';
 import { convertTableColumns } from '@/utils/convertTableColumns';
+
+const DmTableOverflowCell = {
+  name: 'DmTableOverflowCell',
+  props: {
+    content: {
+      type: [String, Number],
+      default: ''
+    },
+    maxWidth: {
+      type: Number,
+      default: 250
+    }
+  },
+  data() {
+    return {
+      tooltipDisabled: true
+    };
+  },
+  methods: {
+    updateOverflow() {
+      const content = this.$refs.content;
+      if (!content) {
+        return;
+      }
+      this.tooltipDisabled = content.scrollWidth <= content.clientWidth;
+    }
+  },
+  mounted() {
+    this.$nextTick(this.updateOverflow);
+  },
+  updated() {
+    this.$nextTick(this.updateOverflow);
+  },
+  render() {
+    const Poptip = resolveComponent('Poptip');
+    return h(
+      Poptip,
+      {
+        transfer: true,
+        trigger: 'hover',
+        placement: 'top',
+        content: String(this.content ?? ''),
+        disabled: this.tooltipDisabled,
+        width: this.maxWidth,
+        wordWrap: true,
+        padding: '8px 12px',
+        class: 'dm-table-cell-tooltip'
+      },
+      {
+        default: () =>
+          h(
+            'span',
+            {
+              ref: 'content',
+              class: 'dm-table-cell-tooltip-content',
+              style: {
+                display: 'block',
+                width: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              },
+              onMouseenter: this.updateOverflow
+            },
+            this.content
+          ),
+        content: () =>
+          h(
+            'div',
+            {
+              style: {
+                maxHeight: '240px',
+                overflow: 'auto',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+                cursor: 'text',
+                userSelect: 'text'
+              }
+            },
+            this.content
+          )
+      }
+    );
+  }
+};
+
+const DmTableRenderCell = {
+  name: 'DmTableRenderCell',
+  props: {
+    renderCell: {
+      type: Function,
+      required: true
+    },
+    row: {
+      type: Object,
+      required: true
+    },
+    column: {
+      type: Object,
+      required: true
+    },
+    index: {
+      type: Number,
+      required: true
+    }
+  },
+  render() {
+    return this.renderCell(h, {
+      row: this.row,
+      column: this.column,
+      index: this.index
+    });
+  }
+};
 
 export default {
   name: 'DmTable',
+  components: { DmTableRenderCell, DmTableOverflowCell },
   props: {
     columns: {
       type: Array,
@@ -93,3 +221,14 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.dm-table-cell-tooltip {
+  display: block;
+  width: 100%;
+}
+
+.dm-table-cell-tooltip :deep(.ivu-poptip-rel) {
+  display: block;
+}
+</style>

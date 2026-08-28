@@ -29,7 +29,6 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.file.convert.config.sql.SqlOption;
 import com.clougence.clouddm.file.convert.i18n.ConvertI18nKeys;
 import com.clougence.clouddm.file.convert.sql.ds.*;
-import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
@@ -147,9 +146,7 @@ public class SqlFileFormatConvert implements FileFormatConvert {
         }
 
         // sql file header
-        Map<String, String> variables = infoMap(query);
         fos.write("/*".getBytes());
-        fos.write(("\n  Info         : " + JsonUtils.toJson(variables)).getBytes());
         fos.write(("\n  Execute Time : " + WellKnowFormat.WKF_DATE_TIME24_S3.format(query.getRequestTime())).getBytes());
         fos.write(("\n  Current Time : " + WellKnowFormat.WKF_DATE_TIME24_S3.format(new Date())).getBytes());
         fos.write(("\n  SQL Command  : " + query.getQueryBody()).getBytes());
@@ -211,21 +208,6 @@ public class SqlFileFormatConvert implements FileFormatConvert {
         report.reportProcess("Processing[" + trackId + "] " + writeCnt + " rows", 0, writeCnt, writeCnt);
         fos.flush();
         return writeCnt;
-    }
-
-    private static Map<String, String> infoMap(QueryRequest query) {
-        Map<String, String> variables = query.getVariables();
-        variables = variables == null ? Collections.emptyMap() : variables;
-        String envName = variables.getOrDefault(ExecuteVariables.ENV_NAME, "");
-        String dsName = variables.getOrDefault(ExecuteVariables.DS_NAME, "");
-        String userName = variables.getOrDefault(ExecuteVariables.USER_NAME, "");
-
-        Map<String, String> linkMap = new LinkedHashMap<>();
-        linkMap.put("Environment", envName);
-        linkMap.put("DataSource", dsName);
-        linkMap.put("User", userName);
-
-        return linkMap;
     }
 
     private void doWriteSql(QueryRequest query, Map<String, ColMetaData> meta, //

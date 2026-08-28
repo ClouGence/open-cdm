@@ -15,71 +15,42 @@
  */
 package com.clougence.clouddm.console.web.service.cicd;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfoResult;
-import com.clougence.clouddm.console.web.model.fo.cicd.ChangeExecLogFO;
-import com.clougence.clouddm.console.web.model.fo.cicd.ChangeExecTaskListFO;
 import com.clougence.clouddm.console.web.model.fo.cicd.ChangeListFO;
-import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
-import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
-import com.clougence.clouddm.console.web.model.vo.cicd.ChangeBodyVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.ChangeSqlPreviewVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
-import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.console.web.service.cicd.domain.ChangeTriggerContext;
 import com.clougence.clouddm.console.web.service.cicd.domain.CreateSuggest;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
 
 public interface DmChangeService {
 
     DmPageVO<ChangeVO> queryChangeByFlowAndQuery(String ownerUid, long flowId, ChangeListFO fo);
 
-    DmChangeDO queryChangeById(String ownerUid, long changeId);
+    DmChangeDO queryChangeById(long changeId);
 
-    ChangeBodyVO fetchChangeBodyByChangeId(String ownerUid, long changeId);
+    ChangeSqlPreviewVO previewChangeSql(long changeId, int startLine, int lineCount, String contentName);
 
-    List<DmChangeItemDO> fetchChangeCheckByChangeId(String ownerUid, long changeId);
+    ChangeTicketInfoResult fetchChangeApprovalByChangeId(long changeId);
 
-    ChangeTicketInfoResult fetchChangeApprovalByChangeId(String ownerUid, long changeId);
+    void retryChange(String curUid, long changeId);
 
-    ChangeExecuteInfo fetchChangeExecuteByChangeId(String ownerUid, long changeId);
+    Map<Long, Long> queryTicketIds(String ownerUid, Collection<Long> changeIds);
 
-    void skipCheck(String ownerUid, String userUid, long changeId);
+    void restartChange(String curUid, long changeId);
 
-    void confirmExec(String ownerUid, String userUid, long changeId, DmAutoExecConfigFO fo);
-
-    DmAutoExecJobVO queryExecJobInfo(String ownerUid, long changeId);
-
-    DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String ownerUid, ChangeExecTaskListFO fo);
-
-    List<DmBizLogVO> queryExecLog(String ownerUid, ChangeExecLogFO fo);
-
-    void pauseExecJob(String ownerUid, String curUid, long changeId);
-
-    void startExecJob(String ownerUid, String curUid, long changeId);
-
-    void retryExecJob(String ownerUid, String curUid, long changeId);
-
-    void abortExecJob(String ownerUid, String curUid, long changeId);
-
-    void skipExecTask(String ownerUid, String curUid, long changeId, long taskId);
-
-    void continueExecTask(String ownerUid, long changeId, long taskId);
-
-    void retryChange(String ownerUid, String curUid, long changeId);
-
-    void restartChange(String ownerUid, String curUid, long changeId);
-
-    void closeChange(String ownerUid, String curUid, long changeId);
+    void closeChange(String curUid, long changeId);
 
     void verifyFlow(String ownerUid, long flowId);
 
     CreateSuggest createChangeSuggest(String ownerUid, long flowId, String commitId);
 
     ResWebData<String> triggerChangeSuggest(String ownerUid, long flowId, ChangeTriggerContext triggerContext);
+
+    void triggerBuiltInChange(String ownerUid, String triggerUid, long flowId, String sql);
 }

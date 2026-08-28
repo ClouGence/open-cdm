@@ -62,7 +62,9 @@ public abstract class AbstractLineageAnalysisSpi implements LineageAnalysisSpi {
     private List<MutableColumnLineage> analyzeColumns(String uid, long dsID, Map<UmiTypes, Object> levelsParam, List<RuleDomain> domains, ColumnScope outerScope) {
         List<List<MutableColumnLineage>> result = new ArrayList<>();
         for (RuleDomain domain : domains) {
-            RdbSelectDomain selectDomain = (RdbSelectDomain) domain;
+            if (!(domain instanceof RdbSelectDomain selectDomain)) {
+                continue;
+            }
             List<MutableColumnLineage> selectItems = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(selectDomain.getChildren())) {
                 boolean naturalJoin = selectDomain.getOptions() != null && Boolean.parseBoolean(selectDomain.getOptions().get(NATURAL_JOIN_OPTION));

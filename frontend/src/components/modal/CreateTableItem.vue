@@ -4,7 +4,6 @@ import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import { TAB_TYPE } from '@/const';
 import browseMixin from '@/mixins/browseMixin';
-import { cloneDeep as deepClone } from '@/utils/lodash';
 import IndexColumnsModal from './IndexColumnsModal';
 
 export default {
@@ -37,6 +36,36 @@ export default {
     },
     isIndexColumnsSelector() {
       return this.nodeType === 'indexes' && this.schema.type === 'SelectColumns';
+    },
+    isInlineColumnsSelector() {
+      return (
+        this.nodeType === 'tableInfo' &&
+        this.schema.type === 'SelectColumns' &&
+        this.schema.children?.length === 1 &&
+        this.schema.children[0].type === 'Columns'
+      );
+    },
+    inlineColumnsField() {
+      return this.schema.children?.[0];
+    },
+    selectedInlineColumnNames: {
+      get() {
+        const field = this.inlineColumnsField?.field;
+        return (this.selectedData[this.schema.field] || []).map((column) => column[field]).filter(Boolean);
+      },
+      set(values) {
+        const field = this.inlineColumnsField.field;
+        const selectedColumns = this.selectedData[this.schema.field] || [];
+        const selectedColumnMap = new Map(selectedColumns.map((column) => [column[field], column]));
+        this.selectedData[this.schema.field] = values.map((value, index) => {
+          return (
+            selectedColumnMap.get(value) || {
+              key: `${dayjs().valueOf()}-${index}`,
+              [field]: value
+            }
+          );
+        });
+      }
     },
     selectedIndexColumnNames() {
       return (this.selectedData[this.schema.field] || [])
@@ -548,7 +577,11 @@ export default {
   <div style="display: flex; margin-top: 5px" v-if="!schema.hide">
     <div style="min-width: 100px; line-height: 24px" v-if="schema.type !== 'Fold'">{{ schema.titleI18N }}:</div>
     <div style="flex: 1">
-      <div style="display: flex; align-items: center; justify-content: space-between" v-if="schema.type !== 'Fold'">
+      <div
+        class="create-table-item__control"
+        style="display: flex; align-items: center; justify-content: space-between"
+        v-if="schema.type !== 'Fold'"
+      >
         <a-input
           v-if="schema.type === 'Input'"
           v-model:value="selectedData[schema.field]"
@@ -656,6 +689,23 @@ export default {
           </span>
           <span class="index-columns-trigger__action">{{ $t('bian-ji') }}</span>
         </button>
+        <a-select
+          v-else-if="isInlineColumnsSelector"
+          v-model:value="selectedInlineColumnNames"
+          class="distribution-columns-select"
+          mode="multiple"
+          size="small"
+          style="width: 100%"
+          allow-clear
+          show-search
+          max-tag-count="responsive"
+          :placeholder="$t('qing-xuan-ze-lie')"
+          :disabled="isReadOnly(schema)"
+        >
+          <a-select-option v-for="tableColumn in formData.columns" :key="`${tab.tabId}-${tableColumn.key}`" :value="tableColumn.name">
+            {{ tableColumn.name }}
+          </a-select-option>
+        </a-select>
         <div
           v-else-if="
             schema.type === 'SelectColumns' || schema.type === 'ReferenceRelation' || schema.type === 'PartitionDefineList' || schema.type === 'Tree'
@@ -972,6 +1022,16 @@ export default {
 </template>
 
 <style scoped lang="less">
+.create-table-item__control {
+  min-height: 36px;
+}
+
+.create-table-item__control :deep(.ant-checkbox-wrapper),
+.create-table-item__control :deep(.ant-radio-wrapper) {
+  display: inline-flex;
+  align-items: center;
+}
+
 :deep(.ivu-select-small.ivu-select-single .ivu-select-selection) {
   border-radius: 0;
   border-color: #d9d9d9;
@@ -1038,5 +1098,53 @@ export default {
 .index-columns-trigger__action {
   flex: 0 0 auto;
   color: var(--primary-color);
+}
+
+.distribution-columns-select :deep(.ant-select-selection-overflow) {
+  gap: 4px;
+  padding: 2px 0;
+}
+
+.distribution-columns-select :deep(.ant-select-selection-item) {
+  display: inline-flex;
+  height: 24px;
+  align-items: center;
+  margin: 0 !important;
+  padding: 0 5px 0 8px;
+  border: 1px solid var(--border-primary);
+  border-radius: 5px;
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+  line-height: 1;
+}
+
+.distribution-columns-select :deep(.ant-select-selection-item-content) {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.distribution-columns-select :deep(.ant-select-selection-item-remove) {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 3px;
+  border-radius: 3px;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  line-height: 1;
+}
+
+.distribution-columns-select :deep(.ant-select-selection-item-remove .anticon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.distribution-columns-select :deep(.ant-select-selection-item-remove:hover) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 </style>

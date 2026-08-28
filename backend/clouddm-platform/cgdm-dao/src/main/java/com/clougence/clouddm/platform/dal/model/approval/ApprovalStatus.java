@@ -21,8 +21,11 @@ package com.clougence.clouddm.platform.dal.model.approval;
 */
 public enum ApprovalStatus {
 
-    /** Wait to explain */
-    PRE_INIT,
+    /** Wait for the PRE_INIT parent task to be scheduled. */
+    PRE_INIT_WAIT,
+
+    /** PRE_INIT child tasks are running. */
+    PRE_INIT_RUN,
 
     /** Wait to approval */
     WAIT_APPROVAL,

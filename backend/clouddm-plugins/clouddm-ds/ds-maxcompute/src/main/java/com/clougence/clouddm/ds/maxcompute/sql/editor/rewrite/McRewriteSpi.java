@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.maxcompute.sql.editor.rewrite;
 
+import java.io.StringReader;
 import java.util.List;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -24,20 +25,18 @@ import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import com.clougence.clouddm.ds.maxcompute.i18n.McI18nKeys;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.McSqlDslProvider;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserParser;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
 
 public class McRewriteSpi implements RewriteSpi {
 
     @Override
-    public String rewriterQuery(QueryRequest request, RewriteContext context) {
-        List<AstSplitScript> scripts = DslHelper.splitDsl(McSqlDslProvider.INSTANCE, request.getQueryBody());
+    public String rewriteLimit(String queryId, String queryStr, RewriteContext context) {
+        List<AstSplitScript> scripts = DslHelper.splitDsl(McSqlDslProvider.INSTANCE, new StringReader(queryStr));
         Parser parser = scripts.get(0).getParser();
         ParseTree astTree = scripts.get(0).getAstTree();
 
@@ -46,9 +45,7 @@ public class McRewriteSpi implements RewriteSpi {
 
         long maxLimit = context.getFetchLimit();
         if (maxLimit > 0) {
-            if (this.rewriterLimit(rewriter, astTree, maxLimit)) {
-                context.addRewriterInfo(McI18nKeys.REWRITE_LIMIT_LABEL);
-            }
+            this.rewriterLimit(rewriter, astTree, maxLimit);
         }
 
         return rewriter.getText();
@@ -101,5 +98,10 @@ public class McRewriteSpi implements RewriteSpi {
     private boolean doAppendLimit(TokenStreamRewriter rewriter, ParserRuleContext token, long maxLimit) {
         rewriter.insertAfter(token.getStop(), " LIMIT " + maxLimit);
         return true;
+    }
+
+    @Override
+    public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
+        return null;
     }
 }

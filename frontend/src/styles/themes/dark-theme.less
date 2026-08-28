@@ -1347,12 +1347,12 @@
     background-color: var(--progress-error) !important;
   }
 
-  // Overwrite fixed colours in cloudCanal.less
+  // Override fixed colors in the legacy component styles.
   //.ivu-progress-bg {
   //  background-color: var(--primary-color) !important;
   //}
 
-  // Overwrite the successful state fixed colour in cloudCanal.less
+  // Override the fixed success-state color.
   //.ivu-progress-success .ivu-progress-bg {
   //  background-color: var(--progress-success) !important;
   //}
@@ -1421,6 +1421,14 @@
     &:hover {
       background-color: var(--text-tertiary);
     }
+  }
+
+  .sql-editor-typography .monaco-scrollable-element > .scrollbar {
+    background-color: var(--bg-tertiary);
+  }
+
+  .sql-editor-typography .monaco-scrollable-element > .scrollbar > .slider {
+    background-color: var(--border-primary) !important;
   }
 
   // Code Editor

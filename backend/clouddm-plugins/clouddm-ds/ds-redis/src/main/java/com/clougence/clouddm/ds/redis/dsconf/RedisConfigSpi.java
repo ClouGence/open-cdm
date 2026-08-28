@@ -60,7 +60,29 @@ public class RedisConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public List<SslMode> sslModeSet() {
-        return List.of();
+        return List.of(SslMode.TRUST, SslMode.CA, SslMode.TRUSTSTORE, SslMode.KEYSTORE_TRUSTSTORE, SslMode.CLIENT_CERT);
+    }
+
+    @Override
+    public List<String> certificateTextFileTypes(SslMode sslMode, String configName) {
+        if (sslMode == SslMode.CA || sslMode == SslMode.CLIENT_CERT) {
+            if (DataSourceConfig.Fields.sslClientKeyData.equals(configName)) {
+                return List.of("pem", "key");
+            }
+            return List.of("pem", "crt", "cer");
+        }
+        return super.certificateTextFileTypes(sslMode, configName);
+    }
+
+    @Override
+    public List<String> certificateBinaryFileTypes(SslMode sslMode, String configName) {
+        if (sslMode == SslMode.CA || sslMode == SslMode.CLIENT_CERT) {
+            if (DataSourceConfig.Fields.sslClientKeyData.equals(configName)) {
+                return List.of("pk8", "der");
+            }
+            return List.of("der", "crt", "cer", "p7b");
+        }
+        return super.certificateBinaryFileTypes(sslMode, configName);
     }
 
     @Override
@@ -70,7 +92,7 @@ public class RedisConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public boolean supportSSL() {
-        return false;
+        return true;
     }
 
     @Override

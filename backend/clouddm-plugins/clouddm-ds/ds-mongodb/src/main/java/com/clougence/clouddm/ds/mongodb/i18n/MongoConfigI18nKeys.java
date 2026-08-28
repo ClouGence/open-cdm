@@ -20,4 +20,8 @@ import com.clougence.utils.i18n.I18nResource;
 
 @I18nResource("/META-INF/clougence/i18n/mongo-config")
 public interface MongoConfigI18nKeys extends ConfigI18nKey {
+
+    String CONFIG_MONGODB_CONNECT_TYPE_LABEL         = "CONFIG_MONGODB_CONNECT_TYPE_LABEL";
+    String CONFIG_MONGODB_CONNECT_TYPE_DEFAULT_LABEL = "CONFIG_MONGODB_CONNECT_TYPE_DEFAULT_LABEL";
+    String CONFIG_MONGODB_CONNECT_TYPE_SRV_LABEL     = "CONFIG_MONGODB_CONNECT_TYPE_SRV_LABEL";
 }

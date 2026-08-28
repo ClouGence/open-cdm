@@ -59,7 +59,6 @@ import CustomIcon from '@/components/function/CustomIcon';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import ContextMenu from '@imengyu/vue3-context-menu';
-import CommonMixin from '@/components/function/mixin/commonMixin';
 import CCModal from '@/components/ui/CCModal';
 import CCPasswordInput from '@/components/widgets/CCPasswordInput';
 import CCIconfont from '@/components/widgets/CCIconfont';
@@ -68,11 +67,9 @@ import App from './App';
 import router from './router';
 import store from './store';
 import services from './services/http';
-import './services';
 import '@/utils/errorQueueModal';
 import components from '@/components';
 import directives from '@/directives';
-import '@/filters';
 import '@/assets/iconfont/iconfont';
 import './styles/global.less';
 import './styles/reset.css';
@@ -93,22 +90,14 @@ import 'vue-sonner/style.css';
 import Toast from '@/utils/toast';
 import { LocaleProvider } from 'ant-design-vue';
 import * as filters from '@/filters';
-import { supportsCloudCanalBuild } from '@/utils/product';
-
 // Include Theme Styles
 import './styles/themes/theme.less';
-
-if (supportsCloudCanalBuild) {
-  import('./styles/cloudCanal.less');
-}
 
 // Determines whether the browser supports vue3
 checkES5Support();
 
 // Create instance of Vue application
 const app = createApp(App);
-
-app.mixin(CommonMixin);
 
 // Use plugins
 app.use(i18n);

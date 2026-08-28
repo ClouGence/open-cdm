@@ -1,0 +1,67 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ */
+package com.clougence.sql.oracle.parser;
+
+/** Oracle grammar compatibility levels supported by the parser. */
+public enum OracleVersion {
+    ORACLE_7(7),
+    ORACLE_8(8),
+    ORACLE_9(9),
+    ORACLE_10(10),
+    ORACLE_11(11),
+    ORACLE_12(12),
+    ORACLE_18(18),
+    ORACLE_19(19),
+    ORACLE_21(21),
+    ORACLE_23(23);
+
+    public static final OracleVersion LATEST = values()[values().length - 1];
+    private final int                 major;
+
+    OracleVersion(int major){
+        this.major = major;
+    }
+
+    public static OracleVersion parse(String version) {
+        int major = parseMajor(version);
+        for (OracleVersion candidate : values()) {
+            if (candidate.major == major) {
+                return candidate;
+            }
+        }
+        return LATEST;
+    }
+
+    public String versionString() {
+        return Integer.toString(this.major);
+    }
+
+    public static boolean ge(OracleVersion source, OracleVersion target) {
+        return source.major >= target.major;
+    }
+
+    private static int parseMajor(String version) {
+        if (version == null || version.isBlank()) {
+            return -1;
+        }
+        String value = version.trim();
+        int start = 0;
+        while (start < value.length() && !Character.isDigit(value.charAt(start))) {
+            start++;
+        }
+        int end = start;
+        while (end < value.length() && Character.isDigit(value.charAt(end))) {
+            end++;
+        }
+        if (start == end) {
+            return -1;
+        }
+        try {
+            return Integer.parseInt(value.substring(start, end));
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+}

@@ -125,28 +125,20 @@ public enum MySqlVersion {
         return (this.value / 100) + "." + (this.value % 100);
     }
 
-    public boolean atLeast(MySqlVersion minimum) {
-        return this.value >= minimum.value;
+    public static boolean ge(MySqlVersion source, MySqlVersion target) {
+        return source.value >= target.value;
     }
 
-    public boolean atMost(MySqlVersion maximum) {
-        return this.value <= maximum.value;
+    public static boolean le(MySqlVersion source, MySqlVersion target) {
+        return source.value <= target.value;
     }
 
-    public boolean between(MySqlVersion minimum, MySqlVersion maximum) {
-        return atLeast(minimum) && atMost(maximum);
+    public static boolean ge(MySqlVersion source, int target) {
+        return source.value >= target;
     }
 
-    public boolean atLeast(int major, int minor) {
-        return this.value >= major * 100 + minor;
-    }
-
-    public boolean atMost(int major, int minor) {
-        return this.value <= major * 100 + minor;
-    }
-
-    public boolean between(int minimumMajor, int minimumMinor, int maximumMajor, int maximumMinor) {
-        return atLeast(minimumMajor, minimumMinor) && atMost(maximumMajor, maximumMinor);
+    public static boolean le(MySqlVersion source, int target) {
+        return source.value <= target;
     }
 
 }

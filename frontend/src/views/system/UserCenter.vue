@@ -1,6 +1,6 @@
 <template>
   <div class="profile-page user-center">
-    <AppPageTabs :model-value="activeTab" :tabs="profileTabs" @change="handleTabClick" />
+    <AppPageTabs :model-value="activeTab" :tabs="userTabs" @change="handleTabClick" />
     <div class="profile-page__body">
       <div v-show="activeTab === 'profile'">
         <div>
@@ -265,9 +265,7 @@ const DEFAULT_PASSWORD_MIN_LENGTH = 8;
 const MFA_SETTING_EXPIRE_MS = 10 * 60 * 1000;
 
 export default {
-  components: {
-    AppPageTabs
-  },
+  components: { AppPageTabs },
   mixins: [encryptMixin],
   data() {
     return {
@@ -337,20 +335,14 @@ export default {
     this.clearMfaExpireTimer();
   },
   computed: {
-    ...mapGetters(['isInternalUser']),
-    ...mapState(['userInfo']),
-    profileTabs() {
+    userTabs() {
       return [
-        {
-          name: 'profile',
-          label: this.$t('zhang-hu-xin-xi')
-        },
-        {
-          name: 'security',
-          label: this.$t('an-quan')
-        }
+        { name: 'profile', label: this.$t('zhang-hu-xin-xi') },
+        { name: 'security', label: this.$t('an-quan') }
       ];
     },
+    ...mapGetters(['isInternalUser']),
+    ...mapState(['userInfo']),
     mfaInvalid() {
       return this.userInfo.useMfa && this.userInfo.mfaStatus !== 'ACTIVE';
     },

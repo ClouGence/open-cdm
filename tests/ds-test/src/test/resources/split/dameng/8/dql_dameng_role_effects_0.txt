@@ -1,3 +1,0 @@
-select count(*) from SYSDBA.CODEX_DM8_ROLE_STATE_DATA_20260723;
-------------------------------------------------------------------------------------------
-[SELECT] select count(*) from SYSDBA.CODEX_DM8_ROLE_STATE_DATA_20260723;

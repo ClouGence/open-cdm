@@ -37,6 +37,9 @@ import com.sap.db.jdbc.exceptions.JDBCDriverException;
  **/
 public class HanaHooks implements SessionHook {
 
+    public HanaHooks(){
+    }
+
     @Override
     public ColReader createColReader() {
         return new DefaultColReader();
@@ -157,7 +160,11 @@ public class HanaHooks implements SessionHook {
 
     @Override
     public PreparedStatement explainStatement(Connection conn, QueryRequest query) throws SQLException {
-        throw new UnsupportedOperationException("explain supported yet.");
+        if (!StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), "EXPLAIN ")) {
+            throw new SQLException("Explain request does not contain an EXPLAIN statement");
+        }
+
+        return conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
     }
 
     @Override

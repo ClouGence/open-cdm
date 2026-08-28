@@ -32,6 +32,7 @@ import com.clougence.drivers.def.ResDef;
 import com.clougence.drivers.def.VerDef;
 import com.clougence.drivers.factory.prepare.AbstractResourcePreparer;
 import com.clougence.utils.StringUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -166,6 +167,9 @@ public abstract class AbstractDriverLoader implements DriverLoader {
                 if (StringUtils.isNotBlank(loadedVersion.getComment())) {
                     targetVersion.setComment(loadedVersion.getComment());
                 }
+                if (loadedVersion.isDefault()) {
+                    targetVersion.setDefault(true);
+                }
                 if (loadedVersion.getLoader() != null) {
                     targetVersion.setLoader(loadedVersion.getLoader());
                 }
@@ -201,7 +205,10 @@ public abstract class AbstractDriverLoader implements DriverLoader {
 
         // Always reset against the writable directory; the builtin directory must stay untouched.
         switchLocalDir(version, this.localDir);
-        version.deleteFiles();
+        boolean userManagedFiles = version.getResources().stream().filter(Objects::nonNull).anyMatch(resource -> StringUtils.equalsIgnoreCase("file", resource.getResourceType()));
+        if (!userManagedFiles) {
+            version.deleteFiles();
+        }
         version.setPrepared(false);
         clearResourceStates(version);
     }

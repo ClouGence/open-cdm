@@ -23,13 +23,12 @@ import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 public interface DmExecAutoJobMapper extends BaseMapper<DmExecAutoJobDO> {
 
     DmExecAutoJobDO queryById(long jobId);
 
-    DmExecAutoJobDO queryByDependOnBiz(@Param("bizId") String bizId, @Param("bizType") SQLJobBizType bizType);
+    DmExecAutoJobDO queryByDependOnBizId(@Param("bizId") String bizId);
 
     DmExecAutoJobDO queryByBizId(@Param("bizId") String bizId);
 
@@ -38,6 +37,12 @@ public interface DmExecAutoJobMapper extends BaseMapper<DmExecAutoJobDO> {
     DmExecAutoJobDO queryByIdForUpdate(@Param("id") Long id);
 
     int startJob(@Param("jobId") Long jobId, @Param("wsn") String wsn);
+
+    int startPreparedJob(@Param("jobId") Long jobId, @Param("uid") String uid);
+
+    int claimJobForPackaging(@Param("jobId") Long jobId);
+
+    int heartbeatPackaging(@Param("jobId") Long jobId);
 
     List<Long> listUnFinishJobIdList(@Param("time") Date date);
 

@@ -47,7 +47,7 @@ dependencies {
 
     // utils
     implementation "org.apache.commons:commons-lang3:3.12.0"
-    implementation 'com.google.guava:guava:33.3.1-jre'
+    implementation "com.google.guava:guava:${GUAVA_VERSION}"
 }
 
 description = 'boot-initialization'

@@ -13,12 +13,9 @@
         <result column="flow_manager_uid" property="flowManagerUid"/>
         <result column="flow_status" property="flowStatus"
                 javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus"/>
-        <result column="flow_check" property="flowCheck"
-                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeCheckStrategy"/>
-        <result column="flow_approve" property="flowApprove"
-                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeApproveStrategy"/>
-        <result column="flow_execute" property="flowExecute"
-                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeExecStrategy"/>
+        <result column="flow_type" property="flowType"
+                javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowType"/>
+        <result column="ref_parent_flow_id" property="refParentFlowId"/>
         <result column="flow_options" property="flowOptions"
                 typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="flow_scm_options" property="flowScmOptions"
@@ -59,10 +56,10 @@
         <result column="enable" property="enable"/>
         <result column="deleted" property="deleted"/>
     </resultMap>
-    <sql id="dmChangeFlowDO_select">
+    <sql id="dmChangeFlowColumns">
         id
         , gmt_create, gmt_modified, owner_uid, flow_uid, flow_name, flow_desc, flow_manager_uid,
-        flow_status, flow_check, flow_approve, flow_execute, flow_options, flow_scm_options,
+        flow_status, flow_type, ref_parent_flow_id, flow_options, flow_scm_options,
         ref_scm_id, ref_scm_type, scm_repo_space, scm_repo_identifier, scm_repo_name, scm_repo_url, scm_repo_branch,
         scm_repo_event, scm_repo_script, scm_repo_hook_pwd, scm_repo_hook_signing_token, enable_hook, enable_trigger, trigger_token,
         ds_id, ds_type, ds_instance, ds_desc, ds_path, ref_msg_id, ref_msg_type, msg_language,
@@ -70,118 +67,275 @@
         callback_url, callback_method, enable_callback, flow_hashcode, enable, deleted
     </sql>
     <select id="listFlowByConditionAndPage" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and deleted = 0 and flow_status != 'DELETE'
-        <if test="param.searchKeywords != null">and flow_name like concat('%',#{param.searchKeywords},'%')</if>
-        <if test="param.status != null">and flow_status = #{param.status}</if>
-        order by gmt_create desc
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid          = #{ownerUid}
+            AND
+            deleted            = 0
+            AND
+            flow_status        != 'DELETE'
+            AND
+            ref_parent_flow_id IS NULL
+        <if test="param.searchKeywords != null">
+            AND
+            flow_name          LIKE CONCAT('%', #{param.searchKeywords}, '%')
+        </if>
+        <if test="param.status != null">
+            AND
+            flow_status        = #{param.status}
+        </if>
+        ORDER BY gmt_create DESC
     </select>
     <select id="listFlowByIds" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and
-        id in
-        <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
-        order by gmt_create desc
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        IN
+        <foreach collection="ids" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        ORDER BY gmt_create DESC
     </select>
     <select id="queryByIds" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and
-        id in
-        <foreach collection="flowIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        IN
+        <foreach collection="flowIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
     </select>
     <select id="queryByOwnerAndId" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and id = #{flowId}
-        limit 1
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+        LIMIT 1
     </select>
     <select id="queryByOwnerAndIdForUpdate" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and id = #{flowId}
-        limit 1
-        for update
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+        LIMIT 1
+        FOR UPDATE
+    </select>
+    <select id="queryChildren" resultMap="dmChangeFlowDO">
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid          = #{ownerUid}
+            AND
+            ref_parent_flow_id = #{parentFlowId}
+            AND
+            flow_status        != 'DELETE'
+            AND
+            deleted            = 0
+        ORDER BY gmt_create ASC
+    </select>
+    <select id="queryChildrenByParentIds" resultMap="dmChangeFlowDO">
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid          = #{ownerUid}
+            AND
+            flow_status        != 'DELETE'
+            AND
+            deleted            = 0
+            AND
+            ref_parent_flow_id IN
+        <foreach item="parentFlowId" collection="parentFlowIds" open="(" separator="," close=")">
+            #{parentFlowId}
+        </foreach>
+        ORDER BY gmt_create ASC
+    </select>
+    <select id="queryParentCandidates" resultMap="dmChangeFlowDO">
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid   = #{ownerUid}
+            AND
+            flow_type   = 'BUILT_IN'
+            AND
+            flow_status = 'NORMAL'
+            AND
+            enable      = 1
+            AND
+            deleted     = 0
+        ORDER BY gmt_create DESC
+    </select>
+    <select id="countChildren" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid          = #{ownerUid}
+            AND
+            ref_parent_flow_id = #{parentFlowId}
+            AND
+            flow_status        != 'DELETE'
+            AND
+            deleted            = 0
     </select>
     <select id="queryEnabledByOwnerAndDsId" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and ds_id = #{dsId} and flow_status = 'NORMAL' and enable = 1 and deleted = 0
-        order by gmt_create asc
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid   = #{ownerUid}
+            AND
+            ds_id       = #{dsId}
+            AND
+            flow_status = 'NORMAL'
+            AND
+            enable      = 1
+            AND
+            deleted     = 0
+        ORDER BY gmt_create ASC
     </select>
     <select id="queryEnabledByOwnerAndScmId" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and ref_scm_id = #{scmId} and flow_status = 'NORMAL' and enable = 1 and deleted =
-        0
-        order by gmt_create asc
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid   = #{ownerUid}
+            AND
+            ref_scm_id  = #{scmId}
+            AND
+            flow_status = 'NORMAL'
+            AND
+            enable      = 1
+            AND
+            deleted     = 0
+        ORDER BY gmt_create ASC
     </select>
     <select id="queryEnabledByOwnerAndImId" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and ref_msg_id = #{imId} and flow_status = 'NORMAL' and enable_msg = 1 and deleted
-        = 0
-        order by gmt_create asc
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid   = #{ownerUid}
+            AND
+            ref_msg_id  = #{imId}
+            AND
+            flow_status = 'NORMAL'
+            AND
+            enable_msg  = 1
+            AND
+            deleted     = 0
+        ORDER BY gmt_create ASC
     </select>
     <select id="queryEnabledByOwnerAndHash" resultMap="dmChangeFlowDO">
-        select
-        <include refid="dmChangeFlowDO_select"/>
-        from dm_change_flow
-        where owner_uid = #{ownerUid} and flow_hashcode = #{flowHashcode} and flow_status = 'NORMAL' and enable = 1 and
-        deleted = 0
-        order by gmt_create asc
+        SELECT
+            <include refid="dmChangeFlowColumns"/>
+        FROM
+            dm_change_flow
+        WHERE
+            owner_uid     = #{ownerUid}
+            AND
+            flow_hashcode = #{flowHashcode}
+            AND
+            flow_status   = 'NORMAL'
+            AND
+            enable        = 1
+            AND
+            deleted       = 0
+        ORDER BY gmt_create ASC
     </select>
     <update id="updateManagerByOwnerAndId">
-        update dm_change_flow
-        set flow_manager_uid = #{newData},
-            gmt_modified     = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
+        UPDATE
+            dm_change_flow
+        SET
+            flow_manager_uid = #{newData},
+            gmt_modified     = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
     </update>
     <update id="updateNameByOwnerAndId">
-        update dm_change_flow
-        set flow_name    = #{newData},
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
+        UPDATE
+            dm_change_flow
+        SET
+            flow_name    = #{newData},
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
     </update>
     <update id="updateDescByOwnerAndId">
-        update dm_change_flow
-        set flow_desc    = #{newData},
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
+        UPDATE
+            dm_change_flow
+        SET
+            flow_desc    = #{newData},
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
     </update>
     <update id="updateStatusByOwnerAndId">
-        update dm_change_flow
-        set flow_status  = #{newData,javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus},
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
+        UPDATE
+            dm_change_flow
+        SET
+            flow_status  = #{newData,javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus},
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
     </update>
-    <update id="updateFlowConfigByOwnerAndId">
-        update dm_change_flow
-        set flow_check   = #{flow.flowCheck, javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeCheckStrategy},
-            flow_approve = #{flow.flowApprove, javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeApproveStrategy},
-            flow_execute = #{flow.flowExecute, javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeExecStrategy},
-            flow_options = #{flow.flowOptions, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
+    <update id="updateParentByOwnerAndId">
+        UPDATE
+            dm_change_flow
+        SET
+            flow_type          = #{flowType, javaType=com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowType},
+            ref_parent_flow_id = #{parentFlowId},
+            enable_hook        = #{enableWebhook},
+            enable_trigger     = #{enableTrigger},
+            gmt_modified       = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="updateMessageConfigByOwnerAndId">
-        update dm_change_flow
-        set ref_msg_id          = #{flow.refMsgId},
+        UPDATE
+            dm_change_flow
+        SET
+            ref_msg_id          = #{flow.refMsgId},
             ref_msg_type        = #{flow.refMsgType, javaType=com.clougence.clouddm.platform.dal.model.system.ImType},
             msg_language        = #{flow.msgLanguage},
             enable_msg          = #{flow.enableMsg},
@@ -189,121 +343,189 @@
             event_flow_config   = #{flow.eventFlowConfig},
             event_change_life   = #{flow.eventChangeLife},
             event_change_notice = #{flow.eventChangeNotice},
-            gmt_modified        = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
+            gmt_modified        = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
     </update>
     <update id="disableByOwnerAndScmId">
-        update dm_change_flow
-        set enable       = 0,
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and ref_scm_id = #{scmId}
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            enable       = 0,
+            gmt_modified = NOW()
+        WHERE
+            owner_uid  = #{ownerUid}
+            AND
+            ref_scm_id = #{scmId}
+            AND
+            deleted    = 0
     </update>
     <update id="disableByOwnerAndImId">
-        update dm_change_flow
-        set enable_msg   = 0,
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and ref_msg_id = #{imId}
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            enable_msg   = 0,
+            gmt_modified = NOW()
+        WHERE
+            owner_uid  = #{ownerUid}
+            AND
+            ref_msg_id = #{imId}
+            AND
+            deleted    = 0
     </update>
     <update id="deleteByOwnerAndId">
-        update dm_change_flow
-        set deleted      = 1,
+        UPDATE
+            dm_change_flow
+        SET
+            deleted      = 1,
             flow_status  = 'DELETE',
             enable       = 0,
             enable_msg   = 0,
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="enableFlowByOwnerAndId">
-        update dm_change_flow
-        set enable       = 1,
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and flow_status = 'NORMAL'
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            enable       = 1,
+            gmt_modified = NOW()
+        WHERE
+            owner_uid   = #{ownerUid}
+            AND
+            id          = #{flowId}
+            AND
+            flow_status = 'NORMAL'
+            AND
+            deleted     = 0
     </update>
     <update id="disableFlowByOwnerAndId">
-        update dm_change_flow
-        set enable       = 0,
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            enable       = 0,
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="enableWebHookByOwnerAndId">
-        update dm_change_flow
-        set enable_hook  = 1,
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            enable_hook  = 1,
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="disableWebHookByOwnerAndId">
-        update dm_change_flow
-        set enable_hook  = 0,
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            enable_hook  = 0,
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="enableTriggerByOwnerAndId">
-        update dm_change_flow
-        set enable_trigger = 1,
-            gmt_modified   = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            enable_trigger = 1,
+            gmt_modified   = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="disableTriggerByOwnerAndId">
-        update dm_change_flow
-        set enable_trigger = 0,
-            gmt_modified   = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            enable_trigger = 0,
+            gmt_modified   = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="configCallBackByOwnerAndId">
-        update dm_change_flow
-        set enable_callback = #{enable},
+        UPDATE
+            dm_change_flow
+        SET
+            enable_callback = #{enable},
             callback_method = #{httpMethod},
             callback_url    = #{httpUrl},
-            gmt_modified    = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+            gmt_modified    = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="configTriggerByOwnerAndId">
-        update dm_change_flow
-        set enable_trigger = #{enable},
+        UPDATE
+            dm_change_flow
+        SET
+            enable_trigger = #{enable},
             trigger_token  = #{token},
-            gmt_modified   = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+            gmt_modified   = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="updateScmRepoMetadata">
-        update dm_change_flow
-        set scm_repo_space = #{repoSpace},
+        UPDATE
+            dm_change_flow
+        SET
+            scm_repo_space = #{repoSpace},
             scm_repo_name  = #{repoName},
             scm_repo_url   = #{repoUrl},
-            gmt_modified   = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+            gmt_modified   = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
     <update id="updateWebhookSigningToken">
-        update dm_change_flow
-        set scm_repo_hook_signing_token = #{signingToken},
-            gmt_modified                = now()
-        where owner_uid = #{ownerUid}
-          and id = #{flowId}
-          and deleted = 0
+        UPDATE
+            dm_change_flow
+        SET
+            scm_repo_hook_signing_token = #{signingToken},
+            gmt_modified                = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{flowId}
+            AND
+            deleted   = 0
     </update>
 </mapper>

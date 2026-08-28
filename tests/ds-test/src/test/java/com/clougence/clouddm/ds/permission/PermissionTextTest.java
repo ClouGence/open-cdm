@@ -16,7 +16,9 @@
 package com.clougence.clouddm.ds.permission;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,8 +85,9 @@ public final class PermissionTextTest {
         }
 
         List<StatementBehavior> statements;
-        try {
-            statements = spi.analysisBehavior(testCase.sql, testCase.levels, testCase.baseLine, testCase.baseColumn);
+        try (StringReader reader = new StringReader(testCase.sql);
+                Stream<StatementBehavior> stream = spi.analysisBehaviorStream(reader, testCase.levels, testCase.baseLine, testCase.baseColumn)) {
+            statements = stream.toList();
         } catch (Exception e) {
             Assert.fail(resourcePath + System.lineSeparator() + prefix(testCase) + " unexpected exception: " + e);
             return;

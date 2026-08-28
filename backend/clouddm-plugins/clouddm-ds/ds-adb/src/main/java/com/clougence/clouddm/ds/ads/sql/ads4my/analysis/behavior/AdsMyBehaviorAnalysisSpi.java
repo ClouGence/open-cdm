@@ -6,27 +6,36 @@
  */
 package com.clougence.clouddm.ds.ads.sql.ads4my.analysis.behavior;
 
-import java.util.Collections;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.AdsMyDslProvider;
+import com.clougence.clouddm.ds.ads.sql.ads4my.parser.AdsMySplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.utils.StringUtils;
 
 public class AdsMyBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     @Override
-    public List<StatementBehavior> analysisBehavior(String query, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
-        if (StringUtils.isBlank(query)) {
-            return Collections.emptyList();
-        }
+    public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        var scripts = new AdsMySplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
 
+            return analyzeStatement(reader, levels, codeLine, codeColumn).stream();
+        }).onClose(scripts::close);
+    }
+
+    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         AdsMyBehaviorParserVisitor[] holder = new AdsMyBehaviorParserVisitor[1];
-        DslHelper.doVisitor(AdsMyDslProvider.INSTANCE, query, (lexer, parser) -> {
+        DslHelper.doVisitor(AdsMyDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
             holder[0] = new AdsMyBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
             return holder[0];
         });

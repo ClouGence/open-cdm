@@ -15,12 +15,16 @@
  */
 package com.clougence.sql.postgres.parser;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -46,13 +50,13 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    public java.util.List<SplitScript> splitScript(String script, java.util.List<QueryArg> args, int baseLine, int baseColumn) {
+    protected void beforeSplitStream() {
         this.lastStatementStart.remove();
-        try {
-            return super.splitScript(script, args, baseLine, baseColumn);
-        } finally {
-            this.lastStatementStart.remove();
-        }
+    }
+
+    @Override
+    protected void afterSplitStream() {
+        this.lastStatementStart.remove();
     }
 
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
@@ -60,26 +64,43 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected java.util.Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        java.util.Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(context);
-        return types.isEmpty() ? java.util.Collections.singleton(SplitQueryType.UNKNOWN) : types;
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        ParserRuleContext explainContext = findContext(context, PgSqlParser.ExplainstmtContext.class);
+        if (explainContext instanceof PgSqlParser.ExplainstmtContext explain) {
+            return Set.of(normalizeType(explain.accept(splitVisitor())));
+        }
+        Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(context);
+        return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
+    }
+
+    private static ParserRuleContext findContext(ParseTree tree, Class<? extends ParserRuleContext> contextType) {
+        if (contextType.isInstance(tree)) {
+            return contextType.cast(tree);
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            ParserRuleContext context = findContext(tree.getChild(i), contextType);
+            if (context != null) {
+                return context;
+            }
+        }
+        return null;
     }
 
     @Override
-    protected java.util.List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
+    protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
         ParserRuleContext query = viewQuery(context);
         if (query != null) {
-            java.util.Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(query);
+            Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(query);
             if (types.isEmpty()) {
-                types = java.util.Collections.singleton(SplitQueryType.UNKNOWN);
+                types = Collections.singleton(SplitQueryType.UNKNOWN);
             }
-            return java.util.List.of(createChild(query, tokens, types, java.util.Collections.emptyList()));
+            return List.of(createChild(query, tokens, types, Collections.emptyList()));
         }
         ParserRuleContext triggerFunction = triggerFunction(context);
         if (triggerFunction != null) {
-            return java.util.List.of(createChild(triggerFunction, tokens, java.util.Collections.singleton(SplitQueryType.CALL_PROG_OBJ), java.util.Collections.emptyList()));
+            return List.of(createChild(triggerFunction, tokens, Collections.singleton(SplitQueryType.CALL_PROG_OBJ), Collections.emptyList()));
         }
-        return java.util.Collections.emptyList();
+        return Collections.emptyList();
     }
 
     private ParserRuleContext viewQuery(ParserRuleContext context) {

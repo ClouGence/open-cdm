@@ -21,7 +21,7 @@
         <result column="proxy_features" property="proxyFeatures" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.SshProxyFeaturesTypeHandler"/>
     </resultMap>
 
-    <sql id="dmSshConfigDO_select">
+    <sql id="dmSshConfigColumns">
         id,
         gmt_create,
         gmt_modified,
@@ -41,7 +41,7 @@
 
     <select id="queryList" resultMap="dmSshConfigDO">
         SELECT
-            <include refid="dmSshConfigDO_select"/>
+            <include refid="dmSshConfigColumns"/>
         FROM dm_ssh_config
         WHERE 1 = 1
         <if test="clusterId != null and clusterId > 0">
@@ -59,7 +59,7 @@
 
     <select id="queryById" resultMap="dmSshConfigDO">
         SELECT
-            <include refid="dmSshConfigDO_select"/>
+            <include refid="dmSshConfigColumns"/>
         FROM dm_ssh_config
         WHERE id = #{id}
         LIMIT 1

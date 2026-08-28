@@ -27,7 +27,7 @@ public interface SessionSpi extends Spi {
 
     SessionContextDTO createSessionContext(DataSourceConfig dsConfig, Map<String, Object> params);
 
-    QueryRequest createQueryRequest(SessionContextDTO contextDTO, DataSourceConfig dsConfig, Map<String, Object> params, String uid, String clientIp, boolean console);
+    QueryRequest createQueryRequest(DataSourceConfig dsConfig);
 
     String newQueryId();
 }

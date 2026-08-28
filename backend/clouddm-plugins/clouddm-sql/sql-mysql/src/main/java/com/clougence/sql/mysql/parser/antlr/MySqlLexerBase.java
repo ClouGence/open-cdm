@@ -9,9 +9,9 @@ import com.clougence.sql.mysql.parser.MySqlVersion;
 public abstract class MySqlLexerBase extends Lexer {
 
     private MySqlParserConfig config                    = MySqlParserConfig.unknownSqlMode(null);
-    private boolean            insideExecutableComment;
-    private int                lastDefaultTokenType      = Token.INVALID_TYPE;
-    private int                lastDefaultTokenStopIndex = -2;
+    private boolean           insideExecutableComment;
+    private int               lastDefaultTokenType      = Token.INVALID_TYPE;
+    private int               lastDefaultTokenStopIndex = -2;
 
     protected MySqlLexerBase(CharStream input){
         super(input);
@@ -24,9 +24,14 @@ public abstract class MySqlLexerBase extends Lexer {
             int delimiterLength = dollarQuoteDelimiterLength();
             int tokenLength = delimiterLength == 0 ? 0 : dollarQuoteTokenLength(delimiterLength);
             if (delimiterLength > 0) {
-                token = tokenLength > 0 ? emitDollarQuotedString(tokenLength) : emitUnterminatedDollarQuote();
-                rememberDefaultToken(token);
-                return token;
+                int marker = _input.mark();
+                try {
+                    token = tokenLength > 0 ? emitDollarQuotedString(tokenLength) : emitUnterminatedDollarQuote();
+                    rememberDefaultToken(token);
+                    return token;
+                } finally {
+                    _input.release(marker);
+                }
             }
         }
         token = super.nextToken();
@@ -37,8 +42,7 @@ public abstract class MySqlLexerBase extends Lexer {
     }
 
     private void classifySpecialFunctionToken(Token token) {
-        if (!(token instanceof WritableToken writableToken) || token.getChannel() != DEFAULT_TOKEN_CHANNEL || !config.isSqlModeKnown()
-            || !isSpecialFunctionName(token.getText())) {
+        if (!(token instanceof WritableToken writableToken) || token.getChannel() != DEFAULT_TOKEN_CHANNEL || !config.isSqlModeKnown() || !isSpecialFunctionName(token.getText())) {
             return;
         }
         if (isImmediatelyAfterDot(token.getStartIndex())) {
@@ -52,7 +56,7 @@ public abstract class MySqlLexerBase extends Lexer {
 
     private boolean isImmediatelyFollowedByLeftParen(Token token) {
         int nextIndex = token.getStopIndex() + 1;
-        return nextIndex >= 0 && nextIndex < _input.size() && _input.getText(org.antlr.v4.runtime.misc.Interval.of(nextIndex, nextIndex)).charAt(0) == '(';
+        return nextIndex == _input.index() && _input.LA(1) == '(';
     }
 
     private static boolean isSpecialFunctionName(String text) {
@@ -69,14 +73,14 @@ public abstract class MySqlLexerBase extends Lexer {
     }
 
     private void downgradeVersionedToken(Token token) {
-        if (!(token instanceof WritableToken writableToken) || isTokenAllowed(token.getType())) {
+        if (!(token instanceof WritableToken writableToken) || isTokenAllowed(token)) {
             return;
         }
         writableToken.setType(MySqlLexer.ID);
     }
 
-    private boolean isTokenAllowed(int tokenType) {
-        return switch (tokenType) {
+    private boolean isTokenAllowed(Token token) {
+        return switch (token.getType()) {
             case MySqlLexer.ANALYSE, MySqlLexer.REDOFILE, MySqlLexer.SQL_CACHE -> atMost(5, 7);
             case MySqlLexer.OLD_PASSWORD -> atMost(5, 6);
             case MySqlLexer.MASTER_BIND, MySqlLexer.MASTER_SSL_VERIFY_SERVER_CERT -> atMost(8, 0);
@@ -96,16 +100,12 @@ public abstract class MySqlLexerBase extends Lexer {
             case MySqlLexer.JSON_ARRAYAGG, MySqlLexer.JSON_OBJECTAGG -> isFunctionTokenAllowed(50722);
             case MySqlLexer.ST_COLLECT -> isFunctionTokenAllowed(80024);
             case MySqlLexer.STRING_CHARSET_NAME -> {
-                String token = tokenText();
-                yield (!"_gb18030".equalsIgnoreCase(token) || atLeast(5, 7)) && (!"_filename".equalsIgnoreCase(token) || exactVersion() < 50710);
+                String tokenText = token.getText();
+                yield (!"_gb18030".equalsIgnoreCase(tokenText) || atLeast(5, 7)) && (!"_filename".equalsIgnoreCase(tokenText) || exactVersion() < 50710);
             }
             case MySqlLexer.DOLLAR_QUOTED_STRING -> false;
             default -> true;
         };
-    }
-
-    private String tokenText() {
-        return _text == null ? getText() : _text;
     }
 
     private void rememberDefaultToken(Token token) {
@@ -214,9 +214,7 @@ public abstract class MySqlLexerBase extends Lexer {
 
     protected final boolean isAnsiQuotes() { return config.isEnabled(Feature.ANSI_QUOTES); }
 
-    protected final boolean isSqlModeUnknown() {
-        return !config.isSqlModeKnown();
-    }
+    protected final boolean isSqlModeUnknown() { return !config.isSqlModeKnown(); }
 
     protected final boolean isNoBackslashEscapes() { return config.isEnabled(Feature.NO_BACKSLASH_ESCAPES); }
 
@@ -328,27 +326,27 @@ public abstract class MySqlLexerBase extends Lexer {
     }
 
     protected final boolean atLeast(MySqlVersion minimum) {
-        return config.grammarVersion().atLeast(minimum);
+        return MySqlVersion.ge(config.grammarVersion(), minimum);
     }
 
     protected final boolean atMost(MySqlVersion maximum) {
-        return config.grammarVersion().atMost(maximum);
+        return MySqlVersion.le(config.grammarVersion(), maximum);
     }
 
     protected final boolean between(MySqlVersion minimum, MySqlVersion maximum) {
-        return config.grammarVersion().between(minimum, maximum);
+        return MySqlVersion.ge(config.grammarVersion(), minimum) && MySqlVersion.le(config.grammarVersion(), maximum);
     }
 
     protected final boolean atLeast(int major, int minor) {
-        return config.grammarVersion().atLeast(major, minor);
+        return MySqlVersion.ge(config.grammarVersion(), major * 100 + minor);
     }
 
     protected final boolean atMost(int major, int minor) {
-        return config.grammarVersion().atMost(major, minor);
+        return MySqlVersion.le(config.grammarVersion(), major * 100 + minor);
     }
 
     protected final boolean between(int minMajor, int minMinor, int maxMajor, int maxMinor) {
-        return config.grammarVersion().between(minMajor, minMinor, maxMajor, maxMinor);
+        return MySqlVersion.ge(config.grammarVersion(), minMajor * 100 + minMinor) && MySqlVersion.le(config.grammarVersion(), maxMajor * 100 + maxMinor);
     }
 
     private static String versionString(MySqlVersion version, int exactVersion) {

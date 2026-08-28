@@ -1,3 +1,0 @@
-CREATE INDEX index_name9 ON "abc"."table_name8" using btree(SUBSTRING( column_name_1 from 1 for 11 ));
-------------------------------------------------------------------------------------------
-[ADD_INDEX] CREATE INDEX index_name9 ON "abc"."table_name8" using btree(SUBSTRING( column_name_1 from 1 for 11 ));

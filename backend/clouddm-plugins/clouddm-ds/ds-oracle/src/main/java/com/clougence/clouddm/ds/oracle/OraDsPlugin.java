@@ -18,12 +18,13 @@ package com.clougence.clouddm.ds.oracle;
 import com.clougence.adapter.oracle.OracleSqlTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.oracle.definition.OraDefService;
-import com.clougence.clouddm.ds.oracle.definition.secrules.OraSecRulesSupportSpi;
 import com.clougence.clouddm.ds.oracle.dsconf.OraConfigSpi;
 import com.clougence.clouddm.ds.oracle.dsconf.OraSerializationSpi;
 import com.clougence.clouddm.ds.oracle.execute.OraSessionFactory;
+import com.clougence.clouddm.ds.oracle.execute.explain.OraExplainPlanSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
+import com.clougence.clouddm.dsfamily.oracle.definition.OraDefService;
+import com.clougence.clouddm.dsfamily.oracle.definition.secrules.OraSecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.oracle.definition.ui.browser.OraDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.oracle.definition.ui.ddl.OraConvertTableDDLSpi;
 import com.clougence.clouddm.dsfamily.oracle.definition.ui.editor.data.OraDataEditorSpi;
@@ -49,7 +50,8 @@ import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + Ora18nKeys.PLUGIN_NAME_ORACLE,                      //
-        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",       //
+        includePackages = { "com.clougence.clouddm.ds.oracle.execute.*",      //
+                            "com.clougence.clouddm.dsfamily.execute.*",       //
                             "com.clougence.clouddm.dsfamily.oracle.execute.*" //
         }, dsProduct = DataSourceType.Oracle)
 public class OraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
@@ -86,6 +88,7 @@ public class OraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new OraSessionSpi());
         dsPlugin.addPluginSpi(new OraSupportSpi());
+        dsPlugin.addPluginSpi(new OraExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

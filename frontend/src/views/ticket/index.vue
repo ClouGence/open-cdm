@@ -1,17 +1,7 @@
 <template>
   <div class="ticket-container">
     <div class="table-list-layout">
-      <nav class="ticket-tabs">
-        <button
-          v-for="tab in ticketTabs"
-          :key="tab.name"
-          class="ticket-tabs__item"
-          :class="{ 'is-active': ticketListType === tab.name }"
-          @click="handleTabClick(tab.name)"
-        >
-          {{ tab.label }}
-        </button>
-      </nav>
+      <AppPageTabs :model-value="ticketListType" :tabs="ticketTabs" @change="handleTabClick" />
       <div class="table-list">
         <div class="content">
           <div class="option">
@@ -24,17 +14,13 @@
                 style="width: 300px; margin-right: 4px"
                 clearable
               />
-              <Select style="width: 120px; margin-right: 4px" v-model="searchKey.ticketStatus" clearable>
-                <Option v-for="(status, key) in ticketStatusList" :value="key" :key="key">
-                  {{ status }}
-                </Option>
+              <Select v-model="searchKey.queryType" style="width: 140px; margin-right: 4px">
+                <Option value="TITLE">{{ $t('biao-ti') }}</Option>
+                <Option value="BIZ_ID">{{ $t('gong-dan-hao') }}</Option>
+                <Option value="DESCRIPTION">{{ $t('miao-shu') }}</Option>
+                <Option value="CONTENT">{{ $t('gong-dan-nei-rong-inline') }}</Option>
               </Select>
-              <Input
-                :placeholder="$t('qing-shu-ru-gong-dan-biao-ti-guan-jian-zi-cha-xun')"
-                v-model="searchKey.ticketTitleName"
-                style="width: 280px; margin-right: 4px"
-                clearable
-              />
+              <Input :placeholder="ticketQueryPlaceholder" v-model="searchKey.queryValue" style="width: 280px; margin-right: 4px" clearable />
               <Button type="primary" ghost class="ticket-search-btn" @click="listTickets">
                 {{ $t('cha-xun') }}
               </Button>
@@ -52,7 +38,7 @@
             </div>
           </div>
           <div class="table-container">
-            <Table size="small" :columns="ticketColumns" :data="ticketData" border :loading="loading">
+            <Table size="small" :columns="ticketColumns" :data="ticketData" :scroll="ticketTableScroll" border :loading="loading">
               <template #ticketStatus="{ row }">
                 <div :style="`display: flex;color:${TICKET_STATUS_COLOR[row.ticketStatus]}`">
                   <div style="margin-right: 3px">{{ TICKET_STATUS[row.ticketStatus] }}</div>
@@ -63,10 +49,38 @@
                   <CustomIcon type="icon-v2-TicketAuth" />
                   {{ row.targetInfo }}
                 </span>
+                <div v-else-if="['DM_QUERY', 'DM_CHANGE'].includes(row.approBiz)" class="ticket-resource">
+                  <DataSourceIcon
+                    class="ticket-resource__icon"
+                    size="24px"
+                    :type="row.resourceType || 'DataBase'"
+                    :instanceType="row.deployEnvType"
+                    leftMargin="0"
+                  />
+                  <div class="ticket-resource__name" :title="row.resourceDesc || row.resourceName || '-'">
+                    {{ row.resourceDesc || row.resourceName || '-' }}
+                  </div>
+                </div>
                 <span v-else>
                   <CustomIcon :type="`icon-v2-${row.resourceType}`" :instanceType="row.deployEnvType"></CustomIcon>
                   {{ row.targetInfo }}
                 </span>
+              </template>
+              <template #description="{ row }">
+                <Poptip v-if="row.description" class="ticket-description-poptip" trigger="hover" transfer placement="top-start" :width="360">
+                  <span class="ticket-description-trigger">{{ row.description }}</span>
+                  <template #content>
+                    <div class="ticket-description-popover">
+                      <div class="ticket-description-popover__content">{{ row.description }}</div>
+                      <div class="ticket-description-popover__actions">
+                        <Button type="text" size="small" @click.stop="copyText(row.description)">
+                          {{ $t('fu-zhi') }}
+                        </Button>
+                      </div>
+                    </div>
+                  </template>
+                </Poptip>
+                <span v-else>-</span>
               </template>
               <template #time="{ row }">
                 {{ row.gmtCreate }}
@@ -114,7 +128,9 @@
       </div>
       <template #footer>
         <Button @click="handleCloseTicketCreateModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleCreateTicket" :disabled="!ticketType">{{ $t('ti-jiao-gong-dan') }}</Button>
+        <Button type="primary" @click="handleCreateTicket" :disabled="!ticketType">
+          {{ $t('ti-jiao-gong-dan') }}
+        </Button>
       </template>
     </CCModal>
   </div>
@@ -122,13 +138,17 @@
 
 <script>
 import { mapState } from 'vuex';
-import { TICKET_STATUS, TICKET_STATUS_COLOR, TICKET_WAIT_STATUS } from '@/const';
+import { TICKET_STATUS, TICKET_STATUS_COLOR } from '@/const';
 import { APPROV_BIZ_MAP } from './constant';
+import AppPageTabs from '@/components/layout/AppPageTabs';
 import CustomIcon from '@/components/function/CustomIcon.vue';
+import DataSourceIcon from '@/components/function/DataSourceIcon';
+import copyMixin from '@/mixins/copyMixin';
 
 export default {
   name: 'Ticket',
-  components: { CustomIcon },
+  components: { AppPageTabs, CustomIcon, DataSourceIcon },
+  mixins: [copyMixin],
   data() {
     return {
       showTicketCreateModal: false,
@@ -143,9 +163,9 @@ export default {
       ],
       searchKey: {
         daterange: [],
-        ticketStatus: '',
-        type: '',
-        ticketTitleName: ''
+        queryType: 'BIZ_ID',
+        queryValue: '',
+        type: ''
       },
       ticketColumns: [
         {
@@ -169,7 +189,12 @@ export default {
         {
           title: this.$t('biao-ti'),
           key: 'ticketTitle',
-          minWidth: 200
+          width: 240
+        },
+        {
+          title: this.$t('miao-shu'),
+          slot: 'description',
+          width: 280
         },
         {
           title: this.$t('zi-yuan'),
@@ -193,7 +218,7 @@ export default {
           slot: 'action'
         }
       ],
-      pageSize: 40,
+      pageSize: 20,
       pageNum: 1,
       total: 0
     };
@@ -202,13 +227,20 @@ export default {
     this.listTickets();
   },
   computed: {
-    ticketStatusList() {
-      return this.ticketListType === 'WAIT_SELF_PROCESS' ? TICKET_WAIT_STATUS : TICKET_STATUS;
+    ticketTableScroll() {
+      return { x: 1587 };
     },
-    styleVar() {
-      return (ticketStatus) => ({
-        '--status-color': TICKET_STATUS_COLOR[ticketStatus]
-      });
+    ticketQueryPlaceholder() {
+      switch (this.searchKey.queryType) {
+        case 'BIZ_ID':
+          return this.$t('qing-shu-ru-gong-dan-hao-cha-xun');
+        case 'DESCRIPTION':
+          return this.$t('qing-shu-ru-gong-dan-miao-shu-guan-jian-zi-cha-xun');
+        case 'CONTENT':
+          return this.$t('qing-shu-ru-gong-dan-inline-nei-rong-guan-jian-zi-cha-xun');
+        default:
+          return this.$t('qing-shu-ru-gong-dan-biao-ti-guan-jian-zi-cha-xun');
+      }
     },
     TICKET_STATUS() {
       return TICKET_STATUS;
@@ -274,14 +306,34 @@ export default {
     },
     async listTickets() {
       this.loading = true;
+      let ticketBizId = null;
+      let ticketTitleName = null;
+      let ticketDescription = null;
+      let ticketContent = null;
+      const queryValue = this.searchKey.queryValue.trim();
+      switch (this.searchKey.queryType) {
+        case 'BIZ_ID':
+          ticketBizId = queryValue || null;
+          break;
+        case 'DESCRIPTION':
+          ticketDescription = queryValue || null;
+          break;
+        case 'CONTENT':
+          ticketContent = queryValue || null;
+          break;
+        default:
+          ticketTitleName = queryValue || null;
+      }
       const res = await this.$services.rdpTicketListBasic({
         data: {
           ticketId: null,
           userName: '',
           startTimeMs: new Date(this.searchKey.daterange[0]).getTime(),
           endTimeMs: new Date(this.searchKey.daterange[1]).getTime(),
-          ticketTitleName: this.searchKey.ticketTitleName,
-          ticketStatus: this.searchKey.ticketStatus,
+          ticketBizId,
+          ticketTitleName,
+          ticketDescription,
+          ticketContent,
           ticketListType: this.ticketListType,
           page: {
             pageSize: this.pageSize,
@@ -309,46 +361,62 @@ export default {
   overflow-y: auto;
 }
 
-.ticket-tabs {
+.ticket-resource {
   display: flex;
+  min-width: 0;
+  min-height: 32px;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 0;
-  background: var(--bg-card);
+  gap: 8px;
+}
 
-  &__item {
-    position: relative;
-    padding: 12px 20px 10px;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-    border: none;
-    border-bottom: none;
-    background: none;
-    cursor: pointer;
-    transition: color 0.12s ease;
+.ticket-resource__icon {
+  display: inline-flex;
+  width: 28px;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+}
 
-    &:hover {
-      color: var(--text-primary);
-    }
+.ticket-resource__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
 
-    &.is-active {
-      color: var(--text-primary);
-      font-weight: 500;
+.ticket-description-poptip {
+  display: block;
+  width: 100%;
+}
 
-      &::after {
-        content: '';
-        position: absolute;
-        left: 20px;
-        right: 20px;
-        bottom: 0;
-        height: 2px;
-        border-radius: 2px 2px 0 0;
-        background: var(--primary-color);
-      }
-    }
-  }
+.ticket-description-poptip :deep(.ivu-poptip-rel) {
+  display: block;
+  width: 100%;
+}
+
+.ticket-description-trigger {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-description-popover__content {
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+}
+
+.ticket-description-popover__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
 }
 </style>

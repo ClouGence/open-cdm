@@ -82,6 +82,35 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitExplainstmt(ExplainstmtContext ctx) {
+        if (resolvedType == SplitQueryType.UNSAFE) {
+            addUnary(SplitQueryType.UNSAFE, BehaviorAction.UNSAFE, objects.instanceObject(TargetType.Instance, ctx.getStart()));
+            return null;
+        }
+        for (BehaviorObject table : explainTables(ctx)) {
+            addUnary(SplitQueryType.SELECT, BehaviorAction.READ, table);
+        }
+        return null;
+    }
+
+    private List<BehaviorObject> explainTables(ExplainstmtContext ctx) {
+        List<BehaviorObject> result = tableReferences(ctx);
+        InsertstmtContext insert = first(ctx, InsertstmtContext.class);
+        if (insert != null) {
+            addObject(result, object(TargetType.Table, insert.insert_target().qualified_name()));
+        }
+        UpdatestmtContext update = first(ctx, UpdatestmtContext.class);
+        if (update != null) {
+            addObject(result, object(TargetType.Table, update.relation_expr_opt_alias().relation_expr().qualified_name()));
+        }
+        DeletestmtContext delete = first(ctx, DeletestmtContext.class);
+        if (delete != null) {
+            addObject(result, object(TargetType.Table, delete.relation_expr_opt_alias().relation_expr().qualified_name()));
+        }
+        return result;
+    }
+
+    @Override
     public Void visitTable_ref(Table_refContext ctx) {
         if (ctx.relation_expr() != null) {
             addUnary(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.relation_expr().qualified_name()));
@@ -91,7 +120,16 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitInsertstmt(InsertstmtContext ctx) {
-        addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.insert_target().qualified_name()), tableReferences(ctx.insert_rest()));
+        BehaviorRelation relation = addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, object(TargetType.Table, ctx.insert_target().qualified_name()), tableReferences(ctx
+            .insert_rest()));
+        if (relation != null) {
+            Values_clauseContext values = ctx.insert_rest().values_clause();
+            if (values != null) {
+                relation.setInsertRows((long) values.expr_list().size());
+            } else if (ctx.insert_rest().selectstmt() == null) {
+                relation.setInsertRows(1L);
+            }
+        }
         return null;
     }
 
@@ -380,9 +418,9 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         behavior.setStatementType(type);
     }
 
-    private void addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    private BehaviorRelation addRelation(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
-            return;
+            return null;
         }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
@@ -394,6 +432,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         }
         behavior.getRelations().add(relation);
         behavior.setStatementType(type);
+        return relation;
     }
 
     private List<BehaviorObject> tableReferences(ParseTree tree) {

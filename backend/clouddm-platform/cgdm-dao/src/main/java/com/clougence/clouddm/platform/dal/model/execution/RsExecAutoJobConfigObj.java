@@ -31,4 +31,5 @@ public class RsExecAutoJobConfigObj {
 
     private Long          retryWaitTime;
     private Long          retryCount;
+    private String        languageTag;
 }

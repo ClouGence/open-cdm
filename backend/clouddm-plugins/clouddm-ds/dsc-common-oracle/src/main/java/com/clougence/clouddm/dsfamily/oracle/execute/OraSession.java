@@ -18,7 +18,6 @@ package com.clougence.clouddm.dsfamily.oracle.execute;
 import java.io.IOException;
 import java.sql.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.session.*;
@@ -26,6 +25,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.clouddm.sdk.execute.session.rdb.KillCurrentQueryAble;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.HashUtils;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +36,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OraSession extends DefaultRdbSession {
 
-    private static final String explainSql       = "SELECT plan_table_output FROM TABLE(DBMS_XPLAN.DISPLAY())";
+    private static final String explainSql       = "SELECT plan_table_output FROM TABLE(DBMS_XPLAN.DISPLAY('PLAN_TABLE', ?, 'TYPICAL'))";
+    private static final String deleteExplainSql = "DELETE FROM PLAN_TABLE WHERE STATEMENT_ID = ?";
     private static final String compileResultSql = "select line,position,text,sequence from all_errors where owner= ? and name= ?  order by SEQUENCE";
+    private String              currentExplainStatementId;
 
     public OraSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
         super(newSessionId, dsConfig, dsObject, new OraHooks(dsConfig));
@@ -129,7 +131,7 @@ public class OraSession extends DefaultRdbSession {
         if (query.isUseCallable()) {
             CallableStatement call = (CallableStatement) ps;
             if (CollectionUtils.isNotEmpty(query.getQueryArgs())) {
-                List<QueryArg> inParams = query.getQueryArgs().stream().filter(item -> !item.isOutParam()).collect(Collectors.toList());
+                List<QueryArg> inParams = query.getQueryArgs().stream().filter(item -> !item.isOutParam()).toList();
                 for (QueryArg inParam : inParams) {
                     call.registerOutParameter(inParam.getIndex(), inParam.getJdbcType());
                 }
@@ -138,10 +140,15 @@ public class OraSession extends DefaultRdbSession {
         }
 
         if (query.isUseExplain()) {
+            this.currentExplainStatementId = String.valueOf(HashUtils.fnvHash(query.getQueryId()));
+            this.deleteExplainPlan(this.currentExplainStatementId);
             try (PreparedStatement eps = (PreparedStatement) this.rdbHook().explainStatement(ps.getConnection(), query)) {
                 super.applyArgs(query, eps);
                 eps.execute();
             }
+            PreparedStatement preparedStatement = (PreparedStatement) ps;
+            preparedStatement.setString(1, this.currentExplainStatementId);
+            return preparedStatement.execute();
         } else if (query.isUseCompile()) {
             try (Statement eps = getCompileStatement(ps.getConnection())) {
                 eps.execute(query.getQueryBody());
@@ -152,6 +159,43 @@ public class OraSession extends DefaultRdbSession {
             return ((PreparedStatement) ps).execute();
         } else {
             return ps.execute(query.getQueryBody());
+        }
+    }
+
+    @Override
+    protected void afterQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
+        try {
+            super.afterQueryRequest(beginTime, query, builder);
+        } finally {
+            this.cleanupExplainPlan();
+        }
+    }
+
+    @Override
+    protected void throwQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder, Exception e) {
+        try {
+            this.cleanupExplainPlan();
+        } catch (SQLException cleanupError) {
+            log.error("cleanup Oracle explain plan failed", cleanupError);
+        }
+        super.throwQueryRequest(beginTime, query, builder, e);
+    }
+
+    private void cleanupExplainPlan() throws SQLException {
+        if (this.currentExplainStatementId == null) {
+            return;
+        }
+        try {
+            this.deleteExplainPlan(this.currentExplainStatementId);
+        } finally {
+            this.currentExplainStatementId = null;
+        }
+    }
+
+    private void deleteExplainPlan(String statementId) throws SQLException {
+        try (PreparedStatement statement = currentResource().prepareStatement(deleteExplainSql)) {
+            statement.setString(1, statementId);
+            statement.executeUpdate();
         }
     }
 

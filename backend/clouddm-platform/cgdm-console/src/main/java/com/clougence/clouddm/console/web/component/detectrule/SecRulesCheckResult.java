@@ -29,15 +29,21 @@ import lombok.Setter;
 @Setter
 public class SecRulesCheckResult {
 
-    public static final SecRulesCheckResult EMPTY      = new SecRulesCheckResult();
+    public static final SecRulesCheckResult EMPTY                       = new SecRulesCheckResult();
+    private static final int                MAX_LOGGERS                 = 500;
+    private static final int                MAX_CODE_LOCATIONS_PER_RULE = 20;
 
     private CodeLocation                    location;
     private String                          specName;
-    private Map<String, RuleLevel>          checked    = new LinkedHashMap<>();
-    private Map<String, String>             messageMap = new LinkedHashMap<>();
-    private Map<String, List<String>>       loggerMap  = new LinkedHashMap<>();
-    private Map<String, Object>             result     = new LinkedHashMap<>();
-    private Map<String, Set<Integer>>       scriptMap  = new LinkedHashMap<>();
+    private Map<String, RuleLevel>          checked                     = new LinkedHashMap<>();
+    private Map<String, Long>               hitCountMap                 = new LinkedHashMap<>();
+    private Map<String, String>             messageMap                  = new LinkedHashMap<>();
+    private Map<String, List<String>>       loggerMap                   = new LinkedHashMap<>();
+    private Map<String, Object>             result                      = new LinkedHashMap<>();
+    private Map<String, Set<Integer>>       scriptMap                   = new LinkedHashMap<>();
+    private long                            totalHitCount;
+    private int                             loggerCount;
+    private boolean                         loggerTruncated;
 
     public boolean isAllSuccess() { return this.checked == null || this.checked.isEmpty(); }
 
@@ -73,6 +79,7 @@ public class SecRulesCheckResult {
             info.setRuleName(name);
             info.setMessage(this.messageMap.get(name));
             info.setLevel(level);
+            info.setHitCount(this.hitCountMap.getOrDefault(name, 0L));
             info.setResult(this.result.get(name));
 
             result.add(info);
@@ -93,22 +100,65 @@ public class SecRulesCheckResult {
 
     public void addResult(String name, RuleLevel level, Object result, String message, SplitScript script) {
         this.checked.put(name, level);
+        this.hitCountMap.merge(name, 1L, Long::sum);
+        this.totalHitCount++;
         this.messageMap.put(name, message);
         this.result.put(name, result);
         if (script != null) {
-            this.scriptMap.computeIfAbsent(name, k -> new HashSet<>()).add(script.getBodyStartCodeLine());
+            this.addCodeLocation(name, script.getBodyStartCodeLine());
         }
     }
 
     public void addResult(String name, RuleLevel level, Object result, String message) {
         this.checked.put(name, level);
+        this.hitCountMap.merge(name, 1L, Long::sum);
+        this.totalHitCount++;
         this.messageMap.put(name, message);
         this.result.put(name, result);
     }
 
     public void addLogger(String name, List<String> logger) {
-        if (CollectionUtils.isNotEmpty(logger)) {
-            this.loggerMap.computeIfAbsent(name, s -> new ArrayList<>()).addAll(logger);
+        if (CollectionUtils.isEmpty(logger)) {
+            return;
         }
+        int remaining = MAX_LOGGERS - this.loggerCount;
+        if (remaining <= 0) {
+            this.loggerTruncated = true;
+            return;
+        }
+        int collectCount = Math.min(remaining, logger.size());
+        this.loggerMap.computeIfAbsent(name, ignored -> new ArrayList<>()).addAll(logger.subList(0, collectCount));
+        this.loggerCount += collectCount;
+        if (collectCount < logger.size()) {
+            this.loggerTruncated = true;
+        }
+    }
+
+    public void merge(SecRulesCheckResult source) {
+        if (source.specName != null) {
+            this.specName = source.specName;
+        }
+        this.checked.putAll(source.checked);
+        source.hitCountMap.forEach((name, count) -> this.hitCountMap.merge(name, count, Long::sum));
+        this.totalHitCount += source.totalHitCount;
+        this.messageMap.putAll(source.messageMap);
+        this.result.putAll(source.result);
+
+        source.loggerMap.forEach(this::addLogger);
+        source.scriptMap.forEach((name, lines) -> {
+            lines.forEach(line -> this.addCodeLocation(name, line));
+        });
+        this.loggerTruncated |= source.loggerTruncated;
+    }
+
+    private void addCodeLocation(String name, int line) {
+        Set<Integer> lines = this.scriptMap.computeIfAbsent(name, ignored -> new HashSet<>());
+        if (lines.contains(line)) {
+            return;
+        }
+        if (lines.size() >= MAX_CODE_LOCATIONS_PER_RULE) {
+            return;
+        }
+        lines.add(line);
     }
 }

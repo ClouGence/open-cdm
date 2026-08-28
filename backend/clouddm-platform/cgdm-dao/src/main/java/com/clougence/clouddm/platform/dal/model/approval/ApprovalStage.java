@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.platform.dal.model.approval;
 
-
 /**
  * @author Ekko
  * @date 2024/6/28 14:45
@@ -23,19 +22,19 @@ package com.clougence.clouddm.platform.dal.model.approval;
 public enum ApprovalStage {
 
     /** EXPLAIN before dingding */
-    EXPLAIN("TICKET_STAGE_EXPLAIN", ApprovalBiz.DM_QUERY),
+    EXPLAIN("TICKET_STAGE_EXPLAIN", ApprovalBiz.DM_QUERY, ApprovalBiz.DM_CHANGE),
 
     /** Wait to approval */
     APPROVAL("TICKET_STAGE_APPROVAL", ApprovalBiz.DM_QUERY, ApprovalBiz.DATA_SOURCE_AUTH, ApprovalBiz.DM_CHANGE),
 
     /** wait to confirm */
-    CONFIRM("TICKET_STAGE_CONFIRM", ApprovalBiz.DM_QUERY),
+    CONFIRM("TICKET_STAGE_CONFIRM", ApprovalBiz.DM_QUERY, ApprovalBiz.DM_CHANGE),
 
     /** In execution */
-    EXECUTION("TICKET_STAGE_EXECUTION", ApprovalBiz.DM_QUERY, ApprovalBiz.DATA_SOURCE_AUTH);
+    EXECUTION("TICKET_STAGE_EXECUTION", ApprovalBiz.DM_QUERY, ApprovalBiz.DATA_SOURCE_AUTH, ApprovalBiz.DM_CHANGE);
 
     private final ApprovalBiz[] approvalBizs;
-    private final String           i18nKey;
+    private final String        i18nKey;
 
     ApprovalStage(String i18nKey, ApprovalBiz... bizs){
         this.i18nKey = i18nKey;

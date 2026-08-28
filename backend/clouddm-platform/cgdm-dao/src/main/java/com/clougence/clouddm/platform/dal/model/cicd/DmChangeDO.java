@@ -18,7 +18,6 @@ package com.clougence.clouddm.platform.dal.model.cicd;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,37 +27,41 @@ import lombok.Setter;
 @TableName(value = "dm_change")
 public class DmChangeDO {
     @TableId(type = IdType.AUTO)
-    private Long                  id;
+    private Long         id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date                  gmtCreate;
+    private Date         gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date                  gmtModified;
+    private Date         gmtModified;
     @TableField("owner_uid")
-    private String                ownerUid;
+    private String       ownerUid;
+    @TableField("trigger_uid")
+    private String       triggerUid;
     @TableField("ref_flow_id")
-    private long                  refFlowId;
+    private long         refFlowId;
+    @TableField("ref_batch_id")
+    private Long         refBatchId;
+    @TableField("ref_parent_change_id")
+    private Long         refParentChangeId;
     @TableField("change_name")
-    private String                changeName;
+    private String       changeName;
     @TableField("change_time")
-    private Date                  changeTime;
+    private Date         changeTime;
     @TableField("change_branch")
-    private String                changeBranch;
+    private String       changeBranch;
     @TableField("current_step")
-    private ChangeStep            currentStep;
+    private ChangeStep   currentStep;
     @TableField("current_status")
-    private ChangeStatus          currentStatus;
+    private ChangeStatus currentStatus;
     @TableField("schedule_time")
-    private Date                  scheduleTime;
+    private Date         scheduleTime;
     @TableField("version")
-    private int                   version;
+    private int          version;
     @TableField("remark")
-    private String                remark;
+    private String       remark;
     @TableField("try_times")
-    private int                   tryTimes;
+    private int          tryTimes;
     @TableField("last_commit_id")
-    private String                lastCommitId;
+    private String       lastCommitId;
     @TableField("lock_status")
-    private boolean               lockStatus;
-    @TableField(value = "flow_walked", typeHandler = JacksonTypeHandler.class)
-    private RsChangeFlowWalkedObj flowWalked;
+    private boolean      lockStatus;
 }

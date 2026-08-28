@@ -104,7 +104,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             if (selectFO.getOffset() < 0) {
 
                 String countSql = selectCount(dsDO, catalog, schema, table, targetType, selectFO.getCondition());
-                EditorResultSet result = doFetchCount(sessionId, uid, clientIp, levels, dsConfig, sessionCtx, countSql, table);
+                EditorResultSet result = doFetchCount(sessionId, uid, dsConfig, countSql, table);
                 if (!result.isSuccess()) {
                     throw new ErrorMessageException(result.getMessage());
                 }
@@ -172,7 +172,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             String countSql = selectCount(dsDO, catalog, schema, table, targetType, selectFO.getCondition());
 
             // fetch count
-            EditorResultSet result = doFetchCount(sessionId, uid, clientIp, levels, dsConfig, sessionCtx, countSql, table);
+            EditorResultSet result = doFetchCount(sessionId, uid, dsConfig, countSql, table);
 
             // result
             if (result.isSuccess()) {
@@ -299,12 +299,10 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     // Utils Method
     //
 
-    private EditorResultSet doFetchCount(String sessionId, String uid, String clientIp, DsLevels levels, DataSourceConfig dsConfig, SessionContextDTO sessionCtx, String countSql,
-                                         String table) {
-        Map<UmiTypes, Object> levelsParam = levels.levelsParam();
+    private EditorResultSet doFetchCount(String sessionId, String uid, DataSourceConfig dsConfig, String countSql, String table) {
 
         // create session/request
-        QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
+        QueryRequest request = DmDsUtils.createRequestCtx(dsConfig);
         request.setQueryBody(countSql);
         request.setQueryArgs(Collections.emptyList());
         request.setQueryTypes(Set.of(SplitQueryType.SELECT));
@@ -345,7 +343,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
         // create session/request
-        QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
+        QueryRequest request = DmDsUtils.createRequestCtx(dsConfig);
         request.setQueryBody(fetchSql);
         request.setQueryArgs(Collections.emptyList());
         request.setQueryTypes(Set.of(SplitQueryType.SELECT));
@@ -389,7 +387,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         DmDsDO dsDO = levels.dsDO();
 
         // create session/request
-        QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
+        QueryRequest request = DmDsUtils.createRequestCtx(dsConfig);
         request.setQueryBody(dmlChange.getSql());
         request.setQueryArgs(Collections.emptyList());
         request.setQueryTypes(Set.of(DmConvertUtils.convertToSecQueryType(dmlChange.getSqlType())));

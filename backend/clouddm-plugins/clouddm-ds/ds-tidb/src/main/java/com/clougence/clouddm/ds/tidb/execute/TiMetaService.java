@@ -16,11 +16,14 @@
 package com.clougence.clouddm.ds.tidb.execute;
 
 import java.sql.Connection;
+import java.util.Map;
 
 import com.clougence.clouddm.ds.tidb.definition.ui.editor.table.TiEditorProvider;
+import com.clougence.clouddm.ds.tidb.sql.parser.TiDbVersion;
 import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,12 @@ public class TiMetaService extends MyMetaService {
 
     public TiMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        String databaseVersion = this.fetchVersion("SELECT TIDB_VERSION()");
+        return Map.of(SqlParserParameters.VERSION, TiDbVersion.parse(databaseVersion).versionString());
     }
 
     @Override

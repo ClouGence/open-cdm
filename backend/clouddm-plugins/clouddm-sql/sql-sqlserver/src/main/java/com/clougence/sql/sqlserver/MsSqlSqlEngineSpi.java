@@ -15,6 +15,10 @@
  */
 package com.clougence.sql.sqlserver;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -26,30 +30,35 @@ import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.sqlserver.analysis.behavior.MsBehaviorAnalysisSpi;
 import com.clougence.sql.sqlserver.analysis.security.MsSqlSecDomainResolveSpi;
+import com.clougence.sql.sqlserver.editor.rewrite.MsSqlRewriteSpi;
 import com.clougence.sql.sqlserver.parser.MsSqlDslProvider;
 import com.clougence.sql.sqlserver.parser.MsSqlSplitAnalysisSpi;
 
 /** @author mode */
 public class MsSqlSqlEngineSpi implements SqlEngineSpi {
-    public static final String        NAME = "MS T-SQL";
+    public static final String                     NAME          = "MS T-SQL";
 
-    private final SplitAnalysisSpi    splitAnalysisSpi;
-    private final SecDomainResolveSpi secDomainResolveSpi;
-    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
-    private final LineageAnalysisSpi  lineageAnalysisSpi;
-    private final RewriteSpi          rewriteSpi;
+    private final SecDomainResolveSpi              secDomainResolveSpi;
+    private final LineageAnalysisSpi               lineageAnalysisSpi;
+    private final RewriteSpi                       rewriteSpi;
+    private final Map<String, SplitAnalysisSpi>    splitCache    = new ConcurrentHashMap<>();
+    private final Map<String, BehaviorAnalysisSpi> behaviorCache = new ConcurrentHashMap<>();
 
     public MsSqlSqlEngineSpi(MetaService metaService){
-        this.splitAnalysisSpi = new MsSqlSplitAnalysisSpi();
         this.secDomainResolveSpi = new MsSqlSecDomainResolveSpi();
-        this.behaviorAnalysisSpi = new MsBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = null;
-        this.rewriteSpi = null;
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
+        this.rewriteSpi = new MsSqlRewriteSpi();
     }
 
     @Override
     public String name() {
         return NAME;
+    }
+
+    private static String parserKey(SqlParserParameters parameters) {
+        return parameters.values().entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> {
+            return entry.getKey() + "=" + entry.getValue();
+        }).collect(Collectors.joining("&"));
     }
 
     @Override
@@ -59,7 +68,11 @@ public class MsSqlSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        return splitAnalysisSpi;
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return this.splitCache.computeIfAbsent(key, value -> {
+            return new MsSqlSplitAnalysisSpi(parserParameters);
+        });
     }
 
     @Override
@@ -69,7 +82,11 @@ public class MsSqlSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return behaviorAnalysisSpi;
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return this.behaviorCache.computeIfAbsent(key, value -> {
+            return new MsBehaviorAnalysisSpi(parserParameters);
+        });
     }
 
     @Override

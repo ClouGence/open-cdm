@@ -55,7 +55,6 @@ public class Db2JccDsFactory implements DsFactory<Connection> {
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
-        String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String tcpReceiveBufferSize = dsConfig.getProperty(DsConfigKeys.TCP_RCV_BUFFER.getConfigKey());
         String tcpSendBufferSize = dsConfig.getProperty(DsConfigKeys.TCP_SND_BUFFER.getConfigKey());
@@ -82,10 +81,6 @@ public class Db2JccDsFactory implements DsFactory<Connection> {
         if (StringUtils.isNotBlank(clientName)) {
             props.put("clientProgramName", clientName);
         }
-        if (StringUtils.isNotBlank(clientTimeZone)) {
-            props.put("sessionTimeZone", clientTimeZone);
-        }
-
         String jdbcUrl = buildJdbcUrl(dsConfig);
         try {
             Connection myConnect = new com.ibm.db2.jcc.DB2Driver().connect(jdbcUrl, props);

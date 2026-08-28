@@ -52,6 +52,7 @@ final class Sql2003StatementBehaviorVisitor extends Sql2003ParserBaseVisitor<Voi
 
     private final RdbBehaviorObjectFactory objects;
     private final StatementBehavior        behavior = new StatementBehavior();
+    private boolean                        explain;
 
     Sql2003StatementBehaviorVisitor(Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
@@ -60,6 +61,12 @@ final class Sql2003StatementBehaviorVisitor extends Sql2003ParserBaseVisitor<Voi
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    @Override
+    public Void visitExplainPlanStatement(ExplainPlanStatementContext ctx) {
+        explain = true;
+        return visitChildren(ctx);
     }
 
     @Override
@@ -148,36 +155,64 @@ final class Sql2003StatementBehaviorVisitor extends Sql2003ParserBaseVisitor<Voi
     @Override
     public Void visitInsertStatement(InsertStatementContext ctx) {
         BehaviorObject subject = ctx.insertionTarget() == null ? null : table(ctx.insertionTarget().tableName());
+        if (explain) {
+            addRelation(SplitQueryType.SELECT, BehaviorAction.READ, subject, sources(ctx.insertColumnsAndSource()));
+            return null;
+        }
         addRelation(SplitQueryType.INSERT, BehaviorAction.INSERT, subject, sources(ctx.insertColumnsAndSource()));
         return null;
     }
 
     @Override
     public Void visitUpdateStatement_Positioned(UpdateStatement_PositionedContext ctx) {
+        if (explain) {
+            addUnary(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx.targetTable().tableName()));
+            return null;
+        }
         addUnary(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table(ctx.targetTable().tableName()));
         return null;
     }
 
     @Override
     public Void visitUpdateStatement_Searched(UpdateStatement_SearchedContext ctx) {
-        addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table(ctx.targetTable().tableName()), sources(ctx.searchCondition()));
+        if (explain) {
+            addRelation(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx.targetTable().tableName()),
+                sources(ctx.searchCondition()));
+            return null;
+        }
+        addRelation(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table(ctx.targetTable().tableName()),
+            sources(ctx.searchCondition()));
         return null;
     }
 
     @Override
     public Void visitDeleteStatement_Positioned(DeleteStatement_PositionedContext ctx) {
+        if (explain) {
+            addUnary(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx.targetTable().tableName()));
+            return null;
+        }
         addUnary(SplitQueryType.DELETE, BehaviorAction.DELETE, table(ctx.targetTable().tableName()));
         return null;
     }
 
     @Override
     public Void visitDeleteStatement_Searched(DeleteStatement_SearchedContext ctx) {
-        addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, table(ctx.targetTable().tableName()), sources(ctx.searchCondition()));
+        if (explain) {
+            addRelation(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx.targetTable().tableName()),
+                sources(ctx.searchCondition()));
+            return null;
+        }
+        addRelation(SplitQueryType.DELETE, BehaviorAction.DELETE, table(ctx.targetTable().tableName()),
+            sources(ctx.searchCondition()));
         return null;
     }
 
     @Override
     public Void visitMergeStatement(MergeStatementContext ctx) {
+        if (explain) {
+            addRelation(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx.targetTable().tableName()), sources(ctx));
+            return null;
+        }
         addRelation(SplitQueryType.MERGE, BehaviorAction.MERGE, table(ctx.targetTable().tableName()), sources(ctx));
         return null;
     }

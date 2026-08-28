@@ -154,6 +154,19 @@ public class StringUtils {
     private static final int   PAD_LIMIT           = 8192;
 
     private static final int   STRING_BUILDER_SIZE = 256;
+    /* ------------------------------------------------------------ */
+    private static final char[] escapes = new char[32];
+    // Empty checks
+    //-----------------------------------------------------------------------
+
+    static {
+        Arrays.fill(escapes, (char) 0xFFFF);
+        escapes['\b'] = 'b';
+        escapes['\t'] = 't';
+        escapes['\n'] = 'n';
+        escapes['\f'] = 'f';
+        escapes['\r'] = 'r';
+    }
 
     /**
      * <p><code>StringUtils</code> instances should NOT be constructed in
@@ -166,8 +179,6 @@ public class StringUtils {
     public StringUtils(){
         super();
     }
-    // Empty checks
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Checks if a String is empty ("") or null.</p>
@@ -262,6 +273,8 @@ public class StringUtils {
     public static boolean isNotBlank(final CharSequence cs) {
         return !isBlank(cs);
     }
+    // Trim
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Checks if a String is whitespace, empty ("") or null.</p>
@@ -310,8 +323,6 @@ public class StringUtils {
     public static boolean isNotBlank(final String str) {
         return !StringUtils.isBlank(str);
     }
-    // Trim
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Removes control characters (char &lt;= 32) from both
@@ -505,6 +516,8 @@ public class StringUtils {
         }
         return st > 0 ? str.substring(st, len) : str;
     }
+    // Stripping
+    //-----------------------------------------------------------------------
 
     /**
      * <pre>
@@ -562,8 +575,6 @@ public class StringUtils {
         }
         return ((st > 0) || (len < val.length)) ? str.substring(st, len) : str;
     }
-    // Stripping
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Strips whitespace from the start and end of a String.</p>
@@ -681,6 +692,8 @@ public class StringUtils {
         str = StringUtils.stripStart(str, stripChars);
         return StringUtils.stripEnd(str, stripChars);
     }
+    // StripAll
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Strips any of a set of characters from the start of a String.</p>
@@ -769,7 +782,7 @@ public class StringUtils {
         }
         return str.substring(0, end);
     }
-    // StripAll
+    // Equals
     //-----------------------------------------------------------------------
 
     /**
@@ -831,7 +844,7 @@ public class StringUtils {
         }
         return newArr;
     }
-    // Equals
+    // IndexOf
     //-----------------------------------------------------------------------
 
     /**
@@ -890,8 +903,6 @@ public class StringUtils {
             }
         }
     }
-    // IndexOf
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Finds the first index within a String, handling <code>null</code>.
@@ -1097,6 +1108,8 @@ public class StringUtils {
         }
         return str.indexOf(searchStr, startPos);
     }
+    // LastIndexOf
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Case in-sensitive find of the first index within a String.</p>
@@ -1178,8 +1191,6 @@ public class StringUtils {
         }
         return StringUtils.INDEX_NOT_FOUND;
     }
-    // LastIndexOf
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Finds the last index within a String, handling <code>null</code>.
@@ -1341,6 +1352,8 @@ public class StringUtils {
         }
         return str.lastIndexOf(searchStr, startPos);
     }
+    // Contains
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Case in-sensitive find of the last index within a String.</p>
@@ -1419,8 +1432,6 @@ public class StringUtils {
         }
         return StringUtils.INDEX_NOT_FOUND;
     }
-    // Contains
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Checks if String contains a search character, handling <code>null</code>.
@@ -1447,6 +1458,8 @@ public class StringUtils {
         }
         return str.indexOf(searchChar) >= 0;
     }
+    // IndexOfAny chars
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Checks if String contains a search String, handling <code>null</code>.
@@ -1506,7 +1519,7 @@ public class StringUtils {
             return str.toUpperCase().contains(searchStr.toUpperCase());
         }
     }
-    // IndexOfAny chars
+    // ContainsAny
     //-----------------------------------------------------------------------
 
     /**
@@ -1585,7 +1598,7 @@ public class StringUtils {
         }
         return StringUtils.indexOfAny(str, searchChars.toCharArray());
     }
-    // ContainsAny
+    // IndexOfAnyBut chars
     //-----------------------------------------------------------------------
 
     /**
@@ -1674,7 +1687,7 @@ public class StringUtils {
         }
         return StringUtils.containsAny(str, searchChars.toCharArray());
     }
-    // IndexOfAnyBut chars
+    // ContainsOnly
     //-----------------------------------------------------------------------
 
     /**
@@ -1768,7 +1781,7 @@ public class StringUtils {
         }
         return StringUtils.INDEX_NOT_FOUND;
     }
-    // ContainsOnly
+    // ContainsNone
     //-----------------------------------------------------------------------
 
     /**
@@ -1834,7 +1847,7 @@ public class StringUtils {
         }
         return StringUtils.containsOnly(str, validChars.toCharArray());
     }
-    // ContainsNone
+    // IndexOfAny strings
     //-----------------------------------------------------------------------
 
     /**
@@ -1917,7 +1930,7 @@ public class StringUtils {
         }
         return StringUtils.containsNone(str, invalidChars.toCharArray());
     }
-    // IndexOfAny strings
+    // Substring
     //-----------------------------------------------------------------------
 
     /**
@@ -2014,7 +2027,7 @@ public class StringUtils {
         }
         return ret;
     }
-    // Substring
+    // Left/Right/Mid
     //-----------------------------------------------------------------------
 
     /**
@@ -2120,8 +2133,6 @@ public class StringUtils {
         }
         return str.substring(start, end);
     }
-    // Left/Right/Mid
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Gets the leftmost <code>len</code> characters of a String.</p>
@@ -2155,6 +2166,8 @@ public class StringUtils {
         }
         return str.substring(0, len);
     }
+    // SubStringAfter/SubStringBefore
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Gets the rightmost <code>len</code> characters of a String.</p>
@@ -2229,8 +2242,6 @@ public class StringUtils {
         }
         return str.substring(pos, pos + len);
     }
-    // SubStringAfter/SubStringBefore
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Gets the substring before the first occurrence of a separator.
@@ -2314,6 +2325,8 @@ public class StringUtils {
         }
         return str.substring(pos + separator.length());
     }
+    // Substring between
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Gets the substring before the last occurrence of a separator.
@@ -2395,8 +2408,6 @@ public class StringUtils {
         }
         return str.substring(pos + separator.length());
     }
-    // Substring between
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Gets the String that is nested in between two instances of the
@@ -2422,6 +2433,8 @@ public class StringUtils {
     public static String substringBetween(final String str, final String tag) {
         return StringUtils.substringBetween(str, tag, tag);
     }
+    // Splitting
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Gets the String that is nested in between two Strings.
@@ -2516,8 +2529,6 @@ public class StringUtils {
         }
         return list.toArray(new String[list.size()]);
     }
-    // Splitting
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Splits the provided text into an array, using whitespace as the separator. but keep separator.</p>
@@ -2787,6 +2798,7 @@ public class StringUtils {
     public static String[] splitByWholeSeparatorPreserveAllTokens(final String str, final String separator) {
         return StringUtils.splitByWholeSeparatorWorker(str, separator, -1, true);
     }
+    // -----------------------------------------------------------------------
 
     /**
      * <p>Splits the provided text into an array, separator string specified.
@@ -2890,7 +2902,6 @@ public class StringUtils {
         }
         return substrings.toArray(new String[0]);
     }
-    // -----------------------------------------------------------------------
 
     /**
      * <p>Splits the provided text into an array, using whitespace as the
@@ -3198,6 +3209,8 @@ public class StringUtils {
     public static String[] splitByCharacterType(final String str) {
         return StringUtils.splitByCharacterType(str, false);
     }
+    // Joining
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Splits a String by Character type as returned by
@@ -3272,8 +3285,6 @@ public class StringUtils {
         list.add(new String(c, tokenStart, c.length - tokenStart));
         return list.toArray(new String[0]);
     }
-    // Joining
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Joins the elements of the provided array into a single String
@@ -3499,6 +3510,8 @@ public class StringUtils {
         }
         return join(iterable.iterator(), separator);
     }
+    // Delete
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Joins the elements of the provided {@code Iterator} into
@@ -3544,6 +3557,8 @@ public class StringUtils {
 
         return buf.toString();
     }
+    // Remove
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Joins the elements of the provided {@code Iterator} into
@@ -3588,8 +3603,6 @@ public class StringUtils {
         }
         return buf.toString();
     }
-    // Delete
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Deletes all whitespaces from a String as defined by
@@ -3622,8 +3635,6 @@ public class StringUtils {
         }
         return new String(chs, 0, count);
     }
-    // Remove
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Removes a substring only if it is at the begining of a source string,
@@ -3763,6 +3774,8 @@ public class StringUtils {
         }
         return str;
     }
+    // Replacing
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Removes all occurrences of a substring from within the source string.</p>
@@ -3826,8 +3839,6 @@ public class StringUtils {
         }
         return new String(chars, 0, pos);
     }
-    // Replacing
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Replaces a String with another String inside a larger String, once.</p>
@@ -3979,6 +3990,8 @@ public class StringUtils {
     public static String replaceEach(final String text, final String[] searchList, final String[] replacementList) {
         return StringUtils.replaceEach(text, searchList, replacementList, false, 0);
     }
+    // Replace, character based
+    //-----------------------------------------------------------------------
 
     /**
      * <p>
@@ -4178,7 +4191,7 @@ public class StringUtils {
         }
         return StringUtils.replaceEach(result, searchList, replacementList, repeat, timeToLive - 1);
     }
-    // Replace, character based
+    // Overlay
     //-----------------------------------------------------------------------
 
     /**
@@ -4207,6 +4220,8 @@ public class StringUtils {
         }
         return str.replace(searchChar, replaceChar);
     }
+    // Chomping
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Replaces multiple characters in a String in one go.
@@ -4272,8 +4287,6 @@ public class StringUtils {
         }
         return str;
     }
-    // Overlay
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Overlays part of a String with another String.</p>
@@ -4331,7 +4344,7 @@ public class StringUtils {
         }
         return str.substring(0, start) + overlay + str.substring(end);
     }
-    // Chomping
+    // Chopping
     //-----------------------------------------------------------------------
 
     /**
@@ -4381,6 +4394,8 @@ public class StringUtils {
         }
         return str.substring(0, lastIdx);
     }
+    // Padding
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Removes <code>separator</code> from the end of
@@ -4417,8 +4432,6 @@ public class StringUtils {
         }
         return str;
     }
-    // Chopping
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Remove the last character from a String.</p>
@@ -4461,8 +4474,6 @@ public class StringUtils {
         }
         return ret;
     }
-    // Padding
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Repeat a String <code>repeat</code> times to form a
@@ -4776,6 +4787,8 @@ public class StringUtils {
         }
         return StringUtils.padding(pads, padChar).concat(str);
     }
+    // Centering
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Left pad a String with a specified String.</p>
@@ -4841,8 +4854,6 @@ public class StringUtils {
     public static int length(final String str) {
         return str == null ? 0 : str.length();
     }
-    // Centering
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Centers a String in a larger String of size <code>size</code>
@@ -4870,6 +4881,8 @@ public class StringUtils {
     public static String center(final String str, final int size) {
         return StringUtils.center(str, size, ' ');
     }
+    // Case conversion
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Centers a String in a larger String of size <code>size</code>.
@@ -4951,8 +4964,6 @@ public class StringUtils {
         str = StringUtils.rightPad(str, size, padStr);
         return str;
     }
-    // Case conversion
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Converts a String to upper case as per {@link String#toUpperCase()}.</p>
@@ -5077,6 +5088,8 @@ public class StringUtils {
         }
         return Character.toTitleCase(str.charAt(0)) + str.substring(1);
     }
+    // Count matches
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Uncapitalizes a String changing the first letter to title case as
@@ -5103,6 +5116,8 @@ public class StringUtils {
         }
         return Character.toLowerCase(str.charAt(0)) + str.substring(1);
     }
+    // Character Tests
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Swaps the case of a String changing upper and title case to
@@ -5150,8 +5165,6 @@ public class StringUtils {
         }
         return buffer.toString();
     }
-    // Count matches
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Counts how many times the substring appears in the larger String.</p>
@@ -5184,8 +5197,6 @@ public class StringUtils {
         }
         return count;
     }
-    // Character Tests
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Checks if the String contains only unicode letters.</p>
@@ -5458,6 +5469,8 @@ public class StringUtils {
         }
         return true;
     }
+    // Defaults
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Checks if the String contains only lowercase characters.</p>
@@ -5520,8 +5533,6 @@ public class StringUtils {
         }
         return true;
     }
-    // Defaults
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Returns either the passed in String,
@@ -5561,6 +5572,8 @@ public class StringUtils {
     public static String defaultString(final String str, final String defaultStr) {
         return str == null ? defaultStr : str;
     }
+    // Reversing
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Returns either the passed in String, or if the String is
@@ -5604,7 +5617,7 @@ public class StringUtils {
     public static String defaultIfEmpty(final String str, final String defaultStr) {
         return StringUtils.isEmpty(str) ? defaultStr : str;
     }
-    // Reversing
+    // Abbreviating
     //-----------------------------------------------------------------------
 
     /**
@@ -5657,8 +5670,6 @@ public class StringUtils {
         ArrayUtils.reverse(strs);
         return StringUtils.join(strs, separatorChar);
     }
-    // Abbreviating
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Abbreviates a String using ellipses. This will turn
@@ -5695,6 +5706,8 @@ public class StringUtils {
     public static String abbreviate(final String str, final int maxWidth) {
         return StringUtils.abbreviate(str, 0, maxWidth);
     }
+    // Difference
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Abbreviates a String using ellipses. This will turn
@@ -5800,8 +5813,6 @@ public class StringUtils {
         int endOffset = str.length() - targetSting / 2;
         return str.substring(0, startOffset) + middle + str.substring(endOffset);
     }
-    // Difference
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Compares two Strings, and returns the portion where they differ.
@@ -5883,6 +5894,8 @@ public class StringUtils {
         }
         return StringUtils.INDEX_NOT_FOUND;
     }
+    // Misc
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Compares all Strings in an array and returns the index at which the
@@ -5967,6 +5980,8 @@ public class StringUtils {
         }
         return firstDiff;
     }
+    // startsWith
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Compares all Strings in an array and returns the initial sequence of
@@ -6020,8 +6035,6 @@ public class StringUtils {
             return strs[0].substring(0, smallestIndexOfDiff);
         }
     }
-    // Misc
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Find the Levenshtein distance between two Strings.</p>
@@ -6073,7 +6086,7 @@ public class StringUtils {
            of the current cost count being calculated).  (Note that the arrays aren't really
            copied anymore, just switched...this is clearly much better than cloning an array
            or doing a System.arraycopy() each time  through the outer loop.)
-        
+
            Effectively, the difference between the two implementations is this one does not
            cause an out of memory condition when calculating the LD over two very large strings.
          */
@@ -6120,8 +6133,6 @@ public class StringUtils {
         // actually has the most recent cost counts
         return p[n];
     }
-    // startsWith
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Check if a String starts with a specified prefix.</p>
@@ -6172,6 +6183,32 @@ public class StringUtils {
     public static boolean startsWithIgnoreCase(final String str, final String prefix) {
         return StringUtils.startsWith(str, prefix, true);
     }
+
+    /**
+     * <p>Case insensitive check if a String starts with a specified prefix,
+     * ignoring leading whitespace.</p>
+     *
+     * <pre>
+     * StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(null, "abc")       = false
+     * StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("  abcdef", "abc") = true
+     * StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("\nABCDEF", "abc") = true
+     * StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("abcdef", "xyz")   = false
+     * </pre>
+     *
+     * @param str the String to check, may be null
+     * @param prefix the prefix to find, may be null
+     * @return <code>true</code> if the String starts with the prefix after ignoring
+     *  leading whitespace, case insensitive, or both <code>null</code>
+     */
+    public static boolean startsWithIgnoreCaseIgnoringLeadingWhitespace(final String str, final String prefix) {
+        String trimmed = StringUtils.trimBlankStart(str);
+        if (trimmed == null || prefix == null) {
+            return trimmed == null && prefix == null;
+        }
+        return trimmed.regionMatches(true, 0, prefix, 0, prefix.length());
+    }
+    // endsWith
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Check if a String starts with a specified prefix (optionally case insensitive).</p>
@@ -6228,8 +6265,6 @@ public class StringUtils {
         }
         return false;
     }
-    // endsWith
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Check if a String ends with a specified suffix.</p>
@@ -6256,6 +6291,8 @@ public class StringUtils {
     public static boolean endsWith(final String str, final String suffix) {
         return StringUtils.endsWith(str, suffix, false);
     }
+    //Compare
+    //-----------------------------------------------------------------------
 
     /**
      * <p>Case insensitive check if a String ends with a specified suffix.</p>
@@ -6304,8 +6341,6 @@ public class StringUtils {
         int strOffset = str.length() - suffix.length();
         return str.regionMatches(ignoreCase, strOffset, suffix, 0, suffix.length());
     }
-    //Compare
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Compare two Strings lexicographically, as per {@link String#compareTo(String)}, returning :</p>
@@ -6524,18 +6559,6 @@ public class StringUtils {
      */
     public static boolean equalsBlankIgnoreCase(final String str1, final String str2) {
         return StringUtils.equalsIgnoreCase(StringUtils.trimToEmpty(str1), StringUtils.trimToEmpty(str2));
-    }
-
-    /* ------------------------------------------------------------ */
-    private static final char[] escapes = new char[32];
-
-    static {
-        Arrays.fill(escapes, (char) 0xFFFF);
-        escapes['\b'] = 'b';
-        escapes['\t'] = 't';
-        escapes['\n'] = 'n';
-        escapes['\f'] = 'f';
-        escapes['\r'] = 'r';
     }
 
     /** Quote a string into an Appendable.

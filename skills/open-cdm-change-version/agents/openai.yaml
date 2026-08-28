@@ -1,0 +1,4 @@
+interface:
+  display_name: "Open CDM Prepare Release"
+  short_description: "Prepare version references and release notes"
+  default_prompt: "Use $open-cdm-change-version to prepare open-cdm version TARGET_VERSION from its release tag, including bilingual release notes."

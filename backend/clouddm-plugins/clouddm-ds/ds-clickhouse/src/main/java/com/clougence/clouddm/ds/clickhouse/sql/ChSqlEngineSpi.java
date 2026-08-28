@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.clickhouse.sql;
 
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.behavior.ChBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.clickhouse.sql.analysis.lineage.ChLineageAnalysisSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.ChSecDomainResolveSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.editor.rewrite.ChRewriteSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.ChSplitAnalysisSpi;
@@ -45,7 +44,7 @@ public class ChSqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new ChSplitAnalysisSpi();
         this.secDomainResolveSpi = new ChSecDomainResolveSpi(metaService);
         this.behaviorAnalysisSpi = new ChBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = new ChLineageAnalysisSpi(metaService);
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new ChRewriteSpi();
     }
 

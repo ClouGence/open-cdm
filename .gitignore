@@ -54,3 +54,5 @@ install_upgrade.log
 
 /package/desktop/.build
 /dist
+
+.claude

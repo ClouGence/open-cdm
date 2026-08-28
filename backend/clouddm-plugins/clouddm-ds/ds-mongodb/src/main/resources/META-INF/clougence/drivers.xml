@@ -1,5 +1,5 @@
 <drivers>
-    <driver driverFamily="MongoDB Driver" version="5.9.0">
+    <driver driverFamily="MongoDB Driver" version="5.9.0" default="true">
         <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.9.0</resource>
     </driver>

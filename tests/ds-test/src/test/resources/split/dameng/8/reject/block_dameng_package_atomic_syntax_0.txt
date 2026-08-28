@@ -1,5 +1,0 @@
--- COMMENT_NOT_SUPPORTED
-comment on package CODEX_DM8_PACKAGE.PK_BASIC is 'package comment';
-------------------------------------------------------------------------------------------
-[UNKNOWN] -- COMMENT_NOT_SUPPORTED
-comment on package CODEX_DM8_PACKAGE.PK_BASIC is 'package comment';

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
-import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 
@@ -19,7 +18,7 @@ public final class MySqlFamilyUpsertSecDomainTextTest {
     @TestFactory
     public Stream<DynamicTest> upsertClassification() {
         return DATASOURCES.stream().flatMap(datasource -> {
-            SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(SqlParserParameters.empty());
+            SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(SqlTestSupport.parserParameters(datasource));
             ContextInfo context = SqlTestSupport.contextInfo(datasource);
             return SecDomainTextTest.loadCases(RESOURCE)
                 .stream()

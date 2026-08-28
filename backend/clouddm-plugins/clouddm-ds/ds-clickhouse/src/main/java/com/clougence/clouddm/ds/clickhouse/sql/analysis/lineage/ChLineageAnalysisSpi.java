@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.clickhouse.sql.analysis.lineage;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -22,6 +24,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.ChSQLParserVisitor;
 import com.clougence.clouddm.ds.clickhouse.sql.analysis.security.builder.ChBuilderFactory;
+import com.clougence.clouddm.ds.clickhouse.sql.parser.ChSplitAnalysisSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.ChSqlDslProvider;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
@@ -47,6 +50,21 @@ public class ChLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
     @Override
     public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+        try (var scripts = new ChSplitAnalysisSpi().splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new StringReader(sql), lineageContext);
+    }
+
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext lineageContext) {
         ChBuilderFactory builder = new ChBuilderFactory(this.metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));
 

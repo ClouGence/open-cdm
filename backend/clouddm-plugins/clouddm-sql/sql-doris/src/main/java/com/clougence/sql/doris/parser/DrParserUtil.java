@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.doris.parser;
 
+import java.io.StringReader;
 import java.util.*;
 
 import org.antlr.v4.runtime.Parser;
@@ -41,10 +42,12 @@ public class DrParserUtil extends DorisParserBaseVisitor<Void> {
 
     public static RdbTable parseTable(String createTableSql) {
         DrParserUtil srParserUtil = new DrParserUtil();
-        DslHelper.doVisitor(DrDslProvider.INSTANCE, createTableSql, (lexer, parser) -> {
-            srParserUtil.parser = parser;
-            return srParserUtil;
-        });
+        try (StringReader reader = new StringReader(createTableSql)) {
+            DslHelper.doVisitor(DrDslProvider.INSTANCE, reader, (lexer, parser) -> {
+                srParserUtil.parser = parser;
+                return srParserUtil;
+            });
+        }
         return srParserUtil.rdbTable;
     }
 
@@ -96,7 +99,11 @@ public class DrParserUtil extends DorisParserBaseVisitor<Void> {
             rdbTable.setAttribute(DorisAttributeNames.DISTRIBUTED_BY_TYPE, "RANDOM");
         }
         if (ctx.BUCKETS() != null) {
-            rdbTable.setAttribute(DorisAttributeNames.BUCKET_NUMBER, ctx.INTEGER_VALUE().getText());
+            if (ctx.INTEGER_VALUE() != null) {
+                rdbTable.setAttribute(DorisAttributeNames.BUCKET_NUMBER, ctx.INTEGER_VALUE().getText());
+            } else {
+                rdbTable.setAttribute(DorisAttributeNames.BUCKET_NUMBER, ctx.autoBucket.getText());
+            }
         }
 
         if (ctx.KEY() != null) {

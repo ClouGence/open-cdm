@@ -15,6 +15,8 @@
  */
 package com.clougence.sql.postgres.analysis.lineage;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -31,17 +33,20 @@ import com.clougence.sql.postgres.analysis.security.PgSecDomainResolveSpi;
 import com.clougence.sql.postgres.analysis.security.PgSqlParserVisitor;
 import com.clougence.sql.postgres.analysis.security.builder.PgBuilderFactory;
 import com.clougence.sql.postgres.parser.PgDslProvider;
+import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 
 public class PgLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
-    protected PgSecDomainResolveSpi resolveSpi;
-    private final PgDslProvider     provider;
+    protected PgSecDomainResolveSpi  resolveSpi;
+    private final PgDslProvider      provider;
+    private final PgSplitAnalysisSpi splitter;
 
     public PgLineageAnalysisSpi(MetaService metaService, PostgresVersion version){
         super(metaService);
         this.resolveSpi = new PgSecDomainResolveSpi(metaService, version);
         this.provider = new PgDslProvider(version);
+        this.splitter = new PgSplitAnalysisSpi(version);
     }
 
     public PostgresVersion version() {
@@ -58,6 +63,21 @@ public class PgLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
     @Override
     public List<LineageColumn> analyze(String sql, LineageContext lineageContext) {
+        try (var scripts = this.splitter.splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new StringReader(sql), lineageContext);
+    }
+
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext lineageContext) {
         PgBuilderFactory builder = new PgBuilderFactory(this.metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> this.parserVisitor(builder, parser));
 

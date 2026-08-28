@@ -115,6 +115,11 @@ public class Db2SplitVisitor extends Db2SqlParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitExplain_statement(Db2SqlParser.Explain_statementContext ctx) {
+        return SplitQueryType.SELECT;
+    }
+
+    @Override
     public SplitQueryType visitSelect_statement(Db2SqlParser.Select_statementContext ctx) {
         return SplitQueryType.SELECT;
     }

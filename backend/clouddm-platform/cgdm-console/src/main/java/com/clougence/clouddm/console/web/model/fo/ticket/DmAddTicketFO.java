@@ -17,6 +17,8 @@ package com.clougence.clouddm.console.web.model.fo.ticket;
 
 import java.util.List;
 
+import com.clougence.clouddm.platform.dal.model.approval.SqlContentType;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -31,20 +33,14 @@ import lombok.Setter;
 public class DmAddTicketFO {
 
     @NotNull(message = "{ticket.dbLevels.notblank}")
-    private List<String> dbLevels;
-
-    @NotNull(message = "{ticket.sql.notnull}")
-    private String       rawSql;
-
-    private String       description;
-
-    private String       rollBackSql;
-
+    private List<String>           dbLevels;
+    private String                 rawSql;
+    private SqlContentType contentType;
+    private Long                   attachmentId;
+    private String                 description;
+    private String                 rollBackSql;
     @NotBlank(message = "{ticket.title.notblank}")
-    private String       ticketTitle;
-
-    private Long         expectedAffectedRows;
-
-    private boolean      force;
+    private String                 ticketTitle;
+    private boolean                force;
 
 }

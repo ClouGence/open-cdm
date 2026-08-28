@@ -18,12 +18,13 @@ package com.clougence.clouddm.ds.mysql;
 import com.clougence.adapter.mysql.MySQLTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.mysql.definition.MyDefService;
-import com.clougence.clouddm.ds.mysql.definition.secrules.MySecRulesSupportSpi;
 import com.clougence.clouddm.ds.mysql.dsconf.MyConfigSpi;
 import com.clougence.clouddm.ds.mysql.dsconf.MySerializationSpi;
 import com.clougence.clouddm.ds.mysql.execute.MySessionFactory;
+import com.clougence.clouddm.ds.mysql.execute.explain.MyExplainPlanSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
+import com.clougence.clouddm.dsfamily.mysql.definition.MyDefService;
+import com.clougence.clouddm.dsfamily.mysql.definition.secrules.MySecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.browser.MyDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.ddl.MyConvertTableDDLSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
@@ -87,6 +88,7 @@ public class MyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new MySupportSpi());
+        dsPlugin.addPluginSpi(new MyExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

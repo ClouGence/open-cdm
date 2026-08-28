@@ -7,10 +7,12 @@
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
         <result column="ticket_id" property="ticketId"/>
-        <result column="ticket_stage" property="ticketStage" javaType="com.clougence.clouddm.platform.dal.model.approval.ApprovalStage"/>
+        <result column="ticket_stage" property="ticketStage"
+                javaType="com.clougence.clouddm.platform.dal.model.approval.ApprovalStage"/>
         <result column="finish_time" property="finishTime"/>
         <result column="stage_context" property="stageContext"/>
-        <result column="process_status" property="processStatus" javaType="com.clougence.clouddm.platform.dal.model.approval.ApprovalProcessStatus"/>
+        <result column="process_status" property="processStatus"
+                javaType="com.clougence.clouddm.platform.dal.model.approval.ApprovalProcessStatus"/>
     </resultMap>
 
     <sql id="all_col">
@@ -30,8 +32,10 @@
         FROM
             dm_approval_process
         WHERE
-            ticket_id    = #{ticketId} and
-            ticket_stage = #{ticketStage,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStage} and
+            ticket_id    = #{ticketId}
+            AND
+            ticket_stage = #{ticketStage,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStage}
+            AND
             deleted      = false
     </select>
 
@@ -41,49 +45,46 @@
         FROM
             dm_approval_process
         WHERE
-            ticket_id = #{ticketId} and
+            ticket_id = #{ticketId}
+            AND
             deleted   = false
-        order by id;
+        ORDER BY id
     </select>
 
     <update id="updateContextById">
-        update
+        UPDATE
             dm_approval_process
-        set
-            stage_context=#{context}
+        SET
+            stage_context = #{context}
         WHERE
             id = #{id}
     </update>
     <update id="updateModified">
-        update
+        UPDATE
             dm_approval_process
-        set
-            gmt_modified = now()
-        where
+        SET
+            gmt_modified = NOW()
+        WHERE
             id = #{id}
     </update>
     <update id="updateNotEndProcessByTicketId">
-        update
+        UPDATE
             dm_approval_process
-        set
+        SET
             process_status = #{status}
-        where ticket_id = #{ticketId}
-        and process_status = 'INIT'
-    </update>
-    <update id="updateProcessStatusByTicketIdAndStage">
-        update
-            dm_approval_process
-        set
-            process_status = #{status}
-        where ticket_id = #{ticketId}
-          and ticket_stage = #{stage,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStage}
+        WHERE
+            ticket_id      = #{ticketId}
+            AND
+            process_status = 'INIT'
     </update>
     <update id="updateProcessStatus">
-        update
+        UPDATE
             dm_approval_process
-        set
-            process_status = #{status},stage_context = #{context}
-            <if test="status == 'REJECT' || status == 'FINISH' || status == 'CLOSED' || status == 'FAIL'">,finish_time = now()</if>
-        where id = #{id}
+        SET
+            process_status = #{status},
+            stage_context  = #{context},
+            finish_time    = #{finishTime}
+        WHERE
+            id = #{id}
     </update>
 </mapper>

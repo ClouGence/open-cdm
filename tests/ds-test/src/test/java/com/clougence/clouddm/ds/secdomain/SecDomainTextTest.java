@@ -4,6 +4,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Stream;
@@ -11,18 +12,24 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.function.Executable;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.ds.TextCaseSupport;
 import com.clougence.clouddm.ds.TextCaseSupport.CaseBlock;
 import com.clougence.clouddm.ds.TextTestCase;
+import com.clougence.clouddm.ds.goldendb.dialect.mysql.GoldenDBMySQLDialect;
+import com.clougence.clouddm.ds.goldendb.dsconf.GoldenDBCompatibilityMode;
+import com.clougence.clouddm.ds.goldendb.dsconf.mysql.GoldenDBMySQLConfig;
+import com.clougence.clouddm.ds.goldendb.dsconf.oracle.GoldenDBOracleConfig;
+import com.clougence.clouddm.ds.goldendb.execute.oracle.GoldenDBOracleMetaService;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,6 +42,34 @@ public final class SecDomainTextTest {
     @TestFactory
     public Stream<DynamicTest> secDomainScripts() {
         return dynamicTests();
+    }
+
+    @Test
+    public void goldenDbDriverAndKeywordContractsAreIndependent() {
+        GoldenDBMySQLConfig config = new GoldenDBMySQLConfig();
+        config.setClientTimeZone("Asia/Shanghai");
+
+        Properties disabled = config.asDriverProperties();
+        Assertions.assertEquals("DISABLED", disabled.getProperty("sslMode"));
+        Assertions.assertEquals("Asia/Shanghai", disabled.getProperty("serverTimezone"));
+        Assertions.assertEquals("com.goldendb.jdbc.log.NullLogger", disabled.getProperty("logger"));
+        Assertions.assertEquals("mysql", disabled.getProperty(GoldenDBCompatibilityMode.EXPECTED_MODE_PROPERTY));
+
+        GoldenDBOracleConfig oracleConfig = new GoldenDBOracleConfig();
+        Assertions.assertEquals("oracle", oracleConfig.asDriverProperties().getProperty(GoldenDBCompatibilityMode.EXPECTED_MODE_PROPERTY));
+        Assertions.assertEquals("12", new GoldenDBOracleMetaService(null).getSqlParserParameters().get(SqlParserParameters.VERSION));
+
+        config.setSslMode(SslMode.TRUST);
+        Assertions.assertEquals("DISABLED", config.asDriverProperties().getProperty("sslMode"));
+
+        oracleConfig.setSslMode(SslMode.TRUST);
+        Properties oracleProperties = oracleConfig.asDriverProperties();
+        Assertions.assertEquals("false", oracleProperties.getProperty("useSSL"));
+        Assertions.assertEquals("false", oracleProperties.getProperty("requireSSL"));
+
+        Set<String> keywords = GoldenDBMySQLDialect.INSTANCE.keywords();
+        Assertions.assertTrue(keywords.containsAll(Set.of("DISTRIBUTED", "SUBDISTRIBUTED", "DUPLICATE", "GLOBAL", "REMAIN", "HASH", "LIST")));
+        Assertions.assertEquals("`distributed`", GoldenDBMySQLDialect.INSTANCE.fmtName(false, "distributed"));
     }
 
     public static Stream<DynamicTest> dynamicTests() {
@@ -92,8 +127,9 @@ public final class SecDomainTextTest {
         }
 
         List<RuleDomain> domains;
-        try {
-            domains = flatten(resolveSpi.resolveDomain(dataSourceType, codeInfo(testCase.sql), contextInfo(testCase, contextInfo)));
+        try (StringReader reader = new StringReader(testCase.sql);
+                Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, 1, 0, contextInfo(testCase, contextInfo))) {
+            domains = flatten(stream.toList());
         } catch (Exception e) {
             if (expected.has("exception")) {
                 assertExpectedException(testCase, expected.get("exception"), e, failures);
@@ -138,7 +174,7 @@ public final class SecDomainTextTest {
 
     private static List<Fixture> fixtures() {
         return List
-            .of(fixture("adb", "secdomain/mysql"), fixture("clickhouse", "secdomain/clickhouse"), fixture("dameng", "secdomain/dameng"), fixture("db2", "secdomain/db2"), fixture("doris", "secdomain/doris"), fixture("gauss", "secdomain/postgres"), fixture("gauss_og", "secdomain/postgres"), fixture("greenplum", "secdomain/postgres"), fixture("hologres", "secdomain/postgres"), fixture("mariadb", "secdomain/mysql"), fixture("maxcompute", "secdomain/maxcompute"), fixture("mongodb", "secdomain/mongodb"), fixture("mysql", "secdomain/mysql"), fixture("ob4my", "secdomain/mysql"), fixture("ob4ora", "secdomain/oracle"), fixture("oracle", "secdomain/oracle"), fixture("por4my", "secdomain/mysql"), fixture("por4pg", "secdomain/postgres"), fixture("por4x", "secdomain/mysql/por4x_generated.txt"), fixture("postgres", "secdomain/postgres"), fixture("redis", "secdomain/redis"), fixture("selectdb", "secdomain/doris"), fixture("sql2003", "secdomain/sql2003"), fixture("sql92", "secdomain/sql92"), fixture("sql99", "secdomain/sql99"), fixture("sqlserver", "secdomain/sqlserver"), fixture("starrocks", "secdomain/starrocks"), fixture("tidb", "secdomain/mysql"));
+            .of(fixture("adb", "secdomain/mysql"), fixture("clickhouse", "secdomain/clickhouse"), fixture("dameng", "secdomain/dameng"), fixture("db2", "secdomain/db2"), fixture("doris", "secdomain/doris"), fixture("gauss", "secdomain/postgres"), fixture("gauss_og", "secdomain/postgres"), fixture("goldendb", "secdomain/mysql"), fixture("greenplum", "secdomain/postgres"), fixture("hologres", "secdomain/postgres"), fixture("mariadb", "secdomain/mysql"), fixture("maxcompute", "secdomain/maxcompute"), fixture("mongodb", "secdomain/mongodb"), fixture("mysql", "secdomain/mysql"), fixture("ob4my", "secdomain/mysql"), fixture("ob4ora", "secdomain/oracle"), fixture("oracle", "secdomain/oracle"), fixture("por4my", "secdomain/mysql"), fixture("por4pg", "secdomain/postgres"), fixture("por4x", "secdomain/mysql/por4x_generated.txt"), fixture("postgres", "secdomain/postgres"), fixture("redis", "secdomain/redis"), fixture("selectdb", "secdomain/doris"), fixture("sql2003", "secdomain/sql2003"), fixture("sql92", "secdomain/sql92"), fixture("sql99", "secdomain/sql99"), fixture("sqlserver", "secdomain/sqlserver"), fixture("starrocks", "secdomain/starrocks"), fixture("tidb", "secdomain/mysql"));
     }
 
     private static List<String> resourceFiles(Fixture fixture) {
@@ -160,11 +196,7 @@ public final class SecDomainTextTest {
     }
 
     private static SecDomainResolveSpi secDomainResolveSpi(String datasource) {
-        String version = switch (datasource) {
-            case "mysql", "mariadb", "por4my" -> "8.0.46";
-            default -> null;
-        };
-        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(version == null ? SqlParserParameters.empty() : SqlParserParameters.ofVersion(version));
+        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(SqlTestSupport.parserParameters(datasource));
         if (spi == null) {
             throw new IllegalStateException("No SecDomainResolveSpi for datasource: " + datasource);
         }
@@ -426,17 +458,13 @@ public final class SecDomainTextTest {
         }
     }
 
-    private static CodeInfo codeInfo(String sql) {
-        return CodeInfo.builder().query(sql).baseLine(1).baseColumn(0).build();
-    }
-
     private static ContextInfo contextInfo(TestCase testCase, ContextInfo defaultContextInfo) {
         if (testCase.contextJson == null || testCase.contextJson.isBlank()) {
             return defaultContextInfo;
         }
         try {
             JsonNode context = OBJECT_MAPPER.readTree(testCase.contextJson);
-            ContextInfo.ContextInfoBuilder builder = ContextInfo.builder().deepParser(false);
+            ContextInfo.ContextInfoBuilder builder = ContextInfo.builder();
             if (context.has("mcSchemaStyle")) {
                 McConfig dataSourceConfig = new McConfig();
                 dataSourceConfig.setSchemaStyle(context.get("mcSchemaStyle").asBoolean());

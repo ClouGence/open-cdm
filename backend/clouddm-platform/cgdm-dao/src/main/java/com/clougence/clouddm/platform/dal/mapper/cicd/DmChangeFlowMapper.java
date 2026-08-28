@@ -26,6 +26,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clougence.clouddm.platform.dal.model.cicd.ArgChangeFlowQueryObj;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowStatus;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowType;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 
 public interface DmChangeFlowMapper extends BaseMapper<DmChangeFlowDO> {
@@ -38,6 +39,14 @@ public interface DmChangeFlowMapper extends BaseMapper<DmChangeFlowDO> {
     DmChangeFlowDO queryByOwnerAndId(String ownerUid, long flowId);
 
     DmChangeFlowDO queryByOwnerAndIdForUpdate(String ownerUid, long flowId);
+
+    List<DmChangeFlowDO> queryChildren(String ownerUid, long parentFlowId);
+
+    List<DmChangeFlowDO> queryChildrenByParentIds(String ownerUid, Collection<Long> parentFlowIds);
+
+    List<DmChangeFlowDO> queryParentCandidates(String ownerUid);
+
+    int countChildren(String ownerUid, long parentFlowId);
 
     List<DmChangeFlowDO> queryEnabledByOwnerAndDsId(String ownerUid, long dsId);
 
@@ -55,7 +64,8 @@ public interface DmChangeFlowMapper extends BaseMapper<DmChangeFlowDO> {
 
     void updateStatusByOwnerAndId(String ownerUid, long flowId, ChangeFlowStatus newData);
 
-    void updateFlowConfigByOwnerAndId(String ownerUid, long flowId, DmChangeFlowDO flow);
+    int updateParentByOwnerAndId(String ownerUid, long flowId, ChangeFlowType flowType, Long parentFlowId,
+                                 boolean enableWebhook, boolean enableTrigger);
 
     void updateMessageConfigByOwnerAndId(String ownerUid, long flowId, DmChangeFlowDO flow);
 

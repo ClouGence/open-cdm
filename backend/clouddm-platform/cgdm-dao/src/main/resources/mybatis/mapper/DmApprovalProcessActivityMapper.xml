@@ -13,6 +13,7 @@
         <result column="ticket_id" property="ticketId"/>
         <result column="order_number" property="orderNumber"/>
         <result column="context" property="context"/>
+        <result column="task_status" property="taskStatus"/>
     </resultMap>
 
     <sql id="all_col">
@@ -24,14 +25,50 @@
         ticket_id,
         activity_title,
         order_number,
-        context
+        context,
+        task_status
     </sql>
 
     <update id="updateContext">
-        update dm_approval_process_activity
-        set context = #{context}
-        where process_id = #{processId}
-          and activity_id = #{activityId}
+        UPDATE dm_approval_process_activity
+        SET context = #{context}, gmt_modified = NOW()
+        WHERE process_id = #{processId}
+          AND activity_id = #{activityId}
+    </update>
+
+    <update id="claimPreInitTask">
+        UPDATE dm_approval_process_activity
+        SET task_status = 'RUNNING', context = #{context}, gmt_modified = NOW()
+        WHERE process_id = #{processId}
+          AND activity_id = #{activityId}
+          AND (task_status = 'INIT' OR (task_status = 'RUNNING' AND gmt_modified <![CDATA[ < ]]> #{expiredBefore}))
+    </update>
+
+    <update id="heartbeatPreInitTask">
+        UPDATE dm_approval_process_activity
+        SET gmt_modified = NOW()
+        WHERE process_id = #{processId}
+          AND activity_id = #{activityId}
+          AND task_status = 'RUNNING'
+          AND JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
+    </update>
+
+    <update id="updatePreInitContext">
+        UPDATE dm_approval_process_activity
+        SET context = #{context}, gmt_modified = NOW()
+        WHERE process_id = #{processId}
+          AND activity_id = #{activityId}
+          AND task_status = 'RUNNING'
+          AND JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
+    </update>
+
+    <update id="completePreInitTask">
+        UPDATE dm_approval_process_activity
+        SET task_status = #{taskStatus}, context = #{context}, gmt_modified = NOW()
+        WHERE process_id = #{processId}
+          AND activity_id = #{activityId}
+          AND task_status = 'RUNNING'
+          AND JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
     </update>
 
     <select id="queryByTicketId" resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">
@@ -40,6 +77,15 @@
         from dm_approval_process_activity
         where ticket_id = #{ticketId}
         order by order_number asc
+    </select>
+
+    <select id="queryByProcessIdAndActivityId"
+            resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">
+        select
+        <include refid="all_col"/>
+        from dm_approval_process_activity
+        where process_id = #{processId}
+        and activity_id = #{activityId}
     </select>
 
     <select id="queryByProcessIdAndActivityIdForUpdate"

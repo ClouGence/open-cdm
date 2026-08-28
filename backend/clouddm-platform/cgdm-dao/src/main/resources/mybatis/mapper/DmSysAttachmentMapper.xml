@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.system.DmSysAttachmentMapper">
+
+    <resultMap id="attachment" type="com.clougence.clouddm.platform.dal.model.system.DmSysAttachmentDO">
+        <id column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="approval_id" property="approvalId"/>
+        <result column="attachment_type" property="attachmentType"/>
+        <result column="attachment_status" property="attachmentStatus"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="file_hash" property="fileHash"/>
+    </resultMap>
+
+    <sql id="metadata_columns">
+        id, gmt_create, gmt_modified, owner_uid, approval_id, attachment_type,
+        attachment_status, file_name, file_size, file_hash
+    </sql>
+
+    <select id="selectByIdForUpdate" resultMap="attachment">
+        SELECT
+            <include refid="metadata_columns"/>
+        FROM
+            dm_sys_attachment
+        WHERE
+            id = #{id}
+        FOR UPDATE
+    </select>
+
+    <select id="selectConfirmedByApprovalId" resultMap="attachment">
+        SELECT
+            <include refid="metadata_columns"/>
+        FROM
+            dm_sys_attachment
+        WHERE
+            approval_id       = #{approvalId}
+            AND
+            attachment_type   = 'SQL_FILE'
+            AND
+            attachment_status = 'CONFIRMED'
+    </select>
+
+    <select id="listEditingByTypeAndFileName" resultMap="attachment">
+        SELECT
+            <include refid="metadata_columns"/>
+        FROM
+            dm_sys_attachment
+        WHERE
+            attachment_type   = #{attachmentType}
+            AND
+            attachment_status = 'EDITING'
+            AND
+            file_name         = #{fileName}
+    </select>
+
+    <select id="listExpiredEditing" resultMap="attachment">
+        SELECT
+            <include refid="metadata_columns"/>
+        FROM
+            dm_sys_attachment
+        WHERE
+            attachment_status = 'EDITING'
+            AND
+            <![CDATA[gmt_modified <= #{before}]]>
+        ORDER BY gmt_modified
+        LIMIT #{limit}
+    </select>
+
+    <delete id="deleteExpiredEditing">
+        DELETE FROM
+            dm_sys_attachment
+        WHERE
+            id                = #{id}
+            AND
+            attachment_status = 'EDITING'
+            AND
+            <![CDATA[gmt_modified <= #{before}]]>
+    </delete>
+
+    <update id="touchEditing">
+        UPDATE
+            dm_sys_attachment
+        SET
+            gmt_modified = NOW()
+        WHERE
+            id                = #{id}
+            AND
+            owner_uid         = #{ownerUid}
+            AND
+            attachment_status = 'EDITING'
+            AND
+            <![CDATA[gmt_modified > #{before}]]>
+    </update>
+
+    <update id="lock">
+        UPDATE
+            dm_sys_attachment
+        SET
+            approval_id       = #{approvalId},
+            attachment_status = 'CONFIRMED',
+            gmt_modified      = NOW()
+        WHERE
+            id                = #{id}
+            AND
+            owner_uid         = #{ownerUid}
+            AND
+            attachment_status = 'EDITING'
+            AND
+            <![CDATA[gmt_modified > #{before}]]>
+    </update>
+</mapper>

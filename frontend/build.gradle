@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import groovy.json.JsonOutput
-import groovy.xml.XmlSlurper
-
 plugins {
     id 'java'
     id 'maven-publish'
@@ -61,37 +58,6 @@ def outputProfileEnabled = providers.gradleProperty('profile')
 def frontendBuildEnabled = providers.gradleProperty('buildFrontend')
         .map { it.toBoolean() }
         .orElse(outputProfileEnabled)
-def builtinDriverManifest = file("${projectDir}/../package/pkg/builtin-drivers/built-in-drivers.xml")
-def builtinDriversJson = file("${projectDir}/src/constants/builtin-drivers.json")
-def renderBuiltinDriversJson = {
-    def drivers = new XmlSlurper().parse(builtinDriverManifest).driver.collect { driver ->
-        [driverFamily: driver.@driverFamily.text(), version: driver.@version.text()]
-    }
-    return JsonOutput.prettyPrint(JsonOutput.toJson(drivers)) + '\n'
-}
-
-tasks.register('generateBuiltinDriversJson') {
-    inputs.file(builtinDriverManifest)
-    outputs.file(builtinDriversJson)
-    doLast {
-        builtinDriversJson.parentFile.mkdirs()
-        builtinDriversJson.setText(renderBuiltinDriversJson(), 'UTF-8')
-    }
-}
-
-tasks.register('verifyBuiltinDriversJson') {
-    inputs.files(builtinDriverManifest, builtinDriversJson)
-    doLast {
-        if (!builtinDriversJson.exists() || builtinDriversJson.getText('UTF-8') != renderBuiltinDriversJson()) {
-            throw new GradleException('Built-in driver JSON is outdated. Run :cgdm-web:generateBuiltinDriversJson and commit the result.')
-        }
-    }
-}
-
-tasks.named('check') {
-    dependsOn 'verifyBuiltinDriversJson'
-}
-
 sourceSets {
     main {
         resources {
@@ -157,7 +123,7 @@ tasks.register('npmBuild', Exec) {
     inputs.dir("${projectDir}/src")
     inputs.file("${projectDir}/vue.config.js")
     outputs.dir("${projectDir}/dist")
-    dependsOn 'npmInstall', 'verifyBuiltinDriversJson'
+    dependsOn 'npmInstall'
 }
 
 tasks.named('processResources') {

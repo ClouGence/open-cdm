@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.service.system;
 import java.util.function.Predicate;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
@@ -42,7 +43,7 @@ public class InstallationReportState {
     @Resource
     private DmSysUserConfMapper userConfMapper;
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public String reportIfNecessary(String version, Predicate<String> reporter) {
         DmSysUserConfDO configDO = this.userConfMapper.queryByUidAndConfigNameForUpdate(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport);
         if (configDO == null) {

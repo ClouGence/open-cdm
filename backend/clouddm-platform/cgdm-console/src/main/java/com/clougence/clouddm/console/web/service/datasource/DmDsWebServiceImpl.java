@@ -16,11 +16,14 @@
 package com.clougence.clouddm.console.web.service.datasource;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
@@ -48,6 +51,7 @@ import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.ConnectDsResultVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.upload.UploadService4Certificate;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
@@ -78,21 +82,25 @@ import lombok.extern.slf4j.Slf4j;
 public class DmDsWebServiceImpl implements DmDsWebService {
 
     @Resource
-    private SystemDal               systemDal;
+    private SystemDal                  systemDal;
     @Resource
-    private DataSourceDal           dsDal;
+    private DataSourceDal              dsDal;
     @Resource
-    private RdpUserService          userService;
+    private RdpUserService             userService;
     @Resource
-    private DmAuthServiceForManage  authServiceForManage;
+    private DmAuthServiceForManage     authServiceForManage;
     @Resource
-    private DmDsService             dmDsService;
+    private DmDsService                dmDsService;
     @Resource
-    private DmDsConfigService       configService;
+    private DmDsConfigService          configService;
     @Resource
-    private DmDsConfigUiDataFactory uiDataFactory;
+    private DmDsConfigUiDataFactory    uiDataFactory;
     @Resource
-    private List<RdpNotifyService>  notifyServices;
+    private UploadService4Certificate  certificateUploadService;
+    @Resource
+    private PlatformTransactionManager transactionManager;
+    @Resource
+    private List<RdpNotifyService>     notifyServices;
 
     @Override
     public List<DmDsDO> fetchByCondition(ArgDsQueryParamObj dsQueryParam) {
@@ -294,10 +302,18 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         return RdpConvertUtils.convertToDsKvConfigVO(configDef, config);
     }
 
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public ResWebData<Long> addDs(String uid, DsConfigSubmitFO fo) {
-        Map<String, String> configMap = resolveConfigMap(fo);
+        Map<String, String> configMap = resolveConfigMap(uid, fo);
+        ResWebData<Long> result = this.inTransaction(() -> {
+            return this.persistAddDs(uid, fo, configMap);
+        });
+
+        this.deleteCertificates(uid, fo);
+        return result;
+    }
+
+    private ResWebData<Long> persistAddDs(String uid, DsConfigSubmitFO fo, Map<String, String> configMap) {
         DmDsDO entity = resolveSubmitEntity(fo, configMap);
         DataSourceConfig dsConfig = this.configService.fetchDsConfigFromNotExist(entity, configMap);
 
@@ -332,24 +348,33 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         return ResWebDataUtils.buildSuccess(dsId);
     }
 
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public ResWebData<Long> updateDs(String uid, DsConfigSubmitFO fo) {
         if (fo.getDsId() == null || fo.getDsId() <= 0) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_ID_REQUIRED_ERROR.name()));
         }
+        if (fo.getDsType() == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TYPE_REQUIRED_ERROR.name()));
+        }
+
+        Map<String, String> configMap = resolveConfigMap(uid, fo);
+        ResWebData<Long> result = this.inTransaction(() -> {
+            return this.persistUpdateDs(fo, configMap);
+        });
+
+        this.deleteCertificates(uid, fo);
+        return result;
+    }
+
+    private ResWebData<Long> persistUpdateDs(DsConfigSubmitFO fo, Map<String, String> configMap) {
         DmDsDO oldDs = this.dsDal.dsMapper().selectById(fo.getDsId());
         if (oldDs == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_WITH_ID_ERROR.name(), fo.getDsId()));
-        }
-        if (fo.getDsType() == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TYPE_REQUIRED_ERROR.name()));
         }
         if (oldDs.getDataSourceType() != fo.getDsType()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TYPE_MISMATCH_ERROR.name(), fo.getDsId(), oldDs.getDataSourceType(), fo.getDsType()));
         }
 
-        Map<String, String> configMap = resolveConfigMap(fo);
         Map<String, String> mergedConfigMap = mergeExistingConfig(oldDs.getId(), configMap);
         DmDsDO entity = resolveSubmitEntity(fo, mergedConfigMap);
         DataSourceConfig dsConfig = this.configService.fetchDsConfigFromNotExist(entity, mergedConfigMap);
@@ -378,7 +403,7 @@ public class DmDsWebServiceImpl implements DmDsWebService {
 
     @Override
     public ConnectDsResultVO testConnect(String uid, DsConfigSubmitFO fo) {
-        Map<String, String> configMap = resolveConfigMap(fo);
+        Map<String, String> configMap = resolveConfigMap(uid, fo);
         Map<String, String> runtimeConfigMap = fo.getDsId() == null || fo.getDsId() <= 0 ? configMap : mergeExistingConfig(fo.getDsId(), configMap);
         DataSourceType dsType = DataSourceType.valueOf(runtimeConfigMap.get(DataSourceConfig.Fields.dataSourceType));
         ConnectDsResultVO result = new ConnectDsResultVO();
@@ -454,7 +479,7 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         this.authServiceForManage.modifyUserAuth(this.userService.getPrimaryUid(uid), authFO);
     }
 
-    private Map<String, String> resolveConfigMap(DsConfigSubmitFO fo) {
+    private Map<String, String> resolveConfigMap(String uid, DsConfigSubmitFO fo) {
         if (fo == null || fo.getDsType() == null) {
             throw new IllegalArgumentException("data source type can not be empty.");
         }
@@ -473,7 +498,28 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         Map<String, DsConfigKvDef> configDefMap = this.configService.fetchDsConfigDef(fo.getDsType())
             .stream()
             .collect(Collectors.toMap(DsConfigKvDef::getConfigName, configDef -> configDef));
-        return this.uiDataFactory.toKvMap(fo.getDsType(), configDefMap, configMap);
+        return this.uiDataFactory.toKvMap(uid, fo.getDsType(), configDefMap, configMap);
+    }
+
+    private <T> T inTransaction(Supplier<T> action) {
+        TransactionTemplate transaction = new TransactionTemplate(this.transactionManager);
+        T result = transaction.execute(status -> action.get());
+        if (result == null) {
+            throw new IllegalStateException("transaction returned no result");
+        }
+        return result;
+    }
+
+    private void deleteCertificates(String uid, DsConfigSubmitFO fo) {
+        if (fo == null || fo.getConfigMap() == null) {
+            return;
+        }
+        Map<String, String> uiMap = fo.getConfigMap();
+        Set<String> certificateValues = new LinkedHashSet<>(Arrays.asList(//
+                uiMap.get(DataSourceConfig.Fields.sslCaData),           //
+                uiMap.get(DataSourceConfig.Fields.sslClientCertData),   //
+                uiMap.get(DataSourceConfig.Fields.sslClientKeyData)));
+        certificateValues.forEach(value -> this.certificateUploadService.deleteCertificateData(uid, value));
     }
 
     private Map<String, String> mergeExistingConfig(long dsId, Map<String, String> configMap) {

@@ -27,22 +27,15 @@ public class DmApprovalProcessActivityDO {
 
     @TableId(type = IdType.AUTO)
     private Long    id;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date    gmtCreate;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date    gmtModified;
-
     private String  activityTitle;
-
     private Long    processId;
-
     private Long    ticketId;
-
     private String  activityId;
-
     private String  context;
-
     private Integer orderNumber;
+    private String  taskStatus;
 }

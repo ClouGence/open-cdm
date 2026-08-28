@@ -45,7 +45,7 @@
             :aria-pressed="selectedAddDataSourceType === type.dsKey"
             @click="handleSelectAddDataSourceType(type.dsKey)"
           >
-            <span class="add-datasource-type-icon">
+            <span class="add-datasource-type-icon" :class="{ 'is-goldendb': ['GoldenDBMySQL', 'GoldenDBOracle'].includes(type.dsKey) }">
               <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
             </span>
             <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
@@ -80,7 +80,13 @@
             <Table size="small" border class="datasource-table" :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
               <template #instanceId="{ row }">
                 <div class="datasource-identity">
-                  <DataSourceIcon class="datasource-type-icon" size="24px" :type="row.dataSourceType" :instanceType="row.deployType"></DataSourceIcon>
+                  <DataSourceIcon
+                    class="datasource-type-icon"
+                    size="24px"
+                    :type="row.dataSourceType"
+                    :instanceType="row.deployType"
+                    leftMargin="0"
+                  ></DataSourceIcon>
                   <div class="datasource-info-text">
                     <div class="datasource-main-info">
                       <Tooltip :content="row.instanceDesc || $t('zan-wu-miao-shu')" placement="bottom" transfer>
@@ -642,7 +648,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['productClusterList', 'myAuth']),
+    ...mapState(['myAuth']),
     ...mapState(['globalDsSetting', 'dmGlobalSetting']),
     ...mapGetters(['isDesktop']),
     SECOND_CONFIRM_EVENT_LIST() {
@@ -1003,6 +1009,7 @@ export default {
               this.accountInfo.clientSecurityFile = this.accountInfo.tlsKeystoreFile;
               break;
             case 'PostgreSQL':
+            case 'CockroachDB':
               datasourceUpdateData.secretFilePassword = this.accountInfo?.secretFilePassword || '';
               this.accountInfo.secretFile = this.accountInfo.clientSecretFile;
               break;
@@ -1092,7 +1099,7 @@ export default {
       };
     },
     handleGoConsoleJob(row) {
-      this.$router.push({ path: `/ccsystem/state/task/${row.consoleJobId}` });
+      this.$router.push({ path: `/system/console_job/${row.consoleJobId}` });
     },
     handleChangeSearchType() {
       // Reset all search values when switching query type
@@ -1272,6 +1279,11 @@ export default {
   flex: 0 0 20px;
   align-items: center;
   justify-content: center;
+
+  &.is-goldendb {
+    width: 40px;
+    flex-basis: 40px;
+  }
 }
 
 .add-datasource-type-name {
@@ -1312,9 +1324,9 @@ export default {
 }
 
 .datasource-type-icon {
-  display: inline-flex;
-  width: 28px;
-  flex: 0 0 28px;
+  display: inline-flex !important;
+  width: 48px;
+  flex: 0 0 48px !important;
   align-items: center;
   justify-content: center;
 }

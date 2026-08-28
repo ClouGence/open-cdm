@@ -32,7 +32,6 @@ public interface DsConfigSpi extends Spi {
     String ADDRESS_FIELD             = "address";
     String PORT_FIELD                = "port";
     String TRANSACTION_CONTROL_FIELD = "transactionControl";
-    String CLIENT_TIME_ZONE_FIELD    = "clientTimeZone";
     String SSH_TUNNEL_FIELD          = "sshTunnel";
 
     boolean supportSSL();

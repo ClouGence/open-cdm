@@ -1,12 +1,6 @@
 <template>
   <div class="management-layout">
-    <AppPageTabs
-      v-if="availableAuditTypes.length"
-      class="management-layout__tabs"
-      :model-value="activeAuditType"
-      :tabs="availableAuditTypes"
-      @change="handleAuditTypeChange"
-    />
+    <AppPageTabs v-if="availableAuditTypes.length" :model-value="activeAuditType" :tabs="availableAuditTypes" @change="handleChangeAuditType" />
     <div class="management-layout__body">
       <router-view />
     </div>
@@ -19,13 +13,14 @@ import AppPageTabs from '@/components/layout/AppPageTabs';
 
 export default {
   name: 'ManagementLogsLayout',
-  components: {
-    AppPageTabs
-  },
+  components: { AppPageTabs },
   computed: {
     ...mapState(['myCatLog']),
     activeAuditType() {
-      return this.$route.meta.managementTab || '';
+      if (this.$route.meta.managementTab) {
+        return this.$route.meta.managementTab;
+      }
+      return this.availableAuditTypes.length ? this.availableAuditTypes[0].name : '';
     },
     availableAuditTypes() {
       const tabs = [];
@@ -40,7 +35,7 @@ export default {
       if (this.myCatLog.includes('CAT_DM_SQL_AUDIT')) {
         tabs.push({
           name: 'sql',
-          label: this.$t('nav-ri-zhi-shen-ji'),
+          label: this.$t('sql-shen-ji'),
           to: '/manager/logs/sql'
         });
       }
@@ -57,10 +52,10 @@ export default {
     }
   },
   methods: {
-    handleAuditTypeChange(name) {
-      const target = this.availableAuditTypes.find((tab) => tab.name === name);
-      if (target) {
-        this.$router.push(target.to);
+    handleChangeAuditType(name) {
+      const tab = this.availableAuditTypes.find((item) => item.name === name);
+      if (tab && tab.to !== this.$route.path) {
+        this.$router.push(tab.to);
       }
     },
     ensureValidAuditType(tabs) {
@@ -83,12 +78,6 @@ export default {
   flex-direction: column;
   height: 100%;
   min-height: 0;
-
-  &__tabs {
-    box-sizing: border-box;
-    flex-shrink: 0;
-    padding: 0 16px;
-  }
 
   &__body {
     flex: 1;

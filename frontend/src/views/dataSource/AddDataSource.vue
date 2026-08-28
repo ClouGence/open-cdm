@@ -23,7 +23,7 @@
             :aria-pressed="selectedAddDataSourceType === type.dsKey"
             @click="handleSelectAddDataSourceType(type.dsKey)"
           >
-            <span class="add-datasource-type-icon">
+            <span class="add-datasource-type-icon" :class="{ 'is-goldendb': ['GoldenDBMySQL', 'GoldenDBOracle'].includes(type.dsKey) }">
               <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
             </span>
             <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
@@ -90,7 +90,6 @@ import { cloneDeep as deepClone } from '@/utils/lodash';
 import { normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import DataSourceGroup from '../dataSourceGroup.json';
-import store from '../../store/index';
 
 const EMPTY_DATA_SOURCE_FORM = {
   fetchType: 'MANUALLY_FILL',
@@ -163,7 +162,6 @@ export default {
     return {
       addDatasourceLoading: false,
       DataSourceGroup,
-      store,
       currentStep: 0,
       addDataSourceForm: deepClone(EMPTY_DATA_SOURCE_FORM),
       driverReadyForAdd: true,
@@ -218,11 +216,6 @@ export default {
   },
   beforeUnmount() {
     this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL, this.handleShowAddDataSourceTypeModal);
-    store.state.rdsData = [];
-    store.state.addedRdsList = [];
-    store.state.firstAddDataSource = true;
-    store.state.selectedCluster = {};
-    store.state.clusterList = [];
   },
   watch: {
     '$route.query.dsType': {
@@ -661,6 +654,11 @@ export default {
   flex: 0 0 20px;
   align-items: center;
   justify-content: center;
+
+  &.is-goldendb {
+    width: 40px;
+    flex-basis: 40px;
+  }
 }
 
 .add-datasource-type-name {

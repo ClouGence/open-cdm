@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
@@ -62,7 +63,7 @@ public class EmbeddedWorkerBootstrap {
     @Resource
     private NamingDao       namingDao;
 
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void init() {
         System.setProperty("app.mode", "embedded");
 

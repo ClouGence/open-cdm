@@ -20,7 +20,7 @@ import java.io.File;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
-import com.clougence.clouddm.console.web.component.file.PluginResourceManager;
+import com.clougence.clouddm.console.web.component.file.resource.PluginResourceManager;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
 
 import lombok.extern.slf4j.Slf4j;

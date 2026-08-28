@@ -26,25 +26,63 @@ import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.RandomUtils;
+import com.clougence.utils.HashUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author bucketli 2022/3/28 19:25:30
  */
+@Slf4j
 public class Db2Session extends DefaultRdbSession {
 
-    public static Integer STMT_NO               = RandomUtils.nextInt(1000000, Integer.MAX_VALUE);
-    private final String  QUERY_EXPLAIN_SQL     = "SELECT concat(OBJECT_SCHEMA ,concat('.',OBJECT_NAME)) as name,COLUMN_COUNT,ROW_COUNT,WIDTH,PAGES\n"
-                                                  + "FROM SYSTOOLS.EXPLAIN_STATEMENT a\n"
-                                                  + "         left join SYSTOOLS.EXPLAIN_OBJECT b on a.EXPLAIN_REQUESTER = b.EXPLAIN_REQUESTER\n"
-                                                  + "and a.EXPLAIN_TIME = b.EXPLAIN_TIME and a.SOURCE_NAME = b.SOURCE_NAME and a.SOURCE_SCHEMA = b.SOURCE_SCHEMA\n"
-                                                  + "and a.SOURCE_VERSION = b.SOURCE_VERSION and a.EXPLAIN_LEVEL = b.EXPLAIN_LEVEL and a.STMTNO = b.STMTNO\n"
-                                                  + "and a.SECTNO = b.SECTNO WHERE a.QUERYNO = ?   AND a.EXPLAIN_LEVEL = 'P' WITH UR;";
+    private static final String CREATE_EXPLAIN_TABLES_SQL =
+            "CALL SYSPROC.SYSINSTALLOBJECTS('EXPLAIN', 'C', NULL, NULL)";
 
-    private final String  DELETE_EXPLAIN_RECODE = "DELETE FROM SYSTOOLS.EXPLAIN_INSTANCE I WHERE EXISTS (SELECT 1\n"
-                                                  + " FROM SYSTOOLS.EXPLAIN_STATEMENT S  WHERE S.EXPLAIN_TIME = I.EXPLAIN_TIME\n"
-                                                  + "  AND S.SOURCE_NAME = I.SOURCE_NAME AND S.SOURCE_SCHEMA = I.SOURCE_SCHEMA\n"
-                                                  + "  AND S.SOURCE_VERSION = I.SOURCE_VERSION AND QUERYNO = ?)";
+    private static final String QUERY_EXPLAIN_SCHEMA_SQL = """
+            SELECT TABSCHEMA
+            FROM SYSCAT.TABLES
+            WHERE TABSCHEMA IN (CURRENT USER, 'SYSTOOLS')
+                AND TABNAME IN ('EXPLAIN_INSTANCE', 'EXPLAIN_STATEMENT', 'EXPLAIN_OPERATOR', 'EXPLAIN_STREAM')
+            GROUP BY TABSCHEMA
+            HAVING COUNT(DISTINCT TABNAME) = 4
+            WITH UR
+            """;
+
+    private final String QUERY_EXPLAIN_SQL     = """
+            SELECT O.OPERATOR_ID, O.OPERATOR_TYPE, X.OBJECT_SCHEMA, X.OBJECT_NAME, X.STREAM_COUNT, X.SOURCE_TYPE
+            FROM %1$s.EXPLAIN_STATEMENT S
+            JOIN %1$s.EXPLAIN_OPERATOR O
+                ON S.EXPLAIN_REQUESTER = O.EXPLAIN_REQUESTER
+                AND S.EXPLAIN_TIME     = O.EXPLAIN_TIME
+                AND S.SOURCE_NAME      = O.SOURCE_NAME
+                AND S.SOURCE_SCHEMA    = O.SOURCE_SCHEMA
+                AND S.SOURCE_VERSION   = O.SOURCE_VERSION
+                AND S.EXPLAIN_LEVEL    = O.EXPLAIN_LEVEL
+                AND S.STMTNO           = O.STMTNO
+                AND S.SECTNO           = O.SECTNO
+            LEFT JOIN %1$s.EXPLAIN_STREAM X
+                ON O.EXPLAIN_REQUESTER = X.EXPLAIN_REQUESTER
+                AND O.EXPLAIN_TIME     = X.EXPLAIN_TIME
+                AND O.SOURCE_NAME      = X.SOURCE_NAME
+                AND O.SOURCE_SCHEMA    = X.SOURCE_SCHEMA
+                AND O.SOURCE_VERSION   = X.SOURCE_VERSION
+                AND O.EXPLAIN_LEVEL    = X.EXPLAIN_LEVEL
+                AND O.STMTNO           = X.STMTNO
+                AND O.SECTNO           = X.SECTNO
+                AND O.OPERATOR_ID      = X.TARGET_ID
+            WHERE S.QUERYNO      = ?
+                AND S.EXPLAIN_LEVEL = 'P'
+            ORDER BY O.OPERATOR_ID, X.STREAM_ID
+            WITH UR
+            """;
+
+    private final String DELETE_EXPLAIN_RECODE = "DELETE FROM %1$s.EXPLAIN_INSTANCE I WHERE EXISTS (SELECT 1\n" + " FROM %1$s.EXPLAIN_STATEMENT S  WHERE S.EXPLAIN_TIME = I.EXPLAIN_TIME\n"
+                                                 + "  AND S.SOURCE_NAME = I.SOURCE_NAME AND S.SOURCE_SCHEMA = I.SOURCE_SCHEMA\n"
+                                                 + "  AND S.SOURCE_VERSION = I.SOURCE_VERSION AND QUERYNO = ?)";
+
+    private Integer      currentExplainQueryNo;
+    private String       currentExplainSchema;
 
     public Db2Session(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject, Db2Hooks sessionHook){
         super(newSessionId, dsConfig, dsObject, sessionHook);
@@ -65,11 +103,16 @@ public class Db2Session extends DefaultRdbSession {
     @Override
     protected boolean executeStatement(Statement ps, QueryRequest query, ResultBuilder builder) throws SQLException {
         if (query.isUseExplain()) {
+            this.currentExplainQueryNo = HashUtils.fnvHash(query.getQueryId());
             try (PreparedStatement eps = (PreparedStatement) this.rdbHook().explainStatement(ps.getConnection(), query)) {
-                eps.execute();
+                try {
+                    eps.execute();
+                } catch (SQLException e) {
+                    throw this.convertExplainTableError(e);
+                }
             }
             PreparedStatement preparedStatement = (PreparedStatement) ps;
-            preparedStatement.setInt(1, STMT_NO);
+            preparedStatement.setInt(1, this.currentExplainQueryNo);
             return preparedStatement.execute();
         }
 
@@ -89,20 +132,70 @@ public class Db2Session extends DefaultRdbSession {
 
     @Override
     protected void afterQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
-        super.afterQueryRequest(beginTime, query, builder);
-        if (query.isUseExplain()) {
-            try (PreparedStatement dbStat = currentResource().prepareStatement(DELETE_EXPLAIN_RECODE)) {
-                dbStat.setInt(1, STMT_NO);
-                dbStat.execute();
+        try {
+            super.afterQueryRequest(beginTime, query, builder);
+        } finally {
+            this.cleanupExplainPlan();
+        }
+    }
+
+    @Override
+    protected void throwQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder, Exception e) {
+        try {
+            this.cleanupExplainPlan();
+        } catch (SQLException cleanupError) {
+            log.error("cleanup DB2 explain plan failed", cleanupError);
+        }
+        super.throwQueryRequest(beginTime, query, builder, e);
+    }
+
+    private void cleanupExplainPlan() throws SQLException {
+        if (this.currentExplainQueryNo == null) {
+            return;
+        }
+        String sql = DELETE_EXPLAIN_RECODE.formatted(this.currentExplainSchema);
+        try (PreparedStatement dbStat = currentResource().prepareStatement(sql)) {
+            dbStat.setInt(1, this.currentExplainQueryNo);
+            dbStat.execute();
+        } finally {
+            this.currentExplainQueryNo = null;
+            this.currentExplainSchema = null;
+        }
+    }
+
+    private SQLException convertExplainTableError(SQLException e) {
+        if (e.getErrorCode() != -219 || !"42704".equals(e.getSQLState())) {
+            return e;
+        }
+        String msg = "DB2 Explain tables are not installed. Run: " + CREATE_EXPLAIN_TABLES_SQL;
+        return new SQLException(msg, e.getSQLState(), e.getErrorCode(), e);
+    }
+
+    private String resolveExplainSchema(Connection conn) throws SQLException {
+        String defaultSchema = null;
+        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(QUERY_EXPLAIN_SCHEMA_SQL)) {
+            while (rs.next()) {
+                String schema = rs.getString(1);
+                if (!"SYSTOOLS".equalsIgnoreCase(schema)) {
+                    return '"' + schema.replace("\"", "\"\"") + '"';
+                }
+                defaultSchema = schema;
             }
         }
+        if (defaultSchema != null) {
+            return '"' + defaultSchema.replace("\"", "\"\"") + '"';
+        }
+        String msg = "DB2 Explain tables are not installed. Run: " + CREATE_EXPLAIN_TABLES_SQL;
+        throw new SQLException(msg, "42704", -219);
     }
 
     @Override
     protected Statement createStatement(Connection conn, QueryRequest query) throws SQLException {
         if (query.isUseExplain()) {
             query.setUsingValueProcess(false);
-            PreparedStatement stmt = conn.prepareStatement(QUERY_EXPLAIN_SQL, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+            this.currentExplainSchema = this.resolveExplainSchema(conn);
+            String sql = QUERY_EXPLAIN_SQL.formatted(this.currentExplainSchema);
+            PreparedStatement stmt = conn.prepareStatement(sql, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
             stmt.setFetchSize(200);
             stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
             return stmt;

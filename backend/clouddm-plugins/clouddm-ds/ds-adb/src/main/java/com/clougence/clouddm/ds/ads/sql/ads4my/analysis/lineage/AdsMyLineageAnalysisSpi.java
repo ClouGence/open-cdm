@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.ads.sql.ads4my.analysis.lineage;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 import org.antlr.v4.runtime.Parser;
@@ -22,6 +24,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.security.AdsMyParserVisitor;
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.AdsMyDslProvider;
+import com.clougence.clouddm.ds.ads.sql.ads4my.parser.AdsMySplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
@@ -53,8 +56,24 @@ public class AdsMyLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
     @Override
     public List<LineageColumn> analyze(String sql, LineageContext context) {
+        try (var scripts = new AdsMySplitAnalysisSpi().splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
+            var iterator = scripts.iterator();
+            if (!iterator.hasNext()) {
+                return List.of();
+            }
+            iterator.next();
+            if (iterator.hasNext()) {
+                throw new IllegalArgumentException("Lineage analysis supports at most one SQL statement");
+            }
+        }
+
+        return analyzeStatement(new StringReader(sql), context);
+    }
+
+    private List<LineageColumn> analyzeStatement(Reader sql, LineageContext context) {
         MyBuilderFactory builder = new MyBuilderFactory(metaService);
         DslHelper.doVisitor(dslProvider(), sql, (lexer, parser) -> parserVisitor(builder, parser));
+
         List<MutableColumnLineage> columns = analyzeColumns(context.getUserUID(), context.getDsId(), context.getLevelsParam(), builder.buildKeepOrigin());
         return toResultColumns(columns, null, context.getLevelsParam().get(UmiTypes.Schema).toString());
     }

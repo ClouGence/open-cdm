@@ -25,6 +25,7 @@ import com.clougence.clouddm.ds.mariadb.definition.ui.ddl.MarConvertTableDDLSpi;
 import com.clougence.clouddm.ds.mariadb.dsconf.MarConfigSpi;
 import com.clougence.clouddm.ds.mariadb.dsconf.MarSqlSerializationSpi;
 import com.clougence.clouddm.ds.mariadb.execute.MarSessionFactory;
+import com.clougence.clouddm.ds.mariadb.execute.explain.MarExplainPlanSpi;
 import com.clougence.clouddm.ds.mariadb.i18n.MarDsI18nKeys;
 import com.clougence.clouddm.ds.mariadb.resource.MarEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
@@ -86,6 +87,7 @@ public class MarDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new MySupportSpi());
+        dsPlugin.addPluginSpi(new MarExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

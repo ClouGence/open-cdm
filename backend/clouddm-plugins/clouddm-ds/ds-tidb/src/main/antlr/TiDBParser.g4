@@ -1874,6 +1874,7 @@ simpleDescribeStatement
 
 fullDescribeStatement
     : command=(EXPLAIN | DESCRIBE | DESC)
+      analyze=ANALYZE?
       (
         formatType=(EXTENDED | PARTITIONS | FORMAT )
         '='

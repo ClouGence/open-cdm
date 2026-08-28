@@ -18,26 +18,27 @@ package com.clougence.clouddm.ds.sqlserver;
 import com.clougence.adapter.sqlserver.SqlServerTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.sqlserver.definition.secrules.MsSecRulesSupportSpi;
-import com.clougence.clouddm.ds.sqlserver.definition.ui.MsSqlDefService;
-import com.clougence.clouddm.ds.sqlserver.definition.ui.browser.SqlServerDsBrowseSpi;
-import com.clougence.clouddm.ds.sqlserver.definition.ui.ddl.MsConvertTableDDLSpi;
-import com.clougence.clouddm.ds.sqlserver.definition.ui.editor.data.SqlServerDataEditorSpi;
-import com.clougence.clouddm.ds.sqlserver.definition.ui.editor.table.MsSqlEditorProvider;
-import com.clougence.clouddm.ds.sqlserver.definition.ui.editor.table.MsSqlTableEditorUiDataSpi;
-import com.clougence.clouddm.ds.sqlserver.definition.ui.exception.MsDetermineExceptionSpi;
-import com.clougence.clouddm.ds.sqlserver.definition.ui.template.MsSqlCmdTemplateSpi;
-import com.clougence.clouddm.ds.sqlserver.dialect.SqlServerDialect;
 import com.clougence.clouddm.ds.sqlserver.dsconf.MsSqlConfigSpi;
 import com.clougence.clouddm.ds.sqlserver.dsconf.MsSqlSerializationSpi;
 import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSessionFactory;
 import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSessionSpi;
-import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSupportSpi;
-import com.clougence.clouddm.ds.sqlserver.i18n.MsSqlConfigI18nKeys;
-import com.clougence.clouddm.ds.sqlserver.i18n.MsSqlI18nKeys;
-import com.clougence.clouddm.ds.sqlserver.language.MsSqlLanguageSpi;
-import com.clougence.clouddm.ds.sqlserver.resource.MsSqlEditorResourceSpi;
+import com.clougence.clouddm.ds.sqlserver.execute.explain.MsSqlExplainPlanSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.secrules.MsSecRulesSupportSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.ui.MsSqlDefService;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.ui.browser.SqlServerDsBrowseSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.ui.ddl.MsConvertTableDDLSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.ui.editor.data.SqlServerDataEditorSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.ui.editor.table.MsSqlEditorProvider;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.ui.editor.table.MsSqlTableEditorUiDataSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.ui.exception.MsDetermineExceptionSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.definition.ui.template.MsSqlCmdTemplateSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.dialect.SqlServerDialect;
+import com.clougence.clouddm.dsfamily.sqlserver.execute.MsSqlSupportSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.i18n.MsSqlConfigI18nKeys;
+import com.clougence.clouddm.dsfamily.sqlserver.i18n.MsSqlI18nKeys;
+import com.clougence.clouddm.dsfamily.sqlserver.language.MsSqlLanguageSpi;
+import com.clougence.clouddm.dsfamily.sqlserver.resource.MsSqlEditorResourceSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -50,7 +51,7 @@ import com.clougence.schema.SchemaPlugin;
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + MsSqlI18nKeys.PLUGIN_NAME_SQLSERVER,            //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",   //
-                            "com.clougence.clouddm.ds.sqlserver.execute.*"//
+                            "com.clougence.clouddm.dsfamily.sqlserver.execute.*"//
         }, dsProduct = DataSourceType.SQLServer)
 public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
@@ -86,6 +87,7 @@ public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
         dsPlugin.addPluginSpi(new MsSqlSessionSpi());
         dsPlugin.addPluginSpi(new MsSqlSupportSpi());
+        dsPlugin.addPluginSpi(new MsSqlExplainPlanSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {

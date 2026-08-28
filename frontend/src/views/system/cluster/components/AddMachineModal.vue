@@ -11,12 +11,9 @@
             <cc-label required style="margin-right: 10px">
               {{ $t('di-qu') }}
             </cc-label>
-            <cc-region-select v-if="isDefaultCluster" v-model="cluster.region" :env="cluster.cloudOrIdcName" />
-            <div v-else>
-              <a-button disabled style="width: 180px; text-align: left; color: #bbb !important" ghost>
-                {{ cluster.region }}
-              </a-button>
-            </div>
+            <a-button disabled style="width: 180px; text-align: left; color: #bbb !important" ghost>
+              {{ cluster.region }}
+            </a-button>
             <a-button
               v-if="cluster.cloudOrIdcName === 'ALIBABA_CLOUD_HOSTED'"
               ghost
@@ -133,7 +130,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import { CLUSTER_ENV } from '@/const';
 import { Modal } from 'ant-design-vue';
 
@@ -145,13 +141,6 @@ export default {
     clusterId: Number
   },
   computed: {
-    isSelfCluster() {
-      return this.cluster.cloudOrIdcName === CLUSTER_ENV.SELF_MAINTENANCE;
-    },
-    ...mapState({
-      deployEnvListMap: (state) => state.deployEnvListMap,
-      regionList: (state) => state.regionList
-    }),
     rowSelection() {
       return {
         selectedRowKeys: this.selectedWorkerKeys,
@@ -207,7 +196,6 @@ export default {
     return {
       query: '',
       CLUSTER_ENV,
-      isDefaultCluster: false,
       cluster: {
         cloudOrIdcName: CLUSTER_ENV.SELF_MAINTENANCE,
         region: ''
@@ -240,7 +228,6 @@ export default {
       if (res.success) {
         this.cluster = res.data;
         if (this.cluster.cloudOrIdcName === null) {
-          this.isDefaultCluster = true;
           this.cluster.cloudOrIdcName = CLUSTER_ENV.SELF_MAINTENANCE;
         }
         if (!this.cluster.region) {

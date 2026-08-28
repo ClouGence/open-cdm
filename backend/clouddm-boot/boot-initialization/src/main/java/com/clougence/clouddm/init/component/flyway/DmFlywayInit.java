@@ -147,7 +147,7 @@ public class DmFlywayInit {
             .sqlMigrationSeparator(SQL_MIGRATION_SEPARATOR)
             .sqlMigrationSuffixes(SQL_MIGRATION_SUFFIXES)
             .table(TABLE)
-            .outOfOrder(false)
+            .outOfOrder(true)
             .callbacks(callback == null ? new Callback[0] : new Callback[] { callback })
             .load();
     }

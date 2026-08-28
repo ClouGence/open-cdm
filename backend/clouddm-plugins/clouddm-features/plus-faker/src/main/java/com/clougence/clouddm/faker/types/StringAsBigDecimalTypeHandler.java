@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
-import net.hasor.cobble.StringUtils;
+import com.clougence.utils.StringUtils;
 
 /**
  * Reads and writes JDBC string values as {@link BigDecimal}.

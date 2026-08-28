@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
 
 /**
  * @author mode create time is 2021/1/30
@@ -34,8 +34,8 @@ public class DmTeamUtils {
         executionDal = spring.getBean(ExecutionDal.class);
     }
 
-    public static String nextExecJobBizId(SQLJobBizType bizType) {
-        String namePattern = "auto" + bizType + "-Job-%s";
+    public static String nextExecJobBizId() {
+        String namePattern = "auto-Job-%s";
         while (true) {
             String bizId = String.format(namePattern, fixedLenRandomStr(20));
             DmExecAutoJobDO jobDO = executionDal.autoJobMapper().queryByBizId(bizId);
@@ -45,14 +45,15 @@ public class DmTeamUtils {
         }
     }
 
-    public static String nextExecTaskBizId(SQLJobBizType bizType) {
-        String namePattern = "auto" + bizType + "-Task-%s";
+    public static String nextExecTaskBizId() {
+        String namePattern = "auto-Task-%s";
         while (true) {
             String bizId = String.format(namePattern, fixedLenRandomStr(20));
-            DmExecAutoJobDO jobDO = executionDal.autoJobMapper().queryByBizId(bizId);
-            if (jobDO == null) {
+            DmExecAutoTaskDO taskDO = executionDal.autoTaskMapper().queryByBizId(bizId);
+            if (taskDO == null) {
                 return bizId;
             }
         }
     }
+
 }

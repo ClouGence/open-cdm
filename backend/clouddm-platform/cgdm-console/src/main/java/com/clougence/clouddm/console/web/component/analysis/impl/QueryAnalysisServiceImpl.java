@@ -15,22 +15,24 @@
  */
 package com.clougence.clouddm.console.web.component.analysis.impl;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisOptions;
-import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
+import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
+import com.clougence.clouddm.console.web.component.analysis.*;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
-import com.clougence.clouddm.console.web.component.detectrule.SecCheckerRules;
-import com.clougence.clouddm.console.web.component.detectrule.SecRulesService;
+import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
+import com.clougence.clouddm.console.web.constants.RewriteTags;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
@@ -87,152 +89,222 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
     private DmResAuthService    resAuthService;
     @Resource
     private SecRulesService     rulesService;
+    @Resource
+    private SecRulesEngine      rulesEngine;
 
     @Override
-    public List<SplitScript> analysisSplit(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
-                                           int baseCodeLine, int baseCodeColumn) {
+    public Stream<SplitScript> analysisSplitStream(DataSourceConfig dsConfig, Reader reader, List<QueryArg> queryArgs, int baseCodeLine, int baseCodeColumn) {
         SqlEngineSpi engine = this.configService.fetchSqlEngineSpi(dsConfig);
         SqlParserParameters parameters = this.configService.fetchSqlParserParameters(dsConfig, Collections.emptyMap());
-
         SplitAnalysisSpi analysisSpi = engine.splitAnalysisSpi(parameters);
-        List<SplitScript> scripts = analysisSpi.splitScript(queryString, queryArgs, baseCodeLine, baseCodeColumn);
-        if (CollectionUtils.isEmpty(scripts)) {
-            throw new IllegalStateException(dsConfig.getDataSourceType() + " invoker SplitAnalysisSpi failed, result is empty.");
-        } else {
-            return scripts;
-        }
+        return analysisSpi.splitScriptStream(reader, queryArgs, baseCodeLine, baseCodeColumn);
     }
 
     @Override
-    public List<QueryRequest> analysisRequests(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs,//
-                                               int baseCodeLine, int baseCodeColumn, QueryAnalysisOptions options) {
+    public Stream<SecRulesCheckResult> analysisRulesStream(DataSourceConfig dsConfig, Reader reader, List<QueryArg> queryArgs, int baseCodeLine, int baseCodeColumn,
+                                                           AnalysisRuleOptions options) {
         if (options == null) {
-            throw new IllegalArgumentException("QueryAnalysisOptions is required for query request analysis.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_RULE_OPTIONS_REQUIRED_ERROR.name()));
         }
-        if (dsConfig == null) {
-            throw new IllegalArgumentException("DataSourceConfig is required for query request analysis.");
+        if (!PluginManager.hasFeature(DsFeatureIDs.FUNC_RULE_CHECK_SUPPORT)) {
+            return Stream.empty();
         }
 
+        Map<UmiTypes, Object> levels = options.getLevels() == null ? Collections.emptyMap() : options.getLevels();
+        SqlEngineSpi engine = this.configService.fetchSqlEngineSpi(dsConfig);
+        SqlParserParameters parameters = this.configService.fetchSqlParserParameters(dsConfig, Collections.emptyMap());
+        SplitAnalysisSpi analysisSpi = engine.splitAnalysisSpi(parameters);
+        SecRulesCheckContext context = SecRulesCheckContext.builder()
+            .dsId(options.getDsId())
+            .currentUID(options.getCurrentUid())
+            .currentCatalog((String) levels.get(UmiTypes.Catalog))
+            .currentSchema((String) levels.get(UmiTypes.Schema))
+            .requester(options.getRequester())
+            .sqlParameters(parameters)
+            .unsupportedLevel(options.getUnsupportedLevel())
+            .build();
+
+        SecRulesCheckSession session = this.rulesEngine.openQueryCheck(options.getCurrentUid(), dsConfig, context);
+        if (!session.isEnabled()) {
+            return Stream.empty();
+        }
+        return analysisSpi.splitScriptStream(reader, queryArgs, baseCodeLine, baseCodeColumn)
+            .map(s -> session.applyCheck(s.getScript(), s.getBodyStartCodeLine(), s.getBodyStartCodeColumn()))
+            .filter(r -> !r.isAllSuccess());
+    }
+
+    @Override
+    public Stream<QueryRequest> analysisRequestsStream(DataSourceConfig dsConfig, Reader reader, List<QueryArg> queryArgs, int baseCodeLine, int baseCodeColumn,
+                                                       AnalysisQueryOptions options) {
+        if (options == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_QUERY_OPTIONS_REQUIRED_ERROR.name()));
+        }
+        if (dsConfig == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_DS_CONFIG_REQUIRED_ERROR.name()));
+        }
+
+        //
         Map<UmiTypes, Object> levels = options.getLevels();
         Map<UmiTypes, Object> safeLevels = levels == null ? Collections.emptyMap() : levels;
         SqlEngineSpi sqlEngine = this.configService.fetchSqlEngineSpi(dsConfig);
         if (sqlEngine == null) {
-            throw new IllegalStateException(dsConfig.getDataSourceType() + " has no SqlEngineSpi.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SQL_ENGINE_NOT_FOUND_ERROR.name(), dsConfig.getDataSourceType()));
         }
 
         SqlParserParameters parameters = this.configService.fetchSqlParserParameters(dsConfig, safeLevels);
+        parameters = parameters.putAll(options.getParameters().values());
         SplitAnalysisSpi splitSpi = sqlEngine.splitAnalysisSpi(parameters);
         if (splitSpi == null) {
-            throw new IllegalStateException(sqlEngine + " does not support SplitAnalysisSpi.");
-        }
-        List<SplitScript> scripts = splitSpi.splitScript(queryString, queryArgs, baseCodeLine, baseCodeColumn);
-        if (CollectionUtils.isEmpty(scripts)) {
-            throw new IllegalStateException("invoker SplitAnalysisSpi failed, result is empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SPI_NOT_SUPPORTED_ERROR.name(), sqlEngine.name(), "SplitAnalysisSpi"));
         }
 
-        List<QueryRequest> requests = new ArrayList<>(scripts.size());
-        for (SplitScript script : scripts) {
-            QueryRequest request = new QueryRequest();
-            request.setQueryBody(script.getScript());
-            request.setQueryArgs(script.getScriptArgs());
-            request.setQueryTypes(script.getType());
-            request.setQueryDsType(dsConfig.getDataSourceType());
-            requests.add(request);
+        RequestAnalysisPlan analysisPlan = new RequestAnalysisPlan(sqlEngine, parameters, dsConfig, safeLevels, options);
+        Stream<SplitScript> scripts = splitSpi.splitScriptStream(reader, queryArgs, baseCodeLine, baseCodeColumn);
+        Iterator<SplitScript> iterator = scripts.iterator();
+        if (!iterator.hasNext()) {
+            scripts.close();
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SPLIT_RESULT_EMPTY_ERROR.name()));
         }
-
-        if (options.isEnabled(QueryAnalysisFeature.REWRITE)) {
-            rewriteRequests(sqlEngine, parameters, requests);
-        }
-        analysisResources(sqlEngine, parameters, safeLevels, scripts, requests);
-        if (options.isEnabled(QueryAnalysisFeature.LINEAGE)) {
-            lineageColumns(sqlEngine, parameters, dsConfig, options, requests);
-        }
-        if (options.isEnabled(QueryAnalysisFeature.MASKING)) {
-            configMasking(sqlEngine, parameters, options, requests);
-        }
-        return requests;
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED | Spliterator.NONNULL), false)
+            .map(analysisPlan::analyze)
+            .onClose(scripts::close);
     }
 
-    private void rewriteRequests(SqlEngineSpi sqlEngine, SqlParserParameters parameters, List<QueryRequest> requests) {
-        RewriteSpi rewriteSpi = sqlEngine.rewriteSpi(parameters);
-        Boolean rewriteDisabled = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineSelectRewriteDisable, Boolean.class);
-        if (rewriteSpi == null || Boolean.TRUE.equals(rewriteDisabled)) {
-            return;
+    private final class RequestAnalysisPlan {
+
+        private final DataSourceConfig      dsConfig;
+        private final AnalysisQueryOptions  options;
+        private final SqlParserParameters   parameters;
+        private final Map<UmiTypes, Object> levels;
+        private final BehaviorAnalysisSpi   behaviorSpi;
+        private final RewriteSpi            rewriteSpi;
+        private final long                  rewriteFetchLimit;
+        private final LineageAnalysisSpi    lineageSpi;
+        private final LineageContext        lineageContext;
+        private final boolean               maskingEnabled;
+        private final boolean               rootUser;
+        private final boolean               hasSensitiveRules;
+        private final SysObjectRegistrySpi  registry;
+        private final String                currentResourcePath;
+        private final String                instanceResourcePath;
+
+        private RequestAnalysisPlan(SqlEngineSpi sqlEngine, SqlParserParameters parameters, DataSourceConfig dsConfig, Map<UmiTypes, Object> levels, AnalysisQueryOptions options){
+            this.dsConfig = dsConfig;
+            this.options = options;
+            this.parameters = parameters;
+            this.levels = levels;
+            this.behaviorSpi = sqlEngine.behaviorAnalysisSpi(parameters);
+            if (this.behaviorSpi == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SPI_NOT_SUPPORTED_ERROR.name(), sqlEngine.name(), "BehaviorAnalysisSpi"));
+            }
+
+            RewriteSpi preparedRewriteSpi = null;
+            long preparedRewriteFetchLimit = 0;
+            if (options.isEnabled(QueryAnalysisFeature.REWRITE)) {
+                Boolean rewriteDisabled = QueryAnalysisServiceImpl.this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineSelectRewriteDisable, Boolean.class);
+                if (!Boolean.TRUE.equals(rewriteDisabled)) {
+                    preparedRewriteSpi = sqlEngine.rewriteSpi(parameters);
+                    if (preparedRewriteSpi != null) {
+                        Map<String, String> configMap = QueryAnalysisServiceImpl.this.configService.fetchSettingsMap(Arrays.asList(//
+                                RootUserConfig.Fields.defaultColumnDisplayChars, //
+                                RootUserConfig.Fields.onlineMaxRecordCount,      //
+                                RootUserConfig.Fields.onlineMaxResultSetMegaByte,//
+                                RootUserConfig.Fields.onlineMaxColumnMegaByte,   //
+                                RootUserConfig.Fields.onlineMaxElementMegaByte)  //
+                        );
+                        ResultLimit limit = DmDsUtils.fetchResultLimit(configMap, Requester.CONSOLE);
+                        preparedRewriteFetchLimit = limit.getFetchRecordCountLimit();
+                    }
+                }
+            }
+            this.rewriteSpi = preparedRewriteSpi;
+            this.rewriteFetchLimit = preparedRewriteFetchLimit;
+
+            this.lineageSpi = options.isEnabled(QueryAnalysisFeature.LINEAGE) ? sqlEngine.lineageAnalysisSpi(parameters) : null;
+            this.lineageContext = this.lineageSpi == null ? null : LineageContext.builder()
+                .userUID(options.getCurrentUid())
+                .dsId(options.getDsId())
+                .levelsParam(options.getLevels())
+                .dsConfig(dsConfig)
+                .build();
+
+            this.maskingEnabled = options.isEnabled(QueryAnalysisFeature.MASKING);
+            this.rootUser = this.maskingEnabled && AuthDal.ROOT_USER_UID.equals(options.getCurrentUid());
+            SecCheckerRules rules = this.maskingEnabled && !this.rootUser ? QueryAnalysisServiceImpl.this.rulesService.fetchCheckerRulesByDsId(options.getDsId()) : null;
+            this.hasSensitiveRules = rules != null && rules.isValid() && CollectionUtils.isNotEmpty(rules.getSenRuleList());
+            this.registry = this.hasSensitiveRules ? PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngine.name()) : null;
+            this.currentResourcePath = this.hasSensitiveRules ? DmDsUtils.currentResourcePath(options.getLevels()) : null;
+            this.instanceResourcePath = this.hasSensitiveRules ? DmDsUtils.instanceResourcePath(options.getLevels()) : null;
         }
 
-        Map<String, String> configMap = this.configService.fetchSettingsMap(Arrays.asList(//
-                RootUserConfig.Fields.defaultColumnDisplayChars, //
-                RootUserConfig.Fields.onlineMaxRecordCount,      //
-                RootUserConfig.Fields.onlineMaxResultSetMegaByte,//
-                RootUserConfig.Fields.onlineMaxColumnMegaByte,   //
-                RootUserConfig.Fields.onlineMaxElementMegaByte)  //
-        );
-        ResultLimit limit = DmDsUtils.fetchResultLimit(configMap, Requester.CONSOLE);
-        RewriteContext rewriteCtx = new RewriteContext();
-        rewriteCtx.setFetchLimit(limit.getFetchRecordCountLimit());
+        private QueryRequest analyze(SplitScript script) {
+            QueryRequest request = new QueryRequest();
+            request.setIndex(script.getIndex());
+            request.setQueryBody(script.getScript());
+            request.setQueryArgs(script.getScriptArgs());
+            request.setBodyStartCodeLine(script.getBodyStartCodeLine());
+            request.setQueryTypes(script.getType());
+            request.setDsType(this.dsConfig.getDataSourceType());
 
-        for (QueryRequest request : requests) {
+            this.rewrite(request);
+            this.analysisResources(script, request);
+            this.lineageColumns(request);
+            this.configMasking(request);
+            return request;
+        }
+
+        private void rewrite(QueryRequest request) {
+            if (this.rewriteSpi == null) {
+                return;
+            }
             if (!request.hasQueryType(SplitQueryType.SELECT)) {
-                continue;
+                return;
             }
             String beforeRewrite = request.getQueryBody();
-            String afterRewrite = rewriteSpi.rewriterQuery(request, rewriteCtx);
+            RewriteContext rewriteCtx = new RewriteContext();
+            rewriteCtx.setFetchLimit(this.rewriteFetchLimit);
+            rewriteCtx.setParameters(this.parameters);
+            String afterRewrite = this.rewriteSpi.rewriteLimit(request.getQueryId(), beforeRewrite, rewriteCtx);
+
             request.setOriginalBody(beforeRewrite);
             if (StringUtils.equals(beforeRewrite, afterRewrite)) {
                 request.setHasRewrite(false);
-                request.setRewriteTag(Collections.emptyList());
                 request.setQueryBody(beforeRewrite);
             } else {
                 request.setHasRewrite(true);
-                request.setRewriteTag(rewriteCtx.getRewriterTags());
+                request.addRewriteTag(RewriteTags.LIMIT);
                 request.setQueryBody(afterRewrite);
             }
         }
-    }
 
-    private void analysisResources(SqlEngineSpi sqlEngine, SqlParserParameters parameters, Map<UmiTypes, Object> levels,//
-                                   List<SplitScript> scripts, List<QueryRequest> requests) {
-        BehaviorAnalysisSpi behaviorSpi = sqlEngine.behaviorAnalysisSpi(parameters);
-        if (behaviorSpi == null) {
-            throw new IllegalStateException(sqlEngine + " does not support BehaviorAnalysisSpi.");
-        }
-
-        for (int i = 0; i < requests.size(); i++) {
-            QueryRequest request = requests.get(i);
-            SplitScript script = scripts.get(i);
+        private void analysisResources(SplitScript script, QueryRequest request) {
             int codeLine = script.getBodyStartCodeLine();
             int codeColumn = script.getBodyStartCodeColumn();
 
-            List<StatementBehavior> behaviors = behaviorSpi.analysisBehavior(request.getQueryBody(), levels, codeLine, codeColumn);
+            List<StatementBehavior> behaviors;
+            try (StringReader reader = new StringReader(request.getQueryBody());
+                    Stream<StatementBehavior> stream = this.behaviorSpi.analysisBehaviorStream(reader, this.levels, codeLine, codeColumn)) {
+                behaviors = stream.toList();
+            }
+
             List<BehaviorRelation> relations = new ArrayList<>();
-            if (behaviors != null) {
-                for (StatementBehavior behavior : behaviors) {
-                    if (behavior == null || behavior.getRelations() == null) {
-                        continue;
-                    }
-                    relations.addAll(behavior.getRelations().stream().filter(Objects::nonNull).toList());
+            for (StatementBehavior behavior : behaviors) {
+                if (behavior == null || behavior.getRelations() == null) {
+                    continue;
                 }
+                relations.addAll(behavior.getRelations().stream().filter(Objects::nonNull).toList());
             }
             request.setRelations(relations);
         }
-    }
 
-    private void lineageColumns(SqlEngineSpi sqlEngine, SqlParserParameters parameters, DataSourceConfig dsConfig,//
-                                QueryAnalysisOptions options, List<QueryRequest> requests) {
-        LineageAnalysisSpi lineageSpi = sqlEngine.lineageAnalysisSpi(parameters);
-        if (lineageSpi == null) {
-            return;
-        }
+        private void lineageColumns(QueryRequest request) {
+            if (this.lineageSpi == null) {
+                return;
+            }
 
-        LineageContext lineageContext = LineageContext.builder()
-            .userUID(options.getCurrentUid())
-            .dsId(options.getDataSourceId())
-            .levelsParam(options.getLevels())
-            .dsConfig(dsConfig)
-            .build();
-        for (QueryRequest request : requests) {
             if (request.hasQueryType(SplitQueryType.SELECT)) {
-                List<LineageColumn> lineageCols = lineageSpi.analyze(request.getQueryBody(), lineageContext);
+                List<LineageColumn> lineageCols = this.lineageSpi.analyze(request.getQueryBody(), this.lineageContext);
+
                 Set<String> columnNames = new HashSet<>();
                 if (lineageCols.stream().anyMatch(c -> !columnNames.add(c.column()))) {
                     throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_FORBID_SELECT_COLUMN_SAME_NAME.name()));
@@ -251,33 +323,25 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
                 request.setColumnList(columnList);
             }
         }
-    }
 
-    private void configMasking(SqlEngineSpi sqlEngine, SqlParserParameters parameters, QueryAnalysisOptions options, List<QueryRequest> requests) {
-        requests.forEach(r -> r.setUsingValueProcess(true));
-        String userUid = options.getCurrentUid();
-        long dsId = options.getDataSourceId();
-        if (AuthDal.ROOT_USER_UID.equals(userUid)) {
-            requests.forEach(r -> r.setUsingValueProcess(false));
-            return;
-        }
+        private void configMasking(QueryRequest request) {
+            if (!this.maskingEnabled) {
+                return;
+            }
+            request.setUsingValueProcess(true);
+            if (this.rootUser) {
+                request.setUsingValueProcess(false);
+                return;
+            }
+            if (!this.hasSensitiveRules) {
+                return;
+            }
 
-        // has rule
-        SecCheckerRules rules = this.rulesService.fetchCheckerRulesByDsId(dsId);
-        if (!rules.isValid() || CollectionUtils.isEmpty(rules.getSenRuleList())) {
-            return;
-        }
-
-        //
-        Map<UmiTypes, Object> levels = options.getLevels();
-        SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngine.name());
-        String currentResourcePath = DmDsUtils.currentResourcePath(levels);
-        String instanceResourcePath = DmDsUtils.instanceResourcePath(levels);
-        for (QueryRequest request : requests) {
             if (CollectionUtils.isEmpty(request.getColumnList())) {
-                this.configMaskingWithoutProvenance(request, registry, parameters.version(), userUid, dsId, currentResourcePath, instanceResourcePath);
+                QueryAnalysisServiceImpl.this.configMaskingWithoutProvenance(request, this.registry, this.parameters.version(), this.options.getCurrentUid(), this.options
+                    .getDsId(), this.currentResourcePath, this.instanceResourcePath);
             } else {
-                this.configMaskingWithProvenance(request, userUid, dsId);
+                QueryAnalysisServiceImpl.this.configMaskingWithProvenance(request, this.options.getCurrentUid(), this.options.getDsId());
             }
         }
     }

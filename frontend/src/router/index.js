@@ -76,18 +76,21 @@ const routes = [
       },
       {
         path: 'cicd/:id/change-records',
-        name: 'cicd/change-records',
-        component: () => import(/* webpackChunkName: "cicd-change-records" */ '@/views/cicd/changeRecordList')
+        redirect: (to) => `/cicd/${to.params.id}`
+      },
+      {
+        path: 'cicd/:id/config',
+        name: 'cicd/config',
+        component: () => import(/* webpackChunkName: "cicd-release-flow-config" */ '@/views/cicd/flowConfig')
+      },
+      {
+        path: 'cicd/change/:id',
+        redirect: (to) => (to.query.flowId ? `/cicd/${to.query.flowId}` : '/cicd')
       },
       {
         path: 'cicd/:id',
         name: 'cicd/id',
         component: () => import(/* webpackChunkName: "ticket" */ '../views/cicd/flowDetail')
-      },
-      {
-        path: 'cicd/change/:id',
-        name: 'cicd/change/id',
-        component: () => import(/* webpackChunkName: "ticket" */ '@/views/cicd/changeDetail')
       },
       {
         path: 'ticket',
@@ -108,22 +111,6 @@ const routes = [
         path: 'dmdatasource',
         name: 'System_DataSource_list',
         redirect: '/datasource'
-      },
-      {
-        path: 'ccdatasource',
-        redirect: (to) => ({
-          path: '/datasource',
-          query: to.query,
-          hash: to.hash
-        })
-      },
-      {
-        path: 'ccdatasource/add',
-        redirect: (to) => ({
-          path: '/datasource/add',
-          query: to.query,
-          hash: to.hash
-        })
       },
       {
         path: 'dmspeclist',
@@ -208,105 +195,8 @@ const routes = [
       {
         path: 'system',
         name: 'System',
-        component: () => import(/* webpackChunkName: "ccsystem" */ '@/views/system/index'),
+        component: () => import(/* webpackChunkName: "system" */ '@/views/system/index'),
         children: systemChildren
-        // children: [
-        //   {
-        //     path: 'info_center',
-        //     name: 'InfoCenter',
-        //     component: () => import(/* webpackChunkName: "ticket" */'@/views/consoleJob/index')
-        //   },
-        //   {
-        //     path: 'console_job/:id',
-        //     name: 'ConsoleJob/id',
-        //     component: () => import(/* webpackChunkName: "ticket" */'@/views/consoleJob/consoleJobDetail')
-        //   },
-        //   {
-        //     path: 'async_job_list',
-        //     name: 'ASYNC_JOB_LIST',
-        //     component: () => import(/* webpackChunkName: "async-job-list" */'@/views/system/AsyncJobList/index')
-        //   },
-        //   {
-        //     path: 'async_job/:id',
-        //     name: 'ASYNC_JOB_DETAIL',
-        //     component: () => import(/* webpackChunkName: "async-job-list" */'@/views/system/AsyncJobList/asyncJobDetail')
-        //   },
-        //   {
-        //     path: '',
-        //     name: 'System_Home',
-        //     component: () => import(/* webpackChunkName: "system-home" */'@/views/system/home')
-        //   },
-        //   {
-        //     path: 'user/config',
-        //     name: 'User_Config',
-        //     component: () => import(/* webpackChunkName: "system-home" */'@/views/system/user/userConfig')
-        //   },
-        //   {
-        //     path: 'role',
-        //     name: 'System_Role',
-        //     component: () => import(/* webpackChunkName: "system-role" */'@/views/system/role/index')
-        //   },
-        //   {
-        //     path: 'machine',
-        //     name: 'System_Machine',
-        //     component: () => import(/* webpackChunkName: "system-cluster" */'@/views/system/cluster/index')
-        //   },
-        //   {
-        //     path: 'machine/list/:clusterId',
-        //     name: 'System_Machine_List',
-        //     component: () => import(/* webpackChunkName: "system-cluster-list" */'@/views/system/cluster/workerList')
-        //   },
-        //   {
-        //     path: 'datasource',
-        //     name: 'System_DataSource',
-        //     component: () => import(/* webpackChunkName: "system-datasource" */'@/views/system/datasource/index')
-        //   },
-        //   {
-        //     path: 'auth',
-        //     name: 'System_Auth',
-        //     component: () => import(/* webpackChunkName: "system-auth" */'@/views/system/auth/index')
-        //   },
-        //   {
-        //     path: 'datasource/add',
-        //     name: 'System_DataSource_Add',
-        //     component: () => import(/* webpackChunkName: "system-datasource" */'@/views/system/datasource/steps/Index')
-        //   },
-        //   {
-        //     path: 'env',
-        //     name: 'System_Env',
-        //     component: () => import(/* webpackChunkName: "system-env" */'@/views/system/env')
-        //   },
-        //   {
-        //     path: 'rules',
-        //     name: 'System_Rule',
-        //     component: () => import(/* webpackChunkName: "system-env" */'@/views/system/rule/index')
-        //   },
-        //   {
-        //     path: 'desensitization',
-        //     name: 'System_Desensitization',
-        //     component: () => import(/* webpackChunkName: "system-desensitization" */'@/views/system/desensitization/index')
-        //   },
-        //   {
-        //     path: 'desensitization/add',
-        //     name: 'System_Desensitization_Add',
-        //     component: () => import(/* webpackChunkName: "system-desensitization" */'@/views/system/desensitization/addDesensitization')
-        //   },
-        //   {
-        //     path: 'data_rules',
-        //     name: 'System_Data_Rules',
-        //     component: () => import(/* webpackChunkName: "system-data-rules" */'@/views/system/dataRule/index')
-        //   },
-        //   {
-        //     path: 'data_rules/add',
-        //     name: 'System_Data_Rules_Add',
-        //     component: () => import(/* webpackChunkName: "system-data-rules-add" */'@/views/system/dataRule/addDataRule')
-        //   },
-        //   {
-        //     path: 'data_code',
-        //     name: 'System_Data_Code',
-        //     component: () => import(/* webpackChunkName: "system-env" */'@/views/system/dataCode/index')
-        //   }
-        // ]
       }
     ]
   },

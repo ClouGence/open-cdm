@@ -27,6 +27,10 @@ import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
 
 public interface DmExecAutoTaskMapper extends BaseMapper<DmExecAutoTaskDO> {
 
+    int batchInsert(@Param("tasks") List<DmExecAutoTaskDO> tasks);
+
+    int deleteByJobId(@Param("jobId") Long jobId);
+
     void updateStatusByTaskId(@Param("taskId") Long taskId, @Param("status") AutoExecTaskStatus status);
 
     void updateStatusAndAffectLineByTaskId(@Param("taskId") Long taskId, @Param("status") AutoExecTaskStatus status, @Param("affectRow") Long affectRow);
@@ -35,21 +39,28 @@ public interface DmExecAutoTaskMapper extends BaseMapper<DmExecAutoTaskDO> {
 
     int transactionRollback(@Param("jobId") Long jobId);
 
-    int taskSkip(@Param("jobId") Long jobId, @Param("taskId") Long taskId);
-
-    List<DmExecAutoTaskDO> queryGroupTaskListByStatus(@Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status);
+    int taskSkip(@Param("queryId") String queryId);
 
     DmExecAutoTaskDO queryByBizId(@Param("bizId") String bizId);
 
+    DmExecAutoTaskDO queryByQueryId(@Param("queryId") String queryId);
+
     DmExecAutoTaskDO queryOneByJobIdAndStatus(@Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status);
 
-    List<DmExecAutoTaskDO> queryNeedExecTaskList(@Param("jobId") Long jobId);
+    List<Long> queryNeedExecTaskIdsBatch(@Param("jobId") Long jobId, @Param("afterExecOrder") int afterExecOrder, @Param("batchSize") int batchSize);
+
+    List<DmExecAutoTaskDO> queryNeedExecTasksByIds(@Param("jobId") Long jobId, @Param("taskIds") List<Long> taskIds);
 
     int queryNeedExecTaskCount(@Param("jobId") Long jobId);
+
+    int queryNeedExecTaskMaxOrder(@Param("jobId") Long jobId);
 
     void retryTask(@Param("jobId") Long jobId);
 
     IPage<DmExecAutoTaskDO> queryListByJobId(Page page, @Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status);
+
+    IPage<DmExecAutoTaskDO> querySummaryListByJobId(Page page, @Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status,
+            @Param("sqlSummaryLength") int sqlSummaryLength);
 
     List<DmExecAutoTaskDO> queryListByJobId(@Param("jobId") Long jobId, @Param("status") AutoExecTaskStatus status);
 

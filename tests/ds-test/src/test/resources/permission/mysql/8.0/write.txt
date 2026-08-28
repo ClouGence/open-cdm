@@ -431,7 +431,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:55~1:56) /test/1/catalog1/schema1/o/"
+    "Table(1:64~1:86) /test/1/catalog1/split_table_derived/t1/"
   ]
 }
 ----------
@@ -523,8 +523,8 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:33~1:34) /test/1/catalog1/schema1/a/",
-    "Table(1:38~1:39) /test/1/catalog1/schema1/b/"
+    "Table(1:47~1:49) /test/1/catalog1/schema1/t1/",
+    "Table(1:66~1:68) /test/1/catalog1/schema1/t2/"
   ]
 }
 ----------
@@ -537,8 +537,8 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:38~1:39) /test/1/catalog1/schema1/a/",
-    "Table(1:41~1:42) /test/1/catalog1/schema1/b/"
+    "Table(1:49~1:51) /test/1/catalog1/schema1/t1/",
+    "Table(1:68~1:70) /test/1/catalog1/schema1/t2/"
   ]
 }
 ----------
@@ -551,7 +551,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:8) /test/1/catalog1/schema1/a/"
+    "Table(1:14~1:18) /test/1/catalog1/schema1/ptab/"
   ]
 }
 ----------
@@ -577,7 +577,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:8) /test/1/catalog1/schema1/a/"
+    "Table(1:14~1:22) /test/1/catalog1/schema1/articles/"
   ]
 }
 ----------
@@ -590,7 +590,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:13) /test/1/catalog1/schema1/4.t1/"
+    "Table(1:19~1:21) /test/1/catalog1/schema1/t1/"
   ]
 }
 ----------
@@ -603,7 +603,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:12~1:18) /test/1/catalog1/schema1/4.t1/"
+    "Table(1:25~1:27) /test/1/catalog1/schema1/t1/"
   ]
 }
 ----------
@@ -629,9 +629,8 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
-    "Table(1:18~1:49) /test/1/catalog1/codex_delete_native_parallel/t2/",
-    "Table(1:53~1:54) /test/1/catalog1/schema1/a/"
+    "Table(1:63~1:65) /test/1/catalog1/schema1/t1/",
+    "Table(1:71~1:73) /test/1/catalog1/schema1/t3/"
   ]
 }
 ----------
@@ -644,7 +643,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:12~1:17) /test/1/catalog1/schema1/OUTR1/"
+    "Table(1:26~1:28) /test/1/catalog1/schema1/t1/"
   ]
 }
 ----------
@@ -657,8 +656,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:14~1:16) /test/1/catalog1/schema1/t1/",
-    "Table(1:20~1:22) /test/1/catalog1/schema1/t2/"
+    "Table(1:30~1:32) /test/1/catalog1/schema1/t1/"
   ]
 }
 ----------
@@ -671,10 +669,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:9) /test/1/catalog1/schema1/t1/",
-    "Table(1:11~1:13) /test/1/catalog1/schema1/t2/",
-    "Table(1:15~1:17) /test/1/catalog1/schema1/t3/",
-    "Table(1:19~1:21) /test/1/catalog1/schema1/t4/"
+    "Table(1:28~1:30) /test/1/catalog1/schema1/t1/"
   ]
 }
 ----------
@@ -700,7 +695,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:9) /test/1/catalog1/schema1/p1/"
+    "Table(1:17~1:40) /test/1/catalog1/split_derived_common/nm/"
   ]
 }
 ----------
@@ -739,8 +734,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:12) /test/1/catalog1/schema1/d7_t1/",
-    "Table(1:14~1:19) /test/1/catalog1/schema1/d7_t2/"
+    "Table(1:25~1:30) /test/1/catalog1/schema1/d7_t1/"
   ]
 }
 ----------
@@ -753,8 +747,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:12~1:17) /test/1/catalog1/schema1/d8_t2/",
-    "Table(1:19~1:24) /test/1/catalog1/schema1/d8_t3/"
+    "Table(1:31~1:36) /test/1/catalog1/schema1/d8_t2/"
   ]
 }
 ----------
@@ -767,7 +760,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:12) /test/1/catalog1/schema1/d9_t1/"
+    "Table(1:20~1:25) /test/1/catalog1/schema1/d9_t1/"
   ]
 }
 ----------
@@ -782,7 +775,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:8) /test/1/catalog1/schema1/s/"
+    "Table(1:14~1:27) /test/1/catalog1/schema1/split_dml_src/"
   ]
 }
 ----------
@@ -3106,45 +3099,6 @@ expect:
   ]
 }
 ----------
-[permission_mysql_8_0_01470]
-source: split/mysql/5.6/dml_mysql_language_0.txt#1
-sql:
-/*!50000 INSERT INTO t VALUES (1, 'a', 0), (2, 'b', 0) */;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "WRITE": [
-    "Table(1:21~1:22) /test/1/catalog1/schema1/t/"
-  ]
-}
-----------
-[permission_mysql_8_0_01471]
-source: split/mysql/5.6/dml_mysql_language_0.txt#2
-sql:
-/*!50000 UPDATE t SET flag = 1 WHERE id = 1 */;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "WRITE": [
-    "Table(1:16~1:17) /test/1/catalog1/schema1/t/"
-  ]
-}
-----------
-[permission_mysql_8_0_01472]
-source: split/mysql/5.6/dml_mysql_language_0.txt#3
-sql:
-/*!50000 DELETE FROM t WHERE id = 2 */;
-levels:
-/test/1/catalog1/schema1
-expect:
-{
-  "WRITE": [
-    "Table(1:21~1:22) /test/1/catalog1/schema1/t/"
-  ]
-}
-----------
 [permission_mysql_8_0_01473]
 source: split/mysql/5.6/dml_mysql_language_0.txt#4
 sql:
@@ -3271,8 +3225,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:12~1:34) /test/1/catalog1/split_packet_native/t1/",
-    "Table(1:35~1:57) /test/1/catalog1/split_packet_native/t2/"
+    "Table(1:64~1:86) /test/1/catalog1/split_packet_native/t1/"
   ]
 }
 ----------
@@ -3285,8 +3238,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:19~1:41) /test/1/catalog1/split_packet_native/t1/",
-    "Table(1:42~1:64) /test/1/catalog1/split_packet_native/t2/"
+    "Table(1:71~1:93) /test/1/catalog1/split_packet_native/t1/"
   ]
 }
 ----------
@@ -3598,7 +3550,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:8) /test/1/catalog1/schema1/a/"
+    "Table(1:14~1:18) /test/1/catalog1/schema1/test/"
   ]
 }
 ----------
@@ -3715,8 +3667,8 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:8) /test/1/catalog1/schema1/a/",
-    "Table(1:9~1:10) /test/1/catalog1/schema1/b/"
+    "Table(1:16~1:38) /test/1/catalog1/split_derived_dml57/t1/",
+    "Table(1:54~1:76) /test/1/catalog1/split_derived_dml57/t2/"
   ]
 }
 ----------
@@ -3846,7 +3798,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:62~1:65) /test/1/catalog1/schema1/ta1/"
+    "Table(1:74~1:76) /test/1/catalog1/schema1/t1/"
   ]
 }
 ----------
@@ -4028,8 +3980,8 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:8) /test/1/catalog1/schema1/x/",
-    "Table(1:11~1:12) /test/1/catalog1/schema1/y/"
+    "Table(1:20~1:44) /test/1/catalog1/split_subquery_base/t11a/",
+    "Table(1:50~1:74) /test/1/catalog1/split_subquery_base/t12a/"
   ]
 }
 ----------
@@ -4042,8 +3994,8 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:8) /test/1/catalog1/schema1/x/",
-    "Table(1:11~1:12) /test/1/catalog1/schema1/y/"
+    "Table(1:20~1:44) /test/1/catalog1/split_subquery_base/t11b/",
+    "Table(1:50~1:74) /test/1/catalog1/split_subquery_base/t12b/"
   ]
 }
 ----------
@@ -4186,7 +4138,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:8) /test/1/catalog1/schema1/o/"
+    "Table(1:16~1:38) /test/1/catalog1/split_table_derived/t1/"
   ]
 }
 ----------
@@ -4649,7 +4601,7 @@ levels:
 expect:
 {
   "WRITE": [
-    "Table(1:7~1:12) /test/1/catalog1/schema1/outr1/"
+    "Table(1:20~1:48) /test/1/catalog1/split_subquery_bugs_550/del1/"
   ]
 }
 ----------

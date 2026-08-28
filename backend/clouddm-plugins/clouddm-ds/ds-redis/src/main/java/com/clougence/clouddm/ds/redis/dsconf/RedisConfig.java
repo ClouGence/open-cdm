@@ -21,6 +21,8 @@ import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.redis.execute.jdbc.JedisKeys;
 import com.clougence.clouddm.ds.redis.i18n.RedisConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
@@ -65,6 +67,18 @@ public class RedisConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey(), safeStr(this.getDefaultSchema()));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnAndSoTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
+        SslMode sslMode = this.getSslMode();
+        if (sslMode == null) {
+            sslMode = SslMode.DISABLED;
+        }
+        properties.setProperty(JedisKeys.SSL_MODE, sslMode.name());
+        properties.setProperty(JedisKeys.SSL_CA_FILE, safeStr(this.getSslCaFilePath()));
+        properties.setProperty(JedisKeys.SSL_CA_FORMAT, safeStr(this.getSslCaFileFormat()));
+        properties.setProperty(JedisKeys.SSL_CA_PASSWORD, safeStr(this.getSslCaPassword()));
+        properties.setProperty(JedisKeys.SSL_CLIENT_CERT_FILE, safeStr(this.getSslClientCertFilePath()));
+        properties.setProperty(JedisKeys.SSL_CLIENT_CERT_FORMAT, safeStr(this.getSslClientCertFileFormat()));
+        properties.setProperty(JedisKeys.SSL_CLIENT_KEY_FILE, safeStr(this.getSslClientKeyFilePath()));
+        properties.setProperty(JedisKeys.SSL_CLIENT_KEY_PASSWORD, safeStr(this.getSslClientKeyPassword()));
         return properties;
     }
 }

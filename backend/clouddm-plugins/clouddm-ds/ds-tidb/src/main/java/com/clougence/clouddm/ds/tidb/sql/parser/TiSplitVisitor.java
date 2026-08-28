@@ -253,7 +253,10 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitFullDescribeStatement(FullDescribeStatementContext ctx) {
-        return SplitQueryType.PERFORMANCE;
+        if (ctx.analyze != null) {
+            return SplitQueryType.UNSAFE;
+        }
+        return SplitQueryType.SELECT;
     }
 
     @Override
@@ -343,7 +346,7 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
-        return "EXPLAIN".equalsIgnoreCase(ctx.command.getText()) ? SplitQueryType.PERFORMANCE : SplitQueryType.UNKNOWN;
+        return "EXPLAIN".equalsIgnoreCase(ctx.command.getText()) ? SplitQueryType.SELECT : SplitQueryType.UNKNOWN;
     }
 
     @Override

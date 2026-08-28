@@ -25,6 +25,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.db2.analysis.behavior.Db2BehaviorAnalysisSpi;
 import com.clougence.sql.db2.analysis.security.Db2SecDomainResolveSpi;
+import com.clougence.sql.db2.editor.rewrite.Db2RewriteSpi;
 import com.clougence.sql.db2.parser.Db2DslProvider;
 import com.clougence.sql.db2.parser.Db2SplitAnalysisSpi;
 
@@ -42,8 +43,8 @@ public class Db2SqlEngineSpi implements SqlEngineSpi {
         this.splitAnalysisSpi = new Db2SplitAnalysisSpi();
         this.secDomainResolveSpi = new Db2SecDomainResolveSpi();
         this.behaviorAnalysisSpi = new Db2BehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = null;
-        this.rewriteSpi = null;
+        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
+        this.rewriteSpi = new Db2RewriteSpi();
     }
 
     @Override

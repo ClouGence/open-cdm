@@ -2,6 +2,7 @@ package com.clougence.clouddm.ds.rules;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,6 @@ import com.clougence.clouddm.ds.TextCaseSupport.CaseBlock;
 import com.clougence.clouddm.ds.TextTestCase;
 import com.clougence.clouddm.ds.TextTestFramework;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.sql.SqlParserParameters;
-import com.clougence.clouddm.sdk.sql.analysis.security.CodeInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sec.rules.domain.CheckerDomain;
@@ -70,8 +69,8 @@ public final class RuleTextTest {
     }
 
     static void assertCase(String resourcePath, TestCase testCase, DataSourceType dataSourceType, SecDomainResolveSpi resolveSpi, ContextInfo contextInfo) {
-        try {
-            List<RuleDomain> domains = resolveSpi.resolveDomain(dataSourceType, codeInfo(testCase.sql), contextInfo);
+        try (StringReader reader = new StringReader(testCase.sql); Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, 1, 0, contextInfo)) {
+            List<RuleDomain> domains = stream.toList();
             boolean actual = runRuleScript(testCase.rule, DomainHelper.create(domains), testCase.vars);
             Assert.assertEquals(testCase.caseId(), testCase.expect, actual);
         } catch (Exception e) {
@@ -82,12 +81,7 @@ public final class RuleTextTest {
     }
 
     private static SecDomainResolveSpi secDomainResolveSpi(String datasource) {
-        String version = switch (datasource) {
-            case "mysql", "mariadb", "por4my" -> "8.0.46";
-            default -> null;
-        };
-        SqlParserParameters parameters = version == null ? SqlParserParameters.empty() : SqlParserParameters.ofVersion(version);
-        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(parameters);
+        SecDomainResolveSpi spi = SqlTestSupport.sqlEngine(datasource).secDomainResolveSpi(SqlTestSupport.parserParameters(datasource));
         if (spi == null) {
             throw new IllegalStateException("No SecDomainResolveSpi for datasource: " + datasource);
         }
@@ -204,10 +198,6 @@ public final class RuleTextTest {
         }
         LangObject returnData = visitor.returnData(new ValueObject(true, TypeType.Boolean));
         return (boolean) returnData.unwrap();
-    }
-
-    private static CodeInfo codeInfo(String sql) {
-        return CodeInfo.builder().query(sql).baseLine(1).baseColumn(0).build();
     }
 
     static class TestCase extends TextTestCase {
