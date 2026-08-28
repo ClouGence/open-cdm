@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.secrule.DmSecRangeMapper">
-
     <resultMap id="dmSecRangeDO" type="com.clougence.clouddm.platform.dal.model.secrule.DmSecRangeDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -9,13 +9,18 @@
         <result column="owner_uid" property="ownerUid"/>
         <result column="ref_spec" property="refSpec"/>
         <result column="ref_id" property="refId"/>
-        <result column="range_type" property="rangeType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SecRangeTypeHandler"/>
-        <result column="match_mode" property="matchMode" javaType="com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode"/>
+        <result column="range_type" property="rangeType"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SecRangeTypeHandler"/>
+        <result column="match_mode" property="matchMode"
+                javaType="com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode"/>
         <result column="level_prefix" property="levelPrefix"/>
-        <result column="level_nodes" property="levelNodes" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="level_nodes" property="levelNodes"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="choose_all" property="chooseAll"/>
-        <result column="ref_ds_type" property="referDsType" javaType="com.clougence.clouddm.base.metadata.ds.DataSourceType"/>
-        <result column="table_level" property="tableLevelType" javaType="com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType"/>
+        <result column="ref_ds_type" property="referDsType"
+                javaType="com.clougence.clouddm.base.metadata.ds.DataSourceType"/>
+        <result column="table_level" property="tableLevelType"
+                javaType="com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType"/>
     </resultMap>
 
     <sql id="allColumns">
@@ -35,32 +40,35 @@
     </sql>
 
     <select id="queryListBySpecId" resultMap="dmSecRangeDO">
-        select
+        SELECT
             <include refid="allColumns"/>
-        from
+        FROM
             dm_sec_range
-        where
-            owner_uid = #{ownerUid} and
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
             ref_spec  = #{specId}
-        order by
-            gmt_create asc
+        ORDER BY
+            gmt_create ASC
     </select>
 
     <select id="queryListByRefId" resultMap="dmSecRangeDO">
-        select
+        SELECT
             <include refid="allColumns"/>
-        from
+        FROM
             dm_sec_range
-        where
-            owner_uid = #{ownerUid} and
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
             ref_id    = #{refId}
-        order by
-            gmt_create asc
+        ORDER BY
+            gmt_create ASC
     </select>
 
     <update id="updateRange">
-        update dm_sec_range
-        set
+        UPDATE
+            dm_sec_range
+        SET
             range_type   = #{info.rangeType, javaType=com.clougence.clouddm.platform.dal.model.secrule.SecRangeType},
             match_mode   = #{info.matchMode, javaType=com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode},
             level_prefix = #{info.levelPrefix},
@@ -68,35 +76,36 @@
             choose_all   = #{info.chooseAll},
             ref_ds_type  = #{info.referDsType, javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType},
             table_level  = #{info.tableLevelType, javaType=com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType}
-        where
-            owner_uid = #{ownerUid} and
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
             id        = #{rangeId}
     </update>
 
     <delete id="deleteRange">
-        delete
-        from
+        DELETE FROM
             dm_sec_range
-        where
-            owner_uid = #{ownerUid} and
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
             id        = #{rangeId}
     </delete>
 
     <delete id="deleteBySpecId">
-        delete
-        from
+        DELETE FROM
             dm_sec_range
-        where
-            owner_uid = #{ownerUid} and
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
             ref_spec  = #{specId}
     </delete>
 
     <delete id="deleteByRefId">
-        delete
-        from
+        DELETE FROM
             dm_sec_range
-        where
-            owner_uid = #{ownerUid} and
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
             ref_id    = #{refId}
     </delete>
 </mapper>

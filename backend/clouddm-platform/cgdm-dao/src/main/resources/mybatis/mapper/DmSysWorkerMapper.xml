@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.system.DmSysWorkerMapper">
-
     <resultMap id="workerDO" type="com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -98,7 +97,8 @@
             dm_sys_worker
         WHERE
             worker_state = #{workerState,javaType=com.clougence.clouddm.api.console.status.WorkerState}
-            AND cluster_id = #{clusterId}
+            AND
+            cluster_id   = #{clusterId}
     </select>
 
     <select id="queryByStateAndScheduleIp" resultMap="workerDO">
@@ -108,7 +108,8 @@
             dm_sys_worker
         WHERE
             worker_state = #{workerState,javaType=com.clougence.clouddm.api.console.status.WorkerState}
-            AND schedule_ip = #{scheduleIp}
+            AND
+            schedule_ip  = #{scheduleIp}
         ORDER BY
             gmt_create DESC
     </select>
@@ -130,8 +131,12 @@
         FROM
             dm_sys_worker
         WHERE
-            id IN <foreach collection="workerIds" item="item" separator="," open="(" close=")">#{item}</foreach>
-            AND cluster_id = #{clusterId}
+            id IN
+            <foreach collection="workerIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND
+            cluster_id = #{clusterId}
         ORDER BY
             gmt_create DESC
     </select>
@@ -142,7 +147,10 @@
         FROM
             dm_sys_worker
         WHERE
-            cluster_id IN <foreach collection="clusterIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+            cluster_id IN
+            <foreach collection="clusterIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
         ORDER BY
             gmt_create DESC
     </select>
@@ -155,8 +163,8 @@
             dm_sys_worker
         WHERE
             cluster_id = #{clusterId}
-        AND
-            worker_ip = #{workerIp}
+            AND
+            worker_ip  = #{workerIp}
         ORDER BY
             gmt_create DESC
     </select>
@@ -178,8 +186,8 @@
         FROM
             dm_sys_worker
         WHERE
-            cluster_id = #{clusterId}
-        AND
+            cluster_id  = #{clusterId}
+            AND
             conn_status = 'CONNECTED'
         ORDER BY
             gmt_create DESC
@@ -202,11 +210,11 @@
         FROM
             dm_sys_worker
         WHERE
-            conn_status = 'CONNECTED'
-        AND
+            conn_status              = 'CONNECTED'
+            AND
             last_heartbeat_report_ms IS NOT NULL
-        AND
-            last_heartbeat_report_ms &lt; #{checkPointEpochMs}
+            AND
+            last_heartbeat_report_ms <![CDATA[ < ]]> #{checkPointEpochMs}
         ORDER BY
             gmt_create DESC
     </select>
@@ -217,10 +225,10 @@
         FROM
             dm_sys_worker
         WHERE
-            id = #{workerId}
-        AND
+            id                = #{workerId}
+            AND
             total_task_mem_mb = #{totalTaskMemMb}
-        for update
+        FOR UPDATE
     </select>
 
     <select id="getByWsn" resultMap="workerDO">
@@ -229,7 +237,7 @@
         FROM
             dm_sys_worker
         WHERE
-            worker_seq_number=#{workerSeqNumber}
+            worker_seq_number = #{workerSeqNumber}
     </select>
 
     <select id="queryConnectedByWsn" resultMap="workerDO">
@@ -239,9 +247,9 @@
             dm_sys_worker
         WHERE
             worker_seq_number = #{workerSeqNumber}
-        AND
-            conn_status = 'CONNECTED'
-        limit 1
+            AND
+            conn_status       = 'CONNECTED'
+        LIMIT 1
     </select>
 
     <select id="getWorkerIdentityByWsn" resultMap="workerDO">
@@ -250,7 +258,7 @@
         FROM
             dm_sys_worker
         WHERE
-            worker_seq_number=#{workerSeqNumber}
+            worker_seq_number = #{workerSeqNumber}
     </select>
 
     <select id="getByName" resultMap="workerDO">
@@ -259,7 +267,7 @@
         FROM
             dm_sys_worker
         WHERE
-            worker_name=#{workerName}
+            worker_name = #{workerName}
     </select>
 
     <update id="updateWorkerState">
@@ -311,9 +319,9 @@
         UPDATE
             dm_sys_worker
         SET
-            install_console_job_id    = #{installConsoleJobId},
-            uninstall_console_job_id  = #{uninstallConsoleJobId},
-            upgrade_all_console_job_id= #{upgradeAllConsoleJobId}
+            install_console_job_id     = #{installConsoleJobId},
+            uninstall_console_job_id   = #{uninstallConsoleJobId},
+            upgrade_all_console_job_id = #{upgradeAllConsoleJobId}
         WHERE
             id = #{workerId}
     </update>
@@ -322,7 +330,7 @@
         UPDATE
             dm_sys_worker
         SET
-            upgrade_all_console_job_id= #{upgradeAllConsoleJobId}
+            upgrade_all_console_job_id = #{upgradeAllConsoleJobId}
         WHERE
             id = #{workerId}
     </update>
@@ -361,7 +369,7 @@
             <if test="lastHeartbeatPingMs != null">
                 last_heartbeat_ping_ms = #{lastHeartbeatPingMs},
             </if>
-            gmt_modified = now()
+            gmt_modified = NOW()
         </set>
         WHERE
             worker_seq_number = #{workerSeqNumber}
@@ -371,8 +379,8 @@
         UPDATE
             dm_sys_worker
         SET
-            conn_status = #{connStatus},
-            gmt_modified = now()
+            conn_status  = #{connStatus},
+            gmt_modified = NOW()
         WHERE
             id = #{id}
     </update>

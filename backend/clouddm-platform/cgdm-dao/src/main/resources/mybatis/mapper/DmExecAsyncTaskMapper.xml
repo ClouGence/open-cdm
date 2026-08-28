@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.execution.DmExecAsyncTaskMapper">
     <resultMap id="dmAsyncTaskDO" type="com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO">
         <result column="id" property="id"/>
@@ -52,39 +53,51 @@
     </sql>
 
     <update id="resetAsyncTaskStatus">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = 'WAIT_START', gmt_modified = now()
-        where
-            console_ip = #{consoleIp} and status = 'RUNNING'
+        SET
+            status       = 'WAIT_START',
+            gmt_modified = NOW()
+        WHERE
+            console_ip = #{consoleIp}
+            AND
+            status     = 'RUNNING'
     </update>
 
     <update id="resetCancelingAsyncTaskStatus">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = 'CANCEL', gmt_modified = now()
-        where
-            console_ip = #{consoleIp} and status = 'CANCELING'
+        SET
+            status       = 'CANCEL',
+            gmt_modified = NOW()
+        WHERE
+            console_ip = #{consoleIp}
+            AND
+            status     = 'CANCELING'
     </update>
 
     <update id="resetPausingAsyncTaskStatus">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = 'PAUSE', gmt_modified = now()
-        where
-            console_ip = #{consoleIp} and status = 'PAUSING'
+        SET
+            status       = 'PAUSE',
+            gmt_modified = NOW()
+        WHERE
+            console_ip = #{consoleIp}
+            AND
+            status     = 'PAUSING'
     </update>
 
     <update id="resetInitAsyncTaskStatus">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = 'CANCEL', gmt_modified = now()
-        where
-            console_ip = #{consoleIp} and status = 'INIT'
+        SET
+            status       = 'CANCEL',
+            gmt_modified = NOW()
+        WHERE
+            console_ip = #{consoleIp}
+            AND
+            status     = 'INIT'
     </update>
 
     <select id="queryWaitTask" resultMap="dmAsyncTaskDO">
@@ -93,10 +106,12 @@
         FROM
             dm_exec_async_task
         WHERE
-            status = 'WAIT_START' and console_ip = #{consoleIp}
-        order by
-            gmt_create asc
-        limit
+            status     = 'WAIT_START'
+            AND
+            console_ip = #{consoleIp}
+        ORDER BY
+            gmt_create ASC
+        LIMIT
             #{limit}
     </select>
 
@@ -106,36 +121,47 @@
         FROM
             dm_exec_async_task
         WHERE
-            biz_id = #{bizId} and biz_type = #{bizType}
+            biz_id   = #{bizId}
+            AND
+            biz_type = #{bizType}
     </select>
 
     <update id="updateFromWaitTo">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
-        where
-            id = #{taskId} and status = 'WAIT_START'
+        SET
+            status       = #{toStatus},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            id     = #{taskId}
+            AND
+            status = 'WAIT_START'
     </update>
 
     <update id="updateFromRunningTo">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
-        where
-            id = #{taskId} and status = 'RUNNING'
+        SET
+            status       = #{toStatus},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            id     = #{taskId}
+            AND
+            status = 'RUNNING'
     </update>
 
     <update id="updateStatusTo">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
-        where
+        SET
+            status       = #{toStatus},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
             id = #{taskId}
     </update>
-
 
     <select id="queryById" resultMap="dmAsyncTaskDO">
         SELECT
@@ -152,65 +178,92 @@
         FROM
             dm_exec_async_task
         WHERE
-            biz_depend_on_id = #{bizId} and
+            biz_depend_on_id   = #{bizId}
+            AND
             biz_depend_on_type = #{bizType}
     </select>
 
     <update id="batchResumeFromBlock">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = 'WAIT_START', status_msg = #{message}, gmt_modified = now()
-        where
-            id in <foreach collection="taskIds" item="item" separator="," open="(" close=")">#{item}</foreach> and
+        SET
+            status       = 'WAIT_START',
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            id IN
+            <foreach collection="taskIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND
             status = 'BLOCK'
     </update>
 
     <update id="updateFromBlockTo">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
-        where
-            status = 'BLOCK' and id = #{taskId}
+        SET
+            status       = #{toStatus},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            status = 'BLOCK'
+            AND
+            id     = #{taskId}
     </update>
 
     <update id="updateFromPauseTo">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
-        where
-            status = 'PAUSE' and id = #{taskId}
+        SET
+            status       = #{toStatus},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            status = 'PAUSE'
+            AND
+            id     = #{taskId}
     </update>
 
     <update id="retryFailureOrCancelTask">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = 'WAIT_START', console_ip = #{consoleIp},
-            status_msg = #{message}, gmt_modified = now()
-        where
-            (status = 'FAILURE' or status = 'CANCEL') and id = #{taskId}
+        SET
+            status       = 'WAIT_START',
+            console_ip   = #{consoleIp},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            (status = 'FAILURE' OR status = 'CANCEL')
+            AND
+            id      = #{taskId}
     </update>
 
     <update id="resumePauseTask">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = 'WAIT_START', console_ip = #{consoleIp},
-            status_msg = #{message}, gmt_modified = now()
-        where
-            status = 'PAUSE' and id = #{taskId}
+        SET
+            status       = 'WAIT_START',
+            console_ip   = #{consoleIp},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            status = 'PAUSE'
+            AND
+            id     = #{taskId}
     </update>
 
     <update id="activateTask">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = 'WAIT_START', console_ip = #{consoleIp}, gmt_modified = now()
-        where
-            status = 'INIT' and id = #{taskId}
+        SET
+            status       = 'WAIT_START',
+            console_ip   = #{consoleIp},
+            gmt_modified = NOW()
+        WHERE
+            status = 'INIT'
+            AND
+            id     = #{taskId}
     </update>
 
     <select id="queryByIdAndOwnerUid" resultMap="dmAsyncTaskDO">
@@ -219,7 +272,9 @@
         FROM
             dm_exec_async_task
         WHERE
-            id = #{taskId} and owner_uid = #{ownerUid}
+            id        = #{taskId}
+            AND
+            owner_uid = #{ownerUid}
     </select>
 
     <select id="queryRunListByOwner" resultMap="dmAsyncTaskDO">
@@ -228,12 +283,14 @@
         FROM
             dm_exec_async_task
         WHERE
-            owner_uid = #{ownerUid} and
-            show_in_dock = #{inDock} and
-            status not in ('FAILURE','COMPLETE','CANCEL')
-        order by
-            gmt_create desc
-        limit
+            owner_uid    = #{ownerUid}
+            AND
+            show_in_dock = #{inDock}
+            AND
+            status NOT   IN ('FAILURE', 'COMPLETE', 'CANCEL')
+        ORDER BY
+            gmt_create DESC
+        LIMIT
             #{limit}
     </select>
 
@@ -243,48 +300,61 @@
         FROM
             dm_exec_async_task
         WHERE
-            owner_uid = #{ownerUid} and
-            show_in_dock = #{inDock} and
-            status in ('FAILURE','COMPLETE','CANCEL')
-        order by
-            gmt_create desc
-        limit
+            owner_uid    = #{ownerUid}
+            AND
+            show_in_dock = #{inDock}
+            AND
+            status       IN ('FAILURE', 'COMPLETE', 'CANCEL')
+        ORDER BY
+            gmt_create DESC
+        LIMIT
             #{limit}
     </select>
 
     <update id="updateStatusMessage">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status_msg = #{message}, gmt_modified = now()
-        where
+        SET
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
             id = #{taskId}
     </update>
 
     <update id="updateFromCancelingTo">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
-        where
-            id = #{taskId} and status = 'CANCELING'
+        SET
+            status       = #{toStatus},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            id     = #{taskId}
+            AND
+            status = 'CANCELING'
     </update>
 
     <update id="updateFromInitTo">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
-        where
-            id = #{taskId} and status = 'INIT'
+        SET
+            status       = #{toStatus},
+            status_msg   = #{message},
+            gmt_modified = NOW()
+        WHERE
+            id     = #{taskId}
+            AND
+            status = 'INIT'
     </update>
 
     <update id="updateProcess">
-        update
+        UPDATE
             dm_exec_async_task
-        set
-            process_type = #{processType}, process_value = #{processValue}, gmt_modified = now()
-        where
+        SET
+            process_type  = #{processType},
+            process_value = #{processValue},
+            gmt_modified  = NOW()
+        WHERE
             id = #{taskId}
     </update>
 </mapper>

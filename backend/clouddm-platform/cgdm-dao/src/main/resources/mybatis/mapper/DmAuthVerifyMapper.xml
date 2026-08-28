@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.auth.DmAuthVerifyMapper">
-
     <resultMap id="rdpVerifyDO" type="com.clougence.clouddm.platform.dal.model.auth.DmAuthVerifyDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -50,11 +49,11 @@
         FROM
             dm_auth_verify
         WHERE
-            verify_type = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
+            verify_type      = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
             AND
-            verify_code_type=#{verifyCodeType}
+            verify_code_type = #{verifyCodeType}
             AND
-            uid = #{uid}
+            uid              = #{uid}
     </select>
 
     <select id="queryByPrimaryEmail" resultMap="rdpVerifyDO">
@@ -63,13 +62,13 @@
         FROM
             dm_auth_verify
         WHERE
-            verify_type = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
+            verify_type      = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
             AND
-            verify_code_type=#{verifyCodeType}
+            verify_code_type = #{verifyCodeType}
             AND
-            email=#{email}
+            email            = #{email}
             AND
-            account_type='PRIMARY_ACCOUNT'
+            account_type     = 'PRIMARY_ACCOUNT'
     </select>
 
     <select id="queryByPrimaryPhone" resultMap="rdpVerifyDO">
@@ -78,13 +77,13 @@
         FROM
             dm_auth_verify
         WHERE
-            verify_type = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
-        AND
-            verify_code_type=#{verifyCodeType}
-        AND
-            phone=#{phone}
-        AND
-            account_type='PRIMARY_ACCOUNT'
+            verify_type      = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
+            AND
+            verify_code_type = #{verifyCodeType}
+            AND
+            phone            = #{phone}
+            AND
+            account_type     = 'PRIMARY_ACCOUNT'
     </select>
 
     <update id="updateFailTimesAndDateById">
@@ -95,7 +94,7 @@
                 fail_times = #{failTimes},
             </if>
             last_fail_date = #{failDate},
-            gmt_modified   = now()
+            gmt_modified   = NOW()
         WHERE
             id = #{id}
     </update>
@@ -105,10 +104,10 @@
             dm_auth_verify
         SET
             <if test="verifyCode != null">
-                verify_code       = #{verifyCode},
+                verify_code = #{verifyCode},
             </if>
             verify_code_send_time = #{sendTime},
-            gmt_modified          = now()
+            gmt_modified          = NOW()
         WHERE
             id = #{id}
     </update>
@@ -124,25 +123,24 @@
         DELETE FROM
             dm_auth_verify
         WHERE
-            gmt_modified &lt;= #{beforeThisTime}
+            gmt_modified <![CDATA[ <= ]]> #{beforeThisTime}
     </delete>
 
     <update id="updatePhoneOrEmailByUid">
         UPDATE
             dm_auth_verify
         SET
-        <if test="phone != null">
-            phone = #{phone}
-        </if>
-        <if test="email != null">
-            email = #{email}
-        </if>
+            <if test="phone != null">
+                phone = #{phone}
+            </if>
+            <if test="email != null">
+                email = #{email}
+            </if>
         WHERE
-        uid = #{uid}
-        AND
-        verify_type = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
-        AND
-        verify_code_type=#{verifyCodeType}
+            uid              = #{uid}
+            AND
+            verify_type      = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
+            AND
+            verify_code_type = #{verifyCodeType}
     </update>
-
 </mapper>

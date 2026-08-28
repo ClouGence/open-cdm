@@ -15,11 +15,21 @@
         <result column="content_index" property="contentIndex"/>
         <result column="content" property="content"/>
     </resultMap>
+
     <sql id="dmChangeItemColumns">
         id
-        , gmt_create, gmt_modified, owner_uid, ref_flow_id, ref_change_id, ref_change_item_type,
-        content_name, content_index, content
+        ,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        ref_flow_id,
+        ref_change_id,
+        ref_change_item_type,
+        content_name,
+        content_index,
+        content
     </sql>
+
     <select id="queryChangeItemByChangeId" resultMap="dmChangeItemDO">
         SELECT
             <include refid="dmChangeItemColumns"/>
@@ -33,6 +43,7 @@
             ref_change_item_type = #{itemType}
         ORDER BY content_index ASC
     </select>
+
     <select id="queryChangeItemByChangeIds" resultMap="dmChangeItemDO">
         SELECT
             <include refid="dmChangeItemColumns"/>
@@ -44,15 +55,24 @@
             ref_change_item_type = #{itemType}
             AND
             ref_change_id        IN
-        <foreach collection="refChangeIds" item="refChangeId" separator="," open="(" close=")">
-            #{refChangeId}
-        </foreach>
-        ORDER BY ref_change_id ASC, content_index ASC
+            <foreach collection="refChangeIds" item="refChangeId" separator="," open="(" close=")">
+                #{refChangeId}
+            </foreach>
+        ORDER BY
+            ref_change_id ASC, content_index ASC
     </select>
+
     <select id="queryChangeItemMetaByChangeId" resultMap="dmChangeItemDO">
         SELECT
-            id, gmt_create, gmt_modified, owner_uid, ref_flow_id,
-            ref_change_id, ref_change_item_type, content_name, content_index
+            id,
+            gmt_create,
+            gmt_modified,
+            owner_uid,
+            ref_flow_id,
+            ref_change_id,
+            ref_change_item_type,
+            content_name,
+            content_index
         FROM
             dm_change_item
         WHERE
@@ -63,6 +83,7 @@
             ref_change_item_type = #{itemType}
         ORDER BY content_index ASC
     </select>
+
     <select id="queryChangeItemByName" resultMap="dmChangeItemDO">
         SELECT
             <include refid="dmChangeItemColumns"/>
@@ -78,11 +99,19 @@
             content_name         = #{contentName}
         LIMIT 1
     </select>
+
     <select id="queryBaselineItemByFlowId" resultMap="dmChangeItemDO">
         SELECT
-            id, gmt_create, gmt_modified, owner_uid, ref_flow_id,
-            #{changeId} AS ref_change_id, 'SQL' AS ref_change_item_type,
-            content_name, content_index, content
+            id,
+            gmt_create,
+            gmt_modified,
+            owner_uid,
+            ref_flow_id,
+            #{changeId} AS ref_change_id,
+            'SQL' AS ref_change_item_type,
+            content_name,
+            content_index,
+            content
         FROM
             dm_change_flow_item
         WHERE
@@ -91,9 +120,9 @@
             ref_flow_id = #{flowId}
         ORDER BY content_index ASC
     </select>
+
     <delete id="deleteByChangeItemType">
-        DELETE
-        FROM
+        DELETE FROM
             dm_change_item
         WHERE
             owner_uid            = #{ownerUid}
@@ -102,9 +131,9 @@
             AND
             ref_change_item_type = #{itemType}
     </delete>
+
     <delete id="deleteByChangeItemAll">
-        DELETE
-        FROM
+        DELETE FROM
             dm_change_item
         WHERE
             owner_uid     = #{ownerUid}

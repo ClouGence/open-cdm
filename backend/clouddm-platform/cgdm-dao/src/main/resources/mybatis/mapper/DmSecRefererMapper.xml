@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.secrule.DmSecRefererMapper">
-
     <resultMap id="dmSecRefererDO" type="com.clougence.clouddm.platform.dal.model.secrule.DmSecRefererDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -10,11 +10,15 @@
         <result column="enable" property="enable"/>
         <result column="ref_rule" property="refRule"/>
         <result column="ref_spec" property="refSpec"/>
-        <result column="ref_kind" property="refRuleKind" javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleKind"/>
+        <result column="ref_kind" property="refRuleKind"
+                javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleKind"/>
         <result column="ref_md5" property="refMD5"/>
-        <result column="rule_param" property="ruleParam" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="warn_level" property="warnLevel" javaType="com.clougence.clouddm.platform.dal.model.secrule.WarnLevel"/>
-        <result column="sen_mode" property="senMode" javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode"/>
+        <result column="rule_param" property="ruleParam"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="warn_level" property="warnLevel"
+                javaType="com.clougence.clouddm.platform.dal.model.secrule.WarnLevel"/>
+        <result column="sen_mode" property="senMode"
+                javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode"/>
     </resultMap>
 
     <sql id="allColumns">
@@ -33,18 +37,23 @@
     </sql>
 
     <select id="fixListAllRuleIdEmpty" resultMap="dmSecRefererDO">
-        SELECT * FROM dm_sec_referer where ref_rule_id is null
+        SELECT
+            *
+        FROM
+            dm_sec_referer
+        WHERE
+            ref_rule_id IS NULL
     </select>
 
     <update id="fixUpdateRuleId">
-        update
+        UPDATE
             dm_sec_referer
-        set
-            ref_rule_id = #{ruleId},
-            gmt_modified= now()
-        where
-            id  = #{id}
-        limit 1
+        SET
+            ref_rule_id  = #{ruleId},
+            gmt_modified = NOW()
+        WHERE
+            id = #{id}
+        LIMIT 1
     </update>
 
     <select id="listBySpecId" resultMap="dmSecRefererDO">
@@ -53,7 +62,8 @@
         FROM
             dm_sec_referer
         WHERE
-            ref_spec  = #{refSpecId} and
+            ref_spec  = #{refSpecId}
+            AND
             owner_uid = #{ownerUid}
     </select>
 
@@ -63,8 +73,10 @@
         FROM
             dm_sec_referer
         WHERE
-            ref_spec  = #{refSpecId} and
-            ref_kind  = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}  and
+            ref_spec  = #{refSpecId}
+            AND
+            ref_kind  = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}
+            AND
             owner_uid = #{ownerUid}
     </select>
 
@@ -74,8 +86,10 @@
         FROM
             dm_sec_referer
         WHERE
-            owner_uid = #{ownerUid} and
-            ref_rule  = #{refRuleOrSenId} and
+            owner_uid = #{ownerUid}
+            AND
+            ref_rule  = #{refRuleOrSenId}
+            AND
             ref_kind  = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}
     </select>
 
@@ -85,8 +99,9 @@
         FROM
             dm_sec_referer
         WHERE
-            ref_rule  = #{refRuleOrSenId} and
-            ref_kind  = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}
+            ref_rule = #{refRuleOrSenId}
+            AND
+            ref_kind = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}
     </select>
 
     <select id="queryBySpecAndRuleOrSen" resultMap="dmSecRefererDO">
@@ -95,11 +110,14 @@
         FROM
             dm_sec_referer
         WHERE
-            owner_uid = #{ownerUid} and
-            ref_spec  = #{refSpecId} and
-            ref_rule  = #{refRuleOrSenId} and
+            owner_uid = #{ownerUid}
+            AND
+            ref_spec  = #{refSpecId}
+            AND
+            ref_rule  = #{refRuleOrSenId}
+            AND
             ref_kind  = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}
-        limit 1
+        LIMIT 1
     </select>
 
     <select id="queryById" resultMap="dmSecRefererDO">
@@ -108,62 +126,66 @@
         FROM
             dm_sec_referer
         WHERE
-            owner_uid = #{ownerUid} and
+            owner_uid = #{ownerUid}
+            AND
             id        = #{refId}
     </select>
 
     <delete id="deleteBySpecId">
-        DELETE
-        FROM
+        DELETE FROM
             dm_sec_referer
         WHERE
-            owner_uid = #{ownerUid} and
-            ref_spec = #{refSpecId}
+            owner_uid = #{ownerUid}
+            AND
+            ref_spec  = #{refSpecId}
     </delete>
 
     <delete id="deleteById">
-        DELETE
-        FROM
+        DELETE FROM
             dm_sec_referer
         WHERE
-            owner_uid = #{ownerUid} and
+            owner_uid = #{ownerUid}
+            AND
             id        = #{refId}
     </delete>
 
     <delete id="deleteByRuleId">
-        DELETE
-        FROM
+        DELETE FROM
             dm_sec_referer
         WHERE
-            owner_uid = #{ownerUid} and
-            ref_rule  = #{refRuleOrSenId} and
+            owner_uid = #{ownerUid}
+            AND
+            ref_rule  = #{refRuleOrSenId}
+            AND
             ref_kind  = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}
     </delete>
 
     <update id="updateRuleReferer">
-        update
+        UPDATE
             dm_sec_referer
-        set
-            enable      = #{refererDO.enable},
-            warn_level  = #{refererDO.warnLevel, javaType=com.clougence.clouddm.platform.dal.model.secrule.WarnLevel},
-            sen_mode    = #{refererDO.senMode, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode},
-
-            rule_param  = #{refererDO.ruleParam, typeHandler =com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
-            ref_md5     = #{refererDO.refMD5},
-            gmt_modified= now()
-        where
-            owner_uid = #{ownerUid} and id = #{refId}
-        limit 1
+        SET
+            enable       = #{refererDO.enable},
+            warn_level   = #{refererDO.warnLevel, javaType=com.clougence.clouddm.platform.dal.model.secrule.WarnLevel},
+            sen_mode     = #{refererDO.senMode, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode},
+            rule_param   = #{refererDO.ruleParam, typeHandler =com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+            ref_md5      = #{refererDO.refMD5},
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{refId}
+        LIMIT 1
     </update>
 
     <update id="markDeprecatedByRefId">
-        update
+        UPDATE
             dm_sec_referer
-        set
-            enable      = 0,
-            gmt_modified= now()
-        where
-            ref_rule  = #{refRuleOrSenId} and
-            ref_kind  = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}
+        SET
+            enable       = 0,
+            gmt_modified = NOW()
+        WHERE
+            ref_rule = #{refRuleOrSenId}
+            AND
+            ref_kind = #{ruleKind, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleKind}
     </update>
 </mapper>

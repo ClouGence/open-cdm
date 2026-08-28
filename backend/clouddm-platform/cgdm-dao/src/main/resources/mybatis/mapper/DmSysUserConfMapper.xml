@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.system.DmSysUserConfMapper">
-
     <resultMap id="rdpUserKvBaseConfigDO" type="com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -23,68 +22,85 @@
 
     <select id="queryByUidAndConfigName" resultMap="rdpUserKvBaseConfigDO">
         SELECT
-        <include refid="rdpUserKvBaseConfig"/>
+            <include refid="rdpUserKvBaseConfig"/>
         FROM
-        dm_sys_user_conf
+            dm_sys_user_conf
         WHERE
-        uid = #{uid}
-        AND
-        config_name = #{configName}
+            uid         = #{uid}
+            AND
+            config_name = #{configName}
     </select>
 
     <select id="listByUid" resultMap="rdpUserKvBaseConfigDO">
         SELECT
-        <include refid="rdpUserKvBaseConfig"/>
+            <include refid="rdpUserKvBaseConfig"/>
         FROM
-        dm_sys_user_conf
+            dm_sys_user_conf
         WHERE
-        uid = #{uid}
+            uid = #{uid}
     </select>
 
     <select id="listByUidAndConfigNames" resultMap="rdpUserKvBaseConfigDO">
         SELECT
-        <include refid="rdpUserKvBaseConfig"/>
+            <include refid="rdpUserKvBaseConfig"/>
         FROM
-        dm_sys_user_conf
+            dm_sys_user_conf
         WHERE
-        uid = #{uid}
-        AND config_name in
-        <foreach collection="configNames" item="item" separator="," open="(" close=")">
-            #{item}
-        </foreach>
+            uid         = #{uid}
+            AND
+            config_name IN
+            <foreach collection="configNames" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <update id="updateUserConfig">
         UPDATE
             dm_sys_user_conf
-        SET config_value = #{configValue}
-        WHERE uid = #{uid}
-          AND config_name = #{configName}
+        SET
+            config_value = #{configValue}
+        WHERE
+            uid         = #{uid}
+            AND
+            config_name = #{configName}
     </update>
 
     <select id="queryByUidAndConfigNameForUpdate" resultMap="rdpUserKvBaseConfigDO">
         SELECT
-        <include refid="rdpUserKvBaseConfig"/>
-        FROM dm_sys_user_conf
-        WHERE uid = #{uid}
-          AND config_name = #{configName}
+            <include refid="rdpUserKvBaseConfig"/>
+        FROM
+            dm_sys_user_conf
+        WHERE
+            uid         = #{uid}
+            AND
+            config_name = #{configName}
         FOR UPDATE
     </select>
 
     <insert id="insertUserConfig">
-        INSERT INTO dm_sys_user_conf (uid, config_name, config_value)
-        VALUES (#{uid}, #{configName}, #{configValue})
+        INSERT INTO
+            dm_sys_user_conf (uid, config_name, config_value)
+        VALUES
+            (
+                #{uid},
+                #{configName},
+                #{configValue}
+            )
     </insert>
 
     <update id="updateConfigValueById">
-        UPDATE dm_sys_user_conf
-        SET config_value = #{configValue}
-        WHERE id = #{id}
+        UPDATE
+            dm_sys_user_conf
+        SET
+            config_value = #{configValue}
+        WHERE
+            id = #{id}
     </update>
 
     <delete id="deleteUserConfigs">
-        DELETE
-        FROM dm_sys_user_conf
-        WHERE uid = #{uid}
+        DELETE FROM
+            dm_sys_user_conf
+        WHERE
+            uid = #{uid}
     </delete>
 </mapper>

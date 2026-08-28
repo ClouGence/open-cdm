@@ -68,7 +68,6 @@
             worker_id = #{workerId}
     </select>
 
-
     <select id="listByIds" resultMap="alertConfigDetailDO">
         SELECT
             <include refid="alertConfigDetail"/>
@@ -82,9 +81,10 @@
     </select>
 
     <delete id="deleteByWorkerId">
-        DELETE
-        FROM dm_mon_alert_config_detail
-        WHERE worker_id = #{workerId}
+        DELETE FROM
+            dm_mon_alert_config_detail
+        WHERE
+            worker_id = #{workerId}
     </delete>
 
     <update id="updateByIdAndUid" parameterType="com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertConfigDetailDO">
@@ -108,7 +108,8 @@
             </if>
         </set>
         WHERE
-            id = #{id} AND
+            id  = #{id}
+            AND
             uid = #{uid}
     </update>
 

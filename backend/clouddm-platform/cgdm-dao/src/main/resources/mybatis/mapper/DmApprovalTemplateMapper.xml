@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.approval.DmApprovalTemplateMapper">
-
     <resultMap id="cacheApproTemplateDO" type="com.clougence.clouddm.platform.dal.model.approval.DmApprovalTemplateDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
         <result column="primary_uid" property="primaryUid"/>
-        <result column="approval_type" property="approvalType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler"/>
+        <result column="approval_type" property="approvalType"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler"/>
         <result column="template_name" property="templateName"/>
         <result column="template_identity" property="templateIdentity"/>
         <result column="appro_url" property="approUrl"/>
@@ -28,22 +29,22 @@
 
     <update id="updateTemplateBatch">
         <foreach collection="cacheList" item="item" separator=";">
-            update
+            UPDATE
                 dm_approval_template
-            set
+            SET
                 template_name = #{item.templateName}
-            where
+            WHERE
                 template_identity = #{item.templateIdentity}
         </foreach>
     </update>
 
     <update id="updateApprovalTemplateBatch">
         <foreach collection="cacheList" item="item" separator=";">
-            update
+            UPDATE
                 dm_approval
-            set
+            SET
                 appro_template_name = #{item.templateName}
-            where
+            WHERE
                 appro_template_identity = #{item.templateIdentity}
         </foreach>
     </update>
@@ -58,41 +59,55 @@
     </select>
 
     <select id="queryByUidAndTemId" resultMap="cacheApproTemplateDO">
-        select
+        SELECT
             <include refid="cacheAppro_allColumns"/>
-        from dm_approval_template
-        where primary_uid = #{primaryUid}
-        and template_identity = #{templateId}
+        FROM
+            dm_approval_template
+        WHERE
+            primary_uid       = #{primaryUid}
+            AND
+            template_identity = #{templateId}
     </select>
+
     <select id="listByPrimaryUidAndType" resultMap="cacheApproTemplateDO">
         SELECT
             <include refid="cacheAppro_allColumns"/>
         FROM
             dm_approval_template
         WHERE
-            primary_uid = #{primaryUid}
-            and approval_type = #{type, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
+            primary_uid   = #{primaryUid}
+            AND
+            approval_type = #{type, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
     </select>
 
     <delete id="deleteByPrimaryUid">
-        DELETE
-        FROM dm_approval_template
-        WHERE primary_uid = #{primaryUid}
-        AND approval_type = #{approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
+        DELETE FROM
+            dm_approval_template
+        WHERE
+            primary_uid   = #{primaryUid}
+            AND
+            approval_type = #{approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
     </delete>
 
     <insert id="insertTemplateBatch">
-        insert into dm_approval_template
-            (primary_uid, approval_type, template_name, template_identity, appro_url)
-        values
-        <foreach collection="cacheList" item="item" separator=",">
+        INSERT INTO
+            dm_approval_template
             (
-                #{item.primaryUid},
-                #{item.approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler},
-                #{item.templateName},
-                #{item.templateIdentity},
-                #{item.approUrl}
+                primary_uid,
+                approval_type,
+                template_name,
+                template_identity,
+                appro_url
             )
-        </foreach>
+        VALUES
+            <foreach collection="cacheList" item="item" separator=",">
+                (
+                    #{item.primaryUid},
+                    #{item.approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler},
+                    #{item.templateName},
+                    #{item.templateIdentity},
+                    #{item.approUrl}
+                )
+            </foreach>
     </insert>
 </mapper>

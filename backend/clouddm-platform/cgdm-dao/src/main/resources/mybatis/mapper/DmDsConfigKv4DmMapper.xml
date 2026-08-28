@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.datasource.DmDsConfigKv4DmMapper">
-
     <resultMap id="dmDsKvBaseConfigDO" type="com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -28,8 +27,8 @@
             dm_ds_config_kv_4dm
         WHERE
             data_source_id = #{dsId}
-        AND
-            config_name = #{configName}
+            AND
+            config_name    = #{configName}
     </select>
 
     <select id="listByDsId" resultMap="dmDsKvBaseConfigDO">
@@ -49,7 +48,11 @@
         WHERE
             data_source_id = #{dsId}
             <if test="configNames != null and configNames.size() > 0">
-                AND config_name not in <foreach collection="configNames" item="item" separator="," open="(" close=")">#{item}</foreach>
+                AND
+                config_name NOT IN
+                <foreach collection="configNames" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
             </if>
     </select>
 
@@ -60,16 +63,20 @@
             dm_ds_config_kv_4dm
         WHERE
             data_source_id = #{dsId}
-            AND config_name in <foreach collection="configNames" item="item" separator="," open="(" close=")">#{item}</foreach>
+            AND
+            config_name    IN
+            <foreach collection="configNames" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <select id="listByConfigName"  resultMap="dmDsKvBaseConfigDO">
         SELECT
-        <include refid="dmDsKvBaseConfig"/>
+            <include refid="dmDsKvBaseConfig"/>
         FROM
-        dm_ds_config_kv_4dm
+            dm_ds_config_kv_4dm
         WHERE
-        config_name = #{configName}
+            config_name = #{configName}
     </select>
 
     <update id="updateDsConfig">
@@ -79,19 +86,23 @@
             config_value = #{configValue}
         WHERE
             data_source_id = #{dsId}
-            AND config_name = #{configName}
+            AND
+            config_name    = #{configName}
     </update>
 
     <delete id="deleteDsConfig">
-        DELETE
-        FROM dm_ds_config_kv_4dm
-        WHERE data_source_id = #{dsId}
-          AND config_name = #{configName}
+        DELETE FROM
+            dm_ds_config_kv_4dm
+        WHERE
+            data_source_id = #{dsId}
+            AND
+            config_name    = #{configName}
     </delete>
 
     <delete id="deleteDsConfigs">
-        DELETE
-        FROM dm_ds_config_kv_4dm
-        WHERE data_source_id = #{dsId}
+        DELETE FROM
+            dm_ds_config_kv_4dm
+        WHERE
+            data_source_id = #{dsId}
     </delete>
 </mapper>

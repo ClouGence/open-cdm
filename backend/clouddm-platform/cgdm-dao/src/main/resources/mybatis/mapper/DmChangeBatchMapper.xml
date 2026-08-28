@@ -12,9 +12,17 @@
         <result column="batch_status" property="batchStatus"
                 javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeBatchStatus"/>
     </resultMap>
+
     <sql id="dmChangeBatchColumns">
-        id, gmt_create, gmt_modified, owner_uid, ref_root_flow_id, ref_root_change_id, batch_status
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        ref_root_flow_id,
+        ref_root_change_id,
+        batch_status
     </sql>
+
     <select id="queryRunningByRootFlow" resultMap="dmChangeBatchDO">
         SELECT
             <include refid="dmChangeBatchColumns"/>
@@ -29,6 +37,7 @@
         LIMIT 1
         FOR UPDATE
     </select>
+
     <select id="queryById" resultMap="dmChangeBatchDO">
         SELECT
             <include refid="dmChangeBatchColumns"/>
@@ -40,6 +49,7 @@
             id        = #{batchId}
         LIMIT 1
     </select>
+
     <select id="queryByIdForUpdate" resultMap="dmChangeBatchDO">
         SELECT
             <include refid="dmChangeBatchColumns"/>
@@ -52,6 +62,7 @@
         LIMIT 1
         FOR UPDATE
     </select>
+
     <select id="queryByIds" resultMap="dmChangeBatchDO">
         SELECT
             <include refid="dmChangeBatchColumns"/>
@@ -61,10 +72,11 @@
             owner_uid = #{ownerUid}
             AND
             id        IN
-        <foreach collection="batchIds" item="batchId" open="(" separator="," close=")">
-            #{batchId}
-        </foreach>
+            <foreach collection="batchIds" item="batchId" open="(" separator="," close=")">
+                #{batchId}
+            </foreach>
     </select>
+
     <select id="queryRunningList" resultMap="dmChangeBatchDO">
         SELECT
             <include refid="dmChangeBatchColumns"/>
@@ -74,6 +86,7 @@
             batch_status = 'RUNNING'
         ORDER BY id
     </select>
+
     <select id="queryRunningByOwner" resultMap="dmChangeBatchDO">
         SELECT
             <include refid="dmChangeBatchColumns"/>
@@ -85,6 +98,7 @@
             batch_status = 'RUNNING'
         ORDER BY id
     </select>
+
     <update id="finishRunningBatch">
         UPDATE
             dm_change_batch
@@ -98,6 +112,7 @@
             AND
             batch_status = 'RUNNING'
     </update>
+
     <select id="countRunningByRootFlow" resultType="int">
         SELECT
             COUNT(*)

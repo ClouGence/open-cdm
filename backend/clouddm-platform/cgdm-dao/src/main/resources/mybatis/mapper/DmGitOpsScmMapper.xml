@@ -13,6 +13,7 @@
         <result column="scm_service_url" property="scmServiceUrl"/>
         <result column="scm_access_token" property="scmAccessToken"/>
     </resultMap>
+
     <sql id="dmGitOpsScmColumns">
         id
         ,
@@ -24,52 +25,84 @@
         scm_service_url,
         scm_access_token
     </sql>
+
     <select id="queryListByOwner" resultMap="dmGitOpsScmDO">
-        select
-        <include refid="dmGitOpsScmColumns"/>
-        from dm_git_ops_scm
-        where owner_uid = #{ownerUid}
+        SELECT
+            <include refid="dmGitOpsScmColumns"/>
+        FROM
+            dm_git_ops_scm
+        WHERE
+            owner_uid = #{ownerUid}
     </select>
+
     <select id="queryListByOwnerAndIds" resultMap="dmGitOpsScmDO">
-        select
-        <include refid="dmGitOpsScmColumns"/>
-        from dm_git_ops_scm
-        where owner_uid = #{ownerUid} and
-        id in
-        <foreach collection="scmIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+        SELECT
+            <include refid="dmGitOpsScmColumns"/>
+        FROM
+            dm_git_ops_scm
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        IN
+            <foreach collection="scmIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
+
     <select id="queryByOwnerAndId" resultMap="dmGitOpsScmDO">
-        select
-        <include refid="dmGitOpsScmColumns"/>
-        from dm_git_ops_scm
-        where owner_uid = #{ownerUid} and id = #{scmId}
-        limit 1
+        SELECT
+            <include refid="dmGitOpsScmColumns"/>
+        FROM
+            dm_git_ops_scm
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{scmId}
+        LIMIT 1
     </select>
+
     <delete id="deleteByOwnerAndId">
-        delete
-        from dm_git_ops_scm
-        where owner_uid = #{ownerUid}
-          and id = #{scmId}
+        DELETE FROM
+            dm_git_ops_scm
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{scmId}
     </delete>
+
     <update id="updateDisplayByOwnerAndId">
-        update dm_git_ops_scm
-        set scm_display  = #{newData},
-            gmt_modified = now()
-        where owner_uid = #{ownerUid}
-          and id = #{scmId}
+        UPDATE
+            dm_git_ops_scm
+        SET
+            scm_display  = #{newData},
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{scmId}
     </update>
+
     <update id="updateTokenByOwnerAndId">
-        update dm_git_ops_scm
-        set scm_access_token = #{newData},
-            gmt_modified     = now()
-        where owner_uid = #{ownerUid}
-          and id = #{scmId}
+        UPDATE
+            dm_git_ops_scm
+        SET
+            scm_access_token = #{newData},
+            gmt_modified     = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{scmId}
     </update>
+
     <update id="updateUrlByOwnerAndId">
-        update dm_git_ops_scm
-        set scm_service_url = #{newData},
-            gmt_modified    = now()
-        where owner_uid = #{ownerUid}
-          and id = #{scmId}
+        UPDATE
+            dm_git_ops_scm
+        SET
+            scm_service_url = #{newData},
+            gmt_modified    = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{scmId}
     </update>
 </mapper>

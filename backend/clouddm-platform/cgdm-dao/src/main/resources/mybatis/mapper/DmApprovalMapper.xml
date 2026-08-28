@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.approval.DmApprovalMapper">
-
     <resultMap id="DmApprovalDO" type="com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO">
         <result column="id" property="id"/>
         <result column="biz_id" property="bizId"/>
@@ -11,7 +10,8 @@
         <result column="owner_uid" property="ownerUid"/>
         <result column="bind_ds_id" property="bindDsId"/>
         <result column="target_info" property="targetInfo"/>
-        <result column="appro_type" property="approType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler"/>
+        <result column="appro_type" property="approType"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler"/>
         <result column="appro_biz" property="approBiz"/>
         <result column="appro_identity" property="approIdentity"/>
         <result column="appro_template_name" property="approTemplateName"/>
@@ -89,69 +89,80 @@
     <!--   =============================== ========================================================================-->
 
     <update id="updateStatusByEnum">
-        update
+        UPDATE
             dm_approval
-        set
+        SET
             ticket_status  = #{ticketStatus},
             status_message = #{statusMessage},
-            gmt_modified   = now()
-            <if test="ticketStatus.name() == 'REJECTED' || ticketStatus.name() == 'FINISHED' || ticketStatus.name() == 'CLOSED' || ticketStatus.name() == 'CANCELED'">,finish_time = now()</if>
-        where
+            gmt_modified   = NOW()
+            <if test="ticketStatus.name() == 'REJECTED' || ticketStatus.name() == 'FINISHED' || ticketStatus.name() == 'CLOSED' || ticketStatus.name() == 'CANCELED'">
+                ,
+                finish_time = NOW()
+            </if>
+        WHERE
             id = #{ticketId}
     </update>
 
     <update id="updateModified">
-        update
+        UPDATE
             dm_approval
-        set
-            gmt_modified = now()
-        where
+        SET
+            gmt_modified = NOW()
+        WHERE
             id = #{id}
     </update>
 
     <update id="updateThirdApprovalInfo">
-        update
+        UPDATE
             dm_approval
-        set
-            appro_identity = #{approvalIdentity},approval_url = #{url}
-        where id = #{ticketId}
+        SET
+            appro_identity = #{approvalIdentity},
+            approval_url   = #{url}
+        WHERE
+            id = #{ticketId}
     </update>
+
     <update id="updateComment">
-        update
+        UPDATE
             dm_approval
-        set
+        SET
             appro_comment = #{comment}
-        where id = #{ticketId}
+        WHERE
+            id = #{ticketId}
     </update>
 
     <update id="updateTicketInfo">
-        update
+        UPDATE
             dm_approval
-        set ticket_info = #{ticketInfo}
-        where id = #{ticketId}
+        SET
+            ticket_info = #{ticketInfo}
+        WHERE
+            id = #{ticketId}
     </update>
 
     <update id="updateExpectedAffectedRows">
-        update
+        UPDATE
             dm_approval
-        set expected_affected_rows = #{expectedAffectedRows}
-        where id = #{ticketId}
+        SET
+            expected_affected_rows = #{expectedAffectedRows}
+        WHERE
+            id = #{ticketId}
     </update>
 
     <select id="queryByBizId" resultMap="DmApprovalDO">
-        select
+        SELECT
             <include refid="all_ticket_col"/>
-        from
+        FROM
             dm_approval
         <where>
-            biz_id = #{bizId}
-        and
+            biz_id  = #{bizId}
+            AND
             deleted = false
         </where>
     </select>
 
     <select id="queryByBizIdWithoutRawSql" resultMap="DmApprovalDO">
-        select
+        SELECT
             id,
             biz_id,
             owner_uid,
@@ -161,161 +172,244 @@
             roll_back_sql,
             ticket_info,
             features
-        from
+        FROM
             dm_approval
         <where>
-            biz_id = #{bizId}
-        and
+            biz_id  = #{bizId}
+            AND
             deleted = false
         </where>
     </select>
 
     <select id="queryById" resultMap="DmApprovalDO">
-        select
+        SELECT
             <include refid="all_ticket_col"/>
-        from
+        FROM
             dm_approval
         <where>
-            id = #{id}
-        and
+            id      = #{id}
+            AND
             deleted = false
         </where>
     </select>
 
     <select id="listTicketByConditionAndPage" resultMap="DmApprovalDO">
-        select
-        <include refid="basic_ticket_col"/>
-        from
-        dm_approval
+        SELECT
+            <include refid="basic_ticket_col"/>
+        FROM
+            dm_approval
         <where>
-        <if test="ticketQuery.uids != null and ticketQuery.uids.size() >0"> AND owner_uid in <foreach collection="ticketQuery.uids" item="item" separator="," open="(" close=")">#{item}</foreach></if>
-        <if test="ticketQuery.startTime != null"><![CDATA[ AND gmt_create > #{ticketQuery.startTime} ]]></if>
-        <if test="ticketQuery.endTime != null"><![CDATA[ AND gmt_create < #{ticketQuery.endTime} ]]></if>
-        <if test="ticketQuery.ticketId != null"><![CDATA[ AND id = #{ticketQuery.ticketId} ]]></if>
-        <if test="ticketQuery.ticketBizId != null"><![CDATA[ AND biz_id = #{ticketQuery.ticketBizId} ]]></if>
-        <if test="ticketQuery.ticketTitleName != null"><![CDATA[ AND ticket_title LIKE concat('%',#{ticketQuery.ticketTitleName},'%') ]]></if>
-        <if test="ticketQuery.ticketDescription != null"><![CDATA[
+            <if test="ticketQuery.uids != null and ticketQuery.uids.size() >0">
+                AND
+                owner_uid IN
+                <foreach collection="ticketQuery.uids" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="ticketQuery.startTime != null">
+                <![CDATA[ AND gmt_create > #{ticketQuery.startTime} ]]>
+            </if>
+            <if test="ticketQuery.endTime != null">
+                <![CDATA[ AND gmt_create < #{ticketQuery.endTime} ]]>
+            </if>
+            <if test="ticketQuery.ticketId != null">
+                <![CDATA[ AND id = #{ticketQuery.ticketId} ]]>
+            </if>
+            <if test="ticketQuery.ticketBizId != null">
+                <![CDATA[ AND biz_id = #{ticketQuery.ticketBizId} ]]>
+            </if>
+            <if test="ticketQuery.ticketTitleName != null">
+                <![CDATA[ AND ticket_title LIKE CONCAT('%', #{ticketQuery.ticketTitleName}, '%') ]]>
+            </if>
+            <if test="ticketQuery.ticketDescription != null">
+                <![CDATA[
+                    AND
+                    description LIKE CONCAT('%', #{ticketQuery.ticketDescription}, '%')
+                ]]>
+            </if>
+            <if test="ticketQuery.ticketContent != null">
+                <![CDATA[
+                    AND
+                    content_type = 'INLINE'
+                    AND
+                    raw_sql      LIKE CONCAT('%', #{ticketQuery.ticketContent}, '%')
+                ]]>
+            </if>
+            <if test="ticketQuery.ticketStatus != null">
+                <![CDATA[ AND ticket_status = #{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]>
+            </if>
+            <if test="ticketQuery.dsIds != null and ticketQuery.dsIds.size() >0">
+                AND
+                bind_ds_id IN
+                <foreach collection="ticketQuery.dsIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
             AND
-                description LIKE CONCAT('%', #{ticketQuery.ticketDescription}, '%')
-        ]]></if>
-        <if test="ticketQuery.ticketContent != null"><![CDATA[
+            primary_uid = #{puid}
             AND
-                content_type = 'INLINE'
-            AND
-                raw_sql LIKE CONCAT('%', #{ticketQuery.ticketContent}, '%')
-        ]]></if>
-        <if test="ticketQuery.ticketStatus != null"><![CDATA[ AND ticket_status =#{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]></if>
-        <if test="ticketQuery.dsIds != null and ticketQuery.dsIds.size() >0"> AND bind_ds_id in <foreach collection="ticketQuery.dsIds" item="item" separator="," open="(" close=")">#{item}</foreach></if>
-        and primary_uid = #{puid}
-        and deleted = false
+            deleted     = false
         </where>
-        order by
-        gmt_create desc
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="listConfirmTicketByConditionAndPage" resultMap="DmApprovalDO">
-        select
-        a.id,
-        a.biz_id,
-        a.gmt_create,
-        a.gmt_modified,
-        a.owner_uid,
-        a.bind_ds_id,
-        a.target_info,
-        a.appro_type,
-        a.appro_biz,
-        a.appro_identity,
-        a.appro_template_name,
-        a.appro_template_identity,
-        a.appro_comment,
-        a.description,
-        a.status_message,
-        a.ticket_title,
-        a.ticket_status,
-        a.finish_time,
-        a.deleted,
-        a.primary_uid,
-        a.env_name,
-        a.approval_url
-        from
-        dm_approval a
-        left join dm_approval_person b on a.biz_id = b.ticket_bz_id
+        SELECT
+            a.id,
+            a.biz_id,
+            a.gmt_create,
+            a.gmt_modified,
+            a.owner_uid,
+            a.bind_ds_id,
+            a.target_info,
+            a.appro_type,
+            a.appro_biz,
+            a.appro_identity,
+            a.appro_template_name,
+            a.appro_template_identity,
+            a.appro_comment,
+            a.description,
+            a.status_message,
+            a.ticket_title,
+            a.ticket_status,
+            a.finish_time,
+            a.deleted,
+            a.primary_uid,
+            a.env_name,
+            a.approval_url
+        FROM
+            dm_approval a
+        LEFT JOIN
+            dm_approval_person b
+        ON
+            a.biz_id = b.ticket_bz_id
         <where>
-        <if test="ticketQuery.uids != null and ticketQuery.uids.size() >0"> AND a.owner_uid in <foreach collection="ticketQuery.uids" item="item" separator="," open="(" close=")">#{item}</foreach></if>
-        <if test="ticketQuery.startTime != null"><![CDATA[ AND a.gmt_create > #{ticketQuery.startTime} ]]></if>
-        <if test="ticketQuery.endTime != null"><![CDATA[ AND a.gmt_create < #{ticketQuery.endTime} ]]></if>
-        <if test="ticketQuery.ticketId != null"><![CDATA[ AND a.id = #{ticketQuery.ticketId} ]]></if>
-        <if test="ticketQuery.ticketBizId != null"><![CDATA[ AND a.biz_id = #{ticketQuery.ticketBizId} ]]></if>
-        <if test="ticketQuery.ticketTitleName != null"><![CDATA[ AND a.ticket_title LIKE concat('%',#{ticketQuery.ticketTitleName},'%') ]]></if>
-        <if test="ticketQuery.ticketDescription != null"><![CDATA[
+            <if test="ticketQuery.uids != null and ticketQuery.uids.size() >0">
+                AND
+                a.owner_uid IN
+                <foreach collection="ticketQuery.uids" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="ticketQuery.startTime != null">
+                <![CDATA[ AND a.gmt_create > #{ticketQuery.startTime} ]]>
+            </if>
+            <if test="ticketQuery.endTime != null">
+                <![CDATA[ AND a.gmt_create < #{ticketQuery.endTime} ]]>
+            </if>
+            <if test="ticketQuery.ticketId != null">
+                <![CDATA[ AND a.id = #{ticketQuery.ticketId} ]]>
+            </if>
+            <if test="ticketQuery.ticketBizId != null">
+                <![CDATA[ AND a.biz_id = #{ticketQuery.ticketBizId} ]]>
+            </if>
+            <if test="ticketQuery.ticketTitleName != null">
+                <![CDATA[ AND a.ticket_title LIKE CONCAT('%', #{ticketQuery.ticketTitleName}, '%') ]]>
+            </if>
+            <if test="ticketQuery.ticketDescription != null">
+                <![CDATA[
+                    AND
+                    a.description LIKE CONCAT('%', #{ticketQuery.ticketDescription}, '%')
+                ]]>
+            </if>
+            <if test="ticketQuery.ticketContent != null">
+                <![CDATA[
+                    AND
+                    a.content_type = 'INLINE'
+                    AND
+                    a.raw_sql      LIKE CONCAT('%', #{ticketQuery.ticketContent}, '%')
+                ]]>
+            </if>
+            <if test="ticketQuery.ticketStatus != null">
+                <![CDATA[ AND a.ticket_status = #{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]>
+            </if>
+            <if test="ticketQuery.approvalPersonUid != null">
+                <![CDATA[ AND b.person_uid = #{ticketQuery.approvalPersonUid} ]]>
+            </if>
             AND
-                a.description LIKE CONCAT('%', #{ticketQuery.ticketDescription}, '%')
-        ]]></if>
-        <if test="ticketQuery.ticketContent != null"><![CDATA[
+            a.deleted       = false
             AND
-                a.content_type = 'INLINE'
-            AND
-                a.raw_sql LIKE CONCAT('%', #{ticketQuery.ticketContent}, '%')
-        ]]></if>
-        <if test="ticketQuery.ticketStatus != null"><![CDATA[ AND a.ticket_status =#{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]></if>
-        <if test="ticketQuery.approvalPersonUid != null"><![CDATA[ AND b.person_uid = #{ticketQuery.approvalPersonUid} ]]></if>
-        and a.deleted = false
-        and a.ticket_status in ('WAIT_CONFIRM','WAIT_APPROVAL','WAIT_EXEC')
+            a.ticket_status IN ('WAIT_CONFIRM', 'WAIT_APPROVAL', 'WAIT_EXEC')
         </where>
-        group by
+        GROUP BY
             a.id
-        order by
-            a.gmt_create desc
+        ORDER BY
+            a.gmt_create DESC
     </select>
 
     <select id="queryByApproIdentity" resultMap="DmApprovalDO">
-        select
-        <include refid="all_ticket_col"/>
-        from
-        dm_approval
+        SELECT
+            <include refid="all_ticket_col"/>
+        FROM
+            dm_approval
         <where>
             appro_identity = #{approIdentity}
-            and appro_type = #{type}
-            and deleted = false
-            <if test="puid != null"> and primary_uid = #{puid} </if>
+            AND
+            appro_type     = #{type}
+            AND
+            deleted        = false
+            <if test="puid != null">
+                AND
+                primary_uid = #{puid}
+            </if>
         </where>
     </select>
 
-
     <select id="selectByIdForUpdate" resultMap="DmApprovalDO">
-        select
+        SELECT
             <include refid="all_ticket_col"/>
-        from dm_approval
-        where id = #{ticketId}
-        for update
+        FROM
+            dm_approval
+        WHERE
+            id = #{ticketId}
+        FOR UPDATE
     </select>
+
     <select id="listUnFinishTicketIdList" resultType="java.lang.Long">
-        select
+        SELECT
             id
-        from dm_approval
-        where ticket_status in('PRE_INIT_WAIT','PRE_INIT_RUN','WAIT_APPROVAL','WAIT_CONFIRM','WAIT_EXEC','RUNNING','EXEC_FAIL')
-        and date_sub(now(), interval 5 second) >= gmt_modified
-        order by gmt_modified asc
-        limit 20
+        FROM
+            dm_approval
+        WHERE
+            ticket_status                      IN ('PRE_INIT_WAIT', 'PRE_INIT_RUN', 'WAIT_APPROVAL', 'WAIT_CONFIRM', 'WAIT_EXEC', 'RUNNING', 'EXEC_FAIL')
+            AND
+            DATE_SUB(NOW(), INTERVAL 5 SECOND) <![CDATA[ >= ]]> gmt_modified
+        ORDER BY gmt_modified ASC
+        LIMIT 20
     </select>
 
     <select id="listAuthTicketByConditionAndPage" resultMap="DmApprovalDO">
-        select
-        <include refid="all_ticket_col"/>
-        from
-        dm_approval
+        SELECT
+            <include refid="all_ticket_col"/>
+        FROM
+            dm_approval
         <where>
-            <if test="ticketQuery.uids != null and ticketQuery.uids.size() >0"> AND owner_uid in <foreach collection="ticketQuery.uids" item="item" separator="," open="(" close=")">#{item}</foreach></if>
-            <if test="ticketQuery.startTime != null"><![CDATA[ AND gmt_create > #{ticketQuery.startTime} ]]></if>
-            <if test="ticketQuery.endTime != null"><![CDATA[ AND gmt_create < #{ticketQuery.endTime} ]]></if>
-            <if test="ticketQuery.ticketTitleName != null"><![CDATA[ AND ticket_title LIKE concat('%',#{ticketQuery.ticketTitleName},'%') ]]></if>
-            <if test="ticketQuery.ticketStatus != null"><![CDATA[ AND ticket_status =#{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]></if>
-            and appro_biz = 'DATA_SOURCE_AUTH'
-            and deleted = false
+            <if test="ticketQuery.uids != null and ticketQuery.uids.size() >0">
+                AND
+                owner_uid IN
+                <foreach collection="ticketQuery.uids" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="ticketQuery.startTime != null">
+                <![CDATA[ AND gmt_create > #{ticketQuery.startTime} ]]>
+            </if>
+            <if test="ticketQuery.endTime != null">
+                <![CDATA[ AND gmt_create < #{ticketQuery.endTime} ]]>
+            </if>
+            <if test="ticketQuery.ticketTitleName != null">
+                <![CDATA[ AND ticket_title LIKE CONCAT('%', #{ticketQuery.ticketTitleName}, '%') ]]>
+            </if>
+            <if test="ticketQuery.ticketStatus != null">
+                <![CDATA[ AND ticket_status = #{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]>
+            </if>
+            AND
+            appro_biz = 'DATA_SOURCE_AUTH'
+            AND
+            deleted   = false
         </where>
-        order by
-        gmt_create desc
+        ORDER BY
+            gmt_create DESC
     </select>
-
-
 </mapper>

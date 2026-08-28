@@ -183,6 +183,26 @@ cd frontend && npm run check-i18n
   不做机械展开。
 - 修改表结构、字段语义或默认数据时，同步检查 DAO、DO、mapper、初始化脚本、升级脚本、前端展示和测试。
 
+### MyBatis Mapper XML 可读性规则
+
+- 新增或修改 MyBatis Mapper XML 时，以
+  `backend/clouddm-platform/cgdm-dao/src/main/resources/mybatis/mapper/DmApprovalProcessMapper.xml` 为排版参考。
+- XML 使用 4 个空格缩进，每深入一层增加 4 个空格，禁止使用 Tab；自闭合标签写成 `<result .../>`，`/>` 前不加空格。
+- `DOCTYPE` 的公共标识和 URL 分成两行，第二行缩进 8 个空格。`<resultMap>`、`<sql>` 和每条 CRUD 语句等顶层代码块之间
+  只保留一个空行；同类 CRUD 语句也不能连续挤在一起或使用多个空行。
+- `resultMap` 每个字段映射独占一行。单行过长时，从 `javaType`、`typeHandler` 等扩展属性处换行，后续属性缩进 16 个空格。
+- SQL 关键字和标准函数名统一大写，例如 `SELECT`、`FROM`、`WHERE`、`AND`、`ORDER BY`、`NOW()`、`COUNT()`；
+  MyBatis 标签、参数名、列名、表名和字符串常量保持原有大小写。
+- `SELECT`、`FROM`、`WHERE`、`UPDATE`、`SET`、`INSERT INTO`、`VALUES`、`DELETE FROM` 等主要子句独占一行，
+  表名、字段、值和条件相对其子句再缩进一层。短小的 `ORDER BY id`、`GROUP BY type` 可以保持一行，多字段时按字段换行。
+- `WHERE` 中每个条件独占一行，第二个及后续条件的 `AND`、`OR` 独占一行；`SET` 中每个赋值独占一行。
+  只在同一个连续条件块或赋值块内用空格纵向对齐运算符，不跨 MyBatis 动态标签强行对齐。
+- 逗号放在当前字段、值或赋值行的行尾。`SELECT` 字段较多时优先使用 `<sql>` 和 `<include>` 复用，不写超长横向字段列表。
+- `<if>`、`<choose>`、`<when>`、`<otherwise>`、`<foreach>`、`<where>`、`<set>`、`<trim>` 等动态标签按 XML 层级缩进，
+  内部 SQL 在标签基础上再缩进一层；禁止把动态标签及其 SQL 内容压缩在同一行。
+- SQL 比较符包含 `<`、`>`、`<=` 或 `>=` 时，统一写成 `<![CDATA[ ... ]]>`，并在 CDATA 内侧保留一个空格；
+  不使用 `&lt;`、`&gt;` 等 XML 实体代替。
+
 ## 前后端契约
 
 - 前后端契约必须保持一致。

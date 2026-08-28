@@ -23,21 +23,21 @@
     </sql>
 
     <select id="queryListByBizId" resultType="com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO">
-        select
+        SELECT
             <include refid="logDO"/>
-        from
+        FROM
             dm_mon_biz_log
-        where
+        WHERE
             depend_on_biz_id = #{bizId}
     </select>
 
     <select id="queryListByBizIdAndType" resultMap="autoExecJobDO">
-        select
+        SELECT
             <include refid="logDO"/>
-        from
+        FROM
             dm_mon_biz_log
-        where
-            depend_on_biz_id = #{bizId}
+        WHERE
+            depend_on_biz_id   = #{bizId}
             depend_on_biz_type = #{bizType,javaType=com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType}
     </select>
 </mapper>

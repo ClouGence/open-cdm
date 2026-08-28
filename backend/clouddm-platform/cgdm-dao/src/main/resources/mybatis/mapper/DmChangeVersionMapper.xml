@@ -15,20 +15,54 @@
         <result column="type" property="type"
                 javaType="com.clougence.clouddm.platform.dal.model.cicd.ChangeVersionType"/>
     </resultMap>
+
     <sql id="dmChangeVersionColumns">
         id
-        , gmt_create, gmt_modified, owner_uid, ref_flow_id, ref_change_id, version, commit_id, content, type
+        ,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        ref_flow_id,
+        ref_change_id,
+        version,
+        commit_id,
+        content,
+        type
     </sql>
 
     <insert id="insertReviewSnapshot">
-        insert into dm_change_version
-            (gmt_create, gmt_modified, owner_uid, ref_flow_id, ref_change_id, version, commit_id, content, type)
-        select CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, owner_uid, #{flowId}, #{changeId}, CURRENT_TIMESTAMP, #{commitId}, content, 'Change'
-        from dm_change_item
-        where owner_uid = #{ownerUid}
-          and ref_change_id = #{changeId}
-          and ref_change_item_type = 'REVIEW'
-        order by content_index asc
-        limit 1
+        INSERT INTO
+            dm_change_version
+            (
+                gmt_create,
+                gmt_modified,
+                owner_uid,
+                ref_flow_id,
+                ref_change_id,
+                version,
+                commit_id,
+                content,
+                type
+            )
+        SELECT
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP,
+            owner_uid,
+            #{flowId},
+            #{changeId},
+            CURRENT_TIMESTAMP,
+            #{commitId},
+            content,
+            'Change'
+        FROM
+            dm_change_item
+        WHERE
+            owner_uid            = #{ownerUid}
+            AND
+            ref_change_id        = #{changeId}
+            AND
+            ref_change_item_type = 'REVIEW'
+        ORDER BY content_index ASC
+        LIMIT 1
     </insert>
 </mapper>

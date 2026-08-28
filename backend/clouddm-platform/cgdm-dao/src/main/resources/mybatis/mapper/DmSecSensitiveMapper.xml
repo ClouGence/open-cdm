@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.secrule.DmSecSensitiveMapper">
     <resultMap id="dmSecSensitiveDO" type="com.clougence.clouddm.platform.dal.model.secrule.DmSecSensitiveDO">
         <result column="id" property="id"/>
@@ -9,14 +10,16 @@
         <result column="sen_id" property="senId"/>
         <result column="sen_name" property="name"/>
         <result column="sen_desc" property="description"/>
-        <result column="sen_type" property="scriptType" javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType"/>
+        <result column="sen_type" property="scriptType"
+                javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType"/>
         <result column="sen_def" property="scriptDef"/>
         <result column="sen_content" property="scriptContent"/>
         <result column="sen_md5" property="scriptMD5"/>
         <result column="inner_share" property="innerShare"/>
         <result column="deprecated" property="deprecated"/>
 
-        <result column="sen_mode" property="senMode" javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode"/>
+        <result column="sen_mode" property="senMode"
+                javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode"/>
     </resultMap>
 
     <sql id="allColumns">
@@ -42,39 +45,45 @@
         FROM
             dm_sec_sensitive
         WHERE
-            sen_id = #{senStrId} and inner_share = 1
-        limit 1
+            sen_id      = #{senStrId}
+            AND
+            inner_share = 1
+        LIMIT 1
     </select>
 
     <update id="updateInnerSenById">
-        update
+        UPDATE
             dm_sec_sensitive
-        set
-            sen_id        = #{senDO.senId},
-            sen_name      = #{senDO.name},
-            sen_desc      = #{senDO.description},
-            sen_type      = #{senDO.scriptType, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType},
-            sen_def       = #{senDO.scriptDef},
-            sen_content   = #{senDO.scriptContent},
-            sen_md5       = #{senDO.scriptMD5},
-            sen_mode      = #{senDO.senMode, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode},
-            inner_share   = #{senDO.innerShare},
-            deprecated    = #{senDO.deprecated},
-            gmt_modified  = now()
+        SET
+            sen_id       = #{senDO.senId},
+            sen_name     = #{senDO.name},
+            sen_desc     = #{senDO.description},
+            sen_type     = #{senDO.scriptType, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType},
+            sen_def      = #{senDO.scriptDef},
+            sen_content  = #{senDO.scriptContent},
+            sen_md5      = #{senDO.scriptMD5},
+            sen_mode     = #{senDO.senMode, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode},
+            inner_share  = #{senDO.innerShare},
+            deprecated   = #{senDO.deprecated},
+            gmt_modified = NOW()
         WHERE
-            id = #{senId} and inner_share = 1
-            limit 1
+            id          = #{senId}
+            AND
+            inner_share = 1
+        LIMIT 1
     </update>
 
     <delete id="markInnerDeprecatedById">
-        update
+        UPDATE
             dm_sec_sensitive
-        set
-            deprecated  = 1,
-            gmt_modified= now()
+        SET
+            deprecated   = 1,
+            gmt_modified = NOW()
         WHERE
-            sen_id = #{senStrId} and inner_share = 1
-        limit 1
+            sen_id      = #{senStrId}
+            AND
+            inner_share = 1
+        LIMIT 1
     </delete>
 
     <select id="searchSens" resultMap="dmSecSensitiveDO">
@@ -83,10 +92,13 @@
         FROM
             dm_sec_sensitive
         WHERE
-            (owner_uid = #{ownerUid} or inner_share = 1)
-            <if test="searchKeywords != null">AND (sen_name like concat('%',#{searchKeywords},'%') or sen_desc like concat('%',#{searchKeywords},'%'))</if>
-        order by
-            gmt_create desc
+            (owner_uid = #{ownerUid} OR inner_share = 1)
+            <if test="searchKeywords != null">
+                AND
+                (sen_name LIKE CONCAT('%', #{searchKeywords}, '%') OR sen_desc LIKE CONCAT('%', #{searchKeywords}, '%'))
+            </if>
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="listByUid" resultMap="dmSecSensitiveDO">
@@ -95,9 +107,9 @@
         FROM
             dm_sec_sensitive
         WHERE
-            (owner_uid = #{ownerUid} or inner_share = 1)
-        order by
-            gmt_create desc
+            (owner_uid = #{ownerUid} OR inner_share = 1)
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="queryByIds" resultMap="dmSecSensitiveDO">
@@ -106,10 +118,14 @@
         FROM
             dm_sec_sensitive
         WHERE
-            id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach> and
-            ((owner_uid = #{ownerUid} and inner_share = 0) or inner_share = 1)
-        order by
-            gmt_create desc
+            id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND
+            ((owner_uid = #{ownerUid} AND inner_share = 0) OR inner_share = 1)
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="queryById" resultMap="dmSecSensitiveDO">
@@ -118,32 +134,42 @@
         FROM
             dm_sec_sensitive
         WHERE
-            id = #{senId} and ((owner_uid = #{ownerUid} and inner_share = 0) or inner_share = 1)
-        limit 1
+            id          = #{senId}
+            AND
+            ((owner_uid = #{ownerUid} AND inner_share = 0) OR inner_share = 1)
+        LIMIT 1
     </select>
 
     <delete id="deleteByUidAndId">
         DELETE FROM
             dm_sec_sensitive
         WHERE
-            owner_uid = #{ownerUid} AND id = #{senId} and inner_share = 0
-            limit 1
+            owner_uid   = #{ownerUid}
+            AND
+            id          = #{senId}
+            AND
+            inner_share = 0
+        LIMIT 1
     </delete>
 
     <update id="updateSen">
-        update
+        UPDATE
             dm_sec_sensitive
-        set
-            sen_name      = #{senDO.name},
-            sen_desc      = #{senDO.description},
-            sen_type      = #{senDO.scriptType, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType},
-            sen_def       = #{senDO.scriptDef},
-            sen_content   = #{senDO.scriptContent},
-            sen_md5       = #{senDO.scriptMD5},
-            sen_mode      = #{senDO.senMode, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode},
-            gmt_modified  = now()
+        SET
+            sen_name     = #{senDO.name},
+            sen_desc     = #{senDO.description},
+            sen_type     = #{senDO.scriptType, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType},
+            sen_def      = #{senDO.scriptDef},
+            sen_content  = #{senDO.scriptContent},
+            sen_md5      = #{senDO.scriptMD5},
+            sen_mode     = #{senDO.senMode, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode},
+            gmt_modified = NOW()
         WHERE
-            owner_uid = #{ownerUid} AND id = #{senId} and inner_share = 0
-        limit 1
+            owner_uid   = #{ownerUid}
+            AND
+            id          = #{senId}
+            AND
+            inner_share = 0
+        LIMIT 1
     </update>
 </mapper>

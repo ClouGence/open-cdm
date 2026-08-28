@@ -11,7 +11,8 @@
         <result column="file_uri" property="fileUri"/>
         <result column="file_format" property="fileFormat"/>
         <result column="inner_format" property="innerFormat"/>
-        <result column="status" property="status" javaType="com.clougence.clouddm.platform.dal.model.execution.FileStatus"/>
+        <result column="status" property="status"
+                javaType="com.clougence.clouddm.platform.dal.model.execution.FileStatus"/>
         <result column="message" property="message"/>
         <result column="unique_id" property="uniqueId"/>
         <result column="query_id" property="queryId"/>
@@ -45,29 +46,29 @@
     </select>
 
     <update id="updateStatusByUniqueId">
-        update
+        UPDATE
             dm_exec_file
-        set
-            status      = #{toStatus, javaType=com.clougence.clouddm.platform.dal.model.execution.FileStatus},
-            message       = #{message},
-            heartbeat    = now(),
-            gmt_modified = now(),
+        SET
+            status       = #{toStatus, javaType=com.clougence.clouddm.platform.dal.model.execution.FileStatus},
+            message      = #{message},
+            heartbeat    = NOW(),
+            gmt_modified = NOW(),
             try_count    = 0
-        where
-            unique_id    = #{uniqueId}
+        WHERE
+            unique_id = #{uniqueId}
     </update>
 
     <update id="updateStatusByQueryId">
-        update
+        UPDATE
             dm_exec_file
-        set
+        SET
             status       = #{toStatus, javaType=com.clougence.clouddm.platform.dal.model.execution.FileStatus},
             message      = #{message},
-            heartbeat    = now(),
-            gmt_modified = now(),
+            heartbeat    = NOW(),
+            gmt_modified = NOW(),
             try_count    = 0
-        where
-            query_id     = #{queryId}
+        WHERE
+            query_id = #{queryId}
     </update>
 
     <select id="queryByAfterHeartbeatTime" resultMap="dmFileDO">
@@ -76,60 +77,66 @@
         FROM
             dm_exec_file
         WHERE
-            heartbeat &lt; #{point}
-        order by
-            heartbeat asc
-        limit
+            heartbeat <![CDATA[ < ]]> #{point}
+        ORDER BY
+            heartbeat ASC
+        LIMIT
             #{limit}
     </select>
 
     <update id="updateAccessTimeByUniqueId">
-        update
+        UPDATE
             dm_exec_file
-        set
-            heartbeat    = now(),
-            gmt_modified = now(),
+        SET
+            heartbeat    = NOW(),
+            gmt_modified = NOW(),
             try_count    = 0
-            <if test="message !=null">, message = #{message}</if>
-        where
+            <if test="message !=null">
+                ,
+                message = #{message}
+            </if>
+        WHERE
             unique_id = #{uniqueId}
     </update>
 
     <update id="updateHeartbeatByUniqueId">
-        update
+        UPDATE
             dm_exec_file
-        set
-            heartbeat = now(),
+        SET
+            heartbeat = NOW(),
             try_count = 0
-        where
+        WHERE
             unique_id = #{uniqueId}
     </update>
 
     <update id="incrementTryCountByUniqueId">
-        update
+        UPDATE
             dm_exec_file
-        set
-            heartbeat = now(),
+        SET
+            heartbeat = NOW(),
             try_count = try_count + 1
-            <if test="message !=null">, message = #{message}</if>
-        where
+            <if test="message !=null">
+                ,
+                message = #{message}
+            </if>
+        WHERE
             unique_id = #{uniqueId}
     </update>
 
     <delete id="deleteFileByUniqueId">
-        delete from
+        DELETE FROM
             dm_exec_file
-        where
+        WHERE
             unique_id = #{uniqueId}
     </delete>
 
     <update id="markFileDeletedByUniqueId">
-        update
+        UPDATE
             dm_exec_file
-        set
-            heartbeat = now(),
+        SET
+            heartbeat = NOW(),
             status    = 'Delete'
-        where
+        WHERE
             unique_id = #{uniqueId}
     </update>
 </mapper>

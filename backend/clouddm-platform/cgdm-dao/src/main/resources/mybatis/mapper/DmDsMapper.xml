@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.datasource.DmDsMapper">
-
     <resultMap id="rdpDataSourceDO" type="com.clougence.clouddm.platform.dal.model.datasource.DmDsDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -71,10 +70,11 @@
         FROM
             dm_ds
         WHERE
-            uid = #{uid} and
+            uid              = #{uid}
+            AND
             life_cycle_state != 'DELETED'
         ORDER BY
-            data_source_type asc
+            data_source_type ASC
     </select>
 
     <select id="listByUserWithGmtOrder" resultMap="rdpDataSourceDO">
@@ -83,7 +83,8 @@
         FROM
             dm_ds
         WHERE
-            uid = #{uid} and
+            uid              = #{uid}
+            AND
             life_cycle_state != 'DELETED'
         ORDER BY
             gmt_create DESC
@@ -95,10 +96,12 @@
         FROM
             dm_ds
         WHERE
-            life_cycle_state != 'DELETED' and
-            ds_env_id = #{envId} and
-            uid = #{uid}
-        ORDER BY data_source_type asc
+            life_cycle_state != 'DELETED'
+            AND
+            ds_env_id        = #{envId}
+            AND
+            uid              = #{uid}
+        ORDER BY data_source_type ASC
     </select>
 
     <select id="listByDsIdsAndEnvId" resultMap="rdpDataSourceDO">
@@ -107,10 +110,15 @@
         FROM
             dm_ds
         WHERE
-            life_cycle_state != 'DELETED' and
-            ds_env_id = #{envId} and
-            id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
-        ORDER BY data_source_type asc
+            life_cycle_state != 'DELETED'
+            AND
+            ds_env_id        = #{envId}
+            AND
+            id               IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        ORDER BY data_source_type ASC
     </select>
 
     <select id="queryDsIdentityById" resultMap="rdpDataSourceDO">
@@ -119,7 +127,7 @@
         FROM
             dm_ds
         WHERE
-            id=#{id}
+            id = #{id}
     </select>
 
     <select id="listByDesc" resultMap="rdpDataSourceDO">
@@ -129,8 +137,8 @@
             dm_ds
         WHERE
             life_cycle_state != 'DELETED'
-        and
-            instance_desc like CONCAT('%',#{dataSourceDesc},'%')
+            AND
+            instance_desc    LIKE CONCAT('%', #{dataSourceDesc}, '%')
         ORDER BY gmt_create DESC
     </select>
 
@@ -140,7 +148,10 @@
         FROM
             dm_ds
         WHERE
-            id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+            id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
         ORDER BY gmt_create DESC
     </select>
 
@@ -151,8 +162,11 @@
             dm_ds
         WHERE
             life_cycle_state != 'DELETED'
-        AND
-            id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+            AND
+            id               IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
         ORDER BY gmt_create DESC
     </select>
 
@@ -162,7 +176,9 @@
         FROM
             dm_ds
         WHERE
-            uid = #{ownerUid} AND id = #{dataSourceId}
+            uid = #{ownerUid}
+            AND
+            id  = #{dataSourceId}
         LIMIT 1
     </select>
 
@@ -172,7 +188,12 @@
         FROM
             dm_ds
         WHERE
-            uid = #{ownerUid} AND id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+            uid = #{ownerUid}
+            AND
+            id  IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <select id="listByOwner" resultMap="rdpDataSourceDO">
@@ -208,7 +229,10 @@
         FROM
             dm_ds
         WHERE
-            id IN <foreach collection="dataSourceIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+            id IN
+            <foreach collection="dataSourceIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <select id="listByIdsAndType" resultMap="rdpDataSourceDO">
@@ -217,8 +241,13 @@
         FROM
             dm_ds
         WHERE
-            life_cycle_state != 'DELETED' AND
-            id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach> AND
+            life_cycle_state != 'DELETED'
+            AND
+            id               IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND
             data_source_type = #{dataSourceType,javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType}
         ORDER BY gmt_create DESC
     </select>
@@ -231,22 +260,31 @@
         WHERE
             life_cycle_state != 'DELETED'
             <if test="dataSourceType != null">
-                AND data_source_type = #{dataSourceType,javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType}
+                AND
+                data_source_type = #{dataSourceType,javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType}
             </if>
             <if test="lifeCycleState != null">
-                AND life_cycle_state = #{lifeCycleState,javaType=com.clougence.clouddm.platform.dal.model.LifeCycleState}
+                AND
+                life_cycle_state = #{lifeCycleState,javaType=com.clougence.clouddm.platform.dal.model.LifeCycleState}
             </if>
             <if test="dataSourceIds != null and dataSourceIds.size > 0">
-                AND id IN <foreach collection="dataSourceIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+                AND
+                id IN
+                <foreach collection="dataSourceIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
             </if>
             <if test="dataSourceDescLike != null">
-                AND instance_desc LIKE concat('%',#{dataSourceDescLike},'%')
+                AND
+                instance_desc LIKE CONCAT('%', #{dataSourceDescLike}, '%')
             </if>
             <if test="dsHostLike != null">
-                AND host  LIKE concat('%',#{dsHostLike},'%')
+                AND
+                host LIKE CONCAT('%', #{dsHostLike}, '%')
             </if>
             <if test="instanceIdLike != null">
-                AND instance_id  LIKE concat('%',#{instanceIdLike},'%')
+                AND
+                instance_id LIKE CONCAT('%', #{instanceIdLike}, '%')
             </if>
         ORDER BY gmt_create DESC
     </select>
@@ -257,9 +295,11 @@
         FROM
             dm_ds
         WHERE
-            life_cycle_state != 'DELETED' AND
-            host = #{host} AND
-            uid = #{uid}
+            life_cycle_state != 'DELETED'
+            AND
+            host             = #{host}
+            AND
+            uid              = #{uid}
         ORDER BY gmt_create DESC
     </select>
 
@@ -269,8 +309,9 @@
         FROM
             dm_ds
         WHERE
-            life_cycle_state != 'DELETED' AND
-            ds_env_id = #{dsEnvId}
+            life_cycle_state != 'DELETED'
+            AND
+            ds_env_id        = #{dsEnvId}
     </select>
 
 <!--    <select id="listUserDsByDefaultHost" resultMap="rdpDataSourceDO">-->
@@ -290,8 +331,9 @@
         FROM
             dm_ds
         WHERE
-            life_cycle_state != 'DELETED' AND
-            instance_id = #{instanceId}
+            life_cycle_state != 'DELETED'
+            AND
+            instance_id      = #{instanceId}
         ORDER BY gmt_create DESC
     </select>
 
@@ -302,29 +344,35 @@
             dm_ds
         WHERE
             uid = #{uid}
-        limit 1
+        LIMIT 1
     </select>
 
     <select id="queryCurrentDsTypes" resultType="com.clougence.clouddm.base.metadata.ds.DataSourceType">
-        select data_source_type
-        from dm_ds
+        SELECT
+            data_source_type
+        FROM
+            dm_ds
     </select>
 
     <update id="cleanDataSourceAccount">
         UPDATE
             dm_ds
-        SET access_key = null,
-            secret_key = null
-        WHERE id = #{id}
+        SET
+            access_key = NULL,
+            secret_key = NULL
+        WHERE
+            id = #{id}
     </update>
 
     <update id="updateSecurityInfo">
         UPDATE
             dm_ds
-        SET access_key   = #{accessKey},
-            secret_key   = #{secretKey},
-            security_type=#{securityType}
-        WHERE id = #{id}
+        SET
+            access_key    = #{accessKey},
+            secret_key    = #{secretKey},
+            security_type = #{securityType}
+        WHERE
+            id = #{id}
     </update>
 
     <update id="updateVersionByInstanceId">
