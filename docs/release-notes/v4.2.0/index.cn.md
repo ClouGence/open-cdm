@@ -1,9 +1,3 @@
-## 亮点
-
-- 新增 AWS Valkey 和 CockroachDB 数据源支持，覆盖托管 Valkey 场景与 CockroachDB 的常用连接配置。
-- KingbaseES 支持 PostgreSQL、MySQL、Oracle 和 SQLServer 四种兼容模式，并校验实际数据库模式。
-- GoldenDB 新增独立的 MySQL 和 Oracle 模式，提供与对应 SQL 体系匹配的数据源能力。
-
 ## 新增
 
 - 新增 AWS Valkey 数据源支持；当托管实例禁用 `CONFIG` 命令时，可通过 `SELECT` 探测实际数据库数量，由社区贡献者 [@BetaCat0](https://github.com/BetaCat0) 提交，感谢贡献（[#249](https://github.com/ClouGence/open-cdm/issues/249)）。

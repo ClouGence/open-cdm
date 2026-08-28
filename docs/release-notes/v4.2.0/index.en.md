@@ -1,9 +1,3 @@
-## Highlights
-
-- Added AWS Valkey and CockroachDB datasource support, covering managed Valkey environments and common CockroachDB connection settings.
-- KingbaseES now supports PostgreSQL, MySQL, Oracle, and SQLServer compatibility modes with validation against the actual database mode.
-- GoldenDB adds independent MySQL and Oracle modes aligned with their corresponding SQL families.
-
 ## Added
 
 - Added AWS Valkey datasource support; when managed instances disable the `CONFIG` command, CloudDM can use `SELECT` to detect the actual number of databases, contributed by community contributor [@BetaCat0](https://github.com/BetaCat0)—thank you! ([#249](https://github.com/ClouGence/open-cdm/issues/249)).
