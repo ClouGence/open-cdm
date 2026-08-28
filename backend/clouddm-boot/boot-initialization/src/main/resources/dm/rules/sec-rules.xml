@@ -448,7 +448,7 @@ else
   return true
 end
 
-if @domain.dsType in ['MySQL', 'KingbaseESMySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
+if @domain.dsType in ['MySQL', 'GoldenDBMySQL', 'KingbaseESMySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
   return @func.string.upperCase(testName) not in
     ['ACCESSIBLE','ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','ASENSITIVE',
      'BEFORE','BETWEEN','BIGINT','BINARY','BLOB','BOTH','BY',
@@ -930,7 +930,7 @@ else
   return true
 end
 
-if @domain.dsType in ['MySQL', 'KingbaseESMySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
+if @domain.dsType in ['MySQL', 'GoldenDBMySQL', 'KingbaseESMySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
   return @func.string.upperCase(testName) not in
     ['ACCESSIBLE','ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','ASENSITIVE',
      'BEFORE','BETWEEN','BIGINT','BINARY','BLOB','BOTH','BY',
