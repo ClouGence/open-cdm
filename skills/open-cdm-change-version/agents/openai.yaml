@@ -1,4 +1,4 @@
 interface:
   display_name: "Open CDM Prepare Release"
-  short_description: "Prepare version references and release notes"
-  default_prompt: "Use $open-cdm-change-version to prepare open-cdm version TARGET_VERSION from its release tag, including bilingual release notes."
+  short_description: "Create release notes or update version references"
+  default_prompt: "Use $open-cdm-change-version to create bilingual release notes, update version references, or prepare the complete open-cdm TARGET_VERSION release, following the scope I request."

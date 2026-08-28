@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Update the Open CDM build version and public version references."""
+"""Update Open CDM version references or the release-note index."""
 
 from __future__ import annotations
 
@@ -84,8 +84,16 @@ def detect_repo(explicit_repo: str | None) -> Path:
 
 def update_release_notes_index(text: str, version: str) -> tuple[str, int]:
     row = f"| v{version} | [中文](v{version}/index.cn.md) | [English](v{version}/index.en.md) |"
-    if re.search(rf"^\|\s*v{re.escape(version)}\s*\|", text, flags=re.MULTILINE):
-        return text, 0
+
+    existing_row = re.search(
+        rf"^\|\s*v{re.escape(version)}\s*\|.*$",
+        text,
+        flags=re.MULTILINE,
+    )
+    if existing_row:
+        if existing_row.group(0) == row:
+            return text, 0
+        return text[:existing_row.start()] + row + text[existing_row.end():], 1
 
     lines = text.splitlines(keepends=True)
     for idx, line in enumerate(lines):
@@ -104,6 +112,7 @@ def update_text(
     text: str,
     version: str,
     release_notes_ready: bool,
+    include_release_notes_index: bool,
 ) -> tuple[str, int]:
     change_count = 0
 
@@ -137,9 +146,10 @@ def update_text(
 
     text = IMAGE_PREFIX_RE.sub(replace_image_tag, text)
 
-    if relative_path == "docs/release-notes/README.md" and release_notes_ready:
-        text, inserted = update_release_notes_index(text, version)
-        change_count += inserted
+    if relative_path == "docs/release-notes/README.md" and include_release_notes_index:
+        if release_notes_ready:
+            text, inserted = update_release_notes_index(text, version)
+            change_count += inserted
 
     return text, change_count
 
@@ -148,6 +158,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--version", required=True, help="Target version, for example 1.2.3")
     parser.add_argument("--repo", help="Path to the open-cdm repository root")
+    scope_group = parser.add_mutually_exclusive_group()
+    scope_group.add_argument(
+        "--index-only",
+        action="store_true",
+        help="Update only the index; require both target release-note files",
+    )
+    scope_group.add_argument(
+        "--skip-release-notes-index",
+        action="store_true",
+        help="Update version references without changing the release-note index",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print changes without writing files")
     args = parser.parse_args()
 
@@ -167,7 +188,24 @@ def main() -> int:
         for filename in ("index.cn.md", "index.en.md")
     )
 
-    for relative_path in TARGET_FILES:
+    if args.index_only and not release_notes_ready:
+        print(
+            f"error: --index-only requires {release_notes_dir}/index.cn.md and index.en.md",
+            file=sys.stderr,
+        )
+        return 2
+
+    target_files = TARGET_FILES
+    if args.index_only:
+        target_files = ["docs/release-notes/README.md"]
+    elif args.skip_release_notes_index:
+        target_files = [
+            relative_path
+            for relative_path in TARGET_FILES
+            if relative_path != "docs/release-notes/README.md"
+        ]
+
+    for relative_path in target_files:
         path = repo / relative_path
         if not path.exists():
             missing_files.append(relative_path)
@@ -178,6 +216,7 @@ def main() -> int:
             original,
             version,
             release_notes_ready,
+            not args.skip_release_notes_index,
         )
         if count:
             total_changes += count
@@ -186,15 +225,22 @@ def main() -> int:
                 path.write_text(updated, encoding="utf-8")
 
     mode = "dry-run" if args.dry_run else "updated"
-    print(f"{mode}: repo={repo} version={version} changes={total_changes}")
+    scope = "complete-release"
+    if args.index_only:
+        scope = "index-only"
+    elif args.skip_release_notes_index:
+        scope = "version-references-only"
+    print(f"{mode}: repo={repo} version={version} scope={scope} changes={total_changes}")
     for relative_path, count in changed_files:
         print(f"  {relative_path}: {count}")
     if missing_files:
         print("missing:")
         for relative_path in missing_files:
             print(f"  {relative_path}")
-    if not release_notes_ready:
-        print(f"release notes index skipped: expected {release_notes_dir}/index.cn.md and index.en.md")
+    if not release_notes_ready and not args.skip_release_notes_index:
+        print(
+            f"release notes index skipped: expected {release_notes_dir}/index.cn.md and index.en.md"
+        )
 
     return 0
 
