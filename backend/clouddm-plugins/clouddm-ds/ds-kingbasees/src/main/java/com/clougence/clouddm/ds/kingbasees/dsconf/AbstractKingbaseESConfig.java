@@ -66,20 +66,6 @@ public abstract class AbstractKingbaseESConfig extends DataSourceConfig {
         properties.setProperty("sslmode", sslMode());
         properties.setProperty(KingbaseESCompatibilityMode.EXPECTED_MODE_PROPERTY, KingbaseESCompatibilityMode.fromDataSourceType(getDataSourceType()).getServerMode());
 
-        if (getSslMode() == SslMode.CA && !hasSslCaConfig()) {
-            throw new IllegalArgumentException("KingbaseES CA certificate is required.");
-        }
-        if (getSslMode() == SslMode.CLIENT_CERT) {
-            if (!hasSslCaConfig()) {
-                throw new IllegalArgumentException("KingbaseES CA certificate is required.");
-            }
-            if (!hasSslClientCertConfig()) {
-                throw new IllegalArgumentException("KingbaseES client certificate is required.");
-            }
-            if (!hasSslClientKeyConfig()) {
-                throw new IllegalArgumentException("KingbaseES client private key is required.");
-            }
-        }
         if (StringUtils.isNotBlank(getSslCaFilePath())) {
             properties.setProperty("sslrootcert", getSslCaFilePath());
         }
@@ -93,18 +79,6 @@ public abstract class AbstractKingbaseESConfig extends DataSourceConfig {
             properties.setProperty("sslpassword", getSslClientKeyPassword());
         }
         return properties;
-    }
-
-    private boolean hasSslCaConfig() {
-        return StringUtils.isNotBlank(getSslCaFilePath()) || StringUtils.isNotBlank(getSslCaData());
-    }
-
-    private boolean hasSslClientCertConfig() {
-        return StringUtils.isNotBlank(getSslClientCertFilePath()) || StringUtils.isNotBlank(getSslClientCertData());
-    }
-
-    private boolean hasSslClientKeyConfig() {
-        return StringUtils.isNotBlank(getSslClientKeyFilePath()) || StringUtils.isNotBlank(getSslClientKeyData());
     }
 
     private String sslMode() {

@@ -77,30 +77,15 @@ public class MyConfig extends DataSourceConfig implements//
         if (this.getSslMode() != null) {
             switch (this.getSslMode()) {
                 case CA, TRUSTSTORE -> {
-                    if (this.getSslMode() == SslMode.TRUSTSTORE && !hasSslCaConfig()) {
-                        throw new IllegalArgumentException("MySQL TrustStore is required.");
-                    }
                     applyTrustStore(properties);
                 }
                 case KEYSTORE_TRUSTSTORE -> {
-                    if (!hasSslCaConfig()) {
-                        throw new IllegalArgumentException("MySQL TrustStore is required.");
-                    }
-                    if (!hasSslClientCertConfig()) {
-                        throw new IllegalArgumentException("MySQL KeyStore is required.");
-                    }
                     applyTrustStore(properties);
                     applyClientKeyStore(properties);
                 }
                 case CLIENT_CERT -> {
-                    if (!hasSslCaConfig()) {
-                        throw new IllegalArgumentException("MySQL CA certificate is required.");
-                    }
                     applyTrustStore(properties, "");
                     String clientKeyStoreFilePath = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFilePath() : this.getSslClientCertFilePath();
-                    if (StringUtils.isBlank(clientKeyStoreFilePath) && !hasSslClientKeyStoreConfig()) {
-                        throw new IllegalArgumentException("MySQL client KeyStore is required.");
-                    }
                     if (StringUtils.isBlank(clientKeyStoreFilePath)) {
                         break;
                     }
@@ -124,18 +109,6 @@ public class MyConfig extends DataSourceConfig implements//
         properties.setProperty("useServerPrepStmts", "true");
         properties.setProperty("useOldAliasMetadataBehavior", "true");
         return properties;
-    }
-
-    private boolean hasSslCaConfig() {
-        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
-    }
-
-    private boolean hasSslClientCertConfig() {
-        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
-    }
-
-    private boolean hasSslClientKeyStoreConfig() {
-        return hasSslClientCertConfig() || StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
     }
 
     private void applyTrustStore(Properties properties) {

@@ -75,23 +75,11 @@ public class CrdbConfig extends DataSourceConfig {
         if (this.getSslMode() != null) {
             switch (this.getSslMode()) {
                 case CA -> {
-                    if (!hasSslCaConfig()) {
-                        throw new IllegalArgumentException("CockroachDB CA certificate is required.");
-                    }
                     if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
                         properties.setProperty("sslrootcert", this.getSslCaFilePath());
                     }
                 }
                 case CLIENT_CERT -> {
-                    if (!hasSslCaConfig()) {
-                        throw new IllegalArgumentException("CockroachDB CA certificate is required.");
-                    }
-                    if (!hasSslClientCertConfig()) {
-                        throw new IllegalArgumentException("CockroachDB client certificate is required.");
-                    }
-                    if (!hasSslClientKeyConfig()) {
-                        throw new IllegalArgumentException("CockroachDB client private key is required.");
-                    }
                     if (StringUtils.isBlank(this.getSslCaFilePath()) || StringUtils.isBlank(this.getSslClientCertFilePath())
                         || StringUtils.isBlank(this.getSslClientKeyFilePath())) {
                         break;
@@ -108,18 +96,6 @@ public class CrdbConfig extends DataSourceConfig {
             }
         }
         return properties;
-    }
-
-    private boolean hasSslCaConfig() {
-        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
-    }
-
-    private boolean hasSslClientCertConfig() {
-        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
-    }
-
-    private boolean hasSslClientKeyConfig() {
-        return StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
     }
 
     private String pgSslMode() {

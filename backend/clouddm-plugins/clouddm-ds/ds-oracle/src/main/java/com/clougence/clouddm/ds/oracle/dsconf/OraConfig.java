@@ -135,32 +135,17 @@ public class OraConfig extends DataSourceConfig implements //
             switch (this.getSslMode()) {
                 case CA, TRUSTSTORE -> {
                     properties.setProperty("oracle.net.authentication_services", "(TCPS)");
-                    if (this.getSslMode() == SslMode.TRUSTSTORE && !hasSslCaConfig()) {
-                        throw new IllegalArgumentException("Oracle TrustStore is required.");
-                    }
                     applyTrustStore(properties);
                 }
                 case KEYSTORE_TRUSTSTORE -> {
                     properties.setProperty("oracle.net.authentication_services", "(TCPS)");
-                    if (!hasSslCaConfig()) {
-                        throw new IllegalArgumentException("Oracle TrustStore is required.");
-                    }
-                    if (!hasSslClientCertConfig()) {
-                        throw new IllegalArgumentException("Oracle KeyStore is required.");
-                    }
                     applyTrustStore(properties);
                     applyKeyStore(properties);
                 }
                 case CLIENT_CERT -> {
                     properties.setProperty("oracle.net.authentication_services", "(TCPS)");
-                    if (!hasSslCaConfig()) {
-                        throw new IllegalArgumentException("Oracle CA certificate is required.");
-                    }
                     applyTrustStore(properties);
                     String keyStoreFilePath = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFilePath() : this.getSslClientCertFilePath();
-                    if (StringUtils.isBlank(keyStoreFilePath) && !hasSslClientKeyStoreConfig()) {
-                        throw new IllegalArgumentException("Oracle client KeyStore is required.");
-                    }
                     if (StringUtils.isBlank(keyStoreFilePath)) {
                         break;
                     }
@@ -176,18 +161,6 @@ public class OraConfig extends DataSourceConfig implements //
             }
         }
         return properties;
-    }
-
-    private boolean hasSslCaConfig() {
-        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
-    }
-
-    private boolean hasSslClientCertConfig() {
-        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
-    }
-
-    private boolean hasSslClientKeyStoreConfig() {
-        return hasSslClientCertConfig() || StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
     }
 
     private void applyTrustStore(Properties properties) {
