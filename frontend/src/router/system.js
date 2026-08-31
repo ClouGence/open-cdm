@@ -72,16 +72,6 @@ export default [
     redirect: '/integrations/im'
   },
   {
-    path: 'info_center',
-    name: 'InfoCenter',
-    component: () => import(/* webpackChunkName: "ticket" */ '@/views/consoleJob/index')
-  },
-  {
-    path: 'console_job/:id',
-    name: 'ConsoleJob/id',
-    component: () => import(/* webpackChunkName: "ticket" */ '@/views/consoleJob/consoleJobDetail')
-  },
-  {
     path: '',
     name: 'System_Home',
     component: () => import(/* webpackChunkName: "system-home" */ '@/views/system/home')

@@ -11,22 +11,6 @@
           <CustomIcon type="icon-v2-icon_contact" hoverStyle size="18px" />
         </button>
       </Tooltip>
-      <a-dropdown :trigger="['click']">
-        <span class="message-icon">
-          <cc-iconfont :size="20" name="message" />
-          <span v-if="messageList.length > 0" class="message-point"></span>
-        </span>
-        <template #overlay>
-          <p class="title">{{ $t('xiao-xi-zhong-xin') }}</p>
-          <div v-for="message in messageList" :key="message.id" class="message-item" @click="handleGoMessageDetail(message.id)">
-            <p>{{ CONSOLE_JOB_NAME[message.label] }}{{ $t('shi-bai') }}</p>
-            <p class="time">{{ message.gmtModified }}</p>
-          </div>
-          <div class="message-footer" @click="handleGoMessage">
-            {{ $t('cha-kan-geng-duo') }}
-          </div>
-        </template>
-      </a-dropdown>
       <LangSwitcher>
         <template #trigger>
           <CustomIcon hover-style type="icon-v2-yuyanqiehuan" size="20px" />
@@ -94,7 +78,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import LangSwitcher from '@/components/LangSwitcher';
-import { CONSOLE_JOB_NAME, LOGIN_TYPE } from '@/const';
+import { LOGIN_TYPE } from '@/const';
 import { handleCopy } from '@/utils/clipboard';
 import { UPDATE_USERINFO } from '@/store/mutationTypes';
 import { hasWebSocketInstance, webSocketClose } from '@/services/socket';
@@ -115,9 +99,7 @@ export default {
   emits: ['check-version'],
   data() {
     return {
-      showMenu: false,
-      messageList: [],
-      CONSOLE_JOB_NAME
+      showMenu: false
     };
   },
   computed: {
@@ -125,13 +107,6 @@ export default {
     ...mapState(['userInfo']),
     isOidcLogout() {
       return this.userInfo.bindType === LOGIN_TYPE.OIDC && this.userInfo.loginType === LOGIN_TYPE.OIDC;
-    }
-  },
-  watch: {
-    userInfo(val) {
-      if (val.showMessage) {
-        this.listLastFiveFailedJob();
-      }
     }
   },
   methods: {
@@ -163,22 +138,9 @@ export default {
         window.open(this.$store.state.contactUsUrl);
       }
     },
-    handleGoMessage() {
-      this.$router.push({ path: '/system/info_center' }).catch(() => {});
-    },
-    handleGoMessageDetail(id) {
-      this.$router.push({ path: `/system/console_job/${id}` });
-    },
     handleCopyApplyCode(data) {
       handleCopy(data);
       this.$Message.success(this.$t('fu-zhi-cheng-gong'));
-    },
-    async listLastFiveFailedJob() {
-      const res = await this.$services.dmConsoleJobListLastFiveFailedJob();
-
-      if (res.success && res.data.length > 0) {
-        this.messageList = res.data;
-      }
     }
   }
 };
@@ -272,22 +234,6 @@ export default {
     &:hover {
       background: var(--bg-hover);
       color: var(--text-primary);
-    }
-  }
-
-  .message-icon {
-    position: relative;
-    cursor: pointer;
-    color: var(--text-secondary);
-
-    .message-point {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--error-color);
     }
   }
 

@@ -128,33 +128,6 @@ export const DEPLOY_STATUS = {
   UNINSTALLED: 'UNINSTALLED'
 };
 
-export const CONSOLE_TASK_STATE = {
-  SUCCESS: i18n.global.t('cheng-gong'),
-  WAIT_START: i18n.global.t('deng-dai-kai-shi'),
-  EXECUTE: i18n.global.t('zhi-hang-zhong'),
-  FAILED: i18n.global.t('shi-bai'),
-  CANCELED: i18n.global.t('yi-qu-xiao'),
-  SKIP: i18n.global.t('yi-hu-lve')
-};
-
-export const CONSOLE_JOB_NAME = {
-  RDS_ADD_PUBLIC_NET: i18n.global.t('rds-kai-fang-gong-wang'),
-  RDS_AUTO_ADD_ACCOUNT: i18n.global.t('rds-zi-dong-chuang-jian-zhang-hao-mi-ma'),
-  INSTALL_ECS: i18n.global.t('ecs-an-zhuang-ke-hu-duan'),
-  UPGRADE_ECS: i18n.global.t('ecs-geng-xin-ke-hu-duan'),
-  UNINSTALL_ECS: i18n.global.t('ecs-xie-zai-ke-hu-duan'),
-  INSTALL_LOCAL_MAC: i18n.global.t('zi-jian-ji-qi-an-zhuang-ke-hu-duan'),
-  UNINSTALL_LOCAL_MAC: i18n.global.t('zi-jian-ji-qi-xie-zai-ke-hu-duan'),
-  RDS_ADD_IP_WHITE_LIST: i18n.global.t('rds-tian-jia-bai-ming-dan'),
-  ALIYUN_ADD_WHITELIST_INFO: i18n.global.t('a-li-yun-tian-jia-bai-ming-dan-xin-xi'),
-  START_ECS_CLIENT: i18n.global.t('ecs-qi-dong-ke-hu-duan')
-};
-
-export const RESOURCE_TYPE = {
-  DATASOURCE: '数据源',
-  WORKER: '机器'
-};
-
 export const BIZ_TYPE = {
   TICKETS_WORKFLOW: 'TICKETS_WORKFLOW',
   QUERY_CONSOLE: 'QUERY_CONSOLE'

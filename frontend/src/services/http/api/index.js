@@ -20,7 +20,6 @@ import { dsEnvApi } from '@/services/http/api/dsEnv';
 import { envParamApi } from '@/services/http/api/envParam';
 import { auditApi } from '@/services/http/api/audit';
 import { logViewApi } from '@/services/http/api/logView';
-import { consolejobApi } from '@/services/http/api/consoleJob';
 import { initApi } from '@/services/http/api/init';
 import { mfaApi } from '@/services/http/api/mfa';
 import { sshConfigApi } from '@/services/http/api/sshConfig';
@@ -48,7 +47,6 @@ export const api = {
   ...dsEnvApi,
   ...envParamApi,
   ...logViewApi,
-  ...consolejobApi,
   ...initApi,
   ...mfaApi,
   ...sshConfigApi

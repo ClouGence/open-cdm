@@ -109,19 +109,6 @@
                       >
                         <span class="datasource-creating-indicator"></span>
                       </Tooltip>
-                      <div>
-                        <Tooltip
-                          placement="right"
-                          class="alarm-icon"
-                          transfer
-                          :content="$t('cun-zai-yi-chang-de-hou-tai-ren-wu-qing-dian-ji-chu-li')"
-                          v-if="row.consoleTaskState === 'FAILED'"
-                        >
-                          <span style="display: inline-block; margin-left: 6px" @click="handleGoConsoleJob(row)">
-                            <i class="iconfont iconyibuforce"></i>
-                          </span>
-                        </Tooltip>
-                      </div>
                     </div>
                     <div class="data-job-desc datasource-secondary-content datasource-id-text">
                       {{ row.instanceId }}
@@ -1097,9 +1084,6 @@ export default {
         accessKey: '',
         secretKey: ''
       };
-    },
-    handleGoConsoleJob(row) {
-      this.$router.push({ path: `/system/console_job/${row.consoleJobId}` });
     },
     handleChangeSearchType() {
       // Reset all search values when switching query type
