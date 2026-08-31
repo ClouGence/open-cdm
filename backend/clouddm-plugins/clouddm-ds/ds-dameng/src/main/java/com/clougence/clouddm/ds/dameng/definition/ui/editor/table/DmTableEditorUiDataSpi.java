@@ -53,6 +53,11 @@ public class DmTableEditorUiDataSpi extends DsFamilyTableEditorUiDataSpi impleme
 
             Map<String, Object> columnMap = uiData.findColumn(eColumn.getName());
             if (columnMap != null) {
+                String defaultOption = safeToString(columnMap.get(MODE_COLUMN_DEFAULT_OPTION));
+                if (StringUtils.isNotBlank(defaultOption)) {
+                    eColumn.getAttribute().put(DmAttributeNames.DEFAULT_OPTION.getCodeKey(), defaultOption);
+                }
+
                 Object obj = columnMap.get(MODE_COLUMN_DEFAULT);
                 if (obj != null) {
                     String defaultValue = obj.toString();
@@ -75,6 +80,11 @@ public class DmTableEditorUiDataSpi extends DsFamilyTableEditorUiDataSpi impleme
         for (EColumn eColumn : eTable.getColumnList()) {
             Map<String, Object> columnMap = uiData.findColumn(eColumn.getName());
             if (columnMap != null) {
+                String defaultOption = eColumn.getAttribute().get(DmAttributeNames.DEFAULT_OPTION.getCodeKey());
+                if (StringUtils.isNotBlank(defaultOption)) {
+                    columnMap.put(MODE_COLUMN_DEFAULT_OPTION, defaultOption);
+                }
+
                 Object obj = columnMap.get(MODE_COLUMN_DEFAULT);
                 if (obj != null) {
                     String defaultValue = obj.toString();

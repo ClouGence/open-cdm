@@ -50,6 +50,7 @@ public class TableEditorUiDataUtils implements TableEditorFields {
         COL_BLACK_LIST_ATTRS.add(MODE_COLUMN_NOT_NULL);
         COL_BLACK_LIST_ATTRS.add(MODE_COLUMN_AUTOINCREMENT);
         COL_BLACK_LIST_ATTRS.add(MODE_COLUMN_DEFAULT);
+        COL_BLACK_LIST_ATTRS.add(MODE_COLUMN_DEFAULT_OPTION);
         COL_BLACK_LIST_ATTRS.add(MODE_COLUMN_TYPE);
         COL_BLACK_LIST_ATTRS.add(MODE_COLUMN_LENGTH);
         COL_BLACK_LIST_ATTRS.add(MODE_COLUMN_NUM_P);
@@ -152,7 +153,6 @@ public class TableEditorUiDataUtils implements TableEditorFields {
                 }
 
                 String defaultOpt = safeToString(curColumn.get(MODE_COLUMN_DEFAULT_OPTION));
-                curColumn.remove(MODE_COLUMN_DEFAULT_OPTION);
                 if (defaultOpt != null) {
                     if (StringUtils.equalsIgnoreCase(defaultOpt, "NULL")) {
                         targetEColumn.setDefaultValue(null);
@@ -160,8 +160,6 @@ public class TableEditorUiDataUtils implements TableEditorFields {
                         targetEColumn.setDefaultValue("");
                     } else if (StringUtils.equalsIgnoreCase(defaultOpt, "CUSTOM")) {
                         targetEColumn.setDefaultValue(safeToString(curColumn.get(MODE_COLUMN_DEFAULT)));
-                    } else {
-                        throw new UnsupportedOperationException();
                     }
                 }
 
