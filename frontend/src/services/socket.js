@@ -9,8 +9,8 @@ import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import Cookies from 'js-cookie';
 
 let rws = null;
-let creatingWebSocket = false;
 const JWT_TOKEN_NAME = 'dm_jwt_token';
+const WS_POLICY_VIOLATION_CODE = 1008;
 let globalCallback = {
   open: null,
   message: null,
@@ -40,60 +40,19 @@ const buildFullUrl = (url) => {
   return `${url}${separator}${params.toString()}`;
 };
 
-const buildHttpUrl = (path) => `${(process.env.VUE_APP_BASE_URL || '').replace(/\/$/, '')}${path}`;
-
-const checkLoginStatus = async () => {
-  try {
-    const res = await fetch(buildHttpUrl('/api/entry/user/queryLoginUser'), {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Accept-Language': i18n?.global?.locale?.value
-      },
-      body: JSON.stringify({})
-    });
-    if (!res.ok) {
-      return false;
-    }
-    const data = await res.json();
-    return !!data?.success;
-  } catch (error) {
-    return false;
-  }
-};
-
-const createWebSocket = async (url) => {
+const createWebSocket = (url) => {
   appLogger.debug('create socket', i18n);
 
-  if (rws || creatingWebSocket) {
-    return;
-  }
-
-  creatingWebSocket = true;
-  const loggedIn = await checkLoginStatus();
-  creatingWebSocket = false;
-  if (!loggedIn || rws) {
+  if (rws) {
     return;
   }
 
   // Ws connection does not support plugging directly into headers, here via qeury string, giving priority to backend reading, resolving agent ws connection 401
-  rws = new ReconnectingWebSocket(
-    async () => {
-      const reconnectLoggedIn = await checkLoginStatus();
-      if (!reconnectLoggedIn) {
-        webSocketClose();
-      }
-      return buildFullUrl(url);
-    },
-    null,
-    {
-      debug: false,
-      minReconnectionDelay: 3000,
-      maxReconnectionDelay: 3000
-    }
-  );
+  rws = new ReconnectingWebSocket(() => buildFullUrl(url), null, {
+    debug: false,
+    minReconnectionDelay: 3000,
+    maxReconnectionDelay: 3000
+  });
   rws.addEventListener('open', () => {
     if (!rws) {
       return;
@@ -140,7 +99,10 @@ const createWebSocket = async (url) => {
     }
   });
 
-  rws.addEventListener('close', () => {
+  rws.addEventListener('close', (e) => {
+    if (e.code === WS_POLICY_VIOLATION_CODE) {
+      webSocketClose();
+    }
     rejectPendingRequests(new Error('websocket closed'));
     store?.commit(UPDATE_SOCKET_STATUS, { connected: false, msg: i18n.global.t('lian-jie-yi-duan-kai') });
     eventBus.emit(EVENT_BUS_NAME_LIST.SOCKET_CONNECTION_CLOSE);

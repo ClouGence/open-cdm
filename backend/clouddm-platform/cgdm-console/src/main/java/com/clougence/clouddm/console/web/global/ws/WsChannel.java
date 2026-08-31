@@ -98,10 +98,10 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
                 this.acceptChannel(ws);
             } else {
                 WsUtils.writeToSocket(ws, WsType.WS_RES_ERROR, checkResult.getErrorCode() + " : " + checkResult.getMessage());
-                this.closeAndLog(ws, "from local WS_CHECK_RESULT failed.");
+                this.closeAndLog(ws, "from local WS_CHECK_RESULT failed.", CloseStatus.POLICY_VIOLATION);
             }
         } else {
-            this.closeAndLog(ws, "from local service is not ready yet.");
+            this.closeAndLog(ws, "from local service is not ready yet.", CloseStatus.NORMAL);
         }
     }
 
@@ -128,7 +128,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             if (channelStore != null) {
                 channelStore.closeChannel(WsUtils.getChannelKey(ws));
             }
-            this.closeAndLog(ws, "from closeStatus = " + closeStatus);
+            this.closeAndLog(ws, "from closeStatus = " + closeStatus, CloseStatus.NORMAL);
         }
     }
 
@@ -148,7 +148,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
         WsChannelStore channelStore = this.acceptChannel(ws);
 
         if (channelStore == null) {
-            this.closeAndLog(ws, "session out of control.");
+            this.closeAndLog(ws, "session out of control.", CloseStatus.NORMAL);
             return;
         }
 
@@ -167,7 +167,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
         }
     }
 
-    private void closeAndLog(WebSocketSession ws, String logMsg) {
+    private void closeAndLog(WebSocketSession ws, String logMsg, CloseStatus closeStatus) {
         String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
         if (StringUtils.isNotBlank(uid)) {
             String channelKey = WsUtils.getChannelKey(ws);
@@ -184,7 +184,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
 
         try {
             log.info("WS[" + WsUtils.getChannelKey(ws) + "]:CLOSED user(" + uid + "), " + logMsg);
-            ws.close(CloseStatus.NORMAL);
+            ws.close(closeStatus);
         } catch (Exception e) {
             log.error("WS[" + WsUtils.getChannelKey(ws) + "]:CLOSED user(" + uid + "), " + logMsg, e);
             IOUtils.closeQuietly(ws);
