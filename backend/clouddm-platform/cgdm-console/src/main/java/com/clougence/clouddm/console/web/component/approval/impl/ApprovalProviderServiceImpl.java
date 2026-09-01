@@ -316,10 +316,17 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
             }
             ApprovalInstanceInfo lastInfo = approvalService.getLastInfo(ticket.getPrimaryUid(), ticket.getApproIdentity());
             ApprovalInstanceStatus status = lastInfo.getStatus();
+            log.info("refreshApprovalStatus ticketId={}, feishu status={}, taskNodes={}", ticketId, status, lastInfo.getMap().size());
 
             DmApprovalProcessDO processDO = approvalDal.processMapper().queryByStage(ticket.getId(), ApprovalStage.APPROVAL);
             for (Map.Entry<String, List<ApprovalActivity>> stringListEntry : lastInfo.getMap().entrySet()) {
-                this.approvalDal.activityMapper().updateContext(processDO.getId(), stringListEntry.getKey(), JsonUtils.toJson(stringListEntry.getValue()));
+                String nodeId = stringListEntry.getKey();
+                List<ApprovalActivity> tasks = stringListEntry.getValue();
+                log.info("refreshApprovalStatus ticketId={}, updating nodeId={}, taskCount={}", ticketId, nodeId, tasks.size());
+                for (ApprovalActivity task : tasks) {
+                    log.info("  task: userId={}, userName={}, status={}", task.getUserId(), task.getUserName(), task.getStatus());
+                }
+                this.approvalDal.activityMapper().updateContext(processDO.getId(), nodeId, JsonUtils.toJson(tasks));
             }
 
             switch (status) {
@@ -437,19 +444,23 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
             String params = templateUrl.substring(templateUrl.indexOf("?") + 1);
             Map<String, String> map = StringUtils.toMap(params, "&", "=");
             if (map.containsKey("definitionCode")) {
+                String definitionCode = map.get("definitionCode").trim();
                 DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.feishuApprovalTemplateList);
+
+                String newValue;
                 if (configDO == null) {
-                    throw new ErrorMessageException("cannot find config feishuApprovalTemplateList.");
+                    newValue = definitionCode;
+                    this.systemDal.userConfMapper().insertUserConfig(ownerUid, RootUserConfig.Fields.feishuApprovalTemplateList, newValue);
+                } else {
+                    Set<String> newList = new LinkedHashSet<>();
+                    for (String str : configDO.getConfigValue().split(",")) {
+                        newList.add(str.trim());
+                    }
+                    newList.add(definitionCode);
+                    newValue = StringUtils.join(newList, ",");
+                    this.systemDal.userConfMapper().updateUserConfig(ownerUid, RootUserConfig.Fields.feishuApprovalTemplateList, newValue);
                 }
 
-                Set<String> newList = new LinkedHashSet<>();
-                for (String str : configDO.getConfigValue().split(",")) {
-                    newList.add(str.trim());
-                }
-                newList.add(map.get("definitionCode").trim());
-                configDO.setConfigValue(StringUtils.join(newList, ","));
-
-                this.systemDal.userConfMapper().updateUserConfig(ownerUid, RootUserConfig.Fields.feishuApprovalTemplateList, configDO.getConfigValue());
                 this.refreshTemplates(ownerUid, type);
             }
         }
@@ -462,18 +473,21 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
             String definitionCode = split[split.length - 1].trim();
 
             DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.wechatApprovalTemplateList);
+
+            String newValue;
             if (configDO == null) {
-                throw new ErrorMessageException("cannot find config wechatApprovalTemplateList.");
+                newValue = definitionCode;
+                this.systemDal.userConfMapper().insertUserConfig(ownerUid, RootUserConfig.Fields.wechatApprovalTemplateList, newValue);
+            } else {
+                Set<String> newList = new LinkedHashSet<>();
+                for (String str : configDO.getConfigValue().split(",")) {
+                    newList.add(str.trim());
+                }
+                newList.add(definitionCode);
+                newValue = StringUtils.join(newList, ",");
+                this.systemDal.userConfMapper().updateUserConfig(ownerUid, RootUserConfig.Fields.wechatApprovalTemplateList, newValue);
             }
 
-            Set<String> newList = new LinkedHashSet<>();
-            for (String str : configDO.getConfigValue().split(",")) {
-                newList.add(str.trim());
-            }
-            newList.add(definitionCode);
-            configDO.setConfigValue(StringUtils.join(newList, ","));
-
-            this.systemDal.userConfMapper().updateUserConfig(ownerUid, RootUserConfig.Fields.wechatApprovalTemplateList, configDO.getConfigValue());
             this.refreshTemplates(ownerUid, type);
         }
     }
