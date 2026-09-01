@@ -170,14 +170,19 @@ public class MyDslProvider implements DslProvider {
         }
     }
 
-    private MyDslProvider withNoBackslashEscapesFallback() {
+    MyDslProvider withNoBackslashEscapesFallback() {
         EnumSet<Feature> features = EnumSet.noneOf(Feature.class);
         features.addAll(config.features());
         features.add(Feature.NO_BACKSLASH_ESCAPES);
-        MySqlParserConfig fallbackConfig = MySqlParserConfig
-            .of(config.grammarVersion().versionString(), config.grammarVersion().versionString(), Integer.toString(config.exactVersion()), false, features);
+        MySqlParserConfig fallbackConfig = MySqlParserConfig.of(//
+                config.grammarVersion().versionString(),        //
+                config.grammarVersion().versionString(),        //
+                Integer.toString(config.exactVersion()),        //
+                false, features);
         return new MyDslProvider(fallbackConfig, true);
     }
+
+    boolean isNoBackslashEscapesFallback() { return noBackslashEscapesFallback; }
 
     private static String sourceText(Lexer lexer) {
         CharStream input = lexer.getInputStream();

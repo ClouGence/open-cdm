@@ -301,6 +301,7 @@ set_rest_more
     | NAMES encoding_?
     | ROLE nonreservedword_or_sconst
     | SESSION AUTHORIZATION nonreservedword_or_sconst
+    | SESSION AUTHORIZATION DEFAULT
     | XML_P OPTION document_or_content
     | TRANSACTION SNAPSHOT sconst
     ;
@@ -422,8 +423,8 @@ alter_table_cmds
 
 partition_cmd
     : ATTACH PARTITION qualified_name partitionboundspec
-    | DETACH PARTITION qualified_name concurrently_?
-    | DETACH PARTITION qualified_name FINALIZE
+    | DETACH PARTITION qualified_name ({atLeast(PostgresVersion.POSTGRES_14)}? CONCURRENTLY)?
+    | {atLeast(PostgresVersion.POSTGRES_14)}? DETACH PARTITION qualified_name FINALIZE
     ;
 
 index_partition_cmd
@@ -438,11 +439,11 @@ alter_table_cmd
     | ALTER column_? colid alter_column_default                         #alterColumn
     | ALTER column_? colid DROP NOT NULL_P                              #alterColumn
     | ALTER column_? colid SET NOT NULL_P                               #alterColumn
-    | ALTER column_? colid SET EXPRESSION AS OPEN_PAREN a_expr CLOSE_PAREN #alterColumn
-    | ALTER column_? colid DROP EXPRESSION                              #alterColumn
-    | ALTER column_? colid DROP EXPRESSION IF_P EXISTS                  #alterColumn
+    | {atLeast(PostgresVersion.POSTGRES_17)}? ALTER column_? colid SET EXPRESSION AS OPEN_PAREN a_expr CLOSE_PAREN #alterColumn
+    | {atLeast(PostgresVersion.POSTGRES_13)}? ALTER column_? colid DROP EXPRESSION                              #alterColumn
+    | {atLeast(PostgresVersion.POSTGRES_13)}? ALTER column_? colid DROP EXPRESSION IF_P EXISTS                  #alterColumn
     | ALTER column_? colid SET STATISTICS set_statistics_value          #alterColumn
-//    | ALTER column_? iconst SET STATISTICS signediconst                 #alterColumn
+    | ALTER column_? iconst SET STATISTICS set_statistics_value         #alterColumn
     | ALTER column_? colid SET reloptions                               #alterColumn
     | ALTER column_? colid RESET reloptions                             #alterColumn
     | ALTER column_? colid SET column_storage                           #alterColumn
@@ -456,8 +457,8 @@ alter_table_cmd
     | ALTER column_? colid set_data_? TYPE_P typename collate_clause_? alter_using?         #alterColumn
     | ALTER column_? colid alter_generic_options                        #alterColumn
     | ADD_P tableconstraint                                             #addConstraint
-    | ALTER CONSTRAINT name constraintattributespec                     #alterConstaint
-    | ALTER CONSTRAINT name INHERIT                                     #alterConstaint
+    | ALTER CONSTRAINT name alter_constraintattributespec               #alterConstaint
+    | {atLeast(PostgresVersion.POSTGRES_18)}? ALTER CONSTRAINT name INHERIT #alterConstaint
     | VALIDATE CONSTRAINT name                                          #validateConstraint
     | DROP CONSTRAINT IF_P EXISTS name drop_behavior_?                  #dropConstraint
     | DROP CONSTRAINT name drop_behavior_?                              #dropConstraint
@@ -483,7 +484,10 @@ alter_table_cmd
     | OF any_name      #unsupportAlterTableStatement
     | NOT OF      #unsupportAlterTableStatement
     | OWNER TO rolespec      #unsupportAlterTableStatement
-    | SET ACCESS METHOD (name | DEFAULT)      #unsupportAlterTableStatement
+    | {atLeast(PostgresVersion.POSTGRES_15)}? SET ACCESS METHOD (
+        name
+        | {atLeast(PostgresVersion.POSTGRES_17)}? DEFAULT
+      ) #unsupportAlterTableStatement
     | SET TABLESPACE name      #unsupportAlterTableStatement
     | SET reloptions      #unsupportAlterTableStatement
     | RESET reloptions      #unsupportAlterTableStatement
@@ -525,15 +529,15 @@ replica_identity
 
 set_statistics_value
     : signediconst
-    | DEFAULT
+    | {atLeast(PostgresVersion.POSTGRES_17)}? DEFAULT
     ;
 
 column_storage
-    : STORAGE (colid | DEFAULT)
+    : STORAGE (colid | {atLeast(PostgresVersion.POSTGRES_16)}? DEFAULT)
     ;
 
 column_compression
-    : COMPRESSION (colid | DEFAULT)
+    : {atLeast(PostgresVersion.POSTGRES_14)}? COMPRESSION (colid | DEFAULT)
     ;
 
 reloptions
@@ -668,6 +672,7 @@ copy_generic_opt_arg
     : boolean_or_string_
     | numericonly
     | STAR
+    | {atLeast(PostgresVersion.POSTGRES_17)}? DEFAULT
     | OPEN_PAREN copy_generic_opt_arg_list CLOSE_PAREN
 
     ;
@@ -728,7 +733,7 @@ typedtableelement
     ;
 
 columnDef
-    : colid typename create_generic_options? colquallist
+    : colid typename create_column_storage? column_compression? create_generic_options? colquallist
     ;
 
 columnOptions
@@ -747,7 +752,7 @@ colconstraint
     ;
 
 colconstraintelem
-    : NOT NULL_P                                #constraintNotNull
+    : NOT NULL_P not_null_no_inherit_?          #constraintNotNull
     | NULL_P                                    #constraintNull
     | UNIQUE unique_null_treatment_? definition_? optconstablespace?    #constraintUnique
     | PRIMARY KEY definition_? optconstablespace?   #constraintPrimary
@@ -755,7 +760,7 @@ colconstraintelem
     | DEFAULT b_expr                                    #constraintDefault
     | GENERATED generated_when AS (
         IDENTITY_P optparenthesizedseqoptlist?
-        | OPEN_PAREN a_expr CLOSE_PAREN (STORED | VIRTUAL)?
+        | OPEN_PAREN a_expr CLOSE_PAREN generated_storage
     )                                                   #constraintGenerated
     | REFERENCES qualified_name column_list_? key_match? key_actions? #constraintReference
     ;
@@ -765,10 +770,25 @@ generated_when
     | BY DEFAULT
     ;
 
+generated_storage
+    : {atMost(PostgresVersion.POSTGRES_17)}? STORED
+    | {atLeast(PostgresVersion.POSTGRES_18)}? (STORED | VIRTUAL)?
+    ;
+
 constraintattr
     : DEFERRABLE
     | NOT DEFERRABLE
     | INITIALLY (DEFERRED | IMMEDIATE)
+    | {atLeast(PostgresVersion.POSTGRES_18)}? ENFORCED
+    | {atLeast(PostgresVersion.POSTGRES_18)}? NOT ENFORCED
+    ;
+
+create_column_storage
+    : {atLeast(PostgresVersion.POSTGRES_16)}? column_storage
+    ;
+
+not_null_no_inherit_
+    : {atLeast(PostgresVersion.POSTGRES_18)}? NO INHERIT
     ;
 
 tablelikeclause
@@ -781,6 +801,7 @@ tablelikeoptionlist
 
 tablelikeoption
     : COMMENTS
+    | {atLeast(PostgresVersion.POSTGRES_14)}? COMPRESSION
     | CONSTRAINTS
     | DEFAULTS
     | IDENTITY_P
@@ -798,6 +819,7 @@ tableconstraint
 
 constraintelem
     : CHECK OPEN_PAREN a_expr CLOSE_PAREN constraintattributespec
+    | {atLeast(PostgresVersion.POSTGRES_18)}? NOT NULL_P colid constraintattributespec
     | UNIQUE unique_null_treatment_? (
         OPEN_PAREN columnlist CLOSE_PAREN c_include_? definition_? optconstablespace? constraintattributespec
         | existingindex constraintattributespec
@@ -830,11 +852,11 @@ columnElem
     ;
 
 without_overlaps_
-    : WITHOUT OVERLAPS
+    : {atLeast(PostgresVersion.POSTGRES_18)}? WITHOUT OVERLAPS
     ;
 
 column_and_period_list
-    : OPEN_PAREN columnlist (COMMA PERIOD columnElem)? CLOSE_PAREN
+    : OPEN_PAREN columnlist ({atLeast(PostgresVersion.POSTGRES_18)}? COMMA PERIOD columnElem)? CLOSE_PAREN
     ;
 
 column_and_period_list_
@@ -877,7 +899,11 @@ key_update
     ;
 
 key_delete
-    : ON DELETE_P key_action
+    : ON DELETE_P key_action key_delete_columns_?
+    ;
+
+key_delete_columns_
+    : {atLeast(PostgresVersion.POSTGRES_15)}? column_list_
     ;
 
 key_action
@@ -898,7 +924,7 @@ optpartitionspec
     ;
 
 partitionspec
-    : PARTITION BY colid OPEN_PAREN part_params CLOSE_PAREN
+    : PARTITION BY {atMost(PostgresVersion.POSTGRES_15) || isValidPartitionStrategy()}? colid OPEN_PAREN part_params CLOSE_PAREN
     ;
 
 partition_item
@@ -952,12 +978,28 @@ existingindex
     ;
 
 createstatsstmt
-    : CREATE STATISTICS IF_P NOT EXISTS any_name name_list_? ON expr_list FROM from_list
-    | CREATE STATISTICS any_name? name_list_? ON expr_list FROM from_list
+    : CREATE STATISTICS IF_P NOT EXISTS any_name name_list_? ON create_statistics_params FROM from_list
+    | CREATE STATISTICS any_name name_list_? ON create_statistics_params FROM from_list
+    | {atLeast(PostgresVersion.POSTGRES_16)}? CREATE STATISTICS name_list_? ON create_statistics_params FROM from_list
+    ;
+
+create_statistics_params
+    : {atMost(PostgresVersion.POSTGRES_13)}? expr_list
+    | {atLeast(PostgresVersion.POSTGRES_14)}? stats_params
+    ;
+
+stats_params
+    : stats_param (COMMA stats_param)*
+    ;
+
+stats_param
+    : colid
+    | func_expr_windowless
+    | OPEN_PAREN a_expr CLOSE_PAREN
     ;
 
 alterstatsstmt
-    : ALTER STATISTICS (IF_P EXISTS)? any_name SET STATISTICS set_statistics_value
+    : {atLeast(PostgresVersion.POSTGRES_13)}? ALTER STATISTICS (IF_P EXISTS)? any_name SET STATISTICS set_statistics_value
     ;
 
 createasstmt
@@ -1017,7 +1059,7 @@ seqoptelem
     | CACHE numericonly
     | CYCLE
     | INCREMENT by_? numericonly
-    | LOGGED
+    | {atLeast(PostgresVersion.POSTGRES_15)}? LOGGED
     | MAXVALUE numericonly
     | MINVALUE numericonly
     | NO (MAXVALUE | MINVALUE | CYCLE)
@@ -1025,7 +1067,7 @@ seqoptelem
     | SEQUENCE NAME_P any_name
     | START with_? numericonly
     | RESTART with_? numericonly?
-    | UNLOGGED
+    | {atLeast(PostgresVersion.POSTGRES_15)}? UNLOGGED
     ;
 
 by_
@@ -1120,7 +1162,7 @@ alter_extension_opt_item
     ;
 
 alterextensioncontentsstmt
-    : ALTER EXTENSION name add_drop object_type_name name
+    : ALTER EXTENSION name add_drop extension_object_type_name name
     | ALTER EXTENSION name add_drop object_type_any_name any_name
     | ALTER EXTENSION name add_drop AGGREGATE aggregate_with_argtypes
     | ALTER EXTENSION name add_drop CAST OPEN_PAREN typename AS typename CLOSE_PAREN
@@ -1133,6 +1175,14 @@ alterextensioncontentsstmt
     | ALTER EXTENSION name add_drop ROUTINE function_with_argtypes
     | ALTER EXTENSION name add_drop TRANSFORM FOR typename LANGUAGE name
     | ALTER EXTENSION name add_drop TYPE_P typename
+    ;
+
+extension_object_type_name
+    : drop_type_name
+    | {atLeast(PostgresVersion.POSTGRES_14)}? DATABASE
+    | ROLE
+    | SUBSCRIPTION
+    | TABLESPACE
     ;
 
 createfdwstmt
@@ -1319,10 +1369,14 @@ am_type
     ;
 
 createtrigstmt
-    : CREATE or_replace_? TRIGGER name triggeractiontime triggerevents ON qualified_name triggerreferencing? triggerforspec? triggerwhen? EXECUTE
+    : CREATE trigger_or_replace_? TRIGGER name triggeractiontime triggerevents ON qualified_name triggerreferencing? triggerforspec? triggerwhen? EXECUTE
         function_or_procedure func_name OPEN_PAREN triggerfuncargs CLOSE_PAREN
     | CREATE CONSTRAINT TRIGGER name AFTER triggerevents ON qualified_name optconstrfromtable? constraintattributespec FOR EACH ROW triggerwhen? EXECUTE
         function_or_procedure func_name OPEN_PAREN triggerfuncargs CLOSE_PAREN
+    ;
+
+trigger_or_replace_
+    : {atLeast(PostgresVersion.POSTGRES_14)}? OR REPLACE
     ;
 
 triggeractiontime
@@ -1415,6 +1469,20 @@ constraintattributespec
     : constraintattributeElem*
     ;
 
+alter_constraintattributespec
+    : alter_constraintattributeElem+
+    ;
+
+alter_constraintattributeElem
+    : NOT DEFERRABLE
+    | DEFERRABLE
+    | INITIALLY IMMEDIATE
+    | INITIALLY DEFERRED
+    | {atLeast(PostgresVersion.POSTGRES_18)}? NO INHERIT
+    | {atLeast(PostgresVersion.POSTGRES_18)}? NOT ENFORCED
+    | {atLeast(PostgresVersion.POSTGRES_18)}? ENFORCED
+    ;
+
 constraintattributeElem
     : NOT DEFERRABLE
     | DEFERRABLE
@@ -1422,8 +1490,8 @@ constraintattributeElem
     | INITIALLY DEFERRED
     | NOT VALID
     | NO INHERIT
-    | NOT ENFORCED
-    | ENFORCED
+    | {atLeast(PostgresVersion.POSTGRES_18)}? NOT ENFORCED
+    | {atLeast(PostgresVersion.POSTGRES_18)}? ENFORCED
     ;
 
 createeventtrigstmt
@@ -1698,21 +1766,21 @@ commentstmt
     | comment_column_stmt
     | COMMENT ON object_type_any_name any_name IS comment_text
     | COMMENT ON object_type_name name IS comment_text
-//    | COMMENT ON TYPE_P typename IS comment_text
-//    | COMMENT ON DOMAIN_P typename IS comment_text
+    | COMMENT ON TYPE_P typename IS comment_text
+    | COMMENT ON DOMAIN_P typename IS comment_text
     | COMMENT ON AGGREGATE aggregate_with_argtypes IS comment_text
-//    | COMMENT ON FUNCTION function_with_argtypes IS comment_text
+    | COMMENT ON FUNCTION function_with_argtypes IS comment_text
     | COMMENT ON OPERATOR operator_with_argtypes IS comment_text
     | COMMENT ON CONSTRAINT name ON any_name IS comment_text
-//    | COMMENT ON CONSTRAINT name ON DOMAIN_P any_name IS comment_text
+    | COMMENT ON CONSTRAINT name ON DOMAIN_P any_name IS comment_text
     | COMMENT ON object_type_name_on_any_name name ON any_name IS comment_text
-//    | COMMENT ON PROCEDURE function_with_argtypes IS comment_text
-//    | COMMENT ON ROUTINE function_with_argtypes IS comment_text
-//    | COMMENT ON TRANSFORM FOR typename LANGUAGE name IS comment_text
+    | COMMENT ON PROCEDURE function_with_argtypes IS comment_text
+    | COMMENT ON ROUTINE function_with_argtypes IS comment_text
+    | COMMENT ON TRANSFORM FOR typename LANGUAGE name IS comment_text
     | COMMENT ON OPERATOR CLASS any_name USING name IS comment_text
     | COMMENT ON OPERATOR FAMILY any_name USING name IS comment_text
-//    | COMMENT ON LARGE_P OBJECT_P numericonly IS comment_text
-//    | COMMENT ON CAST OPEN_PAREN typename AS typename CLOSE_PAREN IS comment_text
+    | COMMENT ON LARGE_P OBJECT_P numericonly IS comment_text
+    | COMMENT ON CAST OPEN_PAREN typename AS typename CLOSE_PAREN IS comment_text
     ;
 
 comment_table_stmt:
@@ -1787,12 +1855,12 @@ from_in_
     ;
 
 grantstmt
-    : GRANT privileges ON privilege_target TO grantee_list grant_grant_option_?
+    : GRANT privileges ON privilege_target TO grantee_list grant_grant_option_? granted_by_?
     ;
 
 revokestmt
-    : REVOKE privileges ON privilege_target FROM grantee_list drop_behavior_?
-    | REVOKE GRANT OPTION FOR privileges ON privilege_target FROM grantee_list drop_behavior_?
+    : REVOKE privileges ON privilege_target FROM grantee_list granted_by_? drop_behavior_?
+    | REVOKE GRANT OPTION FOR privileges ON privilege_target FROM grantee_list granted_by_? drop_behavior_?
     ;
 
 privileges
@@ -1811,6 +1879,8 @@ privilege
     : SELECT column_list_?
     | REFERENCES column_list_?
     | CREATE column_list_?
+    | {atLeast(PostgresVersion.POSTGRES_15)}? SET
+    | {atLeast(PostgresVersion.POSTGRES_15)}? ALTER SYSTEM_P
     | colid column_list_?
     ;
 
@@ -1830,11 +1900,20 @@ privilege_target
     | SCHEMA name_list
     | TABLESPACE name_list
     | TYPE_P any_name_list_
+    | {atLeast(PostgresVersion.POSTGRES_15)}? PARAMETER parameter_name_list
     | ALL TABLES IN_P SCHEMA name_list
     | ALL SEQUENCES IN_P SCHEMA name_list
     | ALL FUNCTIONS IN_P SCHEMA name_list
     | ALL PROCEDURES IN_P SCHEMA name_list
     | ALL ROUTINES IN_P SCHEMA name_list
+    ;
+
+parameter_name_list
+    : parameter_name (COMMA parameter_name)*
+    ;
+
+parameter_name
+    : colid (DOT colid)*
     ;
 
 grantee_list
@@ -1852,12 +1931,14 @@ grant_grant_option_
     ;
 
 grantrolestmt
-    : GRANT privilege_list TO role_list grant_admin_option_? granted_by_?
+    : {atMost(PostgresVersion.POSTGRES_15)}? GRANT privilege_list TO role_list grant_admin_option_? role_granted_by_?
+    | {atLeast(PostgresVersion.POSTGRES_16)}? GRANT privilege_list TO role_list (WITH grant_role_opt_list)? role_granted_by_?
     ;
 
 revokerolestmt
-    : REVOKE privilege_list FROM role_list granted_by_? drop_behavior_?
-    | REVOKE ADMIN OPTION FOR privilege_list FROM role_list granted_by_? drop_behavior_?
+    : REVOKE privilege_list FROM role_list role_granted_by_? drop_behavior_?
+    | {atMost(PostgresVersion.POSTGRES_15)}? REVOKE ADMIN OPTION FOR privilege_list FROM role_list role_granted_by_? drop_behavior_?
+    | {atLeast(PostgresVersion.POSTGRES_16)}? REVOKE colid OPTION FOR privilege_list FROM role_list role_granted_by_? drop_behavior_?
     ;
 
 grant_admin_option_
@@ -1865,7 +1946,26 @@ grant_admin_option_
 
     ;
 
+grant_role_opt_list
+    : grant_role_opt (COMMA grant_role_opt)*
+    ;
+
+grant_role_opt
+    : colLabel grant_role_opt_value
+    ;
+
+grant_role_opt_value
+    : OPTION
+    | TRUE_P
+    | FALSE_P
+    ;
+
 granted_by_
+    : {atLeast(PostgresVersion.POSTGRES_14)}? GRANTED BY rolespec
+
+    ;
+
+role_granted_by_
     : GRANTED BY rolespec
 
     ;
@@ -1897,6 +1997,7 @@ defacl_privilege_target
     | SEQUENCES
     | TYPES_P
     | SCHEMAS
+    | {atLeast(PostgresVersion.POSTGRES_18)}? LARGE_P OBJECTS_P
     ;
 
 //create index
@@ -1914,7 +2015,7 @@ unique_
     ;
 
 unique_null_treatment_
-    : NULLS_P NOT? DISTINCT
+    : {atLeast(PostgresVersion.POSTGRES_15)}? NULLS_P NOT? DISTINCT
     ;
 
 single_name_
@@ -1942,7 +2043,7 @@ index_params
 
 index_elem_options
     : collate_? class_? asc_desc_? nulls_order_?
-    | collate_? any_name reloptions asc_desc_? nulls_order_?
+    | {atLeast(PostgresVersion.POSTGRES_13)}? collate_? any_name reloptions asc_desc_? nulls_order_?
     ;
 
 index_elem
@@ -1987,7 +2088,7 @@ nulls_order_
 createfunctionstmt
     : CREATE or_replace_? (FUNCTION | PROCEDURE) func_name func_args_with_defaults (
         RETURNS (func_return | TABLE OPEN_PAREN table_func_column_list CLOSE_PAREN)
-    )? createfunc_opt_list
+    )? (createfunc_opt_list routine_body? | routine_body)
     ;
 
 or_replace_
@@ -2111,6 +2212,11 @@ createfunc_opt_item
 
 func_body
     : BEGIN_P (func_body_statement SEMI)* END_P
+    ;
+
+routine_body
+    : {atLeast(PostgresVersion.POSTGRES_14)}? RETURN a_expr
+    | {atLeast(PostgresVersion.POSTGRES_14)}? BEGIN_P ATOMIC SEMI* ((stmt | RETURN a_expr) SEMI+)* END_P
     ;
 
 func_body_statement
@@ -2261,7 +2367,10 @@ droptransformstmt
 reindexstmt
     : REINDEX reindex_option_list? reindex_target_relation concurrently_? qualified_name
     | REINDEX reindex_option_list? SCHEMA concurrently_? name
-    | REINDEX reindex_option_list? reindex_target_all concurrently_? single_name_?
+    | REINDEX reindex_option_list? reindex_target_all concurrently_? (
+        {atMost(PostgresVersion.POSTGRES_15)}? single_name_
+        | {atLeast(PostgresVersion.POSTGRES_16)}? single_name_?
+      )
     ;
 
 reindex_target_relation
@@ -2275,7 +2384,12 @@ reindex_target_all
     ;
 
 reindex_option_list
-    : OPEN_PAREN utility_option_list CLOSE_PAREN
+    : OPEN_PAREN reindex_option_elem (COMMA reindex_option_elem)* CLOSE_PAREN
+    ;
+
+reindex_option_elem
+    : {atMost(PostgresVersion.POSTGRES_13)}? VERBOSE
+    | {atLeast(PostgresVersion.POSTGRES_14)}? utility_option_elem
     ;
 
 altertblspcstmt
@@ -2292,16 +2406,16 @@ renamestmt
     | ALTER DOMAIN_P any_name RENAME TO name
     | ALTER DOMAIN_P any_name RENAME CONSTRAINT name TO name
     | ALTER FOREIGN DATA_P WRAPPER name RENAME TO name
-//    | ALTER FUNCTION function_with_argtypes RENAME TO name
+    | ALTER FUNCTION function_with_argtypes RENAME TO name
     | ALTER GROUP_P roleid RENAME TO roleid
-//    | ALTER procedural_? LANGUAGE name RENAME TO name
+    | ALTER procedural_? LANGUAGE name RENAME TO name
     | ALTER OPERATOR CLASS any_name USING name RENAME TO name
     | ALTER OPERATOR FAMILY any_name USING name RENAME TO name
 //    | ALTER POLICY name ON qualified_name RENAME TO name
 //    | ALTER POLICY IF_P EXISTS name ON qualified_name RENAME TO name
-//    | ALTER PROCEDURE function_with_argtypes RENAME TO name
+    | ALTER PROCEDURE function_with_argtypes RENAME TO name
     | ALTER PUBLICATION name RENAME TO name
-//    | ALTER ROUTINE function_with_argtypes RENAME TO name
+    | ALTER ROUTINE function_with_argtypes RENAME TO name
     | rename_schema_stmt
     | ALTER SERVER name RENAME TO name
     | ALTER SUBSCRIPTION name RENAME TO name
@@ -2313,20 +2427,17 @@ renamestmt
     | ALTER VIEW IF_P EXISTS qualified_name RENAME TO name
     | ALTER MATERIALIZED VIEW qualified_name RENAME TO name
     | ALTER MATERIALIZED VIEW IF_P EXISTS qualified_name RENAME TO name
-//    | ALTER INDEX qualified_name RENAME TO name
-//    | ALTER INDEX IF_P EXISTS qualified_name RENAME TO name
-//    | ALTER FOREIGN TABLE relation_expr RENAME TO name
-//    | ALTER FOREIGN TABLE IF_P EXISTS relation_expr RENAME TO name
+    | ALTER INDEX qualified_name RENAME TO name
+    | ALTER INDEX IF_P EXISTS qualified_name RENAME TO name
+    | ALTER FOREIGN TABLE relation_expr RENAME TO name
+    | ALTER FOREIGN TABLE IF_P EXISTS relation_expr RENAME TO name
     | rename_column_stmt
-//    | ALTER TABLE IF_P EXISTS relation_expr RENAME column_? name TO name
-    | ALTER VIEW qualified_name RENAME column_? name TO name
-    | ALTER VIEW IF_P EXISTS qualified_name RENAME column_? name TO name
+    | {atLeast(PostgresVersion.POSTGRES_13)}? ALTER VIEW qualified_name RENAME column_? name TO name
+    | {atLeast(PostgresVersion.POSTGRES_13)}? ALTER VIEW IF_P EXISTS qualified_name RENAME column_? name TO name
     | ALTER MATERIALIZED VIEW qualified_name RENAME column_? name TO name
     | ALTER MATERIALIZED VIEW IF_P EXISTS qualified_name RENAME column_? name TO name
-//    | ALTER TABLE relation_expr RENAME CONSTRAINT name TO name
-//    | ALTER TABLE IF_P EXISTS relation_expr RENAME CONSTRAINT name TO name
-//    | ALTER FOREIGN TABLE relation_expr RENAME column_? name TO name
-//    | ALTER FOREIGN TABLE IF_P EXISTS relation_expr RENAME column_? name TO name
+    | ALTER TABLE relation_expr RENAME CONSTRAINT name TO name
+    | ALTER TABLE IF_P EXISTS relation_expr RENAME CONSTRAINT name TO name
     | ALTER RULE name ON qualified_name RENAME TO name
     | ALTER TRIGGER name ON qualified_name RENAME TO name
     | ALTER EVENT TRIGGER name RENAME TO name
@@ -2356,6 +2467,9 @@ rename_database_stmt:
 
 rename_column_stmt:
     ALTER TABLE relation_expr RENAME column_? name TO name
+    | ALTER TABLE IF_P EXISTS relation_expr RENAME column_? name TO name
+    | ALTER FOREIGN TABLE relation_expr RENAME column_? name TO name
+    | ALTER FOREIGN TABLE IF_P EXISTS relation_expr RENAME column_? name TO name
     ;
 
 column_
@@ -2378,7 +2492,7 @@ alterobjectdependsstmt
     ;
 
 no_
-    : NO
+    : {atLeast(PostgresVersion.POSTGRES_13)}? NO
 
     ;
 
@@ -2423,6 +2537,7 @@ operator_def_list
 operator_def_elem
     : colLabel EQUAL NONE
     | colLabel EQUAL operator_def_arg
+    | {atLeast(PostgresVersion.POSTGRES_17)}? colLabel
     ;
 
 operator_def_arg
@@ -2434,7 +2549,7 @@ operator_def_arg
     ;
 
 altertypestmt
-    : ALTER TYPE_P any_name SET OPEN_PAREN operator_def_list CLOSE_PAREN
+    : {atLeast(PostgresVersion.POSTGRES_13)}? ALTER TYPE_P any_name SET OPEN_PAREN operator_def_list CLOSE_PAREN
     ;
 
 alterownerstmt
@@ -2483,9 +2598,14 @@ publication_object_list
     ;
 
 publication_object
-    : TABLE relation_expr column_list_? where_clause?
-    | TABLES IN_P SCHEMA publication_schema_name_list
-    | relation_expr column_list_? where_clause?
+    : TABLE relation_expr ({atLeast(PostgresVersion.POSTGRES_15)}? publication_table_suffix)?
+    | {atLeast(PostgresVersion.POSTGRES_15)}? TABLES IN_P SCHEMA publication_schema_name_list
+    | relation_expr ({atLeast(PostgresVersion.POSTGRES_15)}? publication_table_suffix)?
+    ;
+
+publication_table_suffix
+    : column_list_ where_clause?
+    | where_clause
     ;
 
 publication_schema_name_list
@@ -2537,12 +2657,12 @@ altersubscriptionstmt
     | ALTER SUBSCRIPTION name SERVER name
     | ALTER SUBSCRIPTION name REFRESH PUBLICATION definition_?
     | ALTER SUBSCRIPTION name REFRESH SEQUENCES
-    | ALTER SUBSCRIPTION name ADD_P PUBLICATION publication_name_list definition_?
-    | ALTER SUBSCRIPTION name DROP PUBLICATION publication_name_list definition_?
+    | {atLeast(PostgresVersion.POSTGRES_14)}? ALTER SUBSCRIPTION name ADD_P PUBLICATION publication_name_list definition_?
+    | {atLeast(PostgresVersion.POSTGRES_14)}? ALTER SUBSCRIPTION name DROP PUBLICATION publication_name_list definition_?
     | ALTER SUBSCRIPTION name SET PUBLICATION publication_name_list definition_?
     | ALTER SUBSCRIPTION name ENABLE_P
     | ALTER SUBSCRIPTION name DISABLE_P
-    | ALTER SUBSCRIPTION name SKIP_P definition
+    | {atLeast(PostgresVersion.POSTGRES_15)}? ALTER SUBSCRIPTION name SKIP_P definition
     ;
 
 dropsubscriptionstmt
@@ -2710,7 +2830,7 @@ setTablespaceName
     ;
 
 refresh_collation_version
-    : REFRESH COLLATION VERSION
+    : {atLeast(PostgresVersion.POSTGRES_15)}? REFRESH COLLATION VERSION
     ;
 
 alterdatabasesetstmt
@@ -2718,7 +2838,9 @@ alterdatabasesetstmt
     ;
 
 dropdbstmt
-    : DROP DATABASE if_exists_? name (with_? OPEN_PAREN drop_option_list CLOSE_PAREN)?
+    : DROP DATABASE if_exists_? name (
+        {atLeast(PostgresVersion.POSTGRES_13)}? with_? OPEN_PAREN drop_option_list CLOSE_PAREN
+      )?
     ;
 
 dropschemastmt
@@ -2751,10 +2873,21 @@ alterdomainstmt
         alter_column_default
         | DROP NOT NULL_P
         | SET NOT NULL_P
-        | ADD_P tableconstraint
+        | {atMost(PostgresVersion.POSTGRES_16)}? ADD_P tableconstraint
+        | {atLeast(PostgresVersion.POSTGRES_17)}? ADD_P domainconstraint
         | DROP CONSTRAINT (IF_P EXISTS)? name drop_behavior_?
         | VALIDATE CONSTRAINT name
     )
+    ;
+
+domainconstraint
+    : CONSTRAINT name domainconstraintelem
+    | domainconstraintelem
+    ;
+
+domainconstraintelem
+    : CHECK OPEN_PAREN a_expr CLOSE_PAREN constraintattributespec
+    | NOT NULL_P constraintattributespec
     ;
 
 as_
@@ -2877,6 +3010,7 @@ name_list_
 
 vacuum_relation
     : qualified_name name_list_?
+    | {atLeast(PostgresVersion.POSTGRES_18)}? ONLY qualified_name name_list_?
     ;
 
 vacuum_relation_list
@@ -2989,8 +3123,7 @@ insert_column_list
     ;
 
 insert_column_item
-    : colid
-//    opt_indirection
+    : colid opt_indirection
     ;
 
 on_conflict_
@@ -3010,7 +3143,7 @@ returning_clause
     ;
 
 returning_with_clause_
-    : WITH OPEN_PAREN returning_options CLOSE_PAREN
+    : {atLeast(PostgresVersion.POSTGRES_18)}? WITH OPEN_PAREN returning_options CLOSE_PAREN
     ;
 
 returning_options
@@ -3023,7 +3156,9 @@ returning_option
 
 // https://www.postgresql.org/docs/current/sql-merge.html
 mergestmt
-    : with_clause_? MERGE INTO relation_expr_opt_alias USING table_ref ON a_expr merge_when_clause+ returning_clause?
+    : {atLeast(PostgresVersion.POSTGRES_15)}? with_clause_? MERGE INTO relation_expr_opt_alias
+        USING table_ref ON a_expr merge_when_clause+
+        ({atLeast(PostgresVersion.POSTGRES_17)}? returning_clause)?
     ;
 
 merge_when_clause
@@ -3033,11 +3168,12 @@ merge_when_clause
 
 merge_when_tgt_matched
     : WHEN MATCHED
-    | WHEN NOT MATCHED BY SOURCE
+    | {atLeast(PostgresVersion.POSTGRES_17)}? WHEN NOT MATCHED BY SOURCE
     ;
 
 merge_when_tgt_not_matched
-    : WHEN NOT MATCHED (BY TARGET)?
+    : WHEN NOT MATCHED
+    | {atLeast(PostgresVersion.POSTGRES_17)}? WHEN NOT MATCHED BY TARGET
     ;
 
 merge_update
@@ -3124,7 +3260,7 @@ cursor_name
     ;
 
 cursor_options
-    : (NO SCROLL | SCROLL | BINARY | ASENSITIVE | INSENSITIVE)*
+    : (NO SCROLL | SCROLL | BINARY | {atLeast(PostgresVersion.POSTGRES_14)}? ASENSITIVE | INSENSITIVE)*
     ;
 
 hold_
@@ -3198,7 +3334,7 @@ common_table_expr
     ;
 
 search_clause_
-    : SEARCH search_order FIRST_P BY columnlist SET colid
+    : {atLeast(PostgresVersion.POSTGRES_14)}? SEARCH search_order FIRST_P BY columnlist SET colid
     ;
 
 search_order
@@ -3208,7 +3344,7 @@ search_order
     ;
 
 cycle_clause_
-    : CYCLE columnlist SET colid cycle_mark_values_? USING colid
+    : {atLeast(PostgresVersion.POSTGRES_14)}? CYCLE columnlist SET colid cycle_mark_values_? USING colid
     ;
 
 cycle_mark_values_
@@ -3292,8 +3428,8 @@ select_limit_
 limit_clause
     : LIMIT select_limit_value (COMMA select_offset_value)?
     | FETCH first_or_next (
-        select_fetch_first_value row_or_rows (ONLY | WITH TIES)
-        | row_or_rows (ONLY | WITH TIES)
+        select_fetch_first_value row_or_rows (ONLY | {atLeast(PostgresVersion.POSTGRES_13)}? WITH TIES)
+        | row_or_rows (ONLY | {atLeast(PostgresVersion.POSTGRES_13)}? WITH TIES)
     )
     ;
 
@@ -3332,8 +3468,8 @@ first_or_next
     ;
 
 group_clause
-    : GROUP_P BY ALL group_by_list?
-    | GROUP_P BY DISTINCT group_by_list
+    : {atLeast(PostgresVersion.POSTGRES_14)}? GROUP_P BY ALL group_by_list?
+    | {atLeast(PostgresVersion.POSTGRES_14)}? GROUP_P BY DISTINCT group_by_list
     | GROUP_P BY group_by_list
 
     ;
@@ -3417,12 +3553,18 @@ table_ref
         | relation_expr alias_clause? tablesample_clause?
         | func_table func_alias_clause?
         | xmltable alias_clause?
-        | select_with_parens alias_clause?
+        | select_with_parens (
+            {atMost(PostgresVersion.POSTGRES_15)}? alias_clause
+            | {atLeast(PostgresVersion.POSTGRES_16)}? alias_clause?
+          )
         | LATERAL_P (
             xmltable alias_clause?
             | json_table alias_clause?
             | func_table func_alias_clause?
-            | select_with_parens alias_clause?
+            | select_with_parens (
+                {atMost(PostgresVersion.POSTGRES_15)}? alias_clause
+                | {atLeast(PostgresVersion.POSTGRES_16)}? alias_clause?
+              )
         )
         | OPEN_PAREN table_ref (
             cross_join table_ref
@@ -3467,7 +3609,7 @@ join_qual
     ;
 
 join_using_alias_
-    : AS colid
+    : {atLeast(PostgresVersion.POSTGRES_14)}? AS colid
 
     ;
 
@@ -3578,7 +3720,7 @@ xml_namespace_el
     ;
 
 json_table
-    : JSON_TABLE OPEN_PAREN json_value_expr COMMA a_expr json_table_path_name_? json_passing_clause?
+    : {atLeast(PostgresVersion.POSTGRES_17)}? JSON_TABLE OPEN_PAREN json_value_expr COMMA a_expr json_table_path_name_? json_passing_clause?
         COLUMNS OPEN_PAREN json_table_column_definition_list CLOSE_PAREN json_table_plan_clause_? json_table_on_error_clause_?
       CLOSE_PAREN
     ;
@@ -3664,7 +3806,7 @@ json_table_default_plan_union_cross
     ;
 
 json_table_on_error_clause_
-    : (ERROR | EMPTY_P ARRAY?) ON ERROR
+    : json_behavior ON ERROR
     ;
 
 typename
@@ -3875,7 +4017,7 @@ a_expr
 /*19*/
 
 a_expr_qual
-    : a_expr_lessless ({this.OnlyAcceptableOps()}? qual_op | )
+    : a_expr_lessless ({atMost(PostgresVersion.POSTGRES_13) && this.OnlyAcceptableOps()}? qual_op | )
     ;
 
 /*18*/
@@ -3911,7 +4053,7 @@ a_expr_in
 /*15*/
 
 a_expr_unary_not
-    : NOT? a_expr_isnull
+    : NOT* a_expr_isnull
     ;
 
 /*14*/
@@ -3934,10 +4076,10 @@ a_expr_is_not
             | FALSE_P
             | UNKNOWN
             | DISTINCT FROM a_expr
-            | OF OPEN_PAREN type_list CLOSE_PAREN
+            | {atMost(PostgresVersion.POSTGRES_13)}? OF OPEN_PAREN type_list CLOSE_PAREN
             | DOCUMENT_P
             | unicode_normal_form? NORMALIZED
-            | json_predicate_type_constraint json_key_uniqueness_constraint?
+            | {atLeast(PostgresVersion.POSTGRES_16)}? json_predicate_type_constraint json_key_uniqueness_constraint?
         )
     )?
     ;
@@ -4087,7 +4229,7 @@ func_expr_common_subexpr
     | CURRENT_TIMESTAMP (OPEN_PAREN iconst CLOSE_PAREN)?
     | LOCALTIME (OPEN_PAREN iconst CLOSE_PAREN)?
     | LOCALTIMESTAMP (OPEN_PAREN iconst CLOSE_PAREN)?
-    | CURRENT_ROLE
+    | {atLeast(PostgresVersion.POSTGRES_14)}? CURRENT_ROLE
     | CURRENT_USER
     | SESSION_USER
     | SYSTEM_USER
@@ -4119,41 +4261,52 @@ func_expr_common_subexpr
     | XMLPARSE OPEN_PAREN document_or_content a_expr xml_whitespace_option? CLOSE_PAREN
     | XMLPI OPEN_PAREN NAME_P colLabel (COMMA a_expr)? CLOSE_PAREN
     | XMLROOT OPEN_PAREN a_expr COMMA xml_root_version xml_root_standalone_? CLOSE_PAREN
-    | XMLSERIALIZE OPEN_PAREN document_or_content a_expr AS simpletypename xml_indent_option? CLOSE_PAREN
+    | XMLSERIALIZE OPEN_PAREN document_or_content a_expr AS simpletypename (
+        {atLeast(PostgresVersion.POSTGRES_16)}? xml_indent_option
+      )? CLOSE_PAREN
     | XPATH OPEN_PAREN func_arg_list CLOSE_PAREN
     | XPATH_EXISTS OPEN_PAREN func_arg_list CLOSE_PAREN
-    | JSON_OBJECT OPEN_PAREN (func_arg_list
-		| json_name_and_value_list
-		  json_object_constructor_null_clause?
-		  json_key_uniqueness_constraint?
-		  json_returning_clause?
-		| json_returning_clause? )
-		CLOSE_PAREN
-    | JSON_ARRAY OPEN_PAREN (json_value_expr_list
-		  json_array_constructor_null_clause?
-		  json_returning_clause?
-		| select_no_parens
-		  json_format_clause?
-		  json_returning_clause?
-		| json_returning_clause?
-		)
-		CLOSE_PAREN
-    | JSON '(' json_value_expr json_key_uniqueness_constraint? ')'
-    | JSON_SCALAR '(' a_expr ')'
-    | JSON_SERIALIZE '(' json_value_expr json_returning_clause? ')'
-    | MERGE_ACTION '(' ')'
-    | JSON_QUERY '('
+	    | JSON_OBJECT OPEN_PAREN func_arg_list? CLOSE_PAREN
+    | {atLeast(PostgresVersion.POSTGRES_16)}? JSON_OBJECT OPEN_PAREN (
+        json_name_and_value_list
+        json_object_constructor_null_clause?
+        json_key_uniqueness_constraint?
+        json_returning_clause?
+        | json_returning_clause?
+      ) CLOSE_PAREN
+	    | {atLeast(PostgresVersion.POSTGRES_16)}? JSON_ARRAY OPEN_PAREN (json_value_expr_list
+			  json_array_constructor_null_clause?
+			  json_returning_clause?
+			| select_no_parens
+			  json_format_clause?
+			  json_returning_clause?
+			| json_returning_clause?
+			)
+			CLOSE_PAREN
+	    | {atMost(PostgresVersion.POSTGRES_15)}? JSON_ARRAY OPEN_PAREN func_arg_list? CLOSE_PAREN
+	    | {atLeast(PostgresVersion.POSTGRES_17)}? JSON '(' json_value_expr json_key_uniqueness_constraint? ')'
+	    | {atMost(PostgresVersion.POSTGRES_16)}? JSON OPEN_PAREN func_arg_list? CLOSE_PAREN
+	    | {atLeast(PostgresVersion.POSTGRES_17)}? JSON_SCALAR '(' a_expr ')'
+	    | {atMost(PostgresVersion.POSTGRES_16)}? JSON_SCALAR OPEN_PAREN func_arg_list? CLOSE_PAREN
+	    | {atLeast(PostgresVersion.POSTGRES_17)}? JSON_SERIALIZE '(' json_value_expr json_returning_clause? ')'
+	    | {atLeast(PostgresVersion.POSTGRES_17)}? MERGE_ACTION '(' ')'
+	    | {atMost(PostgresVersion.POSTGRES_16)}? MERGE_ACTION OPEN_PAREN CLOSE_PAREN
+	    | {atMost(PostgresVersion.POSTGRES_16)}? JSON_QUERY OPEN_PAREN func_arg_list CLOSE_PAREN
+    | {atMost(PostgresVersion.POSTGRES_16)}? JSON_EXISTS OPEN_PAREN func_arg_list CLOSE_PAREN
+    | {atMost(PostgresVersion.POSTGRES_16)}? JSON_VALUE OPEN_PAREN func_arg_list CLOSE_PAREN
+    | {atMost(PostgresVersion.POSTGRES_16)}? JSON_SERIALIZE OPEN_PAREN func_arg_list CLOSE_PAREN
+    | {atLeast(PostgresVersion.POSTGRES_17)}? JSON_QUERY '('
 		json_value_expr ',' a_expr json_passing_clause?
 		json_returning_clause?
 		json_wrapper_behavior
 		json_quotes_clause?
 		json_behavior_clause?
 		')'
-    | JSON_EXISTS '('
+    | {atLeast(PostgresVersion.POSTGRES_17)}? JSON_EXISTS '('
 		json_value_expr ',' a_expr json_passing_clause?
 		json_on_error_clause?
 		')'
-    | JSON_VALUE '('
+    | {atLeast(PostgresVersion.POSTGRES_17)}? JSON_VALUE '('
 		json_value_expr ',' a_expr json_passing_clause?
 		json_returning_clause?
 		json_behavior_clause?
@@ -4323,6 +4476,8 @@ mathop
     | LESS_EQUALS
     | GREATER_EQUALS
     | NOT_EQUALS
+    | LESS_LESS
+    | GREATER_GREATER
     ;
 
 qual_op
@@ -4406,7 +4561,7 @@ substr_list
     | a_expr FOR a_expr FROM a_expr
     | a_expr FROM a_expr
     | a_expr FOR a_expr
-    | a_expr SIMILAR a_expr ESCAPE a_expr
+    | {atLeast(PostgresVersion.POSTGRES_14)}? a_expr SIMILAR a_expr ESCAPE a_expr
     ;
 
 trim_list
@@ -4448,7 +4603,8 @@ columnref
 
 indirection_el
     : DOT (attr_name | star_context)
-    | OPEN_BRACKET (a_expr | slice_bound_? COLON slice_bound_?) CLOSE_BRACKET
+    | OPEN_BRACKET a_expr (COLON slice_bound_?)? CLOSE_BRACKET
+    | OPEN_BRACKET COLON slice_bound_? CLOSE_BRACKET
     ;
 
 slice_bound_
@@ -4597,17 +4753,26 @@ json_value_expr_list:
 		;
 
 json_aggregate_func:
-			JSON_OBJECTAGG '('
+			{atLeast(PostgresVersion.POSTGRES_16)}? JSON_OBJECTAGG '('
 				json_name_and_value
 				json_object_constructor_null_clause?
 				json_key_uniqueness_constraint?
 				json_returning_clause?
 			')'
-			| JSON_ARRAYAGG '('
+			| {atLeast(PostgresVersion.POSTGRES_16)}? JSON_ARRAYAGG '('
 				json_value_expr
 				json_array_aggregate_order_by_clause?
 				json_array_constructor_null_clause?
 				json_returning_clause?
+			')'
+			| {atMost(PostgresVersion.POSTGRES_15)}? (JSON_OBJECTAGG | JSON_ARRAYAGG) '('
+				(
+					func_arg_list (',' VARIADIC func_arg_expr)? sort_clause_?
+					| VARIADIC func_arg_expr sort_clause_?
+					| (ALL | DISTINCT) func_arg_list sort_clause_?
+					| star_context
+					|
+				)
 			')'
 		;
 
@@ -4706,7 +4871,7 @@ sconst
     ;
 
 anysconst
-    : StringConstant
+    : StringConstant ({isStringContinuation()}? StringConstant)*
     | UnicodeEscapeStringConstant
     | BeginDollarStringConstant DollarText* EndDollarStringConstant
     | EscapeStringConstant
@@ -4731,7 +4896,7 @@ rolespec
     : nonreservedword
     | CURRENT_USER
     | SESSION_USER
-    | CURRENT_ROLE
+    | {atLeast(PostgresVersion.POSTGRES_14)}? CURRENT_ROLE
     ;
 
 role_list
@@ -4755,6 +4920,7 @@ colid
     : identifier
     | unreserved_keyword
     | col_name_keyword
+    | {atMost(PostgresVersion.POSTGRES_13)}? CURRENT_ROLE
     ;
 
 /* Type/function identifier --- names that can be type or function names.
@@ -4823,6 +4989,7 @@ unreserved_keyword
     | ALTER
     | ALWAYS
     | ASENSITIVE
+    | ASSERT
     | ASSERTION
     | ASSIGNMENT
     | AT
@@ -4862,10 +5029,11 @@ unreserved_keyword
     | CONVERSION_P
     | COPY
     | COST
-    | CSV
-    | CUBE
-    | CURRENT_P
-    | CURSOR
+    | CONSTANT
+	    | CSV
+	    | CUBE
+	    | CURRENT_P
+	    | CURSOR
     | CYCLE
     | DATA_P
     | DATABASE
@@ -4882,6 +5050,7 @@ unreserved_keyword
     | DEPENDS
     | DEPTH
     | DETACH
+    | DIAGNOSTICS
     | DICTIONARY
     | DISABLE_P
     | DISCARD
@@ -4889,6 +5058,8 @@ unreserved_keyword
     | DOMAIN_P
     | DOUBLE_P
     | DROP
+    | DUMP
+    | ELSIF
     | EACH
     | EMPTY_P
     | ENABLE_P
@@ -4900,8 +5071,10 @@ unreserved_keyword
     | ESCAPE
     | EVENT
     | EXCLUDE
+    | EXCEPTION
     | EXCLUDING
     | EXCLUSIVE
+    | EXIT
     | EXECUTE
     | EXPLAIN
     | EXPRESSION
@@ -4911,6 +5084,7 @@ unreserved_keyword
     | FILTER
     | FINALIZE
     | FIRST_P
+    | FOREACH
     | FOLLOWING
     | FORCE
     | FORMAT
@@ -4918,6 +5092,7 @@ unreserved_keyword
     | FUNCTION
     | FUNCTIONS
     | GENERATED
+    | GET
     | GLOBAL
     | GRANTED
     | GROUPS
@@ -4940,6 +5115,7 @@ unreserved_keyword
     | INHERIT
     | INHERITS
     | INLINE_P
+    | INFO
     | INPUT_P
     | INSENSITIVE
     | INSERT
@@ -4962,6 +5138,7 @@ unreserved_keyword
     | LOCK_P
     | LOCKED
     | LOGGED
+    | LOOP
     | MAPPING
     | MATCH
     | MATCHED
@@ -4986,10 +5163,12 @@ unreserved_keyword
     | NO
     | NORMALIZED
     | NOTHING
+    | NOTICE
     | NOTIFY
     | NOWAIT
     | NULLS_P
     | OBJECT_P
+    | OBJECTS_P
     | OF
     | OFF
     | OIDS
@@ -5004,6 +5183,7 @@ unreserved_keyword
     | OVERRIDING
     | OWNED
     | OWNER
+    | OPEN
     | PARALLEL
     | PARAMETER
     | PARSER
@@ -5012,6 +5192,7 @@ unreserved_keyword
     | PASSING
     | PASSWORD
     | PATH
+    | PERFORM
     | PERIOD
     | PLAN
     | PLANS
@@ -5029,6 +5210,7 @@ unreserved_keyword
     | PUBLICATION
     | QUOTE
     | QUOTES
+    | RAISE
     | RANGE
     | READ
     | REASSIGN
@@ -5076,10 +5258,13 @@ unreserved_keyword
     | SHOW
     | SIMPLE
     | SKIP_P
+    | SLICE
     | SNAPSHOT
     | SOURCE
     | SQL_P
+    | SQLSTATE
     | STABLE
+    | STACKED
     | STANDALONE_P
     | START
     | STATEMENT
@@ -5120,6 +5305,8 @@ unreserved_keyword
     | UNLOGGED
     | UNTIL
     | UPDATE
+    | USE_COLUMN
+    | USE_VARIABLE
     | VACUUM
     | VALID
     | VALIDATE
@@ -5132,6 +5319,8 @@ unreserved_keyword
     | VIEWS
     | VIRTUAL
     | VOLATILE
+    | WARNING
+    | WHILE
     | WHITESPACE_P
     | WITHIN
     | WITHOUT
@@ -5139,6 +5328,8 @@ unreserved_keyword
     | WRAPPER
     | WRITE
     | XML_P
+    | XPATH
+    | XPATH_EXISTS
     | YEAR_P
     | YES_P
     | ZONE
@@ -5413,7 +5604,7 @@ bare_label_keyword
     | COLUMNS
     | COMMENT
     | COMMENTS
-    | COMMIT
+    | {atLeast(PostgresVersion.POSTGRES_14)}? COMMIT
     | COMMITTED
     | COMPRESSION
     | CONCURRENTLY
@@ -5588,7 +5779,7 @@ bare_label_keyword
     | MINVALUE
     | MODE
     | MOVE
-    | NAME_P
+    | {atLeast(PostgresVersion.POSTGRES_14)}? NAME_P
     | NAMES
     | NATIONAL
     | NATURAL
@@ -5613,6 +5804,7 @@ bare_label_keyword
     | NULLS_P
     | NUMERIC
     | OBJECT_P
+    | OBJECTS_P
     | OF
     | OFF
     | OIDS
@@ -5758,7 +5950,7 @@ bare_label_keyword
     | TRUE_P
     | TRUNCATE
     | TRUSTED
-    | TYPE_P
+    | {atLeast(PostgresVersion.POSTGRES_14)}? TYPE_P
     | TYPES_P
     | UESCAPE
     | UNBOUNDED
@@ -5822,6 +6014,6 @@ identifier
     :
     Identifier uescape_?
     | QuotedIdentifier
-    | UnicodeQuotedIdentifier
+    | UnicodeQuotedIdentifier uescape_?
     | PLSQLVARIABLENAME
     ;

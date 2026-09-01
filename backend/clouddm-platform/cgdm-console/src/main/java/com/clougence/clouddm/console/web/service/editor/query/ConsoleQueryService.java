@@ -79,10 +79,10 @@ import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -545,8 +545,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         // 6.2 at team all statements must be clear
         String curOwnerUid = queryDTO.getPrimaryUserId();
         for (QueryRequest request : requestScripts) {
-            Set<SplitQueryType> queryTypes = request.getQueryTypes();
-            if (CollectionUtils.isEmpty(queryTypes) || queryTypes.contains(SplitQueryType.UNKNOWN)) {
+            Set<StatementType> queryTypes = request.getQueryTypes();
+            if (CollectionUtils.isEmpty(queryTypes) || queryTypes.contains(StatementType.UNKNOWN)) {
                 String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), request.getQueryBody());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
@@ -574,13 +574,13 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         // 6.3 disallow `use xxx` or `set search_path = xxx` or `alter session set container = xxx`
         for (QueryRequest request : requestScripts) {
-            if (request.hasQueryType(SplitQueryType.SWITCH_CATALOG) || request.hasQueryType(SplitQueryType.SWITCH_SCHEMA)) {
+            if (request.hasQueryType(StatementType.SWITCH_CATALOG) || request.hasQueryType(StatementType.SWITCH_SCHEMA)) {
                 String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_SWITCH_CTX_ERROR.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
                 return false;
-            } else if (request.hasQueryType(SplitQueryType.TRANSACTION)) {
+            } else if (request.hasQueryType(StatementType.TRANSACTION)) {
                 String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));

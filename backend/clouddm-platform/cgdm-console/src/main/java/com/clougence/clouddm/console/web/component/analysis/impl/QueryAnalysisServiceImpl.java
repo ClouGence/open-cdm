@@ -54,6 +54,7 @@ import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
@@ -62,7 +63,6 @@ import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -243,11 +243,10 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             request.setQueryBody(script.getScript());
             request.setQueryArgs(script.getScriptArgs());
             request.setBodyStartCodeLine(script.getBodyStartCodeLine());
-            request.setQueryTypes(script.getType());
             request.setDsType(this.dsConfig.getDataSourceType());
 
-            this.rewrite(request);
             this.analysisResources(script, request);
+            this.rewrite(request);
             this.lineageColumns(request);
             this.configMasking(request);
             return request;
@@ -257,7 +256,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             if (this.rewriteSpi == null) {
                 return;
             }
-            if (!request.hasQueryType(SplitQueryType.SELECT)) {
+            if (!request.hasQueryType(StatementType.SELECT)) {
                 return;
             }
             String beforeRewrite = request.getQueryBody();
@@ -288,12 +287,22 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             }
 
             List<BehaviorRelation> relations = new ArrayList<>();
+            Set<StatementType> queryTypes = new LinkedHashSet<>();
             for (StatementBehavior behavior : behaviors) {
-                if (behavior == null || behavior.getRelations() == null) {
+                if (behavior == null) {
                     continue;
                 }
-                relations.addAll(behavior.getRelations().stream().filter(Objects::nonNull).toList());
+                if (behavior.getStatementTypes() != null) {
+                    queryTypes.addAll(behavior.getStatementTypes().stream().filter(Objects::nonNull).toList());
+                }
+                if (behavior.getRelations() != null) {
+                    relations.addAll(behavior.getRelations().stream().filter(Objects::nonNull).toList());
+                }
             }
+            if (queryTypes.isEmpty()) {
+                queryTypes.add(StatementType.UNKNOWN);
+            }
+            request.setQueryTypes(queryTypes);
             request.setRelations(relations);
         }
 
@@ -302,7 +311,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
                 return;
             }
 
-            if (request.hasQueryType(SplitQueryType.SELECT)) {
+            if (request.hasQueryType(StatementType.SELECT)) {
                 List<LineageColumn> lineageCols = this.lineageSpi.analyze(request.getQueryBody(), this.lineageContext);
 
                 Set<String> columnNames = new HashSet<>();

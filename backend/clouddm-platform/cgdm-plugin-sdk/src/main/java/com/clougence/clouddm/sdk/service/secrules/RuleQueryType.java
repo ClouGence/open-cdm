@@ -25,7 +25,6 @@ import lombok.Getter;
 @Getter
 @Deprecated
 public enum RuleQueryType {
-
     // DDL catalog
     CREATE_CATALOG(TargetType.Catalog, SecDataAuthKind.SPACE, SecQueryKind.CREATE),
     ALTER_CATALOG(TargetType.Catalog, SecDataAuthKind.SPACE, SecQueryKind.ALTER),
@@ -235,6 +234,19 @@ public enum RuleQueryType {
     ALTER_POLICY(TargetType.Policy, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
     DROP_POLICY(TargetType.Policy, SecDataAuthKind.MANAGE, SecQueryKind.DROP),
 
+    // Object-specific comments
+    COMMENT_MATERIALIZED_VIEW(TargetType.Materialized, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_DOMAIN(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_CLASS(TargetType.Type, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_FUNCTION(TargetType.Function, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_PROCEDURE(TargetType.Procedure, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_PACKAGE(TargetType.Package, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_OPERATOR(TargetType.Operator, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    COMMENT_CONTEXT(TargetType.Context, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
+    COMMENT_DIRECTORY(TargetType.ConfigKey, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
+    COMMENT_PROFILE(TargetType.Profile, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
+    COMMENT_LINK(TargetType.Link, SecDataAuthKind.MANAGE, SecQueryKind.ALTER),
+
     // dql and dml and call.
     SELECT(TargetType.Query, SecDataAuthKind.READ, SecQueryKind.QUERY, true),
     INSERT(TargetType.Insert, SecDataAuthKind.WRITE, SecQueryKind.DML, true),
@@ -258,6 +270,12 @@ public enum RuleQueryType {
     // Data import and export
     DATA_IMPORT(TargetType.Unknown, SecDataAuthKind.WRITE, SecQueryKind.ADMIN),
     DATA_EXPORT(TargetType.Unknown, SecDataAuthKind.READ, SecQueryKind.ADMIN),
+
+    // Database backup lifecycle
+    BACKUP(TargetType.Backup, SecDataAuthKind.MAINTAIN, SecQueryKind.ADMIN),
+    RESTORE(TargetType.Unknown, SecDataAuthKind.MAINTAIN, SecQueryKind.ADMIN),
+    RECOVER(TargetType.Unknown, SecDataAuthKind.MAINTAIN, SecQueryKind.ADMIN),
+    MAINTAIN_BACKUP(TargetType.Backup, SecDataAuthKind.MAINTAIN, SecQueryKind.ADMIN),
 
     // Metadata and performance
     METADATA(TargetType.Unknown, SecDataAuthKind.READ, SecQueryKind.QUERY),
@@ -315,7 +333,7 @@ public enum RuleQueryType {
     COPY_INTO(TargetType.Unknown, SecDataAuthKind.WRITE, SecQueryKind.DML),
     EXPORT(TargetType.Unknown, SecDataAuthKind.MAINTAIN, SecQueryKind.OTHER),
     SYNC(TargetType.Unknown, SecDataAuthKind.MAINTAIN, SecQueryKind.OTHER),
-    RECOVER(TargetType.Unknown, SecDataAuthKind.DDL, SecQueryKind.ALTER),
+    RECOVER_OBJECT(TargetType.Unknown, SecDataAuthKind.DDL, SecQueryKind.ALTER),
 
     // Other
     UNSAFE(TargetType.Unknown, SecDataAuthKind.UNSAFE, SecQueryKind.OTHER),

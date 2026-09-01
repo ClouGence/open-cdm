@@ -24,7 +24,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.ds.tidb.sql.analysis.security.TiParserVisitor;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
-import com.clougence.clouddm.ds.tidb.sql.parser.TiSplitAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.parser.TiDBSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
@@ -37,8 +37,11 @@ import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
 
 public class TiLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
-    public TiLineageAnalysisSpi(MetaService metaService){
+    private final TiDBDslProvider provider;
+
+    public TiLineageAnalysisSpi(MetaService metaService, TiDBDslProvider provider){
         super(metaService);
+        this.provider = provider;
     }
 
     protected AbstractParseTreeVisitor<Void> parserVisitor(MyBuilderFactory domainBuilder, Parser parser) {
@@ -46,7 +49,7 @@ public class TiLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
     }
 
     protected DslProvider dslProvider() {
-        return TiDBDslProvider.INSTANCE;
+        return provider;
     }
 
     @Override
@@ -56,7 +59,7 @@ public class TiLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 
     @Override
     public List<LineageColumn> analyze(String sql, LineageContext context) {
-        try (var scripts = new TiSplitAnalysisSpi().splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
+        try (var scripts = new TiDBSplitAnalysisSpi(this.provider).splitScriptStream(new StringReader(sql), List.of(), 1, 0)) {
             var iterator = scripts.iterator();
             if (!iterator.hasNext()) {
                 return List.of();

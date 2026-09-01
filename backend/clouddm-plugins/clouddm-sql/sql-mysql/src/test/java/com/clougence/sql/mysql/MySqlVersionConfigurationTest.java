@@ -64,9 +64,17 @@ public class MySqlVersionConfigurationTest {
     @Test
     public void engineUsesLatestWhenVersionIsNull() {
         MySqlEngineSpi engine = new MySqlEngineSpi(null);
-        MyDslProvider provider = (MyDslProvider) engine.dslProvider(SqlParserParameters.empty());
+        SqlParserParameters parameters = SqlParserParameters.empty();
+        MyDslProvider provider = (MyDslProvider) engine.dslProvider(parameters);
         Assertions.assertEquals(MySqlVersion.LATEST, provider.version());
         Assertions.assertEquals(MySqlVersion.LATEST.exactVersion(), provider.exactVersion());
+        Assertions.assertSame(provider, engine.dslProvider(null));
+        Assertions.assertSame(provider, engine.dslProvider(parameters));
+        Assertions.assertSame(engine.splitAnalysisSpi(parameters), engine.splitAnalysisSpi(null));
+        Assertions.assertSame(engine.behaviorAnalysisSpi(parameters), engine.behaviorAnalysisSpi(null));
+        Assertions.assertSame(engine.lineageAnalysisSpi(parameters), engine.lineageAnalysisSpi(null));
+        Assertions.assertSame(engine.secDomainResolveSpi(parameters), engine.secDomainResolveSpi(null));
+        Assertions.assertSame(engine.rewriteSpi(parameters), engine.rewriteSpi(null));
     }
 
     @Test
@@ -160,6 +168,18 @@ public class MySqlVersionConfigurationTest {
         Assertions.assertThrows(AntlerSyntaxException.class, () -> {
             engine.rewriteSpi(knownEmpty).rewriteLimit(null, sql, rewriteContext);
         });
+    }
+
+    @Test
+    public void splitRetriesNoBackslashEscapesWhenSqlModeIsUnknown() {
+        MySqlEngineSpi engine = new MySqlEngineSpi(null);
+        String sql = "SELECT /*!50000 'trailing backslash\\' */;";
+
+        try (var scripts = engine.splitAnalysisSpi(SqlParserParameters.ofVersion("8.0.46")).splitScriptStream(new StringReader(sql), null, 0, 0)) {
+            var result = scripts.toList();
+            Assertions.assertEquals(1, result.size());
+            Assertions.assertEquals(sql, result.get(0).getScript());
+        }
     }
 
     private static SqlParserParameters parserParameters(String sqlMode) {

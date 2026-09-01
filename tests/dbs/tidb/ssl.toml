@@ -1,0 +1,5 @@
+[security]
+ssl-ca = "/certs/ca.crt"
+ssl-cert = "/certs/server.crt"
+ssl-key = "/certs/server.key"
+tls-version = "TLSv1.2"

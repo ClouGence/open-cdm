@@ -1,0 +1,3665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseResources>
+    <storedProcedures>
+    </storedProcedures>
+
+    <storedFunctions>
+        <function name="ABS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ACOS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ADDDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ADDTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="AES_DECRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="AES_ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="AND" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ANY_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="APPROX_COUNT_DISTINCT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="APPROX_PERCENTILE" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ASCII" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ASIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ATAN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ATAN2" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="AVG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BENCHMARK" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BIN_TO_UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BIT_AND" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BIT_COUNT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BIT_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BIT_OR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BIT_XOR" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BITAND" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BITNEG" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BITOR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="BITXOR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CASE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CAST" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CEIL" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CEILING" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CHAR_FUNC" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CHAR_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CHARACTER_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CHARSET" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="COALESCE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="COERCIBILITY" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="COLLATION" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="COMPRESS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CONCAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CONCAT_WS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CONNECTION_ID" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CONV" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CONVERT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CONVERT_TZ" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="COS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="COT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CRC32" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CUME_DIST" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CURDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CURRENT_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CURRENT_RESOURCE_GROUP" catalog="*" schema="*">
+            <versions>7/8/9</versions>
+        </function>
+        <function name="CURRENT_ROLE" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CURRENT_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CURRENT_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CURRENT_USER" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="CURTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DATABASE" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DATE_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DATE_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DATE_SUB" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DATEDIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DAY" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DAYNAME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DAYOFMONTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DAYOFWEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DAYOFYEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DECODE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DEFAULT_FUNC" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DEGREES" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DENSE_RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="DES_DECRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8</versions>
+        </function>
+        <function name="DES_ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8</versions>
+        </function>
+        <function name="DIV" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ELT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="EMBED_TEXT" catalog="*" schema="*">
+            <versions>9</versions>
+        </function>
+        <function name="ENCODE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ENCRYPT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8</versions>
+        </function>
+        <function name="EQ" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="EXP" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="EXPORT_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="EXTRACT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FIELD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FIND_IN_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FIRST_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FIRSTROW" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FLOOR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FORMAT_BYTES" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FORMAT_NANO_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FOUND_ROWS" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FROM_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FROM_DAYS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FROM_UNIXTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="FTS_MATCH_WORD" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="GE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="GET_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="GET_LOCK" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="GET_MVCC_INFO" catalog="*" schema="*">
+            <versions>5/6/7/8</versions>
+        </function>
+        <function name="GETPARAM" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="GETVAR" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="GREATEST" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="GROUP_CONCAT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="GROUPING" catalog="*" schema="*" skipPermission="true">
+            <versions>7/8/9</versions>
+        </function>
+        <function name="GT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="HEX" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="HOUR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IF" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IFNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ILIKE" catalog="*" schema="*" skipPermission="true">
+            <versions>7/8/9</versions>
+        </function>
+        <function name="IN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="INET6_ATON" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="INET6_NTOA" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="INET_ATON" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="INET_NTOA" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="INSERT_FUNC" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="INSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="INTDIV" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="INTERVAL" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IS_FREE_LOCK" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IS_IPV4" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IS_IPV4_COMPAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IS_IPV4_MAPPED" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IS_IPV6" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IS_USED_LOCK" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="IS_UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ISFALSE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ISNULL" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ISTRUE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ISTRUE_WITH_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_ARRAY" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_ARRAY_APPEND" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_ARRAY_INSERT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_ARRAYAGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_CONTAINS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_CONTAINS_PATH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_DEPTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_EXTRACT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_INSERT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_KEYS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_MEMBEROF" catalog="*" schema="*" skipPermission="true">
+            <versions>7/8/9</versions>
+        </function>
+        <function name="JSON_MERGE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_MERGE_PATCH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_MERGE_PRESERVE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_OBJECT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_OBJECTAGG" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_OVERLAPS" catalog="*" schema="*" skipPermission="true">
+            <versions>7/8/9</versions>
+        </function>
+        <function name="JSON_PRETTY" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_QUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_REMOVE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_SCHEMA_VALID" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="JSON_SEARCH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_STORAGE_FREE" catalog="*" schema="*" skipPermission="true">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="JSON_STORAGE_SIZE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_SUM_CRC32" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="JSON_TYPE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_UNQUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="JSON_VALID" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LAG" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LAST_DAY" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LAST_INSERT_ID" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LAST_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LASTVAL" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LCASE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LEAD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LEAST" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LEFT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LEFTSHIFT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LIKE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LOAD_FILE" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LOCALTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LOCALTIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LOCATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LOG" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LOG10" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LOG2" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LOWER" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LPAD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="LTRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MAKE_SET" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MAKEDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MAKETIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MASK_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="MASK_FULL" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="MASK_NULL" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="MASK_PARTIAL" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="MASTER_POS_WAIT" catalog="*" schema="*">
+            <versions>5/6/7/8</versions>
+        </function>
+        <function name="MATCH_AGAINST" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="MAX" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MAX_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="MD5" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MICROSECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MID" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MIN" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MIN_COUNT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="MINUS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MINUTE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MOD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MONTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MONTHNAME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="MUL" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NAME_CONST" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NEXTVAL" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NOT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NOW" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NTH_VALUE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NTILE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NULLEQ" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="NULLIF" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="OCT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="OCTET_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="OLD_PASSWORD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8</versions>
+        </function>
+        <function name="OR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ORD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="PASSWORD" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="PASSWORD_FUNC" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8</versions>
+        </function>
+        <function name="PERCENT_RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="PERIOD_ADD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="PERIOD_DIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="PI" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="PLUS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="POSITION" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="POW" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="POWER" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="QUARTER" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="QUOTE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RADIANS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RAND" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RANDOM_BYTES" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RANK" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="REGEXP" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="REGEXP_INSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="REGEXP_LIKE" catalog="*" schema="*" skipPermission="true">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="REGEXP_REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="REGEXP_SUBSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="RELEASE_ALL_LOCKS" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RELEASE_LOCK" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="REPEAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="REPLACE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="REVERSE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RIGHT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RIGHTSHIFT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ROUND" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ROW" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ROW_COUNT" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="ROW_NUMBER" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RPAD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="RTRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SCHEMA" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SEC_TO_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SECOND" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SESSION_USER" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SETVAL" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SETVAR" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SHA" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SHA1" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SHA2" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SIGN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SLEEP" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SM3" catalog="*" schema="*" skipPermission="true">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="SOUNDEX" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SPACE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SQRT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="STDDEV_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="STDDEV_SAMP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="STR_TO_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="STRCMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SUBDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SUBSTR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SUBSTRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SUBSTRING_INDEX" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SUBTIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SUM" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SUM_INT" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="SYSDATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="SYSTEM_USER" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TAN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIDB_BOUNDED_STALENESS" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIDB_CURRENT_TSO" catalog="*" schema="*">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="TIDB_DECODE_BASE64_KEY" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIDB_DECODE_BINARY_PLAN" catalog="*" schema="*">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="TIDB_DECODE_KEY" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIDB_DECODE_PLAN" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIDB_DECODE_SQL_DIGESTS" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIDB_ENCODE_INDEX_KEY" catalog="*" schema="*">
+            <versions>8/9</versions>
+        </function>
+        <function name="TIDB_ENCODE_RECORD_KEY" catalog="*" schema="*">
+            <versions>8/9</versions>
+        </function>
+        <function name="TIDB_ENCODE_SQL_DIGEST" catalog="*" schema="*">
+            <versions>7/8/9</versions>
+        </function>
+        <function name="TIDB_IS_DDL_OWNER" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIDB_MVCC_INFO" catalog="*" schema="*">
+            <versions>8/9</versions>
+        </function>
+        <function name="TIDB_PARSE_TSO" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIDB_PARSE_TSO_LOGICAL" catalog="*" schema="*" skipPermission="true">
+            <versions>7/8/9</versions>
+        </function>
+        <function name="TIDB_ROW_CHECKSUM" catalog="*" schema="*">
+            <versions>7/8/9</versions>
+        </function>
+        <function name="TIDB_SHARD" catalog="*" schema="*" skipPermission="true">
+            <versions>6/7/8/9</versions>
+        </function>
+        <function name="TIDB_VERSION" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIME_FORMAT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIME_TO_SEC" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIMEDIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIMESTAMPADD" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TIMESTAMPDIFF" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TO_BASE64" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TO_DAYS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TO_SECONDS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TRANSLATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TRIM" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="TRUNCATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UCASE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UNARYMINUS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UNARYPLUS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UNCOMPRESS" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UNCOMPRESSED_LENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UNHEX" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UNIX_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UPPER" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="USER" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UTC_DATE" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UTC_TIME" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UTC_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UUID" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UUID_SHORT" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UUID_TIMESTAMP" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="UUID_TO_BIN" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="UUID_V4" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="UUID_V7" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="UUID_VERSION" catalog="*" schema="*" skipPermission="true">
+            <versions>9</versions>
+        </function>
+        <function name="VALIDATE_PASSWORD_STRENGTH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="VALUES" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="VAR_POP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="VAR_SAMP" catalog="*" schema="*" aggregate="true" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="VEC_AS_TEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="VEC_COSINE_DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="VEC_DIMS" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="VEC_FROM_TEXT" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="VEC_L1_DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="VEC_L2_DISTANCE" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="VEC_L2_NORM" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="VEC_NEGATIVE_INNER_PRODUCT" catalog="*" schema="*" skipPermission="true">
+            <versions>8/9</versions>
+        </function>
+        <function name="VERSION" catalog="*" schema="*">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="VITESS_HASH" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="WEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="WEEKDAY" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="WEEKOFYEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="WEIGHT_STRING" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="XOR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="YEAR" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+        <function name="YEARWEEK" catalog="*" schema="*" skipPermission="true">
+            <versions>5/6/7/8/9</versions>
+        </function>
+    </storedFunctions>
+
+    <tablesOrViews>
+        <tableOrView name="ANALYZE_STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ATTRIBUTES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CHARACTER_SETS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CHECK_CONSTRAINTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLIENT_ERRORS_SUMMARY_BY_HOST" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLIENT_ERRORS_SUMMARY_BY_USER" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLIENT_ERRORS_SUMMARY_GLOBAL" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_CONFIG" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_DEADLOCKS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_HARDWARE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_INFO" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_LOAD" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_LOG" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_MEMORY_USAGE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_MEMORY_USAGE_OPS_HISTORY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_PROCESSLIST" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_SLOW_QUERY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_STATEMENTS_SUMMARY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_STATEMENTS_SUMMARY_EVICTED" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_STATEMENTS_SUMMARY_HISTORY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_SYSTEMINFO" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_TIDB_INDEX_USAGE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_TIDB_PLAN_CACHE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_TIDB_STATEMENTS_STATS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_TIDB_TRX" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CLUSTER_TRX_SUMMARY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="COLLATION_CHARACTER_SET_APPLICABILITY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="COLLATIONS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="COLUMN_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="COLUMN_STATISTICS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="COLUMNS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="DATA_LOCK_WAITS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="DDL_JOBS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="DEADLOCKS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ENGINES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="FILES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_VARIABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8</versions>
+        </tableOrView>
+        <tableOrView name="INSPECTION_RESULT" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="INSPECTION_RULES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="INSPECTION_SUMMARY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="KEY_COLUMN_USAGE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="KEYSPACE_META" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="KEYWORDS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="MEMORY_USAGE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="MEMORY_USAGE_OPS_HISTORY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="METRICS_SUMMARY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="METRICS_SUMMARY_BY_LABEL" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="METRICS_TABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="OPTIMIZER_TRACE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PARAMETERS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PARTITIONS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PLACEMENT_POLICIES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PLACEMENT_RULES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5</versions>
+        </tableOrView>
+        <tableOrView name="PLUGINS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PROCESSLIST" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PROFILING" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="REFERENTIAL_CONSTRAINTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="RESOURCE_GROUPS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ROUTINES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="RUNAWAY_WATCHES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SCHEMA_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SCHEMATA" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SCHEMATA_EXTENSIONS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="SEQUENCES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SESSION_STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8</versions>
+        </tableOrView>
+        <tableOrView name="SESSION_VARIABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8</versions>
+        </tableOrView>
+        <tableOrView name="SLOW_QUERY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATEMENTS_SUMMARY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATEMENTS_SUMMARY_EVICTED" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATEMENTS_SUMMARY_HISTORY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATISTICS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_CONSTRAINTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_STORAGE_STATS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TABLESPACES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_CHECK_CONSTRAINTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_HOT_REGIONS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_HOT_REGIONS_HISTORY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_INDEX_USAGE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_INDEXES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PLAN_CACHE" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SERVERS_INFO" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATEMENTS_STATS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRX" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIFLASH_INDEXES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIFLASH_REPLICA" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIFLASH_SEGMENTS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIFLASH_TABLES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REGION_PEERS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REGION_STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORE_STATUS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TRIGGERS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TRX_SUMMARY" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="USER_ATTRIBUTES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="USER_PRIVILEGES" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="VARIABLES_INFO" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="VIEWS" catalog="*" schema="INFORMATION_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ABNORMAL_STORES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ETCD_DISK_WAL_FSYNC_RATE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ETCD_WAL_FSYNC_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ETCD_WAL_FSYNC_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ETCD_WAL_FSYNC_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GO_GC_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GO_GC_CPU_USAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GO_GC_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GO_HEAP_MEM_USAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GO_THREADS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GOROUTINES_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_CPU_USAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_AVAILABLE_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_IO_UTIL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_IOPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_READ_LATENCY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_STATE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_THROUGHPUT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_USAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_DISK_WRITE_LATENCY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_FILE_DESCRIPTOR_ALLOCATED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_KERNEL_CONTEXT_SWITCHES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_KERNEL_FORKS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_KERNEL_INTERRUPTS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_LOAD1" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_LOAD15" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_LOAD5" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_ACTIVE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_AVAILABLE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_BUFFERS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_CACHED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_DIRTY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_FREE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_INACTIVE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_MAPPED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_SHARED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_SWAP_USED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_USAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_WRITEBACK" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_MEMORY_WRITEBACK_TMP" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_IN_DROPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_IN_ERRORS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_IN_ERRORS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_IN_PACKETS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_IN_TRAFFIC" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_INTERFACE_SPEED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_OUT_DROPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_OUT_ERRORS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_OUT_ERRORS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_OUT_PACKETS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_OUT_TRAFFIC" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_UTILIZATION_IN_HOURLY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_NETWORK_UTILIZATION_OUT_HOURLY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_PROCESS_OPEN_FD_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_PROCESSES_BLOCKED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_PROCESSES_RUNNING" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_TCP_CONNECTIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_TCP_IN_USE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_TCP_SEGMENTS_RETRANSMITTED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_TOTAL_MEMORY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_UPTIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NODE_VIRTUAL_CPUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="NORMAL_STORES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_BALANCE_SCHEDULER_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CHECKER_EVENT_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CLIENT_CMD_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CLIENT_CMD_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CLIENT_CMD_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CLIENT_CMD_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CLUSTER_METADATA" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CLUSTER_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CMD_FAIL_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_CMD_FAIL_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_GRPC_COMPLETED_COMMANDS_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_GRPC_COMPLETED_COMMANDS_RATE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_GRPC_COMPLETED_COMMANDS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_GRPC_COMPLETED_COMMANDS_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_HANDLE_TRANSACTIONS_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_HANDLE_TRANSACTIONS_RATE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_HANDLE_TRANSACTIONS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_HANDLE_TRANSACTIONS_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_HOTSPOT_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_LABEL_DISTRIBUTION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_OPERATOR_FINISH_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_OPERATOR_FINISH_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_OPERATOR_FINISH_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_OPERATOR_STEP_FINISH_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_OPERATOR_STEP_FINISH_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_OPERATOR_STEP_FINISH_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PEER_ROUND_TRIP_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PEER_ROUND_TRIP_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PEER_ROUND_TRIP_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REGION_HEALTH" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REGION_HEARTBEAT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REGION_HEARTBEAT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REGION_HEARTBEAT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REGION_LABEL_ISOLATION_LEVEL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REGION_SYNCER_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REQUEST_RPC_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REQUEST_RPC_DURATION_AVG" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REQUEST_RPC_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REQUEST_RPC_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_REQUEST_RPC_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_ROLE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULE_FILTER" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULE_OPERATOR" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULE_OPERATOR_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULE_STORE_LIMIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_BALANCE_DIRECTION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_BALANCE_LEADER" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_BALANCE_REGION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_CONFIG" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_OP_INFLUENCE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_REGION_HEARTBEAT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_STORE_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SCHEDULER_TOLERANT_RESOURCE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_SERVER_ETCD_STATE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_START_TSO_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_START_TSO_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_START_TSO_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_TSO_RPC_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_TSO_RPC_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_TSO_RPC_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_TSO_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_TSO_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_TSO_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PROCESS_CPU_USAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="RESOURCE_MANAGER_RESOURCE_UNIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STORE_AVAILABLE_RATIO" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STORE_SIZE_AMPLIFICATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_AUTO_ID_QPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_AUTO_ID_REQUEST_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_AUTO_ID_REQUEST_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_AUTO_ID_REQUEST_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_PENDING_REQ_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_UNAVAILABLE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_UNAVAILABLE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_UNAVAILABLE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_WAIT_CONN_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_WAIT_CONN_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_WAIT_CONN_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BATCH_CLIENT_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BINLOG_ERROR_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BINLOG_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_COMPILE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_COMPILE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_COMPILE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_CONNECTION_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_CONNECTION_IDLE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_CONNECTION_IDLE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_CONNECTION_IDLE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_COP_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_COP_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_COP_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_ADD_INDEX_SPEED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_BATCH_ADD_INDEX_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_BATCH_ADD_INDEX_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_BATCH_ADD_INDEX_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_DEPLOY_SYNCER_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_DEPLOY_SYNCER_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_DEPLOY_SYNCER_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_META_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_UPDATE_SELF_VERSION_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_UPDATE_SELF_VERSION_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_UPDATE_SELF_VERSION_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_WAITING_JOBS_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_WORKER_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_WORKER_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_WORKER_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_COPR_CACHE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_EXECUTION_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_EXECUTION_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_EXECUTION_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_PARTIAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_PARTIAL_NUM_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_PARTIAL_QPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_PARTIAL_SCAN_KEY_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_PARTIAL_SCAN_KEY_NUM_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_PARTIAL_SCAN_KEY_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_PARTIAL_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_QPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_SCAN_KEY_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_SCAN_KEY_NUM_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DISTSQL_SCAN_KEY_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_EVENT_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_EXECUTE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_EXECUTE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_EXECUTE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_EXPENSIVE_EXECUTORS_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_FAILED_QUERY_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_ACTION_RESULT_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_CONFIG" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_DELETE_RANGE_FAIL_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_DELETE_RANGE_TASK_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_FAIL_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_PUSH_TASK_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_PUSH_TASK_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_PUSH_TASK_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_TOO_MANY_LOCKS_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GC_WORKER_ACTION_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GET_TOKEN_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GET_TOKEN_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GET_TOKEN_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_HANDSHAKE_ERROR_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_HANDSHAKE_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_IA_REMOTE_READ_SEGMENT_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_IA_REMOTE_READ_SEGMENT_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_IA_REMOTE_READ_SEGMENT_WAIT_TIME_HISTOGRAM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KEEP_ALIVE_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_BACKOFF_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_BACKOFF_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_BACKOFF_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_BACKOFF_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_REGION_ERROR_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_REGION_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_REQUEST_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_REQUEST_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_REQUEST_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_REQUEST_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_SNAPSHOT_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_TXN_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_WRITE_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_WRITE_NUM_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_WRITE_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_WRITE_SIZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_WRITE_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KV_WRITE_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOAD_PRIVILEGE_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOAD_SAFEPOINT_FAIL_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOAD_SAFEPOINT_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOAD_SAFEPOINT_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOAD_SCHEMA_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOAD_SCHEMA_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOAD_SCHEMA_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOAD_SCHEMA_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOCK_CLEANUP_FAIL_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOCK_RESOLVER_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_LOCK_RESOLVER_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_META_OPERATION_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_META_OPERATION_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_META_OPERATION_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_NEW_ETCD_SESSION_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_NEW_ETCD_SESSION_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_NEW_ETCD_SESSION_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_OPS_INTERNAL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_OPS_STATEMENT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_OWNER_HANDLE_SYNCER_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_OWNER_HANDLE_SYNCER_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_OWNER_HANDLE_SYNCER_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_OWNER_WATCHER_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PANIC_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PANIC_COUNT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PARSE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PARSE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PARSE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PREPARED_STATEMENT_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PROCESS_MEM_USAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_QPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_QPS_IDEAL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_QUERY_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_QUERY_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_QUERY_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_QUERY_USING_PLAN_CACHE_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_REGION_CACHE_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SCHEMA_LEASE_ERROR_OPM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SCHEMA_LEASE_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SERVER_MAXPROCS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_COP_PROCESS_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_COP_PROCESS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_COP_PROCESS_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_COP_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_COP_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_COP_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_QPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_SLOW_QUERY_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_AUTO_ANALYZE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_AUTO_ANALYZE_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_AUTO_ANALYZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_AUTO_ANALYZE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_DUMP_FEEDBACK_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_DUMP_FEEDBACK_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_FAST_ANALYZE_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_FAST_ANALYZE_STATUS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_FAST_ANALYZE_TOTAL_STATUS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_MANUAL_ANALYZE_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_PSEUDO_ESTIMATION_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_PSEUDO_ESTIMATION_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_SIGNIFICANT_FEEDBACK" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_STATS_INACCURACY_RATE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_STATS_INACCURACY_RATE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_STATS_INACCURACY_TOTAL_RATE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_STORE_QUERY_FEEDBACK_QPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_STORE_QUERY_FEEDBACK_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_UPDATE_STATS_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_STATISTICS_UPDATE_STATS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TIME_JUMP_BACK_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_LOCAL_LATCH_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_LOCAL_LATCH_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_LOCAL_LATCH_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_RETRY_ERROR_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_RETRY_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_RETRY_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_RETRY_NUM_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_RETRY_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_STATEMENT_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_STATEMENT_NUM_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_STATEMENT_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TRANSACTION_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TXN_CMD_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TXN_CMD_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TXN_CMD_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TXN_REGION_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TXN_REGION_NUM_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TXN_REGION_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIFLASH_CPU_QUOTA" catalog="*" schema="METRICS_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIFLASH_PROCESS_CPU_USAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIFLASH_RESOURCE_MANAGER_RESOURCE_UNIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ACTIVE_WRITTEN_LEADERS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ADMIN_APPLY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ALLOCATOR_STATS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_APPLY_AVG_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_APPROXIMATE_AVG_REGION_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_APPROXIMATE_REGION_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_APPROXIMATE_REGION_SIZE_HISTOGRAM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_APPROXIMATE_REGION_SIZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_APPROXIMATE_REGION_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_AUTO_GC_PROGRESS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_AUTO_GC_SAFEPOINT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_AUTO_GC_WORKING" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_AVERAGE_GRPC_MESSGE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_ERRORS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_ERRORS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_FLOW" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_RANGE_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_RANGE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_RANGE_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_RANGE_SIZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_RANGE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_RANGE_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_RANGE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BACKUP_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BLOCK_ALL_CACHE_HIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BLOCK_BLOOM_PREFIX_CACHE_HIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BLOCK_CACHE_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BLOCK_DATA_CACHE_HIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BLOCK_FILTER_CACHE_HIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_BLOCK_INDEX_CACHE_HIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CHANNEL_FULL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CHANNEL_FULL_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CHECK_SPLIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CHECK_SPLIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CHECK_SPLIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CHECK_SPLIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CLIENT_TASK_PROGRESS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COMPACTION_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COMPACTION_MAX_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COMPACTION_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COMPACTION_PENDING_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COMPACTION_REASON" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COMPRESSION_RATIO" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CONFIG_RAFTSTORE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CONFIG_ROCKSDB" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_DAG_EXECUTORS_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_DAG_REQUESTS_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_HANDLE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_HANDLE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_HANDLE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_KV_CURSOR_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_KV_CURSOR_OPERATIONS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_REQUEST_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_REQUEST_DURATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_REQUEST_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_REQUEST_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_REQUESTS_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_SCAN_DETAILS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_SCAN_DETAILS_TOTAL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_SCAN_KEYS_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_SCAN_KEYS_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_TOTAL_RESPONSE_SIZE_PER_SECONDS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_TOTAL_RESPONSE_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_TOTAL_ROCKSDB_PERF_STATISTICS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COP_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COPROCESSOR_IS_BUSY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COPROCESSOR_IS_BUSY_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COPROCESSOR_REQUEST_ERROR" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_COPROCESSOR_REQUEST_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CORRRPUT_KEYS_FLOW" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CPU_QUOTA" catalog="*" schema="METRICS_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CRITICAL_ERROR" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_CRITICAL_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_DISK_READ_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_DISK_WRITE_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_AVG_GET_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_AVG_SEEK_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_BYTES_FLOW" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_FILE_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_FILE_READ_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_FILE_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_FILE_SYNC_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_FILE_SYNC_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_FILE_WRITE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_GC_BYTES_FLOW" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_GC_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_GC_FILE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_GC_KEYS_FLOW" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_GET_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_KEY_AVG_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_KEY_MAX_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_SEEK_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_SEEK_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_VALUE_AVG_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_BLOB_VALUE_MAX_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_COMPACTION_FLOW_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_GET_BLOCK_CACHE_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_GET_CPU_CACHE_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_GET_MEMTABLE_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_LIVE_BLOB_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_MAX_GET_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_MAX_SEEK_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_SEEK_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_WAL_SYNC_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_WRITE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_WRITE_MAX_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_WRITE_OPERATIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_ENGINE_WRITE_STALL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_FLOW_MBPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_FLUSH_MESSAGES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_FLUSH_MESSAGES_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_FUTUREPOOL_HANDLED_TASKS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_FUTUREPOOL_HANDLED_TASKS_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_FUTUREPOOL_PENDING_TASKS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_FUTUREPOOL_PENDING_TASKS_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_FAIL_TASKS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_KEYS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_KEYS_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_SKIPPED_TASKS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_SPEED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_TASKS_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_TASKS_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_TASKS_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_TASKS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_TASKS_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GC_TOO_BUSY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_AVG_REQ_BATCH_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_AVG_RESP_BATCH_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_ERRORS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_MESSAGE_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_MESSAGE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_MESSAGE_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_QPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_REQ_BATCH_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_REQ_BATCH_SIZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_REQ_BATCH_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_RESP_BATCH_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_RESP_BATCH_SIZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_GRPC_RESP_BATCH_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_HANDLE_SNAPSHOT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_HANDLE_SNAPSHOT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_HANDLE_SNAPSHOT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_INGEST_SST_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_INGEST_SST_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_INGEST_SST_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_INGEST_SST_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_IO_UTILIZATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LEADER_MISSING" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCAL_READER_EXECUTE_REQUESTS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCAL_READER_REJECT_REQUESTS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_DEADLOCK_DETECT_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_DEADLOCK_DETECT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_DEADLOCK_DETECT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_DEADLOCK_DETECT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_DEADLOCK_DETECTOR_LEADER" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_DETECT_ERROR" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_DETECT_ERROR_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_HANDLED_TASKS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_WAIT_TABLE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_WAITER_LIFETIME_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_WAITER_LIFETIME_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_WAITER_LIFETIME_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_LOCK_MANAGER_WAITER_LIFETIME_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_MEMORY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_MEMTABLE_HIT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_MEMTABLE_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_MVCC_DELETE_VERSIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_MVCC_VERSIONS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_NUMBER_FILES_AT_EACH_LEVEL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_NUMBER_OF_SNAPSHOTS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_OLDEST_SNAPSHOTS_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PD_HEARTBEAT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PD_HEARTBEATS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PD_REQUEST_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PD_REQUEST_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PD_REQUEST_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PD_REQUEST_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PD_REQUEST_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PD_VALIDATE_PEERS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PER_READ_AVG_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PER_READ_MAX_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PER_WRITE_AVG_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PER_WRITE_MAX_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PROPOSE_AVG_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_DROPPED_MESSAGES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_DROPPED_MESSAGES_TOTAL" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_LOG_SPEED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_MESSAGE_AVG_BATCH_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_MESSAGE_BATCH_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_MESSAGE_BATCH_SIZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_MESSAGE_BATCH_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_PROPOSALS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_PROPOSALS_PER_READY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_PROPOSALS_PER_READY_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_PROPOSALS_PER_TOTAL_READY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_PROPOSALS_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_SENT_MESSAGES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_SENT_MESSAGES_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_STORE_EVENTS_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_STORE_EVENTS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFT_STORE_EVENTS_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPEND_LOG_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPEND_LOG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPEND_LOG_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPEND_LOG_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPLY_LOG_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPLY_LOG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPLY_LOG_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPLY_LOG_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPLY_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPLY_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_APPLY_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_COMMIT_LOG_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_COMMIT_LOG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_COMMIT_LOG_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_COMMIT_LOG_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_PROCESS_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_PROCESS_HANDLED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_PROCESS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_PROCESS_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_PROPOSE_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_PROPOSE_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RAFTSTORE_PROPOSE_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_READ_AMPLICATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_READY_HANDLED" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RECEIVE_MESSAGES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_RECEIVE_MESSAGES_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REGION_AVERAGE_WRITTEN_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REGION_AVERAGE_WRITTEN_KEYS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REGION_CHANGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REGION_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REGION_WRITTEN_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REGION_WRITTEN_KEYS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REQUEST_BATCH_AVG" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REQUEST_BATCH_RATIO" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REQUEST_BATCH_RATIO_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REQUEST_BATCH_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REQUEST_BATCH_SIZE_AVG" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REQUEST_BATCH_SIZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REQUEST_BATCH_TOTAL_RATIO" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_REQUEST_BATCH_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_COMMAND_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_COMMAND_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_COMMAND_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_COMMAND_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_IS_BUSY" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_IS_BUSY_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_KEYS_READ" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_KEYS_READ_AVG" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_KEYS_READ_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_KEYS_TOTAL_READ" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_KEYS_TOTAL_WRITTEN" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_KEYS_WRITTEN" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_KEYS_WRITTEN_AVG" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_KEYS_WRITTEN_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_LATCH_WAIT_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_LATCH_WAIT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_LATCH_WAIT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_LATCH_WAIT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_PENDING_COMMANDS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_PRIORITY_COMMANDS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_PROCESSING_READ_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_PROCESSING_READ_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_PROCESSING_READ_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_SCAN_DETAILS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_SCAN_DETAILS_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_STAGE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_STAGE_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SCHEDULER_WRITING_BYTES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SEND_SNAPSHOT_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SEND_SNAPSHOT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SEND_SNAPSHOT_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SERVER_REPORT_FAILURES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SERVER_REPORT_FAILURES_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SNAPSHOT_KV_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SNAPSHOT_KV_COUNT_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SNAPSHOT_KV_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SNAPSHOT_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SNAPSHOT_SIZE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SNAPSHOT_STATE_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SNAPSHOT_STATE_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SNAPSHOT_TOTAL_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SST_READ_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_SST_READ_MAX_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STALL_CONDITIONS_CHANGED_OF_EACH_CF" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORAGE_ASYNC_REQUEST_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORAGE_ASYNC_REQUEST_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORAGE_ASYNC_REQUEST_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORAGE_ASYNC_REQUEST_TOTAL_TIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORAGE_ASYNC_REQUESTS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORAGE_ASYNC_REQUESTS_TOTAL_COUNT" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORAGE_COMMAND_OPS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_STORE_SIZE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_THREAD_CPU" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_THREAD_NONVOLUNTARY_CONTEXT_SWITCHES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_THREAD_VOLUNTARY_CONTEXT_SWITCHES" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_THREADS_IO" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_THREADS_STATE" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_TOTAL_KEYS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WAL_SYNC_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WAL_SYNC_MAX_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WORKER_HANDLED_TASKS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WORKER_HANDLED_TASKS_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WORKER_PENDING_TASKS" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WORKER_PENDING_TASKS_TOTAL_NUM" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WRITE_STALL_AVG_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WRITE_STALL_MAX_DURATION" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_WRITE_STALL_REASON" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="UP" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="UPTIME" catalog="*" schema="METRICS_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ADVISORY_LOCKS" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ANALYZE_JOBS" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="ANALYZE_OPTIONS" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="BIND_INFO" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="CAPTURE_PLAN_BASELINES_BLACKLIST" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="COLUMN_STATS_USAGE" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="COLUMNS_PRIV" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="DB" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="DEFAULT_ROLES" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="DIST_FRAMEWORK_META" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EXPR_PUSHDOWN_BLACKLIST" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GC_DELETE_RANGE" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GC_DELETE_RANGE_DONE" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_GRANTS" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_PRIV" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_VARIABLES" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="HELP_TOPIC" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="INDEX_ADVISOR_RESULTS" catalog="*" schema="MYSQL">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="LOAD_DATA_JOBS" catalog="*" schema="MYSQL">
+            <versions>7</versions>
+        </tableOrView>
+        <tableOrView name="OPT_RULE_BLACKLIST" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PASSWORD_HISTORY" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PLAN_REPLAYER_STATUS" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PLAN_REPLAYER_TASK" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="REQUEST_UNIT_BY_GROUP" catalog="*" schema="MYSQL">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="ROLE_EDGES" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SCHEMA_INDEX_USAGE" catalog="*" schema="MYSQL">
+            <versions>5/6/7</versions>
+        </tableOrView>
+        <tableOrView name="STATS_BUCKETS" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATS_FEEDBACK" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATS_FM_SKETCH" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATS_HISTOGRAMS" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATS_HISTORY" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATS_META" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATS_META_HISTORY" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATS_TABLE_LOCKED" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATS_TOP_N" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TABLE_CACHE_META" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TABLES_PRIV" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BACKGROUND_SUBTASK" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_BACKGROUND_SUBTASK_HISTORY" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_HISTORY" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_JOB" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_NOTIFIER" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_DDL_REORG" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GLOBAL_TASK" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_GLOBAL_TASK_HISTORY" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_IMPORT_JOBS" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_KERNEL_OPTIONS" catalog="*" schema="MYSQL">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_MASKING_POLICY" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_MDL_INFO" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_MDL_VIEW" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PITR_ID_MAP" catalog="*" schema="MYSQL">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_RESTORE_REGISTRY" catalog="*" schema="MYSQL">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_RUNAWAY_QUERIES" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_RUNAWAY_WATCH" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_RUNAWAY_WATCH_DONE" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TIMERS" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TTL_JOB_HISTORY" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TTL_TABLE_STATUS" catalog="*" schema="MYSQL">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_TTL_TASK" catalog="*" schema="MYSQL">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_WORKLOAD_VALUES" catalog="*" schema="MYSQL">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="USER" catalog="*" schema="MYSQL">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_STAGES_CURRENT" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_STAGES_HISTORY" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_STAGES_HISTORY_LONG" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_STATEMENTS_CURRENT" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_STATEMENTS_HISTORY" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_STATEMENTS_HISTORY_LONG" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_STATEMENTS_SUMMARY_BY_DIGEST" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_TRANSACTIONS_CURRENT" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_TRANSACTIONS_HISTORY" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="EVENTS_TRANSACTIONS_HISTORY_LONG" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_STATUS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="GLOBAL_VARIABLES" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PROFILE_ALLOCS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PROFILE_BLOCK" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PROFILE_CPU" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PROFILE_GOROUTINES" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PROFILE_MEMORY" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PD_PROFILE_MUTEX" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="PREPARED_STATEMENTS_INSTANCES" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SESSION_ACCOUNT_CONNECT_ATTRS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SESSION_CONNECT_ATTRS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SESSION_STATUS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SESSION_VARIABLES" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SETUP_ACTORS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SETUP_CONSUMERS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SETUP_INSTRUMENTS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SETUP_OBJECTS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="STATUS_BY_CONNECTION" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PROFILE_ALLOCS" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PROFILE_BLOCK" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PROFILE_CPU" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PROFILE_GOROUTINES" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PROFILE_MEMORY" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIDB_PROFILE_MUTEX" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="TIKV_PROFILE_CPU" catalog="*" schema="PERFORMANCE_SCHEMA">
+            <versions>5/6/7/8/9</versions>
+        </tableOrView>
+        <tableOrView name="SCHEMA_UNUSED_INDEXES" catalog="*" schema="SYS">
+            <versions>8/9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_CLIENT_ERRORS_SUMMARY_BY_HOST" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_CLIENT_ERRORS_SUMMARY_BY_USER" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_CLIENT_ERRORS_SUMMARY_GLOBAL" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_DATA_LOCK_WAITS" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_DEADLOCKS" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_MEMORY_USAGE" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_PROCESSLIST" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_SNAPSHOTS" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_TIDB_INDEX_USAGE" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_TIDB_STATEMENTS_STATS" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+        <tableOrView name="HIST_TIDB_TRX" catalog="*" schema="WORKLOAD_SCHEMA">
+            <versions>9</versions>
+        </tableOrView>
+    </tablesOrViews>
+
+    <systemTypes>
+    </systemTypes>
+</databaseResources>

@@ -30,6 +30,10 @@ public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         this.splitter = new PgSplitAnalysisSpi(version);
     }
 
+    public PostgresVersion version() {
+        return provider.version();
+    }
+
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         var scripts = this.splitter.splitScriptStream(queryReader, List.of(), baseLine, baseColumn);

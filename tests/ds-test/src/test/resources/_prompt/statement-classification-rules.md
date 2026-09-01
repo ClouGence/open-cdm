@@ -1,6 +1,128 @@
 # SQL 语句分类规则
 
-版本：2026-07-23
+版本：2026-08-04
+
+> **最高优先级总则（不可覆盖）**：本文首先执行下述 P0-0 严格链路。P0-0 的 S0 至 S9
+> 高于分类规则、数据源特例、实现便利、性能目标、历史结论、人工经验及本文其他全部章节。
+> 每次开始、恢复或切换一批 SQL 时，必须先声明该批次当前所在步骤及前置证据，从最早未完成的
+> 步骤继续；不得直接跳到分类落地、fixture 生成、CloudDM 回放或生产代码修改。未完成 S9 的 SQL
+> 只能标记为进行中或 `BLOCKED BY PROVENANCE`，不得宣称验证完成，也不得计入准确率。
+
+## P0 强制门禁（全文最高优先级）：先取得目标数据库原生证据，再验证 CloudDM
+
+本节高于本文所有分类规则、方言说明、历史 fixture 和既有通过结果。行为测试所需的语句分类、
+动作及资源关系必须严格遵守以下顺序：
+该顺序是硬门禁，不是推荐工作流。任一前置阶段缺少可复验产物时必须停止，禁止进入后一阶段；
+本文后续分类规则、数据源特例、工具实现和历史流程均不得放宽、倒置或绕过该顺序。
+
+### P0-0 严格执行链路（最高优先级执行契约）
+
+```text
+S0 冻结并禁止 CloudDM 自生成 expect 的入口
+  -> S1 从 split/源码测试/官方文档建立 SQL occurrence 来源账本
+        （数据库、主版本、原始文件、case ID、SQL 原文、SQL SHA-256）
+  -> S2 用目标数据库对应版本的源码、Planner、Executor 或真实运行时探针执行同一 SQL
+  -> S3 持久化不可变原生证据
+        （source/binary revision、probe revision、request revision、record ID、原生事实、证据 SHA-256）
+  -> S4 用独立校验器核对 occurrence、SQL SHA-256、版本、revision、原生动作与对象事实
+  -> S5 只按通过 S4 的原生事实映射 SplitQueryType、BehaviorAction、TargetType 和主客体关系
+  -> S6 只从通过 S5 的映射生成统一 behavior fixture
+  -> S7 运行 CloudDM 当前实现并与 probe-backed fixture 比较
+  -> S8 只根据 S7 的失败修正生产 parser/visitor/assembler/事实注册表，禁止反改期望迁就实现
+  -> S9 重新运行同一批 probe-backed fixture，并按 occurrence 报告结果
+```
+
+### P0-1 生产 SQL 解析链路零正则门禁（重要条件）
+
+MySQL、TiDB、Doris、Dameng、PostgreSQL 的生产 parser、split 分类、behavior、lineage 以及直接参与
+SQL 决策的生产辅助逻辑，禁止使用任何形式的正则表达式，包括 `Pattern`、`Matcher`、
+`String.matches`、`replaceAll`、`replaceFirst`、`split(regex)` 和功能等价的第三方实现。
+分类与对象识别必须来自 ANTLR token/parse tree、目标数据库原生 AST，或边界与转义规则明确的
+确定性字符扫描；禁止用 SQL 文本正则推断分类、对象、行为、版本或语法能力。
+
+离线语料扫描、探针编排和审计工具允许使用正则，但其结果不能直接驱动生产分类，也不能替代
+S1 至 S5 的原生证据。完成 S8、进入 S9 前，必须审计上述五个数据源及其直接共用的生产 SQL 模块；
+任何禁用 API 或等价正则实现仍有命中时，本批工作不得宣称完成。
+
+S0 至 S9 是不可交换、不可合并、不可省略、不可并行越级的串行状态机。任何 SQL 缺少精确
+occurrence、原生探针记录、revision、SQL/证据哈希或可验证原生事实时，必须停止晋级，标记为
+`BLOCKED BY PROVENANCE`，并从权威 fixture 与准确率分母中移除。不得用兼容数据库结论、人工
+猜测、旧 fixture、CloudDM 当前输出、空关系或 `UNKNOWN` 补位。`UNKNOWN` 只允许承载原生证据
+已经证明、但现有公共枚举无法准确表达而等待人工裁决的事实，不能代替缺失证据。
+
+多主版本数据源在 S2 必须按固定源码 tag/commit 构建并运行各自的原生采集器，最新版本不能代理
+旧版本，兼容方言也不能代理目标数据库。只有同一 occurrence 在全部受支持主版本通过 S2 至 S4，
+且原生动作、对象结构和后置状态一致，才能进入 `common`；否则必须留在对应主版本。版本源码中
+不存在某类 AST/Executor 能力时，应记录真实能力边界，不得制造空事件。原生采集器 stdout 只
+允许逐行严格解码的证据 JSONL；日志污染、inventory 数量或 ID 不一致、SQL/hash/revision 不匹配
+必须整批失败，禁止跳过异常记录后继续分类或生成 fixture。
+
+探针只能作为安插在目标数据库原生 Parser、Planner、权限检查、Executor 和资源访问点的事件 hook，
+并必须对每个固定主版本源码分别插入、分别编译。hook 只输出原生代码已经掌握的事实；外层 collector
+只负责运行、Reset/Drain、revision 绑定与持久化，禁止在 collector 中解释 SQL、按 AST 类型推导行为、
+补查目录后制造对象事实或用默认成功值代替执行器结果。不同主版本选择不同原生执行器时必须分别
+命中对应 hook 并保留差异；只命中 Parser/Planner 而没有命中要求的 Executor/资源 hook 时，S2/S3
+必须失败，不能生成分类或 behavior fixture。
+
+每个版本探针必须先独立编译成产物，再由外层 collector 调用。探针事件包只允许提供事件结构和
+Emit/Reset/Drain，不得承载语句生命周期、行为映射、对象推断或后置查询；薄运行壳也只能喂入 exact
+SQL 并排空原生结果。生命周期事件必须直接插入数据库已有生命周期函数，不能由运行壳中的
+`recordSet.Close`、AST 分支或返回值模拟。
+
+TiDB 5/6/7/8/9 的 ALTER ADD COLUMN、TRUNCATE、DROP 等表生命周期必须重新由 AST、Executor、
+资源访问源码 hook 闭环。旧 collector 的 `SHOW CREATE TABLE`、`COUNT(*)`、目录补查结果仅是迁移候选，
+不得作为权威证据。首次真正的 probe-backed 回放若发现生产 visitor 漏关系，应修复 visitor 并保持
+原生期望不变；parser 接受和分类标签不能代替对象行为与执行后状态。
+CREATE/ALTER/DROP DATABASE 同样要用数据库 AST 与 `SHOW CREATE DATABASE`/对象不存在状态交叉
+验证，并映射为 catalog 下的 `Schema`，不能仅按 DATABASE 关键字改成 `Catalog`。TiDB 5 与 6–9
+的数据库 AST 名称字段类型不同，版本采集器必须适配真实源码结构。
+Sequence 生命周期同样要求 CREATE 定义、ALTER 执行结果和 DROP 后不存在状态；对于
+`ALTER SEQUENCE ... RESTART WITH 5`，必须由目标版本 `NEXTVAL` 返回 5 证明，不能只凭 ALTER
+分类或 AST 接受。
+View 生命周期同样不能停在 CREATE_VIEW/ALTER_VIEW/DROP_VIEW 分类：CREATE/OR REPLACE 必须记录
+View AST、权限检查、Planner 源表对象与 `SHOW CREATE VIEW`，DROP 必须证明对象不存在。TiDB 8
+可能记录列级 SELECT，TiDB 9 的 OR REPLACE 还会检查旧 View 的 DROP 权限；版本原生证据必须保留
+这些差异。分类映射只有在对象副作用和依赖事实一致后，才能公共化为 View CREATE/REPLACE/DROP
+及源表 READ。
+ADD_INDEX/DROP_INDEX 不能只由分类或 parser 接受证明：必须记录 CreateIndexStmt/DropIndexStmt 的
+索引名、父表与索引列，核对权限和 Planner 表，并以 `SHOW INDEX`、`SHOW CREATE TABLE`/索引不存在
+状态证明执行器副作用，才允许映射为 Index CREATE/DROP 指向父 Table。
+RENAME_TABLE 必须记录 RenameTableStmt 的旧/新表身份、两端权限和 Planner 双表，并以执行后旧表
+不存在、新表存在且定义保留证明重命名副作用，才允许映射为旧 Table RENAME 到新 Table。
+CREATE/ALTER/DROP/RENAME USER 和 CREATE/DROP ROLE 必须从对应原生账户 AST 取得用户名与 host，
+并用权限事件及执行后 `mysql.user` 证明存在性、重命名两端和锁定状态。TiDB 5.4.3 虽接受
+`ALTER USER ... ACCOUNT LOCK`，但源码明确将其解析后忽略，系统表仍为未锁定；6–9 才真实写入
+锁定状态。因此语法接受可保持 `ALTER_USER` 分类，但执行副作用和 behavior 证据不得错误共用。
+GRANT/REVOKE 权限必须记录 GrantStmt/RevokeStmt 的权限范围、权限集合和接收身份，并通过
+`mysql.user`、`mysql.db`、`mysql.tables_priv` 等执行后授权表验证实际写入或删除。普通权限接收者
+在 TiDB 语法中不能静态区分 User 与 Role，应映射为 `UserOrRole`；角色授予由独立的
+GrantRoleStmt/RevokeRoleStmt 证明 Role 主体，并用执行后的 `mysql.role_edges` 验证每条
+Role -> UserOrRole 有向边，不能与普通权限授权混为一类。
+`SET ROLE` 分类为 `SWITCH_ROLE`，但不能仅凭 SetRoleStmt 的类型即认定行为完整：还必须记录请求
+角色、执行后的会话 `ActiveRoles`，并以 `mysql.role_edges` 验证当前身份的实际授权边。行为对象
+是 SQL 中具名且带准确坐标的 Role，不是整条语句范围的匿名 Role；探针内部校验查询不得污染
+被测语句的 Planner 表和权限事件。
+`USE <schema>` 分类为 `SWITCH_SCHEMA`，但行为证据还必须绑定原生 UseStmt 的目标名称、目录对象
+存在性和执行后的会话 `CurrentDB`；三者必须指向同一 Schema。仅 parser 接受或仅识别 USE 关键字
+不足以生成权威 fixture，也不能把具体 Schema 降级为匿名 Session/Instance。
+
+所有实现、脚本、测试、报告和人工裁决均必须服从 S0 至 S9。性能优化只能优化单一步骤内部，
+不能改变顺序、降低证据字段、跳过探针或提前生成 fixture。本文任何其他内容与本链路冲突时，
+无条件以本节为准。
+
+不得调用 CloudDM 当前 `BehaviorAnalysisSpi`、split visitor 或其他待验证实现生成、刷新或补齐
+正式 `expect`，再用同一实现回放。该做法形成自证循环，不能证明分类或行为正确，结果不得计入
+准确率。既有自动生成期望在没有原生探针绑定前一律视为未验证。
+
+源码 parser/AST 只能证明语法接受、AST 类型和其中明确携带的对象身份；Planner、Executor、权限
+检查与真实资源访问必须由相应层级探针证明。探针尚未覆盖的行为进入待裁决清单或继续增强探针，
+不能用兼容数据库结论、当前实现输出、空关系或猜测替代。
+
+正式 behavior case 必须能够从 fixture 追溯到不可变的原生探针记录，并在运行测试前校验证据
+哈希及 SQL 一致性。证据必须绑定精确源码 revision；只有服务端源码客观不可获得时，才允许绑定
+运行时实际报告的精确二进制 revision、不可变镜像 SHA-256 和探针依赖产物 SHA-256，且不得伪造
+`source_revision`。语料按数据库、主版本、语义分类采用达梦式平铺布局，每个 `.txt` 文件最多
+3000 行；拆分和重命名必须保留原 SQL 来源及探针 case 身份。
 
 ## 1. 唯一分类来源
 
@@ -16,6 +138,25 @@
 正文描述跨数据源通用的语义边界和判定方法。方言关键字、对象模型映射、版本差异、
 内置函数清单及其他不能泛化的事实统一放在文末“特定数据源说明”，不得反向改变通用
 分类含义。
+
+### 1.1 目标数据库权威性与方言隔离
+
+2026-08-03 至 2026-08-04 的 TiDB 实施证明，兼容性声明、复制 grammar 和已有 fixture 都不能
+替代目标数据库自身结论。后续数据源分类必须遵守：
+
+1. 分类事实以目标数据库对应版本的正式 parser、运行时注册表、源码测试、真实数据库和官方文档
+   为证据；结论名称必须明确属于目标数据库，不能混用 Oracle、MySQL 或其他方言名词。
+2. 即使目标数据库宣称兼容另一数据库，也不得直接继承兼容方言的 parser util、内置函数表、系统
+   表、管理函数映射或权限豁免清单。参考方言只能提供候选语料，所有候选必须重新碰撞。
+3. 每个数据源维护独立 grammar、生成基类、版本配置、DSL Provider、statement parser、split
+   visitor 和事实注册表；生产模块不得依赖兼容方言 parser 才能工作。
+4. 不建立含义不明的 `v2` parser。只维护一个当前 parser 实现；主版本差异通过明确版本配置和
+   grammar 谓词表达。若碰撞证明语法向上兼容，可以维护最新 grammar 超集，但新语法仍保留最早
+   支持版本谓词。
+5. 厂商缩写保持官方大小写，例如 `TiDB`，不能写成 `TiDb`。Java 包名和资源目录才按规范使用
+   小写 `tidb`。
+6. 源码解析器证明语法接受和 AST 结构，不自动证明执行成功、对象存在、权限满足或执行器副作用；
+   不同证据层的结论不能混写。
 
 ## 2. 记录与多分类规则
 
@@ -121,7 +262,7 @@ ALTER TABLE t
 
 ## 4. `SplitQueryType` 完整适用范围
 
-下表覆盖当前全部 150 个枚举项。表中的“授权”“目标”“审计”分别对应代码里的 `SecDataAuthKind`、`TargetType`、`SecQueryKind`。
+下表覆盖当前全部枚举项。表中的“授权”“目标”“审计”分别对应代码里的 `SecDataAuthKind`、`TargetType`、`SecQueryKind`。
 
 ### 4.1 Catalog
 
@@ -322,7 +463,7 @@ Package 是编程对象容器，不承载 Table、View、Index 等普通模式�
 |---|---|---|---|---|
 | `CREATE_USER` | `ADMIN` | `User` | `CREATE` | 创建数据库用户或登录主体。 |
 | `DROP_USER` | `ADMIN` | `User` | `DROP` | 删除用户。 |
-| `RENAME_USER` | `ADMIN` | `User` | `ALTER` | 修改用户身份名称。 |
+| `RENAME_USER` | `ADMIN` | `User` | `RENAME` | 修改用户身份名称。 |
 | `ALTER_USER` | `ADMIN` | `User` | `ALTER` | 修改密码、认证方式、锁定状态、默认角色、资源限制等用户属性。 |
 | `COMMENT_USER` | `ADMIN` | `User` | `ALTER` | 用户备注变更。 |
 | `CREATE_ROLE` | `ADMIN` | `Role` | `CREATE` | 创建角色。 |
@@ -465,6 +606,28 @@ PostgreSQL Foreign Data Wrapper 和 Foreign Server 是数据库外部访问能�
 任意版本范围和 schema 级通配；升级目标版本时必须在真实干净实例上重新探测并复核
 差异。
 
+当目标数据库源码可获得时，系统资源清单还必须通过源码注册点反向生成或校验：
+
+1. `INFORMATION_SCHEMA`、`PERFORMANCE_SCHEMA`、metrics 等虚拟 schema 从实际表 map 和
+   virtual-table 注册入口提取，不能从兼容数据库文档复制。
+2. 内部 `mysql`、`sys` 或等价 schema 的对象从 bootstrap 表、升级后仍存在的表、运行时初始化
+   表和实际创建的 View 提取；源码中仅保留但最新干净实例不再创建的废弃 DDL 不能自动加入。
+3. package init 或插件在静态 map 之外动态追加的系统表必须单独追踪；只有可确定启用条件和版本
+   时才能登记。任意第三方扩展动态注册的对象不能冒充数据库静态内置对象。
+4. 清单项必须是 `schema.object` 精确名称。schema 名本身、对象末级名称、前缀、正则和通配符
+   都不能成为 `METADATA` 判定依据。
+5. 生成文件记录目标数据库源码 revision、来源文件和注册变量，并提供可重复的生成/校验命令；
+   手工修改后无法通过反向校验的清单不得合入。
+6. 最新版本清单只能证明对象属于最新版本，不能自动证明旧主版本也存在。分类 API 已接收 version
+   时不得忽略该参数；必须通过分版本源码/实例差异补齐最早支持版本。
+7. 元数据特殊映射、权限豁免和行为对象识别都先命中同一版本化事实表，不能由遗留 switch 绕过
+   清单继续把已删除对象当系统对象。
+
+TiDB 实施中，清单从其 infoschema 注册、performance schema map、`MetricTableMap`、system
+bootstrap/DDL 表、`sys` View 和 workload repository 表生成。由 MySQL 8 复制的 InnoDB、复制
+Performance Schema 等对象被删除，TiDB 自己的 `CLUSTER_*`、`METRICS_SCHEMA` 和内部表被补齐。
+该提取路线不能原样复制给其他数据库；其他数据库必须重新定位自己的注册入口。
+
 直接查询已登记的系统元信息对象时按实际来源组合分类：
 
 ```text
@@ -547,6 +710,23 @@ PostgreSQL Foreign Data Wrapper 和 Foreign Server 是数据库外部访问能�
 处理并追加 `CALL_PROG_OBJ`。功能型函数根据真实动作追加专属分类；普通延时函数的
 阻塞时长和资源风险属于函数级执行策略，不因“耗时”自动追加 `PERFORMANCE` 或
 `UNSAFE`。
+
+系统函数事实表必须由目标数据库自身注册链证明：
+
+1. 普通标量函数以执行层实际 builtin registry 为核心，不能只扫描 AST 函数常量或 grammar
+   token；常量存在不代表运行时可调用。
+2. parser 特殊函数、planner 重写函数、聚合函数和窗口函数可能不进入普通 registry，应从真实
+   parser/planner/aggregation/window 入口补齐。
+3. extension/plugin 动态函数与静态内置函数分开保存；只有目标版本默认注册或明确加载的函数才能
+   进入对应系统函数集合。
+4. 兼容数据库的 Audit、Group Replication、Keyring、Firewall、空间扩展等函数不能按名称复制；
+   目标源码未注册时必须按 UDF 候选处理。
+5. 功能型函数的专属分类 map 只对已命中当前版本系统函数事实表的名称生效。名称从事实表删除后，
+   遗留 action set/switch 不得继续把它识别为管理函数并绕过 `CALL_PROG_OBJ`。
+6. schema/catalog 限定或显式引用符包裹的函数优先按用户对象处理；不能仅比较末级名称命中未限定
+   内置函数。
+7. 事实表记录源码 revision 和注册点，提供生成器一致性测试，并同时覆盖目标数据库特有正例和
+   兼容数据库独有负例。
 
 查询修饰符或读取上一条查询瞬时诊断结果的内置函数不构成显式变量访问或配置修改，
 除非当前数据源的语义明确表明它会修改跨语句持续的 Session 状态。
@@ -760,6 +940,10 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
 
 ## 9. AI 校验流程
 
+对一个可获得源码的数据源开始批量校验前，必须先按第 9.1 节构建分版本源码解析器并提取
+源码测试语料；以下逐条分类步骤在该语料和版本碰撞结果之上执行。只有确认源码不可获得、
+解析器无法构建或正式解析入口无法合理抽离时，才按第 9.1 节的后续优先级降级，并记录原因。
+
 对每条记录执行以下步骤：
 
 1. 定位完整 SQL，不能按执行体内部分号拆分。
@@ -775,7 +959,109 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
 11. 按主分类优先、动作顺序、去重规则生成最终分类头。
 12. 无法准确判断时使用 `UNKNOWN` 并保留待后续处理，不得猜测。
 
-### 9.1 `reject` fixture 判定
+### 9.1 源码解析器优先的语料挖掘与兼容验证
+
+当目标数据库源码可获得时，**按版本从源码构建可独立运行的解析器，是语料挖掘、语法
+确认和 open-cdm 兼容验证的默认第一优先级方案**。不得因为已有第三方 grammar、少量文档
+示例或人工整理 fixture，就跳过源码中的解析器和测试语料。
+
+默认优先顺序如下：
+
+1. 目标数据库源码中的正式 lexer/parser、解析入口及其原生语法测试。
+2. 对应版本真实数据库，主要用于确认源码解析器未覆盖的预处理、会话开关、语义阶段和拒绝行为。
+3. 厂商正式文档、发布说明及兼容性说明，用于补充源码中难以发现的用法和版本背景。
+4. 既有 open-cdm fixture、第三方 grammar 和其他数据库改造来的解析器，只能作为待碰撞语料
+   或缺口线索，不能优先于目标数据库自己的源码解析器。
+
+#### 9.1.1 按版本构建独立源码解析器
+
+应对 open-cdm 实际支持的每个主版本语法族分别执行以下工作：
+
+1. 定位该版本真正使用的 lexer/parser、入口类、语法生成步骤、大小写处理、预处理和必要特性开关。
+2. 从对应 Git tag、branch 或 commit 中抽离最小可编译集合，构建不依赖数据库部署的本地命令行程序。
+3. 命令行程序至少接收完整 SQL，并输出“语法接受/拒绝”、错误位置和关键错误信息；不得只靠进程
+   退出码表达结果。
+4. 将构建脚本、版本映射、源码引用、必要补丁和可执行产物统一放入该数据源的 `tools` 目录，
+   使用 `source-parser` / “源码解析器”命名。
+5. 同一主版本的多个 tag 只有在 grammar 或正式解析调用链确有差异时才继续比较；不能因为 tag
+   数量多就制造 open-cdm 并不存在的补丁版本语法族。
+6. open-cdm 生产 parser 必须属于目标方言，不依赖兼容数据库的 parser util、token 类型、版本
+   枚举或事实注册表；从参考 grammar 起步时也要把所有运行时边界独立出来。
+7. 生产实现只保留一个当前 parser 包，不创建 `v2` 等平行最新版。主版本通过 parser config
+   激活 grammar 谓词；源码解析器二进制可以按主版本分别构建，它们是验证工具，不等于生产包分叉。
+8. 用版本接受矩阵验证是否向上兼容。即使所有旧语法都被最新版本接受，新语法的最早支持主版本
+   仍要由谓词限制；只有矩阵证明无差异的规则才能放入 common。
+9. 类名、grammar 名和版本配置保持数据库官方缩写，例如 `TiDBParser`、`TiDBVersion`；不要擅自
+   改写成 `TiDbParser`、`TiDbVersion`。
+
+源码解析器应尽量恢复厂商真实解析调用链，而不是只编译一个裸 grammar。若完整入口无法抽离，
+必须记录被省略的预处理、会话变量、特性开关和解析后校验；这些缺失决定后续哪些结果需要真实
+数据库复核，但不降低源码解析器作为默认语法挖掘工具的优先级。
+
+#### 9.1.2 从源码测试中提取大规模真实语料
+
+源码中的 SQL 测试是默认首选语料来源。提取时必须：
+
+1. 扫描 parser、planner、regression、integration、DDL/DML、兼容性及升级测试，不能只搜索
+   `.sql` 文件。
+2. 测试语句由 Java、Go、Python、Groovy、模板、数据驱动器或生成器动态拼装时，应改造或运行
+   原程序，在最终送入解析器的位置捕获完整 SQL；不得只摘取不完整字符串片段。
+3. 保留语句来源、源码版本、文件位置和生成方式，使失败可以回溯到原测试。
+4. 使用同版本源码解析器重新验证提取结果，剔除日志片段、期望错误文本、残缺示例及并非 SQL
+   输入的字符串。
+5. 将有效 SQL 转换为本文规定的 fixture 格式；先按语句边界记录，再分类、去重和组织版本目录。
+6. 语料规模应与目标数据库源码测试规模相称。源码中存在上万条可恢复 SQL 时，不得只挑选几十条
+   示例宣称覆盖完成。
+
+转换和归档还必须满足：
+
+1. AST dump、JSON/JSONL、执行 trace、SQL hash 清单不是正式期望 fixture；最终每条 SQL 都使用
+   本项目统一的文本格式。进入权威 behavior 套件的标准化原生探针 JSONL 必须独立持久化到
+   `behavior/_evidence/<dialect>/<major>`，由 fixture 绑定记录 ID 和 SHA-256；其他原始输出留在
+   `build/` 或 `tools/`。
+2. 尽量保留源码原测试文件名、测试组和场景名称。SQL hash 只用于身份、碰撞和去重，不能把正式
+   文件全部改成 `by-sql-hash` 一类无语义名称。
+3. `common` 通过把同一 SQL hash 送入全部受支持主版本解析器得出；只有全部版本接受且分类/结构
+   语义一致的 occurrence 才能抽入 common。
+4. 版本专属 SQL 直接放入 `split/<dialect>/<major>`。`docs`、`upstream` 等来源目录不继续成为
+   fixture 层级；来源信息写入 case ID、注释或独立 provenance 索引。
+5. 完全相同 SQL 的重复 occurrence 可以去重，但必须保留全部来源映射。仅空白、无意义空行或
+   等价拼装不同的同一结构场景，人工样例保留 1~2 条即可，同时全量自动覆盖统计不能丢失。
+6. 删除旧 JSON 或中间采集格式时，必须先把其中每条有效 SQL 转为统一 fixture；不能因为格式
+   不合规而把数万条已验证语料一起删除。
+
+#### 9.1.3 碰撞实验与 open-cdm 修复闭环
+
+语料提取后必须进行双向碰撞：
+
+1. 将各版本源码语料送入对应版本源码解析器，形成版本接受矩阵。
+2. 将同一批 SQL 送入 open-cdm 对应版本配置，记录语句切分、分类、语法解析和 visitor 恢复结果。
+3. 将既有 open-cdm fixture 反向送入各版本源码解析器，发现既有语料中的真实兼容性问题。
+4. 对“源码解析器接受、open-cdm 拒绝或恢复不完整”的 SQL，优先完善 grammar、版本谓词和 visitor；
+   不得通过删除有效语料、改成 `UNKNOWN` 或放宽成吞 token 的兜底规则来消除失败。
+5. 对“open-cdm 接受、源码解析器拒绝”的 SQL，检查版本目录、来源、预处理和源码解析器抽离范围；
+   只有确认目标版本确实拒绝后，才按第 9.2 节进入 `reject`。
+6. 每次扩展 grammar 后重新运行全部有效语料和既有 fixture，报告语句总量、接受数、拒绝数及剩余
+   差异，不能只报告新增的少量样例。
+
+#### 9.1.4 适用范围与版本组织
+
+源码解析器直接用于确认语句边界、grammar 接受情况、主版本语法差异和 open-cdm 解析兼容性。
+权限、对象存在、catalog 解析、执行成功和运行期语义不属于语法解析器的职责，应在对应测试阶段
+分别验证，不要把不同测试目标混为一谈。
+
+当抽离程序覆盖了该版本正式解析入口及必要预处理时，其版本接受矩阵可以作为 `common` 与主版本
+专属 fixture 归属的主要依据。出现以下情况时必须再用真实数据库或厂商等价完整调用链复核：
+
+1. 判断 SQL 应进入 `reject`。
+2. 解析结果依赖会话配置、特性开关、预处理器或 catalog/语义分析。
+3. 抽离程序省略了影响该语句的正式解析步骤。
+4. 不同源码 tag 的结果与正式发布说明或真实数据库行为冲突。
+
+fixture 最终仍按 open-cdm 对外提供的主版本语法族组织。源码 tag、branch 或 commit 用于保证构建
+可复现，不能直接替代生产解析器的版本模型。
+
+### 9.2 `reject` fixture 判定
 
 `reject` 目录记录目标数据库版本明确拒绝的 SQL，用于验证解析器不能把该 SQL
 当作目标版本支持的正常语法。放入 `reject` 前必须在对应真实数据库版本上执行，
@@ -791,6 +1077,30 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
 
 具体版本的已验证结果放在文末对应数据源说明中，不能把一个数据源的错误码或版本边界
 写成通用规则。
+
+### 9.3 独立测试框架接入
+
+split、lineage、behavior 的正式资源位于独立项目：
+
+`/home/zyc/project/dm/open-cdm-test/src/test/resources`
+
+新增数据源不再建立大量 JUnit 分片类。应在
+`src/test/resources/config/test-plan.json` 中声明 SqlEngine、数据源类型、主版本、common/版本资源
+和 reject 条件，由统一资源加载器、有限队列、执行器和结果收集器运行：
+
+```text
+./gradlew runTests -PtestArgs='--domain=split --datasource=<dialect> --version=<major>'
+./gradlew test -Dtest.domain=split -Dtest.datasource=<dialect> -Dtest.version=<major>
+```
+
+main 与 JUnit 必须调用同一测试机制；JUnit 只有一个统一入口。生产者、消费者、队列容量和 ANTLR
+cache slot 可以按机器配置调整，但不得改变 testcase 语义。统计要求：
+
+- `cases`、`passed`、`failed` 和 rate 都以实际 fixture occurrence 数计数；
+- `source` 是资源/variant 进度，`queue` 是批任务容量，不能与 cases 混为一谈；
+- source 仍在懒加载时，总数显示“已发现总数+”，不能为取得总数先阻塞扫描全部语料；
+- 失败立即输出脚本、case 名、SQL 和完整堆栈，并同步写独立失败日志；
+- 结束后按数据源以及 behavior/lineage/split 三个维度汇总 total/passed/failed。
 
 ## 10. 特定数据源说明
 
@@ -925,7 +1235,8 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
   `RAND()` 等函数即使出现在写语句中，也不追加 `UNSAFE` 或另设复制风险分类；
   只保留外层语句及函数本身已有的分类。`LOAD_FILE()` 因读取服务器文件而独立使用
   `DATA_IMPORT|UNSAFE`，不是因为 MySQL 将其列为 SBR unsafe。
-- `SHUTDOWN`、`RESTART` 使用 `UNSAFE`。
+- `SHUTDOWN`、`RESTART` 使用 `UNSAFE`。行为 fixture 必须由目标数据库版本的原生 AST 与
+  执行前阻断证据证明实例级危险语义，禁止为了取证在共享或持久实例实际执行。
 - `INSTALL/UNINSTALL PLUGIN`、`INSTALL/UNINSTALL COMPONENT` 使用对应的
   `CREATE_LIBRARY` 或 `DROP_LIBRARY`，不追加 `UNSAFE`。`CREATE FUNCTION ... SONAME`
   使用 `CREATE_PROG_OBJ|UNSAFE`。
@@ -951,3 +1262,77 @@ View 查询定义中的用户变量访问继续按查询定义体递归收集，
 - `asynchronous_connection_failover_reset()` 在 5.6/5.7 使用
   `SELECT|CALL_PROG_OBJ`，在 8.0 及以后使用 `SELECT|ALTER_REPLICATION`。同一
   `MySqlVersion` 语法族内不再细分补丁版本。
+
+### 10.2 TiDB
+
+#### 10.2.1 方言边界与生产 parser
+
+- 产品、类名、grammar 和版本类型统一写作 `TiDB`，例如 `TiDBParser`、`TiDBVersion`、
+  `TiDBDslProvider`；包名和资源目录使用小写 `tidb`。
+- TiDB 声明兼容 MySQL 不表示其 parser、系统函数和系统 schema 等同 MySQL。TiDB 生产 parser
+  不依赖 MySQL parser 工具、版本枚举或资源清单。
+- 生产模块只维护一个最新版 grammar/parser 实现，不保留 `v2` 包。TiDB 5、6、7、8、9 通过
+  `TiDBParserConfig` 和 grammar 谓词激活对应主版本能力。
+- 是否只维护最新 grammar 超集由五个主版本源码解析器的接受矩阵决定；新语法仍必须标注最早支持
+  主版本，不能因为当前抽样表现向上兼容就删除谓词。
+- TiDB Database/Schema、系统对象层级和默认上下文必须以 TiDB 数据源自身的 CloudDM levels
+  定义与 TiDB 源码为准，不能因兼容 MySQL 直接复制 MySQL 层级结论。
+
+#### 10.2.2 源码解析器与语料实证快照
+
+2026-08-04 的验证工具分别从以下 TiDB 源码构建独立 parser/AST 采集器：
+
+| 主版本 | 源码 ref | commit | 接受 | 拒绝 |
+|---|---|---|---:|---:|
+| 5 | `v5.4.3` | `f9b13b76505429b48cc479020e1b4b260a689175` | 10,423 | 33 |
+| 6 | `v6.5.12` | `2ec3e3e04536ee5dafa11663e32632378a1a1be8` | 10,640 | 60 |
+| 7 | `v7.5.7` | `972e642ba15f36f6a96c0b9858a6572aba6a8a19` | 11,072 | 50 |
+| 8 | `v8.5.7` | `202b7f47286a1109b5c957401d34c9358d130ae0` | 11,433 | 46 |
+| 9 | `v9.0.0-beta.2.pre` | `f52d19273b447c08061632fde70e288f24b324ba` | 11,572 | 54 |
+
+- 共碰撞 55,383 个“版本 × occurrence”组合，55,140 个接受、243 个拒绝。
+- common 语料通过五个采集器共同接受得出，版本差异进入 `tidb/<major>`；最终源接受 SQL
+  转为统一 fixture，没有保留 collector JSONL 作为测试资源。
+- parser/AST 结果权威证明 TiDB 语法接受、statement/node 类型和对象结构；它没有被描述成真实
+  executor 行为。任意 corpus 名称缺少 InfoSchema、统计、文件和外部服务时，不用 executor 环境
+  错误否定 parser 接受结论。
+- 上述数字是本次可复现实证，不是后续版本永久常量。更换 tag/commit 后必须重新生成矩阵。
+
+#### 10.2.3 TiDB 内置函数事实表
+
+- TiDB 标量函数核心来源是 `pkg/expression/builtin.go` 的真实 `funcs` 注册表；
+  `pkg/parser/misc.go` 的 parser 特殊函数、聚合/窗口 token，以及 parser/planner 特殊函数用于补齐
+  不进入普通标量 map 的 SQL surface。
+- 仅存在于 `pkg/parser/ast/functions.go` 的常量不能单独证明函数可执行；extension 动态函数也不
+  无条件进入静态内置表。
+- 最新源码 revision `4c0e2c062449` 的已核验快照包含 347 个 TiDB 系统函数。从 MySQL 8 清单
+  复制的 Audit、Group Replication、Keyring、Firewall 等 286 个 TiDB 未注册名称已删除，另补充
+  77 个 TiDB 注册函数。
+- 管理函数和 statement-type 映射先检查当前 TiDB 系统函数成员资格。已删除名称不得通过遗留
+  action map 绕过 UDF 判定。
+- `schema.fn()`、显式引用符函数和未命中当前版本清单的名称按用户函数候选处理，使用外层动作并
+  追加 `CALL_PROG_OBJ`；不能仅按末级同名套用 TiDB 系统函数例外。
+
+#### 10.2.4 TiDB 元数据对象事实表
+
+- TiDB 元数据对象从 `pkg/infoschema` 的 information/performance/metrics 注册入口、cluster 动态
+  表映射、`pkg/session` bootstrap 与 DDL 内部表、`sys` View 和 workload repository 表生成。
+- 最新源码 revision `4c0e2c062449` 的已核验快照包含 844 个全限定元数据对象，其中包含 642 个
+  `METRICS_SCHEMA` 表。由 MySQL 8 复制的 266 个 InnoDB、复制 Performance Schema 等 TiDB
+  未注册对象已删除，补齐 781 个 TiDB 对象。
+- 只有清单中的完整 `schema.object` 才触发 `METADATA`。仅写 `INFORMATION_SCHEMA`、使用未限定
+  同名表或命中对象名后缀都不成立。
+- 当前 844 项是最新源码快照，不代表全部对象在 5/6/7/8 都存在。完成分版本资源差异前，旧版本
+  不能无条件共享最新版清单。
+- 资源文件由校验工具从源码反向生成；升级 TiDB 源码时必须先运行一致性检查并审阅新增/删除差异。
+
+#### 10.2.5 行为 fixture 与分类关系
+
+- TiDB 源接受语料投影出 14,576 个 behavior occurrence，叠加 8 个既有精选用例后为 14,584；
+  common 与各主版本增量总计回放 55,140 case，全部通过。
+- behavior 中的 Function/CALL、系统对象权限豁免与 split 的 `CALL_PROG_OBJ/METADATA` 使用同一
+  版本化方言事实，但各自 visitor 和输出模型保持独立，不能互相转换结果。
+- collector AST 用于确认对象身份和嵌套，CloudDM ANTLR token 用于代码范围；不能把 TiDB AST
+  中少量可用 offset 扩大解释为全部精确位置。
+- parser 接受、split 分类、behavior 关系和真实执行副作用分别报告。不能用 55,140 个 parser/行为
+  fixture 通过宣称任意 SQL 已在真实 TiDB executor 上成功执行。

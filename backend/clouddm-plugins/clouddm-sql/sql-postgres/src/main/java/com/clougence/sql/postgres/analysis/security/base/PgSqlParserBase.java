@@ -131,9 +131,14 @@ public abstract class PgSqlParserBase extends Parser {
 
     public String GetRoutineBodyString(PgSqlParser.SconstContext rule) {
         PgSqlParser.AnysconstContext anysconst = rule.anysconst();
-        org.antlr.v4.runtime.tree.TerminalNode StringConstant = anysconst.StringConstant();
-        if (null != StringConstant)
-            return unquote(TrimQuotes(StringConstant.getText()));
+        List<org.antlr.v4.runtime.tree.TerminalNode> stringConstants = anysconst.StringConstant();
+        if (!stringConstants.isEmpty()) {
+            StringBuilder result = new StringBuilder();
+            for (org.antlr.v4.runtime.tree.TerminalNode stringConstant : stringConstants) {
+                result.append(unquote(TrimQuotes(stringConstant.getText())));
+            }
+            return result.toString();
+        }
         org.antlr.v4.runtime.tree.TerminalNode UnicodeEscapeStringConstant = anysconst.UnicodeEscapeStringConstant();
         if (null != UnicodeEscapeStringConstant)
             return TrimQuotes(UnicodeEscapeStringConstant.getText());
@@ -168,5 +173,16 @@ public abstract class PgSqlParserBase extends Parser {
         Token c = this.getInputStream().LT(1);
         String text = c.getText();
         return text.equals("!") || text.equals("!!") || text.equals("!=-");
+    }
+
+    protected final boolean isValidPartitionStrategy() {
+        String text = this.getInputStream().LT(1).getText();
+        return text.equalsIgnoreCase("hash") || text.equalsIgnoreCase("list") || text.equalsIgnoreCase("range");
+    }
+
+    public boolean isStringContinuation() {
+        Token previous = getInputStream().LT(-1);
+        Token current = getInputStream().LT(1);
+        return previous != null && current != null && current.getLine() > previous.getLine();
     }
 }

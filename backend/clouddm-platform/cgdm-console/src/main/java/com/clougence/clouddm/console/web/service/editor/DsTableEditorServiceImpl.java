@@ -49,7 +49,7 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.ui.editor.EditorViewMode;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiData;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiDataSpi;
@@ -230,7 +230,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
                 QueryRequest request = queryDTO.clone();
                 request.setQueryBody(sql);
                 request.setQueryArgs(Collections.emptyList());
-                request.setQueryTypes(Set.of(SplitQueryType.UNKNOWN)); // TODO bad way
+                request.setQueryTypes(Set.of(StatementType.UNKNOWN)); // TODO bad way
                 request.setRequester(Requester.CONSOLE);
 
                 ResultList list = this.queryService.syncExecuteQuery(uid, sessionId, request);

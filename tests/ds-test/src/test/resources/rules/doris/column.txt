@@ -1,4 +1,5 @@
 [DrRuleColumnAlertNeedDefaultTest#columnNeedDefault_1#001]
+exception: UnsupportedOperationException
 rule: _rules/column/column-alter-need-default.rule
 expect: true
 vars:
@@ -7,6 +8,7 @@ sql:
 alter table test.abc modify column name varchar(25);
 ----------
 [DrRuleColumnAlertNeedDefaultTest#columnNeedDefault_1#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-alter-need-default.rule
 expect: false
 vars:
@@ -15,6 +17,7 @@ sql:
 alter table test.abc modify column name varchar(25) default '';
 ----------
 [DrRuleColumnAlertNeedDefaultTest#columnNeedDefault_1#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-alter-need-default.rule
 expect: true
 vars:
@@ -47,6 +50,7 @@ sql:
 create table test(a123 char);
 ----------
 [DrRuleColumnCharLengthTest#columnChar_1#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-char-length.rule
 expect: true
 vars:
@@ -55,6 +59,7 @@ sql:
 alter table test add column a123 char(10);
 ----------
 [DrRuleColumnCharLengthTest#columnChar_1#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-char-length.rule
 expect: true
 vars:
@@ -71,6 +76,7 @@ sql:
 create table test(a123 char);
 ----------
 [DrRuleColumnCharLengthTest#columnChar_2#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-char-length.rule
 expect: true
 vars:
@@ -79,6 +85,7 @@ sql:
 alter table test add column a123 char(10);
 ----------
 [DrRuleColumnCharLengthTest#columnChar_2#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-char-length.rule
 expect: true
 vars:
@@ -95,6 +102,7 @@ sql:
 create table test(a123 char);
 ----------
 [DrRuleColumnCharLengthTest#columnChar_3#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-char-length.rule
 expect: false
 vars:
@@ -103,6 +111,7 @@ sql:
 alter table test add column a123 char(10);
 ----------
 [DrRuleColumnCharLengthTest#columnChar_3#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-char-length.rule
 expect: false
 vars:
@@ -119,6 +128,7 @@ sql:
 create table test.abc_test(id int(4) default 1)
 ----------
 [DrRuleColumnCreateNeedDefaultTest#columnNeedDefault_1#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-create-need-default.rule
 expect: true
 vars:
@@ -127,6 +137,7 @@ sql:
 alter table test.abc add column name varchar(25) default 'aa';
 ----------
 [DrRuleColumnCreateNeedDefaultTest#columnNeedDefault_1#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-create-need-default.rule
 expect: true
 vars:
@@ -143,6 +154,7 @@ sql:
 create table test.abc_test(id int(4))
 ----------
 [DrRuleColumnCreateNeedDefaultTest#columnNeedDefault_2#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-create-need-default.rule
 expect: false
 vars:
@@ -159,6 +171,7 @@ sql:
 create table test(a123456 int);
 ----------
 [DrRuleColumnNameLengthTest#columnNameLength_1#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-length.rule
 expect: true
 vars:
@@ -167,6 +180,7 @@ sql:
 alter table test add column a123456 int;
 ----------
 [DrRuleColumnNameLengthTest#columnNameLength_1#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-length.rule
 expect: true
 vars:
@@ -183,6 +197,7 @@ sql:
 create table test(a123456 int);
 ----------
 [DrRuleColumnNameLengthTest#columnNameLength_2#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-length.rule
 expect: false
 vars:
@@ -199,6 +214,7 @@ sql:
 create table test.abc_test(id int(4) comment 'abc')
 ----------
 [DrRuleColumnNeedCommentTest#columnNeedComment_1#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-need-comment.rule
 expect: true
 vars:
@@ -207,6 +223,7 @@ sql:
 alter table test.abc add column name varchar(25) comment 'aac';
 ----------
 [DrRuleColumnNeedCommentTest#columnNeedComment_1#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-need-comment.rule
 expect: true
 vars:
@@ -215,6 +232,7 @@ sql:
 alter table test.abc modify column name varchar(25);
 ----------
 [DrRuleColumnNeedCommentTest#columnNeedComment_1#004]
+exception: UnsupportedOperationException
 rule: _rules/column/column-need-comment.rule
 expect: true
 vars:
@@ -247,6 +265,7 @@ sql:
 create table test.abc_test(id int(4) comment '   ')
 ----------
 [DrRuleColumnNeedCommentTest#columnNeedComment_2#004]
+exception: UnsupportedOperationException
 rule: _rules/column/column-need-comment.rule
 expect: false
 vars:
@@ -255,6 +274,7 @@ sql:
 alter table test.abc add column name varchar(25);
 ----------
 [DrRuleColumnNeedCommentTest#columnNeedComment_2#005]
+exception: UnsupportedOperationException
 rule: _rules/column/column-need-comment.rule
 expect: false
 vars:
@@ -263,6 +283,7 @@ sql:
 alter table test.abc add column name varchar(25) comment '';
 ----------
 [DrRuleColumnNeedCommentTest#columnNeedComment_2#006]
+exception: UnsupportedOperationException
 rule: _rules/column/column-need-comment.rule
 expect: false
 vars:
@@ -287,6 +308,7 @@ sql:
 create table test.abc_test(id int(4) not null)
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#001]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: true
 vars:
@@ -303,6 +325,7 @@ sql:
 create table test_table(abc_test int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -319,6 +342,7 @@ sql:
 create table test_table(ABC_TEST int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#005]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: true
 vars:
@@ -335,6 +359,7 @@ sql:
 create table test_table(abcTest int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#007]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -351,6 +376,7 @@ sql:
 create table test_table(AbcTest int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_1#009]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -359,6 +385,7 @@ sql:
 alter table test_table add column AbcTest int;
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#001]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: true
 vars:
@@ -375,6 +402,7 @@ sql:
 create table test_table(abc_test int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: true
 vars:
@@ -391,6 +419,7 @@ sql:
 create table test_table(ABC_TEST int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#005]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -407,6 +436,7 @@ sql:
 create table test_table(abcTest int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#007]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -423,6 +453,7 @@ sql:
 create table test_table(AbcTest int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_2#009]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -431,6 +462,7 @@ sql:
 alter table test_table add column AbcTest int;
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#001]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: true
 vars:
@@ -447,6 +479,7 @@ sql:
 create table test_table(abc_test int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -463,6 +496,7 @@ sql:
 create table test_table(ABC_TEST int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#005]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -479,6 +513,7 @@ sql:
 create table test_table(abcTest int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#007]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: true
 vars:
@@ -495,6 +530,7 @@ sql:
 create table test_table(AbcTest int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_3#009]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -503,6 +539,7 @@ sql:
 alter table test_table add column AbcTest int;
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#001]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: true
 vars:
@@ -519,6 +556,7 @@ sql:
 create table test_table(abc_test int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -535,6 +573,7 @@ sql:
 create table test_table(ABC_TEST int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#005]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -551,6 +590,7 @@ sql:
 create table test_table(abcTest int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#007]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: false
 vars:
@@ -567,6 +607,7 @@ sql:
 create table test_table(AbcTest int);
 ----------
 [DrRuleColumnTableNameCaseTypeTest#columnTableNameCaseType_4#009]
+exception: UnsupportedOperationException
 rule: _rules/column/column-name-case-type.rule
 expect: true
 vars:
@@ -619,6 +660,7 @@ sql:
 create table test(a123 varchar);
 ----------
 [DrRuleColumnVarCharLengthTest#columnVarchar_1#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-varchar-length.rule
 expect: true
 vars:
@@ -627,6 +669,7 @@ sql:
 alter table test add column a123 varchar(10);
 ----------
 [DrRuleColumnVarCharLengthTest#columnVarchar_1#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-varchar-length.rule
 expect: true
 vars:
@@ -643,6 +686,7 @@ sql:
 create table test(a123 varchar);
 ----------
 [DrRuleColumnVarCharLengthTest#columnVarchar_2#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-varchar-length.rule
 expect: true
 vars:
@@ -651,6 +695,7 @@ sql:
 alter table test add column a123 varchar(10);
 ----------
 [DrRuleColumnVarCharLengthTest#columnVarchar_2#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-varchar-length.rule
 expect: true
 vars:
@@ -667,6 +712,7 @@ sql:
 create table test(a123 varchar);
 ----------
 [DrRuleColumnVarCharLengthTest#columnVarchar_3#002]
+exception: UnsupportedOperationException
 rule: _rules/column/column-varchar-length.rule
 expect: false
 vars:
@@ -675,6 +721,7 @@ sql:
 alter table test add column a123 varchar(10);
 ----------
 [DrRuleColumnVarCharLengthTest#columnVarchar_3#003]
+exception: UnsupportedOperationException
 rule: _rules/column/column-varchar-length.rule
 expect: false
 vars:

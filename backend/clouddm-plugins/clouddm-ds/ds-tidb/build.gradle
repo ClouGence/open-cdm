@@ -35,10 +35,16 @@ dependencies {
     // for test
     testImplementation project(':cgdm-plugin-sdk')
     testImplementation project(':dsc-common-mysql')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
 }
 
 description = 'ds-tidb'
 
 tasks.named('generateGrammarSource') {
     arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.tidb.sql.parser.antlr']
+}
+
+test {
+    useJUnitPlatform()
 }

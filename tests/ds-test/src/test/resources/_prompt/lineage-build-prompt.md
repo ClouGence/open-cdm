@@ -3,7 +3,7 @@
 版本：2026-07-29
 
 你现在要为 open-cdm 的目标数据库方言接入、完善或纠正查询列血缘分析能力。本提示词与
-`resource-analysis-prompt.md`、`statement-classification-rules.md` 的用途相同：它不是只服务于
+`behavior-analysis-prompt.md`、`statement-classification-rules.md` 的用途相同：它不是只服务于
 某一次 MySQL 重建，而是用于后续逐个数据源补全实现、建立 fixture、发现缺口并验证结果。
 
 本提示词适用于未来所有关系型数据库及具有 SQL 查询能力的数据源。MySQL 是已经按新架构

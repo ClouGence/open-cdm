@@ -4,7 +4,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Stream;
@@ -127,20 +126,20 @@ public final class SecDomainTextTest {
         }
 
         List<RuleDomain> domains;
-        try (StringReader reader = new StringReader(testCase.sql);
-                Stream<RuleDomain> stream = resolveSpi.resolveDomainStream(dataSourceType, reader, 1, 0, contextInfo(testCase, contextInfo))) {
-            domains = flatten(stream.toList());
+        JsonNode expectedException = expectedException(expected, dataSourceType);
+        try {
+            domains = flatten(resolveSpi.resolveDomainStream(dataSourceType, new StringReader(testCase.sql), 1, 0, contextInfo(testCase, contextInfo)).toList());
         } catch (Exception e) {
-            if (expected.has("exception")) {
-                assertExpectedException(testCase, expected.get("exception"), e, failures);
+            if (expectedException != null) {
+                assertExpectedException(testCase, expectedException, e, failures);
                 return failures;
             }
             failures.add(prefix(testCase) + " unexpected exception: " + e.getMessage());
             return failures;
         }
 
-        if (expected.has("exception")) {
-            failures.add(prefix(testCase) + " expected exception=" + expected.get("exception").asText() + ", actual domains=" + summarize(domains));
+        if (expectedException != null) {
+            failures.add(prefix(testCase) + " expected exception=" + expectedException.asText() + ", actual domains=" + summarize(domains));
             return failures;
         }
 
@@ -216,6 +215,14 @@ public final class SecDomainTextTest {
         if (!Objects.equals(expectedName, actualClass.getSimpleName()) && !Objects.equals(expectedName, actualClass.getName())) {
             failures.add(prefix(testCase) + " exception: expected=" + expectedName + ", actual=" + actualClass.getName() + ": " + actual.getMessage());
         }
+    }
+
+    private static JsonNode expectedException(JsonNode expected, DataSourceType dataSourceType) {
+        JsonNode exception = expected.get("exception");
+        if (exception == null || exception.isTextual()) {
+            return exception;
+        }
+        return exception.get(dataSourceType.name());
     }
 
     private static void verifyDomainList(String label, JsonNode expectedDomains, List<RuleDomain> domains, boolean allowExtra, List<String> failures) {
@@ -462,6 +469,7 @@ public final class SecDomainTextTest {
         if (testCase.contextJson == null || testCase.contextJson.isBlank()) {
             return defaultContextInfo;
         }
+
         try {
             JsonNode context = OBJECT_MAPPER.readTree(testCase.contextJson);
             ContextInfo.ContextInfoBuilder builder = ContextInfo.builder();

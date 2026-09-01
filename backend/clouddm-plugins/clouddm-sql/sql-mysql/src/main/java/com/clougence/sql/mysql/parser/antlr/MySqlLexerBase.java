@@ -2,9 +2,12 @@ package com.clougence.sql.mysql.parser.antlr;
 
 import org.antlr.v4.runtime.*;
 
+import com.clougence.sql.mysql.analysis.sysobj.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlParserConfig;
 import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
 import com.clougence.sql.mysql.parser.MySqlVersion;
+import com.clougence.sql.common.parser.SplitLexerFastPath;
+import com.clougence.sql.common.parser.SplitLexerFastPath.CommentSyntax;
 
 public abstract class MySqlLexerBase extends Lexer {
 
@@ -12,13 +15,39 @@ public abstract class MySqlLexerBase extends Lexer {
     private boolean           insideExecutableComment;
     private int               lastDefaultTokenType      = Token.INVALID_TYPE;
     private int               lastDefaultTokenStopIndex = -2;
+    private int               lastDefaultTokenLine      = -1;
+    private String            statementDelimiter       = ";";
+    private Token             pendingStatementDelimiter;
 
     protected MySqlLexerBase(CharStream input){
         super(input);
     }
 
+    private static volatile boolean fastPathEnabled = !"false".equalsIgnoreCase(System.getProperty("com.clougence.sql.mysql.lexer.fastpath", "true"));
+
+    /** Diagnostic switch for tests; production toggles via the system property above. */
+    public static void setFastPathEnabled(boolean enabled) { fastPathEnabled = enabled; }
+
     @Override
     public Token nextToken() {
+        if (this.pendingStatementDelimiter != null) {
+            Token pending = this.pendingStatementDelimiter;
+            this.pendingStatementDelimiter = null;
+            rememberDefaultToken(pending);
+            return pending;
+        }
+        Token customDelimiter = customDelimiterToken();
+        if (customDelimiter != null) {
+            rememberDefaultToken(customDelimiter);
+            return customDelimiter;
+        }
+        if (fastPathEnabled) {
+            Token fast = fastPathToken();
+            if (fast != null) {
+                rememberDefaultToken(fast);
+                return fast;
+            }
+        }
         Token token;
         if (exactVersion() >= 80100 && _input.LA(1) == '$' && !isImmediatelyAfterDot(_input.index())) {
             int delimiterLength = dollarQuoteDelimiterLength();
@@ -35,14 +64,129 @@ public abstract class MySqlLexerBase extends Lexer {
             }
         }
         token = super.nextToken();
+        splitTrailingStatementDelimiter(token);
         downgradeVersionedToken(token);
         classifySpecialFunctionToken(token);
         rememberDefaultToken(token);
         return token;
     }
 
+    /**
+     * Hand-written fast path for high-frequency simple tokens (whitespace, comma, parens,
+     * plain decimal digits). These dominate bulk INSERT/IN-list statements and the ANTLR
+     * ATN simulation costs ~100-200us per token on this 900+ rule grammar, while a direct
+     * scan is nanoseconds. Returns null to fall back to {@link #super.nextToken()}.
+     */
+    private Token fastPathToken() {
+        if (splitFastPathEnabled()) {
+            Token token = SplitLexerFastPath.nextToken(this, MySqlLexer.ID, MySqlLexer.SPACE, CommentSyntax.MYSQL);
+            if (token != null) {
+                return token;
+            }
+        }
+        int startIndex = _input.index();
+        int marker = _input.mark();
+        try {
+            int c = _input.LA(1);
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == 0x0B || c == 0x0C) {
+                int startLine = getLine();
+                int startColumn = getCharPositionInLine();
+                while (isSpace(_input.LA(1))) {
+                    getInterpreter().consume(_input);
+                }
+                return emitFast(MySqlLexer.SPACE, Token.HIDDEN_CHANNEL, startIndex, startLine, startColumn);
+            }
+            if (c == ',') {
+                return emitSingle(MySqlLexer.COMMA);
+            }
+            if (c == '(') {
+                return emitSingle(MySqlLexer.LR_BRACKET);
+            }
+            if (c == ')') {
+                return emitSingle(MySqlLexer.RR_BRACKET);
+            }
+            if (c >= '0' && c <= '9') {
+                int length = 0;
+                while (isDigit(_input.LA(1 + length))) {
+                    length++;
+                }
+                int next = _input.LA(1 + length);
+                // Ambiguous continuations (REAL_LITERAL, HEXADECIMAL_LITERAL, FILESIZE_LITERAL, ID, ...)
+                // must be decided by the real lexer. '$' is allowed after digits.
+                if (next == '.' || next == 'e' || next == 'E' || next == 'x' || next == 'X' || isIdentifierPart(next)) {
+                    return null;
+                }
+                int startLine = getLine();
+                int startColumn = getCharPositionInLine();
+                for (int i = 0; i < length; i++) {
+                    getInterpreter().consume(_input);
+                }
+                if (length == 1) {
+                    if (c == '0') {
+                        return emitFast(MySqlLexer.ZERO_DECIMAL, Token.DEFAULT_CHANNEL, startIndex, startLine, startColumn);
+                    }
+                    if (c == '1') {
+                        return emitFast(MySqlLexer.ONE_DECIMAL, Token.DEFAULT_CHANNEL, startIndex, startLine, startColumn);
+                    }
+                    if (c == '2') {
+                        return emitFast(MySqlLexer.TWO_DECIMAL, Token.DEFAULT_CHANNEL, startIndex, startLine, startColumn);
+                    }
+                }
+                return emitFast(MySqlLexer.DECIMAL_LITERAL, Token.DEFAULT_CHANNEL, startIndex, startLine, startColumn);
+            }
+            return null;
+        } finally {
+            // Mirror Lexer.nextToken(): release the token-start marker so unbuffered char
+            // streams slide their window and keep the emitted token text readable.
+            _input.release(marker);
+        }
+    }
+
+    /** Split-only lexers may bypass the full grammar for unambiguous tokens. */
+    protected boolean splitFastPathEnabled() {
+        return false;
+    }
+
+    private static boolean isSpace(int value) {
+        return value == ' ' || value == '\t' || value == '\n' || value == '\r' || value == 0x0B || value == 0x0C;
+    }
+
+    private static boolean isDigit(int value) {
+        return value >= '0' && value <= '9';
+    }
+
+    /** Identifier part except '$' (matches notIdentifierPartExceptDollarAhead semantics). */
+    private static boolean isIdentifierPart(int value) {
+        return value >= 'a' && value <= 'z' || value >= 'A' && value <= 'Z' || value >= '0' && value <= '9' || value == '_' || value >= 0x80;
+    }
+
+    private Token emitSingle(int type) {
+        int startIndex = _input.index();
+        int startLine = getLine();
+        int startColumn = getCharPositionInLine();
+        getInterpreter().consume(_input);
+        return emitFast(type, Token.DEFAULT_CHANNEL, startIndex, startLine, startColumn);
+    }
+
+    private Token emitFast(int type, int channel, int startIndex, int startLine, int startColumn) {
+        _token = null;
+        _channel = channel;
+        _tokenStartCharIndex = startIndex;
+        _tokenStartLine = startLine;
+        _tokenStartCharPositionInLine = startColumn;
+        _text = null;
+        _type = type;
+        if (_input.LA(1) == IntStream.EOF) {
+            _hitEOF = true;
+        }
+        Token token = emit();
+        rememberDefaultToken(token);
+        return token;
+    }
+
     private void classifySpecialFunctionToken(Token token) {
-        if (!(token instanceof WritableToken writableToken) || token.getChannel() != DEFAULT_TOKEN_CHANNEL || !config.isSqlModeKnown() || !isSpecialFunctionName(token.getText())) {
+        if (!(token instanceof WritableToken writableToken) || token.getChannel() != DEFAULT_TOKEN_CHANNEL || !config.isSqlModeKnown()
+                || !MySqlResourceRegistry.instance().isLexerSpecialFunction(token.getText())) {
             return;
         }
         if (isImmediatelyAfterDot(token.getStartIndex())) {
@@ -57,19 +201,6 @@ public abstract class MySqlLexerBase extends Lexer {
     private boolean isImmediatelyFollowedByLeftParen(Token token) {
         int nextIndex = token.getStopIndex() + 1;
         return nextIndex == _input.index() && _input.LA(1) == '(';
-    }
-
-    private static boolean isSpecialFunctionName(String text) {
-        if (text == null) {
-            return false;
-        }
-        return switch (text.toUpperCase(java.util.Locale.ROOT)) {
-            case "ADDDATE", "BIT_AND", "BIT_OR", "BIT_XOR", "CAST", "COUNT", "CURDATE", "CURTIME", "DATE_ADD", "DATE_SUB", "EXTRACT", "GROUP_CONCAT", "JSON_ARRAYAGG",
-                    "JSON_DUALITY_OBJECT", "JSON_OBJECTAGG", "MAX", "MID", "MIN", "NOW", "POSITION", "PI", "SESSION_USER", "STD", "STDDEV", "STDDEV_POP", "STDDEV_SAMP",
-                    "ST_COLLECT", "SUBDATE", "SUBSTR", "SUBSTRING", "SUM", "SYSDATE", "SYSTEM_USER", "TRIM", "VARIANCE", "VAR_POP", "VAR_SAMP" ->
-                true;
-            default -> false;
-        };
     }
 
     private void downgradeVersionedToken(Token token) {
@@ -114,6 +245,87 @@ public abstract class MySqlLexerBase extends Lexer {
         }
         lastDefaultTokenType = token.getType();
         lastDefaultTokenStopIndex = token.getStopIndex();
+        lastDefaultTokenLine = token.getLine();
+    }
+
+    /** A DELIMITER directive is a mysql client command and must start a physical line. */
+    protected final boolean isClientDelimiterDirective() {
+        return lastDefaultTokenLine < getLine();
+    }
+
+    protected final void setStatementDelimiterDirective(String directive) {
+        int index = "DELIMITER".length();
+        while (index < directive.length() && Character.isWhitespace(directive.charAt(index))) {
+            index++;
+        }
+        String delimiter = directive.substring(index).trim();
+        this.statementDelimiter = delimiter.isEmpty() ? ";" : delimiter;
+    }
+
+    /** Inner executable-comment semicolons and inactive client delimiters are not boundaries. */
+    protected final void hideInactiveSemicolon() {
+        if (this.insideExecutableComment || !";".equals(this.statementDelimiter)) {
+            setChannel(HIDDEN);
+        }
+    }
+
+    private Token customDelimiterToken() {
+        if (";".equals(this.statementDelimiter) || !delimiterAhead()) {
+            return null;
+        }
+        int startIndex = _input.index();
+        int startLine = getLine();
+        int startColumn = getCharPositionInLine();
+        for (int i = 0; i < this.statementDelimiter.length(); i++) {
+            getInterpreter().consume(_input);
+        }
+        if (_input.LA(1) == IntStream.EOF) {
+            _hitEOF = true;
+        }
+        return getTokenFactory().create(_tokenFactorySourcePair,
+            MySqlLexer.SEMI,
+            this.statementDelimiter,
+            MySqlLexer.MYSQLCOMMENT,
+            startIndex,
+            startIndex + this.statementDelimiter.length() - 1,
+            startLine,
+            startColumn);
+    }
+
+    private boolean delimiterAhead() {
+        for (int i = 0; i < this.statementDelimiter.length(); i++) {
+            if (_input.LA(i + 1) != this.statementDelimiter.charAt(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * MySQL identifiers may contain '$', so {@code END$$} can arrive as one ID token. Split
+     * the active client terminator back out without reparsing or altering the source text.
+     */
+    private void splitTrailingStatementDelimiter(Token token) {
+        if (";".equals(this.statementDelimiter) || token.getType() == MySqlLexer.DELIMITER_DIRECTIVE || token.getChannel() != DEFAULT_TOKEN_CHANNEL
+            || !(token instanceof CommonToken common)) {
+            return;
+        }
+        String text = token.getText();
+        if (text == null || text.length() <= this.statementDelimiter.length() || !text.endsWith(this.statementDelimiter)) {
+            return;
+        }
+        int delimiterStart = token.getStopIndex() - this.statementDelimiter.length() + 1;
+        int prefixLength = text.length() - this.statementDelimiter.length();
+        common.setText(text.substring(0, prefixLength));
+        common.setStopIndex(delimiterStart - 1);
+        this.pendingStatementDelimiter = getTokenFactory().create(_tokenFactorySourcePair,
+            MySqlLexer.SEMI,
+            this.statementDelimiter,
+            MySqlLexer.MYSQLCOMMENT,
+            delimiterStart,
+            token.getStopIndex() + this.statementDelimiter.length(),
+            token.getLine(),
+            token.getCharPositionInLine() + prefixLength);
     }
 
     private boolean isImmediatelyAfterDot(int tokenStartIndex) {

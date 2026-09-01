@@ -110,8 +110,8 @@ import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
 import com.clougence.clouddm.sdk.ui.editor.dblink.DbLinkEditorFields;
 import com.clougence.clouddm.sdk.ui.editor.function.FunctionEditorFields;
@@ -1733,13 +1733,13 @@ public class DmConvertUtils {
         }
     }
 
-    public static SplitQueryType convertToSecQueryType(DataEditorSqlType sqlType) {
+    public static StatementType convertToSecQueryType(DataEditorSqlType sqlType) {
         return switch (sqlType) {
-            case INSERT -> SplitQueryType.INSERT;
-            case UPDATE -> SplitQueryType.UPDATE;
-            case DELETE -> SplitQueryType.DELETE;
-            case SELECT -> SplitQueryType.SELECT;
-            default -> SplitQueryType.UNKNOWN;
+            case INSERT -> StatementType.INSERT;
+            case UPDATE -> StatementType.UPDATE;
+            case DELETE -> StatementType.DELETE;
+            case SELECT -> StatementType.SELECT;
+            default -> StatementType.UNKNOWN;
         };
     }
 

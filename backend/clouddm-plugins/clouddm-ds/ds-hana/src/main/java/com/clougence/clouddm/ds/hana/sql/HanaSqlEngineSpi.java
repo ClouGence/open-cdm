@@ -15,8 +15,13 @@
  */
 package com.clougence.clouddm.ds.hana.sql;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 import com.clougence.clouddm.ds.hana.sql.analysis.behavior.HanaBehaviorAnalysisSpi;
 import com.clougence.clouddm.ds.hana.sql.editor.rewrite.HanaRewriteSpi;
+import com.clougence.clouddm.ds.hana.sql.parser.HanaParserConfig;
 import com.clougence.clouddm.ds.hana.sql.parser.HanaSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -29,21 +34,10 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class HanaSqlEngineSpi implements SqlEngineSpi {
-    public static final String        NAME = "SAP Hana SQL";
-
-    private final SplitAnalysisSpi    splitAnalysisSpi;
-    private final SecDomainResolveSpi secDomainResolveSpi;
-    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
-    private final LineageAnalysisSpi  lineageAnalysisSpi;
-    private final RewriteSpi          rewriteSpi;
-
-    public HanaSqlEngineSpi(){
-        this.splitAnalysisSpi = new HanaSplitAnalysisSpi();
-        this.secDomainResolveSpi = null;
-        this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
-        this.rewriteSpi = new HanaRewriteSpi();
-    }
+    public static final String                     NAME          = "SAP Hana SQL";
+    private final Map<String, SplitAnalysisSpi>    splitCache    = new ConcurrentHashMap<>();
+    private final Map<String, BehaviorAnalysisSpi> behaviorCache = new ConcurrentHashMap<>();
+    private final RewriteSpi                       rewriteSpi    = new HanaRewriteSpi();
 
     public String name() {
         return NAME;
@@ -56,22 +50,26 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        return splitAnalysisSpi;
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return splitCache.computeIfAbsent(key, value -> new HanaSplitAnalysisSpi(parserConfig(parserParameters)));
     }
 
     @Override
     public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
-        return secDomainResolveSpi;
+        return null;
     }
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return behaviorAnalysisSpi;
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return behaviorCache.computeIfAbsent(key, value -> new HanaBehaviorAnalysisSpi());
     }
 
     @Override
     public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
-        return lineageAnalysisSpi;
+        return LineageAnalysisSpi.EMPTY;
     }
 
     @Override
@@ -79,4 +77,11 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
         return rewriteSpi;
     }
 
+    private static HanaParserConfig parserConfig(SqlParserParameters parameters) {
+        return HanaParserConfig.of(parameters.version(), parameters.get(SqlParserParameters.GRAMMAR_VERSION));
+    }
+
+    private static String parserKey(SqlParserParameters parameters) {
+        return parameters.values().entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&"));
+    }
 }

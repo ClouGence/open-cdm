@@ -40,7 +40,8 @@ public enum BehaviorAction {
     EXPORT,  // Exports data from the current database or instance.
 
     // Program execution actions.
-    CALL, // Invokes a function, procedure, or another executable program object.
+    CALL,  // Invokes a function, procedure, or another executable program object.
+    RAISE, // Raises or re-raises a database condition or exception.
 
     // Authorization actions.
     GRANT,    // Grants privileges to a user or role.

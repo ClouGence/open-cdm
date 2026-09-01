@@ -26,10 +26,18 @@ dependencies {
     api project(':cg-dslparser')
     api project(':sqlc-common')
     api project(':sql-mysql')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
+    testRuntimeOnly "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
 }
 
 description = 'sql-doris'
 
 tasks.named('generateGrammarSource') {
     arguments += ['-visitor', '-package', 'com.clougence.sql.doris.parser.antlr']
+}
+
+test {
+    useJUnitPlatform()
 }

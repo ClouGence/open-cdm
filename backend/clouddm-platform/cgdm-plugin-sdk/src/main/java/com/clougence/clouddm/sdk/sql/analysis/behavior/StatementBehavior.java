@@ -15,10 +15,7 @@
  */
 package com.clougence.clouddm.sdk.sql.analysis.behavior;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import java.util.*;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,14 +23,25 @@ import lombok.Setter;
 /**
  * Behavior analysis result for one SQL statement.
  *
- * <p>{@code statementType} remains a statement classification. Permission consumers must interpret
+ * <p>{@code statementTypes} are statement classifications. Permission consumers must interpret
  * {@code relations}; they must not infer per-resource authorization requirements directly from
- * {@code statementType}.</p>
+ * {@code statementTypes}.</p>
  */
 @Getter
 @Setter
 public class StatementBehavior {
 
-    private SplitQueryType         statementType;
-    private List<BehaviorRelation> relations = new ArrayList<>();
+    private Set<StatementType>     statementTypes = new LinkedHashSet<>();
+    private List<BehaviorRelation> relations      = new ArrayList<>();
+
+    /** Primary classification compatibility for callers which only consume one type. */
+    public StatementType getStatementType() {
+        return this.statementTypes.stream().findFirst().orElse(StatementType.UNKNOWN);
+    }
+
+    /** Replaces the current classifications with one primary type. */
+    public void setStatementType(StatementType statementType) {
+        this.statementTypes.clear();
+        this.statementTypes.add(Objects.requireNonNullElse(statementType, StatementType.UNKNOWN));
+    }
 }

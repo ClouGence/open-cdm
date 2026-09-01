@@ -1,0 +1,800 @@
+x-common: &common
+  restart: unless-stopped
+  init: true
+  networks: [open-cdm-dbs]
+
+x-mysql-environment: &mysql-environment
+  MYSQL_DATABASE: devtester
+  MYSQL_ROOT_PASSWORD: "123456"
+  TZ: Asia/Shanghai
+
+x-postgres-environment: &postgres-environment
+  POSTGRES_DB: postgres
+  POSTGRES_PASSWORD: "123456"
+  TZ: Asia/Shanghai
+
+x-db2-environment: &db2-environment
+  LICENSE: accept
+  DB2INSTANCE: db2inst1
+  DB2INST1_PASSWORD: "123456"
+  DBNAME: TESTDB
+  BLU: "false"
+  ENABLE_ORACLE_COMPATIBILITY: "false"
+  UPDATEAVAIL: "NO"
+  TO_CREATE_SAMPLEDB: "false"
+  REPODB: "false"
+  IS_OSXFS: "false"
+  PERSISTENT_HOME: "true"
+  HADR_ENABLED: "false"
+
+services:
+  # ds-mysql: profile ds-mysql starts every line; the version profile starts one.
+  ds-mysql-56:
+    <<: *common
+    image: mysql:5.6@sha256:20575ecebe6216036d25dab5903808211f1e9ba63dc7825ac20cb975e34cfcae
+    platform: linux/amd64
+    profiles: [ds-mysql, ds-mysql-5.6]
+    environment: *mysql-environment
+    ports: ["23356:3306"]
+    volumes: ["${DBS_DATA_DIR:-./data}/mysql/5.6:/var/lib/mysql"]
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00"]
+    healthcheck:
+      test: [CMD, mysqladmin, ping, -h, 127.0.0.1, -uroot, -p123456]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-mysql-57:
+    <<: *common
+    image: mysql:5.7.44
+    platform: linux/amd64
+    profiles: [ds-mysql, ds-mysql-5.7]
+    environment: *mysql-environment
+    ports: ["23357:3306"]
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/mysql/5.7:/var/lib/mysql
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00"]
+    healthcheck:
+      test: [CMD, mysqladmin, ping, -h, 127.0.0.1, -uroot, -p123456]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-mysql-80:
+    <<: *common
+    image: mysql:8.0.46
+    profiles: [ds-mysql, ds-mysql-8.0]
+    environment: *mysql-environment
+    ports: ["2330:3306"]
+    volumes:
+      - ./certs:/certs
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+      - ./mysql/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+      - ${DBS_DATA_DIR:-./data}/mysql/8.0:/var/lib/mysql
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-mysql, mysql]
+    entrypoint: [bash, /usr/local/bin/init-ssl.sh]
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00"]
+    healthcheck:
+      test: [CMD, mysqladmin, ping, -h, 127.0.0.1, -uroot, -p123456]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-mysql-84:
+    <<: *common
+    image: mysql:8.4.10
+    profiles: [ds-mysql, ds-mysql-8.4]
+    environment: *mysql-environment
+    ports: ["23384:3306"]
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/mysql/8.4:/var/lib/mysql
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00"]
+    healthcheck:
+      test: [CMD, mysqladmin, ping, -h, 127.0.0.1, -uroot, -p123456]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-mysql-97:
+    <<: *common
+    image: mysql:9.7@sha256:ae269281abffe401d65f04cb54d45a069a495b8174b9c0a815e502fed7fa0370
+    platform: linux/amd64
+    profiles: [ds-mysql, ds-mysql-9.7]
+    environment: *mysql-environment
+    ports: ["23397:3306"]
+    volumes: ["${DBS_DATA_DIR:-./data}/mysql/9.7:/var/lib/mysql"]
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00"]
+    healthcheck:
+      test: [CMD, mysqladmin, ping, -h, 127.0.0.1, -uroot, -p123456]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # TiDB uses an embedded backend: v4.0 only supports mocktikv, while newer
+  # versions support UniStore. Both are sufficient for JDBC/metadata fixtures
+  # without booting a full PD/TiKV cluster.
+  ds-tidb-40:
+    <<: *common
+    image: pingcap/tidb:v4.0.16
+    platform: linux/amd64
+    profiles: [ds-tidb, ds-tidb-4.0]
+    ports: ["24040:4000", "21040:10080"]
+    volumes: ["${DBS_DATA_DIR:-./data}/tidb/4.0:/tmp/tidb"]
+    command: ["--store=mocktikv", "--path=/tmp/tidb", "--host=0.0.0.0"]
+
+  ds-tidb-54:
+    <<: *common
+    image: pingcap/tidb:v5.4.3
+    profiles: [ds-tidb, ds-tidb-5.4]
+    ports: ["24054:4000", "21054:10080"]
+    volumes: ["${DBS_DATA_DIR:-./data}/tidb/5.4:/tmp/tidb"]
+    command: ["--store=unistore", "--path=/tmp/tidb", "--host=0.0.0.0"]
+
+  ds-tidb-65:
+    <<: *common
+    image: pingcap/tidb:v6.5.12
+    profiles: [ds-tidb, ds-tidb-6.5]
+    ports: ["24065:4000", "21065:10080"]
+    volumes: ["${DBS_DATA_DIR:-./data}/tidb/6.5:/tmp/tidb"]
+    command: ["--store=unistore", "--path=/tmp/tidb", "--host=0.0.0.0"]
+
+  ds-tidb-75:
+    <<: *common
+    image: pingcap/tidb:v7.5.7
+    profiles: [ds-tidb, ds-tidb-7.5]
+    ports: ["24075:4000", "21075:10080"]
+    volumes: ["${DBS_DATA_DIR:-./data}/tidb/7.5:/tmp/tidb"]
+    command: ["--store=unistore", "--path=/tmp/tidb", "--host=0.0.0.0"]
+
+  ds-tidb-85:
+    <<: *common
+    image: pingcap/tidb:v8.5.7
+    profiles: [ds-tidb, ds-tidb-8.5]
+    ports: ["24085:4000", "21085:10080"]
+    volumes:
+      - ./certs:/certs:ro
+      - ./tidb/ssl.toml:/etc/tidb/ssl.toml:ro
+      - ${DBS_DATA_DIR:-./data}/tidb/8.5:/tmp/tidb
+    command:
+      - --store=unistore
+      - --path=/tmp/tidb
+      - --host=0.0.0.0
+      - --config=/etc/tidb/ssl.toml
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-tidb]
+
+  ds-doris-21:
+    <<: *common
+    image: apache/doris:doris-all-in-one-2.1.0
+    profiles: [ds-doris, ds-doris-2.1]
+    ports: ["29021:9030", "28021:8030", "28041:8040"]
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/doris/2.1.0/fe-meta:/opt/apache-doris/fe/doris-meta
+      - ${DBS_DATA_DIR:-./data}/doris/2.1.0/be-storage:/opt/apache-doris/be/storage
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-doris]
+    ulimits:
+      nofile: {soft: 65536, hard: 65536}
+
+  ds-doris-219:
+    <<: *common
+    image: apache/doris:2.1.9-all
+    hostname: ds-doris-219
+    profiles: [ds-doris, ds-doris-2.1.9]
+    environment:
+      DORIS_NODE_HOST: ds-doris-219
+      DORIS_FE_HEAP_SIZE: 2048m
+    entrypoint: [bash, /usr/local/bin/doris-stable-entrypoint.sh]
+    ports: ["29029:9030", "28029:8030", "28049:8040"]
+    volumes:
+      - ./doris/stable-entrypoint.sh:/usr/local/bin/doris-stable-entrypoint.sh:ro
+      - ${DBS_DATA_DIR:-./data}/doris/2.1.9/fe-meta:/opt/apache-doris/fe/doris-meta
+      - ${DBS_DATA_DIR:-./data}/doris/2.1.9/be-storage:/opt/apache-doris/be/storage
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-doris-219]
+    ulimits:
+      nofile: {soft: 65536, hard: 65536}
+
+  ds-doris-30:
+    <<: *common
+    image: apache/doris:3.0.8-all
+    hostname: ds-doris-30
+    profiles: [ds-doris, ds-doris-3.0]
+    environment:
+      DORIS_NODE_HOST: ds-doris-30
+      DORIS_FE_HEAP_SIZE: 2048m
+    entrypoint: [bash, /usr/local/bin/doris-stable-entrypoint.sh]
+    ports: ["29030:9030", "28030:8030", "28040:8040"]
+    volumes:
+      - ./doris/stable-entrypoint.sh:/usr/local/bin/doris-stable-entrypoint.sh:ro
+      - ${DBS_DATA_DIR:-./data}/doris/3.0/fe-meta:/opt/apache-doris/fe/doris-meta
+      - ${DBS_DATA_DIR:-./data}/doris/3.0/be-storage:/opt/apache-doris/be/storage
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-doris-30]
+    ulimits:
+      nofile: {soft: 65536, hard: 65536}
+
+  # init.sh downloads the pinned official DM8 image and assigns this local tag.
+  ds-dameng-8:
+    <<: *common
+    image: ${DM8_IMAGE:-local/dm8:8-20250506}
+    platform: linux/amd64
+    profiles: [ds-dameng, ds-dameng-8]
+    privileged: true
+    environment:
+      PAGE_SIZE: "16"
+      EXTENT_SIZE: "32"
+      LOG_SIZE: "1024"
+      UNICODE_FLAG: "1"
+      LENGTH_IN_CHAR: "1"
+      INSTANCE_NAME: DMSERVER
+      SYSDBA_PWD: Dameng123!
+      LD_LIBRARY_PATH: /opt/dmdbms/bin
+    ports: ["25236:5236"]
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/dameng/8:/opt/dmdbms/data
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-dameng]
+
+  ds-postgres-12:
+    <<: *common
+    image: postgres:12.22
+    profiles: [ds-postgres, ds-postgres-12]
+    environment: *postgres-environment
+    ports: ["25412:5432"]
+    volumes: ["${DBS_DATA_DIR:-./data}/postgres/12:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-postgres-13:
+    <<: *common
+    image: postgres:13.23
+    profiles: [ds-postgres, ds-postgres-13]
+    environment: *postgres-environment
+    ports: ["25413:5432"]
+    volumes: ["${DBS_DATA_DIR:-./data}/postgres/13:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-postgres-14:
+    <<: *common
+    image: postgres:14.23
+    profiles: [ds-postgres, ds-postgres-14]
+    environment: *postgres-environment
+    ports: ["25414:5432"]
+    volumes: ["${DBS_DATA_DIR:-./data}/postgres/14:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-postgres-16:
+    <<: *common
+    image: postgres:16.14
+    profiles: [ds-postgres, ds-postgres-16]
+    environment: *postgres-environment
+    ports: ["2543:5432"]
+    volumes:
+      - ./certs:/certs:ro
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./postgres/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+      - ${DBS_DATA_DIR:-./data}/postgres/16:/var/lib/postgresql/data
+    entrypoint: [bash, /usr/local/bin/init-ssl.sh]
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-postgres, postgres]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-postgres-15:
+    <<: *common
+    image: postgres:15.18
+    profiles: [ds-postgres, ds-postgres-15]
+    environment: *postgres-environment
+    ports: ["25415:5432"]
+    volumes: ["${DBS_DATA_DIR:-./data}/postgres/15:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-postgres-17:
+    <<: *common
+    image: postgres:17.10
+    profiles: [ds-postgres, ds-postgres-17]
+    environment: *postgres-environment
+    ports: ["25417:5432"]
+    volumes: ["${DBS_DATA_DIR:-./data}/postgres/17:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-postgres-18:
+    <<: *common
+    image: postgres:18.4
+    profiles: [ds-postgres, ds-postgres-18]
+    environment: *postgres-environment
+    ports: ["25418:5432"]
+    volumes: ["${DBS_DATA_DIR:-./data}/postgres/18:/var/lib/postgresql"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # HANA 1.0 SPS12 is preserved as a pinned community snapshot because SAP no
+  # longer publishes a current HANA 1 container. The installed system expects
+  # this fixed hostname. A valid HXE license must be installed after startup.
+  ds-hana-1:
+    <<: *common
+    image: ${HANA1_IMAGE:-cathy01/hanaexpress1@sha256:118e151468a8d9e4d3a8832716971ec96ee5c1da31ae1cc579daa31982279455}
+    platform: linux/amd64
+    profiles: [ds-hana, ds-hana-1.00.122]
+    hostname: 3ae155da2528
+    command:
+      - /bin/bash
+      - --noprofile
+      - --norc
+      - -c
+      - su - hxeadm -c "HDB start"; exec tail -F /dev/null
+    ports:
+      - "23013:30013"
+      - "23015:30015"
+      - "28000:8000"
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/hana/1.00.122:/hana
+    ulimits:
+      nofile: {soft: 1048576, hard: 1048576}
+    healthcheck:
+      test: [CMD-SHELL, "client=$$(find /hana/shared/HXE -type f -name hdbsql | head -n 1); test -n \"$$client\" && \"$$client\" -n 127.0.0.1:30015 -u SYSTEM -p 'Hana@1234' 'SELECT 1 FROM DUMMY' >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 80
+      start_period: 60s
+
+  # SAP HANA 2 Express is x86-only and license-gated. HANA2_IMAGE can point to
+  # a locally mirrored/imported image; the committed password is test-only.
+  ds-hana-2:
+    <<: *common
+    # Do not hide a failed database initialization behind an endless restart
+    # loop; init.sh reports the first fatal log and exits.
+    restart: "no"
+    image: ${HANA2_IMAGE:-saplabs/hanaexpress:2.00.082.00.20250528.1}
+    platform: linux/amd64
+    profiles: [ds-hana, ds-hana-2.00.082]
+    hostname: ds-hana
+    command: ["--passwords-url", "file:///hana/mounts/password.json", "--agree-to-sap-license"]
+    ports:
+      - "23913:39013"
+      - "23917:39017"
+      - "23941:39041"
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/hana/2.00.082:/hana/mounts
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-hana]
+    ulimits:
+      nofile: {soft: 1048576, hard: 1048576}
+
+  ds-sqlserver-2017:
+    <<: *common
+    image: mcr.microsoft.com/mssql/server:2017-latest@sha256:0773d9c39ee51fdd581ed8119f5a29b3eab875d193b98ffd8f1d56a99de1eac8
+    platform: linux/amd64
+    profiles: [ds-sqlserver, ds-sqlserver-2017]
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: Share123456!
+    ports: ["21417:1433"]
+    volumes: ["${DBS_DATA_DIR:-./data}/sqlserver/2017:/var/opt/mssql"]
+
+  ds-sqlserver-2019:
+    <<: *common
+    image: mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04
+    platform: linux/amd64
+    profiles: [ds-sqlserver, ds-sqlserver-2019]
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: Share123456!
+    ports: ["21419:1433"]
+    volumes: ["${DBS_DATA_DIR:-./data}/sqlserver/2019:/var/opt/mssql"]
+
+  ds-sqlserver-2022:
+    <<: *common
+    image: mcr.microsoft.com/mssql/server:2022-CU25-GDR2-ubuntu-22.04
+    platform: linux/amd64
+    profiles: [ds-sqlserver, ds-sqlserver-2022]
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: Share123456!
+    ports: ["2143:1433"]
+    volumes:
+      - ./certs:/certs:ro
+      - ./sqlserver/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+      - ${DBS_DATA_DIR:-./data}/sqlserver/2022:/var/opt/mssql
+    entrypoint: [bash, /usr/local/bin/init-ssl.sh]
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-sqlserver, mssql]
+
+  ds-oracle-11:
+    <<: *common
+    image: gvenzl/oracle-xe:11.2.0.2-slim
+    platform: linux/amd64
+    profiles: [ds-oracle, ds-oracle-11]
+    environment:
+      ORACLE_PASSWORD: "123456"
+      APP_USER: devtester
+      APP_USER_PASSWORD: "123456"
+    ports: ["2511:1521"]
+    volumes:
+      - ./oracle/init:/container-entrypoint-initdb.d:ro
+      - ${DBS_DATA_DIR:-./data}/oracle/11:/u01/app/oracle/oradata
+    healthcheck:
+      test: [CMD, healthcheck.sh]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  ds-oracle-21:
+    <<: *common
+    image: gvenzl/oracle-xe:21.3.0-slim
+    platform: linux/amd64
+    profiles: [ds-oracle, ds-oracle-21]
+    environment:
+      ORACLE_PASSWORD: "123456"
+      ORACLE_DATABASE: DEVTEST21
+      APP_USER: devtester
+      APP_USER_PASSWORD: "123456"
+    ports: ["2522:1521"]
+    volumes:
+      - ./oracle/init:/container-entrypoint-initdb.d:ro
+      - ${DBS_DATA_DIR:-./data}/oracle/21:/opt/oracle/oradata
+    healthcheck:
+      test: [CMD, healthcheck.sh]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  ds-oracle-23:
+    <<: *common
+    image: gvenzl/oracle-free:23.26.2-slim
+    profiles: [ds-oracle, ds-oracle-23]
+    environment:
+      ORACLE_PASSWORD: "123456"
+      ORACLE_DATABASE: DEVTESTDB
+      APP_USER: devtester
+      APP_USER_PASSWORD: "123456"
+    ports: ["2521:1521", "2484:2484", "2485:2485"]
+    volumes:
+      - ./oracle/init:/container-entrypoint-initdb.d:ro
+      - ./oracle/startdb:/container-entrypoint-startdb.d:ro
+      - ./oracle/wallet:/wallet:ro
+      - ${DBS_DATA_DIR:-./data}/oracle/23:/opt/oracle/oradata
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-oracle, oracle]
+    healthcheck:
+      test: [CMD, healthcheck.sh]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  ds-starrocks-25:
+    <<: *common
+    image: starrocks/allin1-ubi:2.5.21
+    platform: linux/amd64
+    profiles: [ds-starrocks, ds-starrocks-2.5]
+    ports: ["23325:9030", "22325:8030", "22425:8040"]
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/starrocks/2.5/fe-meta:/data/deploy/starrocks/fe/meta
+      - ${DBS_DATA_DIR:-./data}/starrocks/2.5/be-storage:/data/deploy/starrocks/be/storage
+
+  ds-starrocks-35:
+    <<: *common
+    image: starrocks/allin1-ubuntu:3.5.20
+    profiles: [ds-starrocks, ds-starrocks-3.5]
+    ports: ["23335:9030", "22335:8030", "22435:8040"]
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/starrocks/3.5/fe-meta:/data/deploy/starrocks/fe/meta
+      - ${DBS_DATA_DIR:-./data}/starrocks/3.5/be-storage:/data/deploy/starrocks/be/storage
+
+  ds-starrocks-41:
+    <<: *common
+    image: starrocks/allin1-ubuntu:4.1.3
+    profiles: [ds-starrocks, ds-starrocks-4.1]
+    ports: ["23341:9030", "22341:8030", "22441:8040"]
+    volumes:
+      - ${DBS_DATA_DIR:-./data}/starrocks/4.1/fe-meta:/data/deploy/starrocks/fe/meta
+      - ${DBS_DATA_DIR:-./data}/starrocks/4.1/be-storage:/data/deploy/starrocks/be/storage
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-starrocks]
+
+  # IBM no longer distributes public container images for these retired
+  # Express-C releases. init.sh requires these immutable local archive tags.
+  ds-db2-97:
+    <<: *common
+    image: local/db2:9.7.0.0
+    platform: linux/amd64
+    profiles: [ds-db2, ds-db2-9.7]
+    privileged: true
+    environment: *db2-environment
+    ports: ["2497:50000"]
+    volumes: ["${DBS_DATA_DIR:-./data}/db2/9.7:/database"]
+
+  ds-db2-105:
+    <<: *common
+    image: local/db2:10.5.0.4
+    platform: linux/amd64
+    profiles: [ds-db2, ds-db2-10.5]
+    privileged: true
+    environment: *db2-environment
+    ports: ["2505:50000"]
+    volumes: ["${DBS_DATA_DIR:-./data}/db2/10.5:/database"]
+
+  ds-db2-115:
+    <<: *common
+    image: icr.io/db2_community/db2:11.5.9.0
+    platform: linux/amd64
+    profiles: [ds-db2, ds-db2-11.5]
+    privileged: true
+    environment: *db2-environment
+    ports: ["2500:50000", "2501:50001"]
+    volumes:
+      - ./certs:/certs:ro
+      - ./db2/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+      - ${DBS_DATA_DIR:-./data}/db2/11.5:/database
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-db2, db2]
+
+  ds-mariadb-1011:
+    <<: *common
+    image: mariadb:10.11.16
+    profiles: [ds-mariadb, ds-mariadb-10.11]
+    environment:
+      MARIADB_DATABASE: devtester
+      MARIADB_ROOT_PASSWORD: "123456"
+      TZ: Asia/Shanghai
+    ports: ["23110:3306"]
+    volumes: ["${DBS_DATA_DIR:-./data}/mariadb/10.11:/var/lib/mysql"]
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-mariadb-114:
+    <<: *common
+    image: mariadb:11.4.10
+    profiles: [ds-mariadb, ds-mariadb-11.4]
+    environment:
+      MARIADB_DATABASE: devtester
+      MARIADB_ROOT_PASSWORD: "123456"
+      TZ: Asia/Shanghai
+    ports: ["23111:3306"]
+    volumes:
+      - ./certs:/certs
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+      - ./mysql/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+      - ${DBS_DATA_DIR:-./data}/mariadb/11.4:/var/lib/mysql
+    entrypoint: [bash, /usr/local/bin/init-ssl.sh]
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-mariadb]
+
+  ds-mariadb-118:
+    <<: *common
+    image: mariadb:11.8.8
+    profiles: [ds-mariadb, ds-mariadb-11.8]
+    environment:
+      MARIADB_DATABASE: devtester
+      MARIADB_ROOT_PASSWORD: "123456"
+      TZ: Asia/Shanghai
+    ports: ["23118:3306"]
+    volumes: ["${DBS_DATA_DIR:-./data}/mariadb/11.8:/var/lib/mysql"]
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  ds-clickhouse-208:
+    <<: *common
+    image: yandex/clickhouse-server:20.8.19.4
+    profiles: [ds-clickhouse, ds-clickhouse-20.8]
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: root
+      CLICKHOUSE_PASSWORD: password123
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+      TZ: Asia/Shanghai
+    ports: ["28208:8123", "29208:9000"]
+    volumes:
+      - ./clickhouse/20.8-jdbc-compat.xml:/etc/clickhouse-server/config.d/20.8-jdbc-compat.xml:ro
+      - ${DBS_DATA_DIR:-./data}/clickhouse/20.8:/var/lib/clickhouse
+    ulimits:
+      nofile: {soft: 262144, hard: 262144}
+
+  ds-clickhouse-228:
+    <<: *common
+    image: clickhouse/clickhouse-server:22.8.21.38
+    profiles: [ds-clickhouse, ds-clickhouse-22.8]
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: root
+      CLICKHOUSE_PASSWORD: password123
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+      TZ: Asia/Shanghai
+    ports: ["28228:8123", "29228:9000"]
+    volumes: ["${DBS_DATA_DIR:-./data}/clickhouse/22.8:/var/lib/clickhouse"]
+    ulimits:
+      nofile: {soft: 262144, hard: 262144}
+
+  ds-clickhouse-248:
+    <<: *common
+    image: clickhouse/clickhouse-server:24.8.14.39
+    profiles: [ds-clickhouse, ds-clickhouse-24.8]
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: root
+      CLICKHOUSE_PASSWORD: password123
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+      TZ: Asia/Shanghai
+    ports: ["2812:8123", "2900:9000", "2843:8443", "2940:9440"]
+    volumes:
+      - ./certs:/certs:ro
+      - ./clickhouse/ssl.xml:/etc/clickhouse-server/config.d/ssl.xml:ro
+      - ${DBS_DATA_DIR:-./data}/clickhouse/24.8:/var/lib/clickhouse
+    networks:
+      open-cdm-dbs:
+        aliases: [ds-clickhouse, clickhouse]
+    ulimits:
+      nofile: {soft: 262144, hard: 262144}
+
+  ds-clickhouse-266:
+    <<: *common
+    image: clickhouse/clickhouse-server:26.6.2.81
+    profiles: [ds-clickhouse, ds-clickhouse-26.6]
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: root
+      CLICKHOUSE_PASSWORD: password123
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+      TZ: Asia/Shanghai
+    ports: ["28266:8123", "29266:9000"]
+    volumes: ["${DBS_DATA_DIR:-./data}/clickhouse/26.6:/var/lib/clickhouse"]
+    ulimits:
+      nofile: {soft: 262144, hard: 262144}
+
+  # Supporting tunnel/proxy services are opt-in through profile support.
+  redis-72:
+    <<: *common
+    image: redis:7.2.3
+    profiles: [support]
+    ports: ["2637:6379", "2638:6380"]
+    volumes:
+      - ./certs:/certs:ro
+      - ${DBS_DATA_DIR:-./data}/redis/7.2:/data
+    command:
+      - redis-server
+      - --port
+      - "6379"
+      - --tls-port
+      - "6380"
+      - --tls-cert-file
+      - /certs/server.crt
+      - --tls-key-file
+      - /certs/server.key
+      - --tls-ca-cert-file
+      - /certs/ca.crt
+      - --tls-auth-clients
+      - optional
+      - --requirepass
+      - "123456"
+      - --appendonly
+      - "yes"
+    healthcheck:
+      test: [CMD, redis-cli, -a, "123456", ping]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      open-cdm-dbs:
+        aliases: [redis]
+
+  mongo-60:
+    <<: *common
+    image: mongo:6.0.24
+    profiles: [support]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: "123456"
+    ports: ["2701:27017"]
+    volumes:
+      - ./certs:/certs:ro
+      - ./mongo/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+      - ${DBS_DATA_DIR:-./data}/mongo/6.0:/data/db
+    entrypoint: [bash, /usr/local/bin/init-ssl.sh]
+    networks:
+      open-cdm-dbs:
+        aliases: [mongo]
+
+  ssh-server-103:
+    <<: *common
+    # linuxserver/s6-overlay must remain PID 1; Docker's extra init wrapper
+    # makes s6-overlay-suexec abort with exit code 100.
+    init: false
+    image: lscr.io/linuxserver/openssh-server:10.3_p1-r0-ls232
+    profiles: [support]
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Asia/Shanghai
+      USER_NAME: sshuser
+      USER_PASSWORD: "123456"
+      PASSWORD_ACCESS: "true"
+      PUBLIC_KEY_FILE: /ssh-keys/authorized_keys
+    volumes:
+      - ./ssh:/ssh-keys:ro
+      - ./ssh/10-enable-tcp-forwarding.sh:/custom-cont-init.d/10-enable-tcp-forwarding.sh:ro
+    ports: ["2022:22"]
+    networks:
+      open-cdm-dbs:
+        aliases: [ssh_server, ssh-server]
+
+  proxy-097:
+    <<: *common
+    image: 3proxy/3proxy:0.9.7
+    profiles: [support]
+    volumes: [./proxy:/etc/3proxy:ro]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    ports: ["2312:3128", "2108:1080"]
+    networks:
+      open-cdm-dbs:
+        aliases: [proxy]
+
+  proxy-auth-097:
+    <<: *common
+    image: 3proxy/3proxy:0.9.7
+    profiles: [support]
+    volumes: [./proxy-auth:/etc/3proxy:ro]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    ports: ["2313:3128", "2109:1080"]
+    networks:
+      open-cdm-dbs:
+        aliases: [proxy_auth, proxy-auth]
+
+networks:
+  open-cdm-dbs: {}

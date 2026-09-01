@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<yandex>
+    <!-- ClickHouse JDBC 0.7.x sends async_insert-related HTTP settings even
+         when connecting. ClickHouse 20.8 predates those server settings.
+         Accept the async_* names as inert custom settings so the legacy
+         server remains reachable by the supported CloudDM JDBC driver. -->
+    <custom_settings_prefixes>async_</custom_settings_prefixes>
+</yandex>

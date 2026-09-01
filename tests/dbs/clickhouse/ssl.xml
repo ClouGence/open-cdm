@@ -1,0 +1,20 @@
+<clickhouse>
+    <https_port>8443</https_port>
+    <tcp_port_secure>9440</tcp_port_secure>
+    <openSSL>
+        <server>
+            <certificateFile>/certs/server.crt</certificateFile>
+            <privateKeyFile>/certs/server.key</privateKeyFile>
+            <caConfig>/certs/ca.crt</caConfig>
+            <verificationMode>relaxed</verificationMode>
+            <loadDefaultCAFile>true</loadDefaultCAFile>
+            <cacheSessions>true</cacheSessions>
+        </server>
+        <client>
+            <caConfig>/certs/ca.crt</caConfig>
+            <verificationMode>relaxed</verificationMode>
+            <loadDefaultCAFile>true</loadDefaultCAFile>
+            <cacheSessions>true</cacheSessions>
+        </client>
+    </openSSL>
+</clickhouse>

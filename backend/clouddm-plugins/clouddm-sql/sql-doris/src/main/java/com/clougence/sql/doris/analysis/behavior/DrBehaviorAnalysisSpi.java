@@ -21,6 +21,12 @@ import com.clougence.sql.doris.parser.DrSplitAnalysisSpi;
 
 public class DrBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
+    private final DrDslProvider provider;
+
+    public DrBehaviorAnalysisSpi(DrDslProvider provider){
+        this.provider = provider;
+    }
+
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         var scripts = new DrSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
@@ -36,7 +42,7 @@ public class DrBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         DrBehaviorParserVisitor[] holder = new DrBehaviorParserVisitor[1];
-        DslHelper.doVisitor(DrDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
+        DslHelper.doVisitor(provider, queryReader, (lexer, parser) -> {
             holder[0] = new DrBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
             return holder[0];
         });

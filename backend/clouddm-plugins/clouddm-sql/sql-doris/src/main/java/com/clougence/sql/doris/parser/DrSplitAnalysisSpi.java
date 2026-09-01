@@ -15,218 +15,57 @@
  */
 package com.clougence.sql.doris.parser;
 
-import java.util.*;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.Token;
 
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-import org.antlr.v4.runtime.tree.ParseTree;
-
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
+import com.clougence.dslpaser.parse.CaseInsensitiveStream;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
-import com.clougence.sql.doris.parser.antlr.DorisParser;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
+import com.clougence.sql.common.parser.SplitLexerFastPath;
+import com.clougence.sql.common.parser.SplitLexerFastPath.CommentSyntax;
+import com.clougence.sql.doris.parser.antlr.DorisLexer;
 
+/** Doris lexer-only statement splitter. */
 public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
-    private static final Set<String> KNOWN_USER_FUNCTIONS = Set.of("ads_version", "test", "test_func", "test_func1", "test_function");
+    private final DrDslProvider provider;
 
+    public DrSplitAnalysisSpi(){
+        this(DrDslProvider.INSTANCE);
+    }
+
+    public DrSplitAnalysisSpi(DrDslProvider provider){
+        this.provider = provider;
+    }
+
+    @Override
     protected DslProvider dslProvider() {
-        return DrDslProvider.INSTANCE;
-    }
-
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return DrSplitVisitor.INSTANCE;
+        return this.provider;
     }
 
     @Override
-    protected SplitQueryType additionalType(ParseTree tree) {
-        if (tree instanceof DorisParser.QuerySpecificationContext && isExecutedDmlQuery(tree)) {
-            return SplitQueryType.SELECT;
-        }
-        if (tree instanceof DorisParser.AddColumnClauseContext || tree instanceof DorisParser.AddColumnsClauseContext) {
-            return SplitQueryType.ADD_COLUMN;
-        }
-        if (tree instanceof DorisParser.DropColumnClauseContext) {
-            return SplitQueryType.DROP_COLUMN;
-        }
-        if (tree instanceof DorisParser.ModifyColumnClauseContext || tree instanceof DorisParser.ReorderColumnsClauseContext) {
-            return SplitQueryType.ALTER_COLUMN;
-        }
-        if (tree instanceof DorisParser.RenameColumnClauseContext) {
-            return SplitQueryType.RENAME_COLUMN;
-        }
-        if (tree instanceof DorisParser.AddPartitionClauseContext || tree instanceof DorisParser.AlterMultiPartitionClauseContext) {
-            return SplitQueryType.ADD_PARTITION;
-        }
-        if (tree instanceof DorisParser.DropPartitionClauseContext) {
-            return SplitQueryType.DROP_PARTITION;
-        }
-        if (tree instanceof DorisParser.ModifyPartitionClauseContext || tree instanceof DorisParser.ReplacePartitionClauseContext
-            || tree instanceof DorisParser.RenamePartitionClauseContext) {
-            return SplitQueryType.ALTER_PARTITION;
-        }
-        if (tree instanceof DorisParser.AddIndexClauseContext || tree instanceof DorisParser.AlterTableAddRollupContext) {
-            return SplitQueryType.ADD_INDEX;
-        }
-        if (tree instanceof DorisParser.DropIndexClauseContext || tree instanceof DorisParser.AlterTableDropRollupContext) {
-            return SplitQueryType.DROP_INDEX;
-        }
-        if (tree instanceof DorisParser.RenameClauseContext) {
-            return SplitQueryType.RENAME_TABLE;
-        }
-        if (tree instanceof DorisParser.ModifyTableCommentClauseContext) {
-            return SplitQueryType.COMMENT_TABLE;
-        }
-        if (tree instanceof DorisParser.ModifyColumnCommentClauseContext) {
-            return SplitQueryType.COMMENT_COLUMN;
-        }
-        if (tree instanceof DorisParser.AddConstraintContext) {
-            return SplitQueryType.ADD_CONSTRAINT;
-        }
-        if (tree instanceof DorisParser.DropConstraintContext) {
-            return SplitQueryType.DROP_CONSTRAINT;
-        }
-        if (tree instanceof DorisParser.CreateTableContext ctx && ctx.COMMENT() != null) {
-            return SplitQueryType.COMMENT_TABLE;
-        }
-        if (tree instanceof DorisParser.ColumnDefContext ctx && ctx.comment != null) {
-            return SplitQueryType.COMMENT_COLUMN;
-        }
-        if (tree instanceof DorisParser.IndexDefContext ctx && ctx.comment != null) {
-            return SplitQueryType.COMMENT_INDEX;
-        }
-        if (tree instanceof DorisParser.CreateIndexContext ctx && ctx.STRING_LITERAL() != null) {
-            return SplitQueryType.COMMENT_INDEX;
-        }
-        if (tree instanceof DorisParser.FunctionCallExpressionContext ctx && isExecutedFunction(ctx)) {
-            return functionType(ctx);
-        }
-        return null;
+    protected LexerSplitPolicy createSplitPolicy() {
+        return new DrLexerSplitPolicy();
     }
 
     @Override
-    protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
-        ParserRuleContext body = definitionBody(context);
-        if (body == null) {
-            return Collections.emptyList();
-        }
-        return List.of(createChild(body, tokens, collectBodyTypes(body, tokens.getText(body)), Collections.emptyList()));
+    protected Lexer createLexer(CharStream source) {
+        DorisLexer lexer = new SplitLexer(new CaseInsensitiveStream(source));
+        lexer.setConfig(this.provider.config());
+        return lexer;
     }
 
-    private boolean isExecutedDmlQuery(ParseTree tree) {
-        if (hasAncestor(tree, DorisParser.CreateScheduledJobContext.class)) {
-            return false;
+    private static final class SplitLexer extends DorisLexer {
+        private SplitLexer(CharStream input){
+            super(input);
         }
-        for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
-            if (current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.UpdateContext || current instanceof DorisParser.DeleteContext) {
-                return true;
-            }
-            if (current instanceof DorisParser.CreateTableContext || current instanceof DorisParser.CreateViewContext || current instanceof DorisParser.CreateMTMVContext
-                || current instanceof DorisParser.AlterViewContext || current instanceof DorisParser.CreateScheduledJobContext) {
-                return false;
-            }
-        }
-        return false;
-    }
 
-    private boolean isExecutedFunction(ParseTree tree) {
-        if (hasAncestor(tree, DorisParser.CreateScheduledJobContext.class)) {
-            return false;
+        @Override
+        public Token nextToken() {
+            Token token = SplitLexerFastPath.nextToken(this, DorisLexer.IDENTIFIER, DorisLexer.WS, CommentSyntax.STANDARD);
+            return token != null ? token : super.nextToken();
         }
-        for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
-            if (current instanceof DorisParser.StatementDefaultContext || current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.UpdateContext
-                || current instanceof DorisParser.DeleteContext) {
-                return true;
-            }
-            if (current instanceof DorisParser.CreateTableContext || current instanceof DorisParser.CreateAliasFunctionContext
-                || current instanceof DorisParser.CreateUserDefineFunctionContext) {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    private Set<SplitQueryType> collectBodyTypes(ParserRuleContext body, String script) {
-        Set<SplitQueryType> types = new LinkedHashSet<>();
-        types.add(body instanceof DorisParser.QueryContext ? SplitQueryType.SELECT : normalizeType(body.accept(splitVisitor())));
-        collectBodyAdditionalTypes(body, types);
-        return types;
-    }
-
-    private void collectBodyAdditionalTypes(ParseTree tree, Set<SplitQueryType> types) {
-        if (tree instanceof DorisParser.QuerySpecificationContext) {
-            types.add(SplitQueryType.SELECT);
-        } else if (tree instanceof DorisParser.FunctionCallExpressionContext function) {
-            SplitQueryType type = functionType(function);
-            if (type != null) {
-                types.add(type);
-            }
-        }
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            collectBodyAdditionalTypes(tree.getChild(i), types);
-        }
-    }
-
-    private SplitQueryType functionType(DorisParser.FunctionCallExpressionContext function) {
-        String name = function.functionIdentifier().functionNameIdentifier().getText().toLowerCase(Locale.ROOT);
-        return function.functionIdentifier().dbName != null || KNOWN_USER_FUNCTIONS.contains(name) ? SplitQueryType.CALL_PROG_OBJ : null;
-    }
-
-    private boolean hasAncestor(ParseTree tree, Class<? extends ParseTree> type) {
-        for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
-            if (type.isInstance(current)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private ParserRuleContext definitionBody(ParseTree tree) {
-        DorisParser.CreateViewContext view = findContext(tree, DorisParser.CreateViewContext.class);
-        if (view != null) {
-            return view.query();
-        }
-        DorisParser.CreateMTMVContext materializedView = findContext(tree, DorisParser.CreateMTMVContext.class);
-        if (materializedView != null) {
-            return materializedView.query();
-        }
-        DorisParser.AlterViewContext alteredView = findContext(tree, DorisParser.AlterViewContext.class);
-        if (alteredView != null && alteredView.query() != null) {
-            return alteredView.query();
-        }
-        DorisParser.CreateScheduledJobContext job = findContext(tree, DorisParser.CreateScheduledJobContext.class);
-        return job == null ? null : job.supportedDmlStatement();
-    }
-
-    private <T extends ParserRuleContext> T findContext(ParseTree tree, Class<T> type) {
-        if (type.isInstance(tree)) {
-            return type.cast(tree);
-        }
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            T result = findContext(tree.getChild(i), type);
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected void parseRoot(Parser parser) {
-        ((DorisParser) parser).multiStatements();
-    }
-
-    @Override
-    protected boolean isStatementContext(ParserRuleContext context) {
-        return context instanceof DorisParser.StatementContext && context.getParent() instanceof DorisParser.MultiStatementsContext;
-    }
-
-    @Override
-    protected AntlrStatementParser statementParser() {
-        return new DrStatementParser();
     }
 }

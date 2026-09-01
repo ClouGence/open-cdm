@@ -22,6 +22,13 @@ channels { MYSQLCOMMENT, ERRORCHANNEL }
 
 // SKIP
 
+// mysql client command. It is consumed by the lexer-only splitter and is not SQL sent to
+// the server. The predicate prevents an identifier named DELIMITER in an SQL expression
+// from changing the active statement terminator.
+DELIMITER_DIRECTIVE:              {isClientDelimiterDirective()}? D E L I M I T E R [ \t]+ ~[\r\n]+ {
+                                      setStatementDelimiterDirective(getText());
+                                    };
+
 EXEC_COMMENT_LEFT :             '/*!' (
                                       DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT
                                       | DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT DEC_DIGIT
@@ -350,38 +357,10 @@ HOUR_MICROSECOND:                    H O U R '_' M I C R O S E C O N D;
 DAY_MICROSECOND:                     D A Y '_' M I C R O S E C O N D;
 
 // JSON keywords
-JSON_ARRAY:                          J S O N '_' A R R A Y;
 JSON_DUALITY_OBJECT:                 J S O N '_' D U A L I T Y '_' O B J E C T;
 ST_COLLECT:                          S T '_' C O L L E C T;
-JSON_OBJECT:                         J S O N '_' O B J E C T;
-JSON_QUOTE:                          J S O N '_' Q U O T E;
-JSON_CONTAINS:                       J S O N '_' C O N T A I N S;
-JSON_CONTAINS_PATH:                  J S O N '_' C O N T A I N S '_' P A T H;
-JSON_EXTRACT:                        J S O N '_' E X T R A C T;
-JSON_KEYS:                           J S O N '_' K E Y S;
-JSON_OVERLAPS:                       J S O N '_' O V E R L A P S;
-JSON_SEARCH:                         J S O N '_' S E A R C H;
 JSON_VALUE:                          J S O N '_' V A L U E;
-JSON_ARRAY_APPEND:                   J S O N '_' A R R A Y '_' A P P E N D;
-JSON_ARRAY_INSERT:                   J S O N '_' A R R A Y '_' I N S E R T;
-JSON_INSERT:                         J S O N '_' I N S E R T;
-JSON_MERGE:                          J S O N '_' M E R G E;
-JSON_MERGE_PATCH:                    J S O N '_' M E R G E '_' P A T C H;
-JSON_MERGE_PRESERVE:                 J S O N '_' M E R G E '_' P R E S E R V E;
-JSON_REMOVE:                         J S O N '_' R E M O V E;
-JSON_REPLACE:                        J S O N '_' R E P L A C E;
-JSON_SET:                            J S O N '_' S E T;
-JSON_UNQUOTE:                        J S O N '_' U N Q U O T E;
-JSON_DEPTH:                          J S O N '_' D E P T H;
-JSON_LENGTH:                         J S O N '_' L E N G T H;
-JSON_TYPE:                           J S O N '_' T Y P E;
-JSON_VALID:                          J S O N '_' V A L I D;
 JSON_TABLE:                          J S O N '_' T A B L E;
-JSON_SCHEMA_VALID:                   J S O N '_' S C H E M A '_' V A L I D;
-JSON_SCHEMA_VALIDATION_REPORT:       J S O N '_' S C H E M A '_' V A L I D A T I O N '_' R E P O R T;
-JSON_PRETTY:                         J S O N '_' P R E T T Y;
-JSON_STORAGE_FREE:                   J S O N '_' S T O R A G E '_' F R E E;
-JSON_STORAGE_SIZE:                   J S O N '_' S T O R A G E '_' S I Z E;
 JSON_ARRAYAGG:                       J S O N '_' A R R A Y A G G;
 JSON_OBJECTAGG:                      J S O N '_' O B J E C T A G G;
 
@@ -993,299 +972,34 @@ POLYGON:                             P O L Y G O N;
 
 // Common function names
 
-ABS:                                 A B S;
-ACOS:                                A C O S;
 ADDDATE:                             A D D D A T E;
-ADDTIME:                             A D D T I M E;
-AES_DECRYPT:                         A E S '_' D E C R Y P T;
-AES_ENCRYPT:                         A E S '_' E N C R Y P T;
-AREA:                                A R E A;
-ASBINARY:                            A S B I N A R Y;
-ASIN:                                A S I N;
-ASTEXT:                              A S T E X T;
-ASWKB:                               A S W K B;
-ASWKT:                               A S W K T;
-ASYMMETRIC_DECRYPT:                  A S Y M M E T R I C '_' D E C R Y P T;
-ASYMMETRIC_DERIVE:                   A S Y M M E T R I C '_' D E R I V E;
-ASYMMETRIC_ENCRYPT:                  A S Y M M E T R I C '_' E N C R Y P T;
-ASYMMETRIC_SIGN:                     A S Y M M E T R I C '_' S I G N;
-ASYMMETRIC_VERIFY:                   A S Y M M E T R I C '_' V E R I F Y;
-ATAN:                                A T A N;
-ATAN2:                               A T A N '2';
 BENCHMARK:                           B E N C H M A R K;
-BIN:                                 B I N;
-BIT_COUNT:                           B I T '_' C O U N T;
-BIT_LENGTH:                          B I T '_' L E N G T H;
-BUFFER:                              B U F F E R;
 CATALOG_NAME:                        C A T A L O G '_' N A M E;
-CEIL:                                C E I L;
-CEILING:                             C E I L I N G;
-CENTROID:                            C E N T R O I D;
-CHARACTER_LENGTH:                    C H A R A C T E R '_' L E N G T H;
 CHARSET:                             C H A R S E T;
-CHAR_LENGTH:                         C H A R '_' L E N G T H;
-COERCIBILITY:                        C O E R C I B I L I T Y;
 COLLATION:                           C O L L A T I O N;
-COMPRESS:                            C O M P R E S S;
-CONCAT:                              C O N C A T;
-CONCAT_WS:                           C O N C A T '_' W S;
-CONNECTION_ID:                       C O N N E C T I O N '_' I D;
-CONV:                                C O N V;
-CONVERT_TZ:                          C O N V E R T '_' T Z;
-COS:                                 C O S;
-COT:                                 C O T;
-CRC32:                               C R C '3' '2';
 CREATE_ASYMMETRIC_PRIV_KEY:          C R E A T E '_' A S Y M M E T R I C '_' P R I V '_' K E Y;
-CREATE_ASYMMETRIC_PUB_KEY:           C R E A T E '_' A S Y M M E T R I C '_' P U B '_' K E Y;
-CREATE_DH_PARAMETERS:                C R E A T E '_' D H '_' P A R A M E T E R S;
-CREATE_DIGEST:                       C R E A T E '_' D I G E S T;
-CROSSES:                             C R O S S E S;
-DATEDIFF:                            D A T E D I F F;
-DATE_FORMAT:                         D A T E '_' F O R M A T;
-DAYNAME:                             D A Y N A M E;
-DAYOFMONTH:                          D A Y O F M O N T H;
-DAYOFWEEK:                           D A Y O F W E E K;
-DAYOFYEAR:                           D A Y O F Y E A R;
-DECODE:                              D E C O D E;
-DEGREES:                             D E G R E E S;
-DES_DECRYPT:                         D E S '_' D E C R Y P T;
-DES_ENCRYPT:                         D E S '_' E N C R Y P T;
-DIMENSION:                           D I M E N S I O N;
-DISJOINT:                            D I S J O I N T;
-ELT:                                 E L T;
-ENCODE:                              E N C O D E;
-ENCRYPT:                             E N C R Y P T;
-ENDPOINT:                            E N D P O I N T;
-ENVELOPE:                            E N V E L O P E;
-EQUALS:                              E Q U A L S;
-EXP:                                 E X P;
-EXPORT_SET:                          E X P O R T '_' S E T;
-EXTERIORRING:                        E X T E R I O R R I N G;
-EXTRACTVALUE:                        E X T R A C T V A L U E;
-FIELD:                               F I E L D;
-FIND_IN_SET:                         F I N D '_' I N '_' S E T;
-FLOOR:                               F L O O R;
 FORMAT:                              F O R M A T;
-FOUND_ROWS:                          F O U N D '_' R O W S;
-FROM_BASE64:                         F R O M '_' B A S E '6' '4';
-FROM_DAYS:                           F R O M '_' D A Y S;
-FROM_UNIXTIME:                       F R O M '_' U N I X T I M E;
-GEOMCOLLFROMTEXT:                    G E O M C O L L F R O M T E X T;
-GEOMCOLLFROMWKB:                     G E O M C O L L F R O M W K B;
-GEOMETRYCOLLECTIONFROMTEXT:          G E O M E T R Y C O L L E C T I O N F R O M T E X T;
-GEOMETRYCOLLECTIONFROMWKB:           G E O M E T R Y C O L L E C T I O N F R O M W K B;
-GEOMETRYFROMTEXT:                    G E O M E T R Y F R O M T E X T;
-GEOMETRYFROMWKB:                     G E O M E T R Y F R O M W K B;
-GEOMETRYN:                           G E O M E T R Y N;
-GEOMETRYTYPE:                        G E O M E T R Y T Y P E;
-GEOMFROMTEXT:                        G E O M F R O M T E X T;
-GEOMFROMWKB:                         G E O M F R O M W K B;
 GET_FORMAT:                          G E T '_' F O R M A T;
 GET_LOCK:                            G E T '_' L O C K;
-GLENGTH:                             G L E N G T H;
-GREATEST:                            G R E A T E S T;
-GTID_SUBSET:                         G T I D '_' S U B S E T;
-GTID_SUBTRACT:                       G T I D '_' S U B T R A C T;
-HEX:                                 H E X;
-IFNULL:                              I F N U L L;
-INET6_ATON:                          I N E T '6' '_' A T O N;
-INET6_NTOA:                          I N E T '6' '_' N T O A;
-INET_ATON:                           I N E T '_' A T O N;
-INET_NTOA:                           I N E T '_' N T O A;
-INSTR:                               I N S T R;
-INTERIORRINGN:                       I N T E R I O R R I N G N;
-INTERSECTS:                          I N T E R S E C T S;
-ISCLOSED:                            I S C L O S E D;
-ISEMPTY:                             I S E M P T Y;
-ISNULL:                              I S N U L L;
-ISSIMPLE:                            I S S I M P L E;
-IS_FREE_LOCK:                        I S '_' F R E E '_' L O C K;
-IS_IPV4:                             I S '_' I P V '4';
-IS_IPV4_COMPAT:                      I S '_' I P V '4' '_' C O M P A T;
-IS_IPV4_MAPPED:                      I S '_' I P V '4' '_' M A P P E D;
-IS_IPV6:                             I S '_' I P V '6';
-IS_USED_LOCK:                        I S '_' U S E D '_' L O C K;
 LAST_INSERT_ID:                      L A S T '_' I N S E R T '_' I D;
-LCASE:                               L C A S E;
-LEAST:                               L E A S T;
-LENGTH:                              L E N G T H;
-LINEFROMTEXT:                        L I N E F R O M T E X T;
-LINEFROMWKB:                         L I N E F R O M W K B;
-LINESTRINGFROMTEXT:                  L I N E S T R I N G F R O M T E X T;
-LINESTRINGFROMWKB:                   L I N E S T R I N G F R O M W K B;
 LN:                                  L N;
 LOAD_FILE:                           L O A D '_' F I L E;
-LOCATE:                              L O C A T E;
 LOG:                                 L O G;
-LOG10:                               L O G '1' '0';
-LOG2:                                L O G '2';
-LOWER:                               L O W E R;
-LPAD:                                L P A D;
-LTRIM:                               L T R I M;
-MAKEDATE:                            M A K E D A T E;
-MAKETIME:                            M A K E T I M E;
-MAKE_SET:                            M A K E '_' S E T;
 MASTER_POS_WAIT:                     M A S T E R '_' P O S '_' W A I T;
-MBRCONTAINS:                         M B R C O N T A I N S;
-MBRDISJOINT:                         M B R D I S J O I N T;
-MBREQUAL:                            M B R E Q U A L;
-MBRINTERSECTS:                       M B R I N T E R S E C T S;
-MBROVERLAPS:                         M B R O V E R L A P S;
-MBRTOUCHES:                          M B R T O U C H E S;
-MBRWITHIN:                           M B R W I T H I N;
-MD5:                                 M D '5';
-MLINEFROMTEXT:                       M L I N E F R O M T E X T;
-MLINEFROMWKB:                        M L I N E F R O M W K B;
-MONTHNAME:                           M O N T H N A M E;
-MPOINTFROMTEXT:                      M P O I N T F R O M T E X T;
-MPOINTFROMWKB:                       M P O I N T F R O M W K B;
-MPOLYFROMTEXT:                       M P O L Y F R O M T E X T;
-MPOLYFROMWKB:                        M P O L Y F R O M W K B;
-MULTILINESTRINGFROMTEXT:             M U L T I L I N E S T R I N G F R O M T E X T;
-MULTILINESTRINGFROMWKB:              M U L T I L I N E S T R I N G F R O M W K B;
-MULTIPOINTFROMTEXT:                  M U L T I P O I N T F R O M T E X T;
-MULTIPOINTFROMWKB:                   M U L T I P O I N T F R O M W K B;
-MULTIPOLYGONFROMTEXT:                M U L T I P O L Y G O N F R O M T E X T;
-MULTIPOLYGONFROMWKB:                 M U L T I P O L Y G O N F R O M W K B;
-NAME_CONST:                          N A M E '_' C O N S T;
-NULLIF:                              N U L L I F;
-NUMGEOMETRIES:                       N U M G E O M E T R I E S;
-NUMINTERIORRINGS:                    N U M I N T E R I O R R I N G S;
-NUMPOINTS:                           N U M P O I N T S;
-OCT:                                 O C T;
-OCTET_LENGTH:                        O C T E T '_' L E N G T H;
-ORD:                                 O R D;
-OVERLAPS:                            O V E R L A P S;
-PERIOD_ADD:                          P E R I O D '_' A D D;
-PERIOD_DIFF:                         P E R I O D '_' D I F F;
 PI:                                  P I;
-POINTFROMTEXT:                       P O I N T F R O M T E X T;
-POINTFROMWKB:                        P O I N T F R O M W K B;
-POINTN:                              P O I N T N;
-POLYFROMTEXT:                        P O L Y F R O M T E X T;
-POLYFROMWKB:                         P O L Y F R O M W K B;
-POLYGONFROMTEXT:                     P O L Y G O N F R O M T E X T;
-POLYGONFROMWKB:                      P O L Y G O N F R O M W K B;
-POW:                                 P O W;
-POWER:                               P O W E R;
-QUOTE:                               Q U O T E;
-RADIANS:                             R A D I A N S;
-RAND:                                R A N D;
 RANDOM:                              R A N D O M;
-RANDOM_BYTES:                        R A N D O M '_' B Y T E S;
 RELEASE_LOCK:                        R E L E A S E '_' L O C K;
 REVERSE:                             R E V E R S E;
-ROUND:                               R O U N D;
 ROW_COUNT:                           R O W '_' C O U N T;
-RPAD:                                R P A D;
-RTRIM:                               R T R I M;
-SEC_TO_TIME:                         S E C '_' T O '_' T I M E;
 SESSION_USER:                        S E S S I O N '_' U S E R;
-SHA:                                 S H A;
-SHA1:                                S H A '1';
-SHA2:                                S H A '2';
 SCHEMA_NAME:                         S C H E M A '_' N A M E;
-SIGN:                                S I G N;
-SIN:                                 S I N;
-SLEEP:                               S L E E P;
-SOUNDEX:                             S O U N D E X;
-SQL_THREAD_WAIT_AFTER_GTIDS:         S Q L '_' T H R E A D '_' W A I T '_' A F T E R '_' G T I D S;
-SQRT:                                S Q R T;
 SRID:                                S R I D;
-STARTPOINT:                          S T A R T P O I N T;
-STRCMP:                              S T R C M P;
-STR_TO_DATE:                         S T R '_' T O '_' D A T E;
-ST_AREA:                             S T '_' A R E A;
-ST_ASBINARY:                         S T '_' A S B I N A R Y;
-ST_ASTEXT:                           S T '_' A S T E X T;
-ST_ASWKB:                            S T '_' A S W K B;
-ST_ASWKT:                            S T '_' A S W K T;
-ST_BUFFER:                           S T '_' B U F F E R;
-ST_CENTROID:                         S T '_' C E N T R O I D;
-ST_CONTAINS:                         S T '_' C O N T A I N S;
-ST_CROSSES:                          S T '_' C R O S S E S;
-ST_DIFFERENCE:                       S T '_' D I F F E R E N C E;
-ST_DIMENSION:                        S T '_' D I M E N S I O N;
-ST_DISJOINT:                         S T '_' D I S J O I N T;
-ST_DISTANCE:                         S T '_' D I S T A N C E;
-ST_ENDPOINT:                         S T '_' E N D P O I N T;
-ST_ENVELOPE:                         S T '_' E N V E L O P E;
-ST_EQUALS:                           S T '_' E Q U A L S;
-ST_EXTERIORRING:                     S T '_' E X T E R I O R R I N G;
-ST_GEOMCOLLFROMTEXT:                 S T '_' G E O M C O L L F R O M T E X T;
-ST_GEOMCOLLFROMTXT:                  S T '_' G E O M C O L L F R O M T X T;
-ST_GEOMCOLLFROMWKB:                  S T '_' G E O M C O L L F R O M W K B;
-ST_GEOMETRYCOLLECTIONFROMTEXT:       S T '_' G E O M E T R Y C O L L E C T I O N F R O M T E X T;
-ST_GEOMETRYCOLLECTIONFROMWKB:        S T '_' G E O M E T R Y C O L L E C T I O N F R O M W K B;
-ST_GEOMETRYFROMTEXT:                 S T '_' G E O M E T R Y F R O M T E X T;
-ST_GEOMETRYFROMWKB:                  S T '_' G E O M E T R Y F R O M W K B;
-ST_GEOMETRYN:                        S T '_' G E O M E T R Y N;
-ST_GEOMETRYTYPE:                     S T '_' G E O M E T R Y T Y P E;
-ST_GEOMFROMTEXT:                     S T '_' G E O M F R O M T E X T;
-ST_GEOMFROMWKB:                      S T '_' G E O M F R O M W K B;
-ST_INTERIORRINGN:                    S T '_' I N T E R I O R R I N G N;
-ST_INTERSECTION:                     S T '_' I N T E R S E C T I O N;
-ST_INTERSECTS:                       S T '_' I N T E R S E C T S;
-ST_ISCLOSED:                         S T '_' I S C L O S E D;
-ST_ISEMPTY:                          S T '_' I S E M P T Y;
-ST_ISSIMPLE:                         S T '_' I S S I M P L E;
-ST_LINEFROMTEXT:                     S T '_' L I N E F R O M T E X T;
-ST_LINEFROMWKB:                      S T '_' L I N E F R O M W K B;
-ST_LINESTRINGFROMTEXT:               S T '_' L I N E S T R I N G F R O M T E X T;
-ST_LINESTRINGFROMWKB:                S T '_' L I N E S T R I N G F R O M W K B;
-ST_NUMGEOMETRIES:                    S T '_' N U M G E O M E T R I E S;
-ST_NUMINTERIORRING:                  S T '_' N U M I N T E R I O R R I N G;
-ST_NUMINTERIORRINGS:                 S T '_' N U M I N T E R I O R R I N G S;
-ST_NUMPOINTS:                        S T '_' N U M P O I N T S;
-ST_OVERLAPS:                         S T '_' O V E R L A P S;
-ST_POINTFROMTEXT:                    S T '_' P O I N T F R O M T E X T;
-ST_POINTFROMWKB:                     S T '_' P O I N T F R O M W K B;
-ST_POINTN:                           S T '_' P O I N T N;
-ST_POLYFROMTEXT:                     S T '_' P O L Y F R O M T E X T;
-ST_POLYFROMWKB:                      S T '_' P O L Y F R O M W K B;
-ST_POLYGONFROMTEXT:                  S T '_' P O L Y G O N F R O M T E X T;
-ST_POLYGONFROMWKB:                   S T '_' P O L Y G O N F R O M W K B;
-ST_SRID:                             S T '_' S R I D;
-ST_STARTPOINT:                       S T '_' S T A R T P O I N T;
-ST_SYMDIFFERENCE:                    S T '_' S Y M D I F F E R E N C E;
-ST_TOUCHES:                          S T '_' T O U C H E S;
-ST_UNION:                            S T '_' U N I O N;
-ST_WITHIN:                           S T '_' W I T H I N;
-ST_X:                                S T '_' X;
-ST_Y:                                S T '_' Y;
 SUBDATE:                             S U B D A T E;
-SUBSTRING_INDEX:                     S U B S T R I N G '_' I N D E X;
-SUBTIME:                             S U B T I M E;
 SYSTEM_USER:                         S Y S T E M '_' U S E R;
-TAN:                                 T A N;
-TIMEDIFF:                            T I M E D I F F;
 TIMESTAMPADD:                        T I M E S T A M P A D D;
 TIMESTAMPDIFF:                       T I M E S T A M P D I F F;
-TIME_FORMAT:                         T I M E '_' F O R M A T;
-TIME_TO_SEC:                         T I M E '_' T O '_' S E C;
-TOUCHES:                             T O U C H E S;
-TO_BASE64:                           T O '_' B A S E '6' '4';
-TO_DAYS:                             T O '_' D A Y S;
-TO_SECONDS:                          T O '_' S E C O N D S;
-UCASE:                               U C A S E;
-UNCOMPRESS:                          U N C O M P R E S S;
-UNCOMPRESSED_LENGTH:                 U N C O M P R E S S E D '_' L E N G T H;
-UNHEX:                               U N H E X;
-UNIX_TIMESTAMP:                      U N I X '_' T I M E S T A M P;
-UPDATEXML:                           U P D A T E X M L;
-UPPER:                               U P P E R;
-UUID:                                U U I D;
-UUID_SHORT:                          U U I D '_' S H O R T;
-VALIDATE_PASSWORD_STRENGTH:          V A L I D A T E '_' P A S S W O R D '_' S T R E N G T H;
-VERSION:                             V E R S I O N;
 WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS:   W A I T '_' U N T I L '_' S Q L '_' T H R E A D '_' A F T E R '_' G T I D S;
-WEEKDAY:                             W E E K D A Y;
-WEEKOFYEAR:                          W E E K O F Y E A R;
 WEIGHT_STRING:                       W E I G H T '_' S T R I N G;
-WITHIN:                              W I T H I N;
-YEARWEEK:                            Y E A R W E E K;
-Y_FUNCTION:                          Y;
-X_FUNCTION:                          X;
 
 
 // MariaDB tokens
@@ -1358,14 +1072,15 @@ LCURLY_BRACKET:                      '{';
 RCURLY_BRACKET:                      '}';
 COMMA:                               ',';
 SEMI:                                ';' {
+                                      hideInactiveSemicolon();
                                       if (isInsideExecutableComment()) {
                                           setChannel(HIDDEN);
                                       }
                                     };
 AT_SIGN:                             '@';
-ZERO_DECIMAL:                        '0' {notIdentifierPartExceptDollarAhead()}?;
-ONE_DECIMAL:                         '1' {notIdentifierPartExceptDollarAhead()}?;
-TWO_DECIMAL:                         '2' {notIdentifierPartExceptDollarAhead()}?;
+ZERO_DECIMAL:                        '0' ;
+ONE_DECIMAL:                         '1' ;
+TWO_DECIMAL:                         '2' ;
 SINGLE_QUOTE_SYMB:                   '\'';
 DOUBLE_QUOTE_SYMB:                   '"';
 REVERSE_QUOTE_SYMB:                  '`';
@@ -1399,12 +1114,12 @@ DOUBLE_QUOTE_ID:                     {isAnsiQuotes()}? DQUOTA_IDENTIFIER;
 DOUBLE_QUOTE_STRING_LITERAL:         {!isAnsiQuotes() && !isSqlModeUnknown()}? DQUOTA_STRING;
 DOUBLE_QUOTE_AMBIGUOUS:              {isSqlModeUnknown()}? DQUOTA_STRING;
 STRING_LITERAL:                      SQUOTA_STRING;
-DECIMAL_LITERAL:                     DEC_DIGIT+ {notIdentifierPartExceptDollarAhead()}?;
+DECIMAL_LITERAL:                     DEC_DIGIT+ ;
 HEXADECIMAL_LITERAL:                 [xX] '\'' (HEX_DIGIT HEX_DIGIT)* '\''
                                      | '0' [xX] HEX_DIGIT+;
 
 REAL_LITERAL:                        DEC_DIGIT+ '.' DEC_DIGIT+
-                                     | {isLeadingDotRealAllowed()}? '.' DEC_DIGIT+
+                                     | '.' DEC_DIGIT+
                                      | DEC_DIGIT+ '.'
                                      | DEC_DIGIT+ '.' EXPONENT_NUM_PART
                                      | (DEC_DIGIT+)? '.' (DEC_DIGIT+ EXPONENT_NUM_PART)
@@ -1457,14 +1172,14 @@ fragment CHARSET_NAME:               ARMSCII8 | ASCII | BIG5 | BINARY | CP1250
 fragment EXPONENT_NUM_PART:          E [-+]? DEC_DIGIT+;
 fragment ID_LITERAL:                 [0-9]* [a-zA-Z_$\u0080-\uFFFF] [a-zA-Z_$0-9\u0080-\uFFFF]*;
 fragment DQUOTA_IDENTIFIER:          '"' ('""' | ~'"')* '"';
-fragment DQUOTA_STRING:              {isNoBackslashEscapes()}?
-                                     '"' ('""' | ~'"')* '"'
-                                   | {!isNoBackslashEscapes()}?
-                                     '"' ('\\'. | '""' | ~('"' | '\\'))* '"';
-fragment SQUOTA_STRING:              {isNoBackslashEscapes()}?
-                                     '\'' ('\'\'' | ~'\'')* '\''
-                                   | {!isNoBackslashEscapes()}?
-                                     '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
+fragment DQUOTA_STRING:
+                                     {isNoBackslashEscapes()}? '"' ('""' | ~'"')* '"'
+                                   |
+                                     {!isNoBackslashEscapes()}? '"' ('\\'. | '""' | ~('"' | '\\'))* '"';
+fragment SQUOTA_STRING:
+                                     {isNoBackslashEscapes()}? '\'' ('\'\'' | ~'\'')* '\''
+                                   |
+                                     {!isNoBackslashEscapes()}? '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:              '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment HEX_DIGIT:                  [0-9a-fA-F];
 fragment DEC_DIGIT:                  [0-9];

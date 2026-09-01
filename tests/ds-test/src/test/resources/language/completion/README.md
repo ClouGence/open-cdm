@@ -27,7 +27,7 @@ The runner compares only completion item labels. Other fields in `expect` can be
 - `catalog`: optional. Written to `CompletionRequest.catalog` and `levelsParam[Catalog]`.
 - `schema`: optional. Written to `CompletionRequest.schema` and `levelsParam[Schema]`.
 - `database`: optional alias of `schema`.
-- `dataSourceId`: optional. Defaults to `1`.
+- `dsId`: optional. Defaults to `1`.
 - `sql`: required. SQL or command text.
 - `expect`: required. Expected labels in returned order.
 

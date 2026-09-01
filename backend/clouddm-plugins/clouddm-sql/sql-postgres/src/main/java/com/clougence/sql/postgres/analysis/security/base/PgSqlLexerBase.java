@@ -47,6 +47,7 @@ public abstract class PgSqlLexerBase extends Lexer {
 
     protected final Stack<String> tags    = new Stack<>();
     private PostgresVersion       version = PostgresVersion.LATEST;
+    private int                   bracketDepth;
 
     protected PgSqlLexerBase(CharStream input){
         super(input);
@@ -64,6 +65,20 @@ public abstract class PgSqlLexerBase extends Lexer {
 
     protected final boolean between(PostgresVersion minimum, PostgresVersion maximum) {
         return PostgresVersion.ge(version, minimum) && PostgresVersion.le(version, maximum);
+    }
+
+    protected final void enterBracket() {
+        bracketDepth++;
+    }
+
+    protected final void exitBracket() {
+        if (bracketDepth > 0) {
+            bracketDepth--;
+        }
+    }
+
+    protected final boolean outsideBrackets() {
+        return bracketDepth == 0;
     }
 
     public void PushTag() {

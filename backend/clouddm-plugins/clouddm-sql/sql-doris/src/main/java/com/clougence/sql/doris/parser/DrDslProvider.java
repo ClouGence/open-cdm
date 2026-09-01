@@ -33,20 +33,33 @@ import com.clougence.sql.doris.parser.antlr.DorisParser;
 
 public class DrDslProvider implements DslProvider {
 
-    public static final DslProvider    INSTANCE    = new DrDslProvider();
+    public static final DrDslProvider  INSTANCE    = new DrDslProvider(new DorisParserConfig(DorisVersion.LATEST));
     private final AntlrStatementParser TREE_PARSER = new DrStatementParser();
+    private final DorisParserConfig    config;
+
+    public DrDslProvider(DorisParserConfig config){
+        this.config = config;
+    }
+
+    public DorisParserConfig config() {
+        return config;
+    }
 
     @Override
     public String[] getDslName() { return new String[] { DrSqlEngineSpi.NAME }; }
 
     @Override
     public Lexer createLexer(CharStream charStream) {
-        return new DorisLexer(new CaseInsensitiveStream(charStream));
+        DorisLexer lexer = new DorisLexer(new CaseInsensitiveStream(charStream));
+        lexer.setConfig(this.config);
+        return lexer;
     }
 
     @Override
     public Parser createParser(Lexer lexer) {
-        return new DorisParser(new CommonTokenStream(lexer));
+        DorisParser parser = new DorisParser(new CommonTokenStream(lexer));
+        parser.setConfig(this.config);
+        return parser;
     }
 
     protected AntlrStatementParser treeParser() {

@@ -44,6 +44,12 @@ public class DorisAttributeNames extends MyUmiAttributeNames {
     public static final UmiAttributeNames DISTRIBUTED_BY_TYPE        = new DorisAttributeNames("dbt");
     public static final UmiAttributeNames DISTRIBUTED_BY_COLUMNS     = new DorisAttributeNames("dbc");
     public static final UmiAttributeNames PARTITION_EXPR             = new DorisAttributeNames("part");
+    public static final UmiAttributeNames TABLE_MODIFIER             = new DorisAttributeNames("tm");
+    public static final UmiAttributeNames LIKE_TABLE                 = new DorisAttributeNames("like");
+    public static final UmiAttributeNames ORDER_BY                   = new DorisAttributeNames("ord");
+    public static final UmiAttributeNames ROLLUP                     = new DorisAttributeNames("roll");
+    public static final UmiAttributeNames BROKER_PROPERTIES          = new DorisAttributeNames("bconf");
+    public static final UmiAttributeNames CREATE_QUERY               = new DorisAttributeNames("query");
 
     // column
     public static final UmiAttributeNames DATA_TYPE                  = new DorisAttributeNames("dt");
@@ -54,11 +60,13 @@ public class DorisAttributeNames extends MyUmiAttributeNames {
     public static final UmiAttributeNames BYTES_MAX_LENGTH           = new DorisAttributeNames("blen");
     public static final UmiAttributeNames AGG_TYPE                   = new DorisAttributeNames("at");
     public static final UmiAttributeNames CURRENT_UPDATE_TYPE        = new DorisAttributeNames("cut");
+    public static final UmiAttributeNames AUTO_INCREMENT_INIT        = new DorisAttributeNames("ainit");
 
     // PK\UK\FK\INDEX
     public static final UmiAttributeNames STORAGE_TYPE               = new DorisAttributeNames("st");
     public static final UmiAttributeNames CONSTRAINT_TYPE            = new DorisAttributeNames("cont");
     public static final UmiAttributeNames SUB_PART                   = new DorisAttributeNames("sp");
+    public static final UmiAttributeNames INDEX_PROPERTIES           = new DorisAttributeNames("iconf");
 
     //for handler
     public static final UmiAttributeNames DORIS_ADD_OP_COLUMN        = new DorisAttributeNames("doris_add_op_column");

@@ -15,6 +15,9 @@
  */
 package com.clougence.sql.doris;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -25,27 +28,27 @@ import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.doris.analysis.behavior.DrBehaviorAnalysisSpi;
+import com.clougence.sql.doris.analysis.lineage.DrLineageAnalysisSpi;
 import com.clougence.sql.doris.analysis.security.DrSecDomainResolveSpi;
 import com.clougence.sql.doris.editor.rewrite.DrRewriteSpi;
+import com.clougence.sql.doris.parser.DorisParserConfig;
 import com.clougence.sql.doris.parser.DrDslProvider;
 import com.clougence.sql.doris.parser.DrSplitAnalysisSpi;
 
 /** @author mode */
 public class DrSqlEngineSpi implements SqlEngineSpi {
-    public static final String        NAME = "Doris SQL";
+    public static final String                                NAME               = "Doris SQL";
 
-    private final SplitAnalysisSpi    splitAnalysisSpi;
-    private final SecDomainResolveSpi secDomainResolveSpi;
-    private final BehaviorAnalysisSpi behaviorAnalysisSpi;
-    private final LineageAnalysisSpi  lineageAnalysisSpi;
-    private final RewriteSpi          rewriteSpi;
+    private final MetaService                                 metaService;
+    private final Map<DorisParserConfig, DrDslProvider>       providers          = new ConcurrentHashMap<>();
+    private final Map<DorisParserConfig, SplitAnalysisSpi>    splitAnalysisCache = new ConcurrentHashMap<>();
+    private final Map<DorisParserConfig, SecDomainResolveSpi> secDomainCache     = new ConcurrentHashMap<>();
+    private final Map<DorisParserConfig, BehaviorAnalysisSpi> behaviorCache      = new ConcurrentHashMap<>();
+    private final Map<DorisParserConfig, LineageAnalysisSpi>  lineageCache       = new ConcurrentHashMap<>();
+    private final Map<DorisParserConfig, RewriteSpi>          rewriteCache       = new ConcurrentHashMap<>();
 
     public DrSqlEngineSpi(MetaService metaService){
-        this.splitAnalysisSpi = new DrSplitAnalysisSpi();
-        this.secDomainResolveSpi = new DrSecDomainResolveSpi(metaService);
-        this.behaviorAnalysisSpi = new DrBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
-        this.rewriteSpi = new DrRewriteSpi();
+        this.metaService = metaService;
     }
 
     @Override
@@ -55,32 +58,41 @@ public class DrSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public DslProvider dslProvider(SqlParserParameters parameters) {
-        return DrDslProvider.INSTANCE;
+        DorisParserConfig config = DorisParserConfig.fromParameters(parameters);
+        return provider(config);
     }
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        return splitAnalysisSpi;
+        DorisParserConfig config = DorisParserConfig.fromParameters(parameters);
+        return splitAnalysisCache.computeIfAbsent(config, value -> new DrSplitAnalysisSpi(provider(value)));
     }
 
     @Override
     public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
-        return secDomainResolveSpi;
+        DorisParserConfig config = DorisParserConfig.fromParameters(parameters);
+        return secDomainCache.computeIfAbsent(config, value -> new DrSecDomainResolveSpi(metaService, provider(value)));
     }
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return behaviorAnalysisSpi;
+        DorisParserConfig config = DorisParserConfig.fromParameters(parameters);
+        return behaviorCache.computeIfAbsent(config, value -> new DrBehaviorAnalysisSpi(provider(value)));
     }
 
     @Override
     public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
-        return lineageAnalysisSpi;
+        DorisParserConfig config = DorisParserConfig.fromParameters(parameters);
+        return lineageCache.computeIfAbsent(config, value -> new DrLineageAnalysisSpi(metaService, provider(value)));
     }
 
     @Override
     public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
-        return rewriteSpi;
+        DorisParserConfig config = DorisParserConfig.fromParameters(parameters);
+        return rewriteCache.computeIfAbsent(config, value -> new DrRewriteSpi(provider(value)));
     }
 
+    private DrDslProvider provider(DorisParserConfig config) {
+        return providers.computeIfAbsent(config, DrDslProvider::new);
+    }
 }

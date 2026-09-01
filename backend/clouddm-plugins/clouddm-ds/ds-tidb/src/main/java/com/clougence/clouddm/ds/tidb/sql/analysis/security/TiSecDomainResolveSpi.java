@@ -26,13 +26,16 @@ import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
 
 public class TiSecDomainResolveSpi extends MySecDomainResolveSpi {
 
-    public TiSecDomainResolveSpi(MetaService metaService){
+    private final TiDBDslProvider provider;
+
+    public TiSecDomainResolveSpi(MetaService metaService, TiDBDslProvider provider){
         super(metaService, null);
+        this.provider = provider;
     }
 
     @Override
     protected DslProvider dslProvider() {
-        return TiDBDslProvider.INSTANCE;
+        return provider;
     }
 
     protected AbstractParseTreeVisitor<Void> parserVisitor(MyBuilderFactory domainBuilder, Parser parser) {

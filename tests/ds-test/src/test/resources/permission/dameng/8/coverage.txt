@@ -99,6 +99,18 @@ expect:
   ]
 }
 ----------
+[dameng_permission_comment_database_as_schema]
+sql:
+comment on database is 'CODEX';
+levels:
+/test/1/catalog1/schema1
+expect:
+{
+  "SPACE": [
+    "Schema(1:11~1:19) /test/1/catalog1/schema1/"
+  ]
+}
+----------
 [dameng_permission_explain_dml_read]
 sql:
 EXPLAIN UPDATE app.orders o SET amount = amount + 1 WHERE EXISTS (SELECT 1 FROM app.customers c WHERE c.id = o.customer_id)

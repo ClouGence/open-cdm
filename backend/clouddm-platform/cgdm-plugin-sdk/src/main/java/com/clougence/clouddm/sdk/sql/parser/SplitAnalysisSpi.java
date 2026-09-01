@@ -16,6 +16,7 @@
 package com.clougence.clouddm.sdk.sql.parser;
 
 import java.io.Reader;
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.Spi;
@@ -25,5 +26,5 @@ import com.clougence.clouddm.sdk.execute.session.QueryArg;
 public interface SplitAnalysisSpi extends Spi {
 
     /** The caller owns the reader and is responsible for closing it. */
-    Stream<SplitScript> splitScriptStream(Reader reader, java.util.List<QueryArg> args, int baseCodeLine, int baseCodeColumn);
+    Stream<SplitScript> splitScriptStream(Reader reader, List<QueryArg> args, int baseCodeLine, int baseCodeColumn);
 }

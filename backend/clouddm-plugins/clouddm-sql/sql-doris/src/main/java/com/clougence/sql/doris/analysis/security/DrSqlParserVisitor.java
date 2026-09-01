@@ -346,13 +346,6 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitShowProcedureStatus(ShowProcedureStatusContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain(RuleQueryType.UNKNOWN, SecQueryKind.OTHER);
-        builder.addDomain(rdbResourceDomain);
-        return null;
-    }
-
-    @Override
     public Void visitShowConfig(ShowConfigContext ctx) {
         builder.addDomain(new RdbResourceDomain(RuleQueryType.ADMIN, SecQueryKind.ADMIN));
         return null;
@@ -1049,10 +1042,40 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitSupportedShowStatementAlias(SupportedShowStatementAliasContext ctx) {
+        SupportedShowStatementContext show = ctx.supportedShowStatement();
+        if (show instanceof ShowBackupContext || show instanceof ShowRestoreContext || show instanceof ShowSnapshotContext) {
+            builder.addDomain(new RdbResourceDomain(RuleQueryType.MAINTAIN_BACKUP, SecQueryKind.ADMIN, true, TargetType.Backup));
+            return null;
+        }
         DrShowDomain drShowDomain = new DrShowDomain();
         drShowDomain.setSqlType(RuleQueryType.UNKNOWN);
         drShowDomain.setAuditKind(SecQueryKind.QUERY);
         builder.addDomain(drShowDomain);
+        return null;
+    }
+
+    @Override
+    public Void visitBackup(BackupContext ctx) {
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.BACKUP, SecQueryKind.ADMIN, true, TargetType.Backup));
+        return null;
+    }
+
+    @Override
+    public Void visitRestore(RestoreContext ctx) {
+        TargetType target = ctx.baseTableRef().isEmpty() ? TargetType.Schema : TargetType.Table;
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.RESTORE, SecQueryKind.ADMIN, true, target));
+        return null;
+    }
+
+    @Override
+    public Void visitCancelBackup(CancelBackupContext ctx) {
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.MAINTAIN_BACKUP, SecQueryKind.ADMIN, true, TargetType.Backup));
+        return null;
+    }
+
+    @Override
+    public Void visitCancelRestore(CancelRestoreContext ctx) {
+        builder.addDomain(new RdbResourceDomain(RuleQueryType.MAINTAIN_BACKUP, SecQueryKind.ADMIN, true, TargetType.Backup));
         return null;
     }
 
@@ -1187,7 +1210,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAddColumnClause(AddColumnClauseContext ctx) {
         builder.enterAlterTableItem(AlterTableType.ADD_COLUMN);
-        ctx.columnDef().accept(this);
+        ctx.columnDefWithPath().accept(this);
         visitIfExist(ctx.properties);
         builder.exitAlterTableItem();
         return null;
@@ -1215,7 +1238,7 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitModifyColumnClause(ModifyColumnClauseContext ctx) {
         builder.enterAlterTableItem(AlterTableType.ALTER_COLUMN);
-        ctx.columnDef().accept(this);
+        ctx.columnDefWithPath().accept(this);
         builder.exitAlterTableItem();
         return null;
     }
@@ -1414,7 +1437,15 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitFromClause(FromClauseContext ctx) {
+    public Void visitFromDual(FromDualContext ctx) {
+        builder.enterSelectFromBuilder();
+        dmVisitChildren(ctx);
+        builder.exitSelectFromBuilder();
+        return null;
+    }
+
+    @Override
+    public Void visitFromRelations(FromRelationsContext ctx) {
         builder.enterSelectFromBuilder();
         dmVisitChildren(ctx);
         builder.exitSelectFromBuilder();
@@ -2142,14 +2173,14 @@ public class DrSqlParserVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitIsnull(IsnullContext ctx) {
         builder.addAttr(CommonAttribute.VALID_WHERE, true);
-        ctx.valueExpression().accept(this);
+        ctx.expression().accept(this);
         return null;
     }
 
     @Override
     public Void visitIs_not_null_pred(Is_not_null_predContext ctx) {
         builder.addAttr(CommonAttribute.VALID_WHERE, true);
-        ctx.valueExpression().accept(this);
+        ctx.expression().accept(this);
         return null;
     }
 

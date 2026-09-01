@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.tidb.sql;
 
 import com.clougence.clouddm.ds.tidb.i18n.TiSqlI18nKeys;
+import com.clougence.clouddm.ds.tidb.sql.analysis.sysobj.TiDBSysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -28,5 +29,6 @@ public class TiSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(TiSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new TiSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new TiDBSysObjectRegistrySpi());
     }
 }

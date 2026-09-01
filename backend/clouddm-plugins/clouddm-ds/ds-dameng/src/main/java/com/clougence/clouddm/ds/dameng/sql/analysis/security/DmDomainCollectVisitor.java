@@ -502,6 +502,8 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             add(domain, RuleQueryType.ALTER_TRIGGER);
         } else if (ctx.PACKAGE() != null) {
             objectDomain(name, RuleQueryType.ADMIN_PROG_OBJ);
+        } else if (ctx.OPERATOR() != null) {
+            objectDomain(operatorName(ctx.operatorQualifiedName()), RuleQueryType.ALTER_PROG_OBJ);
         } else if (ctx.TABLESPACE() != null) {
             objectDomain(name, RuleQueryType.ALTER_TABLESPACE);
         } else if (ctx.PROFILE() != null) {
@@ -599,14 +601,55 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
-        if (ctx.commentTarget().TABLE() != null) {
-            tableDomain(schemaScoped(NameParts.from(ctx.commentTarget().qualifiedName())), RuleQueryType.COMMENT_TABLE);
-        } else if (ctx.commentTarget().VIEW() != null) {
+        DmSqlParser.CommentTargetContext target = ctx.commentTarget();
+        DmSqlParser.QualifiedNameContext qualified = target.qualifiedName();
+        if (target.MATERIALIZED() != null) {
             RdbViewDomain domain = new RdbViewDomain();
-            setViewName(domain, schemaScoped(NameParts.from(ctx.commentTarget().qualifiedName())));
-            add(domain, RuleQueryType.ALTER_VIEW);
-        } else {
-            tableDomain(schemaScoped(columnTableName(ctx.commentTarget().qualifiedName())), RuleQueryType.COMMENT_COLUMN);
+            setViewName(domain, schemaScoped(NameParts.from(qualified)));
+            domain.setMaterialized(true);
+            add(domain, RuleQueryType.COMMENT_MATERIALIZED_VIEW);
+        } else if (target.TABLE() != null) {
+            tableDomain(schemaScoped(NameParts.from(qualified)), RuleQueryType.COMMENT_TABLE);
+        } else if (target.VIEW() != null) {
+            RdbViewDomain domain = new RdbViewDomain();
+            setViewName(domain, schemaScoped(NameParts.from(qualified)));
+            add(domain, RuleQueryType.COMMENT_VIEW);
+        } else if (target.COLUMN() != null) {
+            tableDomain(schemaScoped(columnTableName(qualified)), RuleQueryType.COMMENT_COLUMN);
+        } else if (target.SCHEMA() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_SCHEMA);
+        } else if (target.TABLESPACE() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_TABLESPACE);
+        } else if (target.ROLE() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_ROLE);
+        } else if (target.SEQUENCE() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_SEQUENCE);
+        } else if (target.INDEX() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_INDEX);
+        } else if (target.TRIGGER() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_TRIGGER);
+        } else if (target.TYPE() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_TYPE);
+        } else if (target.CONTEXT() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_CONTEXT);
+        } else if (target.DOMAIN() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_DOMAIN);
+        } else if (target.DIRECTORY() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_DIRECTORY);
+        } else if (target.PROFILE() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_PROFILE);
+        } else if (target.LINK() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_LINK);
+        } else if (target.CLASS() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_CLASS);
+        } else if (target.FUNCTION() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_FUNCTION);
+        } else if (target.PACKAGE() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_PACKAGE);
+        } else if (target.PROCEDURE() != null) {
+            objectDomain(NameParts.from(qualified), RuleQueryType.COMMENT_PROCEDURE);
+        } else if (target.DATABASE() != null) {
+            objectDomain(new NameParts(null, null, "DATABASE"), RuleQueryType.COMMENT_SCHEMA);
         }
         return null;
     }
@@ -707,22 +750,40 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAdminStatement(DmSqlParser.AdminStatementContext ctx) {
-        objectDomain(new NameParts(null, null, "DATABASE"), RuleQueryType.ADMIN);
+        RuleQueryType type = backupLifecycleType(ctx);
+        objectDomain(new NameParts(null, null, type == RuleQueryType.MAINTAIN_BACKUP ? "BACKUPSET" : "DATABASE"), type);
         if (ctx.backupStatementTail() != null) {
             DmSqlParser.BackupStatementTailContext backup = ctx.backupStatementTail();
             if (backup.TABLE() != null) {
-                tableDomain(NameParts.from(backup.qualifiedName()), RuleQueryType.ADMIN);
+                tableDomain(NameParts.from(backup.qualifiedName()), type);
             } else if (backup.TABLESPACE() != null) {
-                objectDomain(NameParts.from(backup.qualifiedName()), RuleQueryType.ADMIN);
+                objectDomain(NameParts.from(backup.qualifiedName()), type);
             }
         } else if (ctx.restoreStatementTail() != null && ctx.restoreStatementTail().TABLE() != null && ctx.restoreStatementTail().qualifiedName() != null) {
-            tableDomain(NameParts.from(ctx.restoreStatementTail().qualifiedName()), RuleQueryType.ADMIN);
+            tableDomain(NameParts.from(ctx.restoreStatementTail().qualifiedName()), type);
         } else if (ctx.restoreStatementTail() != null && ctx.restoreStatementTail().restoreTablespaceTail() != null) {
-            objectDomain(NameParts.from(ctx.restoreStatementTail().restoreTablespaceTail().qualifiedName()), RuleQueryType.ADMIN);
+            objectDomain(NameParts.from(ctx.restoreStatementTail().restoreTablespaceTail().qualifiedName()), type);
         } else if (ctx.recoverStatementTail() != null && ctx.recoverStatementTail().TABLESPACE() != null) {
-            objectDomain(NameParts.from(ctx.recoverStatementTail().qualifiedName()), RuleQueryType.ADMIN);
+            objectDomain(NameParts.from(ctx.recoverStatementTail().qualifiedName()), type);
         }
         return null;
+    }
+
+    private static RuleQueryType backupLifecycleType(DmSqlParser.AdminStatementContext ctx) {
+        if (ctx.backupStatementTail() != null) {
+            return RuleQueryType.BACKUP;
+        }
+        if (ctx.restoreStatementTail() != null) {
+            return RuleQueryType.RESTORE;
+        }
+        if (ctx.recoverStatementTail() != null || ctx.mergeDatabaseTail() != null) {
+            return RuleQueryType.RECOVER;
+        }
+        if (ctx.showBackupsetTail() != null || ctx.checkStatementTail() != null || ctx.dumpStatementTail() != null || ctx.loadBackupsetsTail() != null
+            || ctx.removeStatementTail() != null) {
+            return RuleQueryType.MAINTAIN_BACKUP;
+        }
+        return RuleQueryType.ADMIN;
     }
 
     @Override

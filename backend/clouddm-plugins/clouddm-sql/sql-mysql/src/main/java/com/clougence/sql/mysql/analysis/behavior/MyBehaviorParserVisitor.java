@@ -72,7 +72,8 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             visitor.references().removeIf(reference -> reference.targetType() != TargetType.Library);
         }
         if (visitor.references().isEmpty()
-            || visitor.references().stream().allMatch(reference -> reference.targetType() == TargetType.Function && reference.sqlType() == SplitQueryType.CALL_PROG_OBJ)) {
+            || hasLegacyFunctionOnlyFallback(statementType) && visitor.references().stream()
+                    .allMatch(reference -> reference.targetType() == TargetType.Function && reference.sqlType() == SplitQueryType.CALL_PROG_OBJ)) {
             TargetType fallback = fallbackType(statementType);
             if (fallback != null) {
                 int fallbackIndex = visitor.references().size();
@@ -94,6 +95,11 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         behavior.setRelations(relations);
         behaviors.add(behavior);
         return null;
+    }
+
+    private boolean hasLegacyFunctionOnlyFallback(SplitQueryType type) {
+        return type != SplitQueryType.SELECT && type != SplitQueryType.BLOCK && type != SplitQueryType.PROGRAM_CONTROL
+                && type != SplitQueryType.UNKNOWN && type != SplitQueryType.TRANSACTION;
     }
 
     private static Long insertRows(ParseTree tree) {
@@ -135,6 +141,10 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             case DATA_IMPORT, DATA_EXPORT -> TargetType.File;
             case ADMIN_TABLE -> TargetType.Table;
             case ADMIN, ADMIN_PERFORMANCE, PERFORMANCE, METADATA, SESSION_LOCK, UNSAFE -> TargetType.Instance;
+            case SELECT -> TargetType.Query;
+            case TRANSACTION -> TargetType.Transaction;
+            case PROGRAM_CONTROL -> TargetType.ProgramObject;
+            case BLOCK, UNKNOWN -> TargetType.Unknown;
             default -> null;
         };
     }

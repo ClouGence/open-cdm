@@ -3,27 +3,59 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 package com.clougence.clouddm.ds.hana.sql.parser;
 
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.sql.iso.sql2003.parser.Sql2003SplitAnalysisSpi;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Lexer;
 
-public class HanaSplitAnalysisSpi extends Sql2003SplitAnalysisSpi {
+import com.clougence.clouddm.sdk.execute.session.QueryArg;
+import com.clougence.clouddm.sdk.sql.parser.SplitScript;
+import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
+
+/** HANA lexer-only SQL statement splitter. */
+public class HanaSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
+
+    private final HanaParserConfig config;
+
+    public HanaSplitAnalysisSpi(){
+        this(HanaParserConfig.of(null, null));
+    }
+
+    public HanaSplitAnalysisSpi(HanaParserConfig config){
+        this.config = config;
+    }
+
+    public HanaParserConfig config() {
+        return config;
+    }
 
     @Override
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return HanaSplitVisitor.INSTANCE;
+    protected String performanceDialect() {
+        return "hana";
+    }
+
+    @Override
+    protected Lexer createLexer(CharStream source) {
+        return new HanaSplitLexer(source);
+    }
+
+    @Override
+    protected LexerSplitPolicy createSplitPolicy() {
+        return new HanaLexerSplitPolicy();
+    }
+
+    public List<SplitScript> splitScript(String script, List<QueryArg> args, int baseLine, int baseColumn) {
+        if (script == null) {
+            return Collections.emptyList();
+        }
+        try (Stream<SplitScript> stream = splitScriptStream(new java.io.StringReader(script), args, baseLine, baseColumn)) {
+            return stream.toList();
+        }
     }
 }

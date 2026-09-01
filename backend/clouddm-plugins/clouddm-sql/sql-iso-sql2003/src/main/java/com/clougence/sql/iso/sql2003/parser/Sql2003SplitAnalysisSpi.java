@@ -15,38 +15,20 @@
  */
 package com.clougence.sql.iso.sql2003.parser;
 
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
-import com.clougence.sql.iso.sql2003.parser.antlr.Sql2003Parser;
+import com.clougence.sql.common.parser.LexerSplitPolicy;
 
+/** SQL:2003 lexer-only statement splitter. */
 public class Sql2003SplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
+    @Override
     protected DslProvider dslProvider() {
         return Sql2003DslProvider.INSTANCE;
     }
 
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return Sql2003SplitVisitor.INSTANCE;
-    }
-
     @Override
-    protected void parseRoot(Parser parser) {
-        ((Sql2003Parser) parser).root();
-    }
-
-    @Override
-    protected boolean isStatementContext(ParserRuleContext context) {
-        return context instanceof Sql2003Parser.SqlStatementContext && context.getParent() instanceof Sql2003Parser.SqlScriptContext;
-    }
-
-    @Override
-    protected AntlrStatementParser statementParser() {
-        return new Sql2003StatementParser();
+    protected LexerSplitPolicy createSplitPolicy() {
+        return new Sql2003LexerSplitPolicy();
     }
 }

@@ -40,6 +40,14 @@ final class AntlrPredictionCaches {
         return CACHE_POOL.acquire(lexer, parser, scope);
     }
 
+    private static int configuredPositive(String property, int defaultValue) {
+        int value = Integer.getInteger(property, defaultValue);
+        if (value < 1) {
+            throw new IllegalArgumentException(property + " must be greater than zero: " + value);
+        }
+        return value;
+    }
+
     static final class Lease implements AutoCloseable {
 
         private final CachePool pool;

@@ -99,6 +99,6 @@ public enum SplitQueryType {
 
     SplitQueryType(TargetType target, SecDataAuthKind kind){
         this.target = Objects.requireNonNull(target);
-        this.kind = Objects.requireNonNull(kind);;
+        this.kind = Objects.requireNonNull(kind);
     }
 }

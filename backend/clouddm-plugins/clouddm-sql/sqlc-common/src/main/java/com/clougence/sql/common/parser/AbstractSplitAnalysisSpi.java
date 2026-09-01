@@ -3,54 +3,63 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 package com.clougence.sql.common.parser;
 
-import java.io.*;
+import java.io.FilterReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.Interval;
-import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.atn.ATN;
+import org.antlr.v4.runtime.atn.LexerATNSimulator;
+import org.antlr.v4.runtime.atn.PredictionContextCache;
+import org.antlr.v4.runtime.dfa.DFA;
 
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.dslpaser.ast.location.CodeLocation;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.dslpaser.parse.SyntaxErrorListener;
+import com.clougence.sql.common.parser.perf.ParserPerfCollector;
+import com.clougence.sql.common.parser.perf.ParserPerfCollectors;
+import com.clougence.sql.common.parser.perf.ParserPerfRecorder;
 
+/**
+ * Streaming infrastructure for a datasource-owned lexer split policy.
+ *
+ * <p>This class deliberately knows nothing about SQL tokens, keywords, delimiters, comments, or
+ * procedural blocks. Each split stream receives a fresh {@link LexerSplitPolicy}; only that
+ * datasource policy decides which lexer tokens form a statement boundary.</p>
+ */
 public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
-    private static final AtomicLong STREAM_SEQUENCE = new AtomicLong();
+    private final ParserPerfCollector performanceCollector = ParserPerfCollectors.create();
 
-    protected abstract DslProvider dslProvider();
+    protected DslProvider dslProvider() {
+        throw new UnsupportedOperationException("This splitter creates its lexer directly");
+    }
 
-    protected abstract AbstractParseTreeVisitor<SplitQueryType> splitVisitor();
+    protected Lexer createLexer(CharStream source) {
+        return dslProvider().createLexer(source);
+    }
 
-    protected abstract void parseRoot(Parser parser);
+    /** Datasource/dialect dimension used by the lexer performance monitor. */
+    protected String performanceDialect() {
+        String[] names = dslProvider().getDslName();
+        if (names.length == 0 || names[0].isBlank()) {
+            return getClass().getName();
+        }
+        return names[0];
+    }
 
-    protected abstract boolean isStatementContext(ParserRuleContext context);
-
-    protected abstract AntlrStatementParser statementParser();
+    /** Returns a new, unshared policy for one split stream. */
+    protected abstract LexerSplitPolicy createSplitPolicy();
 
     protected void beforeSplitStream() {
     }
@@ -58,197 +67,220 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
     protected void afterSplitStream() {
     }
 
-    //
-
-    protected SplitQueryType normalizeType(SplitQueryType type) {
-        return type == null ? SplitQueryType.UNKNOWN : type;
-    }
-
-    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        Set<SplitQueryType> types = new LinkedHashSet<>();
-        types.add(normalizeType(context.accept(splitVisitor())));
-        collectAdditionalTypes(context, types);
-        return types;
-    }
-
-    protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
-        return Collections.emptyList();
-    }
-
-    protected final SplitScript createChild(ParserRuleContext context, CommonTokenStream tokens, Set<SplitQueryType> types, List<SplitScript> children) {
-        String script = tokens.getText(context.getStart(), context.getStop());
-        SplitScript split = new SplitScript();
-        split.setScript(script);
-        split.setType(types);
-        split.setChildren(children);
-        split.setBodyStartCodeLine(context.getStart().getLine());
-        split.setBodyStartCodeColumn(context.getStart().getCharPositionInLine());
-
-        int endLine = context.getStart().getLine();
-        int endColumn = context.getStart().getCharPositionInLine();
-        for (int i = 0; i < script.length(); i++) {
-            if (script.charAt(i) == '\n') {
-                endLine++;
-                endColumn = 0;
-            } else {
-                endColumn++;
-            }
-        }
-        split.setBodyEndCodeLine(endLine);
-        split.setBodyEndCodeColumn(endColumn);
-        return split;
-    }
-
-    protected SplitQueryType additionalType(ParseTree tree) {
-        return null;
-    }
-
-    private void collectAdditionalTypes(ParseTree tree, Set<SplitQueryType> types) {
-        SplitQueryType type = additionalType(tree);
-        if (type != null) {
-            types.add(type);
-        }
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            collectAdditionalTypes(tree.getChild(i), types);
-        }
-    }
-
     @Override
     public Stream<SplitScript> splitScriptStream(Reader reader, List<QueryArg> args, int baseLine, int baseColumn) {
-        StreamingSplit streamingSplit = new StreamingSplit(reader, baseLine, baseColumn);
-        return StreamSupport.stream(streamingSplit, false).onClose(streamingSplit::close);
+        Objects.requireNonNull(reader, "reader");
+        LexerSplit split = new LexerSplit(reader, args, baseLine, baseColumn);
+        return StreamSupport.stream(split, false).onClose(split::close);
     }
 
-    private void streamingSplit(Reader reader, int baseLine, int baseColumn, Consumer<SplitScript> resultConsumer) {
-        WindowedReader sourceReader = new WindowedReader(new NonClosingReader(reader));
-        CharStream source = new UnbufferedCharStream(sourceReader);
-        DslProvider provider = dslProvider();
-        Lexer lexer = provider.createLexer(source);
-        lexer.setTokenFactory(new CommonTokenFactory(true));
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
+    private final class LexerSplit extends Spliterators.AbstractSpliterator<SplitScript> implements AutoCloseable, LexerSplitContext {
 
-        Parser parser = provider.createParser(lexer);
-        StreamingCommonTokenStream tokens = new StreamingCommonTokenStream(lexer);
-        parser.setTokenStream(tokens);
-        parser.removeErrorListeners();
-        parser.addErrorListener(SyntaxErrorListener.INSTANCE);
-        parser.setBuildParseTree(true);
-        try (AntlrPredictionCaches.Lease ignored = AntlrPredictionCaches.acquire(lexer, parser, predictionCacheScope())) {
-            parser.addParseListener(new SplitListener(tokens, new LocationCursor(sourceReader, new CodeLocation(baseLine, baseColumn)), resultConsumer));
-            this.parseRoot(parser);
-        }
-    }
+        private final WindowedReader      source;
+        private final Lexer               lexer;
+        private final LexerSplitPolicy    policy;
+        private final ParserPerfRecorder  performance;
+        private final List<QueryArg>      args;
+        private final AtomicBoolean       closed          = new AtomicBoolean();
+        private final Deque<PendingToken> pending         = new ArrayDeque<>();
+        private Token                     offsetToken;
+        private TokenOffsets              offsetValue;
+        private int                       sourceOffset;
+        private int                       line;
+        private int                       column;
+        private int                       lastContentStop = -1;
+        private int                       lastContentLine = -1;
+        private int                       lastVisibleLine = -1;
+        private long                      statementIndex;
+        private boolean                   hasContent;
+        private boolean                   eof;
 
-    /**
-     * Scope key for the shared ANTLR prediction caches. The provider instance encodes the full
-     * parsing configuration (grammar version, features, sql mode), so different configurations
-     * never share DFA states that embed semantic-predicate decisions.
-     */
-    protected Object predictionCacheScope() {
-        return dslProvider();
-    }
-
-    private final class SplitListener implements ParseTreeListener {
-
-        private final StreamingCommonTokenStream tokens;
-        private final LocationCursor             location;
-        private final Consumer<SplitScript>      resultConsumer;
-        private ParserRuleContext                lastStatement;
-        private long                             statementIndex;
-
-        private SplitListener(StreamingCommonTokenStream tokens, LocationCursor location, Consumer<SplitScript> resultConsumer){
-            this.tokens = tokens;
-            this.location = location;
-            this.resultConsumer = resultConsumer;
+        private LexerSplit(Reader reader, List<QueryArg> args, int baseLine, int baseColumn){
+            super(Long.MAX_VALUE, Spliterator.ORDERED | Spliterator.NONNULL);
+            beforeSplitStream();
+            this.args = args;
+            this.line = Math.max(1, baseLine);
+            this.column = Math.max(0, baseColumn);
+            boolean performanceEnabled = AbstractSplitAnalysisSpi.this.performanceCollector.enabled();
+            this.source = new WindowedReader(new NonClosingReader(reader), performanceEnabled);
+            this.lexer = createLexer(new UnbufferedCharStream(this.source));
+            this.performance = performanceEnabled ? ParserPerfRecorder
+                .begin(AbstractSplitAnalysisSpi.this.performanceCollector, performanceDialect(), this.lexer.getClass()) : null;
+            isolatePredictionCache(this.lexer);
+            this.lexer.setTokenFactory(new CommonTokenFactory(true));
+            this.lexer.removeErrorListeners();
+            this.lexer.addErrorListener(SyntaxErrorListener.INSTANCE);
+            this.policy = Objects.requireNonNull(createSplitPolicy(), "split policy");
         }
 
-        @Override
-        public void visitTerminal(TerminalNode node) {
-        }
-
-        @Override
-        public void visitErrorNode(ErrorNode node) {
+        /** Generated lexers otherwise share mutable static DFA state across worker threads. */
+        private void isolatePredictionCache(Lexer lexer) {
+            ATN atn = lexer.getATN();
+            DFA[] decisionToDfa = new DFA[atn.getNumberOfDecisions()];
+            for (int index = 0; index < decisionToDfa.length; index++) {
+                decisionToDfa[index] = new DFA(atn.getDecisionState(index), index);
+            }
+            lexer.setInterpreter(new LexerATNSimulator(lexer, atn, decisionToDfa, new PredictionContextCache()));
         }
 
         @Override
-        public void enterEveryRule(ParserRuleContext ctx) {
+        public boolean tryAdvance(Consumer<? super SplitScript> action) {
+            Objects.requireNonNull(action, "action");
+            if (this.eof || this.closed.get()) {
+                return false;
+            }
+            while (true) {
+                Token token = nextToken();
+                resolveOffsets(token);
+                if (token.getType() == Token.EOF) {
+                    this.eof = true;
+                    SplitScript tail = emit(this.source.endOffset());
+                    close();
+                    if (tail != null) {
+                        action.accept(tail);
+                        return true;
+                    }
+                    return false;
+                }
+
+                LexerSplitBoundary boundary = this.policy.boundary(token, this);
+                if (boundary != null) {
+                    SplitScript statement = emit(boundary.bodyEndOffset());
+                    skip(boundary.resumeOffset());
+                    discardConsumedPending(boundary.resumeOffset());
+                    resetStatement();
+                    if (boundary.reprocessToken()) {
+                        this.pending.addFirst(new PendingToken(token, resolveOffsets(token)));
+                    } else if (token.getChannel() == Token.DEFAULT_CHANNEL) {
+                        this.lastVisibleLine = token.getLine();
+                    }
+                    if (statement != null) {
+                        action.accept(statement);
+                        return true;
+                    }
+                    continue;
+                }
+
+                acceptToken(token);
+                if (token.getChannel() == Token.DEFAULT_CHANNEL) {
+                    this.lastVisibleLine = token.getLine();
+                }
+            }
         }
 
-        @Override
-        public void exitEveryRule(ParserRuleContext ctx) {
-            if (!isStatementContext(ctx)) {
+        private Token nextToken() {
+            if (this.pending.isEmpty()) {
+                if (this.performance == null) {
+                    return this.lexer.nextToken();
+                }
+                long startedNanos = System.nanoTime();
+                try {
+                    Token token = this.lexer.nextToken();
+                    long elapsedNanos = System.nanoTime() - startedNanos;
+                    if (token.getType() == Token.EOF) {
+                        this.performance.addLexerTime(elapsedNanos);
+                    } else {
+                        this.performance.addToken(elapsedNanos);
+                        if (this.performance.checkpointDue()) {
+                            this.performance.checkpoint(this.source.totalChars(), this.source.totalUtf8Bytes());
+                        }
+                    }
+                    return token;
+                } catch (RuntimeException | Error e) {
+                    this.performance.addLexerTime(System.nanoTime() - startedNanos);
+                    throw e;
+                }
+            }
+            PendingToken pendingToken = this.pending.removeFirst();
+            this.offsetToken = pendingToken.token();
+            this.offsetValue = pendingToken.offsets();
+            return pendingToken.token();
+        }
+
+        private void discardConsumedPending(int resumeOffset) {
+            while (!this.pending.isEmpty() && this.pending.peekFirst().offsets().end() <= resumeOffset) {
+                this.pending.removeFirst();
+            }
+        }
+
+        private void acceptToken(Token token) {
+            if (!this.policy.isContentToken(token)) {
                 return;
             }
+            TokenOffsets offsets = resolveOffsets(token);
+            if (!this.hasContent && offsets.start() > this.sourceOffset) {
+                String trivia = this.source.getText(this.sourceOffset, offsets.start());
+                int discard = Math.max(0, Math.min(trivia.length(), this.policy.leadingTriviaDiscardLength(trivia)));
+                skip(this.sourceOffset + discard);
+            }
+            this.hasContent = true;
+            this.lastContentStop = offsets.end();
+            this.lastContentLine = token.getLine();
+        }
 
-            Token startToken = ctx.getStart();
-            Token stopToken = ctx.getStop();
-            String script = statementParser().getTextKeepComment(this.tokens, this.lastStatement, startToken, stopToken);
-            ScriptLocation scriptLocation = this.location.locate(script, stopToken.getStopIndex());
+        private SplitScript emit(int endOffset) {
+            if (endOffset <= this.sourceOffset) {
+                return null;
+            }
+            String raw = this.source.getText(this.sourceOffset, endOffset);
+            int start = 0;
+            while (start < raw.length() && Character.isWhitespace(raw.charAt(start))) {
+                start++;
+            }
+            int end = raw.length();
+            while (end > start && Character.isWhitespace(raw.charAt(end - 1))) {
+                end--;
+            }
 
+            advance(raw, 0, start);
+            int startLine = this.line;
+            int startColumn = this.column;
+            String script = raw.substring(start, end);
+            advance(raw, start, end);
+            int endLine = this.line;
+            int endColumn = this.column;
+            advance(raw, end, raw.length());
+            this.sourceOffset = endOffset;
+            this.source.discardBefore(endOffset);
+
+            if (script.isBlank() || !this.hasContent) {
+                return null;
+            }
             SplitScript split = new SplitScript();
             split.setIndex(this.statementIndex++);
             split.setScript(script);
-            split.setType(collectTypes(ctx, script));
-            split.setChildren(collectChildren(ctx, this.tokens));
-            ScriptLocation bodyStart = this.location.locate(startToken);
-            split.setBodyStartCodeLine(bodyStart.endLine());
-            split.setBodyStartCodeColumn(bodyStart.endColumn());
-            split.setBodyEndCodeLine(scriptLocation.endLine());
-            split.setBodyEndCodeColumn(scriptLocation.endColumn());
-            this.resultConsumer.accept(split);
-
-            ParserRuleContext parent = ctx.getParent();
-            if (parent != null && parent.children != null) {
-                parent.children.remove(ctx);
+            split.setScriptArgs(this.args);
+            split.setBodyStartCodeLine(startLine);
+            split.setBodyStartCodeColumn(startColumn);
+            split.setBodyEndCodeLine(endLine);
+            split.setBodyEndCodeColumn(endColumn);
+            if (this.performance != null) {
+                this.performance.addStatement();
+                this.performance.checkpoint(this.source.totalChars(), this.source.totalUtf8Bytes());
             }
-            this.lastStatement = ctx;
-        }
-    }
-
-    private static final class LocationCursor {
-
-        private final WindowedReader source;
-        private final int            baseLine;
-        private final int            baseColumn;
-        private int                  sourceOffset;
-        private int                  line;
-        private int                  column;
-
-        private LocationCursor(WindowedReader source, CodeLocation base){
-            this.source = source;
-            this.baseLine = Math.max(1, base == null ? 1 : base.getLineNumber());
-            this.baseColumn = Math.max(0, base == null ? 0 : base.getColumnNumber());
-            this.line = this.baseLine;
-            this.column = this.baseColumn;
+            return split;
         }
 
-        private ScriptLocation locate(String script, int stopOffset) {
-            int searchEnd = Math.min(this.source.endOffset(), Math.max(this.sourceOffset, stopOffset + 1) + script.length());
-            String sourceWindow = this.source.getText(this.sourceOffset, searchEnd);
-            int scriptOffset = sourceWindow.indexOf(script);
-            if (scriptOffset < 0) {
-                throw new IllegalStateException("Split script is not part of its source");
+        private void skip(int endOffset) {
+            if (endOffset <= this.sourceOffset) {
+                return;
             }
-
-            advance(sourceWindow, 0, scriptOffset);
-            advance(script, 0, script.length());
-            this.sourceOffset += scriptOffset + script.length();
-            this.source.discardBefore(this.sourceOffset);
-            return new ScriptLocation(this.line, this.column);
+            String raw = this.source.getText(this.sourceOffset, endOffset);
+            advance(raw, 0, raw.length());
+            this.sourceOffset = endOffset;
+            this.source.discardBefore(endOffset);
         }
 
-        private ScriptLocation locate(Token token) {
-            int tokenLine = Math.max(1, token.getLine());
-            int tokenColumn = Math.max(0, token.getCharPositionInLine());
-            int mappedLine = this.baseLine + tokenLine - 1;
-            int mappedColumn = tokenLine == 1 ? this.baseColumn + tokenColumn : tokenColumn;
-            return new ScriptLocation(mappedLine, mappedColumn);
+        private void resetStatement() {
+            this.hasContent = false;
+            this.lastContentStop = -1;
+            this.lastContentLine = -1;
+            this.policy.reset();
         }
 
         private void advance(String value, int start, int end) {
-            for (int i = start; i < end; i++) {
-                if (value.charAt(i) == '\n') {
+            for (int index = start; index < end; index++) {
+                if (value.charAt(index) == '\n') {
                     this.line++;
                     this.column = 0;
                 } else {
@@ -256,229 +288,263 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
                 }
             }
         }
-    }
 
-    private record ScriptLocation(int endLine, int endColumn) {
-    }
-
-    private static final class StreamingCommonTokenStream extends CommonTokenStream {
-
-        private StreamingCommonTokenStream(TokenSource tokenSource){
-            super(tokenSource);
+        private TokenOffsets resolveOffsets(Token token) {
+            if (token == this.offsetToken) {
+                return this.offsetValue;
+            }
+            if (token.getType() == Token.EOF) {
+                TokenOffsets offsets = new TokenOffsets(this.source.endOffset(), this.source.endOffset());
+                this.offsetToken = token;
+                this.offsetValue = offsets;
+                return offsets;
+            }
+            int start;
+            int end;
+            try {
+                start = this.source.utf16OffsetForCodePoint(token.getStartIndex());
+                end = this.source.utf16OffsetForCodePoint(token.getStopIndex() + 1);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Lexer token offset is unavailable: type=" + token.getType() + ", start=" + token.getStartIndex() + ", stop=" + token.getStopIndex()
+                                                + ", windowUtf16=" + this.source.startOffset() + ".." + this.source.endOffset() + ", windowCodePoints="
+                                                + this.source.startCodePointOffset() + ".." + this.source.endCodePointOffset(),
+                    e);
+            }
+            TokenOffsets offsets = new TokenOffsets(start, end);
+            this.offsetToken = token;
+            this.offsetValue = offsets;
+            return offsets;
         }
 
         @Override
-        public String getText(Interval interval) {
-            int start = interval.a;
-            int stop = interval.b;
-            if (start < 0 || stop < 0) {
-                return "";
-            }
-            sync(stop);
-            int availableStop = Math.min(stop, this.tokens.size() - 1);
-            StringBuilder text = new StringBuilder();
-            for (int index = start; index <= availableStop; index++) {
-                Token token = this.tokens.get(index);
-                if (token.getType() == Token.EOF) {
-                    break;
-                }
-                text.append(token.getText());
-            }
-            return text.toString();
+        public int sourceOffset() {
+            return this.sourceOffset;
         }
+
+        @Override
+        public int sourceEndOffset() {
+            return this.source.endOffset();
+        }
+
+        @Override
+        public boolean hasContent() {
+            return this.hasContent;
+        }
+
+        @Override
+        public int lastContentStopOffset() {
+            return this.lastContentStop;
+        }
+
+        @Override
+        public int lastContentLine() {
+            return this.lastContentLine;
+        }
+
+        @Override
+        public int tokenStartOffset(Token token) {
+            return resolveOffsets(token).start();
+        }
+
+        @Override
+        public int tokenEndOffset(Token token) {
+            return resolveOffsets(token).end();
+        }
+
+        @Override
+        public String sourceText(int startOffset, int endOffset) {
+            return this.source.getText(startOffset, endOffset);
+        }
+
+        @Override
+        public boolean firstVisibleTokenOnLine(Token token) {
+            return token.getChannel() == Token.DEFAULT_CHANNEL && token.getLine() > this.lastVisibleLine;
+        }
+
+        @Override
+        public boolean onlyVisibleTokenOnLine(Token token) {
+            if (!firstVisibleTokenOnLine(token)) {
+                return false;
+            }
+            while (true) {
+                Token next = this.lexer.nextToken();
+                TokenOffsets offsets = resolveOffsets(next);
+                this.pending.addLast(new PendingToken(next, offsets));
+                if (next.getType() == Token.EOF || next.getChannel() == Token.DEFAULT_CHANNEL) {
+                    return next.getType() == Token.EOF || next.getLine() > token.getLine();
+                }
+            }
+        }
+
+        @Override
+        public int physicalLineEndOffset(Token token) {
+            int start = tokenEndOffset(token);
+            String available = this.source.getText(start, this.source.endOffset());
+            int newline = available.indexOf('\n');
+            return newline < 0 ? this.source.endOffset() : start + newline + 1;
+        }
+
+        @Override
+        public void close() {
+            if (this.closed.compareAndSet(false, true)) {
+                this.policy.reset();
+                if (this.performance != null) {
+                    this.performance.input(this.source.totalChars(), this.source.totalUtf8Bytes());
+                    this.performance.close();
+                }
+                afterSplitStream();
+            }
+        }
+    }
+
+    private record TokenOffsets(int start, int end) {
+    }
+
+    private record PendingToken(Token token, TokenOffsets offsets) {
     }
 
     private static final class WindowedReader extends FilterReader {
 
         private final StringBuilder window = new StringBuilder();
-        private int                 windowStart;
+        private final boolean       countPerformance;
+        private int                 startOffset;
+        private int                 startCodePointOffset;
+        private int                 mappedOffset;
+        private int                 mappedCodePointOffset;
+        private long                totalChars;
+        private long                totalUtf8Bytes;
+        private boolean             pendingHighSurrogate;
 
-        private WindowedReader(Reader reader){
+        private WindowedReader(Reader reader, boolean countPerformance){
             super(reader);
+            this.countPerformance = countPerformance;
         }
 
         @Override
         public int read() throws IOException {
-            checkInterrupted();
             int value = super.read();
             if (value >= 0) {
                 this.window.append((char) value);
+                countInput((char) value);
+            } else {
+                finishByteCount();
             }
             return value;
         }
 
         @Override
-        public int read(char[] chars, int offset, int length) throws IOException {
-            checkInterrupted();
-            int read = super.read(chars, offset, length);
+        public int read(char[] cbuf, int off, int len) throws IOException {
+            int read = super.read(cbuf, off, len);
             if (read > 0) {
-                this.window.append(chars, offset, read);
+                this.window.append(cbuf, off, read);
+                for (int index = off; index < off + read; index++) {
+                    countInput(cbuf[index]);
+                }
+            } else if (read < 0) {
+                finishByteCount();
             }
             return read;
         }
 
-        private static void checkInterrupted() throws InterruptedIOException {
-            if (Thread.currentThread().isInterrupted()) {
-                throw new InterruptedIOException("SQL split stream was closed");
+        private void countInput(char value) {
+            if (!this.countPerformance) {
+                return;
             }
+            this.totalChars++;
+            if (this.pendingHighSurrogate) {
+                if (Character.isLowSurrogate(value)) {
+                    this.totalUtf8Bytes += 4;
+                    this.pendingHighSurrogate = false;
+                    return;
+                }
+                this.totalUtf8Bytes++;
+                this.pendingHighSurrogate = false;
+            }
+            if (Character.isHighSurrogate(value)) {
+                this.pendingHighSurrogate = true;
+            } else if (value <= 0x7f) {
+                this.totalUtf8Bytes++;
+            } else if (value <= 0x7ff) {
+                this.totalUtf8Bytes += 2;
+            } else if (Character.isLowSurrogate(value)) {
+                this.totalUtf8Bytes++;
+            } else {
+                this.totalUtf8Bytes += 3;
+            }
+        }
+
+        private void finishByteCount() {
+            if (this.pendingHighSurrogate) {
+                this.totalUtf8Bytes++;
+                this.pendingHighSurrogate = false;
+            }
+        }
+
+        private long totalChars() {
+            return this.totalChars;
+        }
+
+        private long totalUtf8Bytes() {
+            finishByteCount();
+            return this.totalUtf8Bytes;
+        }
+
+        private int startOffset() {
+            return this.startOffset;
         }
 
         private int endOffset() {
-            return this.windowStart + this.window.length();
+            return this.startOffset + this.window.length();
         }
 
-        private String getText(int startOffset, int endOffset) {
-            if (startOffset < this.windowStart || endOffset > endOffset()) {
-                throw new IllegalStateException("SQL source interval is outside the streaming window");
+        private int startCodePointOffset() {
+            return this.startCodePointOffset;
+        }
+
+        private int endCodePointOffset() {
+            return this.startCodePointOffset + this.window.codePointCount(0, this.window.length());
+        }
+
+        private int utf16OffsetForCodePoint(int codePointOffset) {
+            if (codePointOffset < this.startCodePointOffset) {
+                throw new IllegalStateException("Lexer token offset is unavailable in the split source window");
             }
-            return this.window.substring(startOffset - this.windowStart, endOffset - this.windowStart);
+            int baseCodePoint = this.mappedCodePointOffset;
+            int baseOffset = this.mappedOffset;
+            if (codePointOffset < baseCodePoint || baseOffset < this.startOffset) {
+                baseCodePoint = this.startCodePointOffset;
+                baseOffset = this.startOffset;
+            }
+            try {
+                int relativeBase = baseOffset - this.startOffset;
+                int mappedRelative = this.window.offsetByCodePoints(relativeBase, codePointOffset - baseCodePoint);
+                this.mappedCodePointOffset = codePointOffset;
+                this.mappedOffset = this.startOffset + mappedRelative;
+                return this.mappedOffset;
+            } catch (IndexOutOfBoundsException error) {
+                throw new IllegalStateException("Lexer token offset is unavailable in the split source window", error);
+            }
+        }
+
+        private String getText(int start, int end) {
+            if (start < this.startOffset || end > endOffset() || start > end) {
+                throw new IllegalStateException("Split source window is unavailable");
+            }
+            return this.window.substring(start - this.startOffset, end - this.startOffset);
         }
 
         private void discardBefore(int offset) {
-            int discardLength = Math.min(this.window.length(), Math.max(0, offset - this.windowStart));
-            if (discardLength > 0) {
-                this.window.delete(0, discardLength);
-                this.windowStart += discardLength;
-            }
-        }
-    }
-
-    private final class StreamingSplit extends Spliterators.AbstractSpliterator<SplitScript> implements AutoCloseable {
-
-        private static final Object         END     = new Object();
-        private final Reader                reader;
-        private final int                   baseLine;
-        private final int                   baseColumn;
-        private final BlockingQueue<Object> results = new ArrayBlockingQueue<>(1);
-        private final AtomicBoolean         started = new AtomicBoolean();
-        private final AtomicBoolean         closed  = new AtomicBoolean();
-        private volatile Thread             producer;
-        private boolean                     finished;
-
-        private StreamingSplit(Reader reader, int baseLine, int baseColumn){
-            super(Long.MAX_VALUE, Spliterator.ORDERED | Spliterator.NONNULL);
-            this.reader = reader;
-            this.baseLine = baseLine;
-            this.baseColumn = baseColumn;
-        }
-
-        @Override
-        public boolean tryAdvance(Consumer<? super SplitScript> action) {
-            Objects.requireNonNull(action, "action");
-            if (this.finished) {
-                return false;
-            }
-            start();
-            Object next;
-            try {
-                next = this.results.take();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                close();
-                throw new SplitStreamException("interrupted while waiting for SQL split result", e);
-            }
-
-            if (next == END) {
-                this.finished = true;
-                return false;
-            }
-            if (next instanceof SplitFailure failure) {
-                this.finished = true;
-                throw failure.asRuntimeException();
-            }
-            action.accept((SplitScript) next);
-            return true;
-        }
-
-        private void start() {
-            if (!this.started.compareAndSet(false, true)) {
-                return;
-            }
-            if (this.closed.get()) {
-                this.results.offer(END);
-                return;
-            }
-
-            Thread thread = new Thread(this::produce, "sql-split-stream-" + STREAM_SEQUENCE.incrementAndGet());
-            thread.setDaemon(true);
-            this.producer = thread;
-            thread.start();
-        }
-
-        private void produce() {
-            Throwable failure = null;
-            try {
-                beforeSplitStream();
-                streamingSplit(this.reader, this.baseLine, this.baseColumn, this::publish);
-            } catch (Throwable e) {
-                failure = e;
-            } finally {
-                try {
-                    afterSplitStream();
-                } catch (Throwable e) {
-                    if (failure == null) {
-                        failure = e;
-                    } else {
-                        failure.addSuppressed(e);
-                    }
+            int discard = Math.min(Math.max(0, offset - this.startOffset), this.window.length());
+            if (discard > 0) {
+                this.startCodePointOffset += this.window.codePointCount(0, discard);
+                this.window.delete(0, discard);
+                this.startOffset += discard;
+                if (this.mappedOffset < this.startOffset) {
+                    this.mappedOffset = this.startOffset;
+                    this.mappedCodePointOffset = this.startCodePointOffset;
                 }
             }
-            if (!this.closed.get()) {
-                publish(failure == null ? END : new SplitFailure(failure));
-            }
         }
-
-        private void publish(Object result) {
-            if (this.closed.get()) {
-                throw new SplitCancelledException();
-            }
-            try {
-                this.results.put(result);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                if (this.closed.get()) {
-                    throw new SplitCancelledException();
-                }
-                throw new SplitStreamException("interrupted while publishing SQL split result", e);
-            }
-        }
-
-        @Override
-        public void close() {
-            if (!this.closed.compareAndSet(false, true)) {
-                return;
-            }
-            this.finished = true;
-            Thread thread = this.producer;
-            if (thread != null) {
-                thread.interrupt();
-            }
-            this.results.clear();
-            this.results.offer(END);
-        }
-    }
-
-    private record SplitFailure(Throwable cause) {
-
-        private RuntimeException asRuntimeException() {
-            if (this.cause instanceof RuntimeException runtimeException) {
-                return runtimeException;
-            }
-            if (this.cause instanceof IOException ioException) {
-                return new UncheckedIOException("read SQL script failed", ioException);
-            }
-            return new SplitStreamException("split SQL script failed", this.cause);
-        }
-    }
-
-    private static final class SplitStreamException extends RuntimeException {
-
-        private SplitStreamException(String message, Throwable cause){
-            super(message, cause);
-        }
-    }
-
-    private static final class SplitCancelledException extends RuntimeException {
     }
 
     private static final class NonClosingReader extends FilterReader {
@@ -489,6 +555,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
         @Override
         public void close() {
+            // The SplitAnalysisSpi caller owns the supplied reader.
         }
     }
 }

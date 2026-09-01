@@ -22,7 +22,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.session.result.ColumnConfig;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -41,7 +41,7 @@ public class QueryRequest implements Cloneable {
     private List<QueryArg>            queryArgs;
     private int                       bodyStartCodeLine;
     //
-    private Set<SplitQueryType>       queryTypes;
+    private Set<StatementType>        queryTypes;
     private Long                      dsId;
     private DataSourceType            dsType;
     private List<BehaviorRelation>    relations;
@@ -103,7 +103,7 @@ public class QueryRequest implements Cloneable {
         return req;
     }
 
-    public boolean hasQueryType(SplitQueryType queryType) {
+    public boolean hasQueryType(StatementType queryType) {
         return this.queryTypes != null && this.queryTypes.contains(queryType);
     }
 
