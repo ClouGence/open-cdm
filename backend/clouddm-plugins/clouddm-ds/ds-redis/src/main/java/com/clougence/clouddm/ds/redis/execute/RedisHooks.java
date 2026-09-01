@@ -18,7 +18,9 @@ package com.clougence.clouddm.ds.redis.execute;
 import java.sql.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
-import com.clougence.clouddm.ds.redis.execute.jdbc.JedisConnection;
+import com.clougence.drivers.adapter.AdapterConnManager;
+import com.clougence.drivers.adapter.AdapterConnection;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.Session;
@@ -126,12 +128,27 @@ public class RedisHooks implements SessionHook {
 
     @Override
     public String getQueryID(Connection conn) throws SQLException {
-        return conn.unwrap(JedisConnection.class).getObjectId();
+        AdapterConnection adapterConn = conn.unwrap(AdapterConnection.class);
+        if (adapterConn == null) {
+            throw new SQLException("failed to unwrap AdapterConnection from " + conn.getClass().getName());
+        }
+        return adapterConn.getObjectId();
     }
 
     @Override
     public void killProcess(Connection conn, String connID) throws SQLException {
-        conn.unwrap(JedisConnection.class).killDriverConnection(connID);
+        AdapterConnection target = AdapterConnManager.getConnection(connID);
+        if (target != null) {
+            try {
+                target.close();
+            } catch (Throwable e) {
+                Throwable root = ExceptionUtils.getRootCause(e);
+                if (root instanceof SQLException) {
+                    throw (SQLException) root;
+                }
+                throw new SQLException(e);
+            }
+        }
     }
 
     @Override

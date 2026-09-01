@@ -81,6 +81,8 @@ public class JedisConnection extends AdapterConnection {
             return (T) this;
         } else if (iface == JedisCmd.class) {
             return (T) this.jedisCmd;
+        } else if (AdapterConnection.class.isAssignableFrom(iface) && iface.isInstance(this)) {
+            return (T) this;
         } else {
             return super.unwrap(iface);
         }
