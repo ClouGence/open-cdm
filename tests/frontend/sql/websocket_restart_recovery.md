@@ -2,14 +2,14 @@
 
 ## Purpose
 
-验证浏览器保持 SQL 工作台打开时，CloudDM 后端短暂不可用或重启后 WebSocket 会持续重连，并在服务恢复后自动恢复数据源状态、查询会话以及执行相关操作，防止必须刷新页面才能继续查询的回归。
+验证浏览器保持 SQL 工作台打开时，CloudDM 后端短暂不可用或重启后 WebSocket 会持续重连，并在服务恢复后自动恢复数据源状态、查询会话以及执行相关操作；当后端进入初始化模式时，旧页面应识别系统状态并停止普通通道重连，防止持续刷 404 日志的回归。
 
 ## Scope
 
-- 页面与路由：`/#/sql`。
+- 页面与路由：`/#/sql`、`/#/initialization`。
 - 入口：登录 CloudDM 后进入“数据查询”，打开一个已连接数据源的 SQL 查询页签。
-- 关联接口与状态：`/api/entry/ws/channel`、WebSocket 关闭码 `1008`、`WS_SYS_STATUS`、`SOCKET_CONNECTION_OPEN`、`RECOVER_STATUS`。
-- 关联源码：`frontend/src/services/socket.js`、`frontend/src/views/sql/index.vue`、`backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/global/ws/WsChannel.java`。
+- 关联接口与状态：`/api/entry/ws/channel`、`/api/entry/dmGlobalSettings`、WebSocket 关闭码 `1008`、`WS_SYS_STATUS`、`SOCKET_CONNECTION_OPEN`、`RECOVER_STATUS`。
+- 关联源码：`frontend/src/services/socket.js`、`frontend/src/utils/dmGlobalSettings.js`、`frontend/src/views/sql/index.vue`、`backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/global/ws/WsChannel.java`。
 - 不覆盖：数据库服务本身故障、SQL 执行结果正确性、后端进程升级和数据迁移。
 
 ## Preconditions
@@ -18,6 +18,7 @@
 - Chrome 已登录具备 SQL 查询权限的测试账号。
 - 存在一个连接正常、允许浏览元数据和执行只读查询的数据源。
 - 测试人员可以停止并重新启动同一个后端运行配置，且后端恢复后 `/healthcheck` 返回 `ok`。
+- 初始化模式场景必须使用已确认可丢弃的空测试数据库，禁止清空或替换现有业务数据库。
 - 测试期间不得刷新或重新打开 SQL 工作台标签页，除非场景步骤明确要求。
 
 ## Test Data
@@ -26,6 +27,7 @@
 |---|---|---|---|---|
 | WSR01 | 已连接的 SQL 查询会话 | 选择可用数据源和 schema，打开查询页签并输入一条只读 `SELECT` | 查询页签名称与选定 schema | 不执行写入；测试后关闭查询页签 |
 | WSR02 | 后端中断窗口 | 停止当前 `DmAloneLauncher`，保持停止时间大于 WebSocket 重连间隔（至少 3 秒） | 当前 IDEA execution ID | 使用同一运行配置重新启动后端 |
+| WSR03 | 初始化模式数据库 | 预先配置一个已确认可丢弃且无 CloudDM 表的空数据库 | 测试数据库名 | 测试后恢复原测试配置，不删除或重置其他数据库 |
 
 ## Suites
 
@@ -89,6 +91,21 @@
 - 预期结果：服务端拒绝未授权 WebSocket 并以策略违规关闭码 `1008` 关闭连接；标签页 A 收到该关闭码后停止重连，不再持续请求 `/api/entry/ws/channel`；页面不会创建重复 WebSocket 实例。
 - 恢复/清理：重新登录测试账号，关闭场景产生的查询页签和额外标签页。
 
+### WS-REC-006 初始化模式终止普通通道重连
+
+- 风险/目的：P0，确认后端从完整模式切换到初始化模式时，旧页面不会无限重连普通 WebSocket 并持续产生 404 日志。
+- 初始路由与状态：标签页 A 已在完整模式建立 `/api/entry/ws/channel`；后端可使用 WSR03 启动到初始化模式。
+- 测试数据：WSR03。
+- Chrome 操作：
+    1. 保持标签页 A 不刷新，停止当前后端运行实例。
+    2. 使用空测试数据库和同一个 `DmAloneLauncher` 配置启动后端，确认页面入口切换到 `/#/initialization`。
+    3. 观察标签页 A 至少两个重连间隔，并另开初始化页面确认页面可达。
+- 预期结果：
+    1. 标签页 A 的普通通道断开后，前端通过 `/api/entry/dmGlobalSettings` 识别 `Initial` 或 `Upgrade` 状态并主动终止重连。
+    2. 后端切换到初始化模式后最多出现状态识别前的瞬时失败，随后 `/api/entry/ws/channel` 的 `NoResourceFoundException` 不再按重连间隔持续增长。
+    3. 初始化页面正常展示，专用 `/api/entry/init/ws/install-log` 通道不受影响。
+- 恢复/清理：恢复原测试数据库配置并使用同一个 IDEA 运行配置重新启动后端；关闭额外初始化标签页。
+
 ## Cleanup
 
 1. 确认最后一次启动的 `DmAloneLauncher` 健康运行，没有遗留旧 execution。
@@ -103,3 +120,4 @@
 - 不允许中断当前环境服务时，保留代码检查和构建结果，并在可隔离测试环境补做真实停启。
 - 不便重新登录时可跳过 WS-REC-004，但必须通过源码确认明确未登录与退出登录路径仍会主动关闭 WebSocket，并记录该覆盖缺口。
 - 无法安全恢复登录状态时，WS-REC-005 可使用不带认证信息的 WebSocket 客户端确认服务端以 `1008` 关闭，并检查前端关闭码分支；不得将未执行的多标签页浏览器流程标记为通过。
+- 没有已确认可丢弃的空数据库时跳过 WS-REC-006，不得通过清空现有数据库制造初始化状态；必须保留前端状态探测分支的源码检查与构建结果，并记录旧页面生命周期覆盖缺口。

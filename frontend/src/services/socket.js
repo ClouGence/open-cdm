@@ -6,11 +6,14 @@ import { WS_TYPE } from '@/utils';
 import i18n from '@/i18n';
 import eventBus from '@/utils/eventBus';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import { isDmSystemBootstrapRequired } from '@/utils/dmGlobalSettings';
 import Cookies from 'js-cookie';
 
 let rws = null;
 const JWT_TOKEN_NAME = 'dm_jwt_token';
 const WS_POLICY_VIOLATION_CODE = 1008;
+const SYSTEM_STATUS_REQUEST_TIMEOUT_MS = 1500;
+let systemStatusCheckInProgress = false;
 let globalCallback = {
   open: null,
   message: null,
@@ -40,6 +43,57 @@ const buildFullUrl = (url) => {
   return `${url}${separator}${params.toString()}`;
 };
 
+const buildDmGlobalSettingsUrl = () => {
+  const baseUrl = (process.env.VUE_APP_BASE_URL || '').replace(/\/$/, '');
+  return `${baseUrl}/api/entry/dmGlobalSettings`;
+};
+
+const stopReconnectingWhenBootstrapRequired = async (webSocket) => {
+  if (window.location.hash.startsWith('#/initialization')) {
+    if (rws === webSocket) {
+      webSocketClose();
+    }
+    return;
+  }
+
+  if (systemStatusCheckInProgress) {
+    return;
+  }
+
+  systemStatusCheckInProgress = true;
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timeoutId = controller ? window.setTimeout(() => controller.abort(), SYSTEM_STATUS_REQUEST_TIMEOUT_MS) : null;
+
+  try {
+    const response = await fetch(buildDmGlobalSettingsUrl(), {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: JSON.stringify({}),
+      signal: controller ? controller.signal : undefined
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const dmGlobalSettingsRes = await response.json();
+    if (rws === webSocket && dmGlobalSettingsRes.success && isDmSystemBootstrapRequired(dmGlobalSettingsRes)) {
+      webSocketClose();
+    }
+  } catch (e) {
+    // Keep reconnecting while the backend is unavailable or does not return a valid system status.
+  } finally {
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    systemStatusCheckInProgress = false;
+  }
+};
+
 const createWebSocket = (url) => {
   appLogger.debug('create socket', i18n);
 
@@ -53,6 +107,7 @@ const createWebSocket = (url) => {
     minReconnectionDelay: 3000,
     maxReconnectionDelay: 3000
   });
+  const webSocket = rws;
   rws.addEventListener('open', () => {
     if (!rws) {
       return;
@@ -101,7 +156,11 @@ const createWebSocket = (url) => {
 
   rws.addEventListener('close', (e) => {
     if (e.code === WS_POLICY_VIOLATION_CODE) {
-      webSocketClose();
+      if (rws === webSocket) {
+        webSocketClose();
+      }
+    } else if (rws === webSocket) {
+      stopReconnectingWhenBootstrapRequired(webSocket);
     }
     rejectPendingRequests(new Error('websocket closed'));
     store?.commit(UPDATE_SOCKET_STATUS, { connected: false, msg: i18n.global.t('lian-jie-yi-duan-kai') });
