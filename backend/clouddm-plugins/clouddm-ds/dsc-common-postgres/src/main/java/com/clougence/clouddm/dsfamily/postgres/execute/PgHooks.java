@@ -49,13 +49,14 @@ public class PgHooks implements SessionHook {
 
     @Override
     public void configSession(Connection resource, SessionContextDTO initContextDTO) throws SQLException {
+        // Configure JDBC session properties before schema SQL can start a transaction in manual-commit mode.
+        this.setIsolation(resource, initContextDTO.getRdbTxIsolation());
+        this.setReadOnly(resource, initContextDTO.isRdbReadOnly());
+        this.setAutoCommit(resource, initContextDTO.isRdbAutoCommit());
+
         if (StringUtils.isNotBlank(initContextDTO.getRdbSchema())) {
             this.setCurrentSchema(resource, initContextDTO.getRdbSchema());
         }
-
-        this.setAutoCommit(resource, initContextDTO.isRdbAutoCommit());
-        this.setIsolation(resource, initContextDTO.getRdbTxIsolation());
-        this.setReadOnly(resource, initContextDTO.isRdbReadOnly());
     }
 
     @Override
