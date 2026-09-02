@@ -137,14 +137,14 @@ export const PREFERENCE_TABS = [
             defaultValue: false
           },
           {
-            key: 'onlineResultCacheTimeoutSec',
-            labelKey: 'preference-query-result-cache-timeout',
-            helpKey: 'preference-query-result-cache-timeout-help',
+            key: 'onlineResultCacheCapacityMegaByte',
+            labelKey: 'preference-query-result-cache-capacity',
+            helpKey: 'preference-query-result-cache-capacity-help',
             widget: 'number',
-            defaultValue: 300,
+            defaultValue: 1024,
             min: 0,
-            max: 43200,
-            unitKey: 'preference-unit-seconds',
+            max: 1048576,
+            unitKey: 'preference-unit-mb',
             specialValue: 0,
             specialValueKey: 'preference-special-zero-no-cache'
           }

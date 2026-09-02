@@ -356,7 +356,7 @@ public class QueryEditorController {
                     break;
                 }
 
-                if (System.currentTimeMillis() < (t + 3000)) {
+                if (System.currentTimeMillis() >= (t + 3000)) {
                     t = System.currentTimeMillis();
                     int percent = (int) ((((double) readOffset) + binaryData.length) / ((double) fileSize)) * 100;
                     this.executionDal.fileMapper().updateAccessTimeByUniqueId(fileDO.getUniqueId(), "download " + percent + "% of " + fileSizeStr);

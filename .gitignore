@@ -53,3 +53,4 @@ install_upgrade.log
 *.local.md
 
 .claude
+.design_docs

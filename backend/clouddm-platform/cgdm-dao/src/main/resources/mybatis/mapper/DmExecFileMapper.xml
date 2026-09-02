@@ -71,15 +71,14 @@
             query_id = #{queryId}
     </update>
 
-    <select id="queryByAfterHeartbeatTime" resultMap="dmFileDO">
+    <select id="queryAfterId" resultMap="dmFileDO">
         SELECT
             <include refid="sqlDmFileDO"/>
         FROM
             dm_exec_file
         WHERE
-            heartbeat <![CDATA[ < ]]> #{point}
-        ORDER BY
-            heartbeat ASC
+            id <![CDATA[ > ]]> #{afterId}
+        ORDER BY id
         LIMIT
             #{limit}
     </select>

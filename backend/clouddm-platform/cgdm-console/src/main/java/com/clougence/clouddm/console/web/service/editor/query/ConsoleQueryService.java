@@ -329,7 +329,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         SessionSpi sessionSpi = ctx.getSessionSpi();
         QueryRequest temp = sessionSpi.createQueryRequest(ctx.getDsConfig());
         temp.setRequester(Requester.CONSOLE);
-        if (this.isUsingCacheResult(queryDTO)) {
+        if (this.isUsingCacheResult()) {
             temp.getResultConf().setCacheResult(true);
             temp.getResultConf().setReceiveMode(queryDTO.getReceiveMode() == null ? ReceiveMode.PAGINATED : queryDTO.getReceiveMode());
         } else {
@@ -1331,8 +1331,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
     }
 
-    private boolean isUsingCacheResult(WsQueryFO queryDTO) {
-        Long configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineResultCacheTimeoutSec, Long.class);
+    private boolean isUsingCacheResult() {
+        Long configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineResultCacheCapacityMegaByte, Long.class);
         return configValue == null || configValue > 0;
     }
 }

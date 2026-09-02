@@ -37,6 +37,7 @@ PASS/FAIL，只维护当前真实入口、数据准备、操作、断言和清�
 | 数据源   | [`datasource/driver_default_selection.md`](datasource/driver_default_selection.md)           | 实例列表 → `/#/datasource/add` | 后端默认驱动契约、家族和版本默认选择        | Smoke、Main Flow、Boundaries、Lifecycle、Permission、State Consistency              |
 | 数据源   | [`datasource/kingbasees_datasource.md`](datasource/kingbasees_datasource.md)                 | 实例列表 → SQL 工作台             | 四兼容模式、层级契约、单产品前端与真实执行链路   | Smoke、Main Flow、Failure And Recovery、Lifecycle、Permission、State Consistency     |
 | SQL   | [`sql/table_editor_dameng_defaults.md`](sql/table_editor_dameng_defaults.md)                 | SQL 工作台 → 达梦新建表            | 默认值、虚拟列、标识符与插件契约       | Smoke、Main Flow、Boundaries、Lifecycle、Permission、State Consistency               |
+| 系统设置  | [`system/query_result_cache_capacity.md`](system/query_result_cache_capacity.md)             | 设置 → 偏好设置 → 数据查询             | 容量配置、零值语义、双语文案与持久化一致性   | Smoke、Main Flow、Boundaries、Extreme、Repeat And Concurrency、Failure And Recovery、Lifecycle、Permission、State Consistency |
 
 新增用户流程时，在对应业务目录创建一份文档，并同步更新本索引。文档结构以 [`TEMPLATE.md`](TEMPLATE.md) 为准。
 
