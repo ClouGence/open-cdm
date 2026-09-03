@@ -34,7 +34,7 @@ public interface ConfigRService {
 
     DataSourceConfig fetchDsConfig(long dsId);
 
-    List<ConfigData> fetchDsConfig(String instanceId, List<String> names);
+    List<ConfigData> fetchDsConfigValues(String instanceId, List<String> names);
 
     ToolConfig fetchToolConfig(String toolName);
 

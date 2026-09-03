@@ -95,7 +95,7 @@ public class SslConfigManager {
             return Collections.emptyMap();
         }
 
-        List<ConfigData> configData = this.configRService.fetchDsConfig(dsConfig.getInstanceId(), configNames);
+        List<ConfigData> configData = this.configRService.fetchDsConfigValues(dsConfig.getInstanceId(), configNames);
         Map<String, String> result = new HashMap<>();
         if (configData == null) {
             return result;

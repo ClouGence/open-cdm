@@ -79,7 +79,7 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
     }
 
     @Override
-    public List<ConfigData> fetchDsConfig(String instanceId, List<String> names) {
+    public List<ConfigData> fetchDsConfigValues(String instanceId, List<String> names) {
         if (StringUtils.isBlank(instanceId) || CollectionUtils.isEmpty(names)) {
             return Collections.emptyList();
         }
