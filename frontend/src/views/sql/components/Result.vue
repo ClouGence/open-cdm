@@ -76,7 +76,7 @@
               <div class="time">[{{ info.time }}]</div>
               <div :class="`message ${info.level}`">
                 {{ info.message }}
-                <a href="#" v-if="info.message === $t('gui-ze-xiao-yan-shi-bai')" @click="handleViewNoPassedRuleList(index)">
+                <a href="#" v-if="info.message === $t('gui-ze-xiao-yan-shi-bai')" @click.prevent="handleViewNoPassedRuleList(index)">
                   {{ $t('cha-kan-xiang-qing') }}
                 </a>
               </div>

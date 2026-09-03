@@ -60,38 +60,6 @@
               />
             </div>
           </div>
-          <div class="resize-handle" v-if="showValidationResult" @mousedown="startResize"></div>
-          <div class="collapse validation-result" v-if="showValidationResult" :style="{ height: validationResultHeight + 'px' }">
-            <div class="title" style="display: flex; justify-content: space-between">
-              <div>
-                <Icon type="md-warning" :style="{ color: hasError ? '#f5222d' : '#faad14', marginRight: '8px' }" />
-                <span>{{ $t('gui-ze-xiao-yan-jie-guo') }}</span>
-              </div>
-              <div>
-                <Checkbox v-model="showCheckedOnlyError">{{ $t('jin-xian-shi-yan-zhong') }}</Checkbox>
-              </div>
-            </div>
-            <div class="content">
-              <div class="validation-content">
-                <div v-for="(rule, index) in checkRoleResultList()" :key="index" class="rule-item">
-                  <div class="rule-header">
-                    <Tag :color="rule.ruleLevel === 'SUGGEST' ? 'warning' : 'error'" class="rule-level">
-                      {{ RULE_WARN_LEVEL[rule.ruleLevel] }}
-                    </Tag>
-                    <span class="rule-name">{{ rule.name }}</span>
-                    <div v-if="rule.lines && rule.lines.length" class="rule-lines">
-                      <span class="lines-label">{{ $t('wei-zhi-0') }}:</span>
-                      <span v-for="line in rule.lines" :key="line" class="lines-content">{{ line }}</span>
-                      <span v-if="rule.hitCount > rule.lines.length" class="lines-content">
-                        {{ $t('ticket-rule-location-total', { count: rule.hitCount }) }}
-                      </span>
-                    </div>
-                  </div>
-                  <div class="rule-desc">{{ rule.desc }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       <div class="create-ticket-content">
@@ -113,48 +81,35 @@
         </div>
       </div>
     </div>
-    <CCModal v-model="showNoPassedRuleModal" :title="$t('gui-ze-xiao-yan-shi-bai')" width="880">
-      <Table :columns="noPassedRuleColumns" :data="noPassedRuleList" size="small" border>
+    <CCModal
+      v-model="showValidationResultModal"
+      :width="800"
+      :title="$t('gui-ze-xiao-yan-shi-bai')"
+      wrap-class-name="ticket-rule-validation-modal"
+      @on-cancel="handleCloseValidationResult"
+    >
+      <div v-if="canFilterValidationResults" class="validation-result-toolbar">
+        <Checkbox v-model="showCheckedOnlyError">{{ $t('jin-xian-shi-yan-zhong') }}</Checkbox>
+      </div>
+      <Table :columns="validationResultColumns" :data="filteredValidationResults" border stripe max-height="360">
+        <template #lines="{ row }">
+          <Tooltip :content="formatRuleLocations(row)" placement="top" transfer>
+            <div class="lines-cell">
+              {{ formatRuleLocations(row) }}
+            </div>
+          </Tooltip>
+        </template>
         <template #warnLevel="{ row }">
           <Tag :color="row.ruleLevel === 'SUGGEST' ? 'warning' : 'error'">
             {{ RULE_WARN_LEVEL[row.ruleLevel] }}
           </Tag>
         </template>
-        <template #lines="{ row }">
-          <Poptip :content="formatRuleLocations(row)" trigger="hover" transfer>
-            <span style="width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              {{ formatRuleLocations(row) }}
-            </span>
-          </Poptip>
-        </template>
       </Table>
       <template #footer>
-        <Button type="primary" :loading="loading" :disabled="loading" @click="handleSubmitTicket(true)" v-if="showForceBtn">
+        <Button v-if="showForceBtn" type="primary" :loading="loading" :disabled="loading" @click="handleSubmitTicket(true)">
           {{ $t('ji-xu-ti-jiao') }}
         </Button>
-        <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
-      </template>
-    </CCModal>
-    <CCModal v-model="showNoPassedRuleModalWithLine" :title="$t('gui-ze-xiao-yan-shi-bai')" width="880">
-      <Table :columns="noPassedRuleColumnsWithLine" :data="noPassedRuleList" size="small" border>
-        <template #warnLevel="{ row }">
-          <Tag :color="row.ruleLevel === 'SUGGEST' ? 'warning' : 'error'">
-            {{ RULE_WARN_LEVEL[row.ruleLevel] }}
-          </Tag>
-        </template>
-        <template #lines="{ row }">
-          <Poptip :content="formatRuleLocations(row)" trigger="hover" transfer>
-            <span style="width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              {{ formatRuleLocations(row) }}
-            </span>
-          </Poptip>
-        </template>
-      </Table>
-      <template #footer>
-        <Button type="primary" :loading="loading" :disabled="loading" @click="handleSubmitTicket(true)" v-if="showForceBtn">
-          {{ $t('ji-xu-ti-jiao') }}
-        </Button>
-        <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
+        <Button :disabled="loading" @click="handleCloseValidationResult">{{ $t('guan-bi') }}</Button>
       </template>
     </CCModal>
     <SqlFileUploadModal v-model="showSqlUploadModal" :loading="sqlUploading" :max-mega-byte="sqlFileMaxMegaByte" @confirm="uploadSqlFile" />
@@ -180,22 +135,19 @@ export default {
     sqlFileMaxMegaByte() {
       return this.dmGlobalSetting?.sqlFileMaxSize || 20;
     },
-    showValidationResult() {
-      const hasResults = this.noPassedRuleList && this.noPassedRuleList.length > 0;
-
-      if (hasResults) {
-        this.initializeHeights();
-      }
-
-      return hasResults;
-    },
     hasError() {
       return this.noPassedRuleList.some((rule) => rule.ruleLevel !== 'SUGGEST');
     },
-    previewMaxStartLine() {
-      return Math.max(1, this.previewTotalLines - this.previewLineCount + 1);
+    canFilterValidationResults() {
+      return this.hasError && this.noPassedRuleList.some((rule) => rule.ruleLevel === 'SUGGEST');
     },
-    noPassedRuleColumns() {
+    filteredValidationResults() {
+      if (this.showCheckedOnlyError) {
+        return this.noPassedRuleList.filter((rule) => rule.ruleLevel !== 'SUGGEST');
+      }
+      return this.noPassedRuleList;
+    },
+    validationResultColumns() {
       const columns = [
         {
           title: this.$t('deng-ji'),
@@ -208,20 +160,24 @@ export default {
           width: 200
         },
         {
-          title: this.$t('miao-shu'),
+          title: this.$t('wei-gui-ti-shi'),
           key: 'desc'
         }
       ];
 
-      const dsConfig = this.dmGlobalSetting.dsSettingDef[this.ticketData.dataSourceType];
-      if (dsConfig && dsConfig.features && dsConfig.features.FUNC_LINES_SUPPORT === true) {
+      const dsConfig = this.dmGlobalSetting?.dsSettingDef?.[this.ticketData.dataSourceType];
+      if (dsConfig?.features?.FUNC_LINES_SUPPORT === true) {
         columns.push({
           title: this.$t('hang-hao'),
           slot: 'lines',
-          width: 80
+          width: 120
         });
       }
+
       return columns;
+    },
+    previewMaxStartLine() {
+      return Math.max(1, this.previewTotalLines - this.previewLineCount + 1);
     }
   },
   data() {
@@ -229,6 +185,7 @@ export default {
       showForceBtn: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
+      showValidationResultModal: false,
       showRawSql: true,
       showCheckedOnlyError: false,
       checkedSql: '',
@@ -249,10 +206,6 @@ export default {
       personList: [],
       selectedDs: {},
       instanceRequiredError: false,
-      validationResultHeight: 150,
-      isResizing: false,
-      startY: 0,
-      startHeight: 0,
       ticketData: {
         ticketEnable: true,
         showCatalogSelect: false,
@@ -295,19 +248,8 @@ export default {
     window.addEventListener('resize', this.handleWindowResize);
   },
   beforeDestroy() {
-    this.stopResize();
     clearTimeout(this.previewTimer);
     window.removeEventListener('resize', this.handleWindowResize);
-  },
-  watch: {
-    noPassedRuleList: {
-      handler() {
-        this.$nextTick(() => {
-          this.initializeHeights();
-        });
-      },
-      deep: true
-    }
   },
   methods: {
     openSqlUploadModal() {
@@ -425,17 +367,6 @@ export default {
       }
       return `${(size / 1024 / 1024).toFixed(1)} MB`;
     },
-    startResize(e) {
-      this.isResizing = true;
-      this.startY = e.clientY;
-      this.startHeight = this.validationResultHeight;
-
-      document.addEventListener('mousemove', this.onResize);
-      document.addEventListener('mouseup', this.stopResize);
-
-      e.preventDefault();
-    },
-
     initializeHeights() {
       this.$nextTick(() => {
         this.layoutEditors();
@@ -449,26 +380,12 @@ export default {
       });
     },
 
-    onResize(e) {
-      if (!this.isResizing) return;
-
-      const deltaY = this.startY - e.clientY;
-      const newHeight = Math.max(100, Math.min(400, this.startHeight + deltaY));
-      this.validationResultHeight = newHeight;
-      this.layoutEditors();
-    },
-
-    stopResize() {
-      this.isResizing = false;
-      document.removeEventListener('mousemove', this.onResize);
-      document.removeEventListener('mouseup', this.stopResize);
-    },
-
     handleWindowResize() {
       this.layoutEditors();
     },
 
-    handleCloseModal() {
+    handleCloseValidationResult() {
+      this.showValidationResultModal = false;
       this.showForceBtn = false;
       this.noPassedRuleList = [];
     },
@@ -572,18 +489,23 @@ export default {
         const res = await this.$services.dmTicketCreate({ data });
         if (res.success) {
           if (res.data.failure || res.data.confirm) {
+            this.showForceBtn = false;
             if (res.data.confirm && !res.data.failure) {
               this.showForceBtn = true;
               if (force) {
                 // Forced surrender, no obstruction rules.
                 this.noPassedRuleList = [];
+                this.showValidationResultModal = false;
                 this.showForceBtn = false;
                 await this.$router.push({ path: `/ticket/${res.data.ticketId}` });
+                return;
               }
             }
             this.noPassedRuleList = res.data.checkedVOS;
+            this.showValidationResultModal = this.noPassedRuleList.length > 0;
           } else {
             this.noPassedRuleList = [];
+            this.showValidationResultModal = false;
             this.showForceBtn = false;
             await this.$router.push({ path: `/ticket/${res.data.ticketId}` });
           }
@@ -685,13 +607,6 @@ export default {
     restoreCatalog(data) {
       this.restoreLevel('catalog', data);
     },
-    checkRoleResultList() {
-      if (!this.showCheckedOnlyError) {
-        return this.noPassedRuleList;
-      } else {
-        return this.noPassedRuleList.filter((rule) => rule.ruleLevel !== 'SUGGEST');
-      }
-    },
     formatRuleLocations(rule) {
       const lines = rule.lines || [];
       const locations = lines.join(', ');
@@ -762,84 +677,6 @@ export default {
             flex: 1;
             min-height: 200px;
             overflow: hidden;
-          }
-
-          &.validation-result {
-            flex: none;
-            min-height: 100px;
-            max-height: 400px;
-            border-radius: 6px;
-            border: 1px solid #eee;
-            overflow: hidden;
-
-            .title {
-              padding: 10px 16px;
-              color: #d4380d;
-              font-size: 14px;
-              font-weight: 500;
-              background: #fff7f5;
-              border-bottom: 1px solid #ffebeb;
-            }
-
-            .content {
-              padding: 12px 16px;
-              overflow-y: auto;
-              height: calc(100% - 41px);
-
-              .validation-content {
-                .rule-item {
-                  padding: 0;
-
-                  &:not(:last-child) {
-                    border-bottom: 1px solid #f5f5f5;
-                    margin-bottom: 10px;
-                    padding-bottom: 10px;
-                  }
-
-                  .rule-header {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 4px;
-
-                    .rule-level {
-                      margin-right: 8px;
-                      font-weight: 500;
-                    }
-
-                    .rule-name {
-                      font-weight: 600;
-                      color: #262626;
-                    }
-
-                    .rule-lines {
-                      display: flex;
-                      align-items: center;
-                      font-size: 12px;
-                      padding-left: 10px;
-
-                      .lines-label {
-                        color: #8c8c8c;
-                        margin-right: 4px;
-                      }
-
-                      .lines-content {
-                        color: #595959;
-                        background: #f5f5f5;
-                        padding: 2px 6px;
-                        margin-right: 5px;
-                        border-radius: 3px;
-                        font-family: monospace;
-                      }
-                    }
-                  }
-
-                  .rule-desc {
-                    color: #595959;
-                    line-height: 1.5;
-                  }
-                }
-              }
-            }
           }
 
           .title {
@@ -972,35 +809,6 @@ export default {
             }
           }
         }
-
-        .resize-handle {
-          height: 6px;
-          background: #eee;
-          cursor: ns-resize;
-          position: relative;
-          border-radius: 3px;
-          margin: 2px 0;
-
-          &:hover {
-            background: #ddd;
-          }
-
-          &:active {
-            background: #ccc;
-          }
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 2px;
-            background: #999;
-            border-radius: 1px;
-          }
-        }
       }
     }
 
@@ -1031,5 +839,21 @@ export default {
       }
     }
   }
+}
+
+.ticket-rule-validation-modal {
+  .validation-result-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+}
+
+.lines-cell {
+  display: block;
+  width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
