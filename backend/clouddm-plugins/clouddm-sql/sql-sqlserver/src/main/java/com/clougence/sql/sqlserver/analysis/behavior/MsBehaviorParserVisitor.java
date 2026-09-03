@@ -101,6 +101,12 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
     }
 
     @Override
+    public Void visitTruncate_table(SqlServerParser.Truncate_tableContext ctx) {
+        addUnary(SplitQueryType.TRUNCATE_TABLE, BehaviorAction.ALTER, object(TargetType.Table, ctx.table_name()));
+        return null;
+    }
+
+    @Override
     public Void visitCreate_view(SqlServerParser.Create_viewContext ctx) {
         addRelation(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.simple_name()), sourceTables(ctx));
         return null;

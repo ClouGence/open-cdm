@@ -175,6 +175,12 @@ public class MsSqlParserVisitor extends SqlServerParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitTruncate_table(SqlServerParser.Truncate_tableContext ctx) {
+        add(tableDomain(ctx.table_name(), RuleQueryType.TRUNCATE_TABLE, SecQueryKind.DML));
+        return null;
+    }
+
+    @Override
     public Void visitCreate_view(SqlServerParser.Create_viewContext ctx) {
         NameParts name = parts(ctx.simple_name());
         boolean alter = startsWithAlter(ctx);

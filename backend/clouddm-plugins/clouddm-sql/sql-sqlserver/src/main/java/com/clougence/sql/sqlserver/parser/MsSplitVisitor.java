@@ -133,6 +133,11 @@ public class MsSplitVisitor extends SqlServerParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitTruncate_table(SqlServerParser.Truncate_tableContext ctx) {
+        return SplitQueryType.TRUNCATE_TABLE;
+    }
+
+    @Override
     public SplitQueryType visitDrop_aggregate(SqlServerParser.Drop_aggregateContext ctx) {
         return SplitQueryType.DROP_PROG_OBJ;
     }
