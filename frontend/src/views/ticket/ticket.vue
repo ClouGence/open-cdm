@@ -8,6 +8,7 @@
               :ticketData="ticketData"
               :handleChangeInstance="handleChangeInstance"
               :allDsList="allDsList"
+              :allEnvList="allEnvList"
               :handle-catalog-change="handleCatalogChange"
               :selectedDs="selectedDs"
               required
@@ -243,6 +244,7 @@ export default {
       partialSqlNotice: false,
       currentMethod: '',
       allDsList: [],
+      allEnvList: [],
       templateList: [],
       personList: [],
       selectedDs: {},
@@ -475,9 +477,17 @@ export default {
       this.listLevels(selectCatalog.levels, isRefreshCache);
     },
     async listAllDs() {
-      const res = await this.$services.dmTicketListDsInsLevels();
-      if (res.success) {
-        this.allDsList = res.data.map((ds) => ({
+      const [dsRes, envRes] = await Promise.all([
+        this.$services.dmTicketListDsInsLevels(),
+        this.$services.rdpDsEnvList({
+          data: {}
+        })
+      ]);
+      if (envRes.success) {
+        this.allEnvList = envRes.data;
+      }
+      if (dsRes.success) {
+        this.allDsList = dsRes.data.map((ds) => ({
           ...ds,
           levels: [ds.objAttr.dsEnvId, ds.objId]
         }));

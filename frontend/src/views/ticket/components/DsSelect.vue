@@ -8,15 +8,16 @@
         v-model="ticketData.instanceId"
         @on-change="handleChangeInstance"
         :placeholder="$t('qing-xuan-ze-shu-ju-yuan-shi-li')"
-        show-search
+        filterable
       >
-        <Option v-for="ds in allDsList" :value="ds.objId" :key="ds.objId" :label="ds.objName">
-          <div style="display: flex; align-items: center">
-            <!-- <cc-svg-icon :name="ds.objAttr.dsType" style="margin-right: 5px" /> -->
-            <CustomIcon :type="ds.objAttr.dsType" rightMargin />
-            {{ ds.objName }}
-          </div>
-        </Option>
+        <OptionGroup v-for="group in groupedDsList" :key="group.envId" :label="group.envName">
+          <Option v-for="ds in group.dsList" :value="ds.objId" :key="ds.objId" :label="ds.objName">
+            <div class="ticket-ds-select__option">
+              <CustomIcon :type="ds.objAttr.dsType" rightMargin />
+              {{ ds.objName }}
+            </div>
+          </Option>
+        </OptionGroup>
       </Select>
     </div>
 
@@ -68,6 +69,7 @@ export default {
     ds: Object,
     ticketData: Object,
     allDsList: Array,
+    allEnvList: Array,
     handleChangeInstance: Function,
     handleCatalogChange: Function,
     selectedDs: Object,
@@ -89,6 +91,24 @@ export default {
     }
   },
   computed: {
+    groupedDsList() {
+      const dsListByEnvId = new Map();
+      this.allDsList.forEach((ds) => {
+        const envId = String(ds.objAttr.dsEnvId);
+        if (!dsListByEnvId.has(envId)) {
+          dsListByEnvId.set(envId, []);
+        }
+        dsListByEnvId.get(envId).push(ds);
+      });
+
+      return this.allEnvList
+        .map((env) => ({
+          envId: String(env.id),
+          envName: env.envName,
+          dsList: dsListByEnvId.get(String(env.id)) || []
+        }))
+        .filter((group) => group.dsList.length > 0);
+    },
     selectedInstance() {
       return this.allDsList.find((ds) => ds.objId === this.ticketData.instanceId);
     }
@@ -131,5 +151,10 @@ export default {
 
 .ticket-ds-select__control {
   flex: 1;
+}
+
+.ticket-ds-select__option {
+  display: flex;
+  align-items: center;
 }
 </style>
