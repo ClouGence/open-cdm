@@ -51,7 +51,8 @@ import com.clougence.schema.SchemaPlugin;
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + MsSqlI18nKeys.PLUGIN_NAME_SQLSERVER,            //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",   //
-                            "com.clougence.clouddm.dsfamily.sqlserver.execute.*"//
+                            "com.clougence.clouddm.dsfamily.sqlserver.execute.*",//
+                            "com.clougence.clouddm.ds.sqlserver.execute.*" //
         }, dsProduct = DataSourceType.SQLServer)
 public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 

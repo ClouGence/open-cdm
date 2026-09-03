@@ -76,7 +76,8 @@ public class MsSqlMetaProviderDm extends AbstractMetadataProvider implements Met
         sqlBuilder.append(" ");
         sqlBuilder.append("from " + supplementTable(dbName, "sys", "tables") + " t ");
         sqlBuilder.append("left join " + supplementTable(dbName, "sys", "schemas") + " s on t.schema_id = s.schema_id ");
-        sqlBuilder.append("left join " + supplementTable(dbName, "sys", "extended_properties") + " c on c.major_id = t.object_id and c.minor_id = 0 ");
+        sqlBuilder.append("left join " + supplementTable(dbName, "sys", "extended_properties")
+                          + " c on c.class = 1 and c.major_id = t.object_id and c.minor_id = 0 and c.name = 'MS_Description' ");
         return sqlBuilder.toString();
     }
 
@@ -85,7 +86,8 @@ public class MsSqlMetaProviderDm extends AbstractMetadataProvider implements Met
         sqlBuilder.append("select s.name schema_name,t.name table_name, t.create_date, t.modify_date, t.type, c.value comment ");
         sqlBuilder.append("from " + supplementTable(dbName, "sys", "all_views") + " t ");
         sqlBuilder.append("left join " + supplementTable(dbName, "sys", "schemas") + " s on t.schema_id = s.schema_id ");
-        sqlBuilder.append("left join " + supplementTable(dbName, "sys", "extended_properties") + " c on c.major_id = t.object_id and c.minor_id = 0 ");
+        sqlBuilder.append("left join " + supplementTable(dbName, "sys", "extended_properties")
+                          + " c on c.class = 1 and c.major_id = t.object_id and c.minor_id = 0 and c.name = 'MS_Description' ");
         return sqlBuilder.toString();
     }
 
@@ -103,7 +105,8 @@ public class MsSqlMetaProviderDm extends AbstractMetadataProvider implements Met
         sql.append("left join " + supplementTable(dbName, "sys", "schemas") + " s on t.schema_id = s.schema_id ");
         sql.append("left join " + supplementTable(dbName, "sys", "types") + " t2 on c.user_type_id = t2.user_type_id ");
         sql.append("left join " + supplementTable(dbName, "sys", "default_constraints") + " d on d.object_id = c.default_object_id ");
-        sql.append("left join " + supplementTable(dbName, "sys", "extended_properties") + " p on p.major_id = t.object_id and c.column_id = p.minor_id ");
+        sql.append("left join " + supplementTable(dbName, "sys", "extended_properties")
+                   + " p on p.class = 1 and p.major_id = t.object_id and c.column_id = p.minor_id and p.name = 'MS_Description' ");
         return sql.toString();
     }
 
@@ -250,7 +253,8 @@ public class MsSqlMetaProviderDm extends AbstractMetadataProvider implements Met
         sqlBuilder.append("select t.name table_name, t.type, c.value comment ");
         sqlBuilder.append("from " + supplementTable(catalog, "sys", "all_views") + " t ");
         sqlBuilder.append("left join " + supplementTable(catalog, "sys", "schemas") + " s on t.schema_id = s.schema_id ");
-        sqlBuilder.append("left join " + supplementTable(catalog, "sys", "extended_properties") + " c on c.major_id = t.object_id and c.minor_id = 0 ");
+        sqlBuilder.append("left join " + supplementTable(catalog, "sys", "extended_properties")
+                          + " c on c.class = 1 and c.major_id = t.object_id and c.minor_id = 0 and c.name = 'MS_Description' ");
         sqlBuilder.append("where s.name = ? order by t.name asc");
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sqlBuilder.toString())) {
             ps.setString(1, schema);
@@ -267,7 +271,8 @@ public class MsSqlMetaProviderDm extends AbstractMetadataProvider implements Met
         sqlBuilder.append("select t.name table_name, t.type, c.value comment ");
         sqlBuilder.append("from " + supplementTable(catalog, "sys", "tables") + " t ");
         sqlBuilder.append("left join " + supplementTable(catalog, "sys", "schemas") + " s on t.schema_id = s.schema_id ");
-        sqlBuilder.append("left join " + supplementTable(catalog, "sys", "extended_properties") + " c on c.major_id = t.object_id and c.minor_id = 0 ");
+        sqlBuilder.append("left join " + supplementTable(catalog, "sys", "extended_properties")
+                          + " c on c.class = 1 and c.major_id = t.object_id and c.minor_id = 0 and c.name = 'MS_Description' ");
         sqlBuilder.append("where s.name = ? order by t.name asc");
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sqlBuilder.toString())) {
             ps.setString(1, schema);
