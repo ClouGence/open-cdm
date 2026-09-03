@@ -18,6 +18,12 @@
             </div>
           </Option>
         </OptionGroup>
+        <Option v-for="ds in ungroupedDsList" :value="ds.objId" :key="ds.objId" :label="ds.objName">
+          <div class="ticket-ds-select__option">
+            <CustomIcon :type="ds.objAttr.dsType" rightMargin />
+            {{ ds.objName }}
+          </div>
+        </Option>
       </Select>
     </div>
 
@@ -108,6 +114,10 @@ export default {
           dsList: dsListByEnvId.get(String(env.id)) || []
         }))
         .filter((group) => group.dsList.length > 0);
+    },
+    ungroupedDsList() {
+      const envIds = new Set(this.allEnvList.map((env) => String(env.id)));
+      return this.allDsList.filter((ds) => !envIds.has(String(ds.objAttr.dsEnvId)));
     },
     selectedInstance() {
       return this.allDsList.find((ds) => ds.objId === this.ticketData.instanceId);
