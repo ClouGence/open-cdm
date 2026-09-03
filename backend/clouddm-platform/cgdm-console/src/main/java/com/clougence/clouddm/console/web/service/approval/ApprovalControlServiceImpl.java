@@ -608,7 +608,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         ticket.setOwnerUid(uid);
         ticket.setPrimaryUid(ownerUid);
         ticket.setTargetInfo(DmI18nUtils.getMessage(I18nRdpLabelKeys.AUTH_TICKET_TARGET.name()));
-        ticket.setDescription(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
+        ticket.setDescription(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_DESCRIPTION_AUTH.name()));
         ticket.setTicketTitle(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
         ticket.setTicketStatus(ApprovalStatus.WAIT_APPROVAL);
         ticket.setApproBiz(ApprovalBiz.DATA_SOURCE_AUTH);
