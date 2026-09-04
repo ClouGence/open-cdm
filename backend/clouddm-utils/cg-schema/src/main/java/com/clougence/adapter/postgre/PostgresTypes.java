@@ -114,8 +114,8 @@ public enum PostgresTypes implements FieldType {
     // vector
     INT2VECTOR("int2vector", JDBCType.OTHER, null, false, false),
     OIDVECTOR("oidvector", JDBCType.OTHER, null, false, false),
-    VECTOR("vector", JDBCType.OTHER, null, false, false),
-    HALFVEC("halfvec", JDBCType.OTHER, null, false, false),
+    VECTOR("vector", JDBCType.OTHER, null, false, true),
+    HALFVEC("halfvec", JDBCType.OTHER, null, false, true),
 
     // --------------------------------------------------------------------------------------------------------------------------
     SMALLINT_ARRAY("smallint[]", JDBCType.ARRAY, Oid.INT2_ARRAY, true, false), // smallint、int2
