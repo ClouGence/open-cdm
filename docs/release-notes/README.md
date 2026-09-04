@@ -4,6 +4,7 @@ Release notes are grouped by version. Each listed version contains one file per 
 
 | Version | Chinese | English |
 |---------|---------|---------|
+| v4.2.2 | [中文](v4.2.2/index.cn.md) | [English](v4.2.2/index.en.md) |
 | v4.2.1 | [中文](v4.2.1/index.cn.md) | [English](v4.2.1/index.en.md) |
 | v4.2.0 | [中文](v4.2.0/index.cn.md) | [English](v4.2.0/index.en.md) |
 | v4.1.2 | [中文](v4.1.2/index.cn.md) | [English](v4.1.2/index.en.md) |
