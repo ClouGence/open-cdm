@@ -108,7 +108,9 @@ public class DrRewriteSpi implements RewriteSpi {
     }
 
     private boolean rewriterLimit(TokenStreamRewriter rewriter, ParseTree astTree, long maxLimit) {
-        DorisParser.StatementDefaultContext dmlStat = (DorisParser.StatementDefaultContext) ((DorisParser.StatementBaseAliasContext) astTree).statementBase();
+        if (!(astTree instanceof DorisParser.StatementBaseAliasContext statement) || !(statement.statementBase() instanceof DorisParser.StatementDefaultContext dmlStat)) {
+            return false;
+        }
         if (dmlStat.query() != null) {
             DorisParser.QueryTermContext queryTerm = dmlStat.query().queryTerm();
             if (queryTerm instanceof DorisParser.QueryTermDefaultContext) {
