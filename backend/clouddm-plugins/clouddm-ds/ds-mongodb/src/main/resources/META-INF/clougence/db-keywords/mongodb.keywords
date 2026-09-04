@@ -72,12 +72,14 @@ renameCollection
 replaceOne
 returnKey
 rotateCertificates
+rs
 runCommand
 serverBuildInfo
 serverCmdLineOpts
 serverStatus
 setLogLevel
 setProfilingLevel
+sh
 show
 showRecordId
 shutdownServer
