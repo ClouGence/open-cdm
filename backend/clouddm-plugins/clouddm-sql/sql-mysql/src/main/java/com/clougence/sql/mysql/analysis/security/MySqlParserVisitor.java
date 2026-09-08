@@ -2252,6 +2252,9 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                 throw new UnsupportedOperationException("unsupported SQL: " + this.getText(configKey));
             }
 
+            if (configKey.dottedId() != null) {
+                keyName += configKey.dottedId().getText();
+            }
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
             String normalizedKey = keyName.toUpperCase(Locale.ROOT);
             if (normalizedKey.contains("GTID_") || normalizedKey.contains("SLAVE_") || normalizedKey.contains("REPLICA_")) {
@@ -2729,7 +2732,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.TABLES);
         myShowDomain.setTarget(TargetType.Table);
-        String text = getName(ctx.uid(0));
+        String text = getName(ctx.uid());
         myShowDomain.setSchema(text);
         builder.addDomain(myShowDomain);
         return null;

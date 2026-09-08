@@ -43,20 +43,28 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
+    protected DslProvider fallbackDslProvider() {
+        if (provider.config().isSqlModeKnown() || provider.config().isEnabled(MySqlParserConfig.Feature.NO_BACKSLASH_ESCAPES)) {
+            return null;
+        }
+        return provider.withNoBackslashEscapesFallback();
+    }
+
+    @Override
+    protected boolean isStatementTerminated(Parser parser) {
+        // A quoted token may span the next SQL when the escape mode is unknown.
+        // Do not publish it before the enclosing rule checks the statement separator.
+        int next = parser.getTokenStream().LA(1);
+        return next == MySqlParser.SEMI || next == MySqlParser.EOF || next == MySqlParser.MINUSMINUS;
+    }
+
+    @Override
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return new MySplitVisitor(this.provider.version());
     }
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        ParserRuleContext describe = findContext(context, MySqlParser.FullDescribeStatementContext.class);
-        if (describe instanceof MySqlParser.FullDescribeStatementContext fullDescribe) {
-            return Set.of(normalizeType(fullDescribe.accept(splitVisitor())));
-        }
-        describe = findContext(context, MySqlParser.SimpleDescribeStatementContext.class);
-        if (describe instanceof MySqlParser.SimpleDescribeStatementContext simpleDescribe && simpleDescribe.command.getType() == MySqlParser.EXPLAIN) {
-            return Set.of(SplitQueryType.SELECT);
-        }
         Set<SplitQueryType> types = new MySplitVisitor(this.provider.version()).collectTypes(context);
         return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
     }

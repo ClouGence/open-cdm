@@ -23,8 +23,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.parser.MySqlVersion;
@@ -617,8 +617,8 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitShowTables(ShowTablesContext ctx) {
-        if (!ctx.uid().isEmpty()) {
-            add(SplitQueryType.METADATA, TargetType.Schema, ctx.uid(0));
+        if (ctx.uid() != null) {
+            add(SplitQueryType.METADATA, TargetType.Schema, ctx.uid());
         } else {
             addUnnamedResource(SplitQueryType.METADATA, TargetType.Schema, true, ctx);
         }
@@ -1291,7 +1291,11 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             || tokenType == MySqlParser.ID && StringUtils.equalsIgnoreCase(ctx.uid().getText(), "PERSIST_ONLY")) {
             return "";
         }
-        return name(ctx.uid());
+        String variable = name(ctx.uid());
+        if (ctx.dottedId() != null) {
+            variable += ctx.dottedId().getText();
+        }
+        return variable;
     }
 
     private void addFile(SplitQueryType sqlType, boolean require, ParserRuleContext ctx) {

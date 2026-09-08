@@ -6,9 +6,31 @@
  */
 package com.clougence.sql.mysql.analysis.behavior;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
+
 final class MyBehaviorText {
 
     private MyBehaviorText(){
+    }
+
+    static String statementText(TokenStream tokens, ParserRuleContext context) {
+        StringBuilder text = new StringBuilder();
+        boolean separator = false;
+        for (int i = context.getStart().getTokenIndex(); i <= context.getStop().getTokenIndex(); i++) {
+            Token token = tokens.get(i);
+            if (token.getChannel() != Token.DEFAULT_CHANNEL) {
+                separator = true;
+                continue;
+            }
+            if (separator && !text.isEmpty()) {
+                text.append(' ');
+            }
+            text.append(token.getText());
+            separator = false;
+        }
+        return text.toString();
     }
 
     static int skipWhitespace(String text, int start) {

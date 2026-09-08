@@ -84,6 +84,11 @@ public abstract class MySqlParserBase extends Parser {
         return !Set.of("GLOBAL", "LOCAL", "PERSIST", "PERSIST_ONLY", "SESSION").contains(text);
     }
 
+    protected final boolean isTriggerRowAssignmentAhead() {
+        String name = _input.LT(2).getText().replace("`", "");
+        return _input.LA(3) == MySqlParser.DOT && (name.equalsIgnoreCase("NEW") || name.equalsIgnoreCase("OLD"));
+    }
+
     protected final boolean isTruthPredicateAllowed(ParserRuleContext suffix) {
         ParserRuleContext comparison = suffix.getParent() instanceof ParserRuleContext ? (ParserRuleContext) suffix.getParent() : null;
         if (comparison == null || comparison.children == null) {

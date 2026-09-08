@@ -7,6 +7,7 @@
 package com.clougence.sql.mysql.analysis.behavior;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,8 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MyDslProvider;
+import com.clougence.sql.mysql.parser.MySplitVisitor;
+import com.clougence.sql.mysql.parser.antlr.MySqlParser;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser.CommentInsertValueContext;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser.InsertStatementContext;
 import com.clougence.sql.mysql.parser.antlr.MySqlParser.ReplaceStatementContext;
@@ -53,8 +56,24 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     @Override
     public Void visit(ParseTree tree) {
         ParserRuleContext context = (ParserRuleContext) tree;
+        ParseTree command = context;
+        while (command.getChildCount() == 1 && command.getChild(0) instanceof ParserRuleContext) {
+            command = command.getChild(0);
+        }
+        Map<UmiTypes, Object> statementLevels = levels;
+        if (command instanceof MySqlParser.FullDescribeStatementContext describe && describe.uid() != null) {
+            statementLevels = new HashMap<>();
+            if (levels != null) {
+                statementLevels.putAll(levels);
+            }
+            String schema = describe.uid().getText();
+            if (schema.startsWith("`") && schema.endsWith("`")) {
+                schema = schema.substring(1, schema.length() - 1).replace("``", "`");
+            }
+            statementLevels.put(UmiTypes.Schema, schema);
+        }
         MyBehaviorObjectReferenceVisitor visitor = new MyBehaviorObjectReferenceVisitor(parser,
-            levels,
+            statementLevels,
             baseLine,
             baseColumn,
             provider.version(),
@@ -64,15 +83,24 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         visitor.scan(context);
         visitor.scanOptimizerHints(context);
 
-        String sql = parser.getTokenStream().getText(context.getStart(), context.getStop());
+        String sql = MyBehaviorText.statementText(parser.getTokenStream(), context);
         SplitQueryType statementType = MyBehaviorStatementTypeResolver.resolve(sql, visitor.references());
+        if (command instanceof MySqlParser.FullDescribeStatementContext || command instanceof MySqlParser.SimpleDescribeStatementContext
+            || command instanceof MySqlParser.SetVariableContext) {
+            statementType = new MySplitVisitor(provider.version()).collectTypes(command).iterator().next();
+        }
         boolean libraryLifecycle = statementType == SplitQueryType.CREATE_LIBRARY || statementType == SplitQueryType.ALTER_LIBRARY || statementType == SplitQueryType.DROP_LIBRARY
                                    || statementType == SplitQueryType.COMMENT_LIBRARY;
         if (libraryLifecycle) {
             visitor.references().removeIf(reference -> reference.targetType() != TargetType.Library);
         }
-        if (visitor.references().isEmpty()
-            || visitor.references().stream().allMatch(reference -> reference.targetType() == TargetType.Function && reference.sqlType() == SplitQueryType.CALL_PROG_OBJ)) {
+        if (command instanceof MySqlParser.FullDescribeStatementContext && statementType == SplitQueryType.PERFORMANCE) {
+            visitor.references().removeIf(reference -> reference.targetType() == TargetType.File);
+        }
+        if (command instanceof MySqlParser.KillStatementContext && visitor.references().stream().noneMatch(reference -> reference.targetType() == TargetType.Instance)
+            || visitor.references().isEmpty()
+            || statementType != SplitQueryType.SELECT && statementType != SplitQueryType.BLOCK
+               && visitor.references().stream().allMatch(reference -> reference.targetType() == TargetType.Function && reference.sqlType() == SplitQueryType.CALL_PROG_OBJ)) {
             TargetType fallback = fallbackType(statementType);
             if (fallback != null) {
                 int fallbackIndex = visitor.references().size();
@@ -83,7 +111,7 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
         StatementBehavior behavior = new StatementBehavior();
         behavior.setStatementType(statementType);
-        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), levels).assemble();
+        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), statementLevels).assemble();
         Long insertRows = insertRows(context);
         if (insertRows != null) {
             relations.stream()
@@ -126,6 +154,9 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     private TargetType fallbackType(SplitQueryType type) {
         return switch (type) {
+            case SELECT -> TargetType.Query;
+            case TRANSACTION, BLOCK -> TargetType.Unknown;
+            case PROGRAM_CONTROL -> TargetType.ProgramObject;
             case SYSTEM_SETTING_WRITE, SESSION_SETTING_WRITE, SESSION_VARIABLE_RW -> TargetType.ConfigKey;
             case CREATE_REPLICATION, ALTER_REPLICATION, DROP_REPLICATION, ADMIN_REPLICATION -> TargetType.Replication;
             case CREATE_LOG, ALTER_LOG, DROP_LOG, LOG_READ, ADMIN_LOG, MAINTAIN_LOG -> TargetType.Log;

@@ -2671,6 +2671,8 @@ resourceGroupAlterState
 
 setStatement
     : setPasswordStatement                                          #setPassword
+    | {isTriggerRowAssignmentAhead()}? SET fullId ('=' | ':=') expression
+      (',' fullId ('=' | ':=') expression)*                         #setNewValueInsideTrigger
     | SET setVariableAssignment (',' setVariableAssignment)*        #setVariable
     | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
     | SET NAMES
@@ -2680,8 +2682,6 @@ setStatement
     | {atLeast(8, 0) || isLegacySetRoleAssignment()}?
       SET ROLE roleOption                                           #setRole
     | {atLeast(8, 0)}? SET DEFAULT ROLE roleOption TO userName (',' userName)* #setDefaultRole
-    | SET fullId ('=' | ':=') expression
-      (',' fullId ('=' | ':=') expression)*                         #setNewValueInsideTrigger
     ;
 
 setVariableAssignment
@@ -2703,7 +2703,7 @@ showStatement
         (schemaFormat=(FROM | IN) uid)? showFilter?                 #showColumns
     | SHOW FULL TABLES
       schemaFormat=(FROM | IN) uid
-        (WHERE TABLE_TYPE comparisonOperator (uid | textLiteralToken) )?                                         #showTables
+      showFilter?                                                   #showTables
     | SHOW CREATE schemaFormat=(DATABASE | SCHEMA)
       ifNotExists? uid                                              #showCreateDb
     | SHOW CREATE
@@ -2760,7 +2760,7 @@ showLogEventOptions
 variableClause
     : LOCAL_ID
     | GLOBAL_ID
-    | (('@' '@')? (GLOBAL | SESSION | LOCAL))? uid
+    | (('@' '@')? (GLOBAL | SESSION | LOCAL))? uid dottedId?
     | {atMost(5, 7)}? (GLOBAL | SESSION | LOCAL | persistScope)
     | {atMost(5, 7)}? CUBE
     | {isBarePersistScopeAllowed()}? persistScope uid
@@ -2817,8 +2817,8 @@ flushStatement
     ;
 
 killStatement
-    : KILL connectionFormat=(CONNECTION | QUERY)?
-      expression
+    : KILL (connectionFormat=(CONNECTION | QUERY) expression
+      | {_input.LA(1) != CONNECTION && _input.LA(1) != QUERY}? expression)
     ;
 
 loadIndexIntoCache
@@ -2933,7 +2933,7 @@ fullDescribeStatement
         {atMost(5, 7)}? legacyType=(EXTENDED | PARTITIONS)
         | {atLeast(8, 0)}? analyze=ANALYZE
       )?
-      (FORMAT '=' formatValue=(TRADITIONAL | JSON | TREE))?
+      (FORMAT '=' (formatValue=(TRADITIONAL | JSON | TREE) | textLiteralToken))?
       ({atLeast(8, 4) && ($analyze == null || atLeast(9, 7))}? INTO LOCAL_ID)?
       ({atLeast(8, 4)}? FOR (DATABASE | SCHEMA) uid)?
       describeObjectClause
@@ -3926,7 +3926,7 @@ dataTypeBase
     ;
 
 keywordsCanBeId
-    : ACCESSIBLE | ACCOUNT | ACTION | ACTIVE | ADMIN | AFTER | AGGREGATE | ALGORITHM | ANY | APPLICATION_PASSWORD_ADMIN | ARRAY
+    : TABLE_TYPE | ACCESSIBLE | ACCOUNT | ACTION | ACTIVE | ADMIN | AFTER | AGGREGATE | ALGORITHM | ANY | APPLICATION_PASSWORD_ADMIN | ARRAY
     | AT | AUDIT_ADMIN | AUTHORS | AUTHENTICATION | AUTO | AUTOCOMMIT | AUTOEXTEND_SIZE
     | ABSENT | ALLOW_MISSING_FILES | AUTO_INCREMENT | AUTO_REFRESH | AUTO_REFRESH_SOURCE
     | AVG | AVG_ROW_LENGTH | BACKUP | BACKUP_ADMIN | BEGIN | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR
