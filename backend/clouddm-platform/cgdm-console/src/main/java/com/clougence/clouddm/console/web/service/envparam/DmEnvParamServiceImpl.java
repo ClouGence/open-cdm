@@ -133,10 +133,16 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
     }
 
     @Override
-    public List<DmEnvParamOpenVO> listEnvParamOpen(String puid, String uid) {
+    public List<DmEnvParamOpenVO> listEnvParamOpen(String puid, String uid, String envName) {
         List<DmEnvParamOpenVO> result = new ArrayList<>();
         List<DmSysEnvParamDO> paramList = this.systemDal.envParamMapper().queryByUid(puid);
-        List<DmSysEnvDO> envList = this.systemDal.envMapper().queryListByUid(puid);
+
+        List<DmSysEnvDO> envList;
+        if (StringUtils.isNotBlank(envName)) {
+            envList = this.systemDal.envMapper().listByCondition(puid, envName);
+        } else {
+            envList = this.systemDal.envMapper().queryListByUid(puid);
+        }
 
         for (DmSysEnvDO envDO : envList) {
             DmEnvParamOpenVO vo = new DmEnvParamOpenVO();
