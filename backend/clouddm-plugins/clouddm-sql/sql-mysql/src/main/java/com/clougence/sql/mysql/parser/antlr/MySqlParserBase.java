@@ -77,6 +77,9 @@ public abstract class MySqlParserBase extends Parser {
     protected final boolean isSqlModeKnown() { return config.isSqlModeKnown(); }
 
     protected final boolean isSetVariableAssignmentAllowed(MySqlParser.VariableClauseContext variable) {
+        if (variable.GLOBAL_ID() != null && variable.getText().endsWith(".")) {
+            return false;
+        }
         if (MySqlVersion.le(config.grammarVersion(), MySqlVersion.MYSQL_5_7)) {
             return true;
         }

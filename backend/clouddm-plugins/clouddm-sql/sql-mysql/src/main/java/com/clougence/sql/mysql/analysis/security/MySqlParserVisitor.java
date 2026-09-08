@@ -2213,7 +2213,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
             MyScopeType scopeType;
             String keyName;
             if (configKey.GLOBAL_ID() != null) {
-                keyName = configKey.GLOBAL_ID().getText().substring(2);
+                keyName = configKey.getText().substring(2);
                 String normalizedKey = keyName.toUpperCase(Locale.ROOT);
                 if (normalizedKey.startsWith("GLOBAL.")) {
                     scopeType = MyScopeType.GLOBAL;
@@ -2252,7 +2252,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                 throw new UnsupportedOperationException("unsupported SQL: " + this.getText(configKey));
             }
 
-            if (configKey.dottedId() != null) {
+            if (configKey.GLOBAL_ID() == null && configKey.dottedId() != null) {
                 keyName += configKey.dottedId().getText();
             }
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);

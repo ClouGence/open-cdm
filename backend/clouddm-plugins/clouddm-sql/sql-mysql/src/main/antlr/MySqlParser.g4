@@ -2759,7 +2759,7 @@ showLogEventOptions
 
 variableClause
     : LOCAL_ID
-    | GLOBAL_ID
+    | GLOBAL_ID (dottedId | {$GLOBAL_ID.text.endsWith(".")}? uid dottedId?)?
     | (('@' '@')? (GLOBAL | SESSION | LOCAL))? uid dottedId?
     | {atMost(5, 7)}? (GLOBAL | SESSION | LOCAL | persistScope)
     | {atMost(5, 7)}? CUBE
@@ -2790,7 +2790,7 @@ showGlobalInfoClause
     ;
 
 showSchemaEntity
-    : EVENTS | TABLE STATUS | FULL? (TABLES | TRIGGERS)
+    : EVENTS | TABLE STATUS | ({atLeast(8, 0)}? EXTENDED)? FULL? TABLES | FULL? TRIGGERS
     ;
 
 showProfileType
@@ -3017,7 +3017,7 @@ describeObjectClause
         | replaceStatement | updateStatement
       )                                                             #describeStatements
     | {atLeast(5, 7)}? FOR CONNECTION decimalLiteral                #describeConnection
-    | {atLeast(8, 0)}? TABLE tableName                              #describeTable
+    | {atLeast(8, 0)}? TABLE tableName orderByClause? limitClause?   #describeTable
     ;
 
 

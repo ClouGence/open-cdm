@@ -1031,17 +1031,6 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         return value.substring(offset);
     }
 
-    private static String removeWhitespace(String value) {
-        StringBuilder normalized = new StringBuilder(value.length());
-        for (int i = 0; i < value.length(); i++) {
-            char current = value.charAt(i);
-            if (!Character.isWhitespace(current)) {
-                normalized.append(current);
-            }
-        }
-        return normalized.toString();
-    }
-
     private static String stripVariableScope(String value) {
         String[] scopes = { "PERSIST_ONLY", "PERSIST", "GLOBAL", "SESSION", "LOCAL" };
         for (String scope : scopes) {
@@ -1050,9 +1039,8 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             }
             int offset = scope.length();
             if (offset < value.length() && (value.charAt(offset) == '.' || value.charAt(offset) == '=')) {
-                offset++;
+                return value.substring(offset + 1);
             }
-            return value.substring(offset);
         }
         return value;
     }
@@ -1278,10 +1266,17 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     private String variableName(VariableClauseContext ctx) {
         if (ctx.LOCAL_ID() != null) {
-            return unquote(removeWhitespace(removeLeading(ctx.LOCAL_ID().getText(), '@')));
+            return unquote(removeLeading(ctx.LOCAL_ID().getText(), '@'));
         }
         if (ctx.GLOBAL_ID() != null) {
-            return unquote(stripVariableScope(removeWhitespace(removeLeading(ctx.GLOBAL_ID().getText(), '@'))));
+            String variable = unquote(stripVariableScope(removeLeading(ctx.GLOBAL_ID().getText(), '@')));
+            if (ctx.uid() != null) {
+                variable += name(ctx.uid());
+            }
+            if (ctx.dottedId() != null) {
+                variable += "." + unquoteIdentifier(ctx.dottedId().getText().substring(1));
+            }
+            return variable;
         }
         if (ctx.uid() == null) {
             return ctx.CUBE() == null ? "" : name(ctx);
@@ -1293,7 +1288,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         }
         String variable = name(ctx.uid());
         if (ctx.dottedId() != null) {
-            variable += ctx.dottedId().getText();
+            variable += "." + unquoteIdentifier(ctx.dottedId().getText().substring(1));
         }
         return variable;
     }
