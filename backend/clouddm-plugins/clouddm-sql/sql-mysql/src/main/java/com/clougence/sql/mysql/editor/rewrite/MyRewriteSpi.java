@@ -63,6 +63,10 @@ public class MyRewriteSpi implements RewriteSpi {
 
     private boolean rewriterLimit(TokenStreamRewriter rewriter, ParseTree astTree, long maxLimit) {
         MySqlParser.DmlStatementContext dmlStat = ((MySqlParser.SqlStatementContext) astTree).dmlStatement();
+        // EXPLAIN ANALYZE and DAL statements with subqueries can also be classified as SELECT.
+        if (dmlStat == null) {
+            return false;
+        }
         if (dmlStat.selectStatement() != null) {
             MySqlParser.SelectStatementContext s = dmlStat.selectStatement();
             if (s instanceof MySqlParser.QuerySpecificationSelectContext) {
