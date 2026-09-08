@@ -302,6 +302,12 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     }
 
     @Override
+    public Void visitDescribeTable(DescribeTableContext ctx) {
+        addReadTable(ctx.tableName());
+        return null;
+    }
+
+    @Override
     public Void visitAtomTableItem(AtomTableItemContext ctx) {
         if (isCte(ctx.tableName())) {
             return null;

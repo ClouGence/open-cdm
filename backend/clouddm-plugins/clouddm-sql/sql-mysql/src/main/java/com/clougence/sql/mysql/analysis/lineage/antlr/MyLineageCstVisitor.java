@@ -77,7 +77,15 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
     @Override
     public Void visitTableStatement(TableStatementContext context) {
         if (query == null) {
-            query = buildTableStatement(context);
+            query = buildTableStatement(context.tableName());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDescribeTable(DescribeTableContext context) {
+        if (query == null) {
+            query = buildTableStatement(context.tableName());
         }
         return null;
     }
@@ -111,7 +119,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
         if (context instanceof UnionTableValueSelectContext select) {
             LineageQuery first;
             if (select.tableStatement() != null) {
-                first = buildTableStatement(select.tableStatement());
+                first = buildTableStatement(select.tableStatement().tableName());
             } else {
                 first = buildValuesStatement(select.valuesStatement());
             }
@@ -139,7 +147,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
             } else if (cte.selectStatement() != null) {
                 cteQuery = buildSelectStatement(cte.selectStatement());
             } else if (cte.tableStatement() != null) {
-                cteQuery = buildTableStatement(cte.tableStatement());
+                cteQuery = buildTableStatement(cte.tableStatement().tableName());
             } else if (cte.valuesStatement() != null) {
                 cteQuery = buildValuesStatement(cte.valuesStatement());
             } else {
@@ -152,7 +160,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
         if (context.selectStatement() != null) {
             body = buildSelectStatement(context.selectStatement());
         } else if (context.tableStatement() != null) {
-            body = buildTableStatement(context.tableStatement());
+            body = buildTableStatement(context.tableStatement().tableName());
         } else if (context.valuesStatement() != null) {
             body = buildValuesStatement(context.valuesStatement());
         } else {
@@ -177,7 +185,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
             return buildLegacyQueryExpression(context.legacyQueryExpression());
         }
         if (context.tableStatement() != null) {
-            return buildTableStatement(context.tableStatement());
+            return buildTableStatement(context.tableStatement().tableName());
         }
         if (context.valuesStatement() != null) {
             return buildValuesStatement(context.valuesStatement());
@@ -200,7 +208,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
             return buildWithSelect(context.withSelectStatement());
         }
         if (context.tableStatement() != null) {
-            return buildTableStatement(context.tableStatement());
+            return buildTableStatement(context.tableStatement().tableName());
         }
         if (context.valuesStatement() != null) {
             return buildValuesStatement(context.valuesStatement());
@@ -223,7 +231,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
             return buildSelectStatement(context.selectStatement());
         }
         if (context.tableStatement() != null) {
-            return buildTableStatement(context.tableStatement());
+            return buildTableStatement(context.tableStatement().tableName());
         }
         if (context.valuesStatement() != null) {
             return buildValuesStatement(context.valuesStatement());
@@ -231,9 +239,9 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
         throw unsupported(context);
     }
 
-    private LineageQuery buildTableStatement(TableStatementContext context) {
-        LineageNamedRelation relation = namedRelation(context.tableName(), null);
-        LineageSelectItem wildcard = new LineageSelectItem("*", "", MyLineageTokenRangeFactory.from(context.tableName()), List.of());
+    private LineageQuery buildTableStatement(TableNameContext tableName) {
+        LineageNamedRelation relation = namedRelation(tableName, null);
+        LineageSelectItem wildcard = new LineageSelectItem("*", "", MyLineageTokenRangeFactory.from(tableName), List.of());
         return new LineageQuery(List.of(), List.of(new LineageQueryBlock(List.of(wildcard), List.of(relation))));
     }
 

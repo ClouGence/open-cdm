@@ -765,6 +765,11 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitDescribeTable(DescribeTableContext ctx) {
+        return SplitQueryType.SELECT;
+    }
+
+    @Override
     public SplitQueryType visitValuesStatement(ValuesStatementContext ctx) {
         return SplitQueryType.SELECT;
     }
