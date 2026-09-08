@@ -24,6 +24,7 @@
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
 import cockroachdbIcon from '@/assets/datasource/cockroachdb.svg';
 import goldendbIcon from '@/assets/datasource/goldendb.png';
+import kafkaIcon from '@/assets/datasource/kafka.svg';
 import valkeyIcon from '@/assets/datasource/valkey.svg';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 
@@ -34,6 +35,7 @@ const bundledIcons = {
   GoldenDB: goldendbIcon,
   GoldenDBMySQL: goldendbIcon,
   GoldenDBOracle: goldendbIcon,
+  Kafka: kafkaIcon,
   Valkey: valkeyIcon
 };
 

@@ -31,16 +31,18 @@
     />
     <cc-iconfont name="redis" :color="color" :size="size" v-if="type === 'Redis'"></cc-iconfont>
     <img :src="valkeyIcon" :style="`width:${size || 16}px;height:${size || 16}px;vertical-align:middle`" alt="" v-if="type === 'Valkey'" />
+    <img :src="kafkaIcon" :style="`width:${size || 16}px;height:${size || 16}px;vertical-align:middle`" alt="" v-if="type === 'Kafka'" />
     <cc-iconfont name="sql-server" :color="color" :size="size" v-if="type === 'SQLServer'"></cc-iconfont>
   </div>
 </template>
 <script>
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
+import kafkaIcon from '@/assets/datasource/kafka.svg';
 import valkeyIcon from '@/assets/datasource/valkey.svg';
 
 export default {
   data() {
-    return { cloudberryIcon, valkeyIcon };
+    return { cloudberryIcon, kafkaIcon, valkeyIcon };
   },
   props: {
     type: String,

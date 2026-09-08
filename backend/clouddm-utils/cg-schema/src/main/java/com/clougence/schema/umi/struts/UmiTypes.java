@@ -54,6 +54,7 @@ public enum UmiTypes {
     // mq
     Endpoint("ENDPOINT"),
     Topic("TOPIC"),
+    ConsumerGroup("CONSUMER_GROUP"),
 
     // key/value
     Key("KEY"),
