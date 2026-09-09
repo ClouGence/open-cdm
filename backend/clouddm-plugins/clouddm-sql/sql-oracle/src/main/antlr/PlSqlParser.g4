@@ -43,6 +43,7 @@ unit_statement
     | alter_audit_policy
     | alter_cluster
     | alter_database
+    | alter_pluggable_database
     | alter_database_link
     | alter_dimension
     | alter_diskgroup
@@ -85,6 +86,7 @@ unit_statement
     | create_controlfile
     | create_schema
     | create_database
+    | create_pluggable_database
     | create_database_link
     | create_dimension
     | create_directory
@@ -127,6 +129,7 @@ unit_statement
     | drop_cluster
     | drop_context
     | drop_database
+    | drop_pluggable_database
     | drop_database_link
     | drop_directory
     | drop_diskgroup
@@ -173,12 +176,14 @@ unit_statement
     | grant_statement
     | noaudit_statement
     | purge_statement
+    | set_role
     | rename_object
     | revoke_statement
     | transaction_control_statements
     | truncate_cluster
     | truncate_table
     | unified_auditing
+    | unified_noauditing
     ;
 
 // https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-DISKGROUP.html
@@ -1167,34 +1172,138 @@ alter_sequence
     : ALTER SEQUENCE sequence_name sequence_spec+
     ;
 
-// https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-SESSION.html
+// https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ALTER-SESSION.html
 alter_session
     : ALTER SESSION (
         ADVISE ( COMMIT | ROLLBACK | NOTHING)
-        | CLOSE DATABASE LINK parameter_name
+        | CLOSE DATABASE LINK link_name
         | enable_or_disable COMMIT IN PROCEDURE
         | enable_or_disable GUARD
-        | (enable_or_disable | FORCE) PARALLEL (DML | DDL | QUERY) (
-            PARALLEL (literal | parameter_name)
-        )?
+        | enable_or_disable PARALLEL (DML | DDL | QUERY)
+        | FORCE PARALLEL (DML | DDL | QUERY) (PARALLEL UNSIGNED_INTEGER)?
+        | ENABLE RESUMABLE (TIMEOUT UNSIGNED_INTEGER)? (NAME quoted_string)?
+        | DISABLE RESUMABLE
+        | enable_or_disable SHARD DDL
+        | SYNC WITH PRIMARY
         | SET alter_session_set_clause
     )
     ;
 
 alter_session_set_clause
-    : (parameter_name '=' parameter_value)+
-    | EDITION '=' en = id_expression
+    : EDITION '=' en = id_expression
     | CONTAINER '=' cn = id_expression (SERVICE '=' sn = id_expression)?
     | ROW ARCHIVAL VISIBILITY '=' (ACTIVE | ALL)
-    | DEFAULT_COLLATION '=' (c = id_expression | NONE)
+    | DEFAULT COLLATION '=' (c = id_expression | NONE)
+    | (parameter_name '=' session_parameter_value)+
     ;
 
-alter_system
-    : ALTER SYSTEM (
-        KILL SESSION quoted_string
+session_parameter_value
+    : id_expression
+    | quoted_string
+    | numeric
+    | DEFAULT
+    | READ COMMITTED
+    ;
+
+// https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SET-ROLE.html
+set_role
+    : SET ROLE (
+        role_name (IDENTIFIED BY id_expression)? (',' role_name (IDENTIFIED BY id_expression)?)*
+        | ALL (EXCEPT role_name (',' role_name)*)?
+        | NONE
     )
     ;
 
+// https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ALTER-SYSTEM.html
+alter_system
+    : ALTER SYSTEM (
+        SET alter_system_set_clause+
+        | RESET alter_system_reset_clause+
+        | archive_log_clause
+        | SWITCH LOGFILE
+        | CHECKPOINT (GLOBAL | LOCAL)?
+        | CHECK DATAFILES (GLOBAL | LOCAL)?
+        | (ENABLE | DISABLE) DISTRIBUTED RECOVERY
+        | alter_system_flush_clause
+        | (KILL SESSION quoted_string | DISCONNECT SESSION quoted_string POST_TRANSACTION?) (IMMEDIATE | NOREPLAY)?
+        | CANCEL SQL quoted_string
+        | SUSPEND
+        | RESUME
+        | QUIESCE RESTRICTED
+        | UNQUIESCE
+        | alter_system_security_clause
+        | affinity_clauses
+        | SHUTDOWN IMMEDIATE? quoted_string
+        | REGISTER
+        | START ROLLING (MIGRATION TO quoted_string | PATCH)
+        | STOP ROLLING (MIGRATION | PATCH)
+        | RELOCATE CLIENT quoted_string
+    )
+    ;
+
+alter_system_set_clause
+    : system_parameter_name '=' system_parameter_value (',' system_parameter_value)*
+        (COMMENT '=' quoted_string)? DEFERRED? (CONTAINER '=' (CURRENT | ALL))?
+        alter_system_parameter_scope*
+    ;
+
+system_parameter_value
+    : id_expression
+    | quoted_string
+    | size_clause
+    | (PLUS_SIGN | MINUS_SIGN)? numeric
+    ;
+
+alter_system_reset_clause
+    : system_parameter_name alter_system_parameter_scope*
+    ;
+
+system_parameter_name
+    // Do not reinterpret a malformed option as the next parameter in SET/RESET.
+    : {_input.LA(1) != SCOPE && _input.LA(1) != SID && _input.LA(1) != CONTAINER
+        && _input.LA(1) != COMMENT && _input.LA(1) != DEFERRED}? parameter_name
+    ;
+
+alter_system_parameter_scope
+    : SCOPE '=' (MEMORY | SPFILE | BOTH)
+    | SID '=' quoted_string
+    ;
+
+archive_log_clause
+    : ARCHIVE LOG (INSTANCE quoted_string)? (
+        SEQUENCE UNSIGNED_INTEGER
+        | CHANGE UNSIGNED_INTEGER
+        | CURRENT NOSWITCH?
+        | GROUP UNSIGNED_INTEGER
+        | LOGFILE quoted_string (USING BACKUP CONTROLFILE)?
+        | NEXT
+        | ALL
+    ) (TO quoted_string)?
+    ;
+
+alter_system_flush_clause
+    : FLUSH (
+        SHARED_POOL
+        | GLOBAL CONTEXT
+        | BUFFER_CACHE
+        | FLASH_CACHE
+        | REDO TO id_expression (NO? CONFIRM APPLY)?
+        | PASSWORDFILE_METADATA_CACHE
+    )
+    ;
+
+alter_system_security_clause
+    : (ENABLE | DISABLE) RESTRICTED SESSION
+    | SET ENCRYPTION (
+        WALLET (OPEN IDENTIFIED BY id_expression | CLOSE (IDENTIFIED BY id_expression)?)
+        | KEY (id_expression IDENTIFIED BY id_expression | IDENTIFIED BY id_expression (MIGRATE USING id_expression)?)
+    )
+    ;
+
+affinity_clauses
+    : ENABLE AFFINITY (schema_name '.')? table_name (SERVICE id_expression)?
+    | DISABLE AFFINITY (schema_name '.')? table_name
+    ;
 
 create_sequence
     : CREATE SEQUENCE sequence_name (sequence_start_clause | sequence_spec)*
@@ -1877,24 +1986,29 @@ alter_inmemory_join_group
 
 create_user
     : CREATE USER user_object_name (IF NOT EXISTS)? (
-        identified_by
+        identified_by user_digest_clause?
         | identified_other_clause
-        | user_tablespace_clause
+        | NO AUTHENTICATION
+    ) (DEFAULT COLLATION id_expression)? (
+        user_tablespace_clause
         | quota_clause
         | profile_clause
         | password_expire_clause
         | user_lock_clause
         | user_editions_clause
         | container_clause
-    )+
+    )*
     ;
 
 // The standard clauses only permit one user per statement.
 // The proxy clause allows multiple users for a proxy designation.
 alter_user
-    : ALTER USER user_object_name (
+    : ALTER USER (user_object_name (
         alter_identified_by
         | identified_other_clause
+        | NO AUTHENTICATION
+        | DEFAULT COLLATION id_expression
+        | user_digest_clause
         | user_tablespace_clause
         | quota_clause
         | profile_clause
@@ -1904,8 +2018,9 @@ alter_user
         | alter_user_editions_clause
         | container_clause
         | container_data_clause
+    )+
+        | user_object_name (',' user_object_name)* proxy_clause
     )
-//    | user_object_name (',' user_object_name)* proxy_clause
     ;
 
 drop_user
@@ -1925,7 +2040,11 @@ identified_other_clause
     ;
 
 user_tablespace_clause
-    : (DEFAULT | TEMPORARY) TABLESPACE id_expression
+    : (DEFAULT | LOCAL? TEMPORARY) TABLESPACE id_expression
+    ;
+
+user_digest_clause
+    : HTTP? DIGEST (ENABLE | DISABLE)
     ;
 
 quota_clause
@@ -1933,12 +2052,12 @@ quota_clause
     ;
 
 profile_clause
-    : PROFILE id_expression
+    : PROFILE (id_expression | DEFAULT)
     ;
 
 role_clause
     : role_name (',' role_name)*
-    | ALL (EXCEPT role_name (',' role_name)*)*
+    | ALL (EXCEPT role_name (',' role_name)*)?
     ;
 
 user_default_role_clause
@@ -1958,7 +2077,12 @@ user_editions_clause
     ;
 
 alter_user_editions_clause
-    : user_editions_clause (FOR regular_id (',' regular_id)*)? FORCE?
+    : user_editions_clause (FOR editionable_object_type (',' editionable_object_type)*)? FORCE?
+    ;
+
+editionable_object_type
+    : VIEW | SYNONYM | PROCEDURE | FUNCTION | PACKAGE BODY? | TRIGGER | TYPE BODY? | LIBRARY
+    | SQL TRANSLATION PROFILE
     ;
 
 proxy_clause
@@ -1984,8 +2108,7 @@ add_rem_container_data
     ;
 
 container_data_clause
-    : set_container_data
-    | add_rem_container_data (FOR container_tableview_name)?
+    : (set_container_data | add_rem_container_data) (FOR container_tableview_name)?
     ;
 
 // https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ADMINISTER-KEY-MANAGEMENT.html
@@ -2182,7 +2305,8 @@ analyze
     : (
         ANALYZE (TABLE tableview_name | INDEX index_name) partition_extention_clause?
         | ANALYZE CLUSTER cluster_name
-    ) (validation_clauses | LIST CHAINED ROWS into_clause1? | DELETE SYSTEM? STATISTICS)
+    ) (validation_clauses | LIST CHAINED ROWS into_clause1? | DELETE SYSTEM? STATISTICS
+        | compute_clauses | ESTIMATE STATISTICS (SAMPLE UNSIGNED_INTEGER (ROWS | PERCENT_KEYWORD))?)
     ;
 
 partition_extention_clause
@@ -2198,7 +2322,7 @@ partition_extention_clause
 
 validation_clauses
     : VALIDATE REF UPDATE (SET DANGLING TO NULL_)?
-    | VALIDATE STRUCTURE (CASCADE FAST | CASCADE online_or_offline? into_clause? | CASCADE)? online_or_offline? into_clause?
+    | VALIDATE STRUCTURE (CASCADE (FAST | COMPLETE)?)? online_or_offline? into_clause1?
     ;
 
 compute_clauses
@@ -2219,7 +2343,7 @@ online_or_offline
     ;
 
 into_clause1
-    : INTO tableview_name?
+    : INTO tableview_name
     ;
 
 //Making assumption on partition ad subpartition key value clauses
@@ -2299,11 +2423,25 @@ storage_table_clause
 // https://docs.oracle.com/database/121/SQLRF/statements_4008.htm#SQLRF56110
 unified_auditing
     : {this.isVersion12()}? AUDIT (
-        POLICY policy_name ((BY | EXCEPT) audit_user (',' audit_user)*)? (WHENEVER NOT? SUCCESSFUL)?
-        | CONTEXT NAMESPACE oracle_namespace ATTRIBUTES attribute_name (',' attribute_name)* (
-            BY audit_user (',' audit_user)*
-        )?
+        POLICY policy_name (auditing_by_clause | EXCEPT audit_user (',' audit_user)* | by_users_with_roles)?
+            (WHENEVER NOT? SUCCESSFUL)?
+        | audit_context_clause (',' audit_context_clause)* auditing_by_clause?
     )
+    ;
+
+unified_noauditing
+    : {this.isVersion12()}? NOAUDIT (
+        POLICY policy_name (auditing_by_clause | by_users_with_roles)?
+        | audit_context_clause (',' audit_context_clause)* auditing_by_clause? (WHENEVER NOT? SUCCESSFUL)?
+    )
+    ;
+
+by_users_with_roles
+    : BY USERS WITH GRANTED ROLES role_name (',' role_name)*
+    ;
+
+audit_context_clause
+    : CONTEXT NAMESPACE oracle_namespace ATTRIBUTES attribute_name (',' attribute_name)*
     ;
 
 policy_name
@@ -2323,7 +2461,7 @@ audit_traditional
     ;
 
 audit_direct_path
-    : {this.isVersion12()}? DIRECT_PATH auditing_by_clause
+    : {this.isVersion12()}? DIRECT_PATH LOAD auditing_by_clause?
     ;
 
 audit_container_clause
@@ -2342,7 +2480,7 @@ auditing_by_clause
     ;
 
 audit_user
-    : regular_id
+    : id_expression
     ;
 
 audit_schema_object_clause
@@ -2504,11 +2642,26 @@ rename_object
     ;
 
 grant_statement
-    : GRANT (','? (role_name | system_privilege | object_privilege paren_column_list?))+ (
-        ON grant_object_name
-    )? TO (grantee_name | PUBLIC) (',' (grantee_name | PUBLIC))* (WITH (ADMIN | DELEGATE) OPTION)? (
-        WITH HIERARCHY OPTION
-    )? (WITH GRANT OPTION)? container_clause?
+    : GRANT (
+        (grant_system_privileges | grant_object_privileges) container_clause?
+        | role_name (',' role_name)* TO program_unit (',' program_unit)*
+    )
+    ;
+
+grant_system_privileges
+    : (system_privilege | role_name) (',' (system_privilege | role_name))* TO (
+        grant_grantee_clause
+        | grantee_name (',' grantee_name)* IDENTIFIED BY id_expression (',' id_expression)*
+    ) (WITH (ADMIN | DELEGATE) OPTION)?
+    ;
+
+grant_object_privileges
+    : object_privilege paren_column_list? (',' object_privilege paren_column_list?)*
+        ON grant_object_name TO grant_grantee_clause (WITH HIERARCHY OPTION)? (WITH GRANT OPTION)?
+    ;
+
+grant_grantee_clause
+    : (grantee_name | PUBLIC) (',' (grantee_name | PUBLIC))*
     ;
 
 container_clause
@@ -2524,7 +2677,7 @@ revoke_statement
     ;
 
 revoke_system_privilege
-    : (system_privilege | role_name | ALL PRIVILEGES) FROM revokee_clause
+    : (system_privilege | role_name) (',' (system_privilege | role_name))* FROM revokee_clause
     ;
 
 revokee_clause
@@ -2851,7 +3004,7 @@ element
 
 alter_tablespace
     : ALTER TABLESPACE tablespace (
-        DEFAULT table_compression? storage_clause?
+        default_tablespace_params
         | MINIMUM EXTENT size_clause
         | RESIZE size_clause
         | COALESCE
@@ -2865,6 +3018,7 @@ alter_tablespace
         | autoextend_clause
         | flashback_mode_clause
         | tablespace_retention_clause
+        | alter_tablespace_encryption
     )
     ;
 
@@ -2921,7 +3075,7 @@ permanent_tablespace_clause
         | FORCE LOGGING
         | (ONLINE | OFFLINE)
         | ENCRYPTION tablespace_encryption_spec
-        | DEFAULT //TODO table_compression? storage_clause?
+        | default_tablespace_params
         | extent_management_clause
         | segment_management_clause
         | flashback_mode_clause
@@ -2947,7 +3101,8 @@ segment_management_clause
     ;
 
 temporary_tablespace_clause
-    : TEMPORARY TABLESPACE tablespace_name = id_expression (IF NOT EXISTS)? tempfile_specification? tablespace_group_clause? extent_management_clause?
+    : (TEMPORARY TABLESPACE | LOCAL TEMPORARY TABLESPACE FOR (ALL | LEAF))
+        tablespace_name = id_expression (IF NOT EXISTS)? tempfile_specification? tablespace_group_clause? extent_management_clause?
     ;
 
 undo_tablespace_clause
@@ -2985,11 +3140,11 @@ tablespace_encryption_clause
     ;
 
 default_tablespace_params
-    : DEFAULT default_table_compression? default_index_compression? inmmemory_clause? ilm_clause? storage_clause?
+    : DEFAULT (default_table_compression | table_compression)? default_index_compression? inmmemory_clause? ilm_clause? storage_clause?
     ;
 
 default_table_compression
-    : TABLE (COMPRESS FOR (OLTP | QUERY low_high | ARCHIVE low_high) | NOCOMPRESS)
+    : TABLE? (COMPRESS FOR (OLTP | QUERY low_high | ARCHIVE low_high) | NOCOMPRESS)
     ;
 
 low_high
@@ -3014,11 +3169,11 @@ inmmemory_clause
 // asm_filename is just a charater string.  Would need to parse the string
 // to find diskgroup...
 datafile_specification
-    : DATAFILE (','? datafile_tempfile_spec)
+    : DATAFILE datafile_tempfile_spec (',' datafile_tempfile_spec)*
     ;
 
 tempfile_specification
-    : TEMPFILE (','? datafile_tempfile_spec)
+    : TEMPFILE datafile_tempfile_spec (',' datafile_tempfile_spec)*
     ;
 
 datafile_tempfile_spec
@@ -4275,7 +4430,7 @@ alter_database
     ;
 
 database_clause
-    : PLUGGABLE? DATABASE database_name?
+    : DATABASE database_name?
     ;
 
 startup_clauses
@@ -4345,7 +4500,7 @@ managed_standby_recovery
     : RECOVER (
         MANAGED STANDBY DATABASE (
             (
-                USING CURRENT LOGFILE
+                USING (CURRENT | ARCHIVED) LOGFILE
                 | DISCONNECT (FROM SESSION)?
                 | NODELAY
                 | UNTIL CHANGE UNSIGNED_INTEGER
@@ -4531,7 +4686,7 @@ default_settings_clause
     : DEFAULT EDITION EQUALS_OP edition_name
     | SET DEFAULT (BIGFILE | SMALLFILE) TABLESPACE
     | DEFAULT TABLESPACE tablespace
-    | DEFAULT TEMPORARY TABLESPACE (tablespace | tablespace_group_name)
+    | DEFAULT LOCAL? TEMPORARY TABLESPACE (tablespace | tablespace_group_name)
     | RENAME GLOBAL_NAME TO database ('.' domain)+
     | ENABLE BLOCK CHANGE TRACKING (USING FILE filename REUSE?)?
     | DISABLE BLOCK CHANGE TRACKING
@@ -4540,7 +4695,7 @@ default_settings_clause
     ;
 
 set_time_zone_clause
-    : SET TIMEZONE EQUALS_OP CHAR_STRING
+    : SET TIME_ZONE EQUALS_OP CHAR_STRING
     ;
 
 instance_clauses
@@ -4643,7 +4798,43 @@ create_database
             ',' datafile_tempfile_spec
         )*
         | enable_pluggable_database
-    )+
+    )*
+    ;
+
+// Oracle 19c PDB creation: seed, clone and XML descriptor branches.
+// https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-PLUGGABLE-DATABASE.html
+create_pluggable_database
+    : CREATE PLUGGABLE DATABASE database_name (
+        ADMIN USER id_expression IDENTIFIED BY id_expression (ROLES '=' '(' role_name (',' role_name)* ')')?
+            default_tablespace? pdb_storage_clause? file_name_convert? (TEMPFILE REUSE)?
+        | FROM database_name (AT_SIGN link_name)? default_tablespace? pdb_storage_clause?
+            file_name_convert? (TEMPFILE REUSE)?
+        | (AS CLONE)? USING quoted_string ((COPY | MOVE)? file_name_convert | NOCOPY)?
+            default_tablespace? pdb_storage_clause? (TEMPFILE REUSE)?
+    )
+    ;
+
+// https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ALTER-PLUGGABLE-DATABASE.html
+alter_pluggable_database
+    : ALTER PLUGGABLE DATABASE (
+        (database_name (',' database_name)* | ALL (EXCEPT database_name (',' database_name)*)?)? pdb_change_state
+        | database_name? (default_settings_clause | database_file_clauses | supplemental_db_logging | pdb_storage_clause)
+        | database_name UNPLUG INTO quoted_string
+    )
+    ;
+
+pdb_change_state
+    : OPEN ((READ (WRITE | ONLY))? RESTRICTED? FORCE? | (READ WRITE)? UPGRADE RESTRICTED? | RESETLOGS)
+    | CLOSE IMMEDIATE?
+    | (SAVE | DISCARD) STATE
+    ;
+
+pdb_storage_clause
+    : STORAGE ('(' MAXSIZE (UNLIMITED | size_clause) ')' | UNLIMITED)
+    ;
+
+drop_pluggable_database
+    : DROP PLUGGABLE DATABASE database_name ((KEEP | INCLUDING) DATAFILES)?
     ;
 
 database_logging_clauses
@@ -4682,7 +4873,7 @@ file_name_convert
     ;
 
 filename_convert_sub_clause
-    : CHAR_STRING (',' CHAR_STRING)?
+    : CHAR_STRING ',' CHAR_STRING
     ;
 
 tablespace_datafile_clauses
@@ -5879,6 +6070,7 @@ seq_of_statements
     ;
 */
 
+// https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/EXPLAIN-PLAN.html
 explain_statement
     : EXPLAIN PLAN (SET STATEMENT_ID '=' quoted_string)? (INTO tableview_name)? FOR (
         select_statement
@@ -5886,6 +6078,9 @@ explain_statement
         | delete_statement
         | insert_statement
         | merge_statement
+        | create_table
+        | create_index
+        | ALTER INDEX index_name rebuild_clause
     )
     ;
 
@@ -6976,7 +7171,8 @@ whenever_command
     ;
 
 set_command
-    : SET regular_id (CHAR_STRING | ON | OFF | /*EXACT_NUM_LIT*/ numeric | regular_id)
+    // SET ROLE is database SQL, not a SQL*Plus setting.
+    : {_input.LA(2) != ROLE}? SET regular_id (CHAR_STRING | ON | OFF | /*EXACT_NUM_LIT*/ numeric | regular_id)
     ;
 
 timing_command
@@ -7077,7 +7273,7 @@ query_name
     ;
 
 grantee_name
-    : id_expression identified_by?
+    : id_expression
     ;
 
 role_name
@@ -7198,9 +7394,9 @@ grant_object_name
     | USER user_object_name (',' user_object_name)*
     | DIRECTORY dir_object_name
     | EDITION schema_object_name
-    | MINING MODEL schema_object_name
-    | JAVA (SOURCE | RESOURCE) schema_object_name
-    | SQL TRANSLATION PROFILE schema_object_name
+    | MINING MODEL (schema_name '.')? schema_object_name
+    | JAVA (SOURCE | RESOURCE) (schema_name '.')? schema_object_name
+    | SQL TRANSLATION PROFILE (schema_name '.')? schema_object_name
     ;
 
 column_list
@@ -7669,6 +7865,11 @@ regular_id
 non_reserved_keywords_in_18c
     : PERSISTABLE
     | POLYMORPHIC
+    | SHARD
+    | AFFINITY
+    | PASSWORDFILE_METADATA_CACHE
+    | GRANTED
+    | DIGEST
     ;
 
 non_reserved_keywords_in_12c
