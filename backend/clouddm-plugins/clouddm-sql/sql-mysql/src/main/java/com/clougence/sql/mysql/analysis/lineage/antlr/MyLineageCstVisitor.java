@@ -407,7 +407,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     private LineageColumnReference columnReference(FullColumnNameContext context, boolean selectAliasVisible) {
-        List<String> parts = identifierPath(text(context));
+        List<String> parts = identifierPath(context.getText());
         String catalog = null;
         String schema = null;
         String qualifier = null;
@@ -493,7 +493,7 @@ public final class MyLineageCstVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     private LineageNamedRelation namedRelation(TableNameContext context, String alias) {
-        List<String> parts = identifierPath(text(context));
+        List<String> parts = identifierPath(context.getText());
         String catalog = null;
         String schema = null;
         String name = parts.get(parts.size() - 1);

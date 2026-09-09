@@ -589,11 +589,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
-        if (ctx.tableName() != null) {
-            add(SplitQueryType.ADMIN_TABLE, TargetType.Table, ctx.tableName());
-        } else {
-            addAdminTables(ctx.tables());
-        }
+        addAdminTables(ctx.tables());
         return null;
     }
 
@@ -724,10 +720,13 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDiagnosticsStatement(DiagnosticsStatementContext ctx) {
-        descendants(ctx, VariableClauseContext.class).stream()
-            .filter(variable -> variable.LOCAL_ID() != null || variable.GLOBAL_ID() != null || variable.GLOBAL() != null || variable.SESSION() != null || variable.LOCAL() != null
-                                || variable.persistScope() != null)
-            .forEach(variable -> addConfigKey(SplitQueryType.SESSION_VARIABLE_RW, variable));
+        if (ctx.signalAllowedExpression() != null && ctx.signalAllowedExpression().mysqlVariable() != null) {
+            addConfigKey(ctx.signalAllowedExpression().mysqlVariable());
+        }
+        ctx.diagnosticsTarget().stream().filter(target -> target.LOCAL_ID() != null).forEach(target -> {
+            String variable = unquote(removeLeading(target.LOCAL_ID().getText(), '@'));
+            addInstanceResource(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, target, variable);
+        });
         return null;
     }
 
@@ -970,6 +969,10 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitSetVariable(SetVariableContext ctx) {
         for (SetVariableAssignmentContext assignment : ctx.setVariableAssignment()) {
             VariableClauseContext variable = assignment.variableClause();
+            if (variable == null) {
+                addUnnamedResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, assignment);
+                continue;
+            }
             if (isRoutineLocalVariable(variable)) {
                 continue;
             }

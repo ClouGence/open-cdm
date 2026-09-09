@@ -282,7 +282,10 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitJsonValueFunctionCall(JsonValueFunctionCallContext ctx) {
         builder.handleCall(() -> {
             builder.handleDomain(new ObjNameDomain(ctx.JSON_VALUE().getText()), DomainSource.OBJ_NAME);
-            builder.handleFunctionArgs(() -> ctx.expression().forEach(this::addFunctionArgument));
+            builder.handleFunctionArgs(() -> {
+                addFunctionArgument(ctx.expression());
+                addFunctionArgument(ctx.stringLiteral());
+            });
         });
         return null;
     }
@@ -454,7 +457,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         return null;
     }
 
-    private void addFunctionArgument(ExpressionContext expression) {
+    private void addFunctionArgument(ParserRuleContext expression) {
         builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(expression));
         expression.accept(this);
     }
@@ -1032,15 +1035,9 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
-        if (ctx.tables() != null) {
-            for (TableNameContext tableNameContext : ctx.tables().tableName()) {
-                builder.handleAnalyzeTable(() -> {
-                    tableNameContext.accept(this);
-                });
-            }
-        } else if (ctx.tableName() != null) {
+        for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleAnalyzeTable(() -> {
-                ctx.tableName().accept(this);
+                tableNameContext.accept(this);
             });
         }
         return null;
@@ -2208,7 +2205,14 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSetVariable(SetVariableContext ctx) {
-        List<VariableClauseContext> configKeys = ctx.setVariableAssignment().stream().map(SetVariableAssignmentContext::variableClause).collect(Collectors.toList());
+        if (ctx.setVariableAssignment().stream().anyMatch(assignment -> assignment.variableClause() == null)) {
+            addUnknownTargetDomain(RuleQueryType.SESSION_SETTING_WRITE, SecQueryKind.OTHER);
+        }
+        List<VariableClauseContext> configKeys = ctx.setVariableAssignment()
+            .stream()
+            .map(SetVariableAssignmentContext::variableClause)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
         for (VariableClauseContext configKey : configKeys) {
             MyScopeType scopeType;
             String keyName;
@@ -2233,6 +2237,15 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                 } else {
                     scopeType = MyScopeType.SESSION;
                 }
+            } else if (configKey.DEFAULT() != null) {
+                if (configKey.GLOBAL() != null || configKey.persistScope() != null) {
+                    scopeType = MyScopeType.GLOBAL;
+                } else if (configKey.LOCAL() != null) {
+                    scopeType = MyScopeType.LOCAL;
+                } else {
+                    scopeType = MyScopeType.SESSION;
+                }
+                keyName = configKey.DEFAULT().getText();
             } else if (configKey.GLOBAL() != null) {
                 scopeType = MyScopeType.GLOBAL;
                 keyName = configKey.uid().getText();

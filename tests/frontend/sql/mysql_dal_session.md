@@ -3,11 +3,13 @@
 ## Purpose
 
 验证 SQL 工作台能够执行 MySQL TABLE 执行计划，并在多次点击之间使用当前查询会话的 SQL_MODE。
+同时验证函数嵌套、JSON_TABLE 展开及非法函数语法后的查询恢复。
 
 ## Scope
 
 - 路由：`/#/sql`；入口：“执行”“执行计划”和事务模式菜单。
 - 覆盖 EXPLAIN / DESC / DESCRIBE、ANALYZE、FORMAT=TREE、排序和分页，以及 ANSI_QUOTES、NO_BACKSLASH_ESCAPES 的会话切换。
+- 函数场景使用常量表达式，覆盖 ROUND / ABS / NULLIF、字符串与 Unicode、JSON_TABLE 多层 NESTED PATH。
 - 不覆盖同一批 SQL 内先改变解析模式、后执行依赖新模式的语句；设置模式与验证语句分次执行。
 - 不覆盖全局配置修改和账号权限配置。
 
@@ -48,6 +50,22 @@
 - 预期：三行 mode_probe 均为字符串 `id`；此时双引号限定表名的 TABLE 计划会出现定位明确的语法错误，不能沿用旧 ANSI_QUOTES 模式。
 - 恢复：执行 `SET SESSION sql_mode=@codex_old_mode;`，查询模式确认与保存值一致；查询行数 3、amount 总和 61.00；点击“回滚”，切换“自动事务”。
 - 再执行普通 SELECT，预期可以继续查询，原来的模式和事务状态不会泄漏到新会话。
+
+### function_nested_01 函数组合与执行计划（P0）
+
+- 初始状态：`/#/sql`，连接隔离 MySQL 数据源，自动事务；无需创建表或修改 SQL_MODE。
+- 数据：在相邻 `open-cdm-test` 工程 `src/test/resources/behavior/mysql/8.0/` 下的 `dql_mysql_numeric_1.txt`、`dql_mysql_string_2.txt`、`dql_mysql_json_2.txt` 中，定位 `mysql_functions_numeric_0001`、`mysql_functions_string_0001`、`mysql_functions_json_0117`、`mysql_functions_json_0121`，复制各用例 `sql:` 区的 SQL。
+- 操作：逐条粘贴并确认完整选区，点击“执行”；对 `mysql_functions_json_0117` 再点击“执行计划”。
+- 预期：数值结果为 `4.17`；字符串为 `PIKA;中;pika`；JSON 单层展开得到 `1.00`、`2.00`；双层展开得到 `pika:1`、`pika:2`。每条查询有独立结果页签，执行计划能显示 JSON_TABLE 对应的计划结果。
+- 清理：关闭本场景新增结果页签；不创建、删除业务对象。
+
+### function_nested_02 文档边界与失败恢复（P0）
+
+- 初始状态：沿用上一场景，保留合法 `JSON_TABLE` SQL。
+- 操作：仅把 `NESTED PATH '$.pika_items[*]'` 改为 `NESTED '$.pika_items[*]'`，执行；随后恢复 `PATH` 并重新执行。
+- 预期：缺少 `PATH` 时显示定位明确的语法错误，恢复后正常返回两行；不得把失败记成空结果或影响下一次查询。
+- 依据：手册中的 `NESTED [PATH]` 简写与 [8.0.46 发行版语法](https://github.com/mysql/mysql-server/blob/mysql-8.0.46/sql/sql_yacc.yy#L12149)、[8.4.10 发行版语法](https://github.com/mysql/mysql-server/blob/mysql-8.4.10/sql/sql_yacc.yy#L12076) 不一致。两版 `jt_column` 均要求 `NESTED_SYM PATH_SYM`；以目标版本实现和实际执行为准。
+- 清理：恢复合法 SQL；不修改连接设置或数据。
 
 ## Cleanup
 

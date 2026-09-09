@@ -150,6 +150,10 @@ public class MySplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         Set<String> localNames = routineLocalNames(context);
         Set<SplitQueryType> result = new LinkedHashSet<>();
         for (MySqlParser.SetVariableAssignmentContext assignment : context.setVariableAssignment()) {
+            if (assignment.variableClause() == null) {
+                result.add(SplitQueryType.SESSION_SETTING_WRITE);
+                continue;
+            }
             String variable = assignment.variableClause().getText();
             String normalized = normalizeIdentifier(variable);
             String upper = variable.toUpperCase(Locale.ROOT);

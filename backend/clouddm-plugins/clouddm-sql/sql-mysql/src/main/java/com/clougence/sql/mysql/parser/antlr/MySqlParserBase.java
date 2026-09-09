@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -15,6 +16,11 @@ import com.clougence.sql.mysql.parser.MySqlParserConfig.Feature;
 import com.clougence.sql.mysql.parser.MySqlVersion;
 
 public abstract class MySqlParserBase extends Parser {
+
+    private static final Set<String> VARIABLE_SCOPES          = Set.of("GLOBAL", "LOCAL", "SESSION", "PERSIST", "PERSIST_ONLY");
+    private static final Set<String> DISALLOWED_ROLE_NAMES    = Set
+        .of("EXECUTE", "RESTART", "SHUTDOWN", "EVENT", "FILE", "NONE", "PROCESS", "PROXY", "RELOAD", "REPLICATION", "RESOURCE", "SUPER");
+    private static final Pattern     VARIABLE_NAME_PART       = Pattern.compile("`(?:``|[^`])*`|[^.]+");
 
     private static final Set<String> AGGREGATE_FUNCTIONS      = Set
         .of("AVG", "BIT_AND", "BIT_OR", "BIT_XOR", "COUNT", "GROUP_CONCAT", "MAX", "MIN", "STD", "STDDEV", "STDDEV_POP", "STDDEV_SAMP", "SUM", "VAR_POP", "VAR_SAMP", "VARIANCE");
@@ -77,14 +83,78 @@ public abstract class MySqlParserBase extends Parser {
     protected final boolean isSqlModeKnown() { return config.isSqlModeKnown(); }
 
     protected final boolean isSetVariableAssignmentAllowed(MySqlParser.VariableClauseContext variable) {
-        if (variable.GLOBAL_ID() != null && variable.getText().endsWith(".")) {
+        if (variable.GLOBAL_ID() != null || variable.getText().startsWith("@@")) {
+            return isSystemVariableAllowed(variable, true);
+        }
+        String name = variable.getText().toUpperCase(Locale.ROOT);
+        if (name.equals("NAMES")) {
+            for (ParserRuleContext context = variable; context != null; context = context.getParent()) {
+                if (context instanceof MySqlParser.RoutineBodyContext) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        Token first = variable.getStart();
+        if (VARIABLE_SCOPES.contains(first.getText().toUpperCase(Locale.ROOT)) && !name.equals(first.getText().toUpperCase(Locale.ROOT))) {
+            name = name.substring(first.getText().length());
+            if (name.startsWith(".")) {
+                return false;
+            }
+        }
+        if (name.startsWith("GLOBAL.") || name.startsWith("LOCAL.") || name.startsWith("SESSION.")) {
             return false;
         }
         if (MySqlVersion.le(config.grammarVersion(), MySqlVersion.MYSQL_5_7)) {
             return true;
         }
-        String text = variable.getText().toUpperCase(Locale.ROOT);
-        return !Set.of("GLOBAL", "LOCAL", "PERSIST", "PERSIST_ONLY", "SESSION").contains(text);
+        return !VARIABLE_SCOPES.contains(name);
+    }
+
+    protected final boolean isSystemVariableAllowed(ParserRuleContext variable, boolean assignment) {
+        String text = variable.getText().substring(2);
+        List<String> names = VARIABLE_NAME_PART.matcher(text).results().map(result -> result.group()).toList();
+        if (!String.join(".", names).equals(text)) {
+            return false;
+        }
+        int start = 0;
+        String first = names.get(0).toUpperCase(Locale.ROOT);
+        if (VARIABLE_SCOPES.contains(first)) {
+            if (!assignment && (first.equals("PERSIST") || first.equals("PERSIST_ONLY"))) {
+                return false;
+            }
+            start = 1;
+        }
+        if (names.size() <= start || names.size() > start + 2) {
+            return false;
+        }
+        String prefix = names.get(start).toUpperCase(Locale.ROOT);
+        if (start == 0 && prefix.equals("DEFAULT") && (!assignment || names.size() == 1)) {
+            return false;
+        }
+        return names.size() != start + 2 || !VARIABLE_SCOPES.contains(prefix.replace("`", ""));
+    }
+
+    protected final boolean isRoleNameAllowed() { return !DISALLOWED_ROLE_NAMES.contains(getInputStream().LT(1).getText().toUpperCase(Locale.ROOT)); }
+
+    protected final boolean isSubqueryAllowed() {
+        for (ParserRuleContext context = getContext(); context != null; context = context.getParent()) {
+            if (context instanceof MySqlParser.PartitionFunctionDefinitionContext || context instanceof MySqlParser.SubpartitionFunctionDefinitionContext
+                || context instanceof MySqlParser.PartitionDefinerAtomContext || context instanceof MySqlParser.InstallComponentSetRvalueContext
+                || context instanceof MySqlParser.PurgeBinaryLogsContext) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected final boolean isPartitionValueListAllowed(MySqlParser.PartitionDefinitionContext context) {
+        // A leading parenthesis selects MySQL's list-of-rows syntax; later items must also be rows.
+        List<MySqlParser.PartitionDefinerAtomContext> values = context.getRuleContexts(MySqlParser.PartitionDefinerAtomContext.class);
+        if (values.get(0).getStart().getType() != MySqlParser.LR_BRACKET) {
+            return true;
+        }
+        return values.stream().allMatch(value -> value.getStart().getType() == MySqlParser.LR_BRACKET && value.getStop().getType() == MySqlParser.RR_BRACKET);
     }
 
     protected final boolean isTriggerRowAssignmentAhead() {
@@ -704,7 +774,8 @@ public abstract class MySqlParserBase extends Parser {
     }
 
     protected final boolean isUnionAfterQuerySpecificationAllowed(MySqlParser.QuerySpecificationContext query) {
-        return atMost(5, 7) || (query.orderByClause() == null && query.limitClause() == null);
+        return query.selectIntoExpression().stream().allMatch(into -> into == query.leadingInto)
+               && (atMost(5, 7) || (query.orderByClause() == null && query.limitClause() == null));
     }
 
     protected final boolean isSelectTailIntoAllowed(MySqlParser.QuerySpecificationContext query) {
@@ -921,6 +992,14 @@ public abstract class MySqlParserBase extends Parser {
     }
 
     protected final boolean isDynamicPrivilege() {
+        // REVOKE accepts names of privileges that are no longer registered; GRANT requires an available privilege.
+        if (atLeast(8, 0) && getInputStream().LA(1) == MySqlParser.ID) {
+            for (ParserRuleContext context = getContext(); context != null; context = context.getParent()) {
+                if (context instanceof MySqlParser.RevokeStatementContext) {
+                    return true;
+                }
+            }
+        }
         String privilege = getInputStream().LT(1).getText();
         if (privilege == null || !atLeast(8, 0)) {
             return false;

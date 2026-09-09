@@ -93,10 +93,10 @@ compoundStatement
     ;
 
 administrationStatement
-    : alterUser | createUser | dropUser | grantStatement
+    : alterUser | createUser | dropUser | grantProxy | grantStatement
     | createRole
-    | grantProxy | renameUser | revokeStatement
-    | revokeProxy | analyzeTable | checkTable
+    | renameUser | revokeProxy | revokeStatement
+    | analyzeTable | checkTable
     | checksumTable | optimizeTable | repairTable
     | cloneStatement
     | createUdfFunction | installPlugin | uninstallPlugin
@@ -284,7 +284,7 @@ createTablespaceInnodb
     : CREATE TABLESPACE uid
       (
         ADD DATAFILE datafile=textLiteralToken (','? tablespaceOption)*
-        | {atLeast(8, 0)}? tablespaceOption (','? tablespaceOption)*
+        | {atLeast(8, 0)}? (tablespaceOption (','? tablespaceOption)*)?
       )
     ;
 
@@ -292,7 +292,7 @@ createTablespaceNdb
     : CREATE TABLESPACE uid
       ADD DATAFILE datafile=textLiteralToken
       USE LOGFILE GROUP uid
-      tablespaceOption (','? tablespaceOption)*
+      (tablespaceOption (','? tablespaceOption)*)?
     ;
 
 tablespaceOption
@@ -522,6 +522,7 @@ columnConstraint
     : nullNotnull                                                   #nullColumnConstraint
     | {isDefaultColumnConstraintAllowed()}? DEFAULT defaultValue     #defaultColumnConstraint
     | {atLeast(8, 0)}? (VISIBLE | INVISIBLE)                        #invisibleColumnConstraint
+    | {atLeastExact(80013)}? NOT SECONDARY                          #secondaryColumnConstraint
     | (AUTO_INCREMENT | ON UPDATE currentTimestamp)                 #autoIncrementColumnConstraint
     | PRIMARY? KEY                                                  #primaryKeyColumnConstraint
     | UNIQUE KEY?                                                   #uniqueKeyColumnConstraint
@@ -708,12 +709,13 @@ partitionDefinition
       partitionOption*
       ( '(' subpartitionDefinition (',' subpartitionDefinition)* ')' )?       #partitionComparision
     | PARTITION uid VALUES LESS THAN
-      partitionDefinerAtom partitionOption*
+      MAXVALUE partitionOption*
       ( '(' subpartitionDefinition (',' subpartitionDefinition)* ')' )?       #partitionComparision
     | PARTITION uid VALUES IN
       '('
           partitionDefinerAtom (',' partitionDefinerAtom)*
       ')'
+      {isPartitionValueListAllowed($ctx)}?
       partitionOption*
       ( '(' subpartitionDefinition (',' subpartitionDefinition)* ')' )?       #partitionListAtom
     | PARTITION uid VALUES IN
@@ -822,7 +824,7 @@ alterServer
 alterTable
     : ALTER ({atMost(5, 6)}? IGNORE)? TABLE tableName
       (alterSpecification (',' alterSpecification)*)?
-      partitionDefinitions?
+      (partitionDefinitions | REMOVE PARTITIONING)?
     ;
 
 alterTablespace
@@ -885,7 +887,8 @@ alterSpecification
     | ADD COLUMN? columnDefinition (FIRST | AFTER uid)?              #alterByAddColumn
     | ADD COLUMN?
         '('
-           columnDefinition ( ','  columnDefinition)*
+           (columnDefinition | tableConstraint | indexColumnDefinition)
+           (',' (columnDefinition | tableConstraint | indexColumnDefinition))*
         ')'                                                         #alterByAddColumns
     | ADD indexFormat=(INDEX | KEY) indexName? indexType?
       indexColumnNames normalIndexOption*                           #alterByAddIndex
@@ -932,7 +935,7 @@ alterSpecification
     | ENABLE KEYS                                                   #alterByEnableKeys
     | RENAME renameFormat=(TO | AS)? (tableName)                 #alterByRename
     | ORDER BY alterTableOrderList                                  #alterByOrder
-    | CONVERT TO CHARACTER SET (charsetName | DEFAULT)
+    | CONVERT TO (CHARACTER SET | CHARSET) (charsetName | DEFAULT)
       (COLLATE collationName)?                                      #alterByConvertCharset
     | DEFAULT? CHARACTER SET '=' charsetName
       (COLLATE '=' collationName)?                                  #alterByDefaultCharset
@@ -976,7 +979,7 @@ alterSpecification
     ;
 
 alterTableOrderList
-    : uid (ASC | DESC)? (',' uid (ASC | DESC)?)*
+    : fullColumnName (ASC | DESC)? (',' fullColumnName (ASC | DESC)?)*
     ;
 
 
@@ -1114,7 +1117,7 @@ insertStatement
     : INSERT
       priority=(LOW_PRIORITY | DELAYED | HIGH_PRIORITY)?
       ignore_? INTO? tableName
-      (PARTITION '(' partitions=uidList? ')' )?
+      (PARTITION '(' partitions=uidList ')' )?
       (
         ('(' columns=uidList? ')')? insertStatementValue
         | SET
@@ -1520,8 +1523,9 @@ joinPart
         | USING '(' uidList ')'
       )?                                                            #innerJoin
     | {hasJoinConditionAhead()}? STRAIGHT_JOIN tableSource
-      (ON expression)?                                              #rightDeepStraightJoin
-    | STRAIGHT_JOIN tableSourceItem (ON expression)?                #straightJoin
+      (ON expression | USING '(' uidList ')')?                    #rightDeepStraightJoin
+    | STRAIGHT_JOIN tableSourceItem
+      (ON expression | USING '(' uidList ')')?                    #straightJoin
     | outerJoinType  tableSource
         (
           ON expression
@@ -1570,10 +1574,10 @@ legacyQueryExpression
     ;
 
 subqueryStatement
-    : withSelectStatement
-    | selectStatement
-    | {atLeast(8, 0)}? tableStatement
-    | {atLeast(8, 0)}? valuesStatement
+    : {isSubqueryAllowed()}?
+      (withSelectStatement | selectStatement
+      | {atLeast(8, 0)}? tableStatement
+      | {atLeast(8, 0)}? valuesStatement)
     ;
 
 querySpecification
@@ -1819,7 +1823,7 @@ setAutocommitStatement
     ;
 
 setTransactionStatement
-    : SET transactionContext=(GLOBAL | SESSION)? TRANSACTION {isSetTransactionOptionListAllowed()}?
+    : SET transactionContext=(GLOBAL | SESSION | LOCAL)? TRANSACTION {isSetTransactionOptionListAllowed()}?
       (
         ISOLATION LEVEL transactionLevel (',' transactionAccessMode)?
         | transactionAccessMode (',' ISOLATION LEVEL transactionLevel)?
@@ -2216,7 +2220,7 @@ alterUser
         (RETAIN CURRENT PASSWORD)?                                  #alterUserCurrentUser
     | {atLeast(8, 0)}? ALTER USER ifExists? (USER '(' ')' | CURRENT_USER ('(' ')')?)
         DISCARD OLD PASSWORD                                        #alterUserCurrentUserDiscard
-    | {atLeast(8, 0)}? ALTER USER ifExists? userName
+    | {atLeast(8, 0)}? ALTER USER ifExists? (userName | CURRENT_USER ('(' ')')?)
         alterUserDefaultRoleClause                                  #alterUserDefaultRole
     | {atLeast(8, 0)}? ALTER USER ifExists? userName
         DISCARD OLD PASSWORD                                        #alterUserDiscardOldPassword
@@ -2485,7 +2489,7 @@ privilege
       (TEMPORARY TABLES | ROUTINE | VIEW | USER | TABLESPACE)?
     | {atLeast(8, 0)}? CREATE ROLE
     | DELETE | DROP | {atLeast(8, 0)}? DROP ROLE | EVENT | EXECUTE | FILE | GRANT OPTION
-    | INDEX | INSERT | LOCK TABLES | PROCESS | PROXY
+    | INDEX | INSERT | LOCK TABLES | PROCESS
     | REFERENCES | RELOAD
     | REPLICATION (CLIENT | SLAVE)
     | SELECT
@@ -2515,7 +2519,7 @@ renameUserClause
 
 analyzeTable
     : ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-      (TABLE | TABLES) tableName analyzeHistogramClause
+      (TABLE | TABLES) tables analyzeHistogramClause
     | ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
       (TABLE | TABLES) tables
     ;
@@ -2673,10 +2677,10 @@ setStatement
     : setPasswordStatement                                          #setPassword
     | {isTriggerRowAssignmentAhead()}? SET fullId ('=' | ':=') expression
       (',' fullId ('=' | ':=') expression)*                         #setNewValueInsideTrigger
-    | SET setVariableAssignment (',' setVariableAssignment)*        #setVariable
-    | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
+    | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)          #setCharset
     | SET NAMES
-        (charsetName (COLLATE collationName)? | DEFAULT)            #setNames
+        (charsetName (COLLATE collationName)? | DEFAULT)             #setNames
+    | SET setVariableAssignment (',' setVariableAssignment)*        #setVariable
     | setTransactionStatement                                       #setTransaction
     | setAutocommitStatement                                        #setAutocommit
     | {atLeast(8, 0) || isLegacySetRoleAssignment()}?
@@ -2686,7 +2690,9 @@ setStatement
 
 setVariableAssignment
     : variableClause {isSetVariableAssignmentAllowed($variableClause.ctx)}?
-      ('=' | ':=') (expression | DEFAULT | ON)
+      ('=' | ':=') (expression | DEFAULT | ON | ALL | BINARY | ROW | SYSTEM)
+    | (CHARACTER SET | CHARSET) (charsetName | DEFAULT)
+    | NAMES (charsetName (COLLATE collationName)? | DEFAULT)
     ;
 
 showStatement
@@ -2760,11 +2766,11 @@ showLogEventOptions
 variableClause
     : LOCAL_ID
     | GLOBAL_ID (dottedId | {$GLOBAL_ID.text.endsWith(".")}? uid dottedId?)?
-    | (('@' '@')? (GLOBAL | SESSION | LOCAL))? uid dottedId?
+    | (('@' '@')? (GLOBAL | SESSION | LOCAL))? (uid dottedId? | DEFAULT dottedId)
     | {atMost(5, 7)}? (GLOBAL | SESSION | LOCAL | persistScope)
     | {atMost(5, 7)}? CUBE
-    | {isBarePersistScopeAllowed()}? persistScope uid
-    | '@' '@' persistScope '.' uid
+    | {isBarePersistScopeAllowed()}? persistScope (uid dottedId? | DEFAULT dottedId)
+    | '@' '@' persistScope '.' (uid dottedId? | DEFAULT dottedId)
     ;
 
 persistScope
@@ -2987,9 +2993,13 @@ signalAllowedExpression
 
 diagnosticsStatement
     : GET ( CURRENT | {atLeast(5, 7)}? STACKED )? DIAGNOSTICS (
-          ( variableClause '=' ( NUMBER | ROW_COUNT ) ( ',' variableClause '=' ( NUMBER | ROW_COUNT ) )* )
-        | ( CONDITION  ( decimalLiteral | variableClause ) variableClause '=' diagnosticsConditionInformationName ( ',' variableClause '=' diagnosticsConditionInformationName )* )
+          ( diagnosticsTarget '=' ( NUMBER | ROW_COUNT ) ( ',' diagnosticsTarget '=' ( NUMBER | ROW_COUNT ) )* )
+        | ( CONDITION signalAllowedExpression diagnosticsTarget '=' diagnosticsConditionInformationName ( ',' diagnosticsTarget '=' diagnosticsConditionInformationName )* )
       )
+    ;
+
+diagnosticsTarget
+    : LOCAL_ID | uid
     ;
 
 diagnosticsConditionInformationName
@@ -3045,7 +3055,7 @@ customFunctionName
 
 
 roleName
-    : userName
+    : {isRoleNameAllowed()}? userName
     | {atLeast(8, 0)}? (COMMIT | BINLOG) LOCAL_ID?
     | {atLeast(9, 7)}? (SETS | FILES | VECTOR) LOCAL_ID?
     ;
@@ -3063,15 +3073,16 @@ indexColumnName
     ;
 
 userName
-    : user=userNameToken (host= LOCAL_ID)?;
+    : user=userNameToken (host=LOCAL_ID | host='@')?;
 
 userNameToken
-    : textLiteralToken | ID | REVERSE_QUOTE_ID
+    : textLiteralToken | uid
     ;
 
 mysqlVariable
     : LOCAL_ID
-    | GLOBAL_ID
+    | GLOBAL_ID (dottedId | {$GLOBAL_ID.text.endsWith(".")}? uid dottedId?)?
+      {isSystemVariableAllowed($ctx, false)}?
     ;
 
 charsetName
@@ -3081,9 +3092,13 @@ charsetName
     ;
 
 collationName
-    : uid | textLiteralToken;
+    : uid | textLiteralToken | BINARY;
 
 engineName
+    : engineNameBase | textLiteralToken
+    ;
+
+engineNameBase
     : ARCHIVE | BLACKHOLE | CSV | FEDERATED | INNODB | MEMORY
     | MERGE | MRG_MYISAM | MYISAM | NDB | NDBCLUSTER | PERFORMANCE_SCHEMA
     | TOKUDB
@@ -3143,7 +3158,7 @@ simpleId
         ID
         | charsetNameBase
         | transactionLevelBase
-        | engineName
+        | engineNameBase
         | privilegesBase
         | intervalTypeBase
         | dataTypeBase
@@ -3236,7 +3251,7 @@ constant
     | '-' decimalLiteral
     | hexadecimalLiteral | bitStringLiteral | booleanLiteral
     | REAL_LITERAL
-    | NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
+    | NOT? nullLiteral=NULL_LITERAL
     ;
 
 
@@ -3307,7 +3322,7 @@ dataType
       BINARY?
       stringCharsetAttribute?
       (COLLATE collationName)?                                      #longVarcharDataType    // LONG VARCHAR is the same as LONG
-    | LONG VARBINARY                                                #longVarbinaryDataType
+    | LONG (VARBINARY | BYTE)                                       #longVarbinaryDataType
     ;
 
 numericFieldOption
@@ -3344,7 +3359,7 @@ convertedDataType
         POINT | LINESTRING | POLYGON | MULTIPOINT | MULTILINESTRING
         | MULTIPOLYGON | GEOMETRYCOLLECTION | GEOMCOLLECTION
       )
-    | typeName=DECIMAL lengthTwoOptionalDimension?
+    | typeName=(DECIMAL | DEC | NUMERIC | FIXED) lengthTwoOptionalDimension?
     | (SIGNED | UNSIGNED) (INT | INTEGER)?
     ;
 
@@ -3661,7 +3676,7 @@ specificFunction
       ')'                                                           #getFormatFunctionCall
     | {atLeastExact(80021)}? JSON_VALUE
       '(' expression
-       ',' expression
+       ',' stringLiteral
          (RETURNING convertedDataType)?
          ((NULL_LITERAL | ERROR | (DEFAULT jsonValueDefaultValue)) ON EMPTY)?
          ((NULL_LITERAL | ERROR | (DEFAULT jsonValueDefaultValue)) ON ERROR)?
@@ -3788,7 +3803,10 @@ comparisonExpression
 
 comparisonOperand
     : bitOrExpression                                               #expressionAtomPredicate
-    | MATCH
+    ;
+
+fullTextExpression
+    : MATCH
       (
         '(' fullColumnName (COMMA fullColumnName)* ')'
         | fullColumnName (COMMA fullColumnName)*
@@ -3802,7 +3820,7 @@ comparisonPredicateSuffix
     | {isTruthPredicateAllowed($ctx)}?
       IS NOT? testValue=(TRUE | FALSE | UNKNOWN)                    #truthPredicate
     | comparisonOperator bitOrExpression                            #binaryComparasionPredicate
-    | comparisonOperator
+    | quantifiedComparisonOperator
       quantifier=(ALL | ANY | SOME) '(' subqueryStatement ')'       #subqueryComparasionPredicate
     | SOUNDS LIKE bitOrExpression                                   #soundsLikePredicate
     | NOT? LIKE {isPipesConcatLikeOperandAllowed()}? bitOrExpression
@@ -3854,6 +3872,7 @@ unaryExpression
 // Add in ASTVisitor nullNotnull in constant
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | fullTextExpression                                            #fullTextExpressionAtom
     | PARAM_MARKER                                                  #parameterMarkerExpressionAtom
     | {isTypedTemporalLiteralAhead()}? typedTemporalLiteral         #typedTemporalLiteralExpressionAtom
     | fullColumnName                                                #fullColumnNameExpressionAtom
@@ -3881,6 +3900,10 @@ unaryOperator
 comparisonOperator
     : '=' | '>' | '<' | '<' '=' | '>' '='
     | '<' '>' | '!' '=' | '<' '=' '>'
+    ;
+
+quantifiedComparisonOperator
+    : '=' | '>' | '<' | '<' '=' | '>' '=' | '<' '>' | '!' '='
     ;
 
 bitOperator
@@ -3926,7 +3949,8 @@ dataTypeBase
     ;
 
 keywordsCanBeId
-    : TABLE_TYPE | ACCESSIBLE | ACCOUNT | ACTION | ACTIVE | ADMIN | AFTER | AGGREGATE | ALGORITHM | ANY | APPLICATION_PASSWORD_ADMIN | ARRAY
+    : TABLE_TYPE | ACCESSIBLE | ACCOUNT | ACTION | ACTIVE | ADMIN | AFTER | AGGREGATE | ALGORITHM | ALWAYS | ANY | APPLICATION_PASSWORD_ADMIN | ARRAY
+    | GEOMETRY | NULLS | RETURNING | SECONDARY
     | AT | AUDIT_ADMIN | AUTHORS | AUTHENTICATION | AUTO | AUTOCOMMIT | AUTOEXTEND_SIZE
     | ABSENT | ALLOW_MISSING_FILES | AUTO_INCREMENT | AUTO_REFRESH | AUTO_REFRESH_SOURCE
     | AVG | AVG_ROW_LENGTH | BACKUP | BACKUP_ADMIN | BEGIN | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR
