@@ -19,6 +19,7 @@ import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.backup.PriorBackupSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -73,4 +74,16 @@ public interface SqlEngineSpi extends Spi {
      * @param parameters parser parameters, or null/empty to use implementation defaults.
      */
     RewriteSpi rewriteSpi(SqlParserParameters parameters);
+
+    // backup
+
+    /**
+     * Returns the prior-backup analysis SPI, or null if row-level backup before UPDATE/DELETE is
+     * not supported by this engine.
+     *
+     * @param parameters parser parameters, or null/empty to use implementation defaults.
+     */
+    default PriorBackupSpi priorBackupSpi(SqlParserParameters parameters) {
+        return null;
+    }
 }

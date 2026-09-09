@@ -27,9 +27,11 @@ import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.backup.PriorBackupSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
+import com.clougence.sql.mysql.analysis.backup.MyPriorBackupSpi;
 import com.clougence.sql.mysql.analysis.behavior.MyBehaviorAnalysisSpi;
 import com.clougence.sql.mysql.analysis.lineage.MyLineageAnalysisSpi;
 import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
@@ -49,6 +51,7 @@ public class MySqlEngineSpi implements SqlEngineSpi {
     private final Map<String, BehaviorAnalysisSpi> behaviorCache  = new ConcurrentHashMap<>();
     private final Map<String, LineageAnalysisSpi>  lineageCache   = new ConcurrentHashMap<>();
     private final Map<String, RewriteSpi>          rewriteCache   = new ConcurrentHashMap<>();
+    private final Map<String, PriorBackupSpi>      backupCache    = new ConcurrentHashMap<>();
     private final Map<String, DslProvider>         dslCache       = new ConcurrentHashMap<>();
 
     public MySqlEngineSpi(MetaService metaService){
@@ -138,6 +141,13 @@ public class MySqlEngineSpi implements SqlEngineSpi {
         SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
         String key = parserKey(parserParameters);
         return lineageCache.computeIfAbsent(key, value -> new MyLineageAnalysisSpi(metaService, parserConfig(parserParameters)));
+    }
+
+    @Override
+    public PriorBackupSpi priorBackupSpi(SqlParserParameters parameters) {
+        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
+        String key = parserKey(parserParameters);
+        return backupCache.computeIfAbsent(key, value -> new MyPriorBackupSpi(parserConfig(parserParameters)));
     }
 
     @Override
