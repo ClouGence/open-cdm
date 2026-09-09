@@ -81,6 +81,14 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
         if (tree instanceof ExecutestmtContext && hasToken(tree, CREATE)) {
             this.types.add(SplitQueryType.CREATE_TABLE);
         }
+        if (type == SplitQueryType.SELECT && !hasToken(tree, SELECT) && !hasToken(tree, TABLE)) {
+            for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+                if (parent instanceof InsertstmtContext || parent instanceof MergestmtContext) {
+                    type = null;
+                    break;
+                }
+            }
+        }
         if (type != null) {
             this.types.add(type);
         }
@@ -208,9 +216,16 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, RULE) || hasToken(ctx, COLLATION) || hasToken(ctx, CONVERSION_P)) {
             return SplitQueryType.ALTER_POLICY;
+        } else if (hasToken(ctx, POLICY)) {
+            return SplitQueryType.ALTER_POLICY;
+        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, TABLE)) {
+            return SplitQueryType.COMMENT_TABLE;
+        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER) || hasToken(ctx, SERVER)) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, TRIGGER)) {
             return SplitQueryType.COMMENT_TRIGGER;
-        } else if (ctx.aggregate_with_argtypes() != null || ctx.operator_with_argtypes() != null || hasToken(ctx, OPERATOR) && (hasToken(ctx, CLASS) || hasToken(ctx, FAMILY))) {
+        } else if (ctx.aggregate_with_argtypes() != null || ctx.function_with_argtypes() != null || ctx.operator_with_argtypes() != null || hasToken(ctx, CAST)
+                   || hasToken(ctx, OPERATOR) && (hasToken(ctx, CLASS) || hasToken(ctx, FAMILY))) {
             return SplitQueryType.COMMENT_PROG_OBJ;
         } else if (hasToken(ctx, ROLE)) {
             return SplitQueryType.COMMENT_ROLE;
@@ -224,6 +239,8 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.COMMENT_SCHEMA;
         } else if (hasToken(ctx, CONSTRAINT)) {
             return SplitQueryType.COMMENT_CONSTRAINT;
+        } else if (hasToken(ctx, TYPE_P) || hasToken(ctx, DOMAIN_P)) {
+            return SplitQueryType.COMMENT_TYPE;
         } else if (hasToken(ctx, VIEW)) {
             return SplitQueryType.COMMENT_VIEW;
         } else if (hasToken(ctx, SEQUENCE)) {
@@ -369,18 +386,14 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAltertablestmt(AltertablestmtContext ctx) {
-        ParseTree alterContext = ctx.getChild(1);
-        if (alterContext instanceof TerminalNodeImpl childNode) {
-            if (childNode.getSymbol().getType() == TABLE) {
-                return SplitQueryType.ALTER_TABLE;
-
-            } else if (childNode.getSymbol().getType() == INDEX) {
-                return SplitQueryType.ALTER_INDEX;
-
-            } else if (childNode.getSymbol().getType() == VIEW) {
-                return SplitQueryType.ALTER_VIEW;
-
-            }
+        if (ctx.TABLE() != null) {
+            return SplitQueryType.ALTER_TABLE;
+        }
+        if (ctx.INDEX() != null) {
+            return SplitQueryType.ALTER_INDEX;
+        }
+        if (ctx.VIEW() != null) {
+            return SplitQueryType.ALTER_VIEW;
         }
         if (hasToken(ctx, MATERIALIZED) && hasToken(ctx, VIEW)) {
             return SplitQueryType.ALTER_VIEW;
@@ -496,7 +509,7 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitRenamestmt(RenamestmtContext ctx) {
-        if (ctx.aggregate_with_argtypes() != null) {
+        if (ctx.aggregate_with_argtypes() != null || ctx.function_with_argtypes() != null) {
             return SplitQueryType.RENAME_PROG_OBJ;
         } else if (hasToken(ctx, TEXT_P) && hasToken(ctx, SEARCH)) {
             return SplitQueryType.ALTER_POLICY;
@@ -506,6 +519,17 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.ALTER_POLICY;
         } else if (hasToken(ctx, OPERATOR) && (hasToken(ctx, CLASS) || hasToken(ctx, FAMILY))) {
             return SplitQueryType.ALTER_PROG_OBJ;
+        } else if (hasToken(ctx, INDEX)) {
+            return SplitQueryType.RENAME_INDEX;
+        } else if (hasToken(ctx, POLICY)) {
+            return SplitQueryType.ALTER_POLICY;
+        } else if (hasToken(ctx, TABLE) && hasToken(ctx, CONSTRAINT)) {
+            return SplitQueryType.RENAME_CONSTRAINT;
+        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, TABLE)) {
+            if (ctx.name().size() > 1) {
+                return SplitQueryType.RENAME_COLUMN;
+            }
+            return SplitQueryType.RENAME_TABLE;
         } else if (hasToken(ctx, TRIGGER)) {
             return SplitQueryType.RENAME_TRIGGER;
         } else if (hasToken(ctx, USER)) {
@@ -570,6 +594,10 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.ALTER_PROG_OBJ;
         } else if (hasToken(ctx, TRIGGER)) {
             return SplitQueryType.ALTER_TRIGGER;
+        } else if (hasToken(ctx, INDEX)) {
+            return SplitQueryType.ALTER_INDEX;
+        } else if (hasToken(ctx, VIEW)) {
+            return SplitQueryType.ALTER_VIEW;
         }
         return SplitQueryType.UNKNOWN;
     }
@@ -856,9 +884,9 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitExplainstmt(ExplainstmtContext ctx) {
         if (isExplainAnalyze(ctx)) {
-            return SplitQueryType.UNSAFE;
+            return null;
         }
-        return SplitQueryType.SELECT;
+        return SplitQueryType.PERFORMANCE;
     }
 
     private boolean isExplainAnalyze(ExplainstmtContext ctx) {
