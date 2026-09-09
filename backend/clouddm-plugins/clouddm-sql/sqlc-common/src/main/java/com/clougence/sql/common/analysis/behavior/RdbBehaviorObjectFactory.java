@@ -74,10 +74,7 @@ public class RdbBehaviorObjectFactory {
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(type);
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
-        object.setStartLine(line(start));
-        object.setStartColumn(column(start));
-        object.setEndLine(line(stop));
-        object.setEndColumn(column(stop) + stop.getText().length());
+        setCodeRange(object, start, stop);
         return object;
     }
 
@@ -92,10 +89,7 @@ public class RdbBehaviorObjectFactory {
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(type);
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
-        object.setStartLine(line(context.getStart()));
-        object.setStartColumn(column(context.getStart()));
-        object.setEndLine(line(context.getStop()));
-        object.setEndColumn(column(context.getStop()) + context.getStop().getText().length());
+        setCodeRange(object, context.getStart(), context.getStop());
         return object;
     }
 
@@ -106,10 +100,7 @@ public class RdbBehaviorObjectFactory {
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(type);
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
-        object.setStartLine(line(token));
-        object.setStartColumn(column(token));
-        object.setEndLine(line(token));
-        object.setEndColumn(column(token) + token.getText().length());
+        setCodeRange(object, token, token);
         return object;
     }
 
@@ -134,10 +125,7 @@ public class RdbBehaviorObjectFactory {
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(type);
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
-        object.setStartLine(line(start));
-        object.setStartColumn(column(start));
-        object.setEndLine(line(stop));
-        object.setEndColumn(column(stop) + stop.getText().length());
+        setCodeRange(object, start, stop);
         return object;
     }
 
@@ -153,11 +141,29 @@ public class RdbBehaviorObjectFactory {
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(type);
         object.setObjectPath("/" + String.join("/", path) + "/");
+        setCodeRange(object, start, stop);
+        return object;
+    }
+
+    private void setCodeRange(BehaviorObject object, Token start, Token stop) {
         object.setStartLine(line(start));
         object.setStartColumn(column(start));
-        object.setEndLine(line(stop));
-        object.setEndColumn(column(stop) + stop.getText().length());
-        return object;
+        int endLine = line(stop);
+        int endColumn = column(stop);
+        String text = stop.getText();
+        // ANTLR columns count Unicode code points; a quoted token can span lines.
+        for (int index = 0; index < text.length();) {
+            int codePoint = text.codePointAt(index);
+            index += Character.charCount(codePoint);
+            if (codePoint == '\n') {
+                endLine++;
+                endColumn = 0;
+            } else {
+                endColumn++;
+            }
+        }
+        object.setEndLine(endLine);
+        object.setEndColumn(endColumn);
     }
 
     private void collectNames(ParseTree tree, int identifierTokenType, List<String> names) {

@@ -6,7 +6,6 @@ package com.clougence.sql.postgres.analysis.behavior;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
@@ -69,17 +68,11 @@ final class PgFunctionBehaviorRegistry {
     }
 
     PgFunctionBehavior behavior(List<String> names) {
-        if (names.size() > 2 || names.size() == 2 && !"pg_catalog".equals(normalizeIdentifier(names.get(0)))) {
+        if (names.size() > 2 || names.size() == 2 && !"pg_catalog".equals(names.get(0))) {
             return PgFunctionBehavior.DEFAULT;
         }
-        String functionName = normalizeIdentifier(names.get(names.size() - 1));
+        String functionName = names.get(names.size() - 1);
         return functions.getOrDefault(functionName, PgFunctionBehavior.DEFAULT);
     }
 
-    private String normalizeIdentifier(String identifier) {
-        if (identifier.startsWith("\"") && identifier.endsWith("\"")) {
-            return identifier.substring(1, identifier.length() - 1).replace("\"\"", "\"");
-        }
-        return identifier.toLowerCase(Locale.ROOT);
-    }
 }

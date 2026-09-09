@@ -51,6 +51,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     private final Set<ParseTree> deferredBodies = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<ParseTree> mutations      = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<ParseTree> functions      = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Set<ParseTree> tableReads     = Collections.newSetFromMap(new IdentityHashMap<>());
 
     @Override
     public Void visit(ParseTree tree) {
@@ -67,17 +68,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     private void addFunction(Func_applicationContext ctx) {
         List<String> names = new ArrayList<>();
-        Func_nameContext functionName = ctx.func_name();
-        if (functionName.type_function_name() != null) {
-            names.add(text(functionName.type_function_name()));
-        } else {
-            names.add(text(functionName.colid()));
-            for (Indirection_elContext part : functionName.indirection().indirection_el()) {
-                if (part.attr_name() != null) {
-                    names.add(text(part.attr_name()));
-                }
-            }
-        }
+        collectNames(ctx.func_name(), names);
         PgFunctionBehavior rule = PgFunctionBehaviorRegistry.INSTANCE.behavior(names);
         addUnary(rule.action(), object(TargetType.Function, ctx.func_name()));
         if (rule.targetType() == null || ctx.func_arg_list() == null)
@@ -113,6 +104,9 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         }
         if (tree instanceof Func_applicationContext call && functions.add(call)) {
             addFunction(call);
+        }
+        if (tree instanceof Relation_exprContext table && isQueryTable(table) && tableReads.add(table) && !isCte(table)) {
+            addUnary(BehaviorAction.READ, object(TargetType.Table, table.qualified_name()));
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
             scanNestedBehaviors(tree.getChild(i));
@@ -154,7 +148,26 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitTable_ref(Table_refContext ctx) {
-        if (ctx.relation_expr() != null && !isCte(ctx)) {
+        if (ctx.relation_expr() != null && tableReads.add(ctx.relation_expr()) && !isCte(ctx.relation_expr())) {
+            addUnary(BehaviorAction.READ, object(TargetType.Table, ctx.relation_expr().qualified_name()));
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSelect_no_parens(Select_no_parensContext ctx) {
+        for (Simple_select_pramaryContext select : ctx.select_clause().simple_select_pramary()) {
+            if (select.into_clause() != null) {
+                addRelation(BehaviorAction.CREATE, object(TargetType.Table, select.into_clause().opttempTableName().qualified_name()), tableReferences(ctx));
+                return null;
+            }
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitSimple_select_pramary(Simple_select_pramaryContext ctx) {
+        if (ctx.TABLE() != null && tableReads.add(ctx.relation_expr()) && !isCte(ctx.relation_expr())) {
             addUnary(BehaviorAction.READ, object(TargetType.Table, ctx.relation_expr().qualified_name()));
         }
         return visitChildren(ctx);
@@ -198,7 +211,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreatestmt(CreatestmtContext ctx) {
-        List<Qualified_nameContext> names = ctx.qualified_name();
+        List<Qualified_nameContext> names = descendants(ctx, Qualified_nameContext.class);
         if (!names.isEmpty()) {
             List<BehaviorObject> targets = new ArrayList<>();
             for (int i = 1; i < names.size(); i++) {
@@ -244,7 +257,11 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitViewstmt(ViewstmtContext ctx) {
-        addRelation(BehaviorAction.CREATE, object(TargetType.View, ctx.qualified_name()), tableReferences(ctx.selectstmt()));
+        BehaviorAction action = BehaviorAction.CREATE;
+        if (ctx.REPLACE() != null) {
+            action = BehaviorAction.REPLACE;
+        }
+        addRelation(action, object(TargetType.View, ctx.qualified_name()), tableReferences(ctx.selectstmt()));
         return null;
     }
 
@@ -259,7 +276,11 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         deferredBodies.add(ctx);
         TargetType targetType = ctx.PROCEDURE() == null ? TargetType.Function : TargetType.Procedure;
         BehaviorObject function = object(targetType, ctx.func_name());
-        addUnary(BehaviorAction.CREATE, function);
+        BehaviorAction action = BehaviorAction.CREATE;
+        if (ctx.or_replace_() != null) {
+            action = BehaviorAction.REPLACE;
+        }
+        addUnary(action, function);
         if (ctx.sql_body() != null) {
             deferredBodies.remove(ctx);
             visit(ctx.sql_body());
@@ -274,7 +295,11 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         deferredBodies.add(ctx);
         List<BehaviorObject> targets = objects(TargetType.Table, firstQualifiedName(ctx));
         addObject(targets, object(TargetType.Function, ctx.func_name()));
-        addRelation(BehaviorAction.CREATE, object(TargetType.Trigger, ctx.name()), targets);
+        BehaviorAction action = BehaviorAction.CREATE;
+        if (ctx.or_replace_() != null) {
+            action = BehaviorAction.REPLACE;
+        }
+        addRelation(action, object(TargetType.Trigger, ctx.name()), targets);
         addUnary(BehaviorAction.UNSAFE, object(TargetType.Trigger, ctx.name()));
         return null;
     }
@@ -513,7 +538,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
                 if (value == null)
                     addUnary(BehaviorAction.SWITCH, objects.instanceObject(type, more));
                 else
-                    addUnary(BehaviorAction.SWITCH, namedObject(type, value, unquote(stringValue(value))));
+                    addUnary(BehaviorAction.SWITCH, namedObject(type, value, stringValue(value)));
             }
         }
         return null;
@@ -578,18 +603,13 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         return null;
     }
 
-    private boolean isCte(Table_refContext table) {
+    private boolean isCte(Relation_exprContext table) {
         List<String> names = new ArrayList<>();
-        collectNames(table.relation_expr().qualified_name(), names);
+        collectNames(table.qualified_name(), names);
         if (names.size() != 1) {
             return false;
         }
-        String reference = text(table.relation_expr().qualified_name().colid());
-        if (reference.startsWith("\"")) {
-            reference = unquote(reference).replace("\"\"", "\"");
-        } else {
-            reference = reference.toLowerCase(Locale.ROOT);
-        }
+        String reference = names.get(0);
         Set<ParseTree> ancestors = Collections.newSetFromMap(new IdentityHashMap<>());
         for (ParseTree parent = table.getParent(); parent != null; parent = parent.getParent())
             ancestors.add(parent);
@@ -610,12 +630,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
                         }
                     }
                     for (int index = 0; index < visibleCount; index++) {
-                        String name = text(ctes.get(index).name());
-                        if (name.startsWith("\"")) {
-                            name = unquote(name).replace("\"\"", "\"");
-                        } else {
-                            name = name.toLowerCase(Locale.ROOT);
-                        }
+                        String name = normalizeIdentifier(text(ctes.get(index).name()));
                         if (name.equals(reference))
                             return true;
                     }
@@ -626,12 +641,25 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     private String stringValue(ParserRuleContext context) {
-        String value = text(context);
-        int start = value.indexOf('\'');
-        if (start >= 0 && value.endsWith("'")) {
-            return value.substring(start + 1, value.length() - 1).replace("''", "'");
+        SconstContext literal = first(context, SconstContext.class);
+        if (literal == null) {
+            return normalizeIdentifier(text(context));
         }
-        return value;
+        AnysconstContext initial = literal.anysconst();
+        StringBuilder value = new StringBuilder();
+        if (initial.BeginDollarStringConstant() != null) {
+            for (var part : initial.DollarText()) {
+                value.append(part.getText());
+            }
+        } else {
+            String token = text(initial);
+            value.append(token.substring(token.indexOf('\'') + 1, token.length() - 1).replace("''", "'"));
+        }
+        for (var continuation : literal.StringConstant()) {
+            String token = continuation.getText();
+            value.append(token.substring(1, token.length() - 1).replace("''", "'"));
+        }
+        return value.toString();
     }
 
     @Override
@@ -1351,7 +1379,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitCreateeventtrigstmt(CreateeventtrigstmtContext ctx) {
         BehaviorObject trigger = object(TargetType.Trigger, ctx.name());
-        trigger.setObjectPath(objects.unnamedObject(TargetType.Trigger, ctx.name(), UmiTypes.Catalog).getObjectPath() + unquote(text(ctx.name())) + "/");
+        trigger.setObjectPath(objects.unnamedObject(TargetType.Trigger, ctx.name(), UmiTypes.Catalog).getObjectPath() + normalizeIdentifier(text(ctx.name())) + "/");
         addRelation(BehaviorAction.CREATE, trigger, objects(TargetType.Function, ctx.func_name()));
         addUnary(BehaviorAction.UNSAFE, trigger);
         return null;
@@ -1388,7 +1416,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     private BehaviorObject tableMember(TargetType type, ParserRuleContext name, BehaviorObject table) {
         BehaviorObject object = object(type, name);
-        String member = unquote(text(name));
+        String member = normalizeIdentifier(text(name));
         object.setObjectPath(table.getObjectPath() + member + "/");
         ObjectName parentName = table.getObjectName();
         object.setObjectName(new ObjectName(parentName.getCatalog(), parentName.getSchema(), member));
@@ -1398,7 +1426,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     private BehaviorObject catalogObject(TargetType type, ParserRuleContext context) {
         if (context == null)
             return null;
-        String name = unquote(text(context));
+        String name = normalizeIdentifier(text(context));
         BehaviorObject object = objects.unnamedObject(type, context, UmiTypes.Catalog);
         object.setObjectPath(object.getObjectPath() + name + "/");
         object.setObjectName(new ObjectName(StringUtils.toString(levels.get(UmiTypes.Catalog)), null, name));
@@ -1424,7 +1452,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     private BehaviorObject scopedObject(TargetType type, ParserRuleContext context, List<String> names) {
         if (names.isEmpty()) {
-            names.add(unquote(text(context)));
+            names.add(normalizeIdentifier(text(context)));
         }
         String name = names.get(names.size() - 1);
         if (type == TargetType.User || type == TargetType.Role || type == TargetType.UserOrRole || type == TargetType.ConfigKey || type == TargetType.PrepareStatement
@@ -1455,7 +1483,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     private void collectNames(ParseTree tree, List<String> names) {
         if (tree instanceof ColidContext || tree instanceof Attr_nameContext || tree instanceof Type_function_nameContext) {
             ParserRuleContext context = (ParserRuleContext) tree;
-            names.add(unquote(parser.getTokenStream().getText(context.getStart(), context.getStop())));
+            names.add(normalizeIdentifier(parser.getTokenStream().getText(context.getStart(), context.getStop())));
             return;
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
@@ -1491,12 +1519,17 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     private List<BehaviorObject> tableReferences(ParseTree tree) {
         List<BehaviorObject> result = new ArrayList<>();
-        for (Table_refContext table : descendants(tree, Table_refContext.class)) {
-            if (table.relation_expr() != null && !isCte(table)) {
-                addObject(result, object(TargetType.Table, table.relation_expr().qualified_name()));
+        for (Relation_exprContext table : descendants(tree, Relation_exprContext.class)) {
+            if (isQueryTable(table) && !isCte(table)) {
+                tableReads.add(table);
+                addObject(result, object(TargetType.Table, table.qualified_name()));
             }
         }
         return result;
+    }
+
+    private boolean isQueryTable(Relation_exprContext table) {
+        return table.getParent() instanceof Table_refContext || table.getParent() instanceof Simple_select_pramaryContext;
     }
 
     private List<BehaviorObject> objects(TargetType type, ParserRuleContext context) {
@@ -1578,7 +1611,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         } else {
             type = TargetType.UserOrRole;
         }
-        return namedObject(type, context, unquote(text(context)));
+        return namedObject(type, context, normalizeIdentifier(text(context)));
     }
 
     private BehaviorObject namedObject(TargetType type, ParserRuleContext context, String name) {
@@ -1595,10 +1628,10 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         List<String> names = new ArrayList<>();
         Any_operatorContext current = context;
         while (current.colid() != null) {
-            names.add(unquote(text(current.colid())));
+            names.add(normalizeIdentifier(text(current.colid())));
             current = current.any_operator();
         }
-        names.add(unquote(text(current)));
+        names.add(normalizeIdentifier(text(current)));
         return objects.object(TargetType.Operator, context, names);
     }
 
@@ -1710,10 +1743,17 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         }
     }
 
-    private String unquote(String value) {
+    private String normalizeIdentifier(String value) {
         if (value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"') {
-            return value.substring(1, value.length() - 1);
+            return value.substring(1, value.length() - 1).replace("\"\"", "\"");
         }
-        return value;
+        // PostgreSQL preserves non-ASCII characters when folding UTF-8 identifiers.
+        char[] normalized = value.toCharArray();
+        for (int i = 0; i < normalized.length; i++) {
+            if (normalized[i] >= 'A' && normalized[i] <= 'Z') {
+                normalized[i] += 'a' - 'A';
+            }
+        }
+        return new String(normalized);
     }
 }
