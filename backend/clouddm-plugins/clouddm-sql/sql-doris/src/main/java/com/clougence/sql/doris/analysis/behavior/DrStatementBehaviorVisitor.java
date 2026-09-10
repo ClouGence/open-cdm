@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.doris.analysis.behavior;
 
@@ -48,21 +57,26 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         for (ParserRuleContext ctx : descendants(root, ParserRuleContext.class)) {
             if (ctx instanceof FunctionCallExpressionContext function) {
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, function.functionIdentifier()));
+            } else if (ctx instanceof InsertIntoTVFContext function) {
+                add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, function.tvfName));
             } else if (ctx instanceof TableValuedFunctionContext function) {
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, function.tvfName));
             } else if (ctx instanceof LateralViewContext lateral) {
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, lateral.functionName));
-            } else if (ctx instanceof CastContext || ctx instanceof CharFunctionContext || ctx instanceof ConvertCharSetContext || ctx instanceof ConvertTypeContext
-                       || ctx instanceof GroupConcatContext || ctx instanceof TrimContext || ctx instanceof ExtractContext || ctx instanceof CurrentDateContext
-                       || ctx instanceof CurrentTimeContext || ctx instanceof CurrentTimestampContext || ctx instanceof LocalTimeContext || ctx instanceof LocalTimestampContext
-                       || ctx instanceof CurrentUserContext || ctx instanceof SessionUserContext) {
+            } else if (ctx instanceof UnnestFunctionContext function) {
+                var token = function.UNNEST().getSymbol();
+                add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, token, List.of(token.getText())));
+            } else if (ctx instanceof SubstringContext || ctx instanceof PositionContext || ctx instanceof CastContext || ctx instanceof CharFunctionContext
+                       || ctx instanceof ConvertCharSetContext || ctx instanceof ConvertTypeContext || ctx instanceof GroupConcatContext || ctx instanceof TrimContext
+                       || ctx instanceof ExtractContext || ctx instanceof CurrentDateContext || ctx instanceof CurrentTimeContext || ctx instanceof CurrentTimestampContext
+                       || ctx instanceof LocalTimeContext || ctx instanceof LocalTimestampContext || ctx instanceof CurrentUserContext || ctx instanceof SessionUserContext) {
                 var token = ctx.getStart();
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, token, List.of(token.getText())));
             }
         }
         for (TableValuedFunctionContext function : descendants(root, TableValuedFunctionContext.class)) {
             String name = unquote(text(function.tvfName));
-            if (!Set.of("s3", "hdfs", "local", "http", "azure", "gcs").contains(name.toLowerCase(java.util.Locale.ROOT))) {
+            if (!Set.of("s3", "hdfs", "local", "http", "azure", "gcs").contains(name.toLowerCase(Locale.ROOT))) {
                 continue;
             }
             for (PropertyItemContext property : descendants(function.properties, PropertyItemContext.class)) {
@@ -88,7 +102,29 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitStatementDefault(StatementDefaultContext ctx) {
+        if (ctx.explain() != null) {
+            behavior.setStatementType(SplitQueryType.PERFORMANCE);
+            return visit(ctx.query());
+        }
+        if (ctx.outFileClause() != null) {
+            BehaviorObject file = file(ctx.outFileClause().filePath.getStart());
+            add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT, file, tableSources(ctx.query()));
+            add(SplitQueryType.DATA_EXPORT, BehaviorAction.UNSAFE, file);
+            return null;
+        }
         behavior.setStatementType(SplitQueryType.SELECT);
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitAlterTableExecute(AlterTableExecuteContext ctx) {
+        BehaviorAction action = switch (unquote(text(ctx.actionName)).toLowerCase(Locale.ROOT)) {
+            case "expire_snapshots" -> BehaviorAction.PURGE;
+            case "rewrite_data_files", "rewrite_manifests" -> BehaviorAction.OPTIMIZE;
+            case "cherrypick_snapshot", "fast_forward", "publish_changes", "rollback_to_snapshot", "rollback_to_timestamp", "set_current_snapshot" -> BehaviorAction.ALTER;
+            default -> BehaviorAction.UNKNOWN;
+        };
+        add(SplitQueryType.ADMIN_TABLE, action, object(TargetType.Table, ctx.tableName));
         return visitChildren(ctx);
     }
 
@@ -105,7 +141,11 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             names.add(unquote(text(ctx.catalog)));
         }
         names.add(unquote(text(ctx.database)));
-        add(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, objects.object(TargetType.Schema, ctx.database, names));
+        Token start = ctx.database.getStart();
+        if (ctx.catalog != null) {
+            start = ctx.catalog.getStart();
+        }
+        add(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, objects.object(TargetType.Schema, start, ctx.database.getStop(), names));
         return null;
     }
 
@@ -137,13 +177,13 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitSystemVariable(SystemVariableContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx.identifier(), unquote(text(ctx.identifier()))));
+        add(SplitQueryType.SELECT, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx, unquote(text(ctx.identifier()))));
         return null;
     }
 
     @Override
     public Void visitUserVariable(UserVariableContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx.identifierOrText(), unquote(text(ctx.identifierOrText()))));
+        add(SplitQueryType.SELECT, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx, unquote(text(ctx.identifierOrText()))));
         return null;
     }
 
@@ -156,9 +196,99 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitPredicate(PredicateContext ctx) {
+        if (ctx.analyzer != null) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx.analyzer, unquote(text(ctx.analyzer))));
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitCreateDictionary(CreateDictionaryContext ctx) {
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE, object(TargetType.SchemaObject, ctx.name), List.of(object(TargetType.Table, ctx.source)));
+        return null;
+    }
+
+    @Override
+    public Void visitCreateFile(CreateFileContext ctx) {
+        List<String> names = new ArrayList<>();
+        if (ctx.database != null) {
+            names.add(unquote(text(ctx.database)));
+        }
+        names.add(unquote(ctx.name.getText()));
+        List<BehaviorObject> sources = new ArrayList<>();
+        for (PropertyItemContext property : descendants(ctx.properties, PropertyItemContext.class)) {
+            if (unquote(text(property.key)).equalsIgnoreCase("url")) {
+                sources.add(file(property.value.getStart()));
+            }
+        }
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE, objects.object(TargetType.File, ctx.name, names), sources);
+        for (BehaviorObject source : sources) {
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.UNSAFE, source);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropFile(DropFileContext ctx) {
+        List<String> names = new ArrayList<>();
+        if (ctx.database != null) {
+            names.add(unquote(text(ctx.database)));
+        }
+        names.add(unquote(ctx.name.getText()));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.DROP, objects.object(TargetType.File, ctx.name, names));
+        return null;
+    }
+
+    @Override
+    public Void visitShowLoadWarings(ShowLoadWaringsContext ctx) {
+        if (ctx.url != null) {
+            BehaviorObject source = file(ctx.url);
+            add(SplitQueryType.METADATA, BehaviorAction.READ, source);
+            add(SplitQueryType.METADATA, BehaviorAction.UNSAFE, source);
+        } else {
+            BehaviorObject schema;
+            if (ctx.database != null) {
+                schema = object(TargetType.Schema, ctx.database);
+            } else {
+                schema = objects.unnamedObject(TargetType.Schema, ctx.getStart(), UmiTypes.Schema);
+            }
+            add(SplitQueryType.METADATA, BehaviorAction.READ, schema);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropDictionary(DropDictionaryContext ctx) {
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.DROP, object(TargetType.SchemaObject, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitRefreshDictionary(RefreshDictionaryContext ctx) {
+        add(SplitQueryType.ADMIN, BehaviorAction.REFRESH, object(TargetType.SchemaObject, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitDescribeDictionary(DescribeDictionaryContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, object(TargetType.SchemaObject, ctx.multipartIdentifier()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowDictionaries(ShowDictionariesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.unnamedObject(TargetType.SchemaObject, ctx.DICTIONARIES().getSymbol(), UmiTypes.Schema));
+        return null;
+    }
+
+    @Override
     public Void visitInsertTable(InsertTableContext ctx) {
         if (ctx.explain() != null) {
-            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), tableSources(ctx.query()));
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, object(TargetType.Table, ctx.tableName));
+            for (BehaviorObject source : tableSources(ctx.query())) {
+                add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, source);
+            }
             return null;
         }
         SplitQueryType type = ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
@@ -176,7 +306,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         List<BehaviorObject> sources = tableSources(ctx.fromClause());
         addTableSources(sources, ctx.whereClause());
         if (ctx.explain() != null) {
-            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), sources);
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, object(TargetType.Table, ctx.tableName));
+            for (BehaviorObject source : sources) {
+                add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, source);
+            }
             return null;
         }
         add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, object(TargetType.Table, ctx.tableName), sources);
@@ -188,7 +321,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         List<BehaviorObject> sources = tableSources(ctx.relations());
         addTableSources(sources, ctx.whereClause());
         if (ctx.explain() != null) {
-            add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Table, ctx.tableName), sources);
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, object(TargetType.Table, ctx.tableName));
+            for (BehaviorObject source : sources) {
+                add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, source);
+            }
             return null;
         }
         add(SplitQueryType.DELETE, BehaviorAction.DELETE, object(TargetType.Table, ctx.tableName), sources);
@@ -197,7 +333,16 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateTable(CreateTableContext ctx) {
-        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, object(TargetType.Table, ctx.name), tableSources(ctx.query()));
+        BehaviorObject table = object(TargetType.Table, ctx.name);
+        add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, table, tableSources(ctx.query()));
+        for (IndexDefContext index : descendants(ctx.indexDefs(), IndexDefContext.class)) {
+            List<String> names = new ArrayList<>();
+            for (ErrorCapturingIdentifierContext part : ctx.name.errorCapturingIdentifier()) {
+                names.add(unquote(text(part)));
+            }
+            names.set(names.size() - 1, unquote(text(index.indexName)));
+            add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, objects.object(TargetType.Index, index.indexName, names), List.of(table));
+        }
         return null;
     }
 
@@ -463,18 +608,6 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitShowBackends(ShowBackendsContext ctx) {
-        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.BACKENDS().getSymbol()));
-        return null;
-    }
-
-    @Override
-    public Void visitShowFrontends(ShowFrontendsContext ctx) {
-        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.FRONTENDS().getSymbol()));
-        return null;
-    }
-
-    @Override
     public Void visitShowProc(ShowProcContext ctx) {
         add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.PROC().getSymbol()));
         return null;
@@ -488,7 +621,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitShowProcessList(ShowProcessListContext ctx) {
-        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.PROCESSLIST().getSymbol()));
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.PROCESSLIST().getSymbol()));
         return null;
     }
 
@@ -507,7 +640,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitExport(ExportContext ctx) {
         BehaviorObject file = file(ctx.filePath);
-        add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT, object(TargetType.Table, ctx.tableName), List.of(file));
+        add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT, file, List.of(object(TargetType.Table, ctx.tableName)));
         add(SplitQueryType.DATA_EXPORT, BehaviorAction.UNSAFE, file);
         return null;
     }
@@ -525,9 +658,9 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     public Void visitLoad(LoadContext ctx) {
         for (DataDescContext data : ctx.dataDesc()) {
             List<BehaviorObject> sources = new ArrayList<>();
-            List<org.antlr.v4.runtime.Token> paths = new ArrayList<>(data.filePaths);
+            List<Token> paths = new ArrayList<>(data.filePaths);
             paths.addAll(data.filePath);
-            for (org.antlr.v4.runtime.Token path : paths) {
+            for (Token path : paths) {
                 sources.add(file(path));
             }
             if (data.sourceTableName != null) {
@@ -549,7 +682,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         return null;
     }
 
-    private BehaviorObject file(org.antlr.v4.runtime.Token token) {
+    private BehaviorObject file(Token token) {
         String path = unquote(token.getText()).replaceFirst("^/+", "");
         if (path.isEmpty()) {
             return objects.instanceObject(TargetType.File, token);
@@ -682,6 +815,19 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
                 result.add(object);
             }
         }
+        for (TableValuedFunctionContext function : descendants(tree, TableValuedFunctionContext.class)) {
+            result.add(object(TargetType.Function, function.tvfName));
+            String name = unquote(text(function.tvfName)).toLowerCase(Locale.ROOT);
+            if (!Set.of("s3", "hdfs", "local", "http", "azure", "gcs").contains(name)) {
+                continue;
+            }
+            for (PropertyItemContext property : descendants(function.properties, PropertyItemContext.class)) {
+                String key = unquote(text(property.key));
+                if (key.equalsIgnoreCase("uri") || key.equalsIgnoreCase("file_path")) {
+                    result.add(file(property.value.getStart()));
+                }
+            }
+        }
     }
 
     @Override
@@ -713,6 +859,9 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             dependencies.add(object(TargetType.Schema, ctx.jobFromToClause().targetDb));
         }
         add(SplitQueryType.CREATE_JOB, BehaviorAction.CREATE, job, dependencies);
+        if (ctx.supportedDmlStatement() != null) {
+            visit(ctx.supportedDmlStatement());
+        }
         add(SplitQueryType.CREATE_JOB, BehaviorAction.UNSAFE, job);
         return null;
     }
@@ -757,7 +906,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             action = BehaviorAction.STOP;
         } else if (clause instanceof ModifyBackendClauseContext backend) {
             hosts = backend.hostPorts;
-            action = BehaviorAction.ALTER;
+            action = BehaviorAction.CONFIGURE;
         } else if (clause instanceof AddObserverClauseContext observer) {
             hosts = List.of(observer.hostPort);
             action = BehaviorAction.CREATE;
@@ -981,19 +1130,31 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreateWorkloadGroup(CreateWorkloadGroupContext ctx) {
-        add(SplitQueryType.CREATE_RESOURCE_GROUP, BehaviorAction.CREATE, objects.instanceObject(TargetType.ResourceGroup, ctx.name, unquote(text(ctx.name))));
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.computeGroup != null) {
+            targets.add(objects.instanceObject(TargetType.ResourceGroup, ctx.computeGroup, unquote(text(ctx.computeGroup))));
+        }
+        add(SplitQueryType.CREATE_RESOURCE_GROUP, BehaviorAction.CREATE, objects.instanceObject(TargetType.ResourceGroup, ctx.name, unquote(text(ctx.name))), targets);
         return null;
     }
 
     @Override
     public Void visitAlterWorkloadGroup(AlterWorkloadGroupContext ctx) {
-        add(SplitQueryType.ALTER_RESOURCE_GROUP, BehaviorAction.ALTER, objects.instanceObject(TargetType.ResourceGroup, ctx.name, unquote(text(ctx.name))));
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.computeGroup != null) {
+            targets.add(objects.instanceObject(TargetType.ResourceGroup, ctx.computeGroup, unquote(text(ctx.computeGroup))));
+        }
+        add(SplitQueryType.ALTER_RESOURCE_GROUP, BehaviorAction.ALTER, objects.instanceObject(TargetType.ResourceGroup, ctx.name, unquote(text(ctx.name))), targets);
         return null;
     }
 
     @Override
     public Void visitDropWorkloadGroup(DropWorkloadGroupContext ctx) {
-        add(SplitQueryType.DROP_RESOURCE_GROUP, BehaviorAction.DROP, objects.instanceObject(TargetType.ResourceGroup, ctx.name, unquote(text(ctx.name))));
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.computeGroup != null) {
+            targets.add(objects.instanceObject(TargetType.ResourceGroup, ctx.computeGroup, unquote(text(ctx.computeGroup))));
+        }
+        add(SplitQueryType.DROP_RESOURCE_GROUP, BehaviorAction.DROP, objects.instanceObject(TargetType.ResourceGroup, ctx.name, unquote(text(ctx.name))), targets);
         return null;
     }
 
@@ -1155,9 +1316,21 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             ancestors.add(parent);
         }
         for (ParseTree parent = table.getParent(); parent != null; parent = parent.getParent()) {
-            if (parent instanceof QueryContext query && query.cte() != null) {
-                for (AliasQueryContext alias : query.cte().aliasQuery()) {
-                    if (ancestors.contains(alias)) {
+            CteContext cte = null;
+            if (parent instanceof QueryContext query) {
+                cte = query.cte();
+            } else if (parent instanceof MergeIntoContext merge) {
+                cte = merge.cte();
+            } else if (parent instanceof InsertTableContext insert) {
+                cte = insert.cte();
+            } else if (parent instanceof UpdateContext update) {
+                cte = update.cte();
+            } else if (parent instanceof DeleteContext delete) {
+                cte = delete.cte();
+            }
+            if (cte != null) {
+                for (AliasQueryContext alias : cte.aliasQuery()) {
+                    if (ancestors.contains(alias) && cte.RECURSIVE() == null) {
                         break;
                     }
                     if (name.equalsIgnoreCase(unquote(text(alias.identifier())))) {
@@ -1354,6 +1527,120 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitRefreshCatalog(RefreshCatalogContext ctx) {
+        add(SplitQueryType.ADMIN, BehaviorAction.REFRESH, object(TargetType.Catalog, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitRefreshDatabase(RefreshDatabaseContext ctx) {
+        add(SplitQueryType.ADMIN, BehaviorAction.REFRESH, object(TargetType.Schema, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitRefreshTable(RefreshTableContext ctx) {
+        add(SplitQueryType.ADMIN_TABLE, BehaviorAction.REFRESH, object(TargetType.Table, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitRecoverDatabase(RecoverDatabaseContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.alias != null) {
+            targets.add(object(TargetType.Schema, ctx.alias));
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.RECOVER, object(TargetType.Schema, ctx.name), targets);
+        return null;
+    }
+
+    @Override
+    public Void visitRecoverTable(RecoverTableContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.alias != null) {
+            List<String> names = new ArrayList<>();
+            for (ErrorCapturingIdentifierContext name : ctx.name.errorCapturingIdentifier()) {
+                names.add(unquote(text(name)));
+            }
+            names.set(names.size() - 1, unquote(text(ctx.alias)));
+            targets.add(objects.object(TargetType.Table, ctx.alias, names));
+        }
+        add(SplitQueryType.ADMIN_TABLE, BehaviorAction.RECOVER, object(TargetType.Table, ctx.name), targets);
+        return null;
+    }
+
+    @Override
+    public Void visitRecoverPartition(RecoverPartitionContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        targets.add(object(TargetType.Table, ctx.tableName));
+        if (ctx.alias != null) {
+            targets.add(object(TargetType.Partition, ctx.alias));
+        }
+        add(SplitQueryType.ADMIN_PARTITION, BehaviorAction.RECOVER, object(TargetType.Partition, ctx.name), targets);
+        return null;
+    }
+
+    @Override
+    public Void visitAnalyzeDatabase(AnalyzeDatabaseContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.ANALYZE, object(TargetType.Schema, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitDropStats(DropStatsContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.RESET, object(TargetType.Table, ctx.tableName));
+        return null;
+    }
+
+    @Override
+    public Void visitDropCachedStats(DropCachedStatsContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.RESET, object(TargetType.Table, ctx.tableName));
+        return null;
+    }
+
+    @Override
+    public Void visitAlterTableStats(AlterTableStatsContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.CONFIGURE, object(TargetType.Table, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitAlterColumnStats(AlterColumnStatsContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.CONFIGURE, object(TargetType.Table, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitShowConfig(ShowConfigContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx.CONFIG().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowDatabases(ShowDatabasesContext ctx) {
+        BehaviorObject catalog;
+        if (ctx.catalog != null) {
+            catalog = object(TargetType.Catalog, ctx.catalog);
+        } else {
+            catalog = objects.unnamedObject(TargetType.Catalog, ctx.getStart(), UmiTypes.Catalog);
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, catalog);
+        return null;
+    }
+
+    @Override
+    public Void visitAdminShowReplicaStatus(AdminShowReplicaStatusContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, object(TargetType.Table, ctx.baseTableRef().multipartIdentifier()));
+        return null;
+    }
+
+    @Override
+    public Void visitAdminShowReplicaDistribution(AdminShowReplicaDistributionContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, object(TargetType.Table, ctx.baseTableRef().multipartIdentifier()));
+        return null;
+    }
+
+    @Override
     public Void visitPauseMTMV(PauseMTMVContext ctx) {
         add(SplitQueryType.ADMIN_JOB, BehaviorAction.STOP, object(TargetType.Materialized, ctx.mvName));
         return null;
@@ -1368,6 +1655,17 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitShowCreateMTMV(ShowCreateMTMVContext ctx) {
         add(SplitQueryType.METADATA, BehaviorAction.READ, object(TargetType.Materialized, ctx.mvName));
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateMaterializedView(ShowCreateMaterializedViewContext ctx) {
+        List<String> names = new ArrayList<>();
+        for (ErrorCapturingIdentifierContext name : ctx.tableName.errorCapturingIdentifier()) {
+            names.add(unquote(text(name)));
+        }
+        names.set(names.size() - 1, unquote(text(ctx.mvName)));
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.object(TargetType.Materialized, ctx.mvName, names), List.of(object(TargetType.Table, ctx.tableName)));
         return null;
     }
 
@@ -1397,7 +1695,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitShowDataSkew(ShowDataSkewContext ctx) {
-        add(SplitQueryType.METADATA, BehaviorAction.READ, object(TargetType.Table, ctx.baseTableRef().multipartIdentifier()));
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, object(TargetType.Table, ctx.baseTableRef().multipartIdentifier()));
         return null;
     }
 
@@ -1422,6 +1720,93 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             schema = objects.unnamedObject(TargetType.Schema, ctx.getStart(), UmiTypes.Schema);
         }
         add(SplitQueryType.METADATA, BehaviorAction.READ, schema);
+        return null;
+    }
+
+    @Override
+    public Void visitShowBuildIndex(ShowBuildIndexContext ctx) {
+        BehaviorObject schema;
+        if (ctx.database != null) {
+            schema = object(TargetType.Schema, ctx.database);
+        } else {
+            schema = objects.unnamedObject(TargetType.Schema, ctx.getStart(), UmiTypes.Schema);
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, schema);
+        return null;
+    }
+
+    @Override
+    public Void visitShowExport(ShowExportContext ctx) {
+        BehaviorObject schema;
+        if (ctx.database != null) {
+            schema = object(TargetType.Schema, ctx.database);
+        } else {
+            schema = objects.unnamedObject(TargetType.Schema, ctx.getStart(), UmiTypes.Schema);
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, schema);
+        return null;
+    }
+
+    @Override
+    public Void visitShowBackends(ShowBackendsContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Machine, ctx.BACKENDS().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowFrontends(ShowFrontendsContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Machine, ctx.FRONTENDS().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitWarmUpCluster(WarmUpClusterContext ctx) {
+        List<BehaviorObject> sources = new ArrayList<>();
+        if (ctx.source != null) {
+            sources.add(objects.instanceObject(TargetType.ResourceGroup, ctx.source, unquote(text(ctx.source))));
+        }
+        for (WarmUpItemContext item : ctx.warmUpItem()) {
+            sources.add(object(TargetType.Table, item.tableName));
+            if (item.partitionName != null) {
+                sources.add(object(TargetType.Partition, item.partitionName));
+            }
+        }
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.LOAD, objects.instanceObject(TargetType.ResourceGroup, ctx.destination, unquote(text(ctx.destination))), sources);
+        return null;
+    }
+
+    @Override
+    public Void visitLockTables(LockTablesContext ctx) {
+        behavior.setStatementType(SplitQueryType.SESSION_LOCK);
+        for (LockTableContext table : ctx.lockTable()) {
+            add(SplitQueryType.SESSION_LOCK, BehaviorAction.LOCK, object(TargetType.Table, table.name));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitUnlockTables(UnlockTablesContext ctx) {
+        add(SplitQueryType.SESSION_LOCK, BehaviorAction.UNLOCK, objects.instanceObject(TargetType.Instance, ctx));
+        return null;
+    }
+
+    @Override
+    public Void visitShowWarmUpJob(ShowWarmUpJobContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Job, ctx.JOB().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitWarmUpSelect(WarmUpSelectContext ctx) {
+        if (ctx.explain() != null) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, object(TargetType.Table, ctx.warmUpSingleTableRef().multipartIdentifier()));
+        } else {
+            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.LOAD, object(TargetType.Table, ctx.warmUpSingleTableRef().multipartIdentifier()));
+        }
+        visit(ctx.namedExpressionSeq());
+        if (ctx.whereClause() != null) {
+            visit(ctx.whereClause());
+        }
         return null;
     }
 
@@ -1518,11 +1903,24 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     @Override
     public Void visitAlterJob(AlterJobContext ctx) {
         BehaviorObject job = object(TargetType.Job, ctx.name);
-        List<BehaviorObject> targets = new ArrayList<>(tableSources(ctx.supportedDmlStatement()));
+        List<BehaviorObject> targets = new ArrayList<>();
+        for (InsertTableContext insert : descendants(ctx.supportedDmlStatement(), InsertTableContext.class)) {
+            targets.add(object(TargetType.Table, insert.tableName));
+        }
+        for (UpdateContext update : descendants(ctx.supportedDmlStatement(), UpdateContext.class)) {
+            targets.add(object(TargetType.Table, update.tableName));
+        }
+        for (DeleteContext delete : descendants(ctx.supportedDmlStatement(), DeleteContext.class)) {
+            targets.add(object(TargetType.Table, delete.tableName));
+        }
+        targets.addAll(tableSources(ctx.supportedDmlStatement()));
         if (ctx.jobFromToClause() != null) {
             targets.add(object(TargetType.Schema, ctx.jobFromToClause().targetDb));
         }
         add(SplitQueryType.ALTER_JOB, BehaviorAction.ALTER, job, targets);
+        if (ctx.supportedDmlStatement() != null) {
+            visit(ctx.supportedDmlStatement());
+        }
         if (ctx.supportedDmlStatement() != null || ctx.jobFromToClause() != null) {
             add(SplitQueryType.ALTER_JOB, BehaviorAction.UNSAFE, job);
         }
@@ -1543,7 +1941,11 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitBuildIndex(BuildIndexContext ctx) {
-        add(SplitQueryType.ADMIN_TABLE, BehaviorAction.LOAD, object(TargetType.Index, ctx.name), List.of(object(TargetType.Table, ctx.tableName)));
+        if (ctx.name == null) {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.LOAD, object(TargetType.Table, ctx.tableName));
+        } else {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.LOAD, object(TargetType.Index, ctx.name), List.of(object(TargetType.Table, ctx.tableName)));
+        }
         return null;
     }
 
@@ -1569,7 +1971,12 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     @Override
     public Void visitAdminCleanTrash(AdminCleanTrashContext ctx) {
-        add(SplitQueryType.ADMIN, BehaviorAction.PURGE, objects.instanceObject(TargetType.Instance, ctx));
+        if (ctx.backends.isEmpty()) {
+            add(SplitQueryType.ADMIN, BehaviorAction.PURGE, objects.instanceObject(TargetType.Machine, ctx));
+        }
+        for (Token backend : ctx.backends) {
+            add(SplitQueryType.ADMIN, BehaviorAction.PURGE, objects.instanceObject(TargetType.Machine, backend, unquote(backend.getText())));
+        }
         return null;
     }
 
@@ -1756,6 +2163,631 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             job = objects.unnamedObject(TargetType.Job, ctx.LOAD().getSymbol(), UmiTypes.Schema);
         }
         add(SplitQueryType.METADATA, BehaviorAction.READ, job);
+        return null;
+    }
+
+    @Override
+    public Void visitKillConnection(KillConnectionContext ctx) {
+        Token id = ctx.INTEGER_VALUE().getSymbol();
+        add(SplitQueryType.ADMIN, BehaviorAction.TERMINATE, objects.instanceObject(TargetType.Session, id, id.getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitKillQuery(KillQueryContext ctx) {
+        Token id = ctx.getStop();
+        add(SplitQueryType.ADMIN, BehaviorAction.TERMINATE, objects.instanceObject(TargetType.Query, id, unquote(id.getText())));
+        return null;
+    }
+
+    @Override
+    public Void visitBackup(BackupContext ctx) {
+        List<BehaviorObject> sources = new ArrayList<>();
+        if (ctx.ON() != null) {
+            for (BaseTableRefContext table : ctx.baseTableRef()) {
+                BehaviorObject source = snapshotTable(ctx.label, table.multipartIdentifier());
+                sources.add(source);
+                for (IdentifierContext partition : descendants(table.specifiedPartition(), IdentifierContext.class)) {
+                    sources.add(objects.childObject(TargetType.Partition, partition, source, unquote(text(partition))));
+                }
+            }
+        } else {
+            sources.add(snapshotSchema(ctx.label));
+        }
+        sources.add(objects.instanceObject(TargetType.ConfigKey, ctx.repo, unquote(text(ctx.repo))));
+        add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT, object(TargetType.Backup, ctx.label), sources);
+        return null;
+    }
+
+    @Override
+    public Void visitRestore(RestoreContext ctx) {
+        List<BehaviorObject> sources = List.of(object(TargetType.Backup, ctx.label), objects.instanceObject(TargetType.ConfigKey, ctx.repo, unquote(text(ctx.repo))));
+        if (ctx.ON() != null) {
+            for (BaseTableRefContext table : ctx.baseTableRef()) {
+                BehaviorObject target = snapshotTable(ctx.label, table.multipartIdentifier());
+                if (table.tableAlias() != null && table.tableAlias().strictIdentifier() != null) {
+                    String name = unquote(text(table.tableAlias().strictIdentifier()));
+                    List<String> names = new ArrayList<>();
+                    for (ErrorCapturingIdentifierContext part : table.multipartIdentifier().errorCapturingIdentifier()) {
+                        names.add(unquote(text(part)));
+                    }
+                    names.set(names.size() - 1, name);
+                    if (names.size() == 1 && ctx.label.errorCapturingIdentifier().size() > 1) {
+                        names.add(0, unquote(text(ctx.label.errorCapturingIdentifier(0))));
+                    }
+                    target = objects.object(TargetType.Table, table.tableAlias().strictIdentifier(), names);
+                }
+                add(SplitQueryType.DATA_IMPORT, BehaviorAction.RESTORE, target, sources);
+                for (IdentifierContext partition : descendants(table.specifiedPartition(), IdentifierContext.class)) {
+                    add(SplitQueryType.DATA_IMPORT, BehaviorAction.RESTORE, objects.childObject(TargetType.Partition, partition, target, unquote(text(partition))), sources);
+                }
+            }
+        } else {
+            add(SplitQueryType.DATA_IMPORT, BehaviorAction.RESTORE, snapshotSchema(ctx.label), sources);
+        }
+        return null;
+    }
+
+    private BehaviorObject snapshotSchema(MultipartIdentifierContext label) {
+        if (label.errorCapturingIdentifier().size() > 1) {
+            return object(TargetType.Schema, label.errorCapturingIdentifier(0));
+        }
+        return objects.unnamedObject(TargetType.Schema, label, UmiTypes.Schema);
+    }
+
+    private BehaviorObject snapshotTable(MultipartIdentifierContext label, MultipartIdentifierContext table) {
+        List<String> names = new ArrayList<>();
+        for (ErrorCapturingIdentifierContext part : table.errorCapturingIdentifier()) {
+            names.add(unquote(text(part)));
+        }
+        if (names.size() == 1 && label.errorCapturingIdentifier().size() > 1) {
+            names.add(0, unquote(text(label.errorCapturingIdentifier(0))));
+        }
+        return objects.object(TargetType.Table, table, names);
+    }
+
+    @Override
+    public Void visitCancelBackup(CancelBackupContext ctx) {
+        BehaviorObject scope = objects.unnamedObject(TargetType.Backup, ctx.getStart(), UmiTypes.Schema);
+        if (ctx.database != null) {
+            scope = object(TargetType.Schema, ctx.database);
+            scope.setObjectType(TargetType.Backup);
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.STOP, scope);
+        return null;
+    }
+
+    @Override
+    public Void visitCancelRestore(CancelRestoreContext ctx) {
+        BehaviorObject scope = objects.unnamedObject(TargetType.Backup, ctx.getStart(), UmiTypes.Schema);
+        if (ctx.database != null) {
+            scope = object(TargetType.Schema, ctx.database);
+            scope.setObjectType(TargetType.Backup);
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.STOP, scope);
+        return null;
+    }
+
+    @Override
+    public Void visitRefreshLdap(RefreshLdapContext ctx) {
+        BehaviorObject config = objects.instanceObject(TargetType.ConfigKey, ctx.LDAP().getSymbol(), "ldap");
+        List<BehaviorObject> users = new ArrayList<>();
+        if (ctx.user != null) {
+            users.add(objects.instanceObject(TargetType.User, ctx.user, unquote(text(ctx.user))));
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.REFRESH, config, users);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateEncryptkey(CreateEncryptkeyContext ctx) {
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE, object(TargetType.ConfigKey, ctx.multipartIdentifier()));
+        return null;
+    }
+
+    @Override
+    public Void visitDropEncryptkey(DropEncryptkeyContext ctx) {
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.DROP, object(TargetType.ConfigKey, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitShowTabletId(ShowTabletIdContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Tablet, ctx.tabletId, ctx.tabletId.getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowTabletsBelong(ShowTabletsBelongContext ctx) {
+        for (Token id : ctx.tabletIds) {
+            add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Tablet, id, id.getText()));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitShowTabletStorageFormat(ShowTabletStorageFormatContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Tablet, ctx.TABLET().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowPrivileges(ShowPrivilegesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.PRIVILEGES().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitCleanAllProfile(CleanAllProfileContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE, objects.instanceObject(TargetType.Profile, ctx.PROFILE().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowAnalyze(ShowAnalyzeContext ctx) {
+        BehaviorObject subject = objects.instanceObject(TargetType.Job, ctx.ANALYZE().getSymbol());
+        if (ctx.jobId != null) {
+            subject = objects.instanceObject(TargetType.Job, ctx.jobId, ctx.jobId.getText());
+        }
+        if (ctx.tableName != null) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, subject, List.of(object(TargetType.Table, ctx.tableName)));
+        } else {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, subject);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropAllBrokerClause(DropAllBrokerClauseContext ctx) {
+        add(SplitQueryType.ADMIN, BehaviorAction.DROP, objects.instanceObject(TargetType.Machine, ctx.name, unquote(text(ctx.name))));
+        return null;
+    }
+
+    @Override
+    public Void visitMergeInto(MergeIntoContext ctx) {
+        List<BehaviorObject> sources = tableSources(ctx.srcRelation);
+        addTableSources(sources, ctx.cte());
+        addTableSources(sources, ctx.expression());
+        if (ctx.explain() != null) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, object(TargetType.Table, ctx.targetTable));
+            for (BehaviorObject source : sources) {
+                add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, source);
+            }
+        } else {
+            add(SplitQueryType.MERGE, BehaviorAction.MERGE, object(TargetType.Table, ctx.targetTable), sources);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitInsertIntoTVF(InsertIntoTVFContext ctx) {
+        List<BehaviorObject> sources = tableSources(ctx.query());
+        for (PropertyItemContext property : ctx.tvfProperties.propertyItem()) {
+            String key = unquote(text(property.key));
+            if (key.equalsIgnoreCase("uri") || key.equalsIgnoreCase("file_path")) {
+                BehaviorObject destination = file(property.value.getStart());
+                if (ctx.explain() != null) {
+                    add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, destination);
+                } else {
+                    add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT, destination, sources);
+                    add(SplitQueryType.DATA_EXPORT, BehaviorAction.UNSAFE, destination);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitShowCharset(ShowCharsetContext ctx) {
+        Token token = ctx.getStart();
+        if (ctx.CHARSET() != null) {
+            token = ctx.CHARSET().getSymbol();
+        } else {
+            token = ctx.CHAR().getSymbol();
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, token));
+        return null;
+    }
+
+    @Override
+    public Void visitShowCollation(ShowCollationContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx.COLLATION().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowAllProperties(ShowAllPropertiesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx.PROPERTIES().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowBroker(ShowBrokerContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Machine, ctx.BROKER().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowLastInsert(ShowLastInsertContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Insert, ctx.INSERT().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowGlobalFunctions(ShowGlobalFunctionsContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Function, ctx.FUNCTIONS().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowDataTypes(ShowDataTypesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Type, ctx.TYPES().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowClusters(ShowClustersContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ResourceGroup, ctx.getStart()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowPythonVersions(ShowPythonVersionsContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Library, ctx.PYTHON().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowPythonPackages(ShowPythonPackagesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Library, ctx.PYTHON().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowStorageEngines(ShowStorageEnginesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx.ENGINES().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowBackup(ShowBackupContext ctx) {
+        return readSchemaCollection(TargetType.Backup, ctx.BACKUP().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitShowRestore(ShowRestoreContext ctx) {
+        return readSchemaCollection(TargetType.Backup, ctx.RESTORE().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitShowDelete(ShowDeleteContext ctx) {
+        return readSchemaCollection(TargetType.Table, ctx.DELETE().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitShowDynamicPartition(ShowDynamicPartitionContext ctx) {
+        return readSchemaCollection(TargetType.Table, ctx.TABLES().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitShowEncryptKeys(ShowEncryptKeysContext ctx) {
+        return readSchemaCollection(TargetType.ConfigKey, ctx.ENCRYPTKEYS().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitShowSmallFiles(ShowSmallFilesContext ctx) {
+        return readSchemaCollection(TargetType.File, ctx.FILE().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitShowConvertLsc(ShowConvertLscContext ctx) {
+        return readSchemaCollection(TargetType.Table, ctx.CONVERT_LSC().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitShowTypeCast(ShowTypeCastContext ctx) {
+        return readSchemaCollection(TargetType.Type, ctx.TYPECAST().getSymbol(), ctx.database);
+    }
+
+    private Void readSchemaCollection(TargetType type, Token token, ParserRuleContext database) {
+        BehaviorObject subject = objects.unnamedObject(type, token, UmiTypes.Schema);
+        if (database != null) {
+            subject = object(TargetType.Schema, database);
+            subject.setObjectType(type);
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, subject);
+        return null;
+    }
+
+    @Override
+    public Void visitShowDiagnoseTablet(ShowDiagnoseTabletContext ctx) {
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Tablet, ctx.tabletId, ctx.tabletId.getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitDropAnalyzeJob(DropAnalyzeJobContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP, objects.instanceObject(TargetType.Job, ctx.INTEGER_VALUE().getSymbol(), ctx.INTEGER_VALUE().getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitKillAnalyzeJob(KillAnalyzeJobContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.TERMINATE, objects.instanceObject(TargetType.Job, ctx.jobId, ctx.jobId.getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitAddBrokerClause(AddBrokerClauseContext ctx) {
+        for (Token host : ctx.hostPorts) {
+            add(SplitQueryType.ADMIN, BehaviorAction.CREATE, objects.instanceObject(TargetType.Machine, host, unquote(host.getText())));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropBrokerClause(DropBrokerClauseContext ctx) {
+        for (Token host : ctx.hostPorts) {
+            add(SplitQueryType.ADMIN, BehaviorAction.DROP, objects.instanceObject(TargetType.Machine, host, unquote(host.getText())));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDescribeTableAll(DescribeTableAllContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, object(TargetType.Table, ctx.multipartIdentifier()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowRoutineLoadTask(ShowRoutineLoadTaskContext ctx) {
+        if (ctx.label != null) {
+            add(SplitQueryType.METADATA, BehaviorAction.READ, object(TargetType.Job, ctx.label));
+            return null;
+        }
+        return readSchemaCollection(TargetType.Job, ctx.TASK().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitShowQueuedAnalyzeJobs(ShowQueuedAnalyzeJobsContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.tableName != null) {
+            targets.add(object(TargetType.Table, ctx.tableName));
+        }
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Job, ctx.JOBS().getSymbol()), targets);
+        return null;
+    }
+
+    @Override
+    public Void visitShowQueryProfile(ShowQueryProfileContext ctx) {
+        BehaviorObject profile = objects.instanceObject(TargetType.Profile, ctx.PROFILE().getSymbol());
+        if (ctx.queryIdPath != null) {
+            profile = objects.instanceObject(TargetType.Profile, ctx.queryIdPath, unquote(ctx.queryIdPath.getText()));
+        }
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, profile);
+        return null;
+    }
+
+    @Override
+    public Void visitCleanLabel(CleanLabelContext ctx) {
+        BehaviorObject label = object(TargetType.Schema, ctx.database);
+        label.setObjectType(TargetType.Job);
+        if (ctx.label != null) {
+            label = objects.object(TargetType.Job, ctx.label, List.of(unquote(text(ctx.database)), unquote(text(ctx.label))));
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.PURGE, label);
+        return null;
+    }
+
+    @Override
+    public Void visitCancelWarmUpJob(CancelWarmUpJobContext ctx) {
+        BehaviorObject job = objects.instanceObject(TargetType.Job, ctx.JOB().getSymbol());
+        for (ComparisonContext comparison : descendants(ctx.wildWhere(), ComparisonContext.class)) {
+            if (text(comparison.left).equalsIgnoreCase("id") && text(comparison.comparisonOperator()).equals("=")) {
+                job = objects.instanceObject(TargetType.Job, comparison.right, unquote(text(comparison.right)));
+                break;
+            }
+        }
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.STOP, job);
+        return null;
+    }
+
+    @Override
+    public Void visitSetDefaultStorageVault(SetDefaultStorageVaultContext ctx) {
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, ctx.identifier(), unquote(text(ctx.identifier()))));
+        return null;
+    }
+
+    @Override
+    public Void visitShowFunctions(ShowFunctionsContext ctx) {
+        return readSchemaCollection(TargetType.Function, ctx.FUNCTIONS().getSymbol(), ctx.database);
+    }
+
+    @Override
+    public Void visitHelp(HelpContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.HELP().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitCleanQueryStats(CleanQueryStatsContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE, objects.instanceObject(TargetType.Query, ctx.QUERY().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitCleanAllQueryStats(CleanAllQueryStatsContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE, objects.instanceObject(TargetType.Query, ctx.QUERY().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowRowPolicy(ShowRowPolicyContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.userIdentify() != null) {
+            targets.add(user(ctx.userIdentify()));
+        } else if (ctx.role != null) {
+            targets.add(objects.instanceObject(TargetType.Role, ctx.role, unquote(text(ctx.role))));
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Policy, ctx.POLICY().getSymbol()), targets);
+        return null;
+    }
+
+    @Override
+    public Void visitShowStoragePolicy(ShowStoragePolicyContext ctx) {
+        BehaviorObject policy = objects.instanceObject(TargetType.ConfigKey, ctx.POLICY().getSymbol());
+        if (ctx.policy != null) {
+            policy = objects.instanceObject(TargetType.ConfigKey, ctx.policy, unquote(text(ctx.policy)));
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, policy);
+        return null;
+    }
+
+    @Override
+    public Void visitAdminCheckTablets(AdminCheckTabletsContext ctx) {
+        for (Token tablet : ctx.tabletList().tabletIdList) {
+            add(SplitQueryType.ADMIN, BehaviorAction.VALIDATE, objects.instanceObject(TargetType.Tablet, tablet, tablet.getText()));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAdminRebalanceDisk(AdminRebalanceDiskContext ctx) {
+        if (ctx.backends.isEmpty()) {
+            add(SplitQueryType.ADMIN, BehaviorAction.OPTIMIZE, objects.instanceObject(TargetType.Machine, ctx.DISK().getSymbol()));
+        }
+        for (Token backend : ctx.backends) {
+            add(SplitQueryType.ADMIN, BehaviorAction.OPTIMIZE, objects.instanceObject(TargetType.Machine, backend, unquote(backend.getText())));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAdminCancelRebalanceDisk(AdminCancelRebalanceDiskContext ctx) {
+        if (ctx.backends.isEmpty()) {
+            add(SplitQueryType.ADMIN, BehaviorAction.STOP, objects.instanceObject(TargetType.Machine, ctx.DISK().getSymbol()));
+        }
+        for (Token backend : ctx.backends) {
+            add(SplitQueryType.ADMIN, BehaviorAction.STOP, objects.instanceObject(TargetType.Machine, backend, unquote(backend.getText())));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitShowCatalogRecycleBin(ShowCatalogRecycleBinContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Catalog, ctx.CATALOG().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowTrash(ShowTrashContext ctx) {
+        BehaviorObject subject = objects.instanceObject(TargetType.Machine, ctx.TRASH().getSymbol());
+        if (ctx.backend != null) {
+            subject = objects.instanceObject(TargetType.Machine, ctx.backend, unquote(ctx.backend.getText()));
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, subject);
+        return null;
+    }
+
+    @Override
+    public Void visitShowView(ShowViewContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, object(TargetType.Table, ctx.tableName));
+        return null;
+    }
+
+    @Override
+    public Void visitUseCloudCluster(UseCloudClusterContext ctx) {
+        if (ctx.database != null) {
+            List<String> names = new ArrayList<>();
+            if (ctx.catalog != null) {
+                names.add(unquote(text(ctx.catalog)));
+            }
+            names.add(unquote(text(ctx.database)));
+            add(SplitQueryType.ADMIN_RESOURCE_GROUP, BehaviorAction.SWITCH, objects.object(TargetType.Schema, ctx.database, names));
+        }
+        add(SplitQueryType.ADMIN_RESOURCE_GROUP, BehaviorAction.SWITCH, objects.instanceObject(TargetType.ResourceGroup, ctx.cluster, unquote(text(ctx.cluster))));
+        return null;
+    }
+
+    @Override
+    public Void visitShowTableId(ShowTableIdContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Table, ctx.tableId, ctx.tableId.getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowDatabaseId(ShowDatabaseIdContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Schema, ctx.databaseId, ctx.databaseId.getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowPartitionId(ShowPartitionIdContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Partition, ctx.partitionId, ctx.partitionId.getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitCancelBuildIndex(CancelBuildIndexContext ctx) {
+        BehaviorObject table = object(TargetType.Table, ctx.tableName);
+        if (ctx.jobIds.isEmpty()) {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.STOP, table);
+        }
+        for (Token jobId : ctx.jobIds) {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.STOP, objects.instanceObject(TargetType.Job, jobId, jobId.getText()), List.of(table));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCancelJobTask(CancelJobTaskContext ctx) {
+        BehaviorObject job = objects.object(TargetType.Job, ctx.jobNameValue, List.of(unquote(ctx.jobNameValue.getText())));
+        add(SplitQueryType.ADMIN_JOB, BehaviorAction.STOP, objects.instanceObject(TargetType.Job, ctx.taskIdValue, ctx.taskIdValue.getText()), List.of(job));
+        return null;
+    }
+
+    @Override
+    public Void visitCancelMTMVTask(CancelMTMVTaskContext ctx) {
+        add(SplitQueryType.ADMIN_JOB, BehaviorAction.STOP, objects.instanceObject(TargetType.Job, ctx.taskId, ctx.taskId.getText()), List
+            .of(object(TargetType.Materialized, ctx.mvName)));
+        return null;
+    }
+
+    @Override
+    public Void visitAlterColocateGroup(AlterColocateGroupContext ctx) {
+        add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE, object(TargetType.ResourceGroup, ctx.name));
+        return null;
+    }
+
+    @Override
+    public Void visitSupportedUnsetStatement(SupportedUnsetStatementContext ctx) {
+        SplitQueryType type = SplitQueryType.SESSION_SETTING_WRITE;
+        if (ctx.DEFAULT() != null || ctx.statementScope() != null && ctx.statementScope().GLOBAL() != null) {
+            type = SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        BehaviorObject key;
+        if (ctx.identifier() != null) {
+            key = objects.instanceObject(TargetType.ConfigKey, ctx.identifier(), unquote(text(ctx.identifier())));
+        } else {
+            key = objects.instanceObject(TargetType.ConfigKey, ctx.getStop());
+        }
+        add(type, BehaviorAction.RESET, key);
+        return null;
+    }
+
+    @Override
+    public Void visitReplayCommand(ReplayCommandContext ctx) {
+        ReplayTypeContext replay = ctx.replayType();
+        List<BehaviorObject> targets = tableSources(replay.query());
+        BehaviorObject source = null;
+        if (replay.filePath != null) {
+            source = file(replay.filePath);
+            targets.add(source);
+        }
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.ANALYZE, objects.unnamedObject(TargetType.Query, ctx, UmiTypes.Schema), targets);
+        if (source != null) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.UNSAFE, source);
+        }
         return null;
     }
 }

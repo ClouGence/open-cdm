@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -43,7 +44,51 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        Set<SplitQueryType> types = new LinkedHashSet<>();
+        types.add(normalizeType(context.accept(splitVisitor())));
+        collectActions(context, definitionBody(context), types);
+        return types;
+    }
+
+    private void collectActions(ParseTree tree, ParseTree body, Set<SplitQueryType> types) {
+        if (tree == body) {
+            return;
+        }
+        if (tree instanceof DorisParser.ColumnDefContext && hasAncestor(tree, DorisParser.CreateTableContext.class)) {
+            types.add(SplitQueryType.ADD_COLUMN);
+        } else if (tree instanceof DorisParser.IndexDefContext) {
+            types.add(SplitQueryType.ADD_INDEX);
+        }
+        if (tree instanceof DorisParser.IdentifierListContext && tree.getParent() instanceof DorisParser.CreateTableContext table && tree == table.ctasCols) {
+            types.add(SplitQueryType.ADD_COLUMN);
+        }
+        SplitQueryType type = additionalType(tree);
+        if (tree instanceof DorisParser.CreateTableContext) {
+            type = null;
+        }
+        if (tree instanceof TerminalNode token && token.getSymbol().getType() == DorisParser.COMMENT && tree.getParent() instanceof DorisParser.CreateTableContext) {
+            type = SplitQueryType.COMMENT_TABLE;
+        }
+        if (type != null) {
+            types.add(type);
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectActions(tree.getChild(i), body, types);
+        }
+    }
+
+    @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof DorisParser.OutFileClauseContext) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        if (tree instanceof DorisParser.TableValuedFunctionContext function) {
+            String name = function.tvfName.getText().toLowerCase(Locale.ROOT);
+            if (Set.of("file", "s3", "hdfs", "local", "http", "azure", "gcs", "jdbc", "odbc").contains(name)) {
+                return SplitQueryType.DATA_IMPORT;
+            }
+        }
         if (tree instanceof DorisParser.QuerySpecificationContext && isExecutedDmlQuery(tree)) {
             return SplitQueryType.SELECT;
         }
@@ -122,7 +167,8 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return false;
         }
         for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
-            if (current instanceof DorisParser.InsertTableContext || current instanceof DorisParser.UpdateContext || current instanceof DorisParser.DeleteContext) {
+            if (current instanceof DorisParser.InsertIntoTVFContext || current instanceof DorisParser.MergeIntoContext || current instanceof DorisParser.InsertTableContext
+                || current instanceof DorisParser.UpdateContext || current instanceof DorisParser.DeleteContext) {
                 return true;
             }
             if (current instanceof DorisParser.CreateTableContext || current instanceof DorisParser.CreateViewContext || current instanceof DorisParser.CreateMTMVContext
@@ -158,6 +204,10 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     private void collectBodyAdditionalTypes(ParseTree tree, Set<SplitQueryType> types) {
+        SplitQueryType additional = additionalType(tree);
+        if (additional != null) {
+            types.add(additional);
+        }
         if (tree instanceof DorisParser.QuerySpecificationContext) {
             types.add(SplitQueryType.SELECT);
         } else if (tree instanceof DorisParser.FunctionCallExpressionContext function) {

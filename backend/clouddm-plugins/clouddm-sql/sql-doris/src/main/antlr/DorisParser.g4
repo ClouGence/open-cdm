@@ -126,12 +126,25 @@ constraintStatement
     | SHOW CONSTRAINTS FROM table=multipartIdentifier                     #showConstraint
     ;
 
+mergeMatchedClause
+    : WHEN MATCHED (AND casePredicate=expression)? THEN (UPDATE SET updateAssignmentSeq | DELETE)
+    ;
+mergeNotMatchedClause
+    : WHEN NOT MATCHED (AND casePredicate=expression)? THEN INSERT cols=identifierList? VALUES rowConstructor
+    ;
+
 optSpecBranch
     : ATSIGN BRANCH LEFT_PAREN name=identifier RIGHT_PAREN
     ;
 
 supportedDmlStatement
-    : explain? cte? INSERT (INTO | OVERWRITE TABLE)
+    : explain? cte? INSERT INTO tvfName=identifier
+        LEFT_PAREN tvfProperties=propertyItemList RIGHT_PAREN
+        (WITH LABEL labelName=identifier)? query #insertIntoTVF
+    | explain? cte? MERGE INTO targetTable=multipartIdentifier
+        (AS? identifier)? USING srcRelation=relationPrimary ON expression
+        (mergeMatchedClause | mergeNotMatchedClause)+ #mergeInto
+    | explain? cte? INSERT (INTO | OVERWRITE TABLE)
         (tableName=multipartIdentifier (optSpecBranch)? | DORIS_INTERNAL_TABLE_ID LEFT_PAREN tableId=INTEGER_VALUE RIGHT_PAREN)
         partitionSpec?  // partition define
         (WITH LABEL labelName=identifier)? cols=identifierList?  // label and columns define
@@ -140,11 +153,11 @@ supportedDmlStatement
     | explain? cte? UPDATE tableName=multipartIdentifier tableAlias
         SET updateAssignmentSeq
         fromClause?
-        whereClause?                                                   #update
+        whereClause? organization=queryOrganization?                   #update
     | explain? cte? DELETE FROM tableName=multipartIdentifier
         partitionSpec? tableAlias
         (USING relations)?
-        whereClause?                                                   #delete
+        whereClause? organization=queryOrganization?                   #delete
     | LOAD LABEL lableName=multipartIdentifier
         LEFT_PAREN dataDescs+=dataDesc (COMMA dataDescs+=dataDesc)* RIGHT_PAREN
         (withRemoteStorageSystem)?
@@ -200,7 +213,7 @@ supportedCreateStatement
         USING LEFT_PAREN booleanExpression RIGHT_PAREN                    #createRowPolicy
     | CREATE STORAGE POLICY (IF NOT EXISTS)?
         name=identifier properties=propertyClause?                              #createStoragePolicy
-    | BUILD INDEX name=identifier ON tableName=multipartIdentifier
+    | BUILD INDEX name=identifier? ON tableName=multipartIdentifier
         partitionSpec?                                                          #buildIndex
     | CREATE INDEX (IF NOT EXISTS)? name=identifier
         ON tableName=multipartIdentifier identifierList
@@ -277,6 +290,8 @@ supportedAlterStatement
     | ALTER DATABASE name=identifier RENAME newName=identifier                              #alterDatabaseRename
     | ALTER STORAGE POLICY name=identifierOrText
         properties=propertyClause                                                           #alterStoragePolicy
+    | ALTER TABLE tableName=multipartIdentifier EXECUTE actionName=identifier
+        LEFT_PAREN propertyItemList? RIGHT_PAREN partitionSpec? (WHERE whereExpression=booleanExpression)? #alterTableExecute
     | ALTER TABLE tableName=multipartIdentifier
         alterTableClause (COMMA alterTableClause)*                                          #alterTable
     | ALTER TABLE tableName=multipartIdentifier ADD ROLLUP
@@ -394,6 +409,8 @@ supportedShowStatement
     | SHOW SQL_BLOCK_RULE (FOR ruleName=identifier)?                                #showSqlBlockRule
     | SHOW CREATE VIEW name=multipartIdentifier                                     #showCreateView
     | SHOW CREATE STORAGE VAULT identifier                                          #showCreateStorageVault
+    | SHOW PYTHON VERSIONS #showPythonVersions
+    | SHOW PYTHON PACKAGES IN STRING_LITERAL #showPythonPackages
     | SHOW DATA TYPES                                                               #showDataTypes
     | SHOW DATA (ALL)? (FROM tableName=multipartIdentifier)?
         sortClause? propertyClause?                                                 #showData
@@ -466,7 +483,7 @@ supportedLoadStatement
     | RESUME ALL ROUTINE LOAD                                                       #resumeAllRoutineLoad
     | STOP ROUTINE LOAD FOR label=multipartIdentifier                               #stopRoutineLoad
     | SHOW ALL? ROUTINE LOAD ((FOR label=multipartIdentifier) | (LIKE STRING_LITERAL)?)         #showRoutineLoad
-    | SHOW ROUTINE LOAD TASK ((FROM | IN) database=identifier)? wildWhere?          #showRoutineLoadTask
+    | SHOW ROUTINE LOAD TASK ((FOR label=multipartIdentifier) | (((FROM | IN) database=identifier)? wildWhere?))          #showRoutineLoadTask
     | SHOW INVERTED INDEX ANALYZER                                                  #showIndexAnalyzer
     | SHOW INVERTED INDEX TOKENIZER                                                 #showIndexTokenizer
     | SHOW INVERTED INDEX CHAR_FILTER #showIndexCharFilter
@@ -491,14 +508,29 @@ supportedOtherStatement
     | WARM UP (CLUSTER | COMPUTE GROUP) destination=identifier WITH
         ((CLUSTER | COMPUTE GROUP) source=identifier |
             (warmUpItem (AND warmUpItem)*)) FORCE?
+            onTablesClause?
             properties=propertyClause?                                              #warmUpCluster
+    | explain? WARM UP SELECT namedExpressionSeq
+      FROM warmUpSingleTableRef whereClause?                                        #warmUpSelect
     | BACKUP SNAPSHOT label=multipartIdentifier TO repo=identifier
         ((ON | EXCLUDE) LEFT_PAREN baseTableRef (COMMA baseTableRef)* RIGHT_PAREN)?
         properties=propertyClause?                                                  #backup
     | START TRANSACTION (WITH CONSISTENT SNAPSHOT)?                                 #unsupportedStartTransaction
     ;
 
- warmUpItem
+onTablesClause
+    : ON TABLES LEFT_PAREN onTablesFilterRule (COMMA onTablesFilterRule)* RIGHT_PAREN
+    ;
+
+onTablesFilterRule
+    : (INCLUDE | EXCLUDE) STRING_LITERAL
+    ;
+
+warmUpSingleTableRef
+    : multipartIdentifier tableAlias
+    ;
+
+warmUpItem
     : TABLE tableName=multipartIdentifier (PARTITION partitionName=identifier)?
     ;
 
@@ -555,7 +587,7 @@ supportedRefreshStatement
     | REFRESH DATABASE name=multipartIdentifier propertyClause?                     #refreshDatabase
     | REFRESH TABLE name=multipartIdentifier                                        #refreshTable
     | REFRESH DICTIONARY name=multipartIdentifier                                   #refreshDictionary
-    | REFRESH LDAP (ALL | (FOR user=identifierOrText))                              #refreshLdap
+    | REFRESH LDAP (ALL | (FOR user=identifierOrText))?                              #refreshLdap
     ;
 
 supportedCleanStatement
@@ -730,6 +762,11 @@ alterTableClause
     | createOrReplaceTagClause                                                      #createOrReplaceTagClauses
     | createOrReplaceBranchClause                                                   #createOrReplaceBranchClauses
     | dropBranchClause                                                              #dropBranchClauses
+    | ADD PARTITION KEY partitionTransform (AS partitionFieldName=identifier)? #addPartitionFieldClause
+    | DROP PARTITION KEY (partitionFieldName=identifier | partitionTransform) #dropPartitionFieldClause
+    | REPLACE PARTITION KEY
+      (oldPartitionFieldName=identifier | oldPartitionTransform=partitionTransform)
+      WITH newPartitionTransform=partitionTransform (AS partitionFieldName=identifier)? #replacePartitionFieldClause
     | dropTagClause                                                                 #dropTagClauses
     ;
 
@@ -775,6 +812,12 @@ dropBranchClause
 
 dropTagClause
     : DROP TAG (IF EXISTS)? name=identifier
+    ;
+
+partitionTransform
+    : identifier LEFT_PAREN INTEGER_VALUE COMMA identifier RIGHT_PAREN  #partitionTransformWithArgs
+    | identifier LEFT_PAREN identifier RIGHT_PAREN                      #partitionTransformWithColumn
+    | identifier                                                        #partitionTransformIdentity
     ;
 
 columnPosition
@@ -953,8 +996,13 @@ partitionSpec
     : TEMPORARY? (PARTITION | PARTITIONS) partitions=identifierList
     | TEMPORARY? PARTITION partition=errorCapturingIdentifier
 	| (PARTITION | PARTITIONS) LEFT_PAREN ASTERISK RIGHT_PAREN // for auto detect partition in overwriting
+    | PARTITION LEFT_PAREN partitionKeyValue (COMMA partitionKeyValue)* RIGHT_PAREN
 	// TODO: support analyze external table partition spec https://github.com/apache/doris/pull/24154
 	// | PARTITIONS WITH RECENT
+    ;
+
+partitionKeyValue
+    : identifier EQ expression
     ;
 
 partitionTable
@@ -1192,7 +1240,7 @@ querySpecification
     ;
 
 cte
-    : WITH aliasQuery (COMMA aliasQuery)*
+    : WITH RECURSIVE? aliasQuery (COMMA aliasQuery)*
     ;
 
 aliasQuery
@@ -1241,7 +1289,7 @@ relation
     ;
 
 joinRelation
-    : (joinType) JOIN distributeType? right=relationPrimary joinCriteria?
+    : (joinType) JOIN distributeType? right=relationPrimary matchCondition? joinCriteria?
     ;
 
 // Just like `opt_plan_hints` in legacy CUP parser.
@@ -1353,6 +1401,12 @@ joinType
     | RIGHT SEMI
     | LEFT ANTI
     | RIGHT ANTI
+    | ASOF LEFT?
+    | ASOF INNER
+    ;
+
+matchCondition
+    : MATCH_CONDITION LEFT_PAREN valueExpression RIGHT_PAREN
     ;
 
 joinCriteria
@@ -1379,6 +1433,8 @@ relationPrimary
     | tvfName=identifier LEFT_PAREN
       (properties=propertyItemList)?
       RIGHT_PAREN tableAlias                                                               #tableValuedFunction
+    | LATERAL? UNNEST LEFT_PAREN expression (COMMA expression)* RIGHT_PAREN
+        (WITH ORDINALITY)? tableAlias #unnestFunction
     | LEFT_PAREN relations RIGHT_PAREN                                                     #relationList
     ;
 
@@ -1551,7 +1607,8 @@ predicate
     : NOT? kind=BETWEEN lower=valueExpression AND upper=valueExpression
     | NOT? kind=(REGEXP | RLIKE) pattern=valueExpression
     | NOT? kind=LIKE pattern=valueExpression (ESCAPE escape=valueExpression)?
-    | NOT? kind=(MATCH | MATCH_ANY | MATCH_ALL | MATCH_PHRASE | MATCH_PHRASE_PREFIX | MATCH_REGEXP | MATCH_PHRASE_EDGE) pattern=valueExpression
+    | NOT? kind=(MATCH | MATCH_ANY | MATCH_ALL | MATCH_PHRASE | MATCH_PHRASE_PREFIX | MATCH_REGEXP | MATCH_PHRASE_EDGE)
+        pattern=valueExpression (USING ANALYZER analyzer=identifierOrText)?
     | NOT? kind=IN LEFT_PAREN query RIGHT_PAREN
     | NOT? kind=IN LEFT_PAREN expression (COMMA expression)* RIGHT_PAREN
     | IS NOT? kind=NULL
@@ -1580,7 +1637,7 @@ primaryExpression
     | name=SESSION_USER                                                                        #sessionUser
     | CASE whenClause+ (ELSE elseExpression=expression)? END                                   #searchedCase
     | CASE value=expression whenClause+ (ELSE elseExpression=expression)? END                  #simpleCase
-    | name=CAST LEFT_PAREN expression AS castDataType RIGHT_PAREN                              #cast
+    | name=(CAST | TRY_CAST) LEFT_PAREN expression AS castDataType RIGHT_PAREN                              #cast
     | constant                                                                                 #constantDefault
     | interval                                                                                 #intervalLiteral
     | ASTERISK (exceptOrReplace)*                                                              #star
@@ -1599,6 +1656,8 @@ primaryExpression
         (OVER windowSpec)?                                                                     #groupConcat
     | TRIM LEFT_PAREN
         ((BOTH | LEADING | TRAILING) expression? | expression) FROM expression RIGHT_PAREN     #trim
+    | (SUBSTR | SUBSTRING | MID) LEFT_PAREN expression FROM expression (FOR expression)? RIGHT_PAREN #substring
+    | POSITION LEFT_PAREN expression IN expression RIGHT_PAREN #position
     | functionCallExpression                                                                   #functionCall
     | value=primaryExpression LEFT_BRACKET index=valueExpression RIGHT_BRACKET                 #elementAt
     | value=primaryExpression LEFT_BRACKET begin=valueExpression
@@ -1642,6 +1701,7 @@ functionIdentifier
 
 functionNameIdentifier
     : identifier
+    | INSERT
     | ADD
     | CONNECTION_ID
     | CURRENT_CATALOG
@@ -1700,6 +1760,7 @@ constant
     | type=(DATE | DATEV1 | DATEV2 | TIMESTAMP) STRING_LITERAL                                 #typeConstructor
     | number                                                                                   #numericLiteral
     | booleanValue                                                                             #booleanLiteral
+    | VARBINARY_LITERAL                                                                        #varbinaryLiteral
     | BINARY? STRING_LITERAL                                                                   #stringLiteral
     | LEFT_BRACKET (items+=constant)? (COMMA items+=constant)* RIGHT_BRACKET                   #arrayLiteral
     | LEFT_BRACE (items+=constant COLON items+=constant)?
@@ -1760,6 +1821,8 @@ primitiveColType
     | type=DATETIMEV2
     | type=DATEV1
     | type=DATETIMEV1
+    | type=TIMESTAMPTZ
+    | type=TIMESTAMP_NS
     | type=BITMAP
     | type=QUANTILE_STATE
     | type=HLL
@@ -1861,7 +1924,8 @@ number
 // TODO: need to stay consistent with the legacy
 nonReserved
 //--DEFAULT-NON-RESERVED-START
-    : ANN | CHAR_FILTER | NORMALIZER
+    : RECURSIVE | UNNEST | ORDINALITY | POSITION | SUBSTR | SUBSTRING | MID | TRY_CAST
+    | ANN | CHAR_FILTER | NORMALIZER
     | ACTIONS
     | AFTER
     | AGG_STATE
@@ -2007,6 +2071,12 @@ nonReserved
     | IDENTIFIED
     | IGNORE
     | IMMEDIATE
+    | PYTHON
+    | PACKAGES
+    | VERSIONS
+    | TIMESTAMPTZ
+    | TIMESTAMP_NS
+    | INCLUDE
     | INCREMENTAL
     | INDEXES
     | INVERTED

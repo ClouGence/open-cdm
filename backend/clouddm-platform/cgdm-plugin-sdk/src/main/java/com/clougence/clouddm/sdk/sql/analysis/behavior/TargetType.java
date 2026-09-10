@@ -32,6 +32,11 @@ public enum TargetType {
     Role(UmiTypes.ROLE),
     ConfigKey(null),
     File(null),
+    Session(null),
+    Backup(null),
+    Tablet(null),
+    Transaction(null),
+    Statistics(null),
 
     Query(null),
     Update(null),

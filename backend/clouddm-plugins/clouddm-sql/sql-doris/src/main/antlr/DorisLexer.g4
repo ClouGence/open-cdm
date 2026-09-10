@@ -56,6 +56,28 @@ RIGHT_BRACKET: ']';
 LEFT_BRACE: '{';
 RIGHT_BRACE: '}';
 
+MATCH_CONDITION: 'MATCH_CONDITION';
+RECURSIVE: 'RECURSIVE';
+UNNEST: 'UNNEST';
+ORDINALITY: 'ORDINALITY';
+POSITION: 'POSITION';
+SUBSTR: 'SUBSTR';
+SUBSTRING: 'SUBSTRING';
+MID: 'MID';
+TRY_CAST: 'TRY_CAST';
+MATCHED: 'MATCHED';
+ASOF: 'ASOF';
+
+PYTHON: 'PYTHON';
+
+PACKAGES: 'PACKAGES';
+
+VERSIONS: 'VERSIONS';
+
+TIMESTAMPTZ: 'TIMESTAMPTZ';
+
+TIMESTAMP_NS: 'TIMESTAMP_NS';
+
 // TODO: add a doc to list reserved words
 
 //============================
@@ -283,6 +305,7 @@ IF: 'IF';
 IGNORE: 'IGNORE';
 IMMEDIATE: 'IMMEDIATE';
 IN: 'IN';
+INCLUDE: 'INCLUDE';
 INCREMENTAL: 'INCREMENTAL';
 INDEX: 'INDEX';
 INDEXES: 'INDEXES';
@@ -615,6 +638,15 @@ ATSIGN: '@';
 DOUBLEATSIGN: '@@';
 
 DOLLAR_QUOTED_STRING: '$$' ( ~'$' | '$' ~'$' )* '$$';
+
+VARBINARY_LITERAL
+    : [Xx]'\'' HEXDIGIT* '\''
+    | [Xx]'"' HEXDIGIT* '"'
+    ;
+
+fragment HEXDIGIT
+    : [0-9a-fA-F]
+    ;
 
 STRING_LITERAL
     :  '\'' ( {!isNoBackslashEscapes}? '\\'. | '\'\'' | {!isNoBackslashEscapes}? ~('\'' | '\\') | {isNoBackslashEscapes}? ~('\''))* '\''

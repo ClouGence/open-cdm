@@ -214,7 +214,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
                 return;
             }
             String script = statementParser().getTextKeepComment(this.tokens, this.lastStatement, startToken, stopToken);
-            ScriptLocation scriptLocation = this.location.locate(script, stopToken.getStopIndex());
+            ScriptLocation scriptLocation = this.location.locate(script);
 
             SplitScript split = new SplitScript();
             split.setIndex(this.location.statementIndex++);
@@ -249,9 +249,9 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             this.column = Math.max(0, base == null ? 0 : base.getColumnNumber());
         }
 
-        private ScriptLocation locate(String script, int stopOffset) {
-            int searchEnd = Math.min(this.source.endOffset(), Math.max(this.sourceOffset, stopOffset + 1) + script.length());
-            String sourceWindow = this.source.getText(this.sourceOffset, searchEnd);
+        private ScriptLocation locate(String script) {
+            // Token offsets count code points; reader offsets count UTF-16 units.
+            String sourceWindow = this.source.getText(this.sourceOffset, this.source.endOffset());
             int scriptOffset = sourceWindow.indexOf(script);
             if (scriptOffset < 0) {
                 throw new IllegalStateException("Split script is not part of its source");
@@ -267,7 +267,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         }
 
         private void advance(String value, int start, int end) {
-            for (int i = start; i < end; i++) {
+            for (int i = start; i < end; i += Character.charCount(value.codePointAt(i))) {
                 if (value.charAt(i) == '\n') {
                     this.line++;
                     this.column = 0;

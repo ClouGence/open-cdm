@@ -3,12 +3,22 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.common.analysis.behavior;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -16,6 +26,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
@@ -78,8 +89,26 @@ public class RdbBehaviorObjectFactory {
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(type);
         object.setObjectPath(path.isEmpty() ? "/" : "/" + String.join("/", path) + "/");
+        object.setObjectName(objectName(type, names));
         setCodeRange(object, start, stop);
         return object;
+    }
+
+    private ObjectName objectName(TargetType type, List<String> names) {
+        if (type == TargetType.File) {
+            return new ObjectName(null, null, names.get(0));
+        }
+        if (names.size() >= 3) {
+            return new ObjectName(names.get(names.size() - 3), names.get(names.size() - 2), names.get(names.size() - 1));
+        }
+        if (names.size() == 2) {
+            String catalog = level(UmiTypes.Catalog);
+            if (Objects.equals(names.get(0), catalog) && Objects.equals(names.get(1), level(UmiTypes.Schema))) {
+                return new ObjectName(names.get(0), names.get(1), null);
+            }
+            return new ObjectName(catalog, names.get(0), names.get(1));
+        }
+        return new ObjectName(null, null, names.get(0));
     }
 
     public BehaviorObject instanceObject(TargetType type, ParserRuleContext context, String name) {
@@ -146,6 +175,14 @@ public class RdbBehaviorObjectFactory {
         object.setObjectType(type);
         object.setObjectPath("/" + String.join("/", path) + "/");
         setCodeRange(object, start, stop);
+        return object;
+    }
+
+    public BehaviorObject childObject(TargetType type, ParserRuleContext context, BehaviorObject parent, String name) {
+        BehaviorObject object = new BehaviorObject();
+        object.setObjectType(type);
+        object.setObjectPath(parent.getObjectPath() + name + "/");
+        setCodeRange(object, context.getStart(), context.getStop());
         return object;
     }
 
