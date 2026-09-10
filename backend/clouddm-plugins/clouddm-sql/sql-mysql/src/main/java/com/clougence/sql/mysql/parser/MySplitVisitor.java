@@ -224,9 +224,10 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
     }
 
     private void collectExternalCodeLifecycleRisk(ParseTree tree) {
-        if (tree instanceof CreateUdfFunctionContext || tree instanceof CreateFunctionContext ctx && usesExternalCode(ctx)
-            || tree instanceof CreateProcedureContext ctx && usesExternalCode(ctx) || tree instanceof AlterFunctionContext ctx && usesExternalCode(ctx)
-            || tree instanceof AlterProcedureContext ctx && usesExternalCode(ctx)) {
+        if (tree instanceof CreateUdfFunctionContext || tree instanceof CreateFunctionContext createFunctionCtx && usesExternalCode(createFunctionCtx)
+            || tree instanceof CreateProcedureContext createProcedureCtx && usesExternalCode(createProcedureCtx)
+            || tree instanceof AlterFunctionContext alterFunctionCtx && usesExternalCode(alterFunctionCtx)
+            || tree instanceof AlterProcedureContext alterProcedureCtx && usesExternalCode(alterProcedureCtx)) {
             this.externalCodeLifecycleRisk = true;
         }
     }
