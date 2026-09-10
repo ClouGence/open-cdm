@@ -103,15 +103,6 @@
             id = #{ticketId}
     </update>
 
-    <update id="updateModified">
-        UPDATE
-            dm_approval
-        SET
-            gmt_modified = NOW()
-        WHERE
-            id = #{id}
-    </update>
-
     <update id="updateThirdApprovalInfo">
         UPDATE
             dm_approval
@@ -366,17 +357,67 @@
         FOR UPDATE
     </select>
 
-    <select id="listUnFinishTicketIdList" resultType="java.lang.Long">
+    <select id="queryScheduleUpperId" resultType="java.lang.Long">
+        SELECT
+            COALESCE(MAX(id), 0)
+        FROM
+            dm_approval
+    </select>
+
+    <select id="listScheduleTicketIds" resultType="java.lang.Long">
         SELECT
             id
         FROM
             dm_approval
         WHERE
-            ticket_status                      IN ('PRE_INIT_WAIT', 'PRE_INIT_RUN', 'WAIT_APPROVAL', 'WAIT_CONFIRM', 'WAIT_EXEC', 'RUNNING', 'EXEC_FAIL')
+            id      <![CDATA[ > ]]> #{afterId}
             AND
-            DATE_SUB(NOW(), INTERVAL 5 SECOND) <![CDATA[ >= ]]> gmt_modified
-        ORDER BY gmt_modified ASC
-        LIMIT 20
+            id      <![CDATA[ <= ]]> #{upperId}
+            AND
+            deleted = FALSE
+            AND
+        <choose>
+            <when test="idle">
+                (
+                    ticket_status = 'EXEC_FAIL'
+                    OR
+                    (
+                        ticket_status = 'WAIT_APPROVAL'
+                        AND
+                        appro_type    = 'Internal'
+                    )
+                )
+            </when>
+            <otherwise>
+                (
+                    ticket_status IN ('PRE_INIT_WAIT', 'PRE_INIT_RUN', 'WAIT_CONFIRM', 'WAIT_EXEC', 'RUNNING')
+                    OR
+                    (
+                        ticket_status = 'WAIT_APPROVAL'
+                        AND
+                        appro_type   != 'Internal'
+                    )
+                )
+            </otherwise>
+        </choose>
+        ORDER BY id
+        LIMIT #{limit}
+    </select>
+
+    <select id="queryScheduleInfo" resultMap="DmApprovalDO">
+        SELECT
+            id,
+            primary_uid,
+            bind_ds_id,
+            appro_biz,
+            appro_type,
+            ticket_status
+        FROM
+            dm_approval
+        WHERE
+            id      = #{id}
+            AND
+            deleted = FALSE
     </select>
 
     <select id="listAuthTicketByConditionAndPage" resultMap="DmApprovalDO">
