@@ -4345,5 +4345,20 @@
   "cicd-create-orchestration-description": "一次创建根发布流及其全部下游发布流。",
   "fa-bu-mu-biao": "发布目标",
   "qing-xuan-ze-fu-ze-ren": "请选择负责人",
-  "qing-kong-xuan-ze": "清空选择"
+  "qing-kong-xuan-ze": "清空选择",
+  "result-search-open": "在结果中查找",
+  "result-search-placeholder": "搜索结果数据",
+  "result-search-enter-keyword": "输入关键词",
+  "result-search-no-match": "无匹配结果",
+  "result-search-previous": "上一个匹配项",
+  "result-search-next": "下一个匹配项",
+  "result-search-loaded-pages-only": "已加载分页",
+  "result-search-visible-rows-only": "当前可见行",
+  "result-column-picker-open": "选择优先展示列",
+  "result-column-picker-label": "优先列",
+  "result-column-picker-none": "未选择",
+  "result-column-picker-more": "+{0}",
+  "result-column-picker-search": "搜索列名",
+  "result-column-picker-clear": "全不选",
+  "result-column-picker-empty": "没有匹配的列"
 }
