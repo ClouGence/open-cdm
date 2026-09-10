@@ -676,7 +676,7 @@ expect:
   "READ": [
     "ConfigKey(1:4~1:16) /test/1/plain.name$/",
     "ConfigKey(1:22~1:36) /test/1/hyphen-name/",
-    "ConfigKey(1:43~1:56) /test/1/spacename/",
+    "ConfigKey(1:43~1:56) /test/1/space name/",
     "ConfigKey(1:62~1:74) /test/1/tick-name/"
   ]
 }

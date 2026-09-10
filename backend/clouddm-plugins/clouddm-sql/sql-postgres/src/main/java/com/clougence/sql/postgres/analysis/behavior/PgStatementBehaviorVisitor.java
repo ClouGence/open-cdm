@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.postgres.analysis.behavior;
 
@@ -756,7 +765,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         collectNames(ctx, names);
         names.remove(names.size() - 1);
         Token stop = ctx.colid().getStop();
-        if (ctx.attrs().attr_name().size() > 1) {
+        if (ctx.attrs() != null && ctx.attrs().attr_name().size() > 1) {
             stop = ctx.attrs().attr_name(ctx.attrs().attr_name().size() - 2).getStop();
         }
         return objects.object(TargetType.Table, ctx.getStart(), stop, names);
@@ -1050,7 +1059,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         int end = ctx.getStop().getTokenIndex();
         if (name != null)
             end = name.getStart().getTokenIndex() - 1;
-        Set<Integer> keywords = new java.util.HashSet<>();
+        Set<Integer> keywords = new HashSet<>();
         for (int i = ctx.getStart().getTokenIndex(); i <= end; i++) {
             keywords.add(parser.getTokenStream().get(i).getType());
         }

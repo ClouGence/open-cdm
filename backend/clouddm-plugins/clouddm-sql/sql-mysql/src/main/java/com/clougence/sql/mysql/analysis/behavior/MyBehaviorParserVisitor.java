@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.mysql.analysis.behavior;
 
@@ -85,8 +94,11 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
         String sql = MyBehaviorText.statementText(parser.getTokenStream(), context);
         SplitQueryType statementType = MyBehaviorStatementTypeResolver.resolve(sql, visitor.references());
-        if (command instanceof MySqlParser.FullDescribeStatementContext || command instanceof MySqlParser.SimpleDescribeStatementContext
-            || command instanceof MySqlParser.SetVariableContext) {
+        boolean splitTypeRequired = command instanceof MySqlParser.FullDescribeStatementContext describe
+                                    && describe.analyze == null;
+        splitTypeRequired = splitTypeRequired || command instanceof MySqlParser.SimpleDescribeStatementContext
+                            || command instanceof MySqlParser.SetVariableContext;
+        if (splitTypeRequired) {
             statementType = new MySplitVisitor(provider.version()).collectTypes(command).iterator().next();
         }
         boolean libraryLifecycle = statementType == SplitQueryType.CREATE_LIBRARY || statementType == SplitQueryType.ALTER_LIBRARY || statementType == SplitQueryType.DROP_LIBRARY

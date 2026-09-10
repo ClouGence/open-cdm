@@ -220,7 +220,7 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.ALTER_POLICY;
         } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, TABLE)) {
             return SplitQueryType.COMMENT_TABLE;
-        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER) || hasToken(ctx, SERVER)) {
+        } else if ((hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER)) || hasToken(ctx, SERVER)) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, TRIGGER)) {
             return SplitQueryType.COMMENT_TRIGGER;
@@ -484,7 +484,7 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, TEXT_P) && hasToken(ctx, SEARCH)) {
             return SplitQueryType.DROP_POLICY;
-        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER) || hasToken(ctx, SERVER)) {
+        } else if ((hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER)) || hasToken(ctx, SERVER)) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         return SplitQueryType.UNKNOWN;
@@ -513,7 +513,7 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.RENAME_PROG_OBJ;
         } else if (hasToken(ctx, TEXT_P) && hasToken(ctx, SEARCH)) {
             return SplitQueryType.ALTER_POLICY;
-        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER) || hasToken(ctx, SERVER)) {
+        } else if ((hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER)) || hasToken(ctx, SERVER)) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, RULE) || hasToken(ctx, COLLATION) || hasToken(ctx, CONVERSION_P)) {
             return SplitQueryType.ALTER_POLICY;

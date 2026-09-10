@@ -2422,10 +2422,10 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
         }
         builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
 
-        if (ctx.UNSIGNED() != null) {
+        if (!ctx.UNSIGNED().isEmpty()) {
             builder.addAttr(MyAttribute.UNSIGNED, true);
         }
-        if (ctx.ZEROFILL() != null) {
+        if (!ctx.ZEROFILL().isEmpty()) {
             builder.addAttr(MyAttribute.ZEROFILL, true);
         }
 

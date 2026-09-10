@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.mysql.analysis.behavior;
 
@@ -21,15 +30,13 @@ final class MyBehaviorStatementTypeResolver {
 
     static SplitQueryType resolve(String sql, List<MySqlObjectReference> references) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        if (normalized.startsWith("EXPLAIN")) {
-            int statementStart = MyBehaviorText.findWord(sql, 0, "SELECT", "WITH", "UPDATE", "DELETE", "INSERT", "REPLACE");
-            int analyzeStart = MyBehaviorText.findWord(sql, 0, "ANALYZE");
-            if (analyzeStart >= 0 && (statementStart < 0 || analyzeStart < statementStart)) {
+        if (normalized.startsWith("EXPLAIN") || normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE ")) {
+            if (isExplainAnalyze(sql)) {
                 return SplitQueryType.UNSAFE;
             }
-            return SplitQueryType.SELECT;
-        }
-        if (normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE ")) {
+            if (normalized.startsWith("EXPLAIN")) {
+                return SplitQueryType.SELECT;
+            }
             return SplitQueryType.METADATA;
         }
         if (normalized.startsWith("DO ") || normalized.startsWith("DO(")) {
@@ -221,6 +228,16 @@ final class MyBehaviorStatementTypeResolver {
             }
         }
         return SplitQueryType.UNKNOWN;
+    }
+
+    static boolean isExplainAnalyze(String sql) {
+        String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (!normalized.startsWith("EXPLAIN") && !normalized.startsWith("DESC ") && !normalized.startsWith("DESCRIBE ")) {
+            return false;
+        }
+        int analyzeStart = MyBehaviorText.findWord(sql, 0, "ANALYZE");
+        int statementStart = MyBehaviorText.findWord(sql, 0, "SELECT", "WITH", "UPDATE", "DELETE", "INSERT", "REPLACE");
+        return analyzeStart >= 0 && (statementStart < 0 || analyzeStart < statementStart);
     }
 
     private static boolean contains(List<MySqlObjectReference> references, SplitQueryType type) {

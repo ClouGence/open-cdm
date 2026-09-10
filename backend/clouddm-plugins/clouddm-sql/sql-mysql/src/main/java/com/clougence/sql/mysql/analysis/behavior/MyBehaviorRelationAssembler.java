@@ -530,7 +530,7 @@ final class MyBehaviorRelationAssembler {
 
     private boolean isUnsafeReference(MySqlObjectReference reference, BehaviorAction action) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        if (normalized.startsWith("EXPLAIN")) {
+        if (MyBehaviorStatementTypeResolver.isExplainAnalyze(sql)) {
             return true;
         }
         if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
@@ -589,7 +589,8 @@ final class MyBehaviorRelationAssembler {
 
     private static boolean isUnsafeStatement(String sql) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        return normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE") || normalized.startsWith("DEALLOCATE PREPARE") || normalized.startsWith("RESTART")
+        return MyBehaviorStatementTypeResolver.isExplainAnalyze(sql) || normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE")
+               || normalized.startsWith("DEALLOCATE PREPARE") || normalized.startsWith("RESTART")
                || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ") || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET BINARY LOGS")
                || normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
                || normalized.startsWith("UNINSTALL COMPONENT") || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")

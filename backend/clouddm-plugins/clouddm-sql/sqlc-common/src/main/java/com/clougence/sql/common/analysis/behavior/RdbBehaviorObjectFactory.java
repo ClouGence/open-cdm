@@ -96,12 +96,15 @@ public class RdbBehaviorObjectFactory {
 
     private ObjectName objectName(TargetType type, List<String> names) {
         if (type == TargetType.File) {
-            return new ObjectName(null, null, names.get(0));
+            return new ObjectName(null, null, names.get(names.size() - 1));
         }
         if (names.size() >= 3) {
             return new ObjectName(names.get(names.size() - 3), names.get(names.size() - 2), names.get(names.size() - 1));
         }
         if (names.size() == 2) {
+            if (type == TargetType.Schema) {
+                return new ObjectName(names.get(0), names.get(1), null);
+            }
             String catalog = level(UmiTypes.Catalog);
             if (Objects.equals(names.get(0), catalog) && Objects.equals(names.get(1), level(UmiTypes.Schema))) {
                 return new ObjectName(names.get(0), names.get(1), null);

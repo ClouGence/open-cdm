@@ -1791,6 +1791,12 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitFullTextExpressionAtom(FullTextExpressionAtomContext ctx) {
+        ctx.fullTextExpression().accept(this);
+        return null;
+    }
+
+    @Override
     public Void visitSingleUpdateStatement(SingleUpdateStatementContext ctx) {
         builder.handleUpdate(() -> {
             dmVisitChildren(ctx);

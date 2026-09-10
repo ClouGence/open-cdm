@@ -234,7 +234,10 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return procedure.routineBody();
         }
         if (tree instanceof CreateFunctionContext function) {
-            return function.routineBody();
+            if (function.routineBody() != null) {
+                return function.routineBody();
+            }
+            return function.returnStatement();
         }
         if (tree instanceof CreateTriggerContext trigger) {
             return trigger.routineBody();

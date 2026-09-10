@@ -84,7 +84,11 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return SplitQueryType.DATA_EXPORT;
         }
         if (tree instanceof DorisParser.TableValuedFunctionContext function) {
-            String name = function.tvfName.getText().toLowerCase(Locale.ROOT);
+            String name = function.tvfName.getText();
+            if (name.length() >= 2 && name.startsWith("`") && name.endsWith("`")) {
+                name = name.substring(1, name.length() - 1).replace("``", "`");
+            }
+            name = name.toLowerCase(Locale.ROOT);
             if (Set.of("file", "s3", "hdfs", "local", "http", "azure", "gcs", "jdbc", "odbc").contains(name)) {
                 return SplitQueryType.DATA_IMPORT;
             }

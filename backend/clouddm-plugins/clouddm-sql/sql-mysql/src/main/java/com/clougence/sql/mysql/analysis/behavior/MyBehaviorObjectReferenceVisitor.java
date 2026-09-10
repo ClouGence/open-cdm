@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.mysql.analysis.behavior;
 
@@ -84,7 +93,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     }
 
     private static <T extends ParseTree> List<T> descendants(ParseTree tree, Class<T> type) {
-        List<T> result = new java.util.ArrayList<>();
+        List<T> result = new ArrayList<>();
         collect(tree, type, result);
         return result;
     }
@@ -353,21 +362,10 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         if (ambiguous) {
             for (AtomTableItemContext table : tables) {
                 add(SplitQueryType.UPDATE, TargetType.Table, table.tableName());
-                int index = references().size() - 1;
-                MySqlObjectReference reference = references().get(index);
-                references().set(index, new MySqlObjectReference(reference.sqlType(),
-                    reference.targetType(),
-                    reference.require(),
-                    reference.startLine(),
-                    reference.startColumn(),
-                    reference.endLine(),
-                    reference.endColumn(),
-                    reference.nodes(),
-                    BehaviorAction.UNKNOWN));
             }
             return null;
         }
-        Set<AtomTableItemContext> targets = new java.util.LinkedHashSet<>();
+        Set<AtomTableItemContext> targets = new LinkedHashSet<>();
         for (UpdatedElementContext element : ctx.updatedElement()) {
             String qualifier = null;
             FullColumnNameContext column = element.fullColumnName();
