@@ -606,4 +606,119 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
         return null;
     }
 
+    @Override
+    public SplitQueryType visitCreateBinding(CreateBindingContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDropBinding(DropBindingContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSetBinding(SetBindingContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowBindings(ShowBindingsContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowBindingCache(ShowBindingCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitCreatePlacementPolicy(CreatePlacementPolicyContext ctx) {
+        if (ctx.REPLACE() != null) {
+            return SplitQueryType.ALTER_POLICY;
+        }
+        return SplitQueryType.CREATE_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitAlterPlacementPolicy(AlterPlacementPolicyContext ctx) {
+        return SplitQueryType.ALTER_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitDropPlacementPolicy(DropPlacementPolicyContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreatePlacementPolicy(ShowCreatePlacementPolicyContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitCreateResourceGroup(CreateResourceGroupContext ctx) {
+        return SplitQueryType.CREATE_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitAlterResourceGroup(AlterResourceGroupContext ctx) {
+        return SplitQueryType.ALTER_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitDropResourceGroup(DropResourceGroupContext ctx) {
+        return SplitQueryType.DROP_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateResourceGroup(ShowCreateResourceGroupContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitSetResourceGroup(SetResourceGroupContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitImportIntoStatement(ImportIntoStatementContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
+    }
+
+    @Override
+    public SplitQueryType visitTableValueSelect(TableValueSelectContext ctx) {
+        return SplitQueryType.SELECT;
+    }
+
+    @Override
+    public SplitQueryType visitSplitRegionStatement(SplitRegionStatementContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitBatchStatement(BatchStatementContext ctx) {
+        if (ctx.DRY() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public SplitQueryType visitCalibrateResource(CalibrateResourceContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitAddQueryWatch(AddQueryWatchContext ctx) {
+        return SplitQueryType.ADMIN_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitRemoveQueryWatch(RemoveQueryWatchContext ctx) {
+        return SplitQueryType.ADMIN_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitAlterSequence(AlterSequenceContext ctx) {
+        return SplitQueryType.ALTER_SEQUENCE;
+    }
 }

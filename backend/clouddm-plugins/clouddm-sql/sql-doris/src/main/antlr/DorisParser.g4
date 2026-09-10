@@ -97,16 +97,21 @@ materializedViewStatement
     | CANCEL MATERIALIZED VIEW TASK taskId=INTEGER_VALUE ON mvName=multipartIdentifier          #cancelMTMVTask
     | SHOW CREATE MATERIALIZED VIEW mvName=multipartIdentifier                                  #showCreateMTMV
     ;
+jobFromToClause
+    : FROM sourceType=identifier (LEFT_PAREN sourceProperties=propertyItemList RIGHT_PAREN)?
+      TO DATABASE targetDb=identifier (LEFT_PAREN targetProperties=propertyItemList RIGHT_PAREN)?
+    ;
+
 supportedJobStatement
-    : CREATE JOB label=multipartIdentifier ON SCHEDULE
-        (
-            (EVERY timeInterval=INTEGER_VALUE timeUnit=identifier
-            (STARTS (startTime=STRING_LITERAL | CURRENT_TIMESTAMP))?
-            (ENDS endsTime=STRING_LITERAL)?)
-            |
-            (AT (atTime=STRING_LITERAL | CURRENT_TIMESTAMP)))
-        commentSpec?
-        DO supportedDmlStatement                                                                                                             #createScheduledJob
+    : CREATE JOB label=multipartIdentifier propertyClause?
+      ON (STREAMING | SCHEDULE (
+          EVERY timeInterval=INTEGER_VALUE timeUnit=identifier
+          (STARTS (startTime=STRING_LITERAL | CURRENT_TIMESTAMP))?
+          (ENDS endsTime=STRING_LITERAL)?
+          | AT (atTime=STRING_LITERAL | CURRENT_TIMESTAMP)))
+      commentSpec? (jobFromToClause | DO supportedDmlStatement) #createScheduledJob
+    | ALTER JOB name=multipartIdentifier
+      (propertyClause (supportedDmlStatement | jobFromToClause)? | supportedDmlStatement | jobFromToClause) #alterJob
    | PAUSE JOB WHERE (jobNameKey=identifier) EQ (jobNameValue=STRING_LITERAL)                                                                #pauseJob
    | DROP JOB (IF EXISTS)? WHERE (jobNameKey=identifier) EQ (jobNameValue=STRING_LITERAL)                                                    #dropJob
    | RESUME JOB WHERE (jobNameKey=identifier) EQ (jobNameValue=STRING_LITERAL)                                                               #resumeJob
@@ -165,6 +170,7 @@ supportedCreateStatement
         (ENGINE EQ engine=identifier)?
         ((AGGREGATE | UNIQUE | DUPLICATE) KEY keys=identifierList
         (CLUSTER BY clusterKeys=identifierList)?)?
+        (ORDER BY LEFT_PAREN sortItem (COMMA sortItem)* RIGHT_PAREN)?
         (COMMENT STRING_LITERAL)?
         (partition=partitionTable)?
         (DISTRIBUTED BY (HASH hashKeys=identifierList | RANDOM)
@@ -198,7 +204,7 @@ supportedCreateStatement
         partitionSpec?                                                          #buildIndex
     | CREATE INDEX (IF NOT EXISTS)? name=identifier
         ON tableName=multipartIdentifier identifierList
-        (USING (BITMAP | NGRAM_BF | INVERTED))?
+        (USING (BITMAP | NGRAM_BF | INVERTED | ANN))?
         properties=propertyClause? (COMMENT STRING_LITERAL)?                    #createIndex
     | CREATE WORKLOAD POLICY (IF NOT EXISTS)? name=identifierOrText
         (CONDITIONS LEFT_PAREN workloadPolicyConditions RIGHT_PAREN)?
@@ -211,7 +217,7 @@ supportedCreateStatement
             (TABLES | AGGREGATE)? FUNCTION (IF NOT EXISTS)?
             functionIdentifier LEFT_PAREN functionArguments? RIGHT_PAREN
             RETURNS returnType=dataType (INTERMEDIATE intermediateType=dataType)?
-            properties=propertyClause?                                              #createUserDefineFunction
+            properties=propertyClause? (AS functionCode=DOLLAR_QUOTED_STRING)?            #createUserDefineFunction
     | CREATE statementScope? ALIAS FUNCTION (IF NOT EXISTS)?
             functionIdentifier LEFT_PAREN functionArguments? RIGHT_PAREN
             WITH PARAMETER LEFT_PAREN parameters=identifierSeq? RIGHT_PAREN
@@ -236,6 +242,10 @@ supportedCreateStatement
         name=identifier properties=propertyClause?                                  #createIndexAnalyzer
     | CREATE INVERTED INDEX TOKENIZER (IF NOT EXISTS)?
         name=identifier properties=propertyClause?                                  #createIndexTokenizer
+    | CREATE INVERTED INDEX CHAR_FILTER (IF NOT EXISTS)?
+        name=identifier properties=propertyClause?                                  #createIndexCharFilter
+    | CREATE INVERTED INDEX NORMALIZER (IF NOT EXISTS)?
+        name=identifier properties=propertyClause?                                  #createIndexNormalizer
     | CREATE INVERTED INDEX TOKEN_FILTER (IF NOT EXISTS)?
         name=identifier properties=propertyClause?                                  #createIndexTokenFilter
     ;
@@ -257,6 +267,7 @@ supportedAlterStatement
     | ALTER STORAGE VAULT name=multipartIdentifier properties=propertyClause                #alterStorageVault
     | ALTER WORKLOAD GROUP name=identifierOrText (FOR computeGroup=identifierOrText)?
         properties=propertyClause?                                                          #alterWorkloadGroup
+    | ALTER COMPUTE GROUP name=identifierOrText properties=propertyClause? #alterComputeGroup
     | ALTER CATALOG name=identifier SET PROPERTIES
         LEFT_PAREN propertyItemList RIGHT_PAREN                                             #alterCatalogProperties
     | ALTER WORKLOAD POLICY name=identifierOrText
@@ -318,6 +329,8 @@ supportedDropStatement
     | DROP VIEW (IF EXISTS)? name=multipartIdentifier                           #dropView
     | DROP INVERTED INDEX ANALYZER (IF EXISTS)? name=identifier                 #dropIndexAnalyzer
     | DROP INVERTED INDEX TOKENIZER (IF EXISTS)? name=identifier                #dropIndexTokenizer
+    | DROP INVERTED INDEX CHAR_FILTER (IF EXISTS)? name=identifier #dropIndexCharFilter
+    | DROP INVERTED INDEX NORMALIZER (IF EXISTS)? name=identifier #dropIndexNormalizer
     | DROP INVERTED INDEX TOKEN_FILTER (IF EXISTS)? name=identifier             #dropIndexTokenFilter
     ;
 
@@ -456,6 +469,8 @@ supportedLoadStatement
     | SHOW ROUTINE LOAD TASK ((FROM | IN) database=identifier)? wildWhere?          #showRoutineLoadTask
     | SHOW INVERTED INDEX ANALYZER                                                  #showIndexAnalyzer
     | SHOW INVERTED INDEX TOKENIZER                                                 #showIndexTokenizer
+    | SHOW INVERTED INDEX CHAR_FILTER #showIndexCharFilter
+    | SHOW INVERTED INDEX NORMALIZER #showIndexNormalizer
     | SHOW INVERTED INDEX TOKEN_FILTER                                              #showIndexTokenFilter
     ;
 
@@ -1426,7 +1441,7 @@ indexDefs
     ;
 
 indexDef
-    : INDEX (ifNotExists=IF NOT EXISTS)? indexName=identifier cols=identifierList (USING indexType=(BITMAP | INVERTED | NGRAM_BF))? (PROPERTIES LEFT_PAREN properties=propertyItemList RIGHT_PAREN)? (COMMENT comment=STRING_LITERAL)?
+    : INDEX (ifNotExists=IF NOT EXISTS)? indexName=identifier cols=identifierList (USING indexType=(BITMAP | INVERTED | NGRAM_BF | ANN))? (PROPERTIES LEFT_PAREN properties=propertyItemList RIGHT_PAREN)? (COMMENT comment=STRING_LITERAL)?
     ;
 
 partitionsDef
@@ -1804,7 +1819,7 @@ sampleMethod
 
 tableSnapshot
     : FOR VERSION AS OF version=(INTEGER_VALUE | STRING_LITERAL)
-    | FOR TIME AS OF time=STRING_LITERAL
+    | FOR TIME AS OF time=(STRING_LITERAL | INTEGER_VALUE)
     ;
 
 // this rule is used for explicitly capturing wrong identifiers such as test-table, which should actually be `test-table`
@@ -1846,7 +1861,8 @@ number
 // TODO: need to stay consistent with the legacy
 nonReserved
 //--DEFAULT-NON-RESERVED-START
-    : ACTIONS
+    : ANN | CHAR_FILTER | NORMALIZER
+    | ACTIONS
     | AFTER
     | AGG_STATE
     | AGGREGATE

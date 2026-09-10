@@ -3717,9 +3717,6 @@ explainForTargetStatement
 
 explainDirectTargetStatement
     : explainForTargetStatement
-    | createStatement
-    | dropStatement
-    | callStatement
     ;
 
 sqlBlockStatement

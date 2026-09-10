@@ -59,8 +59,12 @@ public class RdbBehaviorObjectFactory {
         if (type == TargetType.Catalog) {
             path.add(names.get(names.size() - 1));
         } else if (type == TargetType.Schema) {
-            addLevel(path, UmiTypes.Catalog);
-            path.add(names.get(names.size() - 1));
+            if (names.size() == 2) {
+                path.addAll(names);
+            } else {
+                addLevel(path, UmiTypes.Catalog);
+                path.add(names.get(names.size() - 1));
+            }
         } else {
             if (names.size() == 1) {
                 addLevel(path, UmiTypes.Catalog);

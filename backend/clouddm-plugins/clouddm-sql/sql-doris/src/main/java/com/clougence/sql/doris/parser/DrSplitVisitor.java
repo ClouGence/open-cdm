@@ -626,4 +626,44 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     public SplitQueryType visitDropTable(DropTableContext ctx) {
         return SplitQueryType.DROP_TABLE;
     }
+
+    @Override
+    public SplitQueryType visitCreateIndexCharFilter(CreateIndexCharFilterContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateIndexNormalizer(CreateIndexNormalizerContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropIndexCharFilter(DropIndexCharFilterContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropIndexNormalizer(DropIndexNormalizerContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitShowIndexCharFilter(ShowIndexCharFilterContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowIndexNormalizer(ShowIndexNormalizerContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitAlterComputeGroup(AlterComputeGroupContext ctx) {
+        return SplitQueryType.ALTER_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitAlterJob(AlterJobContext ctx) {
+        return SplitQueryType.ALTER_JOB;
+    }
 }

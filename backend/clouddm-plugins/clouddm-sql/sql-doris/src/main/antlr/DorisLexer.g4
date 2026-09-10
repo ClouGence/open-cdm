@@ -76,6 +76,9 @@ ALTER: 'ALTER';
 ANALYZE: 'ANALYZE';
 ANALYZED: 'ANALYZED';
 ANALYZER: 'ANALYZER';
+ANN: 'ANN';
+CHAR_FILTER: 'CHAR_FILTER';
+NORMALIZER: 'NORMALIZER';
 AND: 'AND';
 ANTI: 'ANTI';
 APPEND: 'APPEND';
@@ -610,6 +613,8 @@ HINT_END: '*/';
 COMMENT_START: '/*';
 ATSIGN: '@';
 DOUBLEATSIGN: '@@';
+
+DOLLAR_QUOTED_STRING: '$$' ( ~'$' | '$' ~'$' )* '$$';
 
 STRING_LITERAL
     :  '\'' ( {!isNoBackslashEscapes}? '\\'. | '\'\'' | {!isNoBackslashEscapes}? ~('\'' | '\\') | {isNoBackslashEscapes}? ~('\''))* '\''

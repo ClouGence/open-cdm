@@ -32,7 +32,118 @@ sqlStatements
 sqlStatement
     : ddlStatement | dmlStatement | transactionStatement
     | replicationStatement | preparedStatement
-    | administrationStatement | utilityStatement | (EXEC_COMMENT_LEFT sqlStatement SEMI? EXEC_COMMENT_RIGHT)
+    | administrationStatement | utilityStatement | bindingStatement | placementStatement | resourceGroupStatement | splitRegionStatement | batchStatement | calibrateResource | queryWatchStatement
+    | (EXEC_COMMENT_LEFT sqlStatement SEMI? EXEC_COMMENT_RIGHT)
+    ;
+
+bindingStatement
+    : CREATE (GLOBAL | SESSION)? BINDING
+      ((FOR bindableStatement)? USING bindableStatement
+       | FROM HISTORY USING PLAN DIGEST bindingDigestList)             #createBinding
+    | DROP (GLOBAL | SESSION)? BINDING FOR
+      (bindableStatement (USING bindableStatement)?
+       | SQL DIGEST bindingDigestList)                                #dropBinding
+    | SET BINDING (ENABLED | DISABLED) FOR
+      (bindableStatement (USING bindableStatement)?
+       | SQL DIGEST bindingDigestList)                                #setBinding
+    | SHOW (GLOBAL | SESSION)? BINDINGS (LIKE STRING_LITERAL | WHERE expression)? #showBindings
+    | SHOW BINDING_CACHE STATUS                                       #showBindingCache
+    ;
+
+bindableStatement
+    : selectStatement | withSelectStatement | insertStatement
+    | replaceStatement | updateStatement | deleteStatement
+    ;
+
+bindingDigestList
+    : (STRING_LITERAL | LOCAL_ID) (',' (STRING_LITERAL | LOCAL_ID))*
+    ;
+
+batchStatement
+    : BATCH (ON fullColumnName)? LIMIT decimalLiteral (DRY RUN QUERY?)?
+      (deleteStatement | updateStatement | insertStatement | replaceStatement)
+    ;
+
+calibrateResource
+    : CALIBRATE RESOURCE (WORKLOAD (TPCC | OLTP_READ_WRITE | OLTP_READ_ONLY | OLTP_WRITE_ONLY | TPCH_10)
+      | calibrateOption (','? calibrateOption)*)?
+    ;
+
+calibrateOption
+    : (START_TIME | END_TIME) '='? expression
+    | DURATION '='? (STRING_LITERAL | INTERVAL expression intervalType)
+    ;
+
+queryWatchStatement
+    : QUERY WATCH ADD queryWatchOption (','? queryWatchOption)* #addQueryWatch
+    | QUERY WATCH REMOVE (decimalLiteral | RESOURCE GROUP (resourceGroupName | LOCAL_ID)) #removeQueryWatch
+    ;
+
+queryWatchOption
+    : RESOURCE GROUP (resourceGroupName | LOCAL_ID)
+    | ACTION '='? (DRYRUN | COOLDOWN | KILL | SWITCH_GROUP '(' resourceGroupName ')')
+    | (SQL | PLAN) DIGEST expression
+    | SQL TEXT (EXACT | SIMILAR | PLAN) TO expression
+    ;
+
+splitRegionStatement
+    : SPLIT (REGION FOR)? PARTITION? TABLE tableName (PARTITION '(' uidList ')')?
+      (INDEX uid)? splitRegionOption
+    ;
+
+splitRegionOption
+    : BETWEEN '(' expressions ')' AND '(' expressions ')' REGIONS decimalLiteral
+    | BY '(' expressions ')' (',' '(' expressions ')')*
+    ;
+
+resourceGroupStatement
+    : CREATE RESOURCE GROUP ifNotExists? resourceGroupName resourceGroupOption (','? resourceGroupOption)* #createResourceGroup
+    | ALTER RESOURCE GROUP ifExists? resourceGroupName resourceGroupOption (','? resourceGroupOption)* #alterResourceGroup
+    | DROP RESOURCE GROUP ifExists? resourceGroupName #dropResourceGroup
+    | SHOW CREATE RESOURCE GROUP resourceGroupName #showCreateResourceGroup
+    | SET RESOURCE GROUP resourceGroupName #setResourceGroup
+    ;
+
+resourceGroupName
+    : uid | DEFAULT
+    ;
+
+resourceGroupOption
+    : RU_PER_SEC '='? (decimalLiteral | UNLIMITED)
+    | PRIORITY '='? (HIGH | MEDIUM | LOW)
+    | BURSTABLE ('='? (TRUE | FALSE | MODERATED | UNLIMITED | OFF))?
+    | QUERY_LIMIT '='? (NULL_LITERAL | '(' (resourceRunawayOption (','? resourceRunawayOption)*)? ')')
+    | BACKGROUND '='? (NULL_LITERAL | '(' (resourceBackgroundOption (','? resourceBackgroundOption)*)? ')')
+    ;
+
+resourceRunawayOption
+    : EXEC_ELAPSED '='? STRING_LITERAL
+    | (PROCESSED_KEYS | RU) '='? decimalLiteral
+    | ACTION '='? (DRYRUN | COOLDOWN | KILL | SWITCH_GROUP '(' resourceGroupName ')')
+    | WATCH '='? (EXACT | SIMILAR | PLAN) (DURATION '='? (STRING_LITERAL | UNLIMITED))?
+    ;
+
+resourceBackgroundOption
+    : TASK_TYPES '='? STRING_LITERAL
+    | UTILIZATION_LIMIT '='? decimalLiteral
+    ;
+
+placementStatement
+    : CREATE (OR REPLACE)? PLACEMENT POLICY ifNotExists? uid (placementOption (','? placementOption)*)? #createPlacementPolicy
+    | ALTER PLACEMENT POLICY ifExists? uid placementOption (','? placementOption)* #alterPlacementPolicy
+    | DROP PLACEMENT POLICY ifExists? uid                                    #dropPlacementPolicy
+    | SHOW CREATE PLACEMENT POLICY uid                                      #showCreatePlacementPolicy
+    ;
+
+placementOption
+    : (PRIMARY_REGION | REGIONS | SCHEDULE | CONSTRAINTS | LEADER_CONSTRAINTS
+       | FOLLOWER_CONSTRAINTS | LEARNER_CONSTRAINTS | VOTER_CONSTRAINTS
+       | SURVIVAL_PREFERENCES) '='? STRING_LITERAL
+    | (FOLLOWERS | LEARNERS | VOTERS) '='? decimalLiteral
+    ;
+
+placementPolicyReference
+    : PLACEMENT POLICY ('='? (uid | STRING_LITERAL | DEFAULT) | SET DEFAULT)
     ;
 
 emptyStatement
@@ -54,13 +165,13 @@ ddlStatement
     | renameTable | truncateTable
 
     // tidb
-    |  createSequence | dropSequence
+    | createSequence | alterSequence | dropSequence
     ;
 
 dmlStatement
     : selectStatement | insertStatement | updateStatement
     | deleteStatement | replaceStatement | callStatement
-    | loadDataStatement | loadXmlStatement | doStatement
+    | loadDataStatement | loadXmlStatement | importIntoStatement | doStatement
     | handlerStatement | withSelectStatement
     ;
 
@@ -158,7 +269,7 @@ createLogfileGroup
 
 createProcedure
     : CREATE ownerStatement?
-    PROCEDURE fullId
+    PROCEDURE ifNotExists? fullId
       '(' procedureParameter? (',' procedureParameter)* ')'
       routineOption*
     routineBody
@@ -196,7 +307,7 @@ createTable
        partitionDefinitions? keyViolate=(IGNORE | REPLACE)?
        AS? selectStatement                                          #queryCreateTable
     | CREATE temporary_? TABLE ifNotExists?
-       tableName createDefinitions
+       tableName createDefinitions?
        ( tableOption (','? tableOption)* )?
        partitionDefinitions?                                        #columnCreateTable
     ;
@@ -248,8 +359,11 @@ createView
     ;
 
 createDatabaseOption
-    : DEFAULT? (CHARACTER SET | CHARSET) '='? (charsetName | DEFAULT)
+    : DEFAULT? (CHARACTER SET | CHAR SET | CHARSET) '='? (charsetName | DEFAULT)
     | DEFAULT? COLLATE '='? collationName
+    | DEFAULT? placementPolicyReference
+    | placementOption
+    | DEFAULT? ENCRYPTION '='? STRING_LITERAL
     ;
 
 ownerStatement
@@ -293,11 +407,13 @@ enableType
     ;
 
 indexType
-    : USING (BTREE | HASH)
+    : (USING | TYPE) (BTREE | HASH | RTREE)
     ;
 
 indexOption
-    : KEY_BLOCK_SIZE '='? fileSizeLiteral
+    : GLOBAL | LOCAL
+    | PRE_SPLIT_REGIONS '='? (decimalLiteral | AUTO | '(' splitRegionOption ')')
+    | KEY_BLOCK_SIZE '='? fileSizeLiteral
     | indexType
     | WITH PARSER uid
     | COMMENT STRING_LITERAL
@@ -352,7 +468,8 @@ columnConstraint
     : nullNotnull                                                   #nullColumnConstraint
     | DEFAULT defaultValue                                          #defaultColumnConstraint
     | (VISIBLE | INVISIBLE)                                         #invisibleColumnConstraint
-    | (AUTO_INCREMENT | AUTO_RANDOM | ON UPDATE currentTimestamp)   #autoIncrementColumnConstraint //tidb
+    | (AUTO_INCREMENT | AUTO_RANDOM ('(' decimalLiteral (',' decimalLiteral)? ')')?
+      | ON UPDATE currentTimestamp)                               #autoIncrementColumnConstraint //tidb
     | PRIMARY? KEY (CLUSTERED | NONCLUSTERED)?                      #primaryKeyColumnConstraint // tidb
     | UNIQUE KEY?                                                   #uniqueKeyColumnConstraint
     | COMMENT STRING_LITERAL                                        #commentColumnConstraint
@@ -363,7 +480,7 @@ columnConstraint
     | (GENERATED ALWAYS)? AS '(' expression ')' (VIRTUAL | STORED | PERSISTENT)? #generatedColumnConstraint
     | SERIAL DEFAULT VALUE                                          #serialDefaultColumnConstraint
     | (CONSTRAINT name=uid?)?
-      CHECK '(' expression ')'                                      #checkColumnConstraint
+      CHECK '(' expression ')' (NOT? ENFORCED)?                                      #checkColumnConstraint
     ;
 
 tableConstraint
@@ -377,7 +494,7 @@ tableConstraint
       FOREIGN KEY index=uid? indexColumnNames
       referenceDefinition                                           #foreignKeyTableConstraint
     | (CONSTRAINT name=uid?)?
-      CHECK '(' expression ')'                                      #checkTableConstraint
+      CHECK '(' expression ')' (NOT? ENFORCED)?                                      #checkTableConstraint
     ;
 
 referenceDefinition
@@ -398,7 +515,7 @@ referenceAction
     ;
 
 referenceControlType
-    : RESTRICT | CASCADE | SET NULL_LITERAL | NO ACTION
+    : RESTRICT | CASCADE | SET (NULL_LITERAL | DEFAULT) | NO ACTION
     ;
 
 indexColumnDefinition
@@ -410,8 +527,20 @@ indexColumnDefinition
     ;
 
 tableOption
-    : ENGINE '='? engineName?                                       #tableOptionEngine
-    | AUTO_INCREMENT '='? decimalLiteral                            #tableOptionAutoIncrement
+    : ENGINE '='? (engineName | STRING_LITERAL)?                                       #tableOptionEngine
+    | placementPolicyReference                                     #tableOptionPlacement
+    | placementOption #tableOptionDirectPlacement
+    | TTL '='? uid '+' INTERVAL constant intervalType #tableOptionTTL
+    | (TTL_ENABLE | TTL_JOB_INTERVAL) '='? STRING_LITERAL #tableOptionTTLConfig
+    | AFFINITY '='? (uid | STRING_LITERAL) #tableOptionAffinity
+    | TABLE_CHECKSUM '='? decimalLiteral #tableOptionTableChecksum
+    | SECONDARY_ENGINE '='? (NULL_LITERAL | uid | STRING_LITERAL) #tableOptionSecondaryEngine
+    | FORCE? AUTO_RANDOM_BASE '='? decimalLiteral #tableOptionAutoRandomBase
+    | (AUTO_ID_CACHE | STATS_BUCKETS | STATS_TOPN | SHARD_ROW_ID_BITS | PRE_SPLIT_REGIONS) '='? decimalLiteral #tableOptionTidbNumber
+    | STATS_SAMPLE_RATE '='? (REAL_LITERAL | decimalLiteral) #tableOptionStatsSampleRate
+    | (STATS_COL_CHOICE | STATS_COL_LIST) '='? STRING_LITERAL #tableOptionTidbString
+    | (ATTRIBUTES | STATS_OPTIONS) '='? (STRING_LITERAL | DEFAULT) #tableOptionAttributes
+    | FORCE? AUTO_INCREMENT '='? decimalLiteral                            #tableOptionAutoIncrement
     | AVG_ROW_LENGTH '='? decimalLiteral                            #tableOptionAverage
     | DEFAULT? (CHARACTER SET | CHARSET) '='? (charsetName|DEFAULT) #tableOptionCharset
     | (CHECKSUM | PAGE_CHECKSUM) '='? boolValue=('0' | '1')         #tableOptionChecksum
@@ -423,7 +552,7 @@ tableOption
     | DELAY_KEY_WRITE '='? boolValue=('0' | '1')                    #tableOptionDelay
     | ENCRYPTION '='? STRING_LITERAL                                #tableOptionEncryption
     | INDEX DIRECTORY '='? STRING_LITERAL                           #tableOptionIndexDirectory
-    | INSERT_METHOD '='? insertMethod=(NO | FIRST | LAST)           #tableOptionInsertMethod
+    | INSERT_METHOD '='? (insertMethod=(NO | FIRST | LAST) | STRING_LITERAL)           #tableOptionInsertMethod
     | KEY_BLOCK_SIZE '='? fileSizeLiteral                           #tableOptionKeyBlockSize
     | MAX_ROWS '='? decimalLiteral                                  #tableOptionMaxRows
     | MIN_ROWS '='? decimalLiteral                                  #tableOptionMinRows
@@ -436,12 +565,12 @@ tableOption
         )                                                           #tableOptionRowFormat
     | STATS_AUTO_RECALC '='? extBoolValue=(DEFAULT | '0' | '1')     #tableOptionRecalculation
     | STATS_PERSISTENT '='? extBoolValue=(DEFAULT | '0' | '1')      #tableOptionPersistent
-    | STATS_SAMPLE_PAGES '='? decimalLiteral                        #tableOptionSamplePage
+    | STATS_SAMPLE_PAGES '='? (decimalLiteral | DEFAULT)             #tableOptionSamplePage
     | TABLESPACE uid tablespaceStorage?                             #tableOptionTablespace
     | TABLE_TYPE '=' tableType                                      #tableOptionTableType
     | tablespaceStorage                                             #tableOptionTablespace
     | TRANSACTIONAL '='? ('0' | '1')                                #tableOptionTransactional
-    | UNION '='? '(' tables ')'                                     #tableOptionUnion
+    | UNION '='? '(' tables? ')'                                     #tableOptionUnion
 
     // tidb
     | TTL '=' uid intervalExpr (TTL_ENABLE '=' STRING_LITERAL )?             #tidbTableOptionTTL
@@ -469,20 +598,20 @@ partitionDefinitions
 partitionFunctionDefinition
     : LINEAR? HASH '(' expression ')'                               #partitionFunctionHash
     | LINEAR? KEY (ALGORITHM '=' algType=('1' | '2'))?
-      '(' uidList ')'                                               #partitionFunctionKey
-    | RANGE ( '(' expression ')' | COLUMNS '(' uidList ')' )        #partitionFunctionRange
-    | LIST ( '(' expression ')' | COLUMNS '(' uidList ')' )         #partitionFunctionList
-    | RANGE ( '(' expression ')' | COLUMNS '(' uidList ')' )  INTERVAL '(' ((DECIMAL_LITERAL| ONE_DECIMAL | TWO_DECIMAL) intervalType?)  ')'
+      '(' uidList? ')'                                               #partitionFunctionKey
+    | RANGE ( '(' expression ')' | (COLUMNS | FIELDS) '(' uidList ')' )        #partitionFunctionRange
+    | LIST ( '(' expression ')' | (COLUMNS | FIELDS) '(' uidList ')' )         #partitionFunctionList
+    | RANGE ( '(' expression ')' | (COLUMNS | FIELDS) '(' uidList ')' )  INTERVAL '(' ((DECIMAL_LITERAL| ONE_DECIMAL | TWO_DECIMAL) intervalType?)  ')'
         FIRST PARTITION LESS THAN '(' expression ')'
         LAST PARTITION LESS THAN '(' expression ')'
-        (NULL PARTITION)?
+        (NULL_LITERAL PARTITION)?
         (MAXVALUE PARTITION)?                                       #tiIntervalPartition
     ;
 
 subpartitionFunctionDefinition
     : LINEAR? HASH '(' expression ')'                               #subPartitionFunctionHash
     | LINEAR? KEY (ALGORITHM '=' algType=('1' | '2'))?
-      '(' uidList ')'                                               #subPartitionFunctionKey
+      '(' uidList? ')'                                               #subPartitionFunctionKey
     ;
 
 partitionDefinition
@@ -507,12 +636,12 @@ partitionDefinition
       ')'
       partitionOption*
       ( '(' subpartitionDefinition (',' subpartitionDefinition)* ')' )?       #partitionListVector
-    | PARTITION uid partitionOption*
+    | PARTITION uid DEFAULT? partitionOption*
       ( '(' subpartitionDefinition (',' subpartitionDefinition)* ')' )?       #partitionSimple
     ;
 
 partitionDefinerAtom
-    : constant | expression | MAXVALUE
+    : MAXVALUE | constant | expression
     ;
 
 partitionDefinerVector
@@ -524,7 +653,8 @@ subpartitionDefinition
     ;
 
 partitionOption
-    : DEFAULT? STORAGE? ENGINE '='? engineName                      #partitionOptionEngine
+    : placementPolicyReference #partitionOptionPlacement
+    | DEFAULT? STORAGE? ENGINE '='? engineName                      #partitionOptionEngine
     | COMMENT '='? comment=STRING_LITERAL                           #partitionOptionComment
     | DATA DIRECTORY '='? dataDirectory=STRING_LITERAL              #partitionOptionDataDirectory
     | INDEX DIRECTORY '='? indexDirectory=STRING_LITERAL            #partitionOptionIndexDirectory
@@ -579,7 +709,7 @@ alterTable
     : ALTER intimeAction=(ONLINE | OFFLINE)?
       IGNORE? TABLE tableName
       (alterSpecification (',' alterSpecification)*)?
-      partitionDefinitions?
+      partitionDefinitions? (REMOVE PARTITIONING)?
     ;
 
 alterTablespace
@@ -604,15 +734,13 @@ alterView
 
 alterSpecification
     : tableOption (','? tableOption)*                               #alterByTableOption
+    | SET TIFLASH REPLICA decimalLiteral (LOCATION LABELS (uid | STRING_LITERAL) (',' (uid | STRING_LITERAL))*)?  #alterTiFlashReplica
     | ADD COLUMN? ifNotExists? columnDefinition (FIRST | AFTER uid)?         #alterByAddColumn // ifNotExists is MariaDB-specific
-    | ADD COLUMN?
-        '('
-           columnDefinition ( ','  columnDefinition)*
-        ')'                                                         #alterByAddColumns
-    | ADD indexFormat=(INDEX | KEY) ifNotExists? indexName? indexType?
+    | ADD COLUMN? ifNotExists? createDefinitions                                                         #alterByAddColumns
+    | ADD CONSTRAINT? indexFormat=(INDEX | KEY) ifNotExists? indexName? indexType?
       indexColumnNames indexOption*                                 #alterByAddIndex // ifNotExists is MariaDB-specific
     | ADD (CONSTRAINT name=uid?)? PRIMARY KEY index=uid?
-      indexType? indexColumnNames indexOption*                      #alterByAddPrimaryKey
+      indexType? indexColumnNames indexOption* (CLUSTERED | NONCLUSTERED)? #alterByAddPrimaryKey
     | ADD (CONSTRAINT name=uid?)? UNIQUE
       indexFormat=(INDEX | KEY)? indexName?
       indexType? indexColumnNames indexOption*                      #alterByAddUniqueKey
@@ -621,7 +749,7 @@ alterSpecification
       indexColumnNames indexOption*                                 #alterByAddSpecialIndex
     | ADD (CONSTRAINT name=uid?)? FOREIGN KEY ifNotExists?
       indexName? indexColumnNames referenceDefinition           #alterByAddForeignKey // ifNotExists is MariaDB-specific
-    | ADD (CONSTRAINT name=uid?)? CHECK '(' expression ')'          #alterByAddCheckTableConstraint
+    | ADD (CONSTRAINT name=uid?)? CHECK '(' expression ')' (NOT? ENFORCED)?          #alterByAddCheckTableConstraint
     | ALGORITHM '='? algType=(DEFAULT | INSTANT | INPLACE | COPY)   #alterBySetAlgorithm
     | ALTER COLUMN? uid
       (SET DEFAULT defaultValue | DROP DEFAULT)                     #alterByChangeDefault
@@ -632,7 +760,7 @@ alterSpecification
     | LOCK '='? lockType=(DEFAULT | NONE | SHARED | EXCLUSIVE)      #alterByLock
     | MODIFY COLUMN? ifExists?
       columnDefinition (FIRST | AFTER uid)?                         #alterByModifyColumn // ifExists is MariaDB-specific
-    | DROP COLUMN? ifExists? uid RESTRICT?                          #alterByDropColumn // ifExists is MariaDB-specific
+    | DROP COLUMN? ifExists? uid (RESTRICT | CASCADE)?                          #alterByDropColumn // ifExists is MariaDB-specific
     | DROP (CONSTRAINT | CHECK) uid                                 #alterByDropConstraintCheck
     | DROP PRIMARY KEY                                              #alterByDropPrimaryKey
     | DROP indexFormat=(INDEX | KEY) ifExists? indexName            #alterByDropIndex
@@ -641,36 +769,41 @@ alterSpecification
     | DROP FOREIGN KEY uid ifExists?                                #alterByDropForeignKey // ifExists is MariaDB-specific
     | DISABLE KEYS                                                  #alterByDisableKeys
     | ENABLE KEYS                                                   #alterByEnableKeys
-    | RENAME renameFormat=(TO | AS)? (tableName)                 #alterByRename
-    | ORDER BY uidList                                              #alterByOrder
-    | CONVERT TO CHARACTER SET charsetName
+    | RENAME renameFormat=(TO | AS | '=')? (tableName)                 #alterByRename
+    | ORDER BY uid (ASC | DESC)? (',' uid (ASC | DESC)?)*                                              #alterByOrder
+    | CONVERT TO (CHARACTER SET | CHAR SET | CHARSET) (charsetName | DEFAULT)
       (COLLATE collationName)?                                      #alterByConvertCharset
     | DEFAULT? CHARACTER SET '=' charsetName
       (COLLATE '=' collationName)?                                  #alterByDefaultCharset
     | DISCARD TABLESPACE                                            #alterByDiscardTablespace
     | IMPORT TABLESPACE                                             #alterByImportTablespace
+    | REMOVE TTL #alterRemoveTTL
+    | (CACHE | NOCACHE) #alterTableCache
+    | (SECONDARY_LOAD | SECONDARY_UNLOAD) #alterSecondaryLoad
+    | READ (ONLY | WRITE) #alterReadWrite
+    | ALTER (CONSTRAINT | CHECK) uid NOT? ENFORCED #alterConstraintEnforcement
+    | PARTITION uid (placementPolicyReference | ATTRIBUTES '='? (STRING_LITERAL | DEFAULT)) #alterPartitionAttributes
+    | ADD STATS_EXTENDED uid CORRELATION '(' uidList ')' #alterAddExtendedStats
+    | DROP STATS_EXTENDED uid #alterDropExtendedStats
     | FORCE                                                         #alterByForce
     | validationFormat=(WITHOUT | WITH) VALIDATION                  #alterByValidate
-    | ADD PARTITION ifNotExists?
-        '('
-          partitionDefinition (',' partitionDefinition)*
-        ')'                                                         #alterByAddPartition // ifNotExists is MariaDB-specific
+    | ADD PARTITION (NO_WRITE_TO_BINLOG | LOCAL)? ifNotExists? ('(' partitionDefinition (',' partitionDefinition)* ')' | PARTITIONS decimalLiteral)?                                                         #alterByAddPartition // ifNotExists is MariaDB-specific
     | DROP PARTITION ifExists? uidList                              #alterByDropPartition // ifExists is MariaDB-specific
     | DISCARD PARTITION (uidList | ALL) TABLESPACE                  #alterByDiscardPartition
     | IMPORT PARTITION (uidList | ALL) TABLESPACE                   #alterByImportPartition
     | TRUNCATE PARTITION (uidList | ALL)                            #alterByTruncatePartition
-    | COALESCE PARTITION decimalLiteral                             #alterByCoalescePartition
-    | REORGANIZE PARTITION uidList
+    | COALESCE PARTITION (NO_WRITE_TO_BINLOG | LOCAL)? decimalLiteral                             #alterByCoalescePartition
+    | REORGANIZE PARTITION (NO_WRITE_TO_BINLOG | LOCAL)? uidList
         INTO '('
           partitionDefinition (',' partitionDefinition)*
         ')'                                                         #alterByReorganizePartition
     | EXCHANGE PARTITION uid WITH TABLE tableName
       (validationFormat=(WITH | WITHOUT) VALIDATION)?               #alterByExchangePartition
-    | ANALYZE PARTITION (uidList | ALL)                             #alterByAnalyzePartition
-    | CHECK PARTITION (uidList | ALL)                               #alterByCheckPartition
-    | OPTIMIZE PARTITION (uidList | ALL)                            #alterByOptimizePartition
-    | REBUILD PARTITION (uidList | ALL)                             #alterByRebuildPartition
-    | REPAIR PARTITION (uidList | ALL)                              #alterByRepairPartition
+    | ANALYZE PARTITION (NO_WRITE_TO_BINLOG | LOCAL)? (uidList | ALL)                             #alterByAnalyzePartition
+    | CHECK PARTITION (NO_WRITE_TO_BINLOG | LOCAL)? (uidList | ALL)                               #alterByCheckPartition
+    | OPTIMIZE PARTITION (NO_WRITE_TO_BINLOG | LOCAL)? (uidList | ALL)                            #alterByOptimizePartition
+    | REBUILD PARTITION (NO_WRITE_TO_BINLOG | LOCAL)? (uidList | ALL)                             #alterByRebuildPartition
+    | REPAIR PARTITION (NO_WRITE_TO_BINLOG | LOCAL)? (uidList | ALL)                              #alterByRepairPartition
     | REMOVE PARTITIONING                                           #alterByRemovePartitioning
     | UPGRADE PARTITIONING                                          #alterByUpgradePartitioning
     ;
@@ -788,10 +921,25 @@ insertStatement
       )?
     ;
 
+importIntoStatement
+    : IMPORT INTO tableName ('(' assignmentField (',' assignmentField)* ')')?
+      (SET updatedElement (',' updatedElement)*)?
+      FROM (filename=STRING_LITERAL (FORMAT STRING_LITERAL)? | selectStatement | withSelectStatement)
+      importOptions?
+    ;
+
+importOptions
+    : WITH importOption (',' importOption)*
+    ;
+
+importOption
+    : uid ('=' (unaryOperator? constant))?
+    ;
+
 loadDataStatement
     : LOAD DATA
       priority=(LOW_PRIORITY | CONCURRENT)?
-      LOCAL? INFILE filename=STRING_LITERAL
+      LOCAL? INFILE filename=STRING_LITERAL (FORMAT STRING_LITERAL)?
       violation=(REPLACE | IGNORE)?
       INTO TABLE tableName
       (PARTITION '(' uidList ')' )?
@@ -809,6 +957,7 @@ loadDataStatement
       )?
       ( '(' assignmentField (',' assignmentField)* ')' )?
       (SET updatedElement (',' updatedElement)*)?
+      importOptions?
     ;
 
 loadXmlStatement
@@ -836,18 +985,24 @@ replaceStatement
       )
     ;
 
+tableValueQuery
+    : TABLE tableName orderByClause? limitClause?
+    | VALUES ROW '(' expressions ')' (',' ROW '(' expressions ')')* orderByClause? limitClause?
+    ;
+
 selectStatement
-    : querySpecification lockClause?                                #simpleSelect
+    : tableValueQuery unionStatement* #tableValueSelect
+    | querySpecification lockClause?                                #simpleSelect
     | queryExpression lockClause?                                   #parenthesisSelect
     | querySpecificationNointo unionStatement+
         (
-          UNION unionType=(ALL | DISTINCT)?
-          (querySpecification | queryExpression)
+          (UNION | EXCEPT | INTERSECT) unionType=(ALL | DISTINCT)?
+          (querySpecification | queryExpression | tableValueQuery)
         )?
         orderByClause? limitClause? lockClause?                     #unionSelect
     | queryExpressionNointo unionParenthesis+
         (
-          UNION unionType=(ALL | DISTINCT)?
+          (UNION | EXCEPT | INTERSECT) unionType=(ALL | DISTINCT)?
           queryExpression
         )?
         orderByClause? limitClause? lockClause?                     #unionParenthesisSelect
@@ -863,11 +1018,11 @@ withSelectStatement
     ;
 
 withClause
-    : WITH withSelectExpr (COMMA withSelectExpr)*
+    : WITH RECURSIVE? withSelectExpr (COMMA withSelectExpr)*
     ;
 
 withSelectExpr
-    : uid AS LR_BRACKET ( withSelectStatement | selectStatement) RR_BRACKET
+    : uid (LR_BRACKET uidList RR_BRACKET)? AS LR_BRACKET ( withSelectStatement | selectStatement) RR_BRACKET
     ;
 
 insertStatementValue
@@ -887,7 +1042,8 @@ assignmentField
     ;
 
 lockClause
-    : FOR UPDATE | LOCK IN SHARE MODE
+    : FOR (UPDATE | SHARE) (OF tables)? (NOWAIT | WAIT decimalLiteral | SKIP_KW LOCKED)?
+    | LOCK IN SHARE MODE (NOWAIT | WAIT decimalLiteral | SKIP_KW LOCKED)?
     ;
 
 singleDeleteStatement
@@ -967,8 +1123,9 @@ tableSource
 
 tableSourceItem
     : tableName
-      (PARTITION '(' uidList ')' )? (AS? aliasName)?
-      (indexHint (',' indexHint)* )?                                #atomTableItem
+      (PARTITION '(' uidList ')' )? (AS OF TIMESTAMP expression)? (AS? aliasName)?
+      tableSample?
+      (indexHint (','? indexHint)* )?                                #atomTableItem
     | (
       selectStatement
       | '(' parenthesisSubquery=selectStatement ')'
@@ -981,7 +1138,14 @@ tableSourceItem
 indexHint
     : indexHintAction=(USE | IGNORE | FORCE)
       keyFormat=(INDEX|KEY) ( FOR indexHintType)?
-      '(' uidList ')'
+      '(' (uid | PRIMARY) (',' (uid | PRIMARY))* ')'
+    | indexHintAction=(USE | IGNORE | FORCE) keyFormat=(INDEX | KEY) (FOR indexHintType)? '(' ')'
+    ;
+
+tableSample
+    : TABLESAMPLE (SYSTEM | BERNOULLI | REGIONS)?
+      '(' (expression (ROWS | PERCENT)?)? ')'
+      (REPEATABLE '(' expression ')')?
     ;
 
 indexHintType
@@ -1016,34 +1180,36 @@ naturalJoinType
     ;
 
 queryExpression
-    : '(' querySpecification ')'
-    | '(' queryExpression ')'
+    : '(' (withSelectStatement | selectStatement) ')'
     ;
 
 queryExpressionNointo
-    : '(' querySpecificationNointo ')'
-    | '(' queryExpressionNointo ')'
+    : '(' (withSelectStatement | selectStatement) ')'
     ;
 
 querySpecification
     : SELECT selectSpec* selectElements selectIntoExpression?
-      fromClause? whereClause? groupClause? havingClause? orderByClause? limitClause?
+      fromClause? whereClause? groupClause? havingClause? windowClause? orderByClause? limitClause?
     | SELECT selectSpec* selectElements
-    fromClause? whereClause? groupClause? havingClause? orderByClause? limitClause? selectIntoExpression?
+    fromClause? whereClause? groupClause? havingClause? windowClause? orderByClause? limitClause? selectIntoExpression?
     ;
 
 querySpecificationNointo
     : SELECT selectSpec* selectElements
-      fromClause? whereClause? groupClause? havingClause? orderByClause? limitClause?
+      fromClause? whereClause? groupClause? havingClause? windowClause? orderByClause? limitClause?
+    ;
+
+windowClause
+    : WINDOW uid AS window_specification (',' uid AS window_specification)*
     ;
 
 unionParenthesis
-    : UNION unionType=(ALL | DISTINCT)? queryExpressionNointo
+    : (UNION | EXCEPT | INTERSECT) unionType=(ALL | DISTINCT)? queryExpressionNointo
     ;
 
 unionStatement
-    : UNION unionType=(ALL | DISTINCT)?
-      (querySpecificationNointo | queryExpressionNointo)
+    : (UNION | EXCEPT | INTERSECT) unionType=(ALL | DISTINCT)?
+      (querySpecificationNointo | queryExpressionNointo | tableValueQuery)
     ;
 
 selectSpec
@@ -1086,14 +1252,15 @@ selectIntoExpression
     ;
 
 selectFieldsInto
-    : TERMINATED BY terminationField=STRING_LITERAL
-    | OPTIONALLY? ENCLOSED BY enclosion=STRING_LITERAL
-    | ESCAPED BY escaping=STRING_LITERAL
+    : TERMINATED BY terminationField=(STRING_LITERAL | HEXADECIMAL_LITERAL | BIT_STRING)
+    | OPTIONALLY? ENCLOSED BY enclosion=(STRING_LITERAL | HEXADECIMAL_LITERAL | BIT_STRING)
+    | DEFINED NULL_LITERAL BY STRING_LITERAL (OPTIONALLY ENCLOSED)?
+    | ESCAPED BY escaping=(STRING_LITERAL | HEXADECIMAL_LITERAL | BIT_STRING)
     ;
 
 selectLinesInto
-    : STARTING BY starting=STRING_LITERAL
-    | TERMINATED BY terminationLine=STRING_LITERAL
+    : STARTING BY starting=(STRING_LITERAL | HEXADECIMAL_LITERAL | BIT_STRING)
+    | TERMINATED BY terminationLine=(STRING_LITERAL | HEXADECIMAL_LITERAL | BIT_STRING)
     ;
 
 fromClause
@@ -1124,6 +1291,7 @@ limitClause
       (offset=limitClauseAtom ',')? limit=limitClauseAtom
       | limit=limitClauseAtom OFFSET offset=limitClauseAtom
     )
+    | FETCH (FIRST | NEXT) limitClauseAtom? (ROW | ROWS) ONLY
     ;
 
 limitClauseAtom
@@ -1623,6 +1791,7 @@ privelegeClause
 
 privilege
     : ALL PRIVILEGES?
+    | ID
     | ALTER ROUTINE?
     | CREATE
       (TEMPORARY TABLES | ROUTINE | VIEW | USER | TABLESPACE | ROLE)?
@@ -1659,8 +1828,14 @@ renameUserClause
     ;
 
 analyzeTable
-    : ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-       TABLE tables
+    : ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)? INCREMENTAL?
+       TABLE tables (PARTITION uidList)?
+       (INDEX uidList? | ALL COLUMNS | PREDICATE COLUMNS | COLUMNS uidList)?
+       (WITH analyzeOption (',' analyzeOption)*)?
+    ;
+
+analyzeOption
+    : decimalLiteral (BUCKETS | TOPN | CMSKETCH (WIDTH | DEPTH) | SAMPLES | SAMPLE RATE)
     ;
 
 checkTable
@@ -1878,7 +2053,7 @@ fullDescribeStatement
       (
         formatType=(EXTENDED | PARTITIONS | FORMAT )
         '='
-        formatValue=(TRADITIONAL | JSON)
+        formatValue=(TRADITIONAL | JSON | STRING_LITERAL)
       )?
       describeObjectClause
     ;
@@ -1975,6 +2150,7 @@ fullColumnName
 
 indexColumnName
     : (uid | STRING_LITERAL) ('(' decimalLiteral ')')? sortType=(ASC | DESC)?
+    | '(' expression ')' sortType=(ASC | DESC)?
     ;
 
 userName
@@ -1993,7 +2169,7 @@ charsetName
     ;
 
 collationName
-    : uid | STRING_LITERAL;
+    : uid | STRING_LITERAL | BINARY;
 
 engineName
     : ARCHIVE | BLACKHOLE | CSV | FEDERATED | INNODB | MEMORY
@@ -2030,9 +2206,44 @@ authPlugin
 
 uid
     : simpleId
+    | {_input.LA(2) == DOT || _input.LT(-1).getType() == DOT}? qualifiedKeyword
     //| DOUBLE_QUOTE_ID
     | REVERSE_QUOTE_ID
     | CHARSET_REVERSE_QOUTE_STRING
+    ;
+
+// Reserved words are identifiers when qualified by a dot.
+qualifiedKeyword
+    : WINDOW | TTL | TTL_ENABLE | AUTO_RANDOM | NOCYCLE | CYCLE | NOCACHE | MINVALUE | NOMINVALUE | NOMAXVALUE
+    | SEQUENCE | INCREMENT | CLUSTERED | NONCLUSTERED | ADD | ALL | ALTER | ALWAYS | ANALYZE | AND | AS | ASC
+    | BEFORE | BETWEEN | BOTH | BY | CALL | CASCADE | CASE | CAST | CHANGE | CHARACTER | CHECK | COLLATE
+    | COLUMN | CONDITION | CONSTRAINT | CONTINUE | CONVERT | CREATE | CROSS | CURRENT_USER | CURSOR
+    | DATABASES | DECLARE | DEFAULT | DELAYED | DELETE | DESC | DESCRIBE | DETERMINISTIC | DISTINCT
+    | DISTINCTROW | DROP | EACH | ELSE | EMPTY | ENCLOSED | ESCAPED | INTERSECT | EXISTS | EXIT | EXPLAIN
+    | FALSE | FETCH | FOR | FORCE | FOREIGN | FROM | FULLTEXT | GENERATED | GET | GRANT | HAVING
+    | HIGH_PRIORITY | IF | IGNORE | IN | INDEX | INFILE | INNER | INOUT | INSERT | INTERVAL | INTO | IS
+    | ITERATE | JOIN | KEY | KEYS | KILL | LEADING | LEAVE | LEFT | LIKE | LIMIT | LINEAR | LINES | LOAD
+    | LOCK | LOOP | LOW_PRIORITY | PRIORITY | MASTER_BIND | MASTER_SSL_VERIFY_SERVER_CERT | MATCH | AGAINST
+    | EXPANSION | MAXVALUE | MODIFIES | NATURAL | NOT | NO_WRITE_TO_BINLOG | NULL_LITERAL | ON | OPTIMIZE
+    | OPTION | OPTIONALLY | OR | OUT | OUTER | OUTFILE | PARTITION | PRIMARY | PROCEDURE | PURGE | RANGE
+    | READ | READS | REFERENCES | REGEXP | RELEASE | RENAME | REPLACE | REQUIRE | RESIGNAL | RESTRICT | RETURN
+    | REVOKE | RIGHT | RLIKE | SCHEMA | SCHEMAS | SELECT | SET | PERSIST | SEPARATOR | SHOW | SIGNAL | SPATIAL
+    | SQL | SQLEXCEPTION | SQLSTATE | SQLWARNING | SQL_BIG_RESULT | SQL_CALC_FOUND_ROWS | SQL_SMALL_RESULT
+    | SSL | STARTING | STRAIGHT_JOIN | TABLE | TERMINATED | THEN | TO | TRAILING | TRIGGER | TRUE | UNDO
+    | UNION | UNIQUE | UNLOCK | UNSIGNED | UPDATE | USAGE | USE | USING | VALUES | WHEN | WHERE | WHILE | WITH
+    | RECURSIVE | WRITE | XOR | ZEROFILL | TINYINT | SMALLINT | MEDIUMINT | MIDDLEINT | INT | INTEGER | BIGINT
+    | REAL | DOUBLE | PRECISION | FLOAT | DECIMAL | DEC | NUMERIC | CHAR | VARCHAR | NVARCHAR | NATIONAL
+    | BINARY | VARBINARY | TINYBLOB | BLOB | MEDIUMBLOB | LONG | LONGBLOB | TINYTEXT | MEDIUMTEXT | LONGTEXT
+    | VARYING | YEAR_MONTH | DAY_HOUR | DAY_MINUTE | DAY_SECOND | HOUR_MINUTE | HOUR_SECOND | MINUTE_SECOND
+    | SECOND_MICROSECOND | MINUTE_MICROSECOND | HOUR_MICROSECOND | DAY_MICROSECOND | CUME_DIST | DENSE_RANK
+    | FIRST_VALUE | LAG | LAST_VALUE | LEAD | NTH_VALUE | NTILE | PERCENT_RANK | RANK | ROW_NUMBER
+    | CURRENT_DATE | CURRENT_TIME | CURRENT_TIMESTAMP | LOCALTIME | CURDATE | CURTIME | DATE_ADD | DATE_SUB
+    | EXTRACT | LOCALTIMESTAMP | NOW | SUBSTR | SUBSTRING | SYSDATE | TRIM | UTC_DATE | UTC_TIME
+    | UTC_TIMESTAMP | INSTANT | OVER | RETURNING | STORED | TABLE_TYPE | PRECEDING | FOLLOWING | VIRTUAL | EUR
+    | USA | JIS | ISO | ADMIN | APPLICATION_PASSWORD_ADMIN | FLUSH_OPTIMIZER_COSTS | FLUSH_STATUS
+    | FLUSH_TABLES | FLUSH_USER_RESOURCES | INNODB_REDO_LOG_ENABLE | SERVICE_CONNECTION_ADMIN | ARCHIVE
+    | BLACKHOLE | CSV | FEDERATED | INNODB | MRG_MYISAM | MYISAM | NDB | NDBCLUSTER | PERFORMANCE_SCHEMA
+    | TOKUDB | GEOMCOLLECTION | GEOMETRY | DIV
     ;
 
 simpleId
@@ -2080,7 +2291,7 @@ nullNotnull
     ;
 
 constant
-    : stringLiteral | decimalLiteral
+    : PARAM_MARK | stringLiteral | decimalLiteral
     | '-' decimalLiteral
     | hexadecimalLiteral | booleanLiteral
     | REAL_LITERAL | BIT_STRING
@@ -2090,15 +2301,15 @@ constant
 dataType
     : typeName=(
       CHAR | CHARACTER | VARCHAR | TINYTEXT | TEXT | MEDIUMTEXT | LONGTEXT
-       | NCHAR | NVARCHAR
+       | NCHAR | NVARCHAR | VARCHARACTER
       )
       VARYING?
       lengthOneDimension? BINARY?
-      ((CHARACTER SET | CHARSET) charsetName)?
-      (COLLATE collationName | BINARY)?                             #stringDataType
-    | NATIONAL typeName=(VARCHAR | CHARACTER)
+      ((CHARACTER SET | CHAR SET | CHARSET) charsetName)?
+      (COLLATE collationName | BINARY | ASCII | BYTE)?                             #stringDataType
+    | NATIONAL typeName=(VARCHAR | CHARACTER | CHAR | VARCHARACTER)
       lengthOneDimension? BINARY?                                   #nationalStringDataType
-    | NCHAR typeName=VARCHAR
+    | NCHAR typeName=(VARCHAR | VARCHARACTER)
       lengthOneDimension? BINARY?                                   #nationalStringDataType
     | NATIONAL typeName=(CHAR | CHARACTER) VARYING
       lengthOneDimension? BINARY?                                   #nationalVaryingStringDataType
@@ -2106,13 +2317,13 @@ dataType
         TINYINT | SMALLINT | MEDIUMINT | INT | INTEGER | BIGINT
         | MIDDLEINT | INT1 | INT2 | INT3 | INT4 | INT8
       )
-      lengthOneDimension? (SIGNED | UNSIGNED)? ZEROFILL?            #dimensionDataType
+      lengthOneDimension? (SIGNED | UNSIGNED | ZEROFILL)*            #dimensionDataType
     | typeName=REAL
-      lengthTwoDimension? (SIGNED | UNSIGNED)? ZEROFILL?            #dimensionDataType
+      lengthTwoDimension? (SIGNED | UNSIGNED | ZEROFILL)*            #dimensionDataType
     | typeName=DOUBLE PRECISION?
-          lengthTwoDimension? (SIGNED | UNSIGNED)? ZEROFILL?            #dimensionDataType
+          lengthTwoDimension? (SIGNED | UNSIGNED | ZEROFILL)*            #dimensionDataType
     | typeName=(DECIMAL | DEC | FIXED | NUMERIC | FLOAT | FLOAT4 | FLOAT8)
-      lengthTwoOptionalDimension? (SIGNED | UNSIGNED)? ZEROFILL?    #dimensionDataType
+      lengthTwoOptionalDimension? (SIGNED | UNSIGNED | ZEROFILL)*    #dimensionDataType
     | typeName=(
         DATE | TINYBLOB |  MEDIUMBLOB | LONGBLOB
         | BOOL | BOOLEAN | SERIAL
@@ -2121,19 +2332,19 @@ dataType
         BIT | TIME | TIMESTAMP | DATETIME | BINARY
         | VARBINARY | BLOB | YEAR
       )
-      lengthOneDimension?                                           #dimensionDataType
+      lengthOneDimension? (SIGNED | UNSIGNED | ZEROFILL)*                #dimensionDataType
     | typeName=(ENUM | SET)
       collectionOptions BINARY?
-      ((CHARACTER SET | CHARSET) charsetName)?                      #collectionDataType
+      ((CHARACTER SET | CHAR SET | CHARSET) charsetName)?                      #collectionDataType
     | typeName=(
         GEOMETRYCOLLECTION | GEOMCOLLECTION | LINESTRING | MULTILINESTRING
         | MULTIPOINT | MULTIPOLYGON | POINT | POLYGON | JSON | GEOMETRY
       )                                                             #spatialDataType
-    | typeName=LONG VARCHAR?
+    | typeName=LONG (VARCHAR | VARCHARACTER | (CHAR | CHARACTER) VARYING)?
       BINARY?
-      ((CHARACTER SET | CHARSET) charsetName)?
+      ((CHARACTER SET | CHAR SET | CHARSET) charsetName)?
       (COLLATE collationName)?                                      #longVarcharDataType    // LONG VARCHAR is the same as LONG
-    | LONG VARBINARY                                                #longVarbinaryDataType
+    | LONG (VARBINARY | BYTE)                                                #longVarbinaryDataType
     ;
 
 collectionOptions
@@ -2141,12 +2352,12 @@ collectionOptions
     ;
 
 collectionOption
-    : STRING_LITERAL
+    : stringLiteral | hexadecimalLiteral | BIT_STRING
     ;
 
 convertedDataType
     : typeName=(BINARY| NCHAR) lengthOneDimension?
-    | typeName=CHAR lengthOneDimension? ((CHARACTER SET | CHARSET) charsetName)?
+    | typeName=CHAR lengthOneDimension? ((CHARACTER SET | CHAR SET | CHARSET) charsetName)?
     | typeName=(DATE | DATETIME | TIME | JSON | INT | INTEGER)
     | typeName=DECIMAL lengthTwoOptionalDimension?
     | (SIGNED | UNSIGNED) INTEGER?
@@ -2202,6 +2413,7 @@ defaultValue
     | currentTimestamp (ON UPDATE currentTimestamp)?
     | '(' expression ')'
     | (LASTVAL | NEXTVAL) '(' fullId ')' // MariaDB
+    | (PREVIOUS | NEXT) VALUE FOR fullId
     | '(' (PREVIOUS | NEXT) VALUE FOR fullId ')' // MariaDB
     ;
 
@@ -2246,7 +2458,7 @@ overClause
     ;
 
 window_specification
-    : LR_BRACKET uid? (PARTITION BY expression)? orderByClause? frame_clause? RR_BRACKET
+    : LR_BRACKET uid? (PARTITION BY expression (',' expression)*)? orderByClause? frame_clause? RR_BRACKET
     ;
 
 frame_clause
@@ -2383,9 +2595,9 @@ levelInWeightListElement
 
 aggregateFunction
     : (AVG | MAX | MIN | SUM)
-      '(' aggregator=(ALL | DISTINCT)? functionArg ')'
+      '(' aggregator=(ALL | DISTINCT | DISTINCTROW)? functionArg ')'
     | COUNT '(' (starArg='*' | aggregator=ALL? functionArg) ')'
-    | COUNT '(' aggregator=DISTINCT functionArgs ')'
+    | COUNT '(' aggregator=(DISTINCT | DISTINCTROW) functionArgs ')'
     | (
         BIT_AND | BIT_OR | BIT_XOR | STD | STDDEV | STDDEV_POP
         | STDDEV_SAMP | VAR_POP | VAR_SAMP | VARIANCE
@@ -2521,7 +2733,20 @@ dataTypeBase
     ;
 
 keywordsCanBeId
-    : ACCOUNT | ACTION | AFTER | AGGREGATE | ALGORITHM | ANY
+    : RESTART
+    | BATCH | DRY | RUN | CALIBRATE | WORKLOAD | TPCC | OLTP_READ_WRITE | OLTP_READ_ONLY | OLTP_WRITE_ONLY | TPCH_10 | START_TIME | END_TIME
+    | AFFINITY | TTL_JOB_INTERVAL | SPLIT | REGION | AUTO
+    | TYPE | RTREE | BYTE | VARCHARACTER | TABLE_CHECKSUM | SECONDARY_ENGINE | SEQUENCE | DATE_ADD | DATE_SUB | CURDATE | CURTIME | TRIM
+    | DEFINED
+    | ATTRIBUTES | STATS_OPTIONS | AUTO_RANDOM_BASE | AUTO_ID_CACHE | STATS_BUCKETS | STATS_TOPN | STATS_SAMPLE_RATE | STATS_COL_CHOICE | STATS_COL_LIST | SHARD_ROW_ID_BITS | PRE_SPLIT_REGIONS | SECONDARY_LOAD | SECONDARY_UNLOAD | ENFORCED | STATS_EXTENDED | CORRELATION
+    | RESOURCE | RU_PER_SEC | UNLIMITED | HIGH | LOW | BURSTABLE | MODERATED | OFF | QUERY_LIMIT | BACKGROUND | EXEC_ELAPSED | PROCESSED_KEYS | RU | DRYRUN | COOLDOWN | SWITCH_GROUP | WATCH | EXACT | SIMILAR | DURATION | TASK_TYPES | UTILIZATION_LIMIT
+    | ACCOUNT | ACTION | AFTER | AGGREGATE | ALGORITHM | ANY
+    | BINDING | BINDINGS | PLAN | DIGEST | ENABLED | DISABLED | BINDING_CACHE
+    | NOWAIT | SKIP_KW | LOCKED | TABLESAMPLE | REGIONS | BERNOULLI | SYSTEM | PERCENT
+    | BUCKETS | TOPN | CMSKETCH | WIDTH | DEPTH | SAMPLES | SAMPLE | RATE | INCREMENTAL | PREDICATE
+    | PLACEMENT | POLICY | PRIMARY_REGION | FOLLOWERS | LEARNERS | VOTERS | CONSTRAINTS
+    | LEADER_CONSTRAINTS | FOLLOWER_CONSTRAINTS | LEARNER_CONSTRAINTS | VOTER_CONSTRAINTS
+    | SURVIVAL_PREFERENCES | TIFLASH | LOCATION | LABELS
     | AT | AUDIT_ADMIN | AUTHORS | AUTOCOMMIT | AUTOEXTEND_SIZE
     | AUTO_INCREMENT | AVG | AVG_ROW_LENGTH | BACKUP_ADMIN | BEGIN | BINLOG | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR
     | BLOCK | BOOL | BOOLEAN | BTREE | CACHE | CASCADED | CHAIN | CHANGED
@@ -2682,14 +2907,23 @@ functionNameBase
     | LASTVAL | NEXTVAL | SETVAL
     ;
 
-createSequence:
-    CREATE TEMPORARY? SEQUENCE (IF NOT EXISTS)? sequence_name
-       ( ( INCREMENT ( BY | '='? ) secquenceCount ) |
-        ( MINVALUE '='? secquenceCount | NO MINVALUE | NOMINVALUE ) |
-        ( MAXVALUE '='? secquenceCount | NO MAXVALUE | NOMAXVALUE ) |
-        ( START ( WITH | '=' )? secquenceCount ) |
-        ( CACHE '='? (DECIMAL_LITERAL| ONE_DECIMAL | TWO_DECIMAL) | NOCACHE | NO CACHE) |
-        ( CYCLE | NOCYCLE | NO CYCLE))*
+createSequence
+    : CREATE TEMPORARY? SEQUENCE ifNotExists? sequence_name sequenceOption*
+      (tableOption (','? tableOption)*)?
+    ;
+
+alterSequence
+    : ALTER SEQUENCE ifExists? sequence_name
+      (sequenceOption | RESTART ((WITH | '=')? secquenceCount)?)+
+    ;
+
+sequenceOption
+    : INCREMENT (BY | '=')? secquenceCount
+    | MINVALUE '='? secquenceCount | NO MINVALUE | NOMINVALUE
+    | MAXVALUE '='? secquenceCount | NO MAXVALUE | NOMAXVALUE
+    | START (WITH | '=')? secquenceCount
+    | CACHE '='? decimalLiteral | NOCACHE | NO CACHE
+    | CYCLE | NOCYCLE | NO CYCLE
     ;
 
 dropSequence:
@@ -2697,7 +2931,7 @@ dropSequence:
     ;
 
 secquenceCount:
-    MINUS? (DECIMAL_LITERAL| ONE_DECIMAL | TWO_DECIMAL )
+    (MINUS | '+')? (DECIMAL_LITERAL| ONE_DECIMAL | TWO_DECIMAL )
 ;
 
 sequence_name
