@@ -356,8 +356,10 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
         }
         if (altersTable || ctx.partitionDefinitions() != null || ctx.REMOVE() != null) {
             BehaviorRelation relation = add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, owner, policies(ctx));
-            behavior.getRelations().remove(relation);
-            behavior.getRelations().add(relationStart, relation);
+            if (relation != null) {
+                behavior.getRelations().remove(relation);
+                behavior.getRelations().add(relationStart, relation);
+            }
         }
         return null;
     }
@@ -1236,7 +1238,11 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
     @Override
     public Void visitCreateFunction(CreateFunctionContext ctx) {
         add(SplitQueryType.CREATE_PROG_OBJ, BehaviorAction.CREATE, object(TargetType.Function, ctx.fullId()), List.of());
-        visit(ctx.routineBody());
+        if (ctx.routineBody() != null) {
+            visit(ctx.routineBody());
+        } else {
+            visit(ctx.returnStatement());
+        }
         behavior.setStatementType(SplitQueryType.CREATE_PROG_OBJ);
         return null;
     }

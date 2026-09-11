@@ -622,7 +622,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             return null;
         }
         if (ctx.CONFIGURE() != null && configure != null && configure.DEFAULT() != null && configure.configureDefaultClause() == null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx));
+            add(SplitQueryType.ADMIN, BehaviorAction.RESET, objects.instanceObject(TargetType.ConfigKey, configure.DEFAULT().getSymbol()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -1529,6 +1529,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             add(SplitQueryType.ALTER_USER, behaviorAction, objects.instanceObject(TargetType.User, user, NameParts.clean(user.getText())), targets);
         } else if (ctx.PROCEDURE() != null || ctx.FUNCTION() != null) {
             add(SplitQueryType.ALTER_PROG_OBJ, BehaviorAction.ALTER, object(ctx.PROCEDURE() != null ? TargetType.Procedure : TargetType.Function, qualified, name));
+        } else if (ctx.OPERATOR() != null) {
+            add(SplitQueryType.ALTER_PROG_OBJ, BehaviorAction.ALTER, object(TargetType.Operator, ctx
+                .operatorQualifiedName(), schemaScoped(operatorName(ctx.operatorQualifiedName()))));
         } else if (ctx.TRIGGER() != null) {
             add(SplitQueryType.ALTER_TRIGGER, BehaviorAction.ALTER, object(TargetType.Trigger, qualified, name));
         } else if (ctx.PACKAGE() != null) {
@@ -1771,7 +1774,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             add(SplitQueryType.COMMENT_COLUMN, BehaviorAction.ALTER, objects.object(TargetType.Table, tableStart, tableStop, names));
         } else if (target.DATABASE() != null) {
             BehaviorObject catalog = objects.unnamedObject(TargetType.Catalog, target.DATABASE().getSymbol(), UmiTypes.Catalog);
-            add(SplitQueryType.COMMENT_SCHEMA, BehaviorAction.ALTER, catalog);
+            add(SplitQueryType.COMMENT_CATALOG, BehaviorAction.ALTER, catalog);
         } else {
             SplitQueryType statementType = SplitQueryType.COMMENT_PROG_OBJ;
             TargetType targetType = TargetType.ProgramObject;
@@ -1845,6 +1848,8 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             NameParts parts = new NameParts(null, null, NameParts.clean(name.getText()));
             if (targetType == TargetType.Schema) {
                 parts = NameParts.from(target.qualifiedName());
+            } else if (targetType == TargetType.Operator) {
+                parts = schemaScoped(operatorName(target.operatorQualifiedName()));
             } else if (target.qualifiedName() != null && targetType != TargetType.ConfigKey) {
                 parts = schemaScoped(NameParts.from(target.qualifiedName()));
             }

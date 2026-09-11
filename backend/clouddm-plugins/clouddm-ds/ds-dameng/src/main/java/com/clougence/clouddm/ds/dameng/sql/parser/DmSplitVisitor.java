@@ -151,7 +151,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.CREATE_TYPE;
         }
         if (ctx.partitionGroupCreate() != null) {
-            return SplitQueryType.CREATE_POLICY;
+            return SplitQueryType.CREATE_RESOURCE_GROUP;
         }
         return SplitQueryType.UNKNOWN;
     }
@@ -311,7 +311,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         if (ctx.PARTITION() != null && ctx.GROUP() != null) {
-            return SplitQueryType.DROP_POLICY;
+            return SplitQueryType.DROP_RESOURCE_GROUP;
         }
         return SplitQueryType.UNKNOWN;
     }
@@ -363,8 +363,11 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (target.SEQUENCE() != null) {
             return SplitQueryType.COMMENT_SEQUENCE;
         }
-        if (target.SCHEMA() != null || target.DATABASE() != null) {
+        if (target.SCHEMA() != null) {
             return SplitQueryType.COMMENT_SCHEMA;
+        }
+        if (target.DATABASE() != null) {
+            return SplitQueryType.COMMENT_CATALOG;
         }
         if (target.INDEX() != null) {
             return SplitQueryType.COMMENT_INDEX;

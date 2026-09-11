@@ -318,7 +318,7 @@ final class MyBehaviorRelationAssembler {
             displayNodes.add(nodes.get(0));
         }
         object.setObjectPath(resourcePath(displayNodes));
-        if (!nodes.isEmpty()) {
+        if (!nodes.isEmpty() && !reference.unnamed()) {
             object.setObjectName(objectName(reference.targetType(), nodes));
         }
         object.setStartLine(reference.startLine());
@@ -336,7 +336,7 @@ final class MyBehaviorRelationAssembler {
             return new ObjectName(nodes.get(nodes.size() - 3), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1));
         }
         if (nodes.size() == 2) {
-            if (Objects.equals(nodes.get(0), level(UmiTypes.Catalog)) && Objects.equals(nodes.get(1), level(UmiTypes.Schema))) {
+            if (targetType == TargetType.Schema) {
                 return new ObjectName(nodes.get(0), nodes.get(1), null);
             }
             return new ObjectName(level(UmiTypes.Catalog), nodes.get(0), nodes.get(1));

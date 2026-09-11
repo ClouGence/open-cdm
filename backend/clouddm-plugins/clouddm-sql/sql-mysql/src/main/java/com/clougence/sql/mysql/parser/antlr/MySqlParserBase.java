@@ -114,7 +114,7 @@ public abstract class MySqlParserBase extends Parser {
     protected final boolean isSystemVariableAllowed(ParserRuleContext variable, boolean assignment) {
         String text = variable.getText().substring(2);
         List<String> names = VARIABLE_NAME_PART.matcher(text).results().map(result -> result.group()).toList();
-        if (!String.join(".", names).equals(text)) {
+        if (names.isEmpty() || !String.join(".", names).equals(text)) {
             return false;
         }
         int start = 0;
@@ -151,7 +151,7 @@ public abstract class MySqlParserBase extends Parser {
     protected final boolean isPartitionValueListAllowed(MySqlParser.PartitionDefinitionContext context) {
         // A leading parenthesis selects MySQL's list-of-rows syntax; later items must also be rows.
         List<MySqlParser.PartitionDefinerAtomContext> values = context.getRuleContexts(MySqlParser.PartitionDefinerAtomContext.class);
-        if (values.get(0).getStart().getType() != MySqlParser.LR_BRACKET) {
+        if (values.isEmpty() || values.get(0).getStart().getType() != MySqlParser.LR_BRACKET) {
             return true;
         }
         return values.stream().allMatch(value -> value.getStart().getType() == MySqlParser.LR_BRACKET && value.getStop().getType() == MySqlParser.RR_BRACKET);

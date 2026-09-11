@@ -18,7 +18,6 @@ package com.clougence.sql.common.analysis.behavior;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -106,10 +105,13 @@ public class RdbBehaviorObjectFactory {
                 return new ObjectName(names.get(0), names.get(1), null);
             }
             String catalog = level(UmiTypes.Catalog);
-            if (Objects.equals(names.get(0), catalog) && Objects.equals(names.get(1), level(UmiTypes.Schema))) {
-                return new ObjectName(names.get(0), names.get(1), null);
-            }
             return new ObjectName(catalog, names.get(0), names.get(1));
+        }
+        if (type == TargetType.Catalog) {
+            return new ObjectName(names.get(0), null, null);
+        }
+        if (type == TargetType.Schema) {
+            return new ObjectName(level(UmiTypes.Catalog), names.get(0), null);
         }
         return new ObjectName(null, null, names.get(0));
     }

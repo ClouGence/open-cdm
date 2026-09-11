@@ -884,7 +884,7 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitExplainstmt(ExplainstmtContext ctx) {
         if (isExplainAnalyze(ctx)) {
-            return null;
+            return SplitQueryType.UNSAFE;
         }
         return SplitQueryType.PERFORMANCE;
     }

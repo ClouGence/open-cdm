@@ -91,6 +91,11 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof MixedSetItemContext item) {
             types.add(new TiSplitVisitor().visitMixedSetItem(item));
         }
+        if (tree instanceof SetVariableContext variables && !types.contains(SplitQueryType.PERFORMANCE)) {
+            for (VariableClauseContext variable : variables.variableClause()) {
+                types.add(TiSplitVisitor.variableType(variable));
+            }
+        }
         if (tree instanceof AlterByImportTablespaceContext || tree instanceof AlterByDiscardTablespaceContext || tree instanceof AlterSecondaryLoadContext) {
             types.add(SplitQueryType.ADMIN_TABLE);
         }
@@ -145,6 +150,9 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof SimpleFlushOptionContext flush && flush.LOCK() != null
             || tree instanceof FlushTableOptionContext flushTable && (flushTable.LOCK() != null || flushTable.EXPORT() != null)) {
             types.add(SplitQueryType.SESSION_LOCK);
+        }
+        if (tree instanceof FlushOptionContext flush && !types.contains(SplitQueryType.PERFORMANCE)) {
+            types.add(TiSplitVisitor.flushType(flush));
         }
         if (tree instanceof PartitionOptionCommentContext) {
             types.add(SplitQueryType.COMMENT_PARTITION);

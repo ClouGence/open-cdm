@@ -264,7 +264,8 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitFullDescribeStatement(FullDescribeStatementContext ctx) {
-        if (ctx.analyze != null && !(ctx.describeObjectClause() instanceof DescribeDigestContext)) {
+        if (ctx.analyze != null && !(ctx.describeObjectClause() instanceof DescribeDigestContext)
+            && !(ctx.describeObjectClause() instanceof DescribeConnectionContext)) {
             return ctx.describeObjectClause().accept(this);
         }
         return SplitQueryType.PERFORMANCE;
@@ -560,19 +561,27 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitFlushStatement(FlushStatementContext ctx) {
         for (FlushOptionContext option : ctx.flushOption()) {
-            if (option instanceof TableFlushOptionContext table && table.flushTableOption() != null && table.flushTableOption().EXPORT() != null) {
-                return SplitQueryType.DATA_EXPORT;
+            SplitQueryType type = flushType(option);
+            if (type != SplitQueryType.SYSTEM_SETTING_WRITE) {
+                return type;
             }
-            if (option instanceof TableFlushOptionContext || option instanceof SimpleFlushOptionContext simple && (simple.TABLES() != null || simple.TABLE() != null)) {
-                return SplitQueryType.ADMIN_TABLE;
-            }
-            if (option instanceof ChannelFlushOptionContext || option instanceof SimpleFlushOptionContext simple && simple.LOGS() != null) {
-                return SplitQueryType.MAINTAIN_LOG;
-            }
-            if (option instanceof SimpleFlushOptionContext simple && (simple.STATUS() != null || simple.CLIENT_ERRORS_SUMMARY() != null || simple.HOSTS() != null
-                                                                      || simple.OPTIMIZER_COSTS() != null || simple.QUERY() != null || simple.USER_RESOURCES() != null)) {
-                return SplitQueryType.ADMIN_PERFORMANCE;
-            }
+        }
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    static SplitQueryType flushType(FlushOptionContext option) {
+        if (option instanceof TableFlushOptionContext table && table.flushTableOption() != null && table.flushTableOption().EXPORT() != null) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        if (option instanceof TableFlushOptionContext || option instanceof SimpleFlushOptionContext simple && (simple.TABLES() != null || simple.TABLE() != null)) {
+            return SplitQueryType.ADMIN_TABLE;
+        }
+        if (option instanceof ChannelFlushOptionContext || option instanceof SimpleFlushOptionContext simple && simple.LOGS() != null) {
+            return SplitQueryType.MAINTAIN_LOG;
+        }
+        if (option instanceof SimpleFlushOptionContext simple && (simple.STATUS() != null || simple.CLIENT_ERRORS_SUMMARY() != null || simple.HOSTS() != null
+                                                                  || simple.OPTIMIZER_COSTS() != null || simple.QUERY() != null || simple.USER_RESOURCES() != null)) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
         }
         return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
@@ -604,8 +613,11 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSetVariable(SetVariableContext ctx) {
-        VariableClauseContext variable = ctx.variableClause(0);
-        if (ctx.variableClause().stream().allMatch(TiRoutineAnalysis::isRoutineVariable)) {
+        return variableType(ctx.variableClause(0));
+    }
+
+    static SplitQueryType variableType(VariableClauseContext variable) {
+        if (TiRoutineAnalysis.isRoutineVariable(variable)) {
             return SplitQueryType.PROGRAM_CONTROL;
         }
         if (variable.LOCAL_ID() != null || variable.getText().equals("@")) {

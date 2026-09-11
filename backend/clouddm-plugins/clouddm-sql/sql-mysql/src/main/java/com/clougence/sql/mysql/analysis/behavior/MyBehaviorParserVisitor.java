@@ -95,7 +95,7 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         String sql = MyBehaviorText.statementText(parser.getTokenStream(), context);
         SplitQueryType statementType = MyBehaviorStatementTypeResolver.resolve(sql, visitor.references());
         boolean splitTypeRequired = command instanceof MySqlParser.FullDescribeStatementContext describe
-                                    && describe.analyze == null;
+                                    && (describe.analyze == null || describe.describeObjectClause() instanceof MySqlParser.DescribeConnectionContext);
         splitTypeRequired = splitTypeRequired || command instanceof MySqlParser.SimpleDescribeStatementContext
                             || command instanceof MySqlParser.SetVariableContext;
         if (splitTypeRequired) {

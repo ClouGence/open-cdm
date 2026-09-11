@@ -93,7 +93,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (nodes.isEmpty()) {
             addUnnamedResource(sqlType, targetType, require, ctx);
         } else {
-            references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes));
+            references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes, null, true));
         }
     }
 

@@ -103,7 +103,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitCreateStoragePolicy(CreateStoragePolicyContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.CREATE_POLICY;
     }
 
     @Override
@@ -113,7 +113,11 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSupportedUnsetStatementAlias(SupportedUnsetStatementAliasContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        SupportedUnsetStatementContext unset = ctx.supportedUnsetStatement();
+        if (unset.DEFAULT() != null || (unset.statementScope() != null && unset.statementScope().GLOBAL() != null)) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        return SplitQueryType.SESSION_SETTING_WRITE;
     }
 
     @Override
@@ -148,7 +152,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitCreateWorkloadPolicy(CreateWorkloadPolicyContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.CREATE_POLICY;
     }
 
     @Override
@@ -158,7 +162,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitCreateSqlBlockRule(CreateSqlBlockRuleContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.CREATE_POLICY;
     }
 
     @Override
@@ -193,17 +197,17 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAlterWorkloadPolicy(AlterWorkloadPolicyContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.ALTER_POLICY;
     }
 
     @Override
     public SplitQueryType visitAlterStoragePolicy(AlterStoragePolicyContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.ALTER_POLICY;
     }
 
     @Override
     public SplitQueryType visitAlterSqlBlockRule(AlterSqlBlockRuleContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.ALTER_POLICY;
     }
 
     @Override
@@ -353,7 +357,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitDropSqlBlockRule(DropSqlBlockRuleContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.DROP_POLICY;
     }
 
     @Override
@@ -368,12 +372,12 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitDropWorkloadPolicy(DropWorkloadPolicyContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.DROP_POLICY;
     }
 
     @Override
     public SplitQueryType visitDropStoragePolicy(DropStoragePolicyContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.DROP_POLICY;
     }
 
     @Override
@@ -618,7 +622,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitInsertTable(InsertTableContext ctx) {
         if (ctx.explain() != null) {
-            return SplitQueryType.SELECT;
+            return SplitQueryType.PERFORMANCE;
         }
         return ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
     }
@@ -626,7 +630,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitUpdate(UpdateContext ctx) {
         if (ctx.explain() != null) {
-            return SplitQueryType.SELECT;
+            return SplitQueryType.PERFORMANCE;
         }
         return SplitQueryType.UPDATE;
     }
@@ -649,7 +653,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitDelete(DeleteContext ctx) {
         if (ctx.explain() != null) {
-            return SplitQueryType.SELECT;
+            return SplitQueryType.PERFORMANCE;
         }
         return SplitQueryType.DELETE;
     }
@@ -996,7 +1000,7 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitRefreshDictionary(RefreshDictionaryContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return SplitQueryType.ADMIN;
     }
 
     @Override

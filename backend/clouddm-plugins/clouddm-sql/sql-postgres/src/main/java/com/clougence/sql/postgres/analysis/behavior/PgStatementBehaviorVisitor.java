@@ -125,6 +125,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitExplainstmt(ExplainstmtContext ctx) {
         if (new PgSplitVisitor(version).visit(ctx) != SplitQueryType.PERFORMANCE) {
+            addUnary(BehaviorAction.UNSAFE, objects.instanceObject(TargetType.Instance, ctx));
             return visitChildren(ctx);
         }
         deferredBodies.add(ctx);
@@ -361,10 +362,6 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         if (ctx.object_type_name_on_any_name() != null && ctx.object_type_name_on_any_name().POLICY() != null) {
             targetType = TargetType.RowAccessPolicy;
         }
-        if (targetType == null) {
-            return null;
-        }
-
         if (ctx.object_type_name_on_any_name() != null && ctx.name() != null) {
             addRelation(BehaviorAction.DROP, object(targetType, ctx.name()), objects(TargetType.Table, ctx.any_name()));
         } else if (ctx.any_name_list_() != null) {
@@ -535,12 +532,14 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
             addUnary(BehaviorAction.CONFIGURE, namedObject(TargetType.ConfigKey, name, text(name)));
         } else {
             Set_rest_moreContext more = ctx.set_rest().set_rest_more();
-            if (more != null && (more.ROLE() != null || more.AUTHORIZATION() != null || more.SCHEMA() != null)) {
+            if (more != null && (more.ROLE() != null || more.AUTHORIZATION() != null || more.SCHEMA() != null || more.CATALOG() != null)) {
                 TargetType type = TargetType.Role;
                 if (more.AUTHORIZATION() != null)
                     type = TargetType.User;
                 if (more.SCHEMA() != null)
                     type = TargetType.Schema;
+                if (more.CATALOG() != null)
+                    type = TargetType.Catalog;
                 ParserRuleContext value = more.nonreservedword_or_sconst();
                 if (value == null)
                     value = more.sconst();
@@ -548,6 +547,8 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
                     addUnary(BehaviorAction.SWITCH, objects.instanceObject(type, more));
                 else
                     addUnary(BehaviorAction.SWITCH, namedObject(type, value, stringValue(value)));
+            } else if (more != null) {
+                addUnary(BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, more));
             }
         }
         return null;
@@ -1258,7 +1259,14 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDefinestmt(DefinestmtContext ctx) {
-        addUnary(BehaviorAction.CREATE, object(declaredType(ctx), ctx.any_name(0)));
+        TargetType targetType = declaredType(ctx);
+        if (ctx.func_name() != null) {
+            addUnary(BehaviorAction.CREATE, object(targetType, ctx.func_name()));
+        } else if (ctx.any_operator() != null) {
+            addUnary(BehaviorAction.CREATE, operatorObject(ctx.any_operator()));
+        } else {
+            addUnary(BehaviorAction.CREATE, object(targetType, ctx.any_name(0)));
+        }
         return null;
     }
 
@@ -1322,8 +1330,9 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitRulestmt(RulestmtContext ctx) {
+        deferredBodies.add(ctx);
         addRelation(BehaviorAction.CREATE, object(TargetType.Policy, ctx.name()), objects(TargetType.Table, ctx.qualified_name()));
-        return visitChildren(ctx);
+        return null;
     }
 
     @Override
@@ -1438,7 +1447,8 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         String name = normalizeIdentifier(text(context));
         BehaviorObject object = objects.unnamedObject(type, context, UmiTypes.Catalog);
         object.setObjectPath(object.getObjectPath() + name + "/");
-        object.setObjectName(new ObjectName(StringUtils.toString(levels.get(UmiTypes.Catalog)), null, name));
+        String catalog = levels == null ? null : StringUtils.toString(levels.get(UmiTypes.Catalog));
+        object.setObjectName(new ObjectName(catalog, null, name));
         return object;
     }
 
@@ -1453,7 +1463,8 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
             BehaviorObject result = objects.unnamedObject(type, context, UmiTypes.Catalog);
             String name = names.get(names.size() - 1);
             result.setObjectPath(result.getObjectPath() + name + "/");
-            result.setObjectName(new ObjectName(StringUtils.toString(levels.get(UmiTypes.Catalog)), null, name));
+            String catalog = levels == null ? null : StringUtils.toString(levels.get(UmiTypes.Catalog));
+            result.setObjectName(new ObjectName(catalog, null, name));
             return result;
         }
         return scopedObject(type, context, names);
@@ -1471,8 +1482,8 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
             return result;
         }
         BehaviorObject result = objects.object(type, context, names);
-        String catalog = StringUtils.toString(levels.get(UmiTypes.Catalog));
-        String schema = StringUtils.toString(levels.get(UmiTypes.Schema));
+        String catalog = levels == null ? null : StringUtils.toString(levels.get(UmiTypes.Catalog));
+        String schema = levels == null ? null : StringUtils.toString(levels.get(UmiTypes.Schema));
         if (type == TargetType.Catalog) {
             result.setObjectName(new ObjectName(name, null, null));
         } else if (type == TargetType.Schema) {

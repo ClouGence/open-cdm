@@ -235,9 +235,9 @@ final class MyBehaviorStatementTypeResolver {
         if (!normalized.startsWith("EXPLAIN") && !normalized.startsWith("DESC ") && !normalized.startsWith("DESCRIBE ")) {
             return false;
         }
-        int analyzeStart = MyBehaviorText.findWord(sql, 0, "ANALYZE");
-        int statementStart = MyBehaviorText.findWord(sql, 0, "SELECT", "WITH", "UPDATE", "DELETE", "INSERT", "REPLACE");
-        return analyzeStart >= 0 && (statementStart < 0 || analyzeStart < statementStart);
+        return MyBehaviorText.afterStartingWords(normalized, "EXPLAIN", "ANALYZE") >= 0
+               || MyBehaviorText.afterStartingWords(normalized, "DESCRIBE", "ANALYZE") >= 0
+               || MyBehaviorText.afterStartingWords(normalized, "DESC", "ANALYZE") >= 0;
     }
 
     private static boolean contains(List<MySqlObjectReference> references, SplitQueryType type) {
