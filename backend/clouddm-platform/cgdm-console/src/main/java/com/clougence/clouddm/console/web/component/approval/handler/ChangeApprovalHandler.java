@@ -85,23 +85,30 @@ public class ChangeApprovalHandler implements ApprovalHandler {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
+        if (ticketDO == null || ticketDO.getDeleted() || ApprovalStatus.isEndStatus(ticketDO.getTicketStatus())) {
+            return;
+        }
         DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
         if (jobDO == null) {
             return;
         }
 
-        this.updateExecutionStatus(approvalId, jobDO.getStatus(), sender);
+        this.updateExecutionStatus(ticketDO, jobDO.getStatus(), sender);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
+        if (ticketDO == null || ticketDO.getDeleted() || ApprovalStatus.isEndStatus(ticketDO.getTicketStatus())) {
+            return;
+        }
         DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
-        this.updateExecutionStatus(approvalId, jobDO.getStatus(), sender);
+        this.updateExecutionStatus(ticketDO, jobDO.getStatus(), sender);
     }
 
-    private void updateExecutionStatus(long approvalId, AutoExecJobStatus status, ImSenderService sender) {
+    private void updateExecutionStatus(DmApprovalDO ticketDO, AutoExecJobStatus status, ImSenderService sender) {
+        long approvalId = ticketDO.getId();
         switch (status) {
             case FINISH -> {
                 this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH, null);
@@ -109,10 +116,16 @@ public class ChangeApprovalHandler implements ApprovalHandler {
                 this.approvalCompleted(approvalId, ApprovalBiz.DM_CHANGE, sender);
             }
             case FAILED -> {
+                if (ticketDO.getTicketStatus() == ApprovalStatus.EXEC_FAIL) {
+                    return;
+                }
                 this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FAIL, null);
                 this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.EXEC_FAIL, null);
             }
             case PAUSE -> {
+                if (ticketDO.getTicketStatus() == ApprovalStatus.EXEC_PAUSE) {
+                    return;
+                }
                 this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.PAUSE, null);
                 this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.EXEC_PAUSE, null);
             }
