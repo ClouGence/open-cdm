@@ -482,3 +482,118 @@ cgdm.docker.global.password=<your_dockerhub_token>
 - `./docker-publish-global.sh` 镜像推送到 DockerHub
 - `./docker-publish-china.sh` 镜像推送到中国地区
 3. 生成渠道化 yml `open-cdm/package/docker/build-docker-yml.sh`。
+
+## 七、网关登录（connect 网关）
+
+CloudDM 可以部署在 connect 网关（go-zoox/connect）之后，由网关完成登录，CloudDM 不再需要自己的登录页：
+
+- 网关认证完成后把 `X-Connect-Token` 透传给上游，该 token 是用网关 `secret_key` 签名的 JWT，携带用户信息和 `permissions`。
+- CloudDM 识别该 token 后自动匹配内部账户：
+    - 已经绑定该网关身份的账户：直接登录；
+    - 邮箱与内部账户相同的：直接使用该账户（包括归属主账号，其角色不变）；
+    - 两者都没有：自动创建一个子账号（随机密码、`bind_type=Connect`、来源显示 Connect）。
+- 权限映射角色：`permissions` 命中 `clouddm.connect.admin-permissions`（默认 `ADMIN`）时为 `clouddm.connect.admin-role`
+  （默认 `Manager`），否则为 `clouddm.connect.default-role`（默认 `Developers`）；`clouddm.connect.allow-permissions`
+  不为空时作为登录白名单，未命中直接拒绝登录。
+- 网关身份的账号角色跟随网关权限，但只在 `Manager` 与默认角色之间调整，控制台手工分配的其它角色不会被覆盖。
+
+### 7.1 CloudDM 侧配置
+
+两种方式二选一，**不要两边同时配**：环境变量的优先级高于配置文件，但容器重建后环境变量不会被写回 `conf`。
+
+方式一，写配置文件 `conf/alone.properties`（单机）或 `conf/console.properties`（集群）：
+
+```properties
+clouddm.connect.secret-key=<与网关 secret_key 一致>
+#clouddm.connect.default-role=Developers
+#clouddm.connect.admin-role=Manager
+#clouddm.connect.admin-permissions=ADMIN
+#clouddm.connect.allow-permissions=
+```
+
+方式二，容器里注入环境变量（推荐，改配置不用动镜像内的 `conf`）：
+
+```yaml
+services:
+  clouddm:
+    image: cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/clouddm-alone:latest
+    environment:
+      # secret_key 必须与网关一致
+      CONNECT_SECRET_KEY: <与网关 secret_key 一致>
+      # 以下都有默认值，按需覆盖
+      # CONNECT_DEFAULT_ROLE: Developers
+      # CONNECT_ADMIN_ROLE: Manager
+      # CONNECT_ADMIN_PERMISSIONS: ADMIN
+      # CONNECT_ALLOW_PERMISSIONS: ADMIN,DEVELOPER
+    ports:
+      - "8222:8222"
+```
+
+- 网关登录这 5 项用固定的短变量名 `CONNECT_*`，**非空**的值优先于配置文件；空值视为未设置（不会把配置文件里的值清掉）。
+- 其它任何 `conf` 配置项仍然可以用展开形式覆盖：配置项 `a.b-c` 对应环境变量 `A_B_C`（小数点与中划线换成下划线并大写），例如
+  `clougence.rdp.login.expire.sec` → `CLOUGENCE_RDP_LOGIN_EXPIRE_SEC`。
+- 只有 `CONNECT_SECRET_KEY`（或 `clouddm.connect.secret-key`）是必填的开关，留空或不注入表示关闭该能力，此时行为与未部署网关时一致。
+- 网关的 `secret_key`（或 `SECRET_KEY` / `SESSION_KEY`）必须与 `clouddm.connect.secret-key` 相同，否则 token 校验失败，请求按未登录处理。
+
+### 7.2 网关侧配置（connect）
+
+网关直接用自带的 doreamon 模式，参数同样全部支持环境变量，容器里注入即可：
+
+```yaml
+services:
+  clouddm:
+    image: cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/clouddm-alone:latest
+    environment:
+      CONNECT_SECRET_KEY: <共享密钥>
+    ports:
+      - "8222:8222"
+
+  connect:
+    image: whatwewant/connect-doreamon:v1
+    environment:
+      # 必须与 CONNECT_SECRET_KEY / clouddm.connect.secret-key 一致
+      SESSION_KEY: <共享密钥>
+      # 上游指向 CloudDM，网关会把 X-Connect-Token 注入到发往该地址的请求
+      UPSTREAM: http://clouddm:8222
+      # 哆啦A梦（login.zcorky.com）OAuth2 应用凭据
+      CLIENT_ID: <CLIENT_ID>
+      CLIENT_SECRET: <CLIENT_SECRET>
+      REDIRECT_URI: http://<网关对外地址>:8080/login/doreamon/callback
+    ports:
+      - "8080:8080"
+```
+
+若不想用镜像自带的 doreamon 入口，也可以写配置文件后用 `connect server -c config.yml` 启动：
+
+```yaml
+port: 8080
+secret_key: <与 clouddm.connect.secret-key 一致>
+session_max_age: 86400
+
+upstream:
+  host: 127.0.0.1
+  port: 8222
+
+oauth2:
+  - name: doreamon
+    client_id: <CLIENT_ID>
+    client_secret: <CLIENT_SECRET>
+    redirect_uri: http://127.0.0.1:8080/login/doreamon/callback
+
+auth:
+  mode: oauth2
+  provider: doreamon
+```
+
+### 7.3 注意事项
+
+- 用户权限来自网关的 permissions 服务，需要网关把 `permissions` 写进 `X-Connect-Token`：网关镜像必须基于携带该 claim 的
+  go-zoox/connect 构建（`user.Encode` 里写入 `permissions`），否则 token 里没有权限，所有网关用户都会落到
+  `clouddm.connect.default-role`，并且一旦配置了 `allow-permissions` 白名单会导致全部拒登。
+- CloudDM 只在没有有效会话 Cookie 时才会用 `X-Connect-Token` 建立会话；同一浏览器切换网关用户后，旧会话会保留到
+  `clougence.rdp.login.expire.sec`（默认 86400 秒）过期。如需严格跟随网关会话，可以把该值调小。
+- 首次登录自动创建的子账号账号名由 CloudDM 生成，显示名取 token 的 `nickname`，可在“子账号”页面查看和管理。
+- 网关不再返回某个身份时，CloudDM 侧已创建的账号不会被自动删除，需要时可在“子账号”页面禁用或删除。
+- 网关侧的权限变更在下一次建立会话时生效，最长延迟为 `clougence.rdp.login.expire.sec`（默认 86400 秒）。
+- `permissions` 的值是用户在「对应 doreamon 应用（client_id）」下的角色权限码与菜单码去重列表（例如 `global.system.permissions`），
+  不是 `ADMIN` 这类字面量；请把 open-cdm 应用里「管理员角色」的权限码填到 `CONNECT_ADMIN_PERMISSIONS`（多个逗号分隔），否则没人会被识别成管理员。
