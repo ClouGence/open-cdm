@@ -301,6 +301,10 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
         if (reset.TRANSACTION() != null) {
             return SplitQueryType.TRANSACTION;
         }
+        Generic_resetContext genericReset = reset.generic_reset();
+        if (genericReset != null && genericReset.var_name() != null && "role".equalsIgnoreCase(genericReset.var_name().getText())) {
+            return SplitQueryType.SWITCH_ROLE;
+        }
         if (reset.SESSION() != null && reset.AUTHORIZATION() != null) {
             return SplitQueryType.SWITCH_USER;
         }

@@ -1703,6 +1703,8 @@ functionNameIdentifier
     : identifier
     | INSERT
     | ADD
+    | DEFAULT
+    | INTERVAL
     | CONNECTION_ID
     | CURRENT_CATALOG
     | CURRENT_USER

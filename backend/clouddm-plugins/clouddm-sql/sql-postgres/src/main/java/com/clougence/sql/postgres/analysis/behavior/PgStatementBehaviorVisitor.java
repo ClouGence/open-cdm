@@ -31,7 +31,6 @@ import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseVisitor;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser.*;
 import com.clougence.utils.StringUtils;
 
 final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
@@ -556,6 +555,16 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitVariableresetstmt(VariableresetstmtContext ctx) {
+        Reset_restContext reset = ctx.reset_rest();
+        Generic_resetContext genericReset = reset.generic_reset();
+        if (genericReset != null && genericReset.var_name() != null && "role".equalsIgnoreCase(genericReset.var_name().getText())) {
+            addUnary(BehaviorAction.SWITCH, objects.instanceObject(TargetType.Role, ctx));
+            return null;
+        }
+        if (reset.SESSION() != null && reset.AUTHORIZATION() != null) {
+            addUnary(BehaviorAction.SWITCH, objects.instanceObject(TargetType.User, ctx));
+            return null;
+        }
         ParserRuleContext name = first(ctx, Var_nameContext.class);
         if (name != null) {
             addUnary(BehaviorAction.RESET, namedObject(TargetType.ConfigKey, name, text(name)));

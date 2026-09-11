@@ -264,8 +264,7 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitFullDescribeStatement(FullDescribeStatementContext ctx) {
-        if (ctx.analyze != null && !(ctx.describeObjectClause() instanceof DescribeDigestContext)
-            && !(ctx.describeObjectClause() instanceof DescribeConnectionContext)) {
+        if (ctx.analyze != null && !(ctx.describeObjectClause() instanceof DescribeDigestContext) && !(ctx.describeObjectClause() instanceof DescribeConnectionContext)) {
             return ctx.describeObjectClause().accept(this);
         }
         return SplitQueryType.PERFORMANCE;
@@ -559,6 +558,11 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitResetStatement(ResetStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
     public SplitQueryType visitFlushStatement(FlushStatementContext ctx) {
         for (FlushOptionContext option : ctx.flushOption()) {
             SplitQueryType type = flushType(option);
@@ -598,6 +602,11 @@ public class TiSplitVisitor extends TiDBParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitLoadIndexIntoCache(LoadIndexIntoCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitCacheIndexStatement(CacheIndexStatementContext ctx) {
         return SplitQueryType.ADMIN_PERFORMANCE;
     }
 
