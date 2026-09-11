@@ -3751,9 +3751,10 @@ expression_elem
 
 select_list_elem
     : asterisk
-    | udt_elem
     | LOCAL_ID (assignment_operator | '=') expression
+    // Prefer scalar calls for schema.function(args); the UDT syntax also accepts this spelling.
     | expression_elem
+    | udt_elem
     ;
 
 table_sources
