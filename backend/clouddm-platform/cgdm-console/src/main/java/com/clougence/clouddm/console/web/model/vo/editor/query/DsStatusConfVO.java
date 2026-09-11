@@ -40,4 +40,7 @@ public class DsStatusConfVO {
     private DsStatusSupportConfVO explain;
     private DsStatusSupportConfVO format;
     private DsLanguageConfVO      language;
+
+    /** Env policy: dm_allow_all_statements=true means console is query-only. */
+    private boolean               consoleQueryOnly;
 }
