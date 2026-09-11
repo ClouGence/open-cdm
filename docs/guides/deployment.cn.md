@@ -483,6 +483,26 @@ cgdm.docker.global.password=<your_dockerhub_token>
 - `./docker-publish-china.sh` 镜像推送到中国地区
 3. 生成渠道化 yml `open-cdm/package/docker/build-docker-yml.sh`。
 
+### 6.4 用 GitHub Actions 自动发布镜像到 Docker Hub
+
+仓库自带 `.github/workflows/docker-hub.yml`，适合在自己的 fork 上出镜像，不依赖任何私有 registry：
+
+1. 在仓库 Settings → Secrets and variables → Actions 里配置：
+    - 必需 secrets：`DOCKERHUB_USERNAME`（Docker Hub 账号，同时作为默认镜像命名空间）、`DOCKERHUB_TOKEN`（Docker Hub 的 read/write token）。
+    - 可选 variables：`DOCKERHUB_NAMESPACE`（默认取 `DOCKERHUB_USERNAME`）、`DOCKERHUB_IMAGE_PREFIX`（默认 `cgdm`）。
+    - 可选 secret：`DOCKER_VERSION_FEISHU_BOT_WEBHOOK_URL`，配置后构建成功/失败会发飞书通知，未配置则跳过。
+2. 打版本 tag 自动触发：`git tag v4.2.2 && git push origin v4.2.2`，会构建 tgz 并按 `alone` / `console` / `sidecar`
+   矩阵发布 `docker.io/<namespace>/cgdm-<service>:4.2.2` 和 `:latest`。
+3. 预发布 tag（如 `v4.2.2-rc.1`）只发布该版本号，不会覆盖 `latest`。
+4. 也可以在 Actions 页面手动 `Run workflow`，输入 version、services（例如只出 `alone` 省时间）、platforms
+   （`linux/amd64`，或 `linux/amd64,linux/arm64`——arm64 走 QEMU 模拟较慢）、latest。
+5. 版本一致性：workflow 会把 tag 版本注入 `CG_CLOUDDM_MAIN_VERSION`，并校验 tgz 内 `cgdm/<service>/conf/version`
+   与 tag 一致，避免出现「镜像 tag 是 4.2.2、包内版本却是别的」的情况。
+6. 资源与耗时：`build-tgz` 是完整 Gradle + 前端构建（约 15–25 分钟），docker 矩阵并行，仅 amd64 时约 10–15 分钟，加 arm64 大致翻倍。
+
+发布完成后，把部署清单里的 `__IMAGE_PREFIX__` / `__IMAGE_TAG__` 换成 `<namespace>/cgdm-<service>` 与版本号即可（也可以用
+`package/docker/build-docker-yml.sh` 生成）。
+
 ## 七、网关登录（connect 网关）
 
 CloudDM 可以部署在 connect 网关（go-zoox/connect）之后，由网关完成登录，CloudDM 不再需要自己的登录页：

@@ -483,6 +483,27 @@ The process consists of three steps:
    - `./docker-publish-china.sh` pushes images to the China registry.
 3. Generate channel-specific yml files with `open-cdm/package/docker/build-docker-yml.sh`.
 
+### 6.4 Automatic Docker Hub Publishing with GitHub Actions
+
+The repository ships `.github/workflows/docker-hub.yml`, designed for publishing images from your own fork without any private registry:
+
+1. Configure the repository under Settings -> Secrets and variables -> Actions:
+    - required secrets: `DOCKERHUB_USERNAME` (Docker Hub account, also the default image namespace), `DOCKERHUB_TOKEN` (a Docker Hub token with read and write).
+    - optional variables: `DOCKERHUB_NAMESPACE` (defaults to `DOCKERHUB_USERNAME`), `DOCKERHUB_IMAGE_PREFIX` (defaults to `cgdm`).
+    - optional secret: `DOCKER_VERSION_FEISHU_BOT_WEBHOOK_URL`, when set a Feishu notification is sent on success and failure, otherwise it is skipped.
+2. Pushing a version tag triggers it: `git tag v4.2.2 && git push origin v4.2.2` builds the packages and publishes
+   `docker.io/<namespace>/cgdm-<service>:4.2.2` and `:latest` for the `alone` / `console` / `sidecar` matrix.
+3. A prerelease tag (for example `v4.2.2-rc.1`) only publishes its own version and never overwrites `latest`.
+4. It can also be started manually from the Actions page with a version, the services (for example `alone` only to save
+   time), the platforms (`linux/amd64`, or `linux/amd64,linux/arm64` — arm64 runs under QEMU emulation and is slow) and the latest flag.
+5. Version consistency: the workflow injects the tag version as `CG_CLOUDDM_MAIN_VERSION` and verifies that
+   `cgdm/<service>/conf/version` inside the package equals the tag, so the image tag can never disagree with the packaged version.
+6. Resources and duration: `build-tgz` is a full Gradle plus frontend build (about 15-25 minutes), the docker matrix runs in
+   parallel and takes about 10-15 minutes for amd64 only, roughly twice as long with arm64.
+
+After the publish, replace `__IMAGE_PREFIX__` / `__IMAGE_TAG__` in the deployment manifests with `<namespace>/cgdm-<service>` and
+the version (or generate them with `package/docker/build-docker-yml.sh`).
+
 ## 7. Gateway Login (connect gateway)
 
 CloudDM can run behind a connect gateway (go-zoox/connect), the gateway then owns the login and CloudDM no longer needs its own login page:
