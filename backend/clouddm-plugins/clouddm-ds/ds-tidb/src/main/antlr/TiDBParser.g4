@@ -2107,7 +2107,7 @@ showStatement
     | SHOW CREATE USER (USER | CURRENT_USER) '(' ')' #showCreateCurrentUser
     | SHOW CREATE USER userName                                     #showCreateUser
     | SHOW ENGINE engineName engineOption=(STATUS | MUTEX)          #showEngine
-    | SHOW STORAGE? ENGINES                                         #showEngines
+    | SHOW STORAGE? ENGINES showFilter?                             #showEngines
     | SHOW (MASTER | BINARY LOG) STATUS                                            #showStatus
     | SHOW PLUGINS showFilter?                                      #showPlugins
     | SHOW PRIVILEGES                                               #showPrivileges
@@ -2116,7 +2116,7 @@ showStatement
     | SHOW SLAVE HOSTS                                              #showSlaveHosts
     | SHOW AUTHORS                                                  #showAuthros
     | SHOW CONTRIBUTORS                                             #showContributors
-    | SHOW errorFormat=(ERRORS | WARNINGS)
+    | SHOW errorFormat=(ERRORS | WARNINGS) showFilter?
         (LIMIT
           (offset=decimalLiteral ',')?
           rowCount=decimalLiteral
@@ -2155,7 +2155,7 @@ showCommonEntity
     ;
 
 showFilter
-    : LIKE (STRING_CHARSET_NAME? STRING_LITERAL | uid)
+    : LIKE expressionAtom
     | WHERE expression
     ;
 
