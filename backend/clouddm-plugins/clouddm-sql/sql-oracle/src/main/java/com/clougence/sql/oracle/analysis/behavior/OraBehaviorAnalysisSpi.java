@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.antlr.v4.runtime.Token;
+
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.antlr.DslHelper;
@@ -37,7 +39,14 @@ public class OraBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
         OraBehaviorParserVisitor[] holder = new OraBehaviorParserVisitor[1];
         DslHelper.doVisitor(OraDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
-            holder[0] = new OraBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
+            // Split scripts retain leading comments, while body coordinates point at the first SQL token.
+            Token first = parser.getTokenStream().LT(1);
+            int sourceLine = baseLine - first.getLine() + 1;
+            int sourceColumn = 0;
+            if (first.getLine() == 1) {
+                sourceColumn = baseColumn - first.getCharPositionInLine();
+            }
+            holder[0] = new OraBehaviorParserVisitor(parser, levels, sourceLine, sourceColumn);
             return holder[0];
         });
         return holder[0].behaviors();

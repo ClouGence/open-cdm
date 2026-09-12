@@ -30,4 +30,6 @@ description = 'sql-oracle'
 
 tasks.named('generateGrammarSource') {
     arguments += ['-visitor', '-package', 'com.clougence.sql.oracle.parser.antlr']
+    // Match the package path so Gradle and IDEs share the same generated source root.
+    outputDirectory = layout.buildDirectory.dir('generated-src/antlr/main/com/clougence/sql/oracle/parser/antlr').get().asFile
 }

@@ -51,7 +51,7 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.LOCK, targetType -> null), //
             Map.entry(BehaviorAction.UNLOCK, targetType -> null), //
             Map.entry(BehaviorAction.CONFIGURE, targetType -> SecDataAuthKind.MANAGE), //
-            Map.entry(BehaviorAction.SWITCH, targetType -> null), //
+            Map.entry(BehaviorAction.SWITCH, targetType -> targetType == TargetType.Log ? SecDataAuthKind.MAINTAIN : null), //
             Map.entry(BehaviorAction.ANALYZE, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.APPLY, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.CHECKPOINT, targetType -> SecDataAuthKind.MAINTAIN), //
