@@ -33,7 +33,7 @@ public interface DmEnvParamService {
 
     void unbindEnvParam(String puid, String uid, DmUnbindEnvParamFO fo);
 
-    List<DmEnvParamOpenVO> listEnvParamOpen(String puid, String uid);
+    List<DmEnvParamOpenVO> listEnvParamOpen(String puid, String uid, String envName);
 
     List<DmSysEnvDO> queryListByParamKeyValue(String puid, String paramKey, String paramValue);
 
