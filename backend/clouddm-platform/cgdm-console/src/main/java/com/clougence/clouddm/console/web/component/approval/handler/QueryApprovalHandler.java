@@ -85,33 +85,46 @@ public class QueryApprovalHandler implements ApprovalHandler {
     @Override
     public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
+        if (ticketDO == null || ticketDO.getDeleted() || ApprovalStatus.isEndStatus(ticketDO.getTicketStatus())) {
+            return;
+        }
         DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
         if (jobDO == null) {
             return;
         }
 
-        this.updateExecutionStatus(approvalId, jobDO.getStatus());
+        this.updateExecutionStatus(ticketDO, jobDO.getStatus());
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
+        if (ticketDO == null || ticketDO.getDeleted() || ApprovalStatus.isEndStatus(ticketDO.getTicketStatus())) {
+            return;
+        }
         DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
-        this.updateExecutionStatus(approvalId, jobDO.getStatus());
+        this.updateExecutionStatus(ticketDO, jobDO.getStatus());
     }
 
-    private void updateExecutionStatus(long approvalId, AutoExecJobStatus status) {
+    private void updateExecutionStatus(DmApprovalDO ticketDO, AutoExecJobStatus status) {
+        long approvalId = ticketDO.getId();
         switch (status) {
             case FINISH -> {
                 this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH, null);
                 this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.FINISHED, null);
             }
             case FAILED -> {
+                if (ticketDO.getTicketStatus() == ApprovalStatus.EXEC_FAIL) {
+                    return;
+                }
                 this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FAIL, null);
                 this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.EXEC_FAIL, null);
             }
             case PAUSE -> {
+                if (ticketDO.getTicketStatus() == ApprovalStatus.EXEC_PAUSE) {
+                    return;
+                }
                 this.approvalStateService.updateProcessStatus(approvalId, ApprovalStage.EXECUTION, ApprovalProcessStatus.PAUSE, null);
                 this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.EXEC_PAUSE, null);
             }

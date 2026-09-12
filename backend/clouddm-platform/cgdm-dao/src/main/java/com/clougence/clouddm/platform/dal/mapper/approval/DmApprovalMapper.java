@@ -48,9 +48,11 @@ public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
 
     DmApprovalDO queryByApproIdentity(@Param("approIdentity") String approIdentity, @Param("type") String type, @Param("puid") String puid);
 
-    int updateModified(Long id);
+    long queryScheduleUpperId();
 
-    List<Long> listUnFinishTicketIdList();
+    List<Long> listScheduleTicketIds(@Param("afterId") long afterId, @Param("upperId") long upperId, @Param("idle") boolean idle, @Param("limit") int limit);
+
+    DmApprovalDO queryScheduleInfo(@Param("id") long id);
 
     DmApprovalDO selectByIdForUpdate(@Param("ticketId") Long ticketId);
 
