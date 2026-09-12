@@ -606,7 +606,7 @@
               </a-tooltip>
             </div>
             <div class="option">
-              <a-checkbox v-model="genDataModal.globalConfigs.ignoreErrors">
+              <a-checkbox v-model:checked="genDataModal.globalConfigs.ignoreErrors">
                 {{ $t('yu-dao-cuo-wu-shi-ji-xu') }}
               </a-checkbox>
               <a-tooltip placement="bottom" style="margin-left: 3px; margin-right: 5px">
@@ -933,10 +933,10 @@
     <CCModal v-model="showTicketModal" :title="$t('ti-jiao-gong-dan')" @cancel="showTicketModal = false" @ok="showTicketModal = false">
       <a-form :model="ticketData" :rules="ticketRuleValidate" ref="ticketContent" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
         <a-form-item :label="$t('biao-ti')" prop="ticketTitle">
-          <a-input v-model="ticketData.ticketTitle" />
+          <a-input v-model:value="ticketData.ticketTitle" />
         </a-form-item>
         <a-form-item :label="$t('xu-qiu-miao-shu')" prop="description">
-          <a-input type="textarea" v-model="ticketData.description" :rows="4" />
+          <a-textarea v-model:value="ticketData.description" :rows="4" />
         </a-form-item>
       </a-form>
       <template #footer>
