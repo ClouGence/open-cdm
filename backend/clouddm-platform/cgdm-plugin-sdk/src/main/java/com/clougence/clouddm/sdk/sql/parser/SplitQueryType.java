@@ -85,6 +85,7 @@ public enum SplitQueryType {
     DROP_VIEW,
     RENAME_VIEW,
     COMMENT_VIEW,
+    COMMENT_MATERIALIZED_VIEW,
 
     // DDL sequence
     CREATE_SEQUENCE,
@@ -99,6 +100,8 @@ public enum SplitQueryType {
     DROP_TYPE,
     RENAME_TYPE,
     COMMENT_TYPE,
+    COMMENT_DOMAIN,
+    COMMENT_CLASS,
     ADMIN_TYPE,
 
     // DDL synonym
@@ -114,6 +117,10 @@ public enum SplitQueryType {
     DROP_PROG_OBJ,
     RENAME_PROG_OBJ,
     COMMENT_PROG_OBJ,
+    COMMENT_FUNCTION,
+    COMMENT_PROCEDURE,
+    COMMENT_PACKAGE,
+    COMMENT_OPERATOR,
     CALL_PROG_OBJ,
     ADMIN_PROG_OBJ,
 
@@ -158,6 +165,7 @@ public enum SplitQueryType {
     ALTER_ROLE,
     RENAME_ROLE,
     COMMENT_ROLE,
+    COMMENT_PROFILE,
     // Auth privilege operations
     GRANT,
     REVOKE,
@@ -168,6 +176,11 @@ public enum SplitQueryType {
     ALTER_LIBRARY,
     DROP_LIBRARY,
     COMMENT_LIBRARY,
+
+    // Configuration objects
+    COMMENT_CONTEXT,
+    COMMENT_DIRECTORY,
+    COMMENT_LINK,
 
     // Replication
     CREATE_REPLICATION,

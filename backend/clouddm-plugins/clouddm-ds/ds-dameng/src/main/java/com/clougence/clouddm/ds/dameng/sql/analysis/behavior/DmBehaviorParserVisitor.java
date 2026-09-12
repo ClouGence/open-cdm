@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.clouddm.ds.dameng.sql.analysis.behavior;
 
@@ -103,6 +112,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 add(SplitQueryType.SELECT, BehaviorAction.LOCK, source);
             }
             addTypePredicateReads(ctx);
+            addBarePackageReads(ctx);
             for (DmSqlParser.TablePrimaryContext table : descendants(ctx, DmSqlParser.TablePrimaryContext.class)) {
                 if (table.qualifiedName() == null) {
                     continue;
@@ -504,6 +514,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             if (show.showBackupsetOutputClause() != null) {
                 add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(show.showBackupsetOutputClause().backupFilePath().getStart()), inputs);
             } else {
+                if (inputs.isEmpty()) {
+                    add(SplitQueryType.ADMIN, BehaviorAction.READ, objects.instanceObject(TargetType.File, show.getStart()));
+                }
                 for (BehaviorObject input : inputs) {
                     add(SplitQueryType.ADMIN, BehaviorAction.READ, input);
                 }
@@ -599,8 +612,17 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             return null;
         }
         DmSqlParser.ConfigureStatementTailContext configure = ctx.configureStatementTail();
+        if (ctx.CONFIGURE() != null && configure == null) {
+            add(SplitQueryType.ADMIN, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx));
+            return null;
+        }
         if (ctx.CONFIGURE() != null && configure != null && configure.CLEAR() != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, configure.CLEAR().getSymbol()));
+            add(SplitQueryType.ADMIN, BehaviorAction.RESET, objects.instanceObject(TargetType.ConfigKey, configure.CLEAR().getSymbol()));
+            addFunctionCalls(ctx);
+            return null;
+        }
+        if (ctx.CONFIGURE() != null && configure != null && configure.DEFAULT() != null && configure.configureDefaultClause() == null) {
+            add(SplitQueryType.ADMIN, BehaviorAction.RESET, objects.instanceObject(TargetType.ConfigKey, configure.DEFAULT().getSymbol()));
             addFunctionCalls(ctx);
             return null;
         }
@@ -1308,7 +1330,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         } else if (triggerTail.eventTriggerCreateTail() != null) {
             DmSqlParser.EventTriggerTargetContext target = triggerTail.eventTriggerCreateTail().eventTriggerTarget();
             if (target.DATABASE() != null) {
-                addObject(targets, objects.object(TargetType.Catalog, target.DATABASE().getSymbol(), List.of(levels.get(UmiTypes.Catalog).toString())));
+                addObject(targets, objects.unnamedObject(TargetType.Catalog, target.DATABASE().getSymbol(), UmiTypes.Catalog));
             } else {
                 String schema = target.identifier() == null ? levels.get(UmiTypes.Schema).toString() : NameParts.clean(target.identifier().getText());
                 ParserRuleContext token = target.identifier() == null ? target : target.identifier();
@@ -1316,7 +1338,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             }
         } else {
             DmSqlParser.TimerTriggerCreateTailContext tail = triggerTail.timerTriggerCreateTail();
-            addObject(targets, objects.object(TargetType.Catalog, tail.DATABASE().getSymbol(), List.of(levels.get(UmiTypes.Catalog).toString())));
+            addObject(targets, objects.unnamedObject(TargetType.Catalog, tail.DATABASE().getSymbol(), UmiTypes.Catalog));
         }
         add(SplitQueryType.CREATE_TRIGGER, createAction(ctx), object(TargetType.Trigger, ctx.qualifiedName(), schemaScoped(NameParts.from(ctx.qualifiedName()))), targets);
         blockLocals.push(blockLocalNames(ctx));
@@ -1428,7 +1450,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 if (selector.identifier() != null) {
                     addPartitionTarget(targets, name, selector.identifier());
                 } else {
-                    addObject(targets, objects.object(TargetType.Partition, action.partitionDropAction(), partitionPath(name)));
+                    addObject(targets, objects.object(TargetType.Partition, qualified.getStart(), action.partitionDropAction().getStop(), partitionPath(name)));
                 }
             }
             if (action.EXCHANGE() != null) {
@@ -1507,6 +1529,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             add(SplitQueryType.ALTER_USER, behaviorAction, objects.instanceObject(TargetType.User, user, NameParts.clean(user.getText())), targets);
         } else if (ctx.PROCEDURE() != null || ctx.FUNCTION() != null) {
             add(SplitQueryType.ALTER_PROG_OBJ, BehaviorAction.ALTER, object(ctx.PROCEDURE() != null ? TargetType.Procedure : TargetType.Function, qualified, name));
+        } else if (ctx.OPERATOR() != null) {
+            add(SplitQueryType.ALTER_PROG_OBJ, BehaviorAction.ALTER, object(TargetType.Operator, ctx
+                .operatorQualifiedName(), schemaScoped(operatorName(ctx.operatorQualifiedName()))));
         } else if (ctx.TRIGGER() != null) {
             add(SplitQueryType.ALTER_TRIGGER, BehaviorAction.ALTER, object(TargetType.Trigger, qualified, name));
         } else if (ctx.PACKAGE() != null) {
@@ -1720,10 +1745,16 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     public Void visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
         DmSqlParser.CommentTargetContext target = ctx.commentTarget();
         if (target.VIEW() != null) {
-            add(SplitQueryType.ALTER_VIEW, BehaviorAction.ALTER, object(TargetType.View, target.qualifiedName(), schemaScoped(NameParts.from(target.qualifiedName()))));
+            TargetType targetType = TargetType.View;
+            SplitQueryType statementType = SplitQueryType.COMMENT_VIEW;
+            if (target.MATERIALIZED() != null) {
+                targetType = TargetType.Materialized;
+                statementType = SplitQueryType.COMMENT_MATERIALIZED_VIEW;
+            }
+            add(statementType, BehaviorAction.ALTER, object(targetType, target.qualifiedName(), schemaScoped(NameParts.from(target.qualifiedName()))));
         } else if (target.TABLE() != null) {
             add(SplitQueryType.COMMENT_TABLE, BehaviorAction.ALTER, object(TargetType.Table, target.qualifiedName(), schemaScoped(NameParts.from(target.qualifiedName()))));
-        } else {
+        } else if (target.COLUMN() != null) {
             NameParts column = NameParts.from(target.qualifiedName());
             String table = column.schema();
             List<String> names = new ArrayList<>();
@@ -1741,6 +1772,88 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 tableStop = parts.get(parts.size() - 2).getStop();
             }
             add(SplitQueryType.COMMENT_COLUMN, BehaviorAction.ALTER, objects.object(TargetType.Table, tableStart, tableStop, names));
+        } else if (target.DATABASE() != null) {
+            BehaviorObject catalog = objects.unnamedObject(TargetType.Catalog, target.DATABASE().getSymbol(), UmiTypes.Catalog);
+            add(SplitQueryType.COMMENT_CATALOG, BehaviorAction.ALTER, catalog);
+        } else {
+            SplitQueryType statementType = SplitQueryType.COMMENT_PROG_OBJ;
+            TargetType targetType = TargetType.ProgramObject;
+            if (target.SYNONYM() != null) {
+                targetType = TargetType.Synonym;
+                statementType = SplitQueryType.COMMENT_SYNONYM;
+            } else if (target.TABLESPACE() != null) {
+                targetType = TargetType.Tablespace;
+                statementType = SplitQueryType.COMMENT_TABLESPACE;
+            } else if (target.ROLE() != null) {
+                targetType = TargetType.Role;
+                statementType = SplitQueryType.COMMENT_ROLE;
+            } else if (target.CONTEXT() != null) {
+                targetType = TargetType.Context;
+                statementType = SplitQueryType.COMMENT_CONTEXT;
+            } else if (target.DOMAIN() != null) {
+                targetType = TargetType.Type;
+                statementType = SplitQueryType.COMMENT_DOMAIN;
+            } else if (target.DIRECTORY() != null) {
+                targetType = TargetType.ConfigKey;
+                statementType = SplitQueryType.COMMENT_DIRECTORY;
+            } else if (target.PROFILE() != null) {
+                targetType = TargetType.Profile;
+                statementType = SplitQueryType.COMMENT_PROFILE;
+            } else if (target.LINK() != null) {
+                targetType = TargetType.Link;
+                statementType = SplitQueryType.COMMENT_LINK;
+            } else if (target.SEQUENCE() != null) {
+                targetType = TargetType.Sequence;
+                statementType = SplitQueryType.COMMENT_SEQUENCE;
+            } else if (target.SCHEMA() != null) {
+                targetType = TargetType.Schema;
+                statementType = SplitQueryType.COMMENT_SCHEMA;
+            } else if (target.INDEX() != null) {
+                targetType = TargetType.Index;
+                statementType = SplitQueryType.COMMENT_INDEX;
+            } else if (target.TRIGGER() != null) {
+                targetType = TargetType.Trigger;
+                statementType = SplitQueryType.COMMENT_TRIGGER;
+            } else if (target.TYPE() != null) {
+                targetType = TargetType.Type;
+                statementType = SplitQueryType.COMMENT_TYPE;
+            } else if (target.OPERATOR() != null) {
+                targetType = TargetType.Operator;
+                statementType = SplitQueryType.COMMENT_OPERATOR;
+            } else if (target.CLASS() != null) {
+                targetType = TargetType.Type;
+                statementType = SplitQueryType.COMMENT_CLASS;
+            } else if (target.FUNCTION() != null) {
+                targetType = TargetType.Function;
+                statementType = SplitQueryType.COMMENT_FUNCTION;
+            } else if (target.PACKAGE() != null) {
+                targetType = TargetType.Package;
+                statementType = SplitQueryType.COMMENT_PACKAGE;
+            } else if (target.PROCEDURE() != null) {
+                targetType = TargetType.Procedure;
+                statementType = SplitQueryType.COMMENT_PROCEDURE;
+            }
+            ParserRuleContext name = target.qualifiedName();
+            if (name == null) {
+                name = target.identifier();
+            }
+            if (name == null) {
+                name = target.operatorQualifiedName();
+            }
+            if (targetType == TargetType.Tablespace || targetType == TargetType.Role || targetType == TargetType.Context
+                || targetType == TargetType.Profile) {
+                add(statementType, BehaviorAction.ALTER, objects.instanceObject(targetType, name, NameParts.clean(name.getText())));
+                return null;
+            }
+            NameParts parts = new NameParts(null, null, NameParts.clean(name.getText()));
+            if (targetType == TargetType.Schema) {
+                parts = NameParts.from(target.qualifiedName());
+            } else if (targetType == TargetType.Operator) {
+                parts = schemaScoped(operatorName(target.operatorQualifiedName()));
+            } else if (target.qualifiedName() != null && targetType != TargetType.ConfigKey) {
+                parts = schemaScoped(NameParts.from(target.qualifiedName()));
+            }
+            add(statementType, BehaviorAction.ALTER, object(targetType, name, parts));
         }
         return null;
     }
@@ -2950,7 +3063,8 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
         Token errorTable = stringRoutineArgument(arguments, 1, "ERR_LOG_TABLE_NAME");
         String errorTableName = stringValue(errorTable);
-        if (errorTableName == null || errorTableName.equalsIgnoreCase("NULL")) {
+        boolean inferredErrorTable = errorTableName == null || errorTableName.equalsIgnoreCase("NULL");
+        if (inferredErrorTable) {
             errorTable = source;
             errorTableName = "ERR$_" + sourceNames.get(sourceNames.size() - 1);
         }
@@ -2961,7 +3075,11 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             errorNames.add(NameParts.clean(ownerName));
         }
         errorNames.add(NameParts.clean(errorTableName));
-        addObject(targets, objects.object(TargetType.Table, errorTable, errorNames));
+        BehaviorObject errorObject = objects.object(TargetType.Table, errorTable, errorNames);
+        if (inferredErrorTable) {
+            errorObject.setObjectName(null);
+        }
+        addObject(targets, errorObject);
 
         Token tablespace = stringRoutineArgument(arguments, 3, "ERR_LOG_TABLE_SPACE");
         String tablespaceName = stringValue(tablespace);
@@ -2999,12 +3117,65 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         return null;
     }
 
+    private void addBarePackageReads(DmSqlParser.SelectStatementContext ctx) {
+        for (DmSqlParser.PrimaryExpressionContext expression : descendants(ctx, DmSqlParser.PrimaryExpressionContext.class)) {
+            DmSqlParser.QualifiedNameContext qualified = expression.qualifiedName();
+            if (qualified == null || qualified.AT() != null) {
+                continue;
+            }
+            NameParts name = NameParts.from(qualified);
+            if (name.schema() == null || isBlockLocal(name) || isNoParenthesesSystemFunction(name) || "NEXTVAL".equalsIgnoreCase(name.name())
+                || "CURRVAL".equalsIgnoreCase(name.name()) || isTableAlias(expression, name.catalog() == null ? name.schema() : name.catalog())) {
+                continue;
+            }
+            ParseTree parent = expression.getParent();
+            while (parent != null && !(parent instanceof DmSqlParser.SelectQueryContext)) {
+                parent = parent.getParent();
+            }
+            if (!(parent instanceof DmSqlParser.SelectQueryContext query) || query.fromClause() != null) {
+                continue;
+            }
+            // A bare member does not reveal whether it is a variable or a no-argument routine.
+            DmSqlParser.DottedNameContext dotted = qualified.dottedName();
+            List<String> names = new ArrayList<>();
+            names.add(NameParts.clean(dotted.identifier().getText()));
+            Token stop = dotted.identifier().getStop();
+            for (int i = 0; i < dotted.dottedNamePart().size() - 1; i++) {
+                var part = dotted.dottedNamePart(i);
+                names.add(NameParts.clean(part.getText()));
+                stop = part.getStop();
+            }
+            add(SplitQueryType.SELECT, BehaviorAction.READ, objects.object(TargetType.Package, dotted.getStart(), stop, names));
+        }
+    }
+
     @Override
     public Void visitExplainStatement(DmSqlParser.ExplainStatementContext ctx) {
-        for (BehaviorObject table : tableSources(ctx)) {
-            add(SplitQueryType.SELECT, BehaviorAction.READ, table);
-        }
         addFunctionCalls(ctx);
+        List<BehaviorObject> tables = tableSources(ctx);
+        for (DmSqlParser.InsertTargetContext target : descendants(ctx, DmSqlParser.InsertTargetContext.class)) {
+            if (target.qualifiedName() != null) {
+                addObject(tables, object(TargetType.Table, target.qualifiedName(), NameParts.from(target.qualifiedName())));
+            }
+        }
+        for (DmSqlParser.MergeIntoTargetContext target : descendants(ctx, DmSqlParser.MergeIntoTargetContext.class)) {
+            if (target.qualifiedName() != null) {
+                addObject(tables, object(TargetType.Table, target.qualifiedName(), NameParts.from(target.qualifiedName())));
+            }
+        }
+        tables.sort(Comparator.comparingInt(BehaviorObject::getStartLine).thenComparingInt(BehaviorObject::getStartColumn));
+        for (BehaviorObject table : tables) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, table);
+        }
+        for (DmSqlParser.TablePrimaryContext table : descendants(ctx, DmSqlParser.TablePrimaryContext.class)) {
+            if (table.qualifiedName() == null || table.tableIndexClause() == null) {
+                continue;
+            }
+            NameParts name = NameParts.from(table.qualifiedName());
+            DmSqlParser.IdentifierContext index = table.tableIndexClause().identifier();
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, object(TargetType.Index, index, new NameParts(name.catalog(), name.schema(), NameParts.clean(index.getText()))));
+        }
+        behavior.setStatementType(SplitQueryType.PERFORMANCE);
         return null;
     }
 
@@ -3122,6 +3293,17 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 }
                 DmSqlParser.QualifiedNameContext type = declarationType.dataType().qualifiedName();
                 add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Type, type, schemaScoped(NameParts.from(type))));
+            }
+            for (DmSqlParser.BlockTypeDeclarationContext declaration : descendants(ctx, DmSqlParser.BlockTypeDeclarationContext.class)) {
+                for (DmSqlParser.DataTypeContext dataType : descendants(declaration, DmSqlParser.DataTypeContext.class)) {
+                    if (!isUserDefinedDataType(dataType)) {
+                        continue;
+                    }
+                    NameParts name = NameParts.from(dataType.qualifiedName());
+                    if (!isBlockLocal(name)) {
+                        add(SplitQueryType.SELECT, BehaviorAction.READ, object(TargetType.Type, dataType.qualifiedName(), schemaScoped(name)));
+                    }
+                }
             }
             addNestedStatements(ctx);
             addFunctionCalls(ctx);
@@ -3353,6 +3535,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         statements.addAll(descendants(tree, DmSqlParser.CallStatementContext.class));
         statements.addAll(descendants(tree, DmSqlParser.ProcedureCallStatementContext.class));
         statements.addAll(descendants(tree, DmSqlParser.ExecuteImmediateStatementContext.class));
+        statements.addAll(descendants(tree, DmSqlParser.OpenCursorStatementContext.class));
         statements.sort(Comparator.comparingInt(statement -> statement.getStart().getStartIndex()));
 
         for (ParserRuleContext statement : statements) {
@@ -3372,6 +3555,8 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 visitProcedureCallStatement(procedureCall);
             } else if (statement instanceof DmSqlParser.ExecuteImmediateStatementContext executeImmediate) {
                 visitExecuteImmediateStatement(executeImmediate);
+            } else if (statement instanceof DmSqlParser.OpenCursorStatementContext cursor && cursor.expression() != null) {
+                add(SplitQueryType.UNSAFE, BehaviorAction.UNSAFE, objects.instanceObject(TargetType.PrepareStatement, cursor.OPEN().getSymbol()));
             }
         }
     }
@@ -4187,12 +4372,11 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     private BehaviorObject partitionObject(DmSqlParser.QualifiedNameContext table, DmSqlParser.PartitionExtensionClauseContext partition) {
         NameParts tableName = schemaScoped(NameParts.from(table));
         List<String> names = partitionPath(tableName);
-        ParserRuleContext context = partition;
         if (partition.identifier() != null) {
             names.add(NameParts.clean(partition.identifier().getText()));
-            context = partition.identifier();
+            return objects.object(TargetType.Partition, partition.identifier(), names);
         }
-        return objects.object(TargetType.Partition, context, names);
+        return objects.object(TargetType.Partition, table.getStart(), partition.getStop(), names);
     }
 
     private void addPartitionTarget(List<BehaviorObject> targets, NameParts table, DmSqlParser.IdentifierContext partition) {

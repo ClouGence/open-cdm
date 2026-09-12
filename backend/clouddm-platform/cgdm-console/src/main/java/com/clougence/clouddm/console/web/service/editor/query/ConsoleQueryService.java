@@ -309,11 +309,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private static final RuleLevel[] CHECK_LEVELS_FORCE  = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET };
     private static final RuleLevel[] CHECK_LEVELS_NORMAL = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET, RuleLevel.SUGGEST };
 
-    private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain) {
+    private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain, SqlParserParameters parameters) {
         AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(queryDTO.getCurrentUserId())
             .dataSourceId(ctx.getLevels().dsDO().getId())
             .levels(ctx.getLevels().levelsParam())
+            .parameters(parameters)
             .build();
         int codeLine = queryDTO.getBasicCodeLine();
         int codeColumn = queryDTO.getBasicCodeColumn();
@@ -339,9 +340,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         // for Explain
         RewriteSpi rewriteSpi = null;
-        SqlParserParameters parameters = SqlParserParameters.empty();
         if (isExplain) {
-            parameters = this.dmDsConfigService.fetchSqlParserParameters(ctx.getDsConfig(), ctx.getLevels().levelsParam());
             parameters = parameters.put(SqlParserParameters.EXPECT_PLAN, Boolean.TRUE.toString());
             rewriteSpi = ctx.getSqlEngine().rewriteSpi(parameters);
             if (rewriteSpi == null) {
@@ -424,9 +423,13 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Info));
 
         SqlParserParameters parameters = this.dmDsConfigService.fetchSqlParserParameters(ctx.getDsConfig(), ctx.getLevels().levelsParam());
+        // SQL_MODE can differ between the query session and the metadata connection.
+        if (ctx.getCtxDTO().getSqlParameters() != null) {
+            parameters = parameters.putAll(ctx.getCtxDTO().getSqlParameters());
+        }
         List<QueryRequest> requests;
         try {
-            requests = this.prepareQueryRequests(queryDTO, ctx, isExplain);
+            requests = this.prepareQueryRequests(queryDTO, ctx, isExplain, parameters);
         } catch (AntlerSyntaxException e) {
             CodeLocation location = e.offsetLocation(queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
             String syntaxMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SYNTAX_ANALYSIS_ERROR.name(), location.getLineNumber(), location.getColumnNumber());
@@ -682,6 +685,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         ctx.getCtxDTO().setRdbAutoCommit(status.isAutoCommit());
         ctx.getCtxDTO().setRdbTxIsolation(status.getIsolation());
         ctx.getCtxDTO().setRdbReadOnly(status.isReadOnly());
+        ctx.getCtxDTO().setSqlParameters(status.getSqlParameters());
 
         if (ctx.getCtxDTO().isRdbAutoCommit()) {
             this.queryService.closeSession(curUid, sessionId);
@@ -887,6 +891,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 status.setAutoCommit(contextDTO.isRdbAutoCommit());
                 status.setReadOnly(contextDTO.isRdbReadOnly());
                 status.setIsolation(contextDTO.getRdbTxIsolation());
+                status.setSqlParameters(contextDTO.getSqlParameters());
                 status.setHasUnCommitted(true); // at least it is safe.
             } else {
                 status = this.queryService.getAndUpdateStatus(curUid, sessionId);
@@ -897,6 +902,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             contextDTO.setRdbAutoCommit(status.isAutoCommit());
             contextDTO.setRdbTxIsolation(status.getIsolation());
             contextDTO.setRdbReadOnly(status.isReadOnly());
+            contextDTO.setSqlParameters(status.getSqlParameters());
             queryCtx.setHasUnCommitted(status.isHasUnCommitted());
             if (status.isExecuting()) {
                 queryCtx.setQueryStatus(QueryStatus.Receive);

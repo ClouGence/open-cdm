@@ -23,8 +23,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.mysql.parser.MySqlVersion;
@@ -93,7 +93,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         if (nodes.isEmpty()) {
             addUnnamedResource(sqlType, targetType, require, ctx);
         } else {
-            references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes));
+            references.add(new MySqlObjectReference(sqlType, targetType, require, line(ctx), column(ctx), endLine(ctx), endColumn(ctx), nodes, null, true));
         }
     }
 
@@ -589,11 +589,7 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
-        if (ctx.tableName() != null) {
-            add(SplitQueryType.ADMIN_TABLE, TargetType.Table, ctx.tableName());
-        } else {
-            addAdminTables(ctx.tables());
-        }
+        addAdminTables(ctx.tables());
         return null;
     }
 
@@ -617,8 +613,8 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitShowTables(ShowTablesContext ctx) {
-        if (!ctx.uid().isEmpty()) {
-            add(SplitQueryType.METADATA, TargetType.Schema, ctx.uid(0));
+        if (ctx.uid() != null) {
+            add(SplitQueryType.METADATA, TargetType.Schema, ctx.uid());
         } else {
             addUnnamedResource(SplitQueryType.METADATA, TargetType.Schema, true, ctx);
         }
@@ -724,10 +720,13 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDiagnosticsStatement(DiagnosticsStatementContext ctx) {
-        descendants(ctx, VariableClauseContext.class).stream()
-            .filter(variable -> variable.LOCAL_ID() != null || variable.GLOBAL_ID() != null || variable.GLOBAL() != null || variable.SESSION() != null || variable.LOCAL() != null
-                                || variable.persistScope() != null)
-            .forEach(variable -> addConfigKey(SplitQueryType.SESSION_VARIABLE_RW, variable));
+        if (ctx.signalAllowedExpression() != null && ctx.signalAllowedExpression().mysqlVariable() != null) {
+            addConfigKey(ctx.signalAllowedExpression().mysqlVariable());
+        }
+        ctx.diagnosticsTarget().stream().filter(target -> target.LOCAL_ID() != null).forEach(target -> {
+            String variable = unquote(removeLeading(target.LOCAL_ID().getText(), '@'));
+            addInstanceResource(SplitQueryType.SESSION_VARIABLE_RW, TargetType.ConfigKey, true, target, variable);
+        });
         return null;
     }
 
@@ -970,6 +969,10 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitSetVariable(SetVariableContext ctx) {
         for (SetVariableAssignmentContext assignment : ctx.setVariableAssignment()) {
             VariableClauseContext variable = assignment.variableClause();
+            if (variable == null) {
+                addUnnamedResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, assignment);
+                continue;
+            }
             if (isRoutineLocalVariable(variable)) {
                 continue;
             }
@@ -1031,17 +1034,6 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         return value.substring(offset);
     }
 
-    private static String removeWhitespace(String value) {
-        StringBuilder normalized = new StringBuilder(value.length());
-        for (int i = 0; i < value.length(); i++) {
-            char current = value.charAt(i);
-            if (!Character.isWhitespace(current)) {
-                normalized.append(current);
-            }
-        }
-        return normalized.toString();
-    }
-
     private static String stripVariableScope(String value) {
         String[] scopes = { "PERSIST_ONLY", "PERSIST", "GLOBAL", "SESSION", "LOCAL" };
         for (String scope : scopes) {
@@ -1050,9 +1042,8 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             }
             int offset = scope.length();
             if (offset < value.length() && (value.charAt(offset) == '.' || value.charAt(offset) == '=')) {
-                offset++;
+                return value.substring(offset + 1);
             }
-            return value.substring(offset);
         }
         return value;
     }
@@ -1278,10 +1269,17 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
 
     private String variableName(VariableClauseContext ctx) {
         if (ctx.LOCAL_ID() != null) {
-            return unquote(removeWhitespace(removeLeading(ctx.LOCAL_ID().getText(), '@')));
+            return unquote(removeLeading(ctx.LOCAL_ID().getText(), '@'));
         }
         if (ctx.GLOBAL_ID() != null) {
-            return unquote(stripVariableScope(removeWhitespace(removeLeading(ctx.GLOBAL_ID().getText(), '@'))));
+            String variable = unquote(stripVariableScope(removeLeading(ctx.GLOBAL_ID().getText(), '@')));
+            if (ctx.uid() != null) {
+                variable += name(ctx.uid());
+            }
+            if (ctx.dottedId() != null) {
+                variable += "." + unquoteIdentifier(ctx.dottedId().getText().substring(1));
+            }
+            return variable;
         }
         if (ctx.uid() == null) {
             return ctx.CUBE() == null ? "" : name(ctx);
@@ -1291,7 +1289,11 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             || tokenType == MySqlParser.ID && StringUtils.equalsIgnoreCase(ctx.uid().getText(), "PERSIST_ONLY")) {
             return "";
         }
-        return name(ctx.uid());
+        String variable = name(ctx.uid());
+        if (ctx.dottedId() != null) {
+            variable += "." + unquoteIdentifier(ctx.dottedId().getText().substring(1));
+        }
+        return variable;
     }
 
     private void addFile(SplitQueryType sqlType, boolean require, ParserRuleContext ctx) {

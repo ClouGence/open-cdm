@@ -27,8 +27,7 @@ public abstract class PlSqlLexerBase extends Lexer {
         self = this;
     }
 
-    protected boolean IsNewlineAtPos(int pos) {
-        int la = _input.LA(pos);
-        return la == -1 || la == '\n';
+    protected boolean isAtLineStart() {
+        return _tokenStartCharPositionInLine == 0;
     }
 }

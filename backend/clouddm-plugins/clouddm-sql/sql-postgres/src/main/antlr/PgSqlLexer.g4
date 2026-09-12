@@ -55,6 +55,7 @@ options {
 
 @header {
 import com.clougence.sql.postgres.analysis.security.base.PgSqlLexerBase;
+import com.clougence.sql.postgres.parser.PostgresVersion;
 }
 
 // Insert here @header for C++ lexer.
@@ -468,6 +469,7 @@ NOTIFY: N O T I F Y;
 NOWAIT: N O W A I T;
 NULLS_P: N U L L S;
 OBJECT_P: O B J E C T;
+OBJECTS_P: O B J E C T S;
 OF: O F;
 OFF: O F F;
 OIDS: O I D S;
@@ -726,15 +728,8 @@ LOOP: L O O P;
 OPEN: O P E N;
 FORMAT: F O R M A T;
 Identifier: IdentifierStartChar IdentifierChar*;
-fragment IdentifierStartChar: // these are the valid identifier start characters below 0x7F
-    [a-zA-Z_]
-    | // these are the valid characters from 0x80 to 0xFF
-    [\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]
-    |                               // these are the letters above 0xFF which only need a single UTF-16 code unit
-    [\u0100-\uD7FF\uE000-\uFFFF]    {this.CharIsLetter()}?
-    |                               // letters which require multiple UTF-16 code units
-    [\uD800-\uDBFF] [\uDC00-\uDFFF] {this.CheckIfUtf32Letter()}?
-;
+// PostgreSQL scan.l accepts every non-ASCII character in unquoted identifiers.
+fragment IdentifierStartChar: [a-zA-Z_\u0080-\u{10FFFF}];
 fragment IdentifierChar: StrictIdentifierChar | '$';
 fragment StrictIdentifierChar: IdentifierStartChar | [0-9];
 /* Quoted Identifiers
@@ -818,20 +813,18 @@ InvalidUnterminatedHexadecimalStringConstant: 'X' UnterminatedStringConstant;
 // Numeric Constants (4.1.2.6)
 
 Integral: Digits;
-BinaryIntegral: '0b' Digits;
-OctalIntegral: '0o' Digits;
-HexadecimalIntegral: '0x' Digits;
+BinaryIntegral: {atLeast(PostgresVersion.POSTGRES_16)}? '0' [bB] ('_'? [01])+;
+OctalIntegral: {atLeast(PostgresVersion.POSTGRES_16)}? '0' [oO] ('_'? [0-7])+;
+HexadecimalIntegral: {atLeast(PostgresVersion.POSTGRES_16)}? '0' [xX] ('_'? [0-9a-fA-F])+;
 NumericFail: Digits '..' {this.HandleNumericFail();};
 Numeric:
     Digits '.' Digits? /*? replaced with + to solve problem with DOT_DOT .. but this surely must be rewriten */ (
-        'E' [+-]? Digits
+        [eE] [+-]? Digits
     )?
-    | '.' Digits ('E' [+-]? Digits)?
-    | Digits 'E' [+-]? Digits
+    | '.' Digits ([eE] [+-]? Digits)?
+    | Digits [eE] [+-]? Digits
 ;
-fragment Digits: [0-9]+;
-PLSQLVARIABLENAME: ':' [A-Z_] [A-Z_0-9$]*;
-PLSQLIDENTIFIER: ':"' ('\\' . | '""' | ~ ('"' | '\\'))* '"';
+fragment Digits: [0-9]+ | {atLeast(PostgresVersion.POSTGRES_16)}? [0-9] ([0-9] | '_' [0-9])+;
 //
 
 // WHITESPACE (4.1)

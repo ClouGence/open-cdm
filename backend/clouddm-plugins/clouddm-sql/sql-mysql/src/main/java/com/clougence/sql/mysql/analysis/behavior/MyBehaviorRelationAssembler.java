@@ -27,6 +27,7 @@ final class MyBehaviorRelationAssembler {
 
     private final String                     sql;
     private final BehaviorAction             statementAction;
+    private final boolean                    explainOnly;
     private final List<MySqlObjectReference> references;
     private final Map<UmiTypes, Object>      levels;
     private final boolean[]                  consumed;
@@ -35,20 +36,28 @@ final class MyBehaviorRelationAssembler {
     MyBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels){
         this.sql = sql == null ? "" : sql;
         this.statementAction = statementAction(this.sql, statementType);
+        String normalized = this.sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (statementType == SplitQueryType.PERFORMANCE && (normalized.startsWith("EXPLAIN ") || normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE "))) {
+            this.explainOnly = true;
+        } else {
+            this.explainOnly = false;
+        }
         this.references = references;
         this.levels = levels;
         this.consumed = new boolean[references.size()];
     }
 
     List<BehaviorRelation> assemble() {
-        assembleRename();
-        assembleGrantOrRevoke();
-        assembleDefaultRoles();
-        assembleImport();
-        assembleExport();
-        assembleIndexRelation();
-        assembleTriggerRelation();
-        assembleDataDependencies();
+        if (!explainOnly) {
+            assembleRename();
+            assembleGrantOrRevoke();
+            assembleDefaultRoles();
+            assembleImport();
+            assembleExport();
+            assembleIndexRelation();
+            assembleTriggerRelation();
+            assembleDataDependencies();
+        }
         for (int i = 0; i < references.size(); i++) {
             if (!consumed[i]) {
                 addUnary(i);
@@ -309,7 +318,7 @@ final class MyBehaviorRelationAssembler {
             displayNodes.add(nodes.get(0));
         }
         object.setObjectPath(resourcePath(displayNodes));
-        if (!nodes.isEmpty()) {
+        if (!nodes.isEmpty() && !reference.unnamed()) {
             object.setObjectName(objectName(reference.targetType(), nodes));
         }
         object.setStartLine(reference.startLine());
@@ -327,6 +336,9 @@ final class MyBehaviorRelationAssembler {
             return new ObjectName(nodes.get(nodes.size() - 3), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1));
         }
         if (nodes.size() == 2) {
+            if (targetType == TargetType.Schema) {
+                return new ObjectName(nodes.get(0), nodes.get(1), null);
+            }
             return new ObjectName(level(UmiTypes.Catalog), nodes.get(0), nodes.get(1));
         }
         return new ObjectName(null, null, nodes.get(0));
@@ -409,7 +421,7 @@ final class MyBehaviorRelationAssembler {
     private BehaviorAction action(MySqlObjectReference reference) {
         BehaviorAction action = reference.action() == null ? defaultAction(reference.sqlType()) : reference.action();
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        if (normalized.startsWith("EXPLAIN") && statementAction == BehaviorAction.READ) {
+        if (explainOnly && reference.targetType() != TargetType.ConfigKey && reference.targetType() != TargetType.Function) {
             return BehaviorAction.READ;
         }
         if (statementAction == BehaviorAction.UNSAFE && isUnsafeReference(reference, action)) {
@@ -430,7 +442,7 @@ final class MyBehaviorRelationAssembler {
 
     private static boolean isOperationalType(SplitQueryType type) {
         return switch (type) {
-            case ADMIN, ADMIN_TABLE, ADMIN_PERFORMANCE, ADMIN_LOG, MAINTAIN_LOG, ADMIN_REPLICATION, ADMIN_RESOURCE_GROUP, ALTER_REPLICATION -> true;
+            case ADMIN, ADMIN_TABLE, ADMIN_PERFORMANCE, ADMIN_LOG, MAINTAIN_LOG, ADMIN_REPLICATION, ADMIN_RESOURCE_GROUP, ALTER_REPLICATION, TRANSACTION -> true;
             default -> false;
         };
     }
@@ -440,18 +452,41 @@ final class MyBehaviorRelationAssembler {
             return BehaviorAction.UNSAFE;
         }
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (type == SplitQueryType.TRANSACTION) {
+            if (normalized.startsWith("START TRANSACTION") || normalized.startsWith("BEGIN") || normalized.startsWith("XA START") || normalized.startsWith("XA BEGIN")) {
+                return BehaviorAction.START;
+            }
+            if (normalized.startsWith("COMMIT") || normalized.startsWith("XA COMMIT") || normalized.startsWith("XA END")) {
+                return BehaviorAction.STOP;
+            }
+            if (normalized.startsWith("ROLLBACK") || normalized.startsWith("XA ROLLBACK")) {
+                return BehaviorAction.RESET;
+            }
+            if (normalized.startsWith("SAVEPOINT")) {
+                return BehaviorAction.CREATE;
+            }
+            if (normalized.startsWith("RELEASE SAVEPOINT")) {
+                return BehaviorAction.DROP;
+            }
+            if (normalized.startsWith("XA RECOVER")) {
+                return BehaviorAction.READ;
+            }
+            if (normalized.startsWith("SET ") || normalized.startsWith("XA PREPARE")) {
+                return BehaviorAction.CONFIGURE;
+            }
+            return BehaviorAction.UNKNOWN;
+        }
         if (normalized.startsWith("START REPLICA") || normalized.startsWith("START SLAVE") || normalized.startsWith("START GROUP_REPLICATION")) {
             return BehaviorAction.START;
         }
         if (normalized.startsWith("STOP REPLICA") || normalized.startsWith("STOP SLAVE") || normalized.startsWith("STOP GROUP_REPLICATION")) {
             return BehaviorAction.STOP;
         }
-        if (normalized.startsWith("RESET REPLICA") || normalized.startsWith("RESET SLAVE") || normalized.startsWith("RESET BINARY LOGS")
-            || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET QUERY CACHE")) {
+        if (normalized.startsWith("RESET REPLICA") || normalized.startsWith("RESET SLAVE") || normalized.startsWith("RESET BINARY LOGS") || normalized.startsWith("RESET MASTER")
+            || normalized.startsWith("RESET QUERY CACHE")) {
             return BehaviorAction.RESET;
         }
-        if (normalized.startsWith("CHANGE REPLICATION") || normalized.startsWith("CHANGE MASTER")
-            || normalized.startsWith("ALTER INSTANCE") && type == SplitQueryType.ADMIN_LOG) {
+        if (normalized.startsWith("CHANGE REPLICATION") || normalized.startsWith("CHANGE MASTER") || normalized.startsWith("ALTER INSTANCE") && type == SplitQueryType.ADMIN_LOG) {
             return BehaviorAction.ALTER;
         }
         if (normalized.startsWith("BINLOG ")) {
@@ -475,16 +510,13 @@ final class MyBehaviorRelationAssembler {
         if (normalized.contains("CHECKSUM TABLE")) {
             return BehaviorAction.CHECKSUM;
         }
-        if (normalized.contains("ANALYZE TABLE") || normalized.contains("ANALYZE NO_WRITE_TO_BINLOG TABLE")
-            || normalized.contains("ANALYZE LOCAL TABLE")) {
+        if (normalized.contains("ANALYZE TABLE") || normalized.contains("ANALYZE NO_WRITE_TO_BINLOG TABLE") || normalized.contains("ANALYZE LOCAL TABLE")) {
             return BehaviorAction.ANALYZE;
         }
-        if (normalized.contains("OPTIMIZE TABLE") || normalized.contains("OPTIMIZE NO_WRITE_TO_BINLOG TABLE")
-            || normalized.contains("OPTIMIZE LOCAL TABLE")) {
+        if (normalized.contains("OPTIMIZE TABLE") || normalized.contains("OPTIMIZE NO_WRITE_TO_BINLOG TABLE") || normalized.contains("OPTIMIZE LOCAL TABLE")) {
             return BehaviorAction.OPTIMIZE;
         }
-        if (normalized.contains("REPAIR TABLE") || normalized.contains("REPAIR NO_WRITE_TO_BINLOG TABLE")
-            || normalized.contains("REPAIR LOCAL TABLE")) {
+        if (normalized.contains("REPAIR TABLE") || normalized.contains("REPAIR NO_WRITE_TO_BINLOG TABLE") || normalized.contains("REPAIR LOCAL TABLE")) {
             return BehaviorAction.REPAIR;
         }
         if (normalized.contains("GTID_NEXT") || normalized.contains("PSEUDO_SLAVE_MODE")) {
@@ -498,11 +530,11 @@ final class MyBehaviorRelationAssembler {
 
     private boolean isUnsafeReference(MySqlObjectReference reference, BehaviorAction action) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        if (normalized.startsWith("EXPLAIN")) {
+        if (MyBehaviorStatementTypeResolver.isExplainAnalyze(sql)) {
             return true;
         }
-        if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN")
-            || normalized.startsWith("INSTALL COMPONENT") || normalized.startsWith("UNINSTALL COMPONENT")) {
+        if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
+            || normalized.startsWith("UNINSTALL COMPONENT")) {
             return reference.targetType() == TargetType.Library || reference.targetType() == TargetType.File;
         }
         if (normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME")) {
@@ -557,15 +589,13 @@ final class MyBehaviorRelationAssembler {
 
     private static boolean isUnsafeStatement(String sql) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        return normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE") || normalized.startsWith("DEALLOCATE PREPARE")
-               || normalized.startsWith("RESTART") || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ")
-               || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET BINARY LOGS")
-               || normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN")
-               || normalized.startsWith("INSTALL COMPONENT") || normalized.startsWith("UNINSTALL COMPONENT")
-               || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")
-               || normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME")
-               || normalized.contains("SQL_SLAVE_SKIP_COUNTER") || normalized.contains("GTID_PURGED")
-               || normalized.contains("DEBUG") && normalized.contains("FORCE_FAKE_UUID");
+        return MyBehaviorStatementTypeResolver.isExplainAnalyze(sql) || normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE")
+               || normalized.startsWith("DEALLOCATE PREPARE") || normalized.startsWith("RESTART")
+               || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ") || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET BINARY LOGS")
+               || normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
+               || normalized.startsWith("UNINSTALL COMPONENT") || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")
+               || normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME") || normalized.contains("SQL_SLAVE_SKIP_COUNTER")
+               || normalized.contains("GTID_PURGED") || normalized.contains("DEBUG") && normalized.contains("FORCE_FAKE_UUID");
     }
 
     @FunctionalInterface

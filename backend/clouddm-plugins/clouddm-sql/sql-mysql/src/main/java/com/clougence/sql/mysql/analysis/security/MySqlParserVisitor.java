@@ -282,7 +282,10 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     public Void visitJsonValueFunctionCall(JsonValueFunctionCallContext ctx) {
         builder.handleCall(() -> {
             builder.handleDomain(new ObjNameDomain(ctx.JSON_VALUE().getText()), DomainSource.OBJ_NAME);
-            builder.handleFunctionArgs(() -> ctx.expression().forEach(this::addFunctionArgument));
+            builder.handleFunctionArgs(() -> {
+                addFunctionArgument(ctx.expression());
+                addFunctionArgument(ctx.stringLiteral());
+            });
         });
         return null;
     }
@@ -454,7 +457,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         return null;
     }
 
-    private void addFunctionArgument(ExpressionContext expression) {
+    private void addFunctionArgument(ParserRuleContext expression) {
         builder.addAttr(CommonAttribute.FUNC_ARG_NAME, getText(expression));
         expression.accept(this);
     }
@@ -1032,15 +1035,9 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
-        if (ctx.tables() != null) {
-            for (TableNameContext tableNameContext : ctx.tables().tableName()) {
-                builder.handleAnalyzeTable(() -> {
-                    tableNameContext.accept(this);
-                });
-            }
-        } else if (ctx.tableName() != null) {
+        for (TableNameContext tableNameContext : ctx.tables().tableName()) {
             builder.handleAnalyzeTable(() -> {
-                ctx.tableName().accept(this);
+                tableNameContext.accept(this);
             });
         }
         return null;
@@ -1794,6 +1791,12 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitFullTextExpressionAtom(FullTextExpressionAtomContext ctx) {
+        ctx.fullTextExpression().accept(this);
+        return null;
+    }
+
+    @Override
     public Void visitSingleUpdateStatement(SingleUpdateStatementContext ctx) {
         builder.handleUpdate(() -> {
             dmVisitChildren(ctx);
@@ -2208,12 +2211,19 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitSetVariable(SetVariableContext ctx) {
-        List<VariableClauseContext> configKeys = ctx.setVariableAssignment().stream().map(SetVariableAssignmentContext::variableClause).collect(Collectors.toList());
+        if (ctx.setVariableAssignment().stream().anyMatch(assignment -> assignment.variableClause() == null)) {
+            addUnknownTargetDomain(RuleQueryType.SESSION_SETTING_WRITE, SecQueryKind.OTHER);
+        }
+        List<VariableClauseContext> configKeys = ctx.setVariableAssignment()
+            .stream()
+            .map(SetVariableAssignmentContext::variableClause)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
         for (VariableClauseContext configKey : configKeys) {
             MyScopeType scopeType;
             String keyName;
             if (configKey.GLOBAL_ID() != null) {
-                keyName = configKey.GLOBAL_ID().getText().substring(2);
+                keyName = configKey.getText().substring(2);
                 String normalizedKey = keyName.toUpperCase(Locale.ROOT);
                 if (normalizedKey.startsWith("GLOBAL.")) {
                     scopeType = MyScopeType.GLOBAL;
@@ -2233,6 +2243,15 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                 } else {
                     scopeType = MyScopeType.SESSION;
                 }
+            } else if (configKey.DEFAULT() != null) {
+                if (configKey.GLOBAL() != null || configKey.persistScope() != null) {
+                    scopeType = MyScopeType.GLOBAL;
+                } else if (configKey.LOCAL() != null) {
+                    scopeType = MyScopeType.LOCAL;
+                } else {
+                    scopeType = MyScopeType.SESSION;
+                }
+                keyName = configKey.DEFAULT().getText();
             } else if (configKey.GLOBAL() != null) {
                 scopeType = MyScopeType.GLOBAL;
                 keyName = configKey.uid().getText();
@@ -2252,6 +2271,9 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
                 throw new UnsupportedOperationException("unsupported SQL: " + this.getText(configKey));
             }
 
+            if (configKey.GLOBAL_ID() == null && configKey.dottedId() != null) {
+                keyName += configKey.dottedId().getText();
+            }
             MyConfigDomain domain = new MyConfigDomain(keyName, scopeType);
             String normalizedKey = keyName.toUpperCase(Locale.ROOT);
             if (normalizedKey.contains("GTID_") || normalizedKey.contains("SLAVE_") || normalizedKey.contains("REPLICA_")) {
@@ -2729,7 +2751,7 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
         myShowDomain.setAuditKind(SecQueryKind.QUERY);
         myShowDomain.setShowType(MyShowType.TABLES);
         myShowDomain.setTarget(TargetType.Table);
-        String text = getName(ctx.uid(0));
+        String text = getName(ctx.uid());
         myShowDomain.setSchema(text);
         builder.addDomain(myShowDomain);
         return null;

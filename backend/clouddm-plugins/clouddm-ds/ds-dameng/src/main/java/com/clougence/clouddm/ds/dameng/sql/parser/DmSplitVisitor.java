@@ -150,6 +150,9 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (ctx.classBodyCreate() != null || ctx.javaClassCreate() != null || ctx.classCreate() != null) {
             return SplitQueryType.CREATE_TYPE;
         }
+        if (ctx.partitionGroupCreate() != null) {
+            return SplitQueryType.CREATE_RESOURCE_GROUP;
+        }
         return SplitQueryType.UNKNOWN;
     }
 
@@ -239,6 +242,9 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (ctx.CLASS() != null) {
             return SplitQueryType.ALTER_TYPE;
         }
+        if (ctx.OPERATOR() != null) {
+            return SplitQueryType.ALTER_PROG_OBJ;
+        }
         return SplitQueryType.UNKNOWN;
     }
 
@@ -304,6 +310,9 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (ctx.LINK() != null || ctx.DIRECTORY() != null || ctx.CONTEXT() != null || ctx.PROFILE() != null) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
+        if (ctx.PARTITION() != null && ctx.GROUP() != null) {
+            return SplitQueryType.DROP_RESOURCE_GROUP;
+        }
         return SplitQueryType.UNKNOWN;
     }
 
@@ -314,13 +323,77 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
-        if (ctx.commentTarget().TABLE() != null) {
+        DmSqlParser.CommentTargetContext target = ctx.commentTarget();
+        if (target.TABLE() != null) {
             return SplitQueryType.COMMENT_TABLE;
         }
-        if (ctx.commentTarget().VIEW() != null) {
+        if (target.MATERIALIZED() != null) {
+            return SplitQueryType.COMMENT_MATERIALIZED_VIEW;
+        }
+        if (target.VIEW() != null) {
             return SplitQueryType.COMMENT_VIEW;
         }
-        return SplitQueryType.COMMENT_COLUMN;
+        if (target.COLUMN() != null) {
+            return SplitQueryType.COMMENT_COLUMN;
+        }
+        if (target.SYNONYM() != null) {
+            return SplitQueryType.COMMENT_SYNONYM;
+        }
+        if (target.TABLESPACE() != null) {
+            return SplitQueryType.COMMENT_TABLESPACE;
+        }
+        if (target.ROLE() != null) {
+            return SplitQueryType.COMMENT_ROLE;
+        }
+        if (target.CONTEXT() != null) {
+            return SplitQueryType.COMMENT_CONTEXT;
+        }
+        if (target.DOMAIN() != null) {
+            return SplitQueryType.COMMENT_DOMAIN;
+        }
+        if (target.DIRECTORY() != null) {
+            return SplitQueryType.COMMENT_DIRECTORY;
+        }
+        if (target.PROFILE() != null) {
+            return SplitQueryType.COMMENT_PROFILE;
+        }
+        if (target.LINK() != null) {
+            return SplitQueryType.COMMENT_LINK;
+        }
+        if (target.SEQUENCE() != null) {
+            return SplitQueryType.COMMENT_SEQUENCE;
+        }
+        if (target.SCHEMA() != null) {
+            return SplitQueryType.COMMENT_SCHEMA;
+        }
+        if (target.DATABASE() != null) {
+            return SplitQueryType.COMMENT_CATALOG;
+        }
+        if (target.INDEX() != null) {
+            return SplitQueryType.COMMENT_INDEX;
+        }
+        if (target.TRIGGER() != null) {
+            return SplitQueryType.COMMENT_TRIGGER;
+        }
+        if (target.TYPE() != null) {
+            return SplitQueryType.COMMENT_TYPE;
+        }
+        if (target.OPERATOR() != null) {
+            return SplitQueryType.COMMENT_OPERATOR;
+        }
+        if (target.CLASS() != null) {
+            return SplitQueryType.COMMENT_CLASS;
+        }
+        if (target.FUNCTION() != null) {
+            return SplitQueryType.COMMENT_FUNCTION;
+        }
+        if (target.PACKAGE() != null) {
+            return SplitQueryType.COMMENT_PACKAGE;
+        }
+        if (target.PROCEDURE() != null) {
+            return SplitQueryType.COMMENT_PROCEDURE;
+        }
+        return SplitQueryType.UNKNOWN;
     }
 
     @Override
@@ -393,7 +466,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitExplainStatement(DmSqlParser.ExplainStatementContext ctx) {
-        return SplitQueryType.SELECT;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
