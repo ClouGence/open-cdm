@@ -41,17 +41,27 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.MERGE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.REPLACE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.COPY, targetType -> SecDataAuthKind.WRITE), //
-            Map.entry(BehaviorAction.MOVE, targetType -> SecDataAuthKind.WRITE), //
+            Map.entry(BehaviorAction.MOVE, targetType -> switch (targetType) {
+                case Queue -> SecDataAuthKind.MAINTAIN;
+                case BrokerConversation, BrokerConversationGroup -> SecDataAuthKind.MANAGE;
+                default -> SecDataAuthKind.WRITE;
+            }), //
             Map.entry(BehaviorAction.CALL, targetType -> SecDataAuthKind.PROGRAM), //
             Map.entry(BehaviorAction.IMPORT, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.EXPORT, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.GRANT, targetType -> SecDataAuthKind.MANAGE), //
+            Map.entry(BehaviorAction.DENY, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.REVOKE, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.TRANSFER, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.LOCK, targetType -> null), //
             Map.entry(BehaviorAction.UNLOCK, targetType -> null), //
             Map.entry(BehaviorAction.CONFIGURE, targetType -> SecDataAuthKind.MANAGE), //
-            Map.entry(BehaviorAction.SWITCH, targetType -> null), //
+            Map.entry(BehaviorAction.SWITCH, targetType -> {
+                if (targetType == TargetType.AvailabilityGroup) {
+                    return SecDataAuthKind.MAINTAIN;
+                }
+                return null;
+            }), //
             Map.entry(BehaviorAction.ANALYZE, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.APPLY, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.CHECKPOINT, targetType -> SecDataAuthKind.MAINTAIN), //
@@ -79,6 +89,13 @@ public final class BehaviorRelations {
             TargetType.Tablespace, TargetType.Log, TargetType.Library, TargetType.ResourceGroup, TargetType.Replication, //
             TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, TargetType.PrepareStatement);
 
+    // These objects already carry their native scope; URI-style object names are opaque path content.
+    private static final Set<TargetType> NATIVE_SCOPE_TARGETS = EnumSet.of(
+            TargetType.Instance, TargetType.ServiceMasterKey, TargetType.Queue, TargetType.Link,
+            TargetType.Audit, TargetType.AuditSpecification, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Endpoint,
+            TargetType.BrokerMessageType, TargetType.BrokerContract, TargetType.BrokerService, TargetType.BrokerRoute, TargetType.RemoteServiceBinding,
+            TargetType.BrokerPriority, TargetType.EventNotification, TargetType.BrokerConversation, TargetType.BrokerConversationGroup, TargetType.XmlSchemaCollection);
+
     private BehaviorRelations(){
     }
 
@@ -102,7 +119,7 @@ public final class BehaviorRelations {
                 TargetType.Partition, TargetType.View, TargetType.Materialized, //
                 TargetType.Sequence, TargetType.Synonym, TargetType.Type, //
                 TargetType.ProgramObject, TargetType.Function, TargetType.Procedure, //
-                TargetType.Trigger, TargetType.Package, TargetType.Operator);
+                TargetType.Trigger, TargetType.Package, TargetType.Operator, TargetType.XmlSchemaCollection);
     }
 
     private static void registerManageAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
@@ -113,13 +130,19 @@ public final class BehaviorRelations {
                 TargetType.Pipe, TargetType.SchedulerObject, TargetType.SchemaObject, TargetType.Library, //
                 TargetType.Replication, TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, //
                 TargetType.Log, TargetType.ConfigKey, //
+                TargetType.Certificate, TargetType.AsymmetricKey, TargetType.SymmetricKey, TargetType.Credential, //
+                TargetType.DatabaseMasterKey, TargetType.ServiceMasterKey, TargetType.DatabaseEncryptionKey, //
+                TargetType.ColumnMasterKey, TargetType.ColumnEncryptionKey, //
+                TargetType.Audit, TargetType.AuditSpecification, TargetType.Endpoint, TargetType.EventNotification, //
+                TargetType.BrokerMessageType, TargetType.BrokerContract, TargetType.BrokerService, TargetType.BrokerRoute, //
+                TargetType.RemoteServiceBinding, TargetType.BrokerPriority, TargetType.BrokerConversation, TargetType.BrokerConversationGroup, //
                 TargetType.Policy, TargetType.RowAccessPolicy, TargetType.MaskingPolicy, TargetType.RedactionPolicy);
     }
 
     private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MAINTAIN, //
                 TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-                TargetType.ResourceGroup);
+                TargetType.ResourceGroup, TargetType.EventSession, TargetType.AvailabilityGroup);
     }
 
     private static void putAuthKinds(Map<TargetType, SecDataAuthKind> overrides, SecDataAuthKind authKind, TargetType... targetTypes) {
@@ -143,7 +166,26 @@ public final class BehaviorRelations {
             BehaviorObject subject = relation.getSubject();
             List<BehaviorObject> targets = relation.getTarget() == null ? List.of() : relation.getTarget();
             switch (relation.getAction()) {
-                case RENAME, MOVE -> {
+                case MOVE -> {
+                    if (subject.getObjectType() == TargetType.Queue || subject.getObjectType() == TargetType.BrokerConversation) {
+                        addRequest(requests, BehaviorAction.MOVE, subject, registry, dbVersion);
+                        targets.forEach(target -> addRequest(requests, BehaviorAction.MOVE, target, registry, dbVersion));
+                    } else {
+                        addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
+                        targets.forEach(target -> addRequest(requests, BehaviorAction.CREATE, target, registry, dbVersion));
+                    }
+                }
+                case DROP -> {
+                    addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
+                    targets.forEach(target -> {
+                        BehaviorAction action = BehaviorAction.DROP;
+                        if (subject.getObjectType() == TargetType.EventNotification) {
+                            action = relatedObjectAction(subject, target);
+                        }
+                        addRequest(requests, action, target, registry, dbVersion);
+                    });
+                }
+                case RENAME -> {
                     addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
                     targets.forEach(target -> {
                         addRequest(requests, BehaviorAction.CREATE, target, registry, dbVersion);
@@ -167,7 +209,7 @@ public final class BehaviorRelations {
                         addRequest(requests, BehaviorAction.READ, target, registry, dbVersion);
                     });
                 }
-                case GRANT, REVOKE, TRANSFER -> {
+                case GRANT, DENY, REVOKE, TRANSFER -> {
                     addRequest(requests, relation.getAction(), subject, registry, dbVersion);
                     targets.forEach(target -> {
                         addRequest(requests, relation.getAction(), target, registry, dbVersion);
@@ -202,7 +244,7 @@ public final class BehaviorRelations {
             return;
         }
         TargetType targetType = Objects.requireNonNullElse(resource.getObjectType(), TargetType.Unknown);
-        String resourcePath = DmDsUtils.normalizeResourcePath(resource.getObjectPath());
+        String resourcePath = normalizedResourcePath(resource);
         RequestKey key = new RequestKey(action, targetType, resourcePath);
         SecDataAuthKind authKind = requiredAuthKind(action, targetType);
         if (isPermissionExempt(registry, action, resource, databaseVersion)) {
@@ -228,10 +270,27 @@ public final class BehaviorRelations {
             return "/";
         }
 
-        String sourcePath = DmDsUtils.normalizeResourcePath(object.getObjectPath());
+        String sourcePath = normalizedResourcePath(object);
         String currentPath = DmDsUtils.normalizeResourcePath(currentResourcePath);
         String instancePath = DmDsUtils.normalizeResourcePath(instanceResourcePath);
         TargetType targetType = Objects.requireNonNullElse(object.getObjectType(), TargetType.Unknown);
+        // Native scope must survive both authorization and execution backfill.
+        if (NATIVE_SCOPE_TARGETS.contains(targetType)) {
+            return sourcePath;
+        }
+        ObjectName name = object.getObjectName();
+        if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup)
+            && name != null && name.getSchema() == null && name.getObjectName() != null) {
+            // Explicit scope metadata takes precedence over legacy current-schema path completion.
+            String declaredPath = instancePath;
+            if (name.getCatalog() != null) {
+                declaredPath += name.getCatalog() + "/";
+            }
+            declaredPath += name.getObjectName() + "/";
+            if (Objects.equals(sourcePath, DmDsUtils.normalizeResourcePath(declaredPath))) {
+                return sourcePath;
+            }
+        }
         if (Objects.equals(sourcePath, currentPath) || !sourcePath.startsWith(instancePath)) {
             return sourcePath;
         }
@@ -244,8 +303,20 @@ public final class BehaviorRelations {
         return DmDsUtils.normalizeResourcePath(currentPath + sourcePath.substring(instancePath.length()));
     }
 
+    private static String normalizedResourcePath(BehaviorObject object) {
+        String path = object.getObjectPath();
+        if (NATIVE_SCOPE_TARGETS.contains(object.getObjectType()) && path != null && path.startsWith("/") && path.endsWith("/")) {
+            // Do not strip a trailing slash that is part of a Broker object's name.
+            return path;
+        }
+        return DmDsUtils.normalizeResourcePath(path);
+    }
+
     private static BehaviorAction relatedObjectAction(BehaviorObject subject, BehaviorObject target) {
         TargetType subjectType = subject == null ? null : subject.getObjectType();
+        if (subjectType == TargetType.EventNotification && target != null && target.getObjectType() == TargetType.Queue) {
+            return BehaviorAction.ALTER;
+        }
         if (target != null && //
             target.getObjectType() == TargetType.Table && //
             (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger)) {

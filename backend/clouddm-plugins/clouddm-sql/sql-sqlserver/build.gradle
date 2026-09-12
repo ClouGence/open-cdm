@@ -30,4 +30,6 @@ description = 'sql-sqlserver'
 
 tasks.named('generateGrammarSource') {
     arguments += ['-visitor', '-package', 'com.clougence.sql.sqlserver.parser.antlr']
+    // Keep generated Java paths aligned with the package and Gradle's source root.
+    outputDirectory = layout.buildDirectory.dir('generated-src/antlr/main/com/clougence/sql/sqlserver/parser/antlr').get().asFile
 }
