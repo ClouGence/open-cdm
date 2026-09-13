@@ -315,17 +315,177 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowRolesStatement(ShowRolesStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowUserStatement(ShowUserStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowGrantsStatement(ShowGrantsStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitAlterUserStatement(AlterUserStatementContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetPassword(SetPasswordContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetUserPropertyStatement(SetUserPropertyStatementContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultRoleStatement(SetDefaultRoleStatementContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitAlterRoleStatement(AlterRoleStatementContext ctx) {
+        return SplitQueryType.COMMENT_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitGrantRoleToUser(GrantRoleToUserContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantRoleToRole(GrantRoleToRoleContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnUser(GrantOnUserContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnSystem(GrantOnSystemContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnFunc(GrantOnFuncContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnPrimaryObj(GrantOnPrimaryObjContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnAll(GrantOnAllContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeRoleFromUser(RevokeRoleFromUserContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeRoleFromRole(RevokeRoleFromRoleContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnUser(RevokeOnUserContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnSystem(RevokeOnSystemContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnFunc(RevokeOnFuncContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnPrimaryObj(RevokeOnPrimaryObjContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnAll(RevokeOnAllContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitShowAllAuthentication(ShowAllAuthenticationContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowAuthenticationForUser(ShowAuthenticationForUserContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowUserPropertyStatement(ShowUserPropertyStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowPrivilegesStatement(ShowPrivilegesStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSecurityIntegrationStatement(ShowSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateSecurityIntegrationStatement(ShowCreateSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowGroupProvidersStatement(ShowGroupProvidersStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateGroupProviderStatement(ShowCreateGroupProviderStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitCreateSecurityIntegrationStatement(CreateSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterSecurityIntegrationStatement(AlterSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropSecurityIntegrationStatement(DropSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateGroupProviderStatement(CreateGroupProviderStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropGroupProviderStatement(DropGroupProviderStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override

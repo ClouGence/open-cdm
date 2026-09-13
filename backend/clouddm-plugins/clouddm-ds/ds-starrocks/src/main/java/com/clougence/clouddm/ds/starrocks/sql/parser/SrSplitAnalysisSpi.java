@@ -149,6 +149,9 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof StarRocksParser.CreateTableAsSelectStatementContext ctx && ctx.comment() != null) {
             return SplitQueryType.COMMENT_TABLE;
         }
+        if (tree instanceof StarRocksParser.CreateRoleStatementContext ctx && ctx.comment() != null) {
+            return SplitQueryType.COMMENT_ROLE;
+        }
         if (tree instanceof StarRocksParser.CreateIndexStatementContext ctx && ctx.comment() != null) {
             return SplitQueryType.COMMENT_INDEX;
         }

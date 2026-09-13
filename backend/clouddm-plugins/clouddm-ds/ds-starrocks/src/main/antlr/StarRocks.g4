@@ -1859,7 +1859,7 @@ privilegeType
     | CREATE (
         DATABASE| TABLE| VIEW| FUNCTION| GLOBAL FUNCTION| MATERIALIZED VIEW|
         RESOURCE| RESOURCE GROUP| EXTERNAL CATALOG | STORAGE VOLUME | WAREHOUSE | CNGROUP | PIPE )
-    | DELETE | DROP | EXPORT | FILE | IMPERSONATE | INSERT | GRANT | NODE | OPERATE
+    | DELETE | DROP | EXPORT | FILE | IMPERSONATE | INSERT | GRANT | NODE | OPERATE | SECURITY
     | PLUGIN | REPOSITORY| REFRESH | SELECT | UPDATE | USAGE
     ;
 
@@ -1898,11 +1898,11 @@ showCreateSecurityIntegrationStatement
 // ------------------------------------------- Group Provider Statement ------------------------------------------
 
 createGroupProviderStatement
-    : CREATE GROUP PROVIDER identifier properties
+    : CREATE GROUP PROVIDER (IF NOT EXISTS)? identifier properties
     ;
 
 dropGroupProviderStatement
-    : DROP GROUP PROVIDER identifier
+    : DROP GROUP PROVIDER (IF EXISTS)? identifier
     ;
 
 showGroupProvidersStatement
