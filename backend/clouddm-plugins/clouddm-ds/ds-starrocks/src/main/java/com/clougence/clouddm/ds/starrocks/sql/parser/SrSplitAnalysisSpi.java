@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.starrocks.sql.parser;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -43,6 +44,52 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return SrSplitVisitor.INSTANCE;
+    }
+
+    @Override
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        ParseTree statement = context;
+        if (context instanceof StarRocksParser.StatementContext) {
+            statement = context.getChild(0);
+        }
+        boolean sessionStatement = statement instanceof StarRocksParser.SetStatementContext;
+        if (statement instanceof StarRocksParser.QueryStatementContext query) {
+            sessionStatement = query.explainDesc() == null && query.optimizerTrace() == null;
+        }
+        if (!sessionStatement) {
+            return super.collectTypes(context, script);
+        }
+
+        Set<SplitQueryType> types = new LinkedHashSet<>();
+        types.add(normalizeType(statement.accept(splitVisitor())));
+        collectSessionTypes(statement, types);
+        return types;
+    }
+
+    private void collectSessionTypes(ParseTree tree, Set<SplitQueryType> types) {
+        SplitQueryType type = null;
+        if (tree instanceof StarRocksParser.SetVarContext variable) {
+            type = variable.accept(splitVisitor());
+        } else if (tree instanceof StarRocksParser.UserVariableContext) {
+            type = SplitQueryType.SESSION_VARIABLE_RW;
+        } else if (tree instanceof StarRocksParser.SystemVariableContext variable) {
+            // A SET target is already covered by SETTING_WRITE; only expression reads add RW.
+            if (!(variable.getParent() instanceof StarRocksParser.SetSystemVarContext)
+                && (variable.varType() == null || variable.varType().GLOBAL() == null)) {
+                type = SplitQueryType.SESSION_VARIABLE_RW;
+            }
+        } else if (tree instanceof StarRocksParser.QueryRelationContext) {
+            type = SplitQueryType.SELECT;
+        }
+        if (type == null) {
+            type = additionalType(tree);
+        }
+        if (type != null) {
+            types.add(type);
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectSessionTypes(tree.getChild(i), types);
+        }
     }
 
     @Override

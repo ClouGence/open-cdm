@@ -73,15 +73,12 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowWarningStatement(ShowWarningStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
     public SplitQueryType visitShowVariablesStatement(ShowVariablesStatementContext ctx) {
-        if (ctx.varType() == null || ctx.varType().LOCAL() != null || ctx.varType().SESSION() != null) {
-            return SplitQueryType.SESSION_VARIABLE_RW;
-        }
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -162,6 +159,52 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitUseDatabaseStatement(UseDatabaseStatementContext ctx) {
         return SplitQueryType.SWITCH_SCHEMA;
+    }
+
+    @Override
+    public SplitQueryType visitSetCatalogStatement(SetCatalogStatementContext ctx) {
+        return SplitQueryType.SWITCH_CATALOG;
+    }
+
+    @Override
+    public SplitQueryType visitSetRoleStatement(SetRoleStatementContext ctx) {
+        return SplitQueryType.SWITCH_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitExecuteAsStatement(ExecuteAsStatementContext ctx) {
+        return SplitQueryType.SWITCH_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetStatement(SetStatementContext ctx) {
+        // The first assignment determines the primary action; the SPI collects the rest in order.
+        return ctx.setVar(0).accept(this);
+    }
+
+    @Override
+    public SplitQueryType visitSetNames(SetNamesContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitShowStatusStatement(ShowStatusStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowProcStatement(ShowProcStatementContext ctx) {
+        String path = ctx.path.getText();
+        path = path.substring(1, path.length() - 1);
+        if ("/current_queries".equals(path) || "/global_current_queries".equals(path)) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.UNKNOWN;
+    }
+
+    @Override
+    public SplitQueryType visitKillStatement(KillStatementContext ctx) {
+        return SplitQueryType.ADMIN;
     }
 
     @Override
