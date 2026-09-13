@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
@@ -37,6 +38,15 @@ import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
 public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private static final Set<String> KNOWN_USER_FUNCTIONS = Set.of("ADS_VERSION", "TEST", "TEST_FUNC", "TEST_FUNC1", "TEST_FUNCTION");
+
+    // StarRocks 3.5.21 Config.java: getConfigInfo exposes these values without masking.
+    // Credential IDs, public paths and switches are deliberately not treated as secrets.
+    private static final Set<String> SECRET_FE_CONFIGS = Set.of(
+        "authentication_ldap_simple_ssl_conn_trust_store_pwd", "authentication_ldap_simple_bind_root_pwd",
+        "auth_token", "default_master_key", "aws_s3_secret_key", "azure_blob_shared_key", "azure_blob_sas_token",
+        "azure_adls2_shared_key", "azure_adls2_sas_token", "azure_adls2_oauth2_client_secret",
+        "gcp_gcs_service_account_private_key", "ssl_keystore_password", "ssl_key_password",
+        "ssl_truststore_password", "oauth2_client_secret");
 
     protected DslProvider dslProvider() {
         return SrDslProvider.INSTANCE;
@@ -170,6 +180,15 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof StarRocksParser.CreateExternalCatalogStatementContext ctx && hasProperty(ctx, "driver_url")) {
             return SplitQueryType.UNSAFE;
         }
+        if (tree instanceof StarRocksParser.CreateResourceStatementContext ctx && hasProperty(ctx, "driver_url")) {
+            return SplitQueryType.UNSAFE;
+        }
+        if (tree instanceof StarRocksParser.CreateFileStatementContext) {
+            return SplitQueryType.DATA_IMPORT;
+        }
+        if (tree instanceof StarRocksParser.AdminShowConfigStatementContext ctx && exposesConfigSecrets(ctx)) {
+            return SplitQueryType.ADMIN;
+        }
         if (tree instanceof StarRocksParser.SimpleFunctionCallContext ctx && KNOWN_USER_FUNCTIONS.contains(ctx.qualifiedName().getText().toUpperCase(Locale.ROOT))) {
             return SplitQueryType.CALL_PROG_OBJ;
         }
@@ -203,6 +222,56 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
         }
         return null;
+    }
+
+    private boolean exposesConfigSecrets(StarRocksParser.AdminShowConfigStatementContext ctx) {
+        if (ctx.pattern == null) {
+            return true;
+        }
+        String like = decodeSqlString(ctx.pattern.getText());
+        StringBuilder regex = new StringBuilder();
+        for (int i = 0; i < like.length(); i++) {
+            char ch = like.charAt(i);
+            if (ch == '\\' && i + 1 < like.length()) {
+                // LIKE removes escape prefixes, after SQL string decoding.
+                regex.append(Pattern.quote(String.valueOf(like.charAt(++i))));
+            } else if (ch == '%') {
+                regex.append(".*");
+            } else if (ch == '_') {
+                regex.append('.');
+            } else {
+                regex.append(Pattern.quote(String.valueOf(ch)));
+            }
+        }
+        // Config names are case-sensitive (CaseSensibility.CONFIG in the upstream code).
+        Pattern pattern = Pattern.compile(regex.toString());
+        return SECRET_FE_CONFIGS.stream().anyMatch(key -> pattern.matcher(key).matches());
+    }
+
+    private String decodeSqlString(String raw) {
+        String quote = raw.substring(0, 1);
+        String text = raw.substring(1, raw.length() - 1).replace(quote + quote, quote);
+        StringBuilder value = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (ch != '\\' || i + 1 == text.length()) {
+                value.append(ch);
+                continue;
+            }
+            char escaped = text.charAt(++i);
+            // StarRocks AstBuilder preserves backslashes before LIKE wildcards.
+            switch (escaped) {
+                case 'n' -> value.append('\n');
+                case 'r' -> value.append('\r');
+                case 't' -> value.append('\t');
+                case 'b' -> value.append('\b');
+                case '0' -> value.append('\0');
+                case 'Z' -> value.append('\032');
+                case '_', '%' -> value.append('\\').append(escaped);
+                default -> value.append(escaped);
+            }
+        }
+        return value.toString();
     }
 
     private boolean hasProperty(ParseTree tree, String key) {

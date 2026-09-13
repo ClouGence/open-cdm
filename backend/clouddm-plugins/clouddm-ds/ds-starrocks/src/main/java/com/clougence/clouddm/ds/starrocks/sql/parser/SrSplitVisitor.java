@@ -48,17 +48,17 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowBrokerStatement(ShowBrokerStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowComputeNodesStatement(ShowComputeNodesStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowFrontendsStatement(ShowFrontendsStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -198,6 +198,10 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
         path = path.substring(1, path.length() - 1);
         if ("/current_queries".equals(path) || "/global_current_queries".equals(path)) {
             return SplitQueryType.PERFORMANCE;
+        }
+        if ("/frontends".equals(path) || "/backends".equals(path)
+            || "/compute_nodes".equals(path) || "/brokers".equals(path)) {
+            return SplitQueryType.METADATA;
         }
         return SplitQueryType.UNKNOWN;
     }
@@ -486,6 +490,211 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitDropGroupProviderStatement(DropGroupProviderStatementContext ctx) {
         return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminSetConfigStatement(AdminSetConfigStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddFrontendClause(AddFrontendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropFrontendClause(DropFrontendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitModifyFrontendHostClause(ModifyFrontendHostClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddBackendClause(AddBackendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropBackendClause(DropBackendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDecommissionBackendClause(DecommissionBackendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitModifyBackendClause(ModifyBackendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddComputeNodeClause(AddComputeNodeClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropComputeNodeClause(DropComputeNodeClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitModifyBrokerClause(ModifyBrokerClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCancelAlterSystemStatement(CancelAlterSystemStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateResourceStatement(CreateResourceStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterResourceStatement(AlterResourceStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropResourceStatement(DropResourceStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateStorageVolumeStatement(CreateStorageVolumeStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterStorageVolumeStatement(AlterStorageVolumeStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultStorageVolumeStatement(SetDefaultStorageVolumeStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropStorageVolumeStatement(DropStorageVolumeStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateFileStatement(CreateFileStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropFileStatement(DropFileStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddSqlBlackListStatement(AddSqlBlackListStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDelSqlBlackListStatement(DelSqlBlackListStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddBackendBlackListStatement(AddBackendBlackListStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDelBackendBlackListStatement(DelBackendBlackListStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminShowConfigStatement(AdminShowConfigStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowBackendsStatement(ShowBackendsStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowResourceGroupStatement(ShowResourceGroupStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowResourceStatement(ShowResourceStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowStorageVolumesStatement(ShowStorageVolumesStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitDescStorageVolumeStatement(DescStorageVolumeStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowPluginsStatement(ShowPluginsStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSmallFilesStatement(ShowSmallFilesStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSqlBlackListStatement(ShowSqlBlackListStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowBackendBlackListStatement(ShowBackendBlackListStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitCreateResourceGroupStatement(CreateResourceGroupStatementContext ctx) {
+        return SplitQueryType.CREATE_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitAlterResourceGroupStatement(AlterResourceGroupStatementContext ctx) {
+        return SplitQueryType.ALTER_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitDropResourceGroupStatement(DropResourceGroupStatementContext ctx) {
+        return SplitQueryType.DROP_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitShowResourceGroupUsageStatement(ShowResourceGroupUsageStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitInstallPluginStatement(InstallPluginStatementContext ctx) {
+        return SplitQueryType.CREATE_LIBRARY;
+    }
+
+    @Override
+    public SplitQueryType visitUninstallPluginStatement(UninstallPluginStatementContext ctx) {
+        return SplitQueryType.DROP_LIBRARY;
     }
 
     @Override
