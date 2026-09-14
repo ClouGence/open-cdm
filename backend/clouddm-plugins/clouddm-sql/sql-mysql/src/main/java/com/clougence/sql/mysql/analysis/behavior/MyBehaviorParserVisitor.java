@@ -69,18 +69,7 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         while (command.getChildCount() == 1 && command.getChild(0) instanceof ParserRuleContext) {
             command = command.getChild(0);
         }
-        Map<UmiTypes, Object> statementLevels = levels;
-        if (command instanceof MySqlParser.FullDescribeStatementContext describe && describe.uid() != null) {
-            statementLevels = new HashMap<>();
-            if (levels != null) {
-                statementLevels.putAll(levels);
-            }
-            String schema = describe.uid().getText();
-            if (schema.startsWith("`") && schema.endsWith("`")) {
-                schema = schema.substring(1, schema.length() - 1).replace("``", "`");
-            }
-            statementLevels.put(UmiTypes.Schema, schema);
-        }
+        Map<UmiTypes, Object> statementLevels = resolveStatementLevels(command);
         MyBehaviorObjectReferenceVisitor visitor = new MyBehaviorObjectReferenceVisitor(parser,
             statementLevels,
             baseLine,
@@ -89,20 +78,7 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             provider.exactVersion(),
             resources);
         if (command instanceof MySqlParser.MariaSetStatementContext scoped) {
-            // Preserve the child's actions, including commands with only unnamed targets.
-            for (var assignment : scoped.mariaStatementAssignment()) {
-                visitor.scan(assignment);
-            }
-            MyBehaviorParserVisitor childVisitor = new MyBehaviorParserVisitor(parser, provider, statementLevels, baseLine, baseColumn, resources);
-            childVisitor.visit(scoped.sqlStatement());
-            StatementBehavior child = childVisitor.behaviors().get(0);
-            String scopedSql = MyBehaviorText.statementText(parser.getTokenStream(), context);
-            List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(scopedSql, SplitQueryType.SESSION_SETTING_WRITE, visitor.references(), statementLevels, false)
-                .assemble();
-            relations.addAll(child.getRelations());
-            child.setRelations(relations);
-            child.setStatementType(SplitQueryType.SESSION_SETTING_WRITE);
-            behaviors.add(child);
+            behaviors.add(analyzeScopedStatement(context, scoped, visitor, statementLevels));
             return null;
         }
         visitor.prepareStatement(context);
@@ -110,16 +86,58 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         visitor.scanOptimizerHints(context);
 
         String sql = MyBehaviorText.statementText(parser.getTokenStream(), context);
+        SplitQueryType statementType = resolveStatementType(context, command, sql, visitor);
+        normalizeReferences(context, command, statementType, visitor);
+
+        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), statementLevels, isUnsafeReset(command)).assemble();
+        applyCommandActions(command, relations);
+        applyInsertRows(context, relations);
+
+        StatementBehavior behavior = new StatementBehavior();
+        behavior.setStatementType(statementType);
+        behavior.setRelations(relations);
+        behaviors.add(behavior);
+        return null;
+    }
+
+    private Map<UmiTypes, Object> resolveStatementLevels(ParseTree command) {
+        if (!(command instanceof MySqlParser.FullDescribeStatementContext describe) || describe.uid() == null) {
+            return levels;
+        }
+        Map<UmiTypes, Object> statementLevels = new HashMap<>();
+        if (levels != null) {
+            statementLevels.putAll(levels);
+        }
+        String schema = describe.uid().getText();
+        if (schema.startsWith("`") && schema.endsWith("`")) {
+            schema = schema.substring(1, schema.length() - 1).replace("``", "`");
+        }
+        statementLevels.put(UmiTypes.Schema, schema);
+        return statementLevels;
+    }
+
+    private StatementBehavior analyzeScopedStatement(ParserRuleContext context, MySqlParser.MariaSetStatementContext scoped, MyBehaviorObjectReferenceVisitor visitor,
+                                                     Map<UmiTypes, Object> statementLevels) {
+        // Preserve the child's actions, including commands with only unnamed targets.
+        for (var assignment : scoped.mariaStatementAssignment()) {
+            visitor.scan(assignment);
+        }
+        MyBehaviorParserVisitor childVisitor = new MyBehaviorParserVisitor(parser, provider, statementLevels, baseLine, baseColumn, resources);
+        childVisitor.visit(scoped.sqlStatement());
+        StatementBehavior child = childVisitor.behaviors().get(0);
+        String scopedSql = MyBehaviorText.statementText(parser.getTokenStream(), context);
+        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(scopedSql, SplitQueryType.SESSION_SETTING_WRITE, visitor.references(), statementLevels, false)
+            .assemble();
+        relations.addAll(child.getRelations());
+        child.setRelations(relations);
+        child.setStatementType(SplitQueryType.SESSION_SETTING_WRITE);
+        return child;
+    }
+
+    private SplitQueryType resolveStatementType(ParserRuleContext context, ParseTree command, String sql, MyBehaviorObjectReferenceVisitor visitor) {
         SplitQueryType statementType = MyBehaviorStatementTypeResolver.resolve(sql, visitor.references());
-        boolean optionFallbackRequired = command instanceof MySqlParser.ResetOptionsContext
-                                         || command instanceof MySqlParser.FlushStatementContext flush
-                                            && flush.flushOption().stream().anyMatch(option -> option.mariaFlushOption() != null);
-        boolean splitTypeRequired = command instanceof MySqlParser.FullDescribeStatementContext describe
-                                    && (describe.analyze == null || describe.describeObjectClause() instanceof MySqlParser.DescribeConnectionContext);
-        splitTypeRequired = splitTypeRequired || command instanceof MySqlParser.SimpleDescribeStatementContext || command instanceof MySqlParser.SetVariableContext
-                            || command instanceof MySqlParser.MariaShowContext || command instanceof MySqlParser.MariaBackupContext
-                            || command instanceof MySqlParser.MariaAllReplicasContext || optionFallbackRequired;
-        if (splitTypeRequired) {
+        boolean optionFallbackRequired = command instanceof MySqlParser.ResetOptionsContext || hasMariaFlushOptions(command);
+        if (requiresSplitType(command) || optionFallbackRequired) {
             var statementTypes = new MySplitVisitor(provider.version()).collectTypes(command);
             statementType = statementTypes.iterator().next();
             if (optionFallbackRequired) {
@@ -135,19 +153,6 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
                 }
             }
         }
-        boolean unsafeReset = false;
-        if (command instanceof MySqlParser.ResetOptionsContext reset) {
-            unsafeReset = reset.resetOption()
-                .stream()
-                .anyMatch(option -> option.MASTER() != null || option.BINARY() != null && option.LOGS() != null
-                                    || option.ALL() != null && (option.SLAVE() != null || option.REPLICA() != null));
-        } else if (command instanceof MySqlParser.ResetMasterContext || command instanceof MySqlParser.ResetBinaryLogsAndGtidsContext) {
-            unsafeReset = true;
-        } else if (command instanceof MySqlParser.ResetSlaveContext reset) {
-            unsafeReset = reset.ALL() != null;
-        } else if (command instanceof MySqlParser.ResetReplicaContext reset) {
-            unsafeReset = reset.ALL() != null;
-        }
         if (command instanceof MySqlParser.MariaAnalyzeContext analyze) {
             // ANALYZE executes its child, including UPDATE/DELETE; it is not EXPLAIN.
             for (int i = 0; i < analyze.getChildCount(); i++) {
@@ -157,18 +162,59 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
                 }
             }
         }
-        boolean libraryLifecycle = statementType == SplitQueryType.CREATE_LIBRARY || statementType == SplitQueryType.ALTER_LIBRARY || statementType == SplitQueryType.DROP_LIBRARY
-                                   || statementType == SplitQueryType.COMMENT_LIBRARY;
+        return statementType;
+    }
+
+    private static boolean requiresSplitType(ParseTree command) {
+        if (command instanceof MySqlParser.FullDescribeStatementContext describe) {
+            return describe.analyze == null || describe.describeObjectClause() instanceof MySqlParser.DescribeConnectionContext;
+        }
+        return command instanceof MySqlParser.SimpleDescribeStatementContext || command instanceof MySqlParser.SetVariableContext || command instanceof MySqlParser.MariaShowContext
+               || command instanceof MySqlParser.MariaBackupContext || command instanceof MySqlParser.MariaAllReplicasContext;
+    }
+
+    private static boolean hasMariaFlushOptions(ParseTree command) {
+        return command instanceof MySqlParser.FlushStatementContext flush && flush.flushOption().stream().anyMatch(option -> option.mariaFlushOption() != null);
+    }
+
+    private static boolean isUnsafeReset(ParseTree command) {
+        if (command instanceof MySqlParser.ResetOptionsContext reset) {
+            return reset.resetOption().stream().anyMatch(option -> {
+                boolean resetsMasterLogs = option.MASTER() != null || option.BINARY() != null && option.LOGS() != null;
+                boolean removesReplication = option.ALL() != null && (option.SLAVE() != null || option.REPLICA() != null);
+                return resetsMasterLogs || removesReplication;
+            });
+        }
+        if (command instanceof MySqlParser.ResetMasterContext || command instanceof MySqlParser.ResetBinaryLogsAndGtidsContext) {
+            return true;
+        }
+        if (command instanceof MySqlParser.ResetSlaveContext reset) {
+            return reset.ALL() != null;
+        }
+        if (command instanceof MySqlParser.ResetReplicaContext reset) {
+            return reset.ALL() != null;
+        }
+        return false;
+    }
+
+    private void normalizeReferences(ParserRuleContext context, ParseTree command, SplitQueryType statementType, MyBehaviorObjectReferenceVisitor visitor) {
+        boolean libraryLifecycle = switch (statementType) {
+            case CREATE_LIBRARY, ALTER_LIBRARY, DROP_LIBRARY, COMMENT_LIBRARY -> true;
+            default -> false;
+        };
         if (libraryLifecycle) {
             visitor.references().removeIf(reference -> reference.targetType() != TargetType.Library);
         }
         if (command instanceof MySqlParser.FullDescribeStatementContext && statementType == SplitQueryType.PERFORMANCE) {
             visitor.references().removeIf(reference -> reference.targetType() == TargetType.File);
         }
-        if (command instanceof MySqlParser.KillStatementContext && visitor.references().stream().noneMatch(reference -> reference.targetType() == TargetType.Instance)
-            || visitor.references().isEmpty()
-            || statementType != SplitQueryType.SELECT && statementType != SplitQueryType.BLOCK
-               && visitor.references().stream().allMatch(reference -> reference.targetType() == TargetType.Function && reference.sqlType() == SplitQueryType.CALL_PROG_OBJ)) {
+        boolean missingKillTarget = command instanceof MySqlParser.KillStatementContext
+                                    && visitor.references().stream().noneMatch(reference -> reference.targetType() == TargetType.Instance);
+        boolean onlyFunctionCalls = statementType != SplitQueryType.SELECT && statementType != SplitQueryType.BLOCK
+                                    && visitor.references()
+                                        .stream()
+                                        .allMatch(reference -> reference.targetType() == TargetType.Function && reference.sqlType() == SplitQueryType.CALL_PROG_OBJ);
+        if (missingKillTarget || visitor.references().isEmpty() || onlyFunctionCalls) {
             TargetType fallback = fallbackType(statementType);
             if (fallback != null) {
                 int fallbackIndex = visitor.references().size();
@@ -176,10 +222,9 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
                 visitor.references().add(0, visitor.references().remove(fallbackIndex));
             }
         }
+    }
 
-        StatementBehavior behavior = new StatementBehavior();
-        behavior.setStatementType(statementType);
-        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), statementLevels, unsafeReset).assemble();
+    private static void applyCommandActions(ParseTree command, List<BehaviorRelation> relations) {
         if (command instanceof MySqlParser.MariaBackupContext backup) {
             BehaviorAction action = BehaviorAction.LOCK;
             if (backup.UNLOCK() != null || backup.END() != null) {
@@ -196,13 +241,16 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             for (BehaviorRelation relation : relations) {
                 relation.setAction(action);
             }
-        } else if (command instanceof MySqlParser.FlushStatementContext flush && flush.flushOption().stream().anyMatch(option -> option.mariaFlushOption() != null)) {
+        } else if (hasMariaFlushOptions(command)) {
             for (BehaviorRelation relation : relations) {
                 if (relation.getSubject().getObjectType() != TargetType.Function) {
                     relation.setAction(BehaviorAction.FLUSH);
                 }
             }
         }
+    }
+
+    private static void applyInsertRows(ParserRuleContext context, List<BehaviorRelation> relations) {
         Long insertRows = insertRows(context);
         if (insertRows != null) {
             relations.stream()
@@ -210,9 +258,6 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
                 .findFirst()
                 .ifPresent(relation -> relation.setInsertRows(insertRows));
         }
-        behavior.setRelations(relations);
-        behaviors.add(behavior);
-        return null;
     }
 
     private static Long insertRows(ParseTree tree) {
