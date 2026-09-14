@@ -131,6 +131,7 @@ statement
     | adminShowConfigStatement
     | adminShowReplicaDistributionStatement
     | adminShowReplicaStatusStatement
+    | adminShowTabletStatusStatement
     | adminRepairTableStatement
     | adminCancelRepairTableStatement
     | adminCheckTabletsStatement
@@ -768,8 +769,12 @@ adminShowReplicaStatusStatement
     : ADMIN SHOW REPLICA STATUS FROM qualifiedName partitionNames? (WHERE where=expression)?
     ;
 
+adminShowTabletStatusStatement
+    : ADMIN SHOW TABLET STATUS FROM qualifiedName partitionNames? (WHERE where=expression)? properties?
+    ;
+
 adminRepairTableStatement
-    : ADMIN REPAIR TABLE qualifiedName partitionNames?
+    : ADMIN REPAIR TABLE qualifiedName partitionNames? properties?
     ;
 
 adminCancelRepairTableStatement

@@ -62,17 +62,64 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (context instanceof StarRocksParser.StatementContext) {
             statement = context.getChild(0);
         }
-        boolean sessionStatement = statement instanceof StarRocksParser.SetStatementContext;
-        if (statement instanceof StarRocksParser.QueryStatementContext query) {
-            sessionStatement = query.explainDesc() == null && query.optimizerTrace() == null;
+        if (SrSplitVisitor.isPlanOnly(statement)) {
+            // EXPLAIN and TRACE do not execute their query/DML bodies.
+            return Set.of(SplitQueryType.PERFORMANCE);
         }
-        if (!sessionStatement) {
+        if (statement instanceof StarRocksParser.AdminRepairTableStatementContext repair) {
+            return collectRepairTypes(repair);
+        }
+        if (statement instanceof StarRocksParser.CreateDataCacheRuleStatementContext) {
+            // Rule predicates are policy definitions, not executed queries.
+            return Set.of(SplitQueryType.ADMIN_PERFORMANCE);
+        }
+        if (statement instanceof StarRocksParser.SubmitTaskStatementContext
+            || statement instanceof StarRocksParser.CreatePipeStatementContext
+            || statement instanceof StarRocksParser.CreateViewStatementContext
+            || statement instanceof StarRocksParser.AlterViewStatementContext
+            || statement instanceof StarRocksParser.CreateMaterializedViewStatementContext
+            || statement instanceof StarRocksParser.CreateRoutineLoadStatementContext
+            || statement instanceof StarRocksParser.AlterRoutineLoadStatementContext) {
+            // SQL definition bodies belong to children; load mappings/source options only define the job.
+            return Set.of(statement.accept(splitVisitor()));
+        }
+        boolean collectQueryActions = statement instanceof StarRocksParser.SetStatementContext
+            || statement instanceof StarRocksParser.DataCacheSelectStatementContext
+            || statement instanceof StarRocksParser.QueryStatementContext
+            || statement instanceof StarRocksParser.AlterPlanAdvisorAddStatementContext;
+        if (statement instanceof StarRocksParser.InsertStatementContext insert && insert.explainDesc() != null) {
+            // ANALYZE runs the load before aborting its transaction; its source actions still execute.
+            collectQueryActions = insert.explainDesc().ANALYZE() != null;
+        }
+        if (!collectQueryActions) {
             return super.collectTypes(context, script);
         }
 
         Set<SplitQueryType> types = new LinkedHashSet<>();
         types.add(normalizeType(statement.accept(splitVisitor())));
         collectSessionTypes(statement, types);
+        return types;
+    }
+
+    private Set<SplitQueryType> collectRepairTypes(StarRocksParser.AdminRepairTableStatementContext repair) {
+        boolean dryRun = false;
+        if (repair.properties() != null) {
+            for (StarRocksParser.PropertyContext property : repair.properties().property()) {
+                if ("dry_run".equals(decodeSqlString(property.key.getText()))) {
+                    dryRun = Boolean.parseBoolean(decodeSqlString(property.value.getText()));
+                }
+            }
+        }
+        if (dryRun) {
+            // Lake repair only probes a plan in this mode, even with destructive recovery options.
+            return Set.of(SplitQueryType.PERFORMANCE);
+        }
+        Set<SplitQueryType> types = new LinkedHashSet<>();
+        types.add(repair.accept(splitVisitor()));
+        if (repair.properties() != null) {
+            // Repair properties are lake-only; execution can roll back versions or recover empty tablets.
+            types.add(SplitQueryType.UNSAFE);
+        }
         return types;
     }
 
@@ -112,6 +159,35 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         }
         if (tree instanceof StarRocksParser.DeleteStatementContext ctx) {
             return containsContext(ctx, StarRocksParser.QueryRelationContext.class) ? SplitQueryType.SELECT : null;
+        }
+        if (tree instanceof StarRocksParser.FileTableFunctionContext) {
+            // FILES in a source query reads external data. Planning alone does not import it.
+            for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+                if (SrSplitVisitor.isPlanOnly(parent)) {
+                    return null;
+                }
+            }
+            return SplitQueryType.DATA_IMPORT;
+        }
+        if (tree instanceof StarRocksParser.DescPipeStatementContext) {
+            // DESC PIPE exposes original INSERT SQL, including unmasked FILES credentials.
+            return SplitQueryType.ADMIN;
+        }
+        if (tree instanceof StarRocksParser.AdminSetAutomatedSnapshotOffStatementContext) {
+            // Turning the policy off also purges historical cluster snapshots.
+            return SplitQueryType.UNSAFE;
+        }
+        if (tree instanceof StarRocksParser.CompactionClauseContext ctx) {
+            if (ctx.identifier() != null || ctx.identifierList() != null) {
+                return SplitQueryType.ADMIN_PARTITION;
+            }
+            return SplitQueryType.ADMIN_TABLE;
+        }
+        if (tree instanceof StarRocksParser.AdminSetPartitionVersionContext) {
+            return SplitQueryType.UNSAFE;
+        }
+        if (tree instanceof StarRocksParser.DataCacheSelectStatementContext) {
+            return SplitQueryType.SELECT;
         }
         if (tree instanceof StarRocksParser.AddColumnClauseContext || tree instanceof StarRocksParser.AddColumnsClauseContext) {
             return SplitQueryType.ADD_COLUMN;
@@ -197,15 +273,27 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
-        StarRocksParser.QueryStatementContext query = definitionQuery(context);
-        if (query == null) {
+        ParserRuleContext body = definitionBody(context);
+        if (body == null) {
             return Collections.emptyList();
         }
-        String script = tokens.getText(query.getStart(), query.getStop());
-        return List.of(createChild(query, tokens, collectTypes(query, script), Collections.emptyList()));
+        String script = tokens.getText(body.getStart(), body.getStop());
+        return List.of(createChild(body, tokens, collectTypes(body, script), collectChildren(body, tokens)));
     }
 
-    private StarRocksParser.QueryStatementContext definitionQuery(ParseTree tree) {
+    private ParserRuleContext definitionBody(ParseTree tree) {
+        if (tree instanceof StarRocksParser.SubmitTaskStatementContext ctx) {
+            if (ctx.createTableAsSelectStatement() != null) {
+                return ctx.createTableAsSelectStatement();
+            }
+            if (ctx.insertStatement() != null) {
+                return ctx.insertStatement();
+            }
+            return ctx.dataCacheSelectStatement();
+        }
+        if (tree instanceof StarRocksParser.CreatePipeStatementContext ctx) {
+            return ctx.insertStatement();
+        }
         if (tree instanceof StarRocksParser.CreateViewStatementContext ctx) {
             return ctx.queryStatement();
         }
@@ -216,9 +304,9 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return ctx.queryStatement();
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
-            StarRocksParser.QueryStatementContext query = definitionQuery(tree.getChild(i));
-            if (query != null) {
-                return query;
+            ParserRuleContext body = definitionBody(tree.getChild(i));
+            if (body != null) {
+                return body;
             }
         }
         return null;
