@@ -30,6 +30,39 @@ final class MyBehaviorStatementTypeResolver {
 
     static SplitQueryType resolve(String sql, List<MySqlObjectReference> references) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
+        SplitQueryType type = resolveQueryType(normalized, sql, references);
+        if (type != null) {
+            return type;
+        }
+        type = resolveDataOperationType(normalized, references);
+        if (type != null) {
+            return type;
+        }
+        type = resolveControlType(normalized);
+        if (type != null) {
+            return type;
+        }
+        type = resolveMaintenanceType(normalized);
+        if (type != null) {
+            return type;
+        }
+        type = resolveConfigurationType(normalized);
+        if (type != null) {
+            return type;
+        }
+        type = resolveObjectLifecycleType(normalized);
+        if (type != null) {
+            return type;
+        }
+        for (MySqlObjectReference reference : references) {
+            if (reference.sqlType() != null && reference.sqlType() != SplitQueryType.UNKNOWN) {
+                return reference.sqlType();
+            }
+        }
+        return SplitQueryType.UNKNOWN;
+    }
+
+    private static SplitQueryType resolveQueryType(String normalized, String sql, List<MySqlObjectReference> references) {
         if (normalized.startsWith("EXPLAIN") || normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE ")) {
             if (isExplainAnalyze(sql)) {
                 return SplitQueryType.UNSAFE;
@@ -43,45 +76,57 @@ final class MyBehaviorStatementTypeResolver {
             return SplitQueryType.BLOCK;
         }
         if (normalized.startsWith("WITH ")) {
-            int writeStart = findWithWrite(normalized);
-            if (writeStart >= 0) {
-                int writeEnd = MyBehaviorText.wordEnd(normalized, writeStart);
-                return switch (normalized.substring(writeStart, writeEnd)) {
-                    case "UPDATE" -> SplitQueryType.UPDATE;
-                    case "DELETE" -> SplitQueryType.DELETE;
-                    case "REPLACE" -> SplitQueryType.MERGE;
-                    default -> contains(references, SplitQueryType.MERGE) ? SplitQueryType.MERGE : SplitQueryType.INSERT;
-                };
-            }
-            if (containsNode(references, "information_schema")) {
-                return SplitQueryType.METADATA;
-            }
-            return SplitQueryType.SELECT;
+            return resolveWithQueryType(normalized, references);
         }
         if (isSelectExpression(normalized)) {
-            if (contains(references, SplitQueryType.LOG_READ)) {
-                return SplitQueryType.LOG_READ;
-            }
-            if (contains(references, SplitQueryType.PERFORMANCE)) {
-                return SplitQueryType.PERFORMANCE;
-            }
-            if (contains(references, SplitQueryType.DATA_EXPORT)) {
-                return SplitQueryType.DATA_EXPORT;
-            }
-            List<MySqlObjectReference> dataObjects = references.stream()
-                .filter(reference -> reference.targetType() == TargetType.Table || reference.targetType() == TargetType.View || reference.targetType() == TargetType.Materialized)
-                .toList();
-            if (dataObjects.isEmpty() && (normalized.contains("AUDIT_LOG_READ(") || normalized.contains("AUDIT_LOG_READ_BOOKMARK("))) {
-                return SplitQueryType.LOG_READ;
-            }
-            if (!dataObjects.isEmpty() && dataObjects.stream().allMatch(reference -> containsNode(reference, "information_schema"))) {
-                return SplitQueryType.METADATA;
-            }
-            if (!dataObjects.isEmpty() && dataObjects.stream().allMatch(reference -> containsNode(reference, "performance_schema"))) {
-                return SplitQueryType.PERFORMANCE;
-            }
-            return SplitQueryType.SELECT;
+            return resolveSelectQueryType(normalized, references);
         }
+        return null;
+    }
+
+    private static SplitQueryType resolveSelectQueryType(String normalized, List<MySqlObjectReference> references) {
+        if (contains(references, SplitQueryType.LOG_READ)) {
+            return SplitQueryType.LOG_READ;
+        }
+        if (contains(references, SplitQueryType.PERFORMANCE)) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        if (contains(references, SplitQueryType.DATA_EXPORT)) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        List<MySqlObjectReference> dataObjects = references.stream()
+            .filter(reference -> reference.targetType() == TargetType.Table || reference.targetType() == TargetType.View || reference.targetType() == TargetType.Materialized)
+            .toList();
+        if (dataObjects.isEmpty() && (normalized.contains("AUDIT_LOG_READ(") || normalized.contains("AUDIT_LOG_READ_BOOKMARK("))) {
+            return SplitQueryType.LOG_READ;
+        }
+        if (!dataObjects.isEmpty() && dataObjects.stream().allMatch(reference -> containsNode(reference, "information_schema"))) {
+            return SplitQueryType.METADATA;
+        }
+        if (!dataObjects.isEmpty() && dataObjects.stream().allMatch(reference -> containsNode(reference, "performance_schema"))) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.SELECT;
+    }
+
+    private static SplitQueryType resolveWithQueryType(String normalized, List<MySqlObjectReference> references) {
+        int writeStart = findWithWrite(normalized);
+        if (writeStart >= 0) {
+            int writeEnd = MyBehaviorText.wordEnd(normalized, writeStart);
+            return switch (normalized.substring(writeStart, writeEnd)) {
+                case "UPDATE" -> SplitQueryType.UPDATE;
+                case "DELETE" -> SplitQueryType.DELETE;
+                case "REPLACE" -> SplitQueryType.MERGE;
+                default -> contains(references, SplitQueryType.MERGE) ? SplitQueryType.MERGE : SplitQueryType.INSERT;
+            };
+        }
+        if (containsNode(references, "information_schema")) {
+            return SplitQueryType.METADATA;
+        }
+        return SplitQueryType.SELECT;
+    }
+
+    private static SplitQueryType resolveDataOperationType(String normalized, List<MySqlObjectReference> references) {
         if (normalized.startsWith("INSERT")) {
             return contains(references, SplitQueryType.MERGE) ? SplitQueryType.MERGE : SplitQueryType.INSERT;
         }
@@ -103,6 +148,10 @@ final class MyBehaviorStatementTypeResolver {
         if (normalized.startsWith("SHOW ")) {
             return resolveShow(normalized);
         }
+        return null;
+    }
+
+    private static SplitQueryType resolveControlType(String normalized) {
         if (normalized.startsWith("GET DIAGNOSTICS") || normalized.startsWith("GET CURRENT DIAGNOSTICS") || normalized.startsWith("GET STACKED DIAGNOSTICS")) {
             return SplitQueryType.PERFORMANCE;
         }
@@ -131,27 +180,12 @@ final class MyBehaviorStatementTypeResolver {
         if (normalized.startsWith("ALTER INSTANCE") && normalized.contains("LOG")) {
             return SplitQueryType.ADMIN_LOG;
         }
+        return null;
+    }
+
+    private static SplitQueryType resolveMaintenanceType(String normalized) {
         if (normalized.startsWith("FLUSH")) {
-            if (normalized.contains(" FOR EXPORT")) {
-                return SplitQueryType.DATA_EXPORT;
-            }
-            if (normalized.contains(" LOG")) {
-                return SplitQueryType.MAINTAIN_LOG;
-            }
-            if (normalized.contains("DES_KEY_FILE")) {
-                return SplitQueryType.SYSTEM_SETTING_WRITE;
-            }
-            if (normalized.contains("STATUS") || normalized.contains("USER_RESOURCES") || normalized.contains("OPTIMIZER_COSTS") || normalized.contains("HOSTS")
-                || normalized.contains("QUERY CACHE")) {
-                return SplitQueryType.ADMIN_PERFORMANCE;
-            }
-            if (normalized.contains("TABLE")) {
-                return SplitQueryType.ADMIN_TABLE;
-            }
-            if (normalized.contains("PRIVILEGES")) {
-                return SplitQueryType.SYSTEM_SETTING_WRITE;
-            }
-            return SplitQueryType.ADMIN;
+            return resolveFlushType(normalized);
         }
         if (normalized.startsWith("KILL ")) {
             return SplitQueryType.ADMIN;
@@ -175,6 +209,33 @@ final class MyBehaviorStatementTypeResolver {
         if (normalized.startsWith("CLONE INSTANCE") || normalized.startsWith("IMPORT TABLE")) {
             return SplitQueryType.DATA_IMPORT;
         }
+        return null;
+    }
+
+    private static SplitQueryType resolveFlushType(String normalized) {
+        if (normalized.contains(" FOR EXPORT")) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        if (normalized.contains(" LOG")) {
+            return SplitQueryType.MAINTAIN_LOG;
+        }
+        if (normalized.contains("DES_KEY_FILE")) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        if (normalized.contains("STATUS") || normalized.contains("USER_RESOURCES") || normalized.contains("OPTIMIZER_COSTS") || normalized.contains("HOSTS")
+            || normalized.contains("QUERY CACHE")) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if (normalized.contains("TABLE")) {
+            return SplitQueryType.ADMIN_TABLE;
+        }
+        if (normalized.contains("PRIVILEGES")) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        return SplitQueryType.ADMIN;
+    }
+
+    private static SplitQueryType resolveConfigurationType(String normalized) {
         if (normalized.startsWith("SET PASSWORD")) {
             return SplitQueryType.ALTER_USER;
         }
@@ -193,6 +254,10 @@ final class MyBehaviorStatementTypeResolver {
         if (normalized.startsWith("SET @@PERSIST") || normalized.startsWith("SET PERSIST")) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
+        return null;
+    }
+
+    private static SplitQueryType resolveObjectLifecycleType(String normalized) {
         if (normalized.startsWith("INSTALL SONAME") || normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")) {
             return SplitQueryType.CREATE_LIBRARY;
         }
@@ -221,13 +286,7 @@ final class MyBehaviorStatementTypeResolver {
         if (normalized.startsWith("ALTER DATABASE") || normalized.startsWith("ALTER SCHEMA")) {
             return SplitQueryType.ALTER_SCHEMA;
         }
-
-        for (MySqlObjectReference reference : references) {
-            if (reference.sqlType() != null && reference.sqlType() != SplitQueryType.UNKNOWN) {
-                return reference.sqlType();
-            }
-        }
-        return SplitQueryType.UNKNOWN;
+        return null;
     }
 
     static boolean isExplainAnalyze(String sql) {

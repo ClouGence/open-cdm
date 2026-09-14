@@ -15,6 +15,7 @@ import org.junit.jupiter.api.TestFactory;
 
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
@@ -56,14 +57,22 @@ class MariaDBDalTest {
         }
         String sql = test.get("sql").asText();
         if (!supported) {
-            var rejectedParameters = parameters;
-            assertThrows(AntlerSyntaxException.class, () -> {
-                try (var stream = engine.splitAnalysisSpi(rejectedParameters).splitScriptStream(new StringReader(sql), List.of(), 0, 0)) {
-                    stream.toList();
-                }
-            });
+            assertRejectedCommand(engine, parameters, sql);
             return;
         }
+        assertSplitCommand(test, engine, parameters, sql);
+        assertCommandBehavior(test, engine, parameters, sql);
+    }
+
+    private static void assertRejectedCommand(MySqlEngineSpi engine, SqlParserParameters parameters, String sql) {
+        assertThrows(AntlerSyntaxException.class, () -> {
+            try (var stream = engine.splitAnalysisSpi(parameters).splitScriptStream(new StringReader(sql), List.of(), 0, 0)) {
+                stream.toList();
+            }
+        });
+    }
+
+    private static void assertSplitCommand(JsonNode test, MySqlEngineSpi engine, SqlParserParameters parameters, String sql) {
         Set<SplitQueryType> expected = new HashSet<>();
         test.get("types").forEach(type -> expected.add(SplitQueryType.valueOf(type.asText())));
         try (var stream = engine.splitAnalysisSpi(parameters).splitScriptStream(new StringReader(sql), List.of(), 0, 0)) {
@@ -72,70 +81,52 @@ class MariaDBDalTest {
             assertEquals(expected, scripts.get(0).getType());
             assertEquals(sql, scripts.get(0).getScript());
         }
+    }
+
+    private static void assertCommandBehavior(JsonNode test, MySqlEngineSpi engine, SqlParserParameters parameters, String sql) {
         try (var stream = engine.behaviorAnalysisSpi(parameters).analysisBehaviorStream(new StringReader(sql), LEVELS, 0, 0)) {
             var behaviors = stream.toList();
             assertEquals(1, behaviors.size());
             assertEquals(SplitQueryType.valueOf(test.get("behavior").asText()), behaviors.get(0).getStatementType());
-            assertFalse(behaviors.get(0).getRelations().isEmpty());
-            var actions = behaviors.get(0).getRelations().stream().map(relation -> relation.getAction()).toList();
-            if (expected.contains(SplitQueryType.UNSAFE)) {
-                assertTrue(actions.contains(BehaviorAction.UNSAFE), "missing unsafe action");
+            var relations = behaviors.get(0).getRelations();
+            assertFalse(relations.isEmpty());
+            assertExpectedActions(test, relations);
+            if (test.has("firstTargetType")) {
+                assertEquals(TargetType.valueOf(test.get("firstTargetType").asText()), relations.get(0).getSubject().getObjectType());
             }
-            if (sql.startsWith("KILL ")) {
-                assertTrue(actions.contains(BehaviorAction.TERMINATE));
-            }
-            if (sql.startsWith("START ")) {
-                assertTrue(actions.contains(BehaviorAction.START));
-            }
-            if (sql.startsWith("STOP ")) {
-                assertTrue(actions.contains(BehaviorAction.STOP));
-            }
-            if (sql.startsWith("BACKUP ")) {
-                BehaviorAction action = BehaviorAction.LOCK;
-                if (sql.equals("BACKUP UNLOCK;") || sql.equals("BACKUP STAGE END;")) {
-                    action = BehaviorAction.UNLOCK;
-                }
-                assertTrue(actions.contains(action));
-            }
-            if (sql.startsWith("INSTALL SONAME") || sql.startsWith("UNINSTALL SONAME")) {
-                assertFalse(actions.contains(BehaviorAction.UNSAFE));
-                BehaviorAction action = BehaviorAction.CREATE;
-                if (sql.startsWith("UNINSTALL")) {
-                    action = BehaviorAction.DROP;
-                }
-                assertTrue(actions.contains(action));
-            }
-            if (sql.startsWith("FLUSH ")) {
-                assertTrue(actions.contains(BehaviorAction.FLUSH));
-            }
-            if (sql.startsWith("SHOW CREATE SEQUENCE")) {
-                assertEquals(TargetType.Sequence, behaviors.get(0).getRelations().get(0).getSubject().getObjectType());
-            }
-            if (sql.startsWith("SHOW CREATE SERVER")) {
-                assertEquals(TargetType.ConfigKey, behaviors.get(0).getRelations().get(0).getSubject().getObjectType());
-            }
-            if (sql.contains("DELETE FROM")) {
-                assertTrue(behaviors.get(0).getRelations().stream().anyMatch(relation -> relation.getAction() == BehaviorAction.DELETE), "missing DELETE action");
-            }
-            if (sql.contains("UPDATE schema1")) {
-                assertTrue(behaviors.get(0).getRelations().stream().anyMatch(relation -> relation.getAction() == BehaviorAction.UPDATE), "missing UPDATE action");
-            }
-            if (sql.contains("SELECT * FROM schema1.orders")) {
-                assertTrue(behaviors.get(0)
-                    .getRelations()
-                    .stream()
-                    .anyMatch(relation -> relation.getAction() == BehaviorAction.READ && relation.getSubject().getObjectType() == TargetType.Table
-                                          && relation.getSubject().getObjectName() != null
-                                          && "orders".equals(relation.getSubject().getObjectName().getObjectName())), "missing table READ action");
-            }
-            if (sql.startsWith("SET STATEMENT") && sql.contains("max_statement_time")) {
-                assertTrue(behaviors.get(0)
-                    .getRelations()
-                    .stream()
-                    .anyMatch(relation -> relation.getAction() == BehaviorAction.CONFIGURE && relation.getSubject().getObjectType() == TargetType.ConfigKey
-                                          && "/1/max_statement_time/".equals(relation.getSubject().getObjectPath())), "statement setting must be instance scoped");
+            for (JsonNode expected : test.path("requiredRelations")) {
+                assertTrue(relations.stream().anyMatch(relation -> matchesRelation(relation, expected)), "missing relation: " + expected);
             }
         }
+    }
+
+    private static void assertExpectedActions(JsonNode test, List<BehaviorRelation> relations) {
+        var actions = relations.stream().map(BehaviorRelation::getAction).toList();
+        for (JsonNode type : test.get("types")) {
+            if (SplitQueryType.UNSAFE.name().equals(type.asText())) {
+                assertTrue(actions.contains(BehaviorAction.UNSAFE), "missing unsafe action");
+            }
+        }
+        for (JsonNode action : test.path("requiredActions")) {
+            assertTrue(actions.contains(BehaviorAction.valueOf(action.asText())), "missing action: " + action.asText());
+        }
+        for (JsonNode action : test.path("excludedActions")) {
+            assertFalse(actions.contains(BehaviorAction.valueOf(action.asText())), "unexpected action: " + action.asText());
+        }
+    }
+
+    private static boolean matchesRelation(BehaviorRelation relation, JsonNode expected) {
+        if (relation.getAction() != BehaviorAction.valueOf(expected.get("action").asText())) {
+            return false;
+        }
+        var subject = relation.getSubject();
+        if (expected.has("targetType") && subject.getObjectType() != TargetType.valueOf(expected.get("targetType").asText())) {
+            return false;
+        }
+        if (expected.has("objectName") && (subject.getObjectName() == null || !expected.get("objectName").asText().equals(subject.getObjectName().getObjectName()))) {
+            return false;
+        }
+        return !expected.has("objectPath") || expected.get("objectPath").asText().equals(subject.getObjectPath());
     }
 
     @Test
@@ -165,15 +156,15 @@ class MariaDBDalTest {
         JsonNode cases = new ObjectMapper()
             .readTree("""
                     [
-                      {"sql":"CHANGE MASTER TO MASTER_DEMOTE_TO_SLAVE=1;", "types":["ALTER_REPLICATION"], "behavior":"ALTER_REPLICATION", "before":"10.9.8", "since":"10.10.0"},
-                      {"sql":"SHOW EXPLAIN FORMAT=JSON FOR 123;", "types":["PERFORMANCE"], "behavior":"PERFORMANCE", "before":"10.8.8", "since":"10.9.0", "legacy":"SHOW EXPLAIN FOR 123;"},
-                      {"sql":"CHANGE MASTER TO MASTER_USE_GTID=REPLICA_POS;", "types":["ALTER_REPLICATION"], "behavior":"ALTER_REPLICATION", "before":"10.5.0", "since":"10.5.1", "legacy":"CHANGE MASTER TO MASTER_USE_GTID=SLAVE_POS;"},
-                      {"sql":"UNINSTALL SONAME IF EXISTS 'ha_archive';", "types":["DROP_LIBRARY"], "behavior":"DROP_LIBRARY", "before":"10.3.39", "since":"10.4.0", "legacy":"UNINSTALL SONAME 'ha_archive';"},
-                      {"sql":"INSTALL PLUGIN IF NOT EXISTS archive SONAME 'ha_archive';", "types":["CREATE_LIBRARY"], "behavior":"CREATE_LIBRARY", "before":"10.3.39", "since":"10.4.0", "legacy":"INSTALL PLUGIN archive SONAME 'ha_archive';"},
-                      {"sql":"UNINSTALL PLUGIN IF EXISTS archive;", "types":["DROP_LIBRARY"], "behavior":"DROP_LIBRARY", "before":"10.3.39", "since":"10.4.0", "legacy":"UNINSTALL PLUGIN archive;"},
-                      {"sql":"RESET QUERY CACHE, REPLICA ALL;", "types":["ADMIN_PERFORMANCE","ALTER_REPLICATION","UNSAFE"], "behavior":"ADMIN_PERFORMANCE", "before":"10.5.0", "since":"10.5.1"},
-                      {"sql":"RESET QUERY CACHE, REPLICA 'c1' ALL;", "types":["ADMIN_PERFORMANCE","ALTER_REPLICATION","UNSAFE"], "behavior":"ADMIN_PERFORMANCE", "before":"10.5.0", "since":"10.5.1"},
-                      {"sql":"CREATE TABLE t (v VECTOR(3));", "types":["CREATE_TABLE","ADD_COLUMN"], "behavior":"CREATE_TABLE", "before":"11.7.0", "since":"11.7.1"}
+                      {"sql": "CHANGE MASTER TO MASTER_DEMOTE_TO_SLAVE=1;", "types": ["ALTER_REPLICATION"], "behavior": "ALTER_REPLICATION", "before": "10.9.8", "since": "10.10.0"},
+                      {"sql": "SHOW EXPLAIN FORMAT=JSON FOR 123;", "types": ["PERFORMANCE"], "behavior": "PERFORMANCE", "before": "10.8.8", "since": "10.9.0", "legacy": "SHOW EXPLAIN FOR 123;"},
+                      {"sql": "CHANGE MASTER TO MASTER_USE_GTID=REPLICA_POS;", "types": ["ALTER_REPLICATION"], "behavior": "ALTER_REPLICATION", "before": "10.5.0", "since": "10.5.1", "legacy": "CHANGE MASTER TO MASTER_USE_GTID=SLAVE_POS;"},
+                      {"sql": "UNINSTALL SONAME IF EXISTS 'ha_archive';", "types": ["DROP_LIBRARY"], "behavior": "DROP_LIBRARY", "before": "10.3.39", "since": "10.4.0", "legacy": "UNINSTALL SONAME 'ha_archive';", "excludedActions": ["UNSAFE"], "requiredActions": ["DROP"]},
+                      {"sql": "INSTALL PLUGIN IF NOT EXISTS archive SONAME 'ha_archive';", "types": ["CREATE_LIBRARY"], "behavior": "CREATE_LIBRARY", "before": "10.3.39", "since": "10.4.0", "legacy": "INSTALL PLUGIN archive SONAME 'ha_archive';"},
+                      {"sql": "UNINSTALL PLUGIN IF EXISTS archive;", "types": ["DROP_LIBRARY"], "behavior": "DROP_LIBRARY", "before": "10.3.39", "since": "10.4.0", "legacy": "UNINSTALL PLUGIN archive;"},
+                      {"sql": "RESET QUERY CACHE, REPLICA ALL;", "types": ["ADMIN_PERFORMANCE", "ALTER_REPLICATION", "UNSAFE"], "behavior": "ADMIN_PERFORMANCE", "before": "10.5.0", "since": "10.5.1"},
+                      {"sql": "RESET QUERY CACHE, REPLICA 'c1' ALL;", "types": ["ADMIN_PERFORMANCE", "ALTER_REPLICATION", "UNSAFE"], "behavior": "ADMIN_PERFORMANCE", "before": "10.5.0", "since": "10.5.1"},
+                      {"sql": "CREATE TABLE t (v VECTOR(3));", "types": ["CREATE_TABLE", "ADD_COLUMN"], "behavior": "CREATE_TABLE", "before": "11.7.0", "since": "11.7.1"}
                     ]
                     """);
         Stream.Builder<DynamicTest> tests = Stream.builder();

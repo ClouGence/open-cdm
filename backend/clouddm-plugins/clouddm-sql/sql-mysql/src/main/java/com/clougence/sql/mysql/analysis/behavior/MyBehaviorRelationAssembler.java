@@ -33,9 +33,10 @@ final class MyBehaviorRelationAssembler {
     private final boolean[]                  consumed;
     private final List<BehaviorRelation>     relations = new ArrayList<>();
 
-    MyBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels, boolean unsafeReset){
+    MyBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels, boolean unsafeReset,
+                                boolean mariaDb){
         this.sql = sql == null ? "" : sql;
-        this.statementAction = statementAction(this.sql, statementType, unsafeReset);
+        this.statementAction = statementAction(this.sql, statementType, unsafeReset, mariaDb);
         String normalized = this.sql.stripLeading().toUpperCase(Locale.ROOT);
         if (statementType == SplitQueryType.PERFORMANCE && (normalized.startsWith("EXPLAIN ") || normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE "))) {
             this.explainOnly = true;
@@ -447,54 +448,20 @@ final class MyBehaviorRelationAssembler {
         };
     }
 
-    private static BehaviorAction statementAction(String sql, SplitQueryType type, boolean unsafeReset) {
+    private static BehaviorAction statementAction(String sql, SplitQueryType type, boolean unsafeReset, boolean mariaDb) {
+        if (isUnsafeStatement(sql, unsafeReset, mariaDb)) {
+            return BehaviorAction.UNSAFE;
+        }
         if (type == SplitQueryType.CREATE_LIBRARY || type == SplitQueryType.ALTER_LIBRARY || type == SplitQueryType.DROP_LIBRARY || type == SplitQueryType.COMMENT_LIBRARY) {
             return defaultAction(type);
         }
-        if (isUnsafeStatement(sql, unsafeReset)) {
-            return BehaviorAction.UNSAFE;
-        }
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
         if (type == SplitQueryType.TRANSACTION) {
-            if (normalized.startsWith("START TRANSACTION") || normalized.startsWith("BEGIN") || normalized.startsWith("XA START") || normalized.startsWith("XA BEGIN")) {
-                return BehaviorAction.START;
-            }
-            if (normalized.startsWith("COMMIT") || normalized.startsWith("XA COMMIT") || normalized.startsWith("XA END")) {
-                return BehaviorAction.STOP;
-            }
-            if (normalized.startsWith("ROLLBACK") || normalized.startsWith("XA ROLLBACK")) {
-                return BehaviorAction.RESET;
-            }
-            if (normalized.startsWith("SAVEPOINT")) {
-                return BehaviorAction.CREATE;
-            }
-            if (normalized.startsWith("RELEASE SAVEPOINT")) {
-                return BehaviorAction.DROP;
-            }
-            if (normalized.startsWith("XA RECOVER")) {
-                return BehaviorAction.READ;
-            }
-            if (normalized.startsWith("SET ") || normalized.startsWith("XA PREPARE")) {
-                return BehaviorAction.CONFIGURE;
-            }
-            return BehaviorAction.UNKNOWN;
+            return transactionAction(normalized);
         }
-        if (normalized.startsWith("START ALL ") || normalized.startsWith("START REPLICA") || normalized.startsWith("START SLAVE")
-            || normalized.startsWith("START GROUP_REPLICATION")) {
-            return BehaviorAction.START;
-        }
-        if (normalized.startsWith("STOP ALL ") || normalized.startsWith("STOP REPLICA") || normalized.startsWith("STOP SLAVE") || normalized.startsWith("STOP GROUP_REPLICATION")) {
-            return BehaviorAction.STOP;
-        }
-        if (normalized.startsWith("RESET REPLICA") || normalized.startsWith("RESET SLAVE") || normalized.startsWith("RESET BINARY LOGS") || normalized.startsWith("RESET MASTER")
-            || normalized.startsWith("RESET QUERY CACHE")) {
-            return BehaviorAction.RESET;
-        }
-        if (normalized.startsWith("CHANGE REPLICATION") || normalized.startsWith("CHANGE MASTER") || normalized.startsWith("ALTER INSTANCE") && type == SplitQueryType.ADMIN_LOG) {
-            return BehaviorAction.ALTER;
-        }
-        if (normalized.startsWith("BINLOG ")) {
-            return BehaviorAction.APPLY;
+        BehaviorAction replicationAction = replicationAction(normalized, type);
+        if (replicationAction != null) {
+            return replicationAction;
         }
         if (normalized.contains("FLUSH")) {
             return BehaviorAction.FLUSH;
@@ -505,6 +472,20 @@ final class MyBehaviorRelationAssembler {
         if (normalized.startsWith("PURGE BINARY LOGS") || normalized.startsWith("PURGE MASTER LOGS")) {
             return BehaviorAction.PURGE;
         }
+        BehaviorAction tableAction = tableMaintenanceAction(normalized);
+        if (tableAction != null) {
+            return tableAction;
+        }
+        if (normalized.contains("GTID_NEXT") || normalized.contains("PSEUDO_SLAVE_MODE")) {
+            return BehaviorAction.CONFIGURE;
+        }
+        if (normalized.contains("SET RESOURCE GROUP") || type == SplitQueryType.ADMIN_RESOURCE_GROUP) {
+            return BehaviorAction.SWITCH;
+        }
+        return defaultAction(type);
+    }
+
+    private static BehaviorAction tableMaintenanceAction(String normalized) {
         if (normalized.contains("CACHE INDEX") || normalized.contains("LOAD INDEX INTO CACHE")) {
             return BehaviorAction.LOAD;
         }
@@ -523,13 +504,53 @@ final class MyBehaviorRelationAssembler {
         if (normalized.contains("REPAIR TABLE") || normalized.contains("REPAIR NO_WRITE_TO_BINLOG TABLE") || normalized.contains("REPAIR LOCAL TABLE")) {
             return BehaviorAction.REPAIR;
         }
-        if (normalized.contains("GTID_NEXT") || normalized.contains("PSEUDO_SLAVE_MODE")) {
+        return null;
+    }
+
+    private static BehaviorAction replicationAction(String normalized, SplitQueryType type) {
+        if (normalized.startsWith("START ALL ") || normalized.startsWith("START REPLICA") || normalized.startsWith("START SLAVE")
+            || normalized.startsWith("START GROUP_REPLICATION")) {
+            return BehaviorAction.START;
+        }
+        if (normalized.startsWith("STOP ALL ") || normalized.startsWith("STOP REPLICA") || normalized.startsWith("STOP SLAVE") || normalized.startsWith("STOP GROUP_REPLICATION")) {
+            return BehaviorAction.STOP;
+        }
+        if (normalized.startsWith("RESET REPLICA") || normalized.startsWith("RESET SLAVE") || normalized.startsWith("RESET BINARY LOGS") || normalized.startsWith("RESET MASTER")
+            || normalized.startsWith("RESET QUERY CACHE")) {
+            return BehaviorAction.RESET;
+        }
+        if (normalized.startsWith("CHANGE REPLICATION") || normalized.startsWith("CHANGE MASTER") || normalized.startsWith("ALTER INSTANCE") && type == SplitQueryType.ADMIN_LOG) {
+            return BehaviorAction.ALTER;
+        }
+        if (normalized.startsWith("BINLOG ")) {
+            return BehaviorAction.APPLY;
+        }
+        return null;
+    }
+
+    private static BehaviorAction transactionAction(String normalized) {
+        if (normalized.startsWith("START TRANSACTION") || normalized.startsWith("BEGIN") || normalized.startsWith("XA START") || normalized.startsWith("XA BEGIN")) {
+            return BehaviorAction.START;
+        }
+        if (normalized.startsWith("COMMIT") || normalized.startsWith("XA COMMIT") || normalized.startsWith("XA END")) {
+            return BehaviorAction.STOP;
+        }
+        if (normalized.startsWith("ROLLBACK") || normalized.startsWith("XA ROLLBACK")) {
+            return BehaviorAction.RESET;
+        }
+        if (normalized.startsWith("SAVEPOINT")) {
+            return BehaviorAction.CREATE;
+        }
+        if (normalized.startsWith("RELEASE SAVEPOINT")) {
+            return BehaviorAction.DROP;
+        }
+        if (normalized.startsWith("XA RECOVER")) {
+            return BehaviorAction.READ;
+        }
+        if (normalized.startsWith("SET ") || normalized.startsWith("XA PREPARE")) {
             return BehaviorAction.CONFIGURE;
         }
-        if (normalized.contains("SET RESOURCE GROUP") || type == SplitQueryType.ADMIN_RESOURCE_GROUP) {
-            return BehaviorAction.SWITCH;
-        }
-        return defaultAction(type);
+        return BehaviorAction.UNKNOWN;
     }
 
     private boolean isUnsafeReference(MySqlObjectReference reference, BehaviorAction action) {
@@ -587,13 +608,15 @@ final class MyBehaviorRelationAssembler {
         };
     }
 
-    private static boolean isUnsafeStatement(String sql, boolean unsafeReset) {
+    private static boolean isUnsafeStatement(String sql, boolean unsafeReset, boolean mariaDb) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
         return MyBehaviorStatementTypeResolver.isExplainAnalyze(sql) || normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE")
                || normalized.startsWith("DEALLOCATE PREPARE") || normalized.startsWith("RESTART") || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ")
                || unsafeReset || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")
                || normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME") || normalized.contains("SQL_SLAVE_SKIP_COUNTER")
-               || normalized.contains("GTID_PURGED") || normalized.contains("DEBUG") && normalized.contains("FORCE_FAKE_UUID");
+               || !mariaDb && (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
+                               || normalized.startsWith("UNINSTALL COMPONENT")) || normalized.contains("GTID_PURGED")
+               || normalized.contains("DEBUG") && normalized.contains("FORCE_FAKE_UUID");
     }
 
     @FunctionalInterface

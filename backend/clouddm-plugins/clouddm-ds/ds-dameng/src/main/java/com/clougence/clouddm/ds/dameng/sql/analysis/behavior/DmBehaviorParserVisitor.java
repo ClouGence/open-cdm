@@ -26,6 +26,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.analysis.reference.DmResourceRegistry;
+import com.clougence.clouddm.ds.dameng.sql.parser.DmSplitVisitor;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
@@ -325,183 +326,217 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
+        if (ctx.dataWatcherAdminProcedure() != null) {
+            return analyzeDataWatcherAdministration(ctx);
+        }
+        return switch (ctx.getStart().getType()) {
+            case DmSqlParser.ALTER -> analyzeAlterDatabaseAdministration(ctx);
+            case DmSqlParser.BACKUP -> analyzeBackupAdministration(ctx);
+            case DmSqlParser.SHOW -> analyzeShowBackupAdministration(ctx);
+            case DmSqlParser.REMOVE -> analyzeRemoveBackupAdministration(ctx);
+            case DmSqlParser.DUMP -> analyzeDumpBackupAdministration(ctx);
+            case DmSqlParser.LOAD -> analyzeLoadBackupAdministration(ctx);
+            case DmSqlParser.CHECK -> analyzeCheckBackupAdministration(ctx);
+            case DmSqlParser.REPAIR -> analyzeRepairArchiveAdministration(ctx);
+            case DmSqlParser.MERGE -> analyzeMergeDatabaseAdministration(ctx);
+            case DmSqlParser.CONFIGURE -> analyzeConfigureAdministration(ctx);
+            case DmSqlParser.RECOVER -> analyzeRecoverAdministration(ctx);
+            case DmSqlParser.RESTORE -> analyzeRestoreAdministration(ctx);
+            default -> visitChildren(ctx);
+        };
+    }
+
+    private Void analyzeDataWatcherAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.DataWatcherAdminProcedureContext dataWatcher = ctx.dataWatcherAdminProcedure();
-        if (dataWatcher != null) {
-            List<BehaviorObject> targets = new ArrayList<>();
-            if (dataWatcher.SP_SET_OGUID() != null) {
-                addObject(targets, objects.instanceObject(TargetType.ConfigKey, dataWatcher, "OGUID"));
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (dataWatcher.SP_SET_OGUID() != null) {
+            addObject(targets, objects.instanceObject(TargetType.ConfigKey, dataWatcher, "OGUID"));
+        } else {
+            Token instance = null;
+            if (dataWatcher.SP_CLEAR_ARCH_SEND_INFO() != null && ctx.routineArgumentList() != null) {
+                DmSqlParser.RoutineArgumentContext argument = ctx.routineArgumentList().routineArgument().get(0);
+                if (argument.expression() != null) {
+                    instance = stringArgument(List.of(argument.expression()), 0);
+                }
+            }
+            if (instance == null) {
+                addObject(targets, objects.instanceObject(TargetType.Replication, dataWatcher));
             } else {
-                Token instance = null;
-                if (dataWatcher.SP_CLEAR_ARCH_SEND_INFO() != null && ctx.routineArgumentList() != null) {
-                    DmSqlParser.RoutineArgumentContext argument = ctx.routineArgumentList().routineArgument().get(0);
-                    if (argument.expression() != null) {
-                        instance = stringArgument(List.of(argument.expression()), 0);
-                    }
-                }
-                if (instance == null) {
-                    addObject(targets, objects.instanceObject(TargetType.Replication, dataWatcher));
-                } else {
-                    addObject(targets, objects.instanceObject(TargetType.Replication, instance, stringValue(instance)));
-                }
+                addObject(targets, objects.instanceObject(TargetType.Replication, instance, stringValue(instance)));
             }
-            String procedureName = NameParts.clean(dataWatcher.getText());
-            add(SplitQueryType.ADMIN, BehaviorAction.CALL, object(TargetType.Procedure, dataWatcher, new NameParts(null, null, procedureName)), targets);
-            addFunctionCalls(ctx);
-            return null;
         }
+        String procedureName = NameParts.clean(dataWatcher.getText());
+        add(SplitQueryType.ADMIN, BehaviorAction.CALL, object(TargetType.Procedure, dataWatcher, new NameParts(null, null, procedureName)), targets);
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeAlterDatabaseAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.AlterDatabaseActionContext alterDatabase = ctx.alterDatabaseAction();
-        if (alterDatabase != null && alterDatabase.LOGFILE() != null) {
-            if (alterDatabase.RESIZE() != null) {
-                add(SplitQueryType.ADMIN, BehaviorAction.ALTER, fileObject(alterDatabase.backupFilePath(0).getStart()));
-            } else if (alterDatabase.ADD() != null) {
-                for (DmSqlParser.AlterDatabaseFileItemContext item : alterDatabase.alterDatabaseFileItem()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.CREATE, fileObject(item.backupFilePath().getStart()));
-                }
-            } else if (alterDatabase.DROP() != null) {
-                add(SplitQueryType.ADMIN, BehaviorAction.DROP, fileObject(alterDatabase.backupFilePath(0).getStart()));
-            } else if (alterDatabase.RENAME() != null) {
-                List<DmSqlParser.BackupFilePathContext> sources = new ArrayList<>();
-                List<DmSqlParser.BackupFilePathContext> targets = new ArrayList<>();
-                int toIndex = alterDatabase.TO().getSymbol().getTokenIndex();
-                for (DmSqlParser.BackupFilePathContext path : alterDatabase.backupFilePath()) {
-                    if (path.getStart().getTokenIndex() < toIndex) {
-                        sources.add(path);
-                    } else {
-                        targets.add(path);
-                    }
-                }
-                for (int i = 0; i < sources.size(); i++) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.RENAME, fileObject(sources.get(i).getStart()), List.of(fileObject(targets.get(i).getStart())));
-                }
-            }
-            addFunctionCalls(ctx);
-            return null;
+        if (alterDatabase == null) {
+            return visitChildren(ctx);
         }
-        if (alterDatabase != null && alterDatabase.ADD() == null && alterDatabase.MODIFY() == null && alterDatabase.DELETE() == null) {
+        if (alterDatabase.LOGFILE() != null) {
+            return analyzeDatabaseLogFiles(ctx, alterDatabase);
+        }
+        if (alterDatabase.ADD() == null && alterDatabase.MODIFY() == null && alterDatabase.DELETE() == null) {
             add(SplitQueryType.ADMIN, BehaviorAction.UNSAFE, objects.instanceObject(TargetType.Instance, ctx.DATABASE().getSymbol()));
             addFunctionCalls(ctx);
             return null;
         }
-        if (alterDatabase != null && alterDatabase.ARCHIVELOG() != null && alterDatabase.backupFilePath(0).getStart().getType() == DmSqlParser.STRING) {
-            Token configuration = alterDatabase.backupFilePath(0).getStart();
-            Token type = archiveConfigurationValue(configuration, "TYPE");
-            Token destination = archiveConfigurationValue(configuration, "DEST");
-            if (destination != null) {
-                BehaviorObject archive;
-                if (type != null && type.getText().equalsIgnoreCase("LOCAL")) {
-                    archive = fileObject(destination);
+        if (alterDatabase.ARCHIVELOG() != null && alterDatabase.backupFilePath(0).getStart().getType() == DmSqlParser.STRING) {
+            return analyzeDatabaseArchive(ctx, alterDatabase);
+        }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeDatabaseArchive(DmSqlParser.AdminStatementContext ctx, DmSqlParser.AlterDatabaseActionContext alterDatabase) {
+        Token configuration = alterDatabase.backupFilePath(0).getStart();
+        Token type = archiveConfigurationValue(configuration, "TYPE");
+        Token destination = archiveConfigurationValue(configuration, "DEST");
+        if (destination != null) {
+            BehaviorObject archive;
+            if (type != null && type.getText().equalsIgnoreCase("LOCAL")) {
+                archive = fileObject(destination);
+            } else {
+                archive = objects.instanceObject(TargetType.Replication, destination, destination.getText());
+            }
+            List<BehaviorObject> targets = new ArrayList<>();
+            Token timer = archiveConfigurationValue(configuration, "ARCH_TIMER_NAME");
+            if (timer != null) {
+                addObject(targets, objects.instanceObject(TargetType.ConfigKey, timer, timer.getText()));
+            }
+            Token incoming = archiveConfigurationValue(configuration, "INCOMING_PATH");
+            if (incoming != null) {
+                addObject(targets, fileObject(incoming));
+            }
+            add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE, archive, targets);
+        }
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeDatabaseLogFiles(DmSqlParser.AdminStatementContext ctx, DmSqlParser.AlterDatabaseActionContext alterDatabase) {
+        if (alterDatabase.RESIZE() != null) {
+            add(SplitQueryType.ADMIN, BehaviorAction.ALTER, fileObject(alterDatabase.backupFilePath(0).getStart()));
+        } else if (alterDatabase.ADD() != null) {
+            for (DmSqlParser.AlterDatabaseFileItemContext item : alterDatabase.alterDatabaseFileItem()) {
+                add(SplitQueryType.ADMIN, BehaviorAction.CREATE, fileObject(item.backupFilePath().getStart()));
+            }
+        } else if (alterDatabase.DROP() != null) {
+            add(SplitQueryType.ADMIN, BehaviorAction.DROP, fileObject(alterDatabase.backupFilePath(0).getStart()));
+        } else if (alterDatabase.RENAME() != null) {
+            List<DmSqlParser.BackupFilePathContext> sources = new ArrayList<>();
+            List<DmSqlParser.BackupFilePathContext> targets = new ArrayList<>();
+            int toIndex = alterDatabase.TO().getSymbol().getTokenIndex();
+            for (DmSqlParser.BackupFilePathContext path : alterDatabase.backupFilePath()) {
+                if (path.getStart().getTokenIndex() < toIndex) {
+                    sources.add(path);
                 } else {
-                    archive = objects.instanceObject(TargetType.Replication, destination, destination.getText());
+                    targets.add(path);
                 }
-                List<BehaviorObject> targets = new ArrayList<>();
-                Token timer = archiveConfigurationValue(configuration, "ARCH_TIMER_NAME");
-                if (timer != null) {
-                    addObject(targets, objects.instanceObject(TargetType.ConfigKey, timer, timer.getText()));
-                }
-                Token incoming = archiveConfigurationValue(configuration, "INCOMING_PATH");
-                if (incoming != null) {
-                    addObject(targets, fileObject(incoming));
-                }
-                add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE, archive, targets);
             }
-            addFunctionCalls(ctx);
-            return null;
+            for (int i = 0; i < sources.size(); i++) {
+                add(SplitQueryType.ADMIN, BehaviorAction.RENAME, fileObject(sources.get(i).getStart()), List.of(fileObject(targets.get(i).getStart())));
+            }
         }
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeBackupAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.BackupStatementTailContext backup = ctx.backupStatementTail();
-        if (ctx.BACKUP() != null && backup != null && backup.DATABASE() != null) {
-            BehaviorObject database = objects.instanceObject(TargetType.Instance, backup.DATABASE().getSymbol());
-            List<BehaviorObject> targets = new ArrayList<>();
-            addObject(targets, database);
-            if (backup.backupFilePath() != null && backup.backupFilePath().getStart().getType() == DmSqlParser.STRING) {
-                addObject(targets, fileObject(backup.backupFilePath().getStart()));
-            }
-            for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
-                if (option.WITH() != null && option.BACKUPDIR() != null) {
-                    for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
-                        addObject(targets, fileObject(path.getStart()));
-                    }
-                } else if (option.BASE() != null && option.BACKUPSET() != null && !option.backupFilePath().isEmpty()) {
-                    addObject(targets, fileObject(option.backupFilePath(0).getStart()));
-                }
-            }
-            for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
-                if ((option.BACKUPSET() != null && option.BASE() == null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
-                } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(database));
-                }
-            }
-            addFunctionCalls(ctx);
-            return null;
+        if (backup == null) {
+            return visitChildren(ctx);
         }
-        if (ctx.BACKUP() != null && backup != null && backup.TABLESPACE() != null && backup.qualifiedName() != null) {
-            DmSqlParser.QualifiedNameContext name = backup.qualifiedName();
-            BehaviorObject tablespace = objects.instanceObject(TargetType.Tablespace, name, NameParts.clean(name.getText()));
-            List<BehaviorObject> targets = new ArrayList<>();
-            addObject(targets, tablespace);
-            for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
-                if (option.WITH() != null && option.BACKUPDIR() != null) {
-                    for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
-                        addObject(targets, fileObject(path.getStart()));
-                    }
-                } else if (option.BASE() != null && option.BACKUPSET() != null && !option.backupFilePath().isEmpty()) {
-                    addObject(targets, fileObject(option.backupFilePath(0).getStart()));
-                }
-            }
-            for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
-                if ((option.BACKUPSET() != null && option.BASE() == null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
-                } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(tablespace));
-                }
-            }
-            addFunctionCalls(ctx);
-            return null;
+        if (backup.DATABASE() != null) {
+            return analyzeDatabaseBackup(ctx, backup);
         }
-        if (ctx.BACKUP() != null && backup != null && backup.backupArchiveLogTail() != null) {
-            DmSqlParser.BackupArchiveLogTailContext archive = backup.backupArchiveLogTail();
-            BehaviorObject archiveLog = objects.instanceObject(TargetType.Log, archive.archiveLogKeyword());
-            List<BehaviorObject> targets = new ArrayList<>();
-            addObject(targets, archiveLog);
-            if (archive.backupFilePath() != null && archive.backupFilePath().getStart().getType() == DmSqlParser.STRING) {
-                addObject(targets, fileObject(archive.backupFilePath().getStart()));
-            }
-            for (DmSqlParser.BackupAdminOptionContext option : archive.backupAdminOption()) {
-                if (option.WITH() != null && option.BACKUPDIR() != null) {
-                    for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
-                        addObject(targets, fileObject(path.getStart()));
-                    }
-                } else if (option.BASE() != null && option.BACKUPSET() != null && !option.backupFilePath().isEmpty()) {
-                    addObject(targets, fileObject(option.backupFilePath(0).getStart()));
-                }
-            }
-            for (DmSqlParser.BackupAdminOptionContext option : archive.backupAdminOption()) {
-                if ((option.BACKUPSET() != null && option.BASE() == null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
-                } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(archiveLog));
-                }
-            }
-            if (archive.DELETE() != null && archive.INPUT() != null) {
-                add(SplitQueryType.ADMIN, BehaviorAction.DELETE, archiveLog);
-            }
-            addFunctionCalls(ctx);
-            return null;
+        if (backup.TABLESPACE() != null && backup.qualifiedName() != null) {
+            return analyzeTablespaceBackup(ctx, backup);
         }
-        if (ctx.BACKUP() != null && backup != null && backup.TABLE() != null && backup.qualifiedName() != null) {
-            BehaviorObject table = object(TargetType.Table, backup.qualifiedName(), NameParts.from(backup.qualifiedName()));
-            for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
-                if ((option.BACKUPSET() != null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(table));
-                } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(table));
-                }
-            }
-            addFunctionCalls(ctx);
-            return null;
+        if (backup.backupArchiveLogTail() != null) {
+            return analyzeArchiveBackup(ctx, backup);
         }
+        if (backup.TABLE() != null && backup.qualifiedName() != null) {
+            return analyzeTableBackup(ctx, backup);
+        }
+        return visitChildren(ctx);
+    }
+
+    private void addBackupOptionRelations(List<DmSqlParser.BackupAdminOptionContext> options, BehaviorObject source, List<BehaviorObject> targets) {
+        for (DmSqlParser.BackupAdminOptionContext option : options) {
+            if (option.WITH() != null && option.BACKUPDIR() != null) {
+                for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
+                    addObject(targets, fileObject(path.getStart()));
+                }
+            } else if (option.BASE() != null && option.BACKUPSET() != null && !option.backupFilePath().isEmpty()) {
+                addObject(targets, fileObject(option.backupFilePath(0).getStart()));
+            }
+        }
+        for (DmSqlParser.BackupAdminOptionContext option : options) {
+            if ((option.BACKUPSET() != null && option.BASE() == null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
+                add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), targets);
+            } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
+                add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(source));
+            }
+        }
+    }
+
+    private Void analyzeTableBackup(DmSqlParser.AdminStatementContext ctx, DmSqlParser.BackupStatementTailContext backup) {
+        BehaviorObject table = object(TargetType.Table, backup.qualifiedName(), NameParts.from(backup.qualifiedName()));
+        for (DmSqlParser.BackupAdminOptionContext option : backup.backupAdminOption()) {
+            if ((option.BACKUPSET() != null || option.FORMAT() != null) && !option.backupFilePath().isEmpty()) {
+                add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(table));
+            } else if (option.TRACE() != null && option.FILE() != null && !option.backupFilePath().isEmpty()) {
+                add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath(0).getStart()), List.of(table));
+            }
+        }
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeArchiveBackup(DmSqlParser.AdminStatementContext ctx, DmSqlParser.BackupStatementTailContext backup) {
+        DmSqlParser.BackupArchiveLogTailContext archive = backup.backupArchiveLogTail();
+        BehaviorObject archiveLog = objects.instanceObject(TargetType.Log, archive.archiveLogKeyword());
+        List<BehaviorObject> targets = new ArrayList<>();
+        addObject(targets, archiveLog);
+        if (archive.backupFilePath() != null && archive.backupFilePath().getStart().getType() == DmSqlParser.STRING) {
+            addObject(targets, fileObject(archive.backupFilePath().getStart()));
+        }
+        addBackupOptionRelations(archive.backupAdminOption(), archiveLog, targets);
+        if (archive.DELETE() != null && archive.INPUT() != null) {
+            add(SplitQueryType.ADMIN, BehaviorAction.DELETE, archiveLog);
+        }
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeTablespaceBackup(DmSqlParser.AdminStatementContext ctx, DmSqlParser.BackupStatementTailContext backup) {
+        DmSqlParser.QualifiedNameContext name = backup.qualifiedName();
+        BehaviorObject tablespace = objects.instanceObject(TargetType.Tablespace, name, NameParts.clean(name.getText()));
+        List<BehaviorObject> targets = new ArrayList<>();
+        addObject(targets, tablespace);
+        addBackupOptionRelations(backup.backupAdminOption(), tablespace, targets);
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeDatabaseBackup(DmSqlParser.AdminStatementContext ctx, DmSqlParser.BackupStatementTailContext backup) {
+        BehaviorObject database = objects.instanceObject(TargetType.Instance, backup.DATABASE().getSymbol());
+        List<BehaviorObject> targets = new ArrayList<>();
+        addObject(targets, database);
+        if (backup.backupFilePath() != null && backup.backupFilePath().getStart().getType() == DmSqlParser.STRING) {
+            addObject(targets, fileObject(backup.backupFilePath().getStart()));
+        }
+        addBackupOptionRelations(backup.backupAdminOption(), database, targets);
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeShowBackupAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.ShowBackupsetTailContext show = ctx.showBackupsetTail();
-        if (ctx.SHOW() != null && show != null) {
+        if (show != null) {
             List<BehaviorObject> inputs = new ArrayList<>();
             if (show.backupFilePath() != null) {
                 addObject(inputs, fileObject(show.backupFilePath().getStart()));
@@ -524,8 +559,12 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeRemoveBackupAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.RemoveStatementTailContext remove = ctx.removeStatementTail();
-        if (ctx.REMOVE() != null && remove != null && remove.backupFilePath() != null) {
+        if (remove != null && remove.backupFilePath() != null) {
             add(SplitQueryType.ADMIN, BehaviorAction.DELETE, fileObject(remove.backupFilePath().getStart()));
             for (DmSqlParser.RemoveBackupsetOptionContext option : remove.removeBackupsetOption()) {
                 if (option.DATABASE() != null && option.backupFilePath() != null) {
@@ -535,7 +574,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
-        if (ctx.REMOVE() != null && remove != null && remove.BACKUPSETS() != null) {
+        if (remove != null && remove.BACKUPSETS() != null) {
             for (DmSqlParser.RemoveBackupsetsOptionContext option : remove.removeBackupsetsOption()) {
                 if (option.WITH() != null && option.BACKUPDIR() != null) {
                     for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
@@ -548,8 +587,12 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeDumpBackupAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.DumpStatementTailContext dump = ctx.dumpStatementTail();
-        if (ctx.DUMP() != null && dump != null && dump.backupFilePath().size() >= 2) {
+        if (dump != null && dump.backupFilePath().size() >= 2) {
             List<DmSqlParser.BackupFilePathContext> paths = dump.backupFilePath();
             List<BehaviorObject> sources = new ArrayList<>();
             addObject(sources, fileObject(paths.get(0).getStart()));
@@ -560,8 +603,12 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeLoadBackupAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.LoadBackupsetsTailContext load = ctx.loadBackupsetsTail();
-        if (ctx.LOAD() != null && load != null && !load.backupFilePath().isEmpty()) {
+        if (load != null && !load.backupFilePath().isEmpty()) {
             List<DmSqlParser.BackupFilePathContext> paths = load.backupFilePath();
             BehaviorObject destination = fileObject(paths.get(paths.size() - 1).getStart());
             List<BehaviorObject> sources = new ArrayList<>();
@@ -575,8 +622,12 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeCheckBackupAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.CheckStatementTailContext check = ctx.checkStatementTail();
-        if (ctx.CHECK() != null && check != null && check.backupFilePath() != null) {
+        if (check != null && check.backupFilePath() != null) {
             add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(check.backupFilePath().getStart()));
             for (DmSqlParser.CheckBackupsetOptionContext option : check.checkBackupsetOption()) {
                 if (option.backupFilePath() != null) {
@@ -586,13 +637,21 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeRepairArchiveAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.RepairStatementTailContext repair = ctx.repairStatementTail();
-        if (ctx.REPAIR() != null && repair != null) {
+        if (repair != null) {
             add(SplitQueryType.ADMIN, BehaviorAction.REPAIR, objects.instanceObject(TargetType.Log, repair.archiveLogKeyword()));
             add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(repair.backupFilePath().getStart()));
             addFunctionCalls(ctx);
             return null;
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeMergeDatabaseAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.MergeDatabaseTailContext merge = ctx.mergeDatabaseTail();
         if (merge != null) {
             List<DmSqlParser.BackupFilePathContext> paths = merge.backupFilePath();
@@ -611,73 +670,86 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeConfigureAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.ConfigureStatementTailContext configure = ctx.configureStatementTail();
-        if (ctx.CONFIGURE() != null && configure == null) {
+        if (configure == null) {
             add(SplitQueryType.ADMIN, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx));
             return null;
         }
-        if (ctx.CONFIGURE() != null && configure != null && configure.CLEAR() != null) {
+        if (configure.CLEAR() != null) {
             add(SplitQueryType.ADMIN, BehaviorAction.RESET, objects.instanceObject(TargetType.ConfigKey, configure.CLEAR().getSymbol()));
             addFunctionCalls(ctx);
             return null;
         }
-        if (ctx.CONFIGURE() != null && configure != null && configure.DEFAULT() != null && configure.configureDefaultClause() == null) {
+        if (configure.DEFAULT() != null && configure.configureDefaultClause() == null) {
             add(SplitQueryType.ADMIN, BehaviorAction.RESET, objects.instanceObject(TargetType.ConfigKey, configure.DEFAULT().getSymbol()));
             addFunctionCalls(ctx);
             return null;
         }
-        if (ctx.CONFIGURE() != null && configure != null && configure.configureDefaultClause() != null) {
-            DmSqlParser.ConfigureDefaultClauseContext clause = configure.configureDefaultClause();
-            Token keyStart;
-            Token keyStop;
-            String keyName;
-            if (clause.DEVICE() != null) {
-                keyStart = clause.DEVICE().getSymbol();
-                keyStop = clause.TYPE() == null ? keyStart : clause.TYPE().getSymbol();
-                keyName = "DEVICE_TYPE";
-            } else if (clause.TRACE() != null) {
-                keyStart = clause.TRACE().getSymbol();
-                keyStop = keyStart;
-                keyName = "TRACE";
-            } else if (clause.BACKUPDIR() != null) {
-                keyStart = clause.BACKUPDIR().getSymbol();
-                keyStop = keyStart;
-                keyName = "BACKUPDIR";
-            } else if (clause.ARCHIVEDIR() != null) {
-                keyStart = clause.ARCHIVEDIR().getSymbol();
-                keyStop = keyStart;
-                keyName = "ARCHIVEDIR";
-            } else {
-                keyStart = clause.OPEN().getSymbol();
-                keyStop = clause.FILES().getSymbol();
-                keyName = "OPEN_FILES";
-            }
-            List<BehaviorObject> targets = new ArrayList<>();
-            if (clause.getStop().getType() != DmSqlParser.CLEAR && (clause.TRACE() != null || clause.BACKUPDIR() != null || clause.ARCHIVEDIR() != null)) {
-                for (DmSqlParser.BackupFilePathContext path : descendants(clause, DmSqlParser.BackupFilePathContext.class)) {
-                    addObject(targets, fileObject(path.getStart()));
-                }
-            }
-            add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, keyStart, keyStop, keyName), targets);
-            addFunctionCalls(ctx);
-            return null;
+        if (configure.configureDefaultClause() != null) {
+            return analyzeDefaultConfiguration(ctx, configure);
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeDefaultConfiguration(DmSqlParser.AdminStatementContext ctx, DmSqlParser.ConfigureStatementTailContext configure) {
+        DmSqlParser.ConfigureDefaultClauseContext clause = configure.configureDefaultClause();
+        Token keyStart;
+        Token keyStop;
+        String keyName;
+        if (clause.DEVICE() != null) {
+            keyStart = clause.DEVICE().getSymbol();
+            keyStop = clause.TYPE() == null ? keyStart : clause.TYPE().getSymbol();
+            keyName = "DEVICE_TYPE";
+        } else if (clause.TRACE() != null) {
+            keyStart = clause.TRACE().getSymbol();
+            keyStop = keyStart;
+            keyName = "TRACE";
+        } else if (clause.BACKUPDIR() != null) {
+            keyStart = clause.BACKUPDIR().getSymbol();
+            keyStop = keyStart;
+            keyName = "BACKUPDIR";
+        } else if (clause.ARCHIVEDIR() != null) {
+            keyStart = clause.ARCHIVEDIR().getSymbol();
+            keyStop = keyStart;
+            keyName = "ARCHIVEDIR";
+        } else {
+            keyStart = clause.OPEN().getSymbol();
+            keyStop = clause.FILES().getSymbol();
+            keyName = "OPEN_FILES";
+        }
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (clause.getStop().getType() != DmSqlParser.CLEAR && (clause.TRACE() != null || clause.BACKUPDIR() != null || clause.ARCHIVEDIR() != null)) {
+            for (DmSqlParser.BackupFilePathContext path : descendants(clause, DmSqlParser.BackupFilePathContext.class)) {
+                addObject(targets, fileObject(path.getStart()));
+            }
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, keyStart, keyStop, keyName), targets);
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeRecoverAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.RecoverStatementTailContext recover = ctx.recoverStatementTail();
-        if (ctx.RECOVER() != null && recover != null && recover.DATABASE() != null && recover.backupFilePath() != null && recover.UPDATE() != null && recover.DB_MAGIC() != null) {
+        if (recover == null || recover.DATABASE() == null || recover.backupFilePath() == null) {
+            return visitChildren(ctx);
+        }
+        if (recover.UPDATE() != null && recover.DB_MAGIC() != null) {
             add(SplitQueryType.ADMIN, BehaviorAction.RECOVER, fileObject(recover.backupFilePath().getStart()));
             addFunctionCalls(ctx);
             return null;
         }
-        if (ctx.RECOVER() != null && recover != null && recover.DATABASE() != null && recover.backupFilePath() != null && recover.restoreFromClause() != null
-            && recover.restoreFromClause().backupFilePath() != null) {
+        if (recover.restoreFromClause() != null && recover.restoreFromClause().backupFilePath() != null) {
             BehaviorObject databaseFile = fileObject(recover.backupFilePath().getStart());
             BehaviorObject backupSet = fileObject(recover.restoreFromClause().backupFilePath().getStart());
             add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, databaseFile, List.of(backupSet));
             addFunctionCalls(ctx);
             return null;
         }
-        if (ctx.RECOVER() != null && recover != null && recover.DATABASE() != null && recover.backupFilePath() != null && recover.TABLESPACE() != null
-            && recover.qualifiedName() != null) {
+        if (recover.TABLESPACE() != null && recover.qualifiedName() != null) {
             List<BehaviorObject> sources = new ArrayList<>();
             for (DmSqlParser.RecoverTablespaceOptionContext option : recover.recoverTablespaceOption()) {
                 if (option.WITH() != null && option.ARCHIVEDIR() != null) {
@@ -692,7 +764,7 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
-        if (ctx.RECOVER() != null && recover != null && recover.DATABASE() != null && recover.backupFilePath() != null && recover.TABLESPACE() == null) {
+        if (recover.TABLESPACE() == null) {
             List<BehaviorObject> sources = new ArrayList<>();
             if (recover.recoverArchiveClause() != null) {
                 for (DmSqlParser.BackupFilePathContext path : recover.recoverArchiveClause().backupFilePath()) {
@@ -703,79 +775,102 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             addFunctionCalls(ctx);
             return null;
         }
+        return visitChildren(ctx);
+    }
+
+    private Void analyzeRestoreAdministration(DmSqlParser.AdminStatementContext ctx) {
         DmSqlParser.RestoreStatementTailContext restore = ctx.restoreStatementTail();
-        if (ctx.RESTORE() != null && restore != null && restore.DATABASE() != null && restore.backupFilePath() != null && restore.restoreTablespaceTail() != null) {
-            DmSqlParser.RestoreTablespaceTailContext tail = restore.restoreTablespaceTail();
-            BehaviorObject tablespace = objects.instanceObject(TargetType.Tablespace, tail.qualifiedName(), NameParts.clean(tail.qualifiedName().getText()));
-            List<BehaviorObject> sources = new ArrayList<>();
-            if (tail.restoreFromClause().backupFilePath() != null) {
-                addObject(sources, fileObject(tail.restoreFromClause().backupFilePath().getStart()));
-            }
-            for (DmSqlParser.RestoreOptionContext option : tail.restoreOption()) {
-                if ((option.WITH() != null && option.BACKUPDIR() != null) || (option.MAPPED() != null && option.FILE() != null)) {
-                    for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
-                        addObject(sources, fileObject(path.getStart()));
-                    }
-                }
-            }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, tablespace, sources);
-            if (tail.restoreDatafileClause() != null) {
-                for (DmSqlParser.RestoreDatafileItemContext datafile : tail.restoreDatafileClause().restoreDatafileItem()) {
-                    Token start = datafile.getStart();
-                    if (start.getType() == DmSqlParser.STRING && start.getTokenIndex() == datafile.getStop().getTokenIndex()) {
-                        add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, fileObject(start), sources);
-                    }
-                }
-            }
-            add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(restore.backupFilePath().getStart()));
-            addFunctionCalls(ctx);
-            return null;
+        if (restore == null) {
+            return visitChildren(ctx);
         }
-        if (ctx.RESTORE() != null && restore != null && restore.DATABASE() != null && restore.restoreDatabaseTarget() != null && restore.restoreFromClause() != null) {
-            BehaviorObject destination = fileObject(restore.restoreDatabaseTarget().backupFilePath().getStart());
-            List<BehaviorObject> sources = new ArrayList<>();
-            if (restore.restoreFromClause().backupFilePath() != null) {
-                addObject(sources, fileObject(restore.restoreFromClause().backupFilePath().getStart()));
-            }
-            for (DmSqlParser.RestoreOptionContext option : restore.restoreOption()) {
-                if ((option.WITH() != null && option.BACKUPDIR() != null) || (option.MAPPED() != null && option.FILE() != null)) {
-                    for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
-                        addObject(sources, fileObject(path.getStart()));
-                    }
-                }
-            }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, destination, sources);
-            addFunctionCalls(ctx);
-            return null;
+        if (restore.DATABASE() != null && restore.backupFilePath() != null && restore.restoreTablespaceTail() != null) {
+            return analyzeTablespaceRestore(ctx, restore);
         }
-        if (ctx.RESTORE() != null && restore != null && restore.TABLE() != null && restore.restoreFromClause() != null && restore.restoreFromClause().backupFilePath() != null) {
-            BehaviorObject table;
-            if (restore.qualifiedName() == null) {
-                table = objects.instanceObject(TargetType.Table, restore.TABLE().getSymbol());
-            } else {
-                table = object(TargetType.Table, restore.qualifiedName(), NameParts.from(restore.qualifiedName()));
-            }
-            BehaviorObject backupSet = fileObject(restore.restoreFromClause().backupFilePath().getStart());
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, table, List.of(backupSet));
-            for (DmSqlParser.RestoreTableOptionContext option : restore.restoreTableOption()) {
-                if (option.TRACE() != null && option.FILE() != null && option.backupFilePath() != null) {
-                    add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath().getStart()), List.of(table));
-                }
-            }
-            addFunctionCalls(ctx);
-            return null;
+        if (restore.DATABASE() != null && restore.restoreDatabaseTarget() != null && restore.restoreFromClause() != null) {
+            return analyzeDatabaseRestore(ctx, restore);
         }
-        if (ctx.RESTORE() != null && restore != null && restore.archiveLogKeyword() != null && restore.restoreArchiveTail() != null) {
-            DmSqlParser.RestoreArchiveTailContext tail = restore.restoreArchiveTail();
-            List<BehaviorObject> sources = new ArrayList<>();
-            if (tail.restoreFromClause().backupFilePath() != null) {
-                addObject(sources, fileObject(tail.restoreFromClause().backupFilePath().getStart()));
-            }
-            add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, fileObject(tail.backupFilePath().getStart()), sources);
-            addFunctionCalls(ctx);
-            return null;
+        if (restore.TABLE() != null && restore.restoreFromClause() != null && restore.restoreFromClause().backupFilePath() != null) {
+            return analyzeTableRestore(ctx, restore);
+        }
+        if (restore.archiveLogKeyword() != null && restore.restoreArchiveTail() != null) {
+            return analyzeArchiveRestore(ctx, restore);
         }
         return visitChildren(ctx);
+    }
+
+    private Void analyzeArchiveRestore(DmSqlParser.AdminStatementContext ctx, DmSqlParser.RestoreStatementTailContext restore) {
+        DmSqlParser.RestoreArchiveTailContext tail = restore.restoreArchiveTail();
+        List<BehaviorObject> sources = new ArrayList<>();
+        if (tail.restoreFromClause().backupFilePath() != null) {
+            addObject(sources, fileObject(tail.restoreFromClause().backupFilePath().getStart()));
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, fileObject(tail.backupFilePath().getStart()), sources);
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeTableRestore(DmSqlParser.AdminStatementContext ctx, DmSqlParser.RestoreStatementTailContext restore) {
+        BehaviorObject table;
+        if (restore.qualifiedName() == null) {
+            table = objects.instanceObject(TargetType.Table, restore.TABLE().getSymbol());
+        } else {
+            table = object(TargetType.Table, restore.qualifiedName(), NameParts.from(restore.qualifiedName()));
+        }
+        BehaviorObject backupSet = fileObject(restore.restoreFromClause().backupFilePath().getStart());
+        add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, table, List.of(backupSet));
+        for (DmSqlParser.RestoreTableOptionContext option : restore.restoreTableOption()) {
+            if (option.TRACE() != null && option.FILE() != null && option.backupFilePath() != null) {
+                add(SplitQueryType.ADMIN, BehaviorAction.EXPORT, fileObject(option.backupFilePath().getStart()), List.of(table));
+            }
+        }
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeDatabaseRestore(DmSqlParser.AdminStatementContext ctx, DmSqlParser.RestoreStatementTailContext restore) {
+        BehaviorObject destination = fileObject(restore.restoreDatabaseTarget().backupFilePath().getStart());
+        List<BehaviorObject> sources = new ArrayList<>();
+        if (restore.restoreFromClause().backupFilePath() != null) {
+            addObject(sources, fileObject(restore.restoreFromClause().backupFilePath().getStart()));
+        }
+        for (DmSqlParser.RestoreOptionContext option : restore.restoreOption()) {
+            if ((option.WITH() != null && option.BACKUPDIR() != null) || (option.MAPPED() != null && option.FILE() != null)) {
+                for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
+                    addObject(sources, fileObject(path.getStart()));
+                }
+            }
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, destination, sources);
+        addFunctionCalls(ctx);
+        return null;
+    }
+
+    private Void analyzeTablespaceRestore(DmSqlParser.AdminStatementContext ctx, DmSqlParser.RestoreStatementTailContext restore) {
+        DmSqlParser.RestoreTablespaceTailContext tail = restore.restoreTablespaceTail();
+        BehaviorObject tablespace = objects.instanceObject(TargetType.Tablespace, tail.qualifiedName(), NameParts.clean(tail.qualifiedName().getText()));
+        List<BehaviorObject> sources = new ArrayList<>();
+        if (tail.restoreFromClause().backupFilePath() != null) {
+            addObject(sources, fileObject(tail.restoreFromClause().backupFilePath().getStart()));
+        }
+        for (DmSqlParser.RestoreOptionContext option : tail.restoreOption()) {
+            if ((option.WITH() != null && option.BACKUPDIR() != null) || (option.MAPPED() != null && option.FILE() != null)) {
+                for (DmSqlParser.BackupFilePathContext path : option.backupFilePath()) {
+                    addObject(sources, fileObject(path.getStart()));
+                }
+            }
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, tablespace, sources);
+        if (tail.restoreDatafileClause() != null) {
+            for (DmSqlParser.RestoreDatafileItemContext datafile : tail.restoreDatafileClause().restoreDatafileItem()) {
+                Token start = datafile.getStart();
+                if (start.getType() == DmSqlParser.STRING && start.getTokenIndex() == datafile.getStop().getTokenIndex()) {
+                    add(SplitQueryType.ADMIN, BehaviorAction.IMPORT, fileObject(start), sources);
+                }
+            }
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.READ, fileObject(restore.backupFilePath().getStart()));
+        addFunctionCalls(ctx);
+        return null;
     }
 
     @Override
@@ -1744,118 +1839,85 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
     @Override
     public Void visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
         DmSqlParser.CommentTargetContext target = ctx.commentTarget();
-        if (target.VIEW() != null) {
-            TargetType targetType = TargetType.View;
-            SplitQueryType statementType = SplitQueryType.COMMENT_VIEW;
-            if (target.MATERIALIZED() != null) {
-                targetType = TargetType.Materialized;
-                statementType = SplitQueryType.COMMENT_MATERIALIZED_VIEW;
-            }
-            add(statementType, BehaviorAction.ALTER, object(targetType, target.qualifiedName(), schemaScoped(NameParts.from(target.qualifiedName()))));
-        } else if (target.TABLE() != null) {
-            add(SplitQueryType.COMMENT_TABLE, BehaviorAction.ALTER, object(TargetType.Table, target.qualifiedName(), schemaScoped(NameParts.from(target.qualifiedName()))));
-        } else if (target.COLUMN() != null) {
-            NameParts column = NameParts.from(target.qualifiedName());
-            String table = column.schema();
-            List<String> names = new ArrayList<>();
-            if (column.catalog() != null) {
-                names.add(column.catalog());
-            } else if (!schemaScopes.isEmpty()) {
-                names.add(schemaScopes.get(schemaScopes.size() - 1));
-            }
-            names.add(table);
-            DmSqlParser.DottedNameContext dotted = target.qualifiedName().dottedName();
-            Token tableStart = dotted.identifier().getStart();
-            List<DmSqlParser.DottedNamePartContext> parts = dotted.dottedNamePart();
-            Token tableStop = dotted.identifier().getStop();
-            if (parts.size() > 1) {
-                tableStop = parts.get(parts.size() - 2).getStop();
-            }
-            add(SplitQueryType.COMMENT_COLUMN, BehaviorAction.ALTER, objects.object(TargetType.Table, tableStart, tableStop, names));
-        } else if (target.DATABASE() != null) {
-            BehaviorObject catalog = objects.unnamedObject(TargetType.Catalog, target.DATABASE().getSymbol(), UmiTypes.Catalog);
-            add(SplitQueryType.COMMENT_CATALOG, BehaviorAction.ALTER, catalog);
-        } else {
-            SplitQueryType statementType = SplitQueryType.COMMENT_PROG_OBJ;
-            TargetType targetType = TargetType.ProgramObject;
-            if (target.SYNONYM() != null) {
-                targetType = TargetType.Synonym;
-                statementType = SplitQueryType.COMMENT_SYNONYM;
-            } else if (target.TABLESPACE() != null) {
-                targetType = TargetType.Tablespace;
-                statementType = SplitQueryType.COMMENT_TABLESPACE;
-            } else if (target.ROLE() != null) {
-                targetType = TargetType.Role;
-                statementType = SplitQueryType.COMMENT_ROLE;
-            } else if (target.CONTEXT() != null) {
-                targetType = TargetType.Context;
-                statementType = SplitQueryType.COMMENT_CONTEXT;
-            } else if (target.DOMAIN() != null) {
-                targetType = TargetType.Type;
-                statementType = SplitQueryType.COMMENT_DOMAIN;
-            } else if (target.DIRECTORY() != null) {
-                targetType = TargetType.ConfigKey;
-                statementType = SplitQueryType.COMMENT_DIRECTORY;
-            } else if (target.PROFILE() != null) {
-                targetType = TargetType.Profile;
-                statementType = SplitQueryType.COMMENT_PROFILE;
-            } else if (target.LINK() != null) {
-                targetType = TargetType.Link;
-                statementType = SplitQueryType.COMMENT_LINK;
-            } else if (target.SEQUENCE() != null) {
-                targetType = TargetType.Sequence;
-                statementType = SplitQueryType.COMMENT_SEQUENCE;
-            } else if (target.SCHEMA() != null) {
-                targetType = TargetType.Schema;
-                statementType = SplitQueryType.COMMENT_SCHEMA;
-            } else if (target.INDEX() != null) {
-                targetType = TargetType.Index;
-                statementType = SplitQueryType.COMMENT_INDEX;
-            } else if (target.TRIGGER() != null) {
-                targetType = TargetType.Trigger;
-                statementType = SplitQueryType.COMMENT_TRIGGER;
-            } else if (target.TYPE() != null) {
-                targetType = TargetType.Type;
-                statementType = SplitQueryType.COMMENT_TYPE;
-            } else if (target.OPERATOR() != null) {
-                targetType = TargetType.Operator;
-                statementType = SplitQueryType.COMMENT_OPERATOR;
-            } else if (target.CLASS() != null) {
-                targetType = TargetType.Type;
-                statementType = SplitQueryType.COMMENT_CLASS;
-            } else if (target.FUNCTION() != null) {
-                targetType = TargetType.Function;
-                statementType = SplitQueryType.COMMENT_FUNCTION;
-            } else if (target.PACKAGE() != null) {
-                targetType = TargetType.Package;
-                statementType = SplitQueryType.COMMENT_PACKAGE;
-            } else if (target.PROCEDURE() != null) {
-                targetType = TargetType.Procedure;
-                statementType = SplitQueryType.COMMENT_PROCEDURE;
-            }
-            ParserRuleContext name = target.qualifiedName();
-            if (name == null) {
-                name = target.identifier();
-            }
-            if (name == null) {
-                name = target.operatorQualifiedName();
-            }
-            if (targetType == TargetType.Tablespace || targetType == TargetType.Role || targetType == TargetType.Context
-                || targetType == TargetType.Profile) {
-                add(statementType, BehaviorAction.ALTER, objects.instanceObject(targetType, name, NameParts.clean(name.getText())));
-                return null;
-            }
-            NameParts parts = new NameParts(null, null, NameParts.clean(name.getText()));
-            if (targetType == TargetType.Schema) {
-                parts = NameParts.from(target.qualifiedName());
-            } else if (targetType == TargetType.Operator) {
-                parts = schemaScoped(operatorName(target.operatorQualifiedName()));
-            } else if (target.qualifiedName() != null && targetType != TargetType.ConfigKey) {
-                parts = schemaScoped(NameParts.from(target.qualifiedName()));
-            }
-            add(statementType, BehaviorAction.ALTER, object(targetType, name, parts));
+        if (target.COLUMN() != null) {
+            addColumnComment(target);
+            return null;
         }
+        TargetType targetType = commentTargetType(target);
+        BehaviorObject subject = commentObject(target, targetType);
+        add(DmSplitVisitor.commentStatementType(target), BehaviorAction.ALTER, subject);
         return null;
+    }
+
+    private TargetType commentTargetType(DmSqlParser.CommentTargetContext target) {
+        return switch (target.getStart().getType()) {
+            case DmSqlParser.TABLE, DmSqlParser.COLUMN -> TargetType.Table;
+            case DmSqlParser.VIEW -> TargetType.View;
+            case DmSqlParser.MATERIALIZED -> TargetType.Materialized;
+            case DmSqlParser.SYNONYM -> TargetType.Synonym;
+            case DmSqlParser.TABLESPACE -> TargetType.Tablespace;
+            case DmSqlParser.ROLE -> TargetType.Role;
+            case DmSqlParser.CONTEXT -> TargetType.Context;
+            case DmSqlParser.DOMAIN, DmSqlParser.TYPE, DmSqlParser.CLASS -> TargetType.Type;
+            case DmSqlParser.DIRECTORY -> TargetType.ConfigKey;
+            case DmSqlParser.PROFILE -> TargetType.Profile;
+            case DmSqlParser.LINK -> TargetType.Link;
+            case DmSqlParser.SEQUENCE -> TargetType.Sequence;
+            case DmSqlParser.SCHEMA -> TargetType.Schema;
+            case DmSqlParser.INDEX -> TargetType.Index;
+            case DmSqlParser.TRIGGER -> TargetType.Trigger;
+            case DmSqlParser.OPERATOR -> TargetType.Operator;
+            case DmSqlParser.DATABASE -> TargetType.Catalog;
+            case DmSqlParser.FUNCTION -> TargetType.Function;
+            case DmSqlParser.PACKAGE -> TargetType.Package;
+            case DmSqlParser.PROCEDURE -> TargetType.Procedure;
+            default -> throw new IllegalArgumentException("unsupported comment target");
+        };
+    }
+
+    private void addColumnComment(DmSqlParser.CommentTargetContext target) {
+        NameParts column = NameParts.from(target.qualifiedName());
+        String table = column.schema();
+        List<String> names = new ArrayList<>();
+        if (column.catalog() != null) {
+            names.add(column.catalog());
+        } else if (!schemaScopes.isEmpty()) {
+            names.add(schemaScopes.get(schemaScopes.size() - 1));
+        }
+        names.add(table);
+        DmSqlParser.DottedNameContext dotted = target.qualifiedName().dottedName();
+        Token tableStart = dotted.identifier().getStart();
+        List<DmSqlParser.DottedNamePartContext> parts = dotted.dottedNamePart();
+        Token tableStop = dotted.identifier().getStop();
+        if (parts.size() > 1) {
+            tableStop = parts.get(parts.size() - 2).getStop();
+        }
+        add(SplitQueryType.COMMENT_COLUMN, BehaviorAction.ALTER, objects.object(TargetType.Table, tableStart, tableStop, names));
+    }
+
+    private BehaviorObject commentObject(DmSqlParser.CommentTargetContext target, TargetType targetType) {
+        if (target.DATABASE() != null) {
+            return objects.unnamedObject(TargetType.Catalog, target.DATABASE().getSymbol(), UmiTypes.Catalog);
+        }
+        ParserRuleContext name = target.qualifiedName();
+        if (name == null) {
+            name = target.identifier();
+        }
+        if (name == null) {
+            name = target.operatorQualifiedName();
+        }
+        if (targetType == TargetType.Tablespace || targetType == TargetType.Role || targetType == TargetType.Context || targetType == TargetType.Profile) {
+            return objects.instanceObject(targetType, name, NameParts.clean(name.getText()));
+        }
+        NameParts parts = new NameParts(null, null, NameParts.clean(name.getText()));
+        if (targetType == TargetType.Schema) {
+            parts = NameParts.from(target.qualifiedName());
+        } else if (targetType == TargetType.Operator) {
+            parts = schemaScoped(operatorName(target.operatorQualifiedName()));
+        } else if (target.qualifiedName() != null && targetType != TargetType.ConfigKey) {
+            parts = schemaScoped(NameParts.from(target.qualifiedName()));
+        }
+        return object(targetType, name, parts);
     }
 
     @Override

@@ -75,6 +75,25 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof CreateViewContext || tree instanceof AlterViewContext) {
             return;
         }
+        collectSessionTypes(tree, types);
+        collectAdministrativeTypes(tree, types);
+        collectPartitionTypes(tree, types);
+        collectColumnAndIndexTypes(tree, types);
+        collectCommentTypes(tree, types);
+        collectQueryTypes(tree, types);
+        collectFunctionAndImportTypes(tree, types);
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectActions(tree.getChild(i), root, types);
+        }
+        if (tree instanceof AlterTableContext indexed && indexed.INDEXES() != null) {
+            types.add(SplitQueryType.ALTER_INDEX);
+        }
+        if (tree instanceof AlterTableContext alter && (alter.REMOVE() != null || alter.PARTITION() != null)) {
+            types.add(SplitQueryType.ALTER_PARTITION);
+        }
+    }
+
+    private void collectSessionTypes(ParseTree tree, Set<SplitQueryType> types) {
         if (tree instanceof SetTransactionStatementContext transaction && transaction.transactionContext != null) {
             if (transaction.SESSION() != null) {
                 types.add(SplitQueryType.SESSION_SETTING_WRITE);
@@ -85,9 +104,6 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof SetAutocommitStatementContext) {
             types.add(SplitQueryType.SESSION_SETTING_WRITE);
         }
-        if (tree instanceof TableNameContext table && types.contains(SplitQueryType.SELECT) && TiQueryAnalysis.isMetadataTable(table)) {
-            types.add(SplitQueryType.METADATA);
-        }
         if (tree instanceof MixedSetItemContext item) {
             types.add(new TiSplitVisitor().visitMixedSetItem(item));
         }
@@ -96,20 +112,14 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
                 types.add(TiSplitVisitor.variableType(variable));
             }
         }
-        if (tree instanceof AlterByImportTablespaceContext || tree instanceof AlterByDiscardTablespaceContext || tree instanceof AlterSecondaryLoadContext) {
-            types.add(SplitQueryType.ADMIN_TABLE);
-        }
         if (tree instanceof AssignmentFieldContext assignment && assignment.LOCAL_ID() != null) {
             types.add(SplitQueryType.SESSION_VARIABLE_RW);
         }
-        if (tree instanceof ScalarFunctionCallContext function) {
-            String name = function.getStart().getText();
-            if (name.equalsIgnoreCase("LOAD_FILE")) {
-                types.add(SplitQueryType.DATA_IMPORT);
-                types.add(SplitQueryType.UNSAFE);
-            } else if (name.equalsIgnoreCase("LAST_INSERT_ID") && function.functionArgs() != null) {
-                types.add(SplitQueryType.SESSION_SETTING_WRITE);
-            }
+    }
+
+    private void collectAdministrativeTypes(ParseTree tree, Set<SplitQueryType> types) {
+        if (tree instanceof AlterByImportTablespaceContext || tree instanceof AlterByDiscardTablespaceContext || tree instanceof AlterSecondaryLoadContext) {
+            types.add(SplitQueryType.ADMIN_TABLE);
         }
         if (tree instanceof BinlogStatementContext || tree instanceof CaptureTrafficContext || tree instanceof BackupLogsContext || tree instanceof PurgeBackupLogsContext
             || tree instanceof ShowBackupLogsContext backup && backup.filename != null) {
@@ -129,9 +139,17 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         } else if (tree instanceof SplitRegionStatementContext split && !split.PARTITION().isEmpty()) {
             types.add(SplitQueryType.ADMIN_PARTITION);
         }
-        if (tree instanceof LockClauseContext && !types.contains(SplitQueryType.PERFORMANCE)) {
-            types.add(SplitQueryType.QUERY_LOCK);
-        } else if (tree instanceof AlterByAddPartitionContext) {
+        if (tree instanceof SimpleFlushOptionContext flush && flush.LOCK() != null
+            || tree instanceof FlushTableOptionContext flushTable && (flushTable.LOCK() != null || flushTable.EXPORT() != null)) {
+            types.add(SplitQueryType.SESSION_LOCK);
+        }
+        if (tree instanceof FlushOptionContext flush && !types.contains(SplitQueryType.PERFORMANCE)) {
+            types.add(TiSplitVisitor.flushType(flush));
+        }
+    }
+
+    private void collectPartitionTypes(ParseTree tree, Set<SplitQueryType> types) {
+        if (tree instanceof AlterByAddPartitionContext) {
             types.add(SplitQueryType.ADD_PARTITION);
         } else if (tree instanceof PartitionDefinitionsContext && types.contains(SplitQueryType.ALTER_TABLE)) {
             types.add(SplitQueryType.ALTER_PARTITION);
@@ -147,16 +165,9 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
                    || tree instanceof AlterByImportPartitionContext || tree instanceof AnalyzeTableContext analyze && analyze.PARTITION() != null) {
             types.add(SplitQueryType.ADMIN_PARTITION);
         }
-        if (tree instanceof SimpleFlushOptionContext flush && flush.LOCK() != null
-            || tree instanceof FlushTableOptionContext flushTable && (flushTable.LOCK() != null || flushTable.EXPORT() != null)) {
-            types.add(SplitQueryType.SESSION_LOCK);
-        }
-        if (tree instanceof FlushOptionContext flush && !types.contains(SplitQueryType.PERFORMANCE)) {
-            types.add(TiSplitVisitor.flushType(flush));
-        }
-        if (tree instanceof PartitionOptionCommentContext) {
-            types.add(SplitQueryType.COMMENT_PARTITION);
-        }
+    }
+
+    private void collectColumnAndIndexTypes(ParseTree tree, Set<SplitQueryType> types) {
         if (tree instanceof ColumnDeclarationContext || tree instanceof AlterByAddColumnContext || tree instanceof AlterByAddColumnsContext) {
             types.add(SplitQueryType.ADD_COLUMN);
         } else if (tree instanceof IndexDeclarationContext || tree instanceof AlterByAddIndexContext || tree instanceof AlterByAddSpecialIndexContext) {
@@ -184,7 +195,14 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             types.add(SplitQueryType.RENAME_INDEX);
         } else if (tree instanceof AlterByRenameContext) {
             types.add(SplitQueryType.RENAME_TABLE);
-        } else if (tree instanceof CommentColumnConstraintContext) {
+        }
+    }
+
+    private void collectCommentTypes(ParseTree tree, Set<SplitQueryType> types) {
+        if (tree instanceof PartitionOptionCommentContext) {
+            types.add(SplitQueryType.COMMENT_PARTITION);
+        }
+        if (tree instanceof CommentColumnConstraintContext) {
             types.add(SplitQueryType.COMMENT_COLUMN);
         } else if (tree instanceof TableOptionCommentContext) {
             types.add(SplitQueryType.COMMENT_TABLE);
@@ -192,7 +210,17 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             types.add(SplitQueryType.COMMENT_INDEX);
         } else if (tree instanceof RoutineCommentContext) {
             types.add(SplitQueryType.COMMENT_PROG_OBJ);
-        } else if (tree instanceof SelectIntoTextFileContext || tree instanceof SelectIntoDumpFileContext) {
+        }
+    }
+
+    private void collectQueryTypes(ParseTree tree, Set<SplitQueryType> types) {
+        if (tree instanceof TableNameContext table && types.contains(SplitQueryType.SELECT) && TiQueryAnalysis.isMetadataTable(table)) {
+            types.add(SplitQueryType.METADATA);
+        }
+        if (tree instanceof LockClauseContext && !types.contains(SplitQueryType.PERFORMANCE)) {
+            types.add(SplitQueryType.QUERY_LOCK);
+        }
+        if (tree instanceof SelectIntoTextFileContext || tree instanceof SelectIntoDumpFileContext) {
             types.add(SplitQueryType.DATA_EXPORT);
         } else if (tree instanceof SelectExpressionElementContext select && select.LOCAL_ID() != null) {
             types.add(SplitQueryType.SESSION_VARIABLE_RW);
@@ -204,21 +232,24 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
                    && !types.contains(SplitQueryType.METADATA) && !types.contains(SplitQueryType.CREATE_PROG_OBJ)) {
             types.add(SplitQueryType.SELECT);
         }
+    }
+
+    private void collectFunctionAndImportTypes(ParseTree tree, Set<SplitQueryType> types) {
+        if (tree instanceof ScalarFunctionCallContext function) {
+            String name = function.getStart().getText();
+            if (name.equalsIgnoreCase("LOAD_FILE")) {
+                types.add(SplitQueryType.DATA_IMPORT);
+                types.add(SplitQueryType.UNSAFE);
+            } else if (name.equalsIgnoreCase("LAST_INSERT_ID") && function.functionArgs() != null) {
+                types.add(SplitQueryType.SESSION_SETTING_WRITE);
+            }
+        }
         if (tree instanceof AlterByImportPartitionContext || tree instanceof AlterByImportTablespaceContext) {
             types.add(SplitQueryType.DATA_IMPORT);
         }
         SplitQueryType functionType = additionalType(tree);
         if (functionType != null) {
             types.add(functionType);
-        }
-        for (int i = 0; i < tree.getChildCount(); i++) {
-            collectActions(tree.getChild(i), root, types);
-        }
-        if (tree instanceof AlterTableContext indexed && indexed.INDEXES() != null) {
-            types.add(SplitQueryType.ALTER_INDEX);
-        }
-        if (tree instanceof AlterTableContext alter && (alter.REMOVE() != null || alter.PARTITION() != null)) {
-            types.add(SplitQueryType.ALTER_PARTITION);
         }
     }
 

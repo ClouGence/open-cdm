@@ -89,7 +89,8 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         SplitQueryType statementType = resolveStatementType(context, command, sql, visitor);
         normalizeReferences(context, command, statementType, visitor);
 
-        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), statementLevels, isUnsafeReset(command)).assemble();
+        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(
+            sql, statementType, visitor.references(), statementLevels, isUnsafeReset(command), provider.config().isMariaDb()).assemble();
         applyCommandActions(command, relations);
         applyInsertRows(context, relations);
 
@@ -126,7 +127,8 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         childVisitor.visit(scoped.sqlStatement());
         StatementBehavior child = childVisitor.behaviors().get(0);
         String scopedSql = MyBehaviorText.statementText(parser.getTokenStream(), context);
-        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(scopedSql, SplitQueryType.SESSION_SETTING_WRITE, visitor.references(), statementLevels, false)
+        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(
+            scopedSql, SplitQueryType.SESSION_SETTING_WRITE, visitor.references(), statementLevels, false, provider.config().isMariaDb())
             .assemble();
         relations.addAll(child.getRelations());
         child.setRelations(relations);

@@ -42,6 +42,14 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     }
 
     StatementBehavior behavior() {
+        List<BehaviorRelation> reads = detachReadRelations();
+        addFunctionCalls();
+        addExternalFileReads();
+        behavior.getRelations().addAll(reads);
+        return behavior;
+    }
+
+    private List<BehaviorRelation> detachReadRelations() {
         List<BehaviorRelation> reads = new ArrayList<>();
         if (behavior.getStatementType() == SplitQueryType.SELECT) {
             reads.addAll(behavior.getRelations());
@@ -54,6 +62,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             }
             behavior.getRelations().removeAll(reads);
         }
+        return reads;
+    }
+
+    private void addFunctionCalls() {
         for (ParserRuleContext ctx : descendants(root, ParserRuleContext.class)) {
             if (ctx instanceof FunctionCallExpressionContext function) {
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, function.functionIdentifier()));
@@ -74,6 +86,9 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, token, List.of(token.getText())));
             }
         }
+    }
+
+    private void addExternalFileReads() {
         for (TableValuedFunctionContext function : descendants(root, TableValuedFunctionContext.class)) {
             String name = unquote(text(function.tvfName));
             if (!Set.of("s3", "hdfs", "local", "http", "azure", "gcs").contains(name.toLowerCase(Locale.ROOT))) {
@@ -88,8 +103,6 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
                 }
             }
         }
-        behavior.getRelations().addAll(reads);
-        return behavior;
     }
 
     @Override

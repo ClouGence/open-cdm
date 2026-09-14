@@ -137,61 +137,15 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
 
     private void collectDirectActions(ParseTree tree) {
         collectLockAction(tree);
-        if (tree instanceof ColumnDeclarationContext ctx && hasConstraint(ctx.columnDefinition())) {
-            this.types.add(SplitQueryType.ADD_CONSTRAINT);
-        } else if (tree instanceof AlterByAddColumnsContext ctx) {
-            if (!ctx.tableConstraint().isEmpty()) {
-                this.types.add(SplitQueryType.ADD_CONSTRAINT);
-            }
-            if (!ctx.indexColumnDefinition().isEmpty()) {
-                this.types.add(SplitQueryType.ADD_INDEX);
-            }
-        } else if (tree instanceof DeclareCursorContext || tree instanceof OpenCursorContext || tree instanceof FetchCursorContext || tree instanceof CloseCursorContext) {
-            this.types.add(SplitQueryType.SELECT);
-            this.types.add(SplitQueryType.PROGRAM_CONTROL);
-        } else if (tree instanceof AlterByImportTablespaceContext || tree instanceof AlterByImportPartitionContext) {
-            this.types.add(SplitQueryType.DATA_IMPORT);
-        }
-        if (tree instanceof WithSelectExprContext ctx && ctx.uid() != null) {
-            this.cteNames.add(normalizeIdentifier(ctx.uid().getText()));
-        } else if (tree instanceof AtomTableItemContext ctx) {
-            collectTableRead(ctx);
-        } else if (tree instanceof GenericFunctionCallContext ctx && isUserDefinedFunction(ctx)) {
-            this.types.add(SplitQueryType.CALL_PROG_OBJ);
-        }
-        if (tree instanceof GenericFunctionCallContext ctx && functionAction(ctx) == SplitQueryType.DATA_IMPORT) {
-            this.types.add(SplitQueryType.UNSAFE);
-        }
-        if (tree instanceof SelectStatementContext && containsDataExport(tree)) {
-            this.types.add(SplitQueryType.SELECT);
-            if (containsProcedureAnalyse(tree)) {
-                this.types.add(SplitQueryType.PERFORMANCE);
-            }
-        } else if (tree instanceof FlushStatementContext ctx) {
-            flushTypes(ctx).forEach(this.types::add);
-        } else if (tree instanceof ResetOptionsContext ctx) {
-            resetTypes(ctx).forEach(this.types::add);
-        } else if (tree instanceof ResetSlaveContext ctx) {
-            if (ctx.ALL() != null) {
-                this.types.add(SplitQueryType.UNSAFE);
-            }
-        } else if (tree instanceof ResetReplicaContext ctx) {
-            if (ctx.ALL() != null) {
-                this.types.add(SplitQueryType.UNSAFE);
-            }
-        } else if (tree instanceof CloneStatementContext ctx && ctx.INSTANCE() != null && ctx.cloneDataDirectory() == null) {
-            this.types.add(SplitQueryType.UNSAFE);
-        } else if (tree instanceof FullDescribeStatementContext ctx && ctx.LOCAL_ID() != null) {
-            this.types.add(SplitQueryType.SESSION_VARIABLE_RW);
-        } else if (tree instanceof DiagnosticsStatementContext) {
-            this.types.add(SplitQueryType.SESSION_VARIABLE_RW);
-        } else if (tree instanceof SetTransactionContext ctx) {
-            if (ctx.setTransactionStatement().GLOBAL() != null) {
-                this.types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
-            } else if (ctx.setTransactionStatement().SESSION() != null || ctx.setTransactionStatement().LOCAL() != null) {
-                this.types.add(SplitQueryType.SESSION_SETTING_WRITE);
-            }
-        } else if (tree instanceof CreateProcedureContext ctx && ctx.routineOption().stream().anyMatch(option -> option instanceof RoutineCommentContext)) {
+        collectColumnAndCursorActions(tree);
+        collectReferenceActions(tree);
+        collectAdministrativeActions(tree);
+        collectCommentAndRenameActions(tree);
+        collectExternalCodeLifecycleRisk(tree);
+    }
+
+    private void collectCommentAndRenameActions(ParseTree tree) {
+        if (tree instanceof CreateProcedureContext ctx && ctx.routineOption().stream().anyMatch(option -> option instanceof RoutineCommentContext)) {
             this.types.add(SplitQueryType.COMMENT_PROG_OBJ);
         } else if (tree instanceof CreateFunctionContext ctx && ctx.routineOption().stream().anyMatch(option -> option instanceof RoutineCommentContext)) {
             this.types.add(SplitQueryType.COMMENT_PROG_OBJ);
@@ -221,7 +175,70 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
         } else if (tree instanceof AlterByChangeColumnContext ctx && !ctx.oldColumn.getText().equals(ctx.columnDefinition().uid().getText())) {
             this.types.add(SplitQueryType.RENAME_COLUMN);
         }
-        collectExternalCodeLifecycleRisk(tree);
+    }
+
+    private void collectAdministrativeActions(ParseTree tree) {
+        if (tree instanceof SelectStatementContext && containsDataExport(tree)) {
+            this.types.add(SplitQueryType.SELECT);
+            if (containsProcedureAnalyse(tree)) {
+                this.types.add(SplitQueryType.PERFORMANCE);
+            }
+        } else if (tree instanceof FlushStatementContext ctx) {
+            flushTypes(ctx).forEach(this.types::add);
+        } else if (tree instanceof ResetOptionsContext ctx) {
+            resetTypes(ctx).forEach(this.types::add);
+        } else if (tree instanceof ResetSlaveContext ctx) {
+            if (ctx.ALL() != null) {
+                this.types.add(SplitQueryType.UNSAFE);
+            }
+        } else if (tree instanceof ResetReplicaContext ctx) {
+            if (ctx.ALL() != null) {
+                this.types.add(SplitQueryType.UNSAFE);
+            }
+        } else if (tree instanceof CloneStatementContext ctx && ctx.INSTANCE() != null && ctx.cloneDataDirectory() == null) {
+            this.types.add(SplitQueryType.UNSAFE);
+        } else if (tree instanceof FullDescribeStatementContext ctx && ctx.LOCAL_ID() != null) {
+            this.types.add(SplitQueryType.SESSION_VARIABLE_RW);
+        } else if (tree instanceof DiagnosticsStatementContext) {
+            this.types.add(SplitQueryType.SESSION_VARIABLE_RW);
+        } else if (tree instanceof SetTransactionContext ctx) {
+            if (ctx.setTransactionStatement().GLOBAL() != null) {
+                this.types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
+            } else if (ctx.setTransactionStatement().SESSION() != null || ctx.setTransactionStatement().LOCAL() != null) {
+                this.types.add(SplitQueryType.SESSION_SETTING_WRITE);
+            }
+        }
+    }
+
+    private void collectReferenceActions(ParseTree tree) {
+        if (tree instanceof WithSelectExprContext ctx && ctx.uid() != null) {
+            this.cteNames.add(normalizeIdentifier(ctx.uid().getText()));
+        } else if (tree instanceof AtomTableItemContext ctx) {
+            collectTableRead(ctx);
+        } else if (tree instanceof GenericFunctionCallContext ctx && isUserDefinedFunction(ctx)) {
+            this.types.add(SplitQueryType.CALL_PROG_OBJ);
+        }
+        if (tree instanceof GenericFunctionCallContext ctx && functionAction(ctx) == SplitQueryType.DATA_IMPORT) {
+            this.types.add(SplitQueryType.UNSAFE);
+        }
+    }
+
+    private void collectColumnAndCursorActions(ParseTree tree) {
+        if (tree instanceof ColumnDeclarationContext ctx && hasConstraint(ctx.columnDefinition())) {
+            this.types.add(SplitQueryType.ADD_CONSTRAINT);
+        } else if (tree instanceof AlterByAddColumnsContext ctx) {
+            if (!ctx.tableConstraint().isEmpty()) {
+                this.types.add(SplitQueryType.ADD_CONSTRAINT);
+            }
+            if (!ctx.indexColumnDefinition().isEmpty()) {
+                this.types.add(SplitQueryType.ADD_INDEX);
+            }
+        } else if (tree instanceof DeclareCursorContext || tree instanceof OpenCursorContext || tree instanceof FetchCursorContext || tree instanceof CloseCursorContext) {
+            this.types.add(SplitQueryType.SELECT);
+            this.types.add(SplitQueryType.PROGRAM_CONTROL);
+        } else if (tree instanceof AlterByImportTablespaceContext || tree instanceof AlterByImportPartitionContext) {
+            this.types.add(SplitQueryType.DATA_IMPORT);
+        }
     }
 
     private static boolean hasConstraint(ColumnDefinitionContext context) {

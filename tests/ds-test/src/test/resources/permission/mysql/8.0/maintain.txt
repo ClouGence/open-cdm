@@ -359,7 +359,7 @@ levels:
 /test/1/catalog1/schema1
 expect:
 {
-  "MAINTAIN": [
+  "UNSAFE": [
     "Replication(1:0~1:15) /test/1/"
   ]
 }

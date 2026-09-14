@@ -101,7 +101,10 @@
     ],
     "sql": "START SLAVE;",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "START"
+    ]
   },
   {
     "types": [
@@ -109,7 +112,10 @@
     ],
     "sql": "STOP SLAVE;",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "STOP"
+    ]
   },
   {
     "types": [
@@ -134,7 +140,10 @@
     ],
     "sql": "START REPLICA;",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "START"
+    ]
   },
   {
     "types": [
@@ -142,7 +151,10 @@
     ],
     "sql": "STOP REPLICA;",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "STOP"
+    ]
   },
   {
     "types": [
@@ -167,7 +179,10 @@
     ],
     "sql": "START ALL SLAVES;",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "START"
+    ]
   },
   {
     "types": [
@@ -175,7 +190,10 @@
     ],
     "sql": "STOP ALL REPLICAS;",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "STOP"
+    ]
   },
   {
     "types": [
@@ -183,7 +201,10 @@
     ],
     "sql": "START SLAVE 'c1' SQL_THREAD;",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "START"
+    ]
   },
   {
     "types": [
@@ -191,7 +212,10 @@
     ],
     "sql": "STOP REPLICA 'c1' IO_THREAD;",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "STOP"
+    ]
   },
   {
     "types": [
@@ -244,7 +268,10 @@
     ],
     "sql": "START SLAVE UNTIL MASTER_GTID_POS='0-1-100';",
     "behavior": "ALTER_REPLICATION",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "START"
+    ]
   },
   {
     "types": [
@@ -316,7 +343,10 @@
     ],
     "sql": "FLUSH QUERY CACHE;",
     "behavior": "ADMIN_PERFORMANCE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -332,7 +362,10 @@
     ],
     "sql": "FLUSH HOSTS;",
     "behavior": "ADMIN_PERFORMANCE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -340,7 +373,10 @@
     ],
     "sql": "BACKUP STAGE START;",
     "behavior": "SESSION_LOCK",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "LOCK"
+    ]
   },
   {
     "types": [
@@ -348,7 +384,10 @@
     ],
     "sql": "BACKUP STAGE FLUSH;",
     "behavior": "SESSION_LOCK",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "LOCK"
+    ]
   },
   {
     "types": [
@@ -356,7 +395,10 @@
     ],
     "sql": "BACKUP STAGE BLOCK_DDL;",
     "behavior": "SESSION_LOCK",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "LOCK"
+    ]
   },
   {
     "types": [
@@ -364,7 +406,10 @@
     ],
     "sql": "BACKUP STAGE BLOCK_COMMIT;",
     "behavior": "SESSION_LOCK",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "LOCK"
+    ]
   },
   {
     "types": [
@@ -372,7 +417,10 @@
     ],
     "sql": "BACKUP STAGE END;",
     "behavior": "SESSION_LOCK",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "UNLOCK"
+    ]
   },
   {
     "types": [
@@ -380,7 +428,10 @@
     ],
     "sql": "BACKUP LOCK schema1.orders;",
     "behavior": "SESSION_LOCK",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "LOCK"
+    ]
   },
   {
     "types": [
@@ -388,7 +439,10 @@
     ],
     "sql": "BACKUP UNLOCK;",
     "behavior": "SESSION_LOCK",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "UNLOCK"
+    ]
   },
   {
     "types": [
@@ -396,7 +450,10 @@
     ],
     "sql": "KILL SOFT QUERY 123;",
     "behavior": "ADMIN",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "TERMINATE"
+    ]
   },
   {
     "types": [
@@ -404,7 +461,10 @@
     ],
     "sql": "KILL HARD CONNECTION 123;",
     "behavior": "ADMIN",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "TERMINATE"
+    ]
   },
   {
     "types": [
@@ -412,7 +472,10 @@
     ],
     "sql": "KILL SOFT 123;",
     "behavior": "ADMIN",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "TERMINATE"
+    ]
   },
   {
     "types": [
@@ -420,7 +483,10 @@
     ],
     "sql": "KILL QUERY ID 123;",
     "behavior": "ADMIN",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "TERMINATE"
+    ]
   },
   {
     "types": [
@@ -428,7 +494,10 @@
     ],
     "sql": "KILL HARD QUERY ID 123;",
     "behavior": "ADMIN",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "TERMINATE"
+    ]
   },
   {
     "types": [
@@ -436,7 +505,10 @@
     ],
     "sql": "KILL USER 'alice';",
     "behavior": "ADMIN",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "TERMINATE"
+    ]
   },
   {
     "types": [
@@ -444,7 +516,10 @@
     ],
     "sql": "KILL SOFT USER 'alice'@'localhost';",
     "behavior": "ADMIN",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "TERMINATE"
+    ]
   },
   {
     "types": [
@@ -462,7 +537,14 @@
     ],
     "sql": "ANALYZE FORMAT=JSON SELECT * FROM schema1.orders;",
     "behavior": "SELECT",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredRelations": [
+      {
+        "action": "READ",
+        "targetType": "Table",
+        "objectName": "orders"
+      }
+    ]
   },
   {
     "types": [
@@ -471,7 +553,12 @@
     ],
     "sql": "ANALYZE UPDATE schema1.orders SET id=2 WHERE id=1;",
     "behavior": "UPDATE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredRelations": [
+      {
+        "action": "UPDATE"
+      }
+    ]
   },
   {
     "types": [
@@ -480,7 +567,12 @@
     ],
     "sql": "ANALYZE FORMAT=JSON DELETE FROM schema1.orders WHERE id=1;",
     "behavior": "DELETE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredRelations": [
+      {
+        "action": "DELETE"
+      }
+    ]
   },
   {
     "types": [
@@ -489,7 +581,14 @@
     ],
     "sql": "SET STATEMENT max_statement_time=1 FOR SELECT 1;",
     "behavior": "SESSION_SETTING_WRITE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredRelations": [
+      {
+        "action": "CONFIGURE",
+        "targetType": "ConfigKey",
+        "objectPath": "/1/max_statement_time/"
+      }
+    ]
   },
   {
     "types": [
@@ -498,7 +597,19 @@
     ],
     "sql": "SET STATEMENT max_statement_time=1 FOR SELECT * FROM schema1.orders;",
     "behavior": "SESSION_SETTING_WRITE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredRelations": [
+      {
+        "action": "READ",
+        "targetType": "Table",
+        "objectName": "orders"
+      },
+      {
+        "action": "CONFIGURE",
+        "targetType": "ConfigKey",
+        "objectPath": "/1/max_statement_time/"
+      }
+    ]
   },
   {
     "types": [
@@ -507,7 +618,17 @@
     ],
     "sql": "SET STATEMENT max_statement_time=1, sql_log_bin=0 FOR DELETE FROM schema1.orders WHERE id=1;",
     "behavior": "SESSION_SETTING_WRITE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredRelations": [
+      {
+        "action": "DELETE"
+      },
+      {
+        "action": "CONFIGURE",
+        "targetType": "ConfigKey",
+        "objectPath": "/1/max_statement_time/"
+      }
+    ]
   },
   {
     "types": [
@@ -595,7 +716,13 @@
     ],
     "sql": "INSTALL SONAME 'ha_archive';",
     "behavior": "CREATE_LIBRARY",
-    "min": "5.5.21"
+    "min": "5.5.21",
+    "excludedActions": [
+      "UNSAFE"
+    ],
+    "requiredActions": [
+      "CREATE"
+    ]
   },
   {
     "types": [
@@ -603,7 +730,13 @@
     ],
     "sql": "UNINSTALL SONAME 'ha_archive';",
     "behavior": "DROP_LIBRARY",
-    "min": "5.5.21"
+    "min": "5.5.21",
+    "excludedActions": [
+      "UNSAFE"
+    ],
+    "requiredActions": [
+      "DROP"
+    ]
   },
   {
     "types": [
@@ -643,7 +776,10 @@
     ],
     "sql": "FLUSH SSL;",
     "behavior": "SYSTEM_SETTING_WRITE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -651,7 +787,10 @@
     ],
     "sql": "FLUSH USER_VARIABLES;",
     "behavior": "SESSION_VARIABLE_RW",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -659,7 +798,10 @@
     ],
     "sql": "FLUSH CLIENT_STATISTICS;",
     "behavior": "ADMIN_PERFORMANCE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -667,7 +809,10 @@
     ],
     "sql": "FLUSH INDEX_STATISTICS;",
     "behavior": "ADMIN_PERFORMANCE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -675,7 +820,10 @@
     ],
     "sql": "FLUSH TABLE_STATISTICS;",
     "behavior": "ADMIN_PERFORMANCE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -683,7 +831,10 @@
     ],
     "sql": "FLUSH USER_STATISTICS;",
     "behavior": "ADMIN_PERFORMANCE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -691,7 +842,10 @@
     ],
     "sql": "FLUSH QUERY_RESPONSE_TIME;",
     "behavior": "ADMIN_PERFORMANCE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -699,7 +853,10 @@
     ],
     "sql": "FLUSH RELAY LOGS 'c1';",
     "behavior": "MAINTAIN_LOG",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -707,7 +864,10 @@
     ],
     "sql": "FLUSH BINARY LOGS DELETE_DOMAIN_ID=(1,2);",
     "behavior": "MAINTAIN_LOG",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "types": [
@@ -755,7 +915,8 @@
     ],
     "sql": "SHOW CREATE SEQUENCE schema1.seq;",
     "behavior": "METADATA",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "firstTargetType": "Sequence"
   },
   {
     "types": [
@@ -763,7 +924,8 @@
     ],
     "sql": "SHOW CREATE SERVER s;",
     "behavior": "METADATA",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "firstTargetType": "ConfigKey"
   },
   {
     "types": [
@@ -900,7 +1062,14 @@
     ],
     "sql": "SET STATEMENT max_statement_time=1 FOR SHUTDOWN;",
     "behavior": "SESSION_SETTING_WRITE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredRelations": [
+      {
+        "action": "CONFIGURE",
+        "targetType": "ConfigKey",
+        "objectPath": "/1/max_statement_time/"
+      }
+    ]
   },
   {
     "types": [
@@ -917,7 +1086,13 @@
       "DROP_LIBRARY"
     ],
     "behavior": "DROP_LIBRARY",
-    "min": "10.4.0"
+    "min": "10.4.0",
+    "excludedActions": [
+      "UNSAFE"
+    ],
+    "requiredActions": [
+      "DROP"
+    ]
   },
   {
     "sql": "CHANGE MASTER TO MASTER_USE_GTID=REPLICA_POS;",
@@ -934,7 +1109,10 @@
       "MAINTAIN_LOG"
     ],
     "behavior": "SYSTEM_SETTING_WRITE",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "sql": "FLUSH BINARY LOGS, SSL;",
@@ -943,7 +1121,10 @@
       "SYSTEM_SETTING_WRITE"
     ],
     "behavior": "MAINTAIN_LOG",
-    "min": "10.11.14"
+    "min": "10.11.14",
+    "requiredActions": [
+      "FLUSH"
+    ]
   },
   {
     "sql": "CREATE TABLE t (v VECTOR(3));",

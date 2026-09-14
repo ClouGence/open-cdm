@@ -261,98 +261,9 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
         int relationStart = behavior.getRelations().size();
         boolean altersTable = ctx.alterSpecification().isEmpty();
         for (AlterSpecificationContext clause : ctx.alterSpecification()) {
-            if (clause instanceof AlterByAddColumnContext || clause instanceof AlterByAddColumnsContext) {
-                addTableConstraints(clause, ctx.tableName(), SplitQueryType.ALTER_TABLE);
+            if (addAlterTableClause(ctx, clause, owner)) {
                 altersTable = true;
-                continue;
             }
-            if (clause instanceof AlterByExchangePartitionContext exchange) {
-                add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, table(exchange.tableName()), List.of());
-                altersTable = true;
-                continue;
-            }
-            if (clause instanceof AlterByRenameIndexContext rename) {
-                List<String> names = new ArrayList<>(ctx.tableName().fullId().uid().stream().map(this::text).map(this::unquote).toList());
-                names.set(names.size() - 1, unquote(text(rename.uid(0))));
-                var subject = objects.object(TargetType.Index, rename.uid(0), names);
-                names.set(names.size() - 1, unquote(text(rename.uid(1))));
-                var destination = objects.object(TargetType.Index, rename.uid(1), names);
-                add(SplitQueryType.ALTER_TABLE, BehaviorAction.RENAME, subject, List.of(destination, owner));
-                continue;
-            }
-            if (clause instanceof AlterByCompactContext) {
-                add(SplitQueryType.ADMIN_TABLE, BehaviorAction.OPTIMIZE, owner, List.of());
-                continue;
-            }
-            if (clause instanceof AlterByRenameContext rename) {
-                add(SplitQueryType.RENAME_TABLE, BehaviorAction.RENAME, owner, List.of(table(rename.tableName())));
-                continue;
-            }
-            ParserRuleContext name = null;
-            TargetType targetType = TargetType.Index;
-            BehaviorAction action = BehaviorAction.CREATE;
-            if (clause instanceof AlterByAddStatisticsContext stats) {
-                name = stats.uid();
-                targetType = TargetType.Statistics;
-            } else if (clause instanceof AlterByDropStatisticsContext stats) {
-                name = stats.uid();
-                targetType = TargetType.Statistics;
-                action = BehaviorAction.DROP;
-            } else if (clause instanceof AlterByAddIndexContext index) {
-                name = index.indexName();
-            } else if (clause instanceof AlterByAddUniqueKeyContext index) {
-                name = index.indexName();
-                targetType = TargetType.Constraint;
-            } else if (clause instanceof AlterByAddSpecialIndexContext index) {
-                name = index.indexName();
-            } else if (clause instanceof AlterByAlterIndexVisibilityContext index) {
-                name = index.uid();
-                action = BehaviorAction.ALTER;
-            } else if (clause instanceof AlterConstraintEnforcementContext constraint) {
-                name = constraint.uid();
-                targetType = TargetType.Constraint;
-                action = BehaviorAction.ALTER;
-            } else if (clause instanceof AlterByDropIndexContext index) {
-                name = index.indexName();
-                action = BehaviorAction.DROP;
-            } else if (clause instanceof AlterByAddPrimaryKeyContext key) {
-                name = key.name;
-                targetType = TargetType.Constraint;
-            } else if (clause instanceof AlterByAddForeignKeyContext key) {
-                name = key.name;
-                targetType = TargetType.Constraint;
-            } else if (clause instanceof AlterByAddCheckTableConstraintContext key) {
-                name = key.name;
-                targetType = TargetType.Constraint;
-            } else if (clause instanceof AlterByDropConstraintCheckContext key) {
-                name = key.uid();
-                targetType = TargetType.Constraint;
-                action = BehaviorAction.DROP;
-            } else if (clause instanceof AlterByDropPrimaryKeyContext) {
-                targetType = TargetType.Constraint;
-                action = BehaviorAction.DROP;
-            } else if (clause instanceof AlterByDropForeignKeyContext key) {
-                name = key.uid();
-                targetType = TargetType.Constraint;
-                action = BehaviorAction.DROP;
-            } else {
-                altersTable = true;
-                continue;
-            }
-            BehaviorObject subject;
-            if (name == null) {
-                subject = objects.unnamedObject(targetType, clause, UmiTypes.Schema);
-                String ownerPath = owner.getObjectPath();
-                subject.setObjectPath(ownerPath.substring(0, ownerPath.lastIndexOf('/', ownerPath.length() - 2) + 1));
-            } else {
-                List<String> names = new ArrayList<>(ctx.tableName().fullId().uid().stream().map(this::text).map(this::unquote).toList());
-                names.set(names.size() - 1, unquote(text(name)));
-                subject = objects.object(targetType, name, names);
-            }
-            List<BehaviorObject> targets = new ArrayList<>();
-            targets.add(owner);
-            targets.addAll(tables(clause));
-            add(SplitQueryType.ALTER_TABLE, action, subject, targets);
         }
         if (altersTable || ctx.partitionDefinitions() != null || ctx.REMOVE() != null) {
             BehaviorRelation relation = add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, owner, policies(ctx));
@@ -360,6 +271,106 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
                 behavior.getRelations().remove(relation);
                 behavior.getRelations().add(relationStart, relation);
             }
+        }
+        return null;
+    }
+
+    // Returns whether the clause also requires an ALTER relation on the owning table.
+    private boolean addAlterTableClause(AlterTableContext ctx, AlterSpecificationContext clause, BehaviorObject owner) {
+        if (clause instanceof AlterByAddColumnContext || clause instanceof AlterByAddColumnsContext) {
+            addTableConstraints(clause, ctx.tableName(), SplitQueryType.ALTER_TABLE);
+            return true;
+        }
+        if (clause instanceof AlterByExchangePartitionContext exchange) {
+            add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, table(exchange.tableName()), List.of());
+            return true;
+        }
+        if (clause instanceof AlterByRenameIndexContext rename) {
+            List<String> names = new ArrayList<>(ctx.tableName().fullId().uid().stream().map(this::text).map(this::unquote).toList());
+            names.set(names.size() - 1, unquote(text(rename.uid(0))));
+            var subject = objects.object(TargetType.Index, rename.uid(0), names);
+            names.set(names.size() - 1, unquote(text(rename.uid(1))));
+            var destination = objects.object(TargetType.Index, rename.uid(1), names);
+            add(SplitQueryType.ALTER_TABLE, BehaviorAction.RENAME, subject, List.of(destination, owner));
+            return false;
+        }
+        if (clause instanceof AlterByCompactContext) {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.OPTIMIZE, owner, List.of());
+            return false;
+        }
+        if (clause instanceof AlterByRenameContext rename) {
+            add(SplitQueryType.RENAME_TABLE, BehaviorAction.RENAME, owner, List.of(table(rename.tableName())));
+            return false;
+        }
+        TiAlterTableTarget target = alterTableTarget(clause);
+        if (target == null) {
+            return true;
+        }
+        addAlterTableTarget(ctx, clause, owner, target);
+        return false;
+    }
+
+    private void addAlterTableTarget(AlterTableContext ctx, AlterSpecificationContext clause, BehaviorObject owner, TiAlterTableTarget target) {
+        ParserRuleContext name = target.name();
+        TargetType targetType = target.type();
+        BehaviorObject subject;
+        if (name == null) {
+            subject = objects.unnamedObject(targetType, clause, UmiTypes.Schema);
+            String ownerPath = owner.getObjectPath();
+            subject.setObjectPath(ownerPath.substring(0, ownerPath.lastIndexOf('/', ownerPath.length() - 2) + 1));
+        } else {
+            List<String> names = new ArrayList<>(ctx.tableName().fullId().uid().stream().map(this::text).map(this::unquote).toList());
+            names.set(names.size() - 1, unquote(text(name)));
+            subject = objects.object(targetType, name, names);
+        }
+        List<BehaviorObject> targets = new ArrayList<>();
+        targets.add(owner);
+        targets.addAll(tables(clause));
+        add(SplitQueryType.ALTER_TABLE, target.action(), subject, targets);
+    }
+
+    private static TiAlterTableTarget alterTableTarget(AlterSpecificationContext clause) {
+        if (clause instanceof AlterByAddStatisticsContext stats) {
+            return new TiAlterTableTarget(TargetType.Statistics, BehaviorAction.CREATE, stats.uid());
+        }
+        if (clause instanceof AlterByDropStatisticsContext stats) {
+            return new TiAlterTableTarget(TargetType.Statistics, BehaviorAction.DROP, stats.uid());
+        }
+        if (clause instanceof AlterByAddIndexContext index) {
+            return new TiAlterTableTarget(TargetType.Index, BehaviorAction.CREATE, index.indexName());
+        }
+        if (clause instanceof AlterByAddUniqueKeyContext index) {
+            return new TiAlterTableTarget(TargetType.Constraint, BehaviorAction.CREATE, index.indexName());
+        }
+        if (clause instanceof AlterByAddSpecialIndexContext index) {
+            return new TiAlterTableTarget(TargetType.Index, BehaviorAction.CREATE, index.indexName());
+        }
+        if (clause instanceof AlterByAlterIndexVisibilityContext index) {
+            return new TiAlterTableTarget(TargetType.Index, BehaviorAction.ALTER, index.uid());
+        }
+        if (clause instanceof AlterConstraintEnforcementContext constraint) {
+            return new TiAlterTableTarget(TargetType.Constraint, BehaviorAction.ALTER, constraint.uid());
+        }
+        if (clause instanceof AlterByDropIndexContext index) {
+            return new TiAlterTableTarget(TargetType.Index, BehaviorAction.DROP, index.indexName());
+        }
+        if (clause instanceof AlterByAddPrimaryKeyContext key) {
+            return new TiAlterTableTarget(TargetType.Constraint, BehaviorAction.CREATE, key.name);
+        }
+        if (clause instanceof AlterByAddForeignKeyContext key) {
+            return new TiAlterTableTarget(TargetType.Constraint, BehaviorAction.CREATE, key.name);
+        }
+        if (clause instanceof AlterByAddCheckTableConstraintContext key) {
+            return new TiAlterTableTarget(TargetType.Constraint, BehaviorAction.CREATE, key.name);
+        }
+        if (clause instanceof AlterByDropConstraintCheckContext key) {
+            return new TiAlterTableTarget(TargetType.Constraint, BehaviorAction.DROP, key.uid());
+        }
+        if (clause instanceof AlterByDropPrimaryKeyContext) {
+            return new TiAlterTableTarget(TargetType.Constraint, BehaviorAction.DROP, null);
+        }
+        if (clause instanceof AlterByDropForeignKeyContext key) {
+            return new TiAlterTableTarget(TargetType.Constraint, BehaviorAction.DROP, key.uid());
         }
         return null;
     }
