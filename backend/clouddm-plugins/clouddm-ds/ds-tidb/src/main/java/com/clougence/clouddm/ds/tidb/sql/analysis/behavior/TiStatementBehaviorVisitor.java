@@ -24,7 +24,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiFunctionRegistry;
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiResourceRegistry;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiQueryAnalysis;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiRoutineAnalysis;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiSplitVisitor;
@@ -39,12 +39,14 @@ import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
+    private final TiResourceRegistry       resources;
     private final StatementBehavior        behavior = new StatementBehavior();
     private ParseTree                      root;
 
-    TiStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    TiStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, TiResourceRegistry resources){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
+        this.resources = resources;
         behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
@@ -80,7 +82,7 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
         for (ParserRuleContext context : descendants(tree, ParserRuleContext.class)) {
             if (context instanceof CurrentTimestampContext timestamp) {
                 Token token = timestamp.getStart();
-                add(SplitQueryType.SELECT, TiFunctionRegistry.behavior(token.getText(), false), objects.object(TargetType.Function, token, List.of(unquote(token.getText()))), List
+                add(SplitQueryType.SELECT, resources.functionBehavior(token.getText(), false), objects.object(TargetType.Function, token, List.of(unquote(token.getText()))), List
                     .of());
                 continue;
             }
@@ -94,14 +96,14 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
             if (function instanceof UdfFunctionCallContext udf) {
                 var name = udf.customFunctionName().fullId();
                 String functionName = text(name.uid(name.uid().size() - 1));
-                add(SplitQueryType.SELECT, TiFunctionRegistry.behavior(functionName, name.uid().size() > 1), object(TargetType.Function, name), List.of());
+                add(SplitQueryType.SELECT, resources.functionBehavior(functionName, name.uid().size() > 1), object(TargetType.Function, name), List.of());
             } else {
                 if (function instanceof SpecificFunctionCallContext specific
                     && (specific.specificFunction() instanceof CaseFunctionCallContext || specific.specificFunction() instanceof SpecialTimeCallContext)) {
                     continue;
                 }
                 var token = function.getStart();
-                add(SplitQueryType.SELECT, TiFunctionRegistry.behavior(token.getText(), false), objects.object(TargetType.Function, token, List.of(unquote(token.getText()))), List
+                add(SplitQueryType.SELECT, resources.functionBehavior(token.getText(), false), objects.object(TargetType.Function, token, List.of(unquote(token.getText()))), List
                     .of());
             }
             String sequenceFunction = function.getStart().getText().toUpperCase(Locale.ROOT);

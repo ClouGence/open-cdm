@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiResourceRegistry;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.schema.umi.struts.UmiTypes;
 
@@ -31,13 +32,15 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     private final Map<UmiTypes, Object>   levels;
     private final int                     baseLine;
     private final int                     baseColumn;
+    private final TiResourceRegistry      resources;
     private final List<StatementBehavior> behaviors = new ArrayList<>();
 
-    TiBehaviorParserVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    TiBehaviorParserVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, TiResourceRegistry resources){
         this.parser = parser;
         this.levels = levels;
         this.baseLine = baseLine;
         this.baseColumn = baseColumn;
+        this.resources = resources;
     }
 
     List<StatementBehavior> behaviors() {
@@ -46,7 +49,7 @@ final class TiBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     @Override
     public Void visit(ParseTree tree) {
-        TiStatementBehaviorVisitor visitor = new TiStatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
+        TiStatementBehaviorVisitor visitor = new TiStatementBehaviorVisitor(parser, levels, baseLine, baseColumn, resources);
         visitor.visit(tree);
         behaviors.add(visitor.behavior());
         return null;

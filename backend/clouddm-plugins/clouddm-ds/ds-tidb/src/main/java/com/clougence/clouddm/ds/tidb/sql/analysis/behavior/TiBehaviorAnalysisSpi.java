@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiResourceRegistry;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiDBDslProvider;
 import com.clougence.clouddm.ds.tidb.sql.parser.TiSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
@@ -29,6 +30,9 @@ import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 public class TiBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
+
+    private final TiResourceRegistry resources = TiResourceRegistry.instance();
+
     @Override
     public Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         var scripts = new TiSplitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
@@ -44,7 +48,7 @@ public class TiBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         TiBehaviorParserVisitor[] holder = new TiBehaviorParserVisitor[1];
         DslHelper.doVisitor(TiDBDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
-            holder[0] = new TiBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
+            holder[0] = new TiBehaviorParserVisitor(parser, levels, baseLine, baseColumn, resources);
             return holder[0];
         });
         return holder[0].behaviors();

@@ -25,7 +25,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiFunctionRegistry;
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiResourceRegistry;
 import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -34,6 +34,8 @@ import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
 
 public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
+
+    private final TiResourceRegistry resources = TiResourceRegistry.instance();
 
     protected DslProvider dslProvider() {
         return TiDBDslProvider.INSTANCE;
@@ -352,13 +354,13 @@ public class TiSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     protected SplitQueryType additionalType(ParseTree tree) {
         if (!(tree instanceof TiDBParser.UdfFunctionCallContext function)) {
             if (tree instanceof ScalarFunctionCallContext scalar) {
-                return TiFunctionRegistry.nativeStatementType(scalar.getStart().getText());
+                return resources.nativeFunctionStatementType(scalar.getStart().getText());
             }
             return null;
         }
         TiDBParser.FullIdContext fullId = function.customFunctionName().fullId();
         String name = fullId.uid(fullId.uid().size() - 1).getText();
-        return TiFunctionRegistry.statementType(name, fullId.uid().size() > 1);
+        return resources.functionStatementType(name, fullId.uid().size() > 1);
     }
 
     @Override

@@ -21,13 +21,13 @@ import java.util.Set;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.ds.tidb.sql.analysis.sysobj.TiSysObjectRegistrySpi;
+import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiResourceRegistry;
 import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParserBaseVisitor;
 import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParser.*;
 
 /** Classifies physical table references while respecting CTE visibility. */
 public final class TiQueryAnalysis extends TiDBParserBaseVisitor<Boolean> {
-    private static final TiSysObjectRegistrySpi SYSTEM_OBJECTS = new TiSysObjectRegistrySpi();
+    private static final TiResourceRegistry RESOURCES = TiResourceRegistry.instance();
 
     private boolean metadataTableFound;
 
@@ -113,6 +113,6 @@ public final class TiQueryAnalysis extends TiDBParserBaseVisitor<Boolean> {
         }
         String schema = identifierName(table.fullId().uid(0));
         String name = identifierName(table.fullId().uid(1));
-        return SYSTEM_OBJECTS.isMetadataTable(schema, name);
+        return RESOURCES.isMetadataTable(schema, name);
     }
 }
