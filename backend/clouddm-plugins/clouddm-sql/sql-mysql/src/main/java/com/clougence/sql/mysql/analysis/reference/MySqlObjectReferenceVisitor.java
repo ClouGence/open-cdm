@@ -653,6 +653,37 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitMariaShow(MariaShowContext ctx) {
+        if (ctx.serverObjectName() != null) {
+            addQuotedResourceName(SplitQueryType.METADATA, TargetType.ConfigKey, true, ctx.serverObjectName());
+        }
+        if (ctx.fullId() != null) {
+            TargetType type = TargetType.Package;
+            if (ctx.mariaWordSequence() != null) {
+                type = TargetType.Sequence;
+            }
+            add(SplitQueryType.METADATA, type, ctx.fullId());
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitMariaStatementAssignment(MariaStatementAssignmentContext ctx) {
+        addInstanceResource(SplitQueryType.SESSION_SETTING_WRITE, TargetType.ConfigKey, true, ctx.uid(), name(ctx.uid()));
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitMariaBackup(MariaBackupContext ctx) {
+        if (ctx.tableName() != null) {
+            add(SplitQueryType.SESSION_LOCK, TargetType.Table, ctx.tableName());
+        } else {
+            addUnnamedResource(SplitQueryType.SESSION_LOCK, TargetType.Backup, true, ctx);
+        }
+        return null;
+    }
+
+    @Override
     public Void visitCacheIndexStatement(CacheIndexStatementContext ctx) {
         add(SplitQueryType.ADMIN_PERFORMANCE, TargetType.Index, ctx.tableName());
         for (TableIndexesContext tableIndexes : ctx.tableIndexes()) {

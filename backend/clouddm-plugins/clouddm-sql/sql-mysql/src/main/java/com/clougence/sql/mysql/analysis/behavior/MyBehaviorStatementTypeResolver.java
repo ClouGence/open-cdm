@@ -193,10 +193,10 @@ final class MyBehaviorStatementTypeResolver {
         if (normalized.startsWith("SET @@PERSIST") || normalized.startsWith("SET PERSIST")) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
-        if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")) {
+        if (normalized.startsWith("INSTALL SONAME") || normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")) {
             return SplitQueryType.CREATE_LIBRARY;
         }
-        if (normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("UNINSTALL COMPONENT")) {
+        if (normalized.startsWith("UNINSTALL SONAME") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("UNINSTALL COMPONENT")) {
             return SplitQueryType.DROP_LIBRARY;
         }
         if (normalized.startsWith("SIGNAL ") || normalized.startsWith("RESIGNAL")) {
@@ -235,8 +235,7 @@ final class MyBehaviorStatementTypeResolver {
         if (!normalized.startsWith("EXPLAIN") && !normalized.startsWith("DESC ") && !normalized.startsWith("DESCRIBE ")) {
             return false;
         }
-        return MyBehaviorText.afterStartingWords(normalized, "EXPLAIN", "ANALYZE") >= 0
-               || MyBehaviorText.afterStartingWords(normalized, "DESCRIBE", "ANALYZE") >= 0
+        return MyBehaviorText.afterStartingWords(normalized, "EXPLAIN", "ANALYZE") >= 0 || MyBehaviorText.afterStartingWords(normalized, "DESCRIBE", "ANALYZE") >= 0
                || MyBehaviorText.afterStartingWords(normalized, "DESC", "ANALYZE") >= 0;
     }
 

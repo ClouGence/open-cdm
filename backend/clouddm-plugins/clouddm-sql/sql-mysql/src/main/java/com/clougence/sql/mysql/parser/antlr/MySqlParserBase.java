@@ -80,6 +80,16 @@ public abstract class MySqlParserBase extends Parser {
         return exactVersion() >= minimum;
     }
 
+    protected final boolean isMariaDb() { return config.isMariaDb(); }
+
+    protected final boolean mariaAtLeast(int minimum) {
+        return isMariaDb() && (exactVersion() == 0 || exactVersion() >= minimum);
+    }
+
+    protected final boolean isMariaKeyword(String words) {
+        return isMariaDb() && (" " + words + " ").contains(" " + _input.LT(1).getText().toUpperCase(Locale.ROOT) + " ");
+    }
+
     protected final boolean isSqlModeKnown() { return config.isSqlModeKnown(); }
 
     protected final boolean isSetVariableAssignmentAllowed(MySqlParser.VariableClauseContext variable) {
@@ -1017,7 +1027,7 @@ public abstract class MySqlParserBase extends Parser {
         if (option == null) {
             return false;
         }
-        switch (option.toUpperCase(java.util.Locale.ROOT)) {
+        switch (option.toUpperCase(Locale.ROOT)) {
             case "SOURCE_HOST":
             case "NETWORK_NAMESPACE":
             case "SOURCE_BIND":
@@ -1062,7 +1072,7 @@ public abstract class MySqlParserBase extends Parser {
     }
 
     private boolean isDeprecatedMasterSourceOption(String option) {
-        switch (option.toUpperCase(java.util.Locale.ROOT)) {
+        switch (option.toUpperCase(Locale.ROOT)) {
             case "MASTER_HOST":
             case "MASTER_BIND":
             case "MASTER_USER":

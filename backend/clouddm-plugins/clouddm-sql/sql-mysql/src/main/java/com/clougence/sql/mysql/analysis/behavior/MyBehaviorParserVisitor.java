@@ -88,18 +88,74 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
             provider.version(),
             provider.exactVersion(),
             resources);
+        if (command instanceof MySqlParser.MariaSetStatementContext scoped) {
+            // Preserve the child's actions, including commands with only unnamed targets.
+            for (var assignment : scoped.mariaStatementAssignment()) {
+                visitor.scan(assignment);
+            }
+            MyBehaviorParserVisitor childVisitor = new MyBehaviorParserVisitor(parser, provider, statementLevels, baseLine, baseColumn, resources);
+            childVisitor.visit(scoped.sqlStatement());
+            StatementBehavior child = childVisitor.behaviors().get(0);
+            String scopedSql = MyBehaviorText.statementText(parser.getTokenStream(), context);
+            List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(scopedSql, SplitQueryType.SESSION_SETTING_WRITE, visitor.references(), statementLevels, false)
+                .assemble();
+            relations.addAll(child.getRelations());
+            child.setRelations(relations);
+            child.setStatementType(SplitQueryType.SESSION_SETTING_WRITE);
+            behaviors.add(child);
+            return null;
+        }
         visitor.prepareStatement(context);
         visitor.scan(context);
         visitor.scanOptimizerHints(context);
 
         String sql = MyBehaviorText.statementText(parser.getTokenStream(), context);
         SplitQueryType statementType = MyBehaviorStatementTypeResolver.resolve(sql, visitor.references());
+        boolean optionFallbackRequired = command instanceof MySqlParser.ResetOptionsContext
+                                         || command instanceof MySqlParser.FlushStatementContext flush
+                                            && flush.flushOption().stream().anyMatch(option -> option.mariaFlushOption() != null);
         boolean splitTypeRequired = command instanceof MySqlParser.FullDescribeStatementContext describe
                                     && (describe.analyze == null || describe.describeObjectClause() instanceof MySqlParser.DescribeConnectionContext);
-        splitTypeRequired = splitTypeRequired || command instanceof MySqlParser.SimpleDescribeStatementContext
-                            || command instanceof MySqlParser.SetVariableContext;
+        splitTypeRequired = splitTypeRequired || command instanceof MySqlParser.SimpleDescribeStatementContext || command instanceof MySqlParser.SetVariableContext
+                            || command instanceof MySqlParser.MariaShowContext || command instanceof MySqlParser.MariaBackupContext
+                            || command instanceof MySqlParser.MariaAllReplicasContext || optionFallbackRequired;
         if (splitTypeRequired) {
-            statementType = new MySplitVisitor(provider.version()).collectTypes(command).iterator().next();
+            var statementTypes = new MySplitVisitor(provider.version()).collectTypes(command);
+            statementType = statementTypes.iterator().next();
+            if (optionFallbackRequired) {
+                // Each option can affect a different kind of unnamed resource.
+                for (SplitQueryType type : statementTypes) {
+                    if (type == SplitQueryType.UNSAFE) {
+                        continue;
+                    }
+                    TargetType target = fallbackType(type);
+                    if (target != null && visitor.references().stream().noneMatch(reference -> reference.targetType() == target)) {
+                        visitor.addUnnamedFallback(type, target, context);
+                    }
+                }
+            }
+        }
+        boolean unsafeReset = false;
+        if (command instanceof MySqlParser.ResetOptionsContext reset) {
+            unsafeReset = reset.resetOption()
+                .stream()
+                .anyMatch(option -> option.MASTER() != null || option.BINARY() != null && option.LOGS() != null
+                                    || option.ALL() != null && (option.SLAVE() != null || option.REPLICA() != null));
+        } else if (command instanceof MySqlParser.ResetMasterContext || command instanceof MySqlParser.ResetBinaryLogsAndGtidsContext) {
+            unsafeReset = true;
+        } else if (command instanceof MySqlParser.ResetSlaveContext reset) {
+            unsafeReset = reset.ALL() != null;
+        } else if (command instanceof MySqlParser.ResetReplicaContext reset) {
+            unsafeReset = reset.ALL() != null;
+        }
+        if (command instanceof MySqlParser.MariaAnalyzeContext analyze) {
+            // ANALYZE executes its child, including UPDATE/DELETE; it is not EXPLAIN.
+            for (int i = 0; i < analyze.getChildCount(); i++) {
+                if (analyze.getChild(i) instanceof ParserRuleContext child && !(child instanceof MySqlParser.MariaKeywordContext)) {
+                    statementType = MyBehaviorStatementTypeResolver.resolve(MyBehaviorText.statementText(parser.getTokenStream(), child), visitor.references());
+                    break;
+                }
+            }
         }
         boolean libraryLifecycle = statementType == SplitQueryType.CREATE_LIBRARY || statementType == SplitQueryType.ALTER_LIBRARY || statementType == SplitQueryType.DROP_LIBRARY
                                    || statementType == SplitQueryType.COMMENT_LIBRARY;
@@ -123,7 +179,30 @@ final class MyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
         StatementBehavior behavior = new StatementBehavior();
         behavior.setStatementType(statementType);
-        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), statementLevels).assemble();
+        List<BehaviorRelation> relations = new MyBehaviorRelationAssembler(sql, statementType, visitor.references(), statementLevels, unsafeReset).assemble();
+        if (command instanceof MySqlParser.MariaBackupContext backup) {
+            BehaviorAction action = BehaviorAction.LOCK;
+            if (backup.UNLOCK() != null || backup.END() != null) {
+                action = BehaviorAction.UNLOCK;
+            }
+            for (BehaviorRelation relation : relations) {
+                relation.setAction(action);
+            }
+        } else if (command instanceof MySqlParser.MariaAllReplicasContext replicas) {
+            BehaviorAction action = BehaviorAction.STOP;
+            if (replicas.START() != null) {
+                action = BehaviorAction.START;
+            }
+            for (BehaviorRelation relation : relations) {
+                relation.setAction(action);
+            }
+        } else if (command instanceof MySqlParser.FlushStatementContext flush && flush.flushOption().stream().anyMatch(option -> option.mariaFlushOption() != null)) {
+            for (BehaviorRelation relation : relations) {
+                if (relation.getSubject().getObjectType() != TargetType.Function) {
+                    relation.setAction(BehaviorAction.FLUSH);
+                }
+            }
+        }
         Long insertRows = insertRows(context);
         if (insertRows != null) {
             relations.stream()

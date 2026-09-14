@@ -33,9 +33,9 @@ final class MyBehaviorRelationAssembler {
     private final boolean[]                  consumed;
     private final List<BehaviorRelation>     relations = new ArrayList<>();
 
-    MyBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels){
+    MyBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels, boolean unsafeReset){
         this.sql = sql == null ? "" : sql;
-        this.statementAction = statementAction(this.sql, statementType);
+        this.statementAction = statementAction(this.sql, statementType, unsafeReset);
         String normalized = this.sql.stripLeading().toUpperCase(Locale.ROOT);
         if (statementType == SplitQueryType.PERFORMANCE && (normalized.startsWith("EXPLAIN ") || normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE "))) {
             this.explainOnly = true;
@@ -447,8 +447,11 @@ final class MyBehaviorRelationAssembler {
         };
     }
 
-    private static BehaviorAction statementAction(String sql, SplitQueryType type) {
-        if (isUnsafeStatement(sql)) {
+    private static BehaviorAction statementAction(String sql, SplitQueryType type, boolean unsafeReset) {
+        if (type == SplitQueryType.CREATE_LIBRARY || type == SplitQueryType.ALTER_LIBRARY || type == SplitQueryType.DROP_LIBRARY || type == SplitQueryType.COMMENT_LIBRARY) {
+            return defaultAction(type);
+        }
+        if (isUnsafeStatement(sql, unsafeReset)) {
             return BehaviorAction.UNSAFE;
         }
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
@@ -476,10 +479,11 @@ final class MyBehaviorRelationAssembler {
             }
             return BehaviorAction.UNKNOWN;
         }
-        if (normalized.startsWith("START REPLICA") || normalized.startsWith("START SLAVE") || normalized.startsWith("START GROUP_REPLICATION")) {
+        if (normalized.startsWith("START ALL ") || normalized.startsWith("START REPLICA") || normalized.startsWith("START SLAVE")
+            || normalized.startsWith("START GROUP_REPLICATION")) {
             return BehaviorAction.START;
         }
-        if (normalized.startsWith("STOP REPLICA") || normalized.startsWith("STOP SLAVE") || normalized.startsWith("STOP GROUP_REPLICATION")) {
+        if (normalized.startsWith("STOP ALL ") || normalized.startsWith("STOP REPLICA") || normalized.startsWith("STOP SLAVE") || normalized.startsWith("STOP GROUP_REPLICATION")) {
             return BehaviorAction.STOP;
         }
         if (normalized.startsWith("RESET REPLICA") || normalized.startsWith("RESET SLAVE") || normalized.startsWith("RESET BINARY LOGS") || normalized.startsWith("RESET MASTER")
@@ -533,10 +537,6 @@ final class MyBehaviorRelationAssembler {
         if (MyBehaviorStatementTypeResolver.isExplainAnalyze(sql)) {
             return true;
         }
-        if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
-            || normalized.startsWith("UNINSTALL COMPONENT")) {
-            return reference.targetType() == TargetType.Library || reference.targetType() == TargetType.File;
-        }
         if (normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME")) {
             return reference.targetType() == TargetType.Function || reference.targetType() == TargetType.Library || reference.targetType() == TargetType.File;
         }
@@ -587,13 +587,11 @@ final class MyBehaviorRelationAssembler {
         };
     }
 
-    private static boolean isUnsafeStatement(String sql) {
+    private static boolean isUnsafeStatement(String sql, boolean unsafeReset) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
         return MyBehaviorStatementTypeResolver.isExplainAnalyze(sql) || normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE")
-               || normalized.startsWith("DEALLOCATE PREPARE") || normalized.startsWith("RESTART")
-               || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ") || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET BINARY LOGS")
-               || normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
-               || normalized.startsWith("UNINSTALL COMPONENT") || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")
+               || normalized.startsWith("DEALLOCATE PREPARE") || normalized.startsWith("RESTART") || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ")
+               || unsafeReset || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")
                || normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME") || normalized.contains("SQL_SLAVE_SKIP_COUNTER")
                || normalized.contains("GTID_PURGED") || normalized.contains("DEBUG") && normalized.contains("FORCE_FAKE_UUID");
     }

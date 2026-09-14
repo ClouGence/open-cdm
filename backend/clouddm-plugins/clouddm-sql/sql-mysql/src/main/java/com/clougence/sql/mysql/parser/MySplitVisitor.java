@@ -171,6 +171,14 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
             flushTypes(ctx).forEach(this.types::add);
         } else if (tree instanceof ResetOptionsContext ctx) {
             resetTypes(ctx).forEach(this.types::add);
+        } else if (tree instanceof ResetSlaveContext ctx) {
+            if (ctx.ALL() != null) {
+                this.types.add(SplitQueryType.UNSAFE);
+            }
+        } else if (tree instanceof ResetReplicaContext ctx) {
+            if (ctx.ALL() != null) {
+                this.types.add(SplitQueryType.UNSAFE);
+            }
         } else if (tree instanceof CloneStatementContext ctx && ctx.INSTANCE() != null && ctx.cloneDataDirectory() == null) {
             this.types.add(SplitQueryType.UNSAFE);
         } else if (tree instanceof FullDescribeStatementContext ctx && ctx.LOCAL_ID() != null) {
@@ -336,6 +344,19 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
     }
 
     private static SplitQueryType flushOptionType(FlushOptionContext option) {
+        if (option.mariaFlushOption() != null) {
+            MariaFlushOptionContext maria = option.mariaFlushOption();
+            if (maria.LOGS() != null) {
+                return SplitQueryType.MAINTAIN_LOG;
+            }
+            if (maria.getText().equalsIgnoreCase("USER_VARIABLES")) {
+                return SplitQueryType.SESSION_VARIABLE_RW;
+            }
+            if (maria.SSL() != null) {
+                return SplitQueryType.SYSTEM_SETTING_WRITE;
+            }
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
         if (option.LOGS() != null) {
             return SplitQueryType.MAINTAIN_LOG;
         }
@@ -350,6 +371,9 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
         for (ResetOptionContext option : ctx.resetOption()) {
             if (option.SLAVE() != null || option.REPLICA() != null) {
                 result.add(SplitQueryType.ALTER_REPLICATION);
+                if (option.ALL() != null) {
+                    result.add(SplitQueryType.UNSAFE);
+                }
             } else if (option.MASTER() != null || option.BINARY() != null && option.LOGS() != null) {
                 result.add(SplitQueryType.MAINTAIN_LOG);
             } else if (option.QUERY() != null && option.CACHE() != null) {
@@ -470,6 +494,9 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
     }
 
     private static boolean shouldDescend(ParseTree tree, SplitQueryType type) {
+        if (tree instanceof MariaAnalyzeContext || tree instanceof MariaShowContext) {
+            return true;
+        }
         if (type == SplitQueryType.PERFORMANCE) {
             return tree instanceof GenericFunctionCallContext ctx && isBenchmarkFunction(ctx) || tree instanceof QuerySpecificationSelectContext && containsBenchmarkFunction(tree);
         }
@@ -1366,6 +1393,42 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitMariaKill(MariaKillContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitMariaBackup(MariaBackupContext ctx) {
+        return SplitQueryType.SESSION_LOCK;
+    }
+
+    @Override
+    public SplitQueryType visitMariaAllReplicas(MariaAllReplicasContext ctx) {
+        return SplitQueryType.ALTER_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitMariaSetStatement(MariaSetStatementContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitMariaAnalyze(MariaAnalyzeContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitMariaShow(MariaShowContext ctx) {
+        if (ctx.BINLOG() != null) {
+            return SplitQueryType.LOG_READ;
+        }
+        if (ctx.EXPLAIN() != null || ctx.ANALYZE() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
     public SplitQueryType visitLoadIndexIntoCache(LoadIndexIntoCacheContext ctx) {
         return SplitQueryType.ADMIN_PERFORMANCE;
     }
@@ -1457,7 +1520,8 @@ public class MySplitVisitor extends MySqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSetVariable(SetVariableContext ctx) {
-        boolean onlyUserVariables = ctx.setVariableAssignment().stream()
+        boolean onlyUserVariables = ctx.setVariableAssignment()
+            .stream()
             .allMatch(assignment -> assignment.variableClause() != null && assignment.variableClause().LOCAL_ID() != null);
         if (onlyUserVariables) {
             return SplitQueryType.SESSION_VARIABLE_RW;

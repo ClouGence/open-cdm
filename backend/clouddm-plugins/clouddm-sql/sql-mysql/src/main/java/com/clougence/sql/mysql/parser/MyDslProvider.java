@@ -17,7 +17,6 @@ package com.clougence.sql.mysql.parser;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 import org.antlr.v4.runtime.*;
@@ -173,12 +172,7 @@ public class MyDslProvider implements DslProvider {
     }
 
     protected MyDslProvider withNoBackslashEscapesFallback() {
-        EnumSet<Feature> features = EnumSet.noneOf(Feature.class);
-        features.addAll(config.features());
-        features.add(Feature.NO_BACKSLASH_ESCAPES);
-        MySqlParserConfig fallbackConfig = MySqlParserConfig
-            .of(config.grammarVersion().versionString(), config.grammarVersion().versionString(), Integer.toString(config.exactVersion()), false, features);
-        return new MyDslProvider(fallbackConfig, true);
+        return new MyDslProvider(config.withFeature(Feature.NO_BACKSLASH_ESCAPES), true);
     }
 
     private static String sourceText(Lexer lexer) {
