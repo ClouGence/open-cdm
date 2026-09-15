@@ -10,6 +10,7 @@ import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.sql.postgres.i18n.PgSqlI18nKeys;
+import com.clougence.sql.postgres.analysis.sysobj.PgSysObjectRegistrySpi;
 
 @Plugin(name = "PostgreSQL SQL", display = false)
 public class PgSqlPlugin implements DsPlugin {
@@ -18,5 +19,6 @@ public class PgSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(PgSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new PgSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new PgSysObjectRegistrySpi());
     }
 }

@@ -17,8 +17,8 @@ package com.clougence.sql.mysql.parser;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
+
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.LexerATNSimulator;
@@ -28,6 +28,7 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -170,13 +171,8 @@ public class MyDslProvider implements DslProvider {
         }
     }
 
-    private MyDslProvider withNoBackslashEscapesFallback() {
-        EnumSet<Feature> features = EnumSet.noneOf(Feature.class);
-        features.addAll(config.features());
-        features.add(Feature.NO_BACKSLASH_ESCAPES);
-        MySqlParserConfig fallbackConfig = MySqlParserConfig
-            .of(config.grammarVersion().versionString(), config.grammarVersion().versionString(), Integer.toString(config.exactVersion()), false, features);
-        return new MyDslProvider(fallbackConfig, true);
+    protected MyDslProvider withNoBackslashEscapesFallback() {
+        return new MyDslProvider(config.withFeature(Feature.NO_BACKSLASH_ESCAPES), true);
     }
 
     private static String sourceText(Lexer lexer) {

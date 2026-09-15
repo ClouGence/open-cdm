@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.mysql.analysis.behavior;
 
@@ -18,6 +27,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.mysql.analysis.reference.MySqlObjectReference;
 import com.clougence.sql.mysql.analysis.reference.MySqlObjectReferenceVisitor;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
@@ -83,7 +93,7 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     }
 
     private static <T extends ParseTree> List<T> descendants(ParseTree tree, Class<T> type) {
-        List<T> result = new java.util.ArrayList<>();
+        List<T> result = new ArrayList<>();
         collect(tree, type, result);
         return result;
     }
@@ -301,6 +311,12 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     }
 
     @Override
+    public Void visitDescribeTable(DescribeTableContext ctx) {
+        addReadTable(ctx.tableName());
+        return null;
+    }
+
+    @Override
     public Void visitAtomTableItem(AtomTableItemContext ctx) {
         if (isCte(ctx.tableName())) {
             return null;
@@ -341,28 +357,45 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
 
     @Override
     public Void visitMultipleUpdateStatement(MultipleUpdateStatementContext ctx) {
-        List<AtomTableItemContext> tables = descendants(ctx.tableSources(), AtomTableItemContext.class);
-        if (tables.isEmpty()) {
+        List<AtomTableItemContext> tables = directTables(ctx.tableSources());
+        boolean ambiguous = tables.size() > 1 && ctx.updatedElement().stream().anyMatch(element -> element.fullColumnName().dottedId().isEmpty());
+        if (ambiguous) {
+            for (AtomTableItemContext table : tables) {
+                add(SplitQueryType.UPDATE, TargetType.Table, table.tableName());
+            }
             return null;
         }
-        String qualifier = null;
-        if (!ctx.updatedElement().isEmpty()) {
-            FullColumnNameContext column = ctx.updatedElement(0).fullColumnName();
+        Set<AtomTableItemContext> targets = new LinkedHashSet<>();
+        for (UpdatedElementContext element : ctx.updatedElement()) {
+            String qualifier = null;
+            FullColumnNameContext column = element.fullColumnName();
             if (!column.dottedId().isEmpty()) {
                 qualifier = unquote(column.uid().getText());
             }
+            AtomTableItemContext target = resolveAlias(qualifier, tables);
+            if (target == null) {
+                for (SubqueryTableItemContext derived : descendants(ctx.tableSources(), SubqueryTableItemContext.class)) {
+                    if (qualifier == null && tables.isEmpty() || derived.aliasName() != null && unquote(text(derived.aliasName())).equalsIgnoreCase(qualifier)) {
+                        List<AtomTableItemContext> sources = descendants(derived, AtomTableItemContext.class);
+                        if (sources.size() == 1) {
+                            target = sources.get(0);
+                        }
+                    }
+                }
+            }
+            if (target != null && targets.add(target)) {
+                add(SplitQueryType.UPDATE, TargetType.Table, target.tableName());
+            }
         }
-        AtomTableItemContext target = resolveAlias(qualifier, tables);
-        add(SplitQueryType.UPDATE, TargetType.Table, target.tableName());
         return null;
     }
 
     @Override
     public Void visitMultipleDeleteStatement(MultipleDeleteStatementContext ctx) {
-        List<AtomTableItemContext> tables = descendants(ctx.tableSources(), AtomTableItemContext.class);
+        List<AtomTableItemContext> tables = directTables(ctx.tableSources());
         for (TableNameContext deleteTarget : ctx.tableName()) {
             AtomTableItemContext target = resolveAlias(unquote(text(deleteTarget)), tables);
-            if (target == null) {
+            if (target == null || target.aliasName() == null) {
                 add(SplitQueryType.DELETE, TargetType.Table, deleteTarget);
             } else {
                 add(SplitQueryType.DELETE, TargetType.Table, target.tableName());
@@ -371,13 +404,41 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
         return null;
     }
 
+    private List<AtomTableItemContext> directTables(TableSourcesContext sources) {
+        List<AtomTableItemContext> tables = descendants(sources, AtomTableItemContext.class);
+        tables.removeIf(table -> {
+            ParseTree parent = table.getParent();
+            while (parent != null && parent != sources) {
+                if (parent instanceof SubqueryTableItemContext) {
+                    return true;
+                }
+                parent = parent.getParent();
+            }
+            return false;
+        });
+        return tables;
+    }
+
     private AtomTableItemContext resolveAlias(String qualifier, List<AtomTableItemContext> tables) {
         if (qualifier != null) {
             for (AtomTableItemContext table : tables) {
                 if (table.aliasName() != null && qualifier.equalsIgnoreCase(unquote(text(table.aliasName())))) {
                     return table;
                 }
+                String tableName;
+                FullIdContext fullId = table.tableName().fullId();
+                if (fullId == null) {
+                    tableName = unquote(table.tableName().delphiName.getText());
+                } else if (fullId.identifierAfterDot != null) {
+                    tableName = unquote(fullId.identifierAfterDot.getText());
+                } else {
+                    tableName = unquote(fullId.uid(fullId.uid().size() - 1).getText());
+                }
+                if (table.aliasName() == null && (qualifier.equalsIgnoreCase(tableName) || qualifier.equalsIgnoreCase(unquote(table.tableName().getText())))) {
+                    return table;
+                }
             }
+            return null;
         }
         return tables.isEmpty() ? null : tables.get(0);
     }

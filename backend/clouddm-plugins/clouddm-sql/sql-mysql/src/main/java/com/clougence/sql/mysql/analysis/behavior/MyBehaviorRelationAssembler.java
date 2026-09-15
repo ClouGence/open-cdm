@@ -27,28 +27,38 @@ final class MyBehaviorRelationAssembler {
 
     private final String                     sql;
     private final BehaviorAction             statementAction;
+    private final boolean                    explainOnly;
     private final List<MySqlObjectReference> references;
     private final Map<UmiTypes, Object>      levels;
     private final boolean[]                  consumed;
     private final List<BehaviorRelation>     relations = new ArrayList<>();
 
-    MyBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels){
+    MyBehaviorRelationAssembler(String sql, SplitQueryType statementType, List<MySqlObjectReference> references, Map<UmiTypes, Object> levels, boolean unsafeReset,
+                                boolean mariaDb){
         this.sql = sql == null ? "" : sql;
-        this.statementAction = statementAction(this.sql, statementType);
+        this.statementAction = statementAction(this.sql, statementType, unsafeReset, mariaDb);
+        String normalized = this.sql.stripLeading().toUpperCase(Locale.ROOT);
+        if (statementType == SplitQueryType.PERFORMANCE && (normalized.startsWith("EXPLAIN ") || normalized.startsWith("DESC ") || normalized.startsWith("DESCRIBE "))) {
+            this.explainOnly = true;
+        } else {
+            this.explainOnly = false;
+        }
         this.references = references;
         this.levels = levels;
         this.consumed = new boolean[references.size()];
     }
 
     List<BehaviorRelation> assemble() {
-        assembleRename();
-        assembleGrantOrRevoke();
-        assembleDefaultRoles();
-        assembleImport();
-        assembleExport();
-        assembleIndexRelation();
-        assembleTriggerRelation();
-        assembleDataDependencies();
+        if (!explainOnly) {
+            assembleRename();
+            assembleGrantOrRevoke();
+            assembleDefaultRoles();
+            assembleImport();
+            assembleExport();
+            assembleIndexRelation();
+            assembleTriggerRelation();
+            assembleDataDependencies();
+        }
         for (int i = 0; i < references.size(); i++) {
             if (!consumed[i]) {
                 addUnary(i);
@@ -309,7 +319,7 @@ final class MyBehaviorRelationAssembler {
             displayNodes.add(nodes.get(0));
         }
         object.setObjectPath(resourcePath(displayNodes));
-        if (!nodes.isEmpty()) {
+        if (!nodes.isEmpty() && !reference.unnamed()) {
             object.setObjectName(objectName(reference.targetType(), nodes));
         }
         object.setStartLine(reference.startLine());
@@ -327,6 +337,9 @@ final class MyBehaviorRelationAssembler {
             return new ObjectName(nodes.get(nodes.size() - 3), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1));
         }
         if (nodes.size() == 2) {
+            if (targetType == TargetType.Schema) {
+                return new ObjectName(nodes.get(0), nodes.get(1), null);
+            }
             return new ObjectName(level(UmiTypes.Catalog), nodes.get(0), nodes.get(1));
         }
         return new ObjectName(null, null, nodes.get(0));
@@ -409,7 +422,7 @@ final class MyBehaviorRelationAssembler {
     private BehaviorAction action(MySqlObjectReference reference) {
         BehaviorAction action = reference.action() == null ? defaultAction(reference.sqlType()) : reference.action();
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        if (normalized.startsWith("EXPLAIN") && statementAction == BehaviorAction.READ) {
+        if (explainOnly && reference.targetType() != TargetType.ConfigKey && reference.targetType() != TargetType.Function) {
             return BehaviorAction.READ;
         }
         if (statementAction == BehaviorAction.UNSAFE && isUnsafeReference(reference, action)) {
@@ -430,32 +443,25 @@ final class MyBehaviorRelationAssembler {
 
     private static boolean isOperationalType(SplitQueryType type) {
         return switch (type) {
-            case ADMIN, ADMIN_TABLE, ADMIN_PERFORMANCE, ADMIN_LOG, MAINTAIN_LOG, ADMIN_REPLICATION, ADMIN_RESOURCE_GROUP, ALTER_REPLICATION -> true;
+            case ADMIN, ADMIN_TABLE, ADMIN_PERFORMANCE, ADMIN_LOG, MAINTAIN_LOG, ADMIN_REPLICATION, ADMIN_RESOURCE_GROUP, ALTER_REPLICATION, TRANSACTION -> true;
             default -> false;
         };
     }
 
-    private static BehaviorAction statementAction(String sql, SplitQueryType type) {
-        if (isUnsafeStatement(sql)) {
+    private static BehaviorAction statementAction(String sql, SplitQueryType type, boolean unsafeReset, boolean mariaDb) {
+        if (isUnsafeStatement(sql, unsafeReset, mariaDb)) {
             return BehaviorAction.UNSAFE;
         }
+        if (type == SplitQueryType.CREATE_LIBRARY || type == SplitQueryType.ALTER_LIBRARY || type == SplitQueryType.DROP_LIBRARY || type == SplitQueryType.COMMENT_LIBRARY) {
+            return defaultAction(type);
+        }
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        if (normalized.startsWith("START REPLICA") || normalized.startsWith("START SLAVE") || normalized.startsWith("START GROUP_REPLICATION")) {
-            return BehaviorAction.START;
+        if (type == SplitQueryType.TRANSACTION) {
+            return transactionAction(normalized);
         }
-        if (normalized.startsWith("STOP REPLICA") || normalized.startsWith("STOP SLAVE") || normalized.startsWith("STOP GROUP_REPLICATION")) {
-            return BehaviorAction.STOP;
-        }
-        if (normalized.startsWith("RESET REPLICA") || normalized.startsWith("RESET SLAVE") || normalized.startsWith("RESET BINARY LOGS")
-            || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET QUERY CACHE")) {
-            return BehaviorAction.RESET;
-        }
-        if (normalized.startsWith("CHANGE REPLICATION") || normalized.startsWith("CHANGE MASTER")
-            || normalized.startsWith("ALTER INSTANCE") && type == SplitQueryType.ADMIN_LOG) {
-            return BehaviorAction.ALTER;
-        }
-        if (normalized.startsWith("BINLOG ")) {
-            return BehaviorAction.APPLY;
+        BehaviorAction replicationAction = replicationAction(normalized, type);
+        if (replicationAction != null) {
+            return replicationAction;
         }
         if (normalized.contains("FLUSH")) {
             return BehaviorAction.FLUSH;
@@ -466,26 +472,9 @@ final class MyBehaviorRelationAssembler {
         if (normalized.startsWith("PURGE BINARY LOGS") || normalized.startsWith("PURGE MASTER LOGS")) {
             return BehaviorAction.PURGE;
         }
-        if (normalized.contains("CACHE INDEX") || normalized.contains("LOAD INDEX INTO CACHE")) {
-            return BehaviorAction.LOAD;
-        }
-        if (normalized.contains("CHECK TABLE")) {
-            return BehaviorAction.VALIDATE;
-        }
-        if (normalized.contains("CHECKSUM TABLE")) {
-            return BehaviorAction.CHECKSUM;
-        }
-        if (normalized.contains("ANALYZE TABLE") || normalized.contains("ANALYZE NO_WRITE_TO_BINLOG TABLE")
-            || normalized.contains("ANALYZE LOCAL TABLE")) {
-            return BehaviorAction.ANALYZE;
-        }
-        if (normalized.contains("OPTIMIZE TABLE") || normalized.contains("OPTIMIZE NO_WRITE_TO_BINLOG TABLE")
-            || normalized.contains("OPTIMIZE LOCAL TABLE")) {
-            return BehaviorAction.OPTIMIZE;
-        }
-        if (normalized.contains("REPAIR TABLE") || normalized.contains("REPAIR NO_WRITE_TO_BINLOG TABLE")
-            || normalized.contains("REPAIR LOCAL TABLE")) {
-            return BehaviorAction.REPAIR;
+        BehaviorAction tableAction = tableMaintenanceAction(normalized);
+        if (tableAction != null) {
+            return tableAction;
         }
         if (normalized.contains("GTID_NEXT") || normalized.contains("PSEUDO_SLAVE_MODE")) {
             return BehaviorAction.CONFIGURE;
@@ -496,14 +485,78 @@ final class MyBehaviorRelationAssembler {
         return defaultAction(type);
     }
 
+    private static BehaviorAction tableMaintenanceAction(String normalized) {
+        if (normalized.contains("CACHE INDEX") || normalized.contains("LOAD INDEX INTO CACHE")) {
+            return BehaviorAction.LOAD;
+        }
+        if (normalized.contains("CHECK TABLE")) {
+            return BehaviorAction.VALIDATE;
+        }
+        if (normalized.contains("CHECKSUM TABLE")) {
+            return BehaviorAction.CHECKSUM;
+        }
+        if (normalized.contains("ANALYZE TABLE") || normalized.contains("ANALYZE NO_WRITE_TO_BINLOG TABLE") || normalized.contains("ANALYZE LOCAL TABLE")) {
+            return BehaviorAction.ANALYZE;
+        }
+        if (normalized.contains("OPTIMIZE TABLE") || normalized.contains("OPTIMIZE NO_WRITE_TO_BINLOG TABLE") || normalized.contains("OPTIMIZE LOCAL TABLE")) {
+            return BehaviorAction.OPTIMIZE;
+        }
+        if (normalized.contains("REPAIR TABLE") || normalized.contains("REPAIR NO_WRITE_TO_BINLOG TABLE") || normalized.contains("REPAIR LOCAL TABLE")) {
+            return BehaviorAction.REPAIR;
+        }
+        return null;
+    }
+
+    private static BehaviorAction replicationAction(String normalized, SplitQueryType type) {
+        if (normalized.startsWith("START ALL ") || normalized.startsWith("START REPLICA") || normalized.startsWith("START SLAVE")
+            || normalized.startsWith("START GROUP_REPLICATION")) {
+            return BehaviorAction.START;
+        }
+        if (normalized.startsWith("STOP ALL ") || normalized.startsWith("STOP REPLICA") || normalized.startsWith("STOP SLAVE") || normalized.startsWith("STOP GROUP_REPLICATION")) {
+            return BehaviorAction.STOP;
+        }
+        if (normalized.startsWith("RESET REPLICA") || normalized.startsWith("RESET SLAVE") || normalized.startsWith("RESET BINARY LOGS") || normalized.startsWith("RESET MASTER")
+            || normalized.startsWith("RESET QUERY CACHE")) {
+            return BehaviorAction.RESET;
+        }
+        if (normalized.startsWith("CHANGE REPLICATION") || normalized.startsWith("CHANGE MASTER") || normalized.startsWith("ALTER INSTANCE") && type == SplitQueryType.ADMIN_LOG) {
+            return BehaviorAction.ALTER;
+        }
+        if (normalized.startsWith("BINLOG ")) {
+            return BehaviorAction.APPLY;
+        }
+        return null;
+    }
+
+    private static BehaviorAction transactionAction(String normalized) {
+        if (normalized.startsWith("START TRANSACTION") || normalized.startsWith("BEGIN") || normalized.startsWith("XA START") || normalized.startsWith("XA BEGIN")) {
+            return BehaviorAction.START;
+        }
+        if (normalized.startsWith("COMMIT") || normalized.startsWith("XA COMMIT") || normalized.startsWith("XA END")) {
+            return BehaviorAction.STOP;
+        }
+        if (normalized.startsWith("ROLLBACK") || normalized.startsWith("XA ROLLBACK")) {
+            return BehaviorAction.RESET;
+        }
+        if (normalized.startsWith("SAVEPOINT")) {
+            return BehaviorAction.CREATE;
+        }
+        if (normalized.startsWith("RELEASE SAVEPOINT")) {
+            return BehaviorAction.DROP;
+        }
+        if (normalized.startsWith("XA RECOVER")) {
+            return BehaviorAction.READ;
+        }
+        if (normalized.startsWith("SET ") || normalized.startsWith("XA PREPARE")) {
+            return BehaviorAction.CONFIGURE;
+        }
+        return BehaviorAction.UNKNOWN;
+    }
+
     private boolean isUnsafeReference(MySqlObjectReference reference, BehaviorAction action) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        if (normalized.startsWith("EXPLAIN")) {
+        if (MyBehaviorStatementTypeResolver.isExplainAnalyze(sql)) {
             return true;
-        }
-        if (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN")
-            || normalized.startsWith("INSTALL COMPONENT") || normalized.startsWith("UNINSTALL COMPONENT")) {
-            return reference.targetType() == TargetType.Library || reference.targetType() == TargetType.File;
         }
         if (normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME")) {
             return reference.targetType() == TargetType.Function || reference.targetType() == TargetType.Library || reference.targetType() == TargetType.File;
@@ -555,16 +608,14 @@ final class MyBehaviorRelationAssembler {
         };
     }
 
-    private static boolean isUnsafeStatement(String sql) {
+    private static boolean isUnsafeStatement(String sql, boolean unsafeReset, boolean mariaDb) {
         String normalized = sql.stripLeading().toUpperCase(Locale.ROOT);
-        return normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE") || normalized.startsWith("DEALLOCATE PREPARE")
-               || normalized.startsWith("RESTART") || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ")
-               || normalized.startsWith("RESET MASTER") || normalized.startsWith("RESET BINARY LOGS")
-               || normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN")
-               || normalized.startsWith("INSTALL COMPONENT") || normalized.startsWith("UNINSTALL COMPONENT")
-               || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")
-               || normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME")
-               || normalized.contains("SQL_SLAVE_SKIP_COUNTER") || normalized.contains("GTID_PURGED")
+        return MyBehaviorStatementTypeResolver.isExplainAnalyze(sql) || normalized.startsWith("EXECUTE") || normalized.startsWith("PREPARE")
+               || normalized.startsWith("DEALLOCATE PREPARE") || normalized.startsWith("RESTART") || normalized.startsWith("SHUTDOWN") || normalized.startsWith("BINLOG ")
+               || unsafeReset || normalized.startsWith("ALTER INSTANCE") && normalized.contains("DISABLE") && normalized.contains("REDO_LOG")
+               || normalized.startsWith("CREATE") && normalized.contains("FUNCTION") && normalized.contains("SONAME") || normalized.contains("SQL_SLAVE_SKIP_COUNTER")
+               || !mariaDb && (normalized.startsWith("INSTALL PLUGIN") || normalized.startsWith("UNINSTALL PLUGIN") || normalized.startsWith("INSTALL COMPONENT")
+                               || normalized.startsWith("UNINSTALL COMPONENT")) || normalized.contains("GTID_PURGED")
                || normalized.contains("DEBUG") && normalized.contains("FORCE_FAKE_UUID");
     }
 

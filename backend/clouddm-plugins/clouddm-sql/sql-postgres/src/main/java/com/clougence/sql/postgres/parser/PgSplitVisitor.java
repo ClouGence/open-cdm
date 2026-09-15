@@ -19,7 +19,6 @@ import static com.clougence.sql.postgres.parser.antlr.PgSqlParser.*;
 
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -27,16 +26,13 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.postgres.analysis.reference.PgResourceRegistry;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseVisitor;
 
 public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
-    private static final Set<String>  METADATA_FUNCTIONS    = Set
-        .of("acldefault", "aclexplode", "col_description", "format_type", "has_any_column_privilege", "has_column_privilege", "has_database_privilege", "has_foreign_data_wrapper_privilege", "has_function_privilege", "has_language_privilege", "has_largeobject_privilege", "has_parameter_privilege", "has_schema_privilege", "has_sequence_privilege", "has_server_privilege", "has_table_privilege", "has_tablespace_privilege", "has_type_privilege", "makeaclitem", "obj_description", "pg_char_to_encoding", "pg_collation_actual_version", "pg_collation_is_visible", "pg_column_compression", "pg_column_size", "pg_conversion_is_visible", "pg_database_size", "pg_describe_object", "pg_encoding_to_char", "pg_filenode_relation", "pg_function_is_visible", "pg_get_catalog_foreign_keys", "pg_get_constraintdef", "pg_get_expr", "pg_get_function_arguments", "pg_get_function_identity_arguments", "pg_get_function_result", "pg_get_functiondef", "pg_get_indexdef", "pg_get_keywords", "pg_get_object_address", "pg_get_partition_constraintdef", "pg_get_partkeydef", "pg_get_ruledef", "pg_get_serial_sequence", "pg_get_statisticsobjdef", "pg_get_triggerdef", "pg_get_userbyid", "pg_get_viewdef", "pg_has_role", "pg_identify_object", "pg_identify_object_as_address", "pg_index_column_has_property", "pg_index_has_property", "pg_indexam_has_property", "pg_indexes_size", "pg_is_in_recovery", "pg_listening_channels", "pg_opclass_is_visible", "pg_operator_is_visible", "pg_opfamily_is_visible", "pg_partition_ancestors", "pg_partition_root", "pg_partition_tree", "pg_relation_filenode", "pg_relation_filepath", "pg_relation_size", "pg_statistics_obj_is_visible", "pg_table_is_visible", "pg_table_size", "pg_tablespace_databases", "pg_tablespace_location", "pg_tablespace_size", "pg_total_relation_size", "pg_ts_config_is_visible", "pg_ts_dict_is_visible", "pg_ts_parser_is_visible", "pg_ts_template_is_visible", "pg_type_is_visible", "pg_typeof", "row_security_active", "shobj_description", "to_regclass", "to_regcollation", "to_regnamespace", "to_regoper", "to_regoperator", "to_regproc", "to_regprocedure", "to_regrole", "to_regtype");
-
-    private static final Set<String>  PERFORMANCE_RELATIONS = Set.of("pg_statistic", "pg_statistic_ext", "pg_statistic_ext_data", "pg_stats", "pg_stats_ext", "pg_stats_ext_exprs");
-
     private final PostgresVersion     version;
+    private final PgResourceRegistry  resources             = PgResourceRegistry.instance();
     private final Set<SplitQueryType> types                 = new LinkedHashSet<>();
     private boolean                   metadataReference;
     private boolean                   ordinaryRelation;
@@ -80,6 +76,14 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
         }
         if (tree instanceof ExecutestmtContext && hasToken(tree, CREATE)) {
             this.types.add(SplitQueryType.CREATE_TABLE);
+        }
+        if (type == SplitQueryType.SELECT && !hasToken(tree, SELECT) && !hasToken(tree, TABLE)) {
+            for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+                if (parent instanceof InsertstmtContext || parent instanceof MergestmtContext) {
+                    type = null;
+                    break;
+                }
+            }
         }
         if (type != null) {
             this.types.add(type);
@@ -208,9 +212,16 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, RULE) || hasToken(ctx, COLLATION) || hasToken(ctx, CONVERSION_P)) {
             return SplitQueryType.ALTER_POLICY;
+        } else if (hasToken(ctx, POLICY)) {
+            return SplitQueryType.ALTER_POLICY;
+        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, TABLE)) {
+            return SplitQueryType.COMMENT_TABLE;
+        } else if ((hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER)) || hasToken(ctx, SERVER)) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, TRIGGER)) {
             return SplitQueryType.COMMENT_TRIGGER;
-        } else if (ctx.aggregate_with_argtypes() != null || ctx.operator_with_argtypes() != null || hasToken(ctx, OPERATOR) && (hasToken(ctx, CLASS) || hasToken(ctx, FAMILY))) {
+        } else if (ctx.aggregate_with_argtypes() != null || ctx.function_with_argtypes() != null || ctx.operator_with_argtypes() != null || hasToken(ctx, CAST)
+                   || hasToken(ctx, OPERATOR) && (hasToken(ctx, CLASS) || hasToken(ctx, FAMILY))) {
             return SplitQueryType.COMMENT_PROG_OBJ;
         } else if (hasToken(ctx, ROLE)) {
             return SplitQueryType.COMMENT_ROLE;
@@ -224,6 +235,8 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.COMMENT_SCHEMA;
         } else if (hasToken(ctx, CONSTRAINT)) {
             return SplitQueryType.COMMENT_CONSTRAINT;
+        } else if (hasToken(ctx, TYPE_P) || hasToken(ctx, DOMAIN_P)) {
+            return SplitQueryType.COMMENT_TYPE;
         } else if (hasToken(ctx, VIEW)) {
             return SplitQueryType.COMMENT_VIEW;
         } else if (hasToken(ctx, SEQUENCE)) {
@@ -283,6 +296,10 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
         Reset_restContext reset = ctx.reset_rest();
         if (reset.TRANSACTION() != null) {
             return SplitQueryType.TRANSACTION;
+        }
+        Generic_resetContext genericReset = reset.generic_reset();
+        if (genericReset != null && genericReset.var_name() != null && "role".equalsIgnoreCase(genericReset.var_name().getText())) {
+            return SplitQueryType.SWITCH_ROLE;
         }
         if (reset.SESSION() != null && reset.AUTHORIZATION() != null) {
             return SplitQueryType.SWITCH_USER;
@@ -369,18 +386,14 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAltertablestmt(AltertablestmtContext ctx) {
-        ParseTree alterContext = ctx.getChild(1);
-        if (alterContext instanceof TerminalNodeImpl childNode) {
-            if (childNode.getSymbol().getType() == TABLE) {
-                return SplitQueryType.ALTER_TABLE;
-
-            } else if (childNode.getSymbol().getType() == INDEX) {
-                return SplitQueryType.ALTER_INDEX;
-
-            } else if (childNode.getSymbol().getType() == VIEW) {
-                return SplitQueryType.ALTER_VIEW;
-
-            }
+        if (ctx.TABLE() != null) {
+            return SplitQueryType.ALTER_TABLE;
+        }
+        if (ctx.INDEX() != null) {
+            return SplitQueryType.ALTER_INDEX;
+        }
+        if (ctx.VIEW() != null) {
+            return SplitQueryType.ALTER_VIEW;
         }
         if (hasToken(ctx, MATERIALIZED) && hasToken(ctx, VIEW)) {
             return SplitQueryType.ALTER_VIEW;
@@ -471,7 +484,7 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, TEXT_P) && hasToken(ctx, SEARCH)) {
             return SplitQueryType.DROP_POLICY;
-        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER) || hasToken(ctx, SERVER)) {
+        } else if ((hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER)) || hasToken(ctx, SERVER)) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         return SplitQueryType.UNKNOWN;
@@ -496,16 +509,27 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitRenamestmt(RenamestmtContext ctx) {
-        if (ctx.aggregate_with_argtypes() != null) {
+        if (ctx.aggregate_with_argtypes() != null || ctx.function_with_argtypes() != null) {
             return SplitQueryType.RENAME_PROG_OBJ;
         } else if (hasToken(ctx, TEXT_P) && hasToken(ctx, SEARCH)) {
             return SplitQueryType.ALTER_POLICY;
-        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER) || hasToken(ctx, SERVER)) {
+        } else if ((hasToken(ctx, FOREIGN) && hasToken(ctx, WRAPPER)) || hasToken(ctx, SERVER)) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         } else if (hasToken(ctx, RULE) || hasToken(ctx, COLLATION) || hasToken(ctx, CONVERSION_P)) {
             return SplitQueryType.ALTER_POLICY;
         } else if (hasToken(ctx, OPERATOR) && (hasToken(ctx, CLASS) || hasToken(ctx, FAMILY))) {
             return SplitQueryType.ALTER_PROG_OBJ;
+        } else if (hasToken(ctx, INDEX)) {
+            return SplitQueryType.RENAME_INDEX;
+        } else if (hasToken(ctx, POLICY)) {
+            return SplitQueryType.ALTER_POLICY;
+        } else if (hasToken(ctx, TABLE) && hasToken(ctx, CONSTRAINT)) {
+            return SplitQueryType.RENAME_CONSTRAINT;
+        } else if (hasToken(ctx, FOREIGN) && hasToken(ctx, TABLE)) {
+            if (ctx.name().size() > 1) {
+                return SplitQueryType.RENAME_COLUMN;
+            }
+            return SplitQueryType.RENAME_TABLE;
         } else if (hasToken(ctx, TRIGGER)) {
             return SplitQueryType.RENAME_TRIGGER;
         } else if (hasToken(ctx, USER)) {
@@ -570,6 +594,10 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
             return SplitQueryType.ALTER_PROG_OBJ;
         } else if (hasToken(ctx, TRIGGER)) {
             return SplitQueryType.ALTER_TRIGGER;
+        } else if (hasToken(ctx, INDEX)) {
+            return SplitQueryType.ALTER_INDEX;
+        } else if (hasToken(ctx, VIEW)) {
+            return SplitQueryType.ALTER_VIEW;
         }
         return SplitQueryType.UNKNOWN;
     }
@@ -858,7 +886,7 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
         if (isExplainAnalyze(ctx)) {
             return SplitQueryType.UNSAFE;
         }
-        return SplitQueryType.SELECT;
+        return SplitQueryType.PERFORMANCE;
     }
 
     private boolean isExplainAnalyze(ExplainstmtContext ctx) {
@@ -1069,98 +1097,22 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
     private void collectSystemFunctionTypes(Func_applicationContext ctx) {
         String name = normalizeFunctionName(ctx.func_name());
-        if (isMetadataFunction(name)) {
+        if (resources.isMetadataFunction(name, version)) {
             this.metadataReference = true;
             this.types.add(SplitQueryType.METADATA);
             return;
         }
-        int previousSize = this.types.size();
-        switch (name) {
-            case "set_config" -> this.types.add(SplitQueryType.SESSION_SETTING_WRITE);
-            case "pg_advisory_lock", "pg_advisory_lock_shared", "pg_advisory_unlock", "pg_advisory_unlock_all", "pg_advisory_unlock_shared", "pg_advisory_xact_lock",
-                    "pg_advisory_xact_lock_shared", "pg_try_advisory_lock", "pg_try_advisory_lock_shared", "pg_try_advisory_xact_lock", "pg_try_advisory_xact_lock_shared" ->
-                this.types.add(SplitQueryType.SESSION_LOCK);
-            case "pg_current_wal_flush_lsn", "pg_current_wal_insert_lsn", "pg_current_wal_lsn", "pg_last_wal_receive_lsn", "pg_last_wal_replay_lsn", "pg_walfile_name",
-                    "pg_walfile_name_offset", "pg_wal_lsn_diff", "pg_get_wal_replay_pause_state", "pg_is_wal_replay_paused", "pg_last_xact_replay_timestamp" ->
-                this.types.add(SplitQueryType.LOG_READ);
-            case "pg_create_restore_point", "pg_switch_wal", "pg_rotate_logfile" -> this.types.add(SplitQueryType.MAINTAIN_LOG);
-            case "pg_read_file", "pg_read_binary_file" -> {
-                this.types.add(SplitQueryType.DATA_IMPORT);
-                this.types.add(SplitQueryType.UNSAFE);
-            }
-            case "pg_ls_dir", "pg_stat_file" -> {
-                this.types.add(SplitQueryType.DATA_IMPORT);
-                this.types.add(SplitQueryType.UNSAFE);
-            }
-            case "pg_ls_tmpdir" -> {
-                this.types.add(SplitQueryType.DATA_IMPORT);
-                this.types.add(SplitQueryType.UNSAFE);
-            }
-            case "pg_ls_logdir", "pg_ls_waldir", "pg_ls_archive_statusdir", "pg_current_logfile", "pg_control_checkpoint", "pg_control_init", "pg_control_recovery",
-                    "pg_control_system" ->
-                this.types.add(SplitQueryType.LOG_READ);
-            case "pg_import_system_collations", "pg_reload_conf" -> this.types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
-            case "pg_promote" -> this.types.add(SplitQueryType.ALTER_REPLICATION);
-            case "pg_wal_replay_pause", "pg_wal_replay_resume", "pg_sync_replication_slots", "pg_log_standby_snapshot", "pg_replication_slot_advance", "pg_logical_emit_message" ->
-                this.types.add(SplitQueryType.ADMIN_REPLICATION);
-            case "pg_create_physical_replication_slot", "pg_create_logical_replication_slot", "pg_copy_physical_replication_slot", "pg_copy_logical_replication_slot",
-                    "pg_replication_origin_create" ->
-                this.types.add(SplitQueryType.CREATE_REPLICATION);
-            case "pg_drop_replication_slot", "pg_replication_origin_drop" -> this.types.add(SplitQueryType.DROP_REPLICATION);
-            case "pg_replication_origin_advance", "pg_replication_origin_session_setup", "pg_replication_origin_session_reset", "pg_replication_origin_xact_setup",
-                    "pg_replication_origin_xact_reset" ->
-                this.types.add(SplitQueryType.ALTER_REPLICATION);
-            case "pg_replication_origin_oid", "pg_replication_origin_progress", "pg_replication_origin_session_is_setup", "pg_replication_origin_session_progress" ->
-                this.types.add(SplitQueryType.METADATA);
-            case "pg_logical_slot_peek_changes", "pg_logical_slot_peek_binary_changes" -> this.types.add(SplitQueryType.LOG_READ);
-            case "pg_logical_slot_get_changes", "pg_logical_slot_get_binary_changes" -> {
-                this.types.add(SplitQueryType.LOG_READ);
-                this.types.add(SplitQueryType.ADMIN_REPLICATION);
-            }
-            case "pg_cancel_backend", "pg_terminate_backend", "pg_backup_start", "pg_backup_stop" -> this.types.add(SplitQueryType.ADMIN);
-            case "pg_log_backend_memory_contexts" -> this.types.add(SplitQueryType.ADMIN_LOG);
-            case "brin_desummarize_range", "brin_summarize_new_values", "brin_summarize_range", "gin_clean_pending_list" -> this.types.add(SplitQueryType.ADMIN_PERFORMANCE);
-            case "pg_blocking_pids", "pg_safe_snapshot_blocking_pids", "pg_notification_queue_usage", "pg_mcv_list_items" -> this.types.add(SplitQueryType.PERFORMANCE);
-            case "pg_restore_relation_stats", "pg_clear_relation_stats", "pg_restore_attribute_stats", "pg_clear_attribute_stats" -> {
-                if (PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_18)) {
-                    this.types.add(SplitQueryType.ADMIN_PERFORMANCE);
-                }
-            }
-            case "pg_available_wal_summaries", "pg_wal_summary_contents" -> {
-                if (PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_17)) {
-                    this.types.add(SplitQueryType.LOG_READ);
-                }
-            }
-            case "pg_ls_summariesdir" -> {
-                if (PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_18)) {
-                    this.types.add(SplitQueryType.LOG_READ);
-                }
-            }
-            default -> {
-            }
-        }
-        if (this.types.size() > previousSize) {
+        Set<SplitQueryType> functionTypes = resources.functionStatementTypes(name, version);
+        this.types.addAll(functionTypes);
+        if (!functionTypes.isEmpty()) {
             this.requiresSelectCarrier = true;
         }
-    }
-
-    private boolean isMetadataFunction(String name) {
-        if (METADATA_FUNCTIONS.contains(name)) {
-            return true;
-        }
-        if (name.equals("pg_database_collation_actual_version") || name.equals("pg_get_wal_resource_managers")) {
-            return PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_15);
-        }
-        if (name.equals("pg_column_toast_chunk_id")) {
-            return PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_17);
-        }
-        return name.equals("pg_settings_get_flags") && PostgresVersion.ge(this.version, PostgresVersion.POSTGRES_18);
     }
 
     private void collectRelationType(Relation_exprContext relation) {
         Qualified_nameContext name = relation.qualified_name();
         String unqualifiedName = normalizeQualifiedName(name);
-        if (PERFORMANCE_RELATIONS.contains(unqualifiedName)) {
+        if (resources.isPerformanceRelation(unqualifiedName)) {
             this.requiresSelectCarrier = true;
             this.types.add(SplitQueryType.PERFORMANCE);
         } else if (isSystemSchema(name)) {
@@ -1198,11 +1150,11 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
     private boolean isSystemSchema(Qualified_nameContext name) {
         String schema = normalizeName(name.colid().getText());
-        return name.indirection() != null && (schema.equals("pg_catalog") || schema.equals("information_schema"));
+        return name.indirection() != null && resources.isSystemSchema(schema);
     }
 
     private String normalizeName(String name) {
-        return name.replace("\"", "").toLowerCase(Locale.ROOT);
+        return resources.normalizeIdentifier(name);
     }
 
 }
