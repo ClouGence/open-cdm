@@ -28,6 +28,8 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.postgres.analysis.reference.PgFunctionBehavior;
+import com.clougence.sql.postgres.analysis.reference.PgResourceRegistry;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseVisitor;
@@ -42,6 +44,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     private final int                      baseColumn;
     private final SplitQueryType           resolvedType;
     private final PostgresVersion          version;
+    private final PgResourceRegistry       resources = PgResourceRegistry.instance();
     private final StatementBehavior        behavior = new StatementBehavior();
 
     PgStatementBehaviorVisitor(Parser parser, PostgresVersion version, SplitQueryType statementType, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
@@ -77,8 +80,8 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     private void addFunction(Func_applicationContext ctx) {
         List<String> names = new ArrayList<>();
         collectNames(ctx.func_name(), names);
-        PgFunctionBehavior rule = PgFunctionBehaviorRegistry.INSTANCE.behavior(names);
-        addUnary(rule.action(), object(TargetType.Function, ctx.func_name()));
+        PgFunctionBehavior rule = resources.functionBehavior(names, version);
+        addUnary(rule.action(), functionObject(ctx.func_name(), names));
         if (rule.targetType() == null || ctx.func_arg_list() == null)
             return;
         Func_arg_exprContext argument = ctx.func_arg_list().func_arg_expr(0);
@@ -1479,6 +1482,16 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         return scopedObject(type, context, names);
     }
 
+    private BehaviorObject functionObject(ParserRuleContext context, List<String> names) {
+        String name = names.get(names.size() - 1);
+        if (names.size() == 1 && resources.isSystemFunction(name, version)) {
+            BehaviorObject result = scopedObject(TargetType.Function, context, names);
+            result.setObjectName(new ObjectName(null, null, name));
+            return result;
+        }
+        return scopedObject(TargetType.Function, context, names);
+    }
+
     private BehaviorObject scopedObject(TargetType type, ParserRuleContext context, List<String> names) {
         if (names.isEmpty()) {
             names.add(normalizeIdentifier(text(context)));
@@ -1773,16 +1786,6 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     private String normalizeIdentifier(String value) {
-        if (value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"') {
-            return value.substring(1, value.length() - 1).replace("\"\"", "\"");
-        }
-        // PostgreSQL preserves non-ASCII characters when folding UTF-8 identifiers.
-        char[] normalized = value.toCharArray();
-        for (int i = 0; i < normalized.length; i++) {
-            if (normalized[i] >= 'A' && normalized[i] <= 'Z') {
-                normalized[i] += 'a' - 'A';
-            }
-        }
-        return new String(normalized);
+        return resources.normalizeIdentifier(value);
     }
 }

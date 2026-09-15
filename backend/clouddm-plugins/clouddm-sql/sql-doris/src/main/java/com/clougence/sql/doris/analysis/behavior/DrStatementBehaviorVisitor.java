@@ -26,12 +26,14 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.doris.analysis.reference.DrResourceRegistry;
 import com.clougence.sql.doris.parser.antlr.DorisParserBaseVisitor;
 import com.clougence.sql.doris.parser.antlr.DorisParser.*;
 
 final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
+    private final DrResourceRegistry        resources = DrResourceRegistry.instance();
     private final StatementBehavior        behavior = new StatementBehavior();
     private ParseTree                      root;
 
@@ -68,22 +70,30 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     private void addFunctionCalls() {
         for (ParserRuleContext ctx : descendants(root, ParserRuleContext.class)) {
             if (ctx instanceof FunctionCallExpressionContext function) {
-                add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, function.functionIdentifier()));
+                FunctionIdentifierContext identifier = function.functionIdentifier();
+                String name = text(identifier.functionNameIdentifier());
+                add(SplitQueryType.SELECT, BehaviorAction.CALL, functionObject(identifier, name, identifier.dbName != null));
             } else if (ctx instanceof InsertIntoTVFContext function) {
-                add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, function.tvfName));
+                add(SplitQueryType.SELECT, BehaviorAction.CALL, functionObject(function.tvfName, text(function.tvfName), false));
             } else if (ctx instanceof TableValuedFunctionContext function) {
-                add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, function.tvfName));
+                add(SplitQueryType.SELECT, BehaviorAction.CALL, functionObject(function.tvfName, text(function.tvfName), false));
             } else if (ctx instanceof LateralViewContext lateral) {
-                add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, lateral.functionName));
+                add(SplitQueryType.SELECT, BehaviorAction.CALL, functionObject(lateral.functionName, text(lateral.functionName), false));
             } else if (ctx instanceof UnnestFunctionContext function) {
                 var token = function.UNNEST().getSymbol();
-                add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, token, List.of(token.getText())));
+                String name = resources.normalizeIdentifier(token.getText());
+                BehaviorObject subject = objects.object(TargetType.Function, token, List.of(token.getText()));
+                subject.setObjectName(new ObjectName(null, null, name));
+                add(SplitQueryType.SELECT, BehaviorAction.CALL, subject);
             } else if (ctx instanceof SubstringContext || ctx instanceof PositionContext || ctx instanceof CastContext || ctx instanceof CharFunctionContext
                        || ctx instanceof ConvertCharSetContext || ctx instanceof ConvertTypeContext || ctx instanceof GroupConcatContext || ctx instanceof TrimContext
                        || ctx instanceof ExtractContext || ctx instanceof CurrentDateContext || ctx instanceof CurrentTimeContext || ctx instanceof CurrentTimestampContext
                        || ctx instanceof LocalTimeContext || ctx instanceof LocalTimestampContext || ctx instanceof CurrentUserContext || ctx instanceof SessionUserContext) {
                 var token = ctx.getStart();
-                add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, token, List.of(token.getText())));
+                String name = resources.normalizeIdentifier(token.getText());
+                BehaviorObject subject = objects.object(TargetType.Function, token, List.of(token.getText()));
+                subject.setObjectName(new ObjectName(null, null, name));
+                add(SplitQueryType.SELECT, BehaviorAction.CALL, subject);
             }
         }
     }
@@ -91,7 +101,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     private void addExternalFileReads() {
         for (TableValuedFunctionContext function : descendants(root, TableValuedFunctionContext.class)) {
             String name = unquote(text(function.tvfName));
-            if (!Set.of("s3", "hdfs", "local", "http", "azure", "gcs").contains(name.toLowerCase(Locale.ROOT))) {
+            if (!resources.isExternalFileTableFunction(name)) {
                 continue;
             }
             for (PropertyItemContext property : descendants(function.properties, PropertyItemContext.class)) {
@@ -829,9 +839,9 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             }
         }
         for (TableValuedFunctionContext function : descendants(tree, TableValuedFunctionContext.class)) {
-            result.add(object(TargetType.Function, function.tvfName));
-            String name = unquote(text(function.tvfName)).toLowerCase(Locale.ROOT);
-            if (!Set.of("s3", "hdfs", "local", "http", "azure", "gcs").contains(name)) {
+            String name = text(function.tvfName);
+            result.add(functionObject(function.tvfName, name, false));
+            if (!resources.isExternalFileTableFunction(name)) {
                 continue;
             }
             for (PropertyItemContext property : descendants(function.properties, PropertyItemContext.class)) {
@@ -1313,6 +1323,16 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             names.add(unquote(text(context)));
         }
         return objects.object(type, context, names);
+    }
+
+    private BehaviorObject functionObject(ParserRuleContext context, String functionName, boolean qualified) {
+        String name = resources.normalizeIdentifier(functionName);
+        if (!resources.isUserDefinedFunction(name, qualified)) {
+            BehaviorObject result = object(TargetType.Function, context);
+            result.setObjectName(new ObjectName(null, null, name));
+            return result;
+        }
+        return object(TargetType.Function, context);
     }
 
     private String text(ParserRuleContext context) {

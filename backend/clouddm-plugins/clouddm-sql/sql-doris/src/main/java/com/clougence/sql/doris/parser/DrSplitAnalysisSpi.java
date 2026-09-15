@@ -29,11 +29,12 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.doris.analysis.reference.DrResourceRegistry;
 import com.clougence.sql.doris.parser.antlr.DorisParser;
 
 public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
-    private static final Set<String> KNOWN_USER_FUNCTIONS = Set.of("ads_version", "test", "test_func", "test_func1", "test_function");
+    private final DrResourceRegistry resources = DrResourceRegistry.instance();
 
     protected DslProvider dslProvider() {
         return DrDslProvider.INSTANCE;
@@ -88,10 +89,13 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             if (name.length() >= 2 && name.startsWith("`") && name.endsWith("`")) {
                 name = name.substring(1, name.length() - 1).replace("``", "`");
             }
-            name = name.toLowerCase(Locale.ROOT);
-            if (Set.of("file", "s3", "hdfs", "local", "http", "azure", "gcs", "jdbc", "odbc").contains(name)) {
+            if (resources.isImportTableFunction(name)) {
                 return SplitQueryType.DATA_IMPORT;
             }
+            return resources.functionStatementType(name, false);
+        }
+        if (tree instanceof DorisParser.LateralViewContext function) {
+            return resources.functionStatementType(function.functionName.getText(), false);
         }
         if (tree instanceof DorisParser.QuerySpecificationContext && isExecutedDmlQuery(tree)) {
             return SplitQueryType.SELECT;
@@ -226,8 +230,8 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     private SplitQueryType functionType(DorisParser.FunctionCallExpressionContext function) {
-        String name = function.functionIdentifier().functionNameIdentifier().getText().toLowerCase(Locale.ROOT);
-        return function.functionIdentifier().dbName != null || KNOWN_USER_FUNCTIONS.contains(name) ? SplitQueryType.CALL_PROG_OBJ : null;
+        String name = function.functionIdentifier().functionNameIdentifier().getText();
+        return resources.functionStatementType(name, function.functionIdentifier().dbName != null);
     }
 
     private boolean hasAncestor(ParseTree tree, Class<? extends ParseTree> type) {

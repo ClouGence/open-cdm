@@ -935,12 +935,12 @@ public class DrSplitVisitor extends DorisParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitInsertIntoTVF(InsertIntoTVFContext ctx) {
-        return SplitQueryType.DATA_EXPORT;
+        return ctx.explain() == null ? SplitQueryType.DATA_EXPORT : SplitQueryType.PERFORMANCE;
     }
 
     @Override
     public SplitQueryType visitMergeInto(MergeIntoContext ctx) {
-        return SplitQueryType.MERGE;
+        return ctx.explain() == null ? SplitQueryType.MERGE : SplitQueryType.PERFORMANCE;
     }
 
     @Override
