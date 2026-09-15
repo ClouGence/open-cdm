@@ -27,10 +27,10 @@ import com.clougence.sql.doris.parser.DorisVersion;
 /** Doris-owned resource facts shared by split and behavior analysis. */
 public final class DrResourceRegistry {
 
-    private static final String             BUILT_IN_FUNCTIONS = "/META-INF/clougence/doris-built-in-functions.txt";
-    private static final DrResourceRegistry INSTANCE           = new DrResourceRegistry();
+    private static final String                      BUILT_IN_FUNCTIONS = "/META-INF/clougence/doris-built-in-functions.txt";
+    private static final DrResourceRegistry          INSTANCE           = new DrResourceRegistry();
 
-    private final VersionedResourceRegistry<Boolean> builtInFunctions = new VersionedResourceRegistry<>(DrResourceDialect.INSTANCE);
+    private final VersionedResourceRegistry<Boolean> builtInFunctions   = new VersionedResourceRegistry<>(DrResourceDialect.INSTANCE);
     private final Set<String>                        importTableFunctions;
     private final Set<String>                        externalFileTableFunctions;
 
