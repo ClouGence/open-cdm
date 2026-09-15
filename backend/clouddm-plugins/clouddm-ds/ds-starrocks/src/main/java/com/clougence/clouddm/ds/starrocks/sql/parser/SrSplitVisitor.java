@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.starrocks.sql.parser;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksBaseVisitor;
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksParser.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
@@ -48,17 +50,17 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowBrokerStatement(ShowBrokerStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowComputeNodesStatement(ShowComputeNodesStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowFrontendsStatement(ShowFrontendsStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -73,15 +75,12 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowWarningStatement(ShowWarningStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
     public SplitQueryType visitShowVariablesStatement(ShowVariablesStatementContext ctx) {
-        if (ctx.varType() == null || ctx.varType().LOCAL() != null || ctx.varType().SESSION() != null) {
-            return SplitQueryType.SESSION_VARIABLE_RW;
-        }
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -136,7 +135,359 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitAnalyzeStatement(AnalyzeStatementContext ctx) {
+        if (ctx.partitionNames() != null) {
+            return SplitQueryType.ADMIN_PARTITION;
+        }
         return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitAnalyzeHistogramStatement(AnalyzeHistogramStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDropHistogramStatement(DropHistogramStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDropStatsStatement(DropStatsStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitKillAnalyzeStatement(KillAnalyzeStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitCleanTabletSchedQClause(CleanTabletSchedQClauseContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitRefreshTableStatement(RefreshTableStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateDataCacheRuleStatement(CreateDataCacheRuleStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDropDataCacheRuleStatement(DropDataCacheRuleStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitClearDataCacheRulesStatement(ClearDataCacheRulesStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDataCacheSelectStatement(DataCacheSelectStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowStatsMetaStatement(ShowStatsMetaStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowHistogramMetaStatement(ShowHistogramMetaStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminShowReplicaDistributionStatement(AdminShowReplicaDistributionStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminShowReplicaStatusStatement(AdminShowReplicaStatusStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminShowTabletStatusStatement(AdminShowTabletStatusStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowTabletStatement(ShowTabletStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminCheckTabletsStatement(AdminCheckTabletsStatementContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitAdminSetReplicaStatusStatement(AdminSetReplicaStatusStatementContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCancelCompactionStatement(CancelCompactionStatementContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitRefreshMaterializedViewStatement(RefreshMaterializedViewStatementContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCancelRefreshMaterializedViewStatement(CancelRefreshMaterializedViewStatementContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitAdminSetPartitionVersion(AdminSetPartitionVersionContext ctx) {
+        return SplitQueryType.ADMIN_PARTITION;
+    }
+
+    @Override
+    public SplitQueryType visitSyncStatement(SyncStatementContext ctx) {
+        return SplitQueryType.ADMIN_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitShowDataCacheRulesStatement(ShowDataCacheRulesStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitAdminRepairTableStatement(AdminRepairTableStatementContext ctx) {
+        if (ctx.partitionNames() != null) {
+            return SplitQueryType.ADMIN_PARTITION;
+        }
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminCancelRepairTableStatement(AdminCancelRepairTableStatementContext ctx) {
+        if (ctx.partitionNames() != null) {
+            return SplitQueryType.ADMIN_PARTITION;
+        }
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateAnalyzeStatement(CreateAnalyzeStatementContext ctx) {
+        return SplitQueryType.CREATE_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitSubmitTaskStatement(SubmitTaskStatementContext ctx) {
+        return SplitQueryType.CREATE_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCreateRoutineLoadStatement(CreateRoutineLoadStatementContext ctx) {
+        return SplitQueryType.CREATE_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCreatePipeStatement(CreatePipeStatementContext ctx) {
+        return SplitQueryType.CREATE_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitDropAnalyzeJobStatement(DropAnalyzeJobStatementContext ctx) {
+        return SplitQueryType.DROP_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitDropTaskStatement(DropTaskStatementContext ctx) {
+        return SplitQueryType.DROP_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitDropPipeStatement(DropPipeStatementContext ctx) {
+        return SplitQueryType.DROP_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitAlterRoutineLoadStatement(AlterRoutineLoadStatementContext ctx) {
+        return SplitQueryType.ALTER_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitAlterLoadStatement(AlterLoadStatementContext ctx) {
+        return SplitQueryType.ALTER_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitPauseRoutineLoadStatement(PauseRoutineLoadStatementContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitResumeRoutineLoadStatement(ResumeRoutineLoadStatementContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitStopRoutineLoadStatement(StopRoutineLoadStatementContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCancelLoadStatement(CancelLoadStatementContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCancelExportStatement(CancelExportStatementContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCancelBackupStatement(CancelBackupStatementContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCancelRestoreStatement(CancelRestoreStatementContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitLoadStatement(LoadStatementContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
+    }
+
+    @Override
+    public SplitQueryType visitRestoreStatement(RestoreStatementContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
+    }
+
+    @Override
+    public SplitQueryType visitExportStatement(ExportStatementContext ctx) {
+        return SplitQueryType.DATA_EXPORT;
+    }
+
+    @Override
+    public SplitQueryType visitBackupStatement(BackupStatementContext ctx) {
+        return SplitQueryType.DATA_EXPORT;
+    }
+
+    @Override
+    public SplitQueryType visitCreateRepositoryStatement(CreateRepositoryStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropRepositoryStatement(DropRepositoryStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminSetAutomatedSnapshotOnStatement(AdminSetAutomatedSnapshotOnStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminSetAutomatedSnapshotOffStatement(AdminSetAutomatedSnapshotOffStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateRoutineLoadStatement(ShowCreateRoutineLoadStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitDescPipeStatement(DescPipeStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowRepositoriesStatement(ShowRepositoriesStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSnapshotStatement(ShowSnapshotStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowRoutineLoadStatement(ShowRoutineLoadStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowRoutineLoadTaskStatement(ShowRoutineLoadTaskStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowStreamLoadStatement(ShowStreamLoadStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowLoadStatement(ShowLoadStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowLoadWarningsStatement(ShowLoadWarningsStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowPipeStatement(ShowPipeStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowExportStatement(ShowExportStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowBackupStatement(ShowBackupStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowRestoreStatement(ShowRestoreStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitRecoverDbStmt(RecoverDbStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCreateImageClause(CreateImageClauseContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitRecoverTableStatement(RecoverTableStatementContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitRecoverPartitionStatement(RecoverPartitionStatementContext ctx) {
+        return SplitQueryType.ADMIN_PARTITION;
+    }
+
+    @Override
+    public SplitQueryType visitAlterPipeStatement(AlterPipeStatementContext ctx) {
+        if (ctx.alterPipeClause().SET() != null) {
+            return SplitQueryType.ALTER_JOB;
+        }
+        return SplitQueryType.ADMIN_JOB;
     }
 
     @Override
@@ -153,8 +504,8 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitQueryStatement(QueryStatementContext ctx) {
-        if (ctx.explainDesc() != null) {
-            return explainType(ctx.explainDesc());
+        if (isPlanOnly(ctx)) {
+            return SplitQueryType.PERFORMANCE;
         }
         return SplitQueryType.SELECT;
     }
@@ -165,17 +516,68 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitSetCatalogStatement(SetCatalogStatementContext ctx) {
+        return SplitQueryType.SWITCH_CATALOG;
+    }
+
+    @Override
+    public SplitQueryType visitSetRoleStatement(SetRoleStatementContext ctx) {
+        return SplitQueryType.SWITCH_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitExecuteAsStatement(ExecuteAsStatementContext ctx) {
+        return SplitQueryType.SWITCH_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetStatement(SetStatementContext ctx) {
+        // The first assignment determines the primary action; the SPI collects the rest in order.
+        return ctx.setVar(0).accept(this);
+    }
+
+    @Override
+    public SplitQueryType visitSetNames(SetNamesContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitShowStatusStatement(ShowStatusStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowProcStatement(ShowProcStatementContext ctx) {
+        String path = ctx.path.getText();
+        path = path.substring(1, path.length() - 1);
+        if ("/current_queries".equals(path) || "/global_current_queries".equals(path)
+            || "/compactions".equals(path)) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        if ("/frontends".equals(path) || "/backends".equals(path)
+            || "/compute_nodes".equals(path) || "/brokers".equals(path)) {
+            return SplitQueryType.METADATA;
+        }
+        return SplitQueryType.UNKNOWN;
+    }
+
+    @Override
+    public SplitQueryType visitKillStatement(KillStatementContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
     public SplitQueryType visitInsertStatement(InsertStatementContext ctx) {
-        if (ctx.explainDesc() != null) {
-            return explainType(ctx.explainDesc());
+        if (isPlanOnly(ctx)) {
+            return SplitQueryType.PERFORMANCE;
         }
         return ctx.OVERWRITE() == null ? SplitQueryType.INSERT : SplitQueryType.MERGE;
     }
 
     @Override
     public SplitQueryType visitDeleteStatement(DeleteStatementContext ctx) {
-        if (ctx.explainDesc() != null) {
-            return explainType(ctx.explainDesc());
+        if (isPlanOnly(ctx)) {
+            return SplitQueryType.PERFORMANCE;
         }
         return SplitQueryType.DELETE;
     }
@@ -272,17 +674,382 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowRolesStatement(ShowRolesStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowUserStatement(ShowUserStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowGrantsStatement(ShowGrantsStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitAlterUserStatement(AlterUserStatementContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetPassword(SetPasswordContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetUserPropertyStatement(SetUserPropertyStatementContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultRoleStatement(SetDefaultRoleStatementContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitAlterRoleStatement(AlterRoleStatementContext ctx) {
+        return SplitQueryType.COMMENT_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitGrantRoleToUser(GrantRoleToUserContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantRoleToRole(GrantRoleToRoleContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnUser(GrantOnUserContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnSystem(GrantOnSystemContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnFunc(GrantOnFuncContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnPrimaryObj(GrantOnPrimaryObjContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitGrantOnAll(GrantOnAllContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeRoleFromUser(RevokeRoleFromUserContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeRoleFromRole(RevokeRoleFromRoleContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnUser(RevokeOnUserContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnSystem(RevokeOnSystemContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnFunc(RevokeOnFuncContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnPrimaryObj(RevokeOnPrimaryObjContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeOnAll(RevokeOnAllContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitShowAllAuthentication(ShowAllAuthenticationContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowAuthenticationForUser(ShowAuthenticationForUserContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowUserPropertyStatement(ShowUserPropertyStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowPrivilegesStatement(ShowPrivilegesStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSecurityIntegrationStatement(ShowSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateSecurityIntegrationStatement(ShowCreateSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowGroupProvidersStatement(ShowGroupProvidersStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateGroupProviderStatement(ShowCreateGroupProviderStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitCreateSecurityIntegrationStatement(CreateSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterSecurityIntegrationStatement(AlterSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropSecurityIntegrationStatement(DropSecurityIntegrationStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateGroupProviderStatement(CreateGroupProviderStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropGroupProviderStatement(DropGroupProviderStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminSetConfigStatement(AdminSetConfigStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddFrontendClause(AddFrontendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropFrontendClause(DropFrontendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitModifyFrontendHostClause(ModifyFrontendHostClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddBackendClause(AddBackendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropBackendClause(DropBackendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDecommissionBackendClause(DecommissionBackendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitModifyBackendClause(ModifyBackendClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddComputeNodeClause(AddComputeNodeClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropComputeNodeClause(DropComputeNodeClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitModifyBrokerClause(ModifyBrokerClauseContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCancelAlterSystemStatement(CancelAlterSystemStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateResourceStatement(CreateResourceStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterResourceStatement(AlterResourceStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropResourceStatement(DropResourceStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateStorageVolumeStatement(CreateStorageVolumeStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterStorageVolumeStatement(AlterStorageVolumeStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultStorageVolumeStatement(SetDefaultStorageVolumeStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropStorageVolumeStatement(DropStorageVolumeStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateFileStatement(CreateFileStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropFileStatement(DropFileStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddSqlBlackListStatement(AddSqlBlackListStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDelSqlBlackListStatement(DelSqlBlackListStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAddBackendBlackListStatement(AddBackendBlackListStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDelBackendBlackListStatement(DelBackendBlackListStatementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAdminShowConfigStatement(AdminShowConfigStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowBackendsStatement(ShowBackendsStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowResourceGroupStatement(ShowResourceGroupStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowResourceStatement(ShowResourceStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowStorageVolumesStatement(ShowStorageVolumesStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitDescStorageVolumeStatement(DescStorageVolumeStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowPluginsStatement(ShowPluginsStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSmallFilesStatement(ShowSmallFilesStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSqlBlackListStatement(ShowSqlBlackListStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowBackendBlackListStatement(ShowBackendBlackListStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitCreateResourceGroupStatement(CreateResourceGroupStatementContext ctx) {
+        return SplitQueryType.CREATE_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitAlterResourceGroupStatement(AlterResourceGroupStatementContext ctx) {
+        return SplitQueryType.ALTER_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitDropResourceGroupStatement(DropResourceGroupStatementContext ctx) {
+        return SplitQueryType.DROP_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitShowResourceGroupUsageStatement(ShowResourceGroupUsageStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitInstallPluginStatement(InstallPluginStatementContext ctx) {
+        return SplitQueryType.CREATE_LIBRARY;
+    }
+
+    @Override
+    public SplitQueryType visitUninstallPluginStatement(UninstallPluginStatementContext ctx) {
+        return SplitQueryType.DROP_LIBRARY;
     }
 
     @Override
@@ -292,17 +1059,54 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitUpdateStatement(UpdateStatementContext ctx) {
-        if (ctx.explainDesc() != null) {
-            return explainType(ctx.explainDesc());
+        if (isPlanOnly(ctx)) {
+            return SplitQueryType.PERFORMANCE;
         }
         return SplitQueryType.UPDATE;
     }
 
-    private static SplitQueryType explainType(ExplainDescContext ctx) {
-        if (ctx.ANALYZE() != null) {
-            return SplitQueryType.UNSAFE;
+    static boolean isPlanOnly(ParseTree tree) {
+        // Inspect the statement's own prefix, never an inner query or a keyword in its text.
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            ParseTree child = tree.getChild(i);
+            if (child instanceof OptimizerTraceContext) {
+                return true;
+            }
+            if (child instanceof ExplainDescContext explain && explain.ANALYZE() == null) {
+                return true;
+            }
         }
-        return SplitQueryType.SELECT;
+        return false;
+    }
+
+    @Override
+    public SplitQueryType visitAnalyzeProfileStatement(AnalyzeProfileStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowProfilelistStatement(ShowProfilelistStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterPlanAdvisorAddStatement(AlterPlanAdvisorAddStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterPlanAdvisorDropStatement(AlterPlanAdvisorDropStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitTruncatePlanAdvisorStatement(TruncatePlanAdvisorStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowPlanAdvisorStatement(ShowPlanAdvisorStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override

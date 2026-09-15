@@ -79,6 +79,11 @@ public final class BehaviorRelations {
             TargetType.Tablespace, TargetType.Log, TargetType.Library, TargetType.ResourceGroup, TargetType.Replication, //
             TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, TargetType.PrepareStatement);
 
+    // These types carry resolved instance or object-ancestor paths, including unnamed sets.
+    private static final Set<TargetType> EXPLICIT_PATH_TARGETS = EnumSet.of(
+            TargetType.Resource, TargetType.StorageVolume, TargetType.SecurityIntegration, TargetType.GroupProvider,
+            TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot);
+
     private BehaviorRelations(){
     }
 
@@ -112,14 +117,14 @@ public final class BehaviorRelations {
                 TargetType.Profile, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //
                 TargetType.Pipe, TargetType.SchedulerObject, TargetType.SchemaObject, TargetType.Library, //
                 TargetType.Replication, TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, //
-                TargetType.Log, TargetType.ConfigKey, //
+                TargetType.Log, TargetType.ConfigKey, TargetType.SecurityIntegration, TargetType.GroupProvider, //
                 TargetType.Policy, TargetType.RowAccessPolicy, TargetType.MaskingPolicy, TargetType.RedactionPolicy);
     }
 
     private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MAINTAIN, //
                 TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-                TargetType.ResourceGroup);
+                TargetType.ResourceGroup, TargetType.Resource, TargetType.StorageVolume, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot);
     }
 
     private static void putAuthKinds(Map<TargetType, SecDataAuthKind> overrides, SecDataAuthKind authKind, TargetType... targetTypes) {
@@ -159,6 +164,16 @@ public final class BehaviorRelations {
                     addRequest(requests, BehaviorAction.IMPORT, subject, registry, dbVersion);
                     targets.forEach(target -> {
                         addRequest(requests, BehaviorAction.READ, target, registry, dbVersion);
+                    });
+                }
+                case RESTORE -> {
+                    addRequest(requests, BehaviorAction.RESTORE, subject, registry, dbVersion);
+                    targets.forEach(target -> {
+                        BehaviorAction action = BehaviorAction.RESTORE;
+                        if (target != null && target.getObjectType() == TargetType.Snapshot) {
+                            action = BehaviorAction.READ;
+                        }
+                        addRequest(requests, action, target, registry, dbVersion);
                     });
                 }
                 case EXPORT -> {
@@ -232,7 +247,7 @@ public final class BehaviorRelations {
         String currentPath = DmDsUtils.normalizeResourcePath(currentResourcePath);
         String instancePath = DmDsUtils.normalizeResourcePath(instanceResourcePath);
         TargetType targetType = Objects.requireNonNullElse(object.getObjectType(), TargetType.Unknown);
-        if (Objects.equals(sourcePath, currentPath) || !sourcePath.startsWith(instancePath)) {
+        if (EXPLICIT_PATH_TARGETS.contains(targetType) || Objects.equals(sourcePath, currentPath) || !sourcePath.startsWith(instancePath)) {
             return sourcePath;
         }
         if (Objects.equals(sourcePath, instancePath)) {

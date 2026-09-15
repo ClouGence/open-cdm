@@ -1205,13 +1205,14 @@ export default {
 
 .add-datasource-type-search {
   width: 320px;
+  max-width: 100%;
   flex: 0 0 auto;
 }
 
 .add-datasource-type-grid {
   display: grid;
   flex: 1 1 auto;
-  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-content: start;
   gap: 10px;
   min-height: 0;
@@ -1223,6 +1224,14 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  @media (max-width: 767px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 479px) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

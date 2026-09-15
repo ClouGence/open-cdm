@@ -86,6 +86,23 @@ public enum TargetType {
     // cache
     Key(UmiTypes.Key),
 
+    // Instance control-plane entities without UMI metadata counterparts.
+    Resource(null),
+    StorageVolume(null),
+    SecurityIntegration(null),
+    GroupProvider(null),
+    ClusterNode(null),
+    Broker(null),
+
+    // Statistics and physical storage objects without UMI metadata counterparts.
+    Statistics(null),
+    Tablet(null),
+    Replica(null),
+
+    // Persistent backup configuration and snapshots, independent of running jobs.
+    Repository(null),
+    Snapshot(null),
+
     ;
 
     private final UmiTypes umiType;
