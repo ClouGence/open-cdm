@@ -94,7 +94,8 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             if (directToken(alterTable, SqlServerParser.CHECK) || directToken(alterTable, SqlServerParser.NOCHECK)) {
                 return directToken(alterTable, SqlServerParser.ADD) ? SplitQueryType.ADD_CONSTRAINT : SplitQueryType.ALTER_CONSTRAINT;
             }
-            if (directToken(alterTable, SqlServerParser.ENABLE) || directToken(alterTable, SqlServerParser.DISABLE)) {
+            if (directToken(alterTable, SqlServerParser.TRIGGER)
+                && (directToken(alterTable, SqlServerParser.ENABLE) || directToken(alterTable, SqlServerParser.DISABLE))) {
                 return SplitQueryType.ALTER_TRIGGER;
             }
             if (directToken(alterTable, SqlServerParser.REBUILD)) {
