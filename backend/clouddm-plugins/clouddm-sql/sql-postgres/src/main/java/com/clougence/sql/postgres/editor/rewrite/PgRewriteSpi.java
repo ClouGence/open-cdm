@@ -64,10 +64,15 @@ public class PgRewriteSpi implements RewriteSpi {
 
     private boolean rewriterLimit(TokenStreamRewriter rewriter, ParseTree astTree, long maxLimit) {
         PgSqlParser.SelectstmtContext selectStmt = ((PgSqlParser.StmtContext) astTree).selectstmt();
+        // Cursor statements and EXPLAIN ANALYZE can carry SELECT semantics, but only a top-level
+        // SELECT may be safely constrained by the query editor's result limit.
+        if (selectStmt == null || selectStmt.select_no_parens() == null) {
+            return false;
+        }
         PgSqlParser.Select_clauseContext clauseContext = selectStmt.select_no_parens().select_clause();
 
         List<PgSqlParser.Simple_select_pramaryContext> contexts = clauseContext.simple_select_pramary();
-        if (contexts.size() > 1) {
+        if (contexts.size() != 1) {
             return false;
         }
 

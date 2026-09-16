@@ -436,24 +436,24 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, syntaxMsg, MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         } catch (ErrorMessageException e) {
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, e.getErrorMessage(), MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             String str = e.getClass().getSimpleName() + ":" + e.getMessage();
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, str, MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         }
 
         // 4.7. check rules & auth & other...
         if (!specialCheck(queryDTO, consumer, ctx, parameters, requests)) {
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         }
 
         // 4.8. prepare Session
@@ -477,7 +477,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+                return ExitCode.finish();
             }
 
             // check INVALID_REOPENED
@@ -487,7 +487,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Warn));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+                return ExitCode.finish();
             }
         }
 
@@ -538,7 +538,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             consumer.accept(BuildResMsgUtils.buildConsoleMsg(queryDTO, consoleMessage, MessageLevel.Error, true));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         }
     }
 
@@ -583,7 +583,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
                 return false;
-            } else if (request.hasQueryType(SplitQueryType.TRANSACTION)) {
+            } else if (request.hasQueryType(SplitQueryType.TRANSACTION) && ctx.getCtxDTO().isRdbAutoCommit()) {
                 String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
@@ -628,14 +628,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
 
         return true;
-    }
-
-    private ExitCode processAsyncQueryReturn(ExitCode result, WsQueryFO queryDTO, QueryCtx ctx) {
-        if (ctx.getCtxDTO().isRdbAutoCommit()) {
-            this.queryService.closeSession(queryDTO.getCurrentUserId(), queryDTO.getSessionId());
-        }
-
-        return result;
     }
 
     // ------------------------------------------------------------------------
@@ -686,10 +678,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         ctx.getCtxDTO().setRdbTxIsolation(status.getIsolation());
         ctx.getCtxDTO().setRdbReadOnly(status.isReadOnly());
         ctx.getCtxDTO().setSqlParameters(status.getSqlParameters());
-
-        if (ctx.getCtxDTO().isRdbAutoCommit()) {
-            this.queryService.closeSession(curUid, sessionId);
-        }
 
         ctx.setQueryStatus(QueryStatus.Finish);
         ctx.setReceiveCost(System.currentTimeMillis() - ctx.getStartTime() - ctx.getPrepareCost() - ctx.getQueryCost());
@@ -1255,6 +1243,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             }
         } else {
             if (!queryDTO.isRdbAutoCommit()) {
+                if (applyAutoCommit != null) {
+                    this.queryService.setAutoCommit(curUid, sessionId, false);
+                }
                 if (ctx.isSupportSwitchIsolation() && applyIsolation != null) {
                     this.queryService.setIsolation(curUid, sessionId, applyIsolation);
 

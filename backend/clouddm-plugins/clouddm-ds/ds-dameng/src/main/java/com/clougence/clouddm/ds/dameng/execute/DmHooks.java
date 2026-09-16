@@ -26,6 +26,7 @@ import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionHook;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
 
@@ -118,26 +119,28 @@ public class DmHooks implements SessionHook {
     }
 
     @Override
-    public PreparedStatement executeStatement(Connection conn, QueryRequest query) throws SQLException {
+    public Statement executeStatement(Connection conn, QueryRequest query) throws SQLException {
         if (query.isUseCallable()) {
             CallableStatement stmt = conn.prepareCall(query.getQueryBody());
             stmt.setFetchSize(Integer.MIN_VALUE);
             return stmt;
-        } else {
-            PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            stmt.setFetchSize(Integer.MIN_VALUE);
-            return stmt;
         }
-
+        if (query.hasQueryType(SplitQueryType.TRANSACTION) || StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), "ALTER DATABASE ")
+            || StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), "EXPLAIN ")) {
+            return conn.createStatement();
+        }
+        PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        stmt.setFetchSize(Integer.MIN_VALUE);
+        return stmt;
     }
 
     @Override
-    public PreparedStatement explainStatement(Connection conn, QueryRequest query) throws SQLException {
+    public Statement explainStatement(Connection conn, QueryRequest query) throws SQLException {
         if (!StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), "EXPLAIN ")) {
             throw new SQLException("Explain request does not contain an EXPLAIN statement");
         }
 
-        PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(200);
         stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
         return stmt;
