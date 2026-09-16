@@ -623,15 +623,15 @@ expect:
 [permission_mysql_8_0_01248]
 source: split/mysql/5.6/dml_mysql_delete_0.txt#14
 sql:
-DELETE FROM t1.*, codex_delete_native_parallel.t2.*, a.* USING t1, t2, t3 AS a;
+DELETE FROM t1.*, delete_native_parallel.t2.*, a.* USING t1, t2, t3 AS a;
 levels:
 /test/1/catalog1/schema1
 expect:
 {
   "WRITE": [
     "Table(1:12~1:14) /test/1/catalog1/schema1/t1/",
-    "Table(1:18~1:49) /test/1/catalog1/codex_delete_native_parallel/t2/",
-    "Table(1:71~1:73) /test/1/catalog1/schema1/t3/"
+    "Table(1:18~1:43) /test/1/catalog1/delete_native_parallel/t2/",
+    "Table(1:65~1:67) /test/1/catalog1/schema1/t3/"
   ]
 }
 ----------
