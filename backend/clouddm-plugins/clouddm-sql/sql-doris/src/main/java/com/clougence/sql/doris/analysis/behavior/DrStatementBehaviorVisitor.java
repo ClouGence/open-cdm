@@ -33,8 +33,8 @@ import com.clougence.sql.doris.parser.antlr.DorisParser.*;
 final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
-    private final DrResourceRegistry        resources = DrResourceRegistry.instance();
-    private final StatementBehavior        behavior = new StatementBehavior();
+    private final DrResourceRegistry       resources = DrResourceRegistry.instance();
+    private final StatementBehavior        behavior  = new StatementBehavior();
     private ParseTree                      root;
 
     DrStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){

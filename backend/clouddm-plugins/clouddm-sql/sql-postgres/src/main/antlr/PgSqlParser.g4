@@ -457,7 +457,7 @@ alter_table_cmd
     | ALTER column_? colid alter_generic_options                        #alterColumn
     | ADD_P tableconstraint                                             #addConstraint
     | ALTER CONSTRAINT name constraintattributespec                     #alterConstaint
-    | ALTER CONSTRAINT name (SET NO? | NO)? INHERIT                                     #alterConstaint
+    | ALTER CONSTRAINT name (SET NO? | NO)? INHERIT                     #alterConstaint
     | VALIDATE CONSTRAINT name                                          #validateConstraint
     | DROP CONSTRAINT IF_P EXISTS name drop_behavior_?                  #dropConstraint
     | DROP CONSTRAINT name drop_behavior_?                              #dropConstraint

@@ -29,7 +29,7 @@ import com.clougence.clouddm.ds.tidb.sql.parser.antlr.TiDBParser.*;
 public final class TiQueryAnalysis extends TiDBParserBaseVisitor<Boolean> {
     private static final TiResourceRegistry RESOURCES = TiResourceRegistry.instance();
 
-    private boolean metadataTableFound;
+    private boolean                         metadataTableFound;
 
     private TiQueryAnalysis(){
     }
