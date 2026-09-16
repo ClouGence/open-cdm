@@ -52,6 +52,7 @@ import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
 import com.clougence.clouddm.console.web.service.editor.model.DsAvailableDTO;
 import com.clougence.clouddm.console.web.service.editor.model.FileSaveAsDTO;
+import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -69,6 +70,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSupport;
+import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.resource.ResourceCategory;
 import com.clougence.clouddm.sdk.resource.ResourceSpi;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
@@ -112,6 +114,8 @@ public class QueryEditorController {
     private DmSupportSpiWrapper  dmSupportSpiWrapper;
     @Resource
     private RdpOpAuditService    opAuditService;
+    @Resource
+    private DmEnvParamService    dmEnvParamService;
 
     @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/createSession", method = RequestMethod.POST)
@@ -197,6 +201,10 @@ public class QueryEditorController {
         vo.getIsolation().setDefaultValue(RdbIsolation.valueOfCode(dsConfig.getIsolation()).getName());
         vo.getAutoCommit().setDefaultValue(String.valueOf(!StringUtils.equalsIgnoreCase("false", autoCommit)));
         vo.getReadOnly().setDefaultValue(String.valueOf(Boolean.TRUE.equals(dsConfig.getReadOnly())));
+        if (entry.getEnvId() != null) {
+            String allowAllStatements = this.dmEnvParamService.queryParam(entry.getOwnerUid(), entry.getEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
+            vo.setConsoleQueryOnly(StringUtils.equalsIgnoreCase("true", allowAllStatements));
+        }
         return ResWebDataUtils.buildSuccess(vo);
     }
 
