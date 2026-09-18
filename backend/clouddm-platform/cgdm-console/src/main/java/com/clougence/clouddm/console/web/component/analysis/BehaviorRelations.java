@@ -15,21 +15,21 @@
  */
 package com.clougence.clouddm.console.web.component.analysis;
 
-import java.util.*;
-import java.util.function.Function;
-
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
+
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * Interprets behavior relations for console-side authorization, audit, and execution backfill.
  */
 public final class BehaviorRelations {
 
-    private static final Map<TargetType, SecDataAuthKind>                           AUTH_KIND_OVERRIDES  = buildAuthKindOverrides();
-    private static final Map<BehaviorAction, Function<TargetType, SecDataAuthKind>> AUTH_KIND_RESOLVERS  = Map.ofEntries( //
+    private static final Map<TargetType, SecDataAuthKind> AUTH_KIND_OVERRIDES = buildAuthKindOverrides();
+    private static final Map<BehaviorAction, Function<TargetType, SecDataAuthKind>> AUTH_KIND_RESOLVERS = Map.ofEntries( //
             Map.entry(BehaviorAction.CREATE, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
             Map.entry(BehaviorAction.ALTER, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
             Map.entry(BehaviorAction.DROP, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
@@ -57,10 +57,11 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.UNLOCK, targetType -> null), //
             Map.entry(BehaviorAction.CONFIGURE, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.SWITCH, targetType -> {
-                if (targetType == TargetType.AvailabilityGroup) {
+                if (targetType == TargetType.AvailabilityGroup || targetType == TargetType.Log) {
                     return SecDataAuthKind.MAINTAIN;
+                } else {
+                    return null;
                 }
-                return null;
             }), //
             Map.entry(BehaviorAction.ANALYZE, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.APPLY, targetType -> SecDataAuthKind.MAINTAIN), //
@@ -82,7 +83,7 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.UNSAFE, targetType -> SecDataAuthKind.UNSAFE), //
             Map.entry(BehaviorAction.UNKNOWN, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.UNSAFE)));
 
-    private static final Set<TargetType>                                            LEVELS_BASED_TARGETS = EnumSet.of( //
+    private static final Set<TargetType> LEVELS_BASED_TARGETS = EnumSet.of( //
             TargetType.Environment, TargetType.Instance, TargetType.Machine, //
             TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.ConfigKey, TargetType.File, //
             TargetType.Query, TargetType.Update, TargetType.Delete, TargetType.Insert, TargetType.Call, //
@@ -96,7 +97,7 @@ public final class BehaviorRelations {
             TargetType.BrokerMessageType, TargetType.BrokerContract, TargetType.BrokerService, TargetType.BrokerRoute, TargetType.RemoteServiceBinding,
             TargetType.BrokerPriority, TargetType.EventNotification, TargetType.BrokerConversation, TargetType.BrokerConversationGroup, TargetType.XmlSchemaCollection);
 
-    private BehaviorRelations(){
+    private BehaviorRelations() {
     }
 
     private static Map<TargetType, SecDataAuthKind> buildAuthKindOverrides() {
@@ -256,8 +257,8 @@ public final class BehaviorRelations {
     private static boolean isPermissionExempt(SysObjectRegistrySpi registry, BehaviorAction action, BehaviorObject resource, String databaseVersion) {
         ObjectName name = resource.getObjectName();
         return registry != null && //
-               name != null && //
-               registry.isPermissionExempt(action, resource.getObjectType(), name.getCatalog(), name.getSchema(), name.getObjectName(), databaseVersion);
+                name != null && //
+                registry.isPermissionExempt(action, resource.getObjectType(), name.getCatalog(), name.getSchema(), name.getObjectName(), databaseVersion);
     }
 
     private static SecDataAuthKind requiredAuthKind(BehaviorAction action, TargetType targetType) {
@@ -280,7 +281,7 @@ public final class BehaviorRelations {
         }
         ObjectName name = object.getObjectName();
         if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup)
-            && name != null && name.getSchema() == null && name.getObjectName() != null) {
+                && name != null && name.getSchema() == null && name.getObjectName() != null) {
             // Explicit scope metadata takes precedence over legacy current-schema path completion.
             String declaredPath = instancePath;
             if (name.getCatalog() != null) {
@@ -318,8 +319,8 @@ public final class BehaviorRelations {
             return BehaviorAction.ALTER;
         }
         if (target != null && //
-            target.getObjectType() == TargetType.Table && //
-            (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger)) {
+                target.getObjectType() == TargetType.Table && //
+                (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger)) {
             return BehaviorAction.ALTER;
         }
         return BehaviorAction.READ;

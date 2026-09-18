@@ -28,7 +28,8 @@ public abstract class PlSqlLexerBase extends Lexer {
     }
 
     protected boolean IsNewlineAtPos(int pos) {
-        int la = _input.LA(pos);
-        return la == -1 || la == '\n';
+        // Use the column to locate the preceding line boundary: streaming input
+        // may already have discarded that character (for example, LA(-4)).
+        return getCharPositionInLine() == -pos - 1;
     }
 }

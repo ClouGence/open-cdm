@@ -101,6 +101,10 @@ public class OraSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         ParseTree parent = tree.getParent();
         boolean dmlOwner = false;
         while (parent != null) {
+            // EXPLAIN describes its target; it does not execute the nested DML.
+            if (parent instanceof PlSqlParser.Explain_statementContext) {
+                return false;
+            }
             if (parent instanceof PlSqlParser.Insert_statementContext || parent instanceof PlSqlParser.Update_statementContext
                 || parent instanceof PlSqlParser.Delete_statementContext || parent instanceof PlSqlParser.Merge_statementContext) {
                 dmlOwner = true;
