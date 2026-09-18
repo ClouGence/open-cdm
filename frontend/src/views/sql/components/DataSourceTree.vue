@@ -1470,7 +1470,7 @@ export default {
       <div style="margin-bottom: 5px; font-weight: bold">
         {{ $t('xiu-gai-selectednodepoptip-de-bei-zhu-selectednodetitle-wei', [selectedNode.popTip, selectedNode.title]) }}
       </div>
-      <a-input v-model="dsDesc" :placeholder="$t('qing-shu-ru-xin-de-bei-zhu')" allow-clear />
+      <a-input v-model:value="dsDesc" :placeholder="$t('qing-shu-ru-xin-de-bei-zhu')" allow-clear />
       <template #footer>
         <a-button @click="handleRightClickMenu(actionType)">{{ $t('xiu-gai') }}</a-button>
         <a-button @click="handleCloseModal">{{ $t('guan-bi') }}</a-button>
