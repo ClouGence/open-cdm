@@ -33,6 +33,7 @@ import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.*;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -345,6 +346,14 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
 
     @Override
     protected void afterQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
+        if (query.hasQueryType(SplitQueryType.TRANSACTION)) {
+            String statement = query.getQueryBody().stripLeading();
+            if (StringUtils.startsWithIgnoreCase(statement, "COMMIT") || StringUtils.startsWithIgnoreCase(statement, "END")
+                || (StringUtils.startsWithIgnoreCase(statement, "ROLLBACK") && !StringUtils.startsWithIgnoreCase(statement, "ROLLBACK TO"))) {
+                this.rdbHasUnCommitted = false;
+                return;
+            }
+        }
         this.rdbHasUnCommitted = !this.rdbAutoCommit;
     }
 

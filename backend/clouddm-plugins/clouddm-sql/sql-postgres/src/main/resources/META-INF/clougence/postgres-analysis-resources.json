@@ -1,0 +1,53 @@
+{
+  "description": "PostgreSQL function classifications and system resources used by split and behavior analysis.",
+  "sources": ["PostgreSQL 12 through 18 official documentation and pg_proc.dat catalogs"],
+  "notes": ["Version values are PostgresVersion families.", "Function groups are intentionally separate when they carry multiple analysis facts."],
+  "metadataFunctions": [
+    {
+      "versions": ["12", "13", "14", "15", "16", "17", "18"],
+      "names": ["acldefault", "aclexplode", "col_description", "format_type", "has_any_column_privilege", "has_column_privilege", "has_database_privilege", "has_foreign_data_wrapper_privilege", "has_function_privilege", "has_language_privilege", "has_largeobject_privilege", "has_parameter_privilege", "has_schema_privilege", "has_sequence_privilege", "has_server_privilege", "has_table_privilege", "has_tablespace_privilege", "has_type_privilege", "makeaclitem", "obj_description", "pg_char_to_encoding", "pg_collation_actual_version", "pg_collation_is_visible", "pg_column_compression", "pg_column_size", "pg_conversion_is_visible", "pg_database_size", "pg_describe_object", "pg_encoding_to_char", "pg_filenode_relation", "pg_function_is_visible", "pg_get_catalog_foreign_keys", "pg_get_constraintdef", "pg_get_expr", "pg_get_function_arguments", "pg_get_function_identity_arguments", "pg_get_function_result", "pg_get_functiondef", "pg_get_indexdef", "pg_get_keywords", "pg_get_object_address", "pg_get_partition_constraintdef", "pg_get_partkeydef", "pg_get_ruledef", "pg_get_serial_sequence", "pg_get_statisticsobjdef", "pg_get_triggerdef", "pg_get_userbyid", "pg_get_viewdef", "pg_has_role", "pg_identify_object", "pg_identify_object_as_address", "pg_index_column_has_property", "pg_index_has_property", "pg_indexam_has_property", "pg_indexes_size", "pg_is_in_recovery", "pg_listening_channels", "pg_opclass_is_visible", "pg_operator_is_visible", "pg_opfamily_is_visible", "pg_partition_ancestors", "pg_partition_root", "pg_partition_tree", "pg_relation_filenode", "pg_relation_filepath", "pg_relation_size", "pg_statistics_obj_is_visible", "pg_table_is_visible", "pg_table_size", "pg_tablespace_databases", "pg_tablespace_location", "pg_tablespace_size", "pg_total_relation_size", "pg_ts_config_is_visible", "pg_ts_dict_is_visible", "pg_ts_parser_is_visible", "pg_ts_template_is_visible", "pg_type_is_visible", "pg_typeof", "row_security_active", "shobj_description", "to_regclass", "to_regcollation", "to_regnamespace", "to_regoper", "to_regoperator", "to_regproc", "to_regprocedure", "to_regrole", "to_regtype"]
+    },
+    {"versions": ["15", "16", "17", "18"], "names": ["pg_database_collation_actual_version", "pg_get_wal_resource_managers"]},
+    {"versions": ["17", "18"], "names": ["pg_column_toast_chunk_id"]},
+    {"versions": ["18"], "names": ["pg_settings_get_flags"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["METADATA"], "names": ["pg_replication_origin_oid", "pg_replication_origin_progress", "pg_replication_origin_session_is_setup", "pg_replication_origin_session_progress"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["SESSION_SETTING_WRITE"], "names": ["set_config"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["SESSION_LOCK"], "names": ["pg_advisory_lock", "pg_advisory_lock_shared", "pg_advisory_unlock", "pg_advisory_unlock_all", "pg_advisory_unlock_shared", "pg_advisory_xact_lock", "pg_advisory_xact_lock_shared", "pg_try_advisory_lock", "pg_try_advisory_lock_shared", "pg_try_advisory_xact_lock", "pg_try_advisory_xact_lock_shared"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["LOG_READ"], "names": ["pg_current_wal_flush_lsn", "pg_current_wal_insert_lsn", "pg_current_wal_lsn", "pg_last_wal_receive_lsn", "pg_last_wal_replay_lsn", "pg_walfile_name", "pg_walfile_name_offset", "pg_wal_lsn_diff", "pg_get_wal_replay_pause_state", "pg_is_wal_replay_paused", "pg_last_xact_replay_timestamp", "pg_ls_logdir", "pg_ls_waldir", "pg_ls_archive_statusdir", "pg_current_logfile", "pg_control_checkpoint", "pg_control_init", "pg_control_recovery", "pg_control_system", "pg_logical_slot_peek_changes", "pg_logical_slot_peek_binary_changes"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["MAINTAIN_LOG"], "names": ["pg_create_restore_point", "pg_switch_wal", "pg_rotate_logfile"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["DATA_IMPORT", "UNSAFE"], "names": ["pg_read_file", "pg_read_binary_file", "pg_ls_dir", "pg_stat_file", "pg_ls_tmpdir"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["SYSTEM_SETTING_WRITE"], "names": ["pg_import_system_collations", "pg_reload_conf"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["ALTER_REPLICATION"], "names": ["pg_promote", "pg_replication_origin_advance", "pg_replication_origin_session_setup", "pg_replication_origin_session_reset", "pg_replication_origin_xact_setup", "pg_replication_origin_xact_reset"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["ADMIN_REPLICATION"], "names": ["pg_wal_replay_pause", "pg_wal_replay_resume", "pg_sync_replication_slots", "pg_log_standby_snapshot", "pg_replication_slot_advance", "pg_logical_emit_message"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["CREATE_REPLICATION"], "names": ["pg_create_physical_replication_slot", "pg_create_logical_replication_slot", "pg_copy_physical_replication_slot", "pg_copy_logical_replication_slot", "pg_replication_origin_create"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["DROP_REPLICATION"], "names": ["pg_drop_replication_slot", "pg_replication_origin_drop"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["LOG_READ", "ADMIN_REPLICATION"], "names": ["pg_logical_slot_get_changes", "pg_logical_slot_get_binary_changes"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["ADMIN"], "names": ["pg_cancel_backend", "pg_terminate_backend", "pg_backup_start", "pg_backup_stop"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["ADMIN_LOG"], "names": ["pg_log_backend_memory_contexts"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["ADMIN_PERFORMANCE"], "names": ["brin_desummarize_range", "brin_summarize_new_values", "brin_summarize_range", "gin_clean_pending_list"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "types": ["PERFORMANCE"], "names": ["pg_blocking_pids", "pg_safe_snapshot_blocking_pids", "pg_notification_queue_usage", "pg_mcv_list_items"]},
+    {"versions": ["18"], "types": ["ADMIN_PERFORMANCE"], "names": ["pg_restore_relation_stats", "pg_clear_relation_stats", "pg_restore_attribute_stats", "pg_clear_attribute_stats"]},
+    {"versions": ["17", "18"], "types": ["LOG_READ"], "names": ["pg_available_wal_summaries", "pg_wal_summary_contents"]},
+    {"versions": ["18"], "types": ["LOG_READ"], "names": ["pg_ls_summariesdir"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "CONFIGURE", "targetType": "ConfigKey", "targetAction": "CONFIGURE", "unsafe": false, "names": ["set_config"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "CONFIGURE", "targetType": null, "targetAction": null, "unsafe": false, "names": ["pg_reload_conf"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["current_setting"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "TERMINATE", "targetType": null, "targetAction": null, "unsafe": false, "names": ["pg_cancel_backend", "pg_terminate_backend"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "CREATE", "targetType": "Replication", "targetAction": "CREATE", "unsafe": false, "names": ["pg_create_physical_replication_slot", "pg_create_logical_replication_slot", "pg_replication_origin_create"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "DROP", "targetType": "Replication", "targetAction": "DROP", "unsafe": false, "names": ["pg_drop_replication_slot", "pg_replication_origin_drop"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "ALTER", "targetType": "Replication", "targetAction": "ALTER", "unsafe": false, "names": ["pg_replication_origin_advance", "pg_replication_origin_session_setup", "pg_replication_slot_advance"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "RESET", "targetType": null, "targetAction": null, "unsafe": false, "names": ["pg_replication_origin_session_reset"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "SWITCH", "targetType": null, "targetAction": null, "unsafe": false, "names": ["pg_promote"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "START", "targetType": null, "targetAction": null, "unsafe": false, "names": ["pg_backup_start"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "STOP", "targetType": null, "targetAction": null, "unsafe": false, "names": ["pg_backup_stop"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "LOCK", "targetType": null, "targetAction": null, "unsafe": false, "names": ["pg_advisory_lock", "pg_advisory_xact_lock", "pg_advisory_lock_shared", "pg_advisory_xact_lock_shared", "pg_try_advisory_lock", "pg_try_advisory_xact_lock", "pg_try_advisory_lock_shared", "pg_try_advisory_xact_lock_shared"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "UNLOCK", "targetType": null, "targetAction": null, "unsafe": false, "names": ["pg_advisory_unlock", "pg_advisory_unlock_shared", "pg_advisory_unlock_all"]},
+    {"versions": ["12", "13", "14", "15", "16", "17", "18"], "action": "CALL", "targetType": "File", "targetAction": "READ", "unsafe": true, "names": ["pg_read_file", "pg_read_binary_file", "pg_ls_dir", "pg_stat_file"]}
+  ],
+  "performanceRelations": ["pg_statistic", "pg_statistic_ext", "pg_statistic_ext_data", "pg_stats", "pg_stats_ext", "pg_stats_ext_exprs"],
+  "systemSchemas": ["pg_catalog", "information_schema"]
+}

@@ -37,6 +37,7 @@ public class OraBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
         OraBehaviorParserVisitor[] holder = new OraBehaviorParserVisitor[1];
         DslHelper.doVisitor(OraDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
+            // Split coordinates already include the leading comments retained in the script.
             holder[0] = new OraBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
             return holder[0];
         });

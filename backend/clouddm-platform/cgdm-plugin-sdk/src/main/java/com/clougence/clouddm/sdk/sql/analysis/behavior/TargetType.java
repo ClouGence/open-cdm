@@ -32,6 +32,11 @@ public enum TargetType {
     Role(UmiTypes.ROLE),
     ConfigKey(null),
     File(null),
+    Session(null),
+    Backup(null),
+    Tablet(null),
+    Transaction(null),
+    Statistics(null),
 
     Query(null),
     Update(null),
@@ -83,6 +88,34 @@ public enum TargetType {
     Object(null),
     PrepareStatement(null),
 
+    // Database and instance security objects (not cache keys).
+    Certificate(null),
+    AsymmetricKey(null),
+    SymmetricKey(null),
+    DatabaseMasterKey(null),
+    ServiceMasterKey(null),
+    DatabaseEncryptionKey(null),
+    ColumnMasterKey(null),
+    ColumnEncryptionKey(null),
+    Credential(null),
+
+    // Instance administration and Service Broker objects.
+    Audit(null),
+    AuditSpecification(null),
+    EventSession(null),
+    AvailabilityGroup(null),
+    Endpoint(null),
+    BrokerMessageType(null),
+    BrokerContract(null),
+    BrokerService(null),
+    BrokerRoute(null),
+    RemoteServiceBinding(null),
+    BrokerPriority(null),
+    EventNotification(null),
+    BrokerConversation(null),
+    BrokerConversationGroup(null),
+    XmlSchemaCollection(null),
+
     // cache
     Key(UmiTypes.Key),
 
@@ -94,9 +127,7 @@ public enum TargetType {
     ClusterNode(null),
     Broker(null),
 
-    // Statistics and physical storage objects without UMI metadata counterparts.
-    Statistics(null),
-    Tablet(null),
+    // Physical storage objects without UMI metadata counterparts.
     Replica(null),
 
     // Persistent backup configuration and snapshots, independent of running jobs.

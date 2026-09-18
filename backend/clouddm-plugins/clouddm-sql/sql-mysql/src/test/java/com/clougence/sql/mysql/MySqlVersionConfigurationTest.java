@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
@@ -45,6 +46,14 @@ public class MySqlVersionConfigurationTest {
         Assertions.assertEquals(90701, MySqlVersion.parseExactVersion("9.7.1"));
         Assertions.assertEquals(100000, MySqlVersion.parseExactVersion("10.0.0"));
         Assertions.assertThrows(IllegalArgumentException.class, () -> MySqlVersion.parseExactVersion("mysql-8.0.22"));
+    }
+
+    @Test
+    public void mariaDbCompatibilityPrefixUsesServerVersion() {
+        MySqlParserConfig config = MySqlParserConfig.of("5.5.5-10.6.5-MariaDB", "MariaDB", null, false, Set.of());
+
+        Assertions.assertTrue(config.isMariaDb());
+        Assertions.assertEquals(100605, config.exactVersion());
     }
 
     @Test

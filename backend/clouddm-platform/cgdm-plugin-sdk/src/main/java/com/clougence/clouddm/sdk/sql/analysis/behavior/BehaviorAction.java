@@ -44,6 +44,7 @@ public enum BehaviorAction {
 
     // Authorization actions.
     GRANT,    // Grants privileges to a user or role.
+    DENY,     // Explicitly denies privileges to a user or role.
     REVOKE,   // Revokes privileges from a user or role.
     TRANSFER, // Transfers privileges, ownership, or authorization relationships.
 

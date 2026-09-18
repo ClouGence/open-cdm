@@ -150,6 +150,9 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (ctx.classBodyCreate() != null || ctx.javaClassCreate() != null || ctx.classCreate() != null) {
             return SplitQueryType.CREATE_TYPE;
         }
+        if (ctx.partitionGroupCreate() != null) {
+            return SplitQueryType.CREATE_RESOURCE_GROUP;
+        }
         return SplitQueryType.UNKNOWN;
     }
 
@@ -239,6 +242,9 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (ctx.CLASS() != null) {
             return SplitQueryType.ALTER_TYPE;
         }
+        if (ctx.OPERATOR() != null) {
+            return SplitQueryType.ALTER_PROG_OBJ;
+        }
         return SplitQueryType.UNKNOWN;
     }
 
@@ -304,6 +310,9 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
         if (ctx.LINK() != null || ctx.DIRECTORY() != null || ctx.CONTEXT() != null || ctx.PROFILE() != null) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
+        if (ctx.PARTITION() != null && ctx.GROUP() != null) {
+            return SplitQueryType.DROP_RESOURCE_GROUP;
+        }
         return SplitQueryType.UNKNOWN;
     }
 
@@ -314,13 +323,36 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitCommentStatement(DmSqlParser.CommentStatementContext ctx) {
-        if (ctx.commentTarget().TABLE() != null) {
-            return SplitQueryType.COMMENT_TABLE;
-        }
-        if (ctx.commentTarget().VIEW() != null) {
-            return SplitQueryType.COMMENT_VIEW;
-        }
-        return SplitQueryType.COMMENT_COLUMN;
+        return commentStatementType(ctx.commentTarget());
+    }
+
+    public static SplitQueryType commentStatementType(DmSqlParser.CommentTargetContext target) {
+        return switch (target.getStart().getType()) {
+            case DmSqlParser.TABLE -> SplitQueryType.COMMENT_TABLE;
+            case DmSqlParser.VIEW -> SplitQueryType.COMMENT_VIEW;
+            case DmSqlParser.COLUMN -> SplitQueryType.COMMENT_COLUMN;
+            case DmSqlParser.MATERIALIZED -> SplitQueryType.COMMENT_MATERIALIZED_VIEW;
+            case DmSqlParser.SYNONYM -> SplitQueryType.COMMENT_SYNONYM;
+            case DmSqlParser.TABLESPACE -> SplitQueryType.COMMENT_TABLESPACE;
+            case DmSqlParser.ROLE -> SplitQueryType.COMMENT_ROLE;
+            case DmSqlParser.CONTEXT -> SplitQueryType.COMMENT_CONTEXT;
+            case DmSqlParser.DOMAIN -> SplitQueryType.COMMENT_DOMAIN;
+            case DmSqlParser.DIRECTORY -> SplitQueryType.COMMENT_DIRECTORY;
+            case DmSqlParser.PROFILE -> SplitQueryType.COMMENT_PROFILE;
+            case DmSqlParser.LINK -> SplitQueryType.COMMENT_LINK;
+            case DmSqlParser.SEQUENCE -> SplitQueryType.COMMENT_SEQUENCE;
+            case DmSqlParser.SCHEMA -> SplitQueryType.COMMENT_SCHEMA;
+            case DmSqlParser.INDEX -> SplitQueryType.COMMENT_INDEX;
+            case DmSqlParser.TRIGGER -> SplitQueryType.COMMENT_TRIGGER;
+            case DmSqlParser.TYPE -> SplitQueryType.COMMENT_TYPE;
+            case DmSqlParser.OPERATOR -> SplitQueryType.COMMENT_OPERATOR;
+            case DmSqlParser.CLASS -> SplitQueryType.COMMENT_CLASS;
+            case DmSqlParser.DATABASE -> SplitQueryType.COMMENT_CATALOG;
+            case DmSqlParser.FUNCTION -> SplitQueryType.COMMENT_FUNCTION;
+            case DmSqlParser.PACKAGE -> SplitQueryType.COMMENT_PACKAGE;
+            case DmSqlParser.PROCEDURE -> SplitQueryType.COMMENT_PROCEDURE;
+            default -> SplitQueryType.UNKNOWN;
+        };
     }
 
     @Override
@@ -393,7 +425,7 @@ public class DmSplitVisitor extends DmSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitExplainStatement(DmSqlParser.ExplainStatementContext ctx) {
-        return SplitQueryType.SELECT;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override

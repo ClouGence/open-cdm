@@ -238,6 +238,7 @@ SECONDARY_ENGINE_ATTRIBUTE:          S E C O N D A R Y '_' E N G I N E '_' A T T
 SECONDARY_ENGINE:                    S E C O N D A R Y '_' E N G I N E;
 SECONDARY_LOAD:                      S E C O N D A R Y '_' L O A D;
 SECONDARY_UNLOAD:                    S E C O N D A R Y '_' U N L O A D;
+SECONDARY:                           S E C O N D A R Y;
 SET:                                 S E T;
 PERSIST:                             P E R S I S T;
 SEPARATOR:                           S E P A R A T O R;

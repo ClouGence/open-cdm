@@ -10,6 +10,7 @@ import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.sql.doris.i18n.DrSqlI18nKeys;
+import com.clougence.sql.doris.analysis.sysobj.DrSysObjectRegistrySpi;
 
 @Plugin(name = "Doris SQL", display = false)
 public class DrSqlPlugin implements DsPlugin {
@@ -18,5 +19,6 @@ public class DrSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(DrSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new DrSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new DrSysObjectRegistrySpi());
     }
 }

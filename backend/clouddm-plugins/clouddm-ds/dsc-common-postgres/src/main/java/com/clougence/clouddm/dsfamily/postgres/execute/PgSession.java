@@ -18,12 +18,14 @@ package com.clougence.clouddm.dsfamily.postgres.execute;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.sql.Statement;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.SessionHook;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.drivers.DsObject;
 
 /**
@@ -42,10 +44,19 @@ public class PgSession extends DefaultRdbSession {
     }
 
     @Override
+    protected Statement createStatement(Connection conn, QueryRequest query) throws SQLException {
+        if (!isAutoCommit() && !hasUnCommitted() && query.hasQueryType(SplitQueryType.TRANSACTION)
+            && !PgHooks.rewriteBeginModes(query.getQueryBody()).equals(query.getQueryBody())) {
+            conn.rollback();
+        }
+        return super.createStatement(conn, query);
+    }
+
+    @Override
     protected void beforeQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
         super.beforeQueryRequest(beginTime, query, builder);
 
-        if (!this.isAutoCommit()) {
+        if (!this.isAutoCommit() && !query.hasQueryType(SplitQueryType.TRANSACTION)) {
             this.inTxRequestSavepoint = currentResource().setSavepoint("savepoint_by_session"); // current query is tx query. when error rollback to this point
         }
     }

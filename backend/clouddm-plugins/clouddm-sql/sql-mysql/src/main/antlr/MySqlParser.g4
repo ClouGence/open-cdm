@@ -93,10 +93,10 @@ compoundStatement
     ;
 
 administrationStatement
-    : alterUser | createUser | dropUser | grantStatement
+    : alterUser | createUser | dropUser | grantProxy | grantStatement
     | createRole
-    | grantProxy | renameUser | revokeStatement
-    | revokeProxy | analyzeTable | checkTable
+    | renameUser | revokeProxy | revokeStatement
+    | analyzeTable | checkTable
     | checksumTable | optimizeTable | repairTable
     | cloneStatement
     | createUdfFunction | installPlugin | uninstallPlugin
@@ -107,6 +107,7 @@ administrationStatement
     | cacheIndexStatement | flushStatement | killStatement
     | loadIndexIntoCache | resetStatement
     | restartStatement | shutdownStatement | dropRole
+    | mariaBackup | mariaSetStatement | mariaAnalyze | mariaShow | mariaKill | mariaAllReplicas
     ;
 
 utilityStatement
@@ -115,6 +116,150 @@ utilityStatement
     | resignalStatement | diagnosticsStatement
     ;
 
+
+// Keep MariaDB DAL keywords non-reserved in the shared lexer. Separate rules
+// keep predicates context-free so ANTLR can use them during prediction.
+mariaKeyword
+    : uid
+    ;
+
+mariaWordStage
+    : {isMariaKeyword("STAGE")}? mariaKeyword
+    ;
+
+mariaWordBlockDdlBlockCommit
+    : {isMariaKeyword("BLOCK_DDL BLOCK_COMMIT")}? mariaKeyword
+    ;
+
+mariaWordStatement
+    : {isMariaKeyword("STATEMENT")}? mariaKeyword
+    ;
+
+mariaWordAuthorsContributors
+    : {isMariaKeyword("AUTHORS CONTRIBUTORS")}? mariaKeyword
+    ;
+
+mariaShowStatistics
+    : {isMariaKeyword("CLIENT_STATISTICS INDEX_STATISTICS TABLE_STATISTICS USER_STATISTICS LOCALES QUERY_RESPONSE_TIME USER_VARIABLES WSREP_STATUS WSREP_MEMBERSHIP")}? mariaKeyword
+    ;
+
+mariaWordSlaves
+    : {isMariaKeyword("SLAVES")}? mariaKeyword
+    ;
+
+mariaWordSequence
+    : {isMariaKeyword("SEQUENCE")}? mariaKeyword
+    ;
+
+mariaWordPackage
+    : {isMariaKeyword("PACKAGE")}? mariaKeyword
+    ;
+
+mariaWordBody
+    : {isMariaKeyword("BODY")}? mariaKeyword
+    ;
+
+mariaWordHardSoft
+    : {isMariaKeyword("HARD SOFT")}? mariaKeyword
+    ;
+
+mariaWordId
+    : {isMariaKeyword("ID")}? mariaKeyword
+    ;
+
+mariaWordMasterUseGtid
+    : {isMariaKeyword("MASTER_USE_GTID")}? mariaKeyword
+    ;
+
+mariaWordCurrentPosSlavePos
+    : {isMariaKeyword("CURRENT_POS SLAVE_POS")}? mariaKeyword
+    | {mariaAtLeast(100501) && isMariaKeyword("REPLICA_POS")}? mariaKeyword
+    ;
+
+mariaWordMasterDemoteToSlave
+    : {isMariaKeyword("MASTER_DEMOTE_TO_SLAVE")}? mariaKeyword
+    ;
+
+mariaWordDoDomainIdsIgnoreDomainIds
+    : {isMariaKeyword("DO_DOMAIN_IDS IGNORE_DOMAIN_IDS")}? mariaKeyword
+    ;
+
+mariaFlushStatistics
+    : {isMariaKeyword("CLIENT_STATISTICS INDEX_STATISTICS TABLE_STATISTICS USER_STATISTICS USER_VARIABLES QUERY_RESPONSE_TIME")}? mariaKeyword
+    ;
+
+mariaWordDeleteDomainId
+    : {isMariaKeyword("DELETE_DOMAIN_ID")}? mariaKeyword
+    ;
+
+mariaWordMasterGtidPos
+    : {isMariaKeyword("MASTER_GTID_POS")}? mariaKeyword
+    ;
+
+mariaPersistent
+    : {mariaAtLeast(100000)}? PERSISTENT FOR
+      (ALL | COLUMNS '(' uidList? ')' INDEXES '(' ((uid | PRIMARY) (',' (uid | PRIMARY))*)? ')')
+    ;
+
+mariaBackup
+    : {mariaAtLeast(100400)}? BACKUP
+      (mariaWordStage (START | FLUSH | mariaWordBlockDdlBlockCommit | END)
+      | LOCK tableName | UNLOCK)
+    ;
+
+mariaSetStatement
+    : {mariaAtLeast(100100)}? SET mariaWordStatement
+      mariaStatementAssignment (',' mariaStatementAssignment)* FOR sqlStatement
+    ;
+
+mariaStatementAssignment
+    : uid '=' (expression | DEFAULT | ON | ALL | BINARY | ROW | SYSTEM)
+    ;
+
+mariaAnalyze
+    : {mariaAtLeast(100100)}? ANALYZE (FORMAT '=' JSON)?
+      (selectStatement | withSelectStatement | updateStatement | deleteStatement)
+    ;
+
+mariaShow
+    : {isMariaDb()}? SHOW
+      (mariaWordAuthorsContributors
+      | mariaShowStatistics showFilter?
+      | {mariaAtLeast(100502)}? BINLOG STATUS
+      | {mariaAtLeast(100501)}? REPLICA HOSTS
+      | ALL (mariaWordSlaves | {mariaAtLeast(100501)}? REPLICAS) STATUS
+      | CREATE SERVER serverObjectName
+      | CREATE ({mariaAtLeast(100300)}? mariaWordSequence
+        | {mariaAtLeast(100300)}? mariaWordPackage mariaWordBody?) fullId
+      | {mariaAtLeast(100300)}? mariaWordPackage mariaWordBody? STATUS showFilter?
+      | PLUGINS SONAME (textLiteralToken | showFilter)
+      | (EXPLAIN | {mariaAtLeast(100900)}? ANALYZE) ({mariaAtLeast(100900)}? FORMAT '=' JSON)? FOR unsignedIntegerLiteral)
+    ;
+
+mariaKill
+    : {isMariaDb()}? KILL mariaWordHardSoft?
+      ((CONNECTION | QUERY)? unsignedIntegerLiteral | QUERY mariaWordId unsignedIntegerLiteral | USER userName)
+    ;
+
+mariaAllReplicas
+    : {isMariaDb()}? (START | STOP) ALL
+      (mariaWordSlaves | {mariaAtLeast(100501)}? REPLICAS)
+      (threadType (',' threadType)*)?
+    ;
+
+mariaMasterOption
+    : mariaWordMasterUseGtid '=' (mariaWordCurrentPosSlavePos | NO | {mariaAtLeast(120300)}? DEFAULT)
+    | {mariaAtLeast(101000)}? mariaWordMasterDemoteToSlave '=' ('0' | '1')
+    | mariaWordDoDomainIdsIgnoreDomainIds '=' '(' (unsignedIntegerLiteral (',' unsignedIntegerLiteral)*)? ')'
+    | {mariaAtLeast(120300)}? (MASTER_CONNECT_RETRY | MASTER_HEARTBEAT_PERIOD | MASTER_RETRY_COUNT
+      | MASTER_SSL | MASTER_SSL_CA | MASTER_SSL_CAPATH | MASTER_SSL_CERT | MASTER_SSL_CRL
+      | MASTER_SSL_CRLPATH | MASTER_SSL_KEY | MASTER_SSL_CIPHER | MASTER_SSL_VERIFY_SERVER_CERT) '=' DEFAULT
+    ;
+
+mariaFlushOption
+    : {isMariaDb()}? (SSL | mariaFlushStatistics
+      | BINARY LOGS mariaWordDeleteDomainId '=' '(' (unsignedIntegerLiteral (',' unsignedIntegerLiteral)*)? ')')
+    ;
 
 // Data Definition Language
 
@@ -284,7 +429,7 @@ createTablespaceInnodb
     : CREATE TABLESPACE uid
       (
         ADD DATAFILE datafile=textLiteralToken (','? tablespaceOption)*
-        | {atLeast(8, 0)}? tablespaceOption (','? tablespaceOption)*
+        | {atLeast(8, 0)}? (tablespaceOption (','? tablespaceOption)*)?
       )
     ;
 
@@ -292,7 +437,7 @@ createTablespaceNdb
     : CREATE TABLESPACE uid
       ADD DATAFILE datafile=textLiteralToken
       USE LOGFILE GROUP uid
-      tablespaceOption (','? tablespaceOption)*
+      (tablespaceOption (','? tablespaceOption)*)?
     ;
 
 tablespaceOption
@@ -522,6 +667,7 @@ columnConstraint
     : nullNotnull                                                   #nullColumnConstraint
     | {isDefaultColumnConstraintAllowed()}? DEFAULT defaultValue     #defaultColumnConstraint
     | {atLeast(8, 0)}? (VISIBLE | INVISIBLE)                        #invisibleColumnConstraint
+    | {atLeastExact(80013)}? NOT SECONDARY                          #secondaryColumnConstraint
     | (AUTO_INCREMENT | ON UPDATE currentTimestamp)                 #autoIncrementColumnConstraint
     | PRIMARY? KEY                                                  #primaryKeyColumnConstraint
     | UNIQUE KEY?                                                   #uniqueKeyColumnConstraint
@@ -708,12 +854,13 @@ partitionDefinition
       partitionOption*
       ( '(' subpartitionDefinition (',' subpartitionDefinition)* ')' )?       #partitionComparision
     | PARTITION uid VALUES LESS THAN
-      partitionDefinerAtom partitionOption*
+      MAXVALUE partitionOption*
       ( '(' subpartitionDefinition (',' subpartitionDefinition)* ')' )?       #partitionComparision
     | PARTITION uid VALUES IN
       '('
           partitionDefinerAtom (',' partitionDefinerAtom)*
       ')'
+      {isPartitionValueListAllowed($ctx)}?
       partitionOption*
       ( '(' subpartitionDefinition (',' subpartitionDefinition)* ')' )?       #partitionListAtom
     | PARTITION uid VALUES IN
@@ -822,7 +969,7 @@ alterServer
 alterTable
     : ALTER ({atMost(5, 6)}? IGNORE)? TABLE tableName
       (alterSpecification (',' alterSpecification)*)?
-      partitionDefinitions?
+      (partitionDefinitions | REMOVE PARTITIONING)?
     ;
 
 alterTablespace
@@ -885,7 +1032,8 @@ alterSpecification
     | ADD COLUMN? columnDefinition (FIRST | AFTER uid)?              #alterByAddColumn
     | ADD COLUMN?
         '('
-           columnDefinition ( ','  columnDefinition)*
+           (columnDefinition | tableConstraint | indexColumnDefinition)
+           (',' (columnDefinition | tableConstraint | indexColumnDefinition))*
         ')'                                                         #alterByAddColumns
     | ADD indexFormat=(INDEX | KEY) indexName? indexType?
       indexColumnNames normalIndexOption*                           #alterByAddIndex
@@ -932,7 +1080,7 @@ alterSpecification
     | ENABLE KEYS                                                   #alterByEnableKeys
     | RENAME renameFormat=(TO | AS)? (tableName)                 #alterByRename
     | ORDER BY alterTableOrderList                                  #alterByOrder
-    | CONVERT TO CHARACTER SET (charsetName | DEFAULT)
+    | CONVERT TO (CHARACTER SET | CHARSET) (charsetName | DEFAULT)
       (COLLATE collationName)?                                      #alterByConvertCharset
     | DEFAULT? CHARACTER SET '=' charsetName
       (COLLATE '=' collationName)?                                  #alterByDefaultCharset
@@ -976,7 +1124,7 @@ alterSpecification
     ;
 
 alterTableOrderList
-    : uid (ASC | DESC)? (',' uid (ASC | DESC)?)*
+    : fullColumnName (ASC | DESC)? (',' fullColumnName (ASC | DESC)?)*
     ;
 
 
@@ -1114,7 +1262,7 @@ insertStatement
     : INSERT
       priority=(LOW_PRIORITY | DELAYED | HIGH_PRIORITY)?
       ignore_? INTO? tableName
-      (PARTITION '(' partitions=uidList? ')' )?
+      (PARTITION '(' partitions=uidList ')' )?
       (
         ('(' columns=uidList? ')')? insertStatementValue
         | SET
@@ -1520,8 +1668,9 @@ joinPart
         | USING '(' uidList ')'
       )?                                                            #innerJoin
     | {hasJoinConditionAhead()}? STRAIGHT_JOIN tableSource
-      (ON expression)?                                              #rightDeepStraightJoin
-    | STRAIGHT_JOIN tableSourceItem (ON expression)?                #straightJoin
+      (ON expression | USING '(' uidList ')')?                    #rightDeepStraightJoin
+    | STRAIGHT_JOIN tableSourceItem
+      (ON expression | USING '(' uidList ')')?                    #straightJoin
     | outerJoinType  tableSource
         (
           ON expression
@@ -1570,10 +1719,10 @@ legacyQueryExpression
     ;
 
 subqueryStatement
-    : withSelectStatement
-    | selectStatement
-    | {atLeast(8, 0)}? tableStatement
-    | {atLeast(8, 0)}? valuesStatement
+    : {isSubqueryAllowed()}?
+      (withSelectStatement | selectStatement
+      | {atLeast(8, 0)}? tableStatement
+      | {atLeast(8, 0)}? valuesStatement)
     ;
 
 querySpecification
@@ -1804,11 +1953,11 @@ unlockTables
     ;
 
 lockInstance
-    : {atLeast(8, 0)}? LOCK INSTANCE FOR BACKUP
+    : {!isMariaDb() && (atLeast(8, 0))}? LOCK INSTANCE FOR BACKUP
     ;
 
 unlockInstance
-    : {atLeast(8, 0)}? UNLOCK INSTANCE
+    : {!isMariaDb() && (atLeast(8, 0))}? UNLOCK INSTANCE
     ;
 
 
@@ -1819,7 +1968,7 @@ setAutocommitStatement
     ;
 
 setTransactionStatement
-    : SET transactionContext=(GLOBAL | SESSION)? TRANSACTION {isSetTransactionOptionListAllowed()}?
+    : SET transactionContext=(GLOBAL | SESSION | LOCAL)? TRANSACTION {isSetTransactionOptionListAllowed()}?
       (
         ISOLATION LEVEL transactionLevel (',' transactionAccessMode)?
         | transactionAccessMode (',' ISOLATION LEVEL transactionLevel)?
@@ -1858,19 +2007,19 @@ transactionLevel
 //    Base Replication
 
 changeMaster
-    : {atMost(8, 0)}? CHANGE MASTER TO
+    : {atMost(8, 0)}? CHANGE MASTER ({isMariaDb()}? textLiteralToken)? TO
       masterOption (',' masterOption)* ({atLeast(5, 7)}? channelOption)?
     ;
 
 changeReplicationSource
-    : {atLeast(8, 0)}? CHANGE REPLICATION SOURCE TO
+    : {!isMariaDb() && (atLeast(8, 0))}? CHANGE REPLICATION SOURCE TO
       sourceOption (',' sourceOption)* channelOption?
     ;
 
 changeReplicationFilter
-    : {atLeast(5, 7)}? CHANGE REPLICATION FILTER
+    : {!isMariaDb() && (atLeast(5, 7))}? CHANGE REPLICATION FILTER
       replicationFilter (',' replicationFilter)*
-      ({atLeast(8, 0)}? channelOption)?
+      ({!isMariaDb() && (atLeast(8, 0))}? channelOption)?
     ;
 
 purgeBinaryLogs
@@ -1887,46 +2036,46 @@ resetMaster
     ;
 
 resetSlave
-    : {atMost(8, 0)}? RESET SLAVE ALL? ({atLeast(5, 7)}? channelOption)?
+    : {atMost(8, 0)}? RESET SLAVE ({isMariaDb()}? textLiteralToken)? ALL? ({atLeast(5, 7)}? channelOption)?
     ;
 resetReplica
-    : {atLeast(8, 0)}? RESET REPLICA ALL? channelOption?
+    : {!isMariaDb() && atLeast(8, 0) || mariaAtLeast(100501)}? RESET REPLICA ({isMariaDb()}? textLiteralToken)? ALL? channelOption?
     ;
 
 resetBinaryLogsAndGtids
-    : {atLeast(8, 4)}? RESET BINARY LOGS AND GTIDS
+    : {!isMariaDb() && (atLeast(8, 4))}? RESET BINARY LOGS AND GTIDS
       (TO unsignedIntegerLiteral)?
     ;
 
 startSlave
-    : {atMost(8, 0)}? START SLAVE (threadType (',' threadType)*)?
+    : {atMost(8, 0)}? START SLAVE ({isMariaDb()}? textLiteralToken)? (threadType (',' threadType)*)?
       (UNTIL untilOption)?
       connectionOption* ({atLeast(5, 7)}? channelOption)?
     ;
 
 startReplica
-    : {atLeast(8, 0)}? START REPLICA (threadType (',' threadType)*)?
+    : {!isMariaDb() && atLeast(8, 0) || mariaAtLeast(100501)}? START REPLICA ({isMariaDb()}? textLiteralToken)? (threadType (',' threadType)*)?
       (UNTIL untilOption)?
       connectionOption* channelOption?
     ;
 
 stopSlave
-    : {atMost(8, 0)}? STOP SLAVE (threadType (',' threadType)*)?
+    : {atMost(8, 0)}? STOP SLAVE ({isMariaDb()}? textLiteralToken)? (threadType (',' threadType)*)?
       ({atLeast(5, 7)}? channelOption)?
     ;
 
 stopReplica
-    : {atLeast(8, 0)}? STOP REPLICA (threadType (',' threadType)*)?
+    : {!isMariaDb() && atLeast(8, 0) || mariaAtLeast(100501)}? STOP REPLICA ({isMariaDb()}? textLiteralToken)? (threadType (',' threadType)*)?
       channelOption?
     ;
 
 startGroupReplication
-    : {atLeastExact(50706)}? START GROUP_REPLICATION
+    : {!isMariaDb() && atLeastExact(50706)}? START GROUP_REPLICATION
       ({atLeastExact(80021)}? groupReplicationStartOption (',' groupReplicationStartOption)*)?
     ;
 
 stopGroupReplication
-    : {atLeastExact(50706)}? STOP GROUP_REPLICATION
+    : {!isMariaDb() && atLeastExact(50706)}? STOP GROUP_REPLICATION
     ;
 
 groupReplicationStartOption
@@ -1938,7 +2087,8 @@ groupReplicationStartOption
 // details
 
 masterOption
-    : stringMasterOption '=' textLiteralToken                         #masterStringOption
+    : mariaMasterOption                                             #mariaMasterOptionValue
+    | stringMasterOption '=' textLiteralToken                         #masterStringOption
     | decimalMasterOption '=' decimalLiteral                        #masterDecimalOption
     | boolMasterOption '=' boolVal=('0' | '1')                      #masterBoolOption
     | MASTER_HEARTBEAT_PERIOD '=' REAL_LITERAL                      #masterRealOption
@@ -1947,19 +2097,19 @@ masterOption
     ;
 
 stringMasterOption
-    : MASTER_BIND | MASTER_HOST | MASTER_USER | MASTER_PASSWORD
+    : {!isMariaDb()}? MASTER_BIND | MASTER_HOST | MASTER_USER | MASTER_PASSWORD
     | MASTER_LOG_FILE | RELAY_LOG_FILE | MASTER_SSL_CA
     | MASTER_SSL_CAPATH | MASTER_SSL_CERT | MASTER_SSL_CRL
     | MASTER_SSL_CRLPATH | MASTER_SSL_KEY | MASTER_SSL_CIPHER
-    | {atLeast(5, 7)}? MASTER_TLS_VERSION
+    | {!isMariaDb() && atLeast(5, 7)}? MASTER_TLS_VERSION
     ;
 decimalMasterOption
-    : MASTER_PORT | MASTER_CONNECT_RETRY | MASTER_RETRY_COUNT
+    : MASTER_PORT | MASTER_CONNECT_RETRY | {!isMariaDb() || mariaAtLeast(120001)}? MASTER_RETRY_COUNT
     | MASTER_DELAY | MASTER_LOG_POS | RELAY_LOG_POS
     ;
 
 boolMasterOption
-    : MASTER_AUTO_POSITION | MASTER_SSL
+    : {!isMariaDb()}? MASTER_AUTO_POSITION | MASTER_SSL
     | MASTER_SSL_VERIFY_SERVER_CERT
     ;
 
@@ -1991,7 +2141,7 @@ sourceOptionValueAtom
     ;
 
 channelOption
-    : FOR CHANNEL textLiteralToken
+    : {!isMariaDb() || mariaAtLeast(100700)}? FOR CHANNEL textLiteralToken
     ;
 
 replicationFilter
@@ -2015,22 +2165,23 @@ threadType
     ;
 
 untilOption
-    : gtids=(SQL_BEFORE_GTIDS | SQL_AFTER_GTIDS)
+    : {isMariaDb()}? mariaWordMasterGtidPos '=' textLiteralToken #mariaGtidUntilOption
+    | {!isMariaDb() || mariaAtLeast(110300)}? gtids=(SQL_BEFORE_GTIDS | SQL_AFTER_GTIDS)
       '=' gtuidSet                                                  #gtidsUntilOption
     | MASTER_LOG_FILE '=' textLiteralToken
       ',' MASTER_LOG_POS '=' decimalLiteral                         #masterLogUntilOption
-    | SOURCE_LOG_FILE '=' textLiteralToken
+    | {!isMariaDb()}? SOURCE_LOG_FILE '=' textLiteralToken
       ',' SOURCE_LOG_POS '=' decimalLiteral                         #sourceLogUntilOption
     | RELAY_LOG_FILE '=' textLiteralToken
       ',' RELAY_LOG_POS '=' decimalLiteral                          #relayLogUntilOption
-    | SQL_AFTER_MTS_GAPS                                            #sqlGapsUntilOption
+    | {!isMariaDb()}? SQL_AFTER_MTS_GAPS                             #sqlGapsUntilOption
     ;
 
 connectionOption
-    : USER '=' conOptUser=textLiteralToken                            #userConnectionOption
-    | PASSWORD '=' conOptPassword=textLiteralToken                    #passwordConnectionOption
-    | DEFAULT_AUTH '=' conOptDefAuth=textLiteralToken                 #defaultAuthConnectionOption
-    | PLUGIN_DIR '=' conOptPluginDir=textLiteralToken                 #pluginDirConnectionOption
+    : {!isMariaDb()}? USER '=' conOptUser=textLiteralToken             #userConnectionOption
+    | {!isMariaDb()}? PASSWORD '=' conOptPassword=textLiteralToken     #passwordConnectionOption
+    | {!isMariaDb()}? DEFAULT_AUTH '=' conOptDefAuth=textLiteralToken  #defaultAuthConnectionOption
+    | {!isMariaDb()}? PLUGIN_DIR '=' conOptPluginDir=textLiteralToken  #pluginDirConnectionOption
     ;
 
 gtuidSet
@@ -2216,7 +2367,7 @@ alterUser
         (RETAIN CURRENT PASSWORD)?                                  #alterUserCurrentUser
     | {atLeast(8, 0)}? ALTER USER ifExists? (USER '(' ')' | CURRENT_USER ('(' ')')?)
         DISCARD OLD PASSWORD                                        #alterUserCurrentUserDiscard
-    | {atLeast(8, 0)}? ALTER USER ifExists? userName
+    | {atLeast(8, 0)}? ALTER USER ifExists? (userName | CURRENT_USER ('(' ')')?)
         alterUserDefaultRoleClause                                  #alterUserDefaultRole
     | {atLeast(8, 0)}? ALTER USER ifExists? userName
         DISCARD OLD PASSWORD                                        #alterUserDiscardOldPassword
@@ -2485,7 +2636,7 @@ privilege
       (TEMPORARY TABLES | ROUTINE | VIEW | USER | TABLESPACE)?
     | {atLeast(8, 0)}? CREATE ROLE
     | DELETE | DROP | {atLeast(8, 0)}? DROP ROLE | EVENT | EXECUTE | FILE | GRANT OPTION
-    | INDEX | INSERT | LOCK TABLES | PROCESS | PROXY
+    | INDEX | INSERT | LOCK TABLES | PROCESS
     | REFERENCES | RELOAD
     | REPLICATION (CLIENT | SLAVE)
     | SELECT
@@ -2515,19 +2666,19 @@ renameUserClause
 
 analyzeTable
     : ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-      (TABLE | TABLES) tableName analyzeHistogramClause
+      (TABLE | TABLES) tables analyzeHistogramClause
     | ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-      (TABLE | TABLES) tables
+      (TABLE | TABLES) tables mariaPersistent?
     ;
 
 analyzeHistogramClause
-    : {atLeast(8, 0)}? UPDATE HISTOGRAM ON uidList
+    : {!isMariaDb() && (atLeast(8, 0))}? UPDATE HISTOGRAM ON uidList
       (
-        {atLeastExact(80031)}? USING DATA textLiteralToken
+        {!isMariaDb() && (atLeastExact(80031))}? USING DATA textLiteralToken
         | (WITH decimalLiteral BUCKETS)?
-          ({atLeast(8, 4)}? (MANUAL | AUTO) UPDATE)?
+          ({!isMariaDb() && (atLeast(8, 4))}? (MANUAL | AUTO) UPDATE)?
       )
-    | {atLeast(8, 0)}? DROP HISTOGRAM ON uidList
+    | {!isMariaDb() && (atLeast(8, 0))}? DROP HISTOGRAM ON uidList
     ;
 
 checkTable
@@ -2540,18 +2691,18 @@ checksumTable
 
 optimizeTable
     : OPTIMIZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-      (TABLE | TABLES) tables
+      (TABLE | TABLES) tables ({mariaAtLeast(100300)}? (WAIT unsignedIntegerLiteral | NOWAIT))?
     ;
 
 repairTable
     : REPAIR actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
       (TABLE | TABLES) tables
-      (QUICK | EXTENDED | USE_FRM)*
+      (QUICK | EXTENDED | USE_FRM)* ({mariaAtLeast(110500)}? FORCE)?
     ;
 
 cloneStatement
-    : {atLeast(8, 0)}? CLONE LOCAL DATA DIRECTORY '='? stringLiteral
-    | {atLeast(8, 0)}? CLONE INSTANCE FROM userName ':' decimalLiteral
+    : {!isMariaDb() && (atLeast(8, 0))}? CLONE LOCAL DATA DIRECTORY '='? stringLiteral
+    | {!isMariaDb() && (atLeast(8, 0))}? CLONE INSTANCE FROM userName ':' decimalLiteral
       IDENTIFIED BY stringLiteral cloneDataDirectory? cloneSslOption?
     ;
 
@@ -2579,19 +2730,19 @@ createUdfFunction
     ;
 
 installPlugin
-    : INSTALL PLUGIN uid SONAME textLiteralToken
+    : INSTALL (PLUGIN ({mariaAtLeast(100400)}? ifNotExists)? uid SONAME | {isMariaDb()}? SONAME) textLiteralToken
     ;
 
 uninstallPlugin
-    : UNINSTALL PLUGIN uid
+    : UNINSTALL (PLUGIN ({mariaAtLeast(100400)}? ifExists)? uid | {isMariaDb()}? SONAME ({mariaAtLeast(100400)}? ifExists)? textLiteralToken)
     ;
 
 installComponent
-    : {atLeast(8, 0)}? INSTALL COMPONENT componentNameList installComponentSetClause?
+    : {!isMariaDb() && (atLeast(8, 0))}? INSTALL COMPONENT componentNameList installComponentSetClause?
     ;
 
 uninstallComponent
-    : {atLeast(8, 0)}? UNINSTALL COMPONENT componentNameList
+    : {!isMariaDb() && (atLeast(8, 0))}? UNINSTALL COMPONENT componentNameList
     ;
 
 componentNameList
@@ -2619,14 +2770,14 @@ installComponentSetRvalue
 //    Resource group statements
 
 createResourceGroup
-    : {atLeast(8, 0)}? CREATE RESOURCE GROUP uid TYPE '='? resourceGroupType
+    : {!isMariaDb() && (atLeast(8, 0))}? CREATE RESOURCE GROUP uid TYPE '='? resourceGroupType
       resourceGroupVcpuOption?
       resourceGroupThreadPriorityOption?
       resourceGroupState?
     ;
 
 alterResourceGroup
-    : {atLeast(8, 0)}? ALTER RESOURCE GROUP uid
+    : {!isMariaDb() && (atLeast(8, 0))}? ALTER RESOURCE GROUP uid
       resourceGroupVcpuOption?
       resourceGroupThreadPriorityOption?
       resourceGroupAlterState?
@@ -2634,11 +2785,11 @@ alterResourceGroup
     ;
 
 dropResourceGroup
-    : {atLeast(8, 0)}? DROP RESOURCE GROUP uid FORCE?
+    : {!isMariaDb() && (atLeast(8, 0))}? DROP RESOURCE GROUP uid FORCE?
     ;
 
 setResourceGroup
-    : {atLeast(8, 0) || atMost(5, 6)}? SET RESOURCE GROUP uid
+    : {!isMariaDb() && (atLeast(8, 0) || atMost(5, 6))}? SET RESOURCE GROUP uid
       (FOR decimalLiteral (',' decimalLiteral)*)?
     ;
 
@@ -2671,22 +2822,24 @@ resourceGroupAlterState
 
 setStatement
     : setPasswordStatement                                          #setPassword
-    | SET setVariableAssignment (',' setVariableAssignment)*        #setVariable
-    | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
+    | {isTriggerRowAssignmentAhead()}? SET fullId ('=' | ':=') expression
+      (',' fullId ('=' | ':=') expression)*                         #setNewValueInsideTrigger
+    | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)          #setCharset
     | SET NAMES
-        (charsetName (COLLATE collationName)? | DEFAULT)            #setNames
+        (charsetName (COLLATE collationName)? | DEFAULT)             #setNames
+    | SET setVariableAssignment (',' setVariableAssignment)*        #setVariable
     | setTransactionStatement                                       #setTransaction
     | setAutocommitStatement                                        #setAutocommit
     | {atLeast(8, 0) || isLegacySetRoleAssignment()}?
       SET ROLE roleOption                                           #setRole
     | {atLeast(8, 0)}? SET DEFAULT ROLE roleOption TO userName (',' userName)* #setDefaultRole
-    | SET fullId ('=' | ':=') expression
-      (',' fullId ('=' | ':=') expression)*                         #setNewValueInsideTrigger
     ;
 
 setVariableAssignment
     : variableClause {isSetVariableAssignmentAllowed($variableClause.ctx)}?
-      ('=' | ':=') (expression | DEFAULT | ON)
+      ('=' | ':=') (expression | DEFAULT | ON | ALL | BINARY | ROW | SYSTEM)
+    | (CHARACTER SET | CHARSET) (charsetName | DEFAULT)
+    | NAMES (charsetName (COLLATE collationName)? | DEFAULT)
     ;
 
 showStatement
@@ -2694,7 +2847,7 @@ showStatement
     | {atLeast(8, 4)}? SHOW BINARY LOG STATUS                        #showBinaryLogStatus
     | SHOW CHARSET showFilter?                                       #showCharset
     | SHOW BINLOG EVENTS showLogEventOptions                        #showBinlogEvents
-    | SHOW RELAYLOG EVENTS showLogEventOptions
+    | SHOW RELAYLOG ({isMariaDb()}? textLiteralToken)? EVENTS showLogEventOptions
       ({atLeast(5, 7)}? channelOption)?                              #showRelayLogEvents
     | SHOW showCommonEntity showFilter?                             #showObjectFilter
     | SHOW ({atLeast(8, 0)}? EXTENDED)? FULL?
@@ -2703,7 +2856,7 @@ showStatement
         (schemaFormat=(FROM | IN) uid)? showFilter?                 #showColumns
     | SHOW FULL TABLES
       schemaFormat=(FROM | IN) uid
-        (WHERE TABLE_TYPE comparisonOperator (uid | textLiteralToken) )?                                         #showTables
+      showFilter?                                                   #showTables
     | SHOW CREATE schemaFormat=(DATABASE | SCHEMA)
       ifNotExists? uid                                              #showCreateDb
     | SHOW CREATE
@@ -2742,11 +2895,11 @@ showStatement
     | SHOW PROFILE (showProfileType (',' showProfileType)*)?
         (FOR QUERY queryCount=profileQueryIdLiteral)?
         limitClause?                                                #showProfile
-    | {atMost(8, 0)}? SHOW SLAVE STATUS
+    | {atMost(8, 0)}? SHOW SLAVE ({isMariaDb()}? textLiteralToken)? STATUS
       ({atLeast(5, 7)}? channelOption)?                              #showSlaveStatus
     | {atLeast(8, 4)}? SHOW PARSE_TREE sqlStatement                  #showParseTree
-    | {atLeast(8, 0)}? SHOW REPLICA STATUS (FOR CHANNEL textLiteralToken)? #showReplicaStatus
-    | {atLeast(8, 0)}? SHOW REPLICAS                                 #showReplicas
+    | {!isMariaDb() && atLeast(8, 0) || mariaAtLeast(100501)}? SHOW REPLICA ({isMariaDb()}? textLiteralToken)? STATUS channelOption? #showReplicaStatus
+    | {!isMariaDb() && atLeast(8, 0)}? SHOW REPLICAS                   #showReplicas
     ;
 
 // details
@@ -2759,12 +2912,12 @@ showLogEventOptions
 
 variableClause
     : LOCAL_ID
-    | GLOBAL_ID
-    | (('@' '@')? (GLOBAL | SESSION | LOCAL))? uid
+    | GLOBAL_ID (dottedId | {$GLOBAL_ID.text.endsWith(".")}? uid dottedId?)?
+    | (('@' '@')? (GLOBAL | SESSION | LOCAL))? (uid dottedId? | DEFAULT dottedId)
     | {atMost(5, 7)}? (GLOBAL | SESSION | LOCAL | persistScope)
     | {atMost(5, 7)}? CUBE
-    | {isBarePersistScopeAllowed()}? persistScope uid
-    | '@' '@' persistScope '.' uid
+    | {isBarePersistScopeAllowed()}? persistScope (uid dottedId? | DEFAULT dottedId)
+    | '@' '@' persistScope '.' (uid dottedId? | DEFAULT dottedId)
     ;
 
 persistScope
@@ -2790,7 +2943,7 @@ showGlobalInfoClause
     ;
 
 showSchemaEntity
-    : EVENTS | TABLE STATUS | FULL? (TABLES | TRIGGERS)
+    : EVENTS | TABLE STATUS | ({atLeast(8, 0)}? EXTENDED)? FULL? TABLES | FULL? TRIGGERS
     ;
 
 showProfileType
@@ -2817,8 +2970,8 @@ flushStatement
     ;
 
 killStatement
-    : KILL connectionFormat=(CONNECTION | QUERY)?
-      expression
+    : KILL (connectionFormat=(CONNECTION | QUERY) expression
+      | {_input.LA(1) != CONNECTION && _input.LA(1) != QUERY}? expression)
     ;
 
 loadIndexIntoCache
@@ -2832,8 +2985,8 @@ loadIndexIntoCache
 // remark reset (maser | slave) describe in replication's
 //  statements section
 resetStatement
-    : {atMost(5, 7)}? RESET QUERY CACHE                             #resetQueryCache
-    | {atLeast(8, 0)}? RESET PERSIST
+    : {isMariaDb() || atMost(5, 7)}? RESET QUERY CACHE                             #resetQueryCache
+    | {!isMariaDb() && atLeast(8, 0)}? RESET PERSIST
       (IF EXISTS resetPersistVariable | resetPersistVariable)?      #resetPersist
     | RESET resetOption (',' resetOption)+                          #resetOptions
     ;
@@ -2841,12 +2994,13 @@ resetStatement
 resetOption
     : {atMost(8, 0)}? MASTER
       ({between(8, 0, 8, 0)}? TO unsignedIntegerLiteral)?
-    | {atMost(8, 0)}? SLAVE ALL?
+    | {atMost(8, 0)}? SLAVE ({isMariaDb()}? textLiteralToken)? ALL?
       ({atLeast(5, 7)}? channelOption)?
-    | {atLeast(8, 0)}? REPLICA ALL? channelOption?
+    | {!isMariaDb() && atLeast(8, 0) || mariaAtLeast(100501)}? REPLICA
+      ({isMariaDb()}? textLiteralToken)? ALL? channelOption?
     | {atLeast(8, 4)}? BINARY LOGS AND GTIDS
       (TO unsignedIntegerLiteral)?
-    | {atMost(5, 7)}? QUERY CACHE
+    | {isMariaDb() || atMost(5, 7)}? QUERY CACHE
     ;
 
 resetPersistVariable
@@ -2855,11 +3009,12 @@ resetPersistVariable
     ;
 
 restartStatement
-    : {atLeast(8, 0)}? RESTART
+    : {!isMariaDb() && (atLeast(8, 0))}? RESTART
     ;
 
 shutdownStatement
     : {atLeast(5, 7)}? SHUTDOWN
+      ({mariaAtLeast(100404)}? WAIT FOR ALL (mariaWordSlaves | {mariaAtLeast(100501)}? REPLICAS))?
     ;
 
 // details
@@ -2869,14 +3024,15 @@ tableIndexes
     ;
 
 flushOption
-    : {atMost(5, 7)}? DES_KEY_FILE
+    : {isMariaDb() && (exactVersion() == 0 || exactVersion() < 130000) || atMost(5, 7)}? DES_KEY_FILE
+    | mariaFlushOption
     | {atMost(8, 0)}? HOSTS
     | (BINARY | ENGINE | ERROR | GENERAL | SLOW) LOGS
     | LOGS
-    | {atLeast(5, 7)}? OPTIMIZER_COSTS
+    | {!isMariaDb() && atLeast(5, 7)}? OPTIMIZER_COSTS
     | PRIVILEGES
-    | {atMost(5, 7)}? QUERY CACHE
-    | RELAY LOGS ({atLeast(5, 7)}? channelOption)?
+    | {isMariaDb() || atMost(5, 7)}? QUERY CACHE
+    | RELAY LOGS ({isMariaDb()}? textLiteralToken | {atLeast(5, 7)}? channelOption)?
     | STATUS
     | USER_RESOURCES
     ;
@@ -2933,7 +3089,7 @@ fullDescribeStatement
         {atMost(5, 7)}? legacyType=(EXTENDED | PARTITIONS)
         | {atLeast(8, 0)}? analyze=ANALYZE
       )?
-      (FORMAT '=' formatValue=(TRADITIONAL | JSON | TREE))?
+      (FORMAT '=' (formatValue=(TRADITIONAL | JSON | TREE) | textLiteralToken))?
       ({atLeast(8, 4) && ($analyze == null || atLeast(9, 7))}? INTO LOCAL_ID)?
       ({atLeast(8, 4)}? FOR (DATABASE | SCHEMA) uid)?
       describeObjectClause
@@ -2987,9 +3143,13 @@ signalAllowedExpression
 
 diagnosticsStatement
     : GET ( CURRENT | {atLeast(5, 7)}? STACKED )? DIAGNOSTICS (
-          ( variableClause '=' ( NUMBER | ROW_COUNT ) ( ',' variableClause '=' ( NUMBER | ROW_COUNT ) )* )
-        | ( CONDITION  ( decimalLiteral | variableClause ) variableClause '=' diagnosticsConditionInformationName ( ',' variableClause '=' diagnosticsConditionInformationName )* )
+          ( diagnosticsTarget '=' ( NUMBER | ROW_COUNT ) ( ',' diagnosticsTarget '=' ( NUMBER | ROW_COUNT ) )* )
+        | ( CONDITION signalAllowedExpression diagnosticsTarget '=' diagnosticsConditionInformationName ( ',' diagnosticsTarget '=' diagnosticsConditionInformationName )* )
       )
+    ;
+
+diagnosticsTarget
+    : LOCAL_ID | uid
     ;
 
 diagnosticsConditionInformationName
@@ -3017,7 +3177,7 @@ describeObjectClause
         | replaceStatement | updateStatement
       )                                                             #describeStatements
     | {atLeast(5, 7)}? FOR CONNECTION decimalLiteral                #describeConnection
-    | {atLeast(8, 0)}? TABLE tableName                              #describeTable
+    | {atLeast(8, 0)}? TABLE tableName orderByClause? limitClause?   #describeTable
     ;
 
 
@@ -3045,7 +3205,7 @@ customFunctionName
 
 
 roleName
-    : userName
+    : {isRoleNameAllowed()}? userName
     | {atLeast(8, 0)}? (COMMIT | BINLOG) LOCAL_ID?
     | {atLeast(9, 7)}? (SETS | FILES | VECTOR) LOCAL_ID?
     ;
@@ -3063,15 +3223,16 @@ indexColumnName
     ;
 
 userName
-    : user=userNameToken (host= LOCAL_ID)?;
+    : user=userNameToken (host=LOCAL_ID | host='@')?;
 
 userNameToken
-    : textLiteralToken | ID | REVERSE_QUOTE_ID
+    : textLiteralToken | uid
     ;
 
 mysqlVariable
     : LOCAL_ID
-    | GLOBAL_ID
+    | GLOBAL_ID (dottedId | {$GLOBAL_ID.text.endsWith(".")}? uid dottedId?)?
+      {isSystemVariableAllowed($ctx, false)}?
     ;
 
 charsetName
@@ -3081,9 +3242,13 @@ charsetName
     ;
 
 collationName
-    : uid | textLiteralToken;
+    : uid | textLiteralToken | BINARY;
 
 engineName
+    : engineNameBase | textLiteralToken
+    ;
+
+engineNameBase
     : ARCHIVE | BLACKHOLE | CSV | FEDERATED | INNODB | MEMORY
     | MERGE | MRG_MYISAM | MYISAM | NDB | NDBCLUSTER | PERFORMANCE_SCHEMA
     | TOKUDB
@@ -3143,7 +3308,7 @@ simpleId
         ID
         | charsetNameBase
         | transactionLevelBase
-        | engineName
+        | engineNameBase
         | privilegesBase
         | intervalTypeBase
         | dataTypeBase
@@ -3236,7 +3401,7 @@ constant
     | '-' decimalLiteral
     | hexadecimalLiteral | bitStringLiteral | booleanLiteral
     | REAL_LITERAL
-    | NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
+    | NOT? nullLiteral=NULL_LITERAL
     ;
 
 
@@ -3288,8 +3453,9 @@ dataType
     | typeName=YEAR
       lengthOneDimension? numericFieldOption*                       #dimensionDataType
     | (typeName=(BIT | TIME | TIMESTAMP | DATETIME | BINARY | BLOB)
-        | {atLeast(9, 7)}? typeName=VECTOR)
+        | {!isMariaDb() && atLeast(9, 7)}? typeName=VECTOR)
       lengthOneDimension?                                           #dimensionDataType
+    | {mariaAtLeast(110701)}? typeName=VECTOR lengthOneDimension       #dimensionDataType
     | typeName=VARBINARY lengthOneDimension                         #dimensionDataType
     | typeName=(ENUM | SET)
       collectionOptions (BINARY | BYTE)?
@@ -3307,7 +3473,7 @@ dataType
       BINARY?
       stringCharsetAttribute?
       (COLLATE collationName)?                                      #longVarcharDataType    // LONG VARCHAR is the same as LONG
-    | LONG VARBINARY                                                #longVarbinaryDataType
+    | LONG (VARBINARY | BYTE)                                       #longVarbinaryDataType
     ;
 
 numericFieldOption
@@ -3344,7 +3510,7 @@ convertedDataType
         POINT | LINESTRING | POLYGON | MULTIPOINT | MULTILINESTRING
         | MULTIPOLYGON | GEOMETRYCOLLECTION | GEOMCOLLECTION
       )
-    | typeName=DECIMAL lengthTwoOptionalDimension?
+    | typeName=(DECIMAL | DEC | NUMERIC | FIXED) lengthTwoOptionalDimension?
     | (SIGNED | UNSIGNED) (INT | INTEGER)?
     ;
 
@@ -3661,7 +3827,7 @@ specificFunction
       ')'                                                           #getFormatFunctionCall
     | {atLeastExact(80021)}? JSON_VALUE
       '(' expression
-       ',' expression
+       ',' stringLiteral
          (RETURNING convertedDataType)?
          ((NULL_LITERAL | ERROR | (DEFAULT jsonValueDefaultValue)) ON EMPTY)?
          ((NULL_LITERAL | ERROR | (DEFAULT jsonValueDefaultValue)) ON ERROR)?
@@ -3788,7 +3954,10 @@ comparisonExpression
 
 comparisonOperand
     : bitOrExpression                                               #expressionAtomPredicate
-    | MATCH
+    ;
+
+fullTextExpression
+    : MATCH
       (
         '(' fullColumnName (COMMA fullColumnName)* ')'
         | fullColumnName (COMMA fullColumnName)*
@@ -3802,7 +3971,7 @@ comparisonPredicateSuffix
     | {isTruthPredicateAllowed($ctx)}?
       IS NOT? testValue=(TRUE | FALSE | UNKNOWN)                    #truthPredicate
     | comparisonOperator bitOrExpression                            #binaryComparasionPredicate
-    | comparisonOperator
+    | quantifiedComparisonOperator
       quantifier=(ALL | ANY | SOME) '(' subqueryStatement ')'       #subqueryComparasionPredicate
     | SOUNDS LIKE bitOrExpression                                   #soundsLikePredicate
     | NOT? LIKE {isPipesConcatLikeOperandAllowed()}? bitOrExpression
@@ -3854,6 +4023,7 @@ unaryExpression
 // Add in ASTVisitor nullNotnull in constant
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | fullTextExpression                                            #fullTextExpressionAtom
     | PARAM_MARKER                                                  #parameterMarkerExpressionAtom
     | {isTypedTemporalLiteralAhead()}? typedTemporalLiteral         #typedTemporalLiteralExpressionAtom
     | fullColumnName                                                #fullColumnNameExpressionAtom
@@ -3881,6 +4051,10 @@ unaryOperator
 comparisonOperator
     : '=' | '>' | '<' | '<' '=' | '>' '='
     | '<' '>' | '!' '=' | '<' '=' '>'
+    ;
+
+quantifiedComparisonOperator
+    : '=' | '>' | '<' | '<' '=' | '>' '=' | '<' '>' | '!' '='
     ;
 
 bitOperator
@@ -3926,7 +4100,8 @@ dataTypeBase
     ;
 
 keywordsCanBeId
-    : ACCESSIBLE | ACCOUNT | ACTION | ACTIVE | ADMIN | AFTER | AGGREGATE | ALGORITHM | ANY | APPLICATION_PASSWORD_ADMIN | ARRAY
+    : TABLE_TYPE | ACCESSIBLE | ACCOUNT | ACTION | ACTIVE | ADMIN | AFTER | AGGREGATE | ALGORITHM | ALWAYS | ANY | APPLICATION_PASSWORD_ADMIN | ARRAY
+    | GEOMETRY | NULLS | RETURNING | SECONDARY
     | AT | AUDIT_ADMIN | AUTHORS | AUTHENTICATION | AUTO | AUTOCOMMIT | AUTOEXTEND_SIZE
     | ABSENT | ALLOW_MISSING_FILES | AUTO_INCREMENT | AUTO_REFRESH | AUTO_REFRESH_SOURCE
     | AVG | AVG_ROW_LENGTH | BACKUP | BACKUP_ADMIN | BEGIN | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR

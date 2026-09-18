@@ -309,11 +309,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private static final RuleLevel[] CHECK_LEVELS_FORCE  = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET };
     private static final RuleLevel[] CHECK_LEVELS_NORMAL = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET, RuleLevel.SUGGEST };
 
-    private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain) {
+    private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain, SqlParserParameters parameters) {
         AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(queryDTO.getCurrentUserId())
             .dataSourceId(ctx.getLevels().dsDO().getId())
             .levels(ctx.getLevels().levelsParam())
+            .parameters(parameters)
             .build();
         int codeLine = queryDTO.getBasicCodeLine();
         int codeColumn = queryDTO.getBasicCodeColumn();
@@ -339,9 +340,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         // for Explain
         RewriteSpi rewriteSpi = null;
-        SqlParserParameters parameters = SqlParserParameters.empty();
         if (isExplain) {
-            parameters = this.dmDsConfigService.fetchSqlParserParameters(ctx.getDsConfig(), ctx.getLevels().levelsParam());
             parameters = parameters.put(SqlParserParameters.EXPECT_PLAN, Boolean.TRUE.toString());
             rewriteSpi = ctx.getSqlEngine().rewriteSpi(parameters);
             if (rewriteSpi == null) {
@@ -424,33 +423,37 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Info));
 
         SqlParserParameters parameters = this.dmDsConfigService.fetchSqlParserParameters(ctx.getDsConfig(), ctx.getLevels().levelsParam());
+        // SQL_MODE can differ between the query session and the metadata connection.
+        if (ctx.getCtxDTO().getSqlParameters() != null) {
+            parameters = parameters.putAll(ctx.getCtxDTO().getSqlParameters());
+        }
         List<QueryRequest> requests;
         try {
-            requests = this.prepareQueryRequests(queryDTO, ctx, isExplain);
+            requests = this.prepareQueryRequests(queryDTO, ctx, isExplain, parameters);
         } catch (AntlerSyntaxException e) {
             CodeLocation location = e.offsetLocation(queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
             String syntaxMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SYNTAX_ANALYSIS_ERROR.name(), location.getLineNumber(), location.getColumnNumber());
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, syntaxMsg, MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         } catch (ErrorMessageException e) {
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, e.getErrorMessage(), MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             String str = e.getClass().getSimpleName() + ":" + e.getMessage();
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, str, MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         }
 
         // 4.7. check rules & auth & other...
         if (!specialCheck(queryDTO, consumer, ctx, parameters, requests)) {
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         }
 
         // 4.8. prepare Session
@@ -474,7 +477,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+                return ExitCode.finish();
             }
 
             // check INVALID_REOPENED
@@ -484,7 +487,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Warn));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+                return ExitCode.finish();
             }
         }
 
@@ -535,7 +538,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             consumer.accept(BuildResMsgUtils.buildConsoleMsg(queryDTO, consoleMessage, MessageLevel.Error, true));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-            return processAsyncQueryReturn(ExitCode.finish(), queryDTO, ctx);
+            return ExitCode.finish();
         }
     }
 
@@ -580,7 +583,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
                 return false;
-            } else if (request.hasQueryType(SplitQueryType.TRANSACTION)) {
+            } else if (request.hasQueryType(SplitQueryType.TRANSACTION) && ctx.getCtxDTO().isRdbAutoCommit()) {
                 String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name());
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Error));
                 consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
@@ -625,14 +628,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
 
         return true;
-    }
-
-    private ExitCode processAsyncQueryReturn(ExitCode result, WsQueryFO queryDTO, QueryCtx ctx) {
-        if (ctx.getCtxDTO().isRdbAutoCommit()) {
-            this.queryService.closeSession(queryDTO.getCurrentUserId(), queryDTO.getSessionId());
-        }
-
-        return result;
     }
 
     // ------------------------------------------------------------------------
@@ -682,10 +677,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         ctx.getCtxDTO().setRdbAutoCommit(status.isAutoCommit());
         ctx.getCtxDTO().setRdbTxIsolation(status.getIsolation());
         ctx.getCtxDTO().setRdbReadOnly(status.isReadOnly());
-
-        if (ctx.getCtxDTO().isRdbAutoCommit()) {
-            this.queryService.closeSession(curUid, sessionId);
-        }
+        ctx.getCtxDTO().setSqlParameters(status.getSqlParameters());
 
         ctx.setQueryStatus(QueryStatus.Finish);
         ctx.setReceiveCost(System.currentTimeMillis() - ctx.getStartTime() - ctx.getPrepareCost() - ctx.getQueryCost());
@@ -887,6 +879,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 status.setAutoCommit(contextDTO.isRdbAutoCommit());
                 status.setReadOnly(contextDTO.isRdbReadOnly());
                 status.setIsolation(contextDTO.getRdbTxIsolation());
+                status.setSqlParameters(contextDTO.getSqlParameters());
                 status.setHasUnCommitted(true); // at least it is safe.
             } else {
                 status = this.queryService.getAndUpdateStatus(curUid, sessionId);
@@ -897,6 +890,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             contextDTO.setRdbAutoCommit(status.isAutoCommit());
             contextDTO.setRdbTxIsolation(status.getIsolation());
             contextDTO.setRdbReadOnly(status.isReadOnly());
+            contextDTO.setSqlParameters(status.getSqlParameters());
             queryCtx.setHasUnCommitted(status.isHasUnCommitted());
             if (status.isExecuting()) {
                 queryCtx.setQueryStatus(QueryStatus.Receive);
@@ -1249,6 +1243,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             }
         } else {
             if (!queryDTO.isRdbAutoCommit()) {
+                if (applyAutoCommit != null) {
+                    this.queryService.setAutoCommit(curUid, sessionId, false);
+                }
                 if (ctx.isSupportSwitchIsolation() && applyIsolation != null) {
                     this.queryService.setIsolation(curUid, sessionId, applyIsolation);
 
