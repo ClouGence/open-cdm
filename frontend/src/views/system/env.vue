@@ -511,7 +511,9 @@ export default {
     async listEnv(type) {
       this.loading = true;
       const res = await this.$services.dmEnvParamListEnvParamForSec({
-        envName: this.envSearch
+        data: {
+          envName: this.envSearch
+        }
       });
       this.loading = false;
       if (res.success) {
