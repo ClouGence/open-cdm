@@ -88,6 +88,7 @@ include 'ds-postgres'; project(":ds-postgres").projectDir = file('clouddm-plugin
 include 'ds-cockroachdb'; project(":ds-cockroachdb").projectDir = file('clouddm-plugins/clouddm-ds/ds-cockroachdb')
 include 'ds-sqlserver'; project(":ds-sqlserver").projectDir = file('clouddm-plugins/clouddm-ds/ds-sqlserver')
 include 'ds-mongodb'; project(":ds-mongodb").projectDir = file('clouddm-plugins/clouddm-ds/ds-mongodb')
+include 'ds-kafka'; project(":ds-kafka").projectDir = file('clouddm-plugins/clouddm-ds/ds-kafka')
 include 'ds-hana'; project(":ds-hana").projectDir = file('clouddm-plugins/clouddm-ds/ds-hana')
 //include 'ds-redshift'; project(":ds-redshift").projectDir = file('clouddm-plugins/clouddm-ds/ds-redshift')
 include 'ds-starrocks'; project(":ds-starrocks").projectDir = file('clouddm-plugins/clouddm-ds/ds-starrocks')

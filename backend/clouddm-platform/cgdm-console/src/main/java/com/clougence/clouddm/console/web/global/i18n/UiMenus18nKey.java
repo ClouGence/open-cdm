@@ -43,6 +43,8 @@ public interface UiMenus18nKey {
     String UI_LEAF_TITLE_RDB_SYNONYM      = UI_LEAF_TITLE_PREFIX + UmiTypes.Synonym.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_RDB_COLUMN       = UI_LEAF_TITLE_PREFIX + UmiTypes.Column.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_TOPIC            = UI_LEAF_TITLE_PREFIX + UmiTypes.Topic.getTypeName().toUpperCase();
+    String UI_LEAF_TITLE_ENDPOINT         = UI_LEAF_TITLE_PREFIX + UmiTypes.Endpoint.getTypeName().toUpperCase();
+    String UI_LEAF_TITLE_CONSUMER_GROUP   = UI_LEAF_TITLE_PREFIX + UmiTypes.ConsumerGroup.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_KEY              = UI_LEAF_TITLE_PREFIX + UmiTypes.Key.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_ROLE             = UI_LEAF_TITLE_PREFIX + UmiTypes.ROLE.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_USER             = UI_LEAF_TITLE_PREFIX + UmiTypes.USER.getTypeName().toUpperCase();
@@ -80,6 +82,10 @@ public interface UiMenus18nKey {
                 return UI_LEAF_TITLE_RDB_COLUMN;
             case Topic:
                 return UI_LEAF_TITLE_TOPIC;
+            case Endpoint:
+                return UI_LEAF_TITLE_ENDPOINT;
+            case ConsumerGroup:
+                return UI_LEAF_TITLE_CONSUMER_GROUP;
             case Key:
                 return UI_LEAF_TITLE_KEY;
             case ROLE:
@@ -96,7 +102,6 @@ public interface UiMenus18nKey {
                 return UI_LEAF_TITLE_JOB;
             case ScheduleJob:
                 return UI_LEAF_TITLE_SCHEDULE_JOB;
-            case Endpoint:
             default:
                 return "";
         }

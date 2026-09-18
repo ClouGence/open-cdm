@@ -1,0 +1,50 @@
+<drivers>
+    <driver driverFamily="Kafka Clients" version="4.3.1" default="true">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:4.3.1</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="4.2.1">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:4.2.1</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="4.1.0">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:4.1.0</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="4.0.0">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:4.0.0</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="3.9.2">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:3.9.2</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="3.8.1">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:3.8.1</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="3.6.2">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:3.6.2</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="3.3.2">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:3.3.2</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="2.8.2">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:2.8.2</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="2.7.2">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:2.7.2</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="2.6.3">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:2.6.3</resource>
+    </driver>
+    <driver driverFamily="Kafka Clients" version="2.5.1">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaJdbcDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:2.5.1</resource>
+    </driver>
+</drivers>

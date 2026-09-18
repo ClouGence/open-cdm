@@ -3,9 +3,15 @@
     <div class="operator-character">
       <div class="left">
         <div class="operator-btn-group">
-          <Button size="small" type="primary" :disabled="isRunning" :loading="tab.running" @click="handleRun('run')">
+          <Button size="small" type="primary" :disabled="isRunning || isKafkaConsole" :loading="tab.running" @click="handleRun('run')">
             <div class="operator-btn-content">
-              <CustomIcon v-if="!tab.running" type="icon-v2-ConsoleRun" :color="tab.running ? '#999' : '#fff'" size="14px" right-margin="4px" />
+              <CustomIcon
+                v-if="!tab.running"
+                type="icon-v2-ConsoleRun"
+                :color="tab.running || isKafkaConsole ? '#999' : '#fff'"
+                size="14px"
+                right-margin="4px"
+              />
               <span>{{ $t('zhi-hang') }}</span>
             </div>
           </Button>
@@ -107,6 +113,7 @@
 import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import browseMixin from '@/mixins/browseMixin';
+import { isKafka } from '@/const/dataSource';
 
 export default {
   name: 'Operators',
@@ -160,6 +167,9 @@ export default {
     },
     isStoping() {
       return this.tab.stopping || !this.socket.connected || !this.tab.connected;
+    },
+    isKafkaConsole() {
+      return isKafka(this.tab?.dsType);
     }
   },
   watch: {

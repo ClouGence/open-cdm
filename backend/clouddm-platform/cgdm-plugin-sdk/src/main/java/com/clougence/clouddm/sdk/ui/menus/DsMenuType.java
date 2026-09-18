@@ -66,6 +66,7 @@ public enum DsMenuType {
     //
     Endpoint(UmiTypes.Endpoint.getTypeName()),
     Topic(UmiTypes.Topic.getTypeName()),
+    ConsumerGroup(UmiTypes.ConsumerGroup.getTypeName()),
     Key(UmiTypes.Key.getTypeName()),;
 
     private final String typeName;
