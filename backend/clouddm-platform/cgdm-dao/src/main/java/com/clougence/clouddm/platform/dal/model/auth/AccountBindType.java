@@ -34,7 +34,8 @@ public enum AccountBindType implements EnumOfCode<AccountBindType> {
     DingTalk(LoginProvider.DingTalk),
     Feishu(LoginProvider.Feishu),
     Wechat(LoginProvider.Wechat),
-    OIDC(LoginProvider.OIDC);
+    OIDC(LoginProvider.OIDC),
+    Connect(LoginProvider.Connect);
 
     private final LoginProvider provider;
 

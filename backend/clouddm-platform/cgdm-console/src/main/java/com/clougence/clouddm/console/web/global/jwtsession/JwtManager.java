@@ -24,6 +24,7 @@ import org.springframework.web.util.WebUtils;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
@@ -31,6 +32,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.login.ConnectGatewayLoginService;
 import com.clougence.clouddm.console.web.util.RdpLocal;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
@@ -62,6 +64,8 @@ public class JwtManager {
     private DmAuthServiceForManage authServiceForManage;
     @Resource
     private RdpRoleService         roleService;
+    @Resource
+    private ConnectGatewayLoginService connectGatewayLoginService;
 
     private final Set<String>      ignoreEndWithUrl       = new HashSet<>();
     private final Set<String>      includeVerifyStartWith = new HashSet<>();
@@ -184,8 +188,17 @@ public class JwtManager {
             return responseOk();
         }
 
-        // isLogin
+        // isLogin, otherwise login with the identity forwarded by an upstream connect gateway.
         DecodedJWT jwt = this.jwtService.verify(request);
+        boolean gatewayLogin = false;
+        if (jwt == null) {
+            try {
+                jwt = this.connectGatewayLoginService.login(request, response);
+                gatewayLogin = jwt != null;
+            } catch (ErrorMessageException e) {
+                return responseNoPageAuthority(e.getErrorMessage());
+            }
+        }
         if (jwt == null) {
             //            boolean canBeIgnore = requestAuth != null && requestAuth.strategy() == RequestAuth.AuthStrategy.Ignore;
             //            if (canBeIgnore) {
@@ -195,7 +208,9 @@ public class JwtManager {
             //            }
         }
 
-        this.jwtService.refreshCookiePeriodOfValidity(request, response);
+        if (!gatewayLogin) {
+            this.jwtService.refreshCookiePeriodOfValidity(request, response);
+        }
 
         String uid = jwt.getId();
         if (StringUtils.isBlank(uid)) {
@@ -204,7 +219,7 @@ public class JwtManager {
             return responseNotLogin(requestAuth, request, response, errorMessage);
         }
 
-        if (this.config.getActiveCsrfCheck()) {
+        if (this.config.getActiveCsrfCheck() && !gatewayLogin) {
             boolean isCsrfVerifySuccess = verifyCsrfToken(request, jwt.getToken());
             if (!isCsrfVerifySuccess) {
                 String errorMessage = "Csrf verify failed. Maybe there have csrf attacks. Received request url is " + //
