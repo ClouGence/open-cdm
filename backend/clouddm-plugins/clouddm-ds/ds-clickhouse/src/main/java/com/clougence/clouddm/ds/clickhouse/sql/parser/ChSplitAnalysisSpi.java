@@ -45,7 +45,29 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        if (context instanceof ClickHouseParser.QueryStmtExecuteAsContext) {
+            // Executed child actions belong to the child, not the identity-switch node.
+            return Set.of(SplitQueryType.SWITCH_USER);
+        }
+        return super.collectTypes(context, script);
+    }
+
+    @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof ClickHouseParser.QueryParameterContext) {
+            return SplitQueryType.SESSION_VARIABLE_RW;
+        }
+        if (tree instanceof ClickHouseParser.SettingExprContext setting
+            && setting.getParent().getParent() instanceof ClickHouseParser.SetStmtContext) {
+            return setting.accept(splitVisitor());
+        }
+        if (tree instanceof ClickHouseParser.ColumnExprFunctionContext function) {
+            String name = function.identifier().getText();
+            if (name.equals("getSetting") || name.equals("getSettingOrDefault")) {
+                return SplitQueryType.SESSION_VARIABLE_RW;
+            }
+        }
         if (tree instanceof ClickHouseParser.SelectUnionStmtContext && isExecutedDmlQuery(tree)) {
             return SplitQueryType.SELECT;
         }
@@ -91,6 +113,13 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
+        if (context instanceof ClickHouseParser.QueryStmtExecuteAsContext execute) {
+            ParserRuleContext body = execute.executeAsStmt().executeAsBody();
+            if (body == null) {
+                return Collections.emptyList();
+            }
+            return List.of(createChild(body, tokens, collectTypes(body, tokens.getText(body)), collectChildren(body, tokens)));
+        }
         ParserRuleContext query = viewQuery(context);
         if (query == null) {
             return Collections.emptyList();
@@ -101,7 +130,8 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     private boolean isExecutedDmlQuery(ParseTree tree) {
         for (ParseTree current = tree.getParent(); current != null; current = current.getParent()) {
             if (current instanceof ClickHouseParser.QueryStmtInsertContext || current instanceof ClickHouseParser.QueryStmtDeleteContext
-                || current instanceof ClickHouseParser.QueryStmtUpdateContext) {
+                || current instanceof ClickHouseParser.QueryStmtUpdateContext || current instanceof ClickHouseParser.ExecuteAsBodyInsertContext
+                || current instanceof ClickHouseParser.ExecuteAsBodyDeleteContext || current instanceof ClickHouseParser.ExecuteAsBodyUpdateContext) {
                 return true;
             }
             if (current instanceof ClickHouseParser.CreateTableStmtContext || current instanceof ClickHouseParser.CreateViewStmtContext

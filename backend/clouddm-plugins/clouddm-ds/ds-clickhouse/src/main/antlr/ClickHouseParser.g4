@@ -20,6 +20,15 @@ options {
     tokenVocab = ClickHouseLexer;
 }
 
+@members {
+    private boolean isQueryParameterName(String name) {
+        if (name.startsWith("`") || name.startsWith("\"")) {
+            name = name.substring(1, name.length() - 1);
+        }
+        return name.startsWith("param_");
+    }
+}
+
 // Top-level statements
 
 root
@@ -31,6 +40,7 @@ queryStmt
     | insertStmt                                                                   # QueryStmtInsert
     | deleteStmt                                                                   # QueryStmtDelete
     | updateStmt                                                                   # QueryStmtUpdate
+    | executeAsStmt                                                                # QueryStmtExecuteAs
     ;
 
 query
@@ -47,6 +57,8 @@ query
     | renameStmt    // DDL
     | selectUnionStmt
     | setStmt
+    | setRoleStmt
+    | setTimeZoneStmt
     | showStmt
     | systemStmt
     | truncateStmt  // DDL
@@ -377,7 +389,21 @@ orderExprList: orderExpr (COMMA orderExpr)*;
 orderExpr: columnExpr (ASCENDING | DESCENDING | DESC)? (NULLS (FIRST | LAST))? (COLLATE stringLiteral)? (WITH FILL (FROM columnExpr)? (TO columnExpr)? (STEP columnExpr)?)?;
 ratioExpr: numberLiteral (SLASH numberLiteral)?;
 settingExprList: settingExpr (COMMA settingExpr)*;
-settingExpr: identifier EQ_SINGLE literal;
+settingExpr
+    : identifier (EQ_SINGLE (literal | DEFAULT | queryParameter | settingMap
+                             | {isQueryParameterName($identifier.text)}? parameterSettingValue)
+                  | {!isQueryParameterName($identifier.text)}?)
+    ;
+// Query parameters also accept identifier values and nested collections of literals.
+parameterSettingValue: nestedIdentifier | settingCollection;
+settingMap: LBRACE (stringLiteral COLON stringLiteral (COMMA stringLiteral COLON stringLiteral)*)? RBRACE;
+settingCollection
+    : LBRACKET (settingCollectionValue (COMMA settingCollectionValue)*)? RBRACKET
+    | LPAREN settingCollectionValue (COMMA settingCollectionValue)+ RPAREN
+    | LBRACE (settingCollectionValue COLON settingCollectionValue
+              (COMMA settingCollectionValue COLON settingCollectionValue)*)? RBRACE
+    ;
+settingCollectionValue: literal | settingCollection;
 
 windowExpr: winPartitionByClause? winOrderByClause? winFrameClause?;
 winPartitionByClause: PARTITION BY columnExprList;
@@ -394,6 +420,19 @@ winFrameBound: (CURRENT ROW | UNBOUNDED PRECEDING | UNBOUNDED FOLLOWING | number
 // SET statement
 
 setStmt: SET settingExprList;
+setTimeZoneStmt: SET TIME ZONE EQ_SINGLE? literal;
+setRoleStmt: SET ROLE (DEFAULT | NONE | ALL (EXCEPT roleNameList)? | roleNameList);
+roleNameList: roleName (COMMA roleName)*;
+roleName: identifier | stringLiteral;
+
+executeAsStmt: EXECUTE AS (identifier | stringLiteral) executeAsBody?;
+// An impersonated statement is a child; it cannot recursively impersonate again.
+executeAsBody
+    : query (INTO OUTFILE stringLiteral)? (FORMAT identifierOrNull)? # ExecuteAsBodyQuery
+    | insertStmt                                                   # ExecuteAsBodyInsert
+    | deleteStmt                                                   # ExecuteAsBodyDelete
+    | updateStmt                                                   # ExecuteAsBodyUpdate
+    ;
 
 // SHOW statements
 
@@ -423,7 +462,7 @@ showStmt
     | SHOW CLUSTER stringLiteral                                                                                                                                                                      # showClusterStmt
     | SHOW CLUSTERS (NOT? (LIKE | ILIKE) stringLiteral)? (LIMIT DECIMAL_LITERAL)?                                                                                                                     # showClustersStmt
     | SHOW CHANGED? SETTINGS (LIKE | ILIKE) stringLiteral                                                                                                                                             # showSettingsStmt
-    | SHOW SETTING stringLiteral                                                                                                                                                                      # showSettingStmt
+    | SHOW SETTING (identifier | stringLiteral)                                                                                                                                                                      # showSettingStmt
     | SHOW FILESYSTEM CACHES                                                                                                                                                                          # showFilesystemCaches
     | SHOW ENGINES                                                                                                                                                                                    # showEnginesStmt
     | SHOW FUNCTIONS ((LIKE | ILIKE) stringLiteral)?                                                                                                                                                  # showFunctionsStmt
@@ -450,7 +489,7 @@ truncateStmt: TRUNCATE TEMPORARY? TABLE? (IF EXISTS)? tableIdentifier clusterCla
 
 // USE statement
 
-useStmt: USE databaseIdentifier;
+useStmt: USE DATABASE? databaseIdentifier;
 
 // WATCH statement
 
@@ -491,6 +530,7 @@ columnExpr
     | identifier (LPAREN columnExprList? RPAREN) OVER LPAREN windowExpr RPAREN            # ColumnExprWinFunction
     | identifier (LPAREN columnExprList? RPAREN) OVER identifier                          # ColumnExprWinFunctionTarget
     | identifier (LPAREN columnExprList? RPAREN)? LPAREN DISTINCT? columnArgList? RPAREN  # ColumnExprFunction
+    | queryParameter                                                                      # ColumnExprParameter
     | literal                                                                             # ColumnExprLiteral
 
     | columnExpr LBRACKET columnExpr RBRACKET                                             # ColumnExprArrayAccess
@@ -597,6 +637,7 @@ keyword
     | POLICY | POLICIES | POPULATE | PRECEDING | PREWHERE | PRIMARY | PRIVILEGES | PROCESSLIST | PROFILE | PROFILES | PROJECTION | QUARTER | QUOTA | QUOTAS | RANGE | RECURSIVE | RELOAD | REMOVE | RENAME | REPLACE | REPLICA | REPLICATED | RIGHT | ROLE | ROLES | ROLLUP | ROW
     | ROWS | SAMPLE | SECOND | SELECT | SEMI | SENDS | SET | SETTING | SETTINGS | SHOW | SOURCE | START | STOP | SUBSTRING | SYNC | SYNTAX | SYSTEM | STEP | TABLE
     | TABLES | TEMPORARY | TEST | THEN | TIES | TIMEOUT | TIMESTAMP | TO | TOP | TOTALS | TRAILING | TREE | TRIM | TRUNCATE | TTL | TYPE
+    | EXECUTE | NONE | NULLABLE | TIME | ZONE
     | UNBOUNDED | UNION | UPDATE | USE | USER | USERS | USING | UUID | VALUES | VIEW | VOLUME | WATCH | WEEK | WHEN | WHERE | WINDOW | WITH | YEAR
     ;
 keywordForAlias
@@ -609,9 +650,10 @@ keywordForAlias
     | PARTITION | POPULATE | PRECEDING | PRIMARY | RANGE | RELOAD | REMOVE | RENAME | REPLACE | REPLICA | REPLICATED | ROLLUP | ROW
     | SELECT | SENDS | SET | SHOW | SOURCE | START | STOP | SUBSTRING | SYNC | SYNTAX | SYSTEM | TABLE | TABLES | TEMPORARY
     | TEST | TIES | TIMEOUT | TIMESTAMP | TOTALS | TRAILING | TRIM | TRUNCATE | TTL | TYPE | UNBOUNDED | UPDATE
-    | USE | UUID | VALUES | VIEW | VOLUME | WATCH
+    | USE | UUID | VALUES | VIEW | VOLUME | WATCH | EXECUTE | NONE | TIME | ZONE
     ;
 alias: IDENTIFIER | keywordForAlias;  // |interval| can't be an alias, otherwise 'INTERVAL 1 SOMETHING' becomes ambiguous.
-identifier: IDENTIFIER | interval | keyword;
+queryParameter: LBRACE (IDENTIFIER | keyword | interval) COLON columnTypeExpr RBRACE;
+identifier: IDENTIFIER | interval | keyword | queryParameter;
 identifierOrNull: identifier | NULL_SQL;  // NULL_SQL can be only 'Null' here.
 enumValue: stringLiteral EQ_SINGLE numberLiteral;

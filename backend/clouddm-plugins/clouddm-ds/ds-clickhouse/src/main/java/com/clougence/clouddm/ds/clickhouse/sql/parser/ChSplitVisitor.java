@@ -24,6 +24,36 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
     public static ChSplitVisitor INSTANCE = new ChSplitVisitor();
 
     @Override
+    public SplitQueryType visitQueryStmtQuery(QueryStmtQueryContext ctx) {
+        return ctx.query().accept(this);
+    }
+
+    @Override
+    public SplitQueryType visitQueryStmtExecuteAs(QueryStmtExecuteAsContext ctx) {
+        return SplitQueryType.SWITCH_USER;
+    }
+
+    @Override
+    public SplitQueryType visitExecuteAsBodyQuery(ExecuteAsBodyQueryContext ctx) {
+        return ctx.query().accept(this);
+    }
+
+    @Override
+    public SplitQueryType visitExecuteAsBodyInsert(ExecuteAsBodyInsertContext ctx) {
+        return SplitQueryType.INSERT;
+    }
+
+    @Override
+    public SplitQueryType visitExecuteAsBodyDelete(ExecuteAsBodyDeleteContext ctx) {
+        return SplitQueryType.DELETE;
+    }
+
+    @Override
+    public SplitQueryType visitExecuteAsBodyUpdate(ExecuteAsBodyUpdateContext ctx) {
+        return SplitQueryType.UPDATE;
+    }
+
+    @Override
     public SplitQueryType visitExplainStmt(ExplainStmtContext ctx) {
         return SplitQueryType.SELECT;
     }
@@ -117,7 +147,17 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowRolesStmt(ShowRolesStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSettingsStmt(ShowSettingsStmtContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowSettingStmt(ShowSettingStmtContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -132,7 +172,29 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitSetStmt(SetStmtContext ctx) {
+        return ctx.settingExprList().settingExpr(0).accept(this);
+    }
+
+    @Override
+    public SplitQueryType visitSettingExpr(SettingExprContext ctx) {
+        String name = ctx.identifier().getText();
+        if (name.startsWith("`") || name.startsWith("\"")) {
+            name = name.substring(1, name.length() - 1);
+        }
+        if (name.startsWith("param_")) {
+            return SplitQueryType.SESSION_VARIABLE_RW;
+        }
         return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetTimeZoneStmt(SetTimeZoneStmtContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetRoleStmt(SetRoleStmtContext ctx) {
+        return SplitQueryType.SWITCH_ROLE;
     }
 
     @Override
