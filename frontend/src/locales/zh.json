@@ -4345,5 +4345,9 @@
   "cicd-create-orchestration-description": "一次创建根发布流及其全部下游发布流。",
   "fa-bu-mu-biao": "发布目标",
   "qing-xuan-ze-fu-ze-ren": "请选择负责人",
-  "qing-kong-xuan-ze": "清空选择"
+  "qing-kong-xuan-ze": "清空选择",
+  "shen-pi-tong-guo-hou": "审批通过后",
+  "xu-ren-gong-que-ren-zhi-xing": "需人工确认执行",
+  "zi-dong-li-ji-zhi-xing": "自动立即执行",
+  "zi-dong-ding-shi-zhi-xing": "自动定时执行"
 }
