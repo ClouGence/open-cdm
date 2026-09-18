@@ -985,7 +985,8 @@ export default {
 }
 
 .select-wrap {
-  :deep(.ivu-select-dropdown) {
+  :deep(.ivu-select-dropdown),
+  :deep(.ivu-select-dropdown-list) {
     max-height: 200px !important;
   }
 }

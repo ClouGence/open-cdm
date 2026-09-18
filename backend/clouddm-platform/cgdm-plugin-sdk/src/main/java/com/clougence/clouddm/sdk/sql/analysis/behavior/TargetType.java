@@ -88,8 +88,51 @@ public enum TargetType {
     Object(null),
     PrepareStatement(null),
 
+    // Database and instance security objects (not cache keys).
+    Certificate(null),
+    AsymmetricKey(null),
+    SymmetricKey(null),
+    DatabaseMasterKey(null),
+    ServiceMasterKey(null),
+    DatabaseEncryptionKey(null),
+    ColumnMasterKey(null),
+    ColumnEncryptionKey(null),
+    Credential(null),
+
+    // Instance administration and Service Broker objects.
+    Audit(null),
+    AuditSpecification(null),
+    EventSession(null),
+    AvailabilityGroup(null),
+    Endpoint(null),
+    BrokerMessageType(null),
+    BrokerContract(null),
+    BrokerService(null),
+    BrokerRoute(null),
+    RemoteServiceBinding(null),
+    BrokerPriority(null),
+    EventNotification(null),
+    BrokerConversation(null),
+    BrokerConversationGroup(null),
+    XmlSchemaCollection(null),
+
     // cache
     Key(UmiTypes.Key),
+
+    // Instance control-plane entities without UMI metadata counterparts.
+    Resource(null),
+    StorageVolume(null),
+    SecurityIntegration(null),
+    GroupProvider(null),
+    ClusterNode(null),
+    Broker(null),
+
+    // Physical storage objects without UMI metadata counterparts.
+    Replica(null),
+
+    // Persistent backup configuration and snapshots, independent of running jobs.
+    Repository(null),
+    Snapshot(null),
 
     ;
 

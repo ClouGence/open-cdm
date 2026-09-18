@@ -62,7 +62,8 @@ ADVANCED                       : A D V A N C E D ;
 ADVISE                         : A D V I S E ;                           
 ADVISOR                        : A D V I S O R ;                         
 AFD_DISKSTRING                 : A F D '_'D I S K S T R I N G ;           
-AFTER                          : A F T E R ;                             
+AFFINITY                       : A F F I N I T Y ;
+AFTER                          : A F T E R ;
 AGENT                          : A G E N T ;                             
 AGGREGATE                      : A G G R E G A T E ;                     
 A_LETTER                       : A ;                                     
@@ -636,7 +637,8 @@ GLOBALLY                       : G L O B A L L Y ;
 GLOBAL_NAME                    : G L O B A L '_'N A M E ;                               
 GLOBAL_TOPIC_ENABLED           : G L O B A L '_'T O P I C '_'E N A B L E D ;             
 GOTO                           : G O T O ;                                             
-GRANT                          : G R A N T ;                                           
+GRANT                          : G R A N T ;
+GRANTED                        : G R A N T E D ;
 GROUP_BY                       : G R O U P '_'B Y ;                                     
 GROUP                          : G R O U P ;                                           
 GROUP_ID                       : G R O U P '_'I D ;                                     
@@ -669,7 +671,8 @@ HINTSET_END                    : H I N T S E T '_'E N D ;
 HOT                            : H O T ;                                               
 HOUR                           : H O U R ;                                             
 HOURS                          : H O U R S ;                                           
-HTTP                           : H T T P ;                                             
+DIGEST                         : D I G E S T ;
+HTTP                           : H T T P ;
 HWM_BROKERED                   : H W M '_'B R O K E R E D ;                             
 HYBRID                         : H Y B R I D ;                                         
 H_LETTER                       : H ;                                                   
@@ -1309,6 +1312,7 @@ PARTITION_RANGE                : P A R T I T I O N '_' R A N G E ;
 PARTITIONS                     : P A R T I T I O N S ;
 PARTNUMINST                    : P A R T '$' N U M '$' I N S T;
 PASSING                        : P A S S I N G ;
+PASSWORDFILE_METADATA_CACHE    : P A S S W O R D F I L E '_' M E T A D A T A '_' C A C H E ;
 PASSWORD_GRACE_TIME            : P A S S W O R D '_' G R A C E '_' T I M E ;
 PASSWORD_LIFE_TIME             : P A S S W O R D '_' L I F E '_' T I M E ;
 PASSWORD_LOCK_TIME             : P A S S W O R D '_' L O C K '_' T I M E ;
@@ -2316,6 +2320,7 @@ ORACLE_HDFS     : O R A C L E '_' H D F S ;
 ORACLE_HIVE     : O R A C L E '_' H I V E ;     
 ORACLE_LOADER   : O R A C L E '_' L O A D E R ; 
 SHA2_512_Q      : '"SHA2_512"';
+SHARD           : S H A R D;
 SHARDED         : S H A R D E D;
 V1_Q            : '"V1"';
 
@@ -2415,7 +2420,7 @@ CHAR_STRING: '\'' (~('\'' | '\r' | '\n') | '\'' '\'' | NEWLINE)* '\'';
 // See https://livesql.oracle.com/apex/livesql/file/content_CIREYU9EA54EOKQ7LAMZKRF6P.html
 // TODO: context sensitive string quotes (any characted after quote)
 CHAR_STRING_PERL:
-    'Q' '\'' (
+    Q '\'' (
         QS_ANGLE
         | QS_BRACE
         | QS_BRACK

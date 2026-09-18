@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.clougence.clouddm.console.web.component.approval.schedule;
 
-plugins {
-    id 'com.clougence.java-conventions'
-    id 'antlr'
-}
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-dependencies {
-    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
-    api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
-    api project(':cg-dslparser')
-    api project(':sqlc-common')
-}
-
-description = 'sql-oracle'
-
-tasks.named('generateGrammarSource') {
-    arguments += ['-visitor', '-package', 'com.clougence.sql.oracle.parser.antlr']
-    // Match the package path so Gradle and IDEs share the same generated source root.
-    outputDirectory = layout.buildDirectory.dir('generated-src/antlr/main/com/clougence/sql/oracle/parser/antlr').get().asFile
+@Getter
+@Setter
+@RequiredArgsConstructor
+class ApprovalScanCursor {
+    private final boolean idle;
+    private final long    intervalMillis;
+    private long          afterId;
+    private long          upperId;
+    private long          nextScanTime;
 }
