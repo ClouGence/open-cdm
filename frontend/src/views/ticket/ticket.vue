@@ -70,6 +70,17 @@
           <a-form-item :label="$t('xu-qiu-miao-shu')" name="description">
             <Input type="textarea" v-model="ticketData.description" :rows="4" />
           </a-form-item>
+          <a-form-item :label="$t('shen-pi-tong-guo-hou')">
+            <RadioGroup v-model="ticketData.autoExecType">
+              <Radio label="MANUAL_EXEC">{{ $t('xu-ren-gong-que-ren-zhi-xing') }}</Radio>
+              <Radio label="IMMEDIATE">{{ $t('zi-dong-li-ji-zhi-xing') }}</Radio>
+              <Radio label="SPECIFY_TIME">{{ $t('zi-dong-ding-shi-zhi-xing') }}</Radio>
+            </RadioGroup>
+            <div v-if="ticketData.autoExecType === 'SPECIFY_TIME'" class="ticket-auto-exec-time">
+              <span>{{ $t('zhi-hang-shi-jian') }}</span>
+              <DatePicker v-model="ticketData.autoExecTime" type="datetime" :placeholder="$t('qing-xuan-ze-zhi-hang-shi-jian')" />
+            </div>
+          </a-form-item>
         </a-form>
         <div class="create-ticket-form-btn">
           <Button type="primary" :loading="loading" :disabled="loading || !ticketData.ticketEnable" @click="handleSubmitTicket(false)">
@@ -214,7 +225,8 @@ export default {
         catalog: '',
         schema: '',
         approvalType: 'Internal',
-        immediately: 'immediately',
+        autoExecType: 'MANUAL_EXEC',
+        autoExecTime: null,
         dataSourceType: 'MySQL',
         envId: '',
         approPersonUids: [],
@@ -443,6 +455,23 @@ export default {
         this.$Message.error(res.msg);
       }
     },
+    buildAutoExecConfig() {
+      if (this.ticketData.autoExecType === 'MANUAL_EXEC') {
+        return null;
+      }
+      let execTime = null;
+      if (this.ticketData.autoExecType === 'SPECIFY_TIME') {
+        execTime = Date.parse(this.ticketData.autoExecTime);
+      }
+      return {
+        autoExecType: this.ticketData.autoExecType,
+        execTime,
+        enableTransactional: false,
+        errorStrategy: 'NONE',
+        retryWaitTime: 111,
+        retryCount: 2
+      };
+    },
     async handleSubmitTicket(force = false) {
       if (this.loading) {
         return;
@@ -456,6 +485,10 @@ export default {
       }
       if (this.contentType === 'ATTACHMENT' && !this.sqlAttachment) {
         this.$Message.error(this.$t('ticket-sql-select-file'));
+        return;
+      }
+      if (this.ticketData.autoExecType === 'SPECIFY_TIME' && !this.ticketData.autoExecTime) {
+        this.$Message.error(this.$t('qing-xuan-ze-zhi-hang-shi-jian'));
         return;
       }
       this.loading = true;
@@ -480,7 +513,7 @@ export default {
           rawSql: this.contentType === 'INLINE' && this.$refs.rawSqlEditor ? this.$refs.rawSqlEditor?.getSql() : null,
           description: this.ticketData.description,
           ticketTitle: this.ticketData.ticketTitle,
-          immediately: this.ticketData.immediately === 'immediately',
+          autoExecConfig: this.buildAutoExecConfig(),
           templateIdentity: '',
           approTemplateName: '',
           force
@@ -827,6 +860,16 @@ export default {
 
         .ivu-select {
           display: inline-block;
+        }
+      }
+
+      .ticket-auto-exec-time {
+        display: flex;
+        align-items: center;
+        margin-top: 8px;
+
+        span {
+          margin-right: 8px;
         }
       }
 

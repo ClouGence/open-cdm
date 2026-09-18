@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
+import com.clougence.clouddm.console.web.service.approval.ApprovalControlService;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -75,6 +77,9 @@ public class QueryApprovalHandler implements ApprovalHandler {
     private ApprovalStateService approvalStateService;
     @Resource
     private UserConfigService    userConfigService;
+    @Resource
+    @Lazy
+    private ApprovalControlService approvalControlService;
 
     @Override
     public ApprovalBiz handleType() {
@@ -207,6 +212,10 @@ public class QueryApprovalHandler implements ApprovalHandler {
 
     @Override
     public void approvalApproved(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        // the requester may preset an execution strategy, then the ticket runs right after the approval.
+        if (this.approvalControlService.autoExecuteAfterApproved(approvalId)) {
+            return;
+        }
         this.approvalStateService.updateApprovalStatus(approvalId, ApprovalStatus.WAIT_CONFIRM, null);
     }
 

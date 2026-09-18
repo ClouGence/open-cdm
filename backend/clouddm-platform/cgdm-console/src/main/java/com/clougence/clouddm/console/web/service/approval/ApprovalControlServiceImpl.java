@@ -819,6 +819,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             case INLINE -> ticket.setRawSql(fo.getRawSql());
             case ATTACHMENT -> ticket.setRawSql(null);
         }
+        mo.setAutoExecConfig(validAutoExecConfig(fo.getAutoExecConfig()));
         ticket.setTicketInfo(JsonUtils.toJson(mo));
         ticket.setLevels(dsLevels.dbLevels());
         if (StringUtils.isNotBlank(fo.getRollBackSql())) {
@@ -866,6 +867,48 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
         this.confirmTicketInNewTransaction(ticketId, fo, actionStatus);
         return null;
+    }
+
+    @Override
+    public boolean autoExecuteAfterApproved(long ticketId) {
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
+        if (ticketDO == null || StringUtils.isBlank(ticketDO.getTicketInfo())) {
+            return false;
+        }
+
+        ApprovalMO ticketInfo = JsonUtils.toObj(ticketDO.getTicketInfo(), ApprovalMO.class);
+        DmAutoExecConfigFO autoExecConfig = ticketInfo == null ? null : ticketInfo.getAutoExecConfig();
+        if (autoExecConfig == null || autoExecConfig.getAutoExecType() == null || autoExecConfig.getAutoExecType() == AutoExecType.MANUAL_EXEC) {
+            return false;
+        }
+
+        // The ticket is approved, execute it in the name of the primary account: same steps as a manual confirmation.
+        this.approvalStateService.updateApprovalStatus(ticketId, ApprovalStatus.WAIT_CONFIRM, null);
+        DmConfirmTicketFO fo = new DmConfirmTicketFO();
+        fo.setTicketId(ticketId);
+        fo.setConfirmActionType(DmConfirmActionType.CONFIRM);
+        fo.setConfirmUid(ticketDO.getPrimaryUid());
+        fo.setComment(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_AUTO_EXEC_AFTER_APPROVAL_MESSAGE.name()));
+        fo.setAutoExecConfig(autoExecConfig);
+        try {
+            this.confirmTicket(ticketDO.getPrimaryUid(), ticketId, fo);
+        } catch (RuntimeException e) {
+            // fall back to a manual confirmation, the approval result must not be lost because of a execution problem.
+            log.error("Auto execute ticket after approved failed, ticketId={}", ticketId, e);
+            this.restoreExecutionConfirmation(ticketId, e.getMessage());
+        }
+        return true;
+    }
+
+    private DmAutoExecConfigFO validAutoExecConfig(DmAutoExecConfigFO autoExecConfig) {
+        if (autoExecConfig == null || autoExecConfig.getAutoExecType() == null || autoExecConfig.getAutoExecType() == AutoExecType.MANUAL_EXEC) {
+            return null;
+        }
+        if (autoExecConfig.getAutoExecType() == AutoExecType.SPECIFY_TIME //
+            && (autoExecConfig.getExecTime() == null || autoExecConfig.getExecTime() <= System.currentTimeMillis())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_AUTO_EXEC_TIME_INVALID_ERROR.name()));
+        }
+        return autoExecConfig;
     }
 
     private void prepareExecJobAsync(long ticketId, DmConfirmTicketFO fo, String jobBizId, Locale locale) {

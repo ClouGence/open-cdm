@@ -39,6 +39,13 @@ public interface ApprovalControlService {
 
     String confirmTicket(String puid, long ticketId, DmConfirmTicketFO fo);
 
+    /**
+     * Execute the ticket with the strategy preset on the ticket right after it is approved.
+     *
+     * @return false when the ticket has no preset strategy, in that case the ticket keeps waiting for a manual confirmation.
+     */
+    boolean autoExecuteAfterApproved(long ticketId);
+
     void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo);
 
     void retryJob(String puid, String uid, long ticketId);

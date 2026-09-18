@@ -4366,5 +4366,9 @@
   "cicd-create-orchestration-description": "Create a root release flow and all downstream release flows together.",
   "fa-bu-mu-biao": "Release target",
   "qing-xuan-ze-fu-ze-ren": "Select an owner",
-  "qing-kong-xuan-ze": "Clear selection"
+  "qing-kong-xuan-ze": "Clear selection",
+  "shen-pi-tong-guo-hou": "After approval",
+  "xu-ren-gong-que-ren-zhi-xing": "Manual confirmation required",
+  "zi-dong-li-ji-zhi-xing": "Execute immediately",
+  "zi-dong-ding-shi-zhi-xing": "Execute on schedule"
 }
