@@ -41,6 +41,7 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.MERGE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.REPLACE, targetType -> switch (targetType) {
                 case User, Role, Profile, RowAccessPolicy, Quota, NamedCollection -> SecDataAuthKind.MANAGE;
+                case Resource, ResourceGroup -> SecDataAuthKind.MAINTAIN;
                 default -> SecDataAuthKind.WRITE;
             }), //
             Map.entry(BehaviorAction.COPY, targetType -> SecDataAuthKind.WRITE), //
@@ -97,7 +98,7 @@ public final class BehaviorRelations {
     private static final Set<TargetType> EXPLICIT_PATH_TARGETS = EnumSet.of(
             TargetType.Resource, TargetType.StorageVolume, TargetType.SecurityIntegration, TargetType.GroupProvider,
             TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot,
-            TargetType.Quota, TargetType.Dictionary, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Profile, TargetType.RowAccessPolicy);
+            TargetType.Quota, TargetType.Dictionary, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Profile, TargetType.RowAccessPolicy, TargetType.Cache, TargetType.Disk, TargetType.Cluster);
 
     // These objects already carry their native scope; URI-style object names are opaque path content.
     private static final Set<TargetType> NATIVE_SCOPE_TARGETS = EnumSet.of(
@@ -153,7 +154,7 @@ public final class BehaviorRelations {
     private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MAINTAIN, //
                 TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-                TargetType.ResourceGroup, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Resource, TargetType.StorageVolume, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot);
+                TargetType.ResourceGroup, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Resource, TargetType.StorageVolume, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot, TargetType.Cache, TargetType.Disk, TargetType.Cluster);
     }
 
     private static void putAuthKinds(Map<TargetType, SecDataAuthKind> overrides, SecDataAuthKind authKind, TargetType... targetTypes) {
@@ -306,12 +307,16 @@ public final class BehaviorRelations {
 
         ObjectName name = object.getObjectName();
         if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup
-                || targetType == TargetType.User || targetType == TargetType.Role || targetType == TargetType.UserOrRole || targetType == TargetType.File)
-                && name != null && name.getSchema() == null) {
+                || targetType == TargetType.User || targetType == TargetType.Role || targetType == TargetType.UserOrRole || targetType == TargetType.File
+                || targetType == TargetType.Function || targetType == TargetType.Query || targetType == TargetType.Log)
+                && name != null && (name.getSchema() == null || targetType == TargetType.Log)) {
             // Explicit scope metadata takes precedence over legacy current-schema path completion.
             String declaredPath = instancePath;
             if (name.getCatalog() != null) {
                 declaredPath += name.getCatalog() + "/";
+            }
+            if (name.getSchema() != null) {
+                declaredPath += name.getSchema() + "/";
             }
             if (name.getObjectName() != null) {
                 declaredPath += name.getObjectName() + "/";

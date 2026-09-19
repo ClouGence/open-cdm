@@ -140,6 +140,11 @@ public enum TargetType {
     NamedCollection(null),
     TableEngine(null),
 
+    // Runtime caches, configured storage disks, and named cluster topologies.
+    Cache(null),
+    Disk(null),
+    Cluster(null),
+
     ;
 
     private final UmiTypes umiType;
