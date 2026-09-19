@@ -55,6 +55,42 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof ClickHouseParser.SystemDropReplicaStmtContext
+            || tree instanceof ClickHouseParser.SystemDropDatabaseReplicaStmtContext) {
+            return SplitQueryType.UNSAFE;
+        }
+        if (tree instanceof ClickHouseParser.SystemFlushDistributedStmtContext) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        if (tree instanceof ClickHouseParser.AlterTableClauseFetchContext fetch) {
+            if (fetch.fetchPartitionClause().partitionClause() != null) {
+                return SplitQueryType.ADMIN_PARTITION;
+            }
+            return SplitQueryType.ADMIN_TABLE;
+        }
+        if (tree instanceof ClickHouseParser.FetchPartitionClauseContext) {
+            return SplitQueryType.DATA_IMPORT;
+        }
+        if (tree instanceof ClickHouseParser.AlterTableClauseStatisticsContext) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if (tree instanceof ClickHouseParser.AlterTableClauseAttachContext
+            || tree instanceof ClickHouseParser.AlterTableClauseDetachContext
+            || tree instanceof ClickHouseParser.AlterTableClauseDropDetachedContext
+            || tree instanceof ClickHouseParser.AlterTableClauseDropPartContext
+            || tree instanceof ClickHouseParser.AlterTableClauseMovePartContext
+            || tree instanceof ClickHouseParser.AlterTableClauseMovePartitionContext
+            || tree instanceof ClickHouseParser.AlterTableClauseReplaceContext
+            || tree instanceof ClickHouseParser.AlterTableClauseFreezePartitionContext
+            || tree instanceof ClickHouseParser.AlterTableClauseUnfreezeContext
+            || tree instanceof ClickHouseParser.AlterTableClauseMaterializeTTLContext
+            || tree instanceof ClickHouseParser.AlterTableClauseRewritePartsContext) {
+            ParserRuleContext clause = (ParserRuleContext) tree;
+            if (clause.getRuleContext(ClickHouseParser.PartitionClauseContext.class, 0) != null) {
+                return SplitQueryType.ADMIN_PARTITION;
+            }
+            return SplitQueryType.ADMIN_TABLE;
+        }
         if (tree instanceof ClickHouseParser.SystemShutdownStmtContext
             || tree instanceof ClickHouseParser.SystemSuspendStmtContext
             || tree instanceof ClickHouseParser.SystemReloadFunctionStmtContext

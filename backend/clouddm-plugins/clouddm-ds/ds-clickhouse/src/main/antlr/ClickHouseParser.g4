@@ -33,7 +33,8 @@ options {
             if (context instanceof SelectStmtContext) {
                 return true;
             }
-            if (context instanceof KillWhereClauseContext) {
+            if (context instanceof KillWhereClauseContext
+                || context instanceof PartitionClauseContext || context instanceof BackupPartitionContext) {
                 return false;
             }
         }
@@ -56,6 +57,7 @@ queryStmt
     | executeAsStmt                                                                # QueryStmtExecuteAs
     | systemDefinitionStmt                                                         # QueryStmtSystemDefinition
     | accessStmt                                                                   # QueryStmtAccess
+    | backupStmt                                                                   # QueryStmtBackup
     ;
 
 query
@@ -79,6 +81,7 @@ query
     | systemStmt
     | truncateStmt  // DDL
     | useStmt
+    | undropStmt
     | watchStmt
     ;
 
@@ -92,18 +95,18 @@ alterTableClause
     : ADD COLUMN (IF NOT EXISTS)? tableColumnDfnt (AFTER nestedIdentifier | FIRST)?           # AlterTableClauseAddColumn
     | ADD INDEX (IF NOT EXISTS)? tableIndexDfnt (AFTER nestedIdentifier)?             # AlterTableClauseAddIndex
     | ADD PROJECTION (IF NOT EXISTS)? tableProjectionDfnt (AFTER nestedIdentifier)?   # AlterTableClauseAddProjection
-    | ATTACH partitionClause (FROM tableIdentifier)?                                  # AlterTableClauseAttach
+    | ATTACH (partitionClause (FROM tableIdentifier)? | PART stringLiteral)             # AlterTableClauseAttach
     | CLEAR COLUMN (IF EXISTS)? nestedIdentifier (IN partitionClause)?                # AlterTableClauseClearColumn
     | CLEAR INDEX (IF EXISTS)? nestedIdentifier (IN partitionClause)?                 # AlterTableClauseClearIndex
     | CLEAR PROJECTION (IF EXISTS)? nestedIdentifier (IN partitionClause)?            # AlterTableClauseClearProjection
     | COMMENT COLUMN (IF EXISTS)? identifier stringLiteral                            # AlterTableClauseComment
     | DELETE WHERE columnExpr                                                         # AlterTableClauseDelete
-    | DETACH partitionClause                                                          # AlterTableClauseDetach
+    | DETACH (partitionClause | PART stringLiteral)                                     # AlterTableClauseDetach
     | DROP COLUMN (IF EXISTS)? identifier                                             # AlterTableClauseDropColumn
     | DROP INDEX (IF EXISTS)? nestedIdentifier                                        # AlterTableClauseDropIndex
     | DROP PROJECTION (IF EXISTS)? nestedIdentifier                                   # AlterTableClauseDropProjection
     | DROP partitionClause                                                            # AlterTableClauseDropPartition
-    | FREEZE partitionClause?                                                         # AlterTableClauseFreezePartition
+    | FREEZE partitionClause? (WITH NAME stringLiteral)?                                # AlterTableClauseFreezePartition
     | MATERIALIZE INDEX (IF EXISTS)? nestedIdentifier (IN partitionClause)?           # AlterTableClauseMaterializeIndex
     | MATERIALIZE PROJECTION (IF EXISTS)? nestedIdentifier (IN partitionClause)?      # AlterTableClauseMaterializeProjection
 //    | MODIFY COLUMN (IF EXISTS)? nestedIdentifier codecExpr                           # AlterTableClauseModifyCodec
@@ -116,6 +119,14 @@ alterTableClause
                            | TO VOLUME stringLiteral
                            | TO TABLE tableIdentifier
                            )                                                          # AlterTableClauseMovePartition
+    | MOVE PART stringLiteral TO (DISK | VOLUME) stringLiteral                          # AlterTableClauseMovePart
+    | DROP PART stringLiteral                                                         # AlterTableClauseDropPart
+    | DROP DETACHED (partitionClause | PART stringLiteral)                             # AlterTableClauseDropDetached
+    | fetchPartitionClause                                                            # AlterTableClauseFetch
+    | UNFREEZE partitionClause? WITH NAME stringLiteral                                # AlterTableClauseUnfreeze
+    | MATERIALIZE TTL (IN partitionClause)?                                            # AlterTableClauseMaterializeTTL
+    | REWRITE PARTS (IN partitionClause)?                                              # AlterTableClauseRewriteParts
+    | (MATERIALIZE | CLEAR) STATISTICS (ALL | (IF EXISTS)? nestedIdentifier (IN partitionClause)?) # AlterTableClauseStatistics
     | REMOVE TTL                                                                      # AlterTableClauseRemoveTTL
     | RENAME COLUMN (IF EXISTS)? identifier TO identifier                             # AlterTableClauseRenameColumn
     | REPLACE partitionClause FROM tableIdentifier                                    # AlterTableClauseReplace
@@ -127,6 +138,8 @@ alterTableClause
     | MODIFY COLUMN (IF EXISTS)? identifier columnTypeExpr? tableColumnPropertyExpr? commentClause?
          codecExpr? ttlClause? (AFTER nestedIdentifier | FIRST)?  settingExprList?    #AlterTableModifyColumn
     ;
+
+fetchPartitionClause: FETCH (partitionClause | PART stringLiteral) FROM stringLiteral;
 
 assignmentExprList: assignmentExpr (COMMA assignmentExpr)*;
 assignmentExpr: nestedIdentifier EQ_SINGLE columnExpr;
@@ -145,7 +158,11 @@ attachStmt
 
 // CHECK statement
 
-checkStmt: CHECK TABLE tableIdentifier partitionClause?;
+checkStmt
+    : CHECK TABLE tableIdentifier (partitionClause | PART stringLiteral)?
+    | CHECK DATABASE databaseIdentifier
+    | CHECK ALL TABLES
+    ;
 
 // CREATE statement
 
@@ -301,8 +318,10 @@ updateStmt
 // KILL statement
 
 killStmt
-    : KILL MUTATION clusterClause? whereClause (SYNC | ASYNC | TEST)?  # KillMutationStmt
+    : KILL MUTATION clusterClause? killWhereClause (SYNC | ASYNC | TEST)?  # KillMutationStmt
     | KILL QUERY_SQL clusterClause? killWhereClause (SYNC | ASYNC | TEST)? # KillQueryStmt
+    | KILL PART_MOVE_TO_SHARD clusterClause? killWhereClause (ASYNC | TEST)? # KillPartMoveStmt
+    | KILL TRANSACTION clusterClause? killWhereClause (SYNC | ASYNC | TEST)? # KillTransactionStmt
     ;
 
 // KILL predicates do not accept aliases; SYNC/ASYNC/TEST are trailing command modes.
@@ -310,7 +329,44 @@ killWhereClause: WHERE columnExpr;
 
 // OPTIMIZE statement
 
-optimizeStmt: OPTIMIZE TABLE tableIdentifier clusterClause? partitionClause? FINAL? DEDUPLICATE?;
+optimizeStmt
+    : OPTIMIZE TABLE tableIdentifier clusterClause? partitionClause?
+      (DRY RUN PARTS stringLiteral (COMMA stringLiteral)*)? (FINAL | FORCE)?
+      (DEDUPLICATE CLEANUP? MANIFEST? (BY optimizeColumns (COMMA optimizeColumns)*)? | CLEANUP? MANIFEST?)
+    ;
+optimizeColumns
+    : ASTERISK columnExceptExpr?
+    | COLUMNS LPAREN stringLiteral RPAREN columnExceptExpr?
+    | identifier
+    ;
+
+// Backup locations are descriptors, not executable function calls.
+backupStmt
+    : BACKUP backupElements clusterClause? TO backupDestination backupSettings? (SYNC | ASYNC)? # BackupQuery
+    | RESTORE backupElements clusterClause? FROM backupDestination backupSettings? (SYNC | ASYNC)? # RestoreQuery
+    ;
+backupElements: backupElement (COMMA backupElement)*;
+backupElement
+    : (TABLE | DICTIONARY | VIEW) tableIdentifier (AS tableIdentifier)?
+      ((PARTITION | PARTITIONS) backupPartition (COMMA backupPartition)*)?
+    | TEMPORARY TABLE identifier (AS identifier)?
+    | DATABASE identifier (AS identifier)? backupExceptTables?
+    | ALL (EXCEPT (DATABASE | DATABASES) identifier (COMMA identifier)*)? backupExceptTables?
+    ;
+backupExceptTables: EXCEPT (TABLE | TABLES) tableIdentifier (COMMA tableIdentifier)*;
+// Bare identifiers would consume TABLE/DATABASE at the next backup element.
+backupPartition
+    : ID (stringLiteral | queryParameter)
+    | ALL | literal | queryParameter
+    | LPAREN columnExprList? RPAREN
+    | CAST LPAREN columnExpr AS columnTypeExpr RPAREN
+    | function=identifier {$function.text.equalsIgnoreCase("tuple") || $function.text.equalsIgnoreCase("_cast")}? LPAREN columnExprList? RPAREN
+    ;
+backupDestination: identifier (LPAREN (literal (COMMA literal)*)? RPAREN)?;
+backupSettings: SETTINGS backupSetting (COMMA backupSetting)*;
+backupSetting: BASE_BACKUP EQ_SINGLE backupDestination | identifier EQ_SINGLE literal;
+
+undropStmt: UNDROP TABLE tableIdentifier uuidClause? clusterClause?;
 
 // RENAME statement
 
@@ -685,11 +741,45 @@ systemStmt
     | SYSTEM (SHUTDOWN | KILL) clusterClause?                                             # SystemShutdownStmt
     | SYSTEM SUSPEND clusterClause? FOR DECIMAL_LITERAL SECOND                            # SystemSuspendStmt
     | SYSTEM RESTART DISK systemNamedTarget                                              # SystemRestartDiskStmt
-    | SYSTEM FLUSH DISTRIBUTED tableIdentifier                                           # SystemFlushDistributedStmt
-    | SYSTEM (START | STOP) (DISTRIBUTED SENDS | FETCHES | TTL? MERGES) tableIdentifier     # SystemTableControlStmt
-    | SYSTEM (START | STOP) REPLICATED SENDS                                              # SystemReplicatedSendsStmt
-    | SYSTEM SYNC REPLICA tableIdentifier                                                # SystemSyncReplicaStmt
+    | SYSTEM FLUSH DISTRIBUTED systemTableTarget                                        # SystemFlushDistributedStmt
+    | SYSTEM (START | STOP) DISTRIBUTED SENDS systemOptionalTableTarget?                 # SystemDistributedControlStmt
+    | SYSTEM (START | STOP)
+      (MERGES clusterClause? (tableIdentifier | ON VOLUME identifier DOT identifier)?
+      | (TTL MERGES | MOVES | CLEANUP) clusterClause? tableIdentifier?)                    # SystemTableControlStmt
+    | SYSTEM (START | STOP) REPLICATED SENDS clusterClause? tableIdentifier?              # SystemReplicatedSendsStmt
+    | SYSTEM (START | STOP) (FETCHES | REPLICATION QUEUES | PULLING REPLICATION LOG)
+      clusterClause? tableIdentifier?                                                  # SystemReplicationControlStmt
+    | SYSTEM SYNC REPLICA clusterClause? tableIdentifier (IF EXISTS)?
+      (STRICT | LIGHTWEIGHT (FROM stringLiteral (COMMA stringLiteral)*)? | PULL)?         # SystemSyncReplicaStmt
+    | SYSTEM SYNC DATABASE REPLICA clusterClause? databaseIdentifier STRICT?             # SystemSyncDatabaseReplicaStmt
+    | SYSTEM RESTART REPLICA clusterClause? tableIdentifier                              # SystemRestartReplicaStmt
+    | SYSTEM RESTART REPLICAS clusterClause?                                            # SystemRestartReplicasStmt
+    | SYSTEM RESTORE REPLICA systemTableTarget                                          # SystemRestoreReplicaStmt
+    | SYSTEM RESTORE DATABASE REPLICA clusterClause? databaseIdentifier                 # SystemRestoreDatabaseReplicaStmt
+    | SYSTEM RECONNECT ZOOKEEPER                                                       # SystemReconnectZooKeeperStmt
+    | SYSTEM DROP REPLICA clusterClause? stringLiteral (FROM SHARD stringLiteral)?
+      (FROM TABLE tableIdentifier | FROM DATABASE databaseIdentifier | FROM ZKPATH stringLiteral)? # SystemDropReplicaStmt
+    | SYSTEM DROP DATABASE REPLICA clusterClause? stringLiteral (FROM SHARD stringLiteral)?
+      ((FROM DATABASE databaseIdentifier | FROM ZKPATH stringLiteral) (WITH TABLES)?)?      # SystemDropDatabaseReplicaStmt
+    | SYSTEM SCHEDULE MERGE clusterClause? tableIdentifier PARTS stringLiteral (COMMA stringLiteral)* # SystemScheduleMergeStmt
+    | SYSTEM SYNC MERGES clusterClause? tableIdentifier?                                 # SystemSyncMergesStmt
+    | SYSTEM WAIT LOADING PARTS clusterClause? tableIdentifier                           # SystemWaitLoadingPartsStmt
+    | SYSTEM PREWARM (MARK | PRIMARY INDEX) CACHE clusterClause? tableIdentifier         # SystemPrewarmStmt
+    | SYSTEM (LOAD | UNLOAD) PRIMARY KEY systemOptionalTableTarget?                      # SystemPrimaryKeyStmt
+    | SYSTEM UNFREEZE WITH NAME stringLiteral                                           # SystemUnfreezeStmt
+    | SYSTEM FLUSH ASYNC INSERT QUEUE clusterClause? (tableIdentifier (COMMA tableIdentifier)*)? # SystemFlushAsyncInsertStmt
+    | SYSTEM FLUSH OBJECT STORAGE QUEUE systemTableTarget PATH stringLiteral            # SystemFlushObjectStorageQueueStmt
+    | SYSTEM (REFRESH | WAIT | START | STOP | PAUSE | CANCEL) VIEW tableIdentifier        # SystemViewStmt
+    | SYSTEM (START | STOP | PAUSE) VIEWS                                                # SystemViewsStmt
+    | SYSTEM (START | STOP) REPLICATED VIEW tableIdentifier                              # SystemReplicatedViewStmt
+    | SYSTEM (START | STOP | PAUSE | CANCEL | REFRESH) (tableIdentifier | ALL BACKGROUND) # SystemBackgroundStmt
+    | SYSTEM SYNC TRANSACTION LOG                                                       # SystemSyncTransactionLogStmt
+    | SYSTEM SYNC FILE CACHE                                                            # SystemSyncFileCacheStmt
+    | SYSTEM WAIT BLOBS CLEANUP systemNamedTarget                                        # SystemWaitBlobsCleanupStmt
     ;
+
+systemTableTarget: clusterClause tableIdentifier | tableIdentifier clusterClause?;
+systemOptionalTableTarget: clusterClause tableIdentifier? | tableIdentifier clusterClause?;
 
 // Target-bearing commands accept ON CLUSTER either before or after the target, once.
 systemDictionaryTarget
@@ -922,6 +1012,11 @@ keyword
     | POLYGON | POSTGRESQL | POSTINGS | PROMETHEUS | PROTOBUF | PROXY | PURGE | RESERVATION | RESOURCE | RESTART
     | S3 | SCHEMA | SECURE | SIMILARITY | SSH | SUSPEND | TAG | TCP | TEXT | THREAD
     | TOKENS | UNCOMPRESSED | UNLOAD | URL | VECTOR | WORKER | WORKLOAD
+    | FORCE | PART | PARTS | PARTITIONS | DRY | RUN | CLEANUP | MANIFEST | DETACHED | FETCH | UNFREEZE | STATISTICS
+    | REWRITE | MOVES | SCHEDULE | MERGE | WAIT | LOADING | PREWARM | LOAD | REPLICATION | QUEUES | PULLING | LOG
+    | REPLICAS | STRICT | LIGHTWEIGHT | PULL | RESTORE | RECONNECT | ZOOKEEPER | SHARD | ZKPATH | QUEUE | OBJECT
+    | STORAGE | PATH | REFRESH | VIEWS | PAUSE | CANCEL | BACKGROUND | PART_MOVE_TO_SHARD | TRANSACTION | BLOBS
+    | UNDROP | BASE_BACKUP
     ;
 keywordForAlias
     : AFTER | ALIAS | ALTER | AST | ASYNC | ATTACH | BOTH | CASE | CAST | CHECK | CLEAR | CLUSTER | CODEC
@@ -948,6 +1043,11 @@ keywordForAlias
     | POLYGON | POSTGRESQL | POSTINGS | PROMETHEUS | PROTOBUF | PROXY | PURGE | RESERVATION | RESOURCE | RESTART
     | S3 | SCHEMA | SECURE | SIMILARITY | SSH | SUSPEND | TAG | TCP | TEXT | THREAD
     | TOKENS | UNCOMPRESSED | UNLOAD | URL | VECTOR | WORKER | WORKLOAD
+    | FORCE | PART | PARTS | PARTITIONS | DRY | RUN | CLEANUP | MANIFEST | DETACHED | FETCH | UNFREEZE | STATISTICS
+    | REWRITE | MOVES | SCHEDULE | MERGE | WAIT | LOADING | PREWARM | LOAD | REPLICATION | QUEUES | PULLING | LOG
+    | REPLICAS | STRICT | LIGHTWEIGHT | PULL | RESTORE | RECONNECT | ZOOKEEPER | SHARD | ZKPATH | QUEUE | OBJECT
+    | STORAGE | PATH | REFRESH | VIEWS | PAUSE | CANCEL | BACKGROUND | PART_MOVE_TO_SHARD | TRANSACTION | BLOBS
+    | UNDROP | BASE_BACKUP
     ;
 alias: IDENTIFIER | keywordForAlias;  // |interval| can't be an alias, otherwise 'INTERVAL 1 SOMETHING' becomes ambiguous.
 queryParameter: LBRACE (IDENTIFIER | keyword | interval) COLON columnTypeExpr RBRACE;

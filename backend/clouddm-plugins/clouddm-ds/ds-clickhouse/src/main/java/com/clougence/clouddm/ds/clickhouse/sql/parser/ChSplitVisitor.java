@@ -254,6 +254,12 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitOptimizeStmt(OptimizeStmtContext ctx) {
+        if (ctx.DRY() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        if (ctx.partitionClause() != null) {
+            return SplitQueryType.ADMIN_PARTITION;
+        }
         return SplitQueryType.ADMIN_TABLE;
     }
 
@@ -556,6 +562,198 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitKillQueryStmt(KillQueryStmtContext ctx) {
+        if (ctx.TEST() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCheckStmt(CheckStmtContext ctx) {
+        if (ctx.DATABASE() != null) {
+            return SplitQueryType.ADMIN;
+        }
+        if (ctx.partitionClause() != null) {
+            return SplitQueryType.ADMIN_PARTITION;
+        }
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitUndropStmt(UndropStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemFlushDistributedStmt(SystemFlushDistributedStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemDistributedControlStmt(SystemDistributedControlStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemTableControlStmt(SystemTableControlStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemScheduleMergeStmt(SystemScheduleMergeStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemSyncMergesStmt(SystemSyncMergesStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemWaitLoadingPartsStmt(SystemWaitLoadingPartsStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemFlushAsyncInsertStmt(SystemFlushAsyncInsertStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemFlushObjectStorageQueueStmt(SystemFlushObjectStorageQueueStmtContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemPrewarmStmt(SystemPrewarmStmtContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemPrimaryKeyStmt(SystemPrimaryKeyStmtContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReplicatedSendsStmt(SystemReplicatedSendsStmtContext ctx) {
+        return SplitQueryType.ALTER_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReplicationControlStmt(SystemReplicationControlStmtContext ctx) {
+        return SplitQueryType.ALTER_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemSyncReplicaStmt(SystemSyncReplicaStmtContext ctx) {
+        return SplitQueryType.ADMIN_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemSyncDatabaseReplicaStmt(SystemSyncDatabaseReplicaStmtContext ctx) {
+        return SplitQueryType.ADMIN_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemRestartReplicaStmt(SystemRestartReplicaStmtContext ctx) {
+        return SplitQueryType.ADMIN_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemRestartReplicasStmt(SystemRestartReplicasStmtContext ctx) {
+        return SplitQueryType.ADMIN_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemRestoreReplicaStmt(SystemRestoreReplicaStmtContext ctx) {
+        return SplitQueryType.ADMIN_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemRestoreDatabaseReplicaStmt(SystemRestoreDatabaseReplicaStmtContext ctx) {
+        return SplitQueryType.ADMIN_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReconnectZooKeeperStmt(SystemReconnectZooKeeperStmtContext ctx) {
+        return SplitQueryType.ADMIN_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemDropReplicaStmt(SystemDropReplicaStmtContext ctx) {
+        return SplitQueryType.DROP_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemDropDatabaseReplicaStmt(SystemDropDatabaseReplicaStmtContext ctx) {
+        return SplitQueryType.DROP_REPLICATION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemUnfreezeStmt(SystemUnfreezeStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemViewStmt(SystemViewStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemViewsStmt(SystemViewsStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReplicatedViewStmt(SystemReplicatedViewStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemBackgroundStmt(SystemBackgroundStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemSyncFileCacheStmt(SystemSyncFileCacheStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemWaitBlobsCleanupStmt(SystemWaitBlobsCleanupStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitKillTransactionStmt(KillTransactionStmtContext ctx) {
+        return SplitQueryType.TRANSACTION;
+    }
+
+    @Override
+    public SplitQueryType visitSystemSyncTransactionLogStmt(SystemSyncTransactionLogStmtContext ctx) {
+        return SplitQueryType.TRANSACTION;
+    }
+
+    @Override
+    public SplitQueryType visitBackupQuery(BackupQueryContext ctx) {
+        return SplitQueryType.DATA_EXPORT;
+    }
+
+    @Override
+    public SplitQueryType visitRestoreQuery(RestoreQueryContext ctx) {
+        return SplitQueryType.DATA_IMPORT;
+    }
+
+    @Override
+    public SplitQueryType visitKillMutationStmt(KillMutationStmtContext ctx) {
+        if (ctx.TEST() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitKillPartMoveStmt(KillPartMoveStmtContext ctx) {
         if (ctx.TEST() != null) {
             return SplitQueryType.PERFORMANCE;
         }
