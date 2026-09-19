@@ -20,6 +20,10 @@ lexer grammar ClickHouseLexer;
 
 // Keywords
 
+ANALYZE: A N A L Y Z E;
+WHATIF: W H A T I F;
+HYPOTHETICAL: H Y P O T H E T I C A L;
+
 // Maintenance keywords
 FORCE: F O R C E;
 PART: P A R T;

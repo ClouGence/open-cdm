@@ -55,7 +55,23 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitExplainStmt(ExplainStmtContext ctx) {
-        return SplitQueryType.SELECT;
+        if (ctx.ANALYZE() != null) {
+            return SplitQueryType.SELECT;
+        }
+        if (ctx.CURRENT() != null) {
+            return SplitQueryType.TRANSACTION;
+        }
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitHypotheticalIndexStmt(HypotheticalIndexStmtContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateFunctionStmt(CreateFunctionStmtContext ctx) {
+        return SplitQueryType.CREATE_PROG_OBJ;
     }
 
     @Override

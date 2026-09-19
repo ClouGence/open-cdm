@@ -34,7 +34,8 @@ options {
                 return true;
             }
             if (context instanceof KillWhereClauseContext
-                || context instanceof PartitionClauseContext || context instanceof BackupPartitionContext) {
+                || context instanceof PartitionClauseContext || context instanceof BackupPartitionContext
+                || context instanceof ExplainTableOverrideContext || context instanceof HypotheticalIndexDeclarationContext) {
                 return false;
             }
         }
@@ -58,6 +59,7 @@ queryStmt
     | systemDefinitionStmt                                                         # QueryStmtSystemDefinition
     | accessStmt                                                                   # QueryStmtAccess
     | backupStmt                                                                   # QueryStmtBackup
+    | hypotheticalIndexStmt                                                        # QueryStmtHypotheticalIndex
     ;
 
 query
@@ -171,6 +173,7 @@ createStmt
     | (ATTACH | CREATE (OR REPLACE)? | REPLACE) DICTIONARY (IF NOT EXISTS)? tableIdentifier uuidClause? clusterClause? dictionarySchemaClause dictionaryEngineClause                                          # CreateDictionaryStmt
     | (ATTACH | CREATE) MATERIALIZED VIEW (IF NOT EXISTS)? tableIdentifier uuidClause? clusterClause? tableSchemaClause? (destinationClause | engineClause POPULATE?) subqueryClause  # CreateMaterializedViewStmt
     | (ATTACH | CREATE (OR REPLACE)? | REPLACE) TEMPORARY? TABLE (IF NOT EXISTS)? tableIdentifier uuidClause? clusterClause? tableSchemaClause? engineClause? subqueryClause?                                 # CreateTableStmt
+    | CREATE (OR REPLACE)? FUNCTION (IF NOT EXISTS)? identifier clusterClause? AS columnLambdaExpr # CreateFunctionStmt
     | (ATTACH | CREATE) (OR REPLACE)? VIEW (IF NOT EXISTS)? tableIdentifier uuidClause? clusterClause? tableSchemaClause? subqueryClause                                              # CreateViewStmt
     ;
 
@@ -277,7 +280,41 @@ existsStmt
 // EXPLAIN statement
 
 explainStmt
-    : EXPLAIN (AST | SYNTAX | QUERY TREE | PLAN | PIPELINE | ESTIMATE | TABLE OVERRIDE)? settingExprList? selectUnionStmt
+    : EXPLAIN AST explainSettings? explainAstQuery
+    | EXPLAIN SYNTAX explainSettings? explainSyntaxQuery
+    | EXPLAIN QUERY_SQL TREE explainSettings? selectUnionStmt
+    | EXPLAIN PLAN? explainSettings? selectUnionStmt
+    | EXPLAIN PIPELINE explainSettings? (selectUnionStmt | insertStmt)
+    | EXPLAIN (ESTIMATE | ANALYZE | WHATIF) explainSettings? selectUnionStmt
+    | EXPLAIN CURRENT TRANSACTION
+    | EXPLAIN TABLE OVERRIDE tableFunctionExpr explainTableOverride
+    ;
+
+// EXPLAIN options require assignments, unlike valueless query SETTINGS.
+explainSettings: explainSetting (COMMA explainSetting)*;
+explainSetting: identifier EQ_SINGLE literal;
+explainAstQuery: queryStmt | LPAREN queryStmt RPAREN;
+explainSyntaxQuery: selectUnionStmt | createStmt | insertStmt | systemStmt;
+explainTableOverride
+locals [java.util.Set<String> clauses = new java.util.HashSet<String>();]:
+    ( {!$clauses.contains("columns")}? COLUMNS LPAREN tableElementExpr (COMMA tableElementExpr)* RPAREN {$clauses.add("columns");}
+    | {!$clauses.contains("order")}? ORDER BY columnExpr {$clauses.add("order");}
+    | {!$clauses.contains("partition")}? PARTITION BY columnExpr {$clauses.add("partition");}
+    | {!$clauses.contains("primary")}? PRIMARY KEY columnExpr {$clauses.add("primary");}
+    | {!$clauses.contains("sample")}? SAMPLE BY columnExpr {$clauses.add("sample");}
+    | {!$clauses.contains("ttl")}? ttlClause {$clauses.add("ttl");}
+    )*
+    ;
+
+// Hypothetical indexes live in the session's optimizer store, not table metadata.
+hypotheticalIndexStmt
+    : CREATE HYPOTHETICAL INDEX (IF NOT EXISTS)? identifier ON tableIdentifier hypotheticalIndexDeclaration
+    | DROP HYPOTHETICAL INDEX (IF EXISTS)? identifier ON tableIdentifier
+    | DROP ALL HYPOTHETICAL INDEXES
+    ;
+hypotheticalIndexDeclaration
+    : LPAREN columnExpr (COMMA columnExpr)* RPAREN TYPE identifier (LPAREN literal (COMMA literal)* RPAREN)?
+      (GRANULARITY DECIMAL_LITERAL)?
     ;
 
 // INSERT statement
@@ -1017,6 +1054,7 @@ keyword
     | REPLICAS | STRICT | LIGHTWEIGHT | PULL | RESTORE | RECONNECT | ZOOKEEPER | SHARD | ZKPATH | QUEUE | OBJECT
     | STORAGE | PATH | REFRESH | VIEWS | PAUSE | CANCEL | BACKGROUND | PART_MOVE_TO_SHARD | TRANSACTION | BLOBS
     | UNDROP | BASE_BACKUP
+    | ANALYZE | WHATIF | HYPOTHETICAL
     ;
 keywordForAlias
     : AFTER | ALIAS | ALTER | AST | ASYNC | ATTACH | BOTH | CASE | CAST | CHECK | CLEAR | CLUSTER | CODEC
@@ -1048,6 +1086,7 @@ keywordForAlias
     | REPLICAS | STRICT | LIGHTWEIGHT | PULL | RESTORE | RECONNECT | ZOOKEEPER | SHARD | ZKPATH | QUEUE | OBJECT
     | STORAGE | PATH | REFRESH | VIEWS | PAUSE | CANCEL | BACKGROUND | PART_MOVE_TO_SHARD | TRANSACTION | BLOBS
     | UNDROP | BASE_BACKUP
+    | ANALYZE | WHATIF | HYPOTHETICAL
     ;
 alias: IDENTIFIER | keywordForAlias;  // |interval| can't be an alias, otherwise 'INTERVAL 1 SOMETHING' becomes ambiguous.
 queryParameter: LBRACE (IDENTIFIER | keyword | interval) COLON columnTypeExpr RBRACE;

@@ -55,6 +55,16 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        // An outer AST can display even ANALYZE or destructive SQL without executing it.
+        for (ParseTree current = tree; current != null; current = current.getParent()) {
+            if (current instanceof ClickHouseParser.CreateFunctionStmtContext
+                || current instanceof ClickHouseParser.HypotheticalIndexDeclarationContext) {
+                return null;
+            }
+            if (current instanceof ClickHouseParser.ExplainStmtContext explain && explain.ANALYZE() == null) {
+                return null;
+            }
+        }
         if (tree instanceof ClickHouseParser.SystemDropReplicaStmtContext
             || tree instanceof ClickHouseParser.SystemDropDatabaseReplicaStmtContext) {
             return SplitQueryType.UNSAFE;
@@ -241,6 +251,10 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     private ParserRuleContext viewQuery(ParseTree tree) {
+        if (tree instanceof ClickHouseParser.ExplainStmtContext) {
+            // A displayed view definition is not an executed CREATE VIEW query body.
+            return null;
+        }
         if (tree instanceof ClickHouseParser.CreateViewStmtContext view) {
             return view.subqueryClause().selectUnionStmt();
         }
