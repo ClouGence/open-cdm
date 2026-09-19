@@ -23,14 +23,16 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
-final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void> {
-    private final Parser                   parser;
-    private final RdbBehaviorObjectFactory objects;
-    private final StatementBehavior        behavior = new StatementBehavior();
+class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void> {
+    private final Parser                     parser;
+    protected final RdbBehaviorObjectFactory objects;
+    private final String                     instancePath;
+    private final StatementBehavior          behavior = new StatementBehavior();
 
     ChStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
+        this.instancePath = objects.instanceObject(TargetType.Instance, parser.getTokenStream().get(0)).getObjectPath();
         this.behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
@@ -81,8 +83,8 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
 
     @Override
     public Void visitSetTimeZoneStmt(SetTimeZoneStmtContext ctx) {
-        add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE,
-            objects.instanceObject(TargetType.ConfigKey, ctx.TIME().getSymbol(), ctx.ZONE().getSymbol(), "session_timezone"));
+        add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, objects
+            .instanceObject(TargetType.ConfigKey, ctx.TIME().getSymbol(), ctx.ZONE().getSymbol(), "session_timezone"));
         return null;
     }
 
@@ -147,8 +149,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
     @Override
     public Void visitQueryParameter(QueryParameterContext ctx) {
         // The type subtree describes the bound value; Array/Tuple/Nullable are not calls.
-        add(SplitQueryType.SESSION_VARIABLE_RW, BehaviorAction.READ,
-            objects.instanceObject(TargetType.ConfigKey, ctx, ctx.getChild(1).getText()));
+        add(SplitQueryType.SESSION_VARIABLE_RW, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx, ctx.getChild(1).getText()));
         return null;
     }
 
@@ -156,8 +157,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
     public Void visitColumnExprFunction(ColumnExprFunctionContext ctx) {
         add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, ctx.identifier(), List.of(name(ctx.identifier()))));
         String function = name(ctx.identifier());
-        if ((function.equals("getSetting") || function.equals("getSettingOrDefault"))
-            && ctx.columnArgList() != null && !ctx.columnArgList().columnArgExpr().isEmpty()) {
+        if ((function.equals("getSetting") || function.equals("getSettingOrDefault")) && ctx.columnArgList() != null && !ctx.columnArgList().columnArgExpr().isEmpty()) {
             ColumnExprContext argument = ctx.columnArgList().columnArgExpr(0).columnExpr();
             if (argument instanceof ColumnExprLiteralContext literal && literal.literal().stringLiteral() != null) {
                 StringLiteralContext key = literal.literal().stringLiteral();
@@ -350,7 +350,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
         return objects.object(type, context, names);
     }
 
-    private String name(ParserRuleContext context) {
+    protected final String name(ParserRuleContext context) {
         String value = parser.getTokenStream().getText(context.getStart(), context.getStop()).trim();
         char quote = value.charAt(0);
         if (value.length() < 2 || (quote != '`' && quote != '"' && quote != '\'') || value.charAt(value.length() - 1) != quote) {
@@ -366,8 +366,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
                 if (escaped == 'N') {
                     continue;
                 }
-                if (escaped == 'x' && i + 2 < value.length() - 1
-                    && Character.digit(value.charAt(i + 1), 16) >= 0 && Character.digit(value.charAt(i + 2), 16) >= 0) {
+                if (escaped == 'x' && i + 2 < value.length() - 1 && Character.digit(value.charAt(i + 1), 16) >= 0 && Character.digit(value.charAt(i + 2), 16) >= 0) {
                     decoded.write(Character.digit(value.charAt(i + 1), 16) * 16 + Character.digit(value.charAt(i + 2), 16));
                     i += 2;
                     continue;
@@ -400,29 +399,49 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
         return decoded.toString(StandardCharsets.UTF_8);
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
+    protected final void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject) {
         add(type, action, subject, List.of());
     }
 
-    private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
+    protected final void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (subject == null) {
             return;
         }
         BehaviorRelation relation = new BehaviorRelation();
+        declareInstanceScope(subject);
         relation.setSubject(subject);
         relation.setAction(action);
         for (BehaviorObject target : targets) {
+            declareInstanceScope(target);
             addObject(relation.getTarget(), target);
         }
         behavior.getRelations().add(relation);
         setType(type);
     }
 
-    private void setType(SplitQueryType type) {
+    protected final String instanceRelativeName(BehaviorObject object) {
+        String path = object.getObjectPath();
+        if (path.equals(instancePath)) {
+            return null;
+        }
+        return path.substring(instancePath.length(), path.length() - 1);
+    }
+
+    private void declareInstanceScope(BehaviorObject object) {
+        if (object == null || object.getObjectName() != null) {
+            return;
+        }
+        switch (object.getObjectType()) {
+            case User, Role, UserOrRole, ConfigKey, File -> object.setObjectName(new ObjectName(null, null, instanceRelativeName(object)));
+            default -> {
+            }
+        }
+    }
+
+    protected final void setType(SplitQueryType type) {
         // Resource actions in an executed body must not replace its owning statement's kind.
         // Only a SELECT's explicit setting/parameter access refines the query category.
-        if (behavior.getStatementType() == SplitQueryType.UNKNOWN
-            || (behavior.getStatementType() == SplitQueryType.SELECT && type == SplitQueryType.SESSION_VARIABLE_RW)) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN || (behavior.getStatementType() == SplitQueryType.SELECT && type == SplitQueryType.SESSION_VARIABLE_RW)) {
             behavior.setStatementType(type);
         }
     }
@@ -433,7 +452,7 @@ final class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void>
         }
     }
 
-    private <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {
+    protected final <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {
         List<T> result = new ArrayList<>();
         collectDescendants(tree, type, result);
         return result;

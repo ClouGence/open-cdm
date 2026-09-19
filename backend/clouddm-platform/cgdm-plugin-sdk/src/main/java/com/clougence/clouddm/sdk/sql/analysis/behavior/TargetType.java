@@ -134,6 +134,12 @@ public enum TargetType {
     Repository(null),
     Snapshot(null),
 
+    // Access-control resources and database dictionaries.
+    Quota(null),
+    Dictionary(null),
+    NamedCollection(null),
+    TableEngine(null),
+
     ;
 
     private final UmiTypes umiType;

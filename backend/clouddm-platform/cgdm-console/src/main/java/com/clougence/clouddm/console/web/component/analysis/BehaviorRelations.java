@@ -39,7 +39,10 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.UPDATE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.DELETE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.MERGE, targetType -> SecDataAuthKind.WRITE), //
-            Map.entry(BehaviorAction.REPLACE, targetType -> SecDataAuthKind.WRITE), //
+            Map.entry(BehaviorAction.REPLACE, targetType -> switch (targetType) {
+                case User, Role, Profile, RowAccessPolicy, Quota, NamedCollection -> SecDataAuthKind.MANAGE;
+                default -> SecDataAuthKind.WRITE;
+            }), //
             Map.entry(BehaviorAction.COPY, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.MOVE, targetType -> switch (targetType) {
                 case Queue -> SecDataAuthKind.MAINTAIN;
@@ -93,7 +96,8 @@ public final class BehaviorRelations {
     // These types carry resolved instance or object-ancestor paths, including unnamed sets.
     private static final Set<TargetType> EXPLICIT_PATH_TARGETS = EnumSet.of(
             TargetType.Resource, TargetType.StorageVolume, TargetType.SecurityIntegration, TargetType.GroupProvider,
-            TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot);
+            TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot,
+            TargetType.Quota, TargetType.Dictionary, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Profile, TargetType.RowAccessPolicy);
 
     // These objects already carry their native scope; URI-style object names are opaque path content.
     private static final Set<TargetType> NATIVE_SCOPE_TARGETS = EnumSet.of(
@@ -125,14 +129,14 @@ public final class BehaviorRelations {
                 TargetType.Partition, TargetType.View, TargetType.Materialized, //
                 TargetType.Sequence, TargetType.Synonym, TargetType.Type, //
                 TargetType.ProgramObject, TargetType.Function, TargetType.Procedure, //
-                TargetType.Trigger, TargetType.Package, TargetType.Operator, TargetType.XmlSchemaCollection);
+                TargetType.Trigger, TargetType.Package, TargetType.Operator, TargetType.XmlSchemaCollection, TargetType.Dictionary);
     }
 
     private static void registerManageAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MANAGE, //
                 TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.Object, //
                 TargetType.Event, TargetType.Job, TargetType.Link, //
-                TargetType.Profile, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //
+                TargetType.Profile, TargetType.Quota, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //
                 TargetType.Pipe, TargetType.SchedulerObject, TargetType.SchemaObject, TargetType.Library, //
                 TargetType.Replication, TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, //
 
@@ -301,14 +305,17 @@ public final class BehaviorRelations {
         }
 
         ObjectName name = object.getObjectName();
-        if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup)
-                && name != null && name.getSchema() == null && name.getObjectName() != null) {
+        if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup
+                || targetType == TargetType.User || targetType == TargetType.Role || targetType == TargetType.UserOrRole || targetType == TargetType.File)
+                && name != null && name.getSchema() == null) {
             // Explicit scope metadata takes precedence over legacy current-schema path completion.
             String declaredPath = instancePath;
             if (name.getCatalog() != null) {
                 declaredPath += name.getCatalog() + "/";
             }
-            declaredPath += name.getObjectName() + "/";
+            if (name.getObjectName() != null) {
+                declaredPath += name.getObjectName() + "/";
+            }
             if (Objects.equals(sourcePath, DmDsUtils.normalizeResourcePath(declaredPath))) {
                 return sourcePath;
             }

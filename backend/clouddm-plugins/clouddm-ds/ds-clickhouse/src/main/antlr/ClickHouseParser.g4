@@ -21,6 +21,30 @@ options {
 }
 
 @members {
+    // A following ALTER operation is not another name in a DROP/PROFILE list.
+    private boolean isNextAlterAccessSetting() {
+        if (_input.LA(1) != COMMA) {
+            return false;
+        }
+        boolean inAlterSetting = false;
+        for (ParserRuleContext context = _ctx; context != null; context = context.getParent()) {
+            if (context instanceof AlterAccessSettingContext) {
+                inAlterSetting = true;
+                break;
+            }
+        }
+        if (!inAlterSetting) {
+            return false;
+        }
+        int operation = _input.LA(2);
+        int subject = _input.LA(3);
+        if (operation == ADD || operation == MODIFY || operation == DROP) {
+            return subject == SETTING || subject == SETTINGS || subject == PROFILE || subject == PROFILES
+                || (operation == DROP && subject == ALL);
+        }
+        return operation == SET && subject != DOT && subject != COMMA && subject != SEMICOLON && subject != EOF;
+    }
+
     private boolean isQueryParameterName(String name) {
         if (name.startsWith("`") || name.startsWith("\"")) {
             name = name.substring(1, name.length() - 1);
@@ -559,7 +583,7 @@ accessStmt
     | createQuotaStmt | alterQuotaStmt | dropQuotaStmt
     ;
 accessName: identifier | stringLiteral;
-accessNameList: accessName (COMMA accessName)*;
+accessNameList: accessName ({!isNextAlterAccessSetting()}? COMMA accessName)*;
 accessUserName: accessName (AT accessName)?;
 accessUserNames: accessUserName (COMMA accessUserName)*;
 accessRoleSet: NONE | ALL (EXCEPT excluded=accessUserNames)? | members=accessUserNames (EXCEPT excluded=accessUserNames)?;
@@ -633,7 +657,7 @@ alterAccessSetting
     : (ADD | MODIFY) (SETTING | SETTINGS) accessSetting
     | SET nestedIdentifier (EQ_SINGLE literal)? settingConstraint*
     | ADD (PROFILE | PROFILES) accessNameList
-    | DROP (SETTING | SETTINGS) nestedIdentifier (COMMA nestedIdentifier)*
+    | DROP (SETTING | SETTINGS) nestedIdentifier ({!isNextAlterAccessSetting()}? COMMA nestedIdentifier)*
     | DROP (PROFILE | PROFILES) accessNameList
     | DROP ALL (SETTINGS | PROFILES)
     ;
