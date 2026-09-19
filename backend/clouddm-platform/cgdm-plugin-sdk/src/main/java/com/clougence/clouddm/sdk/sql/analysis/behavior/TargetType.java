@@ -145,6 +145,9 @@ public enum TargetType {
     Disk(null),
     Cluster(null),
 
+    // Named physical data parts, distinct from logical partitions and files.
+    DataPart(null),
+
     ;
 
     private final UmiTypes umiType;

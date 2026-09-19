@@ -246,12 +246,17 @@ class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void> {
     public Void visitAlterTableStmt(AlterTableStmtContext ctx) {
         BehaviorObject table = object(TargetType.Table, ctx.tableIdentifier());
         boolean hasAlter = false;
+        // Mixed mutation/maintenance clauses retain the owning ALTER classification.
+        if (ctx.alterTableClause().stream().anyMatch(clause ->
+                !(clause instanceof AlterTableClauseUpdateContext) && !(clause instanceof AlterTableClauseDeleteContext))) {
+            setType(SplitQueryType.ALTER_TABLE);
+        }
         for (AlterTableClauseContext clause : ctx.alterTableClause()) {
             if (clause instanceof AlterTableClauseUpdateContext) {
                 add(SplitQueryType.UPDATE, BehaviorAction.UPDATE, table, tableSources(clause));
             } else if (clause instanceof AlterTableClauseDeleteContext) {
                 add(SplitQueryType.DELETE, BehaviorAction.DELETE, table, tableSources(clause));
-            } else {
+            } else if (!maintenanceClause(clause, table)) {
                 hasAlter = true;
             }
         }
@@ -259,6 +264,10 @@ class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void> {
             add(SplitQueryType.ALTER_TABLE, BehaviorAction.ALTER, table, tableSources(ctx));
         }
         return null;
+    }
+
+    protected boolean maintenanceClause(AlterTableClauseContext clause, BehaviorObject table) {
+        return false;
     }
 
     @Override
@@ -330,7 +339,7 @@ class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void> {
         }
     }
 
-    private BehaviorObject object(TargetType type, ParserRuleContext context) {
+    protected final BehaviorObject object(TargetType type, ParserRuleContext context) {
         if (context == null) {
             return null;
         }

@@ -98,11 +98,11 @@ public final class BehaviorRelations {
     private static final Set<TargetType> EXPLICIT_PATH_TARGETS = EnumSet.of(
             TargetType.Resource, TargetType.StorageVolume, TargetType.SecurityIntegration, TargetType.GroupProvider,
             TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot,
-            TargetType.Quota, TargetType.Dictionary, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Profile, TargetType.RowAccessPolicy, TargetType.Cache, TargetType.Disk, TargetType.Cluster);
+            TargetType.Quota, TargetType.Dictionary, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Profile, TargetType.RowAccessPolicy, TargetType.Cache, TargetType.Disk, TargetType.Cluster, TargetType.DataPart);
 
     // These objects already carry their native scope; URI-style object names are opaque path content.
     private static final Set<TargetType> NATIVE_SCOPE_TARGETS = EnumSet.of(
-            TargetType.Instance, TargetType.ServiceMasterKey, TargetType.Queue, TargetType.Link,
+            TargetType.Instance, TargetType.ServiceMasterKey, TargetType.Queue, TargetType.Link, TargetType.Replication, TargetType.Job, TargetType.Transaction,
             TargetType.Audit, TargetType.AuditSpecification, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Endpoint,
             TargetType.BrokerMessageType, TargetType.BrokerContract, TargetType.BrokerService, TargetType.BrokerRoute, TargetType.RemoteServiceBinding,
             TargetType.BrokerPriority, TargetType.EventNotification, TargetType.BrokerConversation, TargetType.BrokerConversationGroup, TargetType.XmlSchemaCollection);
@@ -154,7 +154,7 @@ public final class BehaviorRelations {
     private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MAINTAIN, //
                 TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-                TargetType.ResourceGroup, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Resource, TargetType.StorageVolume, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot, TargetType.Cache, TargetType.Disk, TargetType.Cluster);
+                TargetType.ResourceGroup, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Resource, TargetType.StorageVolume, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot, TargetType.Cache, TargetType.Disk, TargetType.Cluster, TargetType.DataPart);
     }
 
     private static void putAuthKinds(Map<TargetType, SecDataAuthKind> overrides, SecDataAuthKind authKind, TargetType... targetTypes) {
@@ -182,6 +182,12 @@ public final class BehaviorRelations {
                     if (subject.getObjectType() == TargetType.Queue || subject.getObjectType() == TargetType.BrokerConversation) {
                         addRequest(requests, BehaviorAction.MOVE, subject, registry, dbVersion);
                         targets.forEach(target -> addRequest(requests, BehaviorAction.MOVE, target, registry, dbVersion));
+                    } else if ((subject.getObjectType() == TargetType.Partition || subject.getObjectType() == TargetType.DataPart)
+                               && !targets.isEmpty() && targets.stream().allMatch(target ->
+                                   target.getObjectType() == TargetType.Disk || target.getObjectType() == TargetType.StorageVolume)) {
+                        // A placement change moves existing data; it does not create its storage device.
+                        addRequest(requests, BehaviorAction.MOVE, subject, registry, dbVersion);
+                        targets.forEach(target -> addRequest(requests, BehaviorAction.READ, target, registry, dbVersion));
                     } else {
                         addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
                         targets.forEach(target -> addRequest(requests, BehaviorAction.CREATE, target, registry, dbVersion));

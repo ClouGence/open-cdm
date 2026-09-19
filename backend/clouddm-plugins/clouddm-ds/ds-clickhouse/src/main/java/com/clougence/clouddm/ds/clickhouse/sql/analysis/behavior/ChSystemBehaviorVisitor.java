@@ -22,7 +22,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 /** System commands manage runtime resources; definition values are not executed SQL. */
-class ChSystemBehaviorVisitor extends ChStatementBehaviorVisitor {
+class ChSystemBehaviorVisitor extends ChMaintenanceBehaviorVisitor {
     ChSystemBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         super(parser, levels, baseLine, baseColumn);
     }
