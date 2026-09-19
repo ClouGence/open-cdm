@@ -36,11 +36,13 @@ root
     ;
 
 queryStmt
-    : query (INTO OUTFILE stringLiteral)? (FORMAT identifierOrNull)?               # QueryStmtQuery
+    : query (INTO OUTFILE stringLiteral)?
+      ((FORMAT identifierOrNull) settingsClause? | settingsClause (FORMAT identifierOrNull)?)?               # QueryStmtQuery
     | insertStmt                                                                   # QueryStmtInsert
     | deleteStmt                                                                   # QueryStmtDelete
     | updateStmt                                                                   # QueryStmtUpdate
     | executeAsStmt                                                                # QueryStmtExecuteAs
+    | accessStmt                                                                   # QueryStmtAccess
     ;
 
 query
@@ -428,10 +430,183 @@ roleName: identifier | stringLiteral;
 executeAsStmt: EXECUTE AS (identifier | stringLiteral) executeAsBody?;
 // An impersonated statement is a child; it cannot recursively impersonate again.
 executeAsBody
-    : query (INTO OUTFILE stringLiteral)? (FORMAT identifierOrNull)? # ExecuteAsBodyQuery
+    : query (INTO OUTFILE stringLiteral)?
+      ((FORMAT identifierOrNull) settingsClause? | settingsClause (FORMAT identifierOrNull)?)? # ExecuteAsBodyQuery
     | insertStmt                                                   # ExecuteAsBodyInsert
     | deleteStmt                                                   # ExecuteAsBodyDelete
     | updateStmt                                                   # ExecuteAsBodyUpdate
+    ;
+
+// Access-control statements use structured clauses, not an opaque SQL tail.
+accessStmt
+    : createUserStmt | alterUserStmt | dropUserStmt
+    | createRoleStmt | alterRoleStmt | dropRoleStmt
+    | setDefaultRoleStmt | grantStmt | revokeStmt | checkGrantStmt
+    | createRowPolicyStmt | alterRowPolicyStmt | dropRowPolicyStmt
+    | createSettingsProfileStmt | alterSettingsProfileStmt | dropSettingsProfileStmt
+    | createQuotaStmt | alterQuotaStmt | dropQuotaStmt
+    ;
+accessName: identifier | stringLiteral;
+accessNameList: accessName (COMMA accessName)*;
+accessUserName: accessName (AT accessName)?;
+accessUserNames: accessUserName (COMMA accessUserName)*;
+accessRoleSet: NONE | ALL (EXCEPT excluded=accessUserNames)? | members=accessUserNames (EXCEPT excluded=accessUserNames)?;
+accessGrantees: ANY (EXCEPT accessUserNames)? | NONE | accessUserNames (EXCEPT accessUserNames)?;
+accessCreateGuard: IF NOT EXISTS | OR REPLACE;
+accessStorage: IN accessName;
+accessDropStorage: FROM accessName;
+accessRename: RENAME TO accessName;
+
+createUserStmt: CREATE USER accessCreateGuard? accessUserNames createUserClause*;
+createUserClause
+    : userAuthentication | userValidity | userHosts | userDefaultDatabase
+    | userRoles | userDefaultRoles | userGrantees | accessSettings
+    | clusterClause | accessStorage
+    ;
+alterUserStmt: ALTER USER (IF EXISTS)? accessUserNames alterUserClause+;
+alterUserClause
+    : userAuthentication | ADD userAuthentication | RESET AUTHENTICATION METHODS TO NEW
+    | userValidity | userHosts | (ADD | DROP) userHosts
+    | userDefaultDatabase | userDefaultRoles | userGrantees | alterAccessSettings
+    | accessRename | clusterClause | accessStorage
+    ;
+dropUserStmt: DROP USER (IF EXISTS)? accessUserNames accessDropStorage? clusterClause?;
+userRoles: ROLE accessRoleSet;
+userDefaultRoles: DEFAULT ROLE accessRoleSet;
+userDefaultDatabase: DEFAULT DATABASE (NONE | accessName);
+userGrantees: GRANTEES accessGrantees;
+userValidity: VALID (UNTIL stringLiteral | FOR INTERVAL numberLiteral interval);
+userAuthentication
+    : NOT IDENTIFIED
+    | IDENTIFIED (WITH authenticationMethod | BY authenticationString userValidity?)
+      (COMMA authenticationMethod)*
+    ;
+authenticationString: stringLiteral | queryParameter;
+authenticationMethod
+    : (PLAINTEXT_PASSWORD | SHA256_PASSWORD | DOUBLE_SHA1_PASSWORD | BCRYPT_PASSWORD | SCRAM_SHA256_PASSWORD)
+      BY authenticationString userValidity?
+    | (SHA256_HASH | SCRAM_SHA256_HASH) BY authenticationString (SALT authenticationString)? userValidity?
+    | (DOUBLE_SHA1_HASH | BCRYPT_HASH) BY authenticationString userValidity?
+    | NO_PASSWORD userValidity?
+    | LDAP SERVER authenticationString userValidity?
+    | KERBEROS (REALM authenticationString)? userValidity?
+    | SSL_CERTIFICATE (CN | SAN) authenticationString (COMMA authenticationString)* userValidity?
+    | SSH_KEY BY publicSshKey (COMMA publicSshKey)* userValidity?
+    | HTTP SERVER authenticationString (SCHEME authenticationString)? userValidity?
+    ;
+publicSshKey: KEY authenticationString TYPE authenticationString;
+userHosts: HOST (ANY | NONE | hostEntry (COMMA hostEntry)*);
+hostEntry: LOCAL | (NAME | REGEXP | LIKE | IP) stringLiteral (COMMA stringLiteral)*;
+
+createRoleStmt: CREATE ROLE accessCreateGuard? accessUserNames (accessSettings | clusterClause | accessStorage)*;
+alterRoleStmt: ALTER ROLE (IF EXISTS)? accessUserNames alterRoleClause+;
+alterRoleClause: accessRename | alterAccessSettings | clusterClause | accessStorage;
+dropRoleStmt: DROP ROLE (IF EXISTS)? accessUserNames accessDropStorage? clusterClause?;
+setDefaultRoleStmt: SET DEFAULT ROLE accessRoleSet TO accessUserNames;
+
+// Persistent settings have constraints/inheritance and a separate ALTER syntax.
+// They must not be mistaken for standalone SET or its session-variable semantics.
+accessSettings
+    : (SETTING | SETTINGS) (NONE | accessSetting (COMMA accessSetting)*)
+    | (PROFILE | PROFILES) accessNameList
+    | INHERIT (PROFILE | PROFILES)? accessNameList
+    ;
+accessSetting
+    : (PROFILE | INHERIT (PROFILE | PROFILES)?) accessName
+    | nestedIdentifier (EQ_SINGLE literal)? settingConstraint*
+    ;
+settingConstraint: (MIN | MAX) EQ_SINGLE? literal | READONLY | CONST | WRITABLE | CHANGEABLE_IN_READONLY;
+alterAccessSettings: accessSettings | alterAccessSetting (COMMA alterAccessSetting)*;
+alterAccessSetting
+    : (ADD | MODIFY) (SETTING | SETTINGS) accessSetting
+    | SET nestedIdentifier (EQ_SINGLE literal)? settingConstraint*
+    | ADD (PROFILE | PROFILES) accessNameList
+    | DROP (SETTING | SETTINGS) nestedIdentifier (COMMA nestedIdentifier)*
+    | DROP (PROFILE | PROFILES) accessNameList
+    | DROP ALL (SETTINGS | PROFILES)
+    ;
+
+// A privilege is a named capability. Its object/column list is never a query.
+grantStmt
+    : GRANT clusterClause? (accessRights | currentGrants | accessUserNames)
+      clusterClause? TO accessUserNames clusterClause? grantOption? replaceGrantOption? clusterClause?
+    ;
+grantOption: WITH (GRANT | ADMIN) OPTION;
+replaceGrantOption: WITH REPLACE OPTION;
+currentGrants: CURRENT GRANTS (ON accessScope | LPAREN accessRights RPAREN);
+revokeStmt
+    : REVOKE clusterClause? ((GRANT | ADMIN) OPTION FOR)? (accessRights | accessRoleSet)
+      clusterClause? FROM accessRoleSet clusterClause?
+    ;
+checkGrantStmt: CHECK GRANT accessRights;
+accessRights: accessRightGroup (COMMA accessRightGroup)*;
+accessRightGroup: accessPrivilegeColumns (COMMA accessPrivilegeColumns)* ON accessScope;
+accessPrivilegeColumns: accessPrivilege (LPAREN identifier (COMMA identifier)* RPAREN)?;
+accessScope
+    : ASTERISK (DOT ASTERISK)?
+    | identifier ASTERISK? (DOT (ASTERISK | identifier ASTERISK?))?
+      (LPAREN stringLiteral RPAREN)?
+    ;
+accessPrivilege
+    : ALL PRIVILEGES? | NONE | SELECT | INSERT | UPDATE | DELETE | ALTER | CREATE | DROP | SHOW
+    | CREATE (USER | ROLE | ROW? POLICY | QUOTA | SETTINGS? PROFILE | TABLE | VIEW | DATABASE
+              | DICTIONARY | FUNCTION | NAMED COLLECTION)
+    | ALTER (USER | ROLE | ROW? POLICY | QUOTA | SETTINGS? PROFILE | TABLE | VIEW | DATABASE
+             | NAMED COLLECTION | UPDATE | DELETE | ADD COLUMN | DROP COLUMN | MODIFY COLUMN | RENAME COLUMN)
+    | DROP (USER | ROLE | ROW? POLICY | QUOTA | SETTINGS? PROFILE | TABLE | VIEW | DATABASE
+            | DICTIONARY | FUNCTION | NAMED COLLECTION)
+    | SHOW (USERS | ROLES | ROW? POLICIES | QUOTAS | SETTINGS? PROFILES | ACCESS
+            | DATABASES | TABLES | COLUMNS | DICTIONARIES | NAMED COLLECTIONS)
+    | ACCESS MANAGEMENT | ROLE ADMIN | TRUNCATE | OPTIMIZE | BACKUP | DICTGET
+    | SYSTEM (RELOAD (DICTIONARY | DICTIONARIES) | FLUSH LOGS | SHUTDOWN | SYNC REPLICA
+              | (START | STOP) (MERGES | TTL MERGES | FETCHES | DISTRIBUTED SENDS | REPLICATED SENDS))
+    | KILL QUERY_SQL | TABLE ENGINE | NAMED COLLECTION | IMPERSONATE | DISPLAY_SECRETS
+    | READ | WRITE | SOURCES
+    ;
+
+rowPolicyNames: accessNameList clusterClause? ON accessScope (COMMA accessScope)* (COMMA accessNameList ON accessScope)*;
+createRowPolicyStmt
+    : CREATE ROW? POLICY accessCreateGuard? rowPolicyNames rowPolicyClause* (TO accessRoleSet)? clusterClause?
+    ;
+alterRowPolicyStmt
+    : ALTER ROW? POLICY (IF EXISTS)? rowPolicyNames (accessRename | rowPolicyClause)* (TO accessRoleSet)? clusterClause?
+    ;
+rowPolicyClause
+    : AS (PERMISSIVE | RESTRICTIVE)
+    | (FOR (SELECT | ALL))? USING (NONE | columnExpr)
+    | clusterClause | accessStorage
+    ;
+dropRowPolicyStmt: DROP ROW? POLICY (IF EXISTS)? rowPolicyNames accessDropStorage? clusterClause?;
+
+createSettingsProfileStmt
+    : CREATE SETTINGS? PROFILE accessCreateGuard? accessNameList
+      (accessSettings | clusterClause | accessStorage)* (TO accessRoleSet)? clusterClause?
+    ;
+alterSettingsProfileStmt
+    : ALTER SETTINGS? PROFILE (IF EXISTS)? accessNameList
+      (accessRename | alterAccessSettings | clusterClause | accessStorage)* (TO accessRoleSet)? clusterClause?
+    ;
+dropSettingsProfileStmt: DROP SETTINGS? PROFILE (IF EXISTS)? accessNameList accessDropStorage? clusterClause?;
+
+createQuotaStmt: CREATE QUOTA accessCreateGuard? accessNameList quotaClause* (TO accessRoleSet)? clusterClause?;
+alterQuotaStmt: ALTER QUOTA (IF EXISTS)? accessNameList (accessRename | quotaClause)* (TO accessRoleSet)? clusterClause?;
+dropQuotaStmt: DROP QUOTA (IF EXISTS)? accessNameList accessDropStorage? clusterClause?;
+quotaClause
+    : NOT KEYED | (KEY | KEYED) BY accessNameList
+    | (IPV4_PREFIX_BITS | IPV6_PREFIX_BITS) DECIMAL_LITERAL
+    | quotaInterval (COMMA quotaInterval)*
+    | clusterClause | accessStorage
+    ;
+quotaInterval: FOR RANDOMIZED? INTERVAL? numberLiteral interval (NO LIMITS | TRACKING ONLY | quotaLimits);
+quotaLimits
+    : MAX quotaResource EQ_SINGLE? quotaValue (COMMA MAX? quotaResource EQ_SINGLE? quotaValue)*
+    | quotaResource MAX quotaValue (COMMA quotaResource MAX quotaValue)*
+    ;
+quotaValue: numberLiteral | stringLiteral;
+quotaResource
+    : QUERIES | ERRORS | QUERY_SQL SELECTS | QUERY_SQL INSERTS | RESULT ROWS | RESULT BYTES
+    | READ ROWS | READ BYTES | EXECUTION TIME | WRITTEN BYTES
+    | QUERY_SELECTS | QUERY_INSERTS | RESULT_ROWS | RESULT_BYTES | READ_ROWS | READ_BYTES | EXECUTION_TIME | WRITTEN_BYTES
     ;
 
 // SHOW statements
@@ -446,16 +621,16 @@ showStmt
     | SHOW EXTENDED? FULL? (COLUMNS | FIELDS) (FROM | IN) (tableIdentifier | (identifier (FROM | IN) identifier)) ((NOT? (LIKE | ILIKE) stringLiteral) | WHERE columnExpr)? (LIMIT DECIMAL_LITERAL)?  # showColumnsStmt
     | SHOW EXTENDED? (INDEX | INDEXES | INDICES | KEYS) (FROM | IN) (tableIdentifier | (identifier (FROM | IN) identifier)) (WHERE columnExpr)?                                                       # showIndexStmt
     | SHOW PROCESSLIST                                                                                                                                                                                # showProcessListStmt
-    | SHOW GRANTS (FOR identifier (COMMA identifier)*)? (WITH IMPLICIT)? (FINAL)?                                                                                                                     # showGrantsStmt
-    | SHOW CREATE USER ((identifier (COMMA identifier)*) | CURRENT_USER)?                                                                                                                             # showCreateUserStmt
-    | SHOW CREATE ROLE identifier (COMMA identifier)*                                                                                                                                                 # showCreateRoleStmt
-    | SHOW CREATE ROW? POLICY identifier ON tableIdentifier (COMMA tableIdentifier)*                                                                                                                  # showCreatePolicyStmt
-    | SHOW CREATE QUOTA ((identifier (COMMA identifier)*) | CURRENT)                                                                                                                                  # showCreateQuotaStmt
-    | SHOW CREATE SETTINGS? PROFILE identifier (COMMA identifier)*                                                                                                                                    # showCreateProfileStmt
+    | SHOW GRANTS (FOR accessRoleSet)? ((WITH IMPLICIT) FINAL? | FINAL (WITH IMPLICIT)?)? # showGrantsStmt
+    | SHOW CREATE (USER accessUserNames? | USERS accessUserNames?) # showCreateUserStmt
+    | SHOW CREATE (ROLE accessUserNames | ROLES accessUserNames?) # showCreateRoleStmt
+    | SHOW CREATE ROW? (POLICY (rowPolicyNames | accessName | ON accessScope) | POLICIES (rowPolicyNames | accessName | ON accessScope)?) # showCreatePolicyStmt
+    | SHOW CREATE (QUOTA (CURRENT | accessNameList)? | QUOTAS accessNameList?) # showCreateQuotaStmt
+    | SHOW CREATE SETTINGS? (PROFILE accessNameList | PROFILES accessNameList?) # showCreateProfileStmt
     | SHOW USERS                                                                                                                                                                                      # showUsersStmt
     | SHOW (CURRENT | ENABLED)? ROLES                                                                                                                                                                 # showRolesStmt
     | SHOW SETTINGS? PROFILES                                                                                                                                                                         # showProfilesStmt
-    | SHOW ROW? POLICIES (ON tableIdentifier)?                                                                                                                                                        # showPoliciesStmt
+    | SHOW ROW? POLICIES (ON accessScope | accessName)? # showPoliciesStmt
     | SHOW QUOTAS                                                                                                                                                                                     # showQuotasStmt
     | SHOW CURRENT? QUOTA                                                                                                                                                                             # showQuotaStmt
     | SHOW ACCESS                                                                                                                                                                                     # showAccessStmt
@@ -637,6 +812,13 @@ keyword
     | POLICY | POLICIES | POPULATE | PRECEDING | PREWHERE | PRIMARY | PRIVILEGES | PROCESSLIST | PROFILE | PROFILES | PROJECTION | QUARTER | QUOTA | QUOTAS | RANGE | RECURSIVE | RELOAD | REMOVE | RENAME | REPLACE | REPLICA | REPLICATED | RIGHT | ROLE | ROLES | ROLLUP | ROW
     | ROWS | SAMPLE | SECOND | SELECT | SEMI | SENDS | SET | SETTING | SETTINGS | SHOW | SOURCE | START | STOP | SUBSTRING | SYNC | SYNTAX | SYSTEM | STEP | TABLE
     | TABLES | TEMPORARY | TEST | THEN | TIES | TIMEOUT | TIMESTAMP | TO | TOP | TOTALS | TRAILING | TREE | TRIM | TRUNCATE | TTL | TYPE
+    | ADMIN | AUTHENTICATION | BACKUP | BCRYPT_HASH | BCRYPT_PASSWORD | BYTES | CHANGEABLE_IN_READONLY | CN | COLLECTION | COLLECTIONS | CONST
+    | DICTGET | DISPLAY_SECRETS | DOUBLE_SHA1_HASH | DOUBLE_SHA1_PASSWORD | ERRORS | EXECUTION | EXECUTION_TIME | GRANT | GRANTEES | HOST | HTTP
+    | IDENTIFIED | IMPERSONATE | INHERIT | INSERTS | IP | IPV4_PREFIX_BITS | IPV6_PREFIX_BITS | KERBEROS | KEYED | LDAP | LIMITS | MANAGEMENT
+    | METHODS | NAME | NAMED | NEW | NO_PASSWORD | ONLY | OPTION | PERMISSIVE | PLAINTEXT_PASSWORD | QUERIES | QUERY_INSERTS | QUERY_SELECTS
+    | RANDOMIZED | READ | READONLY | READ_BYTES | READ_ROWS | REALM | REGEXP | RESET | RESTRICTIVE | RESULT | RESULT_BYTES | RESULT_ROWS
+    | REVOKE | SALT | SAN | SCHEME | SCRAM_SHA256_HASH | SCRAM_SHA256_PASSWORD | SELECTS | SERVER | SHA256_HASH | SHA256_PASSWORD | SHUTDOWN
+    | SOURCES | SSH_KEY | SSL_CERTIFICATE | TRACKING | UNTIL | VALID | WRITABLE | WRITE | WRITTEN | WRITTEN_BYTES | QUERY_SQL
     | EXECUTE | NONE | NULLABLE | TIME | ZONE
     | UNBOUNDED | UNION | UPDATE | USE | USER | USERS | USING | UUID | VALUES | VIEW | VOLUME | WATCH | WEEK | WHEN | WHERE | WINDOW | WITH | YEAR
     ;
@@ -650,6 +832,13 @@ keywordForAlias
     | PARTITION | POPULATE | PRECEDING | PRIMARY | RANGE | RELOAD | REMOVE | RENAME | REPLACE | REPLICA | REPLICATED | ROLLUP | ROW
     | SELECT | SENDS | SET | SHOW | SOURCE | START | STOP | SUBSTRING | SYNC | SYNTAX | SYSTEM | TABLE | TABLES | TEMPORARY
     | TEST | TIES | TIMEOUT | TIMESTAMP | TOTALS | TRAILING | TRIM | TRUNCATE | TTL | TYPE | UNBOUNDED | UPDATE
+    | ADMIN | AUTHENTICATION | BACKUP | BCRYPT_HASH | BCRYPT_PASSWORD | BYTES | CHANGEABLE_IN_READONLY | CN | COLLECTION | COLLECTIONS | CONST
+    | DICTGET | DISPLAY_SECRETS | DOUBLE_SHA1_HASH | DOUBLE_SHA1_PASSWORD | ERRORS | EXECUTION | EXECUTION_TIME | GRANT | GRANTEES | HOST | HTTP
+    | IDENTIFIED | IMPERSONATE | INHERIT | INSERTS | IP | IPV4_PREFIX_BITS | IPV6_PREFIX_BITS | KERBEROS | KEYED | LDAP | LIMITS | MANAGEMENT
+    | METHODS | NAME | NAMED | NEW | NO_PASSWORD | ONLY | OPTION | PERMISSIVE | PLAINTEXT_PASSWORD | QUERIES | QUERY_INSERTS | QUERY_SELECTS
+    | RANDOMIZED | READ | READONLY | READ_BYTES | READ_ROWS | REALM | REGEXP | RESET | RESTRICTIVE | RESULT | RESULT_BYTES | RESULT_ROWS
+    | REVOKE | SALT | SAN | SCHEME | SCRAM_SHA256_HASH | SCRAM_SHA256_PASSWORD | SELECTS | SERVER | SHA256_HASH | SHA256_PASSWORD | SHUTDOWN
+    | SOURCES | SSH_KEY | SSL_CERTIFICATE | TRACKING | UNTIL | VALID | WRITABLE | WRITE | WRITTEN | WRITTEN_BYTES | QUERY_SQL
     | USE | UUID | VALUES | VIEW | VOLUME | WATCH | EXECUTE | NONE | TIME | ZONE
     ;
 alias: IDENTIFIER | keywordForAlias;  // |interval| can't be an alias, otherwise 'INTERVAL 1 SOMETHING' becomes ambiguous.

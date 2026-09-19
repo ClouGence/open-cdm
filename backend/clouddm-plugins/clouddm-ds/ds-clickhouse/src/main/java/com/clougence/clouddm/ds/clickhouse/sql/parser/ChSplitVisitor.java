@@ -137,12 +137,12 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowQuotasStmt(ShowQuotasStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowQuotaStmt(ShowQuotaStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -199,27 +199,27 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowUsersStmt(ShowUsersStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowProfilesStmt(ShowProfilesStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowPoliciesStmt(ShowPoliciesStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowCreateQuotaStmt(ShowCreateQuotaStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowAccessStmt(ShowAccessStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -249,7 +249,7 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowPrivilegesStmt(ShowPrivilegesStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -280,5 +280,147 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitSelectUnionStmt(SelectUnionStmtContext ctx) {
         return SplitQueryType.SELECT;
+    }
+
+    @Override
+    public SplitQueryType visitCreateUserStmt(CreateUserStmtContext ctx) {
+        return SplitQueryType.CREATE_USER;
+    }
+
+    @Override
+    public SplitQueryType visitDropUserStmt(DropUserStmtContext ctx) {
+        return SplitQueryType.DROP_USER;
+    }
+
+    @Override
+    public SplitQueryType visitCreateRoleStmt(CreateRoleStmtContext ctx) {
+        return SplitQueryType.CREATE_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitDropRoleStmt(DropRoleStmtContext ctx) {
+        return SplitQueryType.DROP_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultRoleStmt(SetDefaultRoleStmtContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitGrantStmt(GrantStmtContext ctx) {
+        return SplitQueryType.GRANT;
+    }
+
+    @Override
+    public SplitQueryType visitRevokeStmt(RevokeStmtContext ctx) {
+        return SplitQueryType.REVOKE;
+    }
+
+    @Override
+    public SplitQueryType visitCheckGrantStmt(CheckGrantStmtContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitCreateRowPolicyStmt(CreateRowPolicyStmtContext ctx) {
+        return SplitQueryType.CREATE_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitAlterRowPolicyStmt(AlterRowPolicyStmtContext ctx) {
+        return SplitQueryType.ALTER_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitDropRowPolicyStmt(DropRowPolicyStmtContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitCreateSettingsProfileStmt(CreateSettingsProfileStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterSettingsProfileStmt(AlterSettingsProfileStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropSettingsProfileStmt(DropSettingsProfileStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateQuotaStmt(CreateQuotaStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterQuotaStmt(AlterQuotaStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropQuotaStmt(DropQuotaStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateUserStmt(ShowCreateUserStmtContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateRoleStmt(ShowCreateRoleStmtContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreatePolicyStmt(ShowCreatePolicyStmtContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateProfileStmt(ShowCreateProfileStmtContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowGrantsStmt(ShowGrantsStmtContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitAlterUserStmt(AlterUserStmtContext ctx) {
+        boolean rename = false;
+        for (AlterUserClauseContext clause : ctx.alterUserClause()) {
+            if (clause.accessRename() != null) {
+                rename = true;
+            } else if (clause.clusterClause() == null && clause.accessStorage() == null) {
+                return SplitQueryType.ALTER_USER;
+            }
+        }
+        if (rename) {
+            return SplitQueryType.RENAME_USER;
+        }
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitAlterRoleStmt(AlterRoleStmtContext ctx) {
+        boolean rename = false;
+        for (AlterRoleClauseContext clause : ctx.alterRoleClause()) {
+            if (clause.accessRename() != null) {
+                rename = true;
+            } else if (clause.alterAccessSettings() != null) {
+                return SplitQueryType.ALTER_ROLE;
+            }
+        }
+        if (rename) {
+            return SplitQueryType.RENAME_ROLE;
+        }
+        return SplitQueryType.ALTER_ROLE;
     }
 }

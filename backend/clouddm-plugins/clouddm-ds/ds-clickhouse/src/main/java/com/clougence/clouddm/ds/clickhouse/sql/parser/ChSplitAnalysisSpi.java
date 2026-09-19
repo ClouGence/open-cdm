@@ -55,6 +55,43 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof ClickHouseParser.CreateUserStmtContext user) {
+            // Explicit ROLE takes precedence over the implicit grant in named DEFAULT ROLE.
+            ClickHouseParser.AccessRoleSetContext defaults = null;
+            for (ClickHouseParser.CreateUserClauseContext clause : user.createUserClause()) {
+                if (clause.userRoles() != null) {
+                    if (clause.userRoles().accessRoleSet().members != null) {
+                        return SplitQueryType.GRANT;
+                    }
+                    return null;
+                }
+                if (clause.userDefaultRoles() != null) {
+                    defaults = clause.userDefaultRoles().accessRoleSet();
+                }
+            }
+            if (defaults != null && defaults.members != null) {
+                return SplitQueryType.GRANT;
+            }
+        }
+        if (tree instanceof ClickHouseParser.ReplaceGrantOptionContext) {
+            return SplitQueryType.REVOKE;
+        }
+        if (tree instanceof ClickHouseParser.AccessRenameContext rename) {
+            if (rename.getParent() instanceof ClickHouseParser.AlterUserClauseContext) {
+                return SplitQueryType.RENAME_USER;
+            }
+            if (rename.getParent() instanceof ClickHouseParser.AlterRoleClauseContext) {
+                return SplitQueryType.RENAME_ROLE;
+            }
+        }
+        if (tree instanceof ClickHouseParser.ColumnExprFunctionContext) {
+            for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+                if (parent instanceof ClickHouseParser.RowPolicyClauseContext) {
+                    // A policy filter is stored for later queries, not evaluated by this DDL.
+                    return null;
+                }
+            }
+        }
         if (tree instanceof ClickHouseParser.QueryParameterContext) {
             return SplitQueryType.SESSION_VARIABLE_RW;
         }
