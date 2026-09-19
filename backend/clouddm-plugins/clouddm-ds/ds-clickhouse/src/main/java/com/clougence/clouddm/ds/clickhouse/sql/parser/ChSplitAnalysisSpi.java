@@ -55,6 +55,19 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof ClickHouseParser.SystemShutdownStmtContext
+            || tree instanceof ClickHouseParser.SystemSuspendStmtContext
+            || tree instanceof ClickHouseParser.SystemReloadFunctionStmtContext
+            || tree instanceof ClickHouseParser.SystemReloadFunctionsStmtContext) {
+            return SplitQueryType.UNSAFE;
+        }
+        if (tree instanceof ClickHouseParser.SystemListenStmtContext listen && listen.STOP() != null) {
+            ClickHouseParser.SystemListenTargetContext target = listen.systemListenTarget();
+            // Closing all/default query endpoints can make the instance unavailable.
+            if (target.EXCEPT() == null && (target.ALL() != null || target.DEFAULT() != null)) {
+                return SplitQueryType.UNSAFE;
+            }
+        }
         if (tree instanceof ClickHouseParser.CreateUserStmtContext user) {
             // Explicit ROLE takes precedence over the implicit grant in named DEFAULT ROLE.
             ClickHouseParser.AccessRoleSetContext defaults = null;

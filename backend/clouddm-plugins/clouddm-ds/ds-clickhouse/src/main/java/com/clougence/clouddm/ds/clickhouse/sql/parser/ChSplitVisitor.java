@@ -132,7 +132,7 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowEnginesStmt(ShowEnginesStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -224,22 +224,22 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowClusterStmt(ShowClusterStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowClustersStmt(ShowClustersStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowFilesystemCaches(ShowFilesystemCachesContext ctx) {
-        return SplitQueryType.PERFORMANCE;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowFunctionsStmt(ShowFunctionsStmtContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -422,5 +422,143 @@ public class ChSplitVisitor extends ClickHouseParserBaseVisitor<SplitQueryType> 
             return SplitQueryType.RENAME_ROLE;
         }
         return SplitQueryType.ALTER_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemConfigurationStmt(SystemConfigurationStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReloadDictionariesStmt(SystemReloadDictionariesStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReloadDictionaryStmt(SystemReloadDictionaryStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemUnloadDictionariesStmt(SystemUnloadDictionariesStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemUnloadDictionaryStmt(SystemUnloadDictionaryStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReloadModelsStmt(SystemReloadModelsStmtContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReloadModelStmt(SystemReloadModelStmtContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReloadFunctionsStmt(SystemReloadFunctionsStmtContext ctx) {
+        return SplitQueryType.ADMIN_PROG_OBJ;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReloadFunctionStmt(SystemReloadFunctionStmtContext ctx) {
+        return SplitQueryType.ADMIN_PROG_OBJ;
+    }
+
+    @Override
+    public SplitQueryType visitSystemCacheStmt(SystemCacheStmtContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemReloadMetricsStmt(SystemReloadMetricsStmtContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemJemallocPurgeStmt(SystemJemallocPurgeStmtContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemFlushLogsStmt(SystemFlushLogsStmtContext ctx) {
+        return SplitQueryType.MAINTAIN_LOG;
+    }
+
+    @Override
+    public SplitQueryType visitSystemListenStmt(SystemListenStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSystemShutdownStmt(SystemShutdownStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemSuspendStmt(SystemSuspendStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitSystemRestartDiskStmt(SystemRestartDiskStmtContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCreateNamedCollectionStmt(CreateNamedCollectionStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAlterNamedCollectionStmt(AlterNamedCollectionStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropNamedCollectionStmt(DropNamedCollectionStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateResourceStmt(CreateResourceStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDropResourceStmt(DropResourceStmtContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreateWorkloadStmt(CreateWorkloadStmtContext ctx) {
+        return SplitQueryType.CREATE_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitDropWorkloadStmt(DropWorkloadStmtContext ctx) {
+        return SplitQueryType.DROP_RESOURCE_GROUP;
+    }
+
+    @Override
+    public SplitQueryType visitShowProcessListStmt(ShowProcessListStmtContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDescribeCacheStmt(DescribeCacheStmtContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitKillQueryStmt(KillQueryStmtContext ctx) {
+        if (ctx.TEST() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.ADMIN;
     }
 }

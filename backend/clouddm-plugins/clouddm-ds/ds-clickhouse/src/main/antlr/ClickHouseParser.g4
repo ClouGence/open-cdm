@@ -27,6 +27,18 @@ options {
         }
         return name.startsWith("param_");
     }
+
+    private boolean isColumnAliasAllowed() {
+        for (ParserRuleContext context = _ctx; context != null; context = context.getParent()) {
+            if (context instanceof SelectStmtContext) {
+                return true;
+            }
+            if (context instanceof KillWhereClauseContext) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 // Top-level statements
@@ -42,6 +54,7 @@ queryStmt
     | deleteStmt                                                                   # QueryStmtDelete
     | updateStmt                                                                   # QueryStmtUpdate
     | executeAsStmt                                                                # QueryStmtExecuteAs
+    | systemDefinitionStmt                                                         # QueryStmtSystemDefinition
     | accessStmt                                                                   # QueryStmtAccess
     ;
 
@@ -50,6 +63,7 @@ query
     | attachStmt    // DDL
     | checkStmt
     | createStmt    // DDL
+    | describeCacheStmt
     | describeStmt
     | dropStmt      // DDL
     | existsStmt
@@ -227,6 +241,7 @@ ttlSetExpr: columnExpr EQ_SINGLE columnExpr;
 // DESCRIBE statement
 
 describeStmt: (DESCRIBE | DESC) TABLE? tableExpr;
+describeCacheStmt: (DESCRIBE | DESC) FILESYSTEM CACHE stringLiteral;
 
 // DROP statement
 
@@ -287,7 +302,11 @@ updateStmt
 
 killStmt
     : KILL MUTATION clusterClause? whereClause (SYNC | ASYNC | TEST)?  # KillMutationStmt
+    | KILL QUERY_SQL clusterClause? killWhereClause (SYNC | ASYNC | TEST)? # KillQueryStmt
     ;
+
+// KILL predicates do not accept aliases; SYNC/ASYNC/TEST are trailing command modes.
+killWhereClause: WHERE columnExpr;
 
 // OPTIMIZE statement
 
@@ -634,7 +653,7 @@ showStmt
     | SHOW QUOTAS                                                                                                                                                                                     # showQuotasStmt
     | SHOW CURRENT? QUOTA                                                                                                                                                                             # showQuotaStmt
     | SHOW ACCESS                                                                                                                                                                                     # showAccessStmt
-    | SHOW CLUSTER stringLiteral                                                                                                                                                                      # showClusterStmt
+    | SHOW CLUSTER (identifier | stringLiteral)                                                                                                                                                                      # showClusterStmt
     | SHOW CLUSTERS (NOT? (LIKE | ILIKE) stringLiteral)? (LIMIT DECIMAL_LITERAL)?                                                                                                                     # showClustersStmt
     | SHOW CHANGED? SETTINGS (LIKE | ILIKE) stringLiteral                                                                                                                                             # showSettingsStmt
     | SHOW SETTING (identifier | stringLiteral)                                                                                                                                                                      # showSettingStmt
@@ -649,14 +668,89 @@ showStmt
 // SYSTEM statements
 
 systemStmt
-    : SYSTEM FLUSH DISTRIBUTED tableIdentifier
-    | SYSTEM FLUSH LOGS
-    | SYSTEM RELOAD DICTIONARIES
-    | SYSTEM RELOAD DICTIONARY tableIdentifier
-    | SYSTEM (START | STOP) (DISTRIBUTED SENDS | FETCHES | TTL? MERGES) tableIdentifier
-    | SYSTEM (START | STOP) REPLICATED SENDS
-    | SYSTEM SYNC REPLICA tableIdentifier
+    : SYSTEM RELOAD (CONFIG | USERS) clusterClause?                                      # SystemConfigurationStmt
+    | SYSTEM RELOAD (EMBEDDED DICTIONARIES | DICTIONARIES) clusterClause?                  # SystemReloadDictionariesStmt
+    | SYSTEM RELOAD DICTIONARY systemDictionaryTarget                                    # SystemReloadDictionaryStmt
+    | SYSTEM UNLOAD DICTIONARIES clusterClause?                                          # SystemUnloadDictionariesStmt
+    | SYSTEM UNLOAD DICTIONARY systemDictionaryTarget                                    # SystemUnloadDictionaryStmt
+    | SYSTEM RELOAD MODELS clusterClause?                                                # SystemReloadModelsStmt
+    | SYSTEM RELOAD MODEL systemNamedTarget                                             # SystemReloadModelStmt
+    | SYSTEM RELOAD FUNCTIONS clusterClause?                                             # SystemReloadFunctionsStmt
+    | SYSTEM RELOAD FUNCTION systemNamedTarget                                           # SystemReloadFunctionStmt
+    | SYSTEM systemCacheCommand                                                         # SystemCacheStmt
+    | SYSTEM RELOAD ASYNCHRONOUS METRICS clusterClause?                                  # SystemReloadMetricsStmt
+    | SYSTEM JEMALLOC PURGE clusterClause?                                               # SystemJemallocPurgeStmt
+    | SYSTEM FLUSH LOGS clusterClause? (tableIdentifier (COMMA tableIdentifier)*)?         # SystemFlushLogsStmt
+    | SYSTEM (START | STOP) LISTEN clusterClause? systemListenTarget                      # SystemListenStmt
+    | SYSTEM (SHUTDOWN | KILL) clusterClause?                                             # SystemShutdownStmt
+    | SYSTEM SUSPEND clusterClause? FOR DECIMAL_LITERAL SECOND                            # SystemSuspendStmt
+    | SYSTEM RESTART DISK systemNamedTarget                                              # SystemRestartDiskStmt
+    | SYSTEM FLUSH DISTRIBUTED tableIdentifier                                           # SystemFlushDistributedStmt
+    | SYSTEM (START | STOP) (DISTRIBUTED SENDS | FETCHES | TTL? MERGES) tableIdentifier     # SystemTableControlStmt
+    | SYSTEM (START | STOP) REPLICATED SENDS                                              # SystemReplicatedSendsStmt
+    | SYSTEM SYNC REPLICA tableIdentifier                                                # SystemSyncReplicaStmt
     ;
+
+// Target-bearing commands accept ON CLUSTER either before or after the target, once.
+systemDictionaryTarget
+    : clusterClause (tableIdentifier | stringLiteral)
+    | (tableIdentifier | stringLiteral) clusterClause?
+    ;
+systemNamedTarget
+    : clusterClause (identifier | stringLiteral)
+    | (identifier | stringLiteral) clusterClause?
+    ;
+
+systemCacheCommand
+    : (CLEAR | DROP) systemSimpleCache clusterClause?
+    | (CLEAR | DROP) QUERY_SQL CACHE (TAG stringLiteral)? clusterClause?
+    | (CLEAR | DROP) FILESYSTEM CACHE (stringLiteral (KEY identifier (OFFSET DECIMAL_LITERAL)?)?)? clusterClause?
+    | (CLEAR | DROP) DISK METADATA CACHE systemNamedTarget
+    | (CLEAR | DROP) SCHEMA CACHE (FOR (FILE | S3 | HDFS | URL | AZURE))?
+    | (CLEAR | DROP) FORMAT SCHEMA CACHE (FOR (PROTOBUF | FILES))?
+    | SYNC FILESYSTEM CACHE stringLiteral? clusterClause?
+    ;
+systemSimpleCache
+    : (DNS | CONNECTIONS | MARK | PRIMARY INDEX | UNCOMPRESSED | INDEX MARK | INDEX UNCOMPRESSED
+      | VECTOR SIMILARITY INDEX | TEXT INDEX (TOKENS | HEADER | POSTINGS) | MMAP | QUERY_SQL CONDITION
+      | ENCRYPTION HEADERS | COMPILED EXPRESSION | ICEBERG METADATA | PAIMON METADATA | PARQUET METADATA
+      | POINT IN POLYGON | PAGE | AVRO SCHEMA | S3 CLIENT) CACHE
+    | TEXT INDEX CACHES
+    ;
+systemListenTarget
+    : systemListenProtocol
+    | QUERIES (ALL | DEFAULT | CUSTOM) (EXCEPT systemListenProtocol (COMMA systemListenProtocol)*)?
+    ;
+systemListenProtocol
+    : TCP (SSH | WITH PROXY | SECURE)?
+    | HTTP | HTTPS | MYSQL | GRPC | POSTGRESQL | PROMETHEUS | INTERSERVER (HTTP | HTTPS)
+    | ARROW_SQL FLIGHT | CUSTOM stringLiteral
+    ;
+
+// Persistent definitions use the non-output query entry, like access-control DDL.
+systemDefinitionStmt
+    : CREATE NAMED COLLECTION (IF NOT EXISTS)? identifier clusterClause? AS namedCollectionSettings          # CreateNamedCollectionStmt
+    | ALTER NAMED COLLECTION (IF EXISTS)? identifier clusterClause?
+      (SET namedCollectionSettings (DELETE identifier (COMMA identifier)*)? | DELETE identifier (COMMA identifier)*) # AlterNamedCollectionStmt
+    | DROP NAMED COLLECTION (IF EXISTS)? identifier clusterClause?                                          # DropNamedCollectionStmt
+    | (CREATE RESOURCE (IF NOT EXISTS)? | CREATE OR REPLACE RESOURCE) identifier clusterClause?
+      LPAREN resourceOperations RPAREN                                                                       # CreateResourceStmt
+    | DROP RESOURCE (IF EXISTS)? identifier clusterClause?                                                   # DropResourceStmt
+    | (CREATE WORKLOAD (IF NOT EXISTS)? | CREATE OR REPLACE WORKLOAD) identifier clusterClause?
+      (IN identifier)? (SETTINGS workloadSetting (COMMA workloadSetting)*)?                                   # CreateWorkloadStmt
+    | DROP WORKLOAD (IF EXISTS)? identifier clusterClause?                                                   # DropWorkloadStmt
+    ;
+namedCollectionSettings: namedCollectionSetting (COMMA namedCollectionSetting)*;
+namedCollectionSetting: identifier EQ_SINGLE literal (NOT? OVERRIDABLE)?;
+resourceOperations
+    : resourceDiskOperation (COMMA resourceDiskOperation)*
+    | resourceThreadOperation (COMMA resourceThreadOperation)*
+    | QUERY_SQL
+    | MEMORY RESERVATION
+    ;
+resourceDiskOperation: (READ | WRITE) (ANY DISK | DISK identifier);
+resourceThreadOperation: (MASTER | WORKER) THREAD;
+workloadSetting: identifier EQ_SINGLE literal (FOR identifier)?;
 
 // TRUNCATE statements
 
@@ -733,7 +827,7 @@ columnExpr
     | columnExpr AND columnExpr                                                           # ColumnExprAnd
     | columnExpr OR columnExpr                                                            # ColumnExprOr
     | <assoc=right> columnExpr QUERY columnExpr COLON columnExpr                          # ColumnExprTernaryOp
-    | columnExpr (alias | AS identifier)                                                  # ColumnExprAlias
+    | columnExpr {isColumnAliasAllowed()}? (alias | AS identifier)                                                  # ColumnExprAlias
 
     | (tableIdentifier DOT)? ASTERISK                                                     # ColumnExprAsterisk  // single-column only
     | LPAREN selectUnionStmt RPAREN                                                       # ColumnExprSubquery  // single-column only
@@ -821,6 +915,13 @@ keyword
     | SOURCES | SSH_KEY | SSL_CERTIFICATE | TRACKING | UNTIL | VALID | WRITABLE | WRITE | WRITTEN | WRITTEN_BYTES | QUERY_SQL
     | EXECUTE | NONE | NULLABLE | TIME | ZONE
     | UNBOUNDED | UNION | UPDATE | USE | USER | USERS | USING | UUID | VALUES | VIEW | VOLUME | WATCH | WEEK | WHEN | WHERE | WINDOW | WITH | YEAR
+    | ARROW_SQL | ASYNCHRONOUS | AVRO | AZURE | CACHE | CLIENT | COMPILED | CONDITION | CONFIG | CONNECTIONS
+    | CUSTOM | DNS | EMBEDDED | ENCRYPTION | FILE | FILES | FLIGHT | GRPC | HDFS | HEADER
+    | HEADERS | HTTPS | ICEBERG | INTERSERVER | JEMALLOC | LISTEN | MARK | MASTER | MEMORY | METADATA
+    | METRICS | MMAP | MODEL | MODELS | MYSQL | OVERRIDABLE | PAGE | PAIMON | PARQUET | POINT
+    | POLYGON | POSTGRESQL | POSTINGS | PROMETHEUS | PROTOBUF | PROXY | PURGE | RESERVATION | RESOURCE | RESTART
+    | S3 | SCHEMA | SECURE | SIMILARITY | SSH | SUSPEND | TAG | TCP | TEXT | THREAD
+    | TOKENS | UNCOMPRESSED | UNLOAD | URL | VECTOR | WORKER | WORKLOAD
     ;
 keywordForAlias
     : AFTER | ALIAS | ALTER | AST | ASYNC | ATTACH | BOTH | CASE | CAST | CHECK | CLEAR | CLUSTER | CODEC
@@ -840,6 +941,13 @@ keywordForAlias
     | REVOKE | SALT | SAN | SCHEME | SCRAM_SHA256_HASH | SCRAM_SHA256_PASSWORD | SELECTS | SERVER | SHA256_HASH | SHA256_PASSWORD | SHUTDOWN
     | SOURCES | SSH_KEY | SSL_CERTIFICATE | TRACKING | UNTIL | VALID | WRITABLE | WRITE | WRITTEN | WRITTEN_BYTES | QUERY_SQL
     | USE | UUID | VALUES | VIEW | VOLUME | WATCH | EXECUTE | NONE | TIME | ZONE
+    | ARROW_SQL | ASYNCHRONOUS | AVRO | AZURE | CACHE | CLIENT | COMPILED | CONDITION | CONFIG | CONNECTIONS
+    | CUSTOM | DNS | EMBEDDED | ENCRYPTION | FILE | FILES | FLIGHT | GRPC | HDFS | HEADER
+    | HEADERS | HTTPS | ICEBERG | INTERSERVER | JEMALLOC | LISTEN | MARK | MASTER | MEMORY | METADATA
+    | METRICS | MMAP | MODEL | MODELS | MYSQL | OVERRIDABLE | PAGE | PAIMON | PARQUET | POINT
+    | POLYGON | POSTGRESQL | POSTINGS | PROMETHEUS | PROTOBUF | PROXY | PURGE | RESERVATION | RESOURCE | RESTART
+    | S3 | SCHEMA | SECURE | SIMILARITY | SSH | SUSPEND | TAG | TCP | TEXT | THREAD
+    | TOKENS | UNCOMPRESSED | UNLOAD | URL | VECTOR | WORKER | WORKLOAD
     ;
 alias: IDENTIFIER | keywordForAlias;  // |interval| can't be an alias, otherwise 'INTERVAL 1 SOMETHING' becomes ambiguous.
 queryParameter: LBRACE (IDENTIFIER | keyword | interval) COLON columnTypeExpr RBRACE;
