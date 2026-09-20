@@ -153,11 +153,15 @@ class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void> {
         return null;
     }
 
+    protected BehaviorAction functionAction(ParserRuleContext ctx) {
+        return BehaviorAction.CALL;
+    }
+
     @Override
     public Void visitColumnExprFunction(ColumnExprFunctionContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, ctx.identifier(), List.of(name(ctx.identifier()))));
+        add(SplitQueryType.SELECT, functionAction(ctx), objects.object(TargetType.Function, ctx.identifier(), List.of(name(ctx.identifier()))));
         String function = name(ctx.identifier());
-        if ((function.equals("getSetting") || function.equals("getSettingOrDefault")) && ctx.columnArgList() != null && !ctx.columnArgList().columnArgExpr().isEmpty()) {
+        if (ChPlanningFunctions.readsSetting(function) && ctx.columnArgList() != null && !ctx.columnArgList().columnArgExpr().isEmpty()) {
             ColumnExprContext argument = ctx.columnArgList().columnArgExpr(0).columnExpr();
             if (argument instanceof ColumnExprLiteralContext literal && literal.literal().stringLiteral() != null) {
                 StringLiteralContext key = literal.literal().stringLiteral();
@@ -171,14 +175,14 @@ class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void> {
 
     @Override
     public Void visitColumnExprWinFunction(ColumnExprWinFunctionContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, ctx.identifier(), List.of(name(ctx.identifier()))));
+        add(SplitQueryType.SELECT, functionAction(ctx), objects.object(TargetType.Function, ctx.identifier(), List.of(name(ctx.identifier()))));
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitColumnExprWinFunctionTarget(ColumnExprWinFunctionTargetContext ctx) {
         IdentifierContext function = ctx.identifier(0);
-        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, function, List.of(name(function))));
+        add(SplitQueryType.SELECT, functionAction(ctx), objects.object(TargetType.Function, function, List.of(name(function))));
         return visitChildren(ctx);
     }
 

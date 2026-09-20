@@ -22,7 +22,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 /** Access definitions are stored data; their filters, privilege words and values are not executed queries. */
-final class ChAccessBehaviorVisitor extends ChSystemBehaviorVisitor {
+class ChAccessBehaviorVisitor extends ChSystemBehaviorVisitor {
     ChAccessBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
         super(parser, levels, baseLine, baseColumn);
     }

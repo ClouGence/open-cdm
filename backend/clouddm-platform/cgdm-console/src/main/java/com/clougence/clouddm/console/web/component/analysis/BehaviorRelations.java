@@ -352,6 +352,26 @@ public final class BehaviorRelations {
         return DmDsUtils.normalizeResourcePath(path);
     }
 
+    private static boolean isHypotheticalIndexOfTable(BehaviorObject index, BehaviorObject table) {
+        if (index == null || index.getObjectType() != TargetType.Index || index.getObjectName() == null || index.getObjectPath() == null) {
+            return false;
+        }
+        ObjectName name = index.getObjectName();
+        if (name.getCatalog() != null || name.getSchema() != null || name.getObjectName() == null) {
+            return false;
+        }
+        String path = index.getObjectPath();
+        String suffix = index.getObjectName().getObjectName() + "/";
+        if (!path.endsWith("/" + suffix)) {
+            return false;
+        }
+        String owner = path.substring(0, path.length() - suffix.length());
+        int namespace = owner.indexOf("/hypothetical_index/");
+        // Verify the declared owner, so a real catalog/schema/index named hypothetical_index is unaffected.
+        return namespace >= 0 && (owner.substring(0, namespace)
+            + owner.substring(namespace + "/hypothetical_index".length())).equals(table.getObjectPath());
+    }
+
     private static BehaviorAction relatedObjectAction(BehaviorObject subject, BehaviorObject target) {
         TargetType subjectType = subject == null ? null : subject.getObjectType();
         if (subjectType == TargetType.EventNotification && target != null && target.getObjectType() == TargetType.Queue) {
@@ -359,7 +379,8 @@ public final class BehaviorRelations {
         }
         if (target != null && //
                 target.getObjectType() == TargetType.Table && //
-                (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger)) {
+                (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger)
+                && !isHypotheticalIndexOfTable(subject, target)) {
             return BehaviorAction.ALTER;
         }
         return BehaviorAction.READ;

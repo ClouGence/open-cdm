@@ -37,8 +37,9 @@ final class ChBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     @Override
     public Void visit(ParseTree tree) {
-        ChStatementBehaviorVisitor visitor = new ChAccessBehaviorVisitor(parser, levels, baseLine, baseColumn);
+        ChExplainBehaviorVisitor visitor = new ChExplainBehaviorVisitor(parser, levels, baseLine, baseColumn);
         visitor.visit(tree);
+        visitor.finish();
         behaviors.add(visitor.behavior());
         return null;
     }
