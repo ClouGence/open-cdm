@@ -18,6 +18,8 @@ package com.clougence.sql.postgres.analysis.behavior;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -31,19 +33,24 @@ import com.clougence.sql.postgres.parser.PostgresVersion;
 
 final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
-    private final Parser                  parser;
-    private final PostgresVersion         version;
-    private final Map<UmiTypes, Object>   levels;
-    private final int                     baseLine;
-    private final int                     baseColumn;
-    private final List<StatementBehavior> behaviors = new ArrayList<>();
+    private final Parser                                    parser;
+    private final PostgresVersion                           version;
+    private final Map<UmiTypes, Object>                     levels;
+    private final int                                       baseLine;
+    private final int                                       baseColumn;
+    private final Predicate<String>                         dialectSystemFunction;
+    private final Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory;
+    private final List<StatementBehavior>                   behaviors = new ArrayList<>();
 
-    PgBehaviorParserVisitor(Parser parser, PostgresVersion version, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    PgBehaviorParserVisitor(Parser parser, PostgresVersion version, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, Predicate<String> dialectSystemFunction,
+                            Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory){
         this.parser = parser;
         this.version = version;
         this.levels = levels;
         this.baseLine = baseLine;
         this.baseColumn = baseColumn;
+        this.dialectSystemFunction = dialectSystemFunction;
+        this.splitVisitorFactory = splitVisitorFactory;
     }
 
     List<StatementBehavior> behaviors() {
@@ -52,8 +59,8 @@ final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     @Override
     public Void visit(ParseTree tree) {
-        SplitQueryType statementType = new PgSplitVisitor(version).visit(tree);
-        PgStatementBehaviorVisitor visitor = new PgStatementBehaviorVisitor(parser, version, statementType, levels, baseLine, baseColumn);
+        SplitQueryType statementType = splitVisitorFactory.apply(version).visit(tree);
+        PgStatementBehaviorVisitor visitor = new PgStatementBehaviorVisitor(parser, version, statementType, levels, baseLine, baseColumn, dialectSystemFunction);
         visitor.visit(tree);
         behaviors.add(visitor.behavior());
         return null;

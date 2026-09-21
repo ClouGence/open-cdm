@@ -33,6 +33,8 @@ import com.clougence.clouddm.ds.cloudberry.execute.CbSessionSpi;
 import com.clougence.clouddm.ds.cloudberry.execute.CbSupportSpi;
 import com.clougence.clouddm.ds.cloudberry.i18n.CbDsI18nKeys;
 import com.clougence.clouddm.ds.cloudberry.resource.CbEditorResourceSpi;
+import com.clougence.clouddm.ds.cloudberry.sql.CbSqlEngineSpi;
+import com.clougence.clouddm.ds.cloudberry.sql.analysis.sysobj.CbSysObjectRegistrySpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.template.PgCmdTemplateSpi;
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
@@ -76,12 +78,14 @@ public class CbDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configBasic(DsPluginBinder dsPlugin) {
         dsPlugin.addPluginSpi(new CbConfigSpi());
         dsPlugin.addPluginSpi(new CbSerializationSpi(dsPlugin.getPluginClassLoader()));
+        dsPlugin.addGlobalSpi(new CbSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new CbSysObjectRegistrySpi());
     }
 
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(CbSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
-        dsPlugin.bindSqlEngine("PG SQL", "ISO-SQL-92", "ISO-SQL-99");
+        dsPlugin.bindSqlEngine("Cloudberry SQL", "ISO-SQL-92", "ISO-SQL-99");
 
         dsPlugin.addPluginSpi(new CbSessionSpi());
         dsPlugin.addPluginSpi(new CbSupportSpi());

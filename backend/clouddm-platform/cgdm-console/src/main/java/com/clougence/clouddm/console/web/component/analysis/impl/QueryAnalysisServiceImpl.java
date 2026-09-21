@@ -305,19 +305,19 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             if (request.hasQueryType(SplitQueryType.SELECT)) {
                 List<LineageColumn> lineageCols = this.lineageSpi.analyze(request.getQueryBody(), this.lineageContext);
 
-                Set<String> columnNames = new HashSet<>();
-                if (lineageCols.stream().anyMatch(c -> !columnNames.add(c.column()))) {
-                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_FORBID_SELECT_COLUMN_SAME_NAME.name()));
-                }
-
                 Map<String, ColumnConfig> columnList = new LinkedHashMap<>();
-                for (LineageColumn lineage : lineageCols) {
+                for (int i = 0; i < lineageCols.size(); i++) {
+                    LineageColumn lineage = lineageCols.get(i);
                     ColumnConfig config = new ColumnConfig();
                     config.setSourceNames(lineage.sources());
                     // TODO  use DmDsMetaConfigDO config column
                     //List<DmDsMetaConfigDO> configs = this.dataSourceDal.metaConfigMapper().selectAllByDsId(dsId, pathList);
 
-                    columnList.put(lineage.column(), config);
+                    String columnKey = lineage.column();
+                    if (columnList.containsKey(columnKey)) {
+                        columnKey = columnKey + '\0' + (i + 1);
+                    }
+                    columnList.put(columnKey, config);
                 }
 
                 request.setColumnList(columnList);

@@ -10,6 +10,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
@@ -18,16 +20,30 @@ import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.postgres.parser.PgDslProvider;
 import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
+import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 
 public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
-    private final PgDslProvider      provider;
-    private final PgSplitAnalysisSpi splitter;
+    private final PgDslProvider                             provider;
+    private final PgSplitAnalysisSpi                        splitter;
+    private final Predicate<String>                         dialectSystemFunction;
+    private final Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory;
 
     public PgBehaviorAnalysisSpi(PostgresVersion version){
-        this.provider = new PgDslProvider(version);
-        this.splitter = new PgSplitAnalysisSpi(version);
+        this(new PgDslProvider(version), new PgSplitAnalysisSpi(version));
+    }
+
+    protected PgBehaviorAnalysisSpi(PgDslProvider provider, PgSplitAnalysisSpi splitter){
+        this(provider, splitter, name -> false, PgSplitVisitor::new);
+    }
+
+    protected PgBehaviorAnalysisSpi(PgDslProvider provider, PgSplitAnalysisSpi splitter, Predicate<String> dialectSystemFunction,
+                                    Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory){
+        this.provider = provider;
+        this.splitter = splitter;
+        this.dialectSystemFunction = dialectSystemFunction;
+        this.splitVisitorFactory = splitVisitorFactory;
     }
 
     @Override
@@ -42,11 +58,11 @@ public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         }).onClose(scripts::close);
     }
 
-    private List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    protected List<StatementBehavior> analyzeStatement(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
 
         PgBehaviorParserVisitor[] holder = new PgBehaviorParserVisitor[1];
         DslHelper.doVisitor(provider, queryReader, (lexer, parser) -> {
-            holder[0] = new PgBehaviorParserVisitor(parser, provider.version(), levels, baseLine, baseColumn);
+            holder[0] = new PgBehaviorParserVisitor(parser, provider.version(), levels, baseLine, baseColumn, dialectSystemFunction, splitVisitorFactory);
             return holder[0];
         });
         return holder[0].behaviors();

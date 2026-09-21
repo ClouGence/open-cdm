@@ -44,6 +44,15 @@ stmtmulti
     ;
 
 stmt
+    : extensionstmt
+    | pg_stmt
+    ;
+
+extensionstmt
+    : {isExtensionStatement()}? (CREATE | ALTER | DROP | GRANT | REVOKE | Identifier) (~(SEMI | END_P))+
+    ;
+
+pg_stmt
     : altereventtrigstmt
     | altercollationstmt
     | alterdatabasestmt
@@ -687,7 +696,11 @@ createstmt
         | OF any_name opttypedtableelementlist? optpartitionspec? table_access_method_clause? optwith? oncommitoption? opttablespace?
         | PARTITION OF qualified_name opttypedtableelementlist? partitionboundspec optpartitionspec? table_access_method_clause? optwith? oncommitoption?
             opttablespace?
-    )
+    ) extension_clause?
+    ;
+
+extension_clause
+    : {isExtensionSuffix()}? Identifier (BY OPEN_PAREN name_list CLOSE_PAREN | Identifier)
     ;
 
 opttemp
@@ -966,7 +979,7 @@ alterstatsstmt
     ;
 
 createasstmt
-    : CREATE opttemp? TABLE (IF_P NOT EXISTS)? create_as_target AS (TABLE qualified_name | selectstmt) with_data_?
+    : CREATE opttemp? TABLE (IF_P NOT EXISTS)? create_as_target AS (TABLE qualified_name | selectstmt) with_data_? extension_clause?
     ;
 
 create_as_target
@@ -2005,7 +2018,7 @@ createfunctionstmt
 
 sql_body
     : {atLeast(PostgresVersion.POSTGRES_14)}? RETURN a_expr
-    | {atLeast(PostgresVersion.POSTGRES_14)}? BEGIN_P ATOMIC (SEMI | stmt SEMI | RETURN a_expr SEMI)* END_P
+    | {atLeast(PostgresVersion.POSTGRES_14)}? BEGIN_P ATOMIC (SEMI | pg_stmt SEMI | RETURN a_expr SEMI)* END_P
     ;
 
 or_replace_
@@ -3143,7 +3156,11 @@ cursor_name
     ;
 
 cursor_options
-    : (NO SCROLL | SCROLL | BINARY | ASENSITIVE | INSENSITIVE)*
+    : (NO SCROLL | SCROLL | BINARY | ASENSITIVE | INSENSITIVE | extension_cursor_option)*
+    ;
+
+extension_cursor_option
+    : {isExtensionCursorOption()}? PARALLEL Identifier
     ;
 
 hold_
@@ -3467,7 +3484,7 @@ natural_join:
     ;
 
 alias_clause
-    : AS? colid (OPEN_PAREN name_list CLOSE_PAREN)?
+    : {!isExtensionSuffix()}? AS? colid (OPEN_PAREN name_list CLOSE_PAREN)?
     ;
 
 func_alias_clause

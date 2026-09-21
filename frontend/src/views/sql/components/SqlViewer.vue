@@ -522,6 +522,8 @@ export default {
       // Calculate width from column names and values, using the longest sampled value and enforcing a minimum width.
       if (res.columnList) {
         res.columnList.forEach((item, index) => {
+          const duplicate = res.columnList.indexOf(item) !== res.columnList.lastIndexOf(item);
+          const field = duplicate ? `${item}\u0000${index}` : item;
           const minWidth = 100;
           let width = 0;
           if (width === 0) {
@@ -532,8 +534,9 @@ export default {
           }
 
           list.push({
-            field: item,
+            field,
             title: item,
+            columnIndex: index,
             width,
             showOverflow: true,
             headerClassName: 'cell-header'
@@ -656,7 +659,8 @@ export default {
               if (rowData) {
                 for (let i = 0; i < columnList?.length; i++) {
                   if (rowData[i]) {
-                    currentRow[columnList[i]] = rowData[i].value;
+                    const field = existingResult.columnListSeq[i + 1]?.field || columnList[i];
+                    currentRow[field] = rowData[i].value;
                   }
                 }
               }

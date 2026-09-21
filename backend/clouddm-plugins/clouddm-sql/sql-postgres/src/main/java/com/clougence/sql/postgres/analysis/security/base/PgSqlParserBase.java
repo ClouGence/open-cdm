@@ -36,6 +36,7 @@ package com.clougence.sql.postgres.analysis.security.base;
  */
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.antlr.v4.runtime.*;
 
@@ -45,13 +46,28 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 public abstract class PgSqlParserBase extends Parser {
 
-    private PostgresVersion version = PostgresVersion.LATEST;
+    private PostgresVersion        version = PostgresVersion.LATEST;
+    private Predicate<TokenStream> extensionStatement;
+    private Predicate<TokenStream> extensionSuffix;
+    private Predicate<TokenStream> extensionCursorOption;
 
     public PgSqlParserBase(TokenStream input){
         super(input);
     }
 
     public final void setVersion(PostgresVersion version) { this.version = version == null ? PostgresVersion.LATEST : version; }
+
+    public final void setExtensionPredicates(Predicate<TokenStream> statement, Predicate<TokenStream> suffix, Predicate<TokenStream> cursorOption) {
+        this.extensionStatement = statement;
+        this.extensionSuffix = suffix;
+        this.extensionCursorOption = cursorOption;
+    }
+
+    protected final boolean isExtensionStatement() { return extensionStatement != null && extensionStatement.test(getTokenStream()); }
+
+    protected final boolean isExtensionSuffix() { return extensionSuffix != null && extensionSuffix.test(getTokenStream()); }
+
+    protected final boolean isExtensionCursorOption() { return extensionCursorOption != null && extensionCursorOption.test(getTokenStream()); }
 
     protected final boolean atLeast(PostgresVersion minimum) {
         return PostgresVersion.ge(version, minimum);
