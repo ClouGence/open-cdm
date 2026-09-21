@@ -29,6 +29,7 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowCountUpdateBuild;
+import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowsBuild;
 import com.clougence.clouddm.sdk.execute.session.ResultColMeta;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
@@ -43,7 +44,7 @@ import com.clougence.utils.io.result.ResultSetOverflowException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class ImplResultSetRowsBuild extends JdbcResultSetRowsBuild<ResultSet> {
+class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements ResultSetRowsBuild {
 
     private final AtomicLong            rowId;
     private final QueryRequest          query;
@@ -53,7 +54,6 @@ class ImplResultSetRowsBuild extends JdbcResultSetRowsBuild<ResultSet> {
     private String[]                    columnList;
     private ValueFetcher[]              columnFetcher;
     private final ValueFetcherContext[] columnFetcherCtx;
-    private JdbcResultSetColumnBindings columnBindings;
     private Map<String, ColMetaData>    cacheRowMeta;
     private long                        fetcherDataSize;
     private long                        expansionSize;
@@ -71,7 +71,6 @@ class ImplResultSetRowsBuild extends JdbcResultSetRowsBuild<ResultSet> {
         this.columnList = new String[colCount];
         this.columnFetcher = new ValueFetcher[colCount];
         this.columnFetcherCtx = new ValueFetcherContext[colCount];
-        int[] columnIndexes = new int[colCount];
         this.cacheRowMeta = new LinkedHashMap<>();
         for (int i = 0; i < colCount; i++) {
             ValueFetcherContext ctx = metaCtx.get(i);
@@ -81,14 +80,8 @@ class ImplResultSetRowsBuild extends JdbcResultSetRowsBuild<ResultSet> {
             this.columnList[i] = colName;
             this.columnFetcher[i] = meta.getFetcher();
             this.columnFetcherCtx[i] = ctx;
-            columnIndexes[i] = meta.getMeta().getIndex();
-            String cacheKey = colName;
-            if (this.cacheRowMeta.containsKey(cacheKey)) {
-                cacheKey = cacheKey + '\0' + meta.getMeta().getIndex();
-            }
-            this.cacheRowMeta.put(cacheKey, meta.getMeta());
+            this.cacheRowMeta.put(colName, meta.getMeta());
         }
-        this.columnBindings = new JdbcResultSetColumnBindings(this.columnList, columnIndexes);
     }
 
     private void resetCurrent() {
@@ -96,7 +89,6 @@ class ImplResultSetRowsBuild extends JdbcResultSetRowsBuild<ResultSet> {
         this.cacheRowMeta = null;
         this.columnList = null;
         this.columnFetcher = null;
-        this.columnBindings = null;
         this.fetcherDataSize = 0;
         this.expansionSize = 0;
         this.fetcherOverflow = false;
@@ -116,12 +108,7 @@ class ImplResultSetRowsBuild extends JdbcResultSetRowsBuild<ResultSet> {
     }
 
     @Override
-    protected JdbcResultSetColumnBindings columnBindings() {
-        return this.columnBindings;
-    }
-
-    @Override
-    protected void receiveBoundRow(boolean silent) throws SQLException, IOException {
+    public void receiveRow(boolean silent, java.sql.ResultSet rs) throws SQLException, IOException {
         List<ResultSetValue> data = silent ? Collections.emptyList() : new ArrayList<>();
         try (RowStorage row = this.localCache.nextRsRow()) {
             for (int i = 0; i < this.columnList.length; i++) {
@@ -132,7 +119,8 @@ class ImplResultSetRowsBuild extends JdbcResultSetRowsBuild<ResultSet> {
                 ResultSetValue value;
                 try {
                     byte tag = 0;
-                    value = row.addValue(tag, this.columnBindings.get(i), column, fetcher, fetcherCtx);
+                    value = row.addValue(tag, rs, column, fetcher, fetcherCtx);
+
                     if (fetcherCtx.isErrStatus()) {
                         if (fetcherCtx.getErrObject() instanceof ResultSetOverflowException) {
                             throw (ResultSetOverflowException) fetcherCtx.getErrObject();

@@ -128,8 +128,7 @@ public class SqlFileFormatConvert implements FileFormatConvert {
         Dialect dialect = this.configService.findDialectByDsType(dsType == null ? DataSourceType.MySQL : dsType);
 
         // reading data.
-        List<ColMetaData> metadata = new ArrayList<>(meta.values());
-        List<String> header = metadata.stream().map(ColMetaData::getColumn).collect(Collectors.toList());
+        List<String> header = meta.values().stream().map(ColMetaData::getColumn).collect(Collectors.toList());
         StringBuilder sqlHeader = new StringBuilder();
         boolean hasAnyHeader = false;
         for (int i = 0; i < header.size(); i++) {
@@ -167,7 +166,7 @@ public class SqlFileFormatConvert implements FileFormatConvert {
             // read row data
             SqlRowData rowData = new SqlRowData();
             for (int c = 0; c < meta.size(); c++) {
-                ColMetaData dataMeta = metadata.get(c);
+                ColMetaData dataMeta = meta.get(header.get(c));
                 byte dataType = rr.nextDataType();
                 ResultSetValue value = rr.readAsString(dataMeta, query.getResultConf());
                 String valueStr = value.getValue();
@@ -267,11 +266,7 @@ public class SqlFileFormatConvert implements FileFormatConvert {
     private Map<String, ColMetaData> readResultColumns(ColMetaData[] col) {
         Map<String, ColMetaData> columnMap = new LinkedHashMap<>();
         for (ColMetaData m : col) {
-            String columnKey = m.getColumn();
-            if (columnMap.containsKey(columnKey)) {
-                columnKey = columnKey + '\0' + m.getIndex();
-            }
-            columnMap.put(columnKey, m);
+            columnMap.put(m.getColumn(), m);
         }
         return columnMap;
     }

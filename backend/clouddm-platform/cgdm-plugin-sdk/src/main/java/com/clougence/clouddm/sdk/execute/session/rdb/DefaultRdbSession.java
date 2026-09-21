@@ -610,11 +610,7 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
         for (int i = 1; i <= columnCount; i++) {
             ColMetaData cm = this.rdbHook().getColumnMetaData(query, metadata, i);
             ValueFetcher cf = this.colReader.readColumn(cm.getColumn(), cm);
-            String mappingKey = cm.getColumn();
-            if (columnMetaDataMapping.containsKey(mappingKey)) {
-                mappingKey = mappingKey + '\0' + i;
-            }
-            columnMetaDataMapping.put(mappingKey, new ResultColMeta(cm, cf));
+            columnMetaDataMapping.put(cm.getColumn(), new ResultColMeta(cm, cf));
         }
         return columnMetaDataMapping;
     }

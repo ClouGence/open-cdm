@@ -594,7 +594,6 @@ export default {
           title: col.title,
           dataIndex: col.field,
           key: col.field,
-          columnIndex: col.columnIndex,
           width: currentWidth,
           ellipsis: {
             showTitle: true
@@ -1033,7 +1032,7 @@ export default {
       return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
     },
     getCellValueMeta(column, rowIndex) {
-      const colIndex = column.columnIndex ?? -1;
+      const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
       if (colIndex < 0) {
         return null;
       }
@@ -1154,7 +1153,7 @@ export default {
 
       this.$bus.emit('showCellDetailModal', {
         row: record,
-        column: { property: column.originalTitle || column.title || column.dataIndex || column.property },
+        column: { property: column.dataIndex || column.property },
         resultId: this.selectedTab.resultId,
         rowNumber,
         colNumber: colIndex,
@@ -1177,8 +1176,7 @@ export default {
       keyStr = `${left}${columnList.join(`${right}, ${left}`)}${right}`;
       let valueStr = '';
       columnList.forEach((key1, index) => {
-        const field = this.selectedTab.columnListSeq[index + 1]?.field || key1;
-        const value = row[field];
+        const value = row[key1];
         let insertType;
         if (isMySQL(this.tab.dataSourceType)) {
           insertType = mysqlInsert;
@@ -1343,8 +1341,7 @@ export default {
                 if (rowData) {
                   for (let i = 0; i < columnList?.length; i++) {
                     if (rowData[i]) {
-                      const field = tab.columnListSeq[i + 1]?.field || columnList[i];
-                      currentRow[field] = rowData[i].value;
+                      currentRow[columnList[i]] = rowData[i].value;
                     }
                   }
                 }
