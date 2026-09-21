@@ -134,7 +134,7 @@ public class CbHooks implements SessionHook {
         StringBuilder explainBody = new StringBuilder(queryBody);
         explainBody.insert(pos, "explain ");
 
-        PreparedStatement stmt = conn.prepareStatement(explainBody.toString(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
+        PreparedStatement stmt = conn.prepareStatement(explainBody.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(200);
         stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
         return stmt;

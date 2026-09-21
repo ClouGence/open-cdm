@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlLexer;
@@ -147,18 +148,18 @@ public abstract class PgSqlParserBase extends Parser {
 
     public String GetRoutineBodyString(PgSqlParser.SconstContext rule) {
         PgSqlParser.AnysconstContext anysconst = rule.anysconst();
-        org.antlr.v4.runtime.tree.TerminalNode StringConstant = anysconst.StringConstant();
+        TerminalNode StringConstant = anysconst.StringConstant();
         if (null != StringConstant)
             return unquote(TrimQuotes(StringConstant.getText()));
-        org.antlr.v4.runtime.tree.TerminalNode UnicodeEscapeStringConstant = anysconst.UnicodeEscapeStringConstant();
+        TerminalNode UnicodeEscapeStringConstant = anysconst.UnicodeEscapeStringConstant();
         if (null != UnicodeEscapeStringConstant)
             return TrimQuotes(UnicodeEscapeStringConstant.getText());
-        org.antlr.v4.runtime.tree.TerminalNode EscapeStringConstant = anysconst.EscapeStringConstant();
+        TerminalNode EscapeStringConstant = anysconst.EscapeStringConstant();
         if (null != EscapeStringConstant)
             return TrimQuotes(EscapeStringConstant.getText());
         String result = "";
-        List<org.antlr.v4.runtime.tree.TerminalNode> dollartext = anysconst.DollarText();
-        for (org.antlr.v4.runtime.tree.TerminalNode s : dollartext) {
+        List<TerminalNode> dollartext = anysconst.DollarText();
+        for (TerminalNode s : dollartext) {
             result += s.getText();
         }
         return result;

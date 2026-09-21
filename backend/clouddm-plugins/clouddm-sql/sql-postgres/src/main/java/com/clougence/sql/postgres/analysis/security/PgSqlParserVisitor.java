@@ -45,6 +45,8 @@ import com.clougence.sql.postgres.analysis.security.builder.PgBuilderFactory;
 import com.clougence.sql.postgres.analysis.security.builder.enums.PgAttribute;
 import com.clougence.sql.postgres.analysis.security.domain.PgTableDomain;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseVisitor;
+import com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_listContext;
+import com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_list_Context;
 
 public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
 
@@ -78,13 +80,13 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitColumn_and_period_list(com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_listContext ctx) {
+    public Void visitColumn_and_period_list(Column_and_period_listContext ctx) {
         dmVisitChildren(ctx);
         return null;
     }
 
     @Override
-    public Void visitColumn_and_period_list_(com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_list_Context ctx) {
+    public Void visitColumn_and_period_list_(Column_and_period_list_Context ctx) {
         dmVisitChildren(ctx);
         return null;
     }

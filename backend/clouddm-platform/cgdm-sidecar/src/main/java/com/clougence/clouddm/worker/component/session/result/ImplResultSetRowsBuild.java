@@ -16,9 +16,6 @@
 package com.clougence.clouddm.worker.component.session.result;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +29,6 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowCountUpdateBuild;
-import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowsBuild;
 import com.clougence.clouddm.sdk.execute.session.ResultColMeta;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
@@ -47,9 +43,7 @@ import com.clougence.utils.io.result.ResultSetOverflowException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements ResultSetRowsBuild {
-
-    private static final Map<Method, Method> INDEX_METHOD_BY_LABEL_METHOD = indexMethodByLabelMethod();
+class ImplResultSetRowsBuild extends JdbcResultSetRowsBuild<ResultSet> {
 
     private final AtomicLong            rowId;
     private final QueryRequest          query;
@@ -59,7 +53,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
     private String[]                    columnList;
     private ValueFetcher[]              columnFetcher;
     private final ValueFetcherContext[] columnFetcherCtx;
-    private java.sql.ResultSet[]        columnResultSets;
+    private JdbcResultSetColumnBindings columnBindings;
     private Map<String, ColMetaData>    cacheRowMeta;
     private long                        fetcherDataSize;
     private long                        expansionSize;
@@ -77,7 +71,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
         this.columnList = new String[colCount];
         this.columnFetcher = new ValueFetcher[colCount];
         this.columnFetcherCtx = new ValueFetcherContext[colCount];
-        this.columnResultSets = new java.sql.ResultSet[colCount];
+        int[] columnIndexes = new int[colCount];
         this.cacheRowMeta = new LinkedHashMap<>();
         for (int i = 0; i < colCount; i++) {
             ValueFetcherContext ctx = metaCtx.get(i);
@@ -87,12 +81,14 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
             this.columnList[i] = colName;
             this.columnFetcher[i] = meta.getFetcher();
             this.columnFetcherCtx[i] = ctx;
+            columnIndexes[i] = meta.getMeta().getIndex();
             String cacheKey = colName;
             if (this.cacheRowMeta.containsKey(cacheKey)) {
                 cacheKey = cacheKey + '\0' + meta.getMeta().getIndex();
             }
             this.cacheRowMeta.put(cacheKey, meta.getMeta());
         }
+        this.columnBindings = new JdbcResultSetColumnBindings(this.columnList, columnIndexes);
     }
 
     private void resetCurrent() {
@@ -100,7 +96,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
         this.cacheRowMeta = null;
         this.columnList = null;
         this.columnFetcher = null;
-        this.columnResultSets = null;
+        this.columnBindings = null;
         this.fetcherDataSize = 0;
         this.expansionSize = 0;
         this.fetcherOverflow = false;
@@ -120,10 +116,12 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
     }
 
     @Override
-    public void receiveRow(boolean silent, java.sql.ResultSet rs) throws SQLException, IOException {
-        if (this.columnResultSets[0] == null) {
-            bindResultSetColumns(rs);
-        }
+    protected JdbcResultSetColumnBindings columnBindings() {
+        return this.columnBindings;
+    }
+
+    @Override
+    protected void receiveBoundRow(boolean silent) throws SQLException, IOException {
         List<ResultSetValue> data = silent ? Collections.emptyList() : new ArrayList<>();
         try (RowStorage row = this.localCache.nextRsRow()) {
             for (int i = 0; i < this.columnList.length; i++) {
@@ -134,7 +132,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 ResultSetValue value;
                 try {
                     byte tag = 0;
-                    value = row.addValue(tag, this.columnResultSets[i], column, fetcher, fetcherCtx);
+                    value = row.addValue(tag, this.columnBindings.get(i), column, fetcher, fetcherCtx);
                     if (fetcherCtx.isErrStatus()) {
                         if (fetcherCtx.getErrObject() instanceof ResultSetOverflowException) {
                             throw (ResultSetOverflowException) fetcherCtx.getErrObject();
@@ -170,55 +168,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
             this.expansionSize += e.getOverflowSize();
             this.fetcherOverflow = true;
         }
-    }
-
-    private void bindResultSetColumns(java.sql.ResultSet rs) throws SQLException {
-        for (int i = 0; i < this.columnList.length; i++) {
-            String column = this.columnList[i];
-            int columnIndex = this.columnFetcherCtx[i].getMeta().getMeta().getIndex();
-            if (columnIndex <= 0 || rs.findColumn(column) == columnIndex) {
-                this.columnResultSets[i] = rs;
-                continue;
-            }
-            this.columnResultSets[i] = (java.sql.ResultSet) Proxy.newProxyInstance(java.sql.ResultSet.class.getClassLoader(),
-                new Class<?>[] { java.sql.ResultSet.class }, (proxy, method, args) -> invokeForColumn(rs, column, columnIndex, method, args));
-        }
-    }
-
-    private static Object invokeForColumn(java.sql.ResultSet rs, String column, int columnIndex, Method method, Object[] args) throws Throwable {
-        Method targetMethod = method;
-        Object[] targetArgs = args;
-        if (args != null && args.length > 0 && column.equals(args[0])) {
-            Method indexMethod = INDEX_METHOD_BY_LABEL_METHOD.get(method);
-            if (indexMethod != null) {
-                targetMethod = indexMethod;
-                targetArgs = args.clone();
-                targetArgs[0] = columnIndex;
-            }
-        }
-        try {
-            return targetMethod.invoke(rs, targetArgs);
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    private static Map<Method, Method> indexMethodByLabelMethod() {
-        Map<Method, Method> result = new HashMap<>();
-        for (Method method : java.sql.ResultSet.class.getMethods()) {
-            Class<?>[] parameterTypes = method.getParameterTypes();
-            if (parameterTypes.length == 0 || parameterTypes[0] != String.class) {
-                continue;
-            }
-            parameterTypes = parameterTypes.clone();
-            parameterTypes[0] = int.class;
-            try {
-                result.put(method, java.sql.ResultSet.class.getMethod(method.getName(), parameterTypes));
-            } catch (NoSuchMethodException ignored) {
-                // ResultSet methods without an index overload keep the original column label.
-            }
-        }
-        return Map.copyOf(result);
     }
 
     @Override
