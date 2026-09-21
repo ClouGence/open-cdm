@@ -15,197 +15,28 @@
  */
 package com.clougence.clouddm.ds.cloudberry.sql.analysis.security;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
-import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
-import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbResourceDomain;
-import com.clougence.clouddm.sdk.sql.parser.SplitScript;
-import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.clouddm.ds.cloudberry.sql.parser.CbDslProvider;
 import com.clougence.clouddm.ds.cloudberry.sql.parser.CbSplitAnalysisSpi;
-import com.clougence.clouddm.ds.cloudberry.sql.parser.CbStatementParser;
-import com.clougence.clouddm.ds.cloudberry.sql.parser.CbProtocolHandlerName;
-import com.clougence.clouddm.ds.cloudberry.sql.parser.CbSyntax;
-import com.clougence.clouddm.ds.cloudberry.sql.parser.antlr.CbSqlParser;
-import com.clougence.sql.common.analysis.secrules.builder.utils.BuilderUtil;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.sql.postgres.analysis.security.PgSecDomainResolveSpi;
 import com.clougence.sql.postgres.analysis.security.builder.PgBuilderFactory;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 
 public class CbSecDomainResolveSpi extends PgSecDomainResolveSpi {
 
-    private final MetaService metaService;
+    public CbSecDomainResolveSpi(MetaService metaService, PostgresVersion version){
+        this(metaService, new CbDslProvider(version), version);
+    }
 
-    public CbSecDomainResolveSpi(MetaService metaService, PostgresVersion version) {
-        super(metaService, new CbDslProvider(version), new CbSplitAnalysisSpi(version));
-        this.metaService = metaService;
+    private CbSecDomainResolveSpi(MetaService metaService, CbDslProvider provider, PostgresVersion version){
+        super(metaService, provider, new CbSplitAnalysisSpi(version));
     }
 
     @Override
-    protected List<RuleDomain> resolveStatement(DataSourceType dsType, Reader reader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
-        String sql = CbSyntax.readSql(reader);
-        if (!CbSyntax.isExtensionStatement(sql)) {
-            return super.resolveStatement(dsType, new StringReader(sql), baseLine, baseColumn, ctxInfo);
-        }
-        CbSqlParser.StatementContext statement = CbStatementParser.parse(sql);
-        PgBuilderFactory builder = new PgBuilderFactory(metaService);
-        if (statement.protocol_privilege_stmt() != null) {
-            CbSqlParser.Protocol_privilege_stmtContext ctx = statement.protocol_privilege_stmt();
-            RuleQueryType queryType = RuleQueryType.GRANT;
-            if (ctx.REVOKE() != null) {
-                queryType = RuleQueryType.REVOKE;
-            }
-            for (CbSqlParser.Role_nameContext role : ctx.role_name_list().role_name()) {
-                RdbResourceDomain grantee = domain(TargetType.UserOrRole, name(role.getText()));
-                grantee.setSqlType(queryType);
-                grantee.setAuditKind(SecQueryKind.ALTER);
-                builder.addDomain(grantee);
-            }
-        } else if (statement.role_stmt() != null) {
-            CbSqlParser.Role_stmtContext ctx = statement.role_stmt();
-            boolean user = ctx.role_keyword().USER() != null;
-            TargetType type = TargetType.Role;
-            if (user) {
-                type = TargetType.User;
-            }
-            RdbResourceDomain role = domain(type, name(ctx.role_name().getText()));
-            if (ctx.CREATE() != null) {
-                role.setSqlType(RuleQueryType.CREATE_ROLE);
-                if (user) {
-                    role.setSqlType(RuleQueryType.CREATE_USER);
-                }
-            } else {
-                role.setSqlType(RuleQueryType.ALTER_USER);
-            }
-            setAudit(role, ctx.CREATE() != null, ctx.ALTER() != null);
-            builder.addDomain(role);
-        } else if (statement.protocol_stmt() != null) {
-            CbSqlParser.Protocol_stmtContext ctx = statement.protocol_stmt();
-            RdbResourceDomain protocol = domain(TargetType.ProgramObject, name(ctx.identifier(0).getText()));
-            setAction(protocol, ctx.CREATE() != null, ctx.ALTER() != null,
-                RuleQueryType.CREATE_PROG_OBJ, RuleQueryType.ALTER_PROG_OBJ, RuleQueryType.DROP_PROG_OBJ);
-            builder.addDomain(protocol);
-            for (CbSqlParser.Protocol_handlerContext handler : ctx.protocol_handler()) {
-                List<String> parts = CbProtocolHandlerName.parse(handler.StringConstant().getText());
-                RdbResourceDomain reference = domain(TargetType.Function, parts.get(parts.size() - 1));
-                if (parts.size() == 2) {
-                    reference.setSchema(parts.get(0));
-                } else if (parts.size() == 3) {
-                    reference.setCatalog(parts.get(0));
-                    reference.setSchema(parts.get(1));
-                }
-                reference.setSqlType(RuleQueryType.CALL_PROG_OBJ);
-                reference.setAuditKind(SecQueryKind.CALL);
-                builder.addDomain(reference);
-            }
-        } else if (statement.external_stmt() != null) {
-            CbSqlParser.External_stmtContext ctx = statement.external_stmt();
-            List<String> parts = ctx.qualified_name().identifier().stream().map(id -> name(id.getText())).toList();
-            Map<UmiTypes, String> names = BuilderUtil.parseTableName(parts);
-            RdbResourceDomain table = domain(TargetType.Table, names.get(UmiTypes.Table));
-            table.setCatalog(names.get(UmiTypes.Catalog));
-            table.setSchema(names.get(UmiTypes.Schema));
-            setAction(table, ctx.CREATE() != null, ctx.ALTER() != null,
-                RuleQueryType.CREATE_TABLE, RuleQueryType.ADD_COLUMN, RuleQueryType.DROP_TABLE);
-            builder.addDomain(table);
-            if (ctx.external_columns() != null && ctx.external_columns().qualified_name() != null) {
-                List<String> sourceParts = ctx.external_columns().qualified_name().identifier().stream()
-                    .map(id -> name(id.getText())).toList();
-                Map<UmiTypes, String> sourceNames = BuilderUtil.parseTableName(sourceParts);
-                RdbResourceDomain source = domain(TargetType.Table, sourceNames.get(UmiTypes.Table));
-                source.setCatalog(sourceNames.get(UmiTypes.Catalog));
-                source.setSchema(sourceNames.get(UmiTypes.Schema));
-                source.setSqlType(RuleQueryType.SELECT);
-                source.setAuditKind(SecQueryKind.QUERY);
-                builder.addDomain(source);
-            }
-            if (ctx.external_source() != null && ctx.external_source().EXECUTE() != null) {
-                String command = ctx.external_source().StringConstant(0).getText();
-                command = command.substring(1, command.length() - 1).replace("''", "'");
-                RdbResourceDomain program = domain(TargetType.ProgramObject, command);
-                program.setSqlType(RuleQueryType.UNSAFE);
-                program.setAuditKind(SecQueryKind.OTHER);
-                builder.addDomain(program);
-            }
-        } else if (statement.resource_stmt() != null) {
-            CbSqlParser.Resource_stmtContext ctx = statement.resource_stmt();
-            TargetType type = TargetType.ResourceGroup;
-            if (ctx.queue_keyword() != null || ctx.resource_kind() != null && ctx.resource_kind().queue_keyword() != null) {
-                type = TargetType.Queue;
-            }
-            RdbResourceDomain resource = domain(type, name(ctx.identifier(0).getText()));
-            resource.setSqlType(RuleQueryType.SYSTEM_SETTING_WRITE);
-            setAudit(resource, ctx.CREATE() != null, ctx.ALTER() != null);
-            builder.addDomain(resource);
-        } else {
-            RdbResourceDomain endpoint = domain(TargetType.Endpoint,
-                name(statement.retrieve_stmt().identifier().getText()));
-            endpoint.setSqlType(RuleQueryType.SELECT);
-            endpoint.setAuditKind(SecQueryKind.QUERY);
-            builder.addDomain(endpoint);
-        }
-
-        List<RuleDomain> result;
-        if (ctxInfo == null) {
-            result = builder.build();
-        } else {
-            result = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());
-        }
-        SplitScript split = new SplitScript();
-        split.setScript(sql);
-        split.setBodyStartCodeLine(baseLine);
-        split.setBodyStartCodeColumn(baseColumn);
-        for (RuleDomain domain : result) {
-            domain.setDsType(dsType);
-            domain.setSplitScript(split);
-        }
-        return result;
-    }
-
-    private static RdbResourceDomain domain(TargetType type, String name) {
-        RdbResourceDomain result = new RdbResourceDomain();
-        result.setTarget(type);
-        result.setName(name);
-        result.setNeedSupply(true);
-        return result;
-    }
-
-    private static void setAction(RdbResourceDomain domain, boolean create, boolean alter,
-                                  RuleQueryType createType, RuleQueryType alterType, RuleQueryType dropType) {
-        if (create) {
-            domain.setSqlType(createType);
-        } else if (alter) {
-            domain.setSqlType(alterType);
-        } else {
-            domain.setSqlType(dropType);
-        }
-        setAudit(domain, create, alter);
-    }
-
-    private static void setAudit(RdbResourceDomain domain, boolean create, boolean alter) {
-        if (create) {
-            domain.setAuditKind(SecQueryKind.CREATE);
-        } else if (alter) {
-            domain.setAuditKind(SecQueryKind.ALTER);
-        } else {
-            domain.setAuditKind(SecQueryKind.DROP);
-        }
-    }
-
-    private static String name(String text) {
-        if (text.startsWith("\"") && text.endsWith("\"")) {
-            return text.substring(1, text.length() - 1).replace("\"\"", "\"");
-        }
-        return text.toLowerCase(Locale.ROOT);
+    protected AbstractParseTreeVisitor<Void> parserVisitor(PgBuilderFactory domainBuilder, Parser parser) {
+        return new CbSecDomainParserVisitor(domainBuilder, parser);
     }
 }

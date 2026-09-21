@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.ds.cloudberry.sql.CbSqlEngineSpi;
@@ -37,7 +38,7 @@ public class CbDslProvider extends PgDslProvider {
     @Override
     public Parser createParser(Lexer lexer) {
         PgSqlParserBase parser = (PgSqlParserBase) super.createParser(lexer);
-        parser.setExtensionPredicates(CbSyntax::isExtensionStatement, CbSyntax::isDistributionStart, CbSyntax::isParallelRetrieve);
+        parser.setExtensionPredicates(CbStatementParser::isExtensionStatement, CbDslProvider::isDistributionStart, CbDslProvider::isParallelRetrieve);
         return parser;
     }
 
@@ -47,15 +48,7 @@ public class CbDslProvider extends PgDslProvider {
         for (AstSplitScript script : scripts) {
             PgSqlParser.StmtContext statement = (PgSqlParser.StmtContext) script.getAstTree();
             if (statement.extensionstmt() != null) {
-                CbStatementParser.parse(script.getScript());
-                continue;
-            }
-            PgSqlParser.Pg_stmtContext pg = statement.pg_stmt();
-            if (pg.createstmt() != null && pg.createstmt().extension_clause() != null) {
-                CbSyntax.validateDistribution(pg.createstmt().extension_clause());
-            }
-            if (pg.createasstmt() != null && pg.createasstmt().extension_clause() != null) {
-                CbSyntax.validateDistribution(pg.createasstmt().extension_clause());
+                CbStatementParser.parse(parser.getTokenStream(), statement.extensionstmt());
             }
         }
         return scripts;
@@ -66,5 +59,17 @@ public class CbDslProvider extends PgDslProvider {
         for (AstSplitScript script : doSplit(lexer, parser)) {
             visitor.visit(script.getAstTree());
         }
+    }
+
+    private static boolean isDistributionStart(TokenStream tokens) {
+        if (!"DISTRIBUTED".equalsIgnoreCase(tokens.LT(1).getText())) {
+            return false;
+        }
+        String mode = tokens.LT(2).getText();
+        return "BY".equalsIgnoreCase(mode) || "RANDOMLY".equalsIgnoreCase(mode) || "REPLICATED".equalsIgnoreCase(mode);
+    }
+
+    private static boolean isParallelRetrieve(TokenStream tokens) {
+        return "PARALLEL".equalsIgnoreCase(tokens.LT(1).getText()) && "RETRIEVE".equalsIgnoreCase(tokens.LT(2).getText());
     }
 }

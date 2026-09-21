@@ -19,9 +19,9 @@ import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
+import com.clougence.clouddm.ds.cloudberry.sql.parser.antlr.CbSqlParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.clouddm.ds.cloudberry.sql.parser.antlr.CbSqlParser;
 import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
@@ -31,7 +31,7 @@ public class CbSplitAnalysisSpi extends PgSplitAnalysisSpi {
 
     private final CbDslProvider provider;
 
-    public CbSplitAnalysisSpi(PostgresVersion version) {
+    public CbSplitAnalysisSpi(PostgresVersion version){
         super(version);
         this.provider = new CbDslProvider(version);
     }
@@ -51,13 +51,6 @@ public class CbSplitAnalysisSpi extends PgSplitAnalysisSpi {
         PgSqlParser.StmtContext statement = (PgSqlParser.StmtContext) context;
         if (statement.extensionstmt() != null) {
             return Set.of(classify(CbStatementParser.parse(script)));
-        }
-        PgSqlParser.Pg_stmtContext pg = statement.pg_stmt();
-        if (pg.createstmt() != null && pg.createstmt().extension_clause() != null) {
-            CbSyntax.validateDistribution(pg.createstmt().extension_clause());
-        }
-        if (pg.createasstmt() != null && pg.createasstmt().extension_clause() != null) {
-            CbSyntax.validateDistribution(pg.createasstmt().extension_clause());
         }
         return super.collectTypes(context, script);
     }

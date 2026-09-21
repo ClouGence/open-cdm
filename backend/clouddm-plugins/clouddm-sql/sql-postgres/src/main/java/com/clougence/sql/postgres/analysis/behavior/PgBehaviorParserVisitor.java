@@ -30,20 +30,22 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
+import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
-    private final Parser                                    parser;
-    private final PostgresVersion                           version;
-    private final Map<UmiTypes, Object>                     levels;
-    private final int                                       baseLine;
-    private final int                                       baseColumn;
-    private final Predicate<String>                         dialectSystemFunction;
-    private final Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory;
-    private final List<StatementBehavior>                   behaviors = new ArrayList<>();
+    private final Parser                                                        parser;
+    private final PostgresVersion                                               version;
+    private final Map<UmiTypes, Object>                                         levels;
+    private final int                                                           baseLine;
+    private final int                                                           baseColumn;
+    private final Predicate<String>                                             dialectSystemFunction;
+    private final Function<PostgresVersion, PgSplitVisitor>                     splitVisitorFactory;
+    private final Function<PgSqlParser.ExtensionstmtContext, StatementBehavior> extensionBehavior;
+    private final List<StatementBehavior>                                       behaviors = new ArrayList<>();
 
     PgBehaviorParserVisitor(Parser parser, PostgresVersion version, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, Predicate<String> dialectSystemFunction,
-                            Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory){
+                            Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory, Function<PgSqlParser.ExtensionstmtContext, StatementBehavior> extensionBehavior){
         this.parser = parser;
         this.version = version;
         this.levels = levels;
@@ -51,6 +53,7 @@ final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         this.baseColumn = baseColumn;
         this.dialectSystemFunction = dialectSystemFunction;
         this.splitVisitorFactory = splitVisitorFactory;
+        this.extensionBehavior = extensionBehavior;
     }
 
     List<StatementBehavior> behaviors() {
@@ -59,6 +62,13 @@ final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     @Override
     public Void visit(ParseTree tree) {
+        if (tree instanceof PgSqlParser.StmtContext statement && statement.extensionstmt() != null) {
+            StatementBehavior behavior = extensionBehavior.apply(statement.extensionstmt());
+            if (behavior != null) {
+                behaviors.add(behavior);
+                return null;
+            }
+        }
         SplitQueryType statementType = splitVisitorFactory.apply(version).visit(tree);
         PgStatementBehaviorVisitor visitor = new PgStatementBehaviorVisitor(parser, version, statementType, levels, baseLine, baseColumn, dialectSystemFunction);
         visitor.visit(tree);
