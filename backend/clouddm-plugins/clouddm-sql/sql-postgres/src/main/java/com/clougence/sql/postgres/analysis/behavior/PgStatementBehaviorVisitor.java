@@ -18,6 +18,7 @@ package com.clougence.sql.postgres.analysis.behavior;
 import static com.clougence.sql.postgres.parser.antlr.PgSqlParser.*;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -45,11 +46,14 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     private final SplitQueryType           resolvedType;
     private final PostgresVersion          version;
     private final PgResourceRegistry       resources = PgResourceRegistry.instance();
-    private final StatementBehavior        behavior = new StatementBehavior();
+    private final StatementBehavior        behavior  = new StatementBehavior();
+    private final Predicate<String>        dialectSystemFunction;
 
-    PgStatementBehaviorVisitor(Parser parser, PostgresVersion version, SplitQueryType statementType, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    PgStatementBehaviorVisitor(Parser parser, PostgresVersion version, SplitQueryType statementType, Map<UmiTypes, Object> levels, int baseLine, int baseColumn,
+                               Predicate<String> dialectSystemFunction){
         this.parser = parser;
         this.version = version;
+        this.dialectSystemFunction = dialectSystemFunction;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
         this.levels = levels;
         this.baseLine = Math.max(1, baseLine);
@@ -133,6 +137,13 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         deferredBodies.add(ctx);
         for (BehaviorObject table : explainTables(ctx)) {
             addUnary(BehaviorAction.READ, table);
+        }
+        for (Func_applicationContext function : descendants(ctx, Func_applicationContext.class)) {
+            if (functions.add(function)) {
+                List<String> names = new ArrayList<>();
+                collectNames(function.func_name(), names);
+                addUnary(BehaviorAction.CALL, functionObject(function.func_name(), names));
+            }
         }
         return null;
     }
@@ -1484,7 +1495,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     private BehaviorObject functionObject(ParserRuleContext context, List<String> names) {
         String name = names.get(names.size() - 1);
-        if (names.size() == 1 && resources.isSystemFunction(name, version)) {
+        if (names.size() == 1 && (resources.isSystemFunction(name, version) || dialectSystemFunction.test(name))) {
             BehaviorObject result = scopedObject(TargetType.Function, context, names);
             result.setObjectName(new ObjectName(null, null, name));
             return result;

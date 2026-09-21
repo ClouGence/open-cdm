@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.sql.postgres;
+package com.clougence.clouddm.ds.cloudberry.sql;
 
+import com.clougence.clouddm.ds.cloudberry.sql.analysis.behavior.CbBehaviorAnalysisSpi;
+import com.clougence.clouddm.ds.cloudberry.sql.analysis.security.CbSecDomainResolveSpi;
+import com.clougence.clouddm.ds.cloudberry.sql.parser.CbDslProvider;
+import com.clougence.clouddm.ds.cloudberry.sql.parser.CbSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
@@ -22,21 +26,17 @@ import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
-import com.clougence.sql.postgres.analysis.behavior.PgBehaviorAnalysisSpi;
-import com.clougence.sql.postgres.analysis.security.PgSecDomainResolveSpi;
+import com.clougence.sql.postgres.AbstractPgSqlEngineSpi;
 import com.clougence.sql.postgres.editor.rewrite.PgRewriteSpi;
-import com.clougence.sql.postgres.parser.PgDslProvider;
-import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 
-/** @author mode */
-public class PgSqlEngineSpi extends AbstractPgSqlEngineSpi {
+/** Cloudberry uses its PostgreSQL kernel version, with Cloudberry-owned built-ins. */
+public class CbSqlEngineSpi extends AbstractPgSqlEngineSpi {
 
-    public static final String NAME = "PG SQL";
-
+    public static final String NAME = "Cloudberry SQL";
     private final MetaService  metaService;
 
-    public PgSqlEngineSpi(MetaService metaService){
+    public CbSqlEngineSpi(MetaService metaService){
         this.metaService = metaService;
     }
 
@@ -52,26 +52,26 @@ public class PgSqlEngineSpi extends AbstractPgSqlEngineSpi {
 
     @Override
     protected DslProvider newDslProvider(PostgresVersion version) {
-        return new PgDslProvider(version, NAME);
+        return new CbDslProvider(version);
     }
 
     @Override
     protected SplitAnalysisSpi newSplitAnalysisSpi(PostgresVersion version) {
-        return new PgSplitAnalysisSpi(version);
+        return new CbSplitAnalysisSpi(version);
     }
 
     @Override
     protected SecDomainResolveSpi newSecDomainResolveSpi(PostgresVersion version) {
-        return new PgSecDomainResolveSpi(metaService, version);
+        return new CbSecDomainResolveSpi(metaService, version);
     }
 
     @Override
     protected BehaviorAnalysisSpi newBehaviorAnalysisSpi(PostgresVersion version) {
-        return new PgBehaviorAnalysisSpi(version);
+        return new CbBehaviorAnalysisSpi(version);
     }
 
     @Override
     protected RewriteSpi newRewriteSpi(PostgresVersion version) {
-        return new PgRewriteSpi(version);
+        return new PgRewriteSpi(new CbDslProvider(version));
     }
 }

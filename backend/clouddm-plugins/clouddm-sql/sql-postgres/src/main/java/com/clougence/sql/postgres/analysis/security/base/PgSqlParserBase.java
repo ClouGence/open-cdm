@@ -36,8 +36,10 @@ package com.clougence.sql.postgres.analysis.security.base;
  */
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlLexer;
@@ -45,13 +47,28 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 public abstract class PgSqlParserBase extends Parser {
 
-    private PostgresVersion version = PostgresVersion.LATEST;
+    private PostgresVersion        version = PostgresVersion.LATEST;
+    private Predicate<TokenStream> extensionStatement;
+    private Predicate<TokenStream> extensionSuffix;
+    private Predicate<TokenStream> extensionCursorOption;
 
     public PgSqlParserBase(TokenStream input){
         super(input);
     }
 
     public final void setVersion(PostgresVersion version) { this.version = version == null ? PostgresVersion.LATEST : version; }
+
+    public final void setExtensionPredicates(Predicate<TokenStream> statement, Predicate<TokenStream> suffix, Predicate<TokenStream> cursorOption) {
+        this.extensionStatement = statement;
+        this.extensionSuffix = suffix;
+        this.extensionCursorOption = cursorOption;
+    }
+
+    protected final boolean isExtensionStatement() { return extensionStatement != null && extensionStatement.test(getTokenStream()); }
+
+    protected final boolean isExtensionSuffix() { return extensionSuffix != null && extensionSuffix.test(getTokenStream()); }
+
+    protected final boolean isExtensionCursorOption() { return extensionCursorOption != null && extensionCursorOption.test(getTokenStream()); }
 
     protected final boolean atLeast(PostgresVersion minimum) {
         return PostgresVersion.ge(version, minimum);
@@ -131,18 +148,18 @@ public abstract class PgSqlParserBase extends Parser {
 
     public String GetRoutineBodyString(PgSqlParser.SconstContext rule) {
         PgSqlParser.AnysconstContext anysconst = rule.anysconst();
-        org.antlr.v4.runtime.tree.TerminalNode StringConstant = anysconst.StringConstant();
+        TerminalNode StringConstant = anysconst.StringConstant();
         if (null != StringConstant)
             return unquote(TrimQuotes(StringConstant.getText()));
-        org.antlr.v4.runtime.tree.TerminalNode UnicodeEscapeStringConstant = anysconst.UnicodeEscapeStringConstant();
+        TerminalNode UnicodeEscapeStringConstant = anysconst.UnicodeEscapeStringConstant();
         if (null != UnicodeEscapeStringConstant)
             return TrimQuotes(UnicodeEscapeStringConstant.getText());
-        org.antlr.v4.runtime.tree.TerminalNode EscapeStringConstant = anysconst.EscapeStringConstant();
+        TerminalNode EscapeStringConstant = anysconst.EscapeStringConstant();
         if (null != EscapeStringConstant)
             return TrimQuotes(EscapeStringConstant.getText());
         String result = "";
-        List<org.antlr.v4.runtime.tree.TerminalNode> dollartext = anysconst.DollarText();
-        for (org.antlr.v4.runtime.tree.TerminalNode s : dollartext) {
+        List<TerminalNode> dollartext = anysconst.DollarText();
+        for (TerminalNode s : dollartext) {
             result += s.getText();
         }
         return result;

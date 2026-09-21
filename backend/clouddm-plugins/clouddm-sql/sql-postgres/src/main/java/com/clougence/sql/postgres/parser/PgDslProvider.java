@@ -26,7 +26,6 @@ import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.sql.postgres.PgSqlEngineSpi;
 import com.clougence.sql.postgres.parser.antlr.PgSqlLexer;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
@@ -34,9 +33,15 @@ public class PgDslProvider implements DslProvider {
 
     private final AntlrStatementParser TREE_PARSER = new PgStatementParser();
     private final PostgresVersion      version;
+    private final String               dslName;
 
     public PgDslProvider(PostgresVersion version){
+        this(version, "PG SQL");
+    }
+
+    public PgDslProvider(PostgresVersion version, String dslName){
         this.version = version;
+        this.dslName = dslName;
     }
 
     public PostgresVersion version() {
@@ -44,7 +49,7 @@ public class PgDslProvider implements DslProvider {
     }
 
     @Override
-    public String[] getDslName() { return new String[] { PgSqlEngineSpi.NAME }; }
+    public String[] getDslName() { return new String[] { dslName }; }
 
     @Override
     public Lexer createLexer(CharStream charStream) {
