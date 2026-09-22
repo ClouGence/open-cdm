@@ -21,13 +21,20 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import org.postgresql.core.BaseConnection;
+import org.postgresql.core.TransactionState;
 
 import com.clougence.clouddm.ds.greenplum.definition.ui.editor.table.GpEditorProvider;
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
+import com.clougence.utils.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +55,45 @@ public class GpMetaService extends PgMetaService {
 
     @Override
     protected SqlBuilder getSqlBuilder() { return GpEditorProvider.INSTANCE; }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        try {
+            return this.rdbSession.executeQuery(connection -> {
+                int majorVersion = connection.getMetaData().getDatabaseMajorVersion();
+                return Map.of(SqlParserParameters.VERSION, Integer.toString(majorVersion));
+            });
+        } catch (Exception e) {
+            log.warn("Get SQL parser parameters failed: {}", ExceptionUtils.getRootCauseMessage(e));
+            return Map.of();
+        }
+    }
+
+    @Override
+    public String getCurrentCatalog() { return queryCurrentValue("SELECT current_database()", "getCurrentCatalog"); }
+
+    @Override
+    public String getCurrentSchema() { return queryCurrentValue("SELECT current_schema()", "getCurrentSchema"); }
+
+    private String queryCurrentValue(String sql, String operation) {
+        try {
+            return this.rdbSession.executeQuery(connection -> {
+                boolean rollbackAfterQuery = !connection.getAutoCommit() && connection.unwrap(BaseConnection.class).getTransactionState() == TransactionState.IDLE;
+                try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+                    resultSet.next();
+                    return resultSet.getString(1);
+                } finally {
+                    if (rollbackAfterQuery) {
+                        connection.rollback();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            String msg = operation + " failed, " + ExceptionUtils.getRootCauseMessage(e);
+            log.error(msg, e);
+            throw ThirdPartyApiException.as().with(e, msg);
+        }
+    }
 
     protected List<String> showCreateView(Connection con, String catalog, String schema, String view) throws SQLException {
         String showSql = "select pg_get_viewdef('" + PostgreDialect.INSTANCE.fmtTableName(true, catalog, schema, view) + "'::regclass, true)";
