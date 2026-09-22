@@ -20,6 +20,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.postgres.analysis.reference.PgFunctionBehavior;
 import com.clougence.sql.postgres.parser.PgDslProvider;
 import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
@@ -28,10 +29,11 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
-    private final PgDslProvider                             provider;
-    private final PgSplitAnalysisSpi                        splitter;
-    private final Predicate<String>                         dialectSystemFunction;
-    private final Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory;
+    private final PgDslProvider                              provider;
+    private final PgSplitAnalysisSpi                         splitter;
+    private final Predicate<String>                          dialectSystemFunction;
+    private final Function<List<String>, PgFunctionBehavior> dialectFunctionBehavior;
+    private final Function<PostgresVersion, PgSplitVisitor>  splitVisitorFactory;
 
     public PgBehaviorAnalysisSpi(PostgresVersion version){
         this(new PgDslProvider(version), new PgSplitAnalysisSpi(version));
@@ -43,9 +45,15 @@ public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     protected PgBehaviorAnalysisSpi(PgDslProvider provider, PgSplitAnalysisSpi splitter, Predicate<String> dialectSystemFunction,
                                     Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory){
+        this(provider, splitter, dialectSystemFunction, names -> PgFunctionBehavior.DEFAULT, splitVisitorFactory);
+    }
+
+    protected PgBehaviorAnalysisSpi(PgDslProvider provider, PgSplitAnalysisSpi splitter, Predicate<String> dialectSystemFunction,
+                                    Function<List<String>, PgFunctionBehavior> dialectFunctionBehavior, Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory){
         this.provider = provider;
         this.splitter = splitter;
         this.dialectSystemFunction = dialectSystemFunction;
+        this.dialectFunctionBehavior = dialectFunctionBehavior;
         this.splitVisitorFactory = splitVisitorFactory;
     }
 
@@ -71,6 +79,7 @@ public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
                 baseLine,
                 baseColumn,
                 dialectSystemFunction,
+                dialectFunctionBehavior,
                 splitVisitorFactory,
                 statement -> this.analyzeExtensionStatement(parser, statement, levels, baseLine, baseColumn));
             return holder[0];

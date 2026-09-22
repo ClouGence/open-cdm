@@ -16,10 +16,14 @@
 
 plugins {
     id 'com.clougence.plugin-conventions'
+    id 'antlr'
 }
 
 dependencies {
+    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
     // project
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     implementation(project(':dsc-common-postgres'))
 
     // share lib (compileOnly)
@@ -30,3 +34,26 @@ dependencies {
 }
 
 description = 'ds-greenplum'
+
+tasks.named('generateGrammarSource') {
+    dependsOn project(':sql-postgres').tasks.named('generateGrammarSource')
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.greenplum.sql.parser.antlr',
+                  '-lib', project(':sql-postgres').layout.buildDirectory.dir('generated-src/antlr/main').get().asFile.absolutePath]
+}
+
+def greenplumRuntimeProjects = [
+        project(':dsc-common-postgres'),
+        project(':sql-postgres'),
+        project(':dsc-common'),
+        project(':sqlc-common')
+]
+
+tasks.named('customFatJar') {
+    greenplumRuntimeProjects.each { dependencyProject ->
+        dependsOn "${dependencyProject.path}:jar"
+    }
+}
+
+tasks.named('local') {
+    dependsOn tasks.named('customFatJar')
+}

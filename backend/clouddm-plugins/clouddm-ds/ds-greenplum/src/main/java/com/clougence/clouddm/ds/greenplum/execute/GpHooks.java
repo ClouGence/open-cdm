@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.greenplum.execute;
 
 import java.sql.*;
 
+import org.postgresql.PGConnection;
 import org.postgresql.jdbc.PgResultSetMetaData;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
@@ -49,12 +50,14 @@ public class GpHooks implements SessionHook {
 
     @Override
     public void configSession(Connection resource, SessionContextDTO initContextDTO) throws SQLException {
+        this.setAutoCommit(resource, true);
+        this.setIsolation(resource, initContextDTO.getRdbTxIsolation());
+
         if (StringUtils.isNotBlank(initContextDTO.getRdbSchema())) {
             this.setCurrentSchema(resource, initContextDTO.getRdbSchema());
         }
 
         this.setAutoCommit(resource, initContextDTO.isRdbAutoCommit());
-        this.setIsolation(resource, initContextDTO.getRdbTxIsolation());
         //this.setCurrentReadOnly(resource, initContextDTO.isRdbReadOnly());
     }
 
@@ -140,9 +143,7 @@ public class GpHooks implements SessionHook {
 
     @Override
     public String getQueryID(Connection conn) throws SQLException {
-        try (Statement s = conn.createStatement(); ResultSet resultSet = s.executeQuery("select pg_backend_pid()")) {
-            return ((SingleValueRowMapper<String>) (rs, columnType, columnTypeName, columnClassName) -> rs.getString(1)).mapRow(resultSet);
-        }
+        return Integer.toString(conn.unwrap(PGConnection.class).getBackendPID());
     }
 
     @Override

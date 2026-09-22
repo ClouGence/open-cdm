@@ -18,6 +18,7 @@ package com.clougence.sql.postgres.analysis.behavior;
 import static com.clougence.sql.postgres.parser.antlr.PgSqlParser.*;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.antlr.v4.runtime.Parser;
@@ -38,22 +39,24 @@ import com.clougence.utils.StringUtils;
 
 final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
-    private final Parser                   parser;
-    private final RdbBehaviorObjectFactory objects;
-    private final Map<UmiTypes, Object>    levels;
-    private final int                      baseLine;
-    private final int                      baseColumn;
-    private final SplitQueryType           resolvedType;
-    private final PostgresVersion          version;
-    private final PgResourceRegistry       resources = PgResourceRegistry.instance();
-    private final StatementBehavior        behavior  = new StatementBehavior();
-    private final Predicate<String>        dialectSystemFunction;
+    private final Parser                                     parser;
+    private final RdbBehaviorObjectFactory                   objects;
+    private final Map<UmiTypes, Object>                      levels;
+    private final int                                        baseLine;
+    private final int                                        baseColumn;
+    private final SplitQueryType                             resolvedType;
+    private final PostgresVersion                            version;
+    private final PgResourceRegistry                         resources = PgResourceRegistry.instance();
+    private final StatementBehavior                          behavior  = new StatementBehavior();
+    private final Predicate<String>                          dialectSystemFunction;
+    private final Function<List<String>, PgFunctionBehavior> dialectFunctionBehavior;
 
     PgStatementBehaviorVisitor(Parser parser, PostgresVersion version, SplitQueryType statementType, Map<UmiTypes, Object> levels, int baseLine, int baseColumn,
-                               Predicate<String> dialectSystemFunction){
+                               Predicate<String> dialectSystemFunction, Function<List<String>, PgFunctionBehavior> dialectFunctionBehavior){
         this.parser = parser;
         this.version = version;
         this.dialectSystemFunction = dialectSystemFunction;
+        this.dialectFunctionBehavior = dialectFunctionBehavior;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
         this.levels = levels;
         this.baseLine = Math.max(1, baseLine);
@@ -84,7 +87,10 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     private void addFunction(Func_applicationContext ctx) {
         List<String> names = new ArrayList<>();
         collectNames(ctx.func_name(), names);
-        PgFunctionBehavior rule = resources.functionBehavior(names, version);
+        PgFunctionBehavior rule = dialectFunctionBehavior.apply(names);
+        if (PgFunctionBehavior.DEFAULT.equals(rule)) {
+            rule = resources.functionBehavior(names, version);
+        }
         addUnary(rule.action(), functionObject(ctx.func_name(), names));
         if (rule.targetType() == null || ctx.func_arg_list() == null)
             return;

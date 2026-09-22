@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.greenplum.execute;
+package com.clougence.clouddm.ds.greenplum.sql.parser;
 
-import java.sql.Connection;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.TokenStream;
 
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.dsfamily.postgres.execute.PgSession;
-import com.clougence.drivers.DsObject;
+public abstract class GpSqlParserBase extends Parser {
 
-/**
- * @author bucketli 2022/3/28 19:25:30
- */
-public class GpSession extends PgSession {
+    protected GpSqlParserBase(TokenStream input){
+        super(input);
+    }
 
-    public GpSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
-        super(newSessionId, dsConfig, dsObject, new GpHooks());
+    protected boolean keyword(String value) {
+        return value.equalsIgnoreCase(getTokenStream().LT(1).getText());
     }
 }
