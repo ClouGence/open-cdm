@@ -93,6 +93,16 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
+    public SplitQueryType visitAlterUserDefaultRole(AlterUserDefaultRoleContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultRole(SetDefaultRoleContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
     public SplitQueryType visitDropTablespace(DropTablespaceContext ctx) {
         return SplitQueryType.DROP_TABLESPACE;
     }

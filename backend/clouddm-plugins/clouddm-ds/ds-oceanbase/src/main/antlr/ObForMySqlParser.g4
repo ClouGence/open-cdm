@@ -171,7 +171,7 @@ createFunction
     ;
 
 createRole
-    : CREATE ROLE (IF NOT EXISTS)? roleName
+    : CREATE ROLE (IF NOT EXISTS)? roleName (',' roleName)*
     ;
 
 createServer
@@ -1489,6 +1489,12 @@ alterUser
         )?
         (WITH userResourceOption+)?
         (userPasswordOption | userLockOption)*                      #alterUserMysqlV57
+    | ALTER USER CURRENT_USER ('(' ')')?
+        (IDENTIFIED (WITH authPlugin)? BY STRING_LITERAL
+        | REQUIRE (NONE | tlsOption (AND? tlsOption)*)
+        | WITH userResourceOption+)                                 #alterUserMysqlV57
+    | ALTER USER (userName | CURRENT_USER ('(' ')')?)
+        DEFAULT ROLE defaultRoleClause                              #alterUserDefaultRole
     ;
 
 createUser
@@ -1547,15 +1553,16 @@ renameUser
     ;
 
 revokeStatement
-    : REVOKE privelegeClause (',' privelegeClause)*
+    : REVOKE ifExists? privelegeClause (',' privelegeClause)*
       ON
       privilegeObject=(TABLE | FUNCTION | PROCEDURE)?
       privilegeLevel
-      FROM userName (',' userName)*                                 //#detailRevoke
-    | REVOKE ALL PRIVILEGES? ',' GRANT OPTION
-      FROM userName (',' userName)*                                 //#shortRevoke
-    | REVOKE roleName (',' roleName)*
-      FROM (userName | uid) (',' (userName | uid))*                // #roleRevoke
+      FROM userName (',' userName)* (IGNORE UNKNOWN USER)?          //#detailRevoke
+    | REVOKE ifExists? ALL PRIVILEGES? ',' GRANT OPTION
+      FROM userName (',' userName)* (IGNORE UNKNOWN USER)?          //#shortRevoke
+    | REVOKE ifExists? roleName (',' roleName)*
+      FROM (userName | uid) (',' (userName | uid))*
+      (IGNORE UNKNOWN USER)?                                       // #roleRevoke
     ;
 
 revokeProxy
@@ -1584,7 +1591,7 @@ userAuthOption
 
 authenticationRule
     : authPlugin
-      ((BY | USING | AS) STRING_LITERAL)?                           #module
+      (BY PASSWORD? STRING_LITERAL | (USING | AS) STRING_LITERAL)?   #module
     | authPlugin
       (USING | AS) passwordFunctionClause                           #passwordModuleOption // MariaDB
     ;
@@ -1627,10 +1634,11 @@ privelegeClause
 
 privilege
     : ALL PRIVILEGES?
-    | ALTER ROUTINE?
+    | ALTER (ROUTINE | SYSTEM)?
     | CREATE
-      (TEMPORARY TABLES | ROUTINE | VIEW | USER | TABLESPACE | ROLE)?
-    | DELETE | DROP (ROLE)? | EVENT | EXECUTE | FILE | GRANT OPTION
+      (TEMPORARY TABLES | ROUTINE | VIEW | USER | TABLESPACE | ROLE | DATABASE LINK)?
+    | DELETE | DROP (ROLE | DATABASE LINK)? | EVENT | EXECUTE | FILE | GRANT OPTION
+    | ENCRYPT | DECRYPT
     | INDEX | INSERT | LOCK TABLES | PROCESS | PROXY
     | REFERENCES | RELOAD
     | REPLICATION (CLIENT | SLAVE | REPLICA)     // REPLICA is MariaDB-specific
@@ -1705,7 +1713,8 @@ uninstallPlugin
     ;
 
 setStatement
-    : SET variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON)
+    : setPasswordStatement                                          #setPassword
+    | SET variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON)
       (',' variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON))* #setVariable
     | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
     | SET NAMES
@@ -1713,7 +1722,8 @@ setStatement
     | SET sessionSetItem (',' sessionSetItem)+                     #setSessionAssignments
     | SET ROLE (DEFAULT | NONE | ALL (EXCEPT userName (',' userName)*)?
         | userName (',' userName)*)                                #setRole
-    | setPasswordStatement                                          #setPassword
+    | SET DEFAULT ROLE defaultRoleClause
+        TO userName (',' userName)*                                 #setDefaultRole
     | setTransactionStatement                                       #setTransaction
     | setAutocommitStatement                                        #setAutocommit
     | SET fullId ('=' | ':=') expression
@@ -1724,6 +1734,10 @@ sessionSetItem
     : variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON)
     | NAMES (charsetName | DEFAULT) (COLLATE collationName)?
     | (CHARACTER SET | CHARSET) (charsetName | DEFAULT)
+    ;
+
+defaultRoleClause
+    : NONE | ALL | roleName (',' roleName)*
     ;
 
 showStatement
@@ -1751,7 +1765,7 @@ showStatement
           | TABLE | TRIGGER | VIEW
         )
         fullId                                                      #showCreateFullIdObject
-    | SHOW CREATE USER userName                                     #showCreateUser
+    | SHOW CREATE USER (userName | CURRENT_USER ('(' ')')?)          #showCreateUser
     | SHOW ENGINE engineName engineOption=(STATUS | MUTEX)          #showEngine
     | SHOW STORAGE? ENGINES                                         #showEngines
     | SHOW MASTER STATUS                                            #showStatus
@@ -1771,7 +1785,8 @@ showStatement
     | SHOW showSchemaEntity
         (schemaFormat=(FROM | IN) uid)? showFilter?                 #showSchemaFilter
     | SHOW routine=(FUNCTION | PROCEDURE) CODE fullId               #showRoutine
-    | SHOW GRANTS (FOR (userName|CURRENT_USER ('(' ')')?))?         #showGrants
+    | SHOW GRANTS (FOR (userName (USING roleName (',' roleName)*)?
+        | CURRENT_USER ('(' ')')?))?                                #showGrants
     | SHOW indexFormat=(INDEX | INDEXES | KEYS)
       tableFormat=(FROM | IN) tableName
         (schemaFormat=(FROM | IN) uid)? (WHERE expression)?         #showIndexes
@@ -1977,7 +1992,7 @@ customFunctionName
     ;
 
 roleName
-    : uid | STRING_LITERAL
+    : (uid | STRING_LITERAL) LOCAL_ID?
     ;
 
 fullColumnName
@@ -2535,6 +2550,7 @@ dataTypeBase
 
 keywordsCanBeId
     : ACCOUNT | ACTION | AFTER | AGGREGATE | ALGORITHM | ANY
+    | DECRYPT | LINK | SYSTEM
     | AT | AUDIT_ADMIN | AUTHORS | AUTOCOMMIT | AUTOEXTEND_SIZE
     | AUTO_INCREMENT | AVG | AVG_ROW_LENGTH | BACKUP_ADMIN | BEGIN | BINLOG | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR
     | BLOCK | BOOL | BOOLEAN | BTREE | CACHE | CASCADED | CHAIN | CHANGED
