@@ -400,11 +400,13 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitShowObjectFilter(ShowObjectFilterContext ctx) {
         String entity = ctx.showCommonEntity().getText();
-        if (entity.equalsIgnoreCase("STATUS") || entity.equalsIgnoreCase("GLOBALSTATUS") || entity.equalsIgnoreCase("SESSIONSTATUS")) {
+        if (entity.equalsIgnoreCase("STATUS") || entity.equalsIgnoreCase("GLOBALSTATUS") || entity.equalsIgnoreCase("SESSIONSTATUS")
+            || entity.equalsIgnoreCase("LOCALSTATUS")) {
             return SplitQueryType.PERFORMANCE;
         }
         if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("GLOBALVARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES")
-            || entity.equalsIgnoreCase("DATABASES") || entity.equalsIgnoreCase("SCHEMAS") || entity.equalsIgnoreCase("CHARACTERSET") || entity.equalsIgnoreCase("COLLATION")
+            || entity.equalsIgnoreCase("LOCALVARIABLES") || entity.equalsIgnoreCase("DATABASES") || entity.equalsIgnoreCase("SCHEMAS")
+            || entity.equalsIgnoreCase("CHARACTERSET") || entity.equalsIgnoreCase("COLLATION")
             || entity.equalsIgnoreCase("FUNCTIONSTATUS") || entity.equalsIgnoreCase("PROCEDURESTATUS")) {
             return SplitQueryType.METADATA;
         }
@@ -574,6 +576,21 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitSetVariable(SetVariableContext ctx) {
         return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetNames(SetNamesContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetCharset(SetCharsetContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetRole(SetRoleContext ctx) {
+        return SplitQueryType.SWITCH_ROLE;
     }
 
     public SplitQueryType visitChildren(RuleNode node) {

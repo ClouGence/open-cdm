@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.oceanbase.sql.ob4my.parser;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -47,6 +48,10 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof ObForMySqlParser.MysqlVariableContext variable
+            && !variable.getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
+            return SplitQueryType.SESSION_VARIABLE_RW;
+        }
         if (tree instanceof ObForMySqlParser.UdfFunctionCallContext function) {
             ObForMySqlParser.FullIdContext fullId = function.customFunctionName().fullId();
             String name = fullId.uid(fullId.uid().size() - 1).getText();
@@ -128,24 +133,43 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        ObForMySqlParser.SetVariableContext setVariable = findContext(context, ObForMySqlParser.SetVariableContext.class);
-        if (setVariable != null) {
+        ObForMySqlParser.SetStatementContext setting = findContext(context, ObForMySqlParser.SetStatementContext.class);
+        if (setting instanceof ObForMySqlParser.SetVariableContext || setting instanceof ObForMySqlParser.SetSessionAssignmentsContext) {
             Set<SplitQueryType> types = new LinkedHashSet<>();
-            for (ObForMySqlParser.VariableClauseContext variable : setVariable.variableClause()) {
-                if (variable.LOCAL_ID() != null) {
-                    types.add(SplitQueryType.SESSION_VARIABLE_RW);
-                } else if (variable.GLOBAL_ID() != null || variable.GLOBAL() != null || variable.PERSIST() != null) {
-                    types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
-                } else {
-                    types.add(SplitQueryType.SESSION_SETTING_WRITE);
-                }
-            }
-            return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
+            collectSettingTypes(setting, types);
+            return types;
         }
 
         Set<SplitQueryType> types = new LinkedHashSet<>(super.collectTypes(context, script));
         collectSecondaryTypes(context, types);
         return types;
+    }
+
+    private void collectSettingTypes(ParseTree tree, Set<SplitQueryType> types) {
+        if (tree instanceof ObForMySqlParser.VariableClauseContext variable) {
+            // GLOBAL_ID is the lexer token for every @@ variable, including SESSION/LOCAL.
+            if (variable.LOCAL_ID() != null) {
+                types.add(SplitQueryType.SESSION_VARIABLE_RW);
+            } else if (variable.GLOBAL() != null || variable.PERSIST() != null
+                || variable.GLOBAL_ID() != null && variable.GLOBAL_ID().getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
+                types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
+            } else {
+                types.add(SplitQueryType.SESSION_SETTING_WRITE);
+            }
+        } else if (tree instanceof ObForMySqlParser.SessionSetItemContext item && item.variableClause() == null) {
+            types.add(SplitQueryType.SESSION_SETTING_WRITE);
+        } else if (tree instanceof ObForMySqlParser.SubqueryExpessionAtomContext) {
+            types.add(SplitQueryType.SELECT);
+        } else {
+            SplitQueryType type = additionalType(tree);
+            if (type != null) {
+                types.add(type);
+            }
+        }
+        // Walk each assignment and its RHS before moving to the next assignment.
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectSettingTypes(tree.getChild(i), types);
+        }
     }
 
     private void collectSecondaryTypes(ParseTree tree, Set<SplitQueryType> types) {

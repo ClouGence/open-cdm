@@ -1160,7 +1160,7 @@ NULL_SPEC_LITERAL:                   '\\' 'N';
 BIT_STRING:                          BIT_STRING_L;
 STRING_CHARSET_NAME:                 '_' CHARSET_NAME;
 ID:                                  ID_LITERAL;
-REVERSE_QUOTE_ID:                    '`' ~'`'+ '`';
+REVERSE_QUOTE_ID:                    '`' ('``' | ~'`')+ '`';
 LOCAL_ID:                            '@'
                                 (
                                   [a-zA-Z0-9._$]+

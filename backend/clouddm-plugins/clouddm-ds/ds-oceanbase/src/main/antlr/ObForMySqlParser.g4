@@ -1705,16 +1705,25 @@ uninstallPlugin
     ;
 
 setStatement
-    : SET variableClause ('=' | ':=') expression
-      (',' variableClause ('=' | ':=') expression)*                 #setVariable
+    : SET variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON)
+      (',' variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON))* #setVariable
     | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
     | SET NAMES
         (charsetName (COLLATE collationName)? | DEFAULT)            #setNames
+    | SET sessionSetItem (',' sessionSetItem)+                     #setSessionAssignments
+    | SET ROLE (DEFAULT | NONE | ALL (EXCEPT userName (',' userName)*)?
+        | userName (',' userName)*)                                #setRole
     | setPasswordStatement                                          #setPassword
     | setTransactionStatement                                       #setTransaction
     | setAutocommitStatement                                        #setAutocommit
     | SET fullId ('=' | ':=') expression
       (',' fullId ('=' | ':=') expression)*                         #setNewValueInsideTrigger
+    ;
+
+sessionSetItem
+    : variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON)
+    | NAMES (charsetName | DEFAULT) (COLLATE collationName)?
+    | (CHARACTER SET | CHARSET) (charsetName | DEFAULT)
     ;
 
 showStatement
@@ -1785,7 +1794,7 @@ variableClause
 showCommonEntity
     : CHARACTER SET | COLLATION | DATABASES | SCHEMAS
     | FUNCTION STATUS | PROCEDURE STATUS
-    | (GLOBAL | SESSION)? (STATUS | VARIABLES)
+    | (GLOBAL | SESSION | LOCAL)? (STATUS | VARIABLES)
     ;
 
 showFilter
@@ -1825,7 +1834,7 @@ flushStatement
 
 killStatement
     : KILL connectionFormat=(CONNECTION | QUERY)?
-      decimalLiteral+
+      expression
     ;
 
 loadIndexIntoCache
@@ -1991,6 +2000,7 @@ mysqlVariable
 charsetName
     : BINARY
     | charsetNameBase
+    | ID
     | STRING_LITERAL
     | CHARSET_REVERSE_QOUTE_STRING
     ;
