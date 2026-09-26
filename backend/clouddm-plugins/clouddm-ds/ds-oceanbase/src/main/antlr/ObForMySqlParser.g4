@@ -97,7 +97,7 @@ administrationStatement
     | setStatement | showStatement | binlogStatement
     | cacheIndexStatement | flushStatement | killStatement
     | loadIndexIntoCache | resetStatement
-    | shutdownStatement | dropRole
+    | shutdownStatement | dropRole | alterSystemStatement
     ;
 
 utilityStatement
@@ -750,11 +750,11 @@ callStatement
     ;
 
 procedureArgs
-    : (constant  | functionCall | expression)
-    (
-      ','
-      (constant  | functionCall | expression)
-    )*
+    : procedureArgument (',' procedureArgument)*
+    ;
+
+procedureArgument
+    : (uid NAMED_ARGUMENT_ASSIGN)? (constant | functionCall | expression)
     ;
 
 deleteStatement
@@ -1712,6 +1712,25 @@ uninstallPlugin
     : UNINSTALL PLUGIN uid
     ;
 
+alterSystemStatement
+    : ALTER SYSTEM SET? systemParameterAssignment (',' systemParameterAssignment)* #alterSystemParameters
+    | ALTER SYSTEM ENABLE SQL THROTTLE
+      (FOR PRIORITY '<' '=' (DECIMAL_LITERAL | ZERO_DECIMAL | ONE_DECIMAL | TWO_DECIMAL))?
+      USING sqlThrottleMetric+                                      #enableSqlThrottle
+    | ALTER SYSTEM DISABLE SQL THROTTLE                              #disableSqlThrottle
+    ;
+
+systemParameterAssignment
+    : uid '=' (stringLiteral | '-'? decimalLiteral | booleanLiteral | NULL_LITERAL)
+      (COMMENT STRING_LITERAL)?
+      (SCOPE '=' (MEMORY | SPFILE | BOTH))?
+      ((SERVER | ZONE) '='? STRING_LITERAL)?
+    ;
+
+sqlThrottleMetric
+    : (RT | QUEUE_TIME) '=' decimalLiteral
+    ;
+
 setStatement
     : setPasswordStatement                                          #setPassword
     | SET variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON)
@@ -1767,6 +1786,8 @@ showStatement
         fullId                                                      #showCreateFullIdObject
     | SHOW CREATE USER (userName | CURRENT_USER ('(' ')')?)          #showCreateUser
     | SHOW ENGINE engineName engineOption=(STATUS | MUTEX)          #showEngine
+    | SHOW TENANT STATUS?                                           #showTenant
+    | SHOW CREATE TENANT uid                                        #showCreateTenant
     | SHOW STORAGE? ENGINES                                         #showEngines
     | SHOW MASTER STATUS                                            #showStatus
     | SHOW PLUGINS                                                  #showPlugins
@@ -1807,7 +1828,7 @@ variableClause
     ;
 
 showCommonEntity
-    : CHARACTER SET | COLLATION | DATABASES | SCHEMAS
+    : CHARACTER SET | COLLATION | DATABASES | SCHEMAS | PARAMETERS
     | FUNCTION STATUS | PROCEDURE STATUS
     | (GLOBAL | SESSION | LOCAL)? (STATUS | VARIABLES)
     ;
@@ -2551,6 +2572,7 @@ dataTypeBase
 keywordsCanBeId
     : ACCOUNT | ACTION | AFTER | AGGREGATE | ALGORITHM | ANY
     | DECRYPT | LINK | SYSTEM
+    | PARAMETERS | QUEUE_TIME | RT | SCOPE | SPFILE | TENANT | THROTTLE | ZONE
     | AT | AUDIT_ADMIN | AUTHORS | AUTOCOMMIT | AUTOEXTEND_SIZE
     | AUTO_INCREMENT | AVG | AVG_ROW_LENGTH | BACKUP_ADMIN | BEGIN | BINLOG | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR
     | BLOCK | BOOL | BOOLEAN | BTREE | CACHE | CASCADED | CHAIN | CHANGED

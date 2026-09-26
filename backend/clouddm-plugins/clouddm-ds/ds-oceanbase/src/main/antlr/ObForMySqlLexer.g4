@@ -1107,6 +1107,16 @@ FEDERATED_ADMIN:                     F E D E R A T E D '_' A D M I N;
 READ_ONLY_ADMIN:                     R E A D '_' O N L Y '_' A D M I N;
 REPLICA:                             R E P L I C A;
 REPLICATION_MASTER_ADMIN:            R E P L I C A T I O N '_' M A S T E R '_' A D M I N;
+// OceanBase tenant configuration and SQL throttling keywords are non-reserved.
+PARAMETERS:                          P A R A M E T E R S;
+QUEUE_TIME:                          Q U E U E '_' T I M E;
+RT:                                  R T;
+SCOPE:                               S C O P E;
+SPFILE:                              S P F I L E;
+TENANT:                              T E N A N T;
+THROTTLE:                            T H R O T T L E;
+ZONE:                                Z O N E;
+NAMED_ARGUMENT_ASSIGN:               '=>';
 VAR_ASSIGN:                          ':=';
 PLUS_ASSIGN:                         '+=';
 MINUS_ASSIGN:                        '-=';
@@ -1173,7 +1183,8 @@ LOCAL_ID:                            '@'
                                 );
 GLOBAL_ID:                           '@' '@' 
                                 (
-                                  [a-zA-Z0-9._$]+
+                                  (GLOBAL | SESSION | LOCAL) '.' BQUOTA_STRING
+                                  | [a-zA-Z0-9._$]+
                                   | BQUOTA_STRING
                                 );
 fragment CHARSET_NAME:               ARMSCII8 | ASCII | BIG5 | BINARY | CP1250 

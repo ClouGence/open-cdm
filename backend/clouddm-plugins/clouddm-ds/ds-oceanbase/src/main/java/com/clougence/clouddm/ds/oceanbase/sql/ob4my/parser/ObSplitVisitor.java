@@ -58,6 +58,31 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
+    public SplitQueryType visitAlterSystemParameters(AlterSystemParametersContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitEnableSqlThrottle(EnableSqlThrottleContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDisableSqlThrottle(DisableSqlThrottleContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitShowTenant(ShowTenantContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateTenant(ShowCreateTenantContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
     public SplitQueryType visitSetPassword(SetPasswordContext ctx) {
         return SplitQueryType.ALTER_USER;
     }
@@ -417,7 +442,7 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
         if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("GLOBALVARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES")
             || entity.equalsIgnoreCase("LOCALVARIABLES") || entity.equalsIgnoreCase("DATABASES") || entity.equalsIgnoreCase("SCHEMAS")
             || entity.equalsIgnoreCase("CHARACTERSET") || entity.equalsIgnoreCase("COLLATION")
-            || entity.equalsIgnoreCase("FUNCTIONSTATUS") || entity.equalsIgnoreCase("PROCEDURESTATUS")) {
+            || entity.equalsIgnoreCase("FUNCTIONSTATUS") || entity.equalsIgnoreCase("PROCEDURESTATUS") || entity.equalsIgnoreCase("PARAMETERS")) {
             return SplitQueryType.METADATA;
         }
         return SplitQueryType.UNKNOWN;
