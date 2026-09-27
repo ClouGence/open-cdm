@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParser;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParserBaseVisitor;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
@@ -145,14 +146,273 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
             action = BehaviorAction.READ;
         }
         for (UserNameContext role : ctx.userName()) {
-            String host = "%";
-            if (role.host != null) {
-                host = unquote(role.host.getText().substring(1));
-            }
-            String identity = unquote(role.user.getText()) + "@" + host;
-            add(SplitQueryType.SWITCH_ROLE, action, objects.instanceObject(TargetType.Role, role, identity));
+            add(SplitQueryType.SWITCH_ROLE, action, identity(TargetType.Role, role));
         }
         return null;
+    }
+
+    @Override
+    public Void visitCreateUser(CreateUserContext ctx) {
+        for (UserAuthOptionContext option : ctx.userAuthOption()) {
+            add(SplitQueryType.CREATE_USER, BehaviorAction.CREATE,
+                identity(TargetType.User, option.getRuleContext(UserNameContext.class, 0)));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserMysqlV56(AlterUserMysqlV56Context ctx) {
+        for (UserSpecificationContext user : ctx.userSpecification()) {
+            add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, identity(TargetType.User, user.userName()));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
+        if (ctx.CURRENT_USER() != null) {
+            add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, currentUser(ctx.CURRENT_USER(), ctx.RR_BRACKET()));
+            return null;
+        }
+        for (UserAuthOptionContext option : ctx.userAuthOption()) {
+            BehaviorObject user = identity(TargetType.User, option.getRuleContext(UserNameContext.class, 0));
+            if (ctx.userLockOption().isEmpty() || !(option instanceof SimpleAuthOptionContext)
+                || ctx.REQUIRE() != null || !ctx.userResourceOption().isEmpty() || !ctx.userPasswordOption().isEmpty()) {
+                add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, user);
+            }
+            for (UserLockOptionContext lock : ctx.userLockOption()) {
+                BehaviorAction action = BehaviorAction.LOCK;
+                if (lock.UNLOCK() != null) {
+                    action = BehaviorAction.UNLOCK;
+                }
+                add(SplitQueryType.ALTER_USER, action, user);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSetPasswordStatement(SetPasswordStatementContext ctx) {
+        BehaviorObject user = objects.instanceObject(TargetType.User, ctx.PASSWORD().getSymbol());
+        if (ctx.userName() != null) {
+            user = identity(TargetType.User, ctx.userName());
+        }
+        add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, user);
+        // PASSWORD(string) is authentication syntax, not an expression function call.
+        return null;
+    }
+
+    @Override
+    public Void visitRenameUser(RenameUserContext ctx) {
+        for (RenameUserClauseContext rename : ctx.renameUserClause()) {
+            add(SplitQueryType.RENAME_USER, BehaviorAction.RENAME, identity(TargetType.User, rename.fromFirst),
+                List.of(identity(TargetType.User, rename.toFirst)));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropUser(DropUserContext ctx) {
+        for (UserNameContext user : ctx.userName()) {
+            add(SplitQueryType.DROP_USER, BehaviorAction.DROP, identity(TargetType.User, user));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCreateRole(CreateRoleContext ctx) {
+        for (RoleNameContext role : ctx.roleName()) {
+            add(SplitQueryType.CREATE_ROLE, BehaviorAction.CREATE, identity(TargetType.Role, role));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropRole(DropRoleContext ctx) {
+        for (RoleNameContext role : ctx.roleName()) {
+            add(SplitQueryType.DROP_ROLE, BehaviorAction.DROP, identity(TargetType.Role, role));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSetDefaultRole(SetDefaultRoleContext ctx) {
+        List<BehaviorObject> roles = defaultRoles(ctx.defaultRoleClause());
+        for (UserNameContext user : ctx.userName()) {
+            add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, identity(TargetType.User, user), roles);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserDefaultRole(AlterUserDefaultRoleContext ctx) {
+        BehaviorObject user;
+        if (ctx.userName() != null) {
+            user = identity(TargetType.User, ctx.userName());
+        } else {
+            user = currentUser(ctx.CURRENT_USER(), ctx.RR_BRACKET());
+        }
+        add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, user, defaultRoles(ctx.defaultRoleClause()));
+        return null;
+    }
+
+    private List<BehaviorObject> defaultRoles(DefaultRoleClauseContext ctx) {
+        if (ctx.ALL() != null) {
+            return List.of(objects.instanceObject(TargetType.Role, ctx.ALL().getSymbol()));
+        }
+        return ctx.roleName().stream().map(role -> identity(TargetType.Role, role)).toList();
+    }
+
+    @Override
+    public Void visitGrantStatement(GrantStatementContext ctx) {
+        if (ctx.privilegeLevel() == null) {
+            List<BehaviorObject> recipients = roleRecipients(ctx);
+            for (RoleNameContext role : ctx.roleName()) {
+                add(SplitQueryType.GRANT, BehaviorAction.GRANT, identity(TargetType.Role, role), recipients);
+            }
+        } else {
+            List<BehaviorObject> recipients = ctx.userAuthOption().stream()
+                .map(option -> identity(TargetType.UserOrRole, option.getRuleContext(UserNameContext.class, 0))).toList();
+            add(SplitQueryType.GRANT, BehaviorAction.GRANT, privilegeScope(ctx.privilegeLevel(), ctx.privilegeObject), recipients);
+            // BP7 also changes an existing account's password when credentials are supplied.
+            for (UserAuthOptionContext option : ctx.userAuthOption()) {
+                if (changesPassword(option)) {
+                    add(SplitQueryType.GRANT, BehaviorAction.ALTER,
+                        identity(TargetType.UserOrRole, option.getRuleContext(UserNameContext.class, 0)));
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitRevokeStatement(RevokeStatementContext ctx) {
+        List<BehaviorObject> recipients = roleRecipients(ctx);
+        if (ctx.privilegeLevel() != null) {
+            add(SplitQueryType.REVOKE, BehaviorAction.REVOKE, privilegeScope(ctx.privilegeLevel(), ctx.privilegeObject), recipients);
+        } else if (ctx.ALL() != null) {
+            // No ON clause: remove privileges across the tenant, not role memberships.
+            add(SplitQueryType.REVOKE, BehaviorAction.REVOKE,
+                unnamedRange(TargetType.Instance, ctx.ALL().getSymbol(), ctx.OPTION().getSymbol()), recipients);
+        } else {
+            for (RoleNameContext role : ctx.roleName()) {
+                add(SplitQueryType.REVOKE, BehaviorAction.REVOKE, identity(TargetType.Role, role), recipients);
+            }
+        }
+        return null;
+    }
+
+    private List<BehaviorObject> roleRecipients(ParserRuleContext ctx) {
+        List<BehaviorObject> recipients = new ArrayList<>();
+        // Both grammar alternatives can occur in one list; preserve their source order.
+        for (ParseTree child : ctx.children) {
+            if (child instanceof UserNameContext user) {
+                recipients.add(identity(TargetType.UserOrRole, user));
+            } else if (child instanceof UidContext uid) {
+                recipients.add(identity(TargetType.UserOrRole, uid));
+            }
+        }
+        return recipients;
+    }
+
+    private boolean changesPassword(UserAuthOptionContext ctx) {
+        if (ctx instanceof StringAuthOptionContext) {
+            return true;
+        }
+        if (ctx instanceof HashAuthOptionContext hash) {
+            return !unquote(hash.hashed.getText()).isEmpty();
+        }
+        if (ctx instanceof ModuleAuthOptionContext module) {
+            for (AuthenticationRuleContext rule : module.authenticationRule()) {
+                if (rule instanceof ModuleContext auth && auth.BY() != null && auth.STRING_LITERAL() != null) {
+                    if (auth.PASSWORD() == null || !unquote(auth.STRING_LITERAL().getText()).isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private BehaviorObject privilegeScope(PrivilegeLevelContext ctx, Token kind) {
+        if (ctx instanceof GlobalPrivLevelContext) {
+            return objects.instanceObject(TargetType.Instance, ctx);
+        }
+        if (ctx instanceof CurrentSchemaPriviLevelContext) {
+            return objects.unnamedObject(TargetType.Schema, ctx, UmiTypes.Schema);
+        }
+        if (ctx instanceof DefiniteSchemaPrivLevelContext schema) {
+            return objects.object(TargetType.Schema, ctx, List.of(unquote(text(schema.uid()))));
+        }
+        TargetType type = TargetType.Table;
+        if (kind != null && kind.getType() == ObForMySqlParser.FUNCTION) {
+            type = TargetType.Function;
+        } else if (kind != null && kind.getType() == ObForMySqlParser.PROCEDURE) {
+            type = TargetType.Procedure;
+        }
+        List<String> names = descendants(ctx, UidContext.class).stream().map(this::text).map(this::unquote).toList();
+        return objects.object(type, ctx, names);
+    }
+
+    @Override
+    public Void visitShowGrants(ShowGrantsContext ctx) {
+        BehaviorObject user;
+        if (ctx.userName() != null) {
+            user = identity(TargetType.UserOrRole, ctx.userName());
+        } else if (ctx.CURRENT_USER() != null) {
+            user = currentUser(ctx.CURRENT_USER(), ctx.RR_BRACKET());
+        } else {
+            user = objects.instanceObject(TargetType.User, ctx.GRANTS().getSymbol());
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, user);
+        for (RoleNameContext role : ctx.roleName()) {
+            add(SplitQueryType.METADATA, BehaviorAction.READ, identity(TargetType.Role, role));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateUser(ShowCreateUserContext ctx) {
+        BehaviorObject user;
+        if (ctx.userName() != null) {
+            user = identity(TargetType.User, ctx.userName());
+        } else {
+            user = currentUser(ctx.CURRENT_USER(), ctx.RR_BRACKET());
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, user);
+        return null;
+    }
+
+    @Override
+    public Void visitShowPrivileges(ShowPrivilegesContext ctx) {
+        setType(SplitQueryType.METADATA);
+        return null;
+    }
+
+    private BehaviorObject identity(TargetType type, ParserRuleContext ctx) {
+        String host = "%";
+        TerminalNode hostToken = ctx.getToken(ObForMySqlParser.LOCAL_ID, 0);
+        if (hostToken != null) {
+            host = unquote(hostToken.getText().substring(1));
+        }
+        String name = unquote(ctx.getStart().getText());
+        return objects.instanceObject(type, ctx, name + "@" + host);
+    }
+
+    private BehaviorObject currentUser(TerminalNode current, TerminalNode close) {
+        Token stop = current.getSymbol();
+        if (close != null) {
+            stop = close.getSymbol();
+        }
+        return unnamedRange(TargetType.User, current.getSymbol(), stop);
+    }
+
+    private BehaviorObject unnamedRange(TargetType type, Token start, Token stop) {
+        BehaviorObject object = objects.instanceObject(type, start);
+        BehaviorObject end = objects.instanceObject(type, stop);
+        object.setEndLine(end.getEndLine());
+        object.setEndColumn(end.getEndColumn());
+        return object;
     }
 
     @Override
