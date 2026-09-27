@@ -7,6 +7,7 @@
 package com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.behavior;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -416,10 +417,79 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     }
 
     @Override
+    public Void visitAlterSystemParameters(AlterSystemParametersContext ctx) {
+        for (SystemParameterAssignmentContext assignment : ctx.systemParameterAssignment()) {
+            UidContext key = assignment.uid();
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE,
+                objects.instanceObject(TargetType.ConfigKey, key, unquote(text(key)).toLowerCase(Locale.ROOT)));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitEnableSqlThrottle(EnableSqlThrottleContext ctx) {
+        configureSqlThrottle(ctx.SQL().getSymbol(), ctx.THROTTLE().getSymbol(), ctx.PRIORITY(), ctx.sqlThrottleMetric());
+        return null;
+    }
+
+    @Override
+    public Void visitDisableSqlThrottle(DisableSqlThrottleContext ctx) {
+        configureSqlThrottle(ctx.SQL().getSymbol(), ctx.THROTTLE().getSymbol(), null, List.of());
+        return null;
+    }
+
+    private void configureSqlThrottle(Token start, Token stop, TerminalNode priority, List<SqlThrottleMetricContext> metrics) {
+        Map<String, Token> explicitKeys = new HashMap<>();
+        if (priority != null) {
+            explicitKeys.put("priority", priority.getSymbol());
+        }
+        for (SqlThrottleMetricContext metric : metrics) {
+            if (metric.RT() != null) {
+                explicitKeys.put("rt", metric.RT().getSymbol());
+            } else if (metric.QUEUE_TIME() != null) {
+                // BP7's executor assigns get_queue_time() to sql_throttle_network.
+                explicitKeys.put("network", metric.QUEUE_TIME().getSymbol());
+            }
+        }
+        // Enable and disable both write all six globals, including omitted metrics.
+        for (String key : List.of("priority", "rt", "cpu", "io", "network", "logical_reads")) {
+            Token keyStart = start;
+            Token keyStop = stop;
+            if (explicitKeys.containsKey(key)) {
+                keyStart = explicitKeys.get(key);
+                keyStop = keyStart;
+            }
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE,
+                objects.instanceObject(TargetType.ConfigKey, keyStart, keyStop, "sql_throttle_" + key));
+        }
+    }
+
+    @Override
+    public Void visitShowTenant(ShowTenantContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.TENANT().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowCreateTenant(ShowCreateTenantContext ctx) {
+        // In a normal MySQL tenant, the server only permits displaying that tenant.
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.uid()));
+        return null;
+    }
+
+    @Override
+    public Void visitShowEngines(ShowEnginesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.TableEngine, ctx.ENGINES().getSymbol()));
+        return null;
+    }
+
+    @Override
     public Void visitShowObjectFilter(ShowObjectFilterContext ctx) {
         ShowCommonEntityContext entity = ctx.showCommonEntity();
         if (entity.VARIABLES() != null) {
             add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, entity.VARIABLES().getSymbol()));
+        } else if (entity.PARAMETERS() != null) {
+            add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, entity.PARAMETERS().getSymbol()));
         } else if (entity.STATUS() != null && entity.FUNCTION() == null && entity.PROCEDURE() == null) {
             add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Query, entity.STATUS().getSymbol()));
         }
