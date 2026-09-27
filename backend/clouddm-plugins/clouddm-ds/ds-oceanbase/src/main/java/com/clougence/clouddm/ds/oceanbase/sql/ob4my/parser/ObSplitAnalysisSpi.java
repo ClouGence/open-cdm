@@ -137,6 +137,19 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        // Only the outer statement suppresses actions in planned or stored SQL.
+        if (context instanceof ObForMySqlParser.SqlStatementContext statement) {
+            while (statement.sqlStatement() != null) {
+                statement = statement.sqlStatement();
+            }
+            ObForMySqlParser.AdministrationStatementContext admin = statement.administrationStatement();
+            ObForMySqlParser.UtilityStatementContext utility = statement.utilityStatement();
+            if (admin != null && admin.outlineStatement() != null
+                || utility != null && utility.fullDescribeStatement() != null) {
+                return Collections.singleton(statement.accept(splitVisitor()));
+            }
+        }
+
         ObForMySqlParser.SetStatementContext setting = findContext(context, ObForMySqlParser.SetStatementContext.class);
         if (setting instanceof ObForMySqlParser.SetVariableContext || setting instanceof ObForMySqlParser.SetSessionAssignmentsContext) {
             Set<SplitQueryType> types = new LinkedHashSet<>();

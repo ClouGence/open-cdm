@@ -370,6 +370,21 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
+    public SplitQueryType visitOutlineStatement(OutlineStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowTrace(ShowTraceContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowQueryResponseTime(ShowQueryResponseTimeContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
     public SplitQueryType visitCreateEvent(CreateEventContext ctx) {
         return SplitQueryType.CREATE_EVENT;
     }
@@ -456,7 +471,7 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
-        return "EXPLAIN".equalsIgnoreCase(ctx.command.getText()) ? SplitQueryType.PERFORMANCE : SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override

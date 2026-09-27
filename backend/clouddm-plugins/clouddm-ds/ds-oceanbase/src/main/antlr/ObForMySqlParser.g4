@@ -98,6 +98,7 @@ administrationStatement
     | cacheIndexStatement | flushStatement | killStatement
     | loadIndexIntoCache | resetStatement
     | shutdownStatement | dropRole | alterSystemStatement | flashbackStatement | purgeRecyclebin
+    | outlineStatement
     ;
 
 utilityStatement
@@ -1771,6 +1772,15 @@ purgeRecyclebin
     : PURGE ((TABLE | INDEX) tableName | (DATABASE | SCHEMA) uid | RECYCLEBIN)
     ;
 
+outlineStatement
+    : CREATE (OR REPLACE)? FORMAT? OUTLINE uid ON
+      (explainableStatement (TO explainableStatement)?
+      // Optimizer hints remain hidden comments, just as in ordinary DML.
+      | STRING_LITERAL USING HINT)
+    | ALTER FORMAT? OUTLINE uid ADD explainableStatement (TO explainableStatement)?
+    | DROP FORMAT? OUTLINE fullId
+    ;
+
 systemParameterAssignment
     : uid '=' (stringLiteral | '-'? decimalLiteral | booleanLiteral | NULL_LITERAL)
       (COMMENT STRING_LITERAL)?
@@ -1811,7 +1821,9 @@ defaultRoleClause
     ;
 
 showStatement
-    : SHOW logFormat=(BINARY | MASTER) LOGS                         #showMasterLogs
+    : SHOW TRACE (FORMAT '=' STRING_LITERAL)? showFilter?            #showTrace
+    | SHOW QUERY_RESPONSE_TIME                                       #showQueryResponseTime
+    | SHOW logFormat=(BINARY | MASTER) LOGS                         #showMasterLogs
     | SHOW CHARSET (LIKE STRING_LITERAL)?                           #showCharset
     | SHOW logFormat=(BINLOG | RELAYLOG)
       EVENTS (IN filename=STRING_LITERAL)?
@@ -1975,11 +1987,11 @@ simpleDescribeStatement
 
 fullDescribeStatement
     : command=(EXPLAIN | DESCRIBE | DESC)
-      (
-        formatType=(EXTENDED | PARTITIONS | FORMAT )
-        '='
-        formatValue=(TRADITIONAL | JSON)
-      )?
+      ( (BASIC | OUTLINE | EXTENDED | EXTENDED_NOADDR | PARTITIONS)? (PRETTY | PRETTY_COLOR)?
+      | FORMAT '=' (TRADITIONAL | JSON)
+      | INTO uid (SET STATEMENT_ID '=' constant)?
+      | SET STATEMENT_ID '=' constant
+      )
       describeObjectClause
     ;
 
@@ -2041,11 +2053,13 @@ diagnosticsConditionInformationName
     ;
 
 describeObjectClause
-    : (
-        selectStatement | deleteStatement | insertStatement
-        | replaceStatement | updateStatement
-      )                                                             #describeStatements
+    : explainableStatement                                          #describeStatements
     | FOR CONNECTION uid                                            #describeConnection
+    ;
+
+explainableStatement
+    : selectStatement | withSelectStatement | deleteStatement
+    | insertStatement | replaceStatement | updateStatement
     ;
 
 fullId
@@ -2557,6 +2571,7 @@ search_modifier:
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | PARAMETER_MARK                                                #parameterExpressionAtom
     | fullColumnName                                                #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | expressionAtom COLLATE collationName                          #collateExpressionAtom
@@ -2633,6 +2648,8 @@ keywordsCanBeId
     | SIZE | SKEWONLY | INDEXED | FREEZE | MAJOR | MINOR | PLAN | SQL_ID
     | CLEAR | FLASHBACK | RECYCLEBIN | BACKUP | INCREMENTAL | ARCHIVELOG | NOARCHIVELOG | DESCRIPTION
     | CANCEL | POLICY | RECOVERY_WINDOW | HIDDEN_COLUMN | PLUS_KEYWORD
+    | BASIC | OUTLINE | EXTENDED_NOADDR | PRETTY | PRETTY_COLOR | STATEMENT_ID
+    | TRACE | QUERY_RESPONSE_TIME | HINT
     | AT | AUDIT_ADMIN | AUTHORS | AUTOCOMMIT | AUTOEXTEND_SIZE
     | AUTO_INCREMENT | AVG | AVG_ROW_LENGTH | BACKUP_ADMIN | BEGIN | BINLOG | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR
     | BLOCK | BOOL | BOOLEAN | BTREE | CACHE | CASCADED | CHAIN | CHANGED
