@@ -91,13 +91,13 @@ administrationStatement
     : alterUser | createUser | dropUser | grantStatement
     | createRole
     | grantProxy | renameUser | revokeStatement
-    | revokeProxy | analyzeTable | checkTable
+    | revokeProxy | analyzeTable | analyzeHistogram | analyzeStatistics | checkTable
     | checksumTable | optimizeTable | repairTable
     | createUdfFunction | installPlugin | uninstallPlugin
     | setStatement | showStatement | binlogStatement
     | cacheIndexStatement | flushStatement | killStatement
     | loadIndexIntoCache | resetStatement
-    | shutdownStatement | dropRole | alterSystemStatement
+    | shutdownStatement | dropRole | alterSystemStatement | flashbackStatement | purgeRecyclebin
     ;
 
 utilityStatement
@@ -754,7 +754,7 @@ procedureArgs
     ;
 
 procedureArgument
-    : (uid NAMED_ARGUMENT_ASSIGN)? (constant | functionCall | expression)
+    : ((uid | CASCADE | FORCE) NAMED_ARGUMENT_ASSIGN)? (constant | functionCall | expression)
     ;
 
 deleteStatement
@@ -1675,6 +1675,32 @@ analyzeTable
        TABLE tables
     ;
 
+analyzeHistogram
+    : ANALYZE TABLE tableName
+      (UPDATE HISTOGRAM ON uidList (WITH unsignedInteger BUCKETS)?
+      | DROP HISTOGRAM ON uidList)
+    ;
+
+analyzeStatistics
+    : ANALYZE TABLE tableName (PARTITION '(' uidList ')')?
+      (COMPUTE STATISTICS analyzeForClause?
+      | ESTIMATE STATISTICS analyzeForClause? (SAMPLE unsignedInteger (ROWS | PERCENTAGE))?)
+    ;
+
+analyzeForClause
+    : FOR ALL (INDEXED | HIDDEN_COLUMN)? COLUMNS analyzeSizeClause?
+    | FOR COLUMNS (analyzeColumnItem (','? analyzeColumnItem)*)?
+    ;
+
+analyzeColumnItem
+    : uid analyzeSizeClause?
+    | analyzeSizeClause
+    ;
+
+analyzeSizeClause
+    : SIZE (unsignedInteger | AUTO | REPEAT | SKEWONLY)
+    ;
+
 checkTable
     : CHECK TABLE tables checkTableOption*
     ;
@@ -1718,6 +1744,31 @@ alterSystemStatement
       (FOR PRIORITY '<' '=' (DECIMAL_LITERAL | ZERO_DECIMAL | ONE_DECIMAL | TWO_DECIMAL))?
       USING sqlThrottleMetric+                                      #enableSqlThrottle
     | ALTER SYSTEM DISABLE SQL THROTTLE                              #disableSqlThrottle
+    | ALTER SYSTEM FLUSH PLAN CACHE
+      (SQL_ID '='? STRING_LITERAL (DATABASES '='? STRING_LITERAL)?)? GLOBAL? #flushPlanCache
+    | ALTER SYSTEM (MAJOR | MINOR) FREEZE                            #freezeTenant
+    | ALTER SYSTEM (SUSPEND | RESUME) MERGE                           #controlTenantMerge
+    | ALTER SYSTEM CLEAR MERGE ERROR                                 #clearMergeError
+    | ALTER SYSTEM BACKUP INCREMENTAL? DATABASE (PLUS_KEYWORD ARCHIVELOG)?
+      maintenanceDescription?                                       #backupDatabase
+    | ALTER SYSTEM CANCEL DELETE? BACKUP                            #cancelBackup
+    | ALTER SYSTEM (ARCHIVELOG | NOARCHIVELOG) maintenanceDescription? #archiveLog
+    | ALTER SYSTEM ADD DELETE BACKUP POLICY '='? STRING_LITERAL
+      (RECOVERY_WINDOW '='? STRING_LITERAL)?                         #addBackupPolicy
+    | ALTER SYSTEM DROP DELETE BACKUP POLICY '='? STRING_LITERAL     #dropBackupPolicy
+    ;
+
+maintenanceDescription
+    : DESCRIPTION '='? STRING_LITERAL
+    ;
+
+flashbackStatement
+    : FLASHBACK TABLE tableName TO BEFORE DROP (RENAME TO tableName)? #flashbackTable
+    | FLASHBACK (DATABASE | SCHEMA) uid TO BEFORE DROP (RENAME TO uid)? #flashbackDatabase
+    ;
+
+purgeRecyclebin
+    : PURGE ((TABLE | INDEX) tableName | (DATABASE | SCHEMA) uid | RECYCLEBIN)
     ;
 
 systemParameterAssignment
@@ -1786,6 +1837,7 @@ showStatement
         fullId                                                      #showCreateFullIdObject
     | SHOW CREATE USER (userName | CURRENT_USER ('(' ')')?)          #showCreateUser
     | SHOW ENGINE engineName engineOption=(STATUS | MUTEX)          #showEngine
+    | SHOW RECYCLEBIN                                               #showRecyclebin
     | SHOW TENANT STATUS?                                           #showTenant
     | SHOW CREATE TENANT uid                                        #showCreateTenant
     | SHOW STORAGE? ENGINES                                         #showEngines
@@ -2098,6 +2150,10 @@ simpleId
 
 dottedId
     : '.' uid
+    ;
+
+unsignedInteger
+    : DECIMAL_LITERAL | ZERO_DECIMAL | ONE_DECIMAL | TWO_DECIMAL
     ;
 
 decimalLiteral
@@ -2573,6 +2629,10 @@ keywordsCanBeId
     : ACCOUNT | ACTION | AFTER | AGGREGATE | ALGORITHM | ANY
     | DECRYPT | LINK | SYSTEM
     | PARAMETERS | QUEUE_TIME | RT | SCOPE | SPFILE | TENANT | THROTTLE | ZONE
+    | AUTO | HISTOGRAM | BUCKETS | COMPUTE | ESTIMATE | STATISTICS | SAMPLE | PERCENTAGE
+    | SIZE | SKEWONLY | INDEXED | FREEZE | MAJOR | MINOR | PLAN | SQL_ID
+    | CLEAR | FLASHBACK | RECYCLEBIN | BACKUP | INCREMENTAL | ARCHIVELOG | NOARCHIVELOG | DESCRIPTION
+    | CANCEL | POLICY | RECOVERY_WINDOW | HIDDEN_COLUMN | PLUS_KEYWORD
     | AT | AUDIT_ADMIN | AUTHORS | AUTOCOMMIT | AUTOEXTEND_SIZE
     | AUTO_INCREMENT | AVG | AVG_ROW_LENGTH | BACKUP_ADMIN | BEGIN | BINLOG | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR
     | BLOCK | BOOL | BOOLEAN | BTREE | CACHE | CASCADED | CHAIN | CHANGED

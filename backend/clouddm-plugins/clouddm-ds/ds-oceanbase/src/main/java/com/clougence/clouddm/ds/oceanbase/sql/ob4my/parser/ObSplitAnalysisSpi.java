@@ -48,6 +48,10 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof ObForMySqlParser.SystemParameterAssignmentContext assignment) {
+            // Each assignment can belong to a different management domain.
+            return assignment.accept(splitVisitor());
+        }
         if (tree instanceof ObForMySqlParser.MysqlVariableContext variable
             && !variable.getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
             return SplitQueryType.SESSION_VARIABLE_RW;

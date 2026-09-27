@@ -58,8 +58,90 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
-    public SplitQueryType visitAlterSystemParameters(AlterSystemParametersContext ctx) {
+    public SplitQueryType visitSystemParameterAssignment(SystemParameterAssignmentContext ctx) {
+        String name = ctx.uid().getText();
+        if (name.equalsIgnoreCase("LOG_ARCHIVE_DEST_STATE") || name.equalsIgnoreCase("`LOG_ARCHIVE_DEST_STATE`")) {
+            return SplitQueryType.ADMIN_LOG;
+        }
         return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAnalyzeStatistics(AnalyzeStatisticsContext ctx) {
+        if (ctx.PARTITION() != null) {
+            return SplitQueryType.ADMIN_PARTITION;
+        }
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitAnalyzeHistogram(AnalyzeHistogramContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitFlushPlanCache(FlushPlanCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitFreezeTenant(FreezeTenantContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitControlTenantMerge(ControlTenantMergeContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitClearMergeError(ClearMergeErrorContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitBackupDatabase(BackupDatabaseContext ctx) {
+        return SplitQueryType.DATA_EXPORT;
+    }
+
+    @Override
+    public SplitQueryType visitCancelBackup(CancelBackupContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitArchiveLog(ArchiveLogContext ctx) {
+        return SplitQueryType.ADMIN_LOG;
+    }
+
+    @Override
+    public SplitQueryType visitAddBackupPolicy(AddBackupPolicyContext ctx) {
+        return SplitQueryType.CREATE_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitDropBackupPolicy(DropBackupPolicyContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitFlashbackTable(FlashbackTableContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitFlashbackDatabase(FlashbackDatabaseContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitPurgeRecyclebin(PurgeRecyclebinContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitShowRecyclebin(ShowRecyclebinContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
