@@ -7,11 +7,14 @@
 package com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.behavior;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -32,10 +35,16 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
     private final StatementBehavior        behavior = new StatementBehavior();
+    private final Set<String>               commonTables = new HashSet<>();
+    private boolean                        planning;
 
     ObMyStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+        this(parser, new RdbBehaviorObjectFactory(levels, baseLine, baseColumn));
+    }
+
+    private ObMyStatementBehaviorVisitor(Parser parser, RdbBehaviorObjectFactory objects){
         this.parser = parser;
-        this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
+        this.objects = objects;
         behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
@@ -49,6 +58,133 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
             setType(SplitQueryType.SELECT);
         }
         return super.visitChildren(node);
+    }
+
+    @Override
+    public Void visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, table(ctx.tableName()));
+        return null;
+    }
+
+    @Override
+    public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
+        setType(SplitQueryType.PERFORMANCE);
+        if (ctx.describeObjectClause() instanceof DescribeStatementsContext statement) {
+            behavior.getRelations().addAll(planRelations(statement.explainableStatement()));
+            BehaviorObject destination;
+            if (ctx.INTO() != null) {
+                destination = objects.object(TargetType.Table, ctx.uid(), List.of(unquote(text(ctx.uid()))));
+            } else {
+                // BP7 also attempts to store ordinary EXPLAIN output in the default plan table.
+                destination = objects.object(TargetType.Table, ctx.command, List.of("PLAN_TABLE"));
+            }
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.INSERT, destination);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitOutlineStatement(OutlineStatementContext ctx) {
+        BehaviorObject outline;
+        if (ctx.fullId() != null) {
+            outline = object(TargetType.Policy, ctx.fullId());
+        } else {
+            outline = objects.object(TargetType.Policy, ctx.uid(), List.of(unquote(text(ctx.uid()))));
+        }
+        String path = outline.getObjectPath();
+        int nameStart = path.length() - outline.getObjectName().getObjectName().length() - 1;
+        outline.setObjectPath(path.substring(0, nameStart) + "outline/" + path.substring(nameStart));
+        BehaviorAction action = BehaviorAction.CREATE;
+        if (ctx.REPLACE() != null) {
+            action = BehaviorAction.REPLACE;
+        } else if (ctx.ALTER() != null) {
+            action = BehaviorAction.ALTER;
+        } else if (ctx.DROP() != null) {
+            action = BehaviorAction.DROP;
+        }
+        List<BehaviorObject> dependencies = new ArrayList<>();
+        if (!ctx.explainableStatement().isEmpty()) {
+            // Only ON/ADD is resolved; TO is matching SQL text, not a second execution body.
+            for (BehaviorRelation relation : planRelations(ctx.explainableStatement(0))) {
+                dependencies.add(relation.getSubject());
+            }
+        }
+        add(SplitQueryType.ADMIN_PERFORMANCE, action, outline, dependencies);
+        return null;
+    }
+
+    @Override
+    public Void visitShowTrace(ShowTraceContext ctx) {
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
+            objects.instanceObject(TargetType.Profile, ctx.TRACE().getSymbol(), "query_trace"));
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitShowQueryResponseTime(ShowQueryResponseTimeContext ctx) {
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
+            objects.instanceObject(TargetType.Statistics, ctx.QUERY_RESPONSE_TIME().getSymbol(), "query_response_time"));
+        return null;
+    }
+
+    private List<BehaviorRelation> planRelations(ParserRuleContext statement) {
+        // A fresh visitor isolates CTE scope and planning actions from subsequent SQL.
+        ObMyStatementBehaviorVisitor visitor = new ObMyStatementBehaviorVisitor(parser, objects);
+        visitor.planning = true;
+        visitor.visit(statement);
+        List<BehaviorRelation> relations = visitor.behavior().getRelations();
+        relations.sort(Comparator.comparingInt((BehaviorRelation relation) -> relation.getSubject().getStartLine())
+            .thenComparingInt(relation -> relation.getSubject().getStartColumn()));
+        return relations;
+    }
+
+    @Override
+    public Void visitWithSelectStatement(WithSelectStatementContext ctx) {
+        if (!planning) {
+            return visitChildren(ctx);
+        }
+        return visitPlanWithClause(ctx, ctx.withClause());
+    }
+
+    @Override
+    public Void visitSingleUpdateStatement(SingleUpdateStatementContext ctx) {
+        if (!planning || ctx.withClause() == null) {
+            return visitChildren(ctx);
+        }
+        return visitPlanWithClause(ctx, ctx.withClause());
+    }
+
+    private Void visitPlanWithClause(ParserRuleContext statement, WithClauseContext with) {
+        Set<String> enclosing = new HashSet<>(commonTables);
+        try {
+            for (WithSelectExprContext definition : with.withSelectExpr()) {
+                // A non-recursive CTE is visible only after resolving its definition.
+                visitChildren(definition);
+                commonTables.add(unquote(text(definition.uid())).toLowerCase(Locale.ROOT));
+            }
+            for (ParseTree child : statement.children) {
+                if (child != with) {
+                    visit(child);
+                }
+            }
+        } finally {
+            commonTables.clear();
+            commonTables.addAll(enclosing);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitMultipleDeleteStatement(MultipleDeleteStatementContext ctx) {
+        if (!planning) {
+            return visitChildren(ctx);
+        }
+        // The leading deletion list refers to source tables/aliases; tableSources owns their identity.
+        visit(ctx.tableSources());
+        if (ctx.expression() != null) {
+            visit(ctx.expression());
+        }
+        return null;
     }
 
     @Override
@@ -420,9 +556,225 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     public Void visitAlterSystemParameters(AlterSystemParametersContext ctx) {
         for (SystemParameterAssignmentContext assignment : ctx.systemParameterAssignment()) {
             UidContext key = assignment.uid();
-            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE,
-                objects.instanceObject(TargetType.ConfigKey, key, unquote(text(key)).toLowerCase(Locale.ROOT)));
+            String name = unquote(text(key)).toLowerCase(Locale.ROOT);
+            SplitQueryType type = SplitQueryType.SYSTEM_SETTING_WRITE;
+            if (name.equals("log_archive_dest_state")) {
+                // ENABLE/DEFER affects an archive task only when its runtime state permits it.
+                type = SplitQueryType.ADMIN_LOG;
+            }
+            List<BehaviorObject> targets = new ArrayList<>();
+            if (name.equals("data_backup_dest") && assignment.stringLiteral() != null) {
+                StringLiteralContext destination = assignment.stringLiteral();
+                targets.add(objects.instanceObject(TargetType.File, destination, unquote(text(destination))));
+            }
+            add(type, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, key, name), targets);
         }
+        return null;
+    }
+
+    @Override
+    public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
+        for (TableNameContext table : ctx.tables().tableName()) {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.ANALYZE, table(table));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAnalyzeHistogram(AnalyzeHistogramContext ctx) {
+        BehaviorObject table = table(ctx.tableName());
+        if (ctx.DROP() != null) {
+            // BP7 deletes table statistics with cascading column/index statistics here.
+            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP,
+                objects.childObject(TargetType.Statistics, ctx.tableName(), table, "statistics"));
+        } else {
+            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.ANALYZE, table);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitAnalyzeStatistics(AnalyzeStatisticsContext ctx) {
+        BehaviorObject table = table(ctx.tableName());
+        if (ctx.PARTITION() != null) {
+            for (UidContext partition : ctx.uidList().uid()) {
+                add(SplitQueryType.ADMIN_PARTITION, BehaviorAction.ANALYZE,
+                    objects.childObject(TargetType.Partition, partition, table, unquote(text(partition))));
+            }
+        } else {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.ANALYZE, table);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCheckTable(CheckTableContext ctx) {
+        for (TableNameContext table : ctx.tables().tableName()) {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.VALIDATE, table(table));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitOptimizeTable(OptimizeTableContext ctx) {
+        for (TableNameContext table : ctx.tables().tableName()) {
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.OPTIMIZE, table(table));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitFlushPlanCache(FlushPlanCacheContext ctx) {
+        if (ctx.DATABASES() == null) {
+            // SQL_ID filters entries across databases; it is not a unique plan identity.
+            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE,
+                objects.instanceObject(TargetType.Cache, ctx.PLAN().getSymbol(), ctx.CACHE().getSymbol(), "plan_cache"));
+        } else {
+            Token databases = ctx.STRING_LITERAL(1).getSymbol();
+            for (String database : unquote(databases.getText()).split(",")) {
+                // This is a cache category under a database, not a physical object named plan_cache.
+                BehaviorObject cache = objects.unnamedObject(TargetType.Cache, databases, UmiTypes.Catalog);
+                cache.setObjectPath(cache.getObjectPath() + database.trim() + "/plan_cache/");
+                add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE, cache);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitFreezeTenant(FreezeTenantContext ctx) {
+        BehaviorAction action = BehaviorAction.FLUSH;
+        Token start = ctx.MINOR() == null ? ctx.MAJOR().getSymbol() : ctx.MINOR().getSymbol();
+        if (ctx.MAJOR() != null) {
+            action = BehaviorAction.OPTIMIZE;
+        }
+        add(SplitQueryType.ADMIN, action, unnamedRange(TargetType.Instance, start, ctx.FREEZE().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitControlTenantMerge(ControlTenantMergeContext ctx) {
+        BehaviorAction action = BehaviorAction.START;
+        if (ctx.SUSPEND() != null) {
+            action = BehaviorAction.STOP;
+        }
+        add(SplitQueryType.ADMIN, action, objects.instanceObject(TargetType.Job, ctx.MERGE().getSymbol(), "merge"));
+        return null;
+    }
+
+    @Override
+    public Void visitClearMergeError(ClearMergeErrorContext ctx) {
+        add(SplitQueryType.ADMIN, BehaviorAction.RESET, objects.instanceObject(TargetType.Job, ctx.MERGE().getSymbol(), "merge"));
+        return null;
+    }
+
+    @Override
+    public Void visitShowRecyclebin(ShowRecyclebinContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ,
+            objects.instanceObject(TargetType.SchemaObject, ctx.RECYCLEBIN().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitPurgeRecyclebin(PurgeRecyclebinContext ctx) {
+        BehaviorObject subject;
+        if (ctx.tableName() != null) {
+            TargetType type = TargetType.Table;
+            if (ctx.INDEX() != null) {
+                type = TargetType.Index;
+            }
+            subject = object(type, ctx.tableName().fullId());
+        } else if (ctx.uid() != null) {
+            subject = objects.object(TargetType.Schema, ctx.uid(), List.of(unquote(text(ctx.uid()))));
+        } else {
+            subject = objects.instanceObject(TargetType.SchemaObject, ctx.RECYCLEBIN().getSymbol());
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.PURGE, subject);
+        return null;
+    }
+
+    @Override
+    public Void visitFlashbackTable(FlashbackTableContext ctx) {
+        TableNameContext source = ctx.tableName(0);
+        BehaviorObject restored;
+        if (ctx.RENAME() != null) {
+            restored = table(ctx.tableName(1));
+        } else {
+            // The original name is stored in recyclebin metadata, not in this SQL.
+            restored = objects.unnamedObject(TargetType.Table, source, UmiTypes.Schema);
+        }
+        add(SplitQueryType.ADMIN_TABLE, BehaviorAction.RESTORE, restored, List.of(table(source)));
+        return null;
+    }
+
+    @Override
+    public Void visitFlashbackDatabase(FlashbackDatabaseContext ctx) {
+        UidContext source = ctx.uid(0);
+        BehaviorObject restored;
+        if (ctx.RENAME() != null) {
+            restored = objects.object(TargetType.Schema, ctx.uid(1), List.of(unquote(text(ctx.uid(1)))));
+        } else {
+            restored = objects.unnamedObject(TargetType.Schema, source, UmiTypes.Catalog);
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.RESTORE, restored,
+            List.of(objects.object(TargetType.Schema, source, List.of(unquote(text(source))))));
+        return null;
+    }
+
+    @Override
+    public Void visitBackupDatabase(BackupDatabaseContext ctx) {
+        List<BehaviorObject> sources = new ArrayList<>();
+        sources.add(objects.instanceObject(TargetType.Instance, ctx.DATABASE().getSymbol()));
+        if (ctx.ARCHIVELOG() != null) {
+            sources.add(objects.instanceObject(TargetType.Log, ctx.ARCHIVELOG().getSymbol(), "archive"));
+        }
+        // Backup identity and destination are runtime state, not the description text.
+        add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT,
+            objects.instanceObject(TargetType.Backup, ctx.BACKUP().getSymbol()), sources);
+        return null;
+    }
+
+    @Override
+    public Void visitCancelBackup(CancelBackupContext ctx) {
+        Token start = ctx.BACKUP().getSymbol();
+        String job = "backup";
+        if (ctx.DELETE() != null) {
+            start = ctx.DELETE().getSymbol();
+            job = "backup_cleanup";
+        }
+        add(SplitQueryType.ADMIN_JOB, BehaviorAction.TERMINATE,
+            objects.instanceObject(TargetType.Job, start, ctx.BACKUP().getSymbol(), job));
+        return null;
+    }
+
+    @Override
+    public Void visitArchiveLog(ArchiveLogContext ctx) {
+        Token token;
+        BehaviorAction action;
+        if (ctx.ARCHIVELOG() != null) {
+            token = ctx.ARCHIVELOG().getSymbol();
+            action = BehaviorAction.START;
+        } else {
+            token = ctx.NOARCHIVELOG().getSymbol();
+            action = BehaviorAction.STOP;
+        }
+        add(SplitQueryType.ADMIN_LOG, action, objects.instanceObject(TargetType.Log, token, "archive"));
+        return null;
+    }
+
+    @Override
+    public Void visitAddBackupPolicy(AddBackupPolicyContext ctx) {
+        Token policy = ctx.STRING_LITERAL(0).getSymbol();
+        add(SplitQueryType.CREATE_POLICY, BehaviorAction.CREATE,
+            objects.instanceObject(TargetType.Policy, policy, "backup_cleanup/" + unquote(policy.getText())));
+        return null;
+    }
+
+    @Override
+    public Void visitDropBackupPolicy(DropBackupPolicyContext ctx) {
+        Token policy = ctx.STRING_LITERAL().getSymbol();
+        add(SplitQueryType.DROP_POLICY, BehaviorAction.DROP,
+            objects.instanceObject(TargetType.Policy, policy, "backup_cleanup/" + unquote(policy.getText())));
         return null;
     }
 
@@ -560,7 +912,9 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     @Override
     public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
         SpecificFunctionContext function = ctx.specificFunction();
-        if (!(function instanceof CaseFunctionCallContext) && !(function instanceof SpecialTimeCallContext)) {
+        // VALUES(column) refers to the proposed insert row, not a callable routine.
+        if (!(function instanceof CaseFunctionCallContext) && !(function instanceof SpecialTimeCallContext)
+            && !(function instanceof ValuesFunctionCallContext)) {
             Token name = function.getStart();
             add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, name, List.of(name.getText())));
         }
@@ -589,6 +943,10 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
 
     @Override
     public Void visitTableName(TableNameContext ctx) {
+        if (planning && ctx.getParent() instanceof AtomTableItemContext && ctx.fullId().uid().size() == 1
+            && commonTables.contains(unquote(text(ctx.fullId().uid(0))).toLowerCase(Locale.ROOT))) {
+            return null;
+        }
         add(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx), List.of());
         return null;
     }
@@ -652,12 +1010,36 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         if (subject == null) {
             return;
         }
+        if (planning && subject.getObjectType() == TargetType.Function && action == BehaviorAction.CALL) {
+            action = BehaviorAction.READ;
+        }
+        // Merge planning dependencies and repeated routine/variable references, keeping the first range.
+        // Ordinary executable subqueries still retain their separate table-read occurrences.
+        if ((planning || subject.getObjectType() == TargetType.Function || subject.getObjectType() == TargetType.ConfigKey)
+            && (action == BehaviorAction.READ || action == BehaviorAction.CALL)) {
+            for (BehaviorRelation existing : behavior.getRelations()) {
+                if (existing.getAction() == action && sameObject(existing.getSubject(), subject)
+                    && existing.getTarget().size() == targets.size()) {
+                    boolean sameTargets = true;
+                    for (int i = 0; i < targets.size(); i++) {
+                        sameTargets &= sameObject(existing.getTarget().get(i), targets.get(i));
+                    }
+                    if (sameTargets) {
+                        return;
+                    }
+                }
+            }
+        }
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(subject);
         relation.setAction(action);
         relation.getTarget().addAll(targets);
         behavior.getRelations().add(relation);
         setType(type);
+    }
+
+    private boolean sameObject(BehaviorObject first, BehaviorObject second) {
+        return first.getObjectType() == second.getObjectType() && first.getObjectPath().equals(second.getObjectPath());
     }
 
     private <T extends ParserRuleContext> List<T> descendants(ParseTree tree, Class<T> type) {
