@@ -4361,7 +4361,6 @@
   "sql-favorites-conflict-title": "收藏已被修改",
   "sql-favorites-conflict-description": "服务端版本已发生变化，不能静默覆盖。请选择加载服务端版本或另存为副本。",
   "sql-favorites-load-server": "加载服务端版本",
-  "sql-favorites-copy-name": "{name} 副本",
   "sql-favorites-name-required": "请输入收藏名称",
   "sql-favorites-content-required": "SQL 内容不能为空",
   "sql-favorites-save-success": "SQL 收藏已保存",

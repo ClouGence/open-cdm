@@ -1,18 +1,25 @@
-/* Copyright 2026 杭州开云集致科技有限公司 */
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.clougence.clouddm.console.web.service.editor.script;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.Set;
@@ -104,8 +111,7 @@ public class LocalSqlScriptStorage implements SqlScriptStorage {
                     continue;
                 }
                 String fileName = file.getFileName().toString();
-                if (fileName.startsWith(".uploading-") || (FILE_NAME.matcher(fileName).matches()
-                        && !referencedFileUris.contains(URI_PREFIX + fileName))) {
+                if (fileName.startsWith(".uploading-") || (FILE_NAME.matcher(fileName).matches() && !referencedFileUris.contains(URI_PREFIX + fileName))) {
                     try {
                         Files.deleteIfExists(file);
                     } catch (IOException e) {

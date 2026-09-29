@@ -1,11 +1,21 @@
-/* Copyright 2026 杭州开云集致科技有限公司 */
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.clougence.clouddm.console.web.service.editor.script;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -41,14 +51,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstruct {
 
-    private static final int  DEFAULT_PAGE_SIZE = 20;
-    private static final int  MAX_PAGE_SIZE     = 100;
-    private static final int  CLEAN_BATCH       = 200;
-    private static final long FILE_GRACE_MS     = TimeUnit.HOURS.toMillis(1);
+    private static final int            DEFAULT_PAGE_SIZE = 20;
+    private static final int            MAX_PAGE_SIZE     = 100;
+    private static final int            CLEAN_BATCH       = 200;
+    private static final long           FILE_GRACE_MS     = TimeUnit.HOURS.toMillis(1);
     @Resource
-    private ExecutionDal      executionDal;
+    private ExecutionDal                executionDal;
     @Resource
-    private SqlScriptStorage  sqlScriptStorage;
+    private SqlScriptStorage            sqlScriptStorage;
     private ScheduledThreadPoolExecutor cleanExecutor;
 
     @Override
@@ -110,8 +120,7 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
         Date modified = currentSecond();
         int updated;
         try {
-            updated = this.executionDal.sqlScriptMapper().updateByVersion(fo.getScriptId(), ownerUid, fo.getVersion(),
-                    name, fo.getDsType(), fileUri, modified);
+            updated = this.executionDal.sqlScriptMapper().updateByVersion(fo.getScriptId(), ownerUid, fo.getVersion(), name, fo.getDsType(), fileUri, modified);
         } catch (DuplicateKeyException e) {
             deleteStored(fileUri);
             throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_NAME_EXISTS_ERROR);
@@ -142,8 +151,7 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
         }
 
         String keyword = escapeLike(fo.getKeyword());
-        IPage<DmExecSqlScriptDO> page = this.executionDal.sqlScriptMapper()
-                .listByOwner(new Page<>(pageNumber, pageSize), ownerUid, keyword);
+        IPage<DmExecSqlScriptDO> page = this.executionDal.sqlScriptMapper().listByOwner(new Page<>(pageNumber, pageSize), ownerUid, keyword);
         List<SqlScriptSummaryVO> records = page.getRecords().stream().map(this::toSummary).toList();
         return new SqlScriptListVO(page.getCurrent(), page.getSize(), page.getTotal(), records);
     }
@@ -186,8 +194,7 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
     private void cleanup() {
         try {
             Date expireBefore = new Date(System.currentTimeMillis() - FILE_GRACE_MS);
-            IPage<DmExecSqlScriptDO> deleting = this.executionDal.sqlScriptMapper()
-                    .listDeleting(new Page<>(1, CLEAN_BATCH), expireBefore);
+            IPage<DmExecSqlScriptDO> deleting = this.executionDal.sqlScriptMapper().listDeleting(new Page<>(1, CLEAN_BATCH), expireBefore);
             deleting.getRecords().forEach(this::tryDelete);
             Set<String> references = new HashSet<>(this.executionDal.sqlScriptMapper().listFileUris());
             this.sqlScriptStorage.cleanupOrphans(references);

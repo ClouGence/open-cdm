@@ -4382,7 +4382,6 @@
   "sql-favorites-conflict-title": "Favorite changed",
   "sql-favorites-conflict-description": "The server version has changed and cannot be overwritten silently. Load it or save your work as a copy.",
   "sql-favorites-load-server": "Load server version",
-  "sql-favorites-copy-name": "{name} copy",
   "sql-favorites-name-required": "Enter a favorite name",
   "sql-favorites-content-required": "SQL content cannot be empty",
   "sql-favorites-save-success": "SQL favorite saved",
