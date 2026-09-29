@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.cloudberry.execute;
+package com.clougence.clouddm.ds.cloudberry.sql.parser;
 
-import java.sql.Connection;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.TokenStream;
 
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.dsfamily.postgres.execute.PgSession;
-import com.clougence.drivers.DsObject;
+public abstract class CbSqlParserBase extends Parser {
 
-public class CbSession extends PgSession {
+    protected CbSqlParserBase(TokenStream input){
+        super(input);
+    }
 
-    public CbSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
-        super(newSessionId, dsConfig, dsObject, new CbHooks());
+    protected boolean keyword(String value) {
+        return value.equalsIgnoreCase(getTokenStream().LT(1).getText());
     }
 }

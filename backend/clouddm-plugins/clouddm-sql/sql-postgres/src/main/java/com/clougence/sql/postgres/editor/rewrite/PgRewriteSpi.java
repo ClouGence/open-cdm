@@ -38,7 +38,11 @@ public class PgRewriteSpi implements RewriteSpi {
     private final PgDslProvider provider;
 
     public PgRewriteSpi(PostgresVersion version){
-        this.provider = new PgDslProvider(version);
+        this(new PgDslProvider(version));
+    }
+
+    public PgRewriteSpi(PgDslProvider provider){
+        this.provider = provider;
     }
 
     public PostgresVersion version() {
@@ -63,7 +67,11 @@ public class PgRewriteSpi implements RewriteSpi {
     }
 
     private boolean rewriterLimit(TokenStreamRewriter rewriter, ParseTree astTree, long maxLimit) {
-        PgSqlParser.SelectstmtContext selectStmt = ((PgSqlParser.StmtContext) astTree).selectstmt();
+        PgSqlParser.Pg_stmtContext statement = ((PgSqlParser.StmtContext) astTree).pg_stmt();
+        if (statement == null) {
+            return false;
+        }
+        PgSqlParser.SelectstmtContext selectStmt = statement.selectstmt();
         // Cursor statements and EXPLAIN ANALYZE can carry SELECT semantics, but only a top-level
         // SELECT may be safely constrained by the query editor's result limit.
         if (selectStmt == null || selectStmt.select_no_parens() == null) {

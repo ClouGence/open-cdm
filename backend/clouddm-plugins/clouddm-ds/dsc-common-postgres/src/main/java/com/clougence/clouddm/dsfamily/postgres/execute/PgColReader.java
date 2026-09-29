@@ -59,19 +59,6 @@ public class PgColReader extends AbstractColReader {
         AliasNames.put("timetz", "time with time zone");
         AliasNames.put("varbit", "bit varying");
         AliasNames.put("bool", "boolean");
-        // https://www.postgresql.org/docs/13/datatype-oid.html
-        AliasNames.put("regclass", "oid");
-        AliasNames.put("regcollation", "oid");
-        AliasNames.put("regconfig", "oid");
-        AliasNames.put("regdictionary", "oid");
-        AliasNames.put("regnamespace", "oid");
-        AliasNames.put("regoper", "oid");
-        AliasNames.put("regoperator", "oid");
-        AliasNames.put("regproc", "oid");
-        AliasNames.put("regprocedure", "oid");
-        AliasNames.put("regrole", "oid");
-        AliasNames.put("regtype", "oid");
-
         AliasNames.put("int[]", "integer[]");
         AliasNames.put("int2[]", "smallint[]");
         AliasNames.put("int4[]", "integer[]");
@@ -228,7 +215,18 @@ public class PgColReader extends AbstractColReader {
             case "txid_snapshot":
             case "pg_lsn":
             case "pg_node_tree":
+            case "regclass":
+            case "regcollation":
+            case "regconfig":
+            case "regdictionary":
+            case "regnamespace":
+            case "regoper":
+            case "regoperator":
+            case "regproc":
+            case "regprocedure":
+            case "regrole":
             case "regtype":
+            case "record":
             case "abstime":
             case "aclitem":
                 return STRING_VALUE_FETCHER;

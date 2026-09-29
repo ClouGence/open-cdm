@@ -46,9 +46,13 @@ public class PgSecDomainResolveSpi implements SecDomainResolveSpi, PgSecDomainOp
     private final PgSplitAnalysisSpi splitter;
 
     public PgSecDomainResolveSpi(MetaService metaService, PostgresVersion version){
+        this(metaService, new PgDslProvider(version), new PgSplitAnalysisSpi(version));
+    }
+
+    protected PgSecDomainResolveSpi(MetaService metaService, PgDslProvider provider, PgSplitAnalysisSpi splitter){
         this.metaService = metaService;
-        this.provider = new PgDslProvider(version);
-        this.splitter = new PgSplitAnalysisSpi(version);
+        this.provider = provider;
+        this.splitter = splitter;
     }
 
     public PostgresVersion version() {
@@ -75,7 +79,7 @@ public class PgSecDomainResolveSpi implements SecDomainResolveSpi, PgSecDomainOp
         }).onClose(scripts::close);
     }
 
-    private List<RuleDomain> resolveStatement(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
+    protected List<RuleDomain> resolveStatement(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
         CodeLocation dslBase = new CodeLocation(baseLine, baseColumn);
         List<RuleDomain> domainList = new ArrayList<>();
 

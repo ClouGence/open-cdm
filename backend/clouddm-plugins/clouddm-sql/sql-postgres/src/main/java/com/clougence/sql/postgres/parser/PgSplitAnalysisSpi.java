@@ -59,12 +59,16 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
+        return newSplitVisitor();
+    }
+
+    protected PgSplitVisitor newSplitVisitor() {
         return new PgSplitVisitor(version());
     }
 
     @Override
     protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(context);
+        Set<SplitQueryType> types = newSplitVisitor().collectTypes(context);
         return types.isEmpty() ? Collections.singleton(SplitQueryType.UNKNOWN) : types;
     }
 
@@ -72,7 +76,7 @@ public class PgSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     protected List<SplitScript> collectChildren(ParserRuleContext context, CommonTokenStream tokens) {
         ParserRuleContext query = viewQuery(context);
         if (query != null) {
-            Set<SplitQueryType> types = new PgSplitVisitor(version()).collectTypes(query);
+            Set<SplitQueryType> types = newSplitVisitor().collectTypes(query);
             if (types.isEmpty()) {
                 types = Collections.singleton(SplitQueryType.UNKNOWN);
             }

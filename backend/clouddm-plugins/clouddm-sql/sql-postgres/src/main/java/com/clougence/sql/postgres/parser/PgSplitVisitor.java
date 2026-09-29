@@ -490,7 +490,7 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
         return SplitQueryType.UNKNOWN;
     }
 
-    private boolean hasToken(ParseTree tree, int type) {
+    protected boolean hasToken(ParseTree tree, int type) {
         if (tree instanceof TerminalNodeImpl childNode) {
             return childNode.getSymbol().getType() == type;
         }
