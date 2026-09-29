@@ -16,9 +16,11 @@
 
 plugins {
     id 'com.clougence.plugin-conventions'
+    id 'antlr'
 }
 
 dependencies {
+    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
     // project
     implementation(project(':dsc-common-postgres'))
 
@@ -27,3 +29,16 @@ dependencies {
 }
 
 description = 'ds-cockroachdb'
+
+
+tasks.named('generateGrammarSource') {
+    dependsOn project(':sql-postgres').tasks.named('generateGrammarSource')
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.cockroachdb.sql.parser.antlr',
+                  '-lib', project(':sql-postgres').layout.buildDirectory.dir('generated-src/antlr/main').get().asFile.absolutePath]
+}
+
+def cockroachRuntimeProjects = [project(':dsc-common-postgres'), project(':sql-postgres'), project(':dsc-common'), project(':sqlc-common')]
+tasks.named('customFatJar') {
+    cockroachRuntimeProjects.each { dependencyProject -> dependsOn "${dependencyProject.path}:jar" }
+}
+tasks.named('local') { dependsOn tasks.named('customFatJar') }

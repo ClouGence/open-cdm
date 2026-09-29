@@ -49,6 +49,8 @@ public abstract class PgSqlParserBase extends Parser {
 
     private PostgresVersion        version = PostgresVersion.LATEST;
     private Predicate<TokenStream> extensionStatement;
+    private Predicate<TokenStream> upsertKeyword;
+    private Predicate<TokenStream> snapshotClause;
     private Predicate<TokenStream> extensionSuffix;
     private Predicate<TokenStream> extensionCursorOption;
 
@@ -63,6 +65,14 @@ public abstract class PgSqlParserBase extends Parser {
         this.extensionSuffix = suffix;
         this.extensionCursorOption = cursorOption;
     }
+
+    public final void setUpsertKeyword(Predicate<TokenStream> predicate) { this.upsertKeyword = predicate; }
+
+    public final void setSnapshotClause(Predicate<TokenStream> predicate) { this.snapshotClause = predicate; }
+
+    protected final boolean isSnapshotClause() { return snapshotClause != null && snapshotClause.test(getTokenStream()); }
+
+    protected final boolean isUpsertKeyword() { return upsertKeyword != null && upsertKeyword.test(getTokenStream()); }
 
     protected final boolean isExtensionStatement() { return extensionStatement != null && extensionStatement.test(getTokenStream()); }
 

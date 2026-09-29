@@ -172,55 +172,61 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
 
         // 3. do operate
-        switch (queryType) {
-            case SwitchCtx:
-                if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(fo, consumer);
-                } else {
-                    this.switchCtx(fo, consumer);
-                }
-                break;
-            case RequestQuery:
-                if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(fo, consumer);
-                } else {
-                    this.requestQuery(fo, consumer, false);
-                }
-                break;
-            case RequestPlan:
-                if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(fo, consumer);
-                } else {
-                    this.requestQuery(fo, consumer, true);
-                }
-                break;
-            case CancelQuery:
-                this.cancelQuery(fo, consumer);
-                break;
-            case TxCommit:
-                if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(fo, consumer);
-                } else {
-                    this.txCommit(fo, consumer);
-                }
-                break;
-            case TxRollback:
-                if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(fo, consumer);
-                } else {
-                    this.txRollback(fo, consumer);
-                }
-                break;
-            case TxStatus:
-                if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(fo, consumer);
-                } else {
-                    this.txStatus(fo, consumer);
-                }
-                break;
-            case RecoveryStatus:
-                this.recoveryStatus(fo, consumer);
-                break;
+        try {
+            switch (queryType) {
+                case SwitchCtx:
+                    if (this.queryService.isExecuting(curUid, sessionId)) {
+                        this.executingCheckAndResponseIt(fo, consumer);
+                    } else {
+                        this.switchCtx(fo, consumer);
+                    }
+                    break;
+                case RequestQuery:
+                    if (this.queryService.isExecuting(curUid, sessionId)) {
+                        this.executingCheckAndResponseIt(fo, consumer);
+                    } else {
+                        this.requestQuery(fo, consumer, false);
+                    }
+                    break;
+                case RequestPlan:
+                    if (this.queryService.isExecuting(curUid, sessionId)) {
+                        this.executingCheckAndResponseIt(fo, consumer);
+                    } else {
+                        this.requestQuery(fo, consumer, true);
+                    }
+                    break;
+                case CancelQuery:
+                    this.cancelQuery(fo, consumer);
+                    break;
+                case TxCommit:
+                    if (this.queryService.isExecuting(curUid, sessionId)) {
+                        this.executingCheckAndResponseIt(fo, consumer);
+                    } else {
+                        this.txCommit(fo, consumer);
+                    }
+                    break;
+                case TxRollback:
+                    if (this.queryService.isExecuting(curUid, sessionId)) {
+                        this.executingCheckAndResponseIt(fo, consumer);
+                    } else {
+                        this.txRollback(fo, consumer);
+                    }
+                    break;
+                case TxStatus:
+                    if (this.queryService.isExecuting(curUid, sessionId)) {
+                        this.executingCheckAndResponseIt(fo, consumer);
+                    } else {
+                        this.txStatus(fo, consumer);
+                    }
+                    break;
+                case RecoveryStatus:
+                    this.recoveryStatus(fo, consumer);
+                    break;
+            }
+        } catch (Exception e) {
+            log.error("query operation failed, sessionId=" + sessionId + ", type=" + queryType, e);
+            consumer.accept(BuildResMsgUtils.buildHintMsg(fo, e.getMessage(), MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildDone(fo));
         }
     }
 

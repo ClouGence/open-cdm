@@ -16,6 +16,8 @@
 package com.clougence.clouddm.ds.cockroachdb;
 
 import com.clougence.adapter.postgre.PostgresTypes;
+import com.clougence.clouddm.ds.cockroachdb.sql.CrdbSqlEngineSpi;
+import com.clougence.clouddm.ds.cockroachdb.sql.analysis.CrdbSysObjectRegistrySpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.ds.cockroachdb.definition.CrdbDefService;
@@ -80,7 +82,9 @@ public class CrdbDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(CrdbSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
-        dsPlugin.bindSqlEngine("PG SQL", "ISO-SQL-92", "ISO-SQL-99", "ISO-SQL-2003");
+        dsPlugin.addGlobalSpi(new CrdbSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new CrdbSysObjectRegistrySpi());
+        dsPlugin.bindSqlEngine(CrdbSqlEngineSpi.NAME, "ISO-SQL-92", "ISO-SQL-99", "ISO-SQL-2003");
 
         dsPlugin.addPluginSpi(new PgSessionSpi());
         dsPlugin.addPluginSpi(new PgSupportSpi());

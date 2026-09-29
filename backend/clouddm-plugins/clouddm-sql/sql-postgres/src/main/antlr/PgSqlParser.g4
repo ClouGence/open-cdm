@@ -49,7 +49,7 @@ stmt
     ;
 
 extensionstmt
-    : {isExtensionStatement()}? (CREATE | ALTER | DROP | GRANT | REVOKE | Identifier) (~(SEMI | END_P))+
+    : {isExtensionStatement()}? (CREATE | ALTER | DROP | GRANT | REVOKE | SHOW | Identifier) (~(SEMI | END_P))+
     ;
 
 pg_stmt
@@ -2996,7 +2996,12 @@ deallocatestmt
     ;
 
 insertstmt
-    : with_clause_? INSERT INTO insert_target insert_rest on_conflict_? returning_clause?
+    : with_clause_? (INSERT INTO insert_target insert_rest on_conflict_?
+        | upsert_keyword INTO insert_target insert_rest) returning_clause?
+    ;
+
+upsert_keyword
+    : {isUpsertKeyword()}? Identifier
     ;
 
 insert_target
@@ -3439,8 +3444,12 @@ values_clause
     ;
 
 from_clause
-    : FROM from_list
+    : FROM from_list snapshot_clause?
 
+    ;
+
+snapshot_clause
+    : {isSnapshotClause()}? AS OF SYSTEM_P TIME a_expr
     ;
 
 from_list
