@@ -29,6 +29,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -56,13 +57,17 @@ public class MySecDomainResolveSpi implements SecDomainResolveSpi, MySecDomainOp
         return provider;
     }
 
+    protected SplitAnalysisSpi splitAnalysisSpi() {
+        return splitter;
+    }
+
     protected AbstractParseTreeVisitor<Void> parserVisitor(MyBuilderFactory domainBuilder, Parser parser) {
         return new MySqlParserVisitor(domainBuilder, parser);
     }
 
     @Override
     public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
-        var scripts = this.splitter.splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
+        var scripts = splitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
         return scripts.flatMap(script -> {
             StringReader reader = new StringReader(script.getScript());
             int codeLine = script.getBodyStartCodeLine();

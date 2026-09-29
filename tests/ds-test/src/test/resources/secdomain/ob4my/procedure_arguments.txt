@@ -1,0 +1,168 @@
+[positional_arguments]
+sql:
+CALL sp_count_posts_by_user(1, @cnt);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "sp_count_posts_by_user",
+      "func": false,
+      "args": [
+        "1",
+        "@cnt"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[literal_arguments]
+sql:
+CALL analytics.p('a;''b', NULL, TRUE);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "p",
+      "func": false,
+      "args": [
+        "a;''b",
+        "NULL",
+        "TRUE"
+      ],
+      "emptyArg": false,
+      "schema": "analytics"
+    }
+  ]
+}
+----------
+
+[named_arguments]
+sql:
+CALL DBMS_STATS.GATHER_TABLE_STATS(ownname => 'analytics', tabname => 'sales', cascade => TRUE, force => FALSE);
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "GATHER_TABLE_STATS",
+      "func": false,
+      "args": [
+        "ownname => 'analytics'",
+        "tabname => 'sales'",
+        "cascade => TRUE",
+        "force => FALSE"
+      ],
+      "emptyArg": false,
+      "schema": "DBMS_STATS"
+    }
+  ]
+}
+----------
+
+[expression_and_function_arguments]
+sql:
+CALL analytics.p(@cnt + 1, ABS(-2));
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "p",
+      "func": false,
+      "args": [
+        "@cnt + 1",
+        "ABS(-2)"
+      ],
+      "emptyArg": false,
+      "schema": "analytics"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ABS",
+      "func": true,
+      "args": [
+        "-2"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[named_expression_and_function_arguments]
+sql:
+CALL analytics.p(result_value => @cnt + 1, magnitude => ABS(-2));
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "p",
+      "func": false,
+      "args": [
+        "result_value => @cnt + 1",
+        "magnitude => ABS(-2)"
+      ],
+      "emptyArg": false,
+      "schema": "analytics"
+    },
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "ABS",
+      "func": true,
+      "args": [
+        "-2"
+      ],
+      "emptyArg": false
+    }
+  ]
+}
+----------
+
+[empty_parentheses]
+sql:
+CALL DBMS_STATS.FLUSH_DATABASE_MONITORING_INFO();
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "FLUSH_DATABASE_MONITORING_INFO",
+      "func": false,
+      "args": [],
+      "emptyArg": true,
+      "schema": "DBMS_STATS"
+    }
+  ]
+}
+----------
+
+[omitted_parentheses]
+sql:
+CALL DBMS_STATS.FLUSH_DATABASE_MONITORING_INFO;
+expect:
+{
+  "contains": [
+    {
+      "sqlType": "CALL_PROG_OBJ",
+      "auditKind": "CALL",
+      "callName": "FLUSH_DATABASE_MONITORING_INFO",
+      "func": false,
+      "args": [],
+      "emptyArg": true,
+      "schema": "DBMS_STATS"
+    }
+  ]
+}

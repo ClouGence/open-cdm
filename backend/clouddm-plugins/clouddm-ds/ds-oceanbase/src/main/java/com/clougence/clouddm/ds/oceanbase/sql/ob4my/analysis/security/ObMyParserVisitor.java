@@ -347,6 +347,19 @@ public class ObMyParserVisitor extends ObForMySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitProcedureArgument(ProcedureArgumentContext ctx) {
+        // Named parameter labels are not resource names; only visit the value.
+        if (ctx.constant() != null) {
+            ctx.constant().accept(this);
+        } else if (ctx.functionCall() != null) {
+            ctx.functionCall().accept(this);
+        } else {
+            ctx.expression().accept(this);
+        }
+        return null;
+    }
+
+    @Override
     public Void visitFullColumnName(FullColumnNameContext ctx) {
         builder.handleSelectColumn(() -> {
             builder.handleObjName(() -> {
