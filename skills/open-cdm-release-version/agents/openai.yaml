@@ -1,0 +1,4 @@
+interface:
+  display_name: "Open CDM Release Version"
+  short_description: "Update Open CDM versions and bilingual release notes"
+  default_prompt: "Use $open-cdm-release-version to update Open CDM to version 4.3.0 and prepare bilingual release notes from commits with community contributor credits."

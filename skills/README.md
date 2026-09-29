@@ -6,17 +6,19 @@ This directory contains project-specific skills for maintaining open-cdm.
 
 | Skill | Purpose |
 | --- | --- |
-| [`open-cdm-change-version`](open-cdm-change-version/SKILL.md) | Prepare an open-cdm release from an exact Git range, generate bilingual release notes, attribute community contributors, and update current version references. |
+| [Open CDM Release Version](open-cdm-release-version/SKILL.md) (`open-cdm-release-version`) | Update a version and public references, generate bilingual release notes from commit messages, and credit verified community contributors. |
 
 ## Usage
 
 Invoke a skill with an explicit target version:
 
 ```text
-$open-cdm-change-version 4.1.2
+$open-cdm-release-version 4.3.0
 ```
 
-The skill keeps commit, tag, branch, and push operations outside the release-preparation workflow unless the user explicitly requests them.
+By default, a version update also prepares Chinese and English release notes and updates their index. Explicit requests for release notes only or version references only keep that narrower scope.
+
+The skill keeps commit, tag, branch, push, and PR operations outside the release-preparation workflow unless the user explicitly requests them.
 
 ## Structure
 
