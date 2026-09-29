@@ -98,8 +98,14 @@ export default {
   },
   mounted() {
     this.init();
+    document.addEventListener('click', this.handleFontSizeOutsideClick);
   },
   methods: {
+    handleFontSizeOutsideClick(event) {
+      if (this.fontSizePanelExpanded && !this.$refs.fontSizeButtons?.contains(event.target)) {
+        this.fontSizePanelExpanded = false;
+      }
+    },
     async init() {
       this.currentTab.language = await resolveSqlEditorLanguage(
         monaco,
@@ -1429,6 +1435,7 @@ export default {
       localStorage.setItem(SQL_EDITOR_FONT_SIZE_STORAGE_KEY, String(size));
       this.monacoEditor?.updateOptions({ fontSize: size });
       this.monacoEditorFountCss = `font-size-${size}`;
+      this.fontSizePanelExpanded = false;
     },
     getSQLSuggest(keywords) {
       const list = keywords.map((key) => ({
@@ -1535,6 +1542,7 @@ export default {
     }
   },
   beforeUnmount() {
+    document.removeEventListener('click', this.handleFontSizeOutsideClick);
     this.handleDispose();
   },
   watch: {
@@ -1551,22 +1559,25 @@ export default {
 
 <template>
   <div class="monaco-editor">
-    <div class="font-size-buttons" @mouseenter="fontSizePanelExpanded = true" @mouseleave="fontSizePanelExpanded = false">
+    <div class="font-size-buttons" ref="fontSizeButtons">
       <div class="language-service-error" v-if="languageServiceErrorMessage">
         {{ languageServiceErrorMessage }}
       </div>
-      <ButtonGroup>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(12)">
+      <ButtonGroup v-if="fontSizePanelExpanded" class="font-size-options">
+        <Button size="small" @click="setFontSize(12)">
           {{ $t('zi-hao-1') }}
         </Button>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(16)">
+        <Button size="small" @click="setFontSize(16)">
           {{ $t('zi-hao-2') }}
         </Button>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(20)">
+        <Button size="small" @click="setFontSize(20)">
           {{ $t('zi-hao-3') }}
         </Button>
-        <Button size="small" v-if="!fontSizePanelExpanded">T</Button>
       </ButtonGroup>
+      <Button size="small" :aria-expanded="fontSizePanelExpanded" @click.stop="fontSizePanelExpanded = !fontSizePanelExpanded">T</Button>
+    </div>
+    <div class="editor-extra-controls">
+      <slot name="editor-controls" />
     </div>
     <div :class="`${monacoEditorFountCss} monaco-editor-content`" ref="monacoEditor"></div>
   </div>
@@ -1700,11 +1711,19 @@ export default {
 .monaco-editor .font-size-buttons {
   position: absolute;
   top: 3px;
-  right: 17px;
+  right: 52px;
   z-index: 10;
   display: flex;
-  align-items: flex-start;
-  gap: 5px;
+  align-items: center;
+  gap: 4px;
+}
+.editor-extra-controls {
+  position: absolute;
+  top: 3px;
+  right: 17px;
+  z-index: 11;
+  display: flex;
+  align-items: center;
 }
 .language-service-error {
   max-width: 360px;

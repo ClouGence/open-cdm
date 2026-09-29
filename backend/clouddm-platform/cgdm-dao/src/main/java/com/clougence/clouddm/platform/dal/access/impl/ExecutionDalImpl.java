@@ -24,6 +24,8 @@ public class ExecutionDalImpl implements ExecutionDal {
     private DmExecSessionMapper          sessionMapper;
     @Resource
     private DmExecSqlAuditMapper         sqlAuditMapper;
+    @Resource
+    private DmExecSqlScriptMapper        sqlScriptMapper;
 
     @Override
     public DmExecAsyncTaskMapper asyncTaskMapper() {
@@ -53,6 +55,11 @@ public class ExecutionDalImpl implements ExecutionDal {
     @Override
     public DmExecSqlAuditMapper sqlAuditMapper() {
         return sqlAuditMapper;
+    }
+
+    @Override
+    public DmExecSqlScriptMapper sqlScriptMapper() {
+        return sqlScriptMapper;
     }
 
     // ---------- dal service methods ----------

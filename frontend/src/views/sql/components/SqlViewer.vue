@@ -27,7 +27,18 @@
       :rdb-object-detail="rdbObjectDetail"
       :on-run="onRun"
       @change="handleEditorChange"
-    />
+    >
+      <template #editor-controls>
+        <SqlScriptPopover
+          :tab="tab"
+          :get-editor-content="getEditorContent"
+          :store-query-tabs="storeQueryTabs"
+          @open-script="$emit('open-script', $event)"
+          @script-deleted="$emit('script-deleted', $event)"
+          @script-renamed="$emit('script-renamed', $event)"
+        />
+      </template>
+    </Editor>
     <div class="editor-resize" />
     <div :class="`query-message ${tab.message.type}`" v-if="tab.message.text && tab.message.show && tab.connected">
       <div v-html="tab.message.text"></div>
@@ -77,13 +88,16 @@ import { RULE_WARN_LEVEL, WS_REQ_QUERY_TYPE, WS_TYPE } from '@/utils';
 import { UPDATE_SOCKET_STATUS } from '@/store/mutationTypes';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import formatError from '@/services/formatError';
+import SqlScriptPopover from '@/views/sql/components/SqlScriptPopover.vue';
 
 export default {
   name: 'SqlViewer',
   components: {
     Editor,
-    Operators
+    Operators,
+    SqlScriptPopover
   },
+  emits: ['open-script', 'script-deleted', 'script-renamed'],
   props: {
     handleClickDsStatusIcon: Function,
     handleGetDsSetting: Function,
@@ -181,6 +195,9 @@ export default {
     },
     //
     handleGetRecoveryStatus() {
+      if (!this.tab.connected || !this.tab.sessionId || !this.tab.node) {
+        return;
+      }
       sendWebSocket(
         {
           type: WS_TYPE.WS_REQ_QUERY,
@@ -308,6 +325,10 @@ export default {
       });
     },
     async onRun(type = 'run', asyncForm) {
+      if (!this.tab.connected || !this.tab.node || !this.tab.sessionId) {
+        this.$Message.warning(this.$t('lian-jie-yi-duan-kai'));
+        return;
+      }
       this.storeQueryTabs();
       const selection = this.monacoEditor.getSelection();
       const hasSelection =
@@ -475,7 +496,15 @@ export default {
       this.monacoEditor = editor;
     },
     handleEditorChange(value) {
-      this.tab.text = value;
+      let content = value;
+      if (typeof content !== 'string') content = this.monacoEditor?.getValue() || '';
+      this.tab.text = content;
+      if (this.tab.scriptId) {
+        this.tab.isEditing = content !== this.tab.scriptSavedText;
+      }
+    },
+    getEditorContent() {
+      return this.monacoEditor?.getValue() || '';
     },
     setSql(sql) {
       appLogger.debug('setSql', sql);
