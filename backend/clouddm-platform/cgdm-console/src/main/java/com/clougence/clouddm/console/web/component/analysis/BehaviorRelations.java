@@ -39,7 +39,11 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.UPDATE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.DELETE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.MERGE, targetType -> SecDataAuthKind.WRITE), //
-            Map.entry(BehaviorAction.REPLACE, targetType -> SecDataAuthKind.WRITE), //
+            Map.entry(BehaviorAction.REPLACE, targetType -> switch (targetType) {
+                case User, Role, Profile, RowAccessPolicy, Quota, NamedCollection -> SecDataAuthKind.MANAGE;
+                case Resource, ResourceGroup -> SecDataAuthKind.MAINTAIN;
+                default -> SecDataAuthKind.WRITE;
+            }), //
             Map.entry(BehaviorAction.COPY, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.MOVE, targetType -> switch (targetType) {
                 case Queue -> SecDataAuthKind.MAINTAIN;
@@ -93,11 +97,12 @@ public final class BehaviorRelations {
     // These types carry resolved instance or object-ancestor paths, including unnamed sets.
     private static final Set<TargetType> EXPLICIT_PATH_TARGETS = EnumSet.of(
             TargetType.Resource, TargetType.StorageVolume, TargetType.SecurityIntegration, TargetType.GroupProvider,
-            TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot);
+            TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot,
+            TargetType.Quota, TargetType.Dictionary, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Profile, TargetType.RowAccessPolicy, TargetType.Cache, TargetType.Disk, TargetType.Cluster, TargetType.DataPart);
 
     // These objects already carry their native scope; URI-style object names are opaque path content.
     private static final Set<TargetType> NATIVE_SCOPE_TARGETS = EnumSet.of(
-            TargetType.Instance, TargetType.ServiceMasterKey, TargetType.Queue, TargetType.Link,
+            TargetType.Instance, TargetType.ServiceMasterKey, TargetType.Queue, TargetType.Link, TargetType.Replication, TargetType.Job, TargetType.Transaction,
             TargetType.Audit, TargetType.AuditSpecification, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Endpoint,
             TargetType.BrokerMessageType, TargetType.BrokerContract, TargetType.BrokerService, TargetType.BrokerRoute, TargetType.RemoteServiceBinding,
             TargetType.BrokerPriority, TargetType.EventNotification, TargetType.BrokerConversation, TargetType.BrokerConversationGroup, TargetType.XmlSchemaCollection);
@@ -125,14 +130,14 @@ public final class BehaviorRelations {
                 TargetType.Partition, TargetType.View, TargetType.Materialized, //
                 TargetType.Sequence, TargetType.Synonym, TargetType.Type, //
                 TargetType.ProgramObject, TargetType.Function, TargetType.Procedure, //
-                TargetType.Trigger, TargetType.Package, TargetType.Operator, TargetType.XmlSchemaCollection);
+                TargetType.Trigger, TargetType.Package, TargetType.Operator, TargetType.XmlSchemaCollection, TargetType.Dictionary);
     }
 
     private static void registerManageAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MANAGE, //
                 TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.Object, //
                 TargetType.Event, TargetType.Job, TargetType.Link, //
-                TargetType.Profile, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //
+                TargetType.Profile, TargetType.Quota, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //
                 TargetType.Pipe, TargetType.SchedulerObject, TargetType.SchemaObject, TargetType.Library, //
                 TargetType.Replication, TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, //
 
@@ -149,8 +154,7 @@ public final class BehaviorRelations {
     private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MAINTAIN, //
                 TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-
-                TargetType.ResourceGroup, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Resource, TargetType.StorageVolume, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot);
+                TargetType.ResourceGroup, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Resource, TargetType.StorageVolume, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot, TargetType.Cache, TargetType.Disk, TargetType.Cluster, TargetType.DataPart);
     }
 
     private static void putAuthKinds(Map<TargetType, SecDataAuthKind> overrides, SecDataAuthKind authKind, TargetType... targetTypes) {
@@ -178,6 +182,12 @@ public final class BehaviorRelations {
                     if (subject.getObjectType() == TargetType.Queue || subject.getObjectType() == TargetType.BrokerConversation) {
                         addRequest(requests, BehaviorAction.MOVE, subject, registry, dbVersion);
                         targets.forEach(target -> addRequest(requests, BehaviorAction.MOVE, target, registry, dbVersion));
+                    } else if ((subject.getObjectType() == TargetType.Partition || subject.getObjectType() == TargetType.DataPart)
+                               && !targets.isEmpty() && targets.stream().allMatch(target ->
+                                   target.getObjectType() == TargetType.Disk || target.getObjectType() == TargetType.StorageVolume)) {
+                        // A placement change moves existing data; it does not create its storage device.
+                        addRequest(requests, BehaviorAction.MOVE, subject, registry, dbVersion);
+                        targets.forEach(target -> addRequest(requests, BehaviorAction.READ, target, registry, dbVersion));
                     } else {
                         addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
                         targets.forEach(target -> addRequest(requests, BehaviorAction.CREATE, target, registry, dbVersion));
@@ -302,14 +312,21 @@ public final class BehaviorRelations {
         }
 
         ObjectName name = object.getObjectName();
-        if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup)
-                && name != null && name.getSchema() == null && name.getObjectName() != null) {
+        if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup
+                || targetType == TargetType.User || targetType == TargetType.Role || targetType == TargetType.UserOrRole || targetType == TargetType.File
+                || targetType == TargetType.Function || targetType == TargetType.Query || targetType == TargetType.Log)
+                && name != null && (name.getSchema() == null || targetType == TargetType.Log)) {
             // Explicit scope metadata takes precedence over legacy current-schema path completion.
             String declaredPath = instancePath;
             if (name.getCatalog() != null) {
                 declaredPath += name.getCatalog() + "/";
             }
-            declaredPath += name.getObjectName() + "/";
+            if (name.getSchema() != null) {
+                declaredPath += name.getSchema() + "/";
+            }
+            if (name.getObjectName() != null) {
+                declaredPath += name.getObjectName() + "/";
+            }
             if (Objects.equals(sourcePath, DmDsUtils.normalizeResourcePath(declaredPath))) {
                 return sourcePath;
             }
@@ -335,6 +352,26 @@ public final class BehaviorRelations {
         return DmDsUtils.normalizeResourcePath(path);
     }
 
+    private static boolean isHypotheticalIndexOfTable(BehaviorObject index, BehaviorObject table) {
+        if (index == null || index.getObjectType() != TargetType.Index || index.getObjectName() == null || index.getObjectPath() == null) {
+            return false;
+        }
+        ObjectName name = index.getObjectName();
+        if (name.getCatalog() != null || name.getSchema() != null || name.getObjectName() == null) {
+            return false;
+        }
+        String path = index.getObjectPath();
+        String suffix = index.getObjectName().getObjectName() + "/";
+        if (!path.endsWith("/" + suffix)) {
+            return false;
+        }
+        String owner = path.substring(0, path.length() - suffix.length());
+        int namespace = owner.indexOf("/hypothetical_index/");
+        // Verify the declared owner, so a real catalog/schema/index named hypothetical_index is unaffected.
+        return namespace >= 0 && (owner.substring(0, namespace)
+            + owner.substring(namespace + "/hypothetical_index".length())).equals(table.getObjectPath());
+    }
+
     private static BehaviorAction relatedObjectAction(BehaviorObject subject, BehaviorObject target) {
         TargetType subjectType = subject == null ? null : subject.getObjectType();
         if (subjectType == TargetType.EventNotification && target != null && target.getObjectType() == TargetType.Queue) {
@@ -342,7 +379,8 @@ public final class BehaviorRelations {
         }
         if (target != null && //
                 target.getObjectType() == TargetType.Table && //
-                (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger)) {
+                (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger)
+                && !isHypotheticalIndexOfTable(subject, target)) {
             return BehaviorAction.ALTER;
         }
         return BehaviorAction.READ;

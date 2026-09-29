@@ -134,6 +134,20 @@ public enum TargetType {
     Repository(null),
     Snapshot(null),
 
+    // Access-control resources and database dictionaries.
+    Quota(null),
+    Dictionary(null),
+    NamedCollection(null),
+    TableEngine(null),
+
+    // Runtime caches, configured storage disks, and named cluster topologies.
+    Cache(null),
+    Disk(null),
+    Cluster(null),
+
+    // Named physical data parts, distinct from logical partitions and files.
+    DataPart(null),
+
     ;
 
     private final UmiTypes umiType;
