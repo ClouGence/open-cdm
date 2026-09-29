@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultPhaseType;
@@ -102,7 +103,8 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
             rdbHook().commit(this.dsObject.getTarget());
             this.rdbHasUnCommitted = false;
         } catch (Exception e) {
-            log.error("commit: " + e.getMessage(), e);
+            log.error("commit failed", e);
+            throw ThirdPartyApiException.as().with(e);
         }
     }
 
@@ -112,7 +114,8 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
             rdbHook().rollback(this.dsObject.getTarget());
             this.rdbHasUnCommitted = false;
         } catch (Exception e) {
-            log.error("rollback: " + e.getMessage(), e);
+            log.error("rollback failed", e);
+            throw ThirdPartyApiException.as().with(e);
         }
     }
 
