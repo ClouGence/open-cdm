@@ -175,12 +175,18 @@
     </div>
     <!-- Hide, avoid double-counting. -->
     <CCModal v-model="showConnectedModal" :title="$t('cuo-wu')" :zIndex="1100">
-      <div>{{ connectedInstance.connectedMsg }}</div>
+      <div class="connection-error-content">
+        <CustomIcon
+          class="connection-error-icon"
+          :type="connectedInstance.INSTANCE.attr.dsType"
+          :instance-type="connectedInstance.INSTANCE.attr.dsDeployType"
+          size="20px"
+          aria-hidden="true"
+        />
+        <span>{{ $t('sql-connection-error-source', { name: connectedInstance.INSTANCE.name }) }}</span>
+      </div>
       <template #footer>
-        <Button @click="handleCloseConnectedModal(false)">{{ $t('guan-bi') }}</Button>
-        <Button type="primary" @click="handleCloseConnectedModal(true)">
-          {{ $t('zhong-xin-lian-jie') }}
-        </Button>
+        <Button @click="showConnectedModal = false">{{ $t('guan-bi') }}</Button>
       </template>
     </CCModal>
     <CCModal v-model="showScriptCloseModal" :title="$t('sql-favorites-close-title')" :width="500" :closable="false" :keyboard="false">
@@ -424,12 +430,6 @@ export default {
         zIndex: 3,
         minWidth: 176
       });
-    },
-    async handleCloseConnectedModal(reConnected = true) {
-      this.showConnectedModal = false;
-      if (reConnected) {
-        await this.handleTestConnect();
-      }
     },
     handleSocketConnectionClose() {
       this.tabs.forEach((tab) => {
@@ -686,8 +686,8 @@ export default {
                   connectedMsg: data?.msgContent
                 });
                 if (!data?.connected && !data?.noModal) {
-                  this.showConnectedModal = true;
                   this.connectedInstance = { code: data?.code, ...instance };
+                  this.showConnectedModal = true;
                 }
               }
             });
@@ -1572,19 +1572,6 @@ export default {
 
       await changeTab(activeKey);
     },
-    async handleTestConnect() {
-      if (this.connectedInstance.ENV.id && this.connectedInstance.INSTANCE.id) {
-        try {
-          const res = await this.$services.dmDataSourceTestConnect({
-            data: {
-              dataSourceId: this.connectedInstance.INSTANCE.id
-            }
-          });
-        } catch (e) {
-          appLogger.error(e);
-        }
-      }
-    },
     async handleClickDsStatusIcon() {
       if (this.currentTab?.node?.ENV?.id && this.currentTab.node.INSTANCE?.id) {
         try {
@@ -1797,6 +1784,20 @@ export default {
 };
 </script>
 <style scoped lang="less">
+.connection-error-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  text-align: center;
+}
+
+.connection-error-icon {
+  flex-shrink: 0;
+}
+
 // common style
 :deep(.icon-v2-hover:hover) {
   vertical-align: middle;

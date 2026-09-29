@@ -18,7 +18,7 @@ Dialect 和 Session 能力。该流程防止只显示类型、只通过连接测
 - `/Users/pika/docker_opt/localdb/kingbasees` 中四个 Compose 项目均 running/healthy；
 - 宿主端口依次为 54321（pg）、54322（mysql）、54323（oracle）、54324（sqlserver）；
 - IDEA 中 `DmAloneLauncher` 为 RUNNING，运行时加载的是已复核的 fat JAR；
-- Chrome 已登录隔离测试账号，任务标签页位于 `codex` 组；
+- @Browser 已登录隔离测试账号；
 - 已读取 `.design_docs/kingbasees-datasource-test-spec.md`；
 - 不读取浏览器 Cookie、Token、保存密码或 local storage。
 
@@ -57,7 +57,7 @@ Dialect 和 Session 能力。该流程防止只显示类型、只通过连接测
 4. 新增数据源类型后不修改前端静态类型数组，刷新页面即可按接口返回层级生效。
 
 预期：页面不再依赖 `CATALOG_SCHEMA_TYPES`、`hasSchema` 或数据源类型硬编码；接口层级变更后四个入口使用一致的资源路径，
-Chrome Console error 为 0。
+@Browser Console error 为 0。
 
 ### KES-UI-03 对象树和结果类型
 
@@ -82,7 +82,7 @@ Chrome Console error 为 0。
 7. SQLServer 模式确认 `KingbaseES V009R001C010` 由 `KingbaseESSQLServerMainVersion` 处理，列、主键、复合唯一键、普通索引
    和外键完整显示；打开“视图”分类并逐个展开业务视图，不得访问服务端不存在的 `sys.all_views`。
 8. PostgreSQL、Oracle、SQLServer 同样遍历当前可见的表、视图、函数、过程和触发器，不得只验证 `meta_child`。
-9. 快速连续切换 MySQL → Oracle → PostgreSQL → SQLServer 的表/视图详情，等待异步请求结束后检查 Chrome Console，确认
+9. 快速连续切换 MySQL → Oracle → PostgreSQL → SQLServer 的表/视图详情，等待异步请求结束后检查 @Browser Console，确认
    没有 `columnList` 写入旧节点的异常，也没有把前一模式 metadata 写入当前 tab。
 10. 执行模式专项 SELECT，检查真实单元格值。
 
@@ -90,7 +90,7 @@ Chrome Console error 为 0。
 `Unsupported varchar2/nvarchar/number/numeric type`、
 `Unsupported KingbaseES MySQL physical type` 或缺少 `INFORMATION_SCHEMA.STATISTICS` 的错误。
 SQLServer 模式不得出现 `Unsupported SqlServer version KingbaseES`、`DBCC USEROPTIONS` 或缺少
-`sys.default_constraints`、`sys.all_views` 的错误；四模式快速切换后 Chrome Console error 必须为 0。
+`sys.default_constraints`、`sys.all_views` 的错误；四模式快速切换后 @Browser Console error 必须为 0。
 
 ### KES-UI-03A MySQL 物理类型矩阵
 
@@ -193,7 +193,7 @@ CloudDM 已通过，必须同时确认 CloudDM 对应 SQL Engine 的解析、切
 2. 确认页面只走 CloudDM 路由、权限和 `/api/entry/**` API，不请求 `/cloudcanal/**`。
 3. 新增数据源弹窗仍显示四个 KingbaseES 类型；集群页只显示 CloudDM 字段和 `DM_WORKER_MANAGE` 对应操作。
 4. 账号资源授权只展示数据源资源，不展示 CloudCanal DataJob/产品集群切换入口。
-5. 刷新并往返切换上述页面，检查 Chrome Console。
+5. 刷新并往返切换上述页面，检查 @Browser Console。
 6. 访问已移除的 `/system/data_rules`、`/system/desensitization` 和 `/system/data_code`，确认不会再加载旧页面或请求
    `datahandle`、`datadesensitizerule` 等不存在的接口。
 
@@ -210,6 +210,6 @@ CloudDM 已通过，必须同时确认 CloudDM 对应 SQL Engine 的解析、切
 ## Skip Conditions
 
 - 镜像/license/JDBC 缺失：真实数据库用例为 `BLOCKED`；
-- Chrome 未登录：UI 用例为 `BLOCKED`，不得用纯 API 冒充 UI；
+- @Browser 未登录：UI 用例为 `BLOCKED`，不得用纯 API 冒充 UI；
 - 任一模式容器未 healthy：该模式后续写入用例 `NOT RUN` 或 `BLOCKED`；
 - 没有完成对象树、DML、事务、DDL、中断恢复时，不能因为连接成功而将该模式标为 PASS。

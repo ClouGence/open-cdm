@@ -1,13 +1,13 @@
-# Open CDM 前端 Chrome 复测矩阵
+# Open CDM 前端 @Browser 复测矩阵
 
-本目录保存长期有效、可由 Codex 在 Chrome 中重复执行的用户流程规程。它不是单次测试报告：不记录执行日期、执行人或历史
+本目录保存长期有效、可由 Codex 在 [@Browser](plugin://browser@openai-bundled) 内置浏览器中重复执行的用户流程规程。它不是单次测试报告：不记录执行日期、执行人或历史
 PASS/FAIL，只维护当前真实入口、数据准备、操作、断言和清理方法。
 
 ## 执行 Runbook
 
 1. 根据本次 diff 涉及的页面、路由、接口、权限和状态机，在下方流程索引中选择文档。
 2. 完整阅读对应流程文档；步骤与当前页面不一致时，先核对代码并更新文档，不猜测点击。
-3. 使用 `chrome:control-chrome` 和用户当前 Chrome 登录状态；所有任务标签页放入已有或新建的 `codex` 标签页组。
+3. 使用 [@Browser](plugin://browser@openai-bundled)，先发现可用工具并阅读运行时文档；在内置浏览器中复用或创建任务标签页，无需 `codex` 标签页分组。复用 @Browser 自己的登录状态；未登录时请用户在其中完成登录，不假设外部浏览器的登录状态可共享。所需操作不受工具支持时明确记录 BLOCKED 或 SKIP。
 4. 仅在本地或用户明确指定的测试环境准备数据。数据名称使用 `codex_<业务>_<本次唯一标识>`，不得依赖上次执行遗留的固定 ID。
 5. 先执行 P0 的 Smoke、Main Flow、Permission、State Consistency，再按改动风险选择其余矩阵。
 6. 页面导航、刷新或局部重渲染后重新读取页面状态；按可见文案、角色、标签和所属区域定位控件。
@@ -37,6 +37,7 @@ PASS/FAIL，只维护当前真实入口、数据准备、操作、断言和清�
 | 数据源   | [`datasource/driver_default_selection.md`](datasource/driver_default_selection.md)           | 实例列表 → `/#/datasource/add` | 后端默认驱动契约、家族和版本默认选择        | Smoke、Main Flow、Boundaries、Lifecycle、Permission、State Consistency              |
 | 数据源   | [`datasource/kingbasees_datasource.md`](datasource/kingbasees_datasource.md)                 | 实例列表 → SQL 工作台             | 四兼容模式、层级契约、单产品前端与真实执行链路   | Smoke、Main Flow、Failure And Recovery、Lifecycle、Permission、State Consistency     |
 | SQL   | [`sql/table_editor_dameng_defaults.md`](sql/table_editor_dameng_defaults.md)                 | SQL 工作台 → 达梦新建表            | 默认值、虚拟列、标识符与插件契约       | Smoke、Main Flow、Boundaries、Lifecycle、Permission、State Consistency               |
+| SQL   | [`sql/datasource_connection_error.md`](sql/datasource_connection_error.md) | SQL 工作台 → 连接异常弹窗 | 数据源名称、数据库图标、居中提示与仅关闭操作 | Smoke、Main Flow、Extreme、Lifecycle、State Consistency |
 | 系统设置  | [`system/query_result_cache_capacity.md`](system/query_result_cache_capacity.md)             | 设置 → 偏好设置 → 数据查询             | 容量配置、零值语义、双语文案与持久化一致性   | Smoke、Main Flow、Boundaries、Extreme、Repeat And Concurrency、Failure And Recovery、Lifecycle、Permission、State Consistency |
 
 新增用户流程时，在对应业务目录创建一份文档，并同步更新本索引。文档结构以 [`TEMPLATE.md`](TEMPLATE.md) 为准。

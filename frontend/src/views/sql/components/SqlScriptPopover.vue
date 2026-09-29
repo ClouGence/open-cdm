@@ -15,37 +15,45 @@
     <div v-if="visible" class="favorites-popover" role="dialog" :aria-label="$t('sql-favorites-title')" @click.stop>
       <div class="favorites-header">
         <span class="favorites-title">{{ $t('sql-favorites-title') }}</span>
-        <button
-          type="button"
-          class="favorites-icon-button"
-          :aria-label="$t('sql-favorites-save-current')"
-          :title="$t('sql-favorites-save-current')"
-          @click.stop="openSaveModal('create')"
-        >
-          <SaveOutlined />
-        </button>
+        <div class="favorites-actions">
+          <button
+            type="button"
+            class="favorites-icon-button"
+            :aria-label="$t('sql-favorites-save-current')"
+            :title="$t('sql-favorites-save-current')"
+            @click.stop="openSaveModal('create')"
+          >
+            <FileAddOutlined />
+          </button>
+          <button
+            v-if="isDirty"
+            type="button"
+            class="favorites-icon-button"
+            :aria-label="$t('sql-favorites-save-changes')"
+            :title="$t('sql-favorites-save-changes')"
+            :disabled="saving"
+            @click.stop="openOverwriteModal"
+          >
+            <SaveOutlined />
+            <span class="dirty-dot" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            class="favorites-icon-button"
+            :aria-label="$t('shua-xin')"
+            :title="$t('shua-xin')"
+            :disabled="loading"
+            @click="loadScripts(1)"
+          >
+            <cc-svg-icon name="refresh" :size="16" />
+          </button>
+        </div>
       </div>
-      <div class="favorites-toolbar">
-        <a-input v-model:value="keyword" class="favorites-search" size="small" allow-clear :placeholder="$t('sql-favorites-search-placeholder')">
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-        </a-input>
-        <button
-          type="button"
-          class="favorites-icon-button"
-          :aria-label="$t('shua-xin')"
-          :title="$t('shua-xin')"
-          :disabled="loading"
-          @click="loadScripts(1)"
-        >
-          <cc-svg-icon name="refresh" :size="16" />
-        </button>
-      </div>
-      <button v-if="tab.scriptId && isDirty" type="button" class="save-current" :disabled="saving" @click="saveCurrentScript">
-        <span>{{ $t('sql-favorites-current-modified') }}</span>
-        <strong>{{ $t('sql-favorites-save-changes') }}</strong>
-      </button>
+      <a-input v-model:value="keyword" class="favorites-search" size="small" allow-clear :placeholder="$t('sql-favorites-search-placeholder')">
+        <template #prefix>
+          <SearchOutlined />
+        </template>
+      </a-input>
       <div ref="list" class="favorites-list" :class="{ loading }">
         <div v-for="script in scripts" :key="script.scriptId" class="favorite-row">
           <button type="button" class="favorite-open" @click="openScript(script)">
@@ -109,6 +117,60 @@
       </template>
     </CCModal>
 
+    <CCModal v-model="overwriteModalVisible" :title="$t('sql-favorites-overwrite-title')" :width="460" :closable="!saving" :keyboard="!saving">
+      <a-select
+        class="overwrite-select"
+        :value="{ value: overwriteSelection?.scriptId, label: overwriteSelection?.name }"
+        :options="overwriteOptions"
+        :search-value="overwriteKeyword"
+        :aria-label="$t('sql-favorites-overwrite-title')"
+        :placeholder="$t('sql-favorites-search-placeholder')"
+        :disabled="saving"
+        :loading="overwriteLoading"
+        :filter-option="false"
+        show-search
+        label-in-value
+        @search="scheduleOverwriteLoad"
+        @select="(_, option) => selectOverwriteTarget(option.script)"
+      >
+        <template #notFoundContent>
+          <span v-if="overwriteLoading">{{ $t('zheng-zai-jia-zai-shu-ju') }}</span>
+          <span v-else>{{ $t('sql-favorites-empty') }}</span>
+        </template>
+        <template #dropdownRender="{ menuNode }">
+          <component :is="menuNode" />
+          <div v-if="overwriteLoadFailed" class="favorites-pagination" @mousedown.prevent>
+            <Button type="text" @click="loadOverwriteScripts(1)">{{ $t('shua-xin') }}</Button>
+          </div>
+          <div v-else-if="overwritePages > 1" class="favorites-pagination" @mousedown.prevent>
+            <Button
+              type="text"
+              size="small"
+              :disabled="saving || overwriteLoading || overwritePage <= 1"
+              @click="loadOverwriteScripts(overwritePage - 1)"
+            >
+              {{ $t('sql-favorites-previous-page') }}
+            </Button>
+            <span>{{ overwritePage }} / {{ overwritePages }}</span>
+            <Button
+              type="text"
+              size="small"
+              :disabled="saving || overwriteLoading || overwritePage >= overwritePages"
+              @click="loadOverwriteScripts(overwritePage + 1)"
+            >
+              {{ $t('sql-favorites-next-page') }}
+            </Button>
+          </div>
+        </template>
+      </a-select>
+      <template #footer>
+        <Button :disabled="saving" @click="overwriteModalVisible = false">{{ $t('qu-xiao') }}</Button>
+        <Button type="primary" :loading="saving" :disabled="!overwriteSelection || overwriteLoading || overwriteLoadFailed" @click="confirmOverwrite">
+          {{ $t('sql-favorites-overwrite-confirm') }}
+        </Button>
+      </template>
+    </CCModal>
+
     <CCModal v-model="conflictVisible" :title="$t('sql-favorites-conflict-title')" :width="500">
       <p>{{ $t('sql-favorites-conflict-description') }}</p>
       <template #footer>
@@ -122,13 +184,13 @@
 
 <script>
 import dayjs from 'dayjs';
-import { BookOutlined, MoreOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import { BookOutlined, FileAddOutlined, MoreOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons-vue';
 
 const savingTabs = new WeakSet();
 
 export default {
   name: 'SqlScriptPopover',
-  components: { BookOutlined, MoreOutlined, SaveOutlined, SearchOutlined },
+  components: { BookOutlined, FileAddOutlined, MoreOutlined, SaveOutlined, SearchOutlined },
   props: {
     tab: { type: Object, required: true },
     getEditorContent: Function,
@@ -154,6 +216,17 @@ export default {
       conflictVisible: false,
       conflictTargetTab: null,
       saveTargetTab: null,
+      overwriteModalVisible: false,
+      overwriteSource: null,
+      overwriteSelection: null,
+      overwriteScripts: [],
+      overwriteKeyword: '',
+      overwritePage: 1,
+      overwritePages: 1,
+      overwriteLoading: false,
+      overwriteLoadFailed: false,
+      overwriteLoadTimer: null,
+      overwriteLoadSequence: 0,
       activeMenuScriptId: null,
       menuAnchor: null,
       menuPosition: { top: 0, left: 0 },
@@ -168,6 +241,14 @@ export default {
       if (this.saveMode === 'rename') return this.$t('sql-favorites-rename-title');
       return this.$t('sql-favorites-create-title');
     },
+    overwriteOptions() {
+      return this.overwriteScripts.map((script) => ({
+        value: script.scriptId,
+        label: script.name,
+        script,
+        disabled: this.overwriteLoading
+      }));
+    },
     activeMenuScript() {
       return this.scripts.find((script) => script.scriptId === this.activeMenuScriptId) || null;
     }
@@ -175,6 +256,18 @@ export default {
   watch: {
     keyword() {
       this.scheduleLoad();
+    },
+    overwriteModalVisible(visible) {
+      if (visible) return;
+      clearTimeout(this.overwriteLoadTimer);
+      this.overwriteLoadSequence++;
+    },
+    tab(tab) {
+      if (this.overwriteSource && tab !== this.overwriteSource.tab) this.overwriteModalVisible = false;
+      if (this.conflictTargetTab && tab !== this.conflictTargetTab) {
+        this.conflictVisible = false;
+        this.conflictTargetTab = null;
+      }
     }
   },
   mounted() {
@@ -189,6 +282,8 @@ export default {
     window.removeEventListener('scroll', this.positionMenu, true);
     window.removeEventListener('resize', this.positionMenu);
     clearTimeout(this.loadTimer);
+    clearTimeout(this.overwriteLoadTimer);
+    this.overwriteLoadSequence++;
   },
   methods: {
     async toggle() {
@@ -360,22 +455,84 @@ export default {
         savingTabs.delete(targetTab);
       }
     },
-    async saveCurrentScript() {
-      if (this.saving || savingTabs.has(this.tab)) return false;
-      if (!this.tab.scriptId) {
-        this.openSaveModal('create');
-        return false;
-      }
+    openOverwriteModal() {
+      if (this.saving || savingTabs.has(this.tab)) return;
       const targetTab = this.tab;
       const editorContent = this.getEditorContent?.();
       if (typeof editorContent === 'string') targetTab.text = editorContent;
-      const snapshot = {
+      if (!this.validateContent(targetTab.text)) return;
+      this.overwriteSource = {
+        tab: targetTab,
         scriptId: targetTab.scriptId,
         version: targetTab.scriptVersion,
         name: targetTab.scriptName,
         dsType: targetTab.scriptDsType,
-        sqlContent: targetTab.text || '',
+        sqlContent: targetTab.text,
         associationRevision: targetTab.scriptAssociationRevision || 0
+      };
+      this.overwriteSelection = {
+        scriptId: targetTab.scriptId,
+        version: targetTab.scriptVersion,
+        name: targetTab.scriptName
+      };
+      this.overwriteKeyword = '';
+      this.overwriteScripts = [];
+      this.overwritePage = 1;
+      this.overwritePages = 1;
+      this.visible = false;
+      this.closeMenu();
+      this.overwriteModalVisible = true;
+      this.loadOverwriteScripts(1);
+    },
+    scheduleOverwriteLoad(keyword) {
+      this.overwriteKeyword = keyword;
+      clearTimeout(this.overwriteLoadTimer);
+      this.overwriteLoadSequence++;
+      this.overwriteLoading = true;
+      this.overwriteLoadTimer = setTimeout(() => this.loadOverwriteScripts(1), 250);
+    },
+    async loadOverwriteScripts(page = 1) {
+      clearTimeout(this.overwriteLoadTimer);
+      const sequence = ++this.overwriteLoadSequence;
+      this.overwriteLoading = true;
+      this.overwriteLoadFailed = false;
+      try {
+        const res = await this.$services.dmQueryScriptList({
+          data: { keyword: this.overwriteKeyword, page: { pageNum: page, pageSize: 10 } }
+        });
+        if (sequence !== this.overwriteLoadSequence || !this.overwriteModalVisible) return;
+        if (!res.success) {
+          this.overwriteLoadFailed = true;
+          this.overwriteScripts = [];
+          this.$Message.error(res.msg || this.$t('sql-favorites-load-failed'));
+          return;
+        }
+        this.overwriteScripts = res.data.records;
+        this.overwritePage = Number(res.data.current);
+        this.overwritePages = Number(res.data.pages);
+      } finally {
+        if (sequence === this.overwriteLoadSequence) this.overwriteLoading = false;
+      }
+    },
+    selectOverwriteTarget(script) {
+      this.overwriteSelection = { scriptId: script.scriptId, version: script.version, name: script.name };
+      // Keep the version originally loaded into the editor when saving its associated favorite.
+      if (script.scriptId === this.overwriteSource.scriptId) {
+        this.overwriteSelection.version = this.overwriteSource.version;
+        this.overwriteSelection.name = this.overwriteSource.name;
+      }
+      if (this.overwriteKeyword) this.scheduleOverwriteLoad('');
+    },
+    async confirmOverwrite() {
+      const source = this.overwriteSource;
+      if (!this.overwriteModalVisible || !this.overwriteSelection || this.overwriteLoading || this.overwriteLoadFailed) return false;
+      const targetTab = source.tab;
+      if (this.saving || savingTabs.has(targetTab)) return false;
+      const snapshot = {
+        ...this.overwriteSelection,
+        sqlContent: source.sqlContent,
+        dsType: source.dsType,
+        associationRevision: source.associationRevision
       };
       this.saving = true;
       savingTabs.add(targetTab);
@@ -391,28 +548,35 @@ export default {
           }
         });
         if (!res.success) {
+          if (!this.overwriteModalVisible || this.overwriteSource !== source) return false;
           if (!this.isTabAssociationCurrent(targetTab, snapshot.associationRevision)) return false;
           const latest = await this.fetchDetail(snapshot.scriptId, false);
-          if (!this.isTabAssociationCurrent(targetTab, snapshot.associationRevision) || targetTab.scriptId !== snapshot.scriptId) return false;
+          if (
+            !this.overwriteModalVisible ||
+            this.overwriteSource !== source ||
+            !this.isTabAssociationCurrent(targetTab, snapshot.associationRevision)
+          )
+            return false;
           if (latest && latest.version !== snapshot.version) {
             const saved = latest.name === snapshot.name && latest.dsType === snapshot.dsType && latest.sqlContent === snapshot.sqlContent;
             if (saved) {
               this.bindTab(targetTab, latest, snapshot.name, snapshot.dsType, snapshot.sqlContent, snapshot.associationRevision);
+              this.overwriteModalVisible = false;
               await this.loadScripts(this.page);
               this.$Message.success(this.$t('sql-favorites-save-success'));
               return targetTab.text === targetTab.scriptSavedText;
             }
             this.selectedDetail = latest;
             this.conflictTargetTab = targetTab;
+            this.overwriteModalVisible = false;
             this.conflictVisible = true;
           } else {
             this.$Message.error(res.msg || this.$t('sql-favorites-save-failed'));
           }
           return false;
         }
-        if (targetTab.scriptId === snapshot.scriptId && this.isTabAssociationCurrent(targetTab, snapshot.associationRevision)) {
-          this.bindTab(targetTab, res.data, snapshot.name, snapshot.dsType, snapshot.sqlContent, snapshot.associationRevision);
-        }
+        this.bindTab(targetTab, res.data, snapshot.name, snapshot.dsType, snapshot.sqlContent, snapshot.associationRevision);
+        if (this.overwriteSource === source) this.overwriteModalVisible = false;
         await this.loadScripts(this.page);
         this.$Message.success(this.$t('sql-favorites-save-success'));
         return targetTab.text === targetTab.scriptSavedText;
@@ -534,19 +698,21 @@ export default {
 }
 .favorites-header {
   justify-content: space-between;
+  gap: 8px;
   margin-bottom: 12px;
 }
 .favorites-title {
   font-size: 16px;
   font-weight: 500;
 }
-.favorites-toolbar {
+.favorites-actions {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 8px;
 }
 .favorites-search {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   height: 32px;
   border-radius: 6px;
@@ -557,6 +723,7 @@ export default {
   font-size: 16px;
 }
 .favorites-icon-button {
+  position: relative;
   display: flex;
   flex: 0 0 32px;
   width: 32px;
@@ -587,18 +754,6 @@ export default {
 .favorites-pagination {
   color: var(--text-secondary);
   font-size: 12px;
-}
-.save-current {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  margin-top: 8px;
-  padding: 10px 8px;
-  border: 0;
-  border-radius: 6px;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  cursor: pointer;
 }
 .favorites-list {
   max-height: 320px;
@@ -687,5 +842,8 @@ export default {
 }
 .favorite-delete-action {
   color: #ed4014;
+}
+.overwrite-select {
+  width: 100%;
 }
 </style>

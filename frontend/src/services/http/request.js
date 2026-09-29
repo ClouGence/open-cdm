@@ -159,7 +159,7 @@ const request = async (opt) => {
           eventBus.emit(EVENT_BUS_NAME_LIST.SET_DATA_SOURCE_STATUS, {
             instanceId,
             connected: false,
-            msg: res.msg,
+            msgContent: res.msg,
             code: res.code
           });
         } else if (res.success) {
