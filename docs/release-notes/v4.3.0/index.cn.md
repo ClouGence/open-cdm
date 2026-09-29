@@ -4,7 +4,7 @@
 - 新增 Greenplum 特有 SQL 语法支持，覆盖外部表、协议、资源队列与资源组等语句的拆分、行为分析和权限分析（[PR #362](https://github.com/ClouGence/open-cdm/pull/362)）。
 - 新增 Cloudberry 特有 SQL 语法支持，覆盖外部表、协议、资源管理及角色扩展语句的拆分、行为分析和权限分析（[PR #356](https://github.com/ClouGence/open-cdm/pull/356)）。
 - 新增 Oracle 管理语句支持，以 19c 为基线，覆盖会话、系统、角色、审计策略、表空间和数据库管理语句的解析、分类与行为分析（[PR #338](https://github.com/ClouGence/open-cdm/pull/338)）。
-- 新增 SQL Server 管理语句支持，以 2022 为基线，支持语句解析、拆分和行为分析（[PR #345](https://github.com/ClouGence/open-cdm/pull/345)）。
+- 新增 SQL Server 管理语句支持，以 2022 为基线，支持访问控制、系统管理、维护操作和执行计划相关语句的解析与行为分析（[PR #345](https://github.com/ClouGence/open-cdm/pull/345)）。
 - 新增 StarRocks 管理语句支持，以 3.5.21 为基线，覆盖管理操作、作业和执行计划相关语句的解析与行为分析（[PR #348](https://github.com/ClouGence/open-cdm/pull/348)）。
 - 新增 ClickHouse 管理语句支持，以 26.8 LTS 为基线，覆盖访问控制、系统管理、维护操作和执行计划相关语句的解析与行为分析（[PR #354](https://github.com/ClouGence/open-cdm/pull/354)）。
 - 新增 OceanBase for MySQL 管理语句支持，以 4.2.5 LTS 为基线，覆盖会话、用户与角色、系统管理、维护操作和执行计划相关语句的解析与行为分析（[PR #366](https://github.com/ClouGence/open-cdm/pull/366)）。
