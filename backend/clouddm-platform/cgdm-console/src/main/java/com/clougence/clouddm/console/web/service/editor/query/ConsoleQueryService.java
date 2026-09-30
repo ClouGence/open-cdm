@@ -762,10 +762,16 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     }
                     case ResultCount: {
                         ResultCount rc = (ResultCount) r;
-                        long updateCount = ((ResultCount) r).getUpdateCount();
+                        long updateCount = rc.getUpdateCount();
                         long fetchTimeMs = Math.max(1, rc.getCostTimeMs());
-                        String infoMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_COUNT_INFO_MESSAGE.name(),//
-                                updateCount, ctx.getPrepareCost(), ctx.getQueryCost(), fetchTimeMs);
+                        String infoMessage;
+                        if (updateCount == -1) {
+                            infoMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_NO_COUNT_INFO_MESSAGE.name(),//
+                                    ctx.getPrepareCost(), ctx.getQueryCost(), fetchTimeMs);
+                        } else {
+                            infoMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_COUNT_INFO_MESSAGE.name(),//
+                                    updateCount, ctx.getPrepareCost(), ctx.getQueryCost(), fetchTimeMs);
+                        }
                         consumer.accept(BuildResMsgUtils.buildConsoleMsg(queryDTO, infoMessage, MessageLevel.Info, true));
                         break;
                     }
