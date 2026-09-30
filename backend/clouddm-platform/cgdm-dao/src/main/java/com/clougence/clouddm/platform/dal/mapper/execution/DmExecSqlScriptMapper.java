@@ -27,7 +27,7 @@ import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlScriptDO;
 
 public interface DmExecSqlScriptMapper extends BaseMapper<DmExecSqlScriptDO> {
 
-    IPage<DmExecSqlScriptDO> listByOwner(Page<?> page, @Param("ownerUid") String ownerUid, @Param("keyword") String keyword);
+    IPage<DmExecSqlScriptDO> listByOwner(Page<?> page, @Param("ownerUid") String ownerUid, @Param("keyword") String keyword, @Param("dsType") String dsType);
 
     DmExecSqlScriptDO detail(@Param("scriptId") long scriptId, @Param("ownerUid") String ownerUid);
 

@@ -16,7 +16,8 @@
     </resultMap>
 
     <sql id="summary_col">
-        id,
+        id
+        ,
         gmt_create,
         gmt_modified,
         owner_uid,
@@ -29,96 +30,84 @@
 
     <select id="listByOwner" resultMap="sqlScriptDO">
         SELECT
-            <include refid="summary_col"/>
+        <include refid="summary_col"/>
         FROM
-            dm_exec_sql_script
+        dm_exec_sql_script
         WHERE
-            owner_uid = #{ownerUid}
+        owner_uid = #{ownerUid}
+        AND
+        status = 'Ready'
+        AND
+        ds_type = #{dsType}
+        <if test="keyword != null and keyword != ''">
             AND
-            status    = 'Ready'
-            <if test="keyword != null and keyword != ''">
-                AND
-                name LIKE CONCAT('%', #{keyword}, '%') ESCAPE '='
-            </if>
+            name LIKE CONCAT('%', #{keyword}, '%') ESCAPE '='
+        </if>
         ORDER BY
-            gmt_modified DESC,
-            id DESC
+        gmt_modified DESC,
+        id DESC
     </select>
 
     <select id="detail" resultMap="sqlScriptDO">
         SELECT
-            <include refid="summary_col"/>
+        <include refid="summary_col"/>
         FROM
-            dm_exec_sql_script
+        dm_exec_sql_script
         WHERE
-            id        = #{scriptId}
-            AND
-            owner_uid = #{ownerUid}
-            AND
-            status    = 'Ready'
+        id = #{scriptId}
+        AND
+        owner_uid = #{ownerUid}
+        AND
+        status = 'Ready'
     </select>
 
     <update id="updateByVersion">
         UPDATE
             dm_exec_sql_script
-        SET
-            name         = #{name},
+        SET name         = #{name},
             ds_type      = #{dsType},
             file_uri     = #{fileUri},
             version      = version + 1,
             gmt_modified = #{gmtModified}
-        WHERE
-            id        = #{scriptId}
-            AND
-            owner_uid = #{ownerUid}
-            AND
-            status    = 'Ready'
-            AND
-            version   = #{version}
+        WHERE id = #{scriptId}
+          AND owner_uid = #{ownerUid}
+          AND status = 'Ready'
+          AND version = #{version}
     </update>
 
     <update id="markDeleting">
         UPDATE
             dm_exec_sql_script
-        SET
-            name         = NULL,
+        SET name         = NULL,
             status       = 'Deleting',
             gmt_modified = #{gmtModified}
-        WHERE
-            id        = #{scriptId}
-            AND
-            owner_uid = #{ownerUid}
-            AND
-            status    = 'Ready'
-            AND
-            version   = #{version}
+        WHERE id = #{scriptId}
+          AND owner_uid = #{ownerUid}
+          AND status = 'Ready'
+          AND version = #{version}
     </update>
 
     <select id="listDeleting" resultMap="sqlScriptDO">
         SELECT
-            <include refid="summary_col"/>
+        <include refid="summary_col"/>
         FROM
-            dm_exec_sql_script
+        dm_exec_sql_script
         WHERE
-            status       = 'Deleting'
-            AND
-            gmt_modified <![CDATA[ <= ]]> #{expireBefore}
+        status = 'Deleting'
+        AND
+        gmt_modified <![CDATA[ <= ]]> #{expireBefore}
         ORDER BY id
     </select>
 
     <delete id="deleteDeleting">
-        DELETE FROM
-            dm_exec_sql_script
-        WHERE
-            id     = #{scriptId}
-            AND
-            status = 'Deleting'
+        DELETE
+        FROM dm_exec_sql_script
+        WHERE id = #{scriptId}
+          AND status = 'Deleting'
     </delete>
 
     <select id="listFileUris" resultType="java.lang.String">
-        SELECT
-            file_uri
-        FROM
-            dm_exec_sql_script
+        SELECT file_uri
+        FROM dm_exec_sql_script
     </select>
 </mapper>

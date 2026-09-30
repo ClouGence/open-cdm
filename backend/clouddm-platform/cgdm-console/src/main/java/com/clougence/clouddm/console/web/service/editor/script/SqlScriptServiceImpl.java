@@ -151,7 +151,7 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
         }
 
         String keyword = escapeLike(fo.getKeyword());
-        IPage<DmExecSqlScriptDO> page = this.executionDal.sqlScriptMapper().listByOwner(new Page<>(pageNumber, pageSize), ownerUid, keyword);
+        IPage<DmExecSqlScriptDO> page = this.executionDal.sqlScriptMapper().listByOwner(new Page<>(pageNumber, pageSize), ownerUid, keyword, fo.getDsType());
         List<SqlScriptSummaryVO> records = page.getRecords().stream().map(this::toSummary).toList();
         return new SqlScriptListVO(page.getCurrent(), page.getSize(), page.getTotal(), records);
     }

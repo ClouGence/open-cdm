@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.model.fo.editor.query;
 
 import com.clougence.clouddm.platform.dal.util.PageObj;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,5 +28,8 @@ public class SqlScriptListFO {
 
     @Size(max = 128)
     private String  keyword;
+    @NotBlank
+    @Size(max = 64)
+    private String  dsType;
     private PageObj page;
 }
