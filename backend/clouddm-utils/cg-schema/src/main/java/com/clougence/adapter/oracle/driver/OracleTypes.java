@@ -73,4 +73,5 @@ public class OracleTypes {
     public static final int FIXED_CHAR        = 999;
     public static final int DATALINK          = Types.DATALINK;
     public static final int BOOLEAN           = Types.BOOLEAN;
+    public static final int JSON              = 2016;
 }
