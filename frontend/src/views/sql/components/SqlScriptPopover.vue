@@ -1,15 +1,15 @@
 <template>
   <div ref="root" class="sql-script-control">
     <Button
-        class="favorite-trigger"
-        size="small"
-        :class="{ active: !!tab.scriptId, dirty: isDirty }"
-        :aria-label="$t('sql-favorites-title')"
-        :title="$t('sql-favorites-title')"
-        @click.stop="toggle"
+      class="favorite-trigger"
+      size="small"
+      :class="{ active: !!tab.scriptId, dirty: isDirty }"
+      :aria-label="$t('sql-favorites-title')"
+      :title="$t('sql-favorites-title')"
+      @click.stop="toggle"
     >
-      <BookOutlined/>
-      <span v-if="isDirty" class="dirty-dot" aria-hidden="true"/>
+      <BookOutlined />
+      <span v-if="isDirty" class="dirty-dot" aria-hidden="true" />
     </Button>
 
     <div v-if="visible" class="favorites-popover" role="dialog" :aria-label="$t('sql-favorites-title')" @click.stop>
@@ -17,42 +17,41 @@
         <span class="favorites-title">{{ $t('sql-favorites-title') }}</span>
         <div class="favorites-actions">
           <button
-              type="button"
-              class="favorites-icon-button"
-              :aria-label="$t('sql-favorites-save-current')"
-              :title="$t('sql-favorites-save-current')"
-              @click.stop="openSaveModal('create')"
+            type="button"
+            class="favorites-icon-button"
+            :aria-label="$t('sql-favorites-save-current')"
+            :title="$t('sql-favorites-save-current')"
+            @click.stop="openSaveModal('create')"
           >
-            <FileAddOutlined/>
+            <FileAddOutlined />
           </button>
           <button
-              v-if="isDirty"
-              type="button"
-              class="favorites-icon-button"
-              :aria-label="$t('sql-favorites-save-changes')"
-              :title="$t('sql-favorites-save-changes')"
-              :disabled="saving"
-              @click.stop="openOverwriteModal"
+            v-if="isDirty"
+            type="button"
+            class="favorites-icon-button"
+            :aria-label="$t('sql-favorites-save-changes')"
+            :title="$t('sql-favorites-save-changes')"
+            :disabled="saving"
+            @click.stop="openOverwriteModal"
           >
-            <SaveOutlined/>
-            <span class="dirty-dot" aria-hidden="true"/>
+            <SaveOutlined />
+            <span class="dirty-dot" aria-hidden="true" />
           </button>
           <button
-              type="button"
-              class="favorites-icon-button"
-              :aria-label="$t('shua-xin')"
-              :title="$t('shua-xin')"
-              :disabled="loading"
-              @click="loadScripts(1)"
+            type="button"
+            class="favorites-icon-button"
+            :aria-label="$t('shua-xin')"
+            :title="$t('shua-xin')"
+            :disabled="loading"
+            @click="loadScripts(1)"
           >
-            <cc-svg-icon name="refresh" :size="16"/>
+            <cc-svg-icon name="refresh" :size="16" />
           </button>
         </div>
       </div>
-      <a-input v-model:value="keyword" class="favorites-search" size="small" allow-clear
-               :placeholder="$t('sql-favorites-search-placeholder')">
+      <a-input v-model:value="keyword" class="favorites-search" size="small" allow-clear :placeholder="$t('sql-favorites-search-placeholder')">
         <template #prefix>
-          <SearchOutlined/>
+          <SearchOutlined />
         </template>
       </a-input>
       <div ref="list" class="favorites-list" :class="{ loading }">
@@ -64,13 +63,13 @@
             </span>
           </button>
           <button
-              type="button"
-              class="favorite-more"
-              :aria-label="$t('sql-favorites-more-actions')"
-              :aria-expanded="activeMenuScriptId === script.scriptId"
-              @click.stop="toggleMenu(script.scriptId, $event)"
+            type="button"
+            class="favorite-more"
+            :aria-label="$t('sql-favorites-more-actions')"
+            :aria-expanded="activeMenuScriptId === script.scriptId"
+            @click.stop="toggleMenu(script.scriptId, $event)"
           >
-            <MoreOutlined/>
+            <MoreOutlined />
           </button>
         </div>
         <div v-if="!loading && !scripts.length" class="favorites-empty">{{ $t('sql-favorites-empty') }}</div>
@@ -88,15 +87,15 @@
 
     <Teleport to="body">
       <div
-          v-if="activeMenuScript"
-          ref="menu"
-          class="favorite-menu"
-          :style="{
+        v-if="activeMenuScript"
+        ref="menu"
+        class="favorite-menu"
+        :style="{
           top: `${menuPosition.top}px`,
           left: `${menuPosition.left}px`,
           visibility: menuPositioned ? 'visible' : 'hidden'
         }"
-          @click.stop
+        @click.stop
       >
         <button type="button" @click="handleMenu('open', activeMenuScript)">{{ $t('sql-favorites-open') }}</button>
         <button type="button" @click="handleMenu('rename', activeMenuScript)">{{ $t('sql-favorites-rename') }}</button>
@@ -109,8 +108,7 @@
     <CCModal v-model="saveModalVisible" :title="saveModalTitle" :width="460">
       <Form label-position="top">
         <FormItem :label="$t('ming-cheng')">
-          <Input v-model="saveName" maxlength="128" show-word-limit
-                 :placeholder="$t('sql-favorites-name-placeholder')"/>
+          <Input v-model="saveName" maxlength="128" show-word-limit :placeholder="$t('sql-favorites-name-placeholder')" />
         </FormItem>
       </Form>
       <template #footer>
@@ -119,47 +117,46 @@
       </template>
     </CCModal>
 
-    <CCModal v-model="overwriteModalVisible" :title="$t('sql-favorites-overwrite-title')" :width="460"
-             :closable="!saving" :keyboard="!saving">
+    <CCModal v-model="overwriteModalVisible" :title="$t('sql-favorites-overwrite-title')" :width="460" :closable="!saving" :keyboard="!saving">
       <a-select
-          class="overwrite-select"
-          :value="{ value: overwriteSelection?.scriptId, label: overwriteSelection?.name }"
-          :options="overwriteOptions"
-          :search-value="overwriteKeyword"
-          :aria-label="$t('sql-favorites-overwrite-title')"
-          :placeholder="$t('sql-favorites-search-placeholder')"
-          :disabled="saving"
-          :loading="overwriteLoading"
-          :filter-option="false"
-          show-search
-          label-in-value
-          @search="scheduleOverwriteLoad"
-          @select="(_, option) => selectOverwriteTarget(option.script)"
+        class="overwrite-select"
+        :value="{ value: overwriteSelection?.scriptId, label: overwriteSelection?.name }"
+        :options="overwriteOptions"
+        :search-value="overwriteKeyword"
+        :aria-label="$t('sql-favorites-overwrite-title')"
+        :placeholder="$t('sql-favorites-search-placeholder')"
+        :disabled="saving"
+        :loading="overwriteLoading"
+        :filter-option="false"
+        show-search
+        label-in-value
+        @search="scheduleOverwriteLoad"
+        @select="(_, option) => selectOverwriteTarget(option.script)"
       >
         <template #notFoundContent>
           <span v-if="overwriteLoading">{{ $t('zheng-zai-jia-zai-shu-ju') }}</span>
           <span v-else>{{ $t('sql-favorites-empty') }}</span>
         </template>
         <template #dropdownRender="{ menuNode }">
-          <component :is="menuNode"/>
+          <component :is="menuNode" />
           <div v-if="overwriteLoadFailed" class="favorites-pagination" @mousedown.prevent>
             <Button type="text" @click="loadOverwriteScripts(1)">{{ $t('shua-xin') }}</Button>
           </div>
           <div v-else-if="overwritePages > 1" class="favorites-pagination" @mousedown.prevent>
             <Button
-                type="text"
-                size="small"
-                :disabled="saving || overwriteLoading || overwritePage <= 1"
-                @click="loadOverwriteScripts(overwritePage - 1)"
+              type="text"
+              size="small"
+              :disabled="saving || overwriteLoading || overwritePage <= 1"
+              @click="loadOverwriteScripts(overwritePage - 1)"
             >
               {{ $t('sql-favorites-previous-page') }}
             </Button>
             <span>{{ overwritePage }} / {{ overwritePages }}</span>
             <Button
-                type="text"
-                size="small"
-                :disabled="saving || overwriteLoading || overwritePage >= overwritePages"
-                @click="loadOverwriteScripts(overwritePage + 1)"
+              type="text"
+              size="small"
+              :disabled="saving || overwriteLoading || overwritePage >= overwritePages"
+              @click="loadOverwriteScripts(overwritePage + 1)"
             >
               {{ $t('sql-favorites-next-page') }}
             </Button>
@@ -168,8 +165,7 @@
       </a-select>
       <template #footer>
         <Button :disabled="saving" @click="overwriteModalVisible = false">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" :loading="saving"
-                :disabled="!overwriteSelection || overwriteLoading || overwriteLoadFailed" @click="confirmOverwrite">
+        <Button type="primary" :loading="saving" :disabled="!overwriteSelection || overwriteLoading || overwriteLoadFailed" @click="confirmOverwrite">
           {{ $t('sql-favorites-overwrite-confirm') }}
         </Button>
       </template>
@@ -188,15 +184,15 @@
 
 <script>
 import dayjs from 'dayjs';
-import {BookOutlined, FileAddOutlined, MoreOutlined, SaveOutlined, SearchOutlined} from '@ant-design/icons-vue';
+import { BookOutlined, FileAddOutlined, MoreOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons-vue';
 
 const savingTabs = new WeakSet();
 
 export default {
   name: 'SqlScriptPopover',
-  components: {BookOutlined, FileAddOutlined, MoreOutlined, SaveOutlined, SearchOutlined},
+  components: { BookOutlined, FileAddOutlined, MoreOutlined, SaveOutlined, SearchOutlined },
   props: {
-    tab: {type: Object, required: true},
+    tab: { type: Object, required: true },
     getEditorContent: Function,
     storeQueryTabs: Function
   },
@@ -234,7 +230,7 @@ export default {
       overwriteLoadSequence: 0,
       activeMenuScriptId: null,
       menuAnchor: null,
-      menuPosition: {top: 0, left: 0},
+      menuPosition: { top: 0, left: 0 },
       menuPositioned: false
     };
   },
@@ -328,7 +324,7 @@ export default {
       this.closeMenu();
       this.loading = true;
       const res = await this.$services.dmQueryScriptList({
-        data: {keyword: this.keyword, dsType: this.listDsType, page: {pageNum: page, pageSize: 10}}
+        data: { keyword: this.keyword, dsType: this.listDsType, page: { pageNum: page, pageSize: 10 } }
       });
       if (sequence !== this.loadSequence) return;
       this.loading = false;
@@ -388,7 +384,7 @@ export default {
 
       let left = anchorRect.right - menuWidth;
       left = Math.max(viewportPadding, Math.min(left, window.innerWidth - menuWidth - viewportPadding));
-      this.menuPosition = {top, left};
+      this.menuPosition = { top, left };
       this.menuPositioned = true;
     },
     async handleMenu(action, script) {
@@ -443,10 +439,10 @@ export default {
         let res;
         if (mode === 'rename') {
           res = await this.$services.dmQueryScriptUpdate({
-            data: {scriptId: source.scriptId, version: source.version, name, dsType: source.dsType, sqlContent}
+            data: { scriptId: source.scriptId, version: source.version, name, dsType: source.dsType, sqlContent }
           });
         } else {
-          res = await this.$services.dmQueryScriptCreate({data: {name, dsType, sqlContent}});
+          res = await this.$services.dmQueryScriptCreate({ data: { name, dsType, sqlContent } });
         }
         if (!res.success) {
           this.$Message.error(res.msg || this.$t('sql-favorites-save-failed'));
@@ -521,7 +517,7 @@ export default {
           data: {
             keyword: this.overwriteKeyword,
             dsType: this.overwriteSource.dsType,
-            page: {pageNum: page, pageSize: 10}
+            page: { pageNum: page, pageSize: 10 }
           }
         });
         if (sequence !== this.overwriteLoadSequence || !this.overwriteModalVisible) return;
@@ -539,7 +535,7 @@ export default {
       }
     },
     selectOverwriteTarget(script) {
-      this.overwriteSelection = {scriptId: script.scriptId, version: script.version, name: script.name};
+      this.overwriteSelection = { scriptId: script.scriptId, version: script.version, name: script.name };
       // Keep the version originally loaded into the editor when saving its associated favorite.
       if (script.scriptId === this.overwriteSource.scriptId) {
         this.overwriteSelection.version = this.overwriteSource.version;
@@ -576,9 +572,9 @@ export default {
           if (!this.isTabAssociationCurrent(targetTab, snapshot.associationRevision)) return false;
           const latest = await this.fetchDetail(snapshot.scriptId, false);
           if (
-              !this.overwriteModalVisible ||
-              this.overwriteSource !== source ||
-              !this.isTabAssociationCurrent(targetTab, snapshot.associationRevision)
+            !this.overwriteModalVisible ||
+            this.overwriteSource !== source ||
+            !this.isTabAssociationCurrent(targetTab, snapshot.associationRevision)
           )
             return false;
           if (latest && latest.version !== snapshot.version) {
@@ -630,7 +626,7 @@ export default {
       if (!detail) return;
       this.conflictVisible = false;
       this.conflictTargetTab = null;
-      this.$emit('open-script', {...detail, forceReload: true});
+      this.$emit('open-script', { ...detail, forceReload: true });
     },
     confirmDelete(script) {
       this.$Modal.confirm({
@@ -639,7 +635,7 @@ export default {
         okText: this.$t('shan-chu'),
         cancelText: this.$t('qu-xiao'),
         onOk: async () => {
-          const res = await this.$services.dmQueryScriptDelete({data: {scriptId: script.scriptId}});
+          const res = await this.$services.dmQueryScriptDelete({ data: { scriptId: script.scriptId } });
           if (!res.success) {
             this.$Message.error(res.msg || this.$t('sql-favorites-delete-failed'));
             return;
@@ -651,7 +647,7 @@ export default {
       });
     },
     async fetchDetail(scriptId, showError = true) {
-      const res = await this.$services.dmQueryScriptDetail({data: {scriptId}});
+      const res = await this.$services.dmQueryScriptDetail({ data: { scriptId } });
       if (res.success) return res.data;
       if (showError) this.$Message.error(res.msg || this.$t('sql-favorites-load-failed'));
       return null;
