@@ -23,6 +23,7 @@ import { logViewApi } from '@/services/http/api/logView';
 import { initApi } from '@/services/http/api/init';
 import { mfaApi } from '@/services/http/api/mfa';
 import { sshConfigApi } from '@/services/http/api/sshConfig';
+import { kafkaApi } from '@/services/http/api/kafka';
 
 export const api = {
   ...authApi,
@@ -49,5 +50,6 @@ export const api = {
   ...logViewApi,
   ...initApi,
   ...mfaApi,
-  ...sshConfigApi
+  ...sshConfigApi,
+  ...kafkaApi
 };

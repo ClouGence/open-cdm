@@ -27,6 +27,7 @@ import com.clougence.clouddm.platform.plugin.info.DsMeta;
 import com.clougence.clouddm.platform.plugin.info.GlobalMeta;
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.sdk.execute.kafka.KafkaOpsSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.execute.tools.ToolFactory;
@@ -408,5 +409,9 @@ public class PluginManager {
 
     public static SynonymUiDefService findSynonymUiDefService(DataSourceType dsProduct) {
         return (SynonymUiDefService) findOneSpi(dsProduct, SynonymUiDefService.class);
+    }
+
+    public static KafkaOpsSpi findKafkaOpsSpi(DataSourceType dsProduct) {
+        return (KafkaOpsSpi) findOneSpi(dsProduct, KafkaOpsSpi.class);
     }
 }

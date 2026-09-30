@@ -106,48 +106,73 @@
                   :handle-query-table="handleQueryTable"
                   :rdb-object-detail="rdbObjectDetail"
                 />
-                <div class="query-editor-container">
-                  <div class="layout-content-main">
-                    <SqlViewer
-                      ref="sqlViewer"
-                      :handleGetDsSetting="handleGetDsSetting"
-                      :createSession="createSession"
-                      :storeQueryTabs="storeQueryTabs"
-                      :tab="currentTab"
-                      :tabs="tabs"
-                      :completion-data="completionData"
-                      :rdb-object-detail="rdbObjectDetail"
-                      :handle-click-ds-status-icon="handleClickDsStatusIcon"
-                      @open-script="handleOpenSqlScript"
-                      @script-deleted="handleSqlScriptDeleted"
-                      @script-renamed="handleSqlScriptRenamed"
-                    >
-                      <template #connection-context>
-                        <div v-if="currentTab.connected && currentTab.node" class="query-schema-select__content">
-                          <a-select
-                            v-if="currentTab.selectOptions"
-                            class="schema-select-style"
-                            v-model:value="currentTab.selectValue"
-                            show-search
-                            size="small"
-                            :options="currentTab.selectOptions || []"
-                            @select="handleChangeSchema"
-                          ></a-select>
-                          <CustomIcon
-                            class="query-connection-icon"
-                            :type="currentTab.dsType"
-                            :instance-type="currentTab.node.INSTANCE.attr.dsDeployType"
-                            size="14px"
-                            aria-hidden="true"
-                          />
-                          <div class="query-connection-label">@{{ currentTab.node.INSTANCE.attr.dsHost }}</div>
-                        </div>
-                      </template>
-                    </SqlViewer>
-                  </div>
-                  <div ref="result" class="result-wrapper">
-                    <Result :id="`result_${currentTab.key}`" :ref="`result_`" :resultList="currentTab.resultList" :tab="currentTab" />
-                  </div>
+                <div class="query-editor-container" :class="{ 'is-kafka-console': isKafka(currentTab.dsType) }">
+                  <KafkaConsole v-if="isKafka(currentTab.dsType)" :tab="currentTab" :list-leaf="listLeaf">
+                    <template #connection-context>
+                      <div v-if="currentTab.connected && currentTab.node" class="query-schema-select__content">
+                        <a-select
+                          v-if="currentTab.selectOptions"
+                          class="schema-select-style"
+                          v-model:value="currentTab.selectValue"
+                          show-search
+                          size="small"
+                          :options="currentTab.selectOptions || []"
+                          @select="handleChangeSchema"
+                        ></a-select>
+                        <CustomIcon
+                          class="query-connection-icon"
+                          :type="currentTab.dsType"
+                          :instance-type="currentTab.node.INSTANCE.attr.dsDeployType"
+                          size="14px"
+                          aria-hidden="true"
+                        />
+                        <div class="query-connection-label">@{{ currentTab.node.INSTANCE.attr.dsHost }}</div>
+                      </div>
+                    </template>
+                  </KafkaConsole>
+                  <template v-else>
+                    <div class="layout-content-main">
+                      <SqlViewer
+                        ref="sqlViewer"
+                        :handleGetDsSetting="handleGetDsSetting"
+                        :createSession="createSession"
+                        :storeQueryTabs="storeQueryTabs"
+                        :tab="currentTab"
+                        :tabs="tabs"
+                        :completion-data="completionData"
+                        :rdb-object-detail="rdbObjectDetail"
+                        :handle-click-ds-status-icon="handleClickDsStatusIcon"
+                        @open-script="handleOpenSqlScript"
+                        @script-deleted="handleSqlScriptDeleted"
+                        @script-renamed="handleSqlScriptRenamed"
+                      >
+                        <template #connection-context>
+                          <div v-if="currentTab.connected && currentTab.node" class="query-schema-select__content">
+                            <a-select
+                              v-if="currentTab.selectOptions"
+                              class="schema-select-style"
+                              v-model:value="currentTab.selectValue"
+                              show-search
+                              size="small"
+                              :options="currentTab.selectOptions || []"
+                              @select="handleChangeSchema"
+                            ></a-select>
+                            <CustomIcon
+                              class="query-connection-icon"
+                              :type="currentTab.dsType"
+                              :instance-type="currentTab.node.INSTANCE.attr.dsDeployType"
+                              size="14px"
+                              aria-hidden="true"
+                            />
+                            <div class="query-connection-label">@{{ currentTab.node.INSTANCE.attr.dsHost }}</div>
+                          </div>
+                        </template>
+                      </SqlViewer>
+                    </div>
+                    <div ref="result" class="result-wrapper">
+                      <Result :id="`result_${currentTab.key}`" :ref="`result_`" :resultList="currentTab.resultList" :tab="currentTab" />
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
@@ -219,6 +244,7 @@ import LuckySheetDataView from '@/views/sql/components/LuckySheetDataView';
 import browseMixin from '@/mixins/browseMixin';
 import { UPDATE_EDITOR_SET } from '@/store/mutationTypes';
 import { ASYNC_TASK_STATUS, SOCKET_TYPE, noStruct, WS_REQ_QUERY_TYPE, WS_TYPE } from '@/utils';
+import { isKafka } from '@/const/dataSource';
 import { sendWebSocket } from '@/services/socket';
 import sqlMixin from '@/mixins/sqlMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
@@ -227,6 +253,7 @@ import { TabManager } from '@/views/sql/tabManager';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { DoubleRightOutlined } from '@ant-design/icons-vue';
+import KafkaConsole from '@/views/sql/kafka/KafkaConsole.vue';
 
 window.luckysheetData = {
   activeKey: '',
@@ -253,7 +280,8 @@ export default {
     Result,
     TableList,
     SqlEmptyState,
-    Loading
+    Loading,
+    KafkaConsole
   },
   data() {
     return {
@@ -348,6 +376,7 @@ export default {
     ...mapGetters(['isDesktop', 'getNodeType', 'getLeafGroup', 'getLevels', 'getLeafExpand'])
   },
   methods: {
+    isKafka,
     handleDataSourceSidebarStateChange(hidden) {
       this.dataSourceSidebarHidden = hidden;
     },
@@ -585,6 +614,14 @@ export default {
                 leaf.connected = objAttr.status === 'Normal';
                 leaf.connectedMsg = objAttr.msgContent;
               }
+              if (objType === 'SCHEMA' && isKafka(leaf.INSTANCE?.attr?.dsType)) {
+                const kafkaLeaves = this.getLeafGroup(leaf.INSTANCE.attr.dsType, 'SCHEMA') || [];
+                const matched = kafkaLeaves.find((item) => item.type === objName);
+                if (matched?.i18n) {
+                  leaf.title = matched.i18n;
+                  leaf.popTip = `${node.popTip}.${matched.i18n}`;
+                }
+              }
 
               const dsLevels = this.getLevels(leaf.INSTANCE.attr.dsType);
               if (dsLevels && dsLevels.length === leaf.levels.length) {
@@ -709,6 +746,27 @@ export default {
         }
         this.currentTab.prefixKey = this.currentTab.key;
         this.currentTab.title = event;
+        if (isKafka(node.INSTANCE?.attr?.dsType)) {
+          const allLeafGroup = this.getLeafGroup(node.INSTANCE.attr.dsType, lastLevel) || [];
+          const leafGroup = allLeafGroup.filter((leaf) => leaf.type === event);
+          if (leafGroup.length) {
+            this.currentTab.leafGroup = leafGroup;
+            this.currentTab.leafType = leafGroup[0].type;
+            leafGroup.forEach((tabKey) => {
+              if (!this.currentTab[tabKey.type]) {
+                this.currentTab[tabKey.type] = {
+                  ...tabKey,
+                  searchKey: '',
+                  treeData: []
+                };
+              }
+            });
+          }
+          const matchedLeaf = allLeafGroup.find((leaf) => leaf.type === event);
+          if (matchedLeaf?.i18n) {
+            this.currentTab.title = matchedLeaf.i18n;
+          }
+        }
         const { levels } = node;
         let popTip = '';
         const node2 = {
@@ -893,6 +951,7 @@ export default {
         tab.isolation = res.data.isolation.defaultValue;
         tab.autoCommit = res.data.autoCommit.defaultValue === 'true';
         tab.readOnly = res.data.readOnly.defaultValue === 'true';
+        tab.consoleQueryOnly = !!res.data.consoleQueryOnly;
       }
 
       switch (type) {
@@ -901,7 +960,11 @@ export default {
           // Make sure Children is an array and contains objects
           tab.selectOptions = this.buildSchemaOptions(node._parent.children, node._parent);
           tab.leafGroup = [];
-          tab.selectValue = node.title;
+          if (isKafka(tab.node.INSTANCE.attr.dsType) && node.SCHEMA?.name) {
+            tab.selectValue = node.SCHEMA.name;
+          } else {
+            tab.selectValue = node.title;
+          }
           tab.selectedTable = null;
           tab.message = {
             text: '',
@@ -919,7 +982,16 @@ export default {
           tab.executeInfo = [];
           // Which side group to use according to node level
           const lastLevel = node.levels[node.levels.length - 1];
-          let leafGroup = this.getLeafGroup(tab.node.INSTANCE.attr.dsType, lastLevel);
+          let leafGroup = this.getLeafGroup(tab.node.INSTANCE.attr.dsType, lastLevel) || [];
+          if (isKafka(tab.node.INSTANCE.attr.dsType) && node.SCHEMA?.name) {
+            const matched = leafGroup.filter((leaf) => leaf.type === node.SCHEMA.name);
+            if (matched.length) {
+              leafGroup = matched;
+              if (matched[0].i18n) {
+                tab.title = matched[0].i18n;
+              }
+            }
+          }
 
           if (leafGroup && leafGroup.length) {
             tab.leafGroup = leafGroup;
@@ -1041,9 +1113,18 @@ export default {
       if (parentNode && parentNode.nodeType === 'CATALOG') {
         prefix = parentNode.title + '.';
       }
+      const dsType = children[0]?.INSTANCE?.attr?.dsType || parentNode?.INSTANCE?.attr?.dsType;
+      const kafkaLeafGroup = isKafka(dsType) ? this.getLeafGroup(dsType, 'SCHEMA') || [] : [];
       return children
         .filter((child) => child && typeof child === 'object' && child.title)
-        .map((child) => ({ value: child.title, label: prefix + child.title }));
+        .map((child) => {
+          if (kafkaLeafGroup.length && child.SCHEMA?.name) {
+            const matched = kafkaLeafGroup.find((leaf) => leaf.type === child.SCHEMA.name);
+            const label = matched?.i18n || child.title;
+            return { value: child.SCHEMA.name, label: prefix + label };
+          }
+          return { value: child.title, label: prefix + child.title };
+        });
     },
     refreshTabSelectOptions(key) {
       const node = this.$refs.dataSourceTree.handleGetNode(key);
@@ -1507,6 +1588,9 @@ export default {
       }
     },
     handleQueryTable(text) {
+      if (isKafka(this.currentTab?.dsType) || !this.$refs.sqlViewer) {
+        return;
+      }
       this.$refs.sqlViewer.setSql(text);
     },
     disableAddTab() {
@@ -1612,6 +1696,7 @@ export default {
             targetTab.isolation = res.data.isolation.defaultValue;
             targetTab.autoCommit = res.data.autoCommit.defaultValue === 'true';
             targetTab.readOnly = res.data.readOnly.defaultValue === 'true';
+            targetTab.consoleQueryOnly = !!res.data.consoleQueryOnly;
           }
 
           if (targetTab.sessionId) {
