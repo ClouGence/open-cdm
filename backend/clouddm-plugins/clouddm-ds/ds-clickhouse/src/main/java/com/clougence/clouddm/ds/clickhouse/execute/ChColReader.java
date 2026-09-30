@@ -37,6 +37,8 @@ public class ChColReader extends AbstractColReader {
         }
         if (colType.startsWith("fixedstring")) {
             colType = "fixedstring";
+        } else if (colType.startsWith("enum")) {
+            colType = "enum";
         } else if (colType.startsWith("decimal")) {
             colType = "decimal";
         } else if (colType.startsWith("datetime64")) {
@@ -80,6 +82,7 @@ public class ChColReader extends AbstractColReader {
                 return STRING_VALUE_FETCHER;
             case "string":
             case "fixedstring":
+            case "enum":
             case "ipv4":
             case "ipv6":
             case "uuid":
