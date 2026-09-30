@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.approval.model;
 
+import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -25,8 +26,11 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ApprovalMO {
 
-    private String  message;
-    private boolean autoExec;
-    private String  changeOwnerUid;
-    private Long    changeId;
+    private String             message;
+    private boolean            autoExec;
+    private String             changeOwnerUid;
+    private Long               changeId;
+
+    /** Preset execution strategy, applied right after the approval passes instead of waiting for a manual confirm. */
+    private DmAutoExecConfigFO autoExecConfig;
 }

@@ -43,4 +43,7 @@ public class DmAddTicketFO {
     private String                 ticketTitle;
     private boolean                force;
 
+    /** Strategy used to execute the ticket right after it is approved; null means a manual confirmation is required. */
+    private DmAutoExecConfigFO     autoExecConfig;
+
 }
