@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -102,10 +103,43 @@ public class ConsoleConfig {
     @Value("${clougence.rdp.audit.export.max_export_size:100000}")
     private Integer        maxExportSize;
 
+    // Connect gateway login: the console runs behind a connect gateway which authenticates the user
+    // and forwards X-Connect-Token. Disabled when secret key is blank.
+    // Container deployments configure the keys below with environment variables, a non blank
+    // environment variable wins over the configuration file.
+    @Value("${clouddm.connect.secret-key:}")
+    private String         connectSecretKey;
+    @Value("${clouddm.connect.default-role:Developers}")
+    private String         connectDefaultRole;
+    @Value("${clouddm.connect.admin-role:Manager}")
+    private String         connectAdminRole;
+    @Value("${clouddm.connect.admin-permissions:ADMIN}")
+    private String         connectAdminPermissions;
+    @Value("${clouddm.connect.allow-permissions:}")
+    private String         connectAllowPermissions;
+
     @PostConstruct
     public void init() {
         if (mfaLoginDisabled) {
             log.warn("MFA login protection is globally disabled. Users with MFA enabled can log in without MFA verification.");
         }
+
+        this.connectSecretKey = envValue("CONNECT_SECRET_KEY", this.connectSecretKey);
+        this.connectDefaultRole = envValue("CONNECT_DEFAULT_ROLE", this.connectDefaultRole);
+        this.connectAdminRole = envValue("CONNECT_ADMIN_ROLE", this.connectAdminRole);
+        this.connectAdminPermissions = envValue("CONNECT_ADMIN_PERMISSIONS", this.connectAdminPermissions);
+        this.connectAllowPermissions = envValue("CONNECT_ALLOW_PERMISSIONS", this.connectAllowPermissions);
+
+        if (StringUtils.isNotBlank(this.connectSecretKey)) {
+            // log the effective values so a container deployment can verify its environment variables.
+            log.info("Connect gateway login is enabled, default-role={}, admin-role={}, admin-permissions={}, allow-permissions={}.", //
+                this.connectDefaultRole, this.connectAdminRole, this.connectAdminPermissions, StringUtils.defaultIfBlank(this.connectAllowPermissions, "<none>"));
+        }
+    }
+
+    /** A blank environment variable means not set, the value of the configuration file is kept. */
+    private static String envValue(String name, String defaultValue) {
+        String value = System.getenv(name);
+        return StringUtils.isBlank(value) ? defaultValue : value;
     }
 }

@@ -482,3 +482,145 @@ The process consists of three steps:
    - `./docker-publish-global.sh` pushes images to Docker Hub.
    - `./docker-publish-china.sh` pushes images to the China registry.
 3. Generate channel-specific yml files with `open-cdm/package/docker/build-docker-yml.sh`.
+
+### 6.4 Automatic Docker Hub Publishing with GitHub Actions
+
+The repository ships `.github/workflows/docker-hub.yml`, designed for publishing images from your own fork without any private registry:
+
+1. Configure the repository under Settings -> Secrets and variables -> Actions:
+    - required secrets: `DOCKERHUB_USERNAME` (Docker Hub account, also the default image namespace), `DOCKERHUB_TOKEN` (a Docker Hub token with read and write).
+    - optional variables: `DOCKERHUB_NAMESPACE` (defaults to `DOCKERHUB_USERNAME`), `DOCKERHUB_IMAGE_PREFIX` (defaults to `cgdm`).
+    - optional secret: `DOCKER_VERSION_FEISHU_BOT_WEBHOOK_URL`, when set a Feishu notification is sent on success and failure, otherwise it is skipped.
+2. Pushing a version tag triggers it: `git tag v4.2.2 && git push origin v4.2.2` builds the packages and publishes
+   `docker.io/<namespace>/cgdm-<service>:4.2.2` and `:latest` for the `alone` / `console` / `sidecar` matrix.
+3. A prerelease tag (for example `v4.2.2-rc.1`) only publishes its own version and never overwrites `latest`.
+4. It can also be started manually from the Actions page with a version, the services (for example `alone` only to save
+   time), the platforms (`linux/amd64`, or `linux/amd64,linux/arm64` — arm64 runs under QEMU emulation and is slow) and the latest flag.
+5. Version consistency: the workflow injects the tag version as `CG_CLOUDDM_MAIN_VERSION` and verifies that
+   `cgdm/<service>/conf/version` inside the package equals the tag, so the image tag can never disagree with the packaged version.
+6. Resources and duration: `build-tgz` is a full Gradle plus frontend build (about 15-25 minutes), the docker matrix runs in
+   parallel and takes about 10-15 minutes for amd64 only, roughly twice as long with arm64.
+
+After the publish, replace `__IMAGE_PREFIX__` / `__IMAGE_TAG__` in the deployment manifests with `<namespace>/cgdm-<service>` and
+the version (or generate them with `package/docker/build-docker-yml.sh`).
+
+## 7. Gateway Login (connect gateway)
+
+CloudDM can run behind a connect gateway (go-zoox/connect), the gateway then owns the login and CloudDM no longer needs its own login page:
+
+- After authentication the gateway forwards `X-Connect-Token` to the upstream, a JWT signed with the gateway `secret_key` that carries the user and its `permissions`.
+- CloudDM resolves the token to an internal account:
+    - an account already bound to this gateway identity: login with it;
+    - an internal account with the same email: use that account as it is (including the primary account, whose role stays unchanged);
+    - otherwise: create a sub account automatically (random password, `bind_type=Connect`, shown as Connect).
+- Permissions decide the role: a permission matching `clouddm.connect.admin-permissions` (default `ADMIN`) gives
+  `clouddm.connect.admin-role` (default `Manager`), everything else gives `clouddm.connect.default-role` (default
+  `Developers`). A non-empty `clouddm.connect.allow-permissions` acts as a login allow list and rejects other users.
+- Roles of gateway accounts follow gateway permissions, but only between `Manager` and the default role; other roles assigned in the console are never overwritten.
+
+### 7.1 CloudDM Configuration
+
+Pick one of the two ways, **do not configure both**: environment variables take precedence over the configuration file, while they are never written back into `conf` when a container is recreated.
+
+Option one, the configuration file `conf/alone.properties` (standalone) or `conf/console.properties` (cluster):
+
+```properties
+clouddm.connect.secret-key=<same as the gateway secret_key>
+#clouddm.connect.default-role=Developers
+#clouddm.connect.admin-role=Manager
+#clouddm.connect.admin-permissions=ADMIN
+#clouddm.connect.allow-permissions=
+```
+
+Option two, inject environment variables into the container (recommended, changing the configuration needs no edit of the `conf` inside the image):
+
+```yaml
+services:
+  clouddm:
+    image: cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/clouddm-alone:latest
+    environment:
+      # must be identical to the gateway secret_key
+      CONNECT_SECRET_KEY: <same as the gateway secret_key>
+      # every key below has a default, override it only when needed
+      # CONNECT_DEFAULT_ROLE: Developers
+      # CONNECT_ADMIN_ROLE: Manager
+      # CONNECT_ADMIN_PERMISSIONS: ADMIN
+      # CONNECT_ALLOW_PERMISSIONS: ADMIN,DEVELOPER
+    ports:
+      - "8222:8222"
+```
+
+- These five gateway keys use the fixed short environment variable names `CONNECT_*`, a **non blank** value wins over the configuration file, a blank one counts as not set (it never clears the value of the configuration file).
+- Every other `conf` key can be overridden with its expanded name: the key `a.b-c` maps to `A_B_C` (dots and hyphens become underscores, the name is uppercased), for example
+  `clougence.rdp.login.expire.sec` → `CLOUGENCE_RDP_LOGIN_EXPIRE_SEC`.
+- Only `CONNECT_SECRET_KEY` (or `clouddm.connect.secret-key`) is required and acts as the switch, a blank or missing value disables the feature and behavior is identical to a deployment without a gateway.
+- The gateway `secret_key` (or `SECRET_KEY` / `SESSION_KEY`) must equal `clouddm.connect.secret-key`, otherwise the token is rejected and the request is handled as not logged in.
+
+### 7.2 Gateway Configuration (connect)
+
+Use the built-in doreamon mode of the gateway, it accepts environment variables for every parameter, so a container only needs environment variables:
+
+```yaml
+services:
+  clouddm:
+    image: cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/clouddm-alone:latest
+    environment:
+      CONNECT_SECRET_KEY: <shared secret>
+    ports:
+      - "8222:8222"
+
+  connect:
+    image: whatwewant/connect-doreamon:v1
+    environment:
+      # must be identical to CONNECT_SECRET_KEY / clouddm.connect.secret-key
+      SESSION_KEY: <shared secret>
+      # upstream points to CloudDM, the gateway injects X-Connect-Token into requests sent there
+      UPSTREAM: http://clouddm:8222
+      # OAuth2 application credentials of Doreamon (login.zcorky.com)
+      CLIENT_ID: <CLIENT_ID>
+      CLIENT_SECRET: <CLIENT_SECRET>
+      REDIRECT_URI: http://<gateway-host>:8080/login/doreamon/callback
+    ports:
+      - "8080:8080"
+```
+
+Instead of the doreamon entrypoint of the image, a configuration file and `connect server -c config.yml` work as well:
+
+```yaml
+port: 8080
+secret_key: <same as clouddm.connect.secret-key>
+session_max_age: 86400
+
+upstream:
+  host: 127.0.0.1
+  port: 8222
+
+oauth2:
+  - name: doreamon
+    client_id: <CLIENT_ID>
+    client_secret: <CLIENT_SECRET>
+    redirect_uri: http://127.0.0.1:8080/login/doreamon/callback
+
+auth:
+  mode: oauth2
+  provider: doreamon
+```
+
+### 7.3 Notes
+
+- Permissions come from the gateway permissions service, the gateway has to put `permissions` into `X-Connect-Token`:
+  the gateway image must be built from a go-zoox/connect carrying that claim (written by `user.Encode`). Without it the
+  token has no permissions, every gateway user falls back to `clouddm.connect.default-role`, and a configured
+  `allow-permissions` list would reject all of them.
+- CloudDM establishes a session from `X-Connect-Token` only when the request has no valid session cookie. After another
+  gateway user logs in in the same browser, the previous session stays valid until `clougence.rdp.login.expire.sec`
+  (86400 seconds by default) expires; lower it to follow the gateway session strictly.
+- The account name of an auto created sub account is generated by CloudDM, the display name comes from the `nickname`
+  claim, and both can be managed on the Sub Account page.
+- Accounts created for a gateway identity are not deleted automatically when the identity disappears from the gateway,
+  disable or delete them on the Sub Account page when needed.
+- Permission changes on the gateway side apply when the next session is established, at most after `clougence.rdp.login.expire.sec` (86400 seconds by default).
+- The `permissions` values are the role and menu permission codes of the user inside the connected doreamon application
+  (for example `global.system.permissions`), not literals like `ADMIN`. Put the permission code of the admin role of your
+  open-cdm application into `CONNECT_ADMIN_PERMISSIONS` (comma separated for several), otherwise nobody is recognized as
+  an administrator.

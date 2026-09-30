@@ -26,6 +26,10 @@ ENV APP_WEB_JWT=jwt67843ad4s118123ycgve45uk12ghd3vli4u510fd9z35hec2hegre876n1g3s
 ENV APP_SERVE_NAME=127.0.0.1
 # Sidecar Service Port (config: clouddm.rsocket.console.port)
 ENV APP_SERVE_PORT=8008
+# Connect gateway login (config: clouddm.connect.secret-key): inject CONNECT_SECRET_KEY, optional
+# CONNECT_DEFAULT_ROLE / CONNECT_ADMIN_ROLE / CONNECT_ADMIN_PERMISSIONS / CONNECT_ALLOW_PERMISSIONS.
+# Deliberately not declared as ENV here, a blank environment variable means not set. Any other conf
+# key can be overridden with its expanded name too (a.b-c => A_B_C).
 # embedded mysql defaults; set MYSQL_EMBEDDED=false to keep using an external database
 ENV MYSQL_EMBEDDED=true
 ENV MYSQL_ROOT_PASSWORD=123456

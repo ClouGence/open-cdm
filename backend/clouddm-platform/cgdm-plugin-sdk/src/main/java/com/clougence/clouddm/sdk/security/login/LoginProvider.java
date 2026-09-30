@@ -31,7 +31,9 @@ public enum LoginProvider {
     DingTalk(true, false),
     Feishu(true, false),
     Wechat(true, false),
-    OIDC(true, true);
+    OIDC(true, true),
+    // Connect: identity comes from an upstream connect gateway (X-Connect-Token), no jump in/out.
+    Connect(false, false);
 
     private final boolean jumpIn;
     private final boolean jumpOut;
