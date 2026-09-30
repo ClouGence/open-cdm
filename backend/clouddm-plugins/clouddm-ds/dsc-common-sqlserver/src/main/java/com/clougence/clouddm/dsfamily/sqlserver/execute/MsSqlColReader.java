@@ -19,6 +19,7 @@ import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.dsfamily.execute.AbstractColReader;
 import com.clougence.clouddm.dsfamily.sqlserver.execute.fetcher.MsSqlGeographyValueFetcher;
 import com.clougence.clouddm.dsfamily.sqlserver.execute.fetcher.MsSqlGeometryValueFetcher;
+import com.clougence.clouddm.dsfamily.sqlserver.execute.fetcher.MsSqlVariantValueFetcher;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
 import com.clougence.utils.StringUtils;
 
@@ -32,6 +33,8 @@ public class MsSqlColReader extends AbstractColReader {
 
     public static final ValueFetcher MS_GEOMETRY_FETCHER  = new MsSqlGeometryValueFetcher();
     public static final ValueFetcher MS_GEOGRAPHY_FETCHER = new MsSqlGeographyValueFetcher();
+
+    private static final ValueFetcher MS_VARIANT_FETCHER = new MsSqlVariantValueFetcher();
 
     @Override
     public ValueFetcher readColumn(String col, ColMetaData colMetaData) {
@@ -68,6 +71,8 @@ public class MsSqlColReader extends AbstractColReader {
             case "uniqueidentifier":
             case "hierarchyid":
                 return STRING_VALUE_FETCHER;
+            case "sql_variant":
+                return MS_VARIANT_FETCHER;
             case "varchar":
             case "nvarchar":
             case "text":
