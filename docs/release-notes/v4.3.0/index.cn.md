@@ -12,6 +12,10 @@
 
 ## 修复
 
+- 修复 Doris 非事务工单执行结束或暂停后状态未正确上报、仍停留在执行中的问题，确保成功、失败和暂停状态正确更新（[PR #368](https://github.com/ClouGence/open-cdm/pull/368)）。
+- 修复 ClickHouse `Enum8`、`Enum16`、`LowCardinality` 和 `SimpleAggregateFunction` 等列类型的结果读取问题，并完善带参数类型、嵌套和地理类型的展示及负数、超过 24 小时时间值的格式化（[PR #369](https://github.com/ClouGence/open-cdm/pull/369)、[PR #368](https://github.com/ClouGence/open-cdm/pull/368)）。
+- 修复 SQL Server `sql_variant` 列无法正确读取的问题，其中二进制值以十六进制展示（[PR #370](https://github.com/ClouGence/open-cdm/pull/370)）。
+- 修复 SQL 执行成功但未返回影响行数时错误显示 `-1` 行受影响的问题，改为提示执行成功，并补齐执行结果提示的中文文案（[PR #371](https://github.com/ClouGence/open-cdm/pull/371)）。
 - 修复 MySQL、MariaDB、PostgreSQL、Doris、TiDB 和达梦部分 SQL 的拆分、语句分类与行为分析问题，补充内置函数和系统对象识别，并修复查询行数限制重写时的语句类型判断错误（[PR #337](https://github.com/ClouGence/open-cdm/pull/337)）。
 - 修复 SQL 工作台在自动提交模式下查询后关闭会话、导致会话设置丢失的问题；解析时使用当前会话的 `SQL_MODE`，并完善手动提交模式下事务语句的执行与状态同步（[PR #337](https://github.com/ClouGence/open-cdm/pull/337)）。
 - 修复 PostgreSQL 的 `vector`、`halfvec` 列类型带 Schema 前缀时无法识别的问题，由社区贡献者 [@sunjiajie](https://github.com/sunjiajie) 提交，感谢贡献（[PR #280](https://github.com/ClouGence/open-cdm/pull/280)）。

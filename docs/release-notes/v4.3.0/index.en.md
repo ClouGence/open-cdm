@@ -12,6 +12,10 @@
 
 ## Fixed
 
+- Fixed nontransactional Doris work orders remaining in the running state after execution ended or was paused because status updates were not reported, ensuring success, failure, and pause states are updated correctly ([PR #368](https://github.com/ClouGence/open-cdm/pull/368)).
+- Fixed result reading for ClickHouse column types including `Enum8`, `Enum16`, `LowCardinality`, and `SimpleAggregateFunction`, with improved display of parameterized, nested, and geographic types and formatting of negative time values and durations exceeding 24 hours ([PR #369](https://github.com/ClouGence/open-cdm/pull/369), [PR #368](https://github.com/ClouGence/open-cdm/pull/368)).
+- Fixed reading SQL Server `sql_variant` columns, with binary values displayed in hexadecimal ([PR #370](https://github.com/ClouGence/open-cdm/pull/370)).
+- Fixed successful SQL statements without an affected-row count incorrectly reporting `-1` rows affected; these now display a success message, with Chinese translations added for execution result messages ([PR #371](https://github.com/ClouGence/open-cdm/pull/371)).
 - Fixed statement splitting, classification, and behavior analysis for affected MySQL, MariaDB, PostgreSQL, Doris, TiDB, and Dameng SQL syntax; expanded built-in function and system object recognition, and corrected statement type checks during query row-limit rewriting ([PR #337](https://github.com/ClouGence/open-cdm/pull/337)).
 - Fixed the SQL workspace closing sessions after queries in auto-commit mode and losing session settings; parsing now uses the current session's `SQL_MODE`, with improved transaction statement execution and state synchronization in manual-commit mode ([PR #337](https://github.com/ClouGence/open-cdm/pull/337)).
 - Fixed PostgreSQL `vector` and `halfvec` column types not being recognized when qualified with a schema name, contributed by community contributor [@sunjiajie](https://github.com/sunjiajie)—thank you! ([PR #280](https://github.com/ClouGence/open-cdm/pull/280)).
