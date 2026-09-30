@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.clickhouse.execute;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -28,19 +29,24 @@ import com.clougence.utils.io.IOUtils;
 import com.clougence.utils.io.output.DeferredFileOutputStream;
 
 /**
- * ClickHouse Tuple columns are read by the JDBC driver as a fully materialized Object[] (the
- * driver's readTuple has no element-wise or streaming access), so this fetcher formats the
- * value as bounded text.
+ * ClickHouse tuples, nested rows and geometry values are materialized by JDBC as arrays.
+ * Format them as bounded text without exposing Java array identities.
  * <p>
  * Follows {@code ArrayValueFetcher}: output goes through a DeferredFileOutputStream (spills to
  * file above 1MB), every element is bounded by {@code elementBytesLimit} and the whole cell by
  * {@code columnBytesLimit} from {@link ValueFetcherContext} options; when a limit is hit the
  * value is truncated and the complete flag is cleared.
  */
-public class ChTupleValueFetcher extends StringAsClobFetcher {
+public class ChStructuredValueFetcher extends StringAsClobFetcher {
 
     // m (mark): T = Type, V = dataValue / t (truncated): F = false, T = true
     private static final String STOP_MARKER = ", {\"m\":\"T\",\"v\":\"...\",\"t\":\"T\"}";
+
+    private final boolean       tuple;
+
+    public ChStructuredValueFetcher(boolean tuple){
+        this.tuple = tuple;
+    }
 
     @Override
     protected StringValueFCD fetchState(String columnName, ResultSet rs, ValueFetcherContext ctx) throws SQLException {
@@ -50,12 +56,19 @@ public class ChTupleValueFetcher extends StringAsClobFetcher {
             if (value == null) {
                 fcd = StringValueFCD.ofInMemory(true, 0, 0, null, null);
             } else {
+                java.sql.Array array = null;
                 try {
-                    fcd = fetchTupleData(value, ctx);
-                } catch (Exception e) {
-                    String dataString = "ReadException: " + e.getMessage();
-                    byte[] dataBytes = dataString.getBytes();
-                    fcd = StringValueFCD.ofInMemory(false, 0, 0, dataString, dataBytes);
+                    if (value instanceof java.sql.Array) {
+                        array = (java.sql.Array) value;
+                        value = array.getArray();
+                    }
+                    fcd = fetchStructuredData(value, ctx);
+                } catch (IOException e) {
+                    throw new SQLException("Failed to read ClickHouse structured value", e);
+                } finally {
+                    if (array != null) {
+                        array.free();
+                    }
                 }
             }
             ctx.setContext(fcd);
@@ -65,7 +78,7 @@ public class ChTupleValueFetcher extends StringAsClobFetcher {
         return fcd;
     }
 
-    private StringValueFCD fetchTupleData(Object value, ValueFetcherContext ctx) throws IOException {
+    private StringValueFCD fetchStructuredData(Object value, ValueFetcherContext ctx) throws IOException {
         long columnBytesLimit = ctx.getOptions().getColumnBytesLimit();
         long elementBytesLimit = ctx.getOptions().getElementBytesLimit();
 
@@ -74,12 +87,17 @@ public class ChTupleValueFetcher extends StringAsClobFetcher {
             long dataReadSize = 0;
             boolean complete = true;
 
-            out.write("(");
+            String opening = "[";
+            String closing = "]";
+            if (this.tuple) {
+                opening = "(";
+                closing = ")";
+            }
+            out.write(opening);
             boolean[] truncatedFlag = { false };
-            if (value instanceof Object[]) {
-                Object[] elements = (Object[]) value;
-                for (int i = 0; i < elements.length; i++) {
-                    String eleText = boundedText(elements[i], elementBytesLimit, truncatedFlag);
+            if (value.getClass().isArray()) {
+                for (int i = 0; i < Array.getLength(value); i++) {
+                    String eleText = boundedText(Array.get(value, i), elementBytesLimit, truncatedFlag);
                     boolean eleTruncated = truncatedFlag[0];
                     truncatedFlag[0] = false;
 
@@ -103,7 +121,7 @@ public class ChTupleValueFetcher extends StringAsClobFetcher {
                 dataReadSize += eleText.length();
                 complete = !truncatedFlag[0];
             }
-            out.write(")");
+            out.write(closing);
             out.flush();
             IOUtils.closeQuietly(dfout);
 
@@ -125,8 +143,8 @@ public class ChTupleValueFetcher extends StringAsClobFetcher {
         if (value == null) {
             return "null";
         }
-        if (value instanceof Object[]) {
-            return boundedNestedTuple((Object[]) value, budget, truncated);
+        if (value.getClass().isArray()) {
+            return boundedNestedArray(value, budget, truncated);
         }
         if (value instanceof List) {
             return boundedNestedArray((List<?>) value, budget, truncated);
@@ -139,22 +157,28 @@ public class ChTupleValueFetcher extends StringAsClobFetcher {
         return text;
     }
 
-    private static String boundedNestedTuple(Object[] elements, long budget, boolean[] truncated) {
-        StringBuilder sb = new StringBuilder("(");
+    private static String boundedNestedArray(Object elements, long budget, boolean[] truncated) {
+        String opening = "(";
+        String closing = ")";
+        if (elements.getClass().getComponentType().isArray()) {
+            opening = "[";
+            closing = "]";
+        }
+        StringBuilder sb = new StringBuilder(opening);
         long used = 1;
-        for (int i = 0; i < elements.length; i++) {
+        for (int i = 0; i < Array.getLength(elements); i++) {
             if (i > 0) {
                 sb.append(", ");
                 used += 2;
             }
-            sb.append(boundedText(elements[i], budget - used, truncated));
+            sb.append(boundedText(Array.get(elements, i), budget - used, truncated));
             used = sb.length();
             if (truncated[0] || used >= budget) {
                 truncated[0] = true;
                 break;
             }
         }
-        return sb.append(")").toString();
+        return sb.append(closing).toString();
     }
 
     private static String boundedNestedArray(List<?> elements, long budget, boolean[] truncated) {

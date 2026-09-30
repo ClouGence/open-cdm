@@ -26,6 +26,7 @@ import com.clougence.drivers.DsObject;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.yandex.clickhouse.ClickHouseDriver;
 import ru.yandex.clickhouse.ClickhouseJdbcUrlParser;
 import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
@@ -90,7 +91,7 @@ public class ChYandexDsFactory implements DsFactory<Connection> {
         String jdbcUrl = buildJdbcUrl(dsConfig);
         try {
             properties = ClickhouseJdbcUrlParser.parse(jdbcUrl, properties.asProperties());
-            Connection connect = new ru.yandex.clickhouse.ClickHouseDriver().connect(jdbcUrl, properties);
+            Connection connect = new ClickHouseDriver().connect(jdbcUrl, properties);
 
             if (StringUtils.isNotBlank(autoCommit)) {
                 if (StringUtils.equalsIgnoreCase("false", autoCommit)) {

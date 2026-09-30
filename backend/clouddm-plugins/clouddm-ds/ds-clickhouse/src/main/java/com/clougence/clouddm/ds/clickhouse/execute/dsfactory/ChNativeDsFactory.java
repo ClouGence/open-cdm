@@ -24,6 +24,7 @@ import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.StringUtils;
 import com.github.housepower.exception.ClickHouseSQLException;
+import com.github.housepower.jdbc.ClickHouseDriver;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,7 +74,7 @@ public class ChNativeDsFactory implements DsFactory<Connection> {
 
         String jdbcUrl = buildJdbcUrl(dsConfig);
         try {
-            Connection connect = new com.github.housepower.jdbc.ClickHouseDriver().connect(jdbcUrl, props);
+            Connection connect = new ClickHouseDriver().connect(jdbcUrl, props);
 
             if (StringUtils.isNotBlank(autoCommit)) {
                 if (StringUtils.equalsIgnoreCase("false", autoCommit)) {

@@ -11,6 +11,7 @@ import com.clougence.clouddm.sdk.execute.explain.ExplainPlanNode;
 import com.clougence.clouddm.sdk.execute.explain.ExplainPlanSource;
 import com.clougence.clouddm.sdk.execute.explain.ExplainPlanSpi;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSet;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetMeta;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
@@ -43,7 +44,7 @@ public class ChExplainPlanSpi implements ExplainPlanSpi {
             }
         }
         for (Result result : results) {
-            if (!(result instanceof com.clougence.clouddm.sdk.execute.resultset.echo.ResultSet resultSet)) {
+            if (!(result instanceof ResultSet resultSet)) {
                 continue;
             }
             List<String> columns = metas.get(resultSet.getResultId());
