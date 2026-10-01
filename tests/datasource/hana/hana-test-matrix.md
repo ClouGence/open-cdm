@@ -31,10 +31,10 @@
 | HANA-008 | 自动提交、事务及隔离 | C6：第 3 步收敛隔离声明，补齐只读设置；公共提交/回滚保留日志处理，失败反馈待统一修复 | F1、DATA_RW；双连接观察 commit/rollback、DDL 边界及支持的隔离级别；未支持能力 UI 和服务端一致 | 3 | NOT RUN / NOT RUN |
 | HANA-009 | 精确取消及失败反馈 | C6/C8、H05：第 4 步已修复当前连接 ID、失败反馈及迟到/重复取消；本地探针通过 | F6，两会话；只取消目标；权限拒绝可见；重复/已完成取消收敛；取消后事务与连接状态正确 | 4 | NOT RUN / NOT RUN |
 | HANA-010 | 断网、关闭、流式中止与重连 | C6/C8：第 4 步已修复部分释放路径、关闭透明重连；公共队列/批次终态单独处理，实库与页面待验收 | F6；资源回到基线；无重复执行；未知结果写入不盲目重试；重新打开会话上下文正确 | 4、11 | NOT RUN / NOT RUN |
-| HANA-011 | 对象树与权限过滤 | C7/C9：树分组与详情不齐 | F2/F4、OWNER/RO/LIMITED；表/视图/序列/同义词/过程/函数/触发器列表详情闭环；单对象失败不使整树失败 | 5、13 | NOT RUN / NOT RUN |
-| HANA-012 | 列、类型、默认值与 identity | C9/C10：类型转换存在未知值路径 | F3；精度长度、nullable、comment、default、identity 与数据库一致；未知类型不能伪装 | 5 | NOT RUN / NOT RUN |
-| HANA-013 | PK/UK/FK/索引元数据 | C9/C10、H07：多 UNIQUE 合并、索引关联范围风险 | F2；两条 UNIQUE 独立；复合列顺序一致；跨 schema 同名索引不混合；FK 规则正确 | 5、10 | NOT RUN / NOT RUN |
-| HANA-014 | 程序对象及参数 | C9、H06：过程参数绑定颠倒；函数结果待核对 | F4；无参数函数仍出现；IN/OUT、返回类型、过程/触发器详情与真实定义一致 | 5、10 | NOT RUN / NOT RUN |
+| HANA-011 | 对象树与权限过滤 | C7/C9：第 5 步补齐程序对象分组与序列/同义词详情、视图列路由；权限和页面待验收 | F2/F4、OWNER/RO/LIMITED；表/视图/序列/同义词/过程/函数/触发器列表详情闭环；单对象失败不使整树失败 | 5、13 | NOT RUN / NOT RUN |
+| HANA-012 | 列、类型、默认值与 identity | C9/C10：第 5 步修正别名、维度/NULL、identity；未知列明确报错，复杂类型结构待实库核对 | F3；精度长度、nullable、comment、default、identity 与数据库一致；未知类型不能伪装 | 5 | NOT RUN / NOT RUN |
+| HANA-013 | PK/UK/FK/索引元数据 | C9/C10、H07：第 5 步修正 UNIQUE 聚合、三字段关联和 FK 规则；本地探针通过 | F2；两条 UNIQUE 独立；复合列顺序一致；跨 schema 同名索引不混合；FK 规则正确 | 5、10 | NOT RUN / NOT RUN |
+| HANA-014 | 程序对象及参数 | C9、H06：第 5 步修正过程绑定、参数方向和返回识别；表参数嵌套列/复杂触发器仍有边界 | F4；无参数函数仍出现；IN/OUT、返回类型、过程/触发器详情与真实定义一致 | 5、10 | NOT RUN / NOT RUN |
 | HANA-015 | 编辑器能力加载、DSL | C3/C4：dslProvider 抛异常 | 页面可打开并加载 HANA 语言能力；能力声明与实际接口一致；不以返回 null 代替完整能力 | 6、7、13 | NOT RUN / NOT RUN |
 | HANA-016 | SQL 与 SQLScript 拆句 | C3：复用 SQL:2003 | F5；字符串/注释/块内分号不误切；DDL、DML、CALL/过程体/匿名块执行单元正确 | 6 | NOT RUN / NOT RUN |
 | HANA-017 | 补全、校验、格式化、资源 | C3：Language/Resource 存在，校验为空结果 | F2/F5；关键字/授权对象建议、位置/错误信息准确；格式化保语义；声明能力均可用 | 7、13 | NOT RUN / NOT RUN |
@@ -171,3 +171,15 @@ cgdm-plugin-sdk-4.3.0.jar    c54b88071ae7365410b9496485b3055779f3d22593811a26b43
 2651ad66b477a771e918126dda42b48c6e2f823e6411a9ac31a69b50793bee9c  cgdm-plugin-sdk-4.3.0.jar
 71dee18308ecc56b60dcda5bdcde458e47cddeb19c0962731aeb989dc072a64d  cgdm-sidecar-4.3.0.jar
 ```
+
+## 第 5 步本地证据（2026-10-01）
+
+- 基于 `7e8b4d83b1a882b9eb20f760cff6cb3cb426bf8e` 的本轮工作区修改；范围为 HANA 元数据、树分组和 `HanaTypes`，没有公共会话或前端源码变更。
+- `:ds-hana:build :ds-hana:customFatJar :cg-schema:test :dsc-common:test` 离线通过；dsc-common 16 项既有测试零失败，ds-hana/cg-schema 无测试源码。
+- `/private/tmp/hana-step5-probe.jsh`：ngdbc 2.22.12 / 2.28.6 类路径各输出 `HANA_STEP5_PASS assertions=72`。覆盖范围见 README 第 10 节；临时探针不纳入源码且不依赖真实数据库，不构成驱动协议/SQL/页面验收。
+- 构建日志 `/private/tmp/hana-step5-build.log`；探针日志 `/private/tmp/hana-step5-probe-2.22.12.log`、`/private/tmp/hana-step5-probe-2.28.6.log`。临时目录证据可能被清理，长期复测以 README 场景和本矩阵为准。
+- `ds-hana-lib.jar` SHA-256：`0c29b5e992db99ccc154ed670092d798aa39de69ae59674e735756119ebfc025`。
+- `cg-schema-4.3.0.jar` SHA-256：`3b71951cb6669786d42808dfd6504c94411be573c8b416ba1ed55dfc4970ff50`。插件不打入 HanaTypes，需更新包含该 jar 的平台包并重启加载。
+- @Browser 本地入口返回 `ERR_CONNECTION_REFUSED`；真实 HANA、系统视图普通账号可见性和页面全部未执行，HANA-011～014 保持 NOT RUN。Cloud 不在本轮验收范围。
+
+- 数据库上下文复核：列表、详情及列入口不匹配时统一抛出 `ThirdPartyApiException`（`CONFIG_HANA_CATALOG_MISMATCH`）；补充 20 条错误路径及 3 条正常/空结果断言，错误路径不得继续查询对象。修正后的 HANA 构建和打包通过，日志 `/private/tmp/hana-catalog-check-build.log`。

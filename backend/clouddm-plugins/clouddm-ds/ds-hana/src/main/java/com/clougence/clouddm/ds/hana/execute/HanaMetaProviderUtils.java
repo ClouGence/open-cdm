@@ -18,14 +18,14 @@ package com.clougence.clouddm.ds.hana.execute;
 import static com.clougence.adapter.hana.HanaAttributeNames.*;
 import static com.clougence.utils.jdbc.JdbcUtils.tryWasNull;
 
+import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
 import java.util.*;
 
-import com.clougence.adapter.hana.HanaIndexType;
-import com.clougence.adapter.hana.HanaTableType;
 import com.clougence.adapter.hana.HanaTypes;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.schema.umi.special.rdb.*;
 import com.clougence.schema.umi.struts.UmiConstraint;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -154,39 +154,45 @@ public class HanaMetaProviderUtils {
             if (Boolean.FALSE.equals(tryWasNull(rs.getBoolean("IS_NULLABLE"), rs))) {
                 column.addConstraint(new NonNull());
             }
-            column.setCharLength((long) rs.getInt("LENGTH"));
-            column.setNumericPrecision(rs.getInt("LENGTH"));
-            column.setDefaultValue(rs.getString("DEFAULT_VALUE"));
-            column.setNumericScale(rs.getInt("SCALE"));
-            String generationType = rs.getString("GENERATION_TYPE");
-            if (!StringUtils.isBlank(generationType) && "ALWAYS AS IDENTITY".equals(generationType)) {
-                column.setAttribute(AUTO_INCREMENT, "true");
-            } else {
-                column.setAttribute(AUTO_INCREMENT, "false");
+            String dataType = rs.getString("DATA_TYPE_NAME");
+            column.setAttribute(DATA_TYPE, dataType);
+            HanaTypes sqlType;
+            try {
+                sqlType = HanaTypes.valueOfCode(dataType);
+            } catch (UnsupportedOperationException e) {
+                String message = "Unsupported HANA column type " + dataType + " for " + column.getSchema() + "." + column.getTable() + "." + column.getName();
+                throw ThirdPartyApiException.as().with(new SQLException(message, e));
             }
-
-            HanaTypes sqlType = safeToHanaTypes(rs.getString("DATA_TYPE_NAME"));
             column.setSqlType(sqlType);
+            JDBCType jdbcType = sqlType.toJDBCType();
+            if (jdbcType == JDBCType.CLOB || jdbcType == JDBCType.NCLOB || sqlType.isBinary()) {
+                // System views report LOB length in bytes, including character LOBs.
+                column.setByteLength(tryWasNull(rs.getLong("LENGTH"), rs));
+            } else if (sqlType.isString()) {
+                column.setCharLength(tryWasNull(rs.getLong("LENGTH"), rs));
+            } else if (sqlType.isNumber()) {
+                column.setNumericPrecision(tryWasNull(rs.getInt("LENGTH"), rs));
+                column.setNumericScale(tryWasNull(rs.getInt("SCALE"), rs));
+            } else if (sqlType.isDataOrTime()) {
+                column.setDatetimePrecision(tryWasNull(rs.getInt("SCALE"), rs));
+            }
+            column.setDefaultValue(rs.getString("DEFAULT_VALUE"));
+            String generationType = rs.getString("GENERATION_TYPE");
+            column.setAttribute(GENERATION_TYPE, generationType);
+            column.setAttribute(GENERATION_ALWAYS_AS, rs.getString("GENERATED_ALWAYS_AS"));
+            boolean identity = "ALWAYS AS IDENTITY".equals(generationType) || "BY DEFAULT AS IDENTITY".equals(generationType);
+            column.setAttribute(AUTO_INCREMENT, Boolean.toString(identity));
+
             column.setIndex(rs.getInt("POSITION"));
             columns.add(column);
         }
         return columns;
     }
 
-    private static HanaTypes safeToHanaTypes(String dataType) {
-        String dat = (dataType == null) ? null : dataType.toString();
-        for (HanaTypes type : HanaTypes.values()) {
-            if (StringUtils.equalsIgnoreCase(type.getCodeKey(), dat)) {
-                return type;
-            }
-        }
-        return null;
-    }
-
     public static void mapToPkExt(ResultSet rs, Map<String, UmiConstraint> constraints) throws SQLException {
-        String consName = rs.getString("CONSTRAINT");
+        String consName = rs.getString("INDEX_NAME");
         RdbPrimaryKey pk = (RdbPrimaryKey) (constraints.computeIfAbsent(consName, n -> new RdbPrimaryKey()));
-        pk.setAttribute(INDEX_WAY, consName);
+        pk.setAttribute(INDEX_WAY, "PRIMARY KEY");
         String indexName = rs.getString("INDEX_NAME");
         pk.setName(indexName);
         String columnName = rs.getString("COLUMN_NAME");
@@ -195,11 +201,7 @@ public class HanaMetaProviderUtils {
         pk.setSchema(rs.getString("SCHEMA_NAME"));
         pk.setTable(rs.getString("TABLE_NAME"));
 
-        String indexType = rs.getString("INDEX_TYPE");
-        HanaIndexType hanaIndexType = HanaIndexType.valueOfCode(indexType);
-        if (hanaIndexType != null) {
-            pk.setAttribute(INDEX_TYPE, indexType);
-        }
+        pk.setAttribute(INDEX_TYPE, rs.getString("INDEX_TYPE"));
 
         String order = rs.getString("ASCENDING_ORDER");
         Map<String, String> subOrder = new HashMap<>();
@@ -212,11 +214,11 @@ public class HanaMetaProviderUtils {
         }
         subOrder.put(columnName, order);
         String subOrderJson = JSON.toString(subOrder);
-        pk.setAttribute(ORDER_TYPE, subOrderJson);
+        pk.setAttribute(ORDER_TYPE, mergeJsonMap(pk.getAttribute(ORDER_TYPE), subOrderJson));
     }
 
     public static void mapToUkExt(ResultSet rs, Map<String, UmiConstraint> constraints) throws SQLException {
-        String consName = rs.getString("CONSTRAINT");
+        String consName = rs.getString("INDEX_NAME");
         RdbUniqueKey uk = (RdbUniqueKey) (constraints.computeIfAbsent(consName, n -> new RdbUniqueKey()));
         uk.setAttribute(INDEX_WAY, "Unique");
         String indexName = rs.getString("INDEX_NAME");
@@ -227,11 +229,7 @@ public class HanaMetaProviderUtils {
         uk.setSchema(rs.getString("SCHEMA_NAME"));
         uk.setTable(rs.getString("TABLE_NAME"));
 
-        String indexType = rs.getString("INDEX_TYPE");
-        HanaIndexType hanaIndexType = HanaIndexType.valueOfCode(indexType);
-        if (hanaIndexType != null) {
-            uk.setAttribute(INDEX_TYPE, indexType);
-        }
+        uk.setAttribute(INDEX_TYPE, rs.getString("INDEX_TYPE"));
 
         String order = rs.getString("ASCENDING_ORDER");
         Map<String, String> subOrder = new HashMap<>();
@@ -244,24 +242,21 @@ public class HanaMetaProviderUtils {
         }
         subOrder.put(columnName, order);
         String subOrderJson = JSON.toString(subOrder);
-        uk.setAttribute(ORDER_TYPE, subOrderJson);
+        uk.setAttribute(ORDER_TYPE, mergeJsonMap(uk.getAttribute(ORDER_TYPE), subOrderJson));
     }
 
     public static List<RdbIndex> convertIndex(ResultSet rs) throws SQLException {
         List<RdbIndex> rdbIndices = new ArrayList<>();
         while (rs.next()) {
             RdbIndex idx = new RdbIndex();
-            idx.setSchema(StringUtils.trim(rs.getString("SCHEMA_NAME")));
+            idx.setSchema(rs.getString("SCHEMA_NAME"));
             idx.setTable(rs.getString("TABLE_NAME"));
             idx.setName(rs.getString("INDEX_NAME"));
 
             String indexType = rs.getString("INDEX_TYPE");
-            HanaIndexType hanaIndexType = HanaIndexType.valueOfCode(indexType);
-            if (hanaIndexType != null) {
-                idx.setType(RdbIndexType.Normal);
-                idx.setAttribute(INDEX_TYPE, indexType);
-                idx.setAttribute(INDEX_WAY, RdbIndexType.Normal.getTypeName());
-            }
+            idx.setType(RdbIndexType.Normal);
+            idx.setAttribute(INDEX_TYPE, indexType);
+            idx.setAttribute(INDEX_WAY, RdbIndexType.Normal.getTypeName());
 
             String columnName = rs.getString("COLUMN_NAME");
             idx.addColumn(columnName);
@@ -308,9 +303,12 @@ public class HanaMetaProviderUtils {
     }
 
     private static String mergeJsonMap(String oldJsonMap, String newJsonMap) {
-        oldJsonMap = oldJsonMap.substring(0, oldJsonMap.length() - 1);
-        newJsonMap = newJsonMap.substring(1);
-        return oldJsonMap + "," + newJsonMap;
+        Map<String, Object> order = new LinkedHashMap<>();
+        if (StringUtils.isNotBlank(oldJsonMap)) {
+            order.putAll((Map<String, Object>) JSON.parse(oldJsonMap));
+        }
+        order.putAll((Map<String, Object>) JSON.parse(newJsonMap));
+        return JSON.toString(order);
     }
 
     public static List<RdbTable> convertTable(ResultSet rs, String catalogName) throws SQLException {
@@ -320,13 +318,13 @@ public class HanaMetaProviderUtils {
             table.setCatalog(catalogName);
             table.setSchema(rs.getString("SCHEMA_NAME"));
             table.setName(rs.getString("TABLE_NAME"));
-            table.setTableType(Objects.requireNonNull(HanaTableType.valueOfCode(rs.getString("TABLE_TYPE"))).getTypeName());
+            table.setTableType(rs.getString("TABLE_TYPE"));
             table.setUmiType(UmiTypes.Table);
-            if (table.getTableType() == null) {
-                continue;
-            }
 
-            table.setAttribute(CREATE_TIME, new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS").format(rs.getTimestamp("CREATE_TIME")));
+            Timestamp createTime = rs.getTimestamp("CREATE_TIME");
+            if (createTime != null) {
+                table.setAttribute(CREATE_TIME, createTime.toString());
+            }
 
             table.setComment(rs.getString("COMMENTS"));
             tables.add(table);
@@ -341,14 +339,14 @@ public class HanaMetaProviderUtils {
             table.setCatalog(catalogName);
             table.setSchema(rs.getString("SCHEMA_NAME"));
             table.setName(rs.getString("VIEW_NAME"));
-            table.setTableType(Objects.requireNonNull(HanaTableType.valueOfCode(rs.getString("VIEW_TYPE"))).getTypeName());
+            table.setTableType(rs.getString("VIEW_TYPE"));
             table.setUmiType(UmiTypes.View);
-            if (table.getTableType() == null) {
-                continue;
-            }
             table.setSql(rs.getString("DEFINITION"));
 
-            table.setAttribute(CREATE_TIME, new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS").format(rs.getTimestamp("CREATE_TIME")));
+            Timestamp createTime = rs.getTimestamp("CREATE_TIME");
+            if (createTime != null) {
+                table.setAttribute(CREATE_TIME, createTime.toString());
+            }
 
             table.setComment(rs.getString("COMMENTS"));
             tables.add(table);
@@ -362,6 +360,7 @@ public class HanaMetaProviderUtils {
             RdbFunction rdbFunction = new RdbFunction();
             rdbFunction.setSchema(rs.getString("SCHEMA_NAME"));
             rdbFunction.setName(rs.getString("FUNCTION_NAME"));
+            rdbFunction.setSql(rs.getString("DEFINITION"));
             result.add(rdbFunction);
         }
 
@@ -374,6 +373,7 @@ public class HanaMetaProviderUtils {
             RdbProcedure rdbProcedure = new RdbProcedure();
             rdbProcedure.setSchema(rs.getString("SCHEMA_NAME"));
             rdbProcedure.setName(rs.getString("PROCEDURE_NAME"));
+            rdbProcedure.setSql(rs.getString("DEFINITION"));
             result.add(rdbProcedure);
         }
 
@@ -384,12 +384,8 @@ public class HanaMetaProviderUtils {
         List<RdbParam> result = new ArrayList<>();
         while (rs.next()) {
             RdbParam rdbParam = new RdbParam();
-            rdbParam.setSchema(rs.getString("SCHEMA_NAME"));
             rdbParam.setReferenceObject(rs.getString("PROCEDURE_NAME"));
-            rdbParam.setOrdinal(rs.getInt("POSITION"));
-            rdbParam.setName(rs.getString("PARAMETER_NAME"));
-            rdbParam.setType(rs.getString("DATA_TYPE_NAME"));
-            rdbParam.setCharacterMaximumLength(rs.getString("LENGTH"));
+            fillParameter(rs, rdbParam);
             result.add(rdbParam);
         }
         return result;
@@ -399,15 +395,38 @@ public class HanaMetaProviderUtils {
         List<RdbParam> result = new ArrayList<>();
         while (rs.next()) {
             RdbParam rdbParam = new RdbParam();
-            rdbParam.setSchema(rs.getString("SCHEMA_NAME"));
             rdbParam.setReferenceObject(rs.getString("FUNCTION_NAME"));
-            rdbParam.setOrdinal(rs.getInt("POSITION"));
-            rdbParam.setName(rs.getString("PARAMETER_NAME"));
-            rdbParam.setType(rs.getString("DATA_TYPE_NAME"));
-            rdbParam.setCharacterMaximumLength(rs.getString("LENGTH"));
+            fillParameter(rs, rdbParam);
             result.add(rdbParam);
         }
         return result;
+    }
+
+    private static void fillParameter(ResultSet rs, RdbParam param) throws SQLException {
+        param.setSchema(rs.getString("SCHEMA_NAME"));
+        param.setOrdinal(rs.getInt("POSITION"));
+        param.setName(rs.getString("PARAMETER_NAME"));
+        param.setType(rs.getString("DATA_TYPE_NAME"));
+        param.setLength(tryWasNull(rs.getLong("LENGTH"), rs));
+        param.setMode(RdbParamMode.valueOfCode(rs.getString("PARAMETER_TYPE")));
+        param.setAttribute("TABLE_TYPE_SCHEMA", rs.getString("TABLE_TYPE_SCHEMA"));
+        param.setAttribute("TABLE_TYPE_NAME", rs.getString("TABLE_TYPE_NAME"));
+        HanaTypes type;
+        try {
+            type = HanaTypes.valueOfCode(param.getType());
+        } catch (UnsupportedOperationException e) {
+            // TABLE_TYPE and future parameter types retain their original type and type reference.
+            return;
+        }
+        JDBCType jdbcType = type.toJDBCType();
+        if (type.isString() && jdbcType != JDBCType.CLOB && jdbcType != JDBCType.NCLOB) {
+            param.setCharacterMaximumLength(rs.getString("LENGTH"));
+        } else if (type.isNumber()) {
+            param.setNumericPrecision(tryWasNull(rs.getInt("LENGTH"), rs));
+            param.setNumericScale(tryWasNull(rs.getInt("SCALE"), rs));
+        } else if (type.isDataOrTime()) {
+            param.setDatetimePrecision(tryWasNull(rs.getInt("SCALE"), rs));
+        }
     }
 
     public static List<RdbTrigger> convertTrigger(ResultSet rs) throws SQLException {
@@ -416,38 +435,27 @@ public class HanaMetaProviderUtils {
             RdbTrigger rdbTrigger = new RdbTrigger();
             rdbTrigger.setName(rs.getString("TRIGGER_NAME"));
             rdbTrigger.setTriggerTime(rs.getString("TRIGGER_ACTION_TIME"));
-            rdbTrigger.setTriggerEvent(Collections.singletonList(rs.getString("TRIGGER_EVENT")));
+            rdbTrigger.setTriggerTableSchema(rs.getString("SUBJECT_TABLE_SCHEMA"));
             rdbTrigger.setTriggerTableName(rs.getString("SUBJECT_TABLE_NAME"));
+            rdbTrigger.setAttribute(SCHEMA, rs.getString("SCHEMA_NAME"));
+            rdbTrigger.setAttribute(TRIGGER_GRANULARITY, rs.getString("TRIGGERED_ACTION_LEVEL"));
+            String events = rs.getString("TRIGGER_EVENT");
+            List<String> triggerEvents = new ArrayList<>();
+            for (String event : List.of("INSERT", "UPDATE", "DELETE")) {
+                if (events != null && events.contains(event)) {
+                    triggerEvents.add(event);
+                }
+            }
+            rdbTrigger.setTriggerEvent(triggerEvents);
             String definition = rs.getString("DEFINITION");
             if (StringUtils.isNotBlank(definition)) {
-                String tmp = definition.toUpperCase();
-                int bodyStart = tmp.indexOf("BEGIN");
-                int bodyEnd = tmp.lastIndexOf("END");
-                if (bodyStart >= 0 && bodyEnd >= 0) {
+                rdbTrigger.setFeatures(Collections.singletonMap("definition", definition));
+                String upper = definition.toUpperCase(Locale.ROOT);
+                int bodyStart = upper.indexOf("BEGIN");
+                int bodyEnd = upper.lastIndexOf("END");
+                if (bodyStart >= 0 && bodyEnd >= bodyStart) {
                     rdbTrigger.setSql(definition.substring(bodyStart, bodyEnd + 3));
                 }
-
-                // trigger columns
-                String header = definition.substring(0, bodyStart);
-                int updateStart = header.indexOf("UPDATE OF");
-                int updateEnd = header.indexOf("ON");
-                if (updateStart >= 0 && updateEnd >= 0) {
-                    String updateColumns = definition.substring(updateStart + 9, updateEnd);
-                    rdbTrigger.setTriggerTableColumns(Arrays.asList(updateColumns.split(",")));
-                }
-
-                // trigger event
-                List<String> triggerEvent = new ArrayList<>();
-                if (header.contains("INSERT")) {
-                    triggerEvent.add("INSERT");
-                }
-                if (header.contains("UPDATE")) {
-                    triggerEvent.add("UPDATE");
-                }
-                if (header.contains("DELETE")) {
-                    triggerEvent.add("DELETE");
-                }
-                rdbTrigger.setTriggerEvent(triggerEvent);
             }
             result.add(rdbTrigger);
         }
@@ -461,6 +469,8 @@ public class HanaMetaProviderUtils {
             fk.setSchema(rs.getString("SCHEMA_NAME"));
             fk.setTable(rs.getString("TABLE_NAME"));
             fk.setName(rs.getString("CONSTRAINT_NAME"));
+            fk.setUpdateRule(RdbForeignKeyRule.valueOfCode(rs.getString("UPDATE_RULE")));
+            fk.setDeleteRule(RdbForeignKeyRule.valueOfCode(rs.getString("DELETE_RULE")));
             fk.setReferenceSchema(rs.getString("REFERENCED_SCHEMA_NAME"));
             fk.setReferenceTable(rs.getString("REFERENCED_TABLE_NAME"));
             fk.addColumn(rs.getString("COLUMN_NAME"), rs.getString("REFERENCED_COLUMN_NAME"));

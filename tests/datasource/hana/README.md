@@ -270,3 +270,42 @@ ngdbc 2.28.6   45ad4207c37f5502df4942b76fc1b1a7494d171c8c261f5a9373f7a56a4af59b
 | TLS/SSH 与边界 | 对 E1/E2 分别复测独立取消连接的 TLS/SSH、有限连接/通信超时、EXPLAIN 中止和断线；超时设为 0 时不能承诺在有限时间内终止阻塞 I/O |
 
 HANA-009/010 保持 NOT RUN，待以上产品链路验证后逐项更新。
+
+## 10. 第 5 步：元数据与类型映射
+
+### 实现与边界
+
+- 过程详情按 `SCHEMA_NAME`、`PROCEDURE_NAME` 顺序绑定；索引/约束按 schema、table、index 三个字段关联。每条 UNIQUE 按索引名独立聚合，保留复合 PK/UK/索引列的顺序和全部升降序信息；表名按原始大小写匹配。外键补充更新、删除规则并保留引用列顺序。
+- 视图列入口直接读取 `SYS.VIEW_COLUMNS`；列表、详情与列入口校验当前租户，不匹配时统一抛出 `CONFIG_HANA_CATALOG_MISMATCH`，不再用空结果掩盖上下文错误。表/视图种类保留系统视图原值，创建时间保留小数秒且允许 NULL。
+- 列类型使用 `HanaTypes.valueOfCode()`，支持已有 INT/LONGDATE 别名，并补充 DAYDATE/SECONDTIME。分别设置字符长度、二进制/LOB 字节长度、数值精度/小数位和时间精度，SQL NULL 不再变为 0。原始类型、默认表达式、注释、生成表达式保留；两种 identity 模式均可识别。
+- 未知列类型抛出包含 schema、表、列和原始类型的明确异常，不返回空类型，也不伪装成 VARCHAR。列表不读取列类型，因此此错误限于相关详情/列请求；批量详情中包含不支持列时该批次仍会失败，本轮没有修改公共批量接口来提供部分成功。
+- 过程参数补充 IN/OUT/INOUT、长度与精度；函数按 OUT 识别返回值，无参数元数据的函数仍保留。UMI 只有一个返回值槽：单个 OUT 放入返回值，多个 OUT 全部保留在参数列表。TABLE_TYPE 参数保留类型名和类型引用；本步不展开表参数的嵌套列，也不据此声明多返回值编辑器或 CALL 绑定完整可用。
+- 序列详情读取最小值、最大值及步长，使用字符串避免 long 截断；同义词详情保留目标 database/schema/object。树分组加入过程、函数和触发器，沿用现有前端节点。
+- 触发器事件、目标 schema/table、粒度来自系统视图，完整定义保存在 features.definition，定义为空或无 BEGIN/END 时不再抛截取异常。已去除按头部关键字猜事件/UPDATE OF 列的逻辑；现有 SQL body 提取仍是简化实现，UPDATE OF、复杂引号/注释及重建 SQL 必须在第 6/10 步结合语法与模板补齐，不能据本步认定触发器可无损编辑。
+- JDBC 结果列来源沿用第 3 步的 `getSchemaName/getTableName` 实现，本步未改写公共结果转换、会话或事务逻辑。普通账号权限过滤、ARRAY 元素结构、空间 SRID 和 LOB 实际值读取仍需 F3/F4 实库核对。
+
+系统字段按 [Platform 2.0 SPS 06 SQL Reference](https://help.sap.com/doc/9b40bf74f8644b898fb07dabdd2a36ad/2.0.06/en-US/SAP_HANA_SQL_Reference_Guide_en.pdf) 中对应系统视图核对，没有使用 Cloud 独有字段。列维度和生成字段见 [TABLE_COLUMNS](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/2100d33a75191014868bbcd89274199c.html)，外键规则见 [REFERENTIAL_CONSTRAINTS](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20ccc0a175191014901b88e6bc175c44.html)，序列数值字段见 [SEQUENCES](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20cf0e79751910149462bf9e7d571ab8.html)。这些在线页面可能展示较新 SPS，最低基线以固定 SPS 06 PDF 为准；服务端可见性仍须实测。
+
+### 本地验证
+
+```bash
+cd backend
+./gradlew :ds-hana:build :ds-hana:customFatJar :cg-schema:test :dsc-common:test --offline --max-workers=4
+```
+
+构建、插件打包与 dsc-common 16 项现有测试通过；ds-hana/cg-schema 无测试源码。临时 JShell JDBC 代理在 ngdbc 2.22.12、2.28.6 两个类路径下分别通过 72 项断言，覆盖类型维度/NULL/别名/未知类型、LOB、默认值/identity、独立 UNIQUE、复合约束/索引列序及 JSON 转义、FK 规则、过程绑定、函数参数和返回值、视图列路由、对象种类/时间、序列数值、同义词目标、树分组及 Statement 释放。没有新增测试类。这些代理检查不执行服务端 SQL，不代表驱动与真实系统视图已通过兼容性测试。
+
+### Express 部署与页面验收
+
+**可以部署 HANA Express 验证本步元数据链路。需更新 `ds-hana` 插件及包含新 `cg-schema` 的平台运行包**；插件 JAR 不包含 `HanaTypes`，仅替换插件会漏掉新增别名。完整发布打包未在本轮执行。默认隐藏不变，隔离环境仍通过 `/#/datasource/add?dsType=Hana` 建立连接。
+
+| 场景 | 页面/数据库核对 |
+| --- | --- |
+| 对象树 | 工作台展开租户/schema，查看表、视图、序列、同义词、过程、函数、触发器；空分组可刷新，两组 schema 同名对象不混淆 |
+| 表/视图列 | 对 F2/F3 的行存、列存、视图查看列信息；核对 NULL、default/comment、identity、生成列、DECIMAL 精度、NVARCHAR 长度和 LOB；视图列不再为空 |
+| 约束和索引 | 同表两条 UNIQUE 必须分别显示；复合 PK/FK/索引列序和引用列一一对应；跨 schema 同名索引不混入，外键更新/删除规则与系统视图一致 |
+| 程序对象 | 无输入函数仍列出；IN/OUT/INOUT、单个返回值及 TABLE_TYPE 引用核对真实定义；多输出不丢失。当前页面未消费的详情字段用详情响应核对，不能当成页面已支持 |
+| 序列/同义词/触发器 | 核对序列边界与步长、同义词目标、触发器事件/目标/粒度；本轮只验读取，不据不完整模板执行重建 |
+| 权限与失败隔离 | OWNER、RO、LIMITED 分别刷新；仅看各自允许的元数据。无权/不支持对象的详情失败后仍能刷新其他对象列表；跨租户路径明确报数据库不匹配，不能显示为空或串对象 |
+
+本轮 @Browser 访问 `http://localhost:8222` 返回 `ERR_CONNECTION_REFUSED`，且没有真实 HANA 实例，页面与 E1/E2 用例均未执行。若查询工作台被第 6 步 DSL 能力缺口阻塞，记录阻塞后再继续，不把 JDBC 或代理检查替代页面结果。HANA-011～014 保持 NOT RUN。

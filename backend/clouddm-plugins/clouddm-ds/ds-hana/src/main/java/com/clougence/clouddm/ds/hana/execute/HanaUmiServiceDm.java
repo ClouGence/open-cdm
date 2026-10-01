@@ -103,6 +103,9 @@ public class HanaUmiServiceDm extends AbstractRdbUmiService<HanaMetaProviderDm> 
     public Value detailLeaf(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) throws SQLException {
         String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
+        if (leafType != UmiTypes.Catalog) {
+            this.metadataSupplier.eGet().selectCatalog(catalog);
+        }
         switch (leafType) {
             case Catalog:
                 return this.metadataSupplier.eGet().selectCatalog(leafName);
@@ -118,14 +121,18 @@ public class HanaUmiServiceDm extends AbstractRdbUmiService<HanaMetaProviderDm> 
                 return CollectionUtils.isEmpty(tables) ? null : tables.get(0);
             case Procedure:
                 List<String> procedureNames = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
-                List<RdbProcedure> procedures = this.metadataSupplier.eGet().loadProcedures(null, schema, procedureNames);
+                List<RdbProcedure> procedures = this.metadataSupplier.eGet().loadProcedures(catalog, schema, procedureNames);
                 return CollectionUtils.isEmpty(procedures) ? null : procedures.get(0);
             case Function:
                 List<String> functionNames = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
-                List<RdbFunction> functions = this.metadataSupplier.eGet().loadFunctions(null, schema, functionNames);
+                List<RdbFunction> functions = this.metadataSupplier.eGet().loadFunctions(catalog, schema, functionNames);
                 return CollectionUtils.isEmpty(functions) ? null : functions.get(0);
             case Trigger:
                 return this.metadataSupplier.eGet().loadTrigger(schema, leafName);
+            case Sequence:
+                return this.metadataSupplier.eGet().loadSequence(schema, leafName);
+            case Synonym:
+                return this.metadataSupplier.eGet().loadSynonym(schema, leafName);
             default:
                 throw new UnsupportedOperationException("detailLeaf of " + leafType + " Unsupported.");
         }
@@ -133,11 +140,14 @@ public class HanaUmiServiceDm extends AbstractRdbUmiService<HanaMetaProviderDm> 
 
     @Override
     public Map<String, List<RdbColumn>> loadColumns(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> leafNames) throws SQLException {
+        String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+        this.metadataSupplier.eGet().selectCatalog(catalog);
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
         switch (leafType) {
-            case Table:
             case View:
-                Map<String, List<RdbColumn>> result = this.metadataSupplier.eGet().loadColumns(null, schema, leafNames);
+                return this.metadataSupplier.eGet().loadViewColumns(catalog, schema, leafNames);
+            case Table:
+                Map<String, List<RdbColumn>> result = this.metadataSupplier.eGet().loadColumns(catalog, schema, leafNames);
                 return (result != null) ? result : Collections.emptyMap();
             default:
                 throw new UnsupportedOperationException("loadColumns of " + leafType + " Unsupported.");

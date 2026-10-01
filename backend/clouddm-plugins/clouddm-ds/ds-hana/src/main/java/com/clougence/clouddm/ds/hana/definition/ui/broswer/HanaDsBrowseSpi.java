@@ -39,7 +39,8 @@ public class HanaDsBrowseSpi extends AbstractDsBrowseSpi {
 
     @Override
     public Map<UmiTypes, List<UmiTypes>> getLeafGroupMap() {
-        List<UmiTypes> schemaList = Arrays.asList(UmiTypes.Table, UmiTypes.View, UmiTypes.Sequence, UmiTypes.Synonym);
+        List<UmiTypes> schemaList = Arrays.asList(UmiTypes.Table, UmiTypes.View, UmiTypes.Sequence, UmiTypes.Synonym,
+            UmiTypes.Procedure, UmiTypes.Function, UmiTypes.Trigger);
         return CollectionUtils.asMap(UmiTypes.Schema, schemaList);
     }
 
