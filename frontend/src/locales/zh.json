@@ -4379,5 +4379,7 @@
   "sql-favorites-load-cancelled-edited": "加载期间当前 SQL 已发生变化，未覆盖编辑内容。",
   "fa-bu-mu-biao": "发布目标",
   "qing-xuan-ze-fu-ze-ren": "请选择负责人",
-  "qing-kong-xuan-ze": "清空选择"
+  "qing-kong-xuan-ze": "清空选择",
+  "hana-sql-structural-validation": "仅检查 SQL 结构；表达式、对象解析和权限尚未校验。",
+  "hana-sql-format-incomplete": "无法安全格式化此 SQL，请先补全引号和注释。"
 }

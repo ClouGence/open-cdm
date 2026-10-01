@@ -52,6 +52,6 @@ public class HanaEditorResourceSpi implements ResourceSpi {
     }
 
     private ResourceObject keywordsResource() {
-        return new ClasspathResourceObject(loader, "META-INF/clougence/db-keywords/hana.keywords", "text/plain;charset=UTF-8", true, true);
+        return new ClasspathResourceObject(loader, "META-INF/clougence/db-keywords/hana-completion.keywords", "text/plain;charset=UTF-8", true, true);
     }
 }

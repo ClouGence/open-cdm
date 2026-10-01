@@ -2,8 +2,9 @@
  * Copyright 2026 杭州开云集致科技有限公司
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
-package com.clougence.clouddm.ds.hana.sql.editor.rewrite;
+package com.clougence.sql.hana.editor.rewrite;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -12,7 +13,8 @@ import org.antlr.v4.runtime.*;
 
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
-import com.clougence.sql.iso.sql2003.parser.Sql2003DslProvider;
+import com.clougence.sql.hana.parser.HanaDslProvider;
+import com.clougence.sql.hana.parser.antlr.HanaParser;
 import com.clougence.utils.HashUtils;
 
 public class HanaRewriteSpi implements RewriteSpi {
@@ -24,19 +26,36 @@ public class HanaRewriteSpi implements RewriteSpi {
             return queryStr;
         }
 
-        Lexer lexer = Sql2003DslProvider.INSTANCE.createLexer(CharStreams.fromString(queryStr));
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        Lexer lexer = HanaDslProvider.INSTANCE.createLexer(CharStreams.fromString(queryStr));
+        HanaParser parser = (HanaParser) HanaDslProvider.INSTANCE.createParser(lexer);
+        CommonTokenStream tokenStream = (CommonTokenStream) parser.getTokenStream();
+        if (parser.splitRoot().splitStatement().size() != 1) {
+            return queryStr;
+        }
         tokenStream.fill();
         List<Token> tokens = tokenStream.getTokens().stream().filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF).toList();
         List<Integer> topLevel = topLevelTokenIndexes(tokens);
 
+        if (topLevel.isEmpty() || !(isWord(tokens.get(0), "SELECT") || isWord(tokens.get(0), "WITH"))) {
+            return queryStr;
+        }
+        // SELECT INTO writes data/variables; a UI row limit must not change its effects.
+        if (firstWordPosition(tokens, topLevel, "INTO", 0) >= 0) {
+            return queryStr;
+        }
         int selectPosition = firstWordPosition(tokens, topLevel, "SELECT", 0);
         if (selectPosition < 0 || hasMultipleStatements(tokens, topLevel)) {
             return queryStr;
         }
 
         TokenStreamRewriter rewriter = new TokenStreamRewriter(tokenStream);
-        int limitPosition = firstWordPosition(tokens, topLevel, "LIMIT", selectPosition + 1);
+        int lastSelect = selectPosition;
+        for (int i = selectPosition + 1; i < topLevel.size(); i++) {
+            if (isWord(tokens.get(topLevel.get(i)), "SELECT")) {
+                lastSelect = i;
+            }
+        }
+        int limitPosition = firstWordPosition(tokens, topLevel, "LIMIT", lastSelect + 1);
         if (limitPosition >= 0) {
             return rewriteNumericLimit(queryStr, rewriter, tokens, topLevel, limitPosition, maxLimit);
         }
@@ -65,14 +84,15 @@ public class HanaRewriteSpi implements RewriteSpi {
     private static List<Integer> topLevelTokenIndexes(List<Token> tokens) {
         List<Integer> result = new ArrayList<>();
         int depth = 0;
-        boolean quotedIdentifier = false;
+        int caseDepth = 0;
         for (int i = 0; i < tokens.size(); i++) {
             String text = tokens.get(i).getText();
-            if ("\"".equals(text)) {
-                quotedIdentifier = !quotedIdentifier;
+            if ("CASE".equalsIgnoreCase(text)) {
+                caseDepth++;
                 continue;
             }
-            if (quotedIdentifier) {
+            if ("END".equalsIgnoreCase(text) && caseDepth > 0) {
+                caseDepth--;
                 continue;
             }
             if ("(".equals(text)) {
@@ -83,7 +103,7 @@ public class HanaRewriteSpi implements RewriteSpi {
                 depth--;
                 continue;
             }
-            if (depth == 0) {
+            if (depth == 0 && caseDepth == 0) {
                 result.add(i);
             }
         }
@@ -144,13 +164,8 @@ public class HanaRewriteSpi implements RewriteSpi {
             return query;
         }
 
-        long sqlLimit;
-        try {
-            sqlLimit = Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            return query;
-        }
-        if (sqlLimit <= maxLimit) {
+        BigInteger sqlLimit = new BigInteger(value);
+        if (sqlLimit.compareTo(BigInteger.valueOf(maxLimit)) <= 0) {
             return query;
         }
         rewriter.replace(valueToken, String.valueOf(maxLimit));
@@ -175,12 +190,16 @@ public class HanaRewriteSpi implements RewriteSpi {
 
     @Override
     public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
-        Lexer lexer = Sql2003DslProvider.INSTANCE.createLexer(CharStreams.fromString(queryStr));
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        Lexer lexer = HanaDslProvider.INSTANCE.createLexer(CharStreams.fromString(queryStr));
+        HanaParser parser = (HanaParser) HanaDslProvider.INSTANCE.createParser(lexer);
+        CommonTokenStream tokenStream = (CommonTokenStream) parser.getTokenStream();
+        if (parser.splitRoot().splitStatement().size() != 1) {
+            return null;
+        }
         tokenStream.fill();
         List<Token> tokens = tokenStream.getTokens().stream().filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF).toList();
         List<Integer> topLevel = topLevelTokenIndexes(tokens);
-        if (tokens.isEmpty() || hasMultipleStatements(tokens, topLevel)) {
+        if (tokens.isEmpty() || topLevel.isEmpty() || hasMultipleStatements(tokens, topLevel)) {
             return null;
         }
 
@@ -190,7 +209,8 @@ public class HanaRewriteSpi implements RewriteSpi {
             if (targetPosition < 0) {
                 return null;
             }
-            queryStr = queryStr.substring(tokens.get(topLevel.get(targetPosition)).getStartIndex());
+            int offset = queryStr.offsetByCodePoints(0, tokens.get(topLevel.get(targetPosition)).getStartIndex());
+            queryStr = queryStr.substring(offset);
             first = tokens.get(topLevel.get(targetPosition));
         }
         if (!isExplainableStatement(first)) {

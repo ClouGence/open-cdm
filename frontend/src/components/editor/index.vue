@@ -10,6 +10,7 @@ import { requestWebSocket } from '@/services/socket';
 import { WS_TYPE } from '@/utils';
 import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
 import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { formatHanaSql } from './hanaSql';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const LANGUAGE_SPLIT_DELAY_MS = 500;
@@ -261,6 +262,9 @@ export default {
       };
     },
     formatDiagnosticMessage(message) {
+      if (message && this.$te(message)) {
+        return this.$t(message);
+      }
       if (!message) {
         return 'SQL 语法错误';
       }
@@ -527,6 +531,9 @@ export default {
         iconEl.setAttribute('data-cgdm-icon', icon);
       });
     },
+    isHana() {
+      return (this.currentTab?.dsType || this.currentTab?.node?.INSTANCE?.attr?.dsType) === 'Hana';
+    },
     getDsLanguageCapability() {
       return this.currentTab?.support?.language || null;
     },
@@ -660,7 +667,7 @@ export default {
       if (model.getVersionId() === this.splitModelVersionId) {
         statement = this.findStatementAtPosition(position, model);
       }
-      if (!statement) {
+      if (!statement && !this.isHana()) {
         statement = this.findLocalStatementAtPosition(position, model);
       }
       if (!statement) {
@@ -989,6 +996,9 @@ export default {
       );
     },
     findSqlFragmentRanges(text) {
+      if (this.isHana()) {
+        return [{ startOffset: 0, endOffset: text.length }];
+      }
       const ranges = [];
       let startOffset = 0;
       let quote = null;
@@ -1232,7 +1242,11 @@ export default {
       return Array.from(suggestions.values()).sort((left, right) => this.compareCompletionSuggestions(left, right));
     },
     completionSuggestionKey(item) {
-      return `${item.kind || ''}:${this.getCompletionLabelText(item.label).toUpperCase()}`;
+      const label = this.getCompletionLabelText(item.label);
+      if (this.isHana()) {
+        return `${item.kind || ''}:${label}`;
+      }
+      return `${item.kind || ''}:${label.toUpperCase()}`;
     },
     toCompletionSortText(weight, label) {
       if (Number.isFinite(weight)) {
@@ -1352,7 +1366,26 @@ export default {
       });
       this.hoverProviderList.push(providerItem);
     },
-    formatSql() {},
+    formatSql() {
+      if (!this.isHana()) {
+        return;
+      }
+      const editor = this.monacoEditor;
+      const model = editor?.getModel();
+      if (!model) {
+        return;
+      }
+      // Format the full document so selections inside literals/comments cannot change their contents.
+      const range = model.getFullModelRange();
+      const formatted = formatHanaSql(model.getValue());
+      if (formatted === null) {
+        this.showLanguageServiceError(this.$t('hana-sql-format-incomplete'));
+        return;
+      }
+      editor.pushUndoStop();
+      editor.executeEdits('hana-format', [{ range, text: formatted, forceMoveMarkers: true }]);
+      editor.pushUndoStop();
+    },
     getCurrentSqlTarget() {
       const model = this.monacoEditor?.getModel();
       const position = this.monacoEditor?.getPosition();
@@ -1370,6 +1403,9 @@ export default {
         };
       }
 
+      if (this.isHana()) {
+        return { sql: '', position: null };
+      }
       if (!position) {
         return {
           sql: model.getValue(),

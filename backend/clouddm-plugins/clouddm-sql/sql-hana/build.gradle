@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.hana.sql.parser;
 
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+plugins {
+    id 'com.clougence.java-conventions'
+    id 'antlr'
+}
 
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.sql.iso.sql2003.parser.Sql2003SplitAnalysisSpi;
+dependencies {
+    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+    api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
+    api project(':cg-dslparser')
+    api project(':sqlc-common')
+}
 
-public class HanaSplitAnalysisSpi extends Sql2003SplitAnalysisSpi {
+description = 'sql-hana'
 
-    @Override
-    protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
-        return HanaSplitVisitor.INSTANCE;
-    }
+// Keep the grammar generator out of datasource plugin runtime dependencies.
+configurations.api.extendsFrom = configurations.api.extendsFrom - configurations.antlr
+
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.sql.hana.parser.antlr']
 }

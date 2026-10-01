@@ -3,12 +3,14 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
-package com.clougence.clouddm.ds.hana.i18n;
+package com.clougence.sql.hana.i18n;
 
 import com.clougence.utils.i18n.I18nResource;
 
 @I18nResource("/META-INF/clougence/i18n/hana-sql")
 public interface HanaSqlI18nKeys {
+
+    String HANA_SQL_ANALYSIS_UNSUPPORTED = "HANA_SQL_ANALYSIS_UNSUPPORTED";
 
     String SQL_ENGINE_SAP_HANA_SQL = "SQL_ENGINE_SAP_HANA_SQL";
 }

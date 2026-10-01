@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.hana.dialect;
 
+import java.util.Locale;
+
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
 import com.clougence.utils.StringUtils;
@@ -62,7 +64,7 @@ public class HanaDialect extends AbstractDialect implements CompletionDialect {
 
     @Override
     public boolean isIdentifierChar(char c) {
-        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '"';
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '#' || c == '"';
     }
 
     @Override
@@ -71,6 +73,6 @@ public class HanaDialect extends AbstractDialect implements CompletionDialect {
         if (text.length() >= 2 && text.startsWith("\"") && text.endsWith("\"")) {
             return text.substring(1, text.length() - 1).replace("\"\"", "\"");
         }
-        return text;
+        return text.toUpperCase(Locale.ROOT);
     }
 }

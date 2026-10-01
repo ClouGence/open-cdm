@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.hana.sql;
+package com.clougence.sql.hana;
 
-import com.clougence.clouddm.ds.hana.sql.analysis.behavior.HanaBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.hana.sql.editor.rewrite.HanaRewriteSpi;
-import com.clougence.clouddm.ds.hana.sql.parser.HanaSplitAnalysisSpi;
+import com.clougence.sql.hana.analysis.behavior.HanaBehaviorAnalysisSpi;
+import com.clougence.sql.hana.analysis.security.HanaSecDomainResolveSpi;
+import com.clougence.sql.hana.editor.rewrite.HanaRewriteSpi;
+import com.clougence.sql.hana.parser.HanaDslProvider;
+import com.clougence.sql.hana.parser.HanaSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
@@ -39,7 +41,7 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
 
     public HanaSqlEngineSpi(){
         this.splitAnalysisSpi = new HanaSplitAnalysisSpi();
-        this.secDomainResolveSpi = null;
+        this.secDomainResolveSpi = new HanaSecDomainResolveSpi();
         this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi();
         this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
         this.rewriteSpi = new HanaRewriteSpi();
@@ -51,7 +53,7 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public DslProvider dslProvider(SqlParserParameters parameters) {
-        throw new UnsupportedOperationException("SAP Hana does not support DslProvider.");
+        return HanaDslProvider.INSTANCE;
     }
 
     @Override

@@ -2,7 +2,7 @@
 
 更新时间：2026-10-01。对应[HANA 补齐计划](../../../docs/guides/hana-completion-plan.cn.md)。
 
-**第 1 步基线已确定，第 2 步连接/TLS 与第 3 步会话/事务实现及本地验证已完成；真实实例和页面验收仍待环境。**后续结果持续维护在[能力矩阵](hana-test-matrix.md)，不按执行日期另建报告。
+**第 1 步基线已确定，第 2～8 步实现及本地验证已完成；真实实例和页面验收仍待环境。**后续结果持续维护在[能力矩阵](hana-test-matrix.md)，不按执行日期另建报告。
 
 ## 1. 固定验证基线
 
@@ -309,3 +309,148 @@ cd backend
 | 权限与失败隔离 | OWNER、RO、LIMITED 分别刷新；仅看各自允许的元数据。无权/不支持对象的详情失败后仍能刷新其他对象列表；跨租户路径明确报数据库不匹配，不能显示为空或串对象 |
 
 本轮 @Browser 访问 `http://localhost:8222` 返回 `ERR_CONNECTION_REFUSED`，且没有真实 HANA 实例，页面与 E1/E2 用例均未执行。若查询工作台被第 6 步 DSL 能力缺口阻塞，记录阻塞后再继续，不把 JDBC 或代理检查替代页面结果。HANA-011～014 保持 NOT RUN。
+## 11. 第 6 步：HANA 语法与拆句基础
+
+### 实现与复用边界
+
+- `HanaLexer.g4` / `HanaParser.g4` 位于 HANA 插件内，ANTLR 版本沿用工程 4.9.3。生成类进入插件包，ANTLR 生成工具不进入运行包；无需新增或注册 Gradle 子模块。
+- 新 `HanaDslProvider` 提供 lexer/parser、拆句和语法树遍历；`HanaSqlEngineSpi.dslProvider()` 正常返回 provider。`doParser()` 的完整语义 AST 转换仍明确抛出不支持异常；语言能力仍只声明 COMPLETE/SPLIT，没有声明 VALIDATE/FORMAT。公共 `QueryEditorController` 增加能力交集过滤，避免仅凭非空 DSL 自动开启 VALIDATE；默认声明全部能力的插件行为不变，达梦同样按自身声明不开放空校验。
+- 普通 SQL 保留为结构化 token 序列，识别括号、字符串、双引号标识符、单双引号重复转义、行/块注释和 CASE 表达式。SQLScript 支持 BEGIN/END、IF/ELSEIF/ELSE、FOR/WHILE/LOOP、嵌套块、异常处理器中的块及执行属性；过程、函数、触发器和 DO 的整个块只生成一个顶层执行单元。
+- 复用 `AbstractSplitAnalysisSpi` 的流式读取、背压、位置计算和关闭机制，没有重写公共并发/会话代码，也没有 SQL:2003 拆句兜底。顶层语句必须到分号或 EOF 才交付；块、引号、注释、括号未闭合时抛出带行列的 `AntlerSyntaxException`，不输出该坏块的内部语句。之前已交付的完整语句仍遵守公共流式执行语义，本步不承诺整份脚本原子执行。
+- `HanaLanguageSpi.split()` 使用同一拆句器并保留异常，避免通用策略将失败转成空成功。行为分析原有手写分号拆句已删除；第 6 步当时对象关系分析仍沿用 SQL:2003 和已有 DML 补充，DO 探针在行为分析失败。第 8 步已替换该实现，当前支持与限制见第 13 节；不能凭拆句通过宣称可执行。
+
+语法边界参考 [Platform 2.0 SPS 06 SQLScript Reference](https://help.sap.com/doc/6254b3bb439c4f409a979dc407b49c9b/2.0.06/en-US/SAP_HANA_SQL_Script_Reference_en.pdf) 的过程/函数、匿名块、控制流、异常处理与事务章节。样本为本仓库编写，尚未在真实 HANA 上执行；Cloud 仍独立评估。
+
+### 分类契约与不支持项
+
+| 输入 | 顶层分类 |
+| --- | --- |
+| SELECT、WITH … SELECT | SELECT；不把 CTE 子查询另行执行 |
+| INSERT、UPDATE、DELETE、MERGE | 对应 DML 类型 |
+| CREATE/ALTER/DROP/RENAME/COMMENT | 按对象种类分类；支持 CREATE OR REPLACE、ROW/COLUMN、临时表、索引等常见前缀 |
+| CREATE PROCEDURE/FUNCTION、CREATE TRIGGER | CREATE_PROG_OBJ、CREATE_TRIGGER；不将内部 SELECT 当成顶层查询 |
+| CALL、DO / BEGIN 块 | CALL_PROG_OBJ、BLOCK |
+| SET SCHEMA、SET TRANSACTION、COMMIT/ROLLBACK/SAVEPOINT | SWITCH_SCHEMA、TRANSACTION |
+| 其他 SET/UNSET、EXPLAIN、IMPORT/EXPORT | SESSION_SETTING_WRITE、PERFORMANCE、DATA_IMPORT/DATA_EXPORT |
+| 未映射头部，例如 UPSERT | UNKNOWN，保留完整语句，不冒充 SELECT |
+
+这是一层**结构拆句和头部分类**，不是完整 HANA 语义校验。即使 `SELECT FROM` 这样的 SQL 可被归为 SELECT，也不代表它能执行；对象名、表达式和选项的合法性由数据库判定。UNKNOWN 不是审核通过，权限/规则/血缘仍按第 8/9 步补齐。动态 SQL 字符串保持原样，不递归执行或分析字符串中的 SQL。客户端 DELIMITER、GO、独立 `/` 等指令不作为分隔符识别，应移除后提交服务端 SQL；未覆盖的控制结构不能通过删除关键字、吞异常或按分号重试绕过。
+
+### 本地验证与样本
+
+[06-split.sql](sql/06-split.sql) 包含 14 个预期执行单元，依次为：CREATE_TABLE、INSERT、UPDATE、DELETE、SELECT、MERGE、CREATE_PROG_OBJ、CALL_PROG_OBJ、CREATE_PROG_OBJ、BLOCK、SELECT、DROP_PROG_OBJ、DROP_PROG_OBJ、DROP_TABLE。它会创建/删除对象，只能在一次性 schema 下执行；过程、函数和匿名块中的每个分号均不能增加顶层语句数。
+
+```bash
+cd backend
+./gradlew :ds-hana:build :ds-hana:customFatJar :cgdm-console:compileJava :cgdm-console:test :sqlc-common:test :cg-dslparser:test :dsc-common:test --offline --max-workers=4
+```
+
+构建和插件打包通过；console 52 项已有测试通过，dsc-common 16 项已有测试通过（Gradle 复用通过结果），HANA/sqlc-common/cg-dslparser 无测试源码。现有测试不覆盖编辑器能力接口，页面仍待验证。临时 JShell 探针通过样本计数/分类、DSL 与流式拆句文本一致性、语言服务请求标识及错误透传、引号/注释分号、Unicode/CRLF/非零起始位置、嵌套块与异常、3000 条语句、提前关闭后的后台线程退出及调用方 Reader 归属。没有新增测试类。本地验证不是 HANA 服务端兼容性认证，也不是页面验收。
+
+### Express 部署与页面验证
+
+**可以部署 HANA Express 验证本步。** 在第 5 步平台包基础上更新 `ds-hana-lib.jar` 和包含能力过滤修正的 console 平台包，并重启加载；仍保持默认隐藏，隔离环境按已有直达路径建立 HANA 数据源。
+
+1. 打开工作台查询页签，确认语言能力加载不再抛出原 `DslProvider` 异常；能得到 COMPLETE/SPLIT，不显示为已支持完整语法校验。
+2. 粘贴只读 `DO BEGIN SELECT 'a;b' AS V FROM DUMMY; SELECT 2 AS V FROM DUMMY; END;`，等待服务端拆句返回，将光标移入两个 SELECT，当前语句框均应包围完整 DO 块。
+3. 普通 SELECT 可验证执行；静态 DO/过程体按第 13 节支持范围验证，遇到未覆盖语法记录错误，不绕过分析或改为执行内部片段。`06-split.sql` 的服务端语法兼容性可另用原生 HANA 客户端在一次性 schema 验证；平台完整执行闭环仍需实库验收。
+4. 缺少 END、引号或括号时，后端拆句应返回错误；修正后重试恢复。错误显示、光标范围、快速编辑及 WebSocket 失败回退按 [SQL 语句选择流程](../../frontend/sql/sql_statement_selection.md) 验证。
+
+**已确认的页面边界**：`frontend/src/components/editor/index.vue` 在服务端结果未返回、失败或版本不匹配时仍使用通用分号切片。该回退不理解 HANA SQLScript，光标执行可能选中块内片段；本步没有更改公共前端逻辑，第 7 步需明确处理并实测。SQLScript 若需提交验证，必须手动选中整个块，且仍受上述行为分析限制。本轮 @Browser 访问 `http://localhost:8222/#/sql` 返回 `ERR_CONNECTION_REFUSED`，以上页面/实库场景均未执行，不能标记 PASS。
+
+
+## 12. 第 7 步：语言服务与查询改写
+
+**未完成：HANA-017/a 格式化能力统一。**现有 HANA 专属按钮判断和前端空白整理是待收敛实现，不代表完整格式化交付。第 13 步必须同时处理工具栏能力判断、编辑器调用分派、后端能力声明和真实格式化实现，并回归其他数据源；不能只将按钮条件改成 `support.format.conf`。详细关闭条件见[计划第 13 步](../../../docs/guides/hana-completion-plan.cn.md#第-13-步-对齐页面入口能力与国际化)，该项阻塞第 15 步默认开放。
+
+### 实现与限制
+
+- 语言能力声明 COMPLETE/VALIDATE/SPLIT，与编辑器配置一致。VALIDATE 复用 HANA 结构解析，报告未闭合引号、括号、块及结构错误；成功时返回明确的“仅结构校验”提示。`SELECT FROM` 等表达式错误、对象存在性、权限及完整 SQLScript 语义不在此校验范围，不能将提示当作审核通过。
+- 补全先通过现有元数据服务获取当前授权对象，再查询其表/视图列，避免直接列查询绕过对象过滤。跨 schema/catalog 引用不提供列建议；未加引号名称按 HANA 大写规则解析，元数据插入使用双引号，保留大小写不同的对象。CALL 提供过程，表达式位置提供函数；字符串和注释内不返回元数据建议。局部 SQLScript 变量、CTE 推导列、复杂别名作用域与未闭合双引号内补全尚非完整语义实现。
+- 错误位置和公共补全 token 偏移转换为编辑器 UTF-16；emoji 不再导致后续光标偏移。关键字建议使用独立 `hana-completion.keywords`，不改变用于标识符转义的保留字集合。
+- HANA 查询页签开放现有格式化按钮。格式化整份文档，只调整空白和基础 BEGIN/CASE 缩进；保留字面量、引号名称、注释与 token 顺序，可撤销，遇到未闭合引号/注释拒绝替换。它不是完整 SQLScript 美化器，也不以格式化修复无效语法。
+- 当前版本服务端 SPLIT 未返回、失败或版本失效时，HANA 不使用通用分号回退框选或光标执行。手动选区仍可执行；语法修复并收到新结果后恢复自动选择。诊断请求发送整份文档，避免将块内片段误当独立 SQL 校验。
+- 改写使用 HANA token/结构解析，仅处理单条 SELECT/WITH 查询。已有数字 TOP/LIMIT 取较小上限（保留 0、OFFSET 和较小值）；CTE 子查询不改，集合查询限制整体，保留排序、尾注释、分号，并将新增 LIMIT 放在锁/输出格式/HINT 尾部子句前。INSERT…SELECT、SELECT INTO、DO 和多语句不改写。非数字 TOP/LIMIT 和不识别的外层语句保持原文；公共 JDBC 结果消费仍有 fetchRecordCountLimit，但不能据此声称数据库端计算量已受限。
+- EXPLAIN 只包装单条支持的语句，已有 EXPLAIN 按 FOR 提取目标，保留 Unicode 边界；多语句不生成执行计划 SQL。第 8 步已替换 DO 的旧行为分析，具体静态分析边界见第 13 节。
+
+查询尾部规则依据 [Platform 2.0 SPS 06 SQL Reference 的 SELECT 章节](https://help.sap.com/doc/9b40bf74f8644b898fb07dabdd2a36ad/2.0.06/en-US/SAP_HANA_SQL_Reference_Guide_en.pdf)。Cloud 独立评估，尚无服务端兼容性结论。
+
+### 本地验证
+
+```bash
+cd backend
+./gradlew :ds-hana:build :ds-hana:customFatJar :dsc-common:test :cgdm-console:test --offline --max-workers=4
+cd ../frontend
+npm run lint -- --no-fix
+npm run check-i18n
+npm run test:unit
+cd ../package
+./all_build.sh web
+```
+
+构建与插件打包通过，现有 dsc-common 16 项、console 52 项和前端 8 项测试通过；HANA 无测试源码，未新增测试类。临时 JShell 探针覆盖授权列查询边界、引号/大小写、Unicode、结构诊断、CTE/UNION/TOP/LIMIT/锁/HINT/多语句/EXPLAIN；Node 探针检查格式化文本保留、重复格式化和空白输入。`check-i18n` 只扫描暂存文件，本轮另外直接核对新增中英文 key。以上不替代真实数据库或页面验收。
+
+### Express 部署与页面验收
+
+**可以部署 HANA Express 验证本步页面功能。** 在第 5/6 步基础上更新 HANA 插件、包含 dsc-common/console 修改的平台包和 Web 资源，重启并刷新页面。仍默认隐藏；隔离环境通过 `/#/datasource/add?dsType=Hana` 建立连接。
+
+1. 在查询页签输入 SELECT，触发授权表/列建议；OWNER/RO/LIMITED 分别验证，不可见表的列不得通过手写表名触发建议。检查大小写不同名称和带空格名称的插入文本。
+2. 输入 DO 块，检查结构提示、缺少 END/引号/括号时的错误位置，以及 emoji 后的位置；修复后提示恢复。SQLScript 执行按第 13 节静态语法与权限边界验证。
+3. 格式化含字符串分号、双引号名称、行/块注释的整份脚本，核对内容和撤销；手动选区不改变“格式化全文”的行为。未闭合引号时不修改文本。
+4. 按 [SQL 语句选择流程](../../frontend/sql/sql_statement_selection.md) 验证 SPLIT 延迟/失败/版本失效时无自动执行目标，恢复后可选整块。
+5. 使用 [07-language-rewrite.sql](sql/07-language-rewrite.sql)，将页面结果上限设为 1，检查普通 SELECT、TOP/LIMIT、CTE、UNION 的结果以及最终执行 SQL；已有 LIMIT 0 必须仍为 0。锁子句使用隔离测试表单独验证，及时结束事务。
+
+2026-10-01 @Browser 访问 `http://localhost:8222/#/sql` 返回 `ERR_CONNECTION_REFUSED`，没有真实 HANA 实例；页面及 HANA-017/018 的 E1/E2 验收保持 NOT RUN，不能记为 PASS。
+
+## 13. 第 8 步：行为分析、权限与 SQL 审核
+
+### 实现与调用契约
+
+- `HanaBehaviorAnalysisSpi` 不再继承 SQL:2003，也不再用正则补写操作。`HanaBehaviorParserVisitor` 从同一棵语法树生成行为关系与审核域，复用 `sqlc-common` 的公共对象工厂。
+- 语法已统一为一份 `HanaLexer.g4` 和一份 `HanaParser.g4`，不再保留 `HanaAnalysisLexer/Parser`。同一 Parser 的 `splitRoot` 入口识别编辑器结构边界，容纳未完成表达式；`statementRoot` 入口供行为/审核严格解析整条语句，绝不回退到 `splitRoot`。两入口共用全部词法、关键字和位置规则，结构校验通过不等于行为分析通过。
+- `HanaSecDomainResolveSpi` 已接入 SQL 引擎，`HanaSecRulesSupportSpi` 已注册。查询不再因 HANA 返回 null resolver 而跳过规则。规则支持 Query、Insert、Update、Delete、Call 和已解析的 DDL 对象模型；资源范围只声明当前规则引擎能够消费的 Schema/Table/View。
+- 行为关系交给现有平台权限转换：表查询 READ，INSERT/UPDATE/DELETE/MERGE/UPSERT/REPLACE 为 WRITE，过程/函数调用 PROGRAM，DDL 为 DDL。当前编辑器上下文补齐 tenant/schema，未加引号名称按大写处理，带引号名称保留大小写。
+- CTE、子查询、跨 schema 表、UPDATE 目标别名和静态 SQLScript 表变量都追踪到真实来源；CTE/别名/变量自身不冒充物理表。静态块遍历全部分支，程序定义同时检查定义本身及其静态语句引用；这是一种保守授权策略。
+- 审核域提供 WHERE、JOIN、子查询、WITH/集合操作、TOP、插入列清单等字段。MERGE 同时生成整体与各修改分支的审核域。建表列、行内/表级约束、ALTER、CREATE INDEX 生成对应域；表级主键同步影响列的 primary/nullable。SELECT 与约束审核保留真实表资源，支持按表匹配规则。
+- 不增加 SYS/DUMMY 的免鉴权注册。系统对象仍走现有资源授权与数据库权限；仅明确列出的无引号、无限定名内置函数免 PROGRAM 对象权限，其他函数保守按程序对象处理。
+
+### 当前支持边界
+
+| 范围 | 当前行为 |
+| --- | --- |
+| 常用查询与 DML | SELECT、WITH、JOIN ON/CROSS JOIN、子查询、集合运算、TOP/LIMIT；INSERT、UPDATE、DELETE、MERGE、UPSERT/REPLACE 的已定义语法。后两者拆句类型仍为 UNKNOWN，但行为关系为写操作，不会因此跳过权限检查 |
+| 常用 DDL | CREATE TABLE/VIEW/INDEX/SCHEMA/SEQUENCE/SYNONYM、ALTER TABLE 列/约束、DROP 非索引对象、RENAME TABLE、TRUNCATE、COMMENT；高级选项未覆盖时明确拒绝 |
+| 静态 SQLScript | DO/BEGIN、过程/函数/基本触发器定义，局部变量、表变量、IF/循环/异常处理块；嵌套 SQL 逐项分析。过程 DEFAULT SCHEMA 用于其静态对象解析 |
+| CALL 和函数 | 校验 PROGRAM 权限；不展开数据库中已存在程序的内部定义，也不解析字符串参数中的 SQL。程序内部实际访问仍由数据库定义者/调用者权限控制 |
+| 动态 SQL、未知语法 | EXEC/EXECUTE IMMEDIATE、管理/DCL、未覆盖的 SQLScript/高级表达式等抛 `ThirdPartyApiException`，停止当前语句的执行/审核；不转成空关系、空域、只读或审核 PASS |
+| DROP INDEX | 静态输入无法确定所属表，明确拒绝；第 10 步对象编辑闭环需要结合元数据解决，不能通过放宽行为分析绕过 |
+| 上下文与名称 | 三段远程/跨库对象名、带 `/` 的资源对象名拒绝；SET SCHEMA 与编辑器 schema 不同则提示通过编辑器切换，防止 SQL 会话与鉴权上下文错位 |
+| 系统函数与方言规则 | 内置函数白名单是有限集合；未收录函数可能需要补充。MySQL 专有 engine/charset 等规则不代表 HANA 支持，不能因模型同名就套用所有方言字段 |
+| 审核与脱敏 | 本步只接查询/DDL 审核；列血缘及脱敏规则范围仍留第 9 步，不将非空审核域当成血缘实现 |
+
+语法依据核对了 SAP Platform 2.0 SPS 06 的 [SQL Reference](https://help.sap.com/doc/9b40bf74f8644b898fb07dabdd2a36ad/2.0.06/en-US/SAP_HANA_SQL_Reference_Guide_en.pdf) 中查询/DML/DDL 结构及 [SQLScript Reference](https://help.sap.com/doc/6254b3bb439c4f409a979dc407b49c9b/2.0.06/en-US/SAP_HANA_SQL_Script_Reference_en.pdf) 的静态块和 DEFAULT SCHEMA；约定 SPS 08 Express 的实际兼容性仍须实测。当前语法不是完整厂商语法，也不承担类型、对象存在性等服务端校验。
+
+### 本地验证
+
+```bash
+cd backend
+./gradlew :sql-hana:build :ds-hana:build :ds-hana:customFatJar :dsc-common:test :cgdm-console:test :plus-sec-rules:test :cg-detectrule:test --offline --max-workers=4
+```
+
+- 构建和插件打包通过；现有测试共 112 项（dsc-common 16、console 52、plus-sec-rules 2、cg-detectrule 42）零失败，Gradle 复用未变化模块的有效测试结果。HANA 模块暂无测试类，本轮未新增。
+- 临时 JShell 探针覆盖跨 schema/CTE/别名/子查询、MERGE、静态块、变量来源、程序 DEFAULT SCHEMA、序列、约束以及不支持语句的拒绝路径；第 6 步 14 条拆句样本也通过严格分析。第 6/7 步拆句、Unicode、流关闭、补全/改写探针回归通过。
+- 调用真实 `BehaviorRelations` 核对 WRITE/PROGRAM 权限类别；调用真实规则执行器及内置 `rule_update_001` / `rule_delete_001` 验证无 WHERE 拒绝，有 WHERE 自定义规则通过，并验证按物理表配置的规则能命中外层 CTE 查询。没有用 mock 规则结果替代执行。
+- 长期样本见 [08-analysis.sql](sql/08-analysis.sql)，页面流程见 [HANA 查询授权与审核](../../frontend/security/hana_query_authorization.md)。临时探针与构建日志在 `/private/tmp/hana-step8*`，可能被清理；上述检查不代表平台鉴权服务、真实数据库与 UI 的端到端验收。
+- @Browser 打开 `http://localhost:8222/#/sql` 返回 `ERR_CONNECTION_REFUSED`，未完成页面操作；无 HANA 实例，E1/E2 保持 NOT RUN。
+
+### Express 部署与页面验收
+
+现在可在 HANA Express 上验证 **SQL 工作台对象授权、静态 DO 块和查询规则阻断**。SQL 实现已迁至独立 `sql-hana` 子工程，由 HANA 插件包包含其 JAR；首次部署第 6～8 步组合时仍需包含第 6 步平台和第 7 步 Web/dsc-common 修改的运行包，重启加载插件。默认隐藏保持不变，隔离环境新增入口仍可使用 `/#/datasource/add?dsType=Hana`。
+
+按上述页面流程分别验证：平台只读用户搭配数据库可写账号拒绝 UPDATE/块内写入；未授权表经 CTE/JOIN/子查询仍被拒绝；CALL 缺少 PROGRAM 权限拒绝；有写权限时无 WHERE 的 UPDATE/DELETE 命中阻断级规则。另用数据库只读账号验证数据库侧拒绝，区分两层权限。所有写入只针对一次性 schema，失败后由独立只读连接核对数据未变。遇到未覆盖语法记录完整脱敏样本，不绕过分析。
+
+### SQL 模块组织
+
+解析相关代码位于 `backend/clouddm-plugins/clouddm-sql/sql-hana`，包名为 `com.clougence.sql.hana`，包含语法、拆句、SQL 引擎/插件、行为 visitor、安全域、查询改写、版本及 SQL 国际化。`ds-hana` 保留连接、元数据、编辑器服务与规则能力注册，单向依赖 `sql-hana`；SQL 模块不依赖 HANA 数据源或 JDBC 驱动。
+
+可以独立运行 `./gradlew :sql-hana:build`，后续模块测试使用 `:sql-hana:test`，无需加载连接/页面实现。本次未新增测试类，不能把 NO-SOURCE 当成已有 HANA 单测。结构迁移后，第 6～8 步离线探针全部回归通过；插件扫描既有测试通过。打包检查确认嵌套 `sql-hana` JAR 包含新的 SQL 插件、唯一一组 Lexer/Parser 和国际化资源，旧包名及 Analysis Lexer/Parser 不再打包。

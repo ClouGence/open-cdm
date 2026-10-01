@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.ds.hana.definition.ui.editor.table.HanaEditorProvider;
-import com.clougence.clouddm.ds.hana.sql.parser.HanaVersion;
+import com.clougence.sql.hana.parser.HanaVersion;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;

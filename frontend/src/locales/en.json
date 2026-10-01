@@ -4400,5 +4400,7 @@
   "sql-favorites-load-cancelled-edited": "The SQL changed while loading, so the editor was not overwritten.",
   "fa-bu-mu-biao": "Release target",
   "qing-xuan-ze-fu-ze-ren": "Select an owner",
-  "qing-kong-xuan-ze": "Clear selection"
+  "qing-kong-xuan-ze": "Clear selection",
+  "hana-sql-structural-validation": "Only SQL structure is checked; expressions, object resolution and permissions are not validated.",
+  "hana-sql-format-incomplete": "Formatting could not preserve this SQL. Complete its quotes and comments first."
 }

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.hana.sql;
+package com.clougence.sql.hana;
 
-import com.clougence.clouddm.ds.hana.i18n.HanaSqlI18nKeys;
+import com.clougence.sql.hana.i18n.HanaSqlI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;

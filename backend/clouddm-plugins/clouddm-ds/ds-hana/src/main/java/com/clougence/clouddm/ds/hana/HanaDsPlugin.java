@@ -19,6 +19,7 @@ import com.clougence.adapter.hana.HanaTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.ds.hana.definition.ui.HanaDefService;
+import com.clougence.clouddm.ds.hana.definition.secrules.HanaSecRulesSupportSpi;
 import com.clougence.clouddm.ds.hana.definition.ui.broswer.HanaDsBrowseSpi;
 import com.clougence.clouddm.ds.hana.definition.ui.ddl.HanaConvertTableDDLSpi;
 import com.clougence.clouddm.ds.hana.definition.ui.editor.data.HanaDataEditorSpi;
@@ -114,7 +115,7 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        // dsPlugin.addPluginSpi(new MySecRulesSupportSpi());
+        dsPlugin.addPluginSpi(new HanaSecRulesSupportSpi());
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

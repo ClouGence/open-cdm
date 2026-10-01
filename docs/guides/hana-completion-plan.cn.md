@@ -2,7 +2,7 @@
 
 调研日期：2026-09-30。代码基线：`a9f16e78b8288c9a4158ee9df4378ee16b80021e`。
 
-本次目标是补齐已有但因支持不完整而隐藏的 HANA 数据源。用户已确认：**优先 HANA 2.0 Platform，HANA Cloud 单独评估**。调研阶段只检查源码、核对厂商资料和制定计划；当前已推进至第 3 步实现与本地验证，实库和页面验收待环境。
+本次目标是补齐已有但因支持不完整而隐藏的 HANA 数据源。用户已确认：**优先 HANA 2.0 Platform，HANA Cloud 单独评估**。调研阶段只检查源码、核对厂商资料和制定计划；当前已推进至第 8 步实现与本地验证，实库和页面验收待环境。
 
 当前实现覆盖了大部分插件接口，但存在明确缺口和链路不一致，不能通过取消隐藏直接交付。建议按下文 **15 步**完成连接、执行、元数据、SQL、编辑、安全治理和部署验收，最后开放入口。此前的[通用数据源调研](datasource-integration-research.cn.md)保留为历史材料，待 HANA 落地后再回看和提炼 skill。
 
@@ -20,8 +20,8 @@
 
 | 编号 | 结论与证据 | 计划步骤 |
 | --- | --- | --- |
-| H01 | **确认**：`HanaDsPlugin` 为 `display=false`，配置、会话、UI 和 SQL 引擎已有注册；`configTeam()` 和 feature 注册没有实际启用相关能力。`DmHomeController` 会过滤隐藏插件。[C1][C2] | 1、13、15 |
-| H02 | **确认与推导**：`HanaSqlEngineSpi.dslProvider()` 抛出不支持异常，而 `QueryEditorController.loadDsLanguage()` 直接调用它；该调用不在获取引擎的 catch 内。查询编辑器能力加载存在失败路径。仅把抛异常改成 null 可以缓解入口问题，但无法完成语法和语言能力。[C3][C4] | 6、7、13 |
+| H01 | **确认**：`HanaDsPlugin` 为 `display=false`，配置、会话、UI 和 SQL 引擎已有注册；第 8 步已在 `configTeam()` 注册查询规则支持，其他 feature 仍按后续步骤推进。`DmHomeController` 会过滤隐藏插件。[C1][C2] | 1、13、15 |
+| H02 | **第 6 步已修正，待页面验收**：`dslProvider()` 注册 HANA 结构语法 provider，支持拆句/语法树遍历，消除能力加载处的原始异常；不声明完整语义 AST、校验或格式化。[C3][C4] | 6、7、13 |
 | H03 | **第 2 步已纠正并实现**：官方手册章节间单位说法不一致；实际 ngdbc 2.22.12/2.28.6 按毫秒读取 `connectTimeout`，700 毫秒本地超时检查通过，因此保留毫秒。属性改用字符串并校验范围；已启用 TLS 模式及证书属性转换，本地 TLS 正反例通过，实库仍待验收。[C5][E1] | 2 |
 | H04 | **第 3 步已修正，待实库验收**：catalog 按实际租户回读并核对请求上下文；schema 与对象 SQL 统一转义；隔离级别收敛为 Platform 支持集合，启用只读与位置参数能力声明。连接内 catalog 切换仍明确拒绝。[C6][C7] | 3、5 |
 | H05 | **确认与推导**：取消所用 `getQueryID()` 查询所有 RUNNING/Remote 连接，未限定当前连接；`killProcess()` 将全部 `JDBCDriverException` 当成可忽略异常。第 4 步已改为当前连接定位并保留错误，补齐取消竞态和释放路径；实库双会话、最小权限和页面反馈仍待验收。[C6][C8] | 4 |
@@ -30,7 +30,7 @@
 | H08 | **确认与待实测**：普通表数据编辑统一加入隐藏 `$rowid$`，UPDATE/DELETE 也按它定位；视图不加入该列。需验证列存、行存、无主键、复合主键及视图的实际可编辑边界。厂商值转换工具虽然存在，当前 SPI 的模板方法委托给通用父类，不能据工具类存在断言厂商值转换已经接入。[C11] | 11 |
 | H09 | **确认与推导**：`requestObjectScript()` 明确抛出不支持；默认对象组只列表、视图、序列、同义词，但元数据层还有过程/函数/触发器方法，序列/同义词详情未在 `detailLeaf()` 实现。需补齐对象从列表到详情、脚本及菜单的实际闭环。[C7][C9] | 5、10、13 |
 | H10 | **确认与待实测**：表结构生成、类型转换与 EXPLAIN 已有实现；清空表注释时 `tableAlter()` 返回 null，需核实完整变更链是否产生清空 SQL；数据编辑和 DDL 对 catalog 的处理不一致。结果列元数据把 `getCatalogName()` 赋给 schema，需核对驱动返回值，避免影响来源识别。[C6][C11][C12] | 3、5、10、11、12 |
-| H11 | **确认**：拆句复用 SQL:2003，行为分析含正则补充，`secDomainResolveSpi=null`、血缘为 `EMPTY`；查询规则引擎在没有安全域解析器时返回禁用会话。规则和血缘属于待补齐能力，SQLScript、复杂 DML 与过程体不能默认由通用语法覆盖。[C3][C13] | 6、8、9 |
+| H11 | **第 8 步已修正，待实库/页面验收**：原生 HANA 严格语法和 visitor 替换 SQL:2003/正则，行为与审核域共用分析入口；规则支持已注册，未知/动态 SQL 报错。静态 SQLScript、对象作用域与限制见 README 第 13 节；血缘仍为 EMPTY，留第 9 步。[C3][C13] | 6、8、9 |
 | H12 | **确认，避免扩大结论**：平台脱敏已有“无来源信息”处理路径。因此空血缘不等于所有脱敏都不工作；仍需验证对象权限、别名、表达式、多表及导出能否正确保护敏感数据。[C14] | 8、9、11 |
 | H13 | **确认**：编译驱动为 `2.22.12`，运行时定义多个版本至 `2.28.6`，内置驱动清单未含 HANA。公共测试已绑定 hana，已有 view/trigger 模板样本，但未找到 HANA 专项矩阵和前端复测流程。[C15][C16] | 1、2、14 |
 
@@ -40,7 +40,7 @@
 
 ## 15 步落地计划
 
-当前进度：**第 1 步文档已落地；第 2、3 步实现与本地验证完成，实库/页面验收待环境；本轮未推进其他计划步骤**。依赖表示开始该步骤完整验收前需要具备的条件；阅读和方案设计可提前进行。涉及共享模块时沿用现有契约，只修改 HANA 支持确实需要的部分，并回归受影响数据源。
+当前进度：**第 1 步文档已落地；第 2～8 步实现与本地验证完成，实库/页面验收待环境；第 9 步及以后尚未落地**。依赖表示开始该步骤完整验收前需要具备的条件；阅读和方案设计可提前进行。涉及共享模块时沿用现有契约，只修改 HANA 支持确实需要的部分，并回归受影响数据源。
 
 ### 第 1 步 固定版本环境和能力矩阵
 
@@ -84,17 +84,25 @@
 
 ### 第 6 步 建立 HANA 语法与拆句基础
 
+**进度（2026-10-01）**：HANA 专用 ANTLR 词法/结构语法、DSL 注册、顶层类型分类及语言服务拆句已落地；SQLScript 块内分号不分发为独立执行单元，错误向上传递，不回退 SQL:2003 或返回空成功。复用公共流式拆句基础设施；公共侧仅修正编辑器配置按插件声明取能力交集，没有会话、公共拆句或前端源码修改。构建、打包、离线探针通过；测试样本和边界见 [README 第 11 节](../../tests/datasource/hana/README.md#11-第-6-步hana-语法与拆句基础)。@Browser 本地服务连接拒绝，真实执行/页面待验收。前端通用分号回退仍需第 7 步处理，不能据本步宣称编辑器所有时序下都安全选择 SQLScript。
+
 **工作**：以真实 HANA SQL 和 SQLScript 样本决定现有 SQL:2003 的复用边界，补齐需要的 DSL/parser，注册正常的 `dslProvider()`；保证过程体、匿名块、注释、字符串分号及引号标识符不会被错误拆句。定义不支持语法的明确处理，不通过吞异常制造“解析成功”。
 
 **交付与验收**：查询编辑器配置接口不再因 DSL 能力调用抛错；DDL、DML、CTE、MERGE、CALL 和 SQLScript 样本能按约定分类和拆句，复杂块不会被误执行为数条残缺 SQL。主要范围：HANA `sql/parser/`、`SqlEngineSpi`，按实际差异扩展语法模块。依赖：1；运行时验收还依赖 2、3。
 
 ### 第 7 步 完成语言服务和查询改写
 
+**未关闭项 HANA-017/a：格式化能力统一。**本步格式化只有前端空白整理实现，通用工具栏仍按 `dsType === 'Hana'` 开放按钮；不能将其视为完整格式化能力已交付。此项纳入第 13 步必须完成的工作，并作为第 15 步开放前的阻塞项，详见下文验收条件。
+
+**进度（2026-10-01）**：已实现授权上下文内的表/列/函数/过程补全、引号和大小写处理、结构诊断及 UTF-16 位置、独立关键字资源、文档空白格式化，以及 HANA TOP/LIMIT 改写。HANA 页面在当前版本服务端拆句未就绪时禁止自动按分号选中片段，手动选区仍可提交。VALIDATE 仅声明并提示结构校验范围，不代表完整表达式、对象或权限校验。公共补全分析只修正 ANTLR code point 到编辑器 UTF-16 的偏移转换，无会话变更。详情、验证和限制见 [README 第 12 节](../../tests/datasource/hana/README.md#12-第-7-步语言服务与查询改写)。真实 HANA 与页面验收仍待环境。
+
 **工作**：在第 6 步基础上补齐补全、校验、格式化、关键字和对象建议，并使 `supports()`、查询编辑器配置和实际接口一致。验证 LIMIT/TOP 改写对既有限制、CTE、集合查询、排序、锁子句及多语句的行为，避免改坏 SQL 或突破平台结果限制。
 
 **交付与验收**：补全只返回当前授权上下文内对象；光标、错误位置和实际脚本对应；格式化不改语义；结果限制用真实查询验证。不得仅返回非空 DSL 就宣称语法校验可用。主要范围：`HanaLanguageSpi`、completion、rewrite、resource 及能力消费端。依赖：5、6。
 
 ### 第 8 步 补齐行为分析权限与 SQL 审核
+
+**进度（2026-10-01）**：已落地原生行为 visitor、安全域解析器与规则注册，覆盖常用 DML/DDL、跨 schema/CTE/子查询/别名、静态 SQLScript 与 PROGRAM 调用权限；动态或无法解析语句明确阻断。112 项既有测试及真实权限转换/规则执行器离线探针通过，未新增测试类。实库、平台鉴权及页面端到端验收待环境；完整边界、DROP INDEX 等待办与部署验证见 [README 第 13 节](../../tests/datasource/hana/README.md#13-第-8-步行为分析权限与-sql-审核)。本步仅修改 HANA 源码，保留此前第 6/7 步未提交内容。
 
 **工作**：完善 HANA 行为分析和安全域解析，注册与当前规则引擎匹配的规则支持；核查是否需要系统对象注册。覆盖读写对象、跨 schema 引用、子查询、CTE、MERGE、DDL 和程序调用，明确动态 SQL/无法解析语句的处理。平台资源授权与数据库账号授权分别验证。
 
@@ -126,6 +134,14 @@
 
 ### 第 13 步 对齐页面入口能力与国际化
 
+**必须关闭 HANA-017/a（格式化能力统一）**：
+
+- 移除 `frontend/src/views/sql/components/Operators.vue` 的 HANA 类型硬编码，按钮由统一能力声明控制。
+- 同步收敛 `frontend/src/components/editor/index.vue` 的 `formatSql()` 分派及 `hanaSql.js` 实现，不能只改按钮条件；核对 `HanaSupportSpi.supportFormat()` → `QueryEditorController` → `tab.support.format` 的完整契约。
+- 实现约定范围内的 HANA SQL/SQLScript 格式化；当前空白整理不能替代完整格式化验收，也不能用隐藏按钮关闭本待办。
+- 核查其他数据源的格式化声明与实现，特别回归 MySQL、Oracle，防止出现按钮可见但点击无效。以 @Browser 验证 HANA 格式化、重复操作、撤销、字符串/注释保留和未支持项反馈；前端完整构建必须成功。
+- 在能力矩阵 HANA-017/a 中记录实现与产品验收证据后才能关闭；未关闭时第 7 步格式化、第 13 步能力对齐及第 15 步默认开放均不能认定完成。
+
 **工作**：逐页核对连接表单、对象树、工具栏、右键菜单、编辑器、规则/脱敏、工单及导出入口，消除声明支持但调用报不支持的情况；补齐中英文文案和常见视口布局。优先复用已有组件，不另建 HANA 专属前端架构。
 
 **交付与验收**：用户能完成已约定产品流程，未支持项的前后端行为一致；所有可见文案有正确语言版本。使用 **@Browser 内置浏览器**复测，并形成 `tests/frontend/datasource/hana_datasource.md`；不沿用旧通用调研中的外部 Chrome 规则。主要范围：插件 UI 定义与受影响前端组件。依赖：2—12 对应功能完成。
@@ -137,6 +153,8 @@
 **交付与验收**：实际安装包可运行，普通账号和管理账号的主流程与故障恢复用例通过；没有把 `NO-SOURCE`、未执行或直接 JDBC 连通当成产品验收。前端源码如有改动，`cd package && ./all_build.sh web` 必须退出 0；专项矩阵记录剩余阻塞，浏览器流程只记长期步骤。依赖：2—13。
 
 ### 第 15 步 开放 HANA 并回看通用接入文档
+
+**开放前检查**：必须确认 [能力矩阵](../../tests/datasource/hana/hana-test-matrix.md) 中 HANA-017/a 已关闭；不得因后续 SQL 解析步骤完成而遗漏格式化特例的清理。
 
 **工作**：Platform 约定核心能力没有未解决阻塞后，调整数据源展示及必要能力声明，补充版本与限制说明；验证真实可见入口、插件重载/重启和已有连接配置。结合实际补齐过程修订通用添加数据源文档，区分“全新接入”和“补齐隐藏实现”，再决定 skill 内容。
 
@@ -187,7 +205,7 @@ Cloud 后续需单独核对连接端点、TLS 和认证、`databaseName` 的适�
 
 - **C1 插件注册**：[HanaDsPlugin.java](../../backend/clouddm-plugins/clouddm-ds/ds-hana/src/main/java/com/clougence/clouddm/ds/hana/HanaDsPlugin.java)。
 - **C2 展示过滤**：[DmHomeController.java](../../backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/controller/system/DmHomeController.java)，`displayDsPlugin()`。
-- **C3 SQL 能力**：[HanaSqlEngineSpi.java](../../backend/clouddm-plugins/clouddm-ds/ds-hana/src/main/java/com/clougence/clouddm/ds/hana/sql/HanaSqlEngineSpi.java)、[HANA SQL 实现目录](../../backend/clouddm-plugins/clouddm-ds/ds-hana/src/main/java/com/clougence/clouddm/ds/hana/sql/)。
+- **C3 SQL 能力**：[HanaSqlEngineSpi.java](../../backend/clouddm-plugins/clouddm-sql/sql-hana/src/main/java/com/clougence/sql/hana/HanaSqlEngineSpi.java)、[HANA SQL 实现目录](../../backend/clouddm-plugins/clouddm-sql/sql-hana/src/main/java/com/clougence/sql/hana/)。
 - **C4 编辑器配置**：[QueryEditorController.java](../../backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/controller/editor/query/QueryEditorController.java)，`loadDsLanguage()`。
 - **C5 配置与驱动工厂**：[dsconf 目录](../../backend/clouddm-plugins/clouddm-ds/ds-hana/src/main/java/com/clougence/clouddm/ds/hana/dsconf/)、[HanaDsFactory.java](../../backend/clouddm-plugins/clouddm-ds/ds-hana/src/main/java/com/clougence/clouddm/ds/hana/execute/dsfactory/HanaDsFactory.java)。
 - **C6 会话与能力**：[HanaHooks.java](../../backend/clouddm-plugins/clouddm-ds/ds-hana/src/main/java/com/clougence/clouddm/ds/hana/execute/HanaHooks.java)、[HanaSession.java](../../backend/clouddm-plugins/clouddm-ds/ds-hana/src/main/java/com/clougence/clouddm/ds/hana/execute/HanaSession.java)、[HanaSupportSpi.java](../../backend/clouddm-plugins/clouddm-ds/ds-hana/src/main/java/com/clougence/clouddm/ds/hana/execute/HanaSupportSpi.java)。
@@ -205,4 +223,4 @@ Cloud 后续需单独核对连接端点、TLS 和认证、`databaseName` 的适�
 
 ## 本轮交付状态
 
-已完成调研、第 1 步基线文档和第 2—5 步代码实现与本地验证。第 5 步修改 HANA 专属元数据/树分组及 cg-schema 中的 HANA 类型别名，没有扩大公共会话改动。部署第 5 步需更新平台 cg-schema 与 HANA 插件；第 4 步仍需相应 SDK/sidecar 运行包。公共事务错误反馈、SessionAgent 队列/批次终态仍为独立待办。表参数嵌套结构、复杂触发器解析/模板及真实权限/页面验证边界见专项文档。未修改前端源码、未新增测试类、未取消默认隐藏，未推进第 6 步及之后的实现。
+已完成调研、第 1 步基线文档和第 2～8 步实现与本地验证。第 8 步仅修改 HANA 插件，未扩大公共会话、权限或规则引擎逻辑；工作区保留第 6/7 步平台与前端修改，尚未提交。公共事务错误反馈、SessionAgent 队列/批次终态仍为独立待办。真实 HANA、完整平台权限/规则链路与页面验收仍待环境，不能以离线探针代替。默认隐藏保持不变，第 9 步血缘/脱敏及后续步骤尚未推进。

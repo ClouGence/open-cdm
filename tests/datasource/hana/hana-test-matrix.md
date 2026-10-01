@@ -35,12 +35,13 @@
 | HANA-012 | 列、类型、默认值与 identity | C9/C10：第 5 步修正别名、维度/NULL、identity；未知列明确报错，复杂类型结构待实库核对 | F3；精度长度、nullable、comment、default、identity 与数据库一致；未知类型不能伪装 | 5 | NOT RUN / NOT RUN |
 | HANA-013 | PK/UK/FK/索引元数据 | C9/C10、H07：第 5 步修正 UNIQUE 聚合、三字段关联和 FK 规则；本地探针通过 | F2；两条 UNIQUE 独立；复合列顺序一致；跨 schema 同名索引不混合；FK 规则正确 | 5、10 | NOT RUN / NOT RUN |
 | HANA-014 | 程序对象及参数 | C9、H06：第 5 步修正过程绑定、参数方向和返回识别；表参数嵌套列/复杂触发器仍有边界 | F4；无参数函数仍出现；IN/OUT、返回类型、过程/触发器详情与真实定义一致 | 5、10 | NOT RUN / NOT RUN |
-| HANA-015 | 编辑器能力加载、DSL | C3/C4：dslProvider 抛异常 | 页面可打开并加载 HANA 语言能力；能力声明与实际接口一致；不以返回 null 代替完整能力 | 6、7、13 | NOT RUN / NOT RUN |
-| HANA-016 | SQL 与 SQLScript 拆句 | C3：复用 SQL:2003 | F5；字符串/注释/块内分号不误切；DDL、DML、CALL/过程体/匿名块执行单元正确 | 6 | NOT RUN / NOT RUN |
-| HANA-017 | 补全、校验、格式化、资源 | C3：Language/Resource 存在，校验为空结果 | F2/F5；关键字/授权对象建议、位置/错误信息准确；格式化保语义；声明能力均可用 | 7、13 | NOT RUN / NOT RUN |
-| HANA-018 | 查询限制与分页改写 | C3：TOP/LIMIT 实现待实测 | F5；已有 TOP/LIMIT、排序、CTE、UNION、锁子句、多语句；结果上限不绕过，改写后语义一致 | 7 | NOT RUN / NOT RUN |
-| HANA-019 | SQL 行为分类与对象授权 | C3/C13：通用分析加正则，无安全域实现 | F5；平台只读配 DB RW、无授权对象、跨 schema/子查询/MERGE/CALL；正确识别读写并拒绝越权 | 8 | NOT RUN / NOT RUN |
-| HANA-020 | SQL 审核规则 | C1/C3/C13：规则未注册，null resolver 跳过查询规则 | F5；允许/提示/阻断按规则生效；不可解析与动态 SQL 不自动视为审核通过 | 8 | NOT RUN / NOT RUN |
+| HANA-015 | 编辑器能力加载、DSL | C3/C4：第 6 步已注册结构语法 DSL，页面待验 | 页面可打开并加载 HANA 语言能力；能力声明与实际接口一致；不以返回 null 代替完整能力 | 6、7、13 | NOT RUN / NOT RUN |
+| HANA-016 | SQL 与 SQLScript 拆句 | C3：第 6 步 HANA 结构语法，本地样本通过 | F5；字符串/注释/块内分号不误切；DDL、DML、CALL/过程体/匿名块执行单元正确 | 6 | NOT RUN / NOT RUN |
+| HANA-017 | 补全、校验、格式化、资源 | C3：授权补全、结构诊断、全文空白格式化已实现，待页面/实库 | F2/F5；关键字/授权对象建议、位置/错误信息准确；格式化保语义；声明能力均可用 | 7、13 | NOT RUN / NOT RUN |
+| HANA-017/a | 格式化能力统一（开放前必须关闭） | 实现待完成：Operators.vue 按 Hana 类型显示按钮，editor.formatSql() 仅处理 HANA，hanaSql.js 仅整理空白；不可按“只缺环境”结项 | 移除工具栏类型硬编码；能力声明、统一调用和实际格式化一致；HANA SQL/SQLScript 内容保留、撤销/重复操作通过；MySQL/Oracle 不出现空按钮；前端构建及 @Browser 证据齐全 | 7、13、15 门禁 | NOT RUN / NOT RUN |
+| HANA-018 | 查询限制与分页改写 | C3：HANA TOP/LIMIT、CTE/集合/尾部边界已实现，待实库 | F5；已有 TOP/LIMIT、排序、CTE、UNION、锁子句、多语句；结果上限不绕过，改写后语义一致 | 7 | NOT RUN / NOT RUN |
+| HANA-019 | SQL 行为分类与对象授权 | C3/C13：第 8 步原生语法/visitor，真实来源及读写/程序权限转换离线通过，待端到端 | F5；平台只读配 DB RW、无授权对象、跨 schema/子查询/MERGE/CALL；正确识别读写并拒绝越权 | 8 | NOT RUN / NOT RUN |
+| HANA-020 | SQL 审核规则 | C1/C3/C13：第 8 步注册规则与安全域；内置无 WHERE 规则、表范围匹配离线通过 | F5；允许/提示/阻断按规则生效；不可解析与动态 SQL 不自动视为审核通过 | 8 | NOT RUN / NOT RUN |
 | HANA-021 | 列血缘 | C3/C14：lineage EMPTY | F5；别名、JOIN、CTE、表达式、视图、星号展开回溯正确；未知来源明确记录 | 9 | NOT RUN / NOT RUN |
 | HANA-022 | 脱敏与导出权限 | C14：存在无来源处理分支，不等于全量失效 | 合成敏感列；普通/豁免用户对查询、数据编辑读取、导出分别验证；复杂和未知来源不解除保护 | 9、11 | NOT RUN / NOT RUN |
 | HANA-023 | 建表、改表、删表与 DDL 转换 | C12：Editor/UI/DDL SPI 已有实现 | F1/F2/F3；OWNER 页面预览→执行→刷新；列顺序、注释设置/清空、默认值/identity/约束一致 | 10 | NOT RUN / NOT RUN |
@@ -183,3 +184,28 @@ cgdm-plugin-sdk-4.3.0.jar    c54b88071ae7365410b9496485b3055779f3d22593811a26b43
 - @Browser 本地入口返回 `ERR_CONNECTION_REFUSED`；真实 HANA、系统视图普通账号可见性和页面全部未执行，HANA-011～014 保持 NOT RUN。Cloud 不在本轮验收范围。
 
 - 数据库上下文复核：列表、详情及列入口不匹配时统一抛出 `ThirdPartyApiException`（`CONFIG_HANA_CATALOG_MISMATCH`）；补充 20 条错误路径及 3 条正常/空结果断言，错误路径不得继续查询对象。修正后的 HANA 构建和打包通过，日志 `/private/tmp/hana-catalog-check-build.log`。
+
+## 第 6 步本地证据（2026-10-01）
+
+- HANA 专用 ANTLR 语法、DSL、分类及拆句入口已落地；主要修改 HANA 插件和验证文档/SQL，公共侧仅修正编辑器能力按插件声明取交集，没有会话、公共拆句或前端源码改动。
+- `:ds-hana:build :ds-hana:customFatJar :cgdm-console:compileJava :cgdm-console:test :sqlc-common:test :cg-dslparser:test :dsc-common:test` 离线成功；console 52 项测试通过，dsc-common 16 项现有测试的通过结果被复用，HANA/sqlc-common/cg-dslparser NO-SOURCE。打包检查确认包含 HanaLexer/HanaParser，无 ANTLR 生成工具依赖。
+- 临时探针 `/private/tmp/hana-step6.jsh` 输出 `HANA_STEP6_PASS`；覆盖范围及长期保留 SQL 样本见 [README 第 11 节](README.md#11-第-6-步hana-语法与拆句基础)。日志为 `/private/tmp/hana-step6-probe.log` 和 `/private/tmp/hana-step6-final-build.log`，临时证据可能被清理。
+- @Browser 访问 localhost:8222 连接拒绝；HANA-015/016 的 E1/E2 实库与页面状态保持 NOT RUN。客户端通用分号回退对 SQLScript 的风险转入第 7 步验收；DO 在旧行为分析仍报错，执行闭环待第 8 步；UNKNOWN、结构语法成功都不等于安全审核或语义校验通过。
+
+
+## 第 7 步实现记录（2026-10-01）
+
+语言服务、查询改写、构建与离线验证见 [README 第 12 节](README.md#12-第-7-步语言服务与查询改写)。VALIDATE 是结构校验，非完整 SQL 语义校验。第 6 步记录中的客户端分号回退风险已在 HANA 分支收紧：没有当前版本服务端结果时不自动选中执行片段，手动选区仍有效。@Browser 本地服务连接拒绝，HANA-017/018 的 E1/E2 保持 NOT RUN。
+
+## 第 8 步实现记录（2026-10-01）
+
+- 原生严格分析语法与 visitor、行为/审核共用入口、规则注册已落地。第 6/7 步提到的 SQL:2003/正则和 DO 分析缺口已替换，支持范围及保守拒绝边界见 [README 第 13 节](README.md#13-第-8-步行为分析权限与-sql-审核)。DROP INDEX 所属表解析仍待第 10 步解决，血缘/脱敏仍待第 9 步。
+- HANA build/customFatJar 与相关模块测试通过；dsc-common 16、console 52、plus-sec-rules 2、cg-detectrule 42，共 112 项零失败，未变化模块复用 Gradle 的有效测试结果；HANA 无测试源码。
+- 临时 `/private/tmp/hana-step8-boundaries.jsh` 与 `hana-step8-scoped-runtime.jsh` 通过，覆盖原生对象关系/静态块/拒绝路径、实际 WRITE/PROGRAM 转换、真实规则引擎与内置 UPDATE/DELETE 规则、按物理表匹配 CTE 规则；第 6/7 步探针回归通过。日志在同名前缀 `.log` 和 `hana-step8-*-regression.log`，临时证据可能被清理，长期样本见 `sql/08-analysis.sql`。
+- @Browser 本地服务连接拒绝，HANA-019/020 的 E1/E2 保持 NOT RUN；没有平台鉴权服务、真实数据库和页面端到端证据。本步没有新增公共模块、前端源码或测试类改动，没有提交或开放默认入口。
+
+### 第 8 步结构收敛
+
+- SQL 引擎、语法、行为/审核、改写及 SQL 国际化迁入 `clouddm-sql/sql-hana`，数据源单向依赖该模块，`settings.gradle` 已注册；连接和页面服务仍在 `ds-hana`。
+- 只生成一组 HanaLexer/HanaParser。同一 grammar 保留 `splitRoot` 结构拆句和 `statementRoot` 严格分析入口，共享词法与 Parser 工厂；执行/审核不能回退到结构入口。
+- 独立模块构建、数据源插件打包、既有插件扫描测试通过；第 6～8 步离线探针迁移包名后回归通过。实际 `ds-hana-lib.jar` 嵌套 JAR 扫描能发现新包名的 HanaSqlPlugin 与 HanaDsPlugin，旧包名未残留。未新增测试类，未提交代码；产品 E1/E2 状态不变。
