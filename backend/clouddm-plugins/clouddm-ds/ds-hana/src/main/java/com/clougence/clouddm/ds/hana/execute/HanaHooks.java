@@ -30,8 +30,6 @@ import com.clougence.clouddm.sdk.execute.session.SessionHook;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
-import com.sap.db.jdbc.exceptions.JDBCDriverException;
 
 /**
  * only for integration test
@@ -149,39 +147,35 @@ public class HanaHooks implements SessionHook {
 
     @Override
     public String getQueryID(Connection conn) throws SQLException {
-        /*
-            The following query returns the current database connection IDs and the statements that the sessions are executing.
-         */
-        try (Statement s = conn.createStatement();
-                ResultSet resultSet = s.executeQuery("SELECT C.CONNECTION_ID\n" + "FROM M_CONNECTIONS C JOIN M_PREPARED_STATEMENTS PS\n"
-                                                     + "    ON C.CONNECTION_ID = PS.CONNECTION_ID AND C.CURRENT_STATEMENT_ID = PS.STATEMENT_ID\n"
-                                                     + "WHERE C.CONNECTION_STATUS = 'RUNNING'  AND C.CONNECTION_TYPE = 'Remote'")) {
-            return ((SingleValueRowMapper<String>) (rs, columnType, columnTypeName, columnClassName) -> rs.getString(1)).mapRow(resultSet);
+        try (Statement statement = conn.createStatement(); ResultSet result = statement.executeQuery("SELECT CURRENT_CONNECTION FROM SYS.DUMMY")) {
+            result.next();
+            return result.getString(1);
         }
     }
 
     @Override
     public void killProcess(Connection connection, String queryID) throws SQLException {
-        /*
-            The transaction of the canceled session is rolled back.
-            The statement that was executing returns error code 139 (current operation canceled by request and transaction rolled back).
-         */
-        String sql = "ALTER SYSTEM CANCEL SESSION '" + queryID + "'";
-        try {
-            try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                ps.executeUpdate();
-            }
-        } catch (JDBCDriverException e) {
-            // if throw JDBCDriverException, it means the session is not running, so ignore it.
+        String sql = "ALTER SYSTEM CANCEL SESSION '" + Long.parseLong(queryID) + "'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.executeUpdate();
         }
     }
 
     @Override
     public PreparedStatement executeStatement(Connection conn, QueryRequest query) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-        stmt.setFetchSize(200);
-        stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
-        return stmt;
+        try {
+            stmt.setFetchSize(200);
+            stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
+            return stmt;
+        } catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException closeError) {
+                e.addSuppressed(closeError);
+            }
+            throw e;
+        }
     }
 
     @Override

@@ -224,3 +224,49 @@ ngdbc 2.28.6   45ad4207c37f5502df4942b76fc1b1a7494d171c8c261f5a9373f7a56a4af59b
 - `DmlExplainPreInitHandler.closeExplainSession()` 已分别捕获回滚和关闭异常，清理路径需要保留原始错误并继续资源释放。
 
 后续应区分“用户主动提交/回滚，需要明确结果”和“异常清理中的尽力回滚，需要保护原始错误”，同步修正通知、任务终态及连接清理，并覆盖断网、提交结果未知、回滚再次失败和自动提交恢复失败。HANA-008 的失败反馈仍待解决，不能标为验收通过。
+
+## 9. 第 4 步：取消与资源释放
+
+### 实现边界
+
+- 会话初始化查询 `SELECT CURRENT_CONNECTION FROM SYS.DUMMY` 并缓存自己的连接 ID；取消复用既有独立连接机制，不在忙连接上查询 ID。连接属性固定 `reconnect=false`，断线后显式新建会话并重新初始化上下文，不自动恢复事务或重放 SQL。
+- 取消连接建立后校验原请求是否仍在执行。原请求已结束则关闭临时连接并返回；重复取消合并到正在进行的请求。取消尚未返回时，新查询立即报 `HANA cancellation is still in progress`，新的查询工作线程不等待取消 I/O，取消结束后可重新提交新查询。
+- 取消命令的权限、网络等错误保留并通过 `ThirdPartyApiException` 交给现有 API 错误链。只有本地确认没有活动请求才直接返回；不猜测未知的服务端错误码，也不把所有 JDBC 错误当作“已结束”。请求结束与服务端处理之间仍可能收到服务端状态变化错误，此时原样反馈。
+- 流式读取保留取消标记直到执行退出，先检查标记再调用 `ResultSet.next()`；已阻塞在 JDBC 内的调用依赖服务端取消或配置的通信超时退出。普通查询及 EXPLAIN 的 Statement 参数初始化失败会关闭 Statement；清理失败作为 suppressed exception 保留原始错误。
+- 执行错误 **139** 明确表示事务已回滚，此时清除待确认标记。仅发送取消请求成功、流式读取在本地停止、取消失败或断线，都不能凭此断言已回滚。SQLState `08` 关闭旧连接，保留未知事务结果；重新打开会话取得新连接 ID，不复用旧事务。
+- 公共 SDK：状态刷新失败不会覆盖原查询错误；计时器调度抛出 RuntimeException 时复位执行标记并原样上抛；异常钩子通过 finally 执行原有 triggerFailed，钩子异常仍向调用者传播。保留 triggerCompleted/triggerFailed 的原有完成处理，结束时停止后续等待提示。`DefaultRdbSession.commit()/rollback()` 保留原有处理契约。
+- sidecar：仅修复关闭必达。取消或事务通知失败仍结束结果构建并调用底层 session.close()，保留首个错误及关闭异常。不修改 recycling、队列、批次状态或完成通知流程。
+
+选择独立连接的依据：检查 ngdbc 2.28.6 的 `StatementSapDB._cancel()` / `ConnectionSapDB._cancel(Statement)`，其内部同样建立独立连接并执行 `ALTER SYSTEM CANCEL SESSION`。沿用项目资源工厂可以继续使用现有 TLS/SSH 配置，并在慢连接返回后再次核对请求生命周期。没有用真实服务端验证该驱动内部路径，也没有改用原生取消接口。
+
+依据：[SAP Platform CURRENT_CONNECTION](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20dde16475191014bf3090e6b2e9857f.html)、[Platform 2.0 SPS 06 SQL 参考手册，印刷页 505](https://help.sap.com/doc/9b40bf74f8644b898fb07dabdd2a36ad/2.0.06/en-US/SAP_HANA_SQL_Reference_Guide_en.pdf)（取消和 139）、[SAP Client 重连说明](https://help.sap.com/docs/SAP_HANA_CLIENT/f1b440ded6144a54ada97ff95dac7adf/197dc47daa1d43efa5a77d3148717842.html)（禁用透明重连）。Cloud 仍单独评估。
+
+### 本地验证
+
+从 `backend/` 执行：
+
+```bash
+./gradlew :ds-hana:build :ds-hana:customFatJar :cgdm-plugin-sdk:test :dsc-common:test :cgdm-sidecar:test :cgdm-sidecar:jar --offline --max-workers=4
+```
+
+已通过构建和现有测试（SDK 4 项、dsc-common 16 项；HANA/sidecar 没有测试源码）。另使用临时 JShell JDBC 代理、线程池和 CountDownLatch 注入慢连接及错误，验证当前连接定位、重复/迟到取消、取消过程中新查询拒绝、权限错误反馈、流式读取停止、资源 close 次数、139/断网事务状态、计时器拒绝调度的异常传播/执行标记复位，以及取消或通知失败时底层关闭必达。分别使用两个固定 ngdbc 版本类路径执行取消探针；这仅是应用生命周期验证，不代表两个驱动均已通过真实取消协议测试。第 3 步会话/事务探针回归通过，未新增测试类。证据和制品摘要见矩阵。
+
+### 公共队列与终态待办
+
+本轮复核已撤回 SessionAgent 的 recycling 新分支、关闭时清空队列和跳过完成流程的提前返回。队列取消、批次完成事件、审计收尾及关闭/提交并发需要作为独立公共生命周期问题处理，覆盖不同数据源与完整通知链路后再落地。之前探针中“关闭后清空队列、拒绝复用、已排队任务退出”的结果只适用于已撤回版本，不能作为当前交付证据。HANA-010 的这部分门禁仍未完成。
+
+### Express 与页面验收入口
+
+本步可以准备 HANA Express 开始验证**查询取消、关闭会话和断线反馈**。需要部署包含本次 `cgdm-plugin-sdk`、`cgdm-sidecar` 及 `ds-hana` 的完整运行包；只更换 HANA 插件不足以验证本步。默认隐藏不变，隔离环境仍使用 `/#/datasource/add?dsType=Hana`。当前 `localhost:8222` 未运行，未进行页面验收；若编辑器仍受后续 DSL/元数据缺口阻塞，记录具体阻塞，不把直连 JDBC 结果当作页面通过。
+
+| 场景 | 操作与预期 |
+| --- | --- |
+| 双会话精确取消 | A/B 分别读取 `CURRENT_CONNECTION`，执行可控长查询或隔离测试表上的锁等待；取消 A，A 终止而 B 不受影响，管理连接观察连接/语句数量 |
+| 重复、迟到取消 | 连续点击取消；对已结束查询再次取消；延迟取消连接建立，在取消完成前提交新查询，确认明确报忙且随后新查询不被旧取消误杀 |
+| 错误反馈 | 使用经实测无取消权限的身份、阻断临时取消连接或关闭网络；错误在页面可见，不能显示为已成功取消；不要预设同用户取消必然需要 SESSION ADMIN |
+| 流式与关闭 | 接收大结果期间取消、关闭会话；取消失败时再关闭；检查结果停止和旧连接、Statement、ResultSet 释放；排队批次的终态及审计通知另行验证 |
+| 事务结果 | 事务内写入后制造锁等待再取消；收到 139 后由另一会话确认写入回滚。断网或未得到 139 时保留未知结果，先核实数据库结果再决定后续操作 |
+| 显式重连 | 断网再恢复，旧会话不得透明执行后续 SQL；重新打开取得新 ID、恢复配置上下文，不恢复旧事务或重复写入 |
+| TLS/SSH 与边界 | 对 E1/E2 分别复测独立取消连接的 TLS/SSH、有限连接/通信超时、EXPLAIN 中止和断线；超时设为 0 时不能承诺在有限时间内终止阻塞 I/O |
+
+HANA-009/010 保持 NOT RUN，待以上产品链路验证后逐项更新。

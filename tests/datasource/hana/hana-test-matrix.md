@@ -29,8 +29,8 @@
 | HANA-006 | database/schema 上下文 | C6/C7：第 3 步已回读实际租户、核对请求上下文并转义 schema；结果列来源改用 JDBC schema | F2；租户与当前 schema 回读一致；特殊名称可切换；A/B 同名对象不串；不支持的 catalog 切换明确拒绝 | 3、5 | NOT RUN / NOT RUN |
 | HANA-007 | 查询、结果与异常 | C6/C11：Session、结果转换及异常 SPI 已有实现 | F1/F3；SELECT、空集、NULL、DML affected rows、无效 SQL/约束冲突；结果类型/列来源正确，反馈可理解 | 3、5、11 | NOT RUN / NOT RUN |
 | HANA-008 | 自动提交、事务及隔离 | C6：第 3 步收敛隔离声明，补齐只读设置；公共提交/回滚保留日志处理，失败反馈待统一修复 | F1、DATA_RW；双连接观察 commit/rollback、DDL 边界及支持的隔离级别；未支持能力 UI 和服务端一致 | 3 | NOT RUN / NOT RUN |
-| HANA-009 | 精确取消及失败反馈 | C6/C8、H05：query ID 未限定当前连接，异常被忽略 | F6，两会话；只取消目标；权限拒绝可见；重复/已完成取消收敛；取消后事务与连接状态正确 | 4 | NOT RUN / NOT RUN |
-| HANA-010 | 断网、关闭、流式中止与重连 | C6/C8：需追踪公共生命周期 | F6；资源回到基线；无重复执行；未知结果写入不盲目重试；重新打开会话上下文正确 | 4、11 | NOT RUN / NOT RUN |
+| HANA-009 | 精确取消及失败反馈 | C6/C8、H05：第 4 步已修复当前连接 ID、失败反馈及迟到/重复取消；本地探针通过 | F6，两会话；只取消目标；权限拒绝可见；重复/已完成取消收敛；取消后事务与连接状态正确 | 4 | NOT RUN / NOT RUN |
+| HANA-010 | 断网、关闭、流式中止与重连 | C6/C8：第 4 步已修复部分释放路径、关闭透明重连；公共队列/批次终态单独处理，实库与页面待验收 | F6；资源回到基线；无重复执行；未知结果写入不盲目重试；重新打开会话上下文正确 | 4、11 | NOT RUN / NOT RUN |
 | HANA-011 | 对象树与权限过滤 | C7/C9：树分组与详情不齐 | F2/F4、OWNER/RO/LIMITED；表/视图/序列/同义词/过程/函数/触发器列表详情闭环；单对象失败不使整树失败 | 5、13 | NOT RUN / NOT RUN |
 | HANA-012 | 列、类型、默认值与 identity | C9/C10：类型转换存在未知值路径 | F3；精度长度、nullable、comment、default、identity 与数据库一致；未知类型不能伪装 | 5 | NOT RUN / NOT RUN |
 | HANA-013 | PK/UK/FK/索引元数据 | C9/C10、H07：多 UNIQUE 合并、索引关联范围风险 | F2；两条 UNIQUE 独立；复合列顺序一致；跨 schema 同名索引不混合；FK 规则正确 | 5、10 | NOT RUN / NOT RUN |
@@ -73,7 +73,7 @@
 | --- | --- | --- |
 | B1 | 未提供实际 Express 实例、账号和执行侧网络路径 | README 环境表已回填、版本回读、tenant 登录、角色与隔离 schema 就绪 |
 | B2 | 未获得 TLS/SSH 测试条件 | CA/主机名和跳板就绪，证书错误/隧道失败可控；只影响相关用例，不能将其记为通过 |
-| B3 | 连接实库验收待环境；取消、元数据、DSL 和治理等仍有已知实现缺口 | 第 2 步本地证据见下文；对应计划步骤完成后使用新的代码/制品验收，静态修复不直接关闭实测项 |
+| B3 | 连接实库验收待环境；取消、元数据、DSL 和治理等仍有已知实现缺口 | 第 2—4 步本地证据见下文；对应计划步骤完成后使用新的代码/制品验收，静态修复不直接关闭实测项 |
 | B4 | 默认隐藏，无已验收的 HANA 页面流程 | 隔离环境使用 README 中的直达入口执行 @Browser 流程；当前页面服务未启动，第 15 步才默认开放 |
 | B5 | 特殊对象/类型范围未定 | HANA-035/036 逐项给出范围与证据；正式支持说明与矩阵一致，不静默漏项 |
 
@@ -142,3 +142,32 @@ cgdm-plugin-sdk-4.3.0.jar    c54b88071ae7365410b9496485b3055779f3d22593811a26b43
 手工实库验收场景见 [README 第 3 步](README.md#8-第-3-步会话上下文与事务语义)。未新增测试类；未执行全量打包或部署。
 
 公共层复核结论：回滚被 AutoExecJob 异常清理调用，单点增加 throw 会覆盖原始错误并改变任务终态路径，因此已撤回；主动操作错误反馈也尚未闭环。原先“异常向上传递”的探针结果仅适用于已撤回的临时版本，不能作为当前交付证据。后续范围见 README 的“公共事务错误契约待办”。
+
+## 第 4 步本地证据（2026-10-01）
+
+基线 `5719fb22b08fcd1d42983888d5553087d4cccf60` 加本步变更；以下均为构建或本地代理验证，不是 E1/E2 产品用例 PASS。
+
+| 检查 | 结果与限制 |
+| --- | --- |
+| HANA 构建/插件包、SDK、sidecar | BUILD SUCCESSFUL；SDK 4 项及 dsc-common 16 项现有测试通过；sidecar/HANA test 为 NO-SOURCE |
+| 精确定位、空闲取消 | 初始化使用 CURRENT_CONNECTION，空闲时不创建取消连接；活动查询取消只携带自己的 ID |
+| 慢连接与重复取消 | CountDownLatch 阻塞临时连接创建；重复取消不重复创建；原查询完成后跳过取消，关闭临时连接；取消仍在进行时新查询明确失败且没有执行 SQL |
+| 取消失败及资源 | 注入权限错误，保留 SQLException 原因并经 ThirdPartyApiException 上报；临时 Statement/Connection 均 close，原事务标记不被清空 |
+| 查询、流式及初始化释放 | 普通/EXPLAIN Statement 设置失败调用 close；close 二次错误不覆盖首错；流式取消返回后不再 next，ResultSet/Statement 均 close |
+| 事务与断线 | 注入 139 并叠加状态刷新失败，仍清除待确认标记；SQLState 08006 关闭旧连接且保留未知事务状态；元数据 callback 断线同样关闭 |
+| 执行标记与后台提示 | 查询失败后 isExecuting=false；计时器拒绝调度原样向外抛出且复位执行标记；结束后的定时回调不再发送/续订等待提示 |
+| sidecar 关闭 | 取消/回滚通知分别失败仍关闭底层会话并结束结果构建；主异常保留，关闭错误 suppressed；不修改队列、批次终态及通知流程 |
+| 第 3 步回归 | schema/tenant、隔离、只读、参数、提交/回滚原契约、初始化释放和新会话上下文探针通过 |
+| 环境边界 | ngdbc 2.22.12、2.28.6 类路径下取消代理检查通过；没有 HANA 服务端；localhost:8222 连接拒绝，页面和真实网络取消未验证 |
+
+临时探针和日志位于 `/private/tmp/hana-cancel-verify.jsh`、`/private/tmp/hana-agent-close-verify.jsh`、`/private/tmp/hana-step4-*.log`，未加入仓库。复跑场景与常规构建命令见 [README 第 4 步](README.md#9-第-4-步取消与资源释放)。公共层修改影响其他关系型数据源的异常清理与关闭流程；20 项现有测试覆盖 SCM/SSL，并不覆盖公共生命周期，临时探针也未覆盖完整审计链路。未运行全量数据库集成验收或部署。
+
+公共层范围复核后，AbstractDsSession 恢复原有完成方法及异常传播，仅补充调度失败的复位和异常钩子失败时的清理；SessionAgent 撤回队列/终态调整，保留关闭必达。旧探针中的队列清空和拒绝复用结论不适用于当前版本，此问题转为独立待办，见 README。收窄后的构建及探针日志为 `/private/tmp/hana-step4-narrow-*.log`。
+
+本次制品 SHA-256（公共层收窄后重新构建，部署需使用同一构建）：
+
+```text
+99ff9d2b48840be26aa66ce80b69bdcb2a3d96937d47fe118e5bb63a8f79e8fe  ds-hana-lib.jar
+2651ad66b477a771e918126dda42b48c6e2f823e6411a9ac31a69b50793bee9c  cgdm-plugin-sdk-4.3.0.jar
+71dee18308ecc56b60dcda5bdcde458e47cddeb19c0962731aeb989dc072a64d  cgdm-sidecar-4.3.0.jar
+```

@@ -113,6 +113,8 @@ public class HanaDsFactory implements DsFactory<Connection> {
             props.setProperty(ConnectionProperty.APPLICATION.getName(), clientName);
         }
 
+        // A session keeps its physical connection ID; reconnect must create a new session explicitly.
+        props.setProperty(ConnectionProperty.RECONNECT.getName(), "false");
         // ngdbc 2.22/2.28 consume connectTimeout in milliseconds, like Socket.connect.
         props.setProperty(ConnectionProperty.CONNECT_TIMEOUT.getName(), timeoutMillis(dsConfig, DsConfigKeys.CONNECT_TIMEOUT_MS, 5000, 1));
         props.setProperty(ConnectionProperty.COMMUNICATION_TIMEOUT.getName(), timeoutMillis(dsConfig, DsConfigKeys.SO_TIMEOUT_SEC, 10, 1000));
