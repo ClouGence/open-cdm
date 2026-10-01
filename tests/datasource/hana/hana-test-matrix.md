@@ -1,6 +1,6 @@
 # HANA Platform 能力与验收矩阵
 
-更新时间：2026-09-30。代码起点：`a9f16e78b8288c9a4158ee9df4378ee16b80021e`。环境组合、账号与 F1–F6 样本定义见 [README](README.md)；修复顺序及 C1–C16 源码链接见[15 步补齐计划](../../../docs/guides/hana-completion-plan.cn.md)。
+更新时间：2026-10-01。代码起点：`a9f16e78b8288c9a4158ee9df4378ee16b80021e`。环境组合、账号与 F1–F6 样本定义见 [README](README.md)；修复顺序及 C1–C16 源码链接见[15 步补齐计划](../../../docs/guides/hana-completion-plan.cn.md)。
 
 **产品验收总体状态：BLOCKED（尚无真实 HANA 实例，CloudDM 页面服务未启动）。下表产品用例仍为 NOT RUN。** 第 2 步已构建插件并通过下文的本地配置、驱动、TLS 和超时检查；这些证据不替代 E1/E2 实库验收。未新增测试类。
 
@@ -26,9 +26,9 @@
 | HANA-003 | 连接及读取超时 | C5、H03：两个驱动实测按毫秒；字符串属性与范围校验已修正 | 不可达端口、慢连接、查询阻塞分别验证；耗时符合配置且有误差记录；错误可见、线程连接释放 | 2、4 | NOT RUN / NOT RUN |
 | HANA-004 | TLS 与证书校验 | C5：TLS 模式/属性转换已补齐，本地合法与错误证书检查通过 | 合法 CA/主机名成功，错误 CA/主机名失败；配置往返；双向 TLS 若声明支持也需对应证书用例 | 2 | NOT RUN / NOT RUN |
 | HANA-005 | SSH 转发 | C5：声明支持；已约束 SSH 的证书主机名及自定义 URL，实际隧道待测 | 跳板可达/不可达、隧道断开、SSH 与 TLS 组合；不能泄露密钥；失败终态和隧道释放 | 2、4 | NOT RUN / NOT RUN |
-| HANA-006 | database/schema 上下文 | C6/C7：catalog 返回 null、schema 原样拼接 | F2；租户与当前 schema 回读一致；特殊名称可切换；A/B 同名对象不串；不支持的 catalog 切换明确拒绝 | 3、5 | NOT RUN / NOT RUN |
+| HANA-006 | database/schema 上下文 | C6/C7：第 3 步已回读实际租户、核对请求上下文并转义 schema；结果列来源改用 JDBC schema | F2；租户与当前 schema 回读一致；特殊名称可切换；A/B 同名对象不串；不支持的 catalog 切换明确拒绝 | 3、5 | NOT RUN / NOT RUN |
 | HANA-007 | 查询、结果与异常 | C6/C11：Session、结果转换及异常 SPI 已有实现 | F1/F3；SELECT、空集、NULL、DML affected rows、无效 SQL/约束冲突；结果类型/列来源正确，反馈可理解 | 3、5、11 | NOT RUN / NOT RUN |
-| HANA-008 | 自动提交、事务及隔离 | C6：声明全部隔离枚举，需核对 | F1、DATA_RW；双连接观察 commit/rollback、DDL 边界及支持的隔离级别；未支持能力 UI 和服务端一致 | 3 | NOT RUN / NOT RUN |
+| HANA-008 | 自动提交、事务及隔离 | C6：第 3 步收敛隔离声明，补齐只读设置；公共提交/回滚保留日志处理，失败反馈待统一修复 | F1、DATA_RW；双连接观察 commit/rollback、DDL 边界及支持的隔离级别；未支持能力 UI 和服务端一致 | 3 | NOT RUN / NOT RUN |
 | HANA-009 | 精确取消及失败反馈 | C6/C8、H05：query ID 未限定当前连接，异常被忽略 | F6，两会话；只取消目标；权限拒绝可见；重复/已完成取消收敛；取消后事务与连接状态正确 | 4 | NOT RUN / NOT RUN |
 | HANA-010 | 断网、关闭、流式中止与重连 | C6/C8：需追踪公共生命周期 | F6；资源回到基线；无重复执行；未知结果写入不盲目重试；重新打开会话上下文正确 | 4、11 | NOT RUN / NOT RUN |
 | HANA-011 | 对象树与权限过滤 | C7/C9：树分组与详情不齐 | F2/F4、OWNER/RO/LIMITED；表/视图/序列/同义词/过程/函数/触发器列表详情闭环；单对象失败不使整树失败 | 5、13 | NOT RUN / NOT RUN |
@@ -64,7 +64,7 @@
 | HANA-034 | 系统库/租户管理、备份恢复、HA/集群 | 首轮为 tenant 内数据库管理；SYSTEMDB 仅用于准备诊断。未承诺数据库运维控制台或 HA 认证 | 1、14 | 未纳入首轮产品目标 |
 | HANA-035 | Calculation View、HDI、分析/空间特殊对象 | 保留可识别元数据和只读查询的评估项；创建/图形编辑范围需第 5/10 步结合产品能力定界，未知类型不得伪映射 | 5、10、13 | 待定界、NOT RUN |
 | HANA-036 | 空间等特殊类型的数据编辑 | 第 5/11 步逐类型决定读取、编辑、导出的契约；不能因普通字符串测试通过就宣称全类型支持 | 5、11 | 待定界、NOT RUN |
-| HANA-037 | readOnly、连接内 catalog 切换、隔离级别 | 当前声明与 HANA Platform 实际能力逐项比对；确认不支持后 UI 禁用且服务端拒绝，不能只隐藏入口 | 3、13 | 待实测、NOT RUN |
+| HANA-037 | readOnly、连接内 catalog 切换、隔离级别 | 第 3 步已声明只读支持、拒绝连接内 catalog 切换及 READ UNCOMMITTED；页面和数据库效果仍需实测 | 3、13 | 待实测、NOT RUN |
 | HANA-038 | HANA Cloud | E4 单独评估；不继承 E1/E2 结论，Platform 发布不等待 Cloud | 独立后续评估 | 未纳入本轮验收 |
 
 ## 阻塞项与关闭条件
@@ -117,3 +117,28 @@ CloudDM 权限角色 / 数据库角色 / 样本对象：
 TLS 探针中的合法连接在握手后因为对端没有 HANA 协议而失败，这是预期的测试边界；成功依据是 TLS 会话与客户端身份握手证据。错误主机名还核对驱动的 `Host name verification failed`，不只依赖服务端握手状态。后续 E1/E2 要在真实实例重复相关正反例，再执行页面测试连接与保存重开。
 
 2026-10-01 校验职责调整：`HanaConfig.asDriverProperties()` 仅转换属性；URL/SSH 冲突由 `HanaDsFactory` 校验，SSH 证书主机名由 `HanaSslProperties` 校验。SSH 标记在生成 JDBC 属性时移除。重新构建插件通过；两个驱动版本的定向检查均确认属性转换不拒绝这两种组合、连接创建时仍拒绝，DISABLED/TRUST 不要求证书主机名，直连允许省略证书主机名覆盖。未重跑此前完整 TLS 握手矩阵，实库/页面状态不变；上表插件摘要已更新。
+
+## 第 3 步本地证据（2026-10-01）
+
+代码基线：`e45aec69570c92e52cc8c7e371c7834f616ac7f2` 加本轮工作区变更。第 2 步的制品摘要是历史快照；公共 SDK 的异常上抛改动经调用链复核后已撤回，当前只交付 HANA 插件修改。
+
+| 检查 | 结果与边界 |
+| --- | --- |
+| 构建 | `:ds-hana:build`、`:ds-hana:customFatJar` 成功；HANA 无测试源，不能解释为实库集成测试通过 |
+| 公共模块既有测试 | `:cgdm-plugin-sdk:test` 4 项、`:dsc-common:test` 16 项通过；分别为 SCM 工具/SSL 测试，并非事务专项测试 |
+| 会话定向验证 | 临时 JShell + JDBC 动态代理：租户回读/错配拒绝、schema 引号/大小写/限定名、列来源、四个隔离选项、服务端拒绝 READ UNCOMMITTED、只读初始化及切换、类型化位置参数/NULL 绑定均通过 |
+| 事务风险验证 | 提交/回滚恢复原有日志处理、不向调用者抛异常的行为；失败保留待提交标记，成功后清除；自动提交/隔离/只读切换失败保留原状态；schema 失败回读原值；初始化错配关闭连接；新连接重新应用传入上下文。未访问真实数据库，不能据此认定并发可见性或断网恢复通过 |
+| 驱动核对 | ngdbc 2.22.12/2.28.6 的 schema 设置及 READ ONLY/READ WRITE 路径均存在；列元数据 getCatalogName 返回空、getSchemaName 返回 schema。用于修正接口选择，不是两组服务器兼容性认证 |
+| 页面 | @Browser 本轮访问 localhost:8222 仍返回 ERR_CONNECTION_REFUSED；未执行具体页面流程 |
+| 实库门禁 | HANA-006、008、037 仍 NOT RUN；尤其双连接提交/回滚可见性、只读写入拒绝、隔离并发、DDL 隐式提交和刷新/重连必须实际执行 |
+
+当前构建制品 SHA-256：
+
+```text
+ds-hana-lib.jar    544bf67061b2e9c2ec50cf236b82c400a9d35969a926f886b6ee28c0eaaf3b61
+cgdm-plugin-sdk-4.3.0.jar    c54b88071ae7365410b9496485b3055779f3d22593811a26b43796cf9390babd
+```
+
+手工实库验收场景见 [README 第 3 步](README.md#8-第-3-步会话上下文与事务语义)。未新增测试类；未执行全量打包或部署。
+
+公共层复核结论：回滚被 AutoExecJob 异常清理调用，单点增加 throw 会覆盖原始错误并改变任务终态路径，因此已撤回；主动操作错误反馈也尚未闭环。原先“异常向上传递”的探针结果仅适用于已撤回的临时版本，不能作为当前交付证据。后续范围见 README 的“公共事务错误契约待办”。

@@ -38,6 +38,20 @@ public class HanaDialect extends AbstractDialect implements CompletionDialect {
         return "\"";
     }
 
+    @Override
+    protected String fmtNameValue(boolean useQualifier, String name) {
+        if (useQualifier) {
+            return name.replace("\"", "\"\"");
+        }
+        return name;
+    }
+
+    @Override
+    public String fmtTableName(boolean useDelimited, String catalog, String schema, String table) {
+        // Catalog identifies the connected tenant; local SQL names are schema.object.
+        return super.fmtTableName(useDelimited, null, schema, table);
+    }
+
     public String fmtComment(String str) {
         if (StringUtils.isBlank(str)) {
             return str;

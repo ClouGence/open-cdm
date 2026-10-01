@@ -1,8 +1,8 @@
 # HANA Platform 验证环境与复跑入口
 
-更新时间：2026-09-30。对应[补齐计划第 1 步](../../../docs/guides/hana-completion-plan.cn.md)。
+更新时间：2026-10-01。对应[HANA 补齐计划](../../../docs/guides/hana-completion-plan.cn.md)。
 
-**第 1 步基线已确定，第 2 步连接/TLS 实现与本地验证已完成；真实实例和页面验收仍待环境。**后续结果持续维护在[能力矩阵](hana-test-matrix.md)，不按执行日期另建报告。
+**第 1 步基线已确定，第 2 步连接/TLS 与第 3 步会话/事务实现及本地验证已完成；真实实例和页面验收仍待环境。**后续结果持续维护在[能力矩阵](hana-test-matrix.md)，不按执行日期另建报告。
 
 ## 1. 固定验证基线
 
@@ -108,8 +108,8 @@ CloudDM 用户另外区分：数据源管理员、授权只读用户、授权写
 | 计划节点 | 届时可邀请用户验证的内容 | 必要条件 |
 | --- | --- | --- |
 | 第 1 步 | 环境/版本说明和矩阵；没有新增页面功能 | 已交付基线文档 |
-| 第 2 步（当前） | 新增/编辑连接、保存重开、测试连接、TLS/SSH 配置 | 本步代码已完成，待部署插件、E1 可达；隔离环境可尝试下文直达入口，查询编辑器仍可能受 DSL 缺口阻塞 |
-| 第 3–6 步相关修复后 | schema/事务、取消、对象树、查询编辑器基础加载和执行 | 对应会话/元数据修复及第 6 步 DSL 入口完成，逐项报告实际已通过范围 |
+| 第 2 步 | 新增/编辑连接、保存重开、测试连接、TLS/SSH 配置 | 本步代码已完成，待部署插件、E1 可达；隔离环境可尝试下文直达入口，查询编辑器仍可能受 DSL 缺口阻塞 |
+| 第 3 步已实现、后续相关修复后 | schema/事务、取消、对象树、查询编辑器基础加载和执行 | 对应会话/元数据修复及第 6 步 DSL 入口完成，逐项报告实际已通过范围 |
 | 第 7–12 步各步后 | 补全与改写、审核权限、脱敏、结构编辑、数据编辑/导入导出、执行计划/工单 | 每步只邀请验证已打通的具体页面和用例，并说明剩余限制 |
 | 第 13–15 步 | 页面能力与国际化、发布包回归、最终默认入口 | 核心矩阵和版本组合门禁通过；默认开放最后进行 |
 
@@ -176,3 +176,51 @@ ngdbc 2.28.6   45ad4207c37f5502df4942b76fc1b1a7494d171c8c261f5a9373f7a56a4af59b
 先验收驱动默认值、连接表单、租户/schema 保存重开、直连测试连接，再验收合法/错误 CA、错误证书主机名、客户端证书和 SSH 场景。查询编辑器仍可能被第 6 步 DSL 缺口阻塞，本步不声明查询、事务或取消完整可用。
 
 本机 @Browser 访问 `http://localhost:8222` 返回 `ERR_CONNECTION_REFUSED`；因此未完成连接页面、保存重开、国际化显示、真实登录与 SSH 隧道复测。服务与 HANA 实例就绪后，执行相关矩阵并维护长期页面流程 `tests/frontend/datasource/hana_datasource.md`。
+
+## 8. 第 3 步会话上下文与事务语义
+
+### 已实现的契约
+
+- **catalog = 当前租户**：会话初始化、状态回读、元数据目录及 schema 过滤统一使用 `SELECT CURRENT_DATABASE() FROM SYS.DUMMY`。不再把 JDBC `getCatalog()` 的空值作为产品 catalog，也不为读取租户名称依赖 `M_DATABASE`。请求的非空 catalog 与实际租户不符时拒绝初始化并释放连接；连接内切换 catalog 继续禁用并由服务端明确拒绝。
+- **schema = 原始名称**：配置和对象路径传原名，例如 `MiX "quoted".name`，不预先包裹 SQL 引号。初次连接的 `currentSchema` 属性和会话 `SET SCHEMA` 显式使用 `fmtName(true, ...)` 定界；名称中双引号加倍。生成本地对象 SQL 使用 `schema.object`，不添加租户前缀；其他调用沿用公共方言的定界规则和调用方参数，不额外按大小写强制定界。会话状态从数据库回读，不以请求参数冒充切换结果。
+- **结果列来源**：使用 JDBC `getSchemaName()`；ngdbc 的 `getCatalogName()` 返回空字符串，不能当作 schema。结果列 catalog 使用初始化确认的当前租户。
+- **隔离级别**：仅声明 DEFAULT、READ COMMITTED、REPEATABLE READ、SERIALIZABLE；DEFAULT 映射 READ COMMITTED。服务端拒绝 READ UNCOMMITTED。沿用 `HanaSessionSpi` 已有的默认上下文构造，真实连接初始化先设置事务属性，再读取上下文。
+- **自动提交与只读**：调用 JDBC setter/getter；初始化应用只读值，切换成功后回读，失败向上传递且不提前修改本地状态。已开放只读切换声明。只读模式是会话行为，不取代数据库账号授权。
+- **提交与回滚**：沿用 JDBC，保留公共 `DefaultRdbSession` 的原有行为：成功才清除待提交标记，失败只记日志并保留标记。本轮曾加入的异常上抛已撤回；主动事务操作的错误反馈与清理回滚的异常隔离需要统一调整调用链，见下文待办。
+- **查询参数**：声明支持现有 PreparedStatement 位置参数绑定；本地检查包含带 JDBC 类型的值与 NULL。`QueryEditorController` 的参数支持响应字段目前仍注释，因此本步没有新增参数输入页面，也未承诺 OUT 参数/CallableStatement 能力。
+- **新连接初始化**：重新应用传入上下文中的 schema、自动提交、隔离和只读设置，再回读实际值。初始化失败关闭资源。这里不恢复断线前未提交事务，也不宣称第 4 步的重连/取消生命周期已完成。
+
+### DDL 边界
+
+保留 HANA 的 `AUTOCOMMIT DDL ON` 默认行为；手动事务模式不等于 DDL 可回滚。插件不随自动提交开关隐式执行 `SET TRANSACTION AUTOCOMMIT DDL`，因为切换 DDL 模式本身会提交事务。混合 DML/DDL 的结果必须用第二个连接验证，不能只看页面“待提交”提示。公共待提交标记目前是请求级保守标记，不是 HANA 服务端事务状态探针；DDL 隐式提交后提示是否需要进一步同步，保留实库验收项。
+
+依据：[Platform CURRENT_DATABASE](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/7ddcb499036a483ab18ecb19816e6708.html)、[Platform SQL Reference SPS 06](https://help.sap.com/doc/9b40bf74f8644b898fb07dabdd2a36ad/2.0.06/en-US/SAP_HANA_SQL_Reference_Guide_en.pdf)的 SET SCHEMA / SET TRANSACTION（印刷页 1142、1145–1147），以及 [Platform DDL 自动提交](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/d538d11053bd4f3f847ec5ce817a3d4c.html)。两个指定 ngdbc 版本的只读设置和 schema/列来源实现已从本地驱动核对；服务器执行效果仍待 E1/E2。
+
+### 部署与下一轮页面验收
+
+**本步部署更新后的 HANA 插件，并重启加载该插件的进程。**公共 SDK 的提交/回滚改动已撤回，不再要求因本步更新 SDK；仍须满足部署环境与插件的版本兼容要求。完整部署包可按仓库现有 `package/package.sh --build` 生成，本轮只完成相关模块构建与插件打包，未执行全量发布打包。
+
+可以准备 HANA Express，加载本步版本后，在隔离 CloudDM SQL 工作台验收以下项目（页面入口依赖查询编辑器及后续元数据链路可用；不能据本地代理检查认定页面已通过）：
+
+| 场景 | 操作与预期 |
+| --- | --- |
+| 当前租户/schema | 分别用指定租户及直连租户端口、未填租户名建立会话；界面与 `SELECT CURRENT_DATABASE(), CURRENT_SCHEMA FROM SYS.DUMMY` 一致；请求不同租户时拒绝 |
+| 两组同名对象 | 使用 F2 的 `_A` / `_B` schema 各建同名表，写入不同标记；切换 schema 后无前缀查询返回对应标记，带 schema 的查询稳定返回指定对象 |
+| 特殊名称 | 验证包含空格、混合大小写、字面双引号的 schema；默认 schema、下拉切换、生成对象 SQL、刷新与重新建立会话均定位一致；不存在/无权限 schema 切换失败后仍显示原值 |
+| 提交/回滚 | A、B 两个独立连接使用 READ COMMITTED；A 关闭自动提交，更新 F1 行；B 提交前看旧值、A 提交后看新值；另一次修改回滚后 B 仍看旧值 |
+| 自动提交切换 | A 有未提交 DML 后开启自动提交，核实 JDBC 提交效果与 B 可见值；模拟切换失败时页面不能显示成功 |
+| 只读与隔离 | 只显示已声明隔离级别；绕过 UI 请求 READ UNCOMMITTED 被拒绝；新建只读会话及运行中切换只读后 SELECT 可用、DML 失败，提交/回滚后仍只读，恢复读写后 DML 可用 |
+| DDL 边界 | 在本轮独立对象上执行 DML 后 DDL，再回滚；由 B 核实默认隐式提交效果，记录待提交提示；另开专用会话显式关闭 DDL 自动提交作对照，不能混入普通数据编辑验收 |
+| 失败及恢复 | 控制断线使提交/回滚失败，记录日志、待提交标记及确认通知是否一致；明确错误反馈列入下文公共链路待办；重新建立会话后核对上下文，不自动重放未知结果的写入；确认失败初始化的连接被释放 |
+
+本轮 @Browser 访问 `http://localhost:8222` 仍为 `ERR_CONNECTION_REFUSED`，没有真实 HANA 实例，因此上述页面与双连接实库用例均未执行。环境就绪后维护现有能力矩阵及长期前端流程；本步未生成未经验证的前端流程文档。
+
+### 公共事务错误契约待办（本轮不改）
+
+`DefaultRdbSession.commit()/rollback()` 长期采用日志记录且不抛异常。仅添加 `throw` 不能构成完整修复：
+
+- `AutoExecJob.jobWrap()` 的 catch 内直接回滚，未独立保护回滚异常；新的回滚异常可能覆盖原始执行错误，并跳过后面的日志及 FAILED/PAUSED 返回。finally 中还有自动提交恢复，需要一起审计。
+- `SessionAgent.commit()/rollback()` 在方法返回后发送确认通知，现状无法判断数据库操作是否失败；保持兼容不代表该反馈已经正确。
+- `DmlExplainPreInitHandler.closeExplainSession()` 已分别捕获回滚和关闭异常，清理路径需要保留原始错误并继续资源释放。
+
+后续应区分“用户主动提交/回滚，需要明确结果”和“异常清理中的尽力回滚，需要保护原始错误”，同步修正通知、任务终态及连接清理，并覆盖断网、提交结果未知、回滚再次失败和自动提交恢复失败。HANA-008 的失败反馈仍待解决，不能标为验收通过。

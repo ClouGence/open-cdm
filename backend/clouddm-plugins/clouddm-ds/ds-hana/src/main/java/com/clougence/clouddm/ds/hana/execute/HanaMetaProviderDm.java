@@ -225,7 +225,7 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
      * query database
      */
     public Value selectCatalog(String catalog) throws SQLException {
-        String sql = "SELECT DATABASE_NAME FROM M_DATABASE where DATABASE_NAME = ? limit 1";
+        String sql = "SELECT CURRENT_DATABASE() AS DATABASE_NAME FROM SYS.DUMMY WHERE CURRENT_DATABASE() = ?";
         try (Connection conn = this.connectSupplier.eGet();) {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, catalog);
@@ -241,7 +241,7 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
      * query database list
      */
     public List<Value> selectCatalogs() throws SQLException {
-        String sql = "SELECT DATABASE_NAME FROM M_DATABASE order by DATABASE_NAME asc";
+        String sql = "SELECT CURRENT_DATABASE() AS DATABASE_NAME FROM SYS.DUMMY";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
                 return HanaMetaProviderUtils.convertCatalog(rs);
@@ -254,13 +254,7 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
      */
     public Value selectSchema(String catalog, String schema) throws SQLException {
         try (Connection conn = this.connectSupplier.eGet()) {
-            String curCatalog = null;
-            String queryCurCatalog = "SELECT DATABASE_NAME FROM M_DATABASE;";
-            try (Statement s = conn.createStatement(); ResultSet rs = s.executeQuery(queryCurCatalog)) {
-                if (rs.next()) {
-                    curCatalog = rs.getString(1);
-                }
-            }
+            String curCatalog = HanaHooks.getCurrentCatalog(conn);
 
             if (!StringUtils.equals(curCatalog, catalog)) {
                 return null;
@@ -282,13 +276,7 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
      */
     public List<Value> selectSchemas(String catalog) throws SQLException {
         try (Connection conn = this.connectSupplier.eGet()) {
-            String curCatalog = null;
-            String queryCurCatalog = "SELECT DATABASE_NAME FROM M_DATABASE";
-            try (Statement s = conn.createStatement(); ResultSet rs = s.executeQuery(queryCurCatalog)) {
-                if (rs.next()) {
-                    curCatalog = rs.getString(1);
-                }
-            }
+            String curCatalog = HanaHooks.getCurrentCatalog(conn);
 
             if (!StringUtils.equals(curCatalog, catalog)) {
                 return Collections.emptyList();
@@ -438,13 +426,7 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
      * check if the current database is in use
      */
     protected boolean checkIsUseCurrentlyDataBase(Connection conn, String catalog) throws SQLException {
-        String curCatalog = null;
-        String queryCurCatalog = "SELECT DATABASE_NAME FROM M_DATABASE";
-        try (Statement s = conn.createStatement(); ResultSet rs = s.executeQuery(queryCurCatalog)) {
-            if (rs.next()) {
-                curCatalog = rs.getString(1);
-            }
-        }
+        String curCatalog = HanaHooks.getCurrentCatalog(conn);
         return StringUtils.equals(curCatalog, catalog);
     }
 

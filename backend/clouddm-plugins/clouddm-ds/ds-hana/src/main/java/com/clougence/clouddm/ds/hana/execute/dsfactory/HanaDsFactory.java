@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.ds.hana.i18n.HanaConfigI18nKeys;
+import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
@@ -101,7 +102,7 @@ public class HanaDsFactory implements DsFactory<Connection> {
         }
 
         if (StringUtils.isNotBlank(schema)) {
-            props.setProperty(ConnectionProperty.CURRENT_SCHEMA.getName(), schema);
+            props.setProperty(ConnectionProperty.CURRENT_SCHEMA.getName(), HanaDialect.INSTANCE.fmtName(true, schema));
         }
 
         if (StringUtils.isNotBlank(autoCommit)) {

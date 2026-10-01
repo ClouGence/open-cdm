@@ -22,6 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.ds.hana.definition.ui.editor.table.HanaEditorProvider;
 import com.clougence.clouddm.ds.hana.sql.parser.HanaVersion;
 import com.clougence.clouddm.sdk.execute.session.Session;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -91,21 +92,27 @@ public class HanaMetaService extends DefaultRdbMetaService {
     protected SqlBuilder getSqlBuilder() { return HanaEditorProvider.INSTANCE; }
 
     @Override
-    public String getCurrentCatalog() { return null; }
+    public String getCurrentCatalog() {
+        try {
+            return this.rdbSession.executeQuery(HanaHooks::getCurrentCatalog);
+        } catch (Exception e) {
+            log.error("Read HANA current database failed", e);
+            throw ThirdPartyApiException.as().with(e);
+        }
+    }
 
     @Override
     public String getCurrentSchema() {
         try {
             return this.rdbSession.executeQuery(con -> {
-                String queryString = "SELECT CURRENT_SCHEMA FROM DUMMY;";
+                String queryString = "SELECT CURRENT_SCHEMA FROM SYS.DUMMY";
                 try (Statement s = con.createStatement(); ResultSet resultSet = s.executeQuery(queryString)) {
                     return ((SingleValueRowMapper<String>) (rs, columnType, columnTypeName, columnClassName) -> rs.getString(1)).mapRow(resultSet);
                 }
             });
         } catch (Exception e) {
-            String msg = "getCurrentSchema error.msg:" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(msg, e);
-            throw new RuntimeException(msg, e);
+            log.error("Read HANA current schema failed", e);
+            throw ThirdPartyApiException.as().with(e);
         }
     }
 
