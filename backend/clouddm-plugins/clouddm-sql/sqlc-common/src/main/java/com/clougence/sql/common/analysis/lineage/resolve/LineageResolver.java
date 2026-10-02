@@ -28,15 +28,24 @@ import com.clougence.sql.common.analysis.lineage.scope.ResolvedRelation;
 
 public final class LineageResolver {
 
-    private static final RelationScope    UNRESOLVED_SCOPE = new RelationScope(List.of(), null, true);
+    private final RelationScope           rootScope;
+    private final boolean                 caseSensitive;
+    private final boolean                 allowUnresolvedColumns;
     private final LineageMetadataResolver metadataResolver;
 
     public LineageResolver(LineageMetadataResolver metadataResolver){
+        this(metadataResolver, false, true);
+    }
+
+    public LineageResolver(LineageMetadataResolver metadataResolver, boolean caseSensitive, boolean allowUnresolvedColumns){
         this.metadataResolver = metadataResolver;
+        this.caseSensitive = caseSensitive;
+        this.allowUnresolvedColumns = allowUnresolvedColumns;
+        this.rootScope = new RelationScope(List.of(), null, allowUnresolvedColumns);
     }
 
     public List<LineageColumn> resolve(LineageQuery query) {
-        return resolveQuery(query, UNRESOLVED_SCOPE, null).stream().map(column -> new LineageColumn(column.name(), column.sources())).toList();
+        return resolveQuery(query, rootScope, null).stream().map(column -> new LineageColumn(column.name(), column.sources())).toList();
     }
 
     private List<ResolvedColumn> resolveQuery(LineageQuery query, RelationScope outerScope, CteScope outerCteScope) {
@@ -75,6 +84,9 @@ public final class LineageResolver {
         for (LineageSelectItem item : block.selectItems()) {
             if (item.wildcard()) {
                 List<ResolvedRelation> wildcardRelations = scope.findRelations(item.wildcardQualifier());
+                if (!allowUnresolvedColumns && wildcardRelations.isEmpty()) {
+                    throw new IllegalArgumentException("Cannot resolve wildcard: " + item.wildcardQualifier());
+                }
                 for (ResolvedRelation relation : wildcardRelations) {
                     for (ResolvedColumn column : relation.columns()) {
                         result.add(new ResolvedColumn(column.name(), bindUnknownRanges(column.sources(), item.range())));
@@ -90,10 +102,10 @@ public final class LineageResolver {
     }
 
     private CteScope registerCtes(List<LineageCte> ctes, CteScope outerCteScope, RelationScope definitionRelationScope) {
-        CteScope cteScope = new CteScope(outerCteScope);
+        CteScope cteScope = new CteScope(outerCteScope, caseSensitive);
         for (LineageCte cte : ctes) {
             CteScope previousScope = cteScope;
-            CteScope currentScope = new CteScope(previousScope);
+            CteScope currentScope = new CteScope(previousScope, caseSensitive);
             CteBinding binding = currentScope.register(cte);
             binding.definitionScope(cte.recursive() ? currentScope : previousScope, definitionRelationScope);
             cteScope = currentScope;
@@ -106,7 +118,7 @@ public final class LineageResolver {
             ResolvedRelation left = resolveRelation(join.left(), visibleScope, cteScope);
             RelationScope rightScope = new RelationScope(List.of(left), visibleScope);
             ResolvedRelation right = resolveRelation(join.right(), rightScope, cteScope);
-            return new ResolvedRelation("", joinColumns(left.columns(), right.columns(), join), List.of(left, right));
+            return new ResolvedRelation(null, null, "", joinColumns(left.columns(), right.columns(), join), List.of(left, right), caseSensitive);
         }
 
         List<ResolvedColumn> columns;
@@ -142,10 +154,10 @@ public final class LineageResolver {
         if (relationName == null || relationName.isBlank()) {
             relationName = defaultName;
         }
-        return new ResolvedRelation(catalog, schema, relationName, columns, List.of());
+        return new ResolvedRelation(catalog, schema, relationName, columns, List.of(), caseSensitive);
     }
 
-    private static List<ResolvedColumn> joinColumns(List<ResolvedColumn> left, List<ResolvedColumn> right, LineageJoinRelation join) {
+    private List<ResolvedColumn> joinColumns(List<ResolvedColumn> left, List<ResolvedColumn> right, LineageJoinRelation join) {
         if (!join.natural() && join.usingColumns().isEmpty()) {
             List<ResolvedColumn> columns = new ArrayList<>(left);
             columns.addAll(right);
@@ -174,16 +186,23 @@ public final class LineageResolver {
         return List.copyOf(columns);
     }
 
-    private static boolean containsColumn(List<ResolvedColumn> columns, String name) {
-        return columns.stream().anyMatch(column -> name.equalsIgnoreCase(column.name()));
+    private boolean sameName(String left, String right) {
+        if (caseSensitive) {
+            return left.equals(right);
+        }
+        return left.equalsIgnoreCase(right);
     }
 
-    private static List<ResolvedColumn> matchingColumns(List<ResolvedColumn> columns, String name) {
-        return columns.stream().filter(column -> name.equalsIgnoreCase(column.name())).toList();
+    private boolean containsColumn(List<ResolvedColumn> columns, String name) {
+        return columns.stream().anyMatch(column -> sameName(name, column.name()));
     }
 
-    private static boolean containsName(List<String> names, String name) {
-        return names.stream().anyMatch(candidate -> candidate.equalsIgnoreCase(name));
+    private List<ResolvedColumn> matchingColumns(List<ResolvedColumn> columns, String name) {
+        return columns.stream().filter(column -> sameName(name, column.name())).toList();
+    }
+
+    private boolean containsName(List<String> names, String name) {
+        return names.stream().anyMatch(candidate -> sameName(candidate, name));
     }
 
     private List<SourceName> resolveValues(List<LineageValue> values, RelationScope scope, CteScope cteScope, List<ResolvedColumn> selectItems) {
@@ -206,9 +225,9 @@ public final class LineageResolver {
         return List.copyOf(sources);
     }
 
-    private static ResolvedColumn findSelectItem(List<ResolvedColumn> selectItems, String name) {
+    private ResolvedColumn findSelectItem(List<ResolvedColumn> selectItems, String name) {
         List<ResolvedColumn> matches = selectItems.stream().filter(column -> {
-            return name.equalsIgnoreCase(column.name());
+            return sameName(name, column.name());
         }).toList();
         if (matches.size() > 1) {
             throw new IllegalArgumentException("Select alias '" + name + "' is ambiguous");

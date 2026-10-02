@@ -41,6 +41,31 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
     }
 
     @Override
+    public Value loadSelectObject(String catalog, String schema, String table) throws SQLException {
+        List<String> names = Collections.singletonList(table);
+        try (Connection conn = this.connectSupplier.eGet()) {
+            List<RdbTable> objects = fetchTableByPart(conn, catalog, schema, names);
+            Map<String, List<RdbColumn>> columns;
+            if (objects.isEmpty()) {
+                objects = fetchViewByPart(conn, catalog, schema, names);
+                if (objects.isEmpty()) {
+                    return null;
+                }
+                columns = fetchViewColumns(conn, catalog, schema, names);
+            } else {
+                columns = fetchTableColumns(conn, catalog, schema, names);
+            }
+            RdbTable result = objects.get(0);
+            Map<String, RdbColumn> byName = new LinkedHashMap<>();
+            for (RdbColumn column : columns.getOrDefault(table, Collections.emptyList())) {
+                byName.put(column.getName(), column);
+            }
+            result.setColumns(byName);
+            return result;
+        }
+    }
+
+    @Override
     protected List<RdbTable> fetchTableByPart(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
         if (catalog != null) {
             checkCurrentCatalog(conn, catalog);

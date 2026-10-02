@@ -454,3 +454,41 @@ cd backend
 解析相关代码位于 `backend/clouddm-plugins/clouddm-sql/sql-hana`，包名为 `com.clougence.sql.hana`，包含语法、拆句、SQL 引擎/插件、行为 visitor、安全域、查询改写、版本及 SQL 国际化。`ds-hana` 保留连接、元数据、编辑器服务与规则能力注册，单向依赖 `sql-hana`；SQL 模块不依赖 HANA 数据源或 JDBC 驱动。
 
 可以独立运行 `./gradlew :sql-hana:build`，后续模块测试使用 `:sql-hana:test`，无需加载连接/页面实现。本次未新增测试类，不能把 NO-SOURCE 当成已有 HANA 单测。结构迁移后，第 6～8 步离线探针全部回归通过；插件扫描既有测试通过。打包检查确认嵌套 `sql-hana` JAR 包含新的 SQL 插件、唯一一组 Lexer/Parser 和国际化资源，旧包名及 Analysis Lexer/Parser 不再打包。
+
+
+## 14. 第 9 步：血缘与脱敏
+
+### 实现与契约
+
+- `sql-hana` 的 `HanaLineageAnalysisSpi` 使用同一份 HANA 严格语法，构建共享血缘模型并解析真实列来源；不再返回 EMPTY。`MetaService` 由 SQL 插件注入，每次分析独立缓存元数据，不跨用户/上下文复用。
+- 支持列/表别名、JOIN、CTE 及列改名、派生表、相关/非相关标量子查询、集合查询按位置合并来源、星号展开以及表达式参数来源。引用范围保留原 SQL 位置；未加引号名称折叠为大写，引号名称保持大小写。
+- `HanaMetaProviderDm.loadSelectObject` 补齐之前未实现的查询对象入口：表读 `SYS.TABLE_COLUMNS`，视图读 `SYS.VIEW_COLUMNS`；元数据为空不伪造列。查询级血缘据此拒绝无法解析的来源。
+- 共用 `LineageResolver`、`CteScope`、`ResolvedRelation` 新增可选大小写敏感/严格解析，HANA 显式启用；旧入口仍不区分大小写且允许原有未解析列处理。共享解析器不涉及会话或线程。平台另补一个小范围脱敏约束：无血缘且含 PROGRAM 调用时，不允许仅凭 READ 对象豁免关闭整条语句的值处理器。
+- HANA 声明 `FUNC_LINES_SUPPORT`，脱敏规则开放 schema、table、view、column 的精确/前缀/后缀/包含范围。分析产物按既有 `ColumnConfig.sourceNames` 接入平台：只移除获敏感数据豁免的来源，其他来源继续参与规则；多来源按现有执行器选择脱敏算法。
+
+### 明确边界
+
+| 情形 | 当前行为与验收要求 |
+| --- | --- |
+| 已知常量、系统值 | 无物理列来源；不得与未知列/元数据失败混为一谈。输出表达式存在物理来源时，最外层需显式别名，保证与 JDBC 标签一致 |
+| 未知列、歧义列、缺失元数据、不支持语法 | SELECT 血缘报错停止执行，不能按无来源跳过脱敏；本轮使用的异常包含简短原因 |
+| UDF、表函数、会话参数值、SQLScript 变量 | 无法确定来源的 SELECT 明确拒绝；不能只追踪函数入参而忽略函数内部读取。内置函数白名单有限，未收录函数保守拒绝 |
+| 视图 | 展开视图列的星号并追踪到视图列，规则/豁免按视图列配置。没有递归展开视图定义，不能承诺基表规则自动覆盖所有视图；底层展开需另补元数据契约与循环/权限处理 |
+| 同义词/远程对象 | 当前查询元数据只支持表与视图；来源不可获得时拒绝，不冒充普通表 |
+| CALL/DO/SQLScript 结果 | 平台不调用 SELECT 血缘入口，保留既有 JDBC 元数据脱敏路径；程序内部表达式和多结果集未获得完整血缘保护保证。第 11/14 步必须单列验证，不能凭本步查询探针开放这些能力 |
+| 表数据读取、查询结果导出 | 复用既有值处理器；表数据读取依赖 JDBC 来源，查询结果导出消费查询配置。代码检查及执行器探针不是完整产品链路证据，仍需实库下载/读取验证 |
+
+平台已修复 DO 同时含普通 SELECT 与 CALL 时的整条语句豁免：程序来源未知，必须保留值处理器；普通只含 READ 的既有豁免行为保持不变。这不等于补齐程序内部列来源，JDBC 无来源的程序表达式仍需专项实现与验收，HANA-022 不能据此结项。
+
+### 验证与部署
+
+```bash
+cd backend
+./gradlew :sql-hana:build :ds-hana:build :ds-hana:customFatJar :sql-mysql:test :dsc-common:test :cgdm-console:test :plus-sec-rules:test --offline --max-workers=4
+```
+
+构建与已有 1308 项测试结果通过（部分任务 UP-TO-DATE）。临时探针实际调用 HANA/共享血缘解析器、平台 `configMaskingWithProvenance` 与 `SecValueProcessServiceProvider`，覆盖别名、表达式、CTE、集合来源、大小写豁免与部分豁免；元数据使用 JDBC 代理验证表/视图入口及资源生命周期。没有新增测试类，没有运行真实 HANA。第 7/8 步相关离线探针回归通过。详细记录见矩阵的第 9 步本地证据。
+
+**现在可部署 Express 验证查询结果脱敏**：使用包含本步 SQL/共享 SQL 模块的新 HANA 插件包，重启加载；本次还需部署包含程序豁免修复的 console 运行包；首次部署仍需要第 6/7 步平台与 Web 组合包。普通用户配置列范围规则后，按 [HANA 血缘与脱敏流程](../../frontend/security/hana_lineage_masking.md) 和 [09-lineage.sql](sql/09-lineage.sql) 验证改名、表达式、CTE、JOIN、UNION、视图列、部分豁免及查询结果导出。HANA 仍默认隐藏，可沿用隔离环境直达新增入口。
+
+本地 @Browser 页面连接拒绝，真实 HANA、浏览器结果和导出文件未验证；HANA-021/022 保持 NOT RUN。格式化硬编码待办 `HANA-017/a` 仍是第 13/15 步门禁，本步没有关闭它。

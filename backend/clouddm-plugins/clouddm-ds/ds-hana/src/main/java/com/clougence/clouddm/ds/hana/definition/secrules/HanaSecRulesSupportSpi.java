@@ -40,14 +40,14 @@ public class HanaSecRulesSupportSpi implements SecRulesSupportSpi {
     }
 
     @Override
-    public List<TargetType> exactRangeForSen() { return List.of(); }
+    public List<TargetType> exactRangeForSen() { return List.of(TargetType.Schema, TargetType.Table, TargetType.View, TargetType.Column); }
 
     @Override
-    public List<TargetType> prefixRangeForSen() { return List.of(); }
+    public List<TargetType> prefixRangeForSen() { return List.of(TargetType.Schema, TargetType.Table, TargetType.View, TargetType.Column); }
 
     @Override
-    public List<TargetType> suffixRangeForSen() { return List.of(); }
+    public List<TargetType> suffixRangeForSen() { return List.of(TargetType.Schema, TargetType.Table, TargetType.View, TargetType.Column); }
 
     @Override
-    public List<TargetType> includeRangeForSen() { return List.of(); }
+    public List<TargetType> includeRangeForSen() { return List.of(TargetType.Schema, TargetType.Table, TargetType.View, TargetType.Column); }
 }

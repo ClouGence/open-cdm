@@ -10,6 +10,8 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/hana-sql")
 public interface HanaSqlI18nKeys {
 
+    String HANA_SQL_LINEAGE_UNSUPPORTED = "HANA_SQL_LINEAGE_UNSUPPORTED";
+
     String HANA_SQL_ANALYSIS_UNSUPPORTED = "HANA_SQL_ANALYSIS_UNSUPPORTED";
 
     String SQL_ENGINE_SAP_HANA_SQL = "SQL_ENGINE_SAP_HANA_SQL";

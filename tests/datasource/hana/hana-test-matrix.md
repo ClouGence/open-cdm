@@ -42,8 +42,8 @@
 | HANA-018 | 查询限制与分页改写 | C3：HANA TOP/LIMIT、CTE/集合/尾部边界已实现，待实库 | F5；已有 TOP/LIMIT、排序、CTE、UNION、锁子句、多语句；结果上限不绕过，改写后语义一致 | 7 | NOT RUN / NOT RUN |
 | HANA-019 | SQL 行为分类与对象授权 | C3/C13：第 8 步原生语法/visitor，真实来源及读写/程序权限转换离线通过，待端到端 | F5；平台只读配 DB RW、无授权对象、跨 schema/子查询/MERGE/CALL；正确识别读写并拒绝越权 | 8 | NOT RUN / NOT RUN |
 | HANA-020 | SQL 审核规则 | C1/C3/C13：第 8 步注册规则与安全域；内置无 WHERE 规则、表范围匹配离线通过 | F5；允许/提示/阻断按规则生效；不可解析与动态 SQL 不自动视为审核通过 | 8 | NOT RUN / NOT RUN |
-| HANA-021 | 列血缘 | C3/C14：lineage EMPTY | F5；别名、JOIN、CTE、表达式、视图、星号展开回溯正确；未知来源明确记录 | 9 | NOT RUN / NOT RUN |
-| HANA-022 | 脱敏与导出权限 | C14：存在无来源处理分支，不等于全量失效 | 合成敏感列；普通/豁免用户对查询、数据编辑读取、导出分别验证；复杂和未知来源不解除保护 | 9、11 | NOT RUN / NOT RUN |
+| HANA-021 | 列血缘 | C3/C14：第 9 步已接查询血缘；未知 SELECT 来源拒绝，视图以视图列为边界 | F5；别名、JOIN、CTE、表达式、视图、星号展开回溯正确；未知来源明确记录 | 9 | NOT RUN / NOT RUN |
+| HANA-022 | 脱敏与导出权限 | C14：第 9 步规则范围及来源/豁免离线通过；程序结果沿用 JDBC 路径，导出/表读取待实测 | 合成敏感列；普通/豁免用户对查询、数据编辑读取、导出分别验证；复杂和未知来源不解除保护 | 9、11 | NOT RUN / NOT RUN |
 | HANA-023 | 建表、改表、删表与 DDL 转换 | C12：Editor/UI/DDL SPI 已有实现 | F1/F2/F3；OWNER 页面预览→执行→刷新；列顺序、注释设置/清空、默认值/identity/约束一致 | 10 | NOT RUN / NOT RUN |
 | HANA-024 | 索引编辑 | C12：公共编排负责删除/重建 | F2；增加/删除/重排索引列后回读；失败提示与真实结构一致；无错误跨 schema 操作 | 10 | NOT RUN / NOT RUN |
 | HANA-025 | 对象脚本、模板与详情 | C7/C9/C12：requestObjectScript 抛异常；Template SPI 已有实现 | F4；各纳入对象列表→详情→取脚本→编辑/创建→刷新，脚本可在隔离 schema 回放且保留语义 | 10、13 | NOT RUN / NOT RUN |
@@ -209,3 +209,12 @@ cgdm-plugin-sdk-4.3.0.jar    c54b88071ae7365410b9496485b3055779f3d22593811a26b43
 - SQL 引擎、语法、行为/审核、改写及 SQL 国际化迁入 `clouddm-sql/sql-hana`，数据源单向依赖该模块，`settings.gradle` 已注册；连接和页面服务仍在 `ds-hana`。
 - 只生成一组 HanaLexer/HanaParser。同一 grammar 保留 `splitRoot` 结构拆句和 `statementRoot` 严格分析入口，共享词法与 Parser 工厂；执行/审核不能回退到结构入口。
 - 独立模块构建、数据源插件打包、既有插件扫描测试通过；第 6～8 步离线探针迁移包名后回归通过。实际 `ds-hana-lib.jar` 嵌套 JAR 扫描能发现新包名的 HanaSqlPlugin 与 HanaDsPlugin，旧包名未残留。未新增测试类，未提交代码；产品 E1/E2 状态不变。
+
+## 第 9 步本地证据（不等同于产品用例 PASS）
+
+- `:sql-hana:build :ds-hana:build :ds-hana:customFatJar :sql-mysql:test :dsc-common:test :cgdm-console:test :plus-sec-rules:test` 离线构建成功；已有测试结果 1308 项零失败（MySQL 1238、公共数据源 16、console 52、规则 2），未变化任务复用 Gradle 有效结果，未新增测试类。
+- 临时探针标记 `HANA_STEP9_LINEAGE_PASS`、`HANA_STEP9_MASKING_ENGINE_PASS`、`HANA_STEP9_MASKING_PLAN_PASS`、`HANA_STEP9_METADATA_PASS`、`HANA_STEP9_PROGRAM_EXEMPTION_PASS`：解析器真实执行，元数据/授权配置用合成替身；实际调用共享解析器、平台来源豁免方法和脱敏执行器。列元数据 JDBC 代理验证表/视图路由、绑定、不存在对象、catalog 不匹配以及借用连接/statement 释放，共 9 项断言。
+- 程序调用无血缘时保留值处理器的回归探针通过；只读对象原有整句豁免仍通过。公共 console 修复后再次执行 `:cgdm-console:test` 成功。
+- 第 7 步补全/校验/改写及第 8 步行为边界、样本、安全规则与物理表规则范围探针回归通过；不代表真实数据库权限或完整产品查询链通过。
+- 临时日志 `/private/tmp/hana-step9*.log`、`/private/tmp/hana-step8-*-step9.log` 可被清理。长期 SQL 为 `sql/09-lineage.sql`；复测流程见 [HANA 血缘与脱敏](../../frontend/security/hana_lineage_masking.md)。
+- @Browser 访问 `http://localhost:8222` 返回 `ERR_CONNECTION_REFUSED`。HANA-021/022 的 E1/E2 仍为 NOT RUN；真实 JDBC 标签、视图规则、导出文件及表数据读取均未验收。程序内部来源和视图底层定义未实现，不得把这些缺口归为仅缺环境。

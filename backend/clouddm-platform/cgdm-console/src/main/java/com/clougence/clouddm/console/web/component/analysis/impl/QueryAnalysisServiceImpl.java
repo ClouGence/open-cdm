@@ -348,16 +348,21 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     private void configMaskingWithoutProvenance(QueryRequest request, SysObjectRegistrySpi sysObjRegistry, String dbVersion, String userUid, long dsId,//
                                                 String currentResourcePath, String instanceResourcePath) {
-        List<DsResPathObj> objList = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations()).stream().filter(b -> {
-            return b.authKind() == SecDataAuthKind.READ;
-        }).map(b -> {
-            return new DsResPathObj(BehaviorRelations.resourcePath(b.resource(), currentResourcePath, instanceResourcePath));
-        }).toList();
+        var resources = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations());
+        // READ exemptions do not describe the sources of a stored program's results.
+        if (resources.stream().anyMatch(resource -> resource.authKind() == SecDataAuthKind.PROGRAM)) {
+            return;
+        }
+
+        List<DsResPathObj> objList = resources.stream()
+            .filter(b -> b.authKind() == SecDataAuthKind.READ)
+            .map(b -> new DsResPathObj(BehaviorRelations.resourcePath(b.resource(), currentResourcePath, instanceResourcePath)))
+            .toList();
 
         //
-        boolean allAuthorized = CollectionUtils.isNotEmpty(objList) && objList.stream().allMatch(path -> {
-            return this.authService.checkResPathWithoutError(AuthDal.ROOT_USER_UID, userUid, dsId, AuthKind.DataSource, path, SecDataAuthLabel.DM_DAUTH_SENSITIVE);
-        });
+        boolean allAuthorized = CollectionUtils.isNotEmpty(objList) && objList.stream()
+            .allMatch(path -> this.authService.checkResPathWithoutError(AuthDal.ROOT_USER_UID, userUid, dsId, AuthKind.DataSource, path, SecDataAuthLabel.DM_DAUTH_SENSITIVE));
+
         if (allAuthorized) {
             request.setUsingValueProcess(false);
         }

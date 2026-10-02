@@ -16,6 +16,8 @@
 package com.clougence.sql.hana;
 
 import com.clougence.sql.hana.analysis.behavior.HanaBehaviorAnalysisSpi;
+import com.clougence.sql.hana.analysis.lineage.HanaLineageAnalysisSpi;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.sql.hana.analysis.security.HanaSecDomainResolveSpi;
 import com.clougence.sql.hana.editor.rewrite.HanaRewriteSpi;
 import com.clougence.sql.hana.parser.HanaDslProvider;
@@ -39,11 +41,11 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
     private final LineageAnalysisSpi  lineageAnalysisSpi;
     private final RewriteSpi          rewriteSpi;
 
-    public HanaSqlEngineSpi(){
+    public HanaSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new HanaSplitAnalysisSpi();
         this.secDomainResolveSpi = new HanaSecDomainResolveSpi();
         this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi();
-        this.lineageAnalysisSpi = LineageAnalysisSpi.EMPTY;
+        this.lineageAnalysisSpi = new HanaLineageAnalysisSpi(metaService);
         this.rewriteSpi = new HanaRewriteSpi();
     }
 

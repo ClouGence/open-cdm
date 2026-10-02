@@ -119,6 +119,6 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {
-        // dsPlugin.addFeature(FUNC_LINES_SUPPORT);
+        dsPlugin.addPluginFeature(FUNC_LINES_SUPPORT);
     }
 }

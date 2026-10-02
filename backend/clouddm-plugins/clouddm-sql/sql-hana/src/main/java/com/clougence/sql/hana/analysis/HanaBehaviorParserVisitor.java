@@ -21,13 +21,6 @@ import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
 final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
-    // Only unquoted, unqualified built-ins avoid a program-object permission requirement.
-    private static final Set<String> BUILT_INS = Set.of("COUNT", "SUM", "AVG", "MIN", "MAX", "COALESCE", "IFNULL", "NULLIF",
-        "ABS", "ROUND", "FLOOR", "CEIL", "MOD", "POWER", "SQRT", "UPPER", "LOWER", "LENGTH", "SUBSTRING", "TRIM",
-        "LTRIM", "RTRIM", "CONCAT", "TO_DATE", "TO_TIME", "TO_TIMESTAMP", "TO_VARCHAR", "TO_NVARCHAR", "TO_INTEGER",
-        "TO_DECIMAL", "ADD_DAYS", "ADD_MONTHS", "DAYS_BETWEEN", "SECONDS_BETWEEN", "YEAR", "MONTH", "DAYOFMONTH",
-        "ROW_NUMBER", "RANK", "DENSE_RANK", "LAG", "LEAD", "FIRST_VALUE", "LAST_VALUE", "SESSION_CONTEXT", "CURRENT_DATABASE");
-
     private final HanaAnalysisResult result = new HanaAnalysisResult();
     private final SplitScript script;
     private final Map<UmiTypes, Object> levels;
@@ -290,8 +283,7 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     @Override
     public Void visitFunctionCall(HanaParser.FunctionCallContext ctx) {
         var function = ctx.qualifiedName();
-        if (function.identifier().size() != 1 || function.identifier(0).QUOTED_IDENTIFIER() != null ||
-            !BUILT_INS.contains(name(function.identifier(0)))) {
+        if (!HanaSqlFunctions.isBuiltIn(function)) {
             call(function, ctx.expression(), true);
         }
         return visitChildren(ctx);
