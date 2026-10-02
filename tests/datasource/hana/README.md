@@ -560,3 +560,42 @@ cd ../package
 优先验证：无修改预览为空；注释/默认值清空；两个 UNIQUE/FK 不互相影响；复合索引增删重排及刷新；ROW/COLUMN 转换；七类对象脚本与原生结果比较及隔离副本回放；只授一张表 DDL 时，跨 schema 同名索引不能操作未授权表。记录部分 DDL 失败后的真实结构，不能假设整批自动回滚。
 
 HANA 默认隐藏仍保留。格式化特例 **HANA-017/a** 仍由第 13 步完成，并作为第 15 步开放门禁；本轮结构/脚本完成不关闭该待办。
+
+## 16. 第 11 步：数据编辑与导出回放
+
+### 行定位与写入契约
+
+- ROW/COLUMN 表采用完整主键；无主键时选一组所有列均 NOT NULL 的 UNIQUE。独立 UNIQUE 不合并，缺失任意键列拒绝写入。移除对 `$rowid$` 的依赖；未取得其跨请求稳定性证据，不把它作为无键表的替代定位。
+- 无可靠键、可空唯一键和视图在数据编辑器中只读；这是本轮安全定位边界，不代表 HANA 原生 SQL 不允许向无键表/部分视图写入。无键表需先建立键，或自行通过审核后的 SQL 操作。
+- HANA 预览和保存重新读取数据库元数据，不采用页面声明的类型、主键或只读标志。页面用完整键；键被脱敏、读取失败、缓存截断或达到显示长度边界时保守只读。达到边界的完整键也可能只读，应提高显示长度并重新加载。
+- identity/生成列只读；普通列支持 NULL、空字符串与省略使用默认值。新增默认列留空时省略，右键“设置为 NULL”明确提交 NULL；空新增行通过可选 `dmlType=INSERT` 区分。只有 identity 的行使用 `OVERRIDING USER VALUE SELECT NULL FROM SYS.DUMMY`。自动键回读失败只要求刷新，不能把已提交 INSERT 当作失败重试。
+- UPDATE/DELETE/INSERT 预期影响一行，0 行明确失败；分页在用户排序后补完整键排序。分页请求各自连接，不承诺并发写入期间 OFFSET 跨页快照或乐观并发控制。
+
+### 类型与 SQL 文件
+
+`HanaSqlValues` 同时服务实际编辑 DML 和 SQL 导出：数值先按整数/BigDecimal 解析，不经过 double；布尔规范化；Unicode/引号转义；DATE/TIME/TIMESTAMP 使用显式格式；TIMESTAMP 保留 7 位小数，超过精度拒绝而不静默截断；二进制检查偶数 HEX 并调用 HEXTOBIN。词法同步支持 `N'...'` 与科学记数，HEXTOBIN 纳入内置函数。
+
+普通字符串、CLOB/NCLOB/TEXT、BINARY/VARBINARY/BLOB 接入转换；ARRAY、ST_POINT、ST_GEOMETRY、BINTEXT 暂不声明可编辑。LOB 的服务器长度限制、非常规时间边界与驱动读取仍需实库验收，不能从短字符串探针推导出任意大 LOB 已完成往返。
+
+服务端 SQL 导出新增 HANA 值处理器，禁用多行 VALUES 合并，UTF-8 输出；保留导出前脱敏。数字导出不受界面显示长度截短；二进制 NULL 与零长度值保持不同。选中列存在读取错误/截断时失败，不写成 NULL 或不完整成功；异常/线程中断关闭读写资源并删除部分 SQL 文件。取消检查发生在转换行循环，不改变公共任务队列和查询会话生命周期。
+
+语法依据见 SAP [Platform 2.0 SPS 08 SQL Reference](https://help.sap.com/doc/9b40bf74f8644b898fb07dabdd2a36ad/2.0.08/en-US/SAP_HANA_SQL_Reference_Guide_en.pdf)，尤其 INSERT 的列省略、单行 VALUES 与 identity override。厂商语义仍需约定 revision 实测。
+
+### 导入入口与边界
+
+本轮贯通“查询结果 → HANA SQL 文件 → SQL 编辑器回放”。现有 SQL 文件上传属于工单/CI/CD，复用 HANA 流式拆句、行为与权限分析；完整审批执行、重试和取消由第 12 步验收。仓库当前没有通用 CSV/XLSX 数据导入向导，本轮不新增此产品能力。表数据页本地 CSV 仅导出已加载值，不作为 LOB/NULL 无损备份；JSON/XLSX 仍走原有展示导出链路。
+
+回放先创建隔离目标表，显式填写带 schema 的目标名称。ALWAYS identity 和计算生成列不能直接回放普通 INSERT，导出时排除这些列或使用接受原值的目标定义；脱敏账号导出的数据不能恢复原值。SQL 文件不自动开启整批事务：错误前已提交的语句不会自动回滚，应核对数据库后只重试未成功部分。
+
+导出转换当前没有独立页面取消 API，关闭页签不会中断服务端转换。本轮验证转换器收到线程中断时的释放；页面查询“取消”仍走第 4 步查询取消链路，不把二者混为一谈。
+
+### 公共改动及验证
+
+1. 数据编辑 SPI 添加默认关闭/空操作的服务端元数据、只读和影响行数校验钩子，仅 HANA 启用；内部编辑结果携带实际显示长度，避免截短的数字键被当作完整键。
+2. ChangeRowFO 可选 INSERT 类型支持默认值空行，旧请求仍按原有 whereData/newData 推断。前端所有数据源统一省略未填写的默认值/自增列和插入只读列，显式 NULL 保留为 null；公共 INSERT 按字段是否存在区分省略与 NULL，全默认值行由方言钩子生成。HANA 保留专用值转换和 identity 插入实现。通用回归见 [数据编辑默认值与 NULL](../../frontend/sql/data_editor_defaults.md)。
+3. 批量编辑纠正 `res.success` 与 `res.data.success` 混用，业务失败、HTTP 失败和请求异常均停止后续行并保留“未执行”状态；适用于所有数据源。
+4. 缓存读取修复二进制 NULL 被转换为空 HEX；SQL 转换统一 UTF-8、查询注释转义、中断检查、失败文件清理及脱敏 finish。所有数据源的 SQL 导出均使用独立的完整读取配置，不受页面显示长度影响；选中列读取失败、缓存截断或尚未读完时终止导出，未选中列不触发该检查。其他方言的值生成和合并 INSERT 限制不变。没有改公共事务、会话取消或 SessionAgent 队列。
+
+本轮未新增测试类。后端构建、HANA 插件打包、1308 项既有测试与完整 Web 构建通过；HANA/导出/结果文件模块没有测试源码。临时真实缓存文件导出探针、编辑/严格解析探针（样本及空 INSERT 共 30 条语句）和 Vue 方法状态探针通过；Java 已按 `codeformat.xml` 格式化并整理 imports，前端修改文件 lint 通过，check-i18n 因无暂存文件未扫描（本轮没有新增前端文案）。临时日志 `/private/tmp/hana-step11*.log` 可被清理。页面服务不可达，真实 HANA 往返、长 LOB、平台权限与工单文件执行仍保持 **NOT RUN**，HANA-026/027/028 不标 PASS。
+
+**现在可以部署 HANA Express 验证本步页面功能。** 需更新 console/SDK/schema、HANA（含 sql-hana）、plus-file-convert 和 Web；测试样本见 [11-data-edit.sql](sql/11-data-edit.sql)，浏览器流程见 [HANA 数据编辑与 SQL 导出回放](../../frontend/sql/hana_data_editor.md)。优先验证复合键只改一行、identity/默认值/NULL、7 位小数秒、导出后隔离回放及第二行失败时第三行不执行。HANA 默认隐藏和 HANA-017/a 格式化门禁保留。

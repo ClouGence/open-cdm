@@ -147,6 +147,7 @@ cd frontend && npm run check-i18n
 
 - 修改 Java 代码后，必须对本次变更的 Java 文件执行 code format，使用仓库根目录 `codeformat.xml` 中的 Eclipse Formatter
   配置（`cdm-format`），并执行 IntelliJ IDEA 的 Optimize Imports，清理未使用、重复的导入并按导入规则整理。
+- 普通 imports 中，`java.*` 排在其他非 `java.*` 依赖之前，两组之间保留空行；组内按包名排序。
 - 工具无法直接调用时，可使用等效的 Java 语法/引用分析完成 imports 整理；不得仅按文本匹配判断导入是否使用。
   仅处理本次变更文件，完成后检查 diff 并运行相关编译验证。
 - 遵循现有包结构和模块边界，避免跨层直接调用导致平台、插件、启动模块相互缠绕。

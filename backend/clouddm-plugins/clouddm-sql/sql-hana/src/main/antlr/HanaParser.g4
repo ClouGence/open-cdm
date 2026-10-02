@@ -32,7 +32,7 @@ limitClause: LIMIT INTEGER (OFFSET INTEGER)? (TOTAL ROWCOUNT)?;
 lockClause: FOR (UPDATE | SHARE) (OF qualifiedName (COMMA qualifiedName)*)? (NOWAIT | WAIT INTEGER | IGNORE LOCKED)?;
 hintClause: WITH HINT LPAREN identifier (LPAREN (literal (COMMA literal)*)? RPAREN)? (COMMA identifier)* RPAREN;
 
-insertStatement: (INSERT | UPSERT | REPLACE) INTO qualifiedName columnNames? (valuesClause | query) (WITH PRIMARY KEY)?;
+insertStatement: (INSERT | UPSERT | REPLACE) INTO qualifiedName columnNames? (valuesClause | (OVERRIDING USER VALUE)? query) (WITH PRIMARY KEY)?;
 valuesClause: VALUES valueRow (COMMA valueRow)*;
 valueRow: LPAREN expression (COMMA expression)* RPAREN;
 updateStatement: UPDATE (TOP INTEGER)? qualifiedName alias? fromClause? SET assignment (COMMA assignment)* fromClause? whereClause? hintClause?;
@@ -122,7 +122,7 @@ parameterMarker: QUESTION;
 literal: STRING | INTEGER | DECIMAL | NULL | TRUE | FALSE | DEFAULT;
 columnNames: LPAREN identifier (COMMA identifier)* RPAREN;
 qualifiedName: identifier (DOT identifier)*;
-identifier: WORD | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE | INVERTED | HASH | VALUE | INDIVIDUAL;
+identifier: WORD | USER | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE | INVERTED | HASH | VALUE | INDIVIDUAL;
 
 // Editor splitting checks structural boundaries even while expressions are incomplete.
 // Execution and audit must enter statementRoot; they never fall back to splitRoot.

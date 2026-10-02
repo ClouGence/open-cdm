@@ -42,6 +42,12 @@ public class ObDataEditorSpi extends DsFamilyDataEditorSpi {
     }
 
     @Override
+    protected String buildDefaultInsert(RdbTable tableMeta) {
+        String tableName = getDialect().fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
+        return "insert into " + tableName + " () values ()";
+    }
+
+    @Override
     public String buildSelect(RdbTable tableMeta, String condition, String orderBy, Integer offset, Integer limit) {
         String selectSql = super.buildSelect(tableMeta, condition, orderBy, offset, limit);
 

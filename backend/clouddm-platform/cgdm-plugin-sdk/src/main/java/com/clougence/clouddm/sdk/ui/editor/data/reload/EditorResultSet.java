@@ -27,23 +27,24 @@ import lombok.Setter;
 @Setter
 public class EditorResultSet {
 
-    private long                          fetchTimeMs;
-    private String                        resultId;
+    private long                      fetchTimeMs;
+    private String                    resultId;
 
-    private int                           fetchCount;
+    private int                       fetchCount;
+    private int                       displayChars;
 
-    private boolean                       success;
-    private String                        message;
+    private boolean                   success;
+    private String                    message;
 
-    private boolean                       updateCountResult;
-    private long                          updateCount;
+    private boolean                   updateCountResult;
+    private long                      updateCount;
 
-    private String                        sql;
-    private List<String>                  columnList;
-    private List<String>                  columnType;
-    private List<ResultSetRow>            rowSet;
-    private String                        cacheFile;
+    private String                    sql;
+    private List<String>              columnList;
+    private List<String>              columnType;
+    private List<ResultSetRow>        rowSet;
+    private String                    cacheFile;
 
-    private List<Map<String, String>>     generatedKeys;
-    private Map<String, String>           outParams;
+    private List<Map<String, String>> generatedKeys;
+    private Map<String, String>       outParams;
 }
