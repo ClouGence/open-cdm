@@ -15,14 +15,17 @@
  */
 package com.clougence.schema.umi.serializer.rdb;
 
-import java.util.List;
-import java.util.Map;
-
 import com.clougence.schema.umi.serializer.UmiAttributeSetSerializer;
 import com.clougence.schema.umi.special.rdb.RdbIndex;
 import com.clougence.schema.umi.special.rdb.RdbIndexType;
+import com.clougence.schema.umi.struts.UmiTypes;
+
+import java.util.List;
+import java.util.Map;
 
 public class RdbIndexSerializer extends UmiAttributeSetSerializer<RdbIndex> {
+
+    private static final String KEY_INDEXED_OBJECT_TYPE = "indexedObjectType";
 
     public void readData(Map<String, Object> jsonMap, RdbIndex readTo) {
         super.readData(jsonMap, readTo);
@@ -33,6 +36,7 @@ public class RdbIndexSerializer extends UmiAttributeSetSerializer<RdbIndex> {
         readTo.setCatalog((String) jsonMap.get(KEY_RDB_CATALOG));
         readTo.setSchema((String) jsonMap.get(KEY_RDB_SCHEMA));
         readTo.setTable((String) jsonMap.get(KEY_RDB_TABLE));
+        readTo.setIndexedObjectType(UmiTypes.valueOfCode((String) jsonMap.get(KEY_INDEXED_OBJECT_TYPE)));
         readTo.setName((String) jsonMap.get(KEY_NAME));
 
         readTo.setType(RdbIndexType.valueOfCode((String) jsonMap.get(KEY_TYPE)));
@@ -54,6 +58,9 @@ public class RdbIndexSerializer extends UmiAttributeSetSerializer<RdbIndex> {
         }
         if (rdbIndex.getTable() != null) {
             toMap.put(KEY_RDB_TABLE, rdbIndex.getTable());
+        }
+        if (rdbIndex.getIndexedObjectType() != null) {
+            toMap.put(KEY_INDEXED_OBJECT_TYPE, rdbIndex.getIndexedObjectType().getTypeName());
         }
         if (rdbIndex.getName() != null) {
             toMap.put(KEY_NAME, rdbIndex.getName());

@@ -15,23 +15,26 @@
  */
 package com.clougence.clouddm.ds.hana.execute;
 
-import java.sql.*;
-import java.util.List;
-import java.util.Map;
-
 import com.clougence.clouddm.ds.hana.definition.ui.editor.table.HanaEditorProvider;
-import com.clougence.sql.hana.parser.HanaVersion;
+import com.clougence.clouddm.ds.hana.i18n.HanaConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.session.Session;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.hana.parser.HanaVersion;
 import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.StringUtils;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author mode 2021/1/15 17:11
@@ -116,7 +119,49 @@ public class HanaMetaService extends DefaultRdbMetaService {
         }
     }
 
+    @Override
     public List<String> requestObjectScript(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
-        throw new UnsupportedOperationException("Hana '" + leafType + "' Unsupported.");
+        if (!Set.of(UmiTypes.Table, UmiTypes.View, UmiTypes.Trigger, UmiTypes.Procedure, UmiTypes.Function, UmiTypes.Sequence, UmiTypes.Synonym).contains(leafType)) {
+            throw ThirdPartyApiException.as().with(new IllegalArgumentException("Unsupported HANA script object: " + leafType));
+        }
+
+        String catalog = (String) levelsParam.get(UmiTypes.Catalog);
+        String schema = (String) levelsParam.get(UmiTypes.Schema);
+        try {
+            return this.rdbSession.executeQuery(con -> {
+                if (!StringUtils.equals(catalog, HanaHooks.getCurrentCatalog(con))) {
+                    throw ThirdPartyApiException.as().with(HanaConfigI18nKeys.CONFIG_HANA_CATALOG_MISMATCH);
+                }
+
+                List<String> scripts = new ArrayList<>();
+                try (CallableStatement statement = con.prepareCall("CALL SYS.GET_OBJECT_DEFINITION(?, ?)")) {
+                    statement.setString(1, schema);
+                    statement.setString(2, leafName);
+                    try (ResultSet result = statement.executeQuery()) {
+                        while (result.next()) {
+                            String definition = result.getString("OBJECT_CREATION_STATEMENT");
+                            if (StringUtils.isNotBlank(definition)) {
+                                // Keep SQLScript bodies and their internal semicolons intact.
+                                if (!definition.stripTrailing().endsWith(";")) {
+                                    definition += "\n;";
+                                }
+                                scripts.add(definition);
+                            }
+                        }
+                    }
+                }
+
+                if (scripts.isEmpty()) {
+                    throw new SQLException("No HANA object definition returned for " + schema + "." + leafName);
+                }
+
+                return scripts;
+            });
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Read HANA object script failed: {}.{} ({})", schema, leafName, leafType, e);
+            throw ThirdPartyApiException.as().with(e);
+        }
     }
 }

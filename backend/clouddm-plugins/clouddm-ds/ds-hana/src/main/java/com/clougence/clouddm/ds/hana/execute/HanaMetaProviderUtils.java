@@ -15,15 +15,7 @@
  */
 package com.clougence.clouddm.ds.hana.execute;
 
-import static com.clougence.adapter.hana.HanaAttributeNames.*;
-import static com.clougence.utils.jdbc.JdbcUtils.tryWasNull;
-
-import java.sql.JDBCType;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
-
+import com.clougence.adapter.hana.HanaIndexType;
 import com.clougence.adapter.hana.HanaTypes;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.schema.umi.special.rdb.*;
@@ -33,6 +25,15 @@ import com.clougence.schema.umi.struts.Value;
 import com.clougence.schema.umi.struts.constraint.NonNull;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.json.JSON;
+
+import java.sql.JDBCType;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.*;
+
+import static com.clougence.adapter.hana.HanaAttributeNames.*;
+import static com.clougence.utils.jdbc.JdbcUtils.tryWasNull;
 
 /**
  * @author chunlin
@@ -177,6 +178,7 @@ public class HanaMetaProviderUtils {
                 column.setDatetimePrecision(tryWasNull(rs.getInt("SCALE"), rs));
             }
             column.setDefaultValue(rs.getString("DEFAULT_VALUE"));
+            column.setDefaultValueIsFunc(true);
             String generationType = rs.getString("GENERATION_TYPE");
             column.setAttribute(GENERATION_TYPE, generationType);
             column.setAttribute(GENERATION_ALWAYS_AS, rs.getString("GENERATED_ALWAYS_AS"));
@@ -201,7 +203,7 @@ public class HanaMetaProviderUtils {
         pk.setSchema(rs.getString("SCHEMA_NAME"));
         pk.setTable(rs.getString("TABLE_NAME"));
 
-        pk.setAttribute(INDEX_TYPE, rs.getString("INDEX_TYPE"));
+        pk.setAttribute(INDEX_TYPE, normalizeIndexType(rs.getString("INDEX_TYPE")));
 
         String order = rs.getString("ASCENDING_ORDER");
         Map<String, String> subOrder = new HashMap<>();
@@ -229,7 +231,7 @@ public class HanaMetaProviderUtils {
         uk.setSchema(rs.getString("SCHEMA_NAME"));
         uk.setTable(rs.getString("TABLE_NAME"));
 
-        uk.setAttribute(INDEX_TYPE, rs.getString("INDEX_TYPE"));
+        uk.setAttribute(INDEX_TYPE, normalizeIndexType(rs.getString("INDEX_TYPE")));
 
         String order = rs.getString("ASCENDING_ORDER");
         Map<String, String> subOrder = new HashMap<>();
@@ -245,6 +247,14 @@ public class HanaMetaProviderUtils {
         uk.setAttribute(ORDER_TYPE, mergeJsonMap(uk.getAttribute(ORDER_TYPE), subOrderJson));
     }
 
+    private static String normalizeIndexType(String value) {
+        HanaIndexType type = HanaIndexType.valueOfCode(value);
+        if (type == null) {
+            return value;
+        }
+        return type.getCode();
+    }
+
     public static List<RdbIndex> convertIndex(ResultSet rs) throws SQLException {
         List<RdbIndex> rdbIndices = new ArrayList<>();
         while (rs.next()) {
@@ -255,8 +265,11 @@ public class HanaMetaProviderUtils {
 
             String indexType = rs.getString("INDEX_TYPE");
             idx.setType(RdbIndexType.Normal);
-            idx.setAttribute(INDEX_TYPE, indexType);
-            idx.setAttribute(INDEX_WAY, RdbIndexType.Normal.getTypeName());
+            idx.setAttribute(INDEX_TYPE, normalizeIndexType(indexType));
+            if (indexType != null && indexType.contains("UNIQUE")) {
+                idx.setType(RdbIndexType.Unique);
+            }
+            idx.setAttribute(INDEX_WAY, idx.getType().getTypeName());
 
             String columnName = rs.getString("COLUMN_NAME");
             idx.addColumn(columnName);
@@ -319,6 +332,7 @@ public class HanaMetaProviderUtils {
             table.setSchema(rs.getString("SCHEMA_NAME"));
             table.setName(rs.getString("TABLE_NAME"));
             table.setTableType(rs.getString("TABLE_TYPE"));
+            table.setAttribute(TABLE_TYPE, rs.getString("TABLE_TYPE"));
             table.setUmiType(UmiTypes.Table);
 
             Timestamp createTime = rs.getTimestamp("CREATE_TIME");

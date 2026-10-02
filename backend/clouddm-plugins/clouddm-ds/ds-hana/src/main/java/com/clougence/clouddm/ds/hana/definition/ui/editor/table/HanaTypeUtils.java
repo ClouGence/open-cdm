@@ -15,14 +15,14 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.editor.table;
 
-import static com.clougence.adapter.hana.HanaTypes.*;
-import static com.clougence.utils.NumberUtils.between;
-
 import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.adapter.hana.HanaTypes;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.schema.editor.domain.EColumn;
 import com.clougence.schema.editor.triggers.TriggerContext;
 import com.clougence.utils.StringUtils;
+
+import static com.clougence.adapter.hana.HanaTypes.*;
 
 /**
  * @author wanshao create time is 2021/12/3
@@ -30,8 +30,7 @@ import com.clougence.utils.StringUtils;
 public class HanaTypeUtils {
 
     public static String buildColumnType(EColumn columnInfo, TriggerContext triggerContext) {
-        HanaTypes sqlTypes = HanaTypes.valueOfCode(columnInfo.getDbType());
-        String columnType = buildColumnType(sqlTypes, columnInfo, triggerContext);
+        String columnType = buildDataType(columnInfo);
         String options = buildOptions(columnInfo);
         String colNullable = buildNullable(Boolean.TRUE.equals(columnInfo.getNullable()));
         String colDefault = buildDefault(columnInfo);
@@ -39,13 +38,13 @@ public class HanaTypeUtils {
         return columnType + options + colNullable + colDefault;
     }
 
-    private static String buildDefault(EColumn columnInfo) {
+    static String buildDefault(EColumn columnInfo) {
         if (columnInfo.getDefaultValue() == null) {
             return StringUtils.EMPTY;
         }
-        String value = StringUtils.trim(columnInfo.getDefaultValue());
-        if (!columnInfo.isDefaultValueIsFunc() && !value.startsWith("'")) {
-            value = "'" + value + "'";
+        String value = columnInfo.getDefaultValue();
+        if (!columnInfo.isDefaultValueIsFunc()) {
+            value = "'" + value.replace("'", "''") + "'";
         }
         return " DEFAULT " + value;
     }
@@ -53,6 +52,10 @@ public class HanaTypeUtils {
     private static String buildOptions(EColumn eColumn) {
         StringBuilder sqlBuilder = new StringBuilder();
         String generationType = HanaAttributeNames.GENERATION_TYPE.getValue(eColumn.getAttribute());
+        if (StringUtils.isBlank(generationType) && eColumn.isAutoGenerate()) {
+            generationType = "BY DEFAULT AS IDENTITY";
+        }
+
         if (StringUtils.isNotBlank(generationType)) {
             sqlBuilder.append(" GENERATED ").append(generationType);
             String generationAlwaysAs = HanaAttributeNames.GENERATION_ALWAYS_AS.getValue(eColumn.getAttribute());
@@ -71,10 +74,8 @@ public class HanaTypeUtils {
         }
     }
 
-    private static String buildColumnType(HanaTypes sqlTypes, EColumn columnInfo, TriggerContext triggerContext) {
-        if (sqlTypes == null) {
-            return columnInfo.getDbType();
-        }
+    static String buildDataType(EColumn columnInfo) {
+        HanaTypes sqlTypes = HanaTypes.valueOfCode(columnInfo.getDbType());
         Long length = columnInfo.getLength();
         Integer numericPrecision = columnInfo.getNumericPrecision();
         Integer numericScale = columnInfo.getNumericScale();
@@ -89,10 +90,13 @@ public class HanaTypeUtils {
             case BIGINT:
                 return BIGINT.getCodeKey();
             case DECIMAL: {
+                if (numericScale != null && (numericPrecision == null || numericScale > numericPrecision)) {
+                    throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA DECIMAL scale requires precision >= scale"));
+                }
                 if (numericPrecision != null && numericScale != null) {
-                    return DECIMAL.getCodeKey() + "(" + between(numericPrecision, 1, 38) + ", " + between(numericScale, 0, 38) + ")";
+                    return DECIMAL.getCodeKey() + "(" + checkedRange(numericPrecision, 1, 38) + ", " + checkedRange(numericScale, 0, 38) + ")";
                 } else if (numericPrecision != null) {
-                    return DECIMAL.getCodeKey() + "(" + between(numericPrecision, 1, 38) + ")";
+                    return DECIMAL.getCodeKey() + "(" + checkedRange(numericPrecision, 1, 38) + ")";
                 } else {
                     return DECIMAL.getCodeKey();
                 }
@@ -102,51 +106,54 @@ public class HanaTypeUtils {
             case REAL:
                 return REAL.getCodeKey();
             case FLOAT:
+                if (numericPrecision != null) {
+                    return "FLOAT(" + checkedRange(numericPrecision, 1, 53) + ")";
+                }
                 return FLOAT.getCodeKey();
             case DOUBLE:
                 return DOUBLE.getCodeKey();
             case BOOLEAN:
                 return BOOLEAN.getCodeKey();
             case CHAR: {
-                if (length == null || length <= 1) {
+                if (length == null) {
                     return CHAR.getCodeKey();
                 } else {
-                    return CHAR.getCodeKey() + "(" + between(length, 1, 2000) + ")";
+                    return CHAR.getCodeKey() + "(" + length + ")";
                 }
             }
             case VARCHAR: {
-                if (length == null || length <= 1) {
+                if (length == null) {
                     return VARCHAR.getCodeKey();
                 } else {
-                    return VARCHAR.getCodeKey() + "(" + between(length, 1, 5000) + ")";
+                    return VARCHAR.getCodeKey() + "(" + checkedRange(length, 1, 5000) + ")";
                 }
             }
             case NCHAR: {
-                if (length == null || length <= 1) {
+                if (length == null) {
                     return NCHAR.getCodeKey();
                 } else {
-                    return NCHAR.getCodeKey() + "(" + between(length, 1, 2000) + ")";
+                    return NCHAR.getCodeKey() + "(" + length + ")";
                 }
             }
             case NVARCHAR: {
-                if (length == null || length <= 1) {
+                if (length == null) {
                     return NVARCHAR.getCodeKey();
                 } else {
-                    return NVARCHAR.getCodeKey() + "(" + between(length, 1, 5000) + ")";
+                    return NVARCHAR.getCodeKey() + "(" + checkedRange(length, 1, 5000) + ")";
                 }
             }
             case ALPHANUM: {
-                if (length == null || length <= 1) {
+                if (length == null) {
                     return ALPHANUM.getCodeKey();
                 } else {
-                    return ALPHANUM.getCodeKey() + "(" + between(length, 1, 127) + ")";
+                    return ALPHANUM.getCodeKey() + "(" + checkedRange(length, 1, 127) + ")";
                 }
             }
             case SHORTTEXT: {
-                if (length == null || length <= 1) {
+                if (length == null) {
                     return SHORTTEXT.getCodeKey();
                 } else {
-                    return SHORTTEXT.getCodeKey() + "(" + between(length, 1, 5000) + ")";
+                    return SHORTTEXT.getCodeKey() + "(" + checkedRange(length, 1, 5000) + ")";
                 }
             }
             case DATE:
@@ -160,16 +167,16 @@ public class HanaTypeUtils {
             case BLOB:
                 return BLOB.getCodeKey();
             case BINARY:
-                if (length == null || length <= 1) {
+                if (length == null) {
                     return BINARY.getCodeKey();
                 } else {
-                    return BINARY.getCodeKey() + "(" + between(length, 1, 2000) + ")";
+                    return BINARY.getCodeKey() + "(" + length + ")";
                 }
             case VARBINARY:
-                if (length == null || length <= 1) {
+                if (length == null) {
                     return VARBINARY.getCodeKey();
                 } else {
-                    return VARBINARY.getCodeKey() + "(" + between(length, 1, 5000) + ")";
+                    return VARBINARY.getCodeKey() + "(" + checkedRange(length, 1, 5000) + ")";
                 }
             case CLOB:
                 return CLOB.getCodeKey();
@@ -184,8 +191,15 @@ public class HanaTypeUtils {
             case ST_GEOMETRY:
                 return ST_GEOMETRY.getCodeKey();
             default: {
-                throw new UnsupportedOperationException("Unsupported sql type " + sqlTypes);
+                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Unsupported HANA SQL type: " + sqlTypes));
             }
         }
+    }
+
+    private static long checkedRange(long value, long min, long max) {
+        if (value < min || value > max) {
+            throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA type parameter out of range: " + value + " (" + min + ".." + max + ")"));
+        }
+        return value;
     }
 }

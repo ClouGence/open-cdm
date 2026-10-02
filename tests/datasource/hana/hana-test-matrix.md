@@ -44,9 +44,9 @@
 | HANA-020 | SQL 审核规则 | C1/C3/C13：第 8 步注册规则与安全域；内置无 WHERE 规则、表范围匹配离线通过 | F5；允许/提示/阻断按规则生效；不可解析与动态 SQL 不自动视为审核通过 | 8 | NOT RUN / NOT RUN |
 | HANA-021 | 列血缘 | C3/C14：第 9 步已接查询血缘；未知 SELECT 来源拒绝，视图以视图列为边界 | F5；别名、JOIN、CTE、表达式、视图、星号展开回溯正确；未知来源明确记录 | 9 | NOT RUN / NOT RUN |
 | HANA-022 | 脱敏与导出权限 | C14：第 9 步规则范围及来源/豁免离线通过；程序结果沿用 JDBC 路径，导出/表读取待实测 | 合成敏感列；普通/豁免用户对查询、数据编辑读取、导出分别验证；复杂和未知来源不解除保护 | 9、11 | NOT RUN / NOT RUN |
-| HANA-023 | 建表、改表、删表与 DDL 转换 | C12：Editor/UI/DDL SPI 已有实现 | F1/F2/F3；OWNER 页面预览→执行→刷新；列顺序、注释设置/清空、默认值/identity/约束一致 | 10 | NOT RUN / NOT RUN |
-| HANA-024 | 索引编辑 | C12：公共编排负责删除/重建 | F2；增加/删除/重排索引列后回读；失败提示与真实结构一致；无错误跨 schema 操作 | 10 | NOT RUN / NOT RUN |
-| HANA-025 | 对象脚本、模板与详情 | C7/C9/C12：requestObjectScript 抛异常；Template SPI 已有实现 | F4；各纳入对象列表→详情→取脚本→编辑/创建→刷新，脚本可在隔离 schema 回放且保留语义 | 10、13 | NOT RUN / NOT RUN |
+| HANA-023 | 建表、改表、删表与 DDL 转换 | C12：第 10 步已补齐结构 SQL、无修改往返和已知有损转换拒绝；实库待验 | F1/F2/F3；OWNER 页面预览→执行→刷新；列顺序、注释设置/清空、默认值/identity/约束一致 | 10 | NOT RUN / NOT RUN |
+| HANA-024 | 索引编辑 | C12：第 10 步已修复唯一性/物理类型/排序往返、schema 限定及所属表解析；实库待验 | F2；增加/删除/重排索引列后回读；失败提示与真实结构一致；无错误跨 schema 操作 | 10 | NOT RUN / NOT RUN |
+| HANA-025 | 对象脚本、模板与详情 | C7/C9/C12：第 10 步接入原生对象定义和序列脚本菜单；七类对象等价重建待实库 | F4；各纳入对象列表→详情→取脚本→编辑/创建→刷新，脚本可在隔离 schema 回放且保留语义 | 10、13 | NOT RUN / NOT RUN |
 | HANA-026 | 表数据新增、修改、删除 | C11：表统一使用隐藏 rowid，视图路径不同 | F1；单/复合/无 PK、行/列存、重复行；只改变选定目标、受影响数正确；视图编辑边界明确 | 11 | NOT RUN / NOT RUN |
 | HANA-027 | 数据值转换与批量失败 | C11：专用转换 helper 未见 SPI 接入 | F3、DATA_RW/RO；高精度/时间/Unicode/二进制/LOB/NULL 往返；批次错误不伪报全部成功 | 11 | NOT RUN / NOT RUN |
 | HANA-028 | 导入导出 | C11 及公共 schema/import/export 链路 | F1/F3；页面数据导出再导入隔离表，行数/关键值一致；权限、取消、断网、资源释放与错误记录 | 11 | NOT RUN / NOT RUN |
@@ -199,7 +199,7 @@ cgdm-plugin-sdk-4.3.0.jar    c54b88071ae7365410b9496485b3055779f3d22593811a26b43
 
 ## 第 8 步实现记录（2026-10-01）
 
-- 原生严格分析语法与 visitor、行为/审核共用入口、规则注册已落地。第 6/7 步提到的 SQL:2003/正则和 DO 分析缺口已替换，支持范围及保守拒绝边界见 [README 第 13 节](README.md#13-第-8-步行为分析权限与-sql-审核)。DROP INDEX 所属表解析仍待第 10 步解决，血缘/脱敏仍待第 9 步。
+- 原生严格分析语法与 visitor、行为/审核共用入口、规则注册已落地。第 6/7 步提到的 SQL:2003/正则和 DO 分析缺口已替换，支持范围及保守拒绝边界见 [README 第 13 节](README.md#13-第-8-步行为分析权限与-sql-审核)。后续第 10 步已补所属表元数据解析，第 9 步已补血缘/脱敏；两者实库验收仍未完成。
 - HANA build/customFatJar 与相关模块测试通过；dsc-common 16、console 52、plus-sec-rules 2、cg-detectrule 42，共 112 项零失败，未变化模块复用 Gradle 的有效测试结果；HANA 无测试源码。
 - 临时 `/private/tmp/hana-step8-boundaries.jsh` 与 `hana-step8-scoped-runtime.jsh` 通过，覆盖原生对象关系/静态块/拒绝路径、实际 WRITE/PROGRAM 转换、真实规则引擎与内置 UPDATE/DELETE 规则、按物理表匹配 CTE 规则；第 6/7 步探针回归通过。日志在同名前缀 `.log` 和 `hana-step8-*-regression.log`，临时证据可能被清理，长期样本见 `sql/08-analysis.sql`。
 - @Browser 本地服务连接拒绝，HANA-019/020 的 E1/E2 保持 NOT RUN；没有平台鉴权服务、真实数据库和页面端到端证据。本步没有新增公共模块、前端源码或测试类改动，没有提交或开放默认入口。
@@ -218,3 +218,12 @@ cgdm-plugin-sdk-4.3.0.jar    c54b88071ae7365410b9496485b3055779f3d22593811a26b43
 - 第 7 步补全/校验/改写及第 8 步行为边界、样本、安全规则与物理表规则范围探针回归通过；不代表真实数据库权限或完整产品查询链通过。
 - 临时日志 `/private/tmp/hana-step9*.log`、`/private/tmp/hana-step8-*-step9.log` 可被清理。长期 SQL 为 `sql/09-lineage.sql`；复测流程见 [HANA 血缘与脱敏](../../frontend/security/hana_lineage_masking.md)。
 - @Browser 访问 `http://localhost:8222` 返回 `ERR_CONNECTION_REFUSED`。HANA-021/022 的 E1/E2 仍为 NOT RUN；真实 JDBC 标签、视图规则、导出文件及表数据读取均未验收。程序内部来源和视图底层定义未实现，不得把这些缺口归为仅缺环境。
+
+## 第 10 步本地证据（2026-10-02，不等同于产品用例 PASS）
+
+- 表编辑 SQL、UI 往返、约束/索引类型与顺序、注释/默认值清空、ROW/COLUMN 及原生对象脚本已接入。完整范围、已知限制和六个异构目标检查见 [README 第 15 节](README.md#15-第-10-步结构编辑与对象脚本)。
+- DROP/RENAME INDEX 通过实时元数据定位所属表后进行行为/审核分析；公共 SPI 默认方法兼容原入口，Index 详情走已有本地/远程元数据协议。没有公共会话或解析缓存改动。
+- 后端构建、HANA 插件打包和现有测试 1308 项零失败（sql-mysql 1238、dsc-common 16、console 52、规则 2）；未变化任务复用有效结果。前端修改文件 lint、check-i18n 和 `package/all_build.sh web` 成功。未新增测试类，HANA 模块 NO-SOURCE 不算 HANA 单测。
+- 临时探针通过：真实编辑器无修改往返/索引重建、SQL 边界、源对象不变、六目标转换拒绝边界、原生脚本 JDBC 资源释放、索引元数据绑定/缺失、行为/审核真实表关系、RPC Value 序列化。第 8/9 步相关探针回归通过，新样本 17 条语句通过严格解析。日志 `/private/tmp/hana-step10*.log` 可被清理。
+- 长期样本 [10-structure.sql](sql/10-structure.sql)，页面流程 [HANA 结构编辑与对象脚本](../../frontend/sql/hana_structure_editor.md)。@Browser 访问 `http://127.0.0.1:8222/#/sql` 连接拒绝；页面、真实 HANA 回读、七类原生脚本等价重建及异构目标执行均未验收，HANA-023/024/025 保持 NOT RUN。
+- HANA 默认隐藏和 HANA-017/a 格式化开放门禁不变；未将高级生成列、全文/空间索引图形重建或任意厂商 DDL 解析的缺口归为仅缺环境。

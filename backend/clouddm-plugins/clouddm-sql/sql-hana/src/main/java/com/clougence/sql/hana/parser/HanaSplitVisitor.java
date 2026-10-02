@@ -6,20 +6,21 @@
  */
 package com.clougence.sql.hana.parser;
 
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.hana.parser.antlr.HanaParser;
+import com.clougence.sql.hana.parser.antlr.HanaParserBaseVisitor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import com.clougence.sql.hana.parser.antlr.HanaParser;
-import com.clougence.sql.hana.parser.antlr.HanaParserBaseVisitor;
-import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-
 final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
 
-    static final HanaSplitVisitor INSTANCE = new HanaSplitVisitor();
-    private static final Set<String> CREATE_MODIFIERS = Set.of("OR", "REPLACE", "LOCAL", "GLOBAL", "TEMPORARY", "ROW", "COLUMN", "VIRTUAL", "UNIQUE", "FULLTEXT");
-    private static final Set<String> DML = Set.of("SELECT", "INSERT", "UPDATE", "DELETE", "MERGE");
+    static final HanaSplitVisitor    INSTANCE         = new HanaSplitVisitor();
+    private static final Set<String> CREATE_MODIFIERS = Set
+        .of("OR", "REPLACE", "LOCAL", "GLOBAL", "TEMPORARY", "ROW", "COLUMN", "VIRTUAL", "UNIQUE", "FULLTEXT", "BTREE", "CPBTREE", "INVERTED", "HASH", "VALUE", "INDIVIDUAL");
+    private static final Set<String> DML              = Set.of("SELECT", "INSERT", "UPDATE", "DELETE", "MERGE");
 
     private HanaSplitVisitor(){
     }

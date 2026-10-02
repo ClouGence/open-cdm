@@ -15,13 +15,7 @@
  */
 package com.clougence.sql.hana;
 
-import com.clougence.sql.hana.analysis.behavior.HanaBehaviorAnalysisSpi;
-import com.clougence.sql.hana.analysis.lineage.HanaLineageAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.sql.hana.analysis.security.HanaSecDomainResolveSpi;
-import com.clougence.sql.hana.editor.rewrite.HanaRewriteSpi;
-import com.clougence.sql.hana.parser.HanaDslProvider;
-import com.clougence.sql.hana.parser.HanaSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
@@ -30,6 +24,12 @@ import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
+import com.clougence.sql.hana.analysis.behavior.HanaBehaviorAnalysisSpi;
+import com.clougence.sql.hana.analysis.lineage.HanaLineageAnalysisSpi;
+import com.clougence.sql.hana.analysis.security.HanaSecDomainResolveSpi;
+import com.clougence.sql.hana.editor.rewrite.HanaRewriteSpi;
+import com.clougence.sql.hana.parser.HanaDslProvider;
+import com.clougence.sql.hana.parser.HanaSplitAnalysisSpi;
 
 /** @author mode */
 public class HanaSqlEngineSpi implements SqlEngineSpi {
@@ -43,8 +43,8 @@ public class HanaSqlEngineSpi implements SqlEngineSpi {
 
     public HanaSqlEngineSpi(MetaService metaService){
         this.splitAnalysisSpi = new HanaSplitAnalysisSpi();
-        this.secDomainResolveSpi = new HanaSecDomainResolveSpi();
-        this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi();
+        this.secDomainResolveSpi = new HanaSecDomainResolveSpi(metaService);
+        this.behaviorAnalysisSpi = new HanaBehaviorAnalysisSpi(metaService);
         this.lineageAnalysisSpi = new HanaLineageAnalysisSpi(metaService);
         this.rewriteSpi = new HanaRewriteSpi();
     }

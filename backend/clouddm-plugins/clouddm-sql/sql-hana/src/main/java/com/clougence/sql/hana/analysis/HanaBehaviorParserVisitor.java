@@ -4,13 +4,8 @@
  */
 package com.clougence.sql.hana.analysis;
 
-import java.util.*;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ParseTree;
-import com.clougence.sql.hana.i18n.HanaSqlI18nKeys;
-import com.clougence.sql.hana.parser.antlr.HanaParser;
-import com.clougence.sql.hana.parser.antlr.HanaParserBaseVisitor;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.execute.MetaIndexedObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
@@ -19,17 +14,27 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.hana.i18n.HanaSqlI18nKeys;
+import com.clougence.sql.hana.parser.antlr.HanaParser;
+import com.clougence.sql.hana.parser.antlr.HanaParserBaseVisitor;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import java.util.*;
+import java.util.function.BiFunction;
 
 final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
-    private final HanaAnalysisResult result = new HanaAnalysisResult();
-    private final SplitScript script;
-    private final Map<UmiTypes, Object> levels;
-    private final RdbBehaviorObjectFactory objects;
-    private final Deque<Map<String, List<BehaviorObject>>> cteScopes = new ArrayDeque<>();
-    private final Deque<Map<String, List<BehaviorObject>>> variables = new ArrayDeque<>();
-    private boolean explaining;
+    private final HanaAnalysisResult                                           result    = new HanaAnalysisResult();
+    private final SplitScript                                                  script;
+    private final Map<UmiTypes, Object>                                        levels;
+    private final RdbBehaviorObjectFactory                                     objects;
+    private final Deque<Map<String, List<BehaviorObject>>>                     cteScopes = new ArrayDeque<>();
+    private final Deque<Map<String, List<BehaviorObject>>>                     variables = new ArrayDeque<>();
+    private final BiFunction<Map<UmiTypes, Object>, String, MetaIndexedObject> indexedObjectResolver;
+    private boolean                                                            explaining;
 
-    HanaBehaviorParserVisitor(SplitScript script, Map<UmiTypes, Object> levels) {
+    HanaBehaviorParserVisitor(SplitScript script, Map<UmiTypes, Object> levels, BiFunction<Map<UmiTypes, Object>, String, MetaIndexedObject> indexedObjectResolver){
+        this.indexedObjectResolver = indexedObjectResolver;
         this.script = script;
         this.levels = new HashMap<>(levels);
         this.objects = new RdbBehaviorObjectFactory(this.levels, script.getBodyStartCodeLine(), script.getBodyStartCodeColumn());
@@ -93,25 +98,36 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
         domain.setHasSubQuery(contains(ctx, HanaParser.QueryContext.class));
         if (ctx.fromClause() != null) {
             List<RdbJoinType> joins = new ArrayList<>();
-            if (ctx.fromClause().tableSource().size() > 1) joins.add(RdbJoinType.CROSS_JOIN);
+            if (ctx.fromClause().tableSource().size() > 1)
+                joins.add(RdbJoinType.CROSS_JOIN);
             for (var source : ctx.fromClause().tableSource()) {
                 for (var join : source.joinClause()) {
                     RdbJoinType type = RdbJoinType.INNER_JOIN;
-                    if (join.LEFT() != null) type = RdbJoinType.LEFT_JOIN;
-                    else if (join.RIGHT() != null) type = RdbJoinType.RIGHT_JOIN;
-                    else if (join.FULL() != null) type = RdbJoinType.OTHER_JOIN;
-                    else if (join.CROSS() != null) type = RdbJoinType.CROSS_JOIN;
+                    if (join.LEFT() != null)
+                        type = RdbJoinType.LEFT_JOIN;
+                    else if (join.RIGHT() != null)
+                        type = RdbJoinType.RIGHT_JOIN;
+                    else if (join.FULL() != null)
+                        type = RdbJoinType.OTHER_JOIN;
+                    else if (join.CROSS() != null)
+                        type = RdbJoinType.CROSS_JOIN;
                     joins.add(type);
                 }
             }
             domain.setJoinTypes(joins);
         }
-        if (tables.size() == 1) configureName(domain, tables.get(0));
-        domain.setExprInSelect(ctx.selectItem().stream().anyMatch(item ->
-            descendants(item, HanaParser.AdditiveExpressionContext.class).stream().anyMatch(e -> e.multiplicativeExpression().size() > 1) ||
-            descendants(item, HanaParser.MultiplicativeExpressionContext.class).stream().anyMatch(e -> e.unaryExpression().size() > 1)));
+        if (tables.size() == 1)
+            configureName(domain, tables.get(0));
+        domain.setExprInSelect(ctx.selectItem()
+            .stream()
+            .anyMatch(item -> descendants(item, HanaParser.AdditiveExpressionContext.class).stream().anyMatch(e -> e.multiplicativeExpression().size() > 1)
+                              || descendants(item, HanaParser.MultiplicativeExpressionContext.class).stream().anyMatch(e -> e.unaryExpression().size() > 1)));
         domain.setSelectColumns(ctx.selectItem().stream().flatMap(item -> columnNamesIn(item).stream()).distinct().toList());
-        domain.setSelectFunc(ctx.selectItem().stream().flatMap(item -> descendants(item, HanaParser.FunctionCallContext.class).stream()).map(f -> f.qualifiedName().getText()).toList());
+        domain.setSelectFunc(ctx.selectItem()
+            .stream()
+            .flatMap(item -> descendants(item, HanaParser.FunctionCallContext.class).stream())
+            .map(f -> f.qualifiedName().getText())
+            .toList());
         domain.setSelectVariables(ctx.selectItem().stream().flatMap(item -> descendants(item, HanaParser.VariableContext.class).stream()).map(ParseTree::getText).toList());
         domain.setSelectValue(ctx.selectItem().stream().flatMap(item -> descendants(item, HanaParser.LiteralContext.class).stream()).map(ParseTree::getText).toList());
         configureWhere(domain, ctx.whereClause());
@@ -170,7 +186,8 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
         domain.setColumns(columns(ctx.columnNames()));
         domain.setHasSpecifyColumn(ctx.columnNames() != null);
         domain.setConflict(RdbInsertConflictStrategy.NONE);
-        if (ctx.INSERT() == null) domain.setConflict(RdbInsertConflictStrategy.UPDATE);
+        if (ctx.INSERT() == null)
+            domain.setConflict(RdbInsertConflictStrategy.UPDATE);
         configureQuery(domain, ctx);
         domain.setOnlyValues(ctx.valuesClause() != null);
         domain.setMultipleValues(ctx.valuesClause() != null && ctx.valuesClause().valueRow().size() > 1);
@@ -208,8 +225,10 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
                     }
                 }
             }
-            if (matches.size() > 1) throw unsupported(ctx, "Ambiguous update alias");
-            if (!matches.isEmpty()) targetName = matches.get(0);
+            if (matches.size() > 1)
+                throw unsupported(ctx, "Ambiguous update alias");
+            if (!matches.isEmpty())
+                targetName = matches.get(0);
         }
         BehaviorObject target = object(TargetType.Table, targetName);
         addRelation(BehaviorAction.UPDATE, target);
@@ -420,7 +439,8 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     @Override
     public Void visitCreateSchema(HanaParser.CreateSchemaContext ctx) {
         String schema = name(ctx.identifier());
-        if (schema.contains("/")) throw unsupported(ctx, "Schema contains a resource path separator");
+        if (schema.contains("/"))
+            throw unsupported(ctx, "Schema contains a resource path separator");
         BehaviorObject target = object(TargetType.Schema, ctx, List.of(schema));
         addRelation(BehaviorAction.CREATE, target);
         addDomain(HanaRuleDomains.objectDomain(TargetType.Schema, resource(target)), RuleQueryType.CREATE_SCHEMA);
@@ -435,11 +455,11 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
         List<HanaParser.ColumnDefinitionContext> columns = descendants(ctx, HanaParser.ColumnDefinitionContext.class);
         domain.setColumns(columns.stream().map(c -> name(c.identifier())).toList());
         domain.setHasPrimary(descendants(ctx, HanaParser.ColumnOptionContext.class).stream().anyMatch(c -> c.PRIMARY() != null)
-            || descendants(ctx, HanaParser.TableConstraintContext.class).stream().anyMatch(c -> c.PRIMARY() != null));
+                             || descendants(ctx, HanaParser.TableConstraintContext.class).stream().anyMatch(c -> c.PRIMARY() != null));
         domain.setHasUnique(descendants(ctx, HanaParser.ColumnOptionContext.class).stream().anyMatch(c -> c.UNIQUE() != null)
-            || descendants(ctx, HanaParser.TableConstraintContext.class).stream().anyMatch(c -> c.UNIQUE() != null));
+                            || descendants(ctx, HanaParser.TableConstraintContext.class).stream().anyMatch(c -> c.UNIQUE() != null));
         domain.setHasForeignKey(descendants(ctx, HanaParser.ColumnOptionContext.class).stream().anyMatch(c -> c.REFERENCES() != null)
-            || descendants(ctx, HanaParser.TableConstraintContext.class).stream().anyMatch(c -> c.FOREIGN() != null));
+                                || descendants(ctx, HanaParser.TableConstraintContext.class).stream().anyMatch(c -> c.FOREIGN() != null));
         if (ctx.STRING() != null) {
             domain.setComment(ctx.STRING().getText());
         }
@@ -503,10 +523,30 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
         if (ctx.alterAction().ALTER() != null) {
             type = RuleQueryType.ALTER_TABLE_ALTER_COLUMN;
         }
-        addColumns(table, descendants(ctx.alterAction(), HanaParser.ColumnDefinitionContext.class),
-            descendants(ctx.alterAction(), HanaParser.TableConstraintContext.class), type, RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT);
+        addColumns(table, descendants(ctx.alterAction(), HanaParser.ColumnDefinitionContext.class), descendants(ctx
+            .alterAction(), HanaParser.TableConstraintContext.class), type, RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT);
         addConstraints(table, descendants(ctx.alterAction(), HanaParser.TableConstraintContext.class), RuleQueryType.ALTER_TABLE_ADD_CONSTRAINT);
-        if (ctx.alterAction().DROP() != null && ctx.alterAction().CONSTRAINT() != null) {
+
+        for (var column : ctx.alterAction().alterColumnDefinition()) {
+            RdbColumnDomain domain = columnDomain(table, name(column.identifier()));
+            if (column.dataType() != null) {
+                domain.setTypeName(name(column.dataType().identifier()));
+                domain.setTypeDesc(column.dataType().getText());
+            }
+            for (var option : column.columnOption()) {
+                if (option.DEFAULT() != null && option.expression() != null)
+                    domain.setDefaultValue(option.expression().getText());
+                if (option.NULL() != null)
+                    domain.setNullable(option.NOT() == null);
+            }
+            addDomain(domain, RuleQueryType.ALTER_TABLE_ALTER_COLUMN);
+        }
+
+        if (ctx.alterAction().DROP() != null && ctx.alterAction().PRIMARY() != null) {
+            HanaConstraintDomain domain = constraintDomain(table);
+            domain.setType(SqlConstraintType.Primary);
+            addDomain(domain, RuleQueryType.ALTER_TABLE_DROP_CONSTRAINT);
+        } else if (ctx.alterAction().DROP() != null && ctx.alterAction().CONSTRAINT() != null) {
             HanaConstraintDomain domain = constraintDomain(table);
             domain.setName(name(ctx.alterAction().identifier(0)));
             addDomain(domain, RuleQueryType.ALTER_TABLE_DROP_CONSTRAINT);
@@ -524,14 +564,71 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
         String kind = ctx.objectType().getText().toUpperCase(Locale.ROOT);
         TargetType target = objectType(kind);
         if (target == TargetType.Index) {
-            throw unsupported(ctx, "DROP INDEX requires owner-table metadata, which is not available to static analysis");
+            indexChange(ctx.qualifiedName(), null);
+            return null;
         }
         definition(BehaviorAction.DROP, target, ctx.qualifiedName(), RuleQueryType.valueOf("DROP_" + kind));
         return null;
     }
 
+    private void indexChange(HanaParser.QualifiedNameContext name, String newName) {
+        BehaviorObject index = object(TargetType.Index, name);
+        var indexResource = resource(index);
+        if (indexedObjectResolver == null) {
+            throw unsupported(name, "Index DDL requires live indexed-object metadata");
+        }
+        Map<UmiTypes, Object> indexLevels = new HashMap<>(levels);
+        indexLevels.put(UmiTypes.Schema, indexResource.get(TargetType.Schema));
+        MetaIndexedObject indexedObject = indexedObjectResolver.apply(indexLevels, indexResource.get(TargetType.Index));
+        if (indexedObject == null || indexedObject.getName() == null || indexedObject.getName().isBlank()) {
+            throw unsupported(name, "Indexed object was not found");
+        }
+
+        if (indexedObject.getType() != UmiTypes.Table) {
+            throw unsupported(name, "Unsupported HANA indexed object type: " + indexedObject.getType());
+        }
+
+        if (!Objects.equals(indexedObject.getCatalog(), indexResource.get(TargetType.Catalog))) {
+            throw unsupported(name, "Cross-database indexed objects are not supported");
+        }
+        BehaviorObject table = object(TargetType.Table, name, List.of(indexedObject.getSchema(), indexedObject.getName()));
+        addRelation(BehaviorAction.ALTER, table);
+        RdbIndexDomain domain = new RdbIndexDomain();
+        domain.setCatalog(indexResource.get(TargetType.Catalog));
+        domain.setSchema(indexResource.get(TargetType.Schema));
+        domain.setName(indexResource.get(TargetType.Index));
+        domain.setTableCatalog(indexedObject.getCatalog());
+        domain.setTableSchema(indexedObject.getSchema());
+        domain.setTableName(indexedObject.getName());
+        domain.setNewName(newName);
+        RuleQueryType type = RuleQueryType.DROP_INDEX;
+        if (newName != null) {
+            type = RuleQueryType.RENAME_INDEX;
+        }
+        addDomain(domain, type);
+    }
+
     @Override
     public Void visitRenameStatement(HanaParser.RenameStatementContext ctx) {
+        if (ctx.INDEX() != null) {
+            if (ctx.qualifiedName(1).identifier().size() != 1) {
+                throw unsupported(ctx, "RENAME INDEX requires an unqualified new name");
+            }
+            indexChange(ctx.qualifiedName(0), name(ctx.qualifiedName(1).identifier(0)));
+            return null;
+        }
+        if (ctx.COLUMN() != null) {
+            List<String> parts = names(ctx.qualifiedName(0));
+            if (parts.size() < 2 || parts.size() > 3 || ctx.qualifiedName(1).identifier().size() != 1) {
+                throw unsupported(ctx, "RENAME COLUMN requires a table/column and an unqualified new name");
+            }
+            BehaviorObject table = object(TargetType.Table, ctx.qualifiedName(0), parts.subList(0, parts.size() - 1));
+            addRelation(BehaviorAction.ALTER, table);
+            RdbColumnDomain domain = columnDomain(table, parts.get(parts.size() - 1));
+            domain.setNewName(name(ctx.qualifiedName(1).identifier(0)));
+            addDomain(domain, RuleQueryType.ALTER_TABLE_RENAME_COLUMN);
+            return null;
+        }
         BehaviorObject from = object(TargetType.Table, ctx.qualifiedName(0));
         BehaviorObject to = object(TargetType.Table, ctx.qualifiedName(1));
         addRelation(BehaviorAction.RENAME, from).getTarget().add(to);
@@ -641,12 +738,20 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     private void addConstraints(BehaviorObject table, List<HanaParser.TableConstraintContext> constraints, RuleQueryType type) {
         for (var constraint : constraints) {
             HanaConstraintDomain domain = constraintDomain(table);
-            if (constraint.identifier() != null) domain.setName(name(constraint.identifier()));
-            if (!constraint.columnNames().isEmpty()) domain.setColumns(columns(constraint.columnNames(0)));
+            if (constraint.identifier() != null)
+                domain.setName(name(constraint.identifier()));
+            if (constraint.constraintColumns() != null) {
+                domain.setColumns(constraint.constraintColumns().identifier().stream().map(HanaBehaviorParserVisitor::name).toList());
+            } else if (!constraint.columnNames().isEmpty()) {
+                domain.setColumns(columns(constraint.columnNames(0)));
+            }
             SqlConstraintType kind = SqlConstraintType.Check;
-            if (constraint.PRIMARY() != null) kind = SqlConstraintType.Primary;
-            else if (constraint.UNIQUE() != null) kind = SqlConstraintType.Unique;
-            else if (constraint.FOREIGN() != null) kind = SqlConstraintType.ForeignKey;
+            if (constraint.PRIMARY() != null)
+                kind = SqlConstraintType.Primary;
+            else if (constraint.UNIQUE() != null)
+                kind = SqlConstraintType.Unique;
+            else if (constraint.FOREIGN() != null)
+                kind = SqlConstraintType.ForeignKey;
             domain.setType(kind);
             addDomain(domain, type);
         }
@@ -673,8 +778,8 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
         return domain;
     }
 
-    private void addColumns(BehaviorObject table, List<HanaParser.ColumnDefinitionContext> columns,
-                            List<HanaParser.TableConstraintContext> constraints, RuleQueryType type, RuleQueryType constraintType) {
+    private void addColumns(BehaviorObject table, List<HanaParser.ColumnDefinitionContext> columns, List<HanaParser.TableConstraintContext> constraints, RuleQueryType type,
+                            RuleQueryType constraintType) {
         for (var column : columns) {
             RdbColumnDomain domain = columnDomain(table, name(column.identifier()));
             domain.setTypeName(name(column.dataType().identifier()));
@@ -684,30 +789,46 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
                 domain.setLength(column.dataType().INTEGER(0).getText());
             }
             for (var option : column.columnOption()) {
-                if (option.NOT() != null || option.PRIMARY() != null) domain.setNullable(false);
-                if (option.PRIMARY() != null) domain.setPrimary(true);
-                if (option.UNIQUE() != null) domain.setUnique(true);
-                if (option.REFERENCES() != null) domain.setForeign(true);
+                if (option.NOT() != null || option.PRIMARY() != null)
+                    domain.setNullable(false);
+                if (option.PRIMARY() != null)
+                    domain.setPrimary(true);
+                if (option.UNIQUE() != null)
+                    domain.setUnique(true);
+                if (option.REFERENCES() != null)
+                    domain.setForeign(true);
                 if (option.PRIMARY() != null || option.UNIQUE() != null || option.REFERENCES() != null) {
                     HanaConstraintDomain constraint = constraintDomain(table);
                     constraint.setColumns(List.of(domain.getColumn()));
                     SqlConstraintType kind = SqlConstraintType.ForeignKey;
-                    if (option.PRIMARY() != null) kind = SqlConstraintType.Primary;
-                    else if (option.UNIQUE() != null) kind = SqlConstraintType.Unique;
+                    if (option.PRIMARY() != null)
+                        kind = SqlConstraintType.Primary;
+                    else if (option.UNIQUE() != null)
+                        kind = SqlConstraintType.Unique;
                     constraint.setType(kind);
                     addDomain(constraint, constraintType);
                 }
-                if (option.COMMENT() != null) domain.setComment(option.STRING().getText());
-                if (option.DEFAULT() != null && option.expression() != null) domain.setDefaultValue(option.expression().getText());
+                if (option.COMMENT() != null)
+                    domain.setComment(option.STRING().getText());
+                if (option.DEFAULT() != null && option.expression() != null)
+                    domain.setDefaultValue(option.expression().getText());
             }
             for (var constraint : constraints) {
-                if (!constraint.columnNames().isEmpty() && columns(constraint.columnNames(0)).contains(domain.getColumn())) {
+                List<String> constraintColumns = List.of();
+                if (constraint.constraintColumns() != null) {
+                    constraintColumns = constraint.constraintColumns().identifier().stream().map(HanaBehaviorParserVisitor::name).toList();
+                } else if (!constraint.columnNames().isEmpty()) {
+                    constraintColumns = columns(constraint.columnNames(0));
+                }
+                if (constraintColumns.contains(domain.getColumn())) {
                     if (constraint.PRIMARY() != null) {
                         domain.setPrimary(true);
                         domain.setNullable(false);
                     }
-                    if (constraint.FOREIGN() != null) domain.setForeign(true);
-                    if (constraint.UNIQUE() != null && columns(constraint.columnNames(0)).size() == 1) domain.setUnique(true);
+                    if (constraint.FOREIGN() != null)
+                        domain.setForeign(true);
+                    if (constraint.UNIQUE() != null && constraintColumns.size() == 1)
+                        domain.setUnique(true);
                 }
             }
             addDomain(domain, type);
@@ -834,8 +955,7 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     }
 
     private static List<String> columnNamesIn(ParseTree tree) {
-        return descendants(tree, HanaParser.PrimaryContext.class).stream().filter(p -> p.qualifiedName() != null)
-            .map(p -> lastName(p.qualifiedName())).distinct().toList();
+        return descendants(tree, HanaParser.PrimaryContext.class).stream().filter(p -> p.qualifiedName() != null).map(p -> lastName(p.qualifiedName())).distinct().toList();
     }
 
     private static List<String> names(HanaParser.QualifiedNameContext context) {
@@ -855,9 +975,9 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     }
 
     private ThirdPartyApiException unsupported(ParserRuleContext context, String reason) {
-        return ThirdPartyApiException.as().with(HanaSqlI18nKeys.HANA_SQL_ANALYSIS_UNSUPPORTED,
-            script.getBodyStartCodeLine() + context.getStart().getLine() - 1,
-            context.getStart().getCharPositionInLine() + (context.getStart().getLine() == 1 ? script.getBodyStartCodeColumn() : 0), reason);
+        return ThirdPartyApiException.as()
+            .with(HanaSqlI18nKeys.HANA_SQL_ANALYSIS_UNSUPPORTED, script.getBodyStartCodeLine() + context.getStart().getLine() - 1, context.getStart()
+                .getCharPositionInLine() + (context.getStart().getLine() == 1 ? script.getBodyStartCodeColumn() : 0), reason);
     }
 
     private static <T extends ParseTree> List<T> descendants(ParseTree tree, Class<T> type) {

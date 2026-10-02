@@ -15,13 +15,6 @@
  */
 package com.clougence.clouddm.ds.hana.execute;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import com.clougence.clouddm.dsfamily.execute.AbstractRdbUmiService;
 import com.clougence.schema.umi.service.RdbUmiServiceDm;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
@@ -32,6 +25,13 @@ import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author chunlin
@@ -127,6 +127,8 @@ public class HanaUmiServiceDm extends AbstractRdbUmiService<HanaMetaProviderDm> 
                 List<String> functionNames = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
                 List<RdbFunction> functions = this.metadataSupplier.eGet().loadFunctions(catalog, schema, functionNames);
                 return CollectionUtils.isEmpty(functions) ? null : functions.get(0);
+            case Index:
+                return this.metadataSupplier.eGet().loadIndex(catalog, schema, leafName);
             case Trigger:
                 return this.metadataSupplier.eGet().loadTrigger(schema, leafName);
             case Sequence:

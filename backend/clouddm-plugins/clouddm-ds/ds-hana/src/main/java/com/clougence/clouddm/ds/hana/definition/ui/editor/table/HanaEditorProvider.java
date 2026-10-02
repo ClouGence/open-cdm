@@ -15,23 +15,21 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.editor.table;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.adapter.hana.HanaIndexType;
+import com.clougence.adapter.hana.HanaTableType;
 import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
+import com.clougence.clouddm.dsfamily.schema.sqlbuilder.AbstractSqlBuilder;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.schema.DsType;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.editor.domain.*;
-import com.clougence.clouddm.dsfamily.schema.sqlbuilder.AbstractSqlBuilder;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.editor.triggers.TriggerContext;
 import com.clougence.utils.StringUtils;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.*;
 
 /**
  * @author wanshao create time is 2021/12/3
@@ -63,13 +61,11 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
 
     @Override
     public List<String> tableComment(TriggerContext buildContext, String catalog, String schema, String table, String comment) {
-        StringBuilder sqlBuild = new StringBuilder();
-        sqlBuild.append("COMMENT ON TABLE ")
-            .append(fmtTable(buildContext.isUseDelimited(), null, schema, table))
-            .append(" IS '")
-            .append(getDialect().fmtComment(comment))
-            .append("';");
-        return Collections.singletonList(sqlBuild.toString());
+        String value = "NULL";
+        if (StringUtils.isNotEmpty(comment)) {
+            value = "'" + getDialect().fmtComment(comment) + "'";
+        }
+        return List.of("COMMENT ON TABLE " + fmtTable(buildContext.isUseDelimited(), null, schema, table) + " IS " + value + ";");
     }
 
     @Override
@@ -79,12 +75,17 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
 
     @Override
     public List<String> tableAlter(TriggerContext buildContext, String catalog, String schema, String table, ETable eTable, Map<String, String> sourceAttr) {
-        if (StringUtils.isBlank(eTable.getComment())) {
-            return null;
-        }
         List<String> result = new ArrayList<>();
-        String comment = eTable.getComment();
-        result.add(tableComment(buildContext, catalog, schema, table, comment).get(0));
+        if (eTable.getComment() != null) {
+            result.addAll(tableComment(buildContext, catalog, schema, table, eTable.getComment()));
+        }
+        String tableType = HanaAttributeNames.TABLE_TYPE.getValue(eTable.getAttribute());
+        if (tableType != null) {
+            if (HanaTableType.valueOfCode(tableType) == null) {
+                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Unsupported HANA table type: " + tableType));
+            }
+            result.add(buildAlterTable(buildContext, catalog, schema, table) + " " + tableType + ";");
+        }
         return result;
     }
 
@@ -140,19 +141,59 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
     @Override
     public List<String> columnChange(TriggerContext context, String catalog, String schema, String table, EColumn columnInfo, EColumn newInfo, List<String> diffChange,
                                      ETable eTable) {
-        StringBuilder sqlBuild = buildAlterTable(context, null, schema, table);
-        sqlBuild.append(" ALTER (");
-        buildColumn(context, newInfo, sqlBuild);
-        sqlBuild.append(");");
-        return Collections.singletonList(sqlBuild.toString());
+        if (columnInfo.isAutoGenerate() != newInfo.isAutoGenerate()
+            || !Objects.equals(HanaAttributeNames.GENERATION_TYPE.getValue(columnInfo.getAttribute()), HanaAttributeNames.GENERATION_TYPE.getValue(newInfo.getAttribute()))
+            || !Objects
+                .equals(HanaAttributeNames.GENERATION_ALWAYS_AS.getValue(columnInfo.getAttribute()), HanaAttributeNames.GENERATION_ALWAYS_AS.getValue(newInfo.getAttribute()))) {
+            throw ThirdPartyApiException.as().with(new IllegalArgumentException("Changing HANA column generation requires native DDL"));
+        }
+
+        List<String> result = new ArrayList<>();
+        StringBuilder definition = new StringBuilder();
+        String oldType = HanaTypeUtils.buildDataType(columnInfo);
+        String newType = HanaTypeUtils.buildDataType(newInfo);
+        if (!oldType.equals(newType)) {
+            definition.append(" ").append(newType);
+        }
+
+        if (!Objects.equals(columnInfo.getDefaultValue(), newInfo.getDefaultValue()) || columnInfo.isDefaultValueIsFunc() != newInfo.isDefaultValueIsFunc()) {
+            if (newInfo.getDefaultValue() == null) {
+                definition.append(" DEFAULT NULL");
+            } else {
+                definition.append(HanaTypeUtils.buildDefault(newInfo));
+            }
+        }
+
+        if (!Objects.equals(columnInfo.getNullable(), newInfo.getNullable())) {
+            if (Boolean.TRUE.equals(newInfo.getNullable())) {
+                definition.append(" NULL");
+            } else {
+                definition.append(" NOT NULL");
+            }
+        }
+
+        if (!definition.isEmpty()) {
+            if (columnInfo.isAutoGenerate() || StringUtils.isNotBlank(HanaAttributeNames.GENERATION_TYPE.getValue(columnInfo.getAttribute()))) {
+                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Changing HANA generated column properties requires native DDL"));
+            }
+            result.add(buildAlterTable(context, catalog, schema, table) + " ALTER (" + fmtName(context.isUseDelimited(), newInfo.getName()) + definition + ");");
+        }
+
+        if (!Objects.equals(StringUtils.defaultString(columnInfo.getComment()), StringUtils.defaultString(newInfo.getComment()))) {
+            result.addAll(columnComment(context, catalog, schema, table, newInfo, newInfo.getComment(), eTable));
+        }
+
+        return result;
     }
 
     @Override
     public List<String> columnComment(TriggerContext context, String catalog, String schema, String table, EColumn columnInfo, String comment, ETable eTable) {
-        EColumn newInfo = columnInfo.clone();
-        newInfo.setComment(comment);
-        List<String> diffChange = Collections.singletonList("COMMENT");
-        return columnChange(context, null, schema, table, columnInfo, newInfo, diffChange, eTable);
+        String value = "NULL";
+        if (StringUtils.isNotEmpty(comment)) {
+            value = "'" + getDialect().fmtComment(comment) + "'";
+        }
+        return List.of("COMMENT ON COLUMN " + fmtTable(context.isUseDelimited(), null, schema, table) + "." + fmtName(context.isUseDelimited(), columnInfo.getName()) + " IS "
+                       + value + ";");
     }
 
     @Override
@@ -162,13 +203,16 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
 
     @Override
     public List<String> dropIndex(TriggerContext context, String catalog, String schema, String table, EIndex indexInfo) {
+        if (indexInfo.getType() == EIndexType.Unique && indexInfo.getAttribute().containsKey("INDEX_NAME")) {
+            return List.of(buildAlterTable(context, catalog, schema, table) + " DROP CONSTRAINT " + fmtName(context.isUseDelimited(), indexInfo.getName()) + ";");
+        }
         StringBuilder sqlBuild = new StringBuilder();
         sqlBuild.append("DROP ");
-        if (indexInfo.getAttribute().get(HanaAttributeNames.INDEX_TYPE.getCodeKey()).equals(HanaIndexType.FULLTEXT.getCode())) {
+        if (HanaIndexType.valueOfCode(HanaAttributeNames.INDEX_TYPE.getValue(indexInfo.getAttribute())) == HanaIndexType.FULLTEXT) {
             sqlBuild.append("FULLTEXT ");
         }
         sqlBuild.append("INDEX ");
-        sqlBuild.append(fmtIndex(context.isUseDelimited(), null, indexInfo.getName()));
+        sqlBuild.append(fmtTable(context.isUseDelimited(), null, schema, indexInfo.getName()));
         sqlBuild.append(";");
         return Collections.singletonList(sqlBuild.toString());
     }
@@ -177,13 +221,13 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
     public List<String> indexRename(TriggerContext buildContext, String catalog, String schema, String table, EIndex indexInfo, String newIndexName) {
         StringBuilder sqlBuild = new StringBuilder();
         sqlBuild.append("RENAME ");
-        if (indexInfo.getAttribute().get(HanaAttributeNames.INDEX_TYPE.getCodeKey()).equals(HanaIndexType.FULLTEXT.getCode())) {
+        if (HanaIndexType.valueOfCode(HanaAttributeNames.INDEX_TYPE.getValue(indexInfo.getAttribute())) == HanaIndexType.FULLTEXT) {
             sqlBuild.append("FULLTEXT ");
         }
         sqlBuild.append("INDEX ");
-        sqlBuild.append(getDialect().fmtName(buildContext.isUseDelimited(), indexInfo.getName()));
+        sqlBuild.append(fmtTable(buildContext.isUseDelimited(), null, schema, indexInfo.getName()));
         sqlBuild.append(" TO ");
-        sqlBuild.append(getDialect().fmtName(buildContext.isUseDelimited(), newIndexName));
+        sqlBuild.append(getDialect().fmtName(buildContext.isUseDelimited(), newIndexName)).append(";");
         return Collections.singletonList(sqlBuild.toString());
     }
 
@@ -196,29 +240,12 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
 
     @Override
     public List<String> indexDropColumn(TriggerContext buildContext, String catalog, String schema, String table, EIndex indexInfo, List<String> needRemoveColumns) {
-        EIndex copy = indexInfo.clone();
-        copy.getColumnList().removeAll(needRemoveColumns);
-
         return new ArrayList<>(this.dropIndex(buildContext, null, schema, table, indexInfo));
     }
 
     @Override
     public List<String> createPrimaryKey(TriggerContext buildContext, String catalog, String schema, String table, EPrimaryKey primaryInfo) {
-        boolean useDelimited = buildContext.isUseDelimited();
-        StringBuilder sqlBuild = buildAlterTable(buildContext, catalog, schema, table);
-
-        sqlBuild.append(" ADD PRIMARY KEY");
-        sqlBuild.append("(");
-        List<String> columnList = primaryInfo.getColumnList();
-        for (int i = 0; i < columnList.size(); i++) {
-            String column = columnList.get(i);
-            if (i > 0) {
-                sqlBuild.append(", ");
-            }
-            sqlBuild.append(fmtName(useDelimited, column));
-        }
-        sqlBuild.append(");");
-        return Collections.singletonList(sqlBuild.toString());
+        return List.of(buildAlterTable(buildContext, catalog, schema, table) + " ADD " + new HanaCreateUtils().buildPrimaryKey(buildContext, primaryInfo) + ";");
     }
 
     @Override
@@ -252,16 +279,41 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
 
     @Override
     public List<String> createForeignKey(TriggerContext buildContext, String catalog, String schema, String table, EForeignKey foreignKeyInfo) {
-        return new ArrayList<>();
+        StringBuilder sql = buildAlterTable(buildContext, catalog, schema, table);
+        sql.append(" ADD CONSTRAINT ").append(fmtName(buildContext.isUseDelimited(), foreignKeyInfo.getName()));
+        sql.append(" FOREIGN KEY (");
+        List<String> columns = foreignKeyInfo.getColumnList();
+        List<String> referenced = new ArrayList<>();
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) {
+                sql.append(", ");
+            }
+            String column = columns.get(i);
+            sql.append(fmtName(buildContext.isUseDelimited(), column));
+            referenced.add(fmtName(buildContext.isUseDelimited(), foreignKeyInfo.getReferenceMapping().get(column)));
+        }
+        sql.append(") REFERENCES ").append(fmtTable(buildContext.isUseDelimited(), null, foreignKeyInfo.getReferenceSchema(), foreignKeyInfo.getReferenceTable()));
+        sql.append(" (").append(String.join(", ", referenced)).append(")");
+        if (foreignKeyInfo.getUpdateRule() != null) {
+            sql.append(" ON UPDATE ").append(foreignKeyInfo.getUpdateRule().getTypeName());
+        }
+        if (foreignKeyInfo.getDeleteRule() != null) {
+            sql.append(" ON DELETE ").append(foreignKeyInfo.getDeleteRule().getTypeName());
+        }
+        return List.of(sql.append(";").toString());
     }
 
     @Override
     public List<String> dropForeignKey(TriggerContext buildContext, String catalog, String schema, String table, EForeignKey foreignKeyInfo) {
-        return new ArrayList<>();
+        return List.of(buildAlterTable(buildContext, catalog, schema, table) + " DROP CONSTRAINT " + fmtName(buildContext.isUseDelimited(), foreignKeyInfo.getName()) + ";");
     }
 
     @Override
     public List<String> foreignKeyRename(TriggerContext buildContext, String catalog, String schema, String table, EForeignKey foreignKeyInfo, String newForeignKeyName) {
-        return new ArrayList<>();
+        EForeignKey renamed = foreignKeyInfo.clone();
+        renamed.setName(newForeignKeyName);
+        List<String> result = new ArrayList<>(dropForeignKey(buildContext, catalog, schema, table, foreignKeyInfo));
+        result.addAll(createForeignKey(buildContext, catalog, schema, table, renamed));
+        return result;
     }
 }

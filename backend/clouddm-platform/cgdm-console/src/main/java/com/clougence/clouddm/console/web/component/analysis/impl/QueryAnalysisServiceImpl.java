@@ -15,14 +15,6 @@
  */
 package com.clougence.clouddm.console.web.component.analysis.impl;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.*;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.springframework.stereotype.Service;
-
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
@@ -58,6 +50,7 @@ import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
+import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -67,9 +60,15 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
-
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author mode 2020-01-20 21:04
@@ -281,9 +280,15 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             int codeLine = script.getBodyStartCodeLine();
             int codeColumn = script.getBodyStartCodeColumn();
 
+            ContextInfo context = ContextInfo.builder()
+                .cuid(this.options.getCurrentUid())
+                .dsId(this.options.getDsId())
+                .levelsParam(this.levels)
+                .dataSourceConfig(this.dsConfig)
+                .build();
             List<StatementBehavior> behaviors;
             try (StringReader reader = new StringReader(request.getQueryBody());
-                    Stream<StatementBehavior> stream = this.behaviorSpi.analysisBehaviorStream(reader, this.levels, codeLine, codeColumn)) {
+                    Stream<StatementBehavior> stream = this.behaviorSpi.analysisBehaviorWithContextStream(reader, context, codeLine, codeColumn)) {
                 behaviors = stream.toList();
             }
 

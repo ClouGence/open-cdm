@@ -4,35 +4,43 @@
  */
 package com.clougence.sql.hana.analysis;
 
-import java.util.Map;
-import org.antlr.v4.runtime.CharStreams;
-import com.clougence.sql.hana.i18n.HanaSqlI18nKeys;
-import com.clougence.sql.hana.parser.HanaDslProvider;
-import com.clougence.sql.hana.parser.antlr.HanaParser;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.execute.MetaIndexedObject;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.hana.i18n.HanaSqlI18nKeys;
+import com.clougence.sql.hana.parser.HanaDslProvider;
+import com.clougence.sql.hana.parser.antlr.HanaParser;
 import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.CharStreams;
+
+import java.util.Map;
+import java.util.function.BiFunction;
 
 @Slf4j
 public final class HanaSqlAnalyzer {
-    private HanaSqlAnalyzer() {}
+    private HanaSqlAnalyzer(){
+    }
 
     public static HanaAnalysisResult analyze(SplitScript script, Map<UmiTypes, Object> levels) {
+        return analyze(script, levels, null);
+    }
+
+    public static HanaAnalysisResult analyze(SplitScript script, Map<UmiTypes, Object> levels, BiFunction<Map<UmiTypes, Object>, String, MetaIndexedObject> indexedObjectResolver) {
         try {
             var lexer = HanaDslProvider.INSTANCE.createLexer(CharStreams.fromString(script.getScript()));
             HanaParser parser = (HanaParser) HanaDslProvider.INSTANCE.createParser(lexer);
             var tree = parser.statementRoot();
-            HanaBehaviorParserVisitor visitor = new HanaBehaviorParserVisitor(script, levels);
+            HanaBehaviorParserVisitor visitor = new HanaBehaviorParserVisitor(script, levels, indexedObjectResolver);
             visitor.visit(tree);
             return visitor.result();
         } catch (AntlerSyntaxException e) {
             String msg = "Cannot analyze HANA statement at line " + script.getBodyStartCodeLine();
             log.error(msg, e);
-            throw ThirdPartyApiException.as().with(e, HanaSqlI18nKeys.HANA_SQL_ANALYSIS_UNSUPPORTED,
-                script.getBodyStartCodeLine() + e.getLine() - 1,
-                e.getColumn() + (e.getLine() == 1 ? script.getBodyStartCodeColumn() : 0), e.getMessage());
+            throw ThirdPartyApiException.as()
+                .with(e, HanaSqlI18nKeys.HANA_SQL_ANALYSIS_UNSUPPORTED, script.getBodyStartCodeLine() + e.getLine() -
+                                                                        1, e.getColumn() + (e.getLine() == 1 ? script.getBodyStartCodeColumn() : 0), e.getMessage());
         }
     }
 }

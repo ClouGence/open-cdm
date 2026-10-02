@@ -54,21 +54,24 @@ columnOption: NOT NULL | NULL | DEFAULT expression | PRIMARY KEY | UNIQUE | COMM
     | GENERATED (ALWAYS | BY DEFAULT) AS IDENTITY (LPAREN identityOption+ RPAREN)?
     | GENERATED ALWAYS AS LPAREN expression RPAREN | REFERENCES qualifiedName columnNames? referentialAction*;
 identityOption: START WITH INTEGER | INCREMENT BY INTEGER | MINVALUE INTEGER | MAXVALUE INTEGER | (NO)? CYCLE;
-tableConstraint: (CONSTRAINT identifier)? (PRIMARY KEY columnNames | UNIQUE columnNames
+tableConstraint: (CONSTRAINT identifier)? (PRIMARY KEY indexType? constraintColumns | UNIQUE indexType? constraintColumns
     | FOREIGN KEY columnNames REFERENCES qualifiedName columnNames referentialAction* | CHECK LPAREN expression RPAREN);
 referentialAction: ON (DELETE | UPDATE) (CASCADE | RESTRICT | SET NULL | SET DEFAULT | NO ACTION);
 createView: CREATE (OR REPLACE)? VIEW qualifiedName columnNames? AS query (WITH (LOCAL | CASCADED)? CHECK OPTION)?;
-createIndex: CREATE UNIQUE? INDEX qualifiedName ON qualifiedName LPAREN orderItem (COMMA orderItem)* RPAREN;
+indexType: BTREE | CPBTREE | INVERTED (HASH | VALUE | INDIVIDUAL);
+constraintColumns: LPAREN identifier (ASC | DESC)? (COMMA identifier (ASC | DESC)?)* RPAREN;
+alterColumnDefinition: identifier (dataType columnOption* | columnOption+);
+createIndex: CREATE UNIQUE? indexType? INDEX qualifiedName ON qualifiedName LPAREN orderItem (COMMA orderItem)* RPAREN;
 createSequence: CREATE SEQUENCE qualifiedName identityOption*;
 createSynonym: CREATE (OR REPLACE)? SYNONYM qualifiedName FOR qualifiedName;
 alterTable: ALTER TABLE qualifiedName alterAction;
 alterAction: ADD LPAREN tableElement (COMMA tableElement)* RPAREN
-    | ALTER LPAREN columnDefinition (COMMA columnDefinition)* RPAREN
+    | ALTER LPAREN alterColumnDefinition (COMMA alterColumnDefinition)* RPAREN
     | DROP LPAREN identifier (COMMA identifier)* RPAREN
-    | ADD tableConstraint | DROP CONSTRAINT identifier;
+    | ADD tableConstraint | DROP CONSTRAINT identifier | DROP PRIMARY KEY | ROW | COLUMN;
 dropStatement: DROP objectType qualifiedName (CASCADE | RESTRICT)?;
 objectType: SCHEMA | TABLE | VIEW | INDEX | SEQUENCE | SYNONYM | PROCEDURE | FUNCTION | TRIGGER;
-renameStatement: RENAME TABLE qualifiedName TO qualifiedName;
+renameStatement: RENAME (TABLE | COLUMN | INDEX) qualifiedName TO qualifiedName;
 truncateStatement: TRUNCATE TABLE qualifiedName;
 commentStatement: COMMENT ON (TABLE | VIEW | COLUMN) qualifiedName IS (STRING | NULL);
 
@@ -119,7 +122,7 @@ parameterMarker: QUESTION;
 literal: STRING | INTEGER | DECIMAL | NULL | TRUE | FALSE | DEFAULT;
 columnNames: LPAREN identifier (COMMA identifier)* RPAREN;
 qualifiedName: identifier (DOT identifier)*;
-identifier: WORD | QUOTED_IDENTIFIER | KEY | NEW | OLD;
+identifier: WORD | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE | INVERTED | HASH | VALUE | INDIVIDUAL;
 
 // Editor splitting checks structural boundaries even while expressions are incomplete.
 // Execution and audit must enter statementRoot; they never fall back to splitRoot.

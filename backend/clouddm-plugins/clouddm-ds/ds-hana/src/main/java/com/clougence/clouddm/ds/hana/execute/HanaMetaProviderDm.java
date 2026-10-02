@@ -15,10 +15,6 @@
  */
 package com.clougence.clouddm.ds.hana.execute;
 
-import java.sql.*;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.clougence.clouddm.ds.hana.i18n.HanaConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.execute.AbstractMetadataProvider;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
@@ -29,6 +25,13 @@ import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author chunlin
@@ -124,13 +127,13 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
     @Override
     protected Map<String, List<RdbIndex>> fetchIndexes(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
         String sql = """
-            SELECT I.SCHEMA_NAME, I.TABLE_NAME, I.INDEX_NAME, I.INDEX_TYPE, I."CONSTRAINT",
-                   IC.COLUMN_NAME, IC.ASCENDING_ORDER
-            FROM SYS.INDEXES I
-            JOIN SYS.INDEX_COLUMNS IC ON I.SCHEMA_NAME = IC.SCHEMA_NAME
-                AND I.TABLE_NAME = IC.TABLE_NAME AND I.INDEX_NAME = IC.INDEX_NAME
-            WHERE I.SCHEMA_NAME = ? AND I."CONSTRAINT" IS NULL AND I.TABLE_NAME IN
-            """ + buildWhereIn(tabs) + " ORDER BY I.TABLE_NAME, I.INDEX_NAME, IC.\"POSITION\" ASC";
+                SELECT I.SCHEMA_NAME, I.TABLE_NAME, I.INDEX_NAME, I.INDEX_TYPE, I."CONSTRAINT",
+                       IC.COLUMN_NAME, IC.ASCENDING_ORDER
+                FROM SYS.INDEXES I
+                JOIN SYS.INDEX_COLUMNS IC ON I.SCHEMA_NAME = IC.SCHEMA_NAME
+                    AND I.TABLE_NAME = IC.TABLE_NAME AND I.INDEX_NAME = IC.INDEX_NAME
+                WHERE I.SCHEMA_NAME = ? AND I."CONSTRAINT" IS NULL AND I.TABLE_NAME IN
+                """ + buildWhereIn(tabs) + " ORDER BY I.TABLE_NAME, I.INDEX_NAME, IC.\"POSITION\" ASC";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             List<String> params = new ArrayList<>(tabs);
@@ -185,13 +188,13 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
     @Override
     protected Map<String, Map<String, UmiConstraint>> fetchPrimaryUnique(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
         String sql = """
-            SELECT I.SCHEMA_NAME, I.TABLE_NAME, I.INDEX_NAME, I.INDEX_TYPE, I."CONSTRAINT",
-                   IC.COLUMN_NAME, IC."POSITION", IC.ASCENDING_ORDER
-            FROM SYS.INDEXES I
-            JOIN SYS.INDEX_COLUMNS IC ON I.SCHEMA_NAME = IC.SCHEMA_NAME
-                AND I.TABLE_NAME = IC.TABLE_NAME AND I.INDEX_NAME = IC.INDEX_NAME
-            WHERE I.SCHEMA_NAME = ? AND I."CONSTRAINT" IN ('PRIMARY KEY', 'UNIQUE') AND I.TABLE_NAME IN
-            """ + buildWhereIn(tabs) + " ORDER BY I.TABLE_NAME, I.INDEX_NAME, IC.\"POSITION\" ASC";
+                SELECT I.SCHEMA_NAME, I.TABLE_NAME, I.INDEX_NAME, I.INDEX_TYPE, I."CONSTRAINT",
+                       IC.COLUMN_NAME, IC."POSITION", IC.ASCENDING_ORDER
+                FROM SYS.INDEXES I
+                JOIN SYS.INDEX_COLUMNS IC ON I.SCHEMA_NAME = IC.SCHEMA_NAME
+                    AND I.TABLE_NAME = IC.TABLE_NAME AND I.INDEX_NAME = IC.INDEX_NAME
+                WHERE I.SCHEMA_NAME = ? AND I."CONSTRAINT" IN ('PRIMARY KEY', 'UNIQUE') AND I.TABLE_NAME IN
+                """ + buildWhereIn(tabs) + " ORDER BY I.TABLE_NAME, I.INDEX_NAME, IC.\"POSITION\" ASC";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             List<String> params = new ArrayList<>(tabs);
@@ -441,6 +444,29 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
         }
     }
 
+    public RdbIndex loadIndex(String catalog, String schema, String indexName) throws SQLException {
+        try (Connection conn = this.connectSupplier.eGet()) {
+            checkCurrentCatalog(conn, catalog);
+            String sql = "SELECT SCHEMA_NAME, TABLE_NAME, INDEX_NAME FROM SYS.INDEXES WHERE SCHEMA_NAME = ? AND INDEX_NAME = ?";
+            try (PreparedStatement statement = conn.prepareStatement(sql)) {
+                statement.setString(1, schema);
+                statement.setString(2, indexName);
+                try (ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
+                        return null;
+                    }
+                    RdbIndex index = new RdbIndex();
+                    index.setCatalog(catalog);
+                    index.setSchema(result.getString("SCHEMA_NAME"));
+                    index.setTable(result.getString("TABLE_NAME"));
+                    index.setIndexedObjectType(UmiTypes.Table);
+                    index.setName(result.getString("INDEX_NAME"));
+                    return index;
+                }
+            }
+        }
+    }
+
     private void checkCurrentCatalog(Connection conn, String catalog) throws SQLException {
         String curCatalog = HanaHooks.getCurrentCatalog(conn);
         if (!StringUtils.equals(curCatalog, catalog)) {
@@ -570,7 +596,8 @@ public class HanaMetaProviderDm extends AbstractMetadataProvider implements Meta
     }
 
     public Value loadTrigger(String schema, String leafName) throws SQLException {
-        String sql = "SELECT SCHEMA_NAME,TRIGGER_NAME,SUBJECT_TABLE_SCHEMA,SUBJECT_TABLE_NAME,DEFINITION,TRIGGER_ACTION_TIME,TRIGGER_EVENT,TRIGGERED_ACTION_LEVEL FROM SYS.TRIGGERS " + "WHERE SCHEMA_NAME = ? and TRIGGER_NAME= ?";
+        String sql = "SELECT SCHEMA_NAME,TRIGGER_NAME,SUBJECT_TABLE_SCHEMA,SUBJECT_TABLE_NAME,DEFINITION,TRIGGER_ACTION_TIME,TRIGGER_EVENT,TRIGGERED_ACTION_LEVEL FROM SYS.TRIGGERS "
+                     + "WHERE SCHEMA_NAME = ? and TRIGGER_NAME= ?";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, schema);
             ps.setString(2, leafName);

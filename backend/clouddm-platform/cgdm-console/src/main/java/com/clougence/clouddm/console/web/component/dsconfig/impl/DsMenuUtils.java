@@ -15,14 +15,13 @@
  */
 package com.clougence.clouddm.console.web.component.dsconfig.impl;
 
-import java.util.*;
-
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsMenu;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.*;
 
 /**
  * @author mode 2020/11/7 14:27
@@ -119,6 +118,7 @@ public class DsMenuUtils implements DsFeatureIDs {
             MENU_BROWSE_CONSTRAINT_DISABLE,// Action: disable constraint
             // --SYNONYM
             MENU_BROWSE_SYNONYM_REQUEST,//
+            MENU_BROWSE_SEQUENCE_REQUEST,//
             // -- user
             MENU_BROWSE_USER_DROP);
 

@@ -423,7 +423,7 @@ cd ../package
 | 静态 SQLScript | DO/BEGIN、过程/函数/基本触发器定义，局部变量、表变量、IF/循环/异常处理块；嵌套 SQL 逐项分析。过程 DEFAULT SCHEMA 用于其静态对象解析 |
 | CALL 和函数 | 校验 PROGRAM 权限；不展开数据库中已存在程序的内部定义，也不解析字符串参数中的 SQL。程序内部实际访问仍由数据库定义者/调用者权限控制 |
 | 动态 SQL、未知语法 | EXEC/EXECUTE IMMEDIATE、管理/DCL、未覆盖的 SQLScript/高级表达式等抛 `ThirdPartyApiException`，停止当前语句的执行/审核；不转成空关系、空域、只读或审核 PASS |
-| DROP INDEX | 静态输入无法确定所属表，明确拒绝；第 10 步对象编辑闭环需要结合元数据解决，不能通过放宽行为分析绕过 |
+| DROP/RENAME INDEX | 第 10 步已通过运行时元数据查找实际所属表，按该表授权和审核；纯静态入口、索引不存在或查找失败仍明确拒绝，详见第 15 节 |
 | 上下文与名称 | 三段远程/跨库对象名、带 `/` 的资源对象名拒绝；SET SCHEMA 与编辑器 schema 不同则提示通过编辑器切换，防止 SQL 会话与鉴权上下文错位 |
 | 系统函数与方言规则 | 内置函数白名单是有限集合；未收录函数可能需要补充。MySQL 专有 engine/charset 等规则不代表 HANA 支持，不能因模型同名就套用所有方言字段 |
 | 审核与脱敏 | 本步只接查询/DDL 审核；列血缘及脱敏规则范围仍留第 9 步，不将非空审核域当成血缘实现 |
@@ -492,3 +492,71 @@ cd backend
 **现在可部署 Express 验证查询结果脱敏**：使用包含本步 SQL/共享 SQL 模块的新 HANA 插件包，重启加载；本次还需部署包含程序豁免修复的 console 运行包；首次部署仍需要第 6/7 步平台与 Web 组合包。普通用户配置列范围规则后，按 [HANA 血缘与脱敏流程](../../frontend/security/hana_lineage_masking.md) 和 [09-lineage.sql](sql/09-lineage.sql) 验证改名、表达式、CTE、JOIN、UNION、视图列、部分豁免及查询结果导出。HANA 仍默认隐藏，可沿用隔离环境直达新增入口。
 
 本地 @Browser 页面连接拒绝，真实 HANA、浏览器结果和导出文件未验证；HANA-021/022 保持 NOT RUN。格式化硬编码待办 `HANA-017/a` 仍是第 13/15 步门禁，本步没有关闭它。
+
+## 15. 第 10 步：结构编辑与对象脚本
+
+### 实现与范围
+
+- 建表保留物理列顺序、PK 名称、独立 UNIQUE 和 FK；索引唯一性与物理类型分离，支持 BTREE/CPBTREE/INVERTED VALUE/HASH/INDIVIDUAL 及列顺序。唯一约束使用 `DROP CONSTRAINT`，普通索引使用 schema 限定的 `DROP INDEX`。修改索引继续复用公共编辑器删除/重建编排。
+- 表/列注释可清空，生成 `COMMENT … IS NULL`；清空默认值生成局部 `ALTER … DEFAULT NULL`。列属性仅修改变化部分，注释变化不会重新声明 identity。默认值自定义框输入 SQL 表达式，字符串必须包含 SQL 引号；空字符串选项对应 `''`。长度/精度越界明确报错，不再静默截断。
+- 新列可选择 identity（BY DEFAULT AS IDENTITY）；已有生成列只支持本轮可保留语义的操作，如独立修改注释。修改其生成模式、类型、默认值或可空性明确拒绝，需使用经过核对的原生 DDL。
+- 表属性读回 ROW/COLUMN，支持生成存储转换 SQL。UI 往返保留原始排序属性，不为缺省属性合成额外差异；两个 UNIQUE、FK、identity、默认值及顺序属性的无修改往返探针不产生 DDL。
+- 表、视图、触发器、过程、函数、序列、同义词的取脚本统一调用 `CALL SYS.GET_OBJECT_DEFINITION(?, ?)`，读取 `OBJECT_CREATION_STATEMENT`。绑定 schema/对象名、校验当前 tenant，完整保留 SQLScript 主体；关闭 statement/result，不关闭借用连接。空结果或调用失败明确报错，不用不完整模板伪造成功。
+- 接通表/视图和序列的获取脚本菜单；补过程/函数 DROP 模板及首个 UPDATE 触发器事件的 UPDATE OF 列。未实现的程序 CREATE/ALTER/COMPILE、无法保留复杂定义的触发器 ALTER/COMPILE 和 schema rename 入口不展示。
+- 严格语法同步支持编辑器输出的局部 ALTER、DROP PRIMARY KEY、ROW/COLUMN、索引物理类型、约束列顺序、RENAME COLUMN/INDEX；继续使用唯一一套 HANA Lexer/Parser。
+
+**能力边界**：不提供全文/空间索引的图形化重建，不能丢掉其原生选项后创建普通索引；独立 ARRAY 不作为编辑器可选类型。高级生成表达式、identity 序列选项、复杂触发器和过程定义以原生对象脚本为准，表模型转换不能替代完整对象备份。SAP 文档未保证的 CHAR/NCHAR 等旧类型仍需按实际服务器核对。本轮没有实现任意厂商 DDL 的工作台解析；取脚本成功不意味着该脚本已通过工作台严格分析或可等价回放。
+
+原生对象定义入口参考 SAP 的 [GET_OBJECT_DEFINITION 使用说明](https://community.sap.com/t5/human-capital-management-blog-posts-by-sap/hana-most-common-sql-statements-amp-functions/ba-p/13488167)；ALTER/索引语法核对 [Platform 2.0 SPS 06 SQL Reference](https://help.sap.com/doc/9b40bf74f8644b898fb07dabdd2a36ad/2.0.06/en-US/SAP_HANA_SQL_Reference_Guide_en.pdf)。目前没有实库证据证明目标 revision 对七类对象都返回相同结构和完整定义，需逐类核对；不能把代理 JDBC 返回的模拟脚本作为厂商兼容性证据。
+
+### 索引所属表与公共改动
+
+`DROP INDEX` / `RENAME INDEX` 的语句本身没有表名。本轮通过 `SYS.INDEXES` 的 schema/index 精确查询取得所属表，再生成该表的 ALTER 权限关系和索引审核域。索引不存在、缺少元数据上下文或查找失败时拒绝执行；不按当前 schema 中的同名表猜测，不缓存所属关系。普通 SELECT 不新增索引元数据查询。批次中尚未执行 CREATE 的新索引无法预先查询，需先创建成功再发起 DROP/RENAME。
+
+为复用现有本地/Sidecar 元数据调用链，公共侧只增加：
+
+1. `BehaviorAnalysisSpi.analysisBehaviorWithContextStream` 默认方法，携带用户、数据源和层级；默认转发原入口，现有其他数据源实现继续沿用原逻辑。查询分析入口传入该上下文，未做解析复用优化。
+2. `MetaService.fetchIndexedObject` 默认能力及 console 实现，返回 `MetaIndexedObject`（type/catalog/schema/name），表示被索引对象，schema 仅表示命名空间。HANA 的 Index 详情明确返回 Table 类型；`RdbIndex.indexedObjectType` 经现有 `Value` 序列化链传输，console 不推断对象类型。HANA 行为/审核使用返回对象的 schema/名称，拒绝缺失、非 Table 或跨 catalog 的结果；其他数据源后续按真实类型接入。远程 Index 详情绕过对象详情缓存，避免错误套用不存在的索引详情缓存类型。
+3. 序列“获取创建语句”的菜单标识、白名单、国际化和前端事件分发，复用其他对象的原有请求链。
+
+未修改公共会话生命周期、取消、事务或队列终态。部署必须同时更新 console/SDK/schema 运行包、HANA 插件（含 sql-hana）及 Web 资源，不能只替换插件。
+
+### 已声明 DDL 转换目标
+
+转换先克隆源表，不能修改当前表编辑器的 catalog/schema 或列约束。同方言 HANA 输出直接使用 HANA 生成器，绕过会合并/重排键列的异构迁移处理器。
+
+| 目标 | 本轮本地检查和明确边界 |
+| --- | --- |
+| HANA | 探针保留列顺序、PK 名称、两个 UNIQUE、FK 和普通索引；模型含 CHECK 时拒绝转换，高级对象选项仍应取原生脚本 |
+| MySQL、TiDB、OceanBase | 简单 INTEGER/NVARCHAR/DECIMAL(18,4) 输出已检查；不代表已在目标库执行或所有 HANA 类型/表达式等价 |
+| Doris、StarRocks | 简单列输出已检查；包含 PK 或索引时拒绝，防止源唯一性被改成不同的目标键语义；字符串按既有字符/字节换算输出 |
+| AdbForMySQL | INTEGER 简单表可输出；有列长度、PK 或索引时拒绝，避免已观察到的长度/键丢失 |
+| 所有异构目标 | 带 FK/CHECK、生成列/identity、SMALLDECIMAL 或未指定精度的 DECIMAL 明确拒绝，要求人工给出目标定义 |
+
+上述拒绝覆盖本轮实际发现的语义损失，不是“所有剩余组合无损”的保证。默认表达式、类型边界、排序规则等仍需按实际迁移需求在目标引擎执行回读；未将“生成非空 SQL”记为等价迁移验收通过。
+
+### 本地验证与待验收
+
+```bash
+cd backend
+./gradlew --offline :ds-hana:build :sql-hana:build :ds-hana:customFatJar :cgdm-console:test :dsc-common:test :sql-mysql:test :plus-sec-rules:test
+cd ../frontend
+npm run lint -- --no-fix src/utils/index.js src/views/sql/components/TableList.vue
+npm run check-i18n
+cd ../package
+./all_build.sh web
+```
+
+- 后端构建、插件打包、相关既有测试 1308 项及 Web 完整构建通过；HANA 模块无测试源码，本轮未新增测试类。未变化模块复用 Gradle 的有效测试结果。前端修改文件 lint 通过；check-i18n 正常结束但因只扫描暂存文件而未扫描本轮内容，新增菜单和表单文案的默认/中文/英文资源另行核对齐全。
+- 临时编辑器探针调用真实 UI 映射及 `TableEditorImpl.diffActions`，覆盖无修改、两个 UNIQUE/FK、索引排序 JSON 往返、重建 SQL、注释/默认值清空、identity 注释、长度/精度拒绝和源对象不变。
+- JDBC 代理验证对象脚本多行结果、内部分号、参数绑定、空结果/异常、资源释放，以及索引详情现有/不存在路径。行为/审核探针验证跨 schema 引号名称、真实表关系、索引不存在拒绝和 `RdbIndex` 的实际 JSON `Value` 往返；这些不替代真实平台权限测试。
+- 六个异构目标调用实际转换器检查简单输出与已知有损场景拒绝；新长期样本 17 条语句通过严格解析，第 8 步行为分析与第 9 步血缘探针回归通过。日志为 `/private/tmp/hana-step10*.log`，临时证据可能被清理。
+- 2026-10-02 @Browser 打开 `http://127.0.0.1:8222/#/sql` 返回 `ERR_CONNECTION_REFUSED`；没有真实 HANA。页面、执行回读、普通账号对象定义权限、七类脚本等价回放、异构目标执行全部保持 **NOT RUN**，HANA-023/024/025 不标 PASS。
+
+### Express 部署与页面验收
+
+**现在可以部署 HANA Express 验证结构编辑和对象脚本。** 更新上述完整运行包后，按 [HANA 结构编辑与对象脚本流程](../../frontend/sql/hana_structure_editor.md) 执行；准备样本见 [10-structure.sql](sql/10-structure.sql)，按区段运行，勿整文件批量执行。
+
+优先验证：无修改预览为空；注释/默认值清空；两个 UNIQUE/FK 不互相影响；复合索引增删重排及刷新；ROW/COLUMN 转换；七类对象脚本与原生结果比较及隔离副本回放；只授一张表 DDL 时，跨 schema 同名索引不能操作未授权表。记录部分 DDL 失败后的真实结构，不能假设整批自动回滚。
+
+HANA 默认隐藏仍保留。格式化特例 **HANA-017/a** 仍由第 13 步完成，并作为第 15 步开放门禁；本轮结构/脚本完成不关闭该待办。

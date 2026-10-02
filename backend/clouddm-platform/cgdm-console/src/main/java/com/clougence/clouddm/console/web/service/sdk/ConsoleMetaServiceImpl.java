@@ -15,11 +15,6 @@
  */
 package com.clougence.clouddm.console.web.service.sdk;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
@@ -35,18 +30,23 @@ import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
+import com.clougence.clouddm.sdk.service.execute.MetaIndexedObject;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
+import com.clougence.schema.umi.special.rdb.RdbIndex;
 import com.clougence.schema.umi.special.rdb.RdbPrimaryKey;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
-
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -81,6 +81,23 @@ public class ConsoleMetaServiceImpl implements MetaService {
             .sorted(Comparator.comparingInt(RdbColumn::getIndex))
             .map(column -> this.convertToMetaCol(column, keyCols, idxCols, ukCols, fkCols))
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public MetaIndexedObject fetchIndexedObject(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String indexName) {
+        DmDsDO dsDO = dsDal.dsMapper().queryDsIdentityById(dsId);
+        Value value = dsSchemaService.detailLeaf(dsDO, levelsParam, UmiTypes.Index, indexName, true);
+        if (value == null) {
+            return null;
+        }
+
+        RdbIndex index = (RdbIndex) value;
+        MetaIndexedObject object = new MetaIndexedObject();
+        object.setType(index.getIndexedObjectType());
+        object.setCatalog(index.getCatalog());
+        object.setSchema(index.getSchema());
+        object.setName(index.getTable());
+        return object;
     }
 
     @Override
