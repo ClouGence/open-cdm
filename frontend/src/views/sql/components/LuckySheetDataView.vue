@@ -210,6 +210,9 @@ export default {
             }
           },
           cellUpdated: (r, c, oldValue, newValue) => {
+            if (newValue?.custom?.new && newValue.v != null) {
+              newValue.custom.explicitNull = false;
+            }
             if (newValue && newValue.custom && !newValue.custom.new && !newValue.custom.delete) {
               if (newValue.custom.update) {
                 this.tab.updateCellList[r][newValue.custom.column.column] = true;
@@ -230,10 +233,10 @@ export default {
               ctx.font = 'italic bold 12px 微软雅黑';
               ctx.fillStyle = '#ccc';
               let text = '<NULL>';
-              if (cell.custom.column.hasDefault) {
+              if (cell.custom.new && !cell.custom.explicitNull && cell.custom.column.hasDefault) {
                 text = '<DEFAULT>';
               }
-              if (cell.custom.column.autoincrement) {
+              if (cell.custom.new && !cell.custom.explicitNull && cell.custom.column.autoincrement) {
                 text = '<AUTO>';
               }
 
@@ -405,9 +408,12 @@ export default {
             data.columnList = this.tab.rawTableData.columnList;
             data.changeRow = deepClone(this.renewData[sequence]);
             // data.sqlMessage = { sql, sequence, refresh };
-            const res = await this.$services.dmEditorDataSaveData({
-              data
-            });
+            let res;
+            try {
+              res = await this.$services.dmEditorDataSaveData({ data });
+            } catch (e) {
+              res = { success: false, msg: e.message };
+            }
 
             if (res.success) {
               this.executeInfo.unshift({
@@ -416,7 +422,7 @@ export default {
                 ...res.data
               });
 
-              if (!res.success) {
+              if (!res.data.success) {
                 error = true;
                 this.refreshAfterExecute = false;
               } else {
@@ -447,6 +453,15 @@ export default {
                   };
                 }
               }
+            } else {
+              error = true;
+              this.refreshAfterExecute = false;
+              this.executeInfo.unshift({
+                database: this.tab.node.SCHEMA.name,
+                queryBody: sql,
+                success: false,
+                message: res.msg
+              });
             }
           }
 
@@ -460,6 +475,8 @@ export default {
 
         this.executeSQLLoading = false;
       } catch (e) {
+        error = true;
+        this.refreshAfterExecute = false;
         this.executeSQLLoading = false;
       }
 
@@ -625,19 +642,18 @@ export default {
       for (let rowIndex = this.tab.rawTableData.resultSet.length; rowIndex < data.length; rowIndex++) {
         if (this.tab.addRows.includes(rowIndex) && !this.tab.deleteRows.includes(rowIndex)) {
           const row = {};
-          if (Array.isArray(data[rowIndex])) {
-            data[rowIndex].forEach((col) => {
-              row[col.custom.column.column] = col.v;
-            });
-          } else {
-            Object.values(data[rowIndex]).forEach((col) => {
-              row[col.custom.column.column] = col.v;
-            });
-          }
+          Object.values(data[rowIndex]).forEach((col) => {
+            const column = col.custom.column;
+            if (column.insertReadOnly || ((column.hasDefault || column.autoincrement) && col.v == null && !col.custom.explicitNull)) {
+              return;
+            }
+            row[column.column] = col.v;
+          });
           const item = {
             newData: row,
             sequence: rowIndex,
-            type: 'createParam'
+            type: 'createParam',
+            dmlType: 'INSERT'
           };
           dataParamList.push(item);
           renewData[rowIndex] = item;
@@ -998,6 +1014,9 @@ export default {
                 if (!cell.custom.new && !cell.custom.delete) {
                   bg = Object.is(cell.custom.v, null) ? '#fff' : 'yellow';
                 }
+                if (cell.custom.new) {
+                  cell.custom.explicitNull = true;
+                }
                 window.luckysheet.setCellValue(rowIndex, columnIndex, { v: null, m: null, bg }, { isRefresh });
               }
             }
@@ -1135,7 +1154,8 @@ export default {
               bg: BG_COLOR.ADD,
               custom: {
                 column,
-                new: true
+                new: true,
+                explicitNull: type === 'copy' && v == null && !column.autoincrement
               }
             },
             { isRefresh }

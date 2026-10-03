@@ -4379,5 +4379,18 @@
   "sql-favorites-load-cancelled-edited": "加载期间当前 SQL 已发生变化，未覆盖编辑内容。",
   "fa-bu-mu-biao": "发布目标",
   "qing-xuan-ze-fu-ze-ren": "请选择负责人",
-  "qing-kong-xuan-ze": "清空选择"
+  "qing-kong-xuan-ze": "清空选择",
+  "hana-sql-structural-validation": "仅检查 SQL 结构；表达式、对象解析和权限尚未校验。",
+  "sql-format-failed": "无法格式化此 SQL：语句可能不完整或包含未支持的语法。原文未修改。",
+  "sql-format-unavailable": "当前数据源不支持 SQL 格式化。",
+  "sql-diagnostic-error": "SQL 语法错误",
+  "sql-diagnostic-mismatch": "语法错误：不应出现 \"{input}\"，此处应为 {expected}。",
+  "sql-diagnostic-extra": "语法错误：多余的输入 \"{input}\"，此处应为 {expected}。",
+  "sql-diagnostic-missing": "语法错误：在 \"{input}\" 附近缺少 {expected}。",
+  "sql-diagnostic-unrecognized": "语法错误：无法识别 {input} 附近的 SQL 结构。",
+  "sql-diagnostic-or": " 或 ",
+  "sql-token-end": "语句结束",
+  "sql-token-comment": "\"--\" 注释",
+  "sql-token-semicolon": "分号",
+  "sql-token-identifier": "标识符"
 }

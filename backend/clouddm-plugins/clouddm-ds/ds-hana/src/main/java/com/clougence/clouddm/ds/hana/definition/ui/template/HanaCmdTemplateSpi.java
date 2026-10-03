@@ -15,11 +15,13 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.template;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
+import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.ui.template.AbstractCmdTemplateSpi;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
 import com.clougence.schema.dialect.Dialect;
@@ -100,12 +102,16 @@ public class HanaCmdTemplateSpi extends AbstractCmdTemplateSpi {
         sb.append("\n");
         sb.append(trigger.getTime());
         sb.append(" ");
+
         List<String> triggerEvent = trigger.getEventList();
         if (triggerEvent != null && !triggerEvent.isEmpty()) {
-            sb.append(triggerEvent.get(0).toUpperCase());
-            for (int i = 1; i < triggerEvent.size(); i++) {
-                String event = triggerEvent.get(i).toUpperCase();
-                sb.append(" OR ").append(event);
+            for (int i = 0; i < triggerEvent.size(); i++) {
+                String event = triggerEvent.get(i).toUpperCase(Locale.ROOT);
+                if (i > 0) {
+                    sb.append(" OR ");
+                }
+
+                sb.append(event);
                 if (event.equals("UPDATE")) {
                     List<String> triggerColumns = trigger.getColumnList();
                     if (triggerColumns != null && !triggerColumns.isEmpty()) {
@@ -140,10 +146,18 @@ public class HanaCmdTemplateSpi extends AbstractCmdTemplateSpi {
 
     @Override
     public List<String> getAlterTrigger(CmdTemplateOption option) {
-        String dropTriggerSql = getDropTrigger(option).get(0);
-        String createTriggerSql = getCreateTrigger(option).get(0);
+        // The graphical model cannot preserve REFERENCING aliases, WHEN, or statement-level triggers.
+        throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_TRIGGER_NATIVE_DDL);
+    }
 
-        return Arrays.asList(dropTriggerSql, createTriggerSql);
+    @Override
+    public List<String> getDropProcedure(CmdTemplateOption option) {
+        return List.of("DROP PROCEDURE " + fmtName(option, option.getSchema()) + "." + fmtName(option, option.getTargetName()) + ";");
+    }
+
+    @Override
+    public List<String> getDropFunction(CmdTemplateOption option) {
+        return List.of("DROP FUNCTION " + fmtName(option, option.getSchema()) + "." + fmtName(option, option.getTargetName()) + ";");
     }
 
     @Override

@@ -21,7 +21,6 @@ import java.util.Map;
 import com.clougence.clouddm.dsfamily.definition.ui.editor.data.DsFamilyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.ui.editor.data.DataEditorAttributeKeys;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorColumn;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
 import com.clougence.clouddm.sdk.ui.editor.data.reload.EditorResultSet;
@@ -39,10 +38,9 @@ public class PgDataEditorSpi extends DsFamilyDataEditorSpi {
     protected Dialect getDialect() { return PostgreDialect.INSTANCE; }
 
     @Override
-    protected boolean insertIgnore(RdbColumn colDef, String colValue) {
-        String readOnly = colDef.getAttribute(DataEditorAttributeKeys.INSERT_READ_ONLY);
-        String auto = colDef.getAttribute(DataEditorAttributeKeys.AUTOINCREMENT);
-        return Boolean.parseBoolean(readOnly) || Boolean.parseBoolean(auto);
+    protected String buildDefaultInsert(RdbTable tableMeta) {
+        String tableName = getDialect().fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
+        return "insert into " + tableName + " default values";
     }
 
     @Override
