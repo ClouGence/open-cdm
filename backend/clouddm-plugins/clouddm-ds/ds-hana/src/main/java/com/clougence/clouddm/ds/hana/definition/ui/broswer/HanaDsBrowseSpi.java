@@ -15,6 +15,10 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.broswer;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
 import com.clougence.clouddm.dsfamily.definition.ui.browser.AbstractDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.definition.ui.browser.RdbUiMenuDef;
@@ -23,10 +27,6 @@ import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author chunlin
@@ -83,11 +83,15 @@ public class HanaDsBrowseSpi extends AbstractDsBrowseSpi {
             case RdbSequence:
                 return List.of(MENU_BROWSE_COPY_NAME, MENU_BROWSE_REFRESH, MENU_SEPARATOR, MENU_BROWSE_SEQUENCE_REQUEST);
             case RDBTrigger:
-                return filterMenus(super.getMenus(targetType), List.of(MENU_BROWSE_TRIGGER_COMPILE, MENU_BROWSE_TRIGGER_ALTER));
+                return filterMenus(super.getMenus(targetType), List.of(MENU_BROWSE_TRIGGER_COMPILE, MENU_BROWSE_TRIGGER_ALTER, MENU_BROWSE_PROPERTY));
             case RDBProcedure:
-                return filterMenus(super.getMenus(targetType), List.of(MENU_BROWSE_PROCEDURE_COMPILE, MENU_BROWSE_PROCEDURE_CREATE, MENU_BROWSE_PROCEDURE_ALTER));
+                return filterMenus(super.getMenus(targetType), List
+                    .of(MENU_BROWSE_PROCEDURE_COMPILE, MENU_BROWSE_PROCEDURE_CREATE, MENU_BROWSE_PROCEDURE_ALTER, MENU_BROWSE_PROPERTY));
             case RDBFunction:
-                return filterMenus(super.getMenus(targetType), List.of(MENU_BROWSE_FUNCTION_COMPILE, MENU_BROWSE_FUNCTION_CREATE, MENU_BROWSE_FUNCTION_ALTER));
+                return filterMenus(RdbUiMenuDef.DEFAULT_RDB_FUNCTION, List
+                    .of(MENU_BROWSE_FUNCTION_COMPILE, MENU_BROWSE_FUNCTION_CREATE, MENU_BROWSE_FUNCTION_ALTER, MENU_BROWSE_PROPERTY));
+            case RdbSynonym:
+                return List.of(MENU_BROWSE_COPY_NAME, MENU_BROWSE_REFRESH, MENU_BROWSE_PERMISSIONS, MENU_SEPARATOR, MENU_BROWSE_SYNONYM_REQUEST);
             default:
                 return super.getMenus(targetType);
         }

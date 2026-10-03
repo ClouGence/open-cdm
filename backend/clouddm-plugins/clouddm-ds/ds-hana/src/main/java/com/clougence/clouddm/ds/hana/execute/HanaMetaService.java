@@ -15,8 +15,15 @@
  */
 package com.clougence.clouddm.ds.hana.execute;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.clougence.clouddm.ds.hana.definition.ui.editor.table.HanaEditorProvider;
 import com.clougence.clouddm.ds.hana.i18n.HanaConfigI18nKeys;
+import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
@@ -28,13 +35,8 @@ import com.clougence.sql.hana.parser.HanaVersion;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
-import lombok.extern.slf4j.Slf4j;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author mode 2021/1/15 17:11
@@ -122,7 +124,7 @@ public class HanaMetaService extends DefaultRdbMetaService {
     @Override
     public List<String> requestObjectScript(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
         if (!Set.of(UmiTypes.Table, UmiTypes.View, UmiTypes.Trigger, UmiTypes.Procedure, UmiTypes.Function, UmiTypes.Sequence, UmiTypes.Synonym).contains(leafType)) {
-            throw ThirdPartyApiException.as().with(new IllegalArgumentException("Unsupported HANA script object: " + leafType));
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_SCRIPT_UNSUPPORTED, leafType);
         }
 
         String catalog = (String) levelsParam.get(UmiTypes.Catalog);

@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.hana.definition.ui.editor.table;
 
 import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.adapter.hana.HanaTypes;
+import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.schema.editor.domain.EColumn;
 import com.clougence.schema.editor.triggers.TriggerContext;
@@ -91,7 +92,7 @@ public class HanaTypeUtils {
                 return BIGINT.getCodeKey();
             case DECIMAL: {
                 if (numericScale != null && (numericPrecision == null || numericScale > numericPrecision)) {
-                    throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA DECIMAL scale requires precision >= scale"));
+                    throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_DECIMAL_SCALE_INVALID);
                 }
                 if (numericPrecision != null && numericScale != null) {
                     return DECIMAL.getCodeKey() + "(" + checkedRange(numericPrecision, 1, 38) + ", " + checkedRange(numericScale, 0, 38) + ")";
@@ -191,14 +192,14 @@ public class HanaTypeUtils {
             case ST_GEOMETRY:
                 return ST_GEOMETRY.getCodeKey();
             default: {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Unsupported HANA SQL type: " + sqlTypes));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_TYPE_UNSUPPORTED, sqlTypes);
             }
         }
     }
 
     private static long checkedRange(long value, long min, long max) {
         if (value < min || value > max) {
-            throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA type parameter out of range: " + value + " (" + min + ".." + max + ")"));
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_TYPE_PARAMETER_RANGE, value, min, max);
         }
         return value;
     }

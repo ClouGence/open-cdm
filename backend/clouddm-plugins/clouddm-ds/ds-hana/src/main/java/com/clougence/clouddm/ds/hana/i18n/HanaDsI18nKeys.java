@@ -51,4 +51,29 @@ public interface HanaDsI18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nK
     String EDITOR_TABLE_ROW_LABEL                        = "HANA_EDITOR_TABLE_ROW_LABEL";
     String EDITOR_TABLE_COLUMN_LABEL                     = "HANA_EDITOR_TABLE_COLUMN_LABEL";
 
+    String HANA_SCRIPT_UNSUPPORTED                       = "HANA_SCRIPT_UNSUPPORTED";
+    String HANA_TABLE_TYPE_UNSUPPORTED                   = "HANA_TABLE_TYPE_UNSUPPORTED";
+    String HANA_INDEX_NATIVE_DDL                         = "HANA_INDEX_NATIVE_DDL";
+    String HANA_TRIGGER_NATIVE_DDL                       = "HANA_TRIGGER_NATIVE_DDL";
+    String HANA_PAGE_RANGE_INVALID                       = "HANA_PAGE_RANGE_INVALID";
+    String HANA_COLUMN_UNKNOWN                           = "HANA_COLUMN_UNKNOWN";
+    String HANA_COLUMN_READ_ONLY                         = "HANA_COLUMN_READ_ONLY";
+    String HANA_NO_INSERT_COLUMN                         = "HANA_NO_INSERT_COLUMN";
+    String HANA_COLUMN_NOT_EDITABLE                      = "HANA_COLUMN_NOT_EDITABLE";
+    String HANA_NO_UPDATE_COLUMN                         = "HANA_NO_UPDATE_COLUMN";
+    String HANA_ROW_KEY_MISSING                          = "HANA_ROW_KEY_MISSING";
+    String HANA_ROW_KEY_REQUIRED                         = "HANA_ROW_KEY_REQUIRED";
+    String HANA_AFFECTED_ROWS_UNEXPECTED                 = "HANA_AFFECTED_ROWS_UNEXPECTED";
+    String HANA_GENERATION_NATIVE_DDL                    = "HANA_GENERATION_NATIVE_DDL";
+    String HANA_GENERATED_PROPERTIES_NATIVE_DDL          = "HANA_GENERATED_PROPERTIES_NATIVE_DDL";
+    String HANA_DECIMAL_SCALE_INVALID                    = "HANA_DECIMAL_SCALE_INVALID";
+    String HANA_TYPE_UNSUPPORTED                         = "HANA_TYPE_UNSUPPORTED";
+    String HANA_TYPE_PARAMETER_RANGE                     = "HANA_TYPE_PARAMETER_RANGE";
+    String HANA_CHECK_NATIVE_DDL                         = "HANA_CHECK_NATIVE_DDL";
+    String HANA_CONSTRAINT_CONVERSION                    = "HANA_CONSTRAINT_CONVERSION";
+    String HANA_INDEX_CONVERSION                         = "HANA_INDEX_CONVERSION";
+    String HANA_GENERATED_CONVERSION                     = "HANA_GENERATED_CONVERSION";
+    String HANA_DECIMAL_CONVERSION                       = "HANA_DECIMAL_CONVERSION";
+    String HANA_LENGTH_CONVERSION                        = "HANA_LENGTH_CONVERSION";
+
 }

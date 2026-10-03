@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
+import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.dsfamily.definition.ui.editor.data.DsFamilyDataEditorSpi;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
@@ -73,7 +74,7 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
         String sql = super.buildSelect(table, condition, orderBy, offset, limit);
         if (limit != null) {
             if (limit < 0 || offset != null && offset < 0) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Invalid HANA page range"));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_PAGE_RANGE_INVALID);
             }
             sql += " LIMIT " + limit;
             if (offset != null) {
@@ -91,13 +92,13 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
         for (String name : data.keySet()) {
             RdbColumn column = table.getColumns().get(name);
             if (column == null) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Unknown HANA column: " + name));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_COLUMN_UNKNOWN, name);
             }
             if (HanaDataEditorUtils.generated(column) && data.get(name) == null) {
                 continue;
             }
             if (HanaDataEditorUtils.generated(column) || !HanaDataEditorUtils.editable(column)) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA column is read-only: " + name));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_COLUMN_READ_ONLY, name);
             }
             columns.add(getDialect().fmtName(true, name));
             values.add(HanaDataEditorUtils.literal(column, data.get(name)));
@@ -114,7 +115,7 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
                 .stream()
                 .filter(c -> !HanaDataEditorUtils.generated(c))
                 .findFirst()
-                .orElseThrow(() -> ThirdPartyApiException.as().with(new IllegalArgumentException("No HANA column accepts an insert value")));
+                .orElseThrow(() -> ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_NO_INSERT_COLUMN));
             columns.add(getDialect().fmtName(true, column.getName()));
             String defaultValue = column.getDefaultValue();
             if (defaultValue == null) {
@@ -131,12 +132,12 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
         for (String name : data.keySet()) {
             RdbColumn column = table.getColumns().get(name);
             if (column == null || HanaDataEditorUtils.generated(column) || !HanaDataEditorUtils.editable(column)) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA column is not editable: " + name));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_COLUMN_NOT_EDITABLE, name);
             }
             assignments.add(dialect.fmtName(true, name) + " = " + HanaDataEditorUtils.literal(column, data.get(name)));
         }
         if (assignments.length() == 0) {
-            throw ThirdPartyApiException.as().with(new IllegalArgumentException("No HANA columns to update"));
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_NO_UPDATE_COLUMN);
         }
         return new StringBuilder(assignments.toString());
     }
@@ -147,7 +148,7 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
         StringJoiner predicates = new StringJoiner(" AND ");
         for (String key : HanaDataEditorUtils.keyColumns(table)) {
             if (!data.containsKey(key) || data.get(key) == null) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Missing HANA row key: " + key));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_ROW_KEY_MISSING, key);
             }
             predicates.add(dialect.fmtName(true, key) + " = " + HanaDataEditorUtils.literal(table.getColumns().get(key), data.get(key)));
         }
@@ -156,7 +157,7 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
 
     private void requireEditableTable(RdbTable table) {
         if (isReadOnly(table)) {
-            throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA data editing requires a table with a primary or non-null unique key"));
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_ROW_KEY_REQUIRED);
         }
     }
 
@@ -171,7 +172,7 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
     @Override
     public void validateUpdateCount(long updateCount) {
         if (updateCount != 1) {
-            throw ThirdPartyApiException.as().with(new IllegalStateException("Expected one HANA row, affected " + updateCount + "; refresh before retrying"));
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_AFFECTED_ROWS_UNEXPECTED, updateCount);
         }
     }
 

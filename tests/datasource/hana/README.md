@@ -599,3 +599,60 @@ HANA 默认隐藏仍保留。格式化特例 **HANA-017/a** 仍由第 13 步完�
 本轮未新增测试类。后端构建、HANA 插件打包、1308 项既有测试与完整 Web 构建通过；HANA/导出/结果文件模块没有测试源码。临时真实缓存文件导出探针、编辑/严格解析探针（样本及空 INSERT 共 30 条语句）和 Vue 方法状态探针通过；Java 已按 `codeformat.xml` 格式化并整理 imports，前端修改文件 lint 通过，check-i18n 因无暂存文件未扫描（本轮没有新增前端文案）。临时日志 `/private/tmp/hana-step11*.log` 可被清理。页面服务不可达，真实 HANA 往返、长 LOB、平台权限与工单文件执行仍保持 **NOT RUN**，HANA-026/027/028 不标 PASS。
 
 **现在可以部署 HANA Express 验证本步页面功能。** 需更新 console/SDK/schema、HANA（含 sql-hana）、plus-file-convert 和 Web；测试样本见 [11-data-edit.sql](sql/11-data-edit.sql)，浏览器流程见 [HANA 数据编辑与 SQL 导出回放](../../frontend/sql/hana_data_editor.md)。优先验证复合键只改一行、identity/默认值/NULL、7 位小数秒、导出后隔离回放及第二行失败时第三行不执行。HANA 默认隐藏和 HANA-017/a 格式化门禁保留。
+
+
+## 17. 第 12 步（部分）：原生计划节点、估算行数与来源
+
+本轮仅修正 `HanaExplainPlanSpi`，不调整公共工单状态、事务、重试、EXPLAIN 支持范围或会话执行流程。
+
+- 原生节点保留 `OPERATOR_ID/PARENT_OPERATOR_ID`、算子名称、执行引擎、表名及原始属性；同时映射 `SUBTREE_COST` 和 `OPERATOR_DETAILS`。不再用行为分析覆盖第一个节点，也不依赖返回顺序判断写入目标。
+- `OUTPUT_SIZE` 只表示该算子的估算输出行数。保留合法的零值和小数；缺失、非法、负数或非有限值保持未知，不借用其他节点的正数。语义依据为 SAP [Platform EXPLAIN_PLAN_TABLE](https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20a3dbac75191014b400b72d0f02eabe.html?locale=en-us)。
+- 实际解析出具有 ID 和算子名称的节点才标记 `NATIVE`；仅有消息、表头、空结果集或非计划行不构成原生计划。存在原生节点时不叠加语句推算，也不因传入 relations 就标记 `MERGE`。
+- 没有原生节点时，按写入关系生成独立语句节点并标记 `STATEMENT`；仅已知的 `insertRows` 提供行数，未知 UPDATE/DELETE 等不填入数字。没有可生成节点的关系时返回空计划，source 保持 null。
+- 原生表名不伪装成平台资源路径。当前未实现从 HANA 写入算子到目标对象的可靠影响行数映射，因此工单中此类原生 DML 的影响行数保持未知（`--`）；已知行数的 VALUES INSERT 仍走语句推算。公共工单如何把“未获得原生计划”归类为失败或其他状态，留在第 12 步后续失败反馈处理，本轮没有修改其 SUCCESS 状态规则。
+
+### 回归场景
+
+1. 返回顺序为子节点在前、父节点在后，核对 ID、父子关系、算子、对象、成本和详情原样保留。
+2. 写入节点输出为 0，扫描节点输出为正数，零值不能被替换；写入节点输出未知时也不能借用扫描结果。
+3. 同时传入 INSERT 行数和原生计划，原生节点不能被 INSERT 行数覆盖，来源仍为 NATIVE。
+4. 对消息、仅表头、空行集、缺少元数据及缺少算子 ID/名称的结果，确认不会产生原生来源；已知 INSERT 可退回语句推算，纯读取关系不能凭空生成计划。
+5. 语句推算覆盖多个写入关系、已知零行 INSERT、未知 UPDATE；节点 ID 不重复。通过公共工单行数汇总方法核对 INSERT 行数可读取、原生扫描行数不会被误当成目标影响行数。
+6. 在 Express 中通过 SQL 编辑器检查原生计划；通过[工单详情流程](../../frontend/ticket/ticket_detail.md)的 TD-MAIN-02 检查已知 INSERT 与未知 DML 的展示。执行计划不能实际写入样本表；同一语句的数据库原生计划作为对照。
+
+本地验证：`:ds-hana:build :ds-hana:customFatJar :dsc-common:test :cgdm-console:test` 离线成功，console 52 项既有测试通过，dsc-common 16 项测试复用 up-to-date 结果；ds-hana 没有测试源码。临时结果集及公共汇总探针通过 57 项断言，未在仓库新增测试类。Java 已执行 `codeformat.xml` 格式化及基于 JDT 语法/引用分析的等效 Optimize Imports。临时日志为 `/private/tmp/hana-explain-build.log` 和 `/private/tmp/hana-explain-probe.log`，不作为长期验证资产。
+
+@Browser 访问 `http://localhost:8222/` 返回 `ERR_CONNECTION_REFUSED`，未执行真实页面或 HANA 计划验证。HANA-029 的 E1/E2 继续保持 NOT RUN；第 12 步整体尚未完成。
+
+
+## 18. 第 13 步：页面能力与国际化
+
+### 实现范围
+
+- 工具栏和编辑器共用 `canFormatSql(tab)`，以 `tab.support.format.conf` 的 Allow/Hint 决定可用性，未知或 No 不开放；后端 `HanaSupportSpi → DmSupportSpiWrapper → QueryEditorController` 的能力链保持不变。
+- 新增统一方言分派 `sqlFormat.js`。HANA 使用其词法保留式排版；其他已声明支持的关系型数据源按实际枚举绑定 `sql-formatter@15.8.2`（精确版本写入 package-lock），包括 MySQL 与 Oracle。格式化失败显示本地化提示并保留原文，不静默退出；重复格式化不新增空撤销记录，单次全文替换保留撤销边界。
+- HANA 格式化支持 SQL 子句、字段列表、表定义、子查询、运算符，以及 BEGIN、IF/ELSEIF/ELSE、WHILE、FOR、LOOP 和 CASE 层次；注释、字符串、标识符保持原文本。嵌套块注释、块修饰符、数值指数与 SQLScript 变量保持 token 内容；未闭合词法结构或块、不能保留 token 的输入拒绝替换。它不承担 SQL 语义验证，也不声明支持所有厂商扩展。
+- 函数菜单改用明确的函数菜单定义，修复继承公共默认空菜单导致脚本入口缺失；同义词增加脚本、复制、刷新及平台权限入口。移除过程/函数/触发器未实现的属性入口；不支持的图形修改和编译入口继续排除。表的获取 DDL、视图/序列脚本及已有编辑流程保留。
+- HANA 插件新增 24 个中英文错误资源，覆盖结构编辑、数据编辑、对象脚本和 DDL 转换限制；保留对象名/行数/范围参数。编辑器语法诊断和格式化反馈统一使用前端中英文资源，删除旧 HANA 专属格式化错误 key。
+
+### 页面入口核对
+
+| 页面 | 当前处理与验收边界 |
+| --- | --- |
+| 连接表单 | tenant/schema、端口、JDBC/SSH/TLS 与超时已沿用第 2 步本地化配置；需要实库连接验证 |
+| 对象树及脚本 | 七类对象脚本入口已核对；函数/同义词补齐，空属性入口移除；定义读取仍需实库 |
+| SQL 编辑器 | 格式化按服务端能力控制；HANA、MySQL、Oracle 有实际实现；补全/拆句/结构校验沿用已实现链路 |
+| 结构与数据编辑 | 本轮补限制提示国际化；行为验证复用第 10/11 步长期流程 |
+| 规则与脱敏 | 已有 HANA 支持范围和分析链保留，复用权限与血缘页面流程，不扩展动态 SQL 承诺 |
+| 工单与导出 | 使用现有公共入口；本轮未扩大事务/重试能力，SQL 文件导出边界仍见第 11/12 步 |
+| 数据源展示 | `display=false` 保留；默认开放属于第 15 步，不以本次 UI 修正绕过未完成验收 |
+
+### 验证与部署
+
+离线定向检查覆盖 103 项前端断言（包含编辑器真实 formatSql 方法的替换/重复/拒绝路径）、17 份原文与格式化结果的 HANA 原生 lexer token 对比，以及 155 项菜单/能力/国际化资源契约检查；24 条新增前端消息通过 Vue I18n 编译。Java 按 codeformat.xml 格式化并完成基于 JDT 引用分析的等效 Optimize Imports。后端构建与插件打包成功；console/dsc-common 的 68 项既有测试复用 up-to-date 结果，未新增测试类。
+
+前端变更文件 lint 与 2 个既有测试套件的 8 项单测通过，完整 Web 构建 `cd package && ./all_build.sh web` 成功。`npm run check-i18n` 因无暂存文件未扫描，另行执行了新增 key 的中英文存在性和消息编译检查。临时探针和构建日志位于 `/private/tmp/hana-step13-*`，长期复测以上述场景及页面流程为准。
+
+部署需更新 HANA 插件与 Web，重启/刷新后重新打开 SQL tab 获取能力。可以在页面验证格式化按钮、函数/同义词脚本菜单、结构/数据编辑限制提示及中英文错误反馈。
+
+@Browser 访问 `http://localhost:8222/` 返回 `ERR_CONNECTION_REFUSED`，页面操作与实库未执行。长期流程见 [HANA 页面能力与国际化](../../frontend/datasource/hana_datasource.md)。**HANA-017/a 不关闭，第 13 步页面验收仍待可访问的 CloudDM 与测试连接**；第 12 步剩余事务、重试及原生计划生命周期也未因本步完成而通过。

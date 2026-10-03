@@ -15,10 +15,17 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.ddl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.hana.definition.ui.editor.table.HanaCreateUtils;
 import com.clougence.clouddm.ds.hana.definition.ui.editor.table.HanaEditorProvider;
+import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
 import com.clougence.clouddm.sdk.ui.ddl.DDLType;
@@ -32,12 +39,6 @@ import com.clougence.schema.editor.domain.ETable;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.editor.triggers.TriggerContext;
 import com.clougence.utils.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author chunlin
@@ -68,7 +69,7 @@ public class HanaConvertTableDDLSpi implements ConvertTableDDLSpi {
         table.setCatalog(null);
         if (targetSqlBuilder.getDataSourceType() == DsType.Hana) {
             if (!table.getConstraints().isEmpty()) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Use native DDL to preserve HANA check constraints"));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_CHECK_NATIVE_DDL);
             }
 
             TriggerContext context = new TriggerContext();
@@ -89,24 +90,24 @@ public class HanaConvertTableDDLSpi implements ConvertTableDDLSpi {
 
     private void validateConversion(ETable table, DsType target) {
         if (!table.getForeignKeys().isEmpty() || !table.getConstraints().isEmpty()) {
-            throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA DDL conversion cannot preserve foreign/check constraints for " + target));
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_CONSTRAINT_CONVERSION, target);
         }
 
         if (target == DsType.Doris || target == DsType.StarRocks || target == DsType.AdbForMySQL) {
             if ((table.getPrimaryKey() != null && !table.getPrimaryKey().getColumnList().isEmpty()) || !table.getIndices().isEmpty()) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA DDL conversion cannot preserve keys/indexes for " + target));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_INDEX_CONVERSION, target);
             }
         }
 
         for (EColumn column : table.getColumnList()) {
             if (column.isAutoGenerate() || StringUtils.isNotBlank(HanaAttributeNames.GENERATION_TYPE.getValue(column.getAttribute()))) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA generated column requires an explicit target definition: " + column.getName()));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_GENERATED_CONVERSION, column.getName());
             }
             if ("SMALLDECIMAL".equalsIgnoreCase(column.getDbType()) || ("DECIMAL".equalsIgnoreCase(column.getDbType()) && column.getNumericPrecision() == null)) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA floating decimal requires an explicit target precision: " + column.getName()));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_DECIMAL_CONVERSION, column.getName());
             }
             if (target == DsType.AdbForMySQL && column.getLength() != null) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("HANA DDL conversion cannot preserve column length for " + target + ": " + column.getName()));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_LENGTH_CONVERSION, target, column.getName());
             }
         }
     }

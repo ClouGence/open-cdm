@@ -15,10 +15,13 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.editor.table;
 
+import java.util.*;
+
 import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.adapter.hana.HanaIndexType;
 import com.clougence.adapter.hana.HanaTableType;
 import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
+import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.dsfamily.schema.sqlbuilder.AbstractSqlBuilder;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.schema.DsType;
@@ -28,8 +31,6 @@ import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.editor.triggers.TriggerContext;
 import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.*;
 
 /**
  * @author wanshao create time is 2021/12/3
@@ -82,7 +83,7 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
         String tableType = HanaAttributeNames.TABLE_TYPE.getValue(eTable.getAttribute());
         if (tableType != null) {
             if (HanaTableType.valueOfCode(tableType) == null) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Unsupported HANA table type: " + tableType));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_TABLE_TYPE_UNSUPPORTED, tableType);
             }
             result.add(buildAlterTable(buildContext, catalog, schema, table) + " " + tableType + ";");
         }
@@ -145,7 +146,7 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
             || !Objects.equals(HanaAttributeNames.GENERATION_TYPE.getValue(columnInfo.getAttribute()), HanaAttributeNames.GENERATION_TYPE.getValue(newInfo.getAttribute()))
             || !Objects
                 .equals(HanaAttributeNames.GENERATION_ALWAYS_AS.getValue(columnInfo.getAttribute()), HanaAttributeNames.GENERATION_ALWAYS_AS.getValue(newInfo.getAttribute()))) {
-            throw ThirdPartyApiException.as().with(new IllegalArgumentException("Changing HANA column generation requires native DDL"));
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_GENERATION_NATIVE_DDL);
         }
 
         List<String> result = new ArrayList<>();
@@ -174,7 +175,7 @@ public class HanaEditorProvider extends AbstractSqlBuilder implements SqlBuilder
 
         if (!definition.isEmpty()) {
             if (columnInfo.isAutoGenerate() || StringUtils.isNotBlank(HanaAttributeNames.GENERATION_TYPE.getValue(columnInfo.getAttribute()))) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Changing HANA generated column properties requires native DDL"));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_GENERATED_PROPERTIES_NATIVE_DDL);
             }
             result.add(buildAlterTable(context, catalog, schema, table) + " ALTER (" + fmtName(context.isUseDelimited(), newInfo.getName()) + definition + ");");
         }

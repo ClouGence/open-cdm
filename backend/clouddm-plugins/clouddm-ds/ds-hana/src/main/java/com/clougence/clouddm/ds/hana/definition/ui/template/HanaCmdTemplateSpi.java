@@ -15,15 +15,16 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.template;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
 import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
+import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.ui.template.AbstractCmdTemplateSpi;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
 import com.clougence.schema.dialect.Dialect;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 public class HanaCmdTemplateSpi extends AbstractCmdTemplateSpi {
 
@@ -146,7 +147,7 @@ public class HanaCmdTemplateSpi extends AbstractCmdTemplateSpi {
     @Override
     public List<String> getAlterTrigger(CmdTemplateOption option) {
         // The graphical model cannot preserve REFERENCING aliases, WHEN, or statement-level triggers.
-        throw ThirdPartyApiException.as().with(new IllegalArgumentException("Edit the complete native HANA trigger DDL"));
+        throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_TRIGGER_NATIVE_DDL);
     }
 
     @Override

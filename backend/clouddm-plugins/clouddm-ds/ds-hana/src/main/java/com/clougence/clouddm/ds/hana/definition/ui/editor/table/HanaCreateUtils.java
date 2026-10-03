@@ -15,10 +15,15 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.editor.table;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.adapter.hana.HanaIndexType;
 import com.clougence.adapter.hana.HanaTableType;
 import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
+import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.dsfamily.schema.sqlbuilder.AbstractSqlBuilder;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.schema.dialect.Dialect;
@@ -26,10 +31,6 @@ import com.clougence.schema.editor.domain.*;
 import com.clougence.schema.editor.triggers.TriggerContext;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class HanaCreateUtils extends AbstractSqlBuilder {
 
@@ -41,7 +42,7 @@ public class HanaCreateUtils extends AbstractSqlBuilder {
         String tableType = HanaAttributeNames.TABLE_TYPE.getValue(table.getAttribute());
         if (StringUtils.isNotBlank(tableType)) {
             if (HanaTableType.valueOfCode(tableType) == null) {
-                throw ThirdPartyApiException.as().with(new IllegalArgumentException("Unsupported HANA table type: " + tableType));
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_TABLE_TYPE_UNSUPPORTED, tableType);
             }
             sql.append(tableType).append(" ");
         }
@@ -123,7 +124,7 @@ public class HanaCreateUtils extends AbstractSqlBuilder {
         HanaIndexType type = HanaIndexType.valueOfCode(value);
         if (type == null || type == HanaIndexType.GEOCODE || type == HanaIndexType.FULLTEXT) {
             // Fulltext/spatial definitions have additional options not represented by this editor.
-            throw ThirdPartyApiException.as().with(new IllegalArgumentException("Use native DDL for HANA index type: " + value));
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_INDEX_NATIVE_DDL, value);
         }
         return type.getCode();
     }
