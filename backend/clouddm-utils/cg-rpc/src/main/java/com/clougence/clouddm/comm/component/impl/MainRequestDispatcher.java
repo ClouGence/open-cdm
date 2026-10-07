@@ -161,7 +161,7 @@ public class MainRequestDispatcher implements RSocketRequestDispatcher {
             provider = providerCache.computeIfAbsent(argClass, aClass -> {
                 try {
                     Annotations all = Annotations.ofClass(argClass);
-                    Annotation serialization = all.getAnnotation("com.clougence.clouddm.sdk.config.Serialization");
+                    Annotation serialization = all.getAnnotation("com.clougence.clouddm.sdk.execute.dsconf.Serialization");
                     if (serialization != null) {
                         return serialization.getString("provider", null);
                     } else {
