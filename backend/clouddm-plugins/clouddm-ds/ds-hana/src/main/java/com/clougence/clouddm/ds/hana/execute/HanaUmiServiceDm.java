@@ -15,6 +15,13 @@
  */
 package com.clougence.clouddm.ds.hana.execute;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.clougence.clouddm.dsfamily.execute.AbstractRdbUmiService;
 import com.clougence.schema.umi.service.RdbUmiServiceDm;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
@@ -25,13 +32,6 @@ import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author chunlin
@@ -55,6 +55,13 @@ public class HanaUmiServiceDm extends AbstractRdbUmiService<HanaMetaProviderDm> 
         } else {
             throw new UnsupportedOperationException("listLevels[" + StringUtils.join(levels.toArray(), ",") + "] Unsupported.");
         }
+    }
+
+    @Override
+    public Value fetchSelectObject(Map<UmiTypes, Object> levelsParam, String leafName) throws SQLException {
+        String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+        String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
+        return this.metadataSupplier.eGet().loadSelectObject(catalog, schema, leafName);
     }
 
     /**

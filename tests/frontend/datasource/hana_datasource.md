@@ -50,7 +50,7 @@ DO BEGIN DECLARE N INTEGER = 0; IF :N = 1 THEN SELECT '中文;''值' AS "A;" FRO
 ### HANA-UI-01 配置与会话能力
 
 1. 从正常新增入口选择 HANA，或打开已有 HANA 配置，分别切换中文和英文。
-2. 核对 tenant 与 schema 描述、实际 SQL 端口提示、JDBC 地址、SSH/TLS、证书主机名和超时单位。
+2. 核对 tenant 与 schema 描述、JDBC 地址、SSH/TLS、证书主机名和超时单位；地址/端口区域不再显示租户端口示例说明，默认端口仍为 30015 且可修改；地址、端口标签前均显示红色 *。分别清空地址和端口后尝试测试连接或保存，应提示必填且不提交；填写完整后提示消失。
 3. 连接后打开 SQL 工作台，核对 tenant 不允许在连接内切换、schema 可以切换，隔离级别不包含 READ UNCOMMITTED。
 4. 核对执行计划、取消、格式化等按钮与服务端能力声明一致。
 

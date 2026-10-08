@@ -20,11 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.ds.hana.i18n.HanaConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
@@ -102,16 +99,6 @@ public class HanaConfigSpi extends AbstractDsConfigSpi {
         }
 
         return List.of("pem", "crt", "cer");
-    }
-
-    @Override
-    public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
-        UiPanelField host = panels.get(DsConfigGroup.GENERAL).findField(DataSourceConfig.Fields.host);
-        host.setDescI18N(HanaConfigI18nKeys.CONFIG_HANA_HOST_DESC);
-        // A custom JDBC endpoint supplies both address and port; the factory validates either form.
-        host.setRequire(false);
-        host.findField(ADDRESS_FIELD).setRequire(false);
-        host.findField(PORT_FIELD).setRequire(false);
     }
 
     @Override
