@@ -80,6 +80,7 @@ public final class AnalysisQueryOptions {
             return this;
         }
 
+        /** Complete parameters prepared by the caller, including any session overrides; analysis does not fetch or merge them. */
         public Builder parameters(SqlParserParameters parameters) {
             this.parameters = parameters;
             return this;

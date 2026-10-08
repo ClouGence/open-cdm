@@ -15,6 +15,14 @@
  */
 package com.clougence.clouddm.console.web.component.analysis.impl;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.springframework.stereotype.Service;
+
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
@@ -60,15 +68,9 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
+
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.*;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * @author mode 2020-01-20 21:04
@@ -150,8 +152,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SQL_ENGINE_NOT_FOUND_ERROR.name(), dsConfig.getDataSourceType()));
         }
 
-        SqlParserParameters parameters = this.configService.fetchSqlParserParameters(dsConfig, safeLevels);
-        parameters = parameters.putAll(options.getParameters().values());
+        SqlParserParameters parameters = options.getParameters();
         SplitAnalysisSpi splitSpi = sqlEngine.splitAnalysisSpi(parameters);
         if (splitSpi == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SPI_NOT_SUPPORTED_ERROR.name(), sqlEngine.name(), "SplitAnalysisSpi"));

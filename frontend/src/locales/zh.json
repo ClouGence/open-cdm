@@ -3813,11 +3813,11 @@
   "fen-qu-biao-da-shi": "分区表达式",
   "dao-chu-shi-bai": "导出失败:",
   "tu-biao-dao-chu-shi-bai-qing-zhong-shi": "图表导出失败，请重试",
-  "zhong-xie": "重写",
+  "zhong-xie": "语句改写",
   "yuan-shi": "原始",
   "xiu-gai-qian": "原始语句",
   "xiu-gai-hou": "执行语句",
-  "zhong-xie-mo-kuai": "重写项目",
+  "zhong-xie-mo-kuai": "改写项",
   "yuan-shi-yu-ju": "原始语句",
   "xuan-ze-gong-dan-lei-xing": "选择工单类型",
   "liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao": "流式模式：显示最新 30 条，总计 {0} 条",
@@ -4392,5 +4392,12 @@
   "sql-token-end": "语句结束",
   "sql-token-comment": "\"--\" 注释",
   "sql-token-semicolon": "分号",
-  "sql-token-identifier": "标识符"
+  "sql-token-identifier": "标识符",
+  "sql-prepare-cost": "准备 {cost} 毫秒",
+  "sql-execute-cost": "执行 {cost} 毫秒",
+  "sql-receive-cost": "接收 {cost} 毫秒",
+  "sql-prepare": "准备",
+  "sql-execute": "执行",
+  "sql-receive": "接收",
+  "gai-xie-yu-ju": "改写语句"
 }
