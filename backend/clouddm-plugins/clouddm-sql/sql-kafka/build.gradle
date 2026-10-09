@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 plugins {
-    id 'com.clougence.plugin-conventions'
+    id 'com.clougence.java-conventions'
+    id 'antlr'
 }
 
 dependencies {
-    implementation project(':dsc-common')
-    implementation project(':sql-kafka')
-    compileOnly 'org.apache.kafka:kafka-clients:4.1.2'
+    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+    api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
+    api project(':cg-dslparser')
+    api project(':sqlc-common')
 }
 
-description = 'ds-kafka'
+description = 'sql-kafka'
+
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.sql.kafka.antlr']
+}

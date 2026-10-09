@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    id 'com.clougence.plugin-conventions'
-}
+package com.clougence.sql.kafka;
 
-dependencies {
-    implementation project(':dsc-common')
-    implementation project(':sql-kafka')
-    compileOnly 'org.apache.kafka:kafka-clients:4.1.2'
-}
+import com.clougence.clouddm.sdk.DsPlugin;
+import com.clougence.clouddm.sdk.DsPluginBinder;
+import com.clougence.clouddm.sdk.Plugin;
 
-description = 'ds-kafka'
+@Plugin(name = KafkaSqlEngineSpi.NAME, display = false)
+public class KafkaSqlPlugin implements DsPlugin {
+    @Override
+    public void loadPlugin(DsPluginBinder binder) {
+        binder.bindGlobalI18n(KafkaSqlI18nKeys.class);
+        binder.addGlobalSpi(new KafkaSqlEngineSpi());
+    }
+}

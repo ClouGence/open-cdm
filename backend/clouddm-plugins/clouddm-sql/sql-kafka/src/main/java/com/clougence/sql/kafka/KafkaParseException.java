@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    id 'com.clougence.plugin-conventions'
-}
+package com.clougence.sql.kafka;
 
-dependencies {
-    implementation project(':dsc-common')
-    implementation project(':sql-kafka')
-    compileOnly 'org.apache.kafka:kafka-clients:4.1.2'
-}
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 
-description = 'ds-kafka'
+import lombok.Getter;
+
+@Getter
+public class KafkaParseException extends ThirdPartyApiException {
+    private final int start;
+    private final int end;
+
+    public KafkaParseException(int start, int end, String key, Object... args){
+        super(null, key, ThirdPartyApiErrorType.OTHER, key, args);
+        this.start = start;
+        this.end = end;
+    }
+}

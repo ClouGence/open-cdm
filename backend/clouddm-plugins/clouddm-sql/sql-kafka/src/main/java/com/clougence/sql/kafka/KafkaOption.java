@@ -13,14 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    id 'com.clougence.plugin-conventions'
-}
+package com.clougence.sql.kafka;
 
-dependencies {
-    implementation project(':dsc-common')
-    implementation project(':sql-kafka')
-    compileOnly 'org.apache.kafka:kafka-clients:4.1.2'
+public record KafkaOption(boolean valueRequired, boolean repeatable) {
 }
-
-description = 'ds-kafka'

@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    id 'com.clougence.plugin-conventions'
-}
+package com.clougence.sql.kafka;
 
-dependencies {
-    implementation project(':dsc-common')
-    implementation project(':sql-kafka')
-    compileOnly 'org.apache.kafka:kafka-clients:4.1.2'
-}
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.kafka.antlr.KafkaParser;
+import com.clougence.sql.kafka.antlr.KafkaParserBaseVisitor;
 
-description = 'ds-kafka'
+public class KafkaSplitVisitor extends KafkaParserBaseVisitor<SplitQueryType> {
+    @Override
+    public SplitQueryType visitCommand(KafkaParser.CommandContext context) {
+        return new KafkaCommandParser().from(context).queryType();
+    }
+}

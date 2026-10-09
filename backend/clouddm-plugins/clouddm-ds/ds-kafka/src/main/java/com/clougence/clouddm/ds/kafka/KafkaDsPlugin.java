@@ -20,6 +20,7 @@ import com.clougence.clouddm.ds.kafka.dsconf.KafkaConfigSpi;
 import com.clougence.clouddm.ds.kafka.dsconf.KafkaSerializationSpi;
 import com.clougence.clouddm.ds.kafka.i18n.KafkaConfigI18nKeys;
 import com.clougence.clouddm.ds.kafka.i18n.KafkaDsI18nKeys;
+import com.clougence.clouddm.ds.kafka.language.KafkaLanguageSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -27,6 +28,7 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.kafka.KafkaSqlEngineSpi;
 
 // Keep the datasource hidden until connection configuration and query execution are available.
 @Plugin(name = "i18n::" + KafkaDsI18nKeys.PLUGIN_NAME_KAFKA, display = false, includePackages = { "com.clougence.clouddm.ds.kafka.execute.*" }, dsProduct = DataSourceType.Kafka)
@@ -41,6 +43,8 @@ public class KafkaDsPlugin implements DsPlugin, SchemaPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         SchemaFramework.install(this);
         dsPlugin.bindDsDriverFamily("Kafka");
+        dsPlugin.bindSqlEngine(KafkaSqlEngineSpi.NAME);
+        dsPlugin.addPluginSpi(new KafkaLanguageSpi());
         dsPlugin.bindPluginI18n(KafkaDsI18nKeys.class, KafkaConfigI18nKeys.class);
         dsPlugin.addPluginSpi(new KafkaConfigSpi());
         dsPlugin.addPluginSpi(new KafkaSerializationSpi(dsPlugin.getPluginClassLoader()));

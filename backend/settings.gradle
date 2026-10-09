@@ -62,6 +62,7 @@ include 'sql-hana'; project(":sql-hana").projectDir = file('clouddm-plugins/clou
 include 'sql-doris'; project(":sql-doris").projectDir = file('clouddm-plugins/clouddm-sql/sql-doris')
 include 'sql-mongodb'; project(":sql-mongodb").projectDir = file('clouddm-plugins/clouddm-sql/sql-mongodb')
 include 'sql-oracle'; project(":sql-oracle").projectDir = file('clouddm-plugins/clouddm-sql/sql-oracle')
+include 'sql-kafka'; project(":sql-kafka").projectDir = file('clouddm-plugins/clouddm-sql/sql-kafka')
 include 'sql-redis'; project(":sql-redis").projectDir = file('clouddm-plugins/clouddm-sql/sql-redis')
 include 'sql-sqlserver'; project(":sql-sqlserver").projectDir = file('clouddm-plugins/clouddm-sql/sql-sqlserver')
 include 'sql-iso-sql2003'; project(":sql-iso-sql2003").projectDir = file('clouddm-plugins/clouddm-sql/sql-iso-sql2003')
