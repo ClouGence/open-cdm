@@ -1,0 +1,6 @@
+<drivers>
+    <driver driverFamily="YashanDB JDBC Driver" version="1.10.7" default="true">
+        <driverName>com.clougence.clouddm.ds.yashandb.execute.dsfactory.YashanDBDsFactory</driverName>
+        <resource type="maven">com.yashandb:yashandb-jdbc:1.10.7</resource>
+    </driver>
+</drivers>

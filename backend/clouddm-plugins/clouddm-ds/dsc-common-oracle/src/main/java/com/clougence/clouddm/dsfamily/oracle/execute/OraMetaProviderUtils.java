@@ -503,7 +503,7 @@ public class OraMetaProviderUtils {
         uk.setAttribute(GENERATED, StringUtils.toString("GENERATED NAME".equalsIgnoreCase(rs.getString("GENERATED"))));
     }
 
-    protected static List<RdbColumn> convertColumn(ResultSet rs, boolean isLe11g) throws SQLException {
+    public static List<RdbColumn> convertColumn(ResultSet rs, boolean isLe11g) throws SQLException {
         List<RdbColumn> result = new ArrayList<>();
         while (rs.next()) {
             if ("YES".equals(rs.getString("HIDDEN_COLUMN"))) {

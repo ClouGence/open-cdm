@@ -98,6 +98,7 @@ include 'ds-adb'; project(":ds-adb").projectDir = file('clouddm-plugins/clouddm-
 include 'ds-db2'; project(":ds-db2").projectDir = file('clouddm-plugins/clouddm-ds/ds-db2')
 include 'ds-oceanbase'; project(":ds-oceanbase").projectDir = file('clouddm-plugins/clouddm-ds/ds-oceanbase')
 include 'ds-dameng'; project(":ds-dameng").projectDir = file('clouddm-plugins/clouddm-ds/ds-dameng')
+include 'ds-yashandb'; project(":ds-yashandb").projectDir = file('clouddm-plugins/clouddm-ds/ds-yashandb')
 include 'ds-polardb'; project(":ds-polardb").projectDir = file('clouddm-plugins/clouddm-ds/ds-polardb')
 include 'ds-gauss'; project(":ds-gauss").projectDir = file('clouddm-plugins/clouddm-ds/ds-gauss')
 include 'ds-maxcompute'; project(":ds-maxcompute").projectDir = file('clouddm-plugins/clouddm-ds/ds-maxcompute')
