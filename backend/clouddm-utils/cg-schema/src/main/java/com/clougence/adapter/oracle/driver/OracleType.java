@@ -74,7 +74,8 @@ public enum OracleType implements SQLType {
     SI_FEATURE_LIST("SI_FEATURELIST"),
     SI_POSITIONAL_COLOR("SI_POSITIONALCOLOR"),
     SI_STILL_IMAGE("SI_STILLIMAGE"),
-    SI_TEXTURE("SI_TEXTURE"),;
+    SI_TEXTURE("SI_TEXTURE"),
+    JSON("JSON", OracleTypes.JSON);
 
     private final boolean isSupported;
     private final String  typeName;
@@ -136,6 +137,8 @@ public enum OracleType implements SQLType {
                 return JDBCType.FLOAT;
             case BINARY_DOUBLE:
                 return JDBCType.DOUBLE;
+            case JSON:
+                return JDBCType.OTHER;
             default:
                 break;
         }
