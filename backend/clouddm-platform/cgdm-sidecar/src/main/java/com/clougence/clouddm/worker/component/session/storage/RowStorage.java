@@ -144,25 +144,30 @@ public class RowStorage implements Closeable {
 
         switch (fetcher) {
             case Boolean:
-                return this.addBoolean(tag, (Boolean) ConverterUtils.convert(Boolean.class, rs.get(column)), ctx);
+                return this.addBoolean(tag, nullableValue(Boolean.class, rs.get(column)), ctx);
             case Byte:
-                return this.addByte(tag, (Byte) ConverterUtils.convert(Byte.class, rs.get(column)), ctx);
+                return this.addByte(tag, nullableValue(Byte.class, rs.get(column)), ctx);
             case Short:
-                return this.addShort(tag, (Short) ConverterUtils.convert(Short.class, rs.get(column)), ctx);
+                return this.addShort(tag, nullableValue(Short.class, rs.get(column)), ctx);
             case Integer:
-                return this.addInteger(tag, (Integer) ConverterUtils.convert(Integer.class, rs.get(column)), ctx);
+                return this.addInteger(tag, nullableValue(Integer.class, rs.get(column)), ctx);
             case Long:
-                return this.addLong(tag, (Long) ConverterUtils.convert(Long.class, rs.get(column)), ctx);
+                return this.addLong(tag, nullableValue(Long.class, rs.get(column)), ctx);
             case BigInteger:
-                return this.addBigInteger(tag, (BigInteger) ConverterUtils.convert(BigInteger.class, rs.get(column)), ctx);
+                return this.addBigInteger(tag, nullableValue(BigInteger.class, rs.get(column)), ctx);
             case BigDecimal:
-                return this.addBigDecimal(tag, (BigDecimal) ConverterUtils.convert(BigDecimal.class, rs.get(column)), ctx);
+                return this.addBigDecimal(tag, nullableValue(BigDecimal.class, rs.get(column)), ctx);
             case Float:
-                return this.addFloat(tag, (Float) ConverterUtils.convert(Float.class, rs.get(column)), ctx);
+                return this.addFloat(tag, nullableValue(Float.class, rs.get(column)), ctx);
             case Double:
-                return this.addDouble(tag, (Double) ConverterUtils.convert(Double.class, rs.get(column)), ctx);
-            case String:
-                return this.addString(tag, String.valueOf(rs.get(column)), ctx);
+                return this.addDouble(tag, nullableValue(Double.class, rs.get(column)), ctx);
+            case String: {
+                Object value = rs.get(column);
+                if (value == null) {
+                    return this.addString(tag, (String) null, ctx);
+                }
+                return this.addString(tag, String.valueOf(value), ctx);
+            }
             case Date:
             case Time:
             case TimeZ:
@@ -172,6 +177,13 @@ public class RowStorage implements Closeable {
             default:
                 return this.addUnsupported(tag, column, ctx.getMeta().getMeta(), ctx);
         }
+    }
+
+    private <T> T nullableValue(Class<T> type, Object value) {
+        if (value == null) {
+            return null;
+        }
+        return type.cast(ConverterUtils.convert(type, value));
     }
 
     protected ResultSetValue addBoolean(byte tag, Boolean v, ValueFetcherContext fvc) {

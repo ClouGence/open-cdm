@@ -16,21 +16,21 @@
 package com.clougence.clouddm.ds.kafka.execute;
 
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
+
+import org.apache.kafka.clients.admin.DescribeClusterOptions;
+import org.apache.kafka.common.KafkaFuture;
 
 import com.clougence.clouddm.ds.kafka.dsconf.KafkaConfig;
 import com.clougence.clouddm.ds.kafka.i18n.KafkaDsI18nKeys;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
-import com.clougence.clouddm.sdk.execute.session.MessageLevel;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultMessageBuild;
-import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
-import com.clougence.clouddm.sdk.execute.session.Session;
-import com.clougence.clouddm.sdk.execute.session.SessionCallback;
-import com.clougence.clouddm.sdk.execute.session.SessionCloseListener;
-import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.drivers.DsObject;
@@ -41,8 +41,6 @@ import com.clougence.utils.i18n.I18nUtils;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.admin.DescribeClusterOptions;
-import org.apache.kafka.common.KafkaFuture;
 
 @Slf4j
 public class KafkaSession implements Session {
@@ -124,7 +122,7 @@ public class KafkaSession implements Session {
         }
     }
 
-    private void executeCommand(QueryRequest query, ResultBuilder builder, long start) {
+    private void executeCommand(QueryRequest query, ResultBuilder builder, long start) throws Exception {
         if (query.getQueryArgs() != null && !query.getQueryArgs().isEmpty()) {
             throw ThirdPartyApiException.as().with(KafkaSqlI18nKeys.KAFKA_ARGS_UNSUPPORTED);
         }
@@ -135,13 +133,15 @@ public class KafkaSession implements Session {
         if (!command.has("--help") && readOnly && (command.has("--create") || command.has("--delete"))) {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_SESSION_READ_ONLY);
         }
-        synchronized (stateLock) {
-            if (cancelled) {
-                throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_QUERY_CANCELLED);
-            }
-        }
+        checkCancelled();
         if (!command.has("--help")) {
-            throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_COMMAND_UNSUPPORTED);
+            KafkaAdminContext context = new KafkaAdminContext(this, clients.getAdmin(), query, builder);
+            switch (command.getType()) {
+                case TOPICS -> new KafkaTopicCommands(context).execute(command);
+                case GROUPS -> new KafkaGroupCommands(context).execute(command);
+                case CONSUMER -> throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_COMMAND_UNSUPPORTED);
+            }
+            return;
         }
         ResultMessageBuild message = builder.newMessage(query);
         String help = i18n.getMessage("KAFKA_HELP_" + command.getType().name()) + "\n" + i18n.getMessage(KafkaSqlI18nKeys.KAFKA_HELP_COMMON);
@@ -155,31 +155,74 @@ public class KafkaSession implements Session {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_SESSION_BUSY);
         }
         try {
-            KafkaFuture<?> request;
             synchronized (stateLock) {
                 checkOpen();
-                lastQueryTime = System.currentTimeMillis();
-                request = clients.getAdmin().describeCluster(new DescribeClusterOptions().timeoutMs(dsConfig.getApiTimeoutMs())).nodes();
-                pendingRequest = request;
+                cancelled = false;
                 executing = true;
+                lastQueryTime = System.currentTimeMillis();
             }
-            request.get(dsConfig.getApiTimeoutMs(), TimeUnit.MILLISECONDS);
+            await(() -> clients.getAdmin().describeCluster(new DescribeClusterOptions().timeoutMs(dsConfig.getApiTimeoutMs())).nodes(), dsConfig.getApiTimeoutMs());
         } catch (Exception e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
             String msg = "Test Kafka connection failed";
             log.error(msg, e);
+            if (e instanceof ThirdPartyApiException failure) {
+                throw failure;
+            }
             throw ThirdPartyApiException.as().with(e);
         } finally {
             synchronized (stateLock) {
-                if (pendingRequest != null && !pendingRequest.isDone()) {
-                    pendingRequest.cancel(false);
-                }
-                pendingRequest = null;
                 executing = false;
             }
             executionLock.unlock();
+        }
+    }
+
+    <T> T await(Supplier<KafkaFuture<T>> operation, int timeoutMs) throws Exception {
+        KafkaFuture<T> request;
+        synchronized (stateLock) {
+            checkCancelled();
+            // Dispatch and registration are atomic with cancellation; a cancelled command cannot send its next request.
+            request = operation.get();
+            pendingRequest = request;
+        }
+        try {
+            T result = request.get(timeoutMs, TimeUnit.MILLISECONDS);
+            checkCancelled();
+            return result;
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof org.apache.kafka.common.errors.TimeoutException) {
+                throw ThirdPartyApiException.as().with(e.getCause(), KafkaDsI18nKeys.KAFKA_QUERY_TIMEOUT);
+            }
+            if (e.getCause() instanceof Exception cause) {
+                throw cause;
+            }
+            throw ThirdPartyApiException.as().with(e.getCause());
+        } catch (CancellationException e) {
+            throw ThirdPartyApiException.as().with(e, KafkaDsI18nKeys.KAFKA_QUERY_CANCELLED);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw ThirdPartyApiException.as().with(e, KafkaDsI18nKeys.KAFKA_QUERY_CANCELLED);
+        } catch (java.util.concurrent.TimeoutException e) {
+            throw ThirdPartyApiException.as().with(e, KafkaDsI18nKeys.KAFKA_QUERY_TIMEOUT);
+        } finally {
+            synchronized (stateLock) {
+                if (!request.isDone()) {
+                    request.cancel(false);
+                }
+                pendingRequest = null;
+            }
+        }
+    }
+
+    void checkCancelled() {
+        synchronized (stateLock) {
+            if (cancelled) {
+                throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_QUERY_CANCELLED);
+            }
+            checkOpen();
         }
     }
 

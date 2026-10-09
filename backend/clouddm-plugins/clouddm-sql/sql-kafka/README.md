@@ -44,5 +44,26 @@
 - 消费消息、查询 Topic / Consumer Group 和帮助命令要求读取权限；创建 Topic、删除 Topic / Consumer Group 要求管理权限。两项权限独立，管理权限不隐含读取消息权限。
 - 当前授权粒度为 Kafka 数据源实例（平台资源路径 `/`）；若分析上下文显式提供 Instance 层级，则使用该实例路径。Topic / Group 名称及正则保存在审计对象名称中，不拼入授权路径。Topic 正则删除与无名称的列表查询同样检查实例权限，暂不提供 Topic / Group 单独授权。
 - `KafkaSessionFactory` 通过平台资源管理器获取客户端并解析 TLS 文件；`KafkaSessionSpi` 和 `KafkaSupportSpi` 接入查询上下文、只读和中断能力。会话固定自动提交，不支持 JDBC 回调、SQL 执行计划、事务、Catalog 或 Schema 切换。
-- `KafkaSession` 通过统一 `ResultBuilder` 输出帮助和失败消息；平台既有链路负责记录命令、行为、执行人、执行结果与耗时。错误消息显式通知审计，以失败状态结束；会话关闭释放客户端并通知关闭监听器。
-- 第 4 步仅接通上述链路：`--help` 可执行，其他命令明确返回未实现错误；元数据浏览、实际管理／消费、获取条数和超时重写仍在后续步骤实现。中断当前可取消等待中的连接检查；消费时的 `Consumer.wakeup()` 随消费执行实现。数据源继续保持隐藏。
+- `KafkaSession` 通过统一 `ResultBuilder` 输出表格、影响数量、帮助和失败消息；平台既有链路负责记录命令、行为、执行人、执行结果与耗时。错误消息显式通知审计，以失败状态结束；会话关闭释放客户端并通知关闭监听器。
+- Topic / Consumer Group 管理命令和 `--help` 已接入 Admin API。消息消费、元数据树浏览和消费参数重写仍在后续步骤实现，数据源继续保持隐藏。
+
+## 管理命令执行
+
+```sh
+kafka-topics --list
+kafka-topics --describe --topic 'orders.*'
+kafka-topics --create --topic orders --partitions 3 --replication-factor 1 --config retention.ms=86400000
+kafka-topics --delete --topic 'orders.*' --if-exists
+kafka-consumer-groups --list
+kafka-consumer-groups --describe --group orders-service
+kafka-consumer-groups --describe --group orders-service --members --verbose
+kafka-consumer-groups --describe --group orders-service --state
+kafka-consumer-groups --delete --group orders-service
+```
+
+- Topic 列表包含内部 Topic；详情分别输出 Topic 概况和分区信息，配置只展示非敏感的 Topic 动态配置。创建时未指定分区数、副本数则使用 Broker 默认值；`--if-not-exists` 只忽略 Topic 已存在错误。
+- Topic 删除按正则匹配当前 Topic 列表，展示各 Topic 的 `DELETED`、`NOT_FOUND`、`FAILED` 或 `UNKNOWN` 状态。批量删除不具备原子性，部分失败仍按失败审计，并保留已知结果；`--if-exists` 只忽略 Topic 不存在错误。系统展示条数上限不缩小删除范围。
+- Consumer Group 列表包含传统及新 Consumer 协议的组；详情默认展示汇总及分区 offset / lag，可独立查询成员和状态。不创建 Group，也不提交或重置 offset。活跃 Group 的删除限制由 Broker 校验。
+- 分区范围取当前成员分配与已提交 offset 的并集，包含暂无活跃成员但保留 offset 的分区。`LAG = LOG-END-OFFSET - CURRENT-OFFSET`；未提交或无法确定的 offset / lag 保留为空，不按零计算。汇总给出 `KNOWN-LAG`、`UNKNOWN-PARTITIONS`，存在未知分区或没有分区时 `TOTAL-LAG` 为空。详情展示截断不影响汇总；多个 Admin 请求获取的数据不保证为同一时刻的原子快照。
+- 表格复用系统条数、字节、分页和流式输出规则，截断时给出提示。管理命令使用系统查询超时作为总期限（未配置则使用客户端 API 超时），每个 Admin 请求同时受客户端 API 超时限制。
+- 页面中断取消正在等待的 Admin future，结束当前执行后可复用会话；连接检查也支持中断。超时或中断无法撤销已发送到 Broker 的管理操作，应查询实际状态再决定是否重试。消费阶段的 `Consumer.wakeup()` 随后续消费执行实现。
