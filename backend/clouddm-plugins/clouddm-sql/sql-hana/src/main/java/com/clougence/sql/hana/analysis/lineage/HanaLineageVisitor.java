@@ -1,6 +1,17 @@
 /*
  * Copyright 2026 杭州开云集致科技有限公司
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.hana.analysis.lineage;
 
@@ -8,22 +19,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.clougence.sql.common.analysis.lineage.model.*;
 import com.clougence.sql.hana.analysis.HanaSqlFunctions;
 import com.clougence.sql.hana.parser.antlr.HanaParser;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 final class HanaLineageVisitor {
-    private static final Set<String> SESSION_VALUES = Set.of("CURRENT_USER", "SESSION_USER", "CURRENT_SCHEMA", "CURRENT_DATE",
-        "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_UTCDATE", "CURRENT_UTCTIME", "CURRENT_UTCTIMESTAMP", "CURRENT_CONNECTION");
+    private static final Set<String> SESSION_VALUES = Set
+        .of("CURRENT_USER", "SESSION_USER", "CURRENT_SCHEMA", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_UTCDATE", "CURRENT_UTCTIME", "CURRENT_UTCTIMESTAMP", "CURRENT_CONNECTION");
 
     LineageQuery query(HanaParser.QueryContext context) {
         List<LineageCte> ctes = new ArrayList<>();
         if (context.withClause() != null) {
             for (var cte : context.withClause().cte()) {
                 List<String> aliases = List.of();
-                if (cte.columnNames() != null) aliases = cte.columnNames().identifier().stream().map(HanaLineageVisitor::name).toList();
+                if (cte.columnNames() != null)
+                    aliases = cte.columnNames().identifier().stream().map(HanaLineageVisitor::name).toList();
                 ctes.add(new LineageCte(name(cte.identifier()), aliases, query(cte.query())));
             }
         }
@@ -40,7 +54,8 @@ final class HanaLineageVisitor {
     }
 
     private LineageQueryBlock block(HanaParser.SelectQueryContext context) {
-        if (context.intoClause() != null) throw new IllegalArgumentException("SELECT INTO does not expose a query result");
+        if (context.intoClause() != null)
+            throw new IllegalArgumentException("SELECT INTO does not expose a query result");
         List<LineageRelation> relations = new ArrayList<>();
         if (context.fromClause() != null) {
             for (var source : context.fromClause().tableSource()) {
@@ -66,8 +81,8 @@ final class HanaLineageVisitor {
             String output;
             if (item.identifier() != null) {
                 output = name(item.identifier());
-            } else if (values.size() == 1 && values.get(0) instanceof LineageColumnReference column &&
-                item.expression().getText().equals(String.join(".", rawColumn(item.expression())))) {
+            } else if (values.size() == 1 && values.get(0) instanceof LineageColumnReference column
+                       && item.expression().getText().equals(String.join(".", rawColumn(item.expression())))) {
                 output = column.column();
             } else if (values.isEmpty()) {
                 output = item.expression().getText();
@@ -81,15 +96,19 @@ final class HanaLineageVisitor {
 
     private LineageRelation relation(HanaParser.TablePrimaryContext context) {
         String alias = null;
-        if (context.alias() != null) alias = name(context.alias().identifier());
-        if (context.query() != null) return new LineageDerivedRelation(query(context.query()), alias, List.of());
+        if (context.alias() != null)
+            alias = name(context.alias().identifier());
+        if (context.query() != null)
+            return new LineageDerivedRelation(query(context.query()), alias, List.of());
         if (context.functionCall() != null || context.COLON() != null) {
             throw new IllegalArgumentException("Table function or SQLScript variable result lineage is not available");
         }
         List<String> parts = names(context.qualifiedName());
-        if (parts.size() > 2) throw new IllegalArgumentException("Cross-database lineage is not supported");
+        if (parts.size() > 2)
+            throw new IllegalArgumentException("Cross-database lineage is not supported");
         String schema = null;
-        if (parts.size() == 2) schema = parts.get(0);
+        if (parts.size() == 2)
+            schema = parts.get(0);
         return new LineageNamedRelation(null, schema, parts.get(parts.size() - 1), alias, List.of());
     }
 
@@ -101,25 +120,30 @@ final class HanaLineageVisitor {
         if (tree instanceof HanaParser.VariableContext || tree instanceof HanaParser.ParameterMarkerContext) {
             throw new IllegalArgumentException("External value provenance is not available");
         }
-        if (tree instanceof HanaParser.FunctionCallContext function && (!HanaSqlFunctions.isBuiltIn(function.qualifiedName()) ||
-            function.qualifiedName().getText().equalsIgnoreCase("SESSION_CONTEXT"))) {
+        if (tree instanceof HanaParser.FunctionCallContext function
+            && (!HanaSqlFunctions.isBuiltIn(function.qualifiedName()) || function.qualifiedName().getText().equalsIgnoreCase("SESSION_CONTEXT"))) {
             throw new IllegalArgumentException("Stored function result provenance is not available");
         }
         if (tree instanceof HanaParser.PrimaryContext primary && primary.qualifiedName() != null) {
             var qualified = primary.qualifiedName();
             List<String> parts = names(qualified);
             var last = qualified.identifier(qualified.identifier().size() - 1);
-            if (last.QUOTED_IDENTIFIER() == null && ((parts.size() == 1 && SESSION_VALUES.contains(parts.get(0))) ||
-                (parts.size() > 1 && Set.of("NEXTVAL", "CURRVAL").contains(name(last))))) return;
-            if (parts.size() > 3) throw new IllegalArgumentException("Cross-database column lineage is not supported");
+            if (last.QUOTED_IDENTIFIER() == null
+                && ((parts.size() == 1 && SESSION_VALUES.contains(parts.get(0))) || (parts.size() > 1 && Set.of("NEXTVAL", "CURRVAL").contains(name(last)))))
+                return;
+            if (parts.size() > 3)
+                throw new IllegalArgumentException("Cross-database column lineage is not supported");
             String qualifier = null;
             String schema = null;
-            if (parts.size() >= 2) qualifier = parts.get(parts.size() - 2);
-            if (parts.size() == 3) schema = parts.get(0);
+            if (parts.size() >= 2)
+                qualifier = parts.get(parts.size() - 2);
+            if (parts.size() == 3)
+                schema = parts.get(0);
             result.add(new LineageColumnReference(null, schema, qualifier, parts.get(parts.size() - 1), range(qualified)));
             return;
         }
-        for (int i = 0; i < tree.getChildCount(); i++) values(tree.getChild(i), result);
+        for (int i = 0; i < tree.getChildCount(); i++)
+            values(tree.getChild(i), result);
     }
 
     // Only a bare column can use its identifier as the JDBC result label without an alias.
@@ -127,7 +151,8 @@ final class HanaLineageVisitor {
         if (tree instanceof HanaParser.PrimaryContext primary && primary.qualifiedName() != null) {
             return primary.qualifiedName().identifier().stream().map(ParseTree::getText).toList();
         }
-        if (tree.getChildCount() == 1) return rawColumn(tree.getChild(0));
+        if (tree.getChildCount() == 1)
+            return rawColumn(tree.getChild(0));
         return List.of();
     }
 
@@ -137,7 +162,8 @@ final class HanaLineageVisitor {
 
     private static String name(HanaParser.IdentifierContext context) {
         String text = context.getText();
-        if (context.QUOTED_IDENTIFIER() != null) return text.substring(1, text.length() - 1).replace("\"\"", "\"");
+        if (context.QUOTED_IDENTIFIER() != null)
+            return text.substring(1, text.length() - 1).replace("\"\"", "\"");
         return text.toUpperCase(Locale.ROOT);
     }
 
@@ -150,8 +176,11 @@ final class HanaLineageVisitor {
         for (int index = 0; index < text.length();) {
             int cp = text.codePointAt(index);
             index += Character.charCount(cp);
-            if (cp == '\n') { line++; column = 0; }
-            else column++;
+            if (cp == '\n') {
+                line++;
+                column = 0;
+            } else
+                column++;
         }
         return new SourceRange(start.getLine(), start.getCharPositionInLine(), line, column);
     }
