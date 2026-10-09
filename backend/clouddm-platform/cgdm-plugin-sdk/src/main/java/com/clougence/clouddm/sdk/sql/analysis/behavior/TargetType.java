@@ -116,6 +116,10 @@ public enum TargetType {
     BrokerConversationGroup(null),
     XmlSchemaCollection(null),
 
+    // Kafka
+    Topic(UmiTypes.Topic),
+    ConsumerGroup(null),
+
     // cache
     Key(UmiTypes.Key),
 

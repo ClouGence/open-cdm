@@ -15,7 +15,6 @@
  */
 package com.clougence.sql.kafka;
 
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
@@ -45,10 +44,7 @@ public class KafkaSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        // Resource authorization must be implemented before the datasource is enabled.
-        return (reader, levels, line, column) -> {
-            throw ThirdPartyApiException.as().with(KafkaSqlI18nKeys.KAFKA_BEHAVIOR_UNSUPPORTED);
-        };
+        return new KafkaBehaviorAnalysisSpi();
     }
 
     @Override

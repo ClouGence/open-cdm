@@ -38,6 +38,11 @@
 - 未指定 `--max-messages` / `--timeout-ms` 时解析仍成功，并显示系统默认值提示。执行阶段负责补齐系统最大获取条数和系统查询超时（毫秒），将用户条数限制在系统上限内；显式用户超时优先。
 - 解析阶段保留缺省参数，不访问系统配置，不订阅 Topic，不提交 Consumer Group offset。
 
-## 后续执行接入
+## 会话、授权和审计接入
 
-`KafkaCommandParser` 接收拆句后的单条命令，返回不可变参数；`KafkaSplitAnalysisSpi` 提供拆句及语句分类。实际执行、限额重写和资源权限分析由后续步骤接入。资源行为分析目前明确报不支持，数据源保持隐藏，避免未完成权限分析时开放执行。
+- `KafkaBehaviorAnalysisSpi` 复用 ANTLR 拆句与参数校验，每条命令都产生资源行为；语法错误直接失败。
+- 消费消息、查询 Topic / Consumer Group 和帮助命令要求读取权限；创建 Topic、删除 Topic / Consumer Group 要求管理权限。两项权限独立，管理权限不隐含读取消息权限。
+- 当前授权粒度为 Kafka 数据源实例（平台资源路径 `/`）；若分析上下文显式提供 Instance 层级，则使用该实例路径。Topic / Group 名称及正则保存在审计对象名称中，不拼入授权路径。Topic 正则删除与无名称的列表查询同样检查实例权限，暂不提供 Topic / Group 单独授权。
+- `KafkaSessionFactory` 通过平台资源管理器获取客户端并解析 TLS 文件；`KafkaSessionSpi` 和 `KafkaSupportSpi` 接入查询上下文、只读和中断能力。会话固定自动提交，不支持 JDBC 回调、SQL 执行计划、事务、Catalog 或 Schema 切换。
+- `KafkaSession` 通过统一 `ResultBuilder` 输出帮助和失败消息；平台既有链路负责记录命令、行为、执行人、执行结果与耗时。错误消息显式通知审计，以失败状态结束；会话关闭释放客户端并通知关闭监听器。
+- 第 4 步仅接通上述链路：`--help` 可执行，其他命令明确返回未实现错误；元数据浏览、实际管理／消费、获取条数和超时重写仍在后续步骤实现。中断当前可取消等待中的连接检查；消费时的 `Consumer.wakeup()` 随消费执行实现。数据源继续保持隐藏。
