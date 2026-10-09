@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.kafka.execute;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,14 @@ public class KafkaResultWriter {
     }
 
     public void table(List<KafkaResultColumn> columns, List<Object[]> data, Runnable checkActive) throws Exception {
+        table(columns, data.iterator(), checkActive);
+        long limit = query.getResultConf().getFetchRecordCountLimit();
+        if (limit > 0 && data.size() > limit) {
+            truncated();
+        }
+    }
+
+    public void table(List<KafkaResultColumn> columns, Iterator<Object[]> data, Runnable checkActive) throws Exception {
         long start = System.currentTimeMillis();
         Map<String, ResultColMeta> metadata = new LinkedHashMap<>();
         for (KafkaResultColumn column : columns) {
@@ -59,18 +68,19 @@ public class KafkaResultWriter {
         }
     }
 
-    private void writeRows(ResultSetRowsBuild rows, List<KafkaResultColumn> columns, List<Object[]> data, Runnable checkActive, long start) throws Exception {
+    private void writeRows(ResultSetRowsBuild rows, List<KafkaResultColumn> columns, Iterator<Object[]> data, Runnable checkActive, long start) throws Exception {
         QueryResultConf limits = query.getResultConf();
         int count = 0;
         int pageCount = 0;
         boolean silent = false;
         boolean truncated = false;
-        for (Object[] values : data) {
+        // Check the row bound before advancing the source: hasNext() may block in Consumer.poll().
+        while (limits.getFetchRecordCountLimit() <= 0 || count < limits.getFetchRecordCountLimit()) {
             checkActive.run();
-            if (limits.getFetchRecordCountLimit() > 0 && count >= limits.getFetchRecordCountLimit()) {
-                truncated = true;
+            if (!data.hasNext()) {
                 break;
             }
+            Object[] values = data.next();
             Map<String, Object> row = new LinkedHashMap<>();
             for (int index = 0; index < columns.size(); index++) {
                 row.put(columns.get(index).columnName(), values[index]);
@@ -82,6 +92,12 @@ public class KafkaResultWriter {
             }
             count++;
             pageCount++;
+
+            if (limits.getFetchResultSetBytesLimit() > 0 && rows.dataSize() >= limits.getFetchResultSetBytesLimit()) {
+                truncated = true;
+                break;
+            }
+
             if (limits.getReceiveMode() == ReceiveMode.STREAM || (!silent && limits.getFetchPageSize() > 0 && pageCount >= limits.getFetchPageSize())) {
                 rows.collectMetric(count);
                 rows.collectCost(System.currentTimeMillis() - start);
@@ -105,9 +121,13 @@ public class KafkaResultWriter {
             rows.finishRecord(true);
         }
         if (truncated) {
-            var message = builder.newMessage(query);
-            message.receiveMessage(MessageLevel.Warn, i18n.getMessage(KafkaDsI18nKeys.KAFKA_RESULT_TRUNCATED), false);
-            message.finishRecord(true);
+            truncated();
         }
+    }
+
+    private void truncated() {
+        var message = builder.newMessage(query);
+        message.receiveMessage(MessageLevel.Warn, i18n.getMessage(KafkaDsI18nKeys.KAFKA_RESULT_TRUNCATED), false);
+        message.finishRecord(true);
     }
 }

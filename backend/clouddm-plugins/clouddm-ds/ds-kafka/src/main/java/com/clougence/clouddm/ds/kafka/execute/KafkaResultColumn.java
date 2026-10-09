@@ -51,6 +51,11 @@ public enum KafkaResultColumn {
     TOTAL_LAG(JDBCType.DECIMAL),
     KNOWN_LAG(JDBCType.DECIMAL),
     UNKNOWN_PARTITIONS(JDBCType.BIGINT),
+    OFFSET(JDBCType.BIGINT),
+    TIMESTAMP(JDBCType.BIGINT),
+    TIMESTAMP_TYPE,
+    KEY,
+    VALUE,
     STATUS,
     ERROR;
 

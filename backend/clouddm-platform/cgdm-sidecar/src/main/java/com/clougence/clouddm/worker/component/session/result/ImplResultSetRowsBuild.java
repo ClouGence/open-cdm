@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.component.resultfile.ResultSetOverflowException;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSet;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
@@ -39,7 +40,6 @@ import com.clougence.clouddm.worker.component.session.storage.ResultStorage;
 import com.clougence.clouddm.worker.component.session.storage.RowStorage;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.io.result.ResultSetOverflowException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,6 +110,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
     @Override
     public void receiveRow(boolean silent, java.sql.ResultSet rs) throws SQLException, IOException {
         List<ResultSetValue> data = silent ? Collections.emptyList() : new ArrayList<>();
+        long previousSize = this.fetcherDataSize;
         try (RowStorage row = this.localCache.nextRsRow()) {
             for (int i = 0; i < this.columnList.length; i++) {
                 String column = this.columnList[i];
@@ -128,7 +129,9 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                             throw new SQLException("Value fetcher error: " + fetcherCtx.getErrObject());
                         }
                     }
-                } catch (Exception e) {
+                } catch (ResultSetOverflowException e) {
+                    // Do not commit an incomplete cached row when a column reaches the result byte limit.
+                    row.getOutput().discardRow();
                     throw e;
                 } finally {
                     fetcherCtx.free();
@@ -153,6 +156,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 this.get().getRowSet().add(rowDTO);
             }
         } catch (ResultSetOverflowException e) {
+            this.fetcherDataSize = previousSize;
             this.expansionSize += e.getOverflowSize();
             this.fetcherOverflow = true;
         }
@@ -161,6 +165,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
     @Override
     public void receiveRow(boolean silent, Map<String, Object> rs) throws SQLException, IOException {
         List<ResultSetValue> data = silent ? Collections.emptyList() : new ArrayList<>();
+        long previousSize = this.fetcherDataSize;
         try (RowStorage row = this.localCache.nextRsRow()) {
             for (int i = 0; i < this.columnList.length; i++) {
                 String column = this.columnList[i];
@@ -179,7 +184,9 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                             throw new SQLException("Value fetcher error: " + fetcherCtx.getErrObject());
                         }
                     }
-                } catch (Exception e) {
+                } catch (ResultSetOverflowException e) {
+                    // Do not commit an incomplete cached row when a column reaches the result byte limit.
+                    row.getOutput().discardRow();
                     throw e;
                 } finally {
                     fetcherCtx.free();
@@ -204,6 +211,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 this.get().getRowSet().add(rowDTO);
             }
         } catch (ResultSetOverflowException e) {
+            this.fetcherDataSize = previousSize;
             this.expansionSize += e.getOverflowSize();
             this.fetcherOverflow = true;
         }

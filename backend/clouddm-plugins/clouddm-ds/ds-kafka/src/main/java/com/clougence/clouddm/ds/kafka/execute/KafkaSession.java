@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import org.apache.kafka.clients.admin.DescribeClusterOptions;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.common.KafkaFuture;
 
 import com.clougence.clouddm.ds.kafka.dsconf.KafkaConfig;
@@ -67,6 +68,7 @@ public class KafkaSession implements Session {
     private volatile boolean                 executing;
     private boolean                          cancelled;
     private KafkaFuture<?>                   pendingRequest;
+    private Consumer<byte[], byte[]>         activeConsumer;
 
     public KafkaSession(SessionContextDTO context, KafkaConfig config, DsObject<KafkaClients> resource){
         this.sessionId = context.getSessionId();
@@ -139,7 +141,7 @@ public class KafkaSession implements Session {
             switch (command.getType()) {
                 case TOPICS -> new KafkaTopicCommands(context).execute(command);
                 case GROUPS -> new KafkaGroupCommands(context).execute(command);
-                case CONSUMER -> throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_COMMAND_UNSUPPORTED);
+                case CONSUMER -> new KafkaConsumerCommand(this, clients, query, builder).execute(command);
             }
             return;
         }
@@ -226,6 +228,19 @@ public class KafkaSession implements Session {
         }
     }
 
+    void activateConsumer(Consumer<byte[], byte[]> consumer) {
+        synchronized (stateLock) {
+            checkCancelled();
+            activeConsumer = consumer;
+        }
+    }
+
+    void releaseConsumer() {
+        synchronized (stateLock) {
+            activeConsumer = null;
+        }
+    }
+
     @Override
     public void cancel() {
         synchronized (stateLock) {
@@ -234,6 +249,9 @@ public class KafkaSession implements Session {
             }
             if (pendingRequest != null) {
                 pendingRequest.cancel(false);
+            }
+            if (activeConsumer != null) {
+                activeConsumer.wakeup();
             }
         }
     }

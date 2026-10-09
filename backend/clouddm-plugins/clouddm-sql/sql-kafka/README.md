@@ -45,7 +45,7 @@
 - 当前授权粒度为 Kafka 数据源实例（平台资源路径 `/`）；若分析上下文显式提供 Instance 层级，则使用该实例路径。Topic / Group 名称及正则保存在审计对象名称中，不拼入授权路径。Topic 正则删除与无名称的列表查询同样检查实例权限，暂不提供 Topic / Group 单独授权。
 - `KafkaSessionFactory` 通过平台资源管理器获取客户端并解析 TLS 文件；`KafkaSessionSpi` 和 `KafkaSupportSpi` 接入查询上下文、只读和中断能力。会话固定自动提交，不支持 JDBC 回调、SQL 执行计划、事务、Catalog 或 Schema 切换。
 - `KafkaSession` 通过统一 `ResultBuilder` 输出表格、影响数量、帮助和失败消息；平台既有链路负责记录命令、行为、执行人、执行结果与耗时。错误消息显式通知审计，以失败状态结束；会话关闭释放客户端并通知关闭监听器。
-- Topic / Consumer Group 管理命令和 `--help` 已接入 Admin API。消息消费、元数据树浏览和消费参数重写仍在后续步骤实现，数据源继续保持隐藏。
+- Topic / Consumer Group 管理命令和 `--help` 已接入 Admin API。消息消费已实现下述有界读取；元数据树浏览仍在后续步骤实现，数据源继续保持隐藏。
 
 ## 管理命令执行
 
@@ -66,4 +66,20 @@ kafka-consumer-groups --delete --group orders-service
 - Consumer Group 列表包含传统及新 Consumer 协议的组；详情默认展示汇总及分区 offset / lag，可独立查询成员和状态。不创建 Group，也不提交或重置 offset。活跃 Group 的删除限制由 Broker 校验。
 - 分区范围取当前成员分配与已提交 offset 的并集，包含暂无活跃成员但保留 offset 的分区。`LAG = LOG-END-OFFSET - CURRENT-OFFSET`；未提交或无法确定的 offset / lag 保留为空，不按零计算。汇总给出 `KNOWN-LAG`、`UNKNOWN-PARTITIONS`，存在未知分区或没有分区时 `TOTAL-LAG` 为空。详情展示截断不影响汇总；多个 Admin 请求获取的数据不保证为同一时刻的原子快照。
 - 表格复用系统条数、字节、分页和流式输出规则，截断时给出提示。管理命令使用系统查询超时作为总期限（未配置则使用客户端 API 超时），每个 Admin 请求同时受客户端 API 超时限制。
-- 页面中断取消正在等待的 Admin future，结束当前执行后可复用会话；连接检查也支持中断。超时或中断无法撤销已发送到 Broker 的管理操作，应查询实际状态再决定是否重试。消费阶段的 `Consumer.wakeup()` 随后续消费执行实现。
+- 页面中断取消正在等待的 Admin future，结束当前执行后可复用会话；连接检查也支持中断。超时或中断无法撤销已发送到 Broker 的管理操作，应查询实际状态再决定是否重试。消费中断通过 `Consumer.wakeup()` 唤醒元数据请求或 poll。
+
+## 有界消息消费
+
+```sh
+kafka-console-consumer --topic orders --from-beginning --max-messages 10
+kafka-console-consumer --topic orders --partition 0 --offset latest --max-messages 10 --timeout-ms 5000
+kafka-console-consumer --topic orders
+```
+
+- 每次执行手动分配指定分区，或执行开始时 Topic 的全部分区。不订阅、不加入 Consumer Group，不读取或提交组位点，不自动创建 Topic。执行期间新增的分区不会自动加入本次查询。
+- `--from-beginning` 从各分区当前保留的最早 offset 开始；默认和 `--offset latest` 从初始化时取得的末尾 offset 等待新消息。跨分区消息按 poll 返回顺序输出，不保证全局时间顺序，也不表示“历史最后 N 条”。
+- 未指定 `--max-messages` 时补齐系统最大获取条数，显式值超过系统上限时下调；未配置正数系统上限时必须显式指定正数条数。条数最多为 `Integer.MAX_VALUE`，达到上限立即结束，不额外 poll。
+- `--timeout-ms` 沿用 [原生命令](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/consumer/ConsoleConsumer.java) 的“等待下一条消息的空闲超时”，不是整条命令的总耗时。缺省使用系统查询超时（秒转毫秒），系统未配置正数超时时使用客户端 API 超时；显式用户值优先。元数据查询还受客户端 API 超时约束。
+- 补齐或调整参数后保留原命令，通过统一重写标记与结果展示实际执行命令。空闲超时正常结束并提示，保留已读结果；认证、元数据超时、位点失效等错误按失败审计，不伪装为空结果。
+- 消息结果列为 `TOPIC`、`PARTITION`、`OFFSET`、`TIMESTAMP`（epoch 毫秒，未知为空）、`TIMESTAMP-TYPE`、`KEY`、`VALUE`。Key / Value 按 UTF-8 文本显示，非法 UTF-8 使用替换字符；空字节串与 null（含 tombstone）保持区分。暂不提供自定义反序列化。
+- 输出复用系统表格、分页、流式和字节限制，不在内存中累积整次消费结果。正常完成、空闲超时、异常、页面中断和会话关闭均释放本次 Consumer；关闭等待最多 5 秒，后续查询创建新 Consumer，避免继承缓冲消息、位置或 wakeup 状态。
