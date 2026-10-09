@@ -18,6 +18,7 @@ plugins {
 }
 
 dependencies {
+    implementation project(':dsc-common')
     compileOnly 'org.apache.kafka:kafka-clients:4.1.2'
 }
 

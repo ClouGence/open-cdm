@@ -16,6 +16,9 @@
 package com.clougence.clouddm.ds.kafka;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.ds.kafka.dsconf.KafkaConfigSpi;
+import com.clougence.clouddm.ds.kafka.dsconf.KafkaSerializationSpi;
+import com.clougence.clouddm.ds.kafka.i18n.KafkaConfigI18nKeys;
 import com.clougence.clouddm.ds.kafka.i18n.KafkaDsI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -38,6 +41,8 @@ public class KafkaDsPlugin implements DsPlugin, SchemaPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         SchemaFramework.install(this);
         dsPlugin.bindDsDriverFamily("Kafka");
-        dsPlugin.bindPluginI18n(KafkaDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(KafkaDsI18nKeys.class, KafkaConfigI18nKeys.class);
+        dsPlugin.addPluginSpi(new KafkaConfigSpi());
+        dsPlugin.addPluginSpi(new KafkaSerializationSpi(dsPlugin.getPluginClassLoader()));
     }
 }
