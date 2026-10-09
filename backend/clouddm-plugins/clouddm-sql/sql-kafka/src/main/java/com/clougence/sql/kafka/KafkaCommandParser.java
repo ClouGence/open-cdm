@@ -15,13 +15,7 @@
  */
 package com.clougence.sql.kafka;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -102,9 +96,6 @@ public class KafkaCommandParser {
         if (type == KafkaCommandType.CONSUMER || command.has("--create") || (type == KafkaCommandType.TOPICS && command.has("--delete"))) {
             require(command, "--topic", head);
         }
-        if (type == KafkaCommandType.GROUPS && !command.has("--list")) {
-            require(command, "--group", head);
-        }
         if (type == KafkaCommandType.CONSUMER) {
             if (command.has("--from-beginning") && command.has("--offset")) {
                 KafkaToken token = locations.get("--offset");
@@ -113,12 +104,6 @@ public class KafkaCommandParser {
             if (command.has("--offset") && !"latest".equals(command.value("--offset"))) {
                 KafkaToken token = locations.get("--offset");
                 throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_UNSUPPORTED);
-            }
-        }
-        if (type == KafkaCommandType.GROUPS) {
-            long modes = List.of("--offsets", "--members", "--state").stream().filter(command::has).count();
-            if (modes > 1 || (command.has("--verbose") && !command.has("--members"))) {
-                throw new KafkaParseException(head.start(), head.end(), KafkaSqlI18nKeys.KAFKA_GROUP_MODE);
             }
         }
         if (command.has("--config")) {

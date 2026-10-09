@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.kafka;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.kafka.definition.auth.KafkaAuthInfoSpi;
+import com.clougence.clouddm.ds.kafka.definition.ui.KafkaDsBrowseSpi;
 import com.clougence.clouddm.ds.kafka.dsconf.KafkaConfigSpi;
 import com.clougence.clouddm.ds.kafka.dsconf.KafkaSerializationSpi;
 import com.clougence.clouddm.ds.kafka.execute.KafkaSessionFactory;
@@ -34,7 +35,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 import com.clougence.sql.kafka.KafkaSqlEngineSpi;
 
-// Keep the datasource hidden until metadata and command execution are available.
+// Keep the datasource hidden until Kafka integration acceptance is complete.
 @Plugin(name = "i18n::" + KafkaDsI18nKeys.PLUGIN_NAME_KAFKA, display = false, includePackages = { "com.clougence.clouddm.ds.kafka.execute.*" }, dsProduct = DataSourceType.Kafka)
 public class KafkaDsPlugin implements DsPlugin, SchemaPlugin {
 
@@ -50,6 +51,7 @@ public class KafkaDsPlugin implements DsPlugin, SchemaPlugin {
         dsPlugin.bindDsSessionFactory(KafkaSessionFactory.class);
         dsPlugin.addPluginSpi(new KafkaSessionSpi());
         dsPlugin.addPluginSpi(new KafkaSupportSpi());
+        dsPlugin.addPluginSpi(new KafkaDsBrowseSpi());
         dsPlugin.addGlobalSpi(new KafkaAuthInfoSpi());
         dsPlugin.bindGlobalI18n(KafkaDsI18nKeys.class);
         dsPlugin.bindSqlEngine(KafkaSqlEngineSpi.NAME);

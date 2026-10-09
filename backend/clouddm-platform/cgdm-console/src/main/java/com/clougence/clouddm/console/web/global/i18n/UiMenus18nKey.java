@@ -42,6 +42,7 @@ public interface UiMenus18nKey {
     String UI_LEAF_TITLE_RDB_SEQUENCE     = UI_LEAF_TITLE_PREFIX + UmiTypes.Sequence.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_RDB_SYNONYM      = UI_LEAF_TITLE_PREFIX + UmiTypes.Synonym.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_RDB_COLUMN       = UI_LEAF_TITLE_PREFIX + UmiTypes.Column.getTypeName().toUpperCase();
+    String UI_LEAF_TITLE_MQ_METADATA      = "UI_LEAF_TITLE_MQ_METADATA";
     String UI_LEAF_TITLE_TOPIC            = UI_LEAF_TITLE_PREFIX + UmiTypes.Topic.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_KEY              = UI_LEAF_TITLE_PREFIX + UmiTypes.Key.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_ROLE             = UI_LEAF_TITLE_PREFIX + UmiTypes.ROLE.getTypeName().toUpperCase();

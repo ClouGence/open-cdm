@@ -13,10 +13,9 @@
 | 命令（均兼容 `.sh` 后缀） | 操作与参数 |
 | --- | --- |
 | `kafka-topics` | `--list`、`--describe`、`--create`、`--delete`；`--topic`；创建时可指定 `--partitions`、`--replication-factor`、可重复的 `--config key=value`、`--if-not-exists`；删除时支持 `--if-exists` |
-| `kafka-consumer-groups` | `--list`；`--describe --group <id>`（默认 offsets/lag，也支持 `--offsets`、`--members [--verbose]`、`--state`）；`--delete --group <id>` |
 | `kafka-console-consumer` | `--topic`、`--partition`、`--from-beginning`、`--offset latest`、`--max-messages`、`--timeout-ms` |
 
-每类命令支持 `--help`，编辑器通过信息提示展示用法。Consumer Group 不提供创建命令，每条命令最多操作一个 group。
+每类命令支持 `--help`，编辑器通过信息提示展示用法。不支持 Consumer Group 管理命令和消费参数 `--group`。
 
 参数名大小写敏感，支持 `--name value` 和 `--name=value`。操作参数互斥；重复参数报错，只有 topic 创建的 `--config` 可重复且配置键不能重复。不接受未实现的原生选项，也不允许命令覆盖当前数据源的 Broker、认证或客户端配置。
 
@@ -30,7 +29,7 @@
 
 ## 与原生命令的边界
 
-选项参照 Apache Kafka 4.1 的 [TopicCommand](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/TopicCommand.java)、[ConsumerGroupCommandOptions](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/consumer/group/ConsumerGroupCommandOptions.java) 和 [ConsoleConsumerOptions](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/consumer/ConsoleConsumerOptions.java)，当前只实现上表列出的子集。
+选项参照 Apache Kafka 4.1 的 [TopicCommand](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/TopicCommand.java) 和 [ConsoleConsumerOptions](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/consumer/ConsoleConsumerOptions.java)，当前只实现上表列出的子集。
 
 - Topic 的 list/describe/delete 使用正则筛选，create 与 consumer 使用确切的 Topic 名称。
 - `latest` 表示从末尾等待新消息，不代表历史最后 N 条。控制台允许省略 `--partition` 使用 `--offset latest`，应用于所有分区；原生 CLI 的显式 `--offset` 要求同时指定分区。
@@ -41,11 +40,12 @@
 ## 会话、授权和审计接入
 
 - `KafkaBehaviorAnalysisSpi` 复用 ANTLR 拆句与参数校验，每条命令都产生资源行为；语法错误直接失败。
-- 消费消息、查询 Topic / Consumer Group 和帮助命令要求读取权限；创建 Topic、删除 Topic / Consumer Group 要求管理权限。两项权限独立，管理权限不隐含读取消息权限。
-- 当前授权粒度为 Kafka 数据源实例（平台资源路径 `/`）；若分析上下文显式提供 Instance 层级，则使用该实例路径。Topic / Group 名称及正则保存在审计对象名称中，不拼入授权路径。Topic 正则删除与无名称的列表查询同样检查实例权限，暂不提供 Topic / Group 单独授权。
+- 消费消息、查询 Topic 和帮助命令要求读取权限；创建 Topic、删除 Topic 要求管理权限。两项权限独立，管理权限不隐含读取消息权限。
+- Topic 复用 Table 的对象授权路径（`/topicName/`），可独立授予读取、管理权限并继承实例授权。读取消息和详情需要 Topic 读取权限，删除需要 Topic 管理权限；创建 Topic 始终需要实例管理权限。
+- `kafka-topics --list` 仅返回有读取权限的 Topic。正则 describe/delete 在授权前解析实际 Topic；describe 校验所有目标的读取权限，delete 校验所有目标的管理权限，任一无权则整条拒绝。执行沿用授权时固定的 Topic 名单，审计记录相同的实际对象；无匹配目标也不会在执行时重新扩展。
 - `KafkaSessionFactory` 通过平台资源管理器获取客户端并解析 TLS 文件；`KafkaSessionSpi` 和 `KafkaSupportSpi` 接入查询上下文、只读和中断能力。会话固定自动提交，不支持 JDBC 回调、SQL 执行计划、事务、Catalog 或 Schema 切换。
 - `KafkaSession` 通过统一 `ResultBuilder` 输出表格、影响数量、帮助和失败消息；平台既有链路负责记录命令、行为、执行人、执行结果与耗时。错误消息显式通知审计，以失败状态结束；会话关闭释放客户端并通知关闭监听器。
-- Topic / Consumer Group 管理命令和 `--help` 已接入 Admin API。消息消费已实现下述有界读取；元数据树浏览仍在后续步骤实现，数据源继续保持隐藏。
+- Topic 管理命令和 `--help` 已接入 Admin API。消息消费已实现下述有界读取；元数据树浏览已接入，数据源仍保持隐藏，待完整接入验收后开放。
 
 ## 管理命令执行
 
@@ -54,17 +54,10 @@ kafka-topics --list
 kafka-topics --describe --topic 'orders.*'
 kafka-topics --create --topic orders --partitions 3 --replication-factor 1 --config retention.ms=86400000
 kafka-topics --delete --topic 'orders.*' --if-exists
-kafka-consumer-groups --list
-kafka-consumer-groups --describe --group orders-service
-kafka-consumer-groups --describe --group orders-service --members --verbose
-kafka-consumer-groups --describe --group orders-service --state
-kafka-consumer-groups --delete --group orders-service
 ```
 
 - Topic 列表包含内部 Topic；详情分别输出 Topic 概况和分区信息，配置只展示非敏感的 Topic 动态配置。创建时未指定分区数、副本数则使用 Broker 默认值；`--if-not-exists` 只忽略 Topic 已存在错误。
 - Topic 删除按正则匹配当前 Topic 列表，展示各 Topic 的 `DELETED`、`NOT_FOUND`、`FAILED` 或 `UNKNOWN` 状态。批量删除不具备原子性，部分失败仍按失败审计，并保留已知结果；`--if-exists` 只忽略 Topic 不存在错误。系统展示条数上限不缩小删除范围。
-- Consumer Group 列表包含传统及新 Consumer 协议的组；详情默认展示汇总及分区 offset / lag，可独立查询成员和状态。不创建 Group，也不提交或重置 offset。活跃 Group 的删除限制由 Broker 校验。
-- 分区范围取当前成员分配与已提交 offset 的并集，包含暂无活跃成员但保留 offset 的分区。`LAG = LOG-END-OFFSET - CURRENT-OFFSET`；未提交或无法确定的 offset / lag 保留为空，不按零计算。汇总给出 `KNOWN-LAG`、`UNKNOWN-PARTITIONS`，存在未知分区或没有分区时 `TOTAL-LAG` 为空。详情展示截断不影响汇总；多个 Admin 请求获取的数据不保证为同一时刻的原子快照。
 - 表格复用系统条数、字节、分页和流式输出规则，截断时给出提示。管理命令使用系统查询超时作为总期限（未配置则使用客户端 API 超时），每个 Admin 请求同时受客户端 API 超时限制。
 - 页面中断取消正在等待的 Admin future，结束当前执行后可复用会话；连接检查也支持中断。超时或中断无法撤销已发送到 Broker 的管理操作，应查询实际状态再决定是否重试。消费中断通过 `Consumer.wakeup()` 唤醒元数据请求或 poll。
 
@@ -83,3 +76,11 @@ kafka-console-consumer --topic orders
 - 补齐或调整参数后保留原命令，通过统一重写标记与结果展示实际执行命令。空闲超时正常结束并提示，保留已读结果；认证、元数据超时、位点失效等错误按失败审计，不伪装为空结果。
 - 消息结果列为 `TOPIC`、`PARTITION`、`OFFSET`、`TIMESTAMP`（epoch 毫秒，未知为空）、`TIMESTAMP-TYPE`、`KEY`、`VALUE`。Key / Value 按 UTF-8 文本显示，非法 UTF-8 使用替换字符；空字节串与 null（含 tombstone）保持区分。暂不提供自定义反序列化。
 - 输出复用系统表格、分页、流式和字节限制，不在内存中累积整次消费结果。正常完成、空闲超时、异常、页面中断和会话关闭均释放本次 Consumer；关闭等待最多 5 秒，后续查询创建新 Consumer，避免继承缓冲消息、位置或 wakeup 状态。
+
+## 元数据与对象浏览
+
+- Kafka 没有 Catalog / Schema 层级，查询窗口直接在实例下展示 Topics，列表包含内部 Topic。
+- 展开 Topic 展示 ID、内部标记、分区数及每个分区的 leader / replicas / ISR；完整配置通过 describe 命令查询。
+- `MqValue` 使用共享 UMI 序列化；Topic 列表、详情使用独立缓存类型。列表刷新重新读取，对象刷新重新获取详情。
+- 双击 Topic 填入从头最多 10 条的消费命令；右键“命令模板”包含列表、详情、消费和管理示例，创建、删除示例默认注释，需显式编辑后执行。
+- Topic 管理模板使用正则字面量匹配，名称按命令语法转义；元数据和模板查询使用对象读取权限，实际执行进入授权与审计链路。

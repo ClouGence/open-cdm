@@ -30,6 +30,7 @@ import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 
 import com.clougence.clouddm.ds.kafka.i18n.KafkaDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.kafka.KafkaCommand;
 
 public class KafkaTopicCommands {
@@ -39,9 +40,24 @@ public class KafkaTopicCommands {
         this.context = context;
     }
 
-    public void execute(KafkaCommand command) throws Exception {
+    public void execute(KafkaCommand command, Map<TargetType, List<String>> resolvedResources) throws Exception {
         if (command.has("--create")) {
             create(command);
+            return;
+        }
+        List<String> targets = null;
+        if (resolvedResources != null) {
+            targets = resolvedResources.get(TargetType.Topic);
+        }
+        if (targets != null && !command.has("--list")) {
+            if (command.has("--describe")) {
+                if (command.has("--topic") && targets.isEmpty()) {
+                    throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_TOPIC_NOT_FOUND, command.value("--topic"));
+                }
+                describe(targets);
+            } else {
+                delete(command, targets);
+            }
             return;
         }
         Collection<TopicListing> listings = context.await(timeout -> context.getAdmin().listTopics(new ListTopicsOptions().listInternal(true).timeoutMs(timeout)).listings());
@@ -52,7 +68,7 @@ public class KafkaTopicCommands {
         List<TopicListing> selected = new ArrayList<>();
         for (TopicListing listing : listings) {
             context.checkActive();
-            if (pattern == null || pattern.matcher(listing.name()).matches()) {
+            if ((targets == null || targets.contains(listing.name())) && (pattern == null || pattern.matcher(listing.name()).matches())) {
                 selected.add(listing);
             }
         }

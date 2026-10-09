@@ -13,34 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.security.auth;
+package com.clougence.schema.umi.special.mq;
 
-/**
- * @author mode create time is 2021/2/23
- **/
-public enum AuthElementType {
+import com.clougence.schema.umi.struts.AttributeUmiData;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.schema.umi.struts.Value;
 
-    DataJob("DataJob"),
+import lombok.Getter;
+import lombok.Setter;
 
-    // need sync for UmiTypes
-    Instance("INSTANCE"),
-    Catalog("CATALOG"),
-    Schema("SCHEMA"),
-    Table("TABLE"),
-    Topic("TOPIC"),
-    Column("COLUMN"),
-    //
-    View("VIEW"),
-    Materialized("MATERIALIZED"),
-    Sequence("SEQUENCE"),
-    Synonym("SYNONYM"),
-    Function("FUNC"),
-    Procedure("PROC"),
-    Trigger("TRIGGER"),;
+@Getter
+@Setter
+public class MqValue extends AttributeUmiData implements Value {
+    private String   name;
+    private UmiTypes umiType;
 
-    private final String code;
-
-    AuthElementType(String code){
-        this.code = code;
+    @Override
+    public String asValue() {
+        return name;
     }
 }

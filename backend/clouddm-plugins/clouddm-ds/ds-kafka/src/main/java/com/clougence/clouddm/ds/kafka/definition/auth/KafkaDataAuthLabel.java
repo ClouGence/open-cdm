@@ -25,10 +25,10 @@ import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 
 public interface KafkaDataAuthLabel {
     @AuthLabel(order = 0, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, kind = { AuthKind.DataSource }, i18nKey = KafkaDsI18nKeys.KAFKA_AUTH_READ)
-    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance })
+    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Topic })
     String DM_DAUTH_KAFKA_READ   = SecDataAuthLabel.DM_DAUTH_QUERY;
 
     @AuthLabel(order = 1, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, kind = { AuthKind.DataSource }, i18nKey = KafkaDsI18nKeys.KAFKA_AUTH_MANAGE)
-    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance })
+    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance, AuthElementType.Topic })
     String DM_DAUTH_KAFKA_MANAGE = SecDataAuthLabel.DM_DAUTH_MANAGE;
 }

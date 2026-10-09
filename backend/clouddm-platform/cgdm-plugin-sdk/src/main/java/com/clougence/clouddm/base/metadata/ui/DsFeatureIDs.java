@@ -25,6 +25,7 @@ public interface DsFeatureIDs {
     String FUNC_LINES_SUPPORT                = "FUNC_LINES_SUPPORT";
 
     // MENU
+    String MENU_BROWSE_COMMAND_TEMPLATE      = "MENU_BROWSE_COMMAND_TEMPLATE";
     String MENU_SEPARATOR                    = "MENU_SEPARATOR";
     String MENU_BROWSE_CONSOLE               = "MENU_BROWSE_CONSOLE";
     String MENU_BROWSE_REFRESH               = "MENU_BROWSE_REFRESH";

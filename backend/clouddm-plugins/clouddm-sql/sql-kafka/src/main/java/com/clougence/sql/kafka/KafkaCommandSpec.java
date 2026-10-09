@@ -37,10 +37,6 @@ public final class KafkaCommandSpec {
                 values.addAll(List.of("--topic", "--partitions", "--replication-factor", "--config"));
                 flags.addAll(List.of("--if-exists", "--if-not-exists"));
             }
-            case GROUPS -> {
-                values.add("--group");
-                flags.addAll(List.of("--offsets", "--members", "--verbose", "--state"));
-            }
             case CONSUMER -> {
                 values.addAll(List.of("--topic", "--partition", "--offset", "--max-messages", "--timeout-ms"));
                 flags.add("--from-beginning");
@@ -67,11 +63,6 @@ public final class KafkaCommandSpec {
             }
             if (action.equals("--delete")) {
                 allowed.add("--if-exists");
-            }
-        } else if (!action.equals("--list")) {
-            allowed.add("--group");
-            if (action.equals("--describe")) {
-                allowed.addAll(List.of("--offsets", "--members", "--verbose", "--state"));
             }
         }
         return allowed;

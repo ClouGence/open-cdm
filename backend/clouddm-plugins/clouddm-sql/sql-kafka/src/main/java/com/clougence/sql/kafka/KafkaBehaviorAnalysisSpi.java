@@ -20,13 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 
@@ -42,16 +36,12 @@ public class KafkaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(TargetType.Topic);
         String name = command.value("--topic");
-        if (command.getType() == KafkaCommandType.GROUPS) {
-            object.setObjectType(TargetType.ConsumerGroup);
-            name = command.value("--group");
-        }
         if (command.has("--help")) {
             object.setObjectType(TargetType.Instance);
             name = null;
         }
-        // Kafka currently grants at instance scope, including regex selectors and unnamed sets.
-        // Keep the selector in the audit name, never interpolate it into an authorization path.
+        // Topic creation uses instance permissions. Regex selectors
+        // remain at instance scope until the resource resolver expands them.
         String instance = "";
         if (levels != null && levels.get(UmiTypes.Instance) != null) {
             instance = levels.get(UmiTypes.Instance).toString();
@@ -60,6 +50,9 @@ public class KafkaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         String path = "/";
         if (!instance.isEmpty()) {
             path += instance + "/";
+        }
+        if (command.getType() == KafkaCommandType.CONSUMER && !command.has("--help")) {
+            path += name + "/";
         }
         object.setObjectPath(path);
         object.setObjectName(new ObjectName(null, null, name));

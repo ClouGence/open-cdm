@@ -33,24 +33,6 @@ public enum KafkaResultColumn {
     REPLICAS,
     ISR,
     CONFIGS,
-    GROUP,
-    STATE,
-    GROUP_TYPE,
-    IS_SIMPLE(JDBCType.BOOLEAN),
-    COORDINATOR,
-    ASSIGNMENT_STRATEGY,
-    MEMBER_COUNT(JDBCType.BIGINT),
-    CONSUMER_ID,
-    CLIENT_ID,
-    HOST,
-    GROUP_INSTANCE_ID,
-    ASSIGNMENT,
-    CURRENT_OFFSET(JDBCType.BIGINT),
-    LOG_END_OFFSET(JDBCType.BIGINT),
-    LAG(JDBCType.BIGINT),
-    TOTAL_LAG(JDBCType.DECIMAL),
-    KNOWN_LAG(JDBCType.DECIMAL),
-    UNKNOWN_PARTITIONS(JDBCType.BIGINT),
     OFFSET(JDBCType.BIGINT),
     TIMESTAMP(JDBCType.BIGINT),
     TIMESTAMP_TYPE,
@@ -76,7 +58,6 @@ public enum KafkaResultColumn {
     public ValueFetcher fetcher() {
         return switch (jdbcType) {
             case BIGINT -> AbstractColReader.LONG_VALUE_FETCHER;
-            case DECIMAL -> AbstractColReader.BIGDECIMAL_VALUE_FETCHER;
             case BOOLEAN -> AbstractColReader.BOOLEAN_VALUE_FETCHER;
             default -> AbstractColReader.STRING_VALUE_FETCHER;
         };

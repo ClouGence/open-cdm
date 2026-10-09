@@ -21,8 +21,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.admin.DescribeClusterOptions;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.common.KafkaFuture;
@@ -139,8 +141,7 @@ public class KafkaSession implements Session {
         if (!command.has("--help")) {
             KafkaAdminContext context = new KafkaAdminContext(this, clients.getAdmin(), query, builder);
             switch (command.getType()) {
-                case TOPICS -> new KafkaTopicCommands(context).execute(command);
-                case GROUPS -> new KafkaGroupCommands(context).execute(command);
+                case TOPICS -> new KafkaTopicCommands(context).execute(command, query.getResolvedResources());
                 case CONSUMER -> new KafkaConsumerCommand(this, clients, query, builder).execute(command);
             }
             return;
@@ -153,6 +154,10 @@ public class KafkaSession implements Session {
     }
 
     void testConnect() {
+        readMetadata(admin -> admin.describeCluster(new DescribeClusterOptions().timeoutMs(dsConfig.getApiTimeoutMs())).nodes());
+    }
+
+    <T> T readMetadata(Function<Admin, KafkaFuture<T>> operation) {
         if (!executionLock.tryLock()) {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_SESSION_BUSY);
         }
@@ -163,12 +168,12 @@ public class KafkaSession implements Session {
                 executing = true;
                 lastQueryTime = System.currentTimeMillis();
             }
-            await(() -> clients.getAdmin().describeCluster(new DescribeClusterOptions().timeoutMs(dsConfig.getApiTimeoutMs())).nodes(), dsConfig.getApiTimeoutMs());
+            return await(() -> operation.apply(clients.getAdmin()), dsConfig.getApiTimeoutMs());
         } catch (Exception e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            String msg = "Test Kafka connection failed";
+            String msg = "Read Kafka metadata failed";
             log.error(msg, e);
             if (e instanceof ThirdPartyApiException failure) {
                 throw failure;

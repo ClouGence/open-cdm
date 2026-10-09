@@ -213,6 +213,10 @@ public class RemoteDsSchemaService implements DsSchemaService {
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             List<DsElement> dsElements = this.metaRService.listLeaf(sendDTO, dsConfig, levelsParam, leafType, pattern);
+            // A filtered MQ listing must not replace the complete namespace cache.
+            if (leafType == UmiTypes.Topic && pattern != null && !pattern.isBlank() && !"*".equals(pattern)) {
+                return dsElements;
+            }
 
             String catalog = (String) levelsParam.get(UmiTypes.Catalog);
             String schema = (String) levelsParam.get(UmiTypes.Schema);

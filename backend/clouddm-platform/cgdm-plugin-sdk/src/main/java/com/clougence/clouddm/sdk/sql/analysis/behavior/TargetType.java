@@ -118,7 +118,6 @@ public enum TargetType {
 
     // Kafka
     Topic(UmiTypes.Topic),
-    ConsumerGroup(null),
 
     // cache
     Key(UmiTypes.Key),

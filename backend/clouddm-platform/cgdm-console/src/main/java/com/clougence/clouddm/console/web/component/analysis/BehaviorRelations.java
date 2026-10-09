@@ -100,7 +100,7 @@ public final class BehaviorRelations {
 
     // These objects already carry their native scope; URI-style object names are opaque path content.
     private static final Set<TargetType>                                            NATIVE_SCOPE_TARGETS  = EnumSet.of( //
-            TargetType.Topic, TargetType.ConsumerGroup, //
+            TargetType.Topic, //
             TargetType.Instance, TargetType.ServiceMasterKey, TargetType.Queue, TargetType.Link, TargetType.Replication, TargetType.Job, TargetType.Transaction, //
             TargetType.Audit, TargetType.AuditSpecification, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Endpoint, //
             TargetType.BrokerMessageType, TargetType.BrokerContract, TargetType.BrokerService, TargetType.BrokerRoute, TargetType.RemoteServiceBinding, //
@@ -134,7 +134,7 @@ public final class BehaviorRelations {
 
     private static void registerManageAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MANAGE, //
-                TargetType.Topic, TargetType.ConsumerGroup, //
+                TargetType.Topic, //
                 TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.Object, //
                 TargetType.Event, TargetType.Job, TargetType.Link, //
                 TargetType.Profile, TargetType.Quota, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //

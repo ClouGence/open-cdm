@@ -32,7 +32,7 @@ public class DsMenuUtils implements DsFeatureIDs {
     // targetName not null.
     public final static List<String>         NEED_TARGET_MENU_IDS = Arrays.asList(//
             // -- commons
-            MENU_BROWSE_COPY_NAME,                  // UIPanel: copy
+            MENU_BROWSE_COMMAND_TEMPLATE, MENU_BROWSE_COPY_NAME,                  // UIPanel: copy
             MENU_BROWSE_PROPERTY,//
             MENU_BROWSE_REFRESH,                    // Browse: refresh table
             // -- tables

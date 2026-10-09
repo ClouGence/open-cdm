@@ -18,7 +18,6 @@ lexer grammar KafkaLexer;
 channels { COMMENTS }
 
 TOPICS : 'kafka-topics' ('.sh')?;
-GROUPS : 'kafka-consumer-groups' ('.sh')?;
 CONSUMER : 'kafka-console-consumer' ('.sh')?;
 
 HELP : '--help';
@@ -28,16 +27,11 @@ CREATE : '--create';
 DELETE : '--delete';
 IF_EXISTS : '--if-exists';
 IF_NOT_EXISTS : '--if-not-exists';
-OFFSETS : '--offsets';
-MEMBERS : '--members';
-VERBOSE : '--verbose';
-STATE : '--state';
 FROM_BEGINNING : '--from-beginning';
 TOPIC : '--topic';
 PARTITIONS : '--partitions';
 REPLICATION_FACTOR : '--replication-factor';
 CONFIG : '--config';
-GROUP : '--group';
 PARTITION : '--partition';
 OFFSET : '--offset';
 MAX_MESSAGES : '--max-messages';

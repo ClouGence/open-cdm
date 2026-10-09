@@ -18,6 +18,7 @@ package com.clougence.sql.kafka;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.QueryResourceResolver;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -55,6 +56,11 @@ public class KafkaSqlEngineSpi implements SqlEngineSpi {
     @Override
     public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
         return null;
+    }
+
+    @Override
+    public QueryResourceResolver queryResourceResolver() {
+        return new KafkaQueryResourceResolver();
     }
 
     @Override

@@ -13,34 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.security.auth;
+package com.clougence.clouddm.console.web.service.browse.model.mq;
 
-/**
- * @author mode create time is 2021/2/23
- **/
-public enum AuthElementType {
+import java.util.Map;
 
-    DataJob("DataJob"),
+import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseObjectMO;
 
-    // need sync for UmiTypes
-    Instance("INSTANCE"),
-    Catalog("CATALOG"),
-    Schema("SCHEMA"),
-    Table("TABLE"),
-    Topic("TOPIC"),
-    Column("COLUMN"),
-    //
-    View("VIEW"),
-    Materialized("MATERIALIZED"),
-    Sequence("SEQUENCE"),
-    Synonym("SYNONYM"),
-    Function("FUNC"),
-    Procedure("PROC"),
-    Trigger("TRIGGER"),;
+import lombok.Getter;
+import lombok.Setter;
 
-    private final String code;
-
-    AuthElementType(String code){
-        this.code = code;
-    }
+@Getter
+@Setter
+public class BrowseMqMO extends BrowseObjectMO {
+    private Map<String, String> attributes;
 }
