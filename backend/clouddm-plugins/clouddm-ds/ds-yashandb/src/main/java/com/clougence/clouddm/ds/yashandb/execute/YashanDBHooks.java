@@ -19,6 +19,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.dsfamily.oracle.execute.OraHooks;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
+import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 
 /**
  * 崖山数据库 SessionHook。
@@ -30,12 +31,21 @@ import com.clougence.clouddm.sdk.execute.session.Session;
  */
 public class YashanDBHooks extends OraHooks {
 
+    private final String clientCharset;
+
     public YashanDBHooks(DataSourceConfig config){
         super(config);
+        // 父类字段为 private，这里自行解析一遍（解析逻辑与父类一致）
+        this.clientCharset = config instanceof com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties e ? e.getClientCharset() : null;
     }
 
     @Override
     public DsMetaService createMetaService(Session session) {
         return new YashanDBMetaService(session);
+    }
+
+    @Override
+    public ColReader createColReader() {
+        return new YashanDBColReader(this.clientCharset);
     }
 }
