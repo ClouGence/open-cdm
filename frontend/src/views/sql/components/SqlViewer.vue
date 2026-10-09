@@ -735,8 +735,7 @@ export default {
             if (existingResult.streamData.length > displayCount) {
               existingResult.showData = existingResult.streamData.slice(-displayCount);
               // Keep the corresponding raw data index.
-              const startIndex = existingResult.streamData.length - displayCount;
-              existingResult.rowSetStream = existingResult.rowSetStream.slice(startIndex);
+              existingResult.rowSetStream = existingResult.rowSetStream.slice(-displayCount);
             } else {
               existingResult.showData = existingResult.streamData;
             }
@@ -822,6 +821,19 @@ export default {
 
         if (queryData.object.resultType === 'Cost') {
           currentTab.cost = queryData.object;
+          let prepareText = this.$t('sql-prepare');
+          if (queryData.object.preCost !== -1) {
+            prepareText = this.$t('sql-prepare-cost', { cost: queryData.object.preCost });
+          }
+          let executeText = this.$t('sql-execute');
+          if (queryData.object.queryCost !== -1) {
+            executeText = this.$t('sql-execute-cost', { cost: queryData.object.queryCost });
+          }
+          let receiveText = this.$t('sql-receive');
+          if (queryData.object.rcvCost !== -1) {
+            receiveText = this.$t('sql-receive-cost', { cost: queryData.object.rcvCost });
+          }
+
           let popIndex = -1;
           let popList = [];
           switch (queryData.object.step) {
@@ -853,7 +865,7 @@ export default {
                 {
                   icon: 'check-circle',
                   theme: 'filled',
-                  text: `准备查询，耗时${queryData.object.preCost}毫秒`,
+                  text: this.$t('sql-prepare-cost', { cost: queryData.object.preCost }),
                   color: 'green'
                 },
                 {
@@ -876,13 +888,13 @@ export default {
                 {
                   icon: 'check-circle',
                   theme: 'filled',
-                  text: queryData.object.preCost === -1 ? '准备查询' : `准备查询，耗时${queryData.object.preCost}毫秒`,
+                  text: prepareText,
                   color: 'green'
                 },
                 {
                   icon: 'check-circle',
                   theme: 'filled',
-                  text: queryData.object.queryCost === -1 ? '执行查询' : `执行查询，耗时${queryData.object.queryCost}毫秒`,
+                  text: executeText,
                   color: 'green'
                 },
                 {
@@ -898,19 +910,19 @@ export default {
                 {
                   icon: 'check-circle',
                   theme: 'filled',
-                  text: queryData.object.preCost === -1 ? '准备查询' : `准备查询，耗时${queryData.object.preCost}毫秒`,
+                  text: prepareText,
                   color: 'green'
                 },
                 {
                   icon: 'check-circle',
                   theme: 'filled',
-                  text: queryData.object.queryCost === -1 ? '执行查询' : `执行查询，耗时${queryData.object.queryCost}毫秒`,
+                  text: executeText,
                   color: 'green'
                 },
                 {
                   icon: 'check-circle',
                   theme: 'filled',
-                  text: queryData.object.rcvCost === -1 ? '接收结果' : `接收结果，耗时${queryData.object.rcvCost}毫秒`,
+                  text: receiveText,
                   color: 'green'
                 }
               ];

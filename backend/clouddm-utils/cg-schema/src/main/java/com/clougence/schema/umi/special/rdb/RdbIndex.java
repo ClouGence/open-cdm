@@ -15,31 +15,42 @@
  */
 package com.clougence.schema.umi.special.rdb;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.clougence.schema.umi.serializer.SerializerRoot;
 import com.clougence.schema.umi.struts.AttributeUmiData;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @JsonSerialize(using = SerializerRoot.JacksonSerializer.class)
 @JsonDeserialize(using = SerializerRoot.JacksonDeserializer.class)
-public class RdbIndex extends AttributeUmiData {
+public class RdbIndex extends AttributeUmiData implements Value {
 
     private String       catalog;
     private String       schema;
     private String       table;
+    // Type of the indexed relation identified by catalog/schema/table.
+    private UmiTypes     indexedObjectType;
     private String       name;
     private String       comment;
     private RdbIndexType type;
     private List<String> columnList;
+
+    @Override
+    public String asValue() {
+        return this.name;
+    }
+
+    @Override
+    public UmiTypes getUmiType() { return UmiTypes.Index; }
 
     public void addColumn(String column) {
         if (StringUtils.isBlank(column)) {

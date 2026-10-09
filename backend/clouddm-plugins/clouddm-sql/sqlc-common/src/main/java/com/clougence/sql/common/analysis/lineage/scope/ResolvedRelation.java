@@ -19,11 +19,15 @@ import java.util.List;
 
 import com.clougence.sql.common.analysis.lineage.resolve.ResolvedColumn;
 
-public record ResolvedRelation(String catalog, String schema, String name, List<ResolvedColumn> columns, List<ResolvedRelation> children) {
+public record ResolvedRelation(String catalog, String schema, String name, List<ResolvedColumn> columns, List<ResolvedRelation> children, boolean caseSensitive) {
 
     public ResolvedRelation{
         columns = List.copyOf(columns);
         children = children == null ? List.of() : List.copyOf(children);
+    }
+
+    public ResolvedRelation(String catalog, String schema, String name, List<ResolvedColumn> columns, List<ResolvedRelation> children) {
+        this(catalog, schema, name, columns, children, false);
     }
 
     public ResolvedRelation(String name, List<ResolvedColumn> columns){
@@ -36,10 +40,10 @@ public record ResolvedRelation(String catalog, String schema, String name, List<
 
     public List<ResolvedColumn> findColumns(String catalogName, String schemaName, String qualifier, String column) {
         if (qualifier == null || qualifier.isBlank()) {
-            return columns.stream().filter(candidate -> column.equalsIgnoreCase(candidate.name())).toList();
+            return columns.stream().filter(candidate -> sameName(column, candidate.name())).toList();
         }
         if (matches(catalogName, schemaName, qualifier)) {
-            return columns.stream().filter(candidate -> column.equalsIgnoreCase(candidate.name())).toList();
+            return columns.stream().filter(candidate -> sameName(column, candidate.name())).toList();
         }
         return children.stream().flatMap(child -> child.findColumns(catalogName, schemaName, qualifier, column).stream()).toList();
     }
@@ -51,23 +55,30 @@ public record ResolvedRelation(String catalog, String schema, String name, List<
         return children.stream().flatMap(child -> child.findRelations(qualifier).stream()).toList();
     }
 
+    private boolean sameName(String left, String right) {
+        if (caseSensitive) {
+            return left.equals(right);
+        }
+        return left.equalsIgnoreCase(right);
+    }
+
     private boolean matches(String catalogName, String schemaName, String qualifier) {
-        if (!qualifier.equalsIgnoreCase(name)) {
+        if (!sameName(qualifier, name)) {
             return false;
         }
-        if (schemaName != null && !schemaName.isBlank() && (!schemaName.equalsIgnoreCase(schema))) {
+        if (schemaName != null && !schemaName.isBlank() && (!sameName(schemaName, schema))) {
             return false;
         }
-        return catalogName == null || catalogName.isBlank() || catalogName.equalsIgnoreCase(catalog);
+        return catalogName == null || catalogName.isBlank() || sameName(catalogName, catalog);
     }
 
     private boolean matchesQualifiedName(String qualifier) {
-        if (qualifier.equalsIgnoreCase(name)) {
+        if (sameName(qualifier, name)) {
             return true;
         }
-        if (schema != null && qualifier.equalsIgnoreCase(schema + "." + name)) {
+        if (schema != null && sameName(qualifier, schema + "." + name)) {
             return true;
         }
-        return catalog != null && schema != null && qualifier.equalsIgnoreCase(catalog + "." + schema + "." + name);
+        return catalog != null && schema != null && sameName(qualifier, catalog + "." + schema + "." + name);
     }
 }

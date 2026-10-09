@@ -50,6 +50,7 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.clouddm.sdk.ui.editor.data.DataEditorColumn;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorUiStyle;
@@ -142,7 +143,23 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
 
             // convert
             DataEditorResultVO resultVO = EditorConvertUtils.convertResultDTO2VO(result);
-            resultVO.setReadOnly(UmiTypes.View == targetType || UmiTypes.Materialized == targetType);
+            boolean readOnly = UmiTypes.View == targetType || UmiTypes.Materialized == targetType || spi.isReadOnly(rdbTable);
+            if (spi.requiresServerMetadata()) {
+                for (DataEditorColumn column : result.getColumnList()) {
+                    if (!Boolean.TRUE.equals(column.getWhereKey())) {
+                        continue;
+                    }
+                    int index = dmlResult.getColumnList().indexOf(column.getColumn());
+                    boolean incompleteKey = dmlResult.getRowSet().stream().anyMatch(row -> {
+                        ResultSetValue value = row.getData().get(index);
+                        // Scalar previews can be clipped without reporting moreSize.
+                        boolean atDisplayLimit = value.getValue() != null && value.getValue().length() >= dmlResult.getDisplayChars();
+                        return value.isMask() || value.isError() || !value.isComplete() || value.getMoreSize() > 0 || atDisplayLimit;
+                    });
+                    readOnly |= incompleteKey;
+                }
+            }
+            resultVO.setReadOnly(readOnly);
             return resultVO;
         } finally {
             this.queryService.closeSession(uid, sessionId);
@@ -201,7 +218,15 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             dtoList = changeFO.getChangeRows().stream().map(EditorConvertUtils::convertRenewDataFO2DTO).collect(Collectors.toList());
         }
 
-        RdbTable tableMeta = EditorConvertUtils.convertColumnVO2DTO(dsDO.getDataSourceType(), catalog, schema, table, targetType, changeFO.getColumnList());
+        RdbTable tableMeta;
+        if (PluginManager.findDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata()) {
+            tableMeta = (RdbTable) this.dsSchemaService.detailLeaf(dsDO, levelsParam, targetType, table, true);
+            if (tableMeta == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_TABLE_NOT_EXIST_ERROR.name(), table));
+            }
+        } else {
+            tableMeta = EditorConvertUtils.convertColumnVO2DTO(dsDO.getDataSourceType(), catalog, schema, table, targetType, changeFO.getColumnList());
+        }
 
         return buildDML(dsDO, tableMeta, dtoList, true);
     }
@@ -219,7 +244,17 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         // rebuild sql
         ChangeRowFO data = execFO.getChangeRow();
         DataEditorUpdateDTO updateData = EditorConvertUtils.convertRenewDataFO2DTO(data);
-        RdbTable tableMeta = EditorConvertUtils.convertColumnVO2DTO(dsDO.getDataSourceType(), catalog, schema, table, targetType, execFO.getColumnList());
+
+        RdbTable tableMeta;
+        if (PluginManager.findDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata()) {
+            tableMeta = (RdbTable) this.dsSchemaService.detailLeaf(dsDO, levelsParam, targetType, table, true);
+            if (tableMeta == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_TABLE_NOT_EXIST_ERROR.name(), table));
+            }
+        } else {
+            tableMeta = EditorConvertUtils.convertColumnVO2DTO(dsDO.getDataSourceType(), catalog, schema, table, targetType, execFO.getColumnList());
+        }
+
         List<DataEditorChangeDTO> buildResult = buildDML(dsDO, tableMeta, Collections.singletonList(updateData), false);
         if (CollectionUtils.isEmpty(buildResult)) {
             DataEditorExecuteResultDTO dto = new DataEditorExecuteResultDTO();
@@ -250,7 +285,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             EditorResultSet result = reload.getResult();
             Map<String, Object> refreshData = new HashMap<>();
             boolean refresh = checkAndFillRefresh(updateData.getUpdateData(), tableMeta, refreshData, updateData.getDmlType());
-            if (reload.isEnable() && !refresh) {
+            if (reload.isEnable() && (!refresh || PluginManager.findDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata())) {
                 result = doFetchData(puid, uid, clientIp, sessionId, levels, dsConfig, sessionCtx, reload.getReloadSql(), table);
             }
 
@@ -333,8 +368,11 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             ResultList result = this.queryService.syncExecuteQuery(uid, sessionId, request);
             for (Result r : result.getResultList()) {
                 if (r.getResultType() == ResultType.ResultSet) {
-                    return EditorConvertUtils.convertToEditorResultSet((ResultSet) r);
+                    EditorResultSet editorResult = EditorConvertUtils.convertToEditorResultSet((ResultSet) r);
+                    editorResult.setDisplayChars(request.getResultConf().getDisplayChars());
+                    return editorResult;
                 }
+
                 if (r.getResultType() == ResultType.Message) {
                     ResultMessage resultMessage = (ResultMessage) r;
                     if (resultMessage.getLevel() == MessageLevel.Error) {
@@ -410,6 +448,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
                 return Reload.failed(result.getMessage());
             }
 
+            PluginManager.findDataEditorSpi(levels.dsDO().getDataSourceType()).validateUpdateCount(result.getUpdateCount());
             if (DataEditorSqlType.DELETE.equals(updateData.getDmlType())) {
                 return Reload.success(result);
             }
@@ -522,7 +561,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         boolean refresh = false;
         for (RdbColumn colDef : tableMeta.getColumns().values()) {
             String colValue = recordData.get(colDef.getName());
-            if (colValue == null && colDef.getDefaultValue() != null) {
+            if (!recordData.containsKey(colDef.getName())) {
                 refresh = true;
             }
             refreshData.put(colDef.getName(), colValue);

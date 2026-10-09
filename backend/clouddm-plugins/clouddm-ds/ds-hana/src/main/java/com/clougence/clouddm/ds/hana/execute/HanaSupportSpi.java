@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.hana.execute;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
@@ -23,16 +22,14 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
- * https://help.sap.com/docs/hana-cloud-data-lake/developer-guide-for-data-lake-relational-engine/isolationlevel-property?locale=en-US&q=isolation_level
+ * SAP HANA Platform transaction capabilities.
  * @author mode 2022/11/03 16:48
  **/
-@Slf4j
 public class HanaSupportSpi implements RdbSupportSpi {
 
-    private final List<RdbIsolation> isolationDef = Arrays.asList(RdbIsolation.values());
+    private static final List<RdbIsolation> ISOLATIONS = List.of(RdbIsolation.DEFAULT, RdbIsolation.READ_COMMITTED,
+            RdbIsolation.REPEATABLE_READ, RdbIsolation.SERIALIZABLE);
 
     @Override
     public RdbSupportLevel supportChangeCatalog(DataSourceConfig dsConfig) {
@@ -56,7 +53,7 @@ public class HanaSupportSpi implements RdbSupportSpi {
 
     @Override
     public RdbSupportLevel supportChangeReadOnly(DataSourceConfig dsConfig) {
-        return RdbSupportLevel.No;
+        return RdbSupportLevel.Allow;
     }
 
     @Override
@@ -76,15 +73,11 @@ public class HanaSupportSpi implements RdbSupportSpi {
 
     @Override
     public RdbSupportLevel supportArgs(DataSourceConfig dsConfig) {
-        return RdbSupportLevel.No;
+        return RdbSupportLevel.Allow;
     }
 
     @Override
     public List<RdbIsolation> supportIsolation() {
-        // and more
-        //  - Unspecified
-        //  - Chaos
-        //  - Snapshot
-        return this.isolationDef;
+        return ISOLATIONS;
     }
 }

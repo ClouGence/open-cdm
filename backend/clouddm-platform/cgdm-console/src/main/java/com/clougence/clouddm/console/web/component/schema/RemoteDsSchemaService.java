@@ -15,12 +15,6 @@
  */
 package com.clougence.clouddm.console.web.component.schema;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
-
 import com.clougence.clouddm.api.sidecar.definition.DefinitionRService;
 import com.clougence.clouddm.api.sidecar.session.execute.MetaRService;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
@@ -49,9 +43,13 @@ import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
-
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -234,6 +232,10 @@ public class RemoteDsSchemaService implements DsSchemaService {
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             Value value = this.metaRService.detailLeaf(sendDTO, dsConfig, levelsParam, leafType, leafName);
+            // Index ownership feeds DDL authorization and must not be served from the object-detail cache.
+            if (leafType == UmiTypes.Index) {
+                return value;
+            }
 
             String catalog = (String) levelsParam.get(UmiTypes.Catalog);
             String schema = (String) levelsParam.get(UmiTypes.Schema);

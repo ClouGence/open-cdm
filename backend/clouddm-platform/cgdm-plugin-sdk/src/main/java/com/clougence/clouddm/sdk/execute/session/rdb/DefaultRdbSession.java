@@ -49,16 +49,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultRdbSession extends AbstractDsSession implements Session, KillCurrentQueryAble {
 
-    private final DsObject<Connection> dsObject;
-    private final AtomicBoolean        rdbCancelSignal;
-    protected boolean                  rdbAutoCommit;
-    protected boolean                  rdbReadOnly;
-    protected RdbIsolation             rdbIsolation;
-    private ColReader                  colReader;
+    protected final DsObject<Connection> dsObject;
+    protected final AtomicBoolean        rdbCancelSignal;
+    protected boolean                    rdbAutoCommit;
+    protected boolean                    rdbReadOnly;
+    protected RdbIsolation               rdbIsolation;
+    protected boolean                    rdbHasUnCommitted;
+    private ColReader                    colReader;
     // status
-    private String                     rdbConnectionId;
-    private boolean                    rdbHasUnCommitted;
-    private long                       rdbLastTestTime;
+    private String                       rdbConnectionId;
+    private long                         rdbLastTestTime;
 
     public DefaultRdbSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject, SessionHook sessionHook){
         super(newSessionId, dsConfig, sessionHook);
@@ -236,8 +236,8 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
             if (isExecuting()) {
                 this.cancel();
             }
-        } catch (Exception ignore) {
-
+        } catch (Exception e) {
+            log.error("cancel session {} before close failed", this.getSessionId(), e);
         } finally {
             doClose();
         }
@@ -308,14 +308,23 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
                 rb.receiveMessage(MessageLevel.Error, "The query has been cancelled.");
                 rb.finishRecord(true);
             }
+        } catch (Exception e) {
+            ex = e;
+            throw e;
         } finally {
             IOUtils.closeQuietly(ps);
-
-            if (!conn.isClosed() && query.getResultConf().isRefreshStatus()) {
-                this.refreshStatus(conn);
+            try {
+                if (!conn.isClosed() && query.getResultConf().isRefreshStatus()) {
+                    this.refreshStatus(conn);
+                }
+            } catch (SQLException refreshError) {
+                if (ex == null) {
+                    throw refreshError;
+                }
+                ex.addSuppressed(refreshError);
+            } finally {
+                this.rdbCancelSignal.set(false);
             }
-
-            this.rdbCancelSignal.set(false); // reset cancel signal
         }
     }
 
@@ -520,7 +529,7 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
         // process rows
         boolean silentReceive = false;
         long lastPageFetchCount = 0;
-        while (rs.next() && !this.rdbCancelSignal.get()) {
+        while (!this.rdbCancelSignal.get() && rs.next()) {
             fetchCount++;
             lastPageFetchCount++;
             rb.receiveRow(silentReceive, rs);
