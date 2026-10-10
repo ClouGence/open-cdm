@@ -1,0 +1,6 @@
+<drivers>
+    <driver driverFamily="Kafka" version="4.1.2" default="true">
+        <driverName>com.clougence.clouddm.ds.kafka.execute.dsfactory.KafkaDsFactory</driverName>
+        <resource type="maven">org.apache.kafka:kafka-clients:4.1.2</resource>
+    </driver>
+</drivers>

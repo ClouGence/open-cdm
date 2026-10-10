@@ -1,4 +1,5 @@
 {
+  "topic-permissions": "Topic 权限",
   "0": "0",
   "0parseintthetime-10-miao": "0{0}秒",
   "0parseintthetime1-10-fen-result": "0{0}分{1}",
@@ -778,7 +779,6 @@
   "qing-shu-ruali-yun-accesskey-secret": "请输入阿里云AccessKey Secret",
   "qing-tian-jia-wan-zheng-de-xu-ni-lie-xin-xi": "请添加完整的虚拟列信息",
   "qing-tian-ru-shai-xuan-biao-de-lie-ming": "请填入筛选表的列名",
-  "qing-tian-xie-consumer-group": "请填写Consumer Group",
   "qing-tian-xie-dstrabbitexchange": "请填写dstRabbitExchange",
   "qing-tian-xie-ip-huo-yu-ming": "请填写IP或域名",
   "qing-tian-xie-rabbitmqvhost": "请填写RabbitMqVhost",
@@ -4399,5 +4399,9 @@
   "sql-prepare": "准备",
   "sql-execute": "执行",
   "sql-receive": "接收",
-  "gai-xie-yu-ju": "改写语句"
+  "gai-xie-yu-ju": "改写语句",
+  "query-fetched-count": "已获取 {0} 条",
+  "query-effective-statement": "实际执行内容",
+  "query-examples-icon": "E",
+  "query-examples-title": "语句示例"
 }

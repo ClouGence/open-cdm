@@ -2234,6 +2234,11 @@ export default {
     },
     handleDblClick(node) {
       appLogger.debug('dbl click');
+      if (node.nodeType === 'TOPIC') {
+        this.handleQueryTable(node.objAttr.quickQuery);
+        return;
+      }
+      if (node.nodeType === 'MQ_METADATA' || node.nodeType === 'MQ_ATTRIBUTE') return;
       let sql = '';
       const dsQueryMap = this.getQuickQuery(this.currentTab.dsType);
       const dsClassify = this.getDsClassify(this.currentTab.dsType);
@@ -2541,6 +2546,9 @@ export default {
     },
     handleChangeTab(leafType) {
       this.currentTab.leafType = leafType;
+      this.currentTab.expandedKeys = [];
+      this.currentTab.selectedTable = null;
+      this.selectedNode = null;
       this.ensureObjectPagination();
       const refreshCache = true;
       this.listLeaf(refreshCache);
@@ -2599,6 +2607,7 @@ export default {
       const node = this.$refs.tableTree.getSelectedNode();
       const isNotNode = event.target.classList && event.target.classList.length && event.target.classList[0] === 'vtree-tree__block-area';
       const items = [];
+      const menuIcons = { [TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_COMMAND_TEMPLATE]: TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_REQUEST };
       const targetType = isNotNode || !node ? this.currentTab.leafType : node.nodeType;
       const browserMenus = this.getBrowserMenus(this.currentTab.dsType, targetType) || [];
       let menuList = browserMenus;
@@ -2615,7 +2624,7 @@ export default {
                 svgProps: {
                   class: 'svg-icon'
                 },
-                svgIcon: `#icon-svg-${menu.menuId}`,
+                svgIcon: `#icon-svg-${menuIcons[menu.menuId] || menu.menuId}`,
                 onClick: () => this.handleRightClickMenu(menu.menuId)
               });
             }
@@ -2628,7 +2637,7 @@ export default {
                 svgProps: {
                   class: 'svg-icon'
                 },
-                svgIcon: `#icon-svg-${menu.menuId}`,
+                svgIcon: `#icon-svg-${menuIcons[menu.menuId] || menu.menuId}`,
                 divided: menuList[menuIndex + 1] && menuList[menuIndex + 1].menuId === 'MENU_SEPARATOR',
                 onClick: () => this.handleRightClickMenu(menu.menuId)
               });
@@ -3269,6 +3278,7 @@ export default {
             await this.browseGenAction(data.actionType, this.browseGenLevelsData(data.node), data.callback, data.other);
           }
           break;
+        case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_COMMAND_TEMPLATE:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_VIEW_REQUEST:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_REQUEST:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_FUNCTION_REQUEST:
@@ -3286,9 +3296,13 @@ export default {
           });
 
           if (res.success) {
-            this.sqlModal.show = true;
-            this.sqlModal.title = this.$t('huo-qu-ddl-yu-ju-tabletitle', [table.title]);
-            this.sqlModal.sql = res.data.sql;
+            if (actionType === TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_COMMAND_TEMPLATE) {
+              this.handleQueryTable(res.data.sql);
+            } else {
+              this.sqlModal.show = true;
+              this.sqlModal.title = this.$t('huo-qu-ddl-yu-ju-tabletitle', [table.title]);
+              this.sqlModal.sql = res.data.sql;
+            }
           }
           break;
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_GENERATE:

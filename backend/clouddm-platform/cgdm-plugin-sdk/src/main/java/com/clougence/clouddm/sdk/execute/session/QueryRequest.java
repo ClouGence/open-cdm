@@ -22,6 +22,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.session.result.ColumnConfig;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -34,36 +35,38 @@ import lombok.Setter;
 public class QueryRequest implements Cloneable {
 
     // Request
-    private long                      index;
-    private String                    batchId;
-    private String                    queryId;
-    private String                    queryBody;
-    private List<QueryArg>            queryArgs;
-    private int                       bodyStartCodeLine;
+    private long                          index;
+    private String                        batchId;
+    private String                        queryId;
+    private String                        queryBody;
+    private List<QueryArg>                queryArgs;
+    private int                           bodyStartCodeLine;
     //
-    private Set<SplitQueryType>       queryTypes;
-    private Long                      dsId;
-    private DataSourceType            dsType;
-    private List<BehaviorRelation>    relations;
-    private Requester                 requester;
-    private Date                      requestTime;
+    private Set<SplitQueryType>           queryTypes;
+    private Long                          dsId;
+    private DataSourceType                dsType;
+    private List<BehaviorRelation>        relations;
+    // Null means unresolved; an empty target list is an explicitly resolved empty scope.
+    private Map<TargetType, List<String>> resolvedResources;
+    private Requester                     requester;
+    private Date                          requestTime;
 
     // for masking
-    private boolean                   usingValueProcess;
-    private Map<String, ColumnConfig> columnList;
+    private boolean                       usingValueProcess;
+    private Map<String, ColumnConfig>     columnList;
 
     // for execute config
-    private boolean                   useCallable = false;
-    private boolean                   useExplain  = false;
-    private boolean                   useCompile  = false;
+    private boolean                       useCallable = false;
+    private boolean                       useExplain  = false;
+    private boolean                       useCompile  = false;
 
     // for rewrite
-    private boolean                   hasRewrite  = false;
-    private List<String>              rewriteTag;
-    private String                    originalBody;
+    private boolean                       hasRewrite  = false;
+    private List<String>                  rewriteTag;
+    private String                        originalBody;
 
     // Response
-    private QueryResultConf           resultConf;
+    private QueryResultConf               resultConf;
 
     @Override
     public QueryRequest clone() {
@@ -81,6 +84,10 @@ public class QueryRequest implements Cloneable {
         }
         if (this.relations != null) {
             req.relations = List.copyOf(this.relations);
+        }
+        if (this.resolvedResources != null) {
+            req.resolvedResources = new EnumMap<>(TargetType.class);
+            this.resolvedResources.forEach((type, names) -> req.resolvedResources.put(type, List.copyOf(names)));
         }
         req.dsId = this.dsId;
         req.dsType = this.dsType;

@@ -125,7 +125,7 @@
                       <template #connection-context>
                         <div v-if="currentTab.connected && currentTab.node" class="query-schema-select__content">
                           <a-select
-                            v-if="currentTab.selectOptions"
+                            v-if="currentTab.selectOptions && currentTab.node.levels[currentTab.node.levels.length - 1] !== 'INSTANCE'"
                             class="schema-select-style"
                             v-model:value="currentTab.selectValue"
                             show-search
@@ -768,7 +768,7 @@ export default {
 
         if (leafRes.success) {
           const completionKey = node.key;
-          const obj = {};
+          const obj = Object.create(null);
           leafRes.data.forEach((leaf) => {
             const { objName, objType, objAttr } = leaf;
             const tempObjName = objAttr && objAttr.rdb_roi ? objAttr.rdb_roi : objName;
@@ -794,19 +794,19 @@ export default {
           }
 
           currentTab[leafType].treeData = leafList;
-          if (this.currentTab.key === currentTab.key) {
+          if (this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
             await this.$refs.tableList.handleSetData(leafList);
             await this.$refs.tableList.handleFilter(currentTab[leafType].searchKey);
           }
         } else {
           this.setInstanceErrorIcon(node?.INSTANCE?.id);
-          if (this.$refs.tableList && this.currentTab.key === currentTab.key) {
+          if (this.$refs.tableList && this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
             await this.$refs.tableList.handleSetData(leafList);
           }
         }
       } catch (e) {
         this.setInstanceErrorIcon(node?.INSTANCE?.id);
-        if (this.$refs.tableList && this.currentTab.key === currentTab.key) {
+        if (this.$refs.tableList && this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
           await this.$refs.tableList.handleSetData(leafList);
         }
       } finally {
@@ -1290,6 +1290,11 @@ export default {
             refreshCache: isRefreshCache
           }
         });
+
+        if (this.currentTab !== currentTab || currentTab.leafType !== leafType) {
+          resolve();
+          return;
+        }
 
         if (res.success) {
           const curNode = this.getNodeByKey(currentTab[leafType].treeData, `${node.key}.\`${tableName}\``);

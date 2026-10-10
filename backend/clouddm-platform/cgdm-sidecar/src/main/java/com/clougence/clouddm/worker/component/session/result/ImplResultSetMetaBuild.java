@@ -98,6 +98,11 @@ class ImplResultSetMetaBuild extends AbstractResultBuild<ResultSetMeta> implemen
     }
 
     @Override
+    public void setRefreshOnProgress(boolean refreshOnProgress) {
+        this.get().setRefreshOnProgress(refreshOnProgress);
+    }
+
+    @Override
     public ResultSetRowsBuild receiveMeta(Map<String, ResultColMeta> rowMeta) throws IOException {
         if (this.resultBuild == null) {
             List<ValueFetcherContext> metaCtx = new ArrayList<>();
@@ -123,7 +128,12 @@ class ImplResultSetMetaBuild extends AbstractResultBuild<ResultSetMeta> implemen
                 String cacheFilePath = this.get().getCacheFilePath();
                 File cacheFile = this.ss.getFileService().createFileObject(cacheFilePath, false);
                 storage.init(this.ss.getFileService(), cacheFilePath, cacheFile);
-                writeMetaData(storage, metaCtx);
+                try {
+                    writeMetaData(storage, metaCtx);
+                } catch (IOException e) {
+                    storage.free();
+                    throw e;
+                }
             } else {
                 storage.init();
             }

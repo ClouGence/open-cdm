@@ -153,6 +153,10 @@ public class LocalDsSchemaService implements DsSchemaService {
             return null;
         }
 
+        if (leafType == UmiTypes.Topic && pattern != null && !pattern.isBlank() && !"*".equals(pattern)) {
+            return null;
+        }
+
         String catalog = (String) levelsParam.get(UmiTypes.Catalog);
         String schema = (String) levelsParam.get(UmiTypes.Schema);
         MetaInformationType metaType = MetaInformationType.valueOfCode(leafType.getTypeName() + "List");

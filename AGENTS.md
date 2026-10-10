@@ -146,10 +146,17 @@ cd frontend && npm run check-i18n
 ## Java 后端规则
 
 - 修改 Java 代码后，必须对本次变更的 Java 文件执行 code format，使用仓库根目录 `codeformat.xml` 中的 Eclipse Formatter
-  配置（`cdm-format`），并执行 IntelliJ IDEA 的 Optimize Imports，清理未使用、重复的导入并按导入规则整理。
-- 普通 imports 按 `java.*`、`org.springframework.*`、`com.clougence.*`、其他依赖的顺序分组；组间保留空行，组内按包名排序。
-- 工具无法直接调用时，可使用等效的 Java 语法/引用分析完成 imports 整理；不得仅按文本匹配判断导入是否使用。
-  仅处理本次变更文件，完成后检查 diff 并运行相关编译验证。
+  配置（`cdm-format`），并执行 IntelliJ IDEA 的 Optimize Imports。代码格式化与 imports 优化是两项独立操作，
+  `codeformat.xml` 不能替代 IDEA 的 Java Imports 配置。
+- imports 以项目实际生效的 IDEA Java Code Style 配置为准，包括适用的 `.editorconfig` 和项目 Code Style；
+  未覆盖的设置使用 IDEA 当前选用的方案。分组、排序、空行及静态导入位置遵循 Import Layout，不另行硬编码分组顺序。
+- Optimize Imports 应清理未使用、重复和冗余导入，并遵循普通／静态导入的通配符阈值、强制通配符包列表及内部类导入设置。
+  IDEA 默认阈值通常为同包 5 个类、同类 3 个静态成员，实际值以生效配置为准；合并时必须处理名称冲突，
+  不得强制展开所有 `*`，也不得仅按数量机械合并。
+- 无法直接调用 IDEA 时，应先核对上述配置，再使用 Java 语法和符号引用分析整理 imports，验证符号绑定未改变；
+  不得仅按文本匹配判断导入是否使用。无法确认配置时，保留现有分组及通配符风格，仅清理能够确定的无用导入，
+  并说明未直接执行 IDEA Optimize Imports，不得将自制整理工具宣称为与 IDEA 完全等效。
+- 格式化及 imports 整理仅处理本次变更的 Java 文件，完成后检查 diff 并运行相关编译验证。
 - 遵循现有包结构和模块边界，避免跨层直接调用导致平台、插件、启动模块相互缠绕。
 - 优先使用项目已有基础设施，例如 `com.clougence.utils`、插件 SDK、DAO、服务层、统一异常和日志机制。
 - 数据库实体沿用 `DO` 后缀，表单对象沿用 `FO`，请求 / 响应对象沿用 `VO`。

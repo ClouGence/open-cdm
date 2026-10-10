@@ -176,9 +176,8 @@ public class BrowseController {
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
         this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels());
-        this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
-
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
+        this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
         List<BrowseLevelsVO> vos = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), fo.isRefreshCache());
 
         ResourceAccessInfo resourceAccessInfo = this.dmDsAuthService.getAllowBrowseInfo(levels, uid);

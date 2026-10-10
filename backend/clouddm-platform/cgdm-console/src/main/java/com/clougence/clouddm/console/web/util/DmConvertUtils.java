@@ -74,6 +74,7 @@ import com.clougence.clouddm.console.web.model.vo.ticket.DmTicketResultVO;
 import com.clougence.clouddm.console.web.service.browse.model.ActionInfo;
 import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
 import com.clougence.clouddm.console.web.service.browse.model.GenerateSqlDataAuthEnum;
+import com.clougence.clouddm.console.web.service.browse.model.mq.BrowseMqMO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.*;
 import com.clougence.clouddm.console.web.service.cicd.DmScmService;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmImDef;
@@ -131,6 +132,7 @@ import com.clougence.drivers.DriverFamily;
 import com.clougence.rdp.service.openapi.model.ApiDataSourceVO;
 import com.clougence.rdp.service.openapi.model.ApiListDsFO;
 import com.clougence.schema.metadata.FieldType;
+import com.clougence.schema.umi.special.mq.MqValue;
 import com.clougence.schema.umi.special.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.constraint.ConstraintObject;
@@ -664,6 +666,14 @@ public class DmConvertUtils {
         return mo;
     }
 
+    public static BrowseMqMO convertToBrowseMqMO(MqValue value) {
+        BrowseMqMO mo = new BrowseMqMO();
+        mo.setName(value.asValue());
+        mo.setType(value.getUmiType().getTypeName());
+        mo.setAttributes(value.getAttributes());
+        return mo;
+    }
+
     public static BrowseKeyMO convertToBrowseKeyMo(RdbValue value) {
         BrowseKeyMO mo = new BrowseKeyMO();
         mo.setObjId(value.getAttribute(RdbAttributeNames.RDB_OBJ_ID));
@@ -693,7 +703,9 @@ public class DmConvertUtils {
     }
 
     public static BrowseObjectVO convertToBrowseObjectVO(BrowseObjectMO mo) {
-        if (mo instanceof BrowseTableMO) {
+        if (mo instanceof BrowseMqMO mq) {
+            return convertToBrowseObjectVO(mq);
+        } else if (mo instanceof BrowseTableMO) {
             return convertToBrowseObjectVO((BrowseTableMO) mo);
         } else if (mo instanceof BrowseFunctionMO) {
             return convertToBrowseObjectVO((BrowseFunctionMO) mo);
@@ -704,6 +716,26 @@ public class DmConvertUtils {
         } else {
             return null;
         }
+    }
+
+    private static BrowseObjectVO convertToBrowseObjectVO(BrowseMqMO mq) {
+        BrowseObjectVO vo = new BrowseObjectVO();
+        vo.setObjId(mq.getName());
+        vo.setName(mq.getName());
+        vo.setType(mq.getType());
+        BrowseGroupVO group = new BrowseGroupVO();
+        group.setType("MQ_METADATA");
+        group.setName(DmI18nUtils.getMessage(UiMenus18nKey.UI_LEAF_TITLE_MQ_METADATA));
+        group.setItems(new ArrayList<>());
+        mq.getAttributes().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+            BrowseItemVO item = new BrowseItemVO();
+            item.setType("MQ_ATTRIBUTE");
+            item.setIcon("MQ_ATTRIBUTE");
+            item.setName(entry.getKey() + " = " + entry.getValue());
+            group.getItems().add(item);
+        });
+        vo.setGroup(Collections.singletonList(group));
+        return vo;
     }
 
     private static BrowseObjectVO convertToBrowseObjectVO(BrowseTableMO mo) {

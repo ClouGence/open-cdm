@@ -29,6 +29,7 @@
       @change="handleEditorChange"
     >
       <template #editor-controls>
+        <CommandExamples v-if="tab.support.commandExamples?.length" :key="tab.dsId" :examples="tab.support.commandExamples" />
         <SqlScriptPopover
           :tab="tab"
           :get-editor-content="getEditorContent"
@@ -80,6 +81,7 @@ import * as monaco from 'monaco-editor';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import Operators from '@/views/sql/components/Operators';
 import { chunk } from 'xe-utils';
+import { nanoid } from 'nanoid';
 import Editor from '@/components/editor';
 import browseMixin from '@/mixins/browseMixin';
 import { sendWebSocket } from '@/services/socket';
@@ -89,13 +91,15 @@ import { UPDATE_SOCKET_STATUS } from '@/store/mutationTypes';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import formatError from '@/services/formatError';
 import SqlScriptPopover from '@/views/sql/components/SqlScriptPopover.vue';
+import CommandExamples from '@/views/sql/components/CommandExamples.vue';
 
 export default {
   name: 'SqlViewer',
   components: {
     Editor,
     Operators,
-    SqlScriptPopover
+    SqlScriptPopover,
+    CommandExamples
   },
   emits: ['open-script', 'script-deleted', 'script-renamed'],
   props: {
@@ -377,6 +381,7 @@ export default {
         type: WS_TYPE.WS_REQ_QUERY,
         object: {
           force,
+          requestId: nanoid(),
           basicCodeLine: Math.min(position.selectionStartLineNumber, position.positionLineNumber),
           basicCodeColumn: Math.min(position.selectionStartColumn, position.positionColumn),
           queryString: selectedSql,
@@ -422,6 +427,7 @@ export default {
         type: WS_TYPE.WS_REQ_QUERY,
         object: {
           force,
+          requestId: nanoid(),
           basicCodeLine: Math.min(position.selectionStartLineNumber, position.positionLineNumber),
           basicCodeColumn: Math.min(position.selectionStartColumn, position.positionColumn),
           sessionId: this.tab.sessionId,
@@ -599,6 +605,8 @@ export default {
           metaData.receiveMode = receiveMode;
           // Save query type (plan query or normal query).
           metaData.queryType = currentTab.currentQueryType || 'query';
+          metaData.fetchCount = 0;
+          metaData.cost = { ...currentTab.cost };
 
           // Initialize the result set object before data is available.
           const len = currentTab.result.list.length;
@@ -621,7 +629,6 @@ export default {
             metaData.page = 1;
             metaData.size = 30; // PAGINATED mode is fixed to 30
             metaData.total = 0; // Initially 0, updated by ResultSetRows
-            metaData.fetchCount = 0; // Total rows retrieved
             metaData.data = null;
             metaData.dataArr = []; // Store loaded page data
             metaData.showData = [];
@@ -632,7 +639,6 @@ export default {
             metaData.page = 1;
             metaData.size = 30;
             metaData.total = 0;
-            metaData.fetchCount = 0; // Total number of rows retrieved, updated from resultSet fetchCount
             metaData.data = null;
             metaData.dataArr = [];
             metaData.showData = [];
@@ -653,28 +659,39 @@ export default {
           currentTab.result.list.push(metaData);
           currentTab.result.active = metaData.resultId;
         }
-        // Update the number of retrieved rows from ResultSetRows in PAGINATED mode.
+        // Progress updates carry the fetched count independently of the receive mode.
         if (queryData.object.resultType === 'ResultSetRows') {
           const { resultId, fetchCount } = queryData.object;
           const existingResult = currentTab.result.list.find((item) => item.resultId == resultId);
-          if (existingResult && existingResult.receiveMode === 'PAGINATED') {
+          if (existingResult) {
             existingResult.fetchCount = fetchCount || 0;
-            existingResult.total = fetchCount || 0;
+            if (existingResult.receiveMode === 'PAGINATED') {
+              existingResult.total = fetchCount || 0;
+            }
           }
         }
 
         // Process ResultSet, which contains row data.
         if (queryData.object.resultType === 'ResultSet') {
-          const { rowSet, resultId } = queryData.object;
+          const { rowSet, resultId, fetchCount } = queryData.object;
+          const existingResult = currentTab.result.list.find((item) => item.resultId == resultId);
+          if (!existingResult) {
+            return;
+          }
+          const { columnList, receiveMode } = existingResult;
+          // Empty result batches may still carry the final count.
+          if (fetchCount !== undefined) {
+            existingResult.fetchCount = fetchCount;
+            if (receiveMode === 'PAGINATED' || receiveMode === 'STREAM') {
+              existingResult.total = fetchCount;
+            }
+          }
 
           // Temporary compatibility: do not process this ResultSet if rowSet is empty.
           if (!rowSet || rowSet.length === 0) {
             return;
           }
 
-          // Find the corresponding result set by resultId; it should have been created from ResultSetMeta.
-          const existingResult = currentTab.result.list.find((item) => item.resultId == resultId);
-          const { columnList, receiveMode } = existingResult;
           const list = [];
 
           if (rowSet && columnList) {
@@ -696,19 +713,18 @@ export default {
           // Process data according to pagination mode.
           if (receiveMode === 'PAGINATED') {
             // Backend pagination mode: process only first-page data.
-            existingResult.showData = list;
             existingResult.pageCache[1] = list; // Cache the first page
-            existingResult.page = 1;
+            if (!existingResult.refreshOnProgress) {
+              existingResult.page = 1;
+            }
+            if (existingResult.page === 1) {
+              existingResult.showData = list;
+            }
             // Save original rowSet data for moreSize and other metadata.
             if (!existingResult.rowSetCache) {
               existingResult.rowSetCache = {};
             }
             existingResult.rowSetCache[1] = rowSet; // Save raw data on the first page
-            // Single-page results only emit ResultSet (not ResultSetRows); sync fetchCount here.
-            if (queryData.object.fetchCount !== undefined) {
-              existingResult.fetchCount = queryData.object.fetchCount;
-              existingResult.total = queryData.object.fetchCount;
-            }
           } else if (receiveMode === 'STREAM') {
             // STREAM mode: data continues to accumulate, showing only the latest 30 rows.
             existingResult.streamData = existingResult.streamData || [];
@@ -723,12 +739,6 @@ export default {
               existingResult.rowSetStream = [];
             }
             existingResult.rowSetStream.push(...rowSet);
-
-            // Update fetchCount and total from resultSet.
-            if (queryData.object.fetchCount !== undefined) {
-              existingResult.fetchCount = queryData.object.fetchCount;
-              existingResult.total = queryData.object.fetchCount;
-            }
 
             // Keep only the latest 30 rows for display.
             const displayCount = 30;
@@ -933,6 +943,11 @@ export default {
           }
           currentTab.cost.popIndex = popIndex;
           currentTab.cost.popList = popList;
+          currentTab.result.list.forEach((result) => {
+            if (queryData.object.requestId && result.requestId === queryData.object.requestId) {
+              result.cost = { ...currentTab.cost };
+            }
+          });
         }
 
         if (queryData.object.resultType === 'ClearHintMessage') {

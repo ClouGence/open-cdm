@@ -27,6 +27,7 @@ public enum AuthElementType {
     Catalog("CATALOG"),
     Schema("SCHEMA"),
     Table("TABLE"),
+    Topic("TOPIC"),
     Column("COLUMN"),
     //
     View("VIEW"),
