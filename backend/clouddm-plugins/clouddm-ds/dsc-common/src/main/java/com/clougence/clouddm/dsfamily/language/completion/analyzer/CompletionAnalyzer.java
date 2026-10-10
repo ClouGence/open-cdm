@@ -145,18 +145,25 @@ public class CompletionAnalyzer {
             stream.fill();
 
             List<CompletionToken> result = new ArrayList<>();
+            int sourceOffset = 0;
+            int sourceCodePoint = 0;
             for (Token token : stream.getTokens()) {
                 if (token.getType() == Token.EOF || token.getChannel() != Token.DEFAULT_CHANNEL || StringUtils.isBlank(token.getText())) {
                     continue;
                 }
+                // ANTLR CharStreams use code points; editor offsets use UTF-16.
+                int start = sqlText.offsetByCodePoints(sourceOffset, token.getStartIndex() - sourceCodePoint);
+                int end = sqlText.offsetByCodePoints(start, token.getStopIndex() - token.getStartIndex() + 1);
+                sourceOffset = end;
+                sourceCodePoint = token.getStopIndex() + 1;
                 result.add(CompletionToken.builder()
                     .text(token.getText())
                     .type(token.getType())
                     .channel(token.getChannel())
                     .line(token.getLine())
                     .column(token.getCharPositionInLine())
-                    .startIndex(token.getStartIndex())
-                    .stopIndex(token.getStopIndex())
+                    .startIndex(start)
+                    .stopIndex(end - 1)
                     .build());
             }
             return result;

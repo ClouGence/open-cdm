@@ -58,6 +58,7 @@ include 'sqlc-common'; project(":sqlc-common").projectDir = file('clouddm-plugin
 include 'sql-mysql'; project(":sql-mysql").projectDir = file('clouddm-plugins/clouddm-sql/sql-mysql')
 include 'sql-postgres'; project(":sql-postgres").projectDir = file('clouddm-plugins/clouddm-sql/sql-postgres')
 include 'sql-db2'; project(":sql-db2").projectDir = file('clouddm-plugins/clouddm-sql/sql-db2')
+include 'sql-hana'; project(":sql-hana").projectDir = file('clouddm-plugins/clouddm-sql/sql-hana')
 include 'sql-doris'; project(":sql-doris").projectDir = file('clouddm-plugins/clouddm-sql/sql-doris')
 include 'sql-mongodb'; project(":sql-mongodb").projectDir = file('clouddm-plugins/clouddm-sql/sql-mongodb')
 include 'sql-oracle'; project(":sql-oracle").projectDir = file('clouddm-plugins/clouddm-sql/sql-oracle')

@@ -144,9 +144,14 @@ public abstract class AbstractDsSession implements Session {
         this.lastRequestTime = System.currentTimeMillis();
         // wait receive message.
         final AtomicBoolean receiveSignal = new AtomicBoolean(false);
-        this.globalTimer.newTimeout(timeout -> {
-            waitReceiveMessage(receiveSignal, beginTime, query, builder);
-        }, 300, TimeUnit.MILLISECONDS);
+        try {
+            this.globalTimer.newTimeout(timeout -> {
+                waitReceiveMessage(receiveSignal, beginTime, query, builder);
+            }, 300, TimeUnit.MILLISECONDS);
+        } catch (RuntimeException e) {
+            this.executing.set(false);
+            throw e;
+        }
 
         // do query.
         try {
@@ -156,8 +161,13 @@ public abstract class AbstractDsSession implements Session {
             this.triggerCompleted();
         } catch (Exception e) {
             receiveSignal.set(true);
-            throwQueryRequest(beginTime, query, builder, e);
-            triggerFailed(e);
+            try {
+                throwQueryRequest(beginTime, query, builder, e);
+            } finally {
+                triggerFailed(e);
+            }
+        } finally {
+            receiveSignal.set(true);
         }
     }
 

@@ -227,7 +227,8 @@ public class QueryEditorController {
             return language;
         }
 
-        boolean hasLanguageSpi = CollectionUtils.isNotEmpty(dsPlugin.findSpi(DsLanguageSpi.class));
+        List<DsLanguageSpi> languageSpis = dsPlugin.findSpi(DsLanguageSpi.class);
+        boolean hasLanguageSpi = CollectionUtils.isNotEmpty(languageSpis);
         boolean hasDslProvider = sqlEngine.dslProvider(SqlParserParameters.empty()) != null;
         boolean hasSplitAnalysisSpi = sqlEngine.splitAnalysisSpi(SqlParserParameters.empty()) != null;
 
@@ -238,6 +239,9 @@ public class QueryEditorController {
         }
         if (hasLanguageSpi && hasSplitAnalysisSpi) {
             supports.add(DsLanguageSupport.SPLIT);
+        }
+        if (hasLanguageSpi) {
+            supports.retainAll(languageSpis.get(0).supports());
         }
 
         language.setSupported(!supports.isEmpty());

@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.hana;
 import com.clougence.adapter.hana.HanaTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
+import com.clougence.clouddm.ds.hana.definition.secrules.HanaSecRulesSupportSpi;
 import com.clougence.clouddm.ds.hana.definition.ui.HanaDefService;
 import com.clougence.clouddm.ds.hana.definition.ui.broswer.HanaDsBrowseSpi;
 import com.clougence.clouddm.ds.hana.definition.ui.ddl.HanaConvertTableDDLSpi;
@@ -33,6 +34,7 @@ import com.clougence.clouddm.ds.hana.execute.HanaSessionFactory;
 import com.clougence.clouddm.ds.hana.execute.HanaSessionSpi;
 import com.clougence.clouddm.ds.hana.execute.HanaSupportSpi;
 import com.clougence.clouddm.ds.hana.execute.explain.HanaExplainPlanSpi;
+import com.clougence.clouddm.ds.hana.i18n.HanaConfigI18nKeys;
 import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.ds.hana.language.HanaLanguageSpi;
 import com.clougence.clouddm.ds.hana.resource.HanaEditorResourceSpi;
@@ -50,7 +52,7 @@ import com.clougence.schema.SchemaPlugin;
 @Plugin(name = "i18n::" + HanaDsI18nKeys.PLUGIN_NAME_HANA,              //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
                             "com.clougence.clouddm.ds.hana.execute.*"   //
-        }, dsProduct = DataSourceType.Hana, display = false)
+        }, dsProduct = DataSourceType.Hana)
 public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -91,6 +93,7 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(HanaDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(HanaConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(HanaEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(HanaDialect.INSTANCE);
@@ -112,10 +115,10 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        // dsPlugin.addPluginSpi(new MySecRulesSupportSpi());
+        dsPlugin.addPluginSpi(new HanaSecRulesSupportSpi());
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {
-        // dsPlugin.addFeature(FUNC_LINES_SUPPORT);
+        dsPlugin.addPluginFeature(FUNC_LINES_SUPPORT);
     }
 }

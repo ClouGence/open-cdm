@@ -110,6 +110,7 @@
   </div>
 </template>
 <script>
+import { canFormatSql } from '@/components/editor/sqlFormat';
 import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import browseMixin from '@/mixins/browseMixin';
@@ -160,7 +161,7 @@ export default {
       return this.tab.support.explain.conf !== 'No';
     },
     isSupportFormat() {
-      return false;
+      return canFormatSql(this.tab);
     },
     isRunning() {
       return this.tab.stopping || this.tab.running || !this.socket.connected || !this.tab.connected;

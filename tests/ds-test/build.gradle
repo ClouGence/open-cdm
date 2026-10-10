@@ -22,6 +22,7 @@ dependencies {
     testImplementation(project(':sql-postgres'))
     testImplementation(project(':sql-sqlserver'))
     testImplementation(project(':sql-doris'))
+    testImplementation(project(':sql-hana'))
     testImplementation(project(':sql-redis'))
     testImplementation(project(':sql-mongodb'))
     testImplementation(project(':sql-iso-sql92'))

@@ -93,7 +93,8 @@ public enum OracleSqlTypes implements FieldType {
     SI_FEATURE_LIST("SI_FEATURELIST", OracleType.SI_FEATURE_LIST),
     SI_POSITIONAL_COLOR("SI_POSITIONALCOLOR", OracleType.SI_POSITIONAL_COLOR),
     SI_STILL_IMAGE("SI_STILLIMAGE", OracleType.SI_STILL_IMAGE),
-    SI_TEXTURE("SI_TEXTURE", OracleType.SI_TEXTURE);
+    SI_TEXTURE("SI_TEXTURE", OracleType.SI_TEXTURE),
+    JSON("JSON", OracleType.JSON);
 
     private final String   codeKey;
     private final JDBCType jdbcType;
@@ -219,6 +220,7 @@ public enum OracleSqlTypes implements FieldType {
             case UROWID:
             case REF:
             case XMLTYPE:
+            case JSON:
             case HTTPURITYPE:
             case XDBURITYPE:
             case DBURITYPE:
