@@ -58,6 +58,7 @@ import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.SourceName;
+import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -151,8 +152,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SQL_ENGINE_NOT_FOUND_ERROR.name(), dsConfig.getDataSourceType()));
         }
 
-        SqlParserParameters parameters = this.configService.fetchSqlParserParameters(dsConfig, safeLevels);
-        parameters = parameters.putAll(options.getParameters().values());
+        SqlParserParameters parameters = options.getParameters();
         SplitAnalysisSpi splitSpi = sqlEngine.splitAnalysisSpi(parameters);
         if (splitSpi == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.QUERY_ANALYSIS_SPI_NOT_SUPPORTED_ERROR.name(), sqlEngine.name(), "SplitAnalysisSpi"));
@@ -281,9 +281,15 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             int codeLine = script.getBodyStartCodeLine();
             int codeColumn = script.getBodyStartCodeColumn();
 
+            ContextInfo context = ContextInfo.builder()
+                .cuid(this.options.getCurrentUid())
+                .dsId(this.options.getDsId())
+                .levelsParam(this.levels)
+                .dataSourceConfig(this.dsConfig)
+                .build();
             List<StatementBehavior> behaviors;
             try (StringReader reader = new StringReader(request.getQueryBody());
-                    Stream<StatementBehavior> stream = this.behaviorSpi.analysisBehaviorStream(reader, this.levels, codeLine, codeColumn)) {
+                    Stream<StatementBehavior> stream = this.behaviorSpi.analysisBehaviorWithContextStream(reader, context, codeLine, codeColumn)) {
                 behaviors = stream.toList();
             }
 
@@ -348,16 +354,21 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     private void configMaskingWithoutProvenance(QueryRequest request, SysObjectRegistrySpi sysObjRegistry, String dbVersion, String userUid, long dsId,//
                                                 String currentResourcePath, String instanceResourcePath) {
-        List<DsResPathObj> objList = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations()).stream().filter(b -> {
-            return b.authKind() == SecDataAuthKind.READ;
-        }).map(b -> {
-            return new DsResPathObj(BehaviorRelations.resourcePath(b.resource(), currentResourcePath, instanceResourcePath));
-        }).toList();
+        var resources = BehaviorRelations.flattenResource(sysObjRegistry, dbVersion, request.getRelations());
+        // READ exemptions do not describe the sources of a stored program's results.
+        if (resources.stream().anyMatch(resource -> resource.authKind() == SecDataAuthKind.PROGRAM)) {
+            return;
+        }
+
+        List<DsResPathObj> objList = resources.stream()
+            .filter(b -> b.authKind() == SecDataAuthKind.READ)
+            .map(b -> new DsResPathObj(BehaviorRelations.resourcePath(b.resource(), currentResourcePath, instanceResourcePath)))
+            .toList();
 
         //
-        boolean allAuthorized = CollectionUtils.isNotEmpty(objList) && objList.stream().allMatch(path -> {
-            return this.authService.checkResPathWithoutError(AuthDal.ROOT_USER_UID, userUid, dsId, AuthKind.DataSource, path, SecDataAuthLabel.DM_DAUTH_SENSITIVE);
-        });
+        boolean allAuthorized = CollectionUtils.isNotEmpty(objList) && objList.stream()
+            .allMatch(path -> this.authService.checkResPathWithoutError(AuthDal.ROOT_USER_UID, userUid, dsId, AuthKind.DataSource, path, SecDataAuthLabel.DM_DAUTH_SENSITIVE));
+
         if (allAuthorized) {
             request.setUsingValueProcess(false);
         }

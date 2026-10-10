@@ -173,6 +173,7 @@ public class DmlExplainPreInitHandler extends AbstractPreInitHandler {
             .currentUid(approval.getOwnerUid())
             .dataSourceId(approval.getBindDsId())
             .levels(context.getDsLevels().levelsParam())
+            .parameters(parameters)
             .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
             .build();
         DmlExplainPreInitHandlerState buildState = DmlExplainPreInitHandlerState.builder()

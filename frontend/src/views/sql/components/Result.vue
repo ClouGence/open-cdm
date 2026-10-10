@@ -121,22 +121,27 @@
             <div v-else class="stream-info">
               <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
             </div>
-            <Poptip word-wrap trigger="hover" transfer placement="bottom" class="tip-footer-sql-pop">
+            <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
+            <Poptip v-if="selectedTab.rewriteTags?.length" trigger="hover" transfer placement="top-start" class="tip-footer-sql-pop">
               <template #content>
-                <div v-if="selectedTab.rewriteTags?.length">
-                  {{ $t('zhong-xie-mo-kuai') }}
-                  <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
-                </div>
-                <div>
-                  {{ $t('yuan-shi-yu-ju') }}
-                  <span class="font-bold">{{ selectedTab.rewriteTags?.length ? selectedTab.original : selectedTab.querySql }}</span>
+                <div class="query-rewrite-details">
+                  <div class="query-rewrite-section">
+                    <div class="query-rewrite-label">{{ $t('zhong-xie-mo-kuai') }}</div>
+                    <div class="query-rewrite-tags">
+                      <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
+                    </div>
+                  </div>
+                  <div class="query-rewrite-section">
+                    <div class="query-rewrite-label">{{ $t('yuan-shi-yu-ju') }}</div>
+                    <pre class="query-rewrite-sql">{{ selectedTab.original }}</pre>
+                  </div>
+                  <div class="query-rewrite-section">
+                    <div class="query-rewrite-label">{{ $t('gai-xie-yu-ju') }}</div>
+                    <pre class="query-rewrite-sql">{{ selectedTab.querySql }}</pre>
+                  </div>
                 </div>
               </template>
-              <span class="tip-footer-sql">
-                <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
-                <a-tag v-if="selectedTab.rewriteTags?.length > 0" color="blue">{{ $t('zhong-xie') }}</a-tag>
-                {{ this.selectedTab.querySql }}
-              </span>
+              <a-tag color="blue">{{ $t('zhong-xie') }}</a-tag>
             </Poptip>
             <a-popover v-if="tab.cost && tab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
               <template #content>
@@ -1005,11 +1010,11 @@ export default {
 
       let text = String(value);
       const cellMeta = this.getCellValueMeta(column, rowIndex);
-      if (cellMeta && !cellMeta.complete && !cellMeta.error && !cellMeta.mask && cellMeta.moreSize > 0) {
+      if (cellMeta && !cellMeta.error && !cellMeta.mask && cellMeta.moreSize > 0) {
         try {
-          text = await this.fetchFullCellText(cellMeta, text);
+          text = await this.fetchFullCellText(cellMeta);
         } catch (error) {
-          appLogger.error('复制单元格完整内容失败:', error);
+          appLogger.error('Failed to copy the full cell value:', error);
           this.$Message.error(this.$t('fu-zhi-shi-bai'));
           return;
         }
@@ -1026,7 +1031,7 @@ export default {
         return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
       }
       if (receiveMode === 'STREAM') {
-        return rowIndex;
+        return Math.max(0, this.selectedTab.streamData.length - 30) + rowIndex;
       }
       const pageSize = this.selectedTab.size || 50;
       return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
@@ -1064,12 +1069,8 @@ export default {
           }
         } else if (receiveMode === 'STREAM') {
           const rowSetStream = this.selectedTab.rowSetStream;
-          const streamData = this.selectedTab.streamData || [];
-          const displayCount = 30;
-          const startIndex = streamData.length > displayCount ? streamData.length - displayCount : 0;
-          const actualIndex = startIndex + rowIndex;
-          if (rowSetStream && rowSetStream[actualIndex]) {
-            const rowItem = rowSetStream[actualIndex];
+          if (rowSetStream && rowSetStream[rowIndex]) {
+            const rowItem = rowSetStream[rowIndex];
             const rowData = rowItem.data || rowItem.row;
             if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
               cellValue = rowData[colIndex];
@@ -1096,10 +1097,11 @@ export default {
 
       return meta;
     },
-    async fetchFullCellText(cellMeta, initialValue) {
-      let content = initialValue || '';
+    async fetchFullCellText(cellMeta) {
+      let content = '';
       let moreSize = cellMeta.moreSize || 0;
       const fetchSize = 128 * 1024;
+      let offset = 0;
       let guard = 0;
 
       while (moreSize > 0 && guard < 100) {
@@ -1109,7 +1111,7 @@ export default {
             resultId: cellMeta.resultId,
             rowNumber: cellMeta.rowNumber,
             colNumber: cellMeta.colIndex,
-            offset: content.length,
+            offset,
             fetchSize
           }
         });
@@ -1118,7 +1120,7 @@ export default {
           throw new Error(res.message || 'fetch failed');
         }
 
-        const dataValue = res.data.value || res.data;
+        const dataValue = res.data.value;
         if (dataValue.error) {
           throw new Error('fetch error');
         }
@@ -1129,10 +1131,13 @@ export default {
         }
 
         content += chunk;
+        // Offsets count characters for text and bytes for binary values, not rendered hex characters.
+        offset += fetchSize;
         moreSize = dataValue.moreSize || 0;
-        if (dataValue.complete) {
-          break;
-        }
+      }
+
+      if (moreSize > 0) {
+        throw new Error('Cell value exceeds the copy fetch limit');
       }
 
       return content;
@@ -2207,20 +2212,41 @@ export default {
 }
 
 .tip-footer-sql-pop {
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: 400px;
-  overflow: hidden;
+  flex-shrink: 0;
+  cursor: help;
 }
 
-.tip-footer-sql {
-  display: inline-block;
-  max-width: 100%;
-  padding-right: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: middle;
+.query-rewrite-details {
+  width: 560px;
+  max-width: calc(100vw - 64px);
+  max-height: ~'min(240px, 35vh)';
+  overflow: auto;
+  white-space: normal;
+}
+
+.query-rewrite-section + .query-rewrite-section {
+  margin-top: 16px;
+}
+
+.query-rewrite-label {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.query-rewrite-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.query-rewrite-sql {
+  margin: 0;
+  font-family: Menlo, Monaco, 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .tip-footer-right {

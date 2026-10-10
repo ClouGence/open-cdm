@@ -18,6 +18,9 @@ package com.clougence.clouddm.ds.hana.execute;
 import java.sql.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
+import com.clougence.clouddm.ds.hana.i18n.HanaConfigI18nKeys;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.dsfamily.execute.DefaultColReader;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
@@ -27,8 +30,6 @@ import com.clougence.clouddm.sdk.execute.session.SessionHook;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
-import com.sap.db.jdbc.exceptions.JDBCDriverException;
 
 /**
  * only for integration test
@@ -37,8 +38,7 @@ import com.sap.db.jdbc.exceptions.JDBCDriverException;
  **/
 public class HanaHooks implements SessionHook {
 
-    public HanaHooks(){
-    }
+    private String currentCatalog;
 
     @Override
     public ColReader createColReader() {
@@ -52,25 +52,40 @@ public class HanaHooks implements SessionHook {
 
     @Override
     public void configSession(Connection resource, SessionContextDTO initContextDTO) throws SQLException {
+        // Apply transaction settings before context queries can begin a transaction.
+        this.setIsolation(resource, initContextDTO.getRdbTxIsolation());
+        this.setAutoCommit(resource, initContextDTO.isRdbAutoCommit());
+        this.setReadOnly(resource, initContextDTO.isRdbReadOnly());
+        String catalog = getCurrentCatalog(resource);
+        if (StringUtils.isNotBlank(initContextDTO.getRdbCatalog()) && !catalog.equals(initContextDTO.getRdbCatalog())) {
+            throw ThirdPartyApiException.as().with(HanaConfigI18nKeys.CONFIG_HANA_CATALOG_MISMATCH);
+        }
+
         if (StringUtils.isNotBlank(initContextDTO.getRdbSchema())) {
             this.setCurrentSchema(resource, initContextDTO.getRdbSchema());
         }
 
-        this.setAutoCommit(resource, initContextDTO.isRdbAutoCommit());
-        this.setIsolation(resource, initContextDTO.getRdbTxIsolation());
-        //this.setCurrentReadOnly(resource, initContextDTO.isRdbReadOnly());
+        this.currentCatalog = catalog;
+        initContextDTO.setRdbCatalog(catalog);
+        initContextDTO.setRdbTxIsolation(this.getIsolation(resource));
+        initContextDTO.setRdbAutoCommit(this.isAutoCommit(resource));
+        initContextDTO.setRdbReadOnly(this.isReadOnly(resource));
+        try (Statement statement = resource.createStatement(); ResultSet result = statement.executeQuery("SELECT CURRENT_SCHEMA FROM SYS.DUMMY")) {
+            result.next();
+            initContextDTO.setRdbSchema(result.getString(1));
+        }
     }
 
     @Override
     public void setCurrentCatalog(Connection conn, String catalogName) {
-        throw new UnsupportedOperationException("Hana change catalog Unsupported");
+        throw ThirdPartyApiException.as().with(HanaConfigI18nKeys.CONFIG_HANA_CATALOG_UNSUPPORTED);
     }
 
     @Override
     public void setCurrentSchema(Connection conn, String schemaName) throws SQLException {
         if (StringUtils.isNotBlank(schemaName)) {
             try (Statement s = conn.createStatement()) {
-                s.executeUpdate("SET SCHEMA " + schemaName);
+                s.executeUpdate("SET SCHEMA " + HanaDialect.INSTANCE.fmtName(true, schemaName));
             }
         }
     }
@@ -97,13 +112,15 @@ public class HanaHooks implements SessionHook {
 
     @Override
     public void setIsolation(Connection conn, RdbIsolation isolation) throws SQLException {
-        if (isolation != null) {
-            if (isolation == RdbIsolation.DEFAULT) {
-                conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-            } else {
-                conn.setTransactionIsolation(isolation.getValue());
-            }
+        if (isolation == null || isolation == RdbIsolation.DEFAULT) {
+            isolation = RdbIsolation.READ_COMMITTED;
         }
+
+        if (isolation == RdbIsolation.READ_UNCOMMITTED) {
+            throw ThirdPartyApiException.as().with(HanaConfigI18nKeys.CONFIG_HANA_ISOLATION_UNSUPPORTED);
+        }
+
+        conn.setTransactionIsolation(isolation.getValue());
     }
 
     @Override
@@ -112,8 +129,8 @@ public class HanaHooks implements SessionHook {
     }
 
     @Override
-    public void setReadOnly(Connection conn, boolean readOnly) {
-        throw new UnsupportedOperationException("Hana Unsupported.");
+    public void setReadOnly(Connection conn, boolean readOnly) throws SQLException {
+        conn.setReadOnly(readOnly);
     }
 
     @Override
@@ -121,41 +138,44 @@ public class HanaHooks implements SessionHook {
         return conn.isReadOnly();
     }
 
+    static String getCurrentCatalog(Connection conn) throws SQLException {
+        try (Statement statement = conn.createStatement(); ResultSet result = statement.executeQuery("SELECT CURRENT_DATABASE() FROM SYS.DUMMY")) {
+            result.next();
+            return result.getString(1);
+        }
+    }
+
     @Override
     public String getQueryID(Connection conn) throws SQLException {
-        /*
-            The following query returns the current database connection IDs and the statements that the sessions are executing.
-         */
-        try (Statement s = conn.createStatement();
-                ResultSet resultSet = s.executeQuery("SELECT C.CONNECTION_ID\n" + "FROM M_CONNECTIONS C JOIN M_PREPARED_STATEMENTS PS\n"
-                                                     + "    ON C.CONNECTION_ID = PS.CONNECTION_ID AND C.CURRENT_STATEMENT_ID = PS.STATEMENT_ID\n"
-                                                     + "WHERE C.CONNECTION_STATUS = 'RUNNING'  AND C.CONNECTION_TYPE = 'Remote'")) {
-            return ((SingleValueRowMapper<String>) (rs, columnType, columnTypeName, columnClassName) -> rs.getString(1)).mapRow(resultSet);
+        try (Statement statement = conn.createStatement(); ResultSet result = statement.executeQuery("SELECT CURRENT_CONNECTION FROM SYS.DUMMY")) {
+            result.next();
+            return result.getString(1);
         }
     }
 
     @Override
     public void killProcess(Connection connection, String queryID) throws SQLException {
-        /*
-            The transaction of the canceled session is rolled back.
-            The statement that was executing returns error code 139 (current operation canceled by request and transaction rolled back).
-         */
-        String sql = "ALTER SYSTEM CANCEL SESSION '" + queryID + "'";
-        try {
-            try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                ps.executeUpdate();
-            }
-        } catch (JDBCDriverException e) {
-            // if throw JDBCDriverException, it means the session is not running, so ignore it.
+        String sql = "ALTER SYSTEM CANCEL SESSION '" + Long.parseLong(queryID) + "'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.executeUpdate();
         }
     }
 
     @Override
     public PreparedStatement executeStatement(Connection conn, QueryRequest query) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-        stmt.setFetchSize(200);
-        stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
-        return stmt;
+        try {
+            stmt.setFetchSize(200);
+            stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
+            return stmt;
+        } catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException closeError) {
+                e.addSuppressed(closeError);
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -169,7 +189,7 @@ public class HanaHooks implements SessionHook {
 
     @Override
     public ColMetaData getColumnMetaData(QueryRequest query, ResultSetMetaData metaData, int columnIndex) throws SQLException {
-        String schemaName = metaData.getCatalogName(columnIndex);
+        String schemaName = metaData.getSchemaName(columnIndex);
         String tableName = metaData.getTableName(columnIndex);
         String columnName = metaData.getColumnLabel(columnIndex);
         if (columnName == null || columnName.isEmpty()) {
@@ -180,7 +200,7 @@ public class HanaHooks implements SessionHook {
         String columnTypeName = metaData.getColumnTypeName(columnIndex);
 
         ColMetaData colMetaData = new ColMetaData();
-        colMetaData.setCatalog("");
+        colMetaData.setCatalog(this.currentCatalog);
         colMetaData.setSchema(schemaName);
         colMetaData.setTable(tableName);
         colMetaData.setColumn(columnName);

@@ -52,9 +52,10 @@ public class OraColReader extends AbstractColReader {
                 return STRING_VALUE_FETCHER;
             case "clob":
             case "nclob":
-            case "json":
             case "sys.xmltype":
                 return STRING_AS_CLOB_FETCHER;
+            case "json":
+                return STRING_AS_READER_FETCHER;
             case "binary_float":
                 return FLOAT_VALUE_FETCHER;
             case "binary_double":

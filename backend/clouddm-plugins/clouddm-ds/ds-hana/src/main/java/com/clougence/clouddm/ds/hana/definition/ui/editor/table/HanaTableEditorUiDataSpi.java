@@ -15,21 +15,15 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.editor.table;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.clouddm.sdk.ui.editor.EditorViewMode;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiData;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiDataSpi;
-import com.clougence.schema.editor.domain.EColumn;
-import com.clougence.schema.editor.domain.EIndex;
-import com.clougence.schema.editor.domain.EIndexType;
-import com.clougence.schema.editor.domain.ETable;
+import com.clougence.schema.editor.domain.*;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
+
+import java.util.*;
 
 /**
  * @author chunlin
@@ -46,15 +40,6 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
         // column
         List<EColumn> columnList = eTable.getColumnList();
         for (EColumn eColumn : columnList) {
-            if (StringUtils.isNotBlank(eColumn.getDbType())) {
-                String dbType = eColumn.getDbType();
-                if (dbType.equalsIgnoreCase("VARCHAR")) {
-                    if (eColumn.getLength() == null || eColumn.getLength() == 0) {
-                        eColumn.setLength(100L);
-                    }
-                }
-            }
-
             Map<String, Object> columnMap = uiData.findColumn(eColumn.getName());
             if (columnMap != null) {
                 Object obj = columnMap.get(MODE_COLUMN_DEFAULT);
@@ -63,12 +48,13 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
                     if (defaultValue.equalsIgnoreCase("NULL")) {
                         eColumn.setDefaultValue(null);
                     } else if (defaultValue.equalsIgnoreCase("")) {
-                        eColumn.setDefaultValue("");
+                        eColumn.setDefaultValue("''");
                     } else if (defaultValue.equalsIgnoreCase(SPI_COLUMNS_CUSTOM)) {
                         Object o = columnMap.get(SPI_COLUMNS_CUSTOM);
                         eColumn.setDefaultValue(safeToString(o));
                     }
                 }
+                eColumn.setDefaultValueIsFunc(true);
                 eColumn.getAttribute().remove(SPI_COLUMNS_CUSTOM);
             }
         }
@@ -77,12 +63,14 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
         for (EIndex index : eTable.getIndices()) {
             Map<String, Object> idxMap = uiData.findIndex(index.getName());
             if (idxMap != null) {
-                HanaAttributeNames.INDEX_TYPE.setValue(index.getAttribute(), safeToString(idxMap.get(MODE_INDEX_TYPE)));
+                String indexType = safeToString(idxMap.get(MODE_INDEX_TYPE));
+                if (indexType != null || index.getAttribute().containsKey(HanaAttributeNames.INDEX_TYPE.getCodeKey())) {
+                    HanaAttributeNames.INDEX_TYPE.setValue(index.getAttribute(), indexType);
+                }
 
                 if (idxMap.containsKey(MODE_INDEX_COLUMNS)) {
                     Object obj = idxMap.get(MODE_INDEX_COLUMNS);
                     List<String> newColumnList = new ArrayList<>();
-                    Map<String, String> subPartMap = new LinkedHashMap<>();
                     Map<String, String> subOrderMap = new LinkedHashMap<>();
                     if (obj instanceof List) {
                         List<Map<String, Object>> columnListMap = (List<Map<String, Object>>) obj;
@@ -91,20 +79,16 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
                             String name = safeToString(map.get(MODE_INDEX_NAME));
                             newColumnList.add(name);
 
-                            // length
-                            String length = safeToString(map.get(SPI_INDEX_COLUMNS_LENGTH));
-                            subPartMap.put(name, length);
-
                             // order
                             String order = safeToString(map.get(SPI_INDEX_COLUMNS_ORDER));
                             subOrderMap.put(name, order);
                         }
                     }
                     index.setColumnList(newColumnList);
-                    index.getAttribute().put(HanaAttributeNames.ORDER_TYPE.getCodeKey(), JsonUtils.toJson(subOrderMap));
+                    writeColumnOrder(index.getAttribute(), subOrderMap);
                 }
 
-                if (idxMap.containsKey(MODE_INDEX_TYPE) && idxMap.containsKey(HanaAttributeNames.INDEX_WAY.getCodeKey())) {
+                if (idxMap.containsKey(HanaAttributeNames.INDEX_WAY.getCodeKey())) {
                     String idxWay = safeToString(idxMap.get(HanaAttributeNames.INDEX_WAY.getCodeKey()));
                     if (StringUtils.equalsIgnoreCase(idxWay, "UNIQUE")) {
                         index.setType(EIndexType.Unique);
@@ -117,13 +101,17 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
 
         }
 
+        // The shared form mapper also copies the FK name into its attribute map.
+        for (EForeignKey foreignKey : eTable.getForeignKeys()) {
+            foreignKey.getAttribute().remove(MODE_FOREIGN_KEY_NAME);
+        }
+
         // pk
         if (uiData.getKeys() != null) {
             Object obj = uiData.getKeys().get(MODE_KEY_COLUMNS);
             if (obj instanceof List) {
                 List<Map<String, Object>> columnListMap = (List<Map<String, Object>>) obj;
                 List<String> newKeyColumns = new ArrayList<>();
-                Map<String, String> subPartMap = new LinkedHashMap<>();
                 Map<String, String> subOrderMap = new LinkedHashMap<>();
 
                 for (Map<String, Object> map : columnListMap) {
@@ -131,17 +119,28 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
                     String name = safeToString(map.get(MODE_KEY_COLUMNS_NAME));
                     newKeyColumns.add(name);
 
-                    // length
-                    String length = safeToString(map.get(SPI_PK_COLUMNS_LENGTH));
-                    subPartMap.put(name, length);
-
                     // order
                     String order = safeToString(map.get(SPI_PK_COLUMNS_ORDER));
                     subOrderMap.put(name, order);
                 }
                 eTable.getPrimaryKey().setColumnList(newKeyColumns);
-                eTable.getPrimaryKey().getAttribute().put(HanaAttributeNames.ORDER_TYPE.getCodeKey(), JsonUtils.toJson(subOrderMap));
+                writeColumnOrder(eTable.getPrimaryKey().getAttribute(), subOrderMap);
             }
+        }
+    }
+
+    private void writeColumnOrder(Map<String, String> attributes, Map<String, String> orders) {
+        String original = HanaAttributeNames.ORDER_TYPE.getValue(attributes);
+        Map<?, ?> previous = Map.of();
+        if (StringUtils.isNotBlank(original)) {
+            previous = JsonUtils.toObj(original, Map.class);
+        }
+        // JSON key order is not an index change. Preserve the original serialized attribute on a no-op save.
+        if (!Objects.equals(previous, orders)) {
+            if (previous.isEmpty() && orders.values().stream().allMatch(Objects::isNull)) {
+                return;
+            }
+            HanaAttributeNames.ORDER_TYPE.setValue(attributes, JsonUtils.toJson(orders));
         }
     }
 
@@ -153,7 +152,7 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
                 Object obj = columnMap.get(MODE_COLUMN_DEFAULT);
                 if (obj != null) {
                     String defaultValue = obj.toString();
-                    if (defaultValue.equals("")) {
+                    if (defaultValue.equals("''")) {
                         columnMap.put(MODE_COLUMN_DEFAULT, "");
                     } else {
                         columnMap.put(MODE_COLUMN_DEFAULT, "custom");
@@ -169,6 +168,7 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
         for (EIndex index : eTable.getIndices()) {
             Map<String, Object> idxMap = uiData.findIndex(index.getName());
             if (idxMap != null) {
+                idxMap.put(HanaAttributeNames.INDEX_WAY.getCodeKey(), index.getType().getTypeName());
                 idxMap.put(MODE_INDEX_TYPE, HanaAttributeNames.INDEX_TYPE.getValue(index.getAttribute()));
 
                 Object obj = idxMap.get(MODE_INDEX_COLUMNS);
@@ -176,7 +176,10 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
                     List<Map<String, Object>> mapList = (List<Map<String, Object>>) obj;
                     for (Map<String, Object> map : mapList) {
                         String orderMapValue = HanaAttributeNames.ORDER_TYPE.getValue(index.getAttribute());
-                        Map<String, String> subOrderMap = JsonUtils.toObj(orderMapValue, Map.class);
+                        Map<String, String> subOrderMap = new LinkedHashMap<>();
+                        if (StringUtils.isNotBlank(orderMapValue)) {
+                            subOrderMap = JsonUtils.toObj(orderMapValue, Map.class);
+                        }
                         String subOrderValue = subOrderMap.get(safeToString(map.get(MODE_INDEX_NAME)));
                         map.put(SPI_INDEX_COLUMNS_ORDER, subOrderValue);
                     }
@@ -192,7 +195,10 @@ public class HanaTableEditorUiDataSpi implements TableEditorUiDataSpi, HanaTable
                 List<Map<String, Object>> columnListMap = (List<Map<String, Object>>) obj;
                 for (Map<String, Object> map : columnListMap) {
                     String orderMapValue = HanaAttributeNames.ORDER_TYPE.getValue(eTable.getPrimaryKey().getAttribute());
-                    Map<String, String> subOrderMap = JsonUtils.toObj(orderMapValue, Map.class);
+                    Map<String, String> subOrderMap = new LinkedHashMap<>();
+                    if (StringUtils.isNotBlank(orderMapValue)) {
+                        subOrderMap = JsonUtils.toObj(orderMapValue, Map.class);
+                    }
                     String subOrderValue = subOrderMap.get(safeToString(map.get(MODE_KEY_COLUMNS_NAME)));
                     map.put(SPI_PK_COLUMNS_ORDER, subOrderValue);
                 }

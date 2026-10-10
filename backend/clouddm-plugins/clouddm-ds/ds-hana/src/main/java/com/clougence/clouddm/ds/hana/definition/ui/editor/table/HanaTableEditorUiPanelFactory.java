@@ -15,13 +15,7 @@
  */
 package com.clougence.clouddm.ds.hana.definition.ui.editor.table;
 
-import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.*;
-import static com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys.*;
-
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.clougence.adapter.hana.HanaAttributeNames;
 import com.clougence.adapter.hana.HanaTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
@@ -33,12 +27,31 @@ import com.clougence.clouddm.dsfamily.i18n.DsTableEditorI18nKeys;
 import com.clougence.clouddm.sdk.ui.editor.EditorViewMode;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiPanel;
 
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.*;
+import static com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys.*;
+
 /**
  * @author chunlin
  * @date 2024/4/2
  * https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20d58a5f75191014b2fe92141b7df228.html?version=2.0.03&locale=en-US
  */
 public class HanaTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFactory implements HanaTableEditorFields {
+
+    @Override
+    protected void fillTableInfoUiPanelForAdvanced(TableEditorUiPanel uiPanel, DataSourceConfig dsConfig, EditorViewMode viewMode, Connection con) {
+        uiPanel.getTableInfo()
+            .addField(UiPanelField.builder()
+                .field(HanaAttributeNames.TABLE_TYPE.getCodeKey())
+                .type(UiPanelFieldType.Options)
+                .options(List.of(optionDef(EDITOR_TABLE_ROW_LABEL, "ROW"), optionDef(EDITOR_TABLE_COLUMN_LABEL, "COLUMN")))
+                .titleI18N(EDITOR_TABLE_STORAGE_TITLE)
+                .descI18N(EDITOR_TABLE_STORAGE_DESC)
+                .build());
+    }
 
     @Override
     protected void fillTableColumnsUiPanelForBasic(TableEditorUiPanel uiPanel, DataSourceConfig dsConfig, EditorViewMode viewMode, Connection con) {
@@ -117,14 +130,13 @@ public class HanaTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFac
 
     @Override
     protected void fillTableColumnsUiPanelForAdvanced(TableEditorUiPanel uiPanel, DataSourceConfig dsConfig, EditorViewMode viewMode, Connection con) {
-        super.fillTableInfoUiPanelForAdvanced(uiPanel, dsConfig, viewMode, con);
+        super.fillTableColumnsUiPanelForAdvanced(uiPanel, dsConfig, viewMode, con);
 
         uiPanel.getColumns()
             .addField(UiPanelField.builder()
                 .field(FIELD_COLUMN_AUTOINCREMENT)
                 .type(UiPanelFieldType.Check)
                 .defaultValue(boolValueDef(false))
-                .readOnly(true)
                 .titleI18N(EDITOR_COLUMNS_AUTOINCREMENT_TITLE)
                 .descI18N(EDITOR_COLUMNS_AUTOINCREMENT_DESC)
                 .build());
@@ -142,6 +154,11 @@ public class HanaTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFac
         List<ValueDef> result = new ArrayList<>();
         for (HanaTypes type : HanaTypes.values()) {
             switch (type) {
+                case FLOAT:
+                    result.add(fieldOptionDef(type.getCodeKey(), type.getCodeKey()).addField(numPrecision));
+                    break;
+                case ARRAY:
+                    break;
                 case DECIMAL:
                     result.add(fieldOptionDef(type.getCodeKey(), type.getCodeKey()).addField(numPrecision).addField(numScale));
                     break;
@@ -150,6 +167,7 @@ public class HanaTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFac
                 case NVARCHAR:
                 case ALPHANUM:
                 case SHORTTEXT:
+                case NCHAR:
                 case CHAR:
                 case BINARY:
                     result.add(fieldOptionDef(type.getCodeKey(), type.getCodeKey()).addField(length));
@@ -232,7 +250,7 @@ public class HanaTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFac
             .beforeAddField(UiPanelField.builder()
                 .field(FIELD_INDEXES_INDEX_TYPE)
                 .type(UiPanelFieldType.Options)
-                .options(fetchIndexTypes())
+                .options(super.fetchIndexTypes())
                 .defaultValue(strValueDef("Normal"))
                 .titleI18N(EDITOR_INDEXES_INDEX_TYPE_TITLE)
                 .descI18N(EDITOR_INDEXES_INDEX_TYPE_DESC)
@@ -242,8 +260,6 @@ public class HanaTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFac
 
     @Override
     protected void fillTableIndexesColumnsUiPanel(UiPanelField indexColumns, DataSourceConfig dsConfig, EditorViewMode viewMode, Connection con) {
-        super.fillTableIndexesColumnsUiPanel(indexColumns, dsConfig, viewMode, con);
-
         super.fillTableIndexesColumnsUiPanel(indexColumns, dsConfig, viewMode, con);
 
         indexColumns.addField(UiPanelField.builder()
@@ -261,7 +277,8 @@ public class HanaTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFac
         result.add(optionDef(EDITOR_INDEXES_TYPE_INVERTED_VALUE_LABEL, "INVERTED VALUE"));
         result.add(optionDef(EDITOR_INDEXES_TYPE_INVERTED_HASH_LABEL, "INVERTED HASH"));
         result.add(optionDef(EDITOR_INDEXES_TYPE_INVERTED_INDIVIDUAL_LABEL, "INVERTED INDIVIDUAL"));
-        result.add(optionDef(EDITOR_INDEXES_TYPE_FULLTEXT_LABEL, "FULLTEXT"));
+        result.add(optionDef(EDITOR_INDEXES_TYPE_BTREE_LABEL, "BTREE"));
+        result.add(optionDef(EDITOR_INDEXES_TYPE_CPBTREE_LABEL, "CPBTREE"));
         return result;
     }
 

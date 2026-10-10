@@ -1,5 +1,5 @@
 <drivers>
-    <driver driverFamily="SAP Hana JDBC" version="2.28.6">
+    <driver driverFamily="SAP Hana JDBC" version="2.28.6" default="true">
         <driverName>com.clougence.clouddm.ds.hana.execute.dsfactory.HanaDsFactory</driverName>
         <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.28.6</resource>
     </driver>
