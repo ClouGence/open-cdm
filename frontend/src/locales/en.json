@@ -777,7 +777,6 @@
   "qing-shu-ruali-yun-accesskey-secret": "Please type Alibaba Cloud AccessKey Secret",
   "qing-tian-jia-wan-zheng-de-xu-ni-lie-xin-xi": "Please add complete virtual column information",
   "qing-tian-ru-shai-xuan-biao-de-lie-ming": "Please fill in the column name of the filter table",
-  "qing-tian-xie-consumer-group": "Please fill in Consumer Group",
   "qing-tian-xie-dstrabbitexchange": "Please fill in dstRabbitExchange",
   "qing-tian-xie-ip-huo-yu-ming": "Please fill in the IP or domain name",
   "qing-tian-xie-rabbitmqvhost": "Please fill in RabbitMqVhost",
@@ -4423,5 +4422,7 @@
   "sql-receive": "Receive",
   "gai-xie-yu-ju": "Rewritten statement",
   "query-fetched-count": "Fetched {0} records",
-  "query-effective-statement": "Executed statement"
+  "query-effective-statement": "Executed statement",
+  "query-examples-icon": "E",
+  "query-examples-title": "Statement examples"
 }

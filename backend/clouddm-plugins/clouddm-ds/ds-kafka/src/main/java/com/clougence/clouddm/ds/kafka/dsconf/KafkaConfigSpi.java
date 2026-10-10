@@ -80,8 +80,10 @@ public class KafkaConfigSpi extends AbstractDsConfigSpi {
         host.setChildren(new ArrayList<>());
         host.setTitleI18N(KafkaConfigI18nKeys.CONFIG_KAFKA_BROKERS_LABEL);
         host.setDescI18N(KafkaConfigI18nKeys.CONFIG_KAFKA_BROKERS_DESC);
+        host.setProps(Map.of("descriptionAsPopover", true));
         UiPanelField mechanism = general.findField(KafkaConfig.Fields.saslMechanism);
         mechanism.setType(UiPanelFieldType.Options);
+        mechanism.setProps(Map.of("descriptionAsPopover", true));
         mechanism.setOptions(List.of(UiUtils.optionDef(KafkaConfigI18nKeys.CONFIG_KAFKA_PLAIN_LABEL, "PLAIN"), UiUtils
             .optionDef(KafkaConfigI18nKeys.CONFIG_KAFKA_SCRAM256_LABEL, "SCRAM-SHA-256"), UiUtils.optionDef(KafkaConfigI18nKeys.CONFIG_KAFKA_SCRAM512_LABEL, "SCRAM-SHA-512")));
     }

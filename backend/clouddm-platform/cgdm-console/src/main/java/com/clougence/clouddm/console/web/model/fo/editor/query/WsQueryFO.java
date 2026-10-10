@@ -29,6 +29,7 @@ import lombok.Setter;
 @Setter
 public class WsQueryFO extends WsRequestFO {
 
+    private String         requestId;
     private String         sessionId;
     private WsQueryType    queryType;
 
@@ -42,6 +43,11 @@ public class WsQueryFO extends WsRequestFO {
     private RdbIsolation   rdbIsolation;
 
     private boolean        viewOriginData;
+
+    @Override
+    public String resultRequestId() {
+        return this.requestId;
+    }
 
     @Override
     public String resultOriginal() {

@@ -25,6 +25,7 @@ import com.clougence.clouddm.ds.kafka.i18n.KafkaDsI18nKeys;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowsBuild;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.utils.i18n.I18nUtils;
 
 public class KafkaResultWriter {
@@ -57,6 +58,7 @@ public class KafkaResultWriter {
             metadata.put(meta.getColumn(), new ResultColMeta(meta, column.fetcher()));
         }
         var meta = builder.newResultMeta(query, builder.newResultId(query));
+        meta.setRefreshOnProgress(data instanceof KafkaRecordIterator);
         ResultSetRowsBuild rows = meta.receiveMeta(metadata);
         try {
             meta.finishRecord(true);
@@ -73,7 +75,6 @@ public class KafkaResultWriter {
         int count = 0;
         int pageCount = 0;
         boolean silent = false;
-        boolean truncated = false;
         boolean consuming = data instanceof KafkaRecordIterator;
         long progressTime = 0;
         // Check the row bound before advancing the source: hasNext() may block in Consumer.poll().
@@ -88,10 +89,6 @@ public class KafkaResultWriter {
                 row.put(columns.get(index).columnName(), values[index]);
             }
             rows.receiveRow(silent, row);
-            if (rows.fetcherOverflow()) {
-                truncated = true;
-                break;
-            }
             count++;
             pageCount++;
             rows.collectMetric(count);
@@ -107,9 +104,8 @@ public class KafkaResultWriter {
                 progressTime = now;
             }
 
-            if (limits.getFetchResultSetBytesLimit() > 0 && rows.dataSize() >= limits.getFetchResultSetBytesLimit()) {
-                truncated = true;
-                break;
+            if (limits.getFetchResultSetBytesLimit() > 0 && rows.dataSize() > limits.getFetchResultSetBytesLimit()) {
+                throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_RESULT_SIZE_LIMIT, limits.getFetchResultSetBytesLimit());
             }
 
             if (limits.getReceiveMode() == ReceiveMode.STREAM || (!silent && limits.getFetchPageSize() > 0 && pageCount >= limits.getFetchPageSize())) {
@@ -134,9 +130,7 @@ public class KafkaResultWriter {
         } else {
             rows.finishRecord(true);
         }
-        if (truncated) {
-            truncated();
-        } else if (consuming && count >= limits.getFetchRecordCountLimit()) {
+        if (consuming && count >= limits.getFetchRecordCountLimit()) {
             var message = builder.newMessage(query);
             message.receiveMessage(MessageLevel.Info, i18n.getMessage(KafkaDsI18nKeys.KAFKA_CONSUMER_LIMIT_REACHED, new Object[] { count }), false);
             message.finishRecord(true);

@@ -74,6 +74,8 @@ import com.clougence.clouddm.sdk.resource.ResourceSpi;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.ui.template.CmdExample;
+import com.clougence.clouddm.sdk.ui.template.CmdTemplateSpi;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.utils.CollectionUtils;
@@ -164,6 +166,13 @@ public class QueryEditorController {
         }
 
         I18nUtils dsI18n = PluginManager.findDsI18nUtil(entry.getDsType());
+        CmdTemplateSpi templates = PluginManager.findCmdTemplateSpi(entry.getDsType());
+        if (templates != null) {
+            vo.setCommandExamples(templates.getExamples()
+                .stream()
+                .map(example -> new CmdExample(dsI18n.getMessage(example.getTitleI18N(), null, DmI18nUtils.getLocale()), example.getStatement()))
+                .toList());
+        }
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(entry.getDsNumId());
         vo.setLanguage(loadDsLanguage(entry, dsConfig, dto));
         if (supportSpi != null) {
@@ -381,8 +390,7 @@ public class QueryEditorController {
         auditInfo.put("downloadFileName", downloadFileName);
         auditInfo.put("originalFileName", originalFileName);
         this.opAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fileDO
-            .getUniqueId(), auditInfo, SecurityLevel.HIGH, AuditType.DOWNLOAD_QUERY_RESULT, ResourceType.DATA_EXPORT,
-            downloadFileName);
+            .getUniqueId(), auditInfo, SecurityLevel.HIGH, AuditType.DOWNLOAD_QUERY_RESULT, ResourceType.DATA_EXPORT, downloadFileName);
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)

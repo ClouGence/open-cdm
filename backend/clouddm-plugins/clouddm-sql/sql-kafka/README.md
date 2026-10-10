@@ -58,7 +58,7 @@ kafka-topics --delete --topic 'orders.*' --if-exists
 
 - Topic 列表包含内部 Topic；详情分别输出 Topic 概况和分区信息，配置只展示非敏感的 Topic 动态配置。创建时未指定分区数、副本数则使用 Broker 默认值；`--if-not-exists` 只忽略 Topic 已存在错误。
 - Topic 删除按正则匹配当前 Topic 列表，展示各 Topic 的 `DELETED`、`NOT_FOUND`、`FAILED` 或 `UNKNOWN` 状态。批量删除不具备原子性，部分失败仍按失败审计，并保留已知结果；`--if-exists` 只忽略 Topic 不存在错误。系统展示条数上限不缩小删除范围。
-- 表格复用系统条数、字节、分页和流式输出规则，截断时给出提示。管理命令使用系统查询超时作为总期限（未配置则使用客户端 API 超时），每个 Admin 请求同时受客户端 API 超时限制。
+- 表格复用系统条数、字节、分页和流式输出规则；达到条数上限时停止并提示，超过字节上限时报错并清理结果缓存。管理命令使用系统查询超时作为总期限（未配置则使用客户端 API 超时），每个 Admin 请求同时受客户端 API 超时限制。
 - 页面中断取消正在等待的 Admin future，结束当前执行后可复用会话；连接检查也支持中断。超时或中断无法撤销已发送到 Broker 的管理操作，应查询实际状态再决定是否重试。消费中断通过 `Consumer.wakeup()` 唤醒元数据请求或 poll。
 
 ## 有界消息消费
@@ -75,6 +75,7 @@ kafka-console-consumer --topic orders
 - `--timeout-ms` 沿用 [原生命令](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/consumer/ConsoleConsumer.java) 的“等待下一条消息的空闲超时”，不是整条命令的总耗时。缺省使用系统查询超时（秒转毫秒），系统未配置正数超时时使用客户端 API 超时；显式用户值优先。元数据查询还受客户端 API 超时约束。
 - 补齐或调整参数后保留原命令，通过统一重写标记与结果展示实际执行命令。空闲超时正常结束并提示，保留已读结果；认证、元数据超时、位点失效等错误按失败审计，不伪装为空结果。
 - 消息结果列为 `TOPIC`、`PARTITION`、`OFFSET`、`TIMESTAMP`（epoch 毫秒，未知为空）、`TIMESTAMP-TYPE`、`KEY`、`VALUE`。Key / Value 按 UTF-8 文本显示，非法 UTF-8 使用替换字符；空字节串与 null（含 tombstone）保持区分。暂不提供自定义反序列化。
+- 消费结果通过元数据 `refreshOnProgress` 开启接收期间的分页刷新，收到条数进度后补取当前页已缓存的数据；该能力默认关闭，Topic 管理及其他数据源的分页行为不变。
 - 输出复用系统表格、分页、流式和字节限制，不在内存中累积整次消费结果。正常完成、空闲超时、异常、页面中断和会话关闭均释放本次 Consumer；关闭等待最多 5 秒，后续查询创建新 Consumer，避免继承缓冲消息、位置或 wakeup 状态。
 
 ## 元数据与对象浏览

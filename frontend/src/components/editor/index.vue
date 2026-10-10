@@ -1613,8 +1613,6 @@ export default {
         </Button>
       </ButtonGroup>
       <Button size="small" :aria-expanded="fontSizePanelExpanded" @click.stop="fontSizePanelExpanded = !fontSizePanelExpanded">T</Button>
-    </div>
-    <div class="editor-extra-controls">
       <slot name="editor-controls" />
     </div>
     <div :class="`${monacoEditorFountCss} monaco-editor-content`" ref="monacoEditor"></div>
@@ -1749,19 +1747,11 @@ export default {
 .monaco-editor .font-size-buttons {
   position: absolute;
   top: 3px;
-  right: 52px;
+  right: 17px;
   z-index: 10;
   display: flex;
   align-items: center;
   gap: 4px;
-}
-.editor-extra-controls {
-  position: absolute;
-  top: 3px;
-  right: 17px;
-  z-index: 11;
-  display: flex;
-  align-items: center;
 }
 .language-service-error {
   max-width: 360px;

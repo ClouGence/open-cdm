@@ -117,7 +117,12 @@
         <div class="tip-footer">
           <div class="tip-footer-main">
             <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
-              <div v-if="tab.running && selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
+              <div
+                v-if="
+                  (tab.running || selectedTab.refreshOnProgress) && selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]
+                "
+                class="paginated-loading"
+              >
                 <div class="loading-spinner"></div>
               </div>
               <Page
@@ -155,20 +160,20 @@
               </template>
               <a-tag color="blue">{{ $t('zhong-xie') }}</a-tag>
             </Poptip>
-            <a-popover v-if="tab.cost && tab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
+            <a-popover v-if="selectedTab.cost && selectedTab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
               <template #content>
-                <div v-for="costPop in tab.cost.popList" :key="costPop.text">
+                <div v-for="costPop in selectedTab.cost.popList" :key="costPop.text">
                   <a-icon :type="costPop.icon" :style="`color: ${costPop.color}`" :theme="costPop.theme" />
                   {{ costPop.text }}
                 </div>
               </template>
               <div class="cost-pop-trigger" @click="handleClickCostPop">
                 <a-icon
-                  :type="tab.cost.popList[tab.cost.popIndex].icon"
-                  :style="`color: ${tab.cost.popList[tab.cost.popIndex].color}`"
-                  :theme="tab.cost.popList[tab.cost.popIndex].theme"
+                  :type="selectedTab.cost.popList[selectedTab.cost.popIndex].icon"
+                  :style="`color: ${selectedTab.cost.popList[selectedTab.cost.popIndex].color}`"
+                  :theme="selectedTab.cost.popList[selectedTab.cost.popIndex].theme"
                 />
-                {{ tab.cost.popList[tab.cost.popIndex].text }}
+                {{ selectedTab.cost.popList[selectedTab.cost.popIndex].text }}
               </div>
             </a-popover>
           </div>
@@ -538,6 +543,8 @@ export default {
       editorHeight: 250,
       paginatedLoading: {}, // Loading status for each result set
       paginatedLoadingTimers: {}, // Loading timers keyed by result set
+      paginatedRequests: {}, // Latest page request for each result set
+      paginatedRequestId: 0,
       columnWidths: {}, // Stored column widths
       tableScrollY: 240,
       tableResizeObserver: null
@@ -591,7 +598,9 @@ export default {
       return {
         resultId: this.selectedTab.resultId,
         receiveMode: this.selectedTab.receiveMode,
-        fetchCount: this.selectedTab.fetchCount
+        refreshOnProgress: this.selectedTab.refreshOnProgress,
+        fetchCount: this.selectedTab.fetchCount,
+        page: this.selectedTab.page
       };
     },
     antdColumns() {
@@ -636,6 +645,13 @@ export default {
   watch: {
     selectedResultProgress: {
       handler(current, previous) {
+        if (current.refreshOnProgress) {
+          if (current.receiveMode === 'PAGINATED' && current.resultId && current.fetchCount > 0) {
+            // Progress is published after cached rows are flushed.
+            this.changePage(current.page);
+          }
+          return;
+        }
         if (!this.tab.running || current.receiveMode !== 'PAGINATED' || !current.resultId) {
           return;
         }
@@ -656,7 +672,7 @@ export default {
           delete this.paginatedLoadingTimers[resultId];
         }, 2000);
       },
-      immediate: false
+      immediate: true
     },
     'tab.running': {
       handler(running) {
@@ -740,6 +756,7 @@ export default {
     this.$bus.off('consoleMessageAppend');
     this.$bus.off(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO);
     this.$bus.off(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT);
+    this.paginatedRequests = {};
     const loadingTimerIds = Object.keys(this.paginatedLoadingTimers);
     for (let i = 0; i < loadingTimerIds.length; i++) {
       clearTimeout(this.paginatedLoadingTimers[loadingTimerIds[i]]);
@@ -1335,13 +1352,27 @@ export default {
         const pageSize = 30;
         const offsetRow = (page - 1) * pageSize;
 
-        // Check cache.
-        if (tab.pageCache && tab.pageCache[page]) {
+        const expectedRows = Math.min(pageSize, Math.max(0, tab.fetchCount - offsetRow));
+        // A cached partial page becomes stale as additional rows arrive.
+        const cachedPage = tab.pageCache?.[page];
+        if (cachedPage && (!tab.refreshOnProgress || cachedPage.length >= expectedRows)) {
+          delete this.paginatedRequests[tab.resultId];
+          if (tab.refreshOnProgress) {
+            this.paginatedLoading[tab.resultId] = false;
+          }
           tab.showData = tab.pageCache[page];
           return;
         }
 
-        // Call API to fetch data.
+        const pending = this.paginatedRequests[tab.resultId];
+        if (pending && pending.page === page && pending.fetchCount === tab.fetchCount) {
+          return;
+        }
+        const request = { id: ++this.paginatedRequestId, page, fetchCount: tab.fetchCount };
+        this.paginatedRequests[tab.resultId] = request;
+        if (tab.refreshOnProgress) {
+          this.paginatedLoading[tab.resultId] = true;
+        }
         try {
           const res = await this.$services.dmQueryFetchResultPage({
             data: {
@@ -1351,6 +1382,9 @@ export default {
             }
           });
 
+          if (this.paginatedRequests[tab.resultId]?.id !== request.id) {
+            return;
+          }
           if (res.success && res.data && res.data.rowSet) {
             const { rowSet } = res.data;
             const { columnList } = tab;
@@ -1374,8 +1408,14 @@ export default {
             if (!tab.pageCache) {
               tab.pageCache = {};
             }
+            // A WebSocket result may have filled this page while the request was in flight.
+            if (tab.refreshOnProgress && tab.pageCache[page]?.length > list.length) {
+              return;
+            }
             tab.pageCache[page] = list;
-            tab.showData = list;
+            if (tab.page === page) {
+              tab.showData = list;
+            }
             // Save original rowSet data for moreSize and other metadata.
             if (!tab.rowSetCache) {
               tab.rowSetCache = {};
@@ -1383,11 +1423,18 @@ export default {
             tab.rowSetCache[page] = rowSet; // Save raw data from the current page
           }
         } catch (error) {
-          appLogger.error('获取分页数据失败:', error);
-          this.$Message.error(this.$t('huo-qu-fen-ye-shu-ju-shi-bai'));
+          if (this.paginatedRequests[tab.resultId]?.id === request.id) {
+            appLogger.error('获取分页数据失败:', error);
+            this.$Message.error(this.$t('huo-qu-fen-ye-shu-ju-shi-bai'));
+          }
+        } finally {
+          if (this.paginatedRequests[tab.resultId]?.id === request.id) {
+            delete this.paginatedRequests[tab.resultId];
+            if (tab.refreshOnProgress) {
+              this.paginatedLoading[tab.resultId] = false;
+            }
+          }
         }
-      } else if (receiveMode === 'STREAM') {
-        tab.page = page;
       } else {
         tab.page = page;
         tab.showData = tab.dataArr[page - 1];

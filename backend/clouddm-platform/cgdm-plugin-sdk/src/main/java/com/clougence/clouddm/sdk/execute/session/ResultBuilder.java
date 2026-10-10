@@ -56,6 +56,9 @@ public interface ResultBuilder {
 
     interface ResultSetMetaBuild extends ResultBuild {
 
+        /** Enable incremental page reads after flushed row-count updates; disabled by default. */
+        void setRefreshOnProgress(boolean refreshOnProgress);
+
         ResultSetRowsBuild receiveMeta(Map<String, ResultColMeta> rowMeta) throws SQLException, IOException;
     }
 
@@ -68,10 +71,6 @@ public interface ResultBuilder {
         void receiveRow(boolean silent, Map<String, Object> rs) throws SQLException, IOException;
 
         long dataSize();
-
-        long expansionSize();
-
-        boolean fetcherOverflow();
 
         void finishAndContinue();
 

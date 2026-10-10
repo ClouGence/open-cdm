@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.kafka;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.kafka.definition.auth.KafkaAuthInfoSpi;
 import com.clougence.clouddm.ds.kafka.definition.ui.KafkaDsBrowseSpi;
+import com.clougence.clouddm.ds.kafka.definition.ui.template.KafkaCmdTemplateSpi;
 import com.clougence.clouddm.ds.kafka.dsconf.KafkaConfigSpi;
 import com.clougence.clouddm.ds.kafka.dsconf.KafkaSerializationSpi;
 import com.clougence.clouddm.ds.kafka.execute.KafkaSessionFactory;
@@ -51,6 +52,7 @@ public class KafkaDsPlugin implements DsPlugin, SchemaPlugin {
         dsPlugin.addPluginSpi(new KafkaSessionSpi());
         dsPlugin.addPluginSpi(new KafkaSupportSpi());
         dsPlugin.addPluginSpi(new KafkaDsBrowseSpi());
+        dsPlugin.addPluginSpi(new KafkaCmdTemplateSpi());
         dsPlugin.addGlobalSpi(new KafkaAuthInfoSpi());
         dsPlugin.bindGlobalI18n(KafkaDsI18nKeys.class);
         dsPlugin.bindSqlEngine(KafkaSqlEngineSpi.NAME);

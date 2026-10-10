@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.Properties;
 
 import org.apache.kafka.clients.admin.Admin;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -42,7 +43,19 @@ public class KafkaClients implements AutoCloseable {
     public KafkaClients(Properties properties){
         this.properties = new Properties();
         this.properties.putAll(properties);
-        this.admin = Admin.create(this.properties);
+        Properties adminProperties = new Properties();
+        adminProperties.putAll(this.properties);
+        // Avoid the Admin rebootstrap loop when all nodes are unavailable; normal reconnect backoff and API timeout still apply.
+        adminProperties.setProperty(AdminClientConfig.METADATA_RECOVERY_STRATEGY_CONFIG, "none");
+        Thread thread = Thread.currentThread();
+        ClassLoader contextClassLoader = thread.getContextClassLoader();
+        try {
+            // Kafka resolves configuration classes and SASL login modules through the context class loader.
+            thread.setContextClassLoader(KafkaClients.class.getClassLoader());
+            this.admin = Admin.create(adminProperties);
+        } finally {
+            thread.setContextClassLoader(contextClassLoader);
+        }
     }
 
     public synchronized Admin getAdmin() {
@@ -63,12 +76,17 @@ public class KafkaClients implements AutoCloseable {
         consumerProperties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         consumerProperties.setProperty(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, "false");
         consumerProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");
+        Thread thread = Thread.currentThread();
+        ClassLoader contextClassLoader = thread.getContextClassLoader();
         try {
+            thread.setContextClassLoader(KafkaClients.class.getClassLoader());
             return new KafkaConsumer<>(consumerProperties, new ByteArrayDeserializer(), new ByteArrayDeserializer());
         } catch (KafkaException e) {
             String msg = "Create Kafka consumer failed";
             log.error(msg, e);
             throw ThirdPartyApiException.as().with(e);
+        } finally {
+            thread.setContextClassLoader(contextClassLoader);
         }
     }
 

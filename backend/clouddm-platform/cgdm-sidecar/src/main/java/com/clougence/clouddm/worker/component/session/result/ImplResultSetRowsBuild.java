@@ -56,8 +56,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
     private final ValueFetcherContext[] columnFetcherCtx;
     private Map<String, ColMetaData>    cacheRowMeta;
     private long                        fetcherDataSize;
-    private long                        expansionSize;
-    private boolean                     fetcherOverflow;
 
     public ImplResultSetRowsBuild(String resultId, String sessionID, QueryRequest query, ResultListenerContainer listeners, //
                                   SessionSupport ss, ResultStorage localCache, List<ValueFetcherContext> metaCtx){
@@ -90,8 +88,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
         this.columnList = null;
         this.columnFetcher = null;
         this.fetcherDataSize = 0;
-        this.expansionSize = 0;
-        this.fetcherOverflow = false;
     }
 
     @Override
@@ -110,7 +106,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
     @Override
     public void receiveRow(boolean silent, java.sql.ResultSet rs) throws SQLException, IOException {
         List<ResultSetValue> data = silent ? Collections.emptyList() : new ArrayList<>();
-        long previousSize = this.fetcherDataSize;
         try (RowStorage row = this.localCache.nextRsRow()) {
             for (int i = 0; i < this.columnList.length; i++) {
                 String column = this.columnList[i];
@@ -138,7 +133,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 }
 
                 this.fetcherDataSize += value.getTotalSize();
-                this.expansionSize += value.getTotalSize();
 
                 if (!silent) {
                     data.add(value);
@@ -155,17 +149,12 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 rowDTO.setData(data);
                 this.get().getRowSet().add(rowDTO);
             }
-        } catch (ResultSetOverflowException e) {
-            this.fetcherDataSize = previousSize;
-            this.expansionSize += e.getOverflowSize();
-            this.fetcherOverflow = true;
         }
     }
 
     @Override
     public void receiveRow(boolean silent, Map<String, Object> rs) throws SQLException, IOException {
         List<ResultSetValue> data = silent ? Collections.emptyList() : new ArrayList<>();
-        long previousSize = this.fetcherDataSize;
         try (RowStorage row = this.localCache.nextRsRow()) {
             for (int i = 0; i < this.columnList.length; i++) {
                 String column = this.columnList[i];
@@ -193,7 +182,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 }
 
                 this.fetcherDataSize += value.getTotalSize();
-                this.expansionSize += value.getTotalSize();
 
                 if (!silent) {
                     data.add(value);
@@ -210,26 +198,12 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 rowDTO.setData(data);
                 this.get().getRowSet().add(rowDTO);
             }
-        } catch (ResultSetOverflowException e) {
-            this.fetcherDataSize = previousSize;
-            this.expansionSize += e.getOverflowSize();
-            this.fetcherOverflow = true;
         }
     }
 
     @Override
     public long dataSize() {
         return this.fetcherDataSize;
-    }
-
-    @Override
-    public long expansionSize() {
-        return this.expansionSize;
-    }
-
-    @Override
-    public boolean fetcherOverflow() {
-        return this.fetcherOverflow;
     }
 
     @Override

@@ -44,6 +44,8 @@ public class KafkaMetaService implements DsMetaService {
 
     @Override
     public String getVersion() {
+        // The datasource connection check calls getVersion, so it must wait for a broker response.
+        session.testConnect();
         // The Admin API does not expose the broker product version.
         return null;
     }
