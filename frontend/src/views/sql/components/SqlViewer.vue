@@ -599,6 +599,7 @@ export default {
           metaData.receiveMode = receiveMode;
           // Save query type (plan query or normal query).
           metaData.queryType = currentTab.currentQueryType || 'query';
+          metaData.fetchCount = 0;
 
           // Initialize the result set object before data is available.
           const len = currentTab.result.list.length;
@@ -621,7 +622,6 @@ export default {
             metaData.page = 1;
             metaData.size = 30; // PAGINATED mode is fixed to 30
             metaData.total = 0; // Initially 0, updated by ResultSetRows
-            metaData.fetchCount = 0; // Total rows retrieved
             metaData.data = null;
             metaData.dataArr = []; // Store loaded page data
             metaData.showData = [];
@@ -632,7 +632,6 @@ export default {
             metaData.page = 1;
             metaData.size = 30;
             metaData.total = 0;
-            metaData.fetchCount = 0; // Total number of rows retrieved, updated from resultSet fetchCount
             metaData.data = null;
             metaData.dataArr = [];
             metaData.showData = [];
@@ -653,28 +652,39 @@ export default {
           currentTab.result.list.push(metaData);
           currentTab.result.active = metaData.resultId;
         }
-        // Update the number of retrieved rows from ResultSetRows in PAGINATED mode.
+        // Progress updates carry the fetched count independently of the receive mode.
         if (queryData.object.resultType === 'ResultSetRows') {
           const { resultId, fetchCount } = queryData.object;
           const existingResult = currentTab.result.list.find((item) => item.resultId == resultId);
-          if (existingResult && existingResult.receiveMode === 'PAGINATED') {
+          if (existingResult) {
             existingResult.fetchCount = fetchCount || 0;
-            existingResult.total = fetchCount || 0;
+            if (existingResult.receiveMode === 'PAGINATED') {
+              existingResult.total = fetchCount || 0;
+            }
           }
         }
 
         // Process ResultSet, which contains row data.
         if (queryData.object.resultType === 'ResultSet') {
-          const { rowSet, resultId } = queryData.object;
+          const { rowSet, resultId, fetchCount } = queryData.object;
+          const existingResult = currentTab.result.list.find((item) => item.resultId == resultId);
+          if (!existingResult) {
+            return;
+          }
+          const { columnList, receiveMode } = existingResult;
+          // Empty result batches may still carry the final count.
+          if (fetchCount !== undefined) {
+            existingResult.fetchCount = fetchCount;
+            if (receiveMode === 'PAGINATED' || receiveMode === 'STREAM') {
+              existingResult.total = fetchCount;
+            }
+          }
 
           // Temporary compatibility: do not process this ResultSet if rowSet is empty.
           if (!rowSet || rowSet.length === 0) {
             return;
           }
 
-          // Find the corresponding result set by resultId; it should have been created from ResultSetMeta.
-          const existingResult = currentTab.result.list.find((item) => item.resultId == resultId);
-          const { columnList, receiveMode } = existingResult;
           const list = [];
 
           if (rowSet && columnList) {
@@ -704,11 +714,6 @@ export default {
               existingResult.rowSetCache = {};
             }
             existingResult.rowSetCache[1] = rowSet; // Save raw data on the first page
-            // Single-page results only emit ResultSet (not ResultSetRows); sync fetchCount here.
-            if (queryData.object.fetchCount !== undefined) {
-              existingResult.fetchCount = queryData.object.fetchCount;
-              existingResult.total = queryData.object.fetchCount;
-            }
           } else if (receiveMode === 'STREAM') {
             // STREAM mode: data continues to accumulate, showing only the latest 30 rows.
             existingResult.streamData = existingResult.streamData || [];
@@ -723,12 +728,6 @@ export default {
               existingResult.rowSetStream = [];
             }
             existingResult.rowSetStream.push(...rowSet);
-
-            // Update fetchCount and total from resultSet.
-            if (queryData.object.fetchCount !== undefined) {
-              existingResult.fetchCount = queryData.object.fetchCount;
-              existingResult.total = queryData.object.fetchCount;
-            }
 
             // Keep only the latest 30 rows for display.
             const displayCount = 30;

@@ -74,6 +74,8 @@ public class KafkaResultWriter {
         int pageCount = 0;
         boolean silent = false;
         boolean truncated = false;
+        boolean consuming = data instanceof KafkaRecordIterator;
+        long progressTime = 0;
         // Check the row bound before advancing the source: hasNext() may block in Consumer.poll().
         while (limits.getFetchRecordCountLimit() <= 0 || count < limits.getFetchRecordCountLimit()) {
             checkActive.run();
@@ -92,6 +94,18 @@ public class KafkaResultWriter {
             }
             count++;
             pageCount++;
+            rows.collectMetric(count);
+
+            // Publish counts without emitting partial result pages or changing the configured receive mode.
+            long now = System.currentTimeMillis();
+            if (consuming && now - progressTime >= 1000) {
+                rows.flushData();
+                var progress = rows.newRowCountUpdate();
+                progress.collectMetric(count);
+                progress.collectCost(now - start);
+                progress.finishRecord(true);
+                progressTime = now;
+            }
 
             if (limits.getFetchResultSetBytesLimit() > 0 && rows.dataSize() >= limits.getFetchResultSetBytesLimit()) {
                 truncated = true;
@@ -122,6 +136,10 @@ public class KafkaResultWriter {
         }
         if (truncated) {
             truncated();
+        } else if (consuming && count >= limits.getFetchRecordCountLimit()) {
+            var message = builder.newMessage(query);
+            message.receiveMessage(MessageLevel.Info, i18n.getMessage(KafkaDsI18nKeys.KAFKA_CONSUMER_LIMIT_REACHED, new Object[] { count }), false);
+            message.finishRecord(true);
         }
     }
 

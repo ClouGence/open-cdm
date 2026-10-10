@@ -63,7 +63,7 @@
           <div v-for="(info, index) in tab.executeInfo" :key="index" class="result-info">
             <div class="info info--query" v-if="info.resultType === 'QueryScript'">
               <div class="level">{{ info.line }}</div>
-              <ExecutionSqlText class="message" :sql="info.script" />
+              <ExecutionSqlText class="message" :sql="info.script" :language="executionLanguage" />
             </div>
             <div
               class="info"
@@ -102,6 +102,18 @@
         class="result-content-wrapper"
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
+        <div class="result-summary">
+          <span role="status">{{ $t('query-fetched-count', [selectedTab.fetchCount || 0]) }}</span>
+          <Poptip v-if="selectedTab.querySql" trigger="click" transfer placement="top-start">
+            <template #content>
+              <div class="query-rewrite-details">
+                <pre class="query-rewrite-sql">{{ selectedTab.querySql }}</pre>
+              </div>
+            </template>
+            <button type="button" class="result-summary-link">{{ $t('query-effective-statement') }}</button>
+          </Poptip>
+          <button type="button" class="result-summary-link" @click="handleResultTabChange('message')">{{ $t('zhi-hang-xin-xi') }}</button>
+        </div>
         <div class="tip-footer">
           <div class="tip-footer-main">
             <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
@@ -448,6 +460,7 @@ import { isMySQL } from '@/utils';
 import { mapGetters, mapState } from 'vuex';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 import ExecutionSqlText from '@/views/sql/components/ExecutionSqlText.vue';
+import { getBaseEditorLanguage } from '@/components/editor/sqlLanguage';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import XEClipboard from 'xe-clipboard';
 
@@ -465,7 +478,6 @@ export default {
   },
   data() {
     return {
-      exportTypes: [],
       contextData: null,
       actionType: '',
       currentTableName: '',
@@ -534,6 +546,12 @@ export default {
   computed: {
     ...mapState(['dmGlobalSetting']),
     ...mapGetters(['getQualifier']),
+    executionLanguage() {
+      return getBaseEditorLanguage(this.tab.dsType);
+    },
+    exportTypes() {
+      return this.dmGlobalSetting.fmtConvertDef || [];
+    },
     filteredColumns() {
       const keyword = (this.columnSearch || '').toLowerCase();
       return (this.insertOption.columns || []).filter((c) => !keyword || (c.columnName || '').toLowerCase().includes(keyword));
@@ -672,7 +690,6 @@ export default {
     }
   },
   mounted() {
-    this.exportTypes = this.dmGlobalSetting.fmtConvertDef;
     this.initAllTabsExportState();
     this.$bus.on(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO, (info) => {
       // Export info events contain resultId in ResultSetMeta, so cacheFile no longer needs separate handling.
@@ -2185,6 +2202,25 @@ export default {
   color: rgba(0, 0, 0, 0.88);
   background: #ffffff;
   z-index: 9;
+}
+
+.result-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.result-summary-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--link-color, #1b61c9);
+  font: inherit;
+  cursor: pointer;
 }
 
 .tip-footer-main {

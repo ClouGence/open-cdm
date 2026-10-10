@@ -46,6 +46,10 @@ public class KafkaConsumerCommand {
         KafkaCommand effective = normalize(command);
         long timeoutMs = Long.parseLong(effective.value("--timeout-ms"));
         session.checkCancelled();
+        var effectiveMessage = builder.newMessage(query);
+        effectiveMessage.receiveMessage(MessageLevel.Info, I18nUtils.initI18n(KafkaDsI18nKeys.class)
+            .getMessage(KafkaDsI18nKeys.KAFKA_EFFECTIVE_COMMAND, new Object[] { query.getQueryBody() }), false);
+        effectiveMessage.finishRecord(true);
         try (KafkaRecordIterator records = new KafkaRecordIterator(session, clients.createConsumer(), timeoutMs)) {
             records.assign(effective);
             new KafkaResultWriter(query, builder).table(List

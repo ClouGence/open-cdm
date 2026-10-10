@@ -4421,5 +4421,7 @@
   "sql-prepare": "Prepare",
   "sql-execute": "Execute",
   "sql-receive": "Receive",
-  "gai-xie-yu-ju": "Rewritten statement"
+  "gai-xie-yu-ju": "Rewritten statement",
+  "query-fetched-count": "Fetched {0} records",
+  "query-effective-statement": "Executed statement"
 }

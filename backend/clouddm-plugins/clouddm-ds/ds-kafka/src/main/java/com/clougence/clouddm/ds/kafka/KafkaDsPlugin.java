@@ -35,8 +35,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 import com.clougence.sql.kafka.KafkaSqlEngineSpi;
 
-// Keep the datasource hidden until Kafka integration acceptance is complete.
-@Plugin(name = "i18n::" + KafkaDsI18nKeys.PLUGIN_NAME_KAFKA, display = false, includePackages = { "com.clougence.clouddm.ds.kafka.execute.*" }, dsProduct = DataSourceType.Kafka)
+@Plugin(name = "i18n::" + KafkaDsI18nKeys.PLUGIN_NAME_KAFKA, includePackages = { "com.clougence.clouddm.ds.kafka.execute.*" }, dsProduct = DataSourceType.Kafka)
 public class KafkaDsPlugin implements DsPlugin, SchemaPlugin {
 
     @Override

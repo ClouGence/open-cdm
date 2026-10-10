@@ -4400,5 +4400,7 @@
   "sql-prepare": "准备",
   "sql-execute": "执行",
   "sql-receive": "接收",
-  "gai-xie-yu-ju": "改写语句"
+  "gai-xie-yu-ju": "改写语句",
+  "query-fetched-count": "已获取 {0} 条",
+  "query-effective-statement": "实际执行内容"
 }
