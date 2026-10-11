@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.es;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.ds.es.definition.EsSecRulesSupportSpi;
 import com.clougence.clouddm.ds.es.definition.ui.EsCmdTemplateSpi;
 import com.clougence.clouddm.ds.es.definition.ui.EsDsBrowseSpi;
 import com.clougence.clouddm.ds.es.dsconf.EsConfigSpi;
@@ -49,6 +50,7 @@ public class EsDsPlugin implements DsPlugin, SchemaPlugin {
         binder.bindDsSessionFactory(EsSessionFactory.class);
         binder.addPluginSpi(new EsSessionSpi());
         binder.addPluginSpi(new EsSupportSpi());
+        binder.addPluginSpi(new EsSecRulesSupportSpi());
         binder.addPluginSpi(new EsDsBrowseSpi());
         binder.addPluginSpi(new EsCmdTemplateSpi());
         binder.bindSqlEngine(EsSqlEngineSpi.NAME);

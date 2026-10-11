@@ -38,6 +38,8 @@ public interface EntityType {
     byte DateTimeZ  = ResultType.DateTimeZ; // (byte) 0x0F;
     byte BigDecimal = ResultType.BigDecimal;// (byte) 0x10;
 
+    byte JsonDoc    = ResultType.JsonDoc;
+
     static boolean isTypeOf(byte header, byte typeCode) {
         return header == typeCode;
     }

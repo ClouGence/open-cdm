@@ -23,14 +23,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public final class ColMetaData {
+    // Complete JSON object whose leaf paths identify source fields; stored through the VARCHAR value path.
+    public static final String JSON_DOCUMENT = "JSON_DOCUMENT";
 
-    private String   catalog;
-    private String   schema;
-    private String   table;
-    private String   column;
-    private int      index;
+    private String             catalog;
+    private String             schema;
+    private String             table;
+    private String             column;
+    private int                index;
 
-    private String   columnType;
-    private JDBCType jdbcType;
-    private int      precision;
+    private String             columnType;
+    private JDBCType           jdbcType;
+    private int                precision;
 }

@@ -17,7 +17,6 @@ package com.clougence.sql.es;
 
 import java.io.Reader;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
@@ -37,12 +36,12 @@ import com.clougence.sql.es.antlr.EsLexer;
 import com.clougence.sql.es.antlr.EsParser;
 
 public class EsSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
-    private final EsDslProvider      provider;
-    private final EsRequestValidator validator;
+    private final EsDslProvider   provider;
+    private final EsRequestParser requestParser;
 
     public EsSplitAnalysisSpi(SqlParserParameters parameters){
         this.provider = new EsDslProvider(parameters);
-        this.validator = new EsRequestValidator(parameters);
+        this.requestParser = new EsRequestParser(parameters);
     }
 
     @Override
@@ -78,19 +77,14 @@ public class EsSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
-        // The shared splitter includes leading comments; AST offsets start at the HTTP method.
-        int length = context.getStop().getStopIndex() + 1 - context.getStart().getStartIndex();
-        int start = script.offsetByCodePoints(script.length(), -length);
-        validator.validate(EsAstBuilder.from((EsParser.RequestContext) context, script.substring(start)));
-        return super.collectTypes(context, script);
-    }
-
-    @Override
     public Stream<SplitScript> splitScriptStream(Reader reader, List<QueryArg> args, int baseCodeLine, int baseCodeColumn) {
         if (args != null && !args.isEmpty()) {
             throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_ARGS_UNSUPPORTED);
         }
-        return super.splitScriptStream(reader, args, baseCodeLine, baseCodeColumn);
+        return super.splitScriptStream(reader, args, baseCodeLine, baseCodeColumn).map(script -> {
+            // Validate after emission: throwing inside an ANTLR exit listener can re-enter it while unwinding.
+            requestParser.parse(script.getScript());
+            return script;
+        });
     }
 }

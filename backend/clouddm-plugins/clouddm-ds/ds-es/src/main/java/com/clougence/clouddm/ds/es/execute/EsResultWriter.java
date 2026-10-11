@@ -27,6 +27,7 @@ import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowsBuild;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.sql.es.EsJsonArray;
 import com.clougence.sql.es.EsOperation;
 import com.clougence.sql.es.EsRequest;
 import com.clougence.utils.i18n.I18nUtils;
@@ -40,6 +41,11 @@ final class EsResultWriter {
     private final ResultBuilder      builder;
     private final EsExecutionContext execution;
     private final long               start;
+    private long                     bytes;
+    private int                      count;
+    private int                      pageCount;
+    private boolean                  silent;
+    private String                   index;
 
     EsResultWriter(QueryRequest query, ResultBuilder builder, EsExecutionContext execution, long start){
         this.query = query;
@@ -50,6 +56,7 @@ final class EsResultWriter {
 
     void write(EsRequest request, EsOperation operation, EsResponse response) throws Exception {
         execution.checkActive();
+        index = request.segments().get(0).value();
         JsonNode body = response.body();
         if (request.method().equals("HEAD")) {
             message(MessageLevel.Info, EsDsI18nKeys.ES_EXISTS_RESULT, response.status() == 200);
@@ -77,7 +84,7 @@ final class EsResultWriter {
                 } else if (!body.has("found")) {
                     throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_RESPONSE_INVALID);
                 }
-                table(documents, "_source");
+                table(prepareDocuments(documents), "_source");
             }
             case COUNT -> {
                 if (!body.path("count").isIntegralNumber()) {
@@ -95,15 +102,18 @@ final class EsResultWriter {
         }
     }
 
-    private void checkStatus(JsonNode body, int status) {
+    static void checkStatus(JsonNode body, int status) {
+        if (body == null || !body.isObject()) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_RESPONSE_INVALID);
+        }
         if (body.has("error")) {
             throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_HTTP_ERROR, status);
         }
         if (body.path("timed_out").asBoolean()) {
             throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_REQUEST_TIMEOUT);
         }
-        if (body.path("_shards").path("failed").asLong() > 0 || !body.path("failures").isEmpty() || (body.has("acknowledged") && !body.path("acknowledged").asBoolean())
-            || (body.has("shards_acknowledged") && !body.path("shards_acknowledged").asBoolean())) {
+        if (body.path("terminated_early").asBoolean() || body.path("_shards").path("failed").asLong() > 0 || !body.path("failures").isEmpty()
+            || (body.has("acknowledged") && !body.path("acknowledged").asBoolean()) || (body.has("shards_acknowledged") && !body.path("shards_acknowledged").asBoolean())) {
             throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_PARTIAL_RESPONSE);
         }
     }
@@ -121,8 +131,11 @@ final class EsResultWriter {
             }
             documents.add(hit);
         }
-        table(documents, "_source");
         JsonNode aggregates = body.get("aggregations");
+        if (query.isUsingValueProcess() && aggregates != null) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_MASKING_UNSUPPORTED);
+        }
+        table(prepareDocuments(documents), "_source");
         if (aggregates != null) {
             if (!aggregates.isObject()) {
                 throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_RESPONSE_INVALID);
@@ -177,7 +190,11 @@ final class EsResultWriter {
             }
         }
         // Preserve native result/version/conflict details without guessing additional affected rows.
-        message(MessageLevel.Info, EsDsI18nKeys.ES_EXECUTION_RESULT, body.toString());
+        if (query.isUsingValueProcess()) {
+            message(MessageLevel.Info, EsDsI18nKeys.ES_EXECUTION_RESULT, operation.name() + ": " + count);
+        } else {
+            message(MessageLevel.Info, EsDsI18nKeys.ES_EXECUTION_RESULT, body.toString());
+        }
         execution.checkActive();
         var result = builder.newResultCount(query);
         result.receiveUpdateCount(count);
@@ -186,6 +203,10 @@ final class EsResultWriter {
     }
 
     private void table(List<JsonNode> data, String emptyColumn) throws Exception {
+        bytes = 0;
+        count = 0;
+        pageCount = 0;
+        silent = false;
         QueryResultConf limits = query.getResultConf();
         int count = data.size();
         if (limits.getFetchRecordCountLimit() > 0) {
@@ -198,7 +219,8 @@ final class EsResultWriter {
         try {
             rows = meta.receiveMeta(columns);
             meta.finishRecord(true);
-            writeRows(rows, columns, selected);
+            appendRows(rows, columns, selected);
+            finishRows(rows);
         } catch (Exception e) {
             if (rows == null) {
                 meta.finishRecord(false, e.getMessage(), e);
@@ -254,21 +276,22 @@ final class EsResultWriter {
                 fetcher = AbstractColReader.BOOLEAN_VALUE_FETCHER;
             }
             ColMetaData column = new ColMetaData();
+            column.setTable(index);
             column.setColumn(entry.getKey());
             column.setIndex(columns.size());
             column.setJdbcType(type);
-            column.setColumnType(type.getName());
+            if (entry.getKey().equals("_source")) {
+                column.setColumnType(ColMetaData.JSON_DOCUMENT);
+            } else {
+                column.setColumnType(type.getName());
+            }
             columns.put(entry.getKey(), new ResultColMeta(column, fetcher));
         }
         return columns;
     }
 
-    private void writeRows(ResultSetRowsBuild rows, Map<String, ResultColMeta> columns, List<JsonNode> data) throws Exception {
+    private void appendRows(ResultSetRowsBuild rows, Map<String, ResultColMeta> columns, List<JsonNode> data) throws Exception {
         QueryResultConf limits = query.getResultConf();
-        long bytes = 0;
-        int count = 0;
-        int pageCount = 0;
-        boolean silent = false;
         for (JsonNode document : data) {
             execution.checkActive();
             Map<String, Object> row = new LinkedHashMap<>();
@@ -307,6 +330,9 @@ final class EsResultWriter {
                 silent = limits.getReceiveMode() == ReceiveMode.PAGINATED;
             }
         }
+    }
+
+    private void finishRows(ResultSetRowsBuild rows) {
         execution.checkActive();
         rows.collectMetric(count);
         rows.collectCost(System.currentTimeMillis() - start);
@@ -320,6 +346,90 @@ final class EsResultWriter {
         } else {
             rows.finishRecord(true);
         }
+    }
+
+    private List<JsonNode> prepareDocuments(List<JsonNode> documents) {
+        if (!query.isUsingValueProcess()) {
+            return documents;
+        }
+        List<JsonNode> processed = new ArrayList<>();
+        Set<String> allowed = Set.of("_index", "_id", "_type", "_version", "_seq_no", "_primary_term", "_score", "_source", "found", "sort", "_ignored");
+        for (JsonNode document : documents) {
+            for (var field : document.properties()) {
+                if (!allowed.contains(field.getKey())) {
+                    throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_MASKING_UNSUPPORTED);
+                }
+            }
+            JsonNode source = document.get("_source");
+            if (source != null && !source.isNull() && !source.isObject()) {
+                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_RESPONSE_INVALID);
+            }
+            ObjectNode copy = document.deepCopy();
+            // Sort values may duplicate sensitive fields. The cursor keeps the untouched response.
+            copy.remove("sort");
+            processed.add(copy);
+        }
+        return processed;
+    }
+
+    void writeContinuous(EsRequest request, EsClient client, long limit) throws Exception {
+        index = request.segments().get(0).value();
+        ObjectNode shape = JsonNodeFactory.instance.objectNode();
+        for (String name : List.of("_index", "_id", "_type", "_source", "_ignored", "sort")) {
+            shape.put(name, "");
+        }
+        for (String name : List.of("_score", "_version", "_seq_no", "_primary_term")) {
+            shape.put(name, 0);
+        }
+        boolean sorted = request.body() != null && request.body()
+            .members()
+            .stream()
+            .anyMatch(member -> member.name().value().equals("sort") && !(member.value() instanceof EsJsonArray array && array.values().isEmpty()));
+        if (query.isUsingValueProcess() || !sorted) {
+            shape.remove("sort");
+        }
+        Map<String, ResultColMeta> columns = columns(List.of(shape), "_source");
+        var meta = builder.newResultMeta(query, builder.newResultId(query));
+        meta.setRefreshOnProgress(true);
+        ResultSetRowsBuild rows = null;
+        try {
+            rows = meta.receiveMeta(columns);
+            meta.finishRecord(true);
+            try (EsSearchCursor cursor = new EsSearchCursor(client, request, execution, query.getResultConf().getFetchResultSetBytesLimit())) {
+                while (count < limit) {
+                    JsonNode response = cursor.nextPage(limit - count);
+                    JsonNode hits = response.path("hits").path("hits");
+                    if (hits.isEmpty()) {
+                        break;
+                    }
+                    List<JsonNode> page = new ArrayList<>();
+                    for (JsonNode hit : hits) {
+                        for (var field : hit.properties()) {
+                            if (!columns.containsKey(field.getKey()) && !(query.isUsingValueProcess() && field.getKey().equals("sort"))) {
+                                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_CONTINUOUS_RESPONSE_UNSUPPORTED);
+                            }
+                        }
+                        page.add(hit);
+                    }
+                    appendRows(rows, columns, prepareDocuments(page));
+                    rows.flushData();
+                    var progress = rows.newRowCountUpdate();
+                    progress.collectMetric(count);
+                    progress.collectCost(System.currentTimeMillis() - start);
+                    progress.finishRecord(true);
+                }
+            }
+            finishRows(rows);
+        } catch (Exception e) {
+            if (rows == null) {
+                meta.finishRecord(false, e.getMessage(), e);
+            } else {
+                rows.collectCost(System.currentTimeMillis() - start);
+                rows.finishRecord(false, e.getMessage(), e);
+            }
+            throw e;
+        }
+        message(MessageLevel.Info, EsDsI18nKeys.ES_CONTINUOUS_RESULT, count);
     }
 
     private void message(MessageLevel level, String key, Object... args) {

@@ -262,7 +262,11 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
             }
         }
 
-        this.doMask();
+        if (success) {
+            this.doMask();
+        } else {
+            this.get().getRowSet().clear();
+        }
         this.resetCurrent();
 
         super.finishRecord(success);
@@ -280,6 +284,8 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
 
         if (success) {
             this.doMask();
+        } else {
+            this.get().getRowSet().clear();
         }
         this.resetCurrent();
 

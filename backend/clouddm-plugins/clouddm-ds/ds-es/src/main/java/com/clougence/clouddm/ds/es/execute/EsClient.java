@@ -77,7 +77,7 @@ public final class EsClient implements AutoCloseable {
 
     EsServerVersion probe(EsExecutionContext context) {
         Request request = new Request("GET", "/");
-        JsonNode body = perform(request, "Probe ES server failed", true, context, 1024 * 1024).body();
+        JsonNode body = perform(request, "Probe ES server failed", true, context, 1024 * 1024, false).body();
         EsServerVersion version = EsServerVersion.parse(body.path("version").path("number").asText());
         synchronized (stateLock) {
             checkOpen();
@@ -86,7 +86,7 @@ public final class EsClient implements AutoCloseable {
         return version;
     }
 
-    private EsResponse perform(Request request, String msg, boolean probe, EsExecutionContext context, int responseLimit) {
+    private EsResponse perform(Request request, String msg, boolean probe, EsExecutionContext context, int responseLimit, boolean retainCursorResponse) {
         // Native JSON works across ES 7/8/9; compatibility headers only bridge one major.
         request.setOptions(RequestOptions.DEFAULT.toBuilder()
             .addHeader("Accept", "application/json")
@@ -114,7 +114,7 @@ public final class EsClient implements AutoCloseable {
                 body = mapper.readTree(EntityUtils.toByteArray(response.getEntity()));
             }
 
-            if (context != null) {
+            if (context != null && !retainCursorResponse) {
                 context.checkActive();
             }
 
@@ -273,7 +273,7 @@ public final class EsClient implements AutoCloseable {
     private JsonNode metadata(String path, Map<String, String> parameters, EsExecutionContext context) {
         Request request = new Request("GET", path);
         parameters.forEach(request::addParameter);
-        return perform(request, "Read ES metadata failed", false, context, 16 * 1024 * 1024).body();
+        return perform(request, "Read ES metadata failed", false, context, 16 * 1024 * 1024, false).body();
     }
 
     EsResponse execute(EsRequest source, EsOperation operation, long byteLimit, EsExecutionContext context) {
@@ -296,7 +296,27 @@ public final class EsClient implements AutoCloseable {
             responseLimit = (int) Math.min(responseLimit, byteLimit);
         }
 
-        return perform(request, "Execute ES request failed", false, context, responseLimit);
+        return perform(request, "Execute ES request failed", false, context, responseLimit, false);
+    }
+
+    JsonNode parseBody(EsRequest request) throws IOException {
+        if (request.rawBody() == null) {
+            return mapper.createObjectNode();
+        }
+        return mapper.readTree(request.rawBody());
+    }
+
+    EsResponse executeInternal(String method, String path, Map<String, String> parameters, JsonNode body, long byteLimit, EsExecutionContext context) {
+        Request request = new Request(method, path);
+        parameters.forEach(request::addParameter);
+        if (body != null) {
+            request.setJsonEntity(body.toString());
+        }
+        int limit = 64 * 1024 * 1024;
+        if (byteLimit > 0) {
+            limit = (int) Math.min(limit, byteLimit);
+        }
+        return perform(request, "Execute ES cursor request failed", false, context, limit, true);
     }
 
     public void cancel() {

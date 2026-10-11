@@ -318,10 +318,10 @@ public abstract class ResultSetOutputStream extends OutputStream {
     public void finishData() throws IOException {
         if (this.writingData) {
             if (this.writingDataAsStream) {
-                long dataLen = this.currentPos - this.lastDataHeadPos + 10; // 10 bytes for data header(2 headers + 8 bytes for length )
+                long dataLen = this.currentPos - this.lastDataHeadPos - 11; // type/length-width/tag + eight-byte length
                 byte[] lenBytes = buildBytes(8, bb -> bb.writeInt64(dataLen));
 
-                long dataLenHeader = this.currentPos - this.lastDataHeadPos + 2;// 2 bytes for data header
+                long dataLenHeader = this.lastDataHeadPos + 3;
                 this.setBytes(dataLenHeader, lenBytes, 0, lenBytes.length);
             } else {
                 this.currentPos += this.requiredBytes;
@@ -562,9 +562,17 @@ public abstract class ResultSetOutputStream extends OutputStream {
     }
 
     public void writeString(byte tag, String v, Charset charset) throws IOException {
+        writeText(tag, EntityType.String, v, charset);
+    }
+
+    public void writeJsonDocument(byte tag, String v, Charset charset) throws IOException {
+        writeText(tag, EntityType.JsonDoc, v, charset);
+    }
+
+    private void writeText(byte tag, byte type, String v, Charset charset) throws IOException {
         try {
             if (v == null) {
-                this.writeDataHeaderWithNull(tag, EntityType.String);
+                this.writeDataHeaderWithNull(tag, type);
             } else {
                 charset = (Charset) ObjectUtils.defaultIfNull(charset, Charset.defaultCharset());
                 byte[] nameLenBytes;
@@ -578,7 +586,7 @@ public abstract class ResultSetOutputStream extends OutputStream {
                 dataLenBytes = lengthBytes(dataBytes.length);
 
                 long length = nameLenBytes.length + nameBytes.length + dataLenBytes.length + dataBytes.length;
-                this.writeDataHeaderWithSize(tag, EntityType.String, length);
+                this.writeDataHeaderWithSize(tag, type, length);
 
                 this.write(nameLenBytes);
                 this.write(nameBytes);
@@ -696,27 +704,39 @@ public abstract class ResultSetOutputStream extends OutputStream {
     }
 
     public void writeString(byte tag, Reader v, Charset charset) throws IOException {
+        writeText(tag, EntityType.String, v, charset);
+    }
+
+    public void writeJsonDocument(byte tag, Reader v, Charset charset) throws IOException {
+        writeText(tag, EntityType.JsonDoc, v, charset);
+    }
+
+    private void writeText(byte tag, byte type, Reader v, Charset charset) throws IOException {
         try {
             if (v == null) {
-                this.writeDataHeaderWithNull(tag, EntityType.String);
+                this.writeDataHeaderWithNull(tag, type);
             } else {
                 charset = (Charset) ObjectUtils.defaultIfNull(charset, Charset.defaultCharset());
                 byte[] nameBytes = charset.name().getBytes(StandardCharsets.US_ASCII);
                 byte[] nameLenBytes = lengthBytes(nameBytes.length);
 
-                this.writeDataHeaderWithStream(tag, EntityType.String);
+                this.writeDataHeaderWithStream(tag, type);
                 this.write(nameLenBytes);
                 this.write(nameBytes);
 
                 long dataLengthPos = this.currentPos;
                 this.write(new byte[9]); // reserve 9 bytes for data length.
-                try (Writer out = new OutputStreamWriter(this, charset)) {
-                    IOUtils.copy(v, out);
-                    out.flush();
-                }
+                // Closing this writer would close the result file while the current row is still being written.
+                Writer out = new OutputStreamWriter(this, charset);
+                IOUtils.copy(v, out);
+                out.flush();
 
                 long dataLength = this.currentPos - dataLengthPos - 9;
-                byte[] dataLenBytes = lengthBytes(dataLength);
+                // Preserve the reserved nine-byte length field; a variable-width prefix would shift the payload.
+                byte[] dataLenBytes = buildBytes(9, bb -> {
+                    bb.writeByte((byte) 8);
+                    bb.writeInt64(dataLength);
+                });
                 this.setBytes(dataLengthPos, dataLenBytes, 0, dataLenBytes.length);
             }
 
@@ -733,17 +753,7 @@ public abstract class ResultSetOutputStream extends OutputStream {
                 this.writeDataHeaderWithNull(tag, EntityType.Bytes);
             } else {
                 this.writeDataHeaderWithStream(tag, EntityType.Bytes);
-
-                long dataLengthPos = this.currentPos;
-                this.write(new byte[9]); // reserve 9 bytes for data length.
                 IOUtils.copy(v, this);
-
-                long dataLength = this.currentPos - dataLengthPos - 9;
-                byte[] dataLenBytes = buildBytes(9, bb -> {
-                    bb.writeByte((byte) 0x08); // 8 byte for length
-                    bb.writeInt64(dataLength);
-                });
-                this.setBytes(dataLengthPos, dataLenBytes, 0, dataLenBytes.length);
             }
 
             this.finishData();

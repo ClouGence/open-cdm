@@ -60,11 +60,11 @@ public class EsSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
-        return null;
+        return new EsSecDomainResolveSpi(parameters);
     }
 
     @Override
     public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
-        return null;
+        return new EsRewriteSpi(parameters);
     }
 }

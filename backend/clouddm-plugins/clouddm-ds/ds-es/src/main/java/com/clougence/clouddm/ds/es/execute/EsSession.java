@@ -256,6 +256,17 @@ public class EsSession implements Session {
                 client.checkIndex(name, write && name.equals(analysis.index().name()), execution);
             }
         }
+        if (analysis.operation() == EsOperation.SEARCH) {
+            long limit = EsSearchLimit.resolve(request).size();
+            long maximum = query.getResultConf().getFetchRecordCountLimit();
+            if (maximum > 0) {
+                limit = Math.min(limit, maximum);
+            }
+            if (version.capabilities().pitShardDoc() && limit > EsSearchPagination.PAGE_SIZE && EsSearchPagination.supports(request)) {
+                new EsResultWriter(query, builder, execution, start).writeContinuous(request, client, limit);
+                return;
+            }
+        }
         EsResponse response = client.execute(request, analysis.operation(), query.getResultConf().getFetchResultSetBytesLimit(), execution);
         new EsResultWriter(query, builder, execution, start).write(request, analysis.operation(), response);
     }

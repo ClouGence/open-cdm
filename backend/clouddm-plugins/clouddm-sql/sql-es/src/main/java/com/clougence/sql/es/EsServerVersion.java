@@ -28,7 +28,7 @@ public record EsServerVersion(String number, int major, int minor, int patch) {
         if (!match.matches()) {
             throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_SERVER_VERSION_INVALID);
         }
-        
+
         try {
             int major = Integer.parseInt(match.group(1));
             int minor = Integer.parseInt(match.group(2));
@@ -47,6 +47,12 @@ public record EsServerVersion(String number, int major, int minor, int patch) {
         if (major >= 8) {
             compatibleApiMajor = major - 1;
         }
-        return new EsVersionCapabilities(true, major == 7, compatibleApiMajor, major == 9 || (major == 8 && minor >= 4), major == 9 || (major == 8 && minor >= 14), major == 8);
+        return new EsVersionCapabilities(true,
+            major > 7 || minor >= 12,
+            major == 7,
+            compatibleApiMajor,
+            major == 9 || (major == 8 && minor >= 4),
+            major == 9 || (major == 8 && minor >= 14),
+            major == 8);
     }
 }

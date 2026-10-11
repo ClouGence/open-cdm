@@ -31,8 +31,14 @@ final class EsQueryReferences {
     private final String                 index;
     private final List<EsIndexReference> reads         = new ArrayList<>();
 
+    private boolean                      pageable      = true;
+
     EsQueryReferences(String index){
         this.index = index;
+    }
+
+    boolean pageable() {
+        return pageable;
     }
 
     List<EsIndexReference> reads() {
@@ -80,6 +86,15 @@ final class EsQueryReferences {
         }
         var clause = clauses.entrySet().iterator().next();
         String type = clause.getKey();
+        if (Set.of("script", "script_score", "function_score", "knn").contains(type)) {
+            pageable = false;
+        }
+        if (Set.of("range", "query_string", "simple_query_string", "distance_feature").contains(type)) {
+            // The PIT freezes index contents, not the evaluation time of a relative date query.
+            if (EsSearchPagination.hasRelativeTime(clause.getValue())) {
+                pageable = false;
+            }
+        }
         if (LEAF_QUERIES.contains(type)) {
             return;
         }
@@ -258,6 +273,7 @@ final class EsQueryReferences {
     }
 
     private void innerHits(EsJsonValue value) {
+        pageable = false;
         if (value instanceof EsJsonArray array) {
             array.values().forEach(this::innerHits);
             return;
@@ -288,7 +304,10 @@ final class EsQueryReferences {
     }
 
     private void sort(EsJsonValue value) {
-        if (value instanceof EsJsonString) {
+        if (value instanceof EsJsonString string) {
+            if (string.value().equals("_doc")) {
+                pageable = false;
+            }
             return;
         }
         if (value instanceof EsJsonArray array) {
@@ -296,11 +315,15 @@ final class EsQueryReferences {
             return;
         }
         for (var entry : EsJsonAccess.object(value).entrySet()) {
+            if (entry.getKey().equals("_doc")) {
+                pageable = false;
+            }
             if (!(entry.getValue() instanceof EsJsonObject)) {
                 continue;
             }
             var options = EsJsonAccess.object(entry.getValue());
             if (entry.getKey().equals("_script") && options.containsKey("script")) {
+                pageable = false;
                 script(options.get("script"));
             }
             if (options.containsKey("nested")) {

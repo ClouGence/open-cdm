@@ -16,5 +16,6 @@
 package com.clougence.sql.es;
 
 /** API capabilities derive from the server version, never the REST client artifact version. */
-public record EsVersionCapabilities(boolean pointInTime, boolean mappingTypes, Integer compatibleApiMajor, boolean searchKnn, boolean retriever, boolean legacyKnnSearch) {
+public record EsVersionCapabilities(boolean pointInTime, boolean pitShardDoc, boolean mappingTypes, Integer compatibleApiMajor, boolean searchKnn, boolean retriever,
+                                    boolean legacyKnnSearch) {
 }
