@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.es.execute;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.clougence.clouddm.ds.es.dsconf.EsConfig;
@@ -25,8 +26,10 @@ import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.drivers.DsObject;
-import com.clougence.sql.es.EsServerVersion;
+import com.clougence.sql.es.*;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +73,19 @@ public class EsSession implements Session {
             EsServerVersion version = client.probe();
             dsConfig.setVersion(version.number());
             return version;
+        } finally {
+            executing.decrementAndGet();
+        }
+    }
+
+    List<String> readIndices() {
+        synchronized (stateLock) {
+            checkOpen();
+            executing.incrementAndGet();
+            lastQueryTime = System.currentTimeMillis();
+        }
+        try {
+            return client.listIndices();
         } finally {
             executing.decrementAndGet();
         }
@@ -122,7 +138,37 @@ public class EsSession implements Session {
 
     @Override
     public void executeQuery(QueryRequest query, ResultBuilder builder) {
-        throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        synchronized (stateLock) {
+            checkOpen();
+            executing.incrementAndGet();
+            lastQueryTime = System.currentTimeMillis();
+        }
+        try {
+            if ((query.getQueryArgs() != null && !query.getQueryArgs().isEmpty()) || query.isUseCallable() || query.isUseExplain() || query.isUseCompile()) {
+                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+            }
+            EsServerVersion version = client.getServerVersion();
+            if (version == null) {
+                version = readVersion();
+            }
+            SqlParserParameters parameters = new SqlParserParameters(Map.of(SqlParserParameters.VERSION, version.number()));
+            EsRequestAnalysis analysis = EsRequestPolicy.analyze(new EsRequestParser(parameters).parse(query.getQueryBody()));
+            analysis.checkResolvedResources(query);
+            boolean write = analysis.operation().getAction() != BehaviorAction.READ;
+            if (readOnly && write) {
+                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_READ_ONLY);
+            }
+            for (String name : analysis.indices()) {
+                if (analysis.operation() == EsOperation.CREATE_INDEX && name.equals(analysis.index().name())) {
+                    continue;
+                }
+                client.checkIndex(name, write && name.equals(analysis.index().name()));
+            }
+            // Request dispatch in the next integration step must remain behind these scope checks.
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        } finally {
+            executing.decrementAndGet();
+        }
     }
 
     @Override

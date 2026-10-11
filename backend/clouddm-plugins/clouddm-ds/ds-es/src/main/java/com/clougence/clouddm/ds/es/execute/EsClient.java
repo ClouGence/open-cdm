@@ -17,7 +17,11 @@ package com.clougence.clouddm.ds.es.execute;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -31,6 +35,8 @@ import org.elasticsearch.client.*;
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.sql.es.EsServerVersion;
+import com.clougence.sql.es.EsSqlI18nKeys;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +69,16 @@ public final class EsClient implements AutoCloseable {
         request.setOptions(RequestOptions.DEFAULT.toBuilder()
             .addHeader("Accept", "application/json")
             .setHttpAsyncResponseConsumerFactory(new HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory(1024 * 1024)));
+        JsonNode body = perform(request, "Probe ES server failed", true);
+        EsServerVersion version = EsServerVersion.parse(body.path("version").path("number").asText());
+        synchronized (stateLock) {
+            checkOpen();
+            serverVersion = version;
+        }
+        return version;
+    }
+
+    private JsonNode perform(Request request, String msg, boolean probe) {
         EsResponseListener result = new EsResponseListener();
         Cancellable operation;
         synchronized (stateLock) {
@@ -72,18 +88,15 @@ public final class EsClient implements AutoCloseable {
         }
         try {
             Response response = result.get(requestTimeoutMs, TimeUnit.MILLISECONDS);
-            var body = mapper.readTree(EntityUtils.toString(response.getEntity()));
-            var product = response.getHeader("X-Elastic-Product");
-            if (body == null || !body.isObject() || body.path("version").has("distribution") || (product != null && !"Elasticsearch".equals(product))
-                || (product == null && !"You Know, for Search".equals(body.path("tagline").asText()))) {
-                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_VERSION_INVALID);
+            JsonNode body = mapper.readTree(EntityUtils.toString(response.getEntity()));
+            if (probe) {
+                String product = response.getHeader("X-Elastic-Product");
+                if (body == null || !body.isObject() || body.path("version").has("distribution") || (product != null && !"Elasticsearch".equals(product))
+                    || (product == null && !"You Know, for Search".equals(body.path("tagline").asText()))) {
+                    throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_VERSION_INVALID);
+                }
             }
-            EsServerVersion version = EsServerVersion.parse(body.path("version").path("number").asText());
-            synchronized (stateLock) {
-                checkOpen();
-                serverVersion = version;
-            }
-            return version;
+            return body;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_REQUEST_CANCELLED);
@@ -96,7 +109,6 @@ public final class EsClient implements AutoCloseable {
             if (e instanceof ExecutionException && e.getCause() != null) {
                 cause = e.getCause();
             }
-            String msg = "Probe ES server failed";
             // ResponseException and JSON errors can echo credentials or server data; retain only the stack.
             IOException safe = new IOException(msg + " (" + cause.getClass().getSimpleName() + ")");
             safe.setStackTrace(cause.getStackTrace());
@@ -107,13 +119,104 @@ public final class EsClient implements AutoCloseable {
             if (cause instanceof ResponseException responseException) {
                 throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_HTTP_ERROR, responseException.getResponse().getStatusLine().getStatusCode());
             }
-            throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_CONNECT_FAILED);
+            if (probe) {
+                throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_CONNECT_FAILED);
+            }
+            throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_METADATA_FAILED);
         } finally {
             operation.cancel();
             synchronized (stateLock) {
                 pending.remove(result);
             }
         }
+    }
+
+    List<String> listIndices() {
+        JsonNode body = metadata("/_resolve/index/*", Map.of("expand_wildcards", "all"));
+        return concreteIndices(body);
+    }
+
+    private List<String> concreteIndices(JsonNode body) {
+        if (body == null || !body.path("indices").isArray()) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
+        }
+        List<String> names = new ArrayList<>();
+        for (JsonNode index : body.path("indices")) {
+            if (!index.path("name").isTextual()) {
+                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
+            }
+            if (!index.hasNonNull("data_stream")) {
+                names.add(index.path("name").asText());
+            }
+        }
+        return names;
+    }
+
+    void checkIndex(String index, boolean write) {
+        String path = "/" + URLEncoder.encode(index, StandardCharsets.UTF_8).replace("+", "%20");
+        if (!concreteIndices(metadata("/_resolve/index" + path, Map.of("expand_wildcards", "all"))).contains(index)) {
+            throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_INDEX_NOT_CONCRETE, index);
+        }
+        JsonNode mappings = metadata(path + "/_mapping", Map.of());
+        // A name replaced by an alias after resolution must not expand the authorized scope.
+        if (mappings == null || mappings.size() != 1 || !mappings.has(index) || !mappings.path(index).path("mappings").isObject()) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
+        }
+        checkMapping(mappings.path(index).path("mappings"), write);
+        if (write) {
+            JsonNode settings = metadata(path + "/_settings", Map.of());
+            if (settings == null || settings.size() != 1 || !settings.path(index).path("settings").path("index").isObject()) {
+                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
+            }
+            JsonNode values = settings.path(index).path("settings").path("index");
+            for (String name : List.of("default_pipeline", "final_pipeline")) {
+                String pipeline = values.path(name).asText("");
+                if (!pipeline.isEmpty() && !pipeline.equals("_none")) {
+                    throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_IMPLICIT_RESOURCE_UNSUPPORTED);
+                }
+            }
+        }
+    }
+
+    private void checkMapping(JsonNode mapping, boolean write) {
+        for (String namespace : List.of("properties", "runtime")) {
+            mapping.path(namespace).forEach(field -> checkMappingField(field, write));
+        }
+        for (JsonNode template : mapping.path("dynamic_templates")) {
+            template.forEach(options -> {
+                if (options.has("mapping")) {
+                    checkMappingField(options.path("mapping"), write);
+                }
+                if (options.has("runtime")) {
+                    checkMappingField(options.path("runtime"), write);
+                }
+            });
+        }
+        // ES 7 responses may retain the mapping type wrapper.
+        mapping.properties().forEach(entry -> {
+            if (!List.of("properties", "runtime", "dynamic_templates", "_meta").contains(entry.getKey()) && entry.getValue().has("properties")) {
+                checkMapping(entry.getValue(), write);
+            }
+        });
+    }
+
+    private void checkMappingField(JsonNode field, boolean write) {
+        String type = field.path("type").asText();
+        if (type.equals("lookup") || type.equals("semantic_text") || (write && (type.equals("percolator") || type.contains("{")))) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_IMPLICIT_RESOURCE_UNSUPPORTED);
+        }
+        for (String namespace : List.of("properties", "fields")) {
+            field.path(namespace).forEach(child -> checkMappingField(child, write));
+        }
+    }
+
+    private JsonNode metadata(String path, Map<String, String> parameters) {
+        Request request = new Request("GET", path);
+        parameters.forEach(request::addParameter);
+        request.setOptions(RequestOptions.DEFAULT.toBuilder()
+            .addHeader("Accept", "application/json")
+            .setHttpAsyncResponseConsumerFactory(new HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory(16 * 1024 * 1024)));
+        return perform(request, "Read ES metadata failed", false);
     }
 
     public void cancel() {

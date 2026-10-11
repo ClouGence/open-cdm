@@ -15,8 +15,11 @@
  */
 package com.clougence.clouddm.ds.es.execute;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
@@ -63,7 +66,25 @@ public class EsMetaService implements DsMetaService {
 
     @Override
     public List<DsElement> listLeaf(Map<UmiTypes, Object> parameters, UmiTypes type, String pattern) {
-        throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        if (type != UmiTypes.Table) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        }
+        List<DsElement> result = new ArrayList<>();
+        for (String name : session.readIndices()) {
+            DsElement element = new DsElement();
+            element.setObjId(-1);
+            element.setObjName(name);
+            element.setObjType(UmiTypes.Table);
+            element.setObjAttr(Map.of());
+            result.add(element);
+        }
+        if (pattern != null && !pattern.isBlank() && !pattern.equals("*")) {
+            String regex = Pattern.quote(pattern).replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q");
+            Pattern filter = Pattern.compile(regex, Pattern.DOTALL);
+            result.removeIf(element -> !filter.matcher(element.getObjName()).matches());
+        }
+        result.sort(Comparator.comparing(DsElement::getObjName));
+        return result;
     }
 
     @Override

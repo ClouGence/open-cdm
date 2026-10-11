@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -57,7 +58,9 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -138,17 +141,29 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         for (QueryRequest request : requests) {
             var resolver = sqlEngine.queryResourceResolver();
             if (resolver != null) {
-                resolver.resolve(request, type -> this.dsSchemaService.listLeaf(dsDO, levels.levelsParam(), type, null, true)
-                    .stream()
-                    .map(DsElement::getObjName)
-                    .toList(), relation -> {
-                        var resources = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), List.of(relation));
-                        return resources.stream().allMatch(resource -> {
-                            String path = BehaviorRelations.resourcePath(resource.resource(), currentResourcePath, instanceResourcePath);
-                            return resource.authKind() == null
-                                   || this.checkResPathWithoutError(puid, uid, dsId, AuthKind.DataSource, () -> path, resource.authKind().getAuthLabel());
-                        });
-                    });
+                Function<UmiTypes, List<String>> listObjectNames = type -> {
+                    List<DsElement> elements = this.dsSchemaService.listLeaf(dsDO, levels.levelsParam(), type, null, true);
+                    List<String> names = new ArrayList<>(elements.size());
+                    for (DsElement element : elements) {
+                        names.add(element.getObjName());
+                    }
+                    return Collections.unmodifiableList(names);
+                };
+                Predicate<BehaviorRelation> isRelationPermitted = relation -> {
+                    List<BehaviorRequest> resources = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), List.of(relation));
+                    for (BehaviorRequest resource : resources) {
+                        String path = BehaviorRelations.resourcePath(resource.resource(), currentResourcePath, instanceResourcePath);
+                        if (resource.authKind() == null) {
+                            continue;
+                        }
+                        String authLabel = resource.authKind().getAuthLabel();
+                        if (!this.checkResPathWithoutError(puid, uid, dsId, AuthKind.DataSource, () -> path, authLabel)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+                resolver.resolve(request, listObjectNames, isRelationPermitted);
             }
             List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations());
             for (BehaviorRequest behavior : behaviors) {

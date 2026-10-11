@@ -15,10 +15,10 @@
  */
 package com.clougence.sql.es;
 
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.QueryResourceResolver;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -40,9 +40,12 @@ public class EsSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return (reader, levels, baseLine, baseColumn) -> {
-            throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_BEHAVIOR_UNSUPPORTED);
-        };
+        return new EsBehaviorAnalysisSpi(parameters);
+    }
+
+    @Override
+    public QueryResourceResolver queryResourceResolver() {
+        return new EsQueryResourceResolver();
     }
 
     @Override
