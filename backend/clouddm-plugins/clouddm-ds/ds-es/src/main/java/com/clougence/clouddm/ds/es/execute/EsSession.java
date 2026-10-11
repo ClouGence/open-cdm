@@ -26,6 +26,7 @@ import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.drivers.DsObject;
+import com.clougence.sql.es.EsServerVersion;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

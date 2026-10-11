@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.es.execute;
+package com.clougence.sql.es;
 
-/** API capabilities derive from the server version, never the REST client artifact version. */
-public record EsVersionCapabilities(boolean pointInTime, boolean mappingTypes, Integer compatibleApiMajor) {
+public record EsJsonString(String value, String rawText, EsSourceRange range) implements EsJsonValue {
 }

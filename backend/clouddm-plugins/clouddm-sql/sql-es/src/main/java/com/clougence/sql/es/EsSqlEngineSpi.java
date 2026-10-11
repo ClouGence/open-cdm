@@ -35,22 +35,19 @@ public class EsSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        // Until the ANTLR grammar is implemented, never treat an ES request as an empty script.
-        return (reader, args, baseLine, baseColumn) -> {
-            throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_PARSER_UNSUPPORTED);
-        };
+        return new EsSplitAnalysisSpi(parameters);
     }
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
         return (reader, levels, baseLine, baseColumn) -> {
-            throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_PARSER_UNSUPPORTED);
+            throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_BEHAVIOR_UNSUPPORTED);
         };
     }
 
     @Override
     public DslProvider dslProvider(SqlParserParameters parameters) {
-        return null;
+        return new EsDslProvider(parameters);
     }
 
     @Override

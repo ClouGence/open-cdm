@@ -1,0 +1,41 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.sql.es;
+
+import com.clougence.dslpaser.ast.Statement;
+import com.clougence.dslpaser.ast.visitor.Visitor;
+import com.clougence.dslpaser.foramt.FmtWriter;
+
+import java.io.IOException;
+import java.util.List;
+
+public record EsRequest(String method, String path, List<EsPathSegment> segments, List<EsQueryParameter> parameters, EsJsonObject body, String rawBody, String rawText,
+                        EsSourceRange range) implements Statement {
+    public EsRequest{
+        segments = List.copyOf(segments);
+        parameters = List.copyOf(parameters);
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        // ES-specific traversal uses the typed request/JSON AST, not relational SQL visitors.
+    }
+
+    @Override
+    public void doFormat(FmtWriter writer) throws IOException {
+        writer.write(rawText);
+    }
+}

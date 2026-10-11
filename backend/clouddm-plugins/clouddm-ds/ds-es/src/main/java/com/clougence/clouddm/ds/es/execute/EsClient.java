@@ -15,14 +15,6 @@
  */
 package com.clougence.clouddm.ds.es.execute;
 
-import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.*;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
@@ -31,6 +23,17 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.*;
+
+import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.sql.es.EsServerVersion;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class EsClient implements AutoCloseable {

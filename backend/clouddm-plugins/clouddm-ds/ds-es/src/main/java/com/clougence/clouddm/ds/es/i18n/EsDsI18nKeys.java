@@ -29,7 +29,6 @@ public interface EsDsI18nKeys {
     String ES_TLS_INVALID           = "ES_TLS_INVALID";
     String ES_AUTH_INVALID          = "ES_AUTH_INVALID";
     String ES_VERSION_INVALID       = "ES_VERSION_INVALID";
-    String ES_VERSION_UNSUPPORTED   = "ES_VERSION_UNSUPPORTED";
     String ES_REQUEST_CANCELLED     = "ES_REQUEST_CANCELLED";
     String ES_REQUEST_TIMEOUT       = "ES_REQUEST_TIMEOUT";
     String ES_HTTP_ERROR            = "ES_HTTP_ERROR";

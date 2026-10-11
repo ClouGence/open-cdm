@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.es.execute;
+package com.clougence.sql.es;
 
 import java.util.regex.Pattern;
 
-import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 
 public record EsServerVersion(String number, int major, int minor, int patch) {
@@ -27,18 +26,19 @@ public record EsServerVersion(String number, int major, int minor, int patch) {
     public static EsServerVersion parse(String number) {
         var match = VERSION.matcher(number);
         if (!match.matches()) {
-            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_VERSION_INVALID);
+            throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_SERVER_VERSION_INVALID);
         }
+        
         try {
             int major = Integer.parseInt(match.group(1));
             int minor = Integer.parseInt(match.group(2));
             int patch = Integer.parseInt(match.group(3));
             if (major < 7 || major > 9 || (major == 7 && minor < 10)) {
-                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_VERSION_UNSUPPORTED, number);
+                throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_VERSION_UNSUPPORTED, number);
             }
             return new EsServerVersion(number, major, minor, patch);
         } catch (NumberFormatException e) {
-            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_VERSION_INVALID);
+            throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_SERVER_VERSION_INVALID);
         }
     }
 
@@ -47,6 +47,6 @@ public record EsServerVersion(String number, int major, int minor, int patch) {
         if (major >= 8) {
             compatibleApiMajor = major - 1;
         }
-        return new EsVersionCapabilities(true, major == 7, compatibleApiMajor);
+        return new EsVersionCapabilities(true, major == 7, compatibleApiMajor, major == 9 || (major == 8 && minor >= 4), major == 9 || (major == 8 && minor >= 14), major == 8);
     }
 }
