@@ -62,4 +62,10 @@ public interface EsDsI18nKeys {
     String ES_SEARCH_RESULT                 = "ES_SEARCH_RESULT";
     String ES_EXECUTION_RESULT              = "ES_EXECUTION_RESULT";
     String ES_RESULT_TRUNCATED              = "ES_RESULT_TRUNCATED";
+    String ES_INDICES                       = "ES_INDICES";
+    String ES_EXAMPLE_SEARCH                = "ES_EXAMPLE_SEARCH";
+    String ES_EXAMPLE_COUNT                 = "ES_EXAMPLE_COUNT";
+    String ES_EXAMPLE_MAPPING               = "ES_EXAMPLE_MAPPING";
+    String ES_EXAMPLE_SETTINGS              = "ES_EXAMPLE_SETTINGS";
+    String ES_EXAMPLE_ALIASES               = "ES_EXAMPLE_ALIASES";
 }

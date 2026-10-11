@@ -85,7 +85,12 @@ final class EsResultWriter {
                 }
                 table(List.of(JsonNodeFactory.instance.objectNode().set("count", body.get("count"))), "count");
             }
-            case READ_INDEX -> table(List.of(JsonNodeFactory.instance.objectNode().set("response", body)), "response");
+            case READ_INDEX -> {
+                if (body.size() != 1 || !body.has(request.segments().get(0).value())) {
+                    throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_RESPONSE_INVALID);
+                }
+                table(List.of(JsonNodeFactory.instance.objectNode().set("response", body)), "response");
+            }
             default -> writeResult(operation, body);
         }
     }

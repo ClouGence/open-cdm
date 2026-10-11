@@ -17,8 +17,6 @@ package com.clougence.clouddm.ds.es.execute;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +31,7 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.*;
 
+import com.clougence.clouddm.ds.es.definition.ui.EsCommandTemplates;
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.sql.es.EsOperation;
@@ -191,12 +190,32 @@ public final class EsClient implements AutoCloseable {
         return names;
     }
 
-    void checkIndex(String index, boolean write, EsExecutionContext context) {
-        String path = "/" + URLEncoder.encode(index, StandardCharsets.UTF_8).replace("+", "%20");
+    String checkConcreteIndex(String index, EsExecutionContext context) {
+        String path = EsCommandTemplates.indexPath(index);
         if (!concreteIndices(metadata("/_resolve/index" + path, Map.of("expand_wildcards", "all"), context)).contains(index)) {
             throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_INDEX_NOT_CONCRETE, index);
         }
 
+        return path;
+    }
+
+    JsonNode readIndexDefinition(String index, EsExecutionContext context) {
+        String path = checkConcreteIndex(index, context);
+        JsonNode response = metadata(path, Map.of(), context);
+        if (response == null || !response.isObject() || response.size() != 1 || !response.has(index)) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
+        }
+        JsonNode definition = response.get(index);
+        for (String section : List.of("mappings", "settings", "aliases")) {
+            if (!definition.path(section).isObject()) {
+                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
+            }
+        }
+        return definition;
+    }
+
+    void checkIndex(String index, boolean write, EsExecutionContext context) {
+        String path = checkConcreteIndex(index, context);
         JsonNode mappings = metadata(path + "/_mapping", Map.of(), context);
         // A name replaced by an alias after resolution must not expand the authorized scope.
         if (mappings == null || mappings.size() != 1 || !mappings.has(index) || !mappings.path(index).path("mappings").isObject()) {

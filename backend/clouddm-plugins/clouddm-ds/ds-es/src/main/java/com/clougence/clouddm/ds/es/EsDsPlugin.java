@@ -16,11 +16,15 @@
 package com.clougence.clouddm.ds.es;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.ds.es.definition.ui.EsCmdTemplateSpi;
+import com.clougence.clouddm.ds.es.definition.ui.EsDsBrowseSpi;
 import com.clougence.clouddm.ds.es.dsconf.EsConfigSpi;
 import com.clougence.clouddm.ds.es.dsconf.EsSerializationSpi;
 import com.clougence.clouddm.ds.es.execute.EsSessionFactory;
 import com.clougence.clouddm.ds.es.execute.EsSessionSpi;
+import com.clougence.clouddm.ds.es.execute.EsSupportSpi;
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
+import com.clougence.clouddm.ds.es.metadata.EsFieldType;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -30,11 +34,12 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 import com.clougence.sql.es.EsSqlEngineSpi;
 
-@Plugin(name = "i18n::" + EsDsI18nKeys.PLUGIN_NAME_ES, display = false, includePackages = { "com.clougence.clouddm.ds.es.execute.*" }, dsProduct = DataSourceType.ElasticSearch)
+@Plugin(name = "i18n::" + EsDsI18nKeys.PLUGIN_NAME_ES, includePackages = { "com.clougence.clouddm.ds.es.execute.*" }, dsProduct = DataSourceType.ElasticSearch)
 public class EsDsPlugin implements DsPlugin, SchemaPlugin {
     @Override
     public void init(SchemaBinder binder) {
         binder.initMappingService(DsType.ElasticSearch);
+        binder.bindTypes(DsType.ElasticSearch, EsFieldType.values(), EsFieldType::valueOfCode);
     }
 
     @Override
@@ -43,6 +48,9 @@ public class EsDsPlugin implements DsPlugin, SchemaPlugin {
         binder.bindDsDriverFamily("ES REST Client");
         binder.bindDsSessionFactory(EsSessionFactory.class);
         binder.addPluginSpi(new EsSessionSpi());
+        binder.addPluginSpi(new EsSupportSpi());
+        binder.addPluginSpi(new EsDsBrowseSpi());
+        binder.addPluginSpi(new EsCmdTemplateSpi());
         binder.bindSqlEngine(EsSqlEngineSpi.NAME);
         binder.bindPluginI18n(EsDsI18nKeys.class);
         binder.addPluginSpi(new EsConfigSpi());

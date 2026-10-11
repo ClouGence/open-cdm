@@ -17,18 +17,23 @@ package com.clougence.clouddm.ds.es.execute;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.clougence.clouddm.ds.es.definition.ui.EsCommandTemplates;
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
+import com.clougence.clouddm.ds.es.metadata.EsFieldType;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
+import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class EsMetaService implements DsMetaService {
     private final EsSession session;
@@ -75,7 +80,7 @@ public class EsMetaService implements DsMetaService {
             element.setObjId(-1);
             element.setObjName(name);
             element.setObjType(UmiTypes.Table);
-            element.setObjAttr(Map.of());
+            element.setObjAttr(Map.of("quickQuery", EsCommandTemplates.quickQuery(name, 20)));
             result.add(element);
         }
         if (pattern != null && !pattern.isBlank() && !pattern.equals("*")) {
@@ -89,17 +94,76 @@ public class EsMetaService implements DsMetaService {
 
     @Override
     public Value detailLeaf(Map<UmiTypes, Object> parameters, UmiTypes type, String name) {
-        throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        if (type != UmiTypes.Table) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        }
+        JsonNode definition = session.readIndexDefinition(name);
+        RdbTable table = new RdbTable();
+        table.setName(name);
+        table.setTableType("INDEX");
+        table.setColumns(new LinkedHashMap<>());
+        for (String section : List.of("mappings", "settings", "aliases")) {
+            table.setAttribute(section, definition.get(section).toString());
+        }
+        JsonNode mapping = definition.get("mappings");
+        // Older ES 7 indices may expose a mapping type wrapper.
+        if (!mapping.has("properties") && !mapping.has("runtime") && !mapping.has("_meta") && mapping.size() == 1) {
+            JsonNode wrapped = mapping.elements().next();
+            if (wrapped.has("properties")) {
+                mapping = wrapped;
+            }
+        }
+        collectFields(table, mapping.path("properties"), "", false);
+        collectFields(table, mapping.path("runtime"), "", true);
+        return table;
+    }
+
+    private void collectFields(RdbTable table, JsonNode fields, String prefix, boolean runtime) {
+        if (!fields.isMissingNode() && !fields.isObject()) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
+        }
+        for (var entry : fields.properties()) {
+            JsonNode mapping = entry.getValue();
+            if (!mapping.isObject()) {
+                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
+            }
+            String name = prefix + entry.getKey();
+            String type = mapping.path("type").asText("object");
+            RdbColumn column = new RdbColumn();
+            column.setTable(table.getName());
+            column.setName(name);
+            RdbColumn previous = table.getColumns().get(name);
+            int index = table.getColumns().size();
+            if (previous != null) {
+                index = previous.getIndex();
+            }
+            column.setIndex(index);
+            column.setSqlType(EsFieldType.valueOfCode(type));
+            column.setComment(mapping.toString());
+            column.setAttribute("mapping", mapping.toString());
+            column.setAttribute("runtime", String.valueOf(runtime));
+            table.addColumn(column);
+            collectFields(table, mapping.path("properties"), name + ".", runtime);
+            collectFields(table, mapping.path("fields"), name + ".", runtime);
+        }
     }
 
     @Override
     public Value fetchSelectObject(Map<UmiTypes, Object> parameters, String name) {
-        throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        return detailLeaf(parameters, UmiTypes.Table, name);
     }
 
     @Override
     public Map<String, List<RdbColumn>> batchColumns(Map<UmiTypes, Object> parameters, UmiTypes type, List<String> names) {
-        throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        if (type != UmiTypes.Table) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        }
+        Map<String, List<RdbColumn>> result = new LinkedHashMap<>();
+        for (String name : names) {
+            RdbTable table = (RdbTable) detailLeaf(parameters, type, name);
+            result.put(name, new ArrayList<>(table.getColumns().values()));
+        }
+        return result;
     }
 
     @Override
@@ -109,6 +173,9 @@ public class EsMetaService implements DsMetaService {
 
     @Override
     public List<String> requestObjectScript(Map<UmiTypes, Object> parameters, UmiTypes type, String name) {
-        throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        if (type != UmiTypes.Table) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        }
+        return EsCommandTemplates.commands(name);
     }
 }

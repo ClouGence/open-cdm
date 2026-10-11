@@ -33,6 +33,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.drivers.DsObject;
 import com.clougence.sql.es.*;
 import com.clougence.utils.i18n.I18nUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +95,19 @@ public class EsSession implements Session {
         }
         try {
             return client.listIndices();
+        } finally {
+            executing.decrementAndGet();
+        }
+    }
+
+    JsonNode readIndexDefinition(String index) {
+        synchronized (stateLock) {
+            checkOpen();
+            executing.incrementAndGet();
+            lastQueryTime = System.currentTimeMillis();
+        }
+        try {
+            return client.readIndexDefinition(index, new EsExecutionContext(dsConfig.getRequestTimeoutMs()));
         } finally {
             executing.decrementAndGet();
         }
@@ -236,7 +250,11 @@ public class EsSession implements Session {
             if (analysis.operation() == EsOperation.CREATE_INDEX && name.equals(analysis.index().name())) {
                 continue;
             }
-            client.checkIndex(name, write && name.equals(analysis.index().name()), execution);
+            if (analysis.operation() == EsOperation.READ_INDEX) {
+                client.checkConcreteIndex(name, execution);
+            } else {
+                client.checkIndex(name, write && name.equals(analysis.index().name()), execution);
+            }
         }
         EsResponse response = client.execute(request, analysis.operation(), query.getResultConf().getFetchResultSetBytesLimit(), execution);
         new EsResultWriter(query, builder, execution, start).write(request, analysis.operation(), response);

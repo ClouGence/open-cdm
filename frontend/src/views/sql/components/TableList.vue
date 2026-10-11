@@ -2234,7 +2234,7 @@ export default {
     },
     handleDblClick(node) {
       appLogger.debug('dbl click');
-      if (node.nodeType === 'TOPIC') {
+      if (node.objAttr?.quickQuery) {
         this.handleQueryTable(node.objAttr.quickQuery);
         return;
       }
