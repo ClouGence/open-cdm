@@ -68,6 +68,7 @@ public enum DataSourceType {
     Valkey("vk", "Valkey", 2, 15),
     MongoDB("mdb", "MongoDB", 2, 20),
     Kafka("ka", "Kafka", 2, 30),
+    ElasticSearch("es", "ElasticSearch", 2, 40),
 
     // cloud database
     AdbForMySQL("amy", "AdbForMySQL", 3, 10),
