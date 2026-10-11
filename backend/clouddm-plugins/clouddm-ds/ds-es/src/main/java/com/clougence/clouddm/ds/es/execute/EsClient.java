@@ -28,16 +28,22 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.http.ContentTooLongException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.*;
 
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.sql.es.EsOperation;
+import com.clougence.sql.es.EsRequest;
 import com.clougence.sql.es.EsServerVersion;
 import com.clougence.sql.es.EsSqlI18nKeys;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +53,10 @@ public final class EsClient implements AutoCloseable {
     private final int                                  requestTimeoutMs;
     private final Object                               stateLock = new Object();
     private final Map<EsResponseListener, Cancellable> pending   = new HashMap<>();
-    private final ObjectMapper                         mapper    = new ObjectMapper();
+    private final ObjectMapper                         mapper    = JsonMapper.builder()
+        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+        .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
+        .build();
     private volatile EsServerVersion                   serverVersion;
     private boolean                                    closed;
 
@@ -64,12 +73,12 @@ public final class EsClient implements AutoCloseable {
     }
 
     public EsServerVersion probe() {
+        return probe(null);
+    }
+
+    EsServerVersion probe(EsExecutionContext context) {
         Request request = new Request("GET", "/");
-        // Native JSON works on all supported majors; compatibility headers only bridge one major.
-        request.setOptions(RequestOptions.DEFAULT.toBuilder()
-            .addHeader("Accept", "application/json")
-            .setHttpAsyncResponseConsumerFactory(new HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory(1024 * 1024)));
-        JsonNode body = perform(request, "Probe ES server failed", true);
+        JsonNode body = perform(request, "Probe ES server failed", true, context, 1024 * 1024).body();
         EsServerVersion version = EsServerVersion.parse(body.path("version").path("number").asText());
         synchronized (stateLock) {
             checkOpen();
@@ -78,17 +87,38 @@ public final class EsClient implements AutoCloseable {
         return version;
     }
 
-    private JsonNode perform(Request request, String msg, boolean probe) {
+    private EsResponse perform(Request request, String msg, boolean probe, EsExecutionContext context, int responseLimit) {
+        // Native JSON works across ES 7/8/9; compatibility headers only bridge one major.
+        request.setOptions(RequestOptions.DEFAULT.toBuilder()
+            .addHeader("Accept", "application/json")
+            .setHttpAsyncResponseConsumerFactory(() -> new EsResponseConsumer(responseLimit)));
         EsResponseListener result = new EsResponseListener();
         Cancellable operation;
         synchronized (stateLock) {
             checkOpen();
+            if (context != null) {
+                context.checkActive();
+            }
             operation = client.performRequestAsync(request, result);
             pending.put(result, operation);
         }
+
         try {
-            Response response = result.get(requestTimeoutMs, TimeUnit.MILLISECONDS);
-            JsonNode body = mapper.readTree(EntityUtils.toString(response.getEntity()));
+            long timeout = requestTimeoutMs;
+            if (context != null) {
+                timeout = Math.min(timeout, context.remainingMillis());
+            }
+
+            Response response = result.get(timeout, TimeUnit.MILLISECONDS);
+            JsonNode body = null;
+            if (response.getEntity() != null) {
+                body = mapper.readTree(EntityUtils.toByteArray(response.getEntity()));
+            }
+
+            if (context != null) {
+                context.checkActive();
+            }
+
             if (probe) {
                 String product = response.getHeader("X-Elastic-Product");
                 if (body == null || !body.isObject() || body.path("version").has("distribution") || (product != null && !"Elasticsearch".equals(product))
@@ -96,7 +126,7 @@ public final class EsClient implements AutoCloseable {
                     throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_VERSION_INVALID);
                 }
             }
-            return body;
+            return new EsResponse(response.getStatusLine().getStatusCode(), body);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_REQUEST_CANCELLED);
@@ -113,6 +143,12 @@ public final class EsClient implements AutoCloseable {
             IOException safe = new IOException(msg + " (" + cause.getClass().getSimpleName() + ")");
             safe.setStackTrace(cause.getStackTrace());
             log.error(msg, safe);
+            if (cause instanceof CancellationException) {
+                throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_REQUEST_CANCELLED);
+            }
+            if (cause instanceof ContentTooLongException) {
+                throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_RESPONSE_SIZE_LIMIT, responseLimit);
+            }
             if (cause instanceof SocketTimeoutException || cause instanceof ConnectTimeoutException || cause instanceof TimeoutException) {
                 throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_REQUEST_TIMEOUT);
             }
@@ -121,6 +157,9 @@ public final class EsClient implements AutoCloseable {
             }
             if (probe) {
                 throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_CONNECT_FAILED);
+            }
+            if (context != null) {
+                throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_QUERY_FAILED);
             }
             throw ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_METADATA_FAILED);
         } finally {
@@ -132,7 +171,7 @@ public final class EsClient implements AutoCloseable {
     }
 
     List<String> listIndices() {
-        JsonNode body = metadata("/_resolve/index/*", Map.of("expand_wildcards", "all"));
+        JsonNode body = metadata("/_resolve/index/*", Map.of("expand_wildcards", "all"), null);
         return concreteIndices(body);
     }
 
@@ -152,19 +191,21 @@ public final class EsClient implements AutoCloseable {
         return names;
     }
 
-    void checkIndex(String index, boolean write) {
+    void checkIndex(String index, boolean write, EsExecutionContext context) {
         String path = "/" + URLEncoder.encode(index, StandardCharsets.UTF_8).replace("+", "%20");
-        if (!concreteIndices(metadata("/_resolve/index" + path, Map.of("expand_wildcards", "all"))).contains(index)) {
+        if (!concreteIndices(metadata("/_resolve/index" + path, Map.of("expand_wildcards", "all"), context)).contains(index)) {
             throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_INDEX_NOT_CONCRETE, index);
         }
-        JsonNode mappings = metadata(path + "/_mapping", Map.of());
+
+        JsonNode mappings = metadata(path + "/_mapping", Map.of(), context);
         // A name replaced by an alias after resolution must not expand the authorized scope.
         if (mappings == null || mappings.size() != 1 || !mappings.has(index) || !mappings.path(index).path("mappings").isObject()) {
             throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
         }
+
         checkMapping(mappings.path(index).path("mappings"), write);
         if (write) {
-            JsonNode settings = metadata(path + "/_settings", Map.of());
+            JsonNode settings = metadata(path + "/_settings", Map.of(), context);
             if (settings == null || settings.size() != 1 || !settings.path(index).path("settings").path("index").isObject()) {
                 throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_METADATA_INVALID);
             }
@@ -210,13 +251,33 @@ public final class EsClient implements AutoCloseable {
         }
     }
 
-    private JsonNode metadata(String path, Map<String, String> parameters) {
+    private JsonNode metadata(String path, Map<String, String> parameters, EsExecutionContext context) {
         Request request = new Request("GET", path);
         parameters.forEach(request::addParameter);
-        request.setOptions(RequestOptions.DEFAULT.toBuilder()
-            .addHeader("Accept", "application/json")
-            .setHttpAsyncResponseConsumerFactory(new HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory(16 * 1024 * 1024)));
-        return perform(request, "Read ES metadata failed", false);
+        return perform(request, "Read ES metadata failed", false, context, 16 * 1024 * 1024).body();
+    }
+
+    EsResponse execute(EsRequest source, EsOperation operation, long byteLimit, EsExecutionContext context) {
+        Request request = new Request(source.method(), source.path());
+        for (var parameter : source.parameters()) {
+            request.addParameter(parameter.name(), parameter.value());
+        }
+
+        if (source.rawBody() != null) {
+            request.setJsonEntity(source.rawBody());
+        }
+
+        // A missing document is a normal API result; missing indices remain errors.
+        if (operation == EsOperation.READ_DOCUMENT || operation == EsOperation.DELETE_DOCUMENT) {
+            request.addParameter("ignore", "404");
+        }
+
+        int responseLimit = 64 * 1024 * 1024;
+        if (byteLimit > 0) {
+            responseLimit = (int) Math.min(responseLimit, byteLimit);
+        }
+
+        return perform(request, "Execute ES request failed", false, context, responseLimit);
     }
 
     public void cancel() {

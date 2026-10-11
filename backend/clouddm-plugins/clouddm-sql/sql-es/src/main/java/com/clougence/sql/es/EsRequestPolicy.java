@@ -21,7 +21,8 @@ import java.util.Set;
 
 /** The executable subset is deliberately narrower than the request grammar. */
 public final class EsRequestPolicy {
-    private static final Set<String> COMMON_PARAMETERS   = Set.of("pretty", "human", "error_trace", "filter_path");
+    // filter_path could hide shard failures or timeout/acknowledgement fields needed for execution status.
+    private static final Set<String> COMMON_PARAMETERS   = Set.of("pretty", "human", "error_trace");
     private static final Set<String> SEARCH_PARAMETERS   = Set
         .of("q", "df", "analyzer", "analyze_wildcard", "default_operator", "lenient", "size", "from", "sort", "_source", "_source_includes", "_source_excludes", "stored_fields", "docvalue_fields", "track_total_hits", "track_scores", "timeout", "terminate_after", "routing", "preference", "request_cache", "allow_partial_search_results", "search_type", "typed_keys", "rest_total_hits_as_int", "version", "explain", "seq_no_primary_term", "max_concurrent_shard_requests", "batched_reduce_size", "pre_filter_shard_size", "stats");
     private static final Set<String> DOCUMENT_PARAMETERS = Set

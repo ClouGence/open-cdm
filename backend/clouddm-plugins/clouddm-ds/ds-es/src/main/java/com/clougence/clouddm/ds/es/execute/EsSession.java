@@ -15,10 +15,12 @@
  */
 package com.clougence.clouddm.ds.es.execute;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.clougence.clouddm.ds.es.dsconf.EsConfig;
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
@@ -30,12 +32,18 @@ import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.drivers.DsObject;
 import com.clougence.sql.es.*;
+import com.clougence.utils.i18n.I18nUtils;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class EsSession implements Session {
+    private static final I18nUtils           I18N           = I18nUtils.initI18n(EsDsI18nKeys.class);
+    private final ReentrantLock              executionLock  = new ReentrantLock();
+    private EsExecutionContext               activeExecution;
+    @Getter
+    private volatile String                  currentQueryId;
     @Getter
     private final String                     sessionId;
     @Getter
@@ -93,7 +101,12 @@ public class EsSession implements Session {
 
     @Override
     public void cancel() {
-        client.cancel();
+        synchronized (stateLock) {
+            if (activeExecution != null) {
+                activeExecution.cancel();
+            }
+            client.cancel();
+        }
     }
 
     @Override
@@ -108,6 +121,9 @@ public class EsSession implements Session {
         List<SessionCloseListener> listeners;
         synchronized (stateLock) {
             closed = true;
+            if (activeExecution != null) {
+                activeExecution.cancel();
+            }
             listeners = List.copyOf(closeListeners);
             closeListeners.clear();
         }
@@ -138,46 +154,98 @@ public class EsSession implements Session {
 
     @Override
     public void executeQuery(QueryRequest query, ResultBuilder builder) {
-        synchronized (stateLock) {
-            checkOpen();
-            executing.incrementAndGet();
-            lastQueryTime = System.currentTimeMillis();
-        }
+        long start = System.currentTimeMillis();
+        boolean acquired = executionLock.tryLock();
+        boolean started = false;
         try {
-            if ((query.getQueryArgs() != null && !query.getQueryArgs().isEmpty()) || query.isUseCallable() || query.isUseExplain() || query.isUseCompile()) {
-                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+            if (!acquired) {
+                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_SESSION_BUSY);
             }
-            EsServerVersion version = client.getServerVersion();
-            if (version == null) {
-                version = readVersion();
+            long timeout = dsConfig.getRequestTimeoutMs();
+            if (query.getResultConf().getQueryTimeoutSec() > 0) {
+                timeout = Math.min(timeout, query.getResultConf().getQueryTimeoutSec() * 1000L);
             }
-            SqlParserParameters parameters = new SqlParserParameters(Map.of(SqlParserParameters.VERSION, version.number()));
-            EsRequestAnalysis analysis = EsRequestPolicy.analyze(new EsRequestParser(parameters).parse(query.getQueryBody()));
-            analysis.checkResolvedResources(query);
-            boolean write = analysis.operation().getAction() != BehaviorAction.READ;
-            if (readOnly && write) {
-                throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_READ_ONLY);
+            EsExecutionContext execution = new EsExecutionContext(timeout);
+            synchronized (stateLock) {
+                checkOpen();
+                activeExecution = execution;
+                currentQueryId = query.getQueryId();
+                executing.incrementAndGet();
+                lastQueryTime = start;
+                started = true;
             }
-            for (String name : analysis.indices()) {
-                if (analysis.operation() == EsOperation.CREATE_INDEX && name.equals(analysis.index().name())) {
-                    continue;
-                }
-                client.checkIndex(name, write && name.equals(analysis.index().name()));
+            executeCommand(query, builder, execution, start);
+        } catch (Exception e) {
+            ThirdPartyApiException failure;
+            if (e instanceof ThirdPartyApiException apiException) {
+                failure = apiException;
+            } else {
+                IOException safe = new IOException("ES execution failed (" + e.getClass().getSimpleName() + ")");
+                safe.setStackTrace(e.getStackTrace());
+                failure = ThirdPartyApiException.as().with(safe, EsDsI18nKeys.ES_QUERY_FAILED);
             }
-            // Request dispatch in the next integration step must remain behind these scope checks.
-            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+            String msg = "Execute ES query failed, queryId=" + query.getQueryId();
+            log.error(msg, failure);
+            String detail = I18N.getMessage(failure.getMessageKey(), failure.getMessageArgs());
+            try {
+                var message = builder.newMessage(query);
+                // SessionAgent uses notify=true errors to finish the prepared audit as FAILURE.
+                message.receiveMessage(MessageLevel.Error, detail, true);
+                message.collectCost(System.currentTimeMillis() - start);
+                message.finishRecord(false, detail, failure);
+            } catch (Exception reportingFailure) {
+                failure.addSuppressed(reportingFailure);
+            }
+            throw failure;
         } finally {
-            executing.decrementAndGet();
+            if (started) {
+                synchronized (stateLock) {
+                    activeExecution = null;
+                    currentQueryId = null;
+                    executing.decrementAndGet();
+                }
+            }
+            if (acquired) {
+                executionLock.unlock();
+            }
         }
+    }
+
+    private void executeCommand(QueryRequest query, ResultBuilder builder, EsExecutionContext execution, long start) throws Exception {
+        if ((query.getQueryArgs() != null && !query.getQueryArgs().isEmpty()) || query.isUseCallable() || query.isUseExplain() || query.isUseCompile()) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
+        }
+
+        EsServerVersion version = client.getServerVersion();
+        if (version == null) {
+            version = client.probe(execution);
+            dsConfig.setVersion(version.number());
+        }
+
+        SqlParserParameters parameters = new SqlParserParameters(Map.of(SqlParserParameters.VERSION, version.number()));
+        EsRequest request = new EsRequestParser(parameters).parse(query.getQueryBody());
+        EsRequestAnalysis analysis = EsRequestPolicy.analyze(request);
+        analysis.checkResolvedResources(query);
+        boolean write = analysis.operation().getAction() != BehaviorAction.READ;
+        if (readOnly && write) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_READ_ONLY);
+        }
+
+        for (String name : analysis.indices()) {
+            execution.checkActive();
+            if (analysis.operation() == EsOperation.CREATE_INDEX && name.equals(analysis.index().name())) {
+                continue;
+            }
+            client.checkIndex(name, write && name.equals(analysis.index().name()), execution);
+        }
+        EsResponse response = client.execute(request, analysis.operation(), query.getResultConf().getFetchResultSetBytesLimit(), execution);
+        new EsResultWriter(query, builder, execution, start).write(request, analysis.operation(), response);
     }
 
     @Override
     public <V> V executeQuery(SessionCallback<V> callback) {
         throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_OPERATION_UNSUPPORTED);
     }
-
-    @Override
-    public String getCurrentQueryId() { return null; }
 
     @Override
     public void commit() {

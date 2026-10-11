@@ -33,6 +33,7 @@ import com.clougence.clouddm.ds.es.dsconf.EsConfig;
 import com.clougence.clouddm.ds.es.dsconf.EsConfigSpi;
 import com.clougence.clouddm.ds.es.dsconf.EsEndpoints;
 import com.clougence.clouddm.ds.es.execute.EsClient;
+import com.clougence.clouddm.ds.es.execute.EsSingleAttemptNodeSelector;
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.drivers.DsConfigKeys;
@@ -67,6 +68,7 @@ public class EsDsFactory implements DsFactory<EsClient> {
             }).toArray(HttpHost[]::new);
 
             var builder = RestClient.builder(hosts);
+            builder.setNodeSelector(new EsSingleAttemptNodeSelector());
             builder.setRequestConfigCallback(request -> request.setConnectTimeout(config.getConnectTimeoutMs())
                 .setSocketTimeout(config.getSocketTimeoutMs())
                 .setConnectionRequestTimeout(config.getConnectionRequestTimeoutMs())

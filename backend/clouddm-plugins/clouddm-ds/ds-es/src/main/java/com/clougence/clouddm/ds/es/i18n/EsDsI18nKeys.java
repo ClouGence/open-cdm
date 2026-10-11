@@ -52,4 +52,14 @@ public interface EsDsI18nKeys {
     String ES_METADATA_INVALID              = "ES_METADATA_INVALID";
     String ES_IMPLICIT_RESOURCE_UNSUPPORTED = "ES_IMPLICIT_RESOURCE_UNSUPPORTED";
     String ES_READ_ONLY                     = "ES_READ_ONLY";
+    String ES_RESPONSE_SIZE_LIMIT           = "ES_RESPONSE_SIZE_LIMIT";
+    String ES_RESULT_SIZE_LIMIT             = "ES_RESULT_SIZE_LIMIT";
+    String ES_QUERY_FAILED                  = "ES_QUERY_FAILED";
+    String ES_SESSION_BUSY                  = "ES_SESSION_BUSY";
+    String ES_RESPONSE_INVALID              = "ES_RESPONSE_INVALID";
+    String ES_PARTIAL_RESPONSE              = "ES_PARTIAL_RESPONSE";
+    String ES_EXISTS_RESULT                 = "ES_EXISTS_RESULT";
+    String ES_SEARCH_RESULT                 = "ES_SEARCH_RESULT";
+    String ES_EXECUTION_RESULT              = "ES_EXECUTION_RESULT";
+    String ES_RESULT_TRUNCATED              = "ES_RESULT_TRUNCATED";
 }
