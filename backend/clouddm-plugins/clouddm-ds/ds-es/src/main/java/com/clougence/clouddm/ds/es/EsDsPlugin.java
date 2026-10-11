@@ -18,6 +18,8 @@ package com.clougence.clouddm.ds.es;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.es.dsconf.EsConfigSpi;
 import com.clougence.clouddm.ds.es.dsconf.EsSerializationSpi;
+import com.clougence.clouddm.ds.es.execute.EsSessionFactory;
+import com.clougence.clouddm.ds.es.execute.EsSessionSpi;
 import com.clougence.clouddm.ds.es.i18n.EsDsI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -28,7 +30,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 import com.clougence.sql.es.EsSqlEngineSpi;
 
-@Plugin(name = "i18n::" + EsDsI18nKeys.PLUGIN_NAME_ES, display = false, dsProduct = DataSourceType.ElasticSearch)
+@Plugin(name = "i18n::" + EsDsI18nKeys.PLUGIN_NAME_ES, display = false, includePackages = { "com.clougence.clouddm.ds.es.execute.*" }, dsProduct = DataSourceType.ElasticSearch)
 public class EsDsPlugin implements DsPlugin, SchemaPlugin {
     @Override
     public void init(SchemaBinder binder) {
@@ -38,6 +40,9 @@ public class EsDsPlugin implements DsPlugin, SchemaPlugin {
     @Override
     public void loadPlugin(DsPluginBinder binder) {
         SchemaFramework.install(this);
+        binder.bindDsDriverFamily("ES REST Client");
+        binder.bindDsSessionFactory(EsSessionFactory.class);
+        binder.addPluginSpi(new EsSessionSpi());
         binder.bindSqlEngine(EsSqlEngineSpi.NAME);
         binder.bindPluginI18n(EsDsI18nKeys.class);
         binder.addPluginSpi(new EsConfigSpi());

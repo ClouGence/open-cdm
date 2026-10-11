@@ -20,6 +20,7 @@ plugins {
 dependencies {
     implementation project(':dsc-common')
     implementation project(':sql-es')
+    compileOnly 'org.elasticsearch.client:elasticsearch-rest-client:8.19.0'
 }
 
 description = 'ds-es'
