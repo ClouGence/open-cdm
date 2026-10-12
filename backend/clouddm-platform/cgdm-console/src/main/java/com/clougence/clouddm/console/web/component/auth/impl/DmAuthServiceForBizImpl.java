@@ -64,8 +64,9 @@ import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+
+import jakarta.annotation.Resource;
 
 /**
  * @author bucketli 2024/2/21 15:48:53

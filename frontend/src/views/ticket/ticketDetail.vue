@@ -157,7 +157,7 @@
                   <span class="ticket-progress-step__content">
                     <strong>{{ step.title }}</strong>
                     <span>{{ step.time || '-' }}</span>
-                    <span class="ticket-progress-step__handler">{{ $t('chu-li-ren') }}：{{ step.handler || '-' }}</span>
+                    <span class="ticket-progress-step__handler" :title="step.handler || '-'">{{ $t('chu-li-ren') }}：{{ step.handler || '-' }}</span>
                   </span>
                 </button>
                 <span
@@ -178,7 +178,22 @@
             </div>
             <div class="ticket-step-summary__item">
               <span>{{ $t('chu-li-ren') }}</span>
-              <strong>{{ selectedTicketStep.handler || '-' }}</strong>
+              <div v-if="selectedTicketStep.handlers.length" v-processor-overflow class="ticket-processors">
+                <span class="ticket-processors__summary" :title="selectedTicketStep.handlers.join(', ')">
+                  {{ selectedTicketStep.handlers.join(', ') }}
+                </span>
+                <button
+                  type="button"
+                  class="ticket-processors__more"
+                  @click="
+                    processorActivityIndex = null;
+                    showProcessorsModal = true;
+                  "
+                >
+                  {{ $t('cha-kan-geng-duo') }}
+                </button>
+              </div>
+              <strong v-else>-</strong>
             </div>
             <div class="ticket-step-summary__item">
               <span>{{ $t('kai-shi-shi-jian') }}</span>
@@ -437,7 +452,7 @@
           <div v-else-if="selectedTicketStep.activities.length" class="ticket-activity-list">
             <div
               class="ticket-activity-row"
-              v-for="activity in selectedTicketStep.activities"
+              v-for="(activity, activityIndex) in selectedTicketStep.activities"
               :key="activity.processActivityId || activity.activityTitle"
             >
               <div>
@@ -446,7 +461,22 @@
               </div>
               <div>
                 <span>{{ $t('chu-li-ren') }}</span>
-                <strong>{{ activity.approvalUserList && activity.approvalUserList.length ? activity.approvalUserList.join(', ') : '-' }}</strong>
+                <div v-if="activity.approvalUserList?.length" v-processor-overflow class="ticket-processors">
+                  <span class="ticket-processors__summary" :title="activity.approvalUserList.join(', ')">
+                    {{ activity.approvalUserList.join(', ') }}
+                  </span>
+                  <button
+                    type="button"
+                    class="ticket-processors__more"
+                    @click="
+                      processorActivityIndex = activityIndex;
+                      showProcessorsModal = true;
+                    "
+                  >
+                    {{ $t('cha-kan-geng-duo') }}
+                  </button>
+                </div>
+                <strong v-else>-</strong>
               </div>
               <div>
                 <span>{{ $t('wan-cheng-shi-jian') }}</span>
@@ -536,6 +566,14 @@
         </div>
       </section>
     </div>
+    <CCModal v-model="showProcessorsModal" :title="$t('chu-li-ren')" :width="480">
+      <ul class="ticket-processors__list">
+        <li v-for="(name, index) in processorNames" :key="index" class="ticket-processors__person" :title="name">{{ name }}</li>
+      </ul>
+      <template #footer>
+        <Button @click="showProcessorsModal = false">{{ $t('guan-bi') }}</Button>
+      </template>
+    </CCModal>
     <CCModal v-model="showApprovalModal" :title="$t('shen-pi')" :closable="false">
       <Form>
         <FormItem :label="$t('yi-jian')">
@@ -771,14 +809,39 @@ const AUTO_EXEC_TASK_STATUS_I18N_KEYS = {
   CANCELED: 'ticket-execution-canceled'
 };
 
+const processorOverflowObservers = new WeakMap();
+const processorOverflow = {
+  mounted(el) {
+    const update = () => {
+      const summary = el.querySelector('.ticket-processors__summary');
+      // Compare against the full row so the button itself cannot keep the row overflowing.
+      el.classList.toggle('ticket-processors--overflow', summary.scrollWidth > el.clientWidth);
+    };
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    processorOverflowObservers.set(el, { observer, update });
+    update();
+  },
+  updated(el) {
+    processorOverflowObservers.get(el).update();
+  },
+  beforeUnmount(el) {
+    processorOverflowObservers.get(el).observer.disconnect();
+    processorOverflowObservers.delete(el);
+  }
+};
+
 export default {
   name: 'TicketDetail',
+  directives: { processorOverflow },
   components: {
     ReadOnlyEditor
   },
   mixins: [copyMixin],
   data() {
     return {
+      showProcessorsModal: false,
+      processorActivityIndex: null,
       autoExec: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
@@ -988,6 +1051,7 @@ export default {
           time: this.ticketDetail.gmtCreate,
           startTime: this.ticketDetail.gmtCreate,
           handler: this.ticketDetail.userName,
+          handlers: this.ticketDetail.userName ? [this.ticketDetail.userName] : [],
           statusText: this.TICKET_PROCESS_STATUS.FINISH,
           statusClass: 'finished',
           state: 'finished',
@@ -1031,6 +1095,7 @@ export default {
           time: process.finishTime || startTime,
           startTime,
           handler: state === 'pending' ? '' : process.execUserName,
+          handlers: state === 'pending' ? [] : process.execUserNameList || [],
           statusText,
           statusClass: state === 'pending' ? 'init' : state,
           state,
@@ -1041,6 +1106,12 @@ export default {
         });
       });
       return steps;
+    },
+    processorNames() {
+      if (this.processorActivityIndex !== null) {
+        return this.selectedTicketStep?.activities[this.processorActivityIndex]?.approvalUserList || [];
+      }
+      return this.selectedTicketStep?.handlers || [];
     },
     selectedTicketStep() {
       return this.ticketProgressSteps.find((step) => step.key === this.selectedStepKey) || this.ticketProgressSteps[0];
@@ -1134,6 +1205,9 @@ export default {
     }
   },
   watch: {
+    selectedStepKey() {
+      this.showProcessorsModal = false;
+    },
     analysisItems(items) {
       if (!items.some((item) => item.activityTitle === this.analysisResultTab)) {
         this.analysisResultTab = items[0]?.activityTitle || '';
@@ -1797,7 +1871,7 @@ export default {
           item.execMsg = '';
           if (item.stageContext) {
             const stageContext = JSON.parse(item.stageContext);
-            item.execUserName = stageContext.execUserName ? stageContext.execUserName.join(',') : '';
+            item.execUserName = stageContext.execUserName ? stageContext.execUserName.join(', ') : '';
             item.execUserNameList = stageContext.execUserName;
             item.execMsg = stageContext.execMsg;
           }
@@ -1979,6 +2053,65 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.ticket-processors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  line-height: 24px;
+}
+
+.ticket-processors__summary {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-processors__more {
+  display: none;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1b61c9;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ticket-processors--overflow .ticket-processors__more {
+  display: block;
+}
+
+.ticket-processors__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  min-height: 96px;
+  max-height: ~'min(360px, 50vh)';
+  margin: 0;
+  padding: 16px 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.ticket-processors__person {
+  min-width: 0;
+  max-width: ~'min(280px, 100%)';
+  padding: 4px 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 24px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .horizontal-align {
   display: flex;
   align-items: center;

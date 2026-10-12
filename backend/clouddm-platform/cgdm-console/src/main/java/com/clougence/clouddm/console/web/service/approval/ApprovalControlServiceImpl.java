@@ -1204,7 +1204,14 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                 return true;
             }
         }
-        return false;
+
+        // A global datasource grant (res_id = 0 and res_path = '/') covers every datasource, so it covers the ticket
+        // datasource as well. ApprovalPersonService merges exactly these users into dm_approval_person, the list behind
+        // both the waiting-for-confirmation page and the detail page's canExecute flag, while queryApproPerson above
+        // only matches an exact res_id. Without this check the console offers the action and then rejects it.
+        return this.authServiceForManage.listEffectiveGlobalAuthUsersByPrimaryUid(ticketDO.getPrimaryUid(), AuthKind.DataSource)
+            .stream()
+            .anyMatch(globalUser -> globalUser.getUid().equals(uid));
     }
 
     protected ApprovalStatus statusFromConfirmAction(DmConfirmActionType actionType, AutoExecType autoExecType) {
