@@ -1,8 +1,8 @@
 ## Added
 
-- Added a SAP HANA datasource configuration entry with TLS/SSH connections, object browsing, SQL/SQLScript support, structure and data editing, object scripts, and SQL export, integrated with permission checks, SQL review, lineage analysis, and data masking ([PR #381](https://github.com/ClouGence/open-cdm/pull/381)).
-- Added full-document SQL formatting for dialects including HANA, MySQL, Oracle, and PostgreSQL ([PR #381](https://github.com/ClouGence/open-cdm/pull/381)).
 - Added Kafka datasource support with topic browsing and management, message consumption, command completion and templates, TLS/SASL authentication, access control, and auditing ([PR #390](https://github.com/ClouGence/open-cdm/pull/390)).
+- Added SAP HANA datasource support with TLS/SSH connections, object browsing, SQL/SQLScript support, structure and data editing, object scripts, and SQL export, integrated with permission checks, SQL review, lineage analysis, and data masking ([PR #381](https://github.com/ClouGence/open-cdm/pull/381)).
+- Added full-document SQL formatting for dialects including HANA, MySQL, Oracle, and PostgreSQL ([PR #381](https://github.com/ClouGence/open-cdm/pull/381)).
 
 ## Fixed
 

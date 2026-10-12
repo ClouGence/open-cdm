@@ -1,8 +1,8 @@
 ## 新增
 
-- 新增 SAP HANA 数据源配置入口，支持 TLS/SSH 连接、对象浏览、SQL/SQLScript、结构与数据编辑、对象脚本和 SQL 导出，并接入权限校验、SQL 审核、血缘分析与脱敏（[PR #381](https://github.com/ClouGence/open-cdm/pull/381)）。
-- 新增 SQL 工作台全文格式化，支持 HANA、MySQL、Oracle、PostgreSQL 等方言（[PR #381](https://github.com/ClouGence/open-cdm/pull/381)）。
 - 新增 Kafka 数据源支持，提供 Topic 浏览与管理、消息消费、命令补全和模板，支持 TLS/SASL 认证、权限控制与审计（[PR #390](https://github.com/ClouGence/open-cdm/pull/390)）。
+- 新增 SAP HANA 数据源支持，支持 TLS/SSH 连接、对象浏览、SQL/SQLScript、结构与数据编辑、对象脚本和 SQL 导出，并接入权限校验、SQL 审核、血缘分析与脱敏（[PR #381](https://github.com/ClouGence/open-cdm/pull/381)）。
+- 新增 SQL 工作台全文格式化，支持 HANA、MySQL、Oracle、PostgreSQL 等方言（[PR #381](https://github.com/ClouGence/open-cdm/pull/381)）。
 
 ## 修复
 
