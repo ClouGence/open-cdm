@@ -724,13 +724,13 @@ public class DmConvertUtils {
         vo.setName(mq.getName());
         vo.setType(mq.getType());
         BrowseGroupVO group = new BrowseGroupVO();
-        group.setType("MQ_METADATA");
-        group.setName(DmI18nUtils.getMessage(UiMenus18nKey.UI_LEAF_TITLE_MQ_METADATA));
+        group.setType(DsMenuType.MqTopicPropGroup.getTypeName());
+        group.setName(DmI18nUtils.getMessage(UiMenus18nKey.UI_LEAF_TITLE_MQ_TOPIC_PROP_GROUP));
         group.setItems(new ArrayList<>());
         mq.getAttributes().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
             BrowseItemVO item = new BrowseItemVO();
-            item.setType("MQ_ATTRIBUTE");
-            item.setIcon("MQ_ATTRIBUTE");
+            item.setType(DsMenuType.MqTopicProp.getTypeName());
+            item.setIcon(DsMenuType.MqTopicProp.getTypeName());
             item.setName(entry.getKey() + " = " + entry.getValue());
             group.getItems().add(item);
         });
