@@ -2238,7 +2238,7 @@ export default {
         this.handleQueryTable(node.objAttr.quickQuery);
         return;
       }
-      if (node.nodeType === 'MQ_METADATA' || node.nodeType === 'MQ_ATTRIBUTE') return;
+      if (node.nodeType === 'MQ_TOPIC_PROP_GROUP' || node.nodeType === 'MQ_TOPIC_PROP') return;
       let sql = '';
       const dsQueryMap = this.getQuickQuery(this.currentTab.dsType);
       const dsClassify = this.getDsClassify(this.currentTab.dsType);
