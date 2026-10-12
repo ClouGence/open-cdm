@@ -57,8 +57,11 @@ public class EsConfig extends DataSourceConfig {
         }
         var endpoints = EsEndpoints.parse(getHost());
         validateLimits();
-        if (getSslMode() == SslMode.TRUST || (getSslMode() != null && getSslMode() != SslMode.DISABLED && !"https".equals(endpoints.get(0).getScheme()))) {
+        if (getSslMode() == SslMode.TRUST) {
             throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_TLS_INVALID);
+        }
+        if (getSslMode() != null && getSslMode() != SslMode.DISABLED && !"https".equals(endpoints.get(0).getScheme())) {
+            throw ThirdPartyApiException.as().with(EsDsI18nKeys.ES_TLS_HTTPS_REQUIRED);
         }
         SecurityType security = getSecurityType();
         if (security == null || security == SecurityType.NONE) {

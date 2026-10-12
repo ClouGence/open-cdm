@@ -44,6 +44,7 @@ import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.ui.exception.ConnectionExceptionType;
 import com.clougence.clouddm.sdk.ui.exception.DetermineExceptionSpi;
 import com.clougence.rdp.service.RdpNotifyService;
@@ -155,6 +156,10 @@ public class DmDsServiceImpl implements DmDsService {
             levelsParam.put(UmiTypes.Schema, ctxDTO.getRdbSchema());
         } catch (ErrorMessageException e) {
             throw e;
+        } catch (ThirdPartyApiException e) {
+            log.error("Validate datasource connection failed, dsType={}", dsConfig.getDataSourceType(), e);
+            var i18n = PluginManager.findDsI18nUtil(dsConfig.getDataSourceType());
+            throw new ErrorMessageException(i18n.getMessage(e.getMessageKey(), e.getMessageArgs(), DmI18nUtils.getLocale()));
         } catch (IllegalArgumentException e) {
             log.error(e.getMessage(), e);
             throw new ErrorMessageException(e.getMessage());

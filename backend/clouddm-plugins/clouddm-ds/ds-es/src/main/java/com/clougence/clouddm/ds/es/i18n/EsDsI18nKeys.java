@@ -27,6 +27,7 @@ public interface EsDsI18nKeys {
     String ES_LIMITS_INVALID                  = "ES_LIMITS_INVALID";
     String ES_SSH_UNSUPPORTED                 = "ES_SSH_UNSUPPORTED";
     String ES_TLS_INVALID                     = "ES_TLS_INVALID";
+    String ES_TLS_HTTPS_REQUIRED              = "ES_TLS_HTTPS_REQUIRED";
     String ES_AUTH_INVALID                    = "ES_AUTH_INVALID";
     String ES_VERSION_INVALID                 = "ES_VERSION_INVALID";
     String ES_REQUEST_CANCELLED               = "ES_REQUEST_CANCELLED";
@@ -64,6 +65,8 @@ public interface EsDsI18nKeys {
     String ES_RESULT_TRUNCATED                = "ES_RESULT_TRUNCATED";
     String ES_INDICES                         = "ES_INDICES";
     String ES_EXAMPLE_SEARCH                  = "ES_EXAMPLE_SEARCH";
+    String ES_EXAMPLE_PUT                     = "ES_EXAMPLE_PUT";
+    String ES_EXAMPLE_DELETE                  = "ES_EXAMPLE_DELETE";
     String ES_EXAMPLE_COUNT                   = "ES_EXAMPLE_COUNT";
     String ES_EXAMPLE_MAPPING                 = "ES_EXAMPLE_MAPPING";
     String ES_EXAMPLE_SETTINGS                = "ES_EXAMPLE_SETTINGS";

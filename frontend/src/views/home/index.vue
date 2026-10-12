@@ -47,7 +47,14 @@
     </div>
     <CCModal v-model="showDetailModal" :title="selectedCellDetail.column.property" v-if="showDetailModal" key="showDetailModal" :width="800">
       <div class="cell-detail">
-        <ReadOnlyEditor v-if="cellDetailJsonView" :text="cellDetailContent" language="json" :border="0" :max-height="360" />
+        <ReadOnlyEditor
+          v-if="cellDetailJsonView"
+          :text="cellDetailContent"
+          language="json"
+          :format-json="selectedCellDetail.complete && !hasMoreData && !cellDetailLoading"
+          :border="0"
+          :max-height="360"
+        />
         <a-textarea v-else v-model:value="cellDetailContent" :rows="15" readonly style="font-family: monospace; font-size: 12px" />
         <div v-if="cellDetailLoading" class="cell-detail-loading">
           <a-spin :spinning="cellDetailLoading" />
@@ -344,6 +351,7 @@ export default {
           this.cellDetailContent += value || '';
 
           // Update moreSize and totalSize
+          this.selectedCellDetail.complete = complete;
           this.selectedCellDetail.moreSize = moreSize || 0;
           this.selectedCellDetail.totalSize = totalSize || 0;
           // Disable loading more if error or mask is true

@@ -41,10 +41,10 @@ public class EsSessionFactory implements SessionFactory<EsConfig> {
                 config.setUserName(null);
                 config.setPassword(null);
             }
+            config.validate();
             if (config.getSslMode() != null && config.getSslMode() != SslMode.DISABLED) {
                 resolveSsl(resources, config);
             }
-            config.validate();
             resource = resources.requestResource(config);
             config.setVersion(resource.getTarget().getServerVersion().number());
             return new EsSession(context, config, resource);

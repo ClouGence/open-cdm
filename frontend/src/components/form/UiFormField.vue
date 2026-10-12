@@ -62,19 +62,13 @@
   >
     <div :class="{ 'ui-form-field-with-help': descriptionAsPopover }">
       <options-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
-      <Poptip
-        v-if="descriptionAsPopover"
-        trigger="click"
-        placement="top"
-        transfer
-        word-wrap
-        :width="320"
-        popper-class="ui-form-field-help-popover"
-        :content="field.descI18N"
-      >
+      <Poptip v-if="descriptionAsPopover" trigger="click" placement="top" transfer word-wrap :width="320" popper-class="ui-form-field-help-popover">
         <button type="button" class="ui-form-field-help" :aria-label="fieldLabel + ' ' + $t('shuo-ming')">
           <Icon type="ios-help-circle-outline" :size="18" />
         </button>
+        <template #content>
+          <div v-html="field.descI18N"></div>
+        </template>
       </Poptip>
       <span v-else-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
     </div>
@@ -106,19 +100,13 @@
   <FormItem v-else-if="field.type === 'Input' || field.type === 'Password'" :label="fieldLabel" :required="fieldRequired" :error="fieldError">
     <div :class="{ 'ui-form-field-with-help': descriptionAsPopover }">
       <input-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
-      <Poptip
-        v-if="descriptionAsPopover"
-        trigger="click"
-        placement="top"
-        transfer
-        word-wrap
-        :width="320"
-        popper-class="ui-form-field-help-popover"
-        :content="field.descI18N"
-      >
+      <Poptip v-if="descriptionAsPopover" trigger="click" placement="top" transfer word-wrap :width="320" popper-class="ui-form-field-help-popover">
         <button type="button" class="ui-form-field-help" :aria-label="fieldLabel + ' ' + $t('shuo-ming')">
           <Icon type="ios-help-circle-outline" :size="18" />
         </button>
+        <template #content>
+          <div v-html="field.descI18N"></div>
+        </template>
       </Poptip>
       <span v-else-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
     </div>
@@ -314,6 +302,16 @@ export default {
 :global(.ui-form-field-help-popover .ivu-poptip-body-content) {
   text-align: left;
   overflow-wrap: anywhere;
+}
+
+:global(.ui-form-field-help-popover ul) {
+  margin: 0;
+  padding-left: 16px;
+  list-style: disc;
+}
+
+:global(.ui-form-field-help-popover li + li) {
+  margin-top: 8px;
 }
 
 .ui-form-field-help {

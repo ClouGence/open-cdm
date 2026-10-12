@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.ds.es.dsconf.EsConfig;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
@@ -26,6 +27,8 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 public class EsSessionSpi extends RdbSessionSpi {
     @Override
     public SessionContextDTO createSessionContext(DataSourceConfig config, Map<String, Object> params) {
+        // Validate locally before RPC reduces plugin exceptions to plain text.
+        ((EsConfig) config).validate();
         SessionContextDTO context = new SessionContextDTO();
         context.setSessionId(UUID.randomUUID().toString().replace("-", ""));
         context.setMaxIdleTimeSec(config.getMaxIdleTimeSec());
