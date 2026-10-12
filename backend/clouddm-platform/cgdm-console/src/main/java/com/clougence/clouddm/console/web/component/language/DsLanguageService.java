@@ -27,9 +27,12 @@ import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
+import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionResult;
+import com.clougence.clouddm.sdk.language.format.FormatRequest;
+import com.clougence.clouddm.sdk.language.format.FormatResult;
 import com.clougence.clouddm.sdk.language.split.SplitRequest;
 import com.clougence.clouddm.sdk.language.split.SplitResult;
 import com.clougence.clouddm.sdk.language.validate.Diagnostic;
@@ -102,6 +105,15 @@ public class DsLanguageService {
                 return null;
             }
             return offsetValidateResult(request, spi.validate(request));
+        });
+    }
+
+    public FormatResult format(String ownerUid, FormatRequest request) {
+        return invoke(ownerUid, request, FormatResult::new, spi -> {
+            if (!spi.supports().contains(DsLanguageSupport.FORMAT) || !this.hasDslProvider(request)) {
+                return null;
+            }
+            return spi.format(request);
         });
     }
 

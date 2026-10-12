@@ -1,10 +1,11 @@
 import { getLanguage } from '@/utils/tools';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { kafkaLanguage } from './kafkaLanguage';
+import { esLanguage } from './esLanguage';
 
 const keywordCache = {};
 const registeredLanguages = new Set();
-const languageDefinitions = { kafka: kafkaLanguage };
+const languageDefinitions = { kafka: kafkaLanguage, es: esLanguage };
 
 export function getDsSetting(settings, dsType) {
   if (!dsType || !settings) {

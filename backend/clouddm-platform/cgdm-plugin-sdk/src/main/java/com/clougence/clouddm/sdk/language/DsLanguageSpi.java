@@ -21,6 +21,8 @@ import java.util.Set;
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionResult;
+import com.clougence.clouddm.sdk.language.format.FormatRequest;
+import com.clougence.clouddm.sdk.language.format.FormatResult;
 import com.clougence.clouddm.sdk.language.split.SplitRequest;
 import com.clougence.clouddm.sdk.language.split.SplitResult;
 import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
@@ -29,7 +31,7 @@ import com.clougence.clouddm.sdk.language.validate.ValidateResult;
 public interface DsLanguageSpi extends Spi {
 
     default Set<DsLanguageSupport> supports() {
-        return EnumSet.allOf(DsLanguageSupport.class);
+        return EnumSet.of(DsLanguageSupport.COMPLETE, DsLanguageSupport.VALIDATE, DsLanguageSupport.SPLIT);
     }
 
     CompletionResult complete(CompletionRequest request);
@@ -37,4 +39,8 @@ public interface DsLanguageSpi extends Spi {
     ValidateResult validate(ValidateRequest request);
 
     SplitResult split(SplitRequest request);
+
+    default FormatResult format(FormatRequest request) {
+        return null;
+    }
 }

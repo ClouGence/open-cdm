@@ -49,12 +49,15 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionResult;
+import com.clougence.clouddm.sdk.language.format.FormatRequest;
+import com.clougence.clouddm.sdk.language.format.FormatResult;
 import com.clougence.clouddm.sdk.language.split.SplitRequest;
 import com.clougence.clouddm.sdk.language.split.SplitResult;
 import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
 import com.clougence.clouddm.sdk.language.validate.ValidateResult;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import jakarta.annotation.Resource;
@@ -122,6 +125,10 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
                 case VALIDATE:
                     acquireOrThrow(fo);
                     submitValidate(fo, (ValidateRequest) parsed, releaseRequestCounter(fo, consumer));
+                    break;
+                case FORMAT:
+                    acquireOrThrow(fo);
+                    submitFormat(fo, (FormatRequest) parsed, releaseRequestCounter(fo, consumer));
                     break;
                 case SPLIT:
                     submitSplit(fo, (SplitRequest) parsed, consumer);
@@ -210,6 +217,12 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             request.setSqlParameters(ctx.getCtxDTO().getSqlParameters());
         }
 
+        Map<String, String> sqlParameters = new HashMap<>(new SqlParserParameters(request.getSqlParameters()).values());
+        String serverVersion = ctx.getDsConfig().getVersion();
+        if (serverVersion != null && !serverVersion.isBlank()) {
+            sqlParameters.put(SqlParserParameters.VERSION, serverVersion);
+        }
+        request.setSqlParameters(sqlParameters);
         request.setSqlEngine(ctx.getSqlEngine());
         request.setCtxParams(ctx.getCtxParams());
         request.setBasicCodeLine(fo.getBasicCodeLine());
@@ -295,6 +308,13 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
         submitTask(fo, request, consumer, () -> {
             ValidateResult result = this.dsLanguageService.validate(fo.getPrimaryUserId(), request);
             consumer.accept(DmConvertUtils.convertToWsLanguageResult(fo, result == null ? degraded : result));
+        });
+    }
+
+    private void submitFormat(WsLanguageFO fo, FormatRequest request, Consumer<WsResult> consumer) {
+        submitTask(fo, request, consumer, () -> {
+            FormatResult result = this.dsLanguageService.format(fo.getPrimaryUserId(), request);
+            consumer.accept(DmConvertUtils.convertToWsLanguageResult(fo, result));
         });
     }
 

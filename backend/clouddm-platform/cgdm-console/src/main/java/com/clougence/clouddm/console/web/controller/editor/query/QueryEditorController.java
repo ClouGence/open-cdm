@@ -85,12 +85,13 @@ import com.clougence.utils.i18n.I18nUtils;
 import com.clougence.utils.io.FileUtils;
 import com.clougence.utils.io.FilenameUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author mode create time is 2021/1/5
@@ -237,6 +238,7 @@ public class QueryEditorController {
         if (hasLanguageSpi && hasDslProvider) {
             supports.add(DsLanguageSupport.COMPLETE);
             supports.add(DsLanguageSupport.VALIDATE);
+            supports.add(DsLanguageSupport.FORMAT);
         }
         if (hasLanguageSpi && hasSplitAnalysisSpi) {
             supports.add(DsLanguageSupport.SPLIT);

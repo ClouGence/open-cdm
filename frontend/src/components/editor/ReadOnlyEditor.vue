@@ -124,7 +124,7 @@ export default {
             monaco.editor.create(this.$refs.readOnlyEditor, {
               value: this.text, // The editor 's value
               language,
-              ...SQL_EDITOR_TYPOGRAPHY,
+              ...(language === 'json' ? { wordWrap: 'on' } : SQL_EDITOR_TYPOGRAPHY),
               scrollBeyondLastLine: false,
               readOnly: true,
               domReadOnly: true,
@@ -239,7 +239,9 @@ export default {
       window.removeEventListener('resize', this.updateViewportHeight);
     }
     if (this.monacoEditor) {
+      const model = this.monacoEditor.getModel();
       this.monacoEditor.dispose();
+      model?.dispose();
     }
   }
 };

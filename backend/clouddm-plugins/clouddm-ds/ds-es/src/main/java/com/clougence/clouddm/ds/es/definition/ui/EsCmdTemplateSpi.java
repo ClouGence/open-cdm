@@ -38,8 +38,11 @@ public class EsCmdTemplateSpi implements CmdTemplateSpi {
 
     @Override
     public List<CmdExample> getExamples() {
-        return List.of(new CmdExample(EsDsI18nKeys.ES_EXAMPLE_SEARCH, EsCommandTemplates.quickQuery("orders", 20)), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_COUNT,
-            "GET /orders/_count"), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_MAPPING, "GET /orders/_mapping"), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_SETTINGS,
-                "GET /orders/_settings"), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_ALIASES, "GET /orders/_alias"));
+        return List.of(new CmdExample(EsDsI18nKeys.ES_EXAMPLE_SEARCH, EsCommandTemplates.quickQuery("orders", 20)), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_FILTER,
+            "GET /orders/_search\n{\n  \"size\": 20,\n  \"query\": {\"term\": {\"status.keyword\": \"paid\"}}\n}"), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_AGGREGATION,
+                "GET /orders/_search\n{\n  \"size\": 0,\n  \"aggs\": {\"by_status\": {\"terms\": {\"field\": \"status.keyword\", \"size\": 10}}}\n}"), new CmdExample(
+                    EsDsI18nKeys.ES_EXAMPLE_COUNT,
+                    "GET /orders/_count"), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_MAPPING, "GET /orders/_mapping"), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_SETTINGS,
+                        "GET /orders/_settings"), new CmdExample(EsDsI18nKeys.ES_EXAMPLE_ALIASES, "GET /orders/_alias"));
     }
 }

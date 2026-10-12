@@ -1192,7 +1192,7 @@ export default {
 
       this.$bus.emit('showCellDetailModal', {
         row: record,
-        column: { property: column.dataIndex || column.property },
+        column: { property: column.dataIndex || column.property, columnType: this.selectedTab.columnType?.[colIndex] },
         resultId: this.selectedTab.resultId,
         rowNumber,
         colNumber: colIndex,
