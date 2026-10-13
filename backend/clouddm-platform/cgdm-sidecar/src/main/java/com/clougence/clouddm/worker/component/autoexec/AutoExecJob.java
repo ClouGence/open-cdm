@@ -250,6 +250,7 @@ public class AutoExecJob implements Runnable {
     //
 
     private JobResult jobWrap(Path taskPackageFile) {
+        // run() closes this session after terminal reporting; restoring auto-commit here is unnecessary.
         boolean transaction = job.isEnableTransactional();
         try {
             if (transaction) {
@@ -283,19 +284,21 @@ public class AutoExecJob implements Runnable {
             return JobResult.SUCCESS;
         } catch (Throwable e) {
             if (transaction) {
-                sessionAgent.rollback();
-                log.warn("transaction rollback");
-                sendMessage(AutoExecMessageDTO.transactionRollbackMessage(job.getJobId()), false);
+                try {
+                    sessionAgent.rollback();
+                    log.warn("transaction rollback");
+                    sendMessage(AutoExecMessageDTO.transactionRollbackMessage(job.getJobId()), false);
+                } catch (Exception rollbackError) {
+                    e.addSuppressed(rollbackError);
+                    log.error("auto execution job failed, jobId: " + job.getJobId(), e);
+                    return JobResult.FAILED;
+                }
             }
             if (pauseRequested.get()) {
                 return JobResult.PAUSED;
             }
             log.error("auto execution job failed, jobId: " + job.getJobId(), e);
             return JobResult.FAILED;
-        } finally {
-            if (transaction) {
-                sessionAgent.setAutoCommit(true);
-            }
         }
     }
 
