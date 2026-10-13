@@ -36,14 +36,9 @@ import com.clougence.clouddm.sdk.service.secrules.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.StringUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 final class SecRulesCheckSession4Batch implements SecRulesCheckSession {
 
     private final DataSourceType                      dsType;
@@ -94,10 +89,10 @@ final class SecRulesCheckSession4Batch implements SecRulesCheckSession {
                 domainList = stream.toList();
             }
             if (CollectionUtils.isEmpty(domainList)) {
-                return this.resultUnsupported(baseCodeLine, baseCodeColumn, null);
+                return this.resultUnsupported();
             }
         } catch (UnsupportedOperationException e) {
-            return this.resultUnsupported(baseCodeLine, baseCodeColumn, e);
+            return this.resultUnsupported();
         }
 
         SecRulesCheckResult result = new SecRulesCheckResult();
@@ -149,26 +144,15 @@ final class SecRulesCheckSession4Batch implements SecRulesCheckSession {
         }
     }
 
-    private SecRulesCheckResult resultUnsupported(int baseCodeLine, int baseCodeColumn, UnsupportedOperationException error) {
+    private SecRulesCheckResult resultUnsupported() {
         if (this.unsupportedLevel == WarnLevel.PASS) {
             return SecRulesCheckResult.EMPTY;
         }
 
-        String reason = DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_UNSUPPORTED_MSG_MESSAGE.name());
-        if (error != null) {
-            reason = StringUtils.defaultIfBlank(error.getMessage(), error.getClass().getSimpleName());
-            String msg = "SQL audit analysis failed, dsId=" + this.contextInfo.getDsId() + ", line=" + baseCodeLine + ", column=" + baseCodeColumn;
-            log.error(msg, error);
-        }
-
-        String unsupportedName = DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_UNSUPPORTED_NAME_MESSAGE.name(), baseCodeLine, baseCodeColumn + 1);
-        String unsupportedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_UNSUPPORTED_DETAIL_MESSAGE.name(), reason);
-        SplitScript script = new SplitScript();
-        script.setBodyStartCodeLine(baseCodeLine);
-        script.setBodyStartCodeColumn(baseCodeColumn);
+        String unsupportedName = DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_UNSUPPORTED_NAME_MESSAGE.name());
+        String unsupportedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_UNSUPPORTED_MSG_MESSAGE.name());
         SecRulesCheckResult result = new SecRulesCheckResult();
-        result.setSpecName(this.specName);
-        result.addResult(unsupportedName, this.unsupportedLevel.getRuleLevel(), null, unsupportedMsg, script);
+        result.addResult(unsupportedName, this.unsupportedLevel.getRuleLevel(), null, unsupportedMsg);
         return result;
     }
 

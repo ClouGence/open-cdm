@@ -17,6 +17,7 @@ package com.clougence.sql.mysql.analysis.security;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -32,6 +33,8 @@ import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
+import com.clougence.dslpaser.ast.location.CodeLocation;
+import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
 import com.clougence.sql.mysql.parser.MyDslProvider;
 import com.clougence.sql.mysql.parser.MySplitAnalysisSpi;
@@ -65,24 +68,46 @@ public class MySecDomainResolveSpi implements SecDomainResolveSpi, MySecDomainOp
     @Override
     public Stream<RuleDomain> resolveDomainStream(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
         var scripts = splitAnalysisSpi().splitScriptStream(queryReader, List.of(), baseLine, baseColumn);
-        return scripts.flatMap(script -> resolveStatement(dsType, script, ctxInfo).stream()).onClose(scripts::close);
+        return scripts.flatMap(script -> {
+            StringReader reader = new StringReader(script.getScript());
+            int codeLine = script.getBodyStartCodeLine();
+            int codeColumn = script.getBodyStartCodeColumn();
+
+            return resolveStatement(dsType, reader, codeLine, codeColumn, ctxInfo).stream();
+        }).onClose(scripts::close);
     }
 
-    private List<RuleDomain> resolveStatement(DataSourceType dsType, SplitScript script, ContextInfo ctxInfo) {
-        MyBuilderFactory builder = new MyBuilderFactory(this.metaService);
-        try (StringReader reader = new StringReader(script.getScript())) {
-            DslHelper.doVisitor(dslProvider(), reader, (lexer, parser) -> this.parserVisitor(builder, parser));
+    private List<RuleDomain> resolveStatement(DataSourceType dsType, Reader queryReader, int baseLine, int baseColumn, ContextInfo ctxInfo) {
+        CodeLocation dslBase = new CodeLocation(baseLine, baseColumn);
+        List<RuleDomain> domainList = new ArrayList<>();
+
+        List<AstSplitScript> scripts = DslHelper.splitDsl(dslProvider(), queryReader, dslBase);
+        for (AstSplitScript s : scripts) {
+            SplitScript ss = new SplitScript();
+            ss.setScript(s.getScript());
+            ss.setBodyStartCodeLine(s.getBodyStartCodeLine());
+            ss.setBodyEndCodeLine(s.getEndCodeLine());
+            ss.setBodyStartCodeColumn(s.getBodyStartCodeColumn());
+            ss.setBodyEndCodeColumn(s.getEndCodeColumn());
+
+            //
+            MyBuilderFactory builder = new MyBuilderFactory(this.metaService);
+            try (StringReader reader = new StringReader(s.getScript())) {
+                DslHelper.doVisitor(dslProvider(), reader, (lexer, parser) -> this.parserVisitor(builder, parser));
+            }
+            List<RuleDomain> build;
+            if (ctxInfo != null) {
+                build = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());
+            } else {
+                build = builder.build();
+            }
+            for (RuleDomain domain : build) {
+                domain.setDsType(dsType);
+                domain.setSplitScript(ss);
+                domainList.add(domain);
+            }
         }
-        List<RuleDomain> domains;
-        if (ctxInfo != null) {
-            domains = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());
-        } else {
-            domains = builder.build();
-        }
-        for (RuleDomain domain : domains) {
-            domain.setDsType(dsType);
-            domain.setSplitScript(script);
-        }
-        return domains;
+
+        return domainList;
     }
 }

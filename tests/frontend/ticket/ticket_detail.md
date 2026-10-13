@@ -10,7 +10,7 @@
 - 路由：`/#/ticket`、`/#/ticket_create`、`/#/ticket/:id`。
 - 接口：工单列表、工单基础信息、数据库工单详情、SQL 分段预览、审批、执行确认、关闭工单以及自动执行任务相关接口。
 - 状态：初始化、分析、等待审批、等待确认、待执行、执行中、完成、拒绝、失败、关闭、取消。
-- 不覆盖：审批规则配置、SQL 解析器的完整语法覆盖、执行引擎性能和第三方审批系统内部页面。
+- 不覆盖：审批规则配置、SQL 解析器正确性、执行引擎性能和第三方审批系统内部页面。
 
 ## Preconditions
 
@@ -88,7 +88,7 @@
 - 风险/目的：P0，防止合法的 `USING BTREE` 索引语句被安全审核判定为不支持。
 - 初始路由与状态：进入 `/#/ticket_create`，选择隔离 MySQL 实例与测试库。
 - 测试数据：测试库包含 `device_feeding_record_snapshot(feeding_record_id)`、`device_gateway_version(delete_flag,status,create_time,id)` 和 `device_gateway(serial_number)` 三张表。
-- 准备方法：创建独立测试环境和安全规范，启用规范及至少一条适用于 MySQL 的查询规则，并绑定测试环境；确认实例属于该环境。先用 TD-PARSER-02 的不支持语句确认审核真实生效，不能把规范禁用或规则列表为空时的直接提交当作通过。连接账号只授予测试库的查询权限，不审批或执行测试工单。
+- 准备方法：创建独立测试环境和安全规范，启用规范及至少一条适用于 MySQL 的查询规则，并绑定测试环境；确认实例属于该环境。确认至少一条启用规则可命中测试 SQL，不能把规范禁用或规则列表为空时的直接提交当作通过。连接账号只授予测试库的查询权限，不审批或执行测试工单。
 - 操作步骤：填写唯一标题、描述和以下 SQL，点击“校验并提交”；进入工单详情的“分析”步骤，核对行为分析与安全规则结果。
 
 ```sql
@@ -104,26 +104,6 @@ ADD INDEX `idx_serial_number` (`serial_number`) USING BTREE;
 
 - 预期结果：不出现 `IndexTypeContext: USING BTREE` 分析失败；工单创建成功并停留等待审批，行为分析显示 3 条 SQL、3 个索引 CREATE 和 3 个表 ALTER，安全规则分析完成且无解析阻断。若命中测试规范中其他业务规则，按对应规则独立判断，不应出现解析不支持。更换测试库名时同步替换 SQL 中的库名。
 - 恢复/清理：关闭工单，不审批或执行；确认测试索引未实际创建。删除仅为此流程创建的实例、环境和规范，不修改共享环境配置。
-
-### TD-PARSER-02 SQL 分析失败的原因与位置
-
-- 风险/目的：P0，防止解析失败仅显示通用“不支持”或将不同语句的原因与位置合并丢失。
-- 初始路由与状态：与 TD-PARSER-01 相同，测试规范确实启用查询审核。
-- 测试数据：在测试库的 `device_gateway` 表上使用下列仅用于审核的 SQL，不执行。
-
-```sql
-ALTER TABLE `codex_issue385`.`device_gateway` DISCARD TABLESPACE;
-
-
-  ALTER TABLE `codex_issue385`.`device_gateway` CHECK PARTITION ALL;
-
-
-ALTER TABLE `codex_issue385`.`device_gateway` DISCARD TABLESPACE;
-```
-
-- 操作步骤：点击“校验并提交”，检查弹窗中每行的名称、违规提示与行号；关闭弹窗，使用编辑器全选替换 SQL，将两条不同语句放在同一行，分号后保留三个空格，再次校验；关闭弹窗后继续 TD-PARSER-01 的合法 SQL 用例。
-- 预期结果：三条语句分别显示阻断结果，名称明确标注语句起始位置 `1:1`、`4:3`、`7:1`，行号分别为 1、4、7；原因分别包含 `AlterByDiscardTablespaceContext: DISCARD TABLESPACE`、`AlterByCheckPartitionContext: CHECK PARTITION ALL` 及第一种原因。相同原因出现在不同语句时也独立显示，不合并为仅有“共 3 处”的通用结果；同一行两条语句保留不同起始列（以上原文为 `1:1`、`1:69`）。位置使用 1 开始的行列，并明确表示语句起始位置；这里只定位语句，不宣称是失败 token 的精确位置。弹窗只有关闭入口，没有继续提交入口，不创建工单；关闭后 SQL 保留且可继续编辑校验。
-- 恢复/清理：离开未提交页面，按 TD-PARSER-01 清理临时资源。
 
 ### TD-MAIN-01 进度与步骤详情联动
 
