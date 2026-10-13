@@ -251,6 +251,40 @@ ADD INDEX `idx_serial_number` (`serial_number`) USING BTREE;
 - 配套故障注入：构造原始 `Read timed out` 与回滚抛出连接已关闭异常的组合，确认仍上报一次 `JOB_FAILED`、保留 `TASK_FAILED` 的原始错误并关闭会话；正常事务提交、可正常回滚的暂停以及关闭异常分别保持完成、暂停和已上报失败状态。只在临时探针中构造依赖故障，不改写工单状态。
 - 恢复/清理：通过“终止”关闭本流程的失败工单，保留正常完成工单与必要证据；删除临时数据源并移除本流程创建的数据库容器，不清理共享数据库或工单记录。
 
+### TD-FAILURE-04 事务与非事务失败后的重试
+
+- 风险/目的：P0，验证断连失败后可新建连接重试成功，并防止已提交 SQL 重复执行或事务回滚后的 SQL 被遗漏。
+- 初始路由与状态：从工单列表新建两张 SQL 工单；使用具备审批、执行和重试权限的账号，以及本流程创建的独立 PostgreSQL 容器。
+- 测试数据与准备：在临时数据库的 `public` schema 执行以下 SQL；每次使用全新容器，避免依赖历史工单或固定业务 ID。
+
+```sql
+CREATE TABLE public.codex351_retry_marks(mode TEXT, step TEXT);
+CREATE TABLE public.codex351_retry_gate(mode TEXT PRIMARY KEY, enabled BOOLEAN);
+INSERT INTO public.codex351_retry_gate VALUES ('transaction', TRUE), ('plain', TRUE);
+CREATE FUNCTION public.codex351_retry_delay(test_mode TEXT) RETURNS INTEGER LANGUAGE plpgsql AS $$
+BEGIN
+    IF (SELECT enabled FROM public.codex351_retry_gate WHERE mode = test_mode) THEN
+        PERFORM pg_sleep(120);
+    END IF;
+    RETURN 1;
+END;
+$$;
+```
+
+- 工单 SQL：每张工单包含以下三条语句，非事务工单将全部 `'transaction'` 替换为 `'plain'`；标题包含模式及唯一后缀。
+
+```sql
+INSERT INTO public.codex351_retry_marks VALUES ('transaction', 'before');
+SELECT public.codex351_retry_delay('transaction');
+INSERT INTO public.codex351_retry_marks VALUES ('transaction', 'after');
+```
+
+- 操作步骤：校验、提交并审批工单；事务工单打开事务模式，非事务工单关闭事务模式，分别立即执行。等待第二条 SQL 执行中，在自己的临时容器用 `pg_stat_activity` 按目标数据库、账号和完整慢查询定位连接，仅终止该连接。等待失败，查看第二条任务日志，并通过独立连接查询标记表。将对应模式的 gate 更新为 `enabled=FALSE`，解除慢查询条件；在页面点击“重试”，核对确认弹窗后提交，等待执行步骤及三条任务完成。查询标记表、检查会话释放，整页刷新复核状态与次数。
+- 事务预期：失败时三条任务依次为回滚、失败、等待，执行次数 `1 / 1 / 0`，标记表该模式无记录；重试成功后三条任务完成，次数 `2 / 2 / 1`，`before`、`after` 各一行。
+- 非事务预期：失败时三条任务依次为完成、失败、等待，次数 `1 / 1 / 0`，只有一条 `before`；重试成功后次数 `1 / 2 / 1`，`before`、`after` 各一行，第一条 SQL 不重复执行。
+- 两种模式共同预期：失败日志保留数据库断连原始错误，重试成功后历史错误仍可查看；刷新后完成状态与次数保持一致，Worker 重试使用新会话，临时数据库无遗留执行连接。此场景验证共享执行流程，不等同于 SQL Server JDBC 读取超时验证。
+- 恢复/清理：失败且未完成重试的工单通过“终止”关闭；完成工单保留正常业务记录。删除临时数据源，移除本流程创建的数据库容器，恢复后端原运行状态，不清理共享数据。
+
 ### TD-LIFECYCLE-01 页面生命周期
 
 - 风险/目的：P1，确认刷新、离开与重新进入行为稳定。
