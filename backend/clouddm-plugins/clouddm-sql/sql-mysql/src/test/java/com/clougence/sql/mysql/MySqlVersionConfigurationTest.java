@@ -17,6 +17,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -169,6 +170,49 @@ public class MySqlVersionConfigurationTest {
         Assertions.assertThrows(AntlerSyntaxException.class, () -> {
             engine.rewriteSpi(knownEmpty).rewriteLimit(null, sql, rewriteContext);
         });
+    }
+
+    @Test
+    public void indexAccessMethodsAreAcceptedBySecurityAnalysis() {
+        MySqlEngineSpi engine = new MySqlEngineSpi(metaService());
+        String[] statements = { "ALTER TABLE `base_iot`.`device_feeding_record_snapshot` ADD INDEX `idx_record_id` (`feeding_record_id`) USING BTREE;",
+                                "ALTER TABLE `base_iot`.`device_gateway_version` ADD INDEX `idx_status_time` (`delete_flag`, `status`, `create_time`, `id`) USING BTREE;",
+                                "ALTER TABLE `base_iot`.`device_gateway` ADD INDEX `idx_serial_number` (`serial_number`) USING BTREE;",
+                                "ALTER TABLE t ADD INDEX idx USING BTREE (c);", "CREATE INDEX idx USING BTREE ON t (c);", "CREATE INDEX idx ON t (c) USING BTREE;",
+                                "ALTER TABLE t ADD INDEX idx (c) USING HASH;", "ALTER TABLE t ADD PRIMARY KEY USING BTREE (c);",
+                                "ALTER TABLE t ADD UNIQUE INDEX idx (c) USING BTREE;" };
+        for (String sql : statements) {
+            try (StringReader reader = new StringReader(sql);
+                    Stream<RuleDomain> stream = engine.secDomainResolveSpi(parserParameters("")).resolveDomainStream(DataSourceType.MySQL, reader, 5, 7, null)) {
+                List<RuleDomain> domains = stream.toList();
+                Assertions.assertEquals(1, domains.size(), sql);
+                Assertions.assertEquals(5, domains.get(0).getSplitScript().getBodyStartCodeLine(), sql);
+                Assertions.assertEquals(7, domains.get(0).getSplitScript().getBodyStartCodeColumn(), sql);
+            }
+        }
+
+        try (StringReader reader = new StringReader("CREATE UNIQUE INDEX idx USING BTREE ON t (c);");
+                Stream<RuleDomain> stream = engine.secDomainResolveSpi(parserParameters("")).resolveDomainStream(DataSourceType.MySQL, reader, 1, 0, null)) {
+            RdbIndexDomain index = (RdbIndexDomain) stream.toList().get(0);
+            Assertions.assertEquals("unique", index.getType());
+            Assertions.assertEquals("idx", index.getName());
+            Assertions.assertEquals(List.of("c"), index.getColumns());
+        }
+    }
+
+    @Test
+    public void securityAnalysisPreservesBatchStatementLocations() {
+        MySqlEngineSpi engine = new MySqlEngineSpi(metaService());
+        String first = "ALTER TABLE t ADD INDEX a (c) USING BTREE;";
+        String second = "ALTER TABLE t ADD INDEX b (c) USING BTREE;";
+        String third = "ALTER TABLE t ADD INDEX d (c) USING BTREE;";
+        try (StringReader reader = new StringReader(first + "\n\n  " + second + "   " + third);
+                Stream<RuleDomain> stream = engine.secDomainResolveSpi(parserParameters("")).resolveDomainStream(DataSourceType.MySQL, reader, 5, 7, null)) {
+            List<RuleDomain> domains = stream.toList();
+            Assertions.assertEquals(3, domains.size());
+            Assertions.assertEquals(List.of(5, 7, 7), domains.stream().map(domain -> domain.getSplitScript().getBodyStartCodeLine()).toList());
+            Assertions.assertEquals(List.of(7, 2, 2 + second.length() + 3), domains.stream().map(domain -> domain.getSplitScript().getBodyStartCodeColumn()).toList());
+        }
     }
 
     private static SqlParserParameters parserParameters(String sqlMode) {
