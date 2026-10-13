@@ -363,4 +363,4 @@ mkdir -p /root/cgdm/alone/logs
 touch /root/cgdm/alone/logs/alone.log
 
 /root/cgdm/alone/bin/startup.sh
-tail -f /root/cgdm/alone/logs/alone.log
+tail -F /root/cgdm/alone/logs/alone.log
