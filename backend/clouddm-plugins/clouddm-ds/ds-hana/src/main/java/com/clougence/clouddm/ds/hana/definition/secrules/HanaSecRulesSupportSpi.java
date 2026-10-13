@@ -27,7 +27,7 @@ public class HanaSecRulesSupportSpi implements SecRulesSupportSpi {
     @Override
     public List<TargetType> supportModel() {
         return List
-            .of(TargetType.Query, TargetType.Insert, TargetType.Update, TargetType.Delete, TargetType.Call, TargetType.Schema, TargetType.Table, TargetType.Column, TargetType.View, TargetType.Index, TargetType.Constraint, TargetType.Sequence, TargetType.Synonym, TargetType.Procedure, TargetType.Function, TargetType.Trigger);
+            .of(TargetType.Query, TargetType.Insert, TargetType.Update, TargetType.Delete, TargetType.Schema, TargetType.Table, TargetType.Column, TargetType.View, TargetType.Index, TargetType.Constraint, TargetType.Sequence, TargetType.Synonym, TargetType.Procedure, TargetType.Function, TargetType.Trigger);
     }
 
     @Override
