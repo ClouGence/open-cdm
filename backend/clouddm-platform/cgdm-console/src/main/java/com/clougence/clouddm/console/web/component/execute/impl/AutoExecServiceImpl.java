@@ -31,6 +31,7 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
@@ -67,13 +68,13 @@ import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
-import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.*;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.dal.model.system.SysAttachmentType;
 import com.clougence.clouddm.platform.dal.util.PageObj;
@@ -103,6 +104,8 @@ public class AutoExecServiceImpl implements AutoExecService {
     private static final int           TASK_FETCH_BATCH_SIZE            = 100;
     @Resource
     private SystemDal                  systemDal;
+    @Resource
+    private MonitorDal                 monitorDal;
     @Resource
     private ExecutionDal               execDal;
     @Resource
@@ -261,10 +264,18 @@ public class AutoExecServiceImpl implements AutoExecService {
         try {
             taskPackage = this.create(jobId);
         } catch (RuntimeException e) {
-            DmExecAutoJobDO failedJob = this.execDal.autoJobMapper().queryById(jobId);
-            if (failedJob != null && this.execDal.autoJobMapper().markJobFailedIfActive(jobId) == 1) {
-                this.approvalStateService.failExecution(failedJob.getDependOnBizId(), null);
-            }
+            new TransactionTemplate(this.txManager).executeWithoutResult(status -> {
+                DmExecAutoJobDO failedJob = this.execDal.autoJobMapper().queryById(jobId);
+                if (failedJob != null && this.execDal.autoJobMapper().markJobFailedIfActive(jobId) == 1) {
+                    Locale locale = DmI18nUtils.getLocale();
+                    if (failedJob.getConfig() != null && StringUtils.isNotBlank(failedJob.getConfig().getLanguageTag())) {
+                        locale = Locale.forLanguageTag(failedJob.getConfig().getLanguageTag());
+                    }
+                    String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PREPARE_ERROR_MESSAGE.name(), locale, ExceptionUtils.getRootCauseMessage(e));
+                    this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.ERROR, message, LogDependBizType.AUTO_EXEC_JOB, failedJob.getBizId()));
+                    this.approvalStateService.failExecution(failedJob.getDependOnBizId(), message);
+                }
+            });
             throw e;
         }
 
