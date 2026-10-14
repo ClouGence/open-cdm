@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 48 48">
+  <!--
+    Placeholder mark for YashanDB (崖山数据库).
+    Neutral "database" glyph, intentionally NOT a reproduction of any vendor logo.
+    Replace this file with the official brand asset before/after the upstream PR -
+    no code change is required as long as the filename and the 48x48 (or any) viewBox size stay the same.
+  -->
+  <ellipse cx="24" cy="13" rx="19" ry="7" fill="#2E7DAF"/>
+  <path d="M5 13v11c0 3.866 8.507 7 19 7s19-3.134 19-7V13c0 3.866-8.507 7-19 7S5 16.866 5 13Z" fill="#3E9BD1"/>
+  <path d="M5 24v11c0 3.866 8.507 7 19 7s19-3.134 19-7V24c0 3.866-8.507 7-19 7S5 27.866 5 24Z" fill="#2E7DAF"/>
+</svg>

@@ -21,7 +21,7 @@
     "Yuque",
     "KingbaseESPostgreSQL"
   ],
-  "oracle": ["Oracle", "GoldenDBOracle", "KingbaseESOracle"],
+  "oracle": ["Oracle", "GoldenDBOracle", "KingbaseESOracle", "YashanDBOracle"],
   "mongo": ["MongoDB", "DocumentDB", "DynamoDB"],
   "ck": ["ClickHouse"]
 }
