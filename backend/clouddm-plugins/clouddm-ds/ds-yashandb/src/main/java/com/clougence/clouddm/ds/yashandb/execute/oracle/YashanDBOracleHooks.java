@@ -22,9 +22,10 @@ import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 
 /**
- * 崖山数据库 SessionHook。
+ * Session hook for YashanDB.
  * <p>
- * 除元数据服务需要替换为崖山实现外，其余会话行为沿用 Oracle 体系。
+ * Apart from the metadata service, which is replaced with the YashanDB implementation, all other session
+ * behaviour follows the Oracle family.
  * </p>
  *
  * @author open-cdm
@@ -35,7 +36,7 @@ public class YashanDBOracleHooks extends OraHooks {
 
     public YashanDBOracleHooks(DataSourceConfig config){
         super(config);
-        // 父类字段为 private，这里自行解析一遍（解析逻辑与父类一致）
+        // The parent field is private, so parse it again here (the parsing logic is the same as the parent's)
         this.clientCharset = config instanceof com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties e ? e.getClientCharset() : null;
     }
 

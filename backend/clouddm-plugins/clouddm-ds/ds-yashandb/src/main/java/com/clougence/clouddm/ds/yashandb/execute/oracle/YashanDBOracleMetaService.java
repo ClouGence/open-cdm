@@ -27,17 +27,20 @@ import com.clougence.sql.oracle.parser.OracleVersion;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 崖山数据库元数据服务。
+ * Metadata service for YashanDB.
  * <p>
- * 崖山数据库兼容 Oracle 语法与数据字典，因此方言、DDL、对象编辑等能力全部沿用
- * {@code dsfamily.oracle}。仅有以下两点在崖山（实测 23.4.7）上存在差异：
+ * YashanDB is compatible with Oracle syntax and the data dictionary, so the dialect, DDL and object editing
+ * capabilities all reuse {@code dsfamily.oracle}. Only the following two points differ on YashanDB (measured
+ * on 23.4.7):
  * <ul>
- * <li>不存在 {@code PRODUCT_COMPONENT_VERSION} 视图，数据库版本需从 {@code V$VERSION} 读取；</li>
- * <li>不存在 {@code GLOBAL_NAME} 视图，崖山也没有 Oracle 的 catalog（PDB）概念，
- * 因此 {@link #getCurrentCatalog()} 返回 {@code null}（与达梦等 Oracle 兼容库的处理方式一致）。</li>
+ * <li>the {@code PRODUCT_COMPONENT_VERSION} view does not exist, so the database version must be read from
+ * {@code V$VERSION};</li>
+ * <li>the {@code GLOBAL_NAME} view does not exist, and YashanDB has no Oracle catalog (PDB) concept, so
+ * {@link #getCurrentCatalog()} returns {@code null} (consistent with how other Oracle-compatible databases
+ * such as Dameng handle it).</li>
  * </ul>
- * {@code getCurrentSchema()} 沿用 Oracle 实现——崖山支持
- * {@code SYS_CONTEXT('USERENV','CURRENT_SCHEMA')}，无需覆写。
+ * {@code getCurrentSchema()} reuses the Oracle implementation &mdash; YashanDB supports
+ * {@code SYS_CONTEXT('USERENV','CURRENT_SCHEMA')}, so no override is needed.
  * </p>
  *
  * @author open-cdm
@@ -62,7 +65,8 @@ public class YashanDBOracleMetaService extends OraMetaService {
 
     @Override
     public String getCurrentCatalog() {
-        // YashanDB 无 Oracle catalog(PDB) 概念，ALL_USERS 也没有 ORACLE_MAINTAINED 之外的库级标识。
+        // YashanDB has no Oracle catalog (PDB) concept, and ALL_USERS has no database-level identifier other
+        // than ORACLE_MAINTAINED.
         return null;
     }
 }

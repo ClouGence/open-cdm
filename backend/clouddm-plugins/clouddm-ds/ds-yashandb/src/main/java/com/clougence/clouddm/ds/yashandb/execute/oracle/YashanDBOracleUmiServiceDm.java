@@ -33,10 +33,11 @@ import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
 /**
- * 崖山数据库 UMI 服务。
+ * UMI service for YashanDB.
  * <p>
- * 层级结构、对象类型分派与 Oracle 完全一致，因此直接复用 {@link OraUmiServiceDm} 的分派实现，
- * 仅把元数据读取替换为崖山的数据字典实现 {@link YashanDBOracleMetaProviderDm}。
+ * The hierarchy and object type dispatch are exactly the same as Oracle, so the dispatch implementation of
+ * {@link OraUmiServiceDm} is reused directly and only metadata reading is replaced with the YashanDB data
+ * dictionary implementation {@link YashanDBOracleMetaProviderDm}.
  * </p>
  *
  * @author open-cdm

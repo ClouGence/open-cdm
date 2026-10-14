@@ -29,18 +29,20 @@ import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.CollectionUtils;
 
 /**
- * 崖山数据库元数据读取。
+ * Metadata reading for YashanDB.
  * <p>
- * 崖山数据库的数据字典整体兼容 Oracle，但若干视图的列与 Oracle 并不完全一致（实测 YashanDB
- * 23.4.7）：不存在 {@code PRODUCT_COMPONENT_VERSION}、{@code ALL_MVIEW_LOGS}；{@code ALL_TABLES}
- * 缺少 IOT/物化视图日志列；{@code ALL_VIEWS} 缺少 {@code VIEW_TYPE}、{@code SUPERVIEW_NAME}、
- * {@code EDITIONING_VIEW}；{@code DBA_TAB_COLS} 缺少 {@code CHARACTER_SET_NAME}；{@code ALL_MVIEWS}
- * 的长度列为 {@code QYERT_LEN}；{@code ALL_SEQUENCES} 缺少 {@code SESSION_FLAG}、{@code KEEP_VALUE}；
- * 维护标记列名为 {@code DATABASE_MAINTAINED} 而非 {@code ORACLE_MAINTAINED}。
+ * The YashanDB data dictionary is broadly Oracle-compatible, but the columns of several views do not exactly
+ * match Oracle (measured on YashanDB 23.4.7): {@code PRODUCT_COMPONENT_VERSION} and {@code ALL_MVIEW_LOGS} do
+ * not exist; {@code ALL_TABLES} lacks the IOT / materialized-view-log columns; {@code ALL_VIEWS} lacks
+ * {@code VIEW_TYPE}, {@code SUPERVIEW_NAME} and {@code EDITIONING_VIEW}; {@code DBA_TAB_COLS} lacks
+ * {@code CHARACTER_SET_NAME}; the length column of {@code ALL_MVIEWS} is {@code QYERT_LEN}; {@code ALL_SEQUENCES}
+ * lacks {@code SESSION_FLAG} and {@code KEEP_VALUE}; and the maintained flag column is named
+ * {@code DATABASE_MAINTAINED} instead of {@code ORACLE_MAINTAINED}.
  * </p>
  * <p>
- * 因此这里按崖山的数据字典重写受影响的查询，同时<b>保持与 Oracle 完全一致的列别名</b>，
- * 以便继续复用 {@link OraMetaProviderUtils} 的结果集转换逻辑。
+ * The affected queries are therefore rewritten against the YashanDB data dictionary while <b>keeping column
+ * aliases exactly identical to Oracle</b>, so that the result set conversion logic of
+ * {@link OraMetaProviderUtils} can still be reused.
  * </p>
  *
  * @author open-cdm
@@ -67,12 +69,15 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
                                               + "left join ALL_OBJECTS on TAB.OWNER = ALL_OBJECTS.OWNER and TAB.TABLE_NAME = ALL_OBJECTS.OBJECT_NAME and TAB.TABLE_TYPE = ALL_OBJECTS.OBJECT_TYPE";
 
     /**
-     * 崖山 {@code DBA_TAB_COLS.DATA_TYPE} 用的是崖山自己的类型名（BIGINT/TINYINT/DOUBLE/BOOLEAN/TIME/JSON），
-     * 视图列的 DATA_TYPE 甚至是 {@code UNKNOWN}；这些都落在 Oracle 家族的 {@code OracleSqlTypes} 之外，
-     * 直接交给 {@code OracleSqlTypes.toOracleType(..)} 会抛 UnsupportedOperationException。
+     * YashanDB {@code DBA_TAB_COLS.DATA_TYPE} uses YashanDB's own type names
+     * (BIGINT/TINYINT/DOUBLE/BOOLEAN/TIME/JSON), and the DATA_TYPE of view columns is even {@code UNKNOWN}.
+     * None of these are covered by the Oracle family {@code OracleSqlTypes}; passing them straight to
+     * {@code OracleSqlTypes.toOracleType(..)} throws UnsupportedOperationException.
      * <p>
-     * 因此在 SQL 层把崖山原生类型名归一化成 Oracle 家族最接近的类型名（保持列别名不变，继续复用
-     * {@code OraMetaProviderUtils} 的结果集转换逻辑）。映射目标均已在崖山 23.4.7 上验证过 DDL 可接受性。
+     * The YashanDB native type names are therefore normalized at the SQL layer to the closest Oracle family
+     * type names (keeping the column aliases unchanged so the result set conversion logic of
+     * {@code OraMetaProviderUtils} can still be reused). All mapping targets have been verified to be accepted
+     * by DDL on YashanDB 23.4.7.
      * </p>
      */
     private static final String YAS_DATA_TYPE
@@ -87,8 +92,9 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
               + "COLS.DATA_TYPE) as DATA_TYPE";
 
     /**
-     * 崖山把 TIMESTAMP 的精度放在 {@code DATA_PRECISION}（Oracle 放在 {@code DATA_SCALE}），
-     * 这里对齐成 Oracle 的语义，否则 {@code RdbColumn.datetimePrecision} 会丢失。
+     * YashanDB stores the TIMESTAMP precision in {@code DATA_PRECISION} (Oracle stores it in
+     * {@code DATA_SCALE}); align it to Oracle semantics here, otherwise {@code RdbColumn.datetimePrecision}
+     * would be lost.
      */
     private static final String YAS_DATA_SCALE = "case when COLS.DATA_TYPE like 'TIMESTAMP%' then COLS.DATA_PRECISION else COLS.DATA_SCALE end as DATA_SCALE";
 
@@ -100,7 +106,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
                                               + "    select OWNER,MVIEW_NAME AS TABLE_NAME, 'MATERIALIZED' AS TABLE_TYPE from SYS.ALL_MVIEWS\n"
                                               + ") TAB";
 
-    /** 是否在 schema 列表中排除数据库自维护的 schema（崖山为 {@code DATABASE_MAINTAINED = 'Y'}）。 */
+    /** Whether to exclude database-maintained schemas from the schema list (YashanDB uses {@code DATABASE_MAINTAINED = 'Y'}). */
     private final boolean excludeMaintainedSchemas;
 
     public YashanDBOracleMetaProviderDm(Connection connection){
@@ -123,7 +129,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     public List<Value> selectSchemas() throws SQLException {
-        // YashanDB 的数据字典维护标记列为 DATABASE_MAINTAINED（Oracle 为 ORACLE_MAINTAINED）。
+        // The maintained flag column of the YashanDB data dictionary is DATABASE_MAINTAINED (ORACLE_MAINTAINED on Oracle).
         String sql = this.isExcludeMaintainedSchemas() ? "select USERNAME from SYS.ALL_USERS where DATABASE_MAINTAINED = 'N' order by USERNAME asc"
                                                        : "select USERNAME from SYS.ALL_USERS order by USERNAME asc";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -155,7 +161,8 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     protected List<RdbTable> fetchSelectObjectByPart(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
-        // 父类实现直接用 Oracle 原生的 ALL_TABLES/ALL_MVIEW_LOGS、ALL_VIEWS 查询，崖山不支持，必须走崖山版本。
+        // The parent implementation queries the native Oracle ALL_TABLES/ALL_MVIEW_LOGS and ALL_VIEWS directly,
+        // which YashanDB does not support; the YashanDB versions must be used.
         List<RdbTable> result = new ArrayList<>(fetchTableByPart(conn, catalog, schema, tabs));
         result.addAll(fetchViewByPart(conn, catalog, schema, tabs));
         return result;
@@ -163,7 +170,8 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     protected Map<String, List<RdbColumn>> fetchTableColumns(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
-        // 崖山的 SEGMENT_COLUMN_ID 恒为 NULL（实测 23.4.7），必须按 COLUMN_ID 排序，否则列序不确定。
+        // YashanDB SEGMENT_COLUMN_ID is always NULL (measured on 23.4.7), so ordering by COLUMN_ID is required;
+        // otherwise the column order is not deterministic.
         String sql = YAS_COLUMNS + " where COLS.HIDDEN_COLUMN = 'NO' and COLS.OWNER = ? and COLS.TABLE_NAME in " + buildWhereIn(tabs) + " order by COLS.COLUMN_ID asc";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             bindSchemaAndNames(ps, schema, tabs);
@@ -184,7 +192,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     public List<Value> selectMaterializedView(String schema) throws SQLException {
-        // ALL_MVIEW_LOGS 在崖山不存在，仅从 ALL_MVIEWS 读取。
+        // ALL_MVIEW_LOGS does not exist on YashanDB; read from ALL_MVIEWS only.
         String sql = YAS_MVIEWS + " where TAB.OWNER = ? order by TABLE_NAME asc";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, schema);
@@ -196,7 +204,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     public Value loadMaterialized(String schema, String leafName) throws SQLException {
-        // 崖山 ALL_MVIEWS 的长度列名为 QYERT_LEN，且无 LAST_REFRESH_* 列。
+        // The length column of YashanDB ALL_MVIEWS is named QYERT_LEN, and there are no LAST_REFRESH_* columns.
         String sql = "select AM.OWNER,AM.MVIEW_NAME,AM.QUERY,AM.QYERT_LEN as QUERY_LEN,null as LAST_REFRESH_DATE,null as LAST_REFRESH_END_TIME,AO.CREATED,AO.LAST_DDL_TIME,AO.STATUS from SYS.ALL_MVIEWS AM left join ALL_OBJECTS AO on AM.OWNER = AO.OWNER and MVIEW_NAME = AO.OBJECT_NAME\n"
                      + "where AM.OWNER = ? and AM.MVIEW_NAME = ? and AO.OBJECT_TYPE = 'MATERIALIZED VIEW'";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -211,7 +219,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     public Value loadSequence(String schema, String leafName) throws SQLException {
-        // 崖山 ALL_SEQUENCES 无 SESSION_FLAG / KEEP_VALUE。
+        // YashanDB ALL_SEQUENCES has no SESSION_FLAG / KEEP_VALUE.
         String sql = "select SEQUENCE_OWNER,SEQUENCE_NAME,MIN_VALUE,MAX_VALUE,INCREMENT_BY,CYCLE_FLAG,ORDER_FLAG,CACHE_SIZE,LAST_NUMBER,null SESSION_FLAG,null KEEP_VALUE,OBJ.CREATED,OBJ.LAST_DDL_TIME,OBJ.STATUS "
                      + "from SYS.ALL_SEQUENCES SEQ left join SYS.ALL_OBJECTS OBJ on SEQ.SEQUENCE_OWNER = OBJ.OWNER and SEQ.SEQUENCE_NAME = OBJ.OBJECT_NAME "
                      + "where SEQ.SEQUENCE_OWNER = ? and SEQ.SEQUENCE_NAME = ? and OBJ.OBJECT_TYPE = 'SEQUENCE'";
@@ -227,7 +235,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     public Value loadScheduleJob(String schema, String leafName) throws SQLException {
-        // 崖山 ALL_SCHEDULER_JOBS 无 JOB_CLASS / RESTART_ON_RECOVERY / RESTART_ON_FAILURE。
+        // YashanDB ALL_SCHEDULER_JOBS has no JOB_CLASS / RESTART_ON_RECOVERY / RESTART_ON_FAILURE.
         String sql = "select OWNER,JOB_NAME,JOB_STYLE,JOB_CREATOR,JOB_TYPE,JOB_ACTION,NUMBER_OF_ARGUMENTS,SCHEDULE_TYPE,START_DATE,REPEAT_INTERVAL,"
                      + "END_DATE,null JOB_CLASS,ENABLED,AUTO_DROP,null RESTART_ON_RECOVERY,null RESTART_ON_FAILURE,COMMENTS,STATE from SYS.ALL_SCHEDULER_JOBS where OWNER = ? and JOB_NAME = ?";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -242,7 +250,8 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     public Value loadJob(String schema, String leafName) throws SQLException {
-        // 崖山 DBA_JOBS.JOB 为数值列，需显式转换，避免字符串比较引发类型转换错误。
+        // YashanDB DBA_JOBS.JOB is a numeric column and needs an explicit conversion to avoid a type
+        // conversion error caused by string comparison.
         String sql = "select JOB,LOG_USER,SCHEMA_USER,LAST_DATE,NEXT_DATE,BROKEN,INTERVAL,FAILURES,WHAT from dba_Jobs where SCHEMA_USER = ? and JOB = TO_NUMBER(?)";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, schema);
@@ -256,7 +265,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     public Value loadUser(String schema, String leafName) throws SQLException {
-        // 崖山 ALL_USERS 无 COMMON，维护标记列为 DATABASE_MAINTAINED。
+        // YashanDB ALL_USERS has no COMMON, and the maintained flag column is DATABASE_MAINTAINED.
         String sql = "select USERNAME,USER_ID,CREATED,null COMMON,DATABASE_MAINTAINED as ORACLE_MAINTAINED from SYS.ALL_USERS where USERNAME = ?";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, leafName);
@@ -269,7 +278,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     @Override
     public Value loadRole(String schema, String leafName) throws SQLException {
-        // 崖山 DBA_ROLES 仅有 ROLE / ROLE_ID / TYPE / SYS_MAINTAINED。
+        // YashanDB DBA_ROLES only has ROLE / ROLE_ID / TYPE / SYS_MAINTAINED.
         String sql = "select ROLE,null AUTHENTICATION_TYPE,null COMMON,SYS_MAINTAINED as ORACLE_MAINTAINED from DBA_ROLES where ROLE = ?";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, leafName);

@@ -20,10 +20,11 @@ import java.sql.Connection;
 import com.clougence.clouddm.dsfamily.mysql.execute.MyUmiServiceDm;
 
 /**
- * 崖山数据库（YashanDB）MySQL 兼容模式 UMI 服务。
+ * UMI service for the YashanDB MySQL compatibility mode.
  * <p>
- * 层级结构、对象类型分派与 MySQL 完全一致，直接复用 {@link MyUmiServiceDm} 的分派实现，
- * 仅把元数据读取替换为 {@link YashanDBMySQLMetaProviderDm}。
+ * The hierarchy and object type dispatch are exactly the same as MySQL, so the dispatch implementation of
+ * {@link MyUmiServiceDm} is reused directly and only metadata reading is replaced with
+ * {@link YashanDBMySQLMetaProviderDm}.
  * </p>
  *
  * @author open-cdm

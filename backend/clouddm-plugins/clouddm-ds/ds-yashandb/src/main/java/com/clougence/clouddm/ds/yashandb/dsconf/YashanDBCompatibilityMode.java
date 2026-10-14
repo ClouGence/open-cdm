@@ -21,17 +21,20 @@ import com.clougence.utils.StringUtils;
 import lombok.Getter;
 
 /**
- * 崖山数据库（YashanDB）兼容模式。
+ * YashanDB compatibility mode.
  * <p>
- * 崖山的兼容模式在<b>安装期</b>确定（默认 Oracle 兼容模式，MySQL 兼容模式通过 {@code --mode mysql} 安装），
- * 且两种模式对外表现完全不同：默认端口、连接驱动、JDBC 元数据语义都不一样，因此按变体各绑定一个
- * {@code DsFactory} + 一个 driver family，而不是像 GoldenDB 那样两个变体共用一个工厂、靠驱动属性传期望模式。
+ * The compatibility mode of YashanDB is fixed at <b>installation time</b> (Oracle compatibility mode is the
+ * default; MySQL compatibility mode is installed with {@code --mode mysql}), and the two modes behave
+ * completely differently: default port, connection driver and JDBC metadata semantics all differ. Therefore
+ * each variant binds its own {@code DsFactory} and its own driver family, rather than sharing one factory and
+ * passing the expected mode through driver properties as GoldenDB does.
  * </p>
  * <p>
- * 实测（23.4.1.109）MySQL 兼容模式下<b>不存在</b> {@code COMPAT_VECTOR} 之类的系统变量
- * （{@code SHOW VARIABLES LIKE '%compat%'} 为空、{@code SELECT @@compat_vector} 报
- * {@code YAS-04607 unknown system variable}），故不能像 GoldenDB 那样靠会话变量推断模式，
- * 连接校验改用 {@code information_schema.ENGINES} 中的引擎名。
+ * Measured on 23.4.1.109: in MySQL compatibility mode system variables such as {@code COMPAT_VECTOR} do
+ * <b>not</b> exist ({@code SHOW VARIABLES LIKE '%compat%'} returns nothing and
+ * {@code SELECT @@compat_vector} raises {@code YAS-04607 unknown system variable}), so the mode cannot be
+ * inferred from a session variable the way GoldenDB does. Connection verification therefore relies on the
+ * engine name in {@code information_schema.ENGINES} instead.
  * </p>
  *
  * @author open-cdm
@@ -43,9 +46,9 @@ public enum YashanDBCompatibilityMode {
     MYSQL(DataSourceType.YashanDBMySQL, "mysql", "1690");
 
     private final DataSourceType dataSourceType;
-    /** 该模式对应的服务端模式标识，用于连接校验失败时的提示。 */
+    /** Server-side mode identifier of this mode, used for hints when connection verification fails. */
     private final String         serverMode;
-    /** 该模式对外提供服务的默认端口。 */
+    /** Default port on which this mode serves connections. */
     private final String         defaultPort;
 
     YashanDBCompatibilityMode(DataSourceType dataSourceType, String serverMode, String defaultPort){

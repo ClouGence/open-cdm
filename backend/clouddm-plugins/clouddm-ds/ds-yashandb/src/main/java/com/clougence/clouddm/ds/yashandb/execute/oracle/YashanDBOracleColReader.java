@@ -21,37 +21,37 @@ import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
 import com.clougence.utils.StringUtils;
 
 /**
- * 崖山数据库结果集列读取器。
+ * Result set column reader for YashanDB.
  * <p>
- * 崖山 JDBC 的 {@code ResultSetMetaData.getColumnTypeName()} 返回的是崖山原生类型名
- * （如 {@code bigint}、{@code integer}、{@code varchar}、{@code timestamp_tz}、
- * {@code ds_interval}、{@code ym_interval}、{@code json}），与 Oracle 的类型名
- * （{@code NUMBER}、{@code VARCHAR2}、{@code TIMESTAMP WITH TIME ZONE}...）不同，
- * 父类 {@link OraColReader} 查表会落到 {@code null}，结果网格将显示
- * {@code Unsupported xxx type.}。本类先走父类的 Oracle 名映射，未命中时补充崖山原生名映射。
+ * {@code ResultSetMetaData.getColumnTypeName()} of the YashanDB JDBC driver returns YashanDB native type names
+ * (such as {@code bigint}, {@code integer}, {@code varchar}, {@code timestamp_tz}, {@code ds_interval},
+ * {@code ym_interval}, {@code json}) instead of Oracle type names ({@code NUMBER}, {@code VARCHAR2},
+ * {@code TIMESTAMP WITH TIME ZONE}, ...). The parent class {@link OraColReader} would therefore fail the lookup
+ * and get {@code null}, and the result grid would show {@code Unsupported xxx type.}. This class first tries
+ * the Oracle name mapping of the parent class and adds the YashanDB native name mapping when it does not match.
  * </p>
  * <p>
- * 映射依据为 1.10.7 驱动在 23.4.7 服务端上的实测结果：
+ * The mapping is based on measurements of the 1.10.7 driver against the 23.4.7 server:
  * </p>
  * <ul>
- * <li>{@code bigint} -> {@code getObject} 为 {@code Long}，大值 {@code getInt} 会溢出，用 Long 读取；</li>
- * <li>{@code tinyint}/{@code smallint}/{@code integer} -> {@code getObject} 均为 {@code Integer}；</li>
- * <li>{@code number}/{@code numeric}/{@code decimal} -> {@code getObject} 为 {@code BigDecimal}
- * （NUMBER(38) 可能超出 Long/Integer 范围），与 Oracle 家族一致用字符串保精度；</li>
- * <li>{@code double} -> {@code Double}，{@code real}/{@code float} -> {@code Float}；</li>
- * <li>{@code boolean}/{@code bit} -> {@code Boolean}；</li>
- * <li>{@code time} -> {@code rs.getTime} 可用；</li>
- * <li>{@code timestamp_tz}（含 {@code TIMESTAMP WITH TIME ZONE} 列）、{@code timestamp_ltz}
- * （含 {@code TIMESTAMP WITH LOCAL TIME ZONE} 列）-> {@code rs.getObject(OffsetDateTime/OffsetTime.class)} 可用；</li>
- * <li>{@code ds_interval}/{@code ym_interval} -> {@code getObject} 为字符串；</li>
- * <li>{@code json} -> {@code rs.getClob} 会抛 {@code Cannot convert an instance of JSON to type CLOB}，
- * 必须 {@code rs.getString}。注意父类会把 {@code json} 映射为走 {@code getClob} 的
- * CLOB fetcher，因此本映射必须先于父类判断；</li>
- * <li>{@code varchar} -> 崖山驱动把 {@code VARCHAR2} 与 {@code VARCHAR} 都报告为 {@code varchar}，
- * 父类只认识 {@code varchar2}。</li>
+ * <li>{@code bigint} -> {@code getObject} yields {@code Long}; {@code getInt} overflows on large values, so read it as Long;</li>
+ * <li>{@code tinyint}/{@code smallint}/{@code integer} -> {@code getObject} always yields {@code Integer};</li>
+ * <li>{@code number}/{@code numeric}/{@code decimal} -> {@code getObject} yields {@code BigDecimal} (NUMBER(38)
+ * may exceed the Long/Integer range); consistent with the Oracle family, read it as a string to keep precision;</li>
+ * <li>{@code double} -> {@code Double}, {@code real}/{@code float} -> {@code Float};</li>
+ * <li>{@code boolean}/{@code bit} -> {@code Boolean};</li>
+ * <li>{@code time} -> {@code rs.getTime} works;</li>
+ * <li>{@code timestamp_tz} (including {@code TIMESTAMP WITH TIME ZONE} columns) and {@code timestamp_ltz}
+ * (including {@code TIMESTAMP WITH LOCAL TIME ZONE} columns) -> {@code rs.getObject(OffsetDateTime/OffsetTime.class)} works;</li>
+ * <li>{@code ds_interval}/{@code ym_interval} -> {@code getObject} yields a string;</li>
+ * <li>{@code json} -> {@code rs.getClob} raises {@code Cannot convert an instance of JSON to type CLOB}, so
+ * {@code rs.getString} must be used. Note that the parent class maps {@code json} to a CLOB fetcher that uses
+ * {@code getClob}, so this mapping must be checked before the parent class;</li>
+ * <li>{@code varchar} -> the YashanDB driver reports both {@code VARCHAR2} and {@code VARCHAR} as {@code varchar},
+ * while the parent class only recognizes {@code varchar2}.</li>
  * </ul>
- * 其余 Oracle 兼容类型名（{@code varchar2}/{@code char}/{@code clob}/{@code raw}/{@code date}/
- * {@code timestamp} 等）由父类处理。
+ * The remaining Oracle-compatible type names ({@code varchar2}/{@code char}/{@code clob}/{@code raw}/{@code date}/
+ * {@code timestamp}, etc.) are handled by the parent class.
  *
  * @author open-cdm
  */
@@ -68,8 +68,8 @@ public class YashanDBOracleColReader extends OraColReader {
     @Override
     public ValueFetcher readColumn(String column, ColMetaData colMetaData) {
         String columnType = StringUtils.defaultString(colMetaData.getColumnType(), "").trim().toLowerCase();
-        // 必须先于父类判断：父类把 "json" 映射为 STRING_AS_CLOB_FETCHER（走 rs.getClob），
-        // 崖山的 JSON 列 getClob 会抛 YasException，必须用 rs.getString。
+        // Must be checked before the parent class: the parent maps "json" to STRING_AS_CLOB_FETCHER (which uses
+        // rs.getClob), but getClob on a YashanDB JSON column raises YasException, so rs.getString must be used.
         if ("json".equals(columnType)) {
             return STRING_VALUE_FETCHER;
         }

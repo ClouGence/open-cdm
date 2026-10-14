@@ -50,14 +50,16 @@ import com.clougence.schema.SchemaPlugin;
 import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /**
- * 崖山数据库（YashanDB）数据源插件（MySQL 兼容模式）。
+ * YashanDB data source plugin (MySQL compatibility mode).
  * <p>
- * 崖山数据库的 MySQL 兼容模式复用 {@code dsfamily.mysql} 提供的方言、DDL、对象编辑与 SQL 分析能力，
- * 仅在连接、会话、元数据等崖山存在差异处做覆写。
+ * The MySQL compatibility mode of YashanDB reuses the dialect, DDL, object editing and SQL analysis
+ * capabilities provided by {@code dsfamily.mysql}, overriding only the connection, session and metadata
+ * behaviour where YashanDB differs.
  * </p>
  * <p>
- * 与 Oracle 兼容模式的 {@link YashanDBOracleDsPlugin} 共用同一个 Gradle 模块与同一个 jar，
- * 靠 {@code @Plugin} 注解扫描各自发现；两者绑定不同的 driver family 与会话工厂分支。
+ * It shares the same Gradle module and the same jar with the Oracle compatibility mode
+ * ({@link YashanDBOracleDsPlugin}); each is discovered independently by {@code @Plugin} annotation scanning,
+ * and the two bind different driver families and session factory branches.
  * </p>
  *
  * @author open-cdm

@@ -21,9 +21,10 @@ import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * 崖山数据库（YashanDB）Oracle 兼容模式连接配置。
+ * Connection configuration for the YashanDB Oracle compatibility mode.
  * <p>
- * 连接串形如 {@code jdbc:yasdb://host:1688/database}，公共配置项见 {@link AbstractYashanDBConfig}。
+ * The connection URL looks like {@code jdbc:yasdb://host:1688/database}. See
+ * {@link AbstractYashanDBConfig} for the common config items.
  * </p>
  *
  * @author open-cdm

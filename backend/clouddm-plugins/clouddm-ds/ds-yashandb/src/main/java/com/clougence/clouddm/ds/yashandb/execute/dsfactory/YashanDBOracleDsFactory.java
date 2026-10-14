@@ -33,15 +33,16 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 崖山数据库（YashanDB）Oracle 兼容模式连接工厂。
+ * Connection factory for the YashanDB Oracle compatibility mode.
  * <p>
- * 崖山数据库 JDBC 连接串格式为 {@code jdbc:yasdb://host:port/database}，默认端口 1688，
- * 驱动类为 {@code com.yashandb.jdbc.Driver}。
+ * The YashanDB JDBC connection URL has the form {@code jdbc:yasdb://host:port/database}, the default port is
+ * 1688, and the driver class is {@code com.yashandb.jdbc.Driver}.
  * </p>
  * <p>
- * 崖山两种兼容模式的连接协议不同（Oracle 模式走崖山自有协议与 {@code 1688}，MySQL 模式走标准
- * MySQL 协议端口并由 {@link YashanDBMySQLDsFactory} 负责），因此两者各自绑定独立的 driver
- * family 与工厂，而不是像 GoldenDB 那样共用一个工厂靠驱动属性区分模式。
+ * The two YashanDB compatibility modes use different connection protocols (Oracle mode uses the YashanDB
+ * native protocol on {@code 1688}, MySQL mode uses the standard MySQL protocol port and is handled by
+ * {@link YashanDBMySQLDsFactory}), so each binds its own driver family and factory rather than sharing one
+ * factory and distinguishing the mode through a driver property as GoldenDB does.
  * </p>
  *
  * @author open-cdm
@@ -120,15 +121,17 @@ public class YashanDBOracleDsFactory implements DsFactory<Connection> {
         try (Statement statement = connection.createStatement()) {
             statement.execute("ALTER SESSION SET TIME_ZONE = '" + offset + "'");
         } catch (SQLException e) {
-            // 崖山的 TIME_ZONE 只接受 UTC 偏移量（如 +08:00）形式，区域名会被拒绝；
-            // 设置失败不应影响连接本身的建立，保留服务端默认时区即可。
+            // The YashanDB TIME_ZONE option only accepts UTC offset forms such as +08:00; region names are
+            // rejected. A failure here must not prevent the connection from being established, so the server
+            // default time zone is kept.
             log.warn("Set YashanDB session time zone failed, keep server default: {}", e.getMessage());
         }
     }
 
     /**
-     * 崖山 {@code ALTER SESSION SET TIME_ZONE} 只接受 {@code +08:00} 这类 UTC 偏移量，
-     * 传入 {@code Asia/Shanghai} 这类区域名会报 {@code YAS-00008}，因此统一转换为偏移量。
+     * YashanDB {@code ALTER SESSION SET TIME_ZONE} only accepts UTC offsets such as {@code +08:00}; passing a
+     * region name such as {@code Asia/Shanghai} raises {@code YAS-00008}, so the value is always converted to
+     * an offset.
      */
     private static String toTimeZoneOffset(String clientTimeZone) {
         ZoneOffset offset;
@@ -182,8 +185,9 @@ public class YashanDBOracleDsFactory implements DsFactory<Connection> {
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String database = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         if (StringUtils.isBlank(database)) {
-            // 崖山的连接串必须带库名，界面上对应 "Catalog" / "默认数据库" 一项，这里给出可操作的提示。
-            throw new IllegalArgumentException("YashanDB database name is required, please fill in the 'Catalog' field (默认数据库) of the data source configuration.");
+            // The YashanDB connection URL must carry a database name, which maps to the "Catalog" field (the
+            // default database) in the UI; give an actionable hint here.
+            throw new IllegalArgumentException("YashanDB database name is required, please fill in the 'Catalog' field of the data source configuration.");
         }
 
         String[] hostPort = host.split(":");

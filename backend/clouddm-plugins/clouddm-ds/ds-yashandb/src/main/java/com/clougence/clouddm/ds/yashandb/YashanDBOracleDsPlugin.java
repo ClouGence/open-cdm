@@ -49,10 +49,12 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /**
- * 崖山数据库（YashanDB）数据源插件（Oracle 兼容模式）。
+ * YashanDB data source plugin (Oracle compatibility mode).
  * <p>
- * 崖山数据库的 Oracle 兼容模式复用 {@code dsfamily.oracle} 提供的方言、DDL、
- * 对象编辑与 SQL 分析能力，仅在连接、元数据等崖山存在差异处做覆写。
+ * The Oracle compatibility mode of YashanDB reuses the dialect, DDL, object editing and SQL analysis
+ * capabilities provided by {@code dsfamily.oracle}, overriding only the connection and metadata behaviour
+ * where YashanDB differs.
+ * </p>
  *
  * @author open-cdm
  */

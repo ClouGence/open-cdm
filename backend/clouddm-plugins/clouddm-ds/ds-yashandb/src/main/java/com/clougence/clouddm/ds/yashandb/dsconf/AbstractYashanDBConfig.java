@@ -27,12 +27,13 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 /**
- * 崖山数据库（YashanDB）连接配置基类。
+ * Base class for the YashanDB data source connection configuration.
  * <p>
- * 崖山数据库的服务端兼容模式在安装期确定（Oracle 兼容模式为默认，MySQL 兼容模式通过
- * {@code --mode mysql} 安装），两种模式的<b>连接配置项</b>完全相同，差异集中在
- * {@code DataSourceType}、默认端口、JDBC 驱动与连接串形态上（详见
- * {@link YashanDBCompatibilityMode}），因此公共字段与取值逻辑上提到本类。
+ * The server-side compatibility mode of YashanDB is fixed at installation time (Oracle compatibility mode is
+ * the default; MySQL compatibility mode is installed with {@code --mode mysql}). The <b>connection
+ * configuration items</b> of the two modes are identical; the differences are concentrated in the
+ * {@code DataSourceType}, the default port, the JDBC driver and the connection URL form (see
+ * {@link YashanDBCompatibilityMode}). Therefore the common fields and value handling are lifted into this class.
  * </p>
  *
  * @author open-cdm

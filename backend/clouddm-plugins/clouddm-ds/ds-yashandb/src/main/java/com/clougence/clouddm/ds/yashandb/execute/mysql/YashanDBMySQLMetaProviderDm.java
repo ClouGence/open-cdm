@@ -25,21 +25,25 @@ import com.clougence.schema.umi.special.rdb.RdbProcedure;
 import com.clougence.schema.umi.struts.Value;
 
 /**
- * 崖山数据库（YashanDB）MySQL 兼容模式元数据读取。
+ * Metadata reading for the YashanDB MySQL compatibility mode.
  * <p>
- * 崖山 MySQL 兼容模式的 {@code information_schema} 覆盖度很高，表、列、索引、约束、视图等与
- * MySQL 完全对齐（实测 23.4.1.109：{@code SCHEMATA/TABLES/COLUMNS/STATISTICS/KEY_COLUMN_USAGE/
- * TABLE_CONSTRAINTS/REFERENTIAL_CONSTRAINTS/VIEWS/TRIGGERS/ENGINES/PARTITIONS/PROCESSLIST/PARAMETERS}
- * 均存在），因此直接复用 {@link MyMetaProviderDm}。
+ * The {@code information_schema} coverage of the YashanDB MySQL compatibility mode is very high; tables,
+ * columns, indexes, constraints and views are fully aligned with MySQL (measured on 23.4.1.109:
+ * {@code SCHEMATA/TABLES/COLUMNS/STATISTICS/KEY_COLUMN_USAGE/TABLE_CONSTRAINTS/REFERENTIAL_CONSTRAINTS/
+ * VIEWS/TRIGGERS/ENGINES/PARTITIONS/PROCESSLIST/PARAMETERS} all exist), so {@link MyMetaProviderDm} is reused
+ * directly.
  * </p>
  * <p>
- * 唯一缺口是<b>没有 {@code ROUTINES} 与 {@code EVENTS} 表</b>：父类的存储过程/函数查询依赖
- * {@code information_schema.ROUTINES}，在崖山会直接抛 {@code YAS-02012 table or view does not exist}。
- * 这里对存储过程/函数做<b>降级</b>处理——返回空列表，而不是让「浏览存储过程/函数」报错。
+ * The only gap is that there is <b>no {@code ROUTINES} or {@code EVENTS} table</b>: the parent class queries
+ * procedures/functions from {@code information_schema.ROUTINES}, which raises
+ * {@code YAS-02012 table or view does not exist} on YashanDB. Here procedures/functions are <b>downgraded</b>
+ * to an empty list instead of letting "browse procedures/functions" fail.
  * </p>
  * <p>
- * 降级是「空」而不是回退到 MySQL 内置函数清单：清单里的函数崖山未必都实现，列出来反而误导；
- * 待崖山补齐 {@code information_schema.ROUTINES} 后，删掉本类的覆写即可自动恢复完整能力。
+ * The downgrade returns an empty result rather than falling back to the MySQL built-in function list: not
+ * every function in that list is implemented by YashanDB, so listing them would be misleading. Once YashanDB
+ * ships {@code information_schema.ROUTINES}, removing the overrides in this class restores full capability
+ * automatically.
  * </p>
  *
  * @author open-cdm

@@ -24,7 +24,7 @@ import com.clougence.sql.mysql.MySqlEngineSpi;
 
 public class YashanDBMySQLConfigSpi extends AbstractYashanDBConfigSpi {
 
-    /** 崖山 MySQL 兼容模式的默认监听端口（MySQL 协议端口）。 */
+    /** Default listening port of the YashanDB MySQL compatibility mode (MySQL protocol port). */
     public static final String DEFAULT_PORT = YashanDBCompatibilityMode.MYSQL.getDefaultPort();
 
     public YashanDBMySQLConfigSpi(){

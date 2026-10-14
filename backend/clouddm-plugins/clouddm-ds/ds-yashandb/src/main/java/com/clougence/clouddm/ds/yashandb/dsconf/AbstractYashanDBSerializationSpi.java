@@ -27,10 +27,10 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 崖山数据库（YashanDB）配置序列化 SPI 基类。
+ * Base SPI class for the YashanDB data source configuration serialization.
  * <p>
- * 两个兼容模式的序列化实现只差 {@code name()}（必须等于 {@code DataSourceType} 的枚举名），
- * 编解码逻辑完全一致，因此在这里共享。
+ * The serialization implementations of the two compatibility modes differ only in {@code name()} (which must
+ * equal the enum name of {@code DataSourceType}); the encode/decode logic is identical and therefore shared here.
  * </p>
  *
  * @author open-cdm

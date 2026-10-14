@@ -20,7 +20,7 @@ import com.clougence.clouddm.ds.yashandb.dsconf.YashanDBCompatibilityMode;
 
 public class YashanDBOracleConfigSpi extends AbstractYashanDBConfigSpi {
 
-    /** 崖山 Oracle 兼容模式的默认监听端口。 */
+    /** Default listening port of the YashanDB Oracle compatibility mode. */
     public static final String DEFAULT_PORT = YashanDBCompatibilityMode.ORACLE.getDefaultPort();
 
     public YashanDBOracleConfigSpi(){

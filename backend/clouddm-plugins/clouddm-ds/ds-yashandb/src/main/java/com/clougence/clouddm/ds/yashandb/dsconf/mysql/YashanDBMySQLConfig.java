@@ -21,10 +21,11 @@ import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * 崖山数据库（YashanDB）MySQL 兼容模式连接配置。
+ * Connection configuration for the YashanDB MySQL compatibility mode.
  * <p>
- * MySQL 兼容模式由标准 MySQL 协议端口提供服务（实测单机 23.4.1.109 为 {@code 1690}），
- * 连接串形如 {@code jdbc:mysql://host:1690/database}，公共配置项见 {@link AbstractYashanDBConfig}。
+ * The MySQL compatibility mode is served on the standard MySQL protocol port ({@code 1690} on the tested
+ * single-node instance 23.4.1.109) and the connection URL looks like
+ * {@code jdbc:mysql://host:1690/database}. See {@link AbstractYashanDBConfig} for the common config items.
  * </p>
  *
  * @author open-cdm

@@ -27,10 +27,11 @@ import com.clougence.clouddm.sdk.execute.session.Session;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 崖山数据库（YashanDB）MySQL 兼容模式 SessionHook。
+ * Session hook for the YashanDB MySQL compatibility mode.
  * <p>
- * 事务、隔离级别、fetch size 等会话行为沿用 MySQL 实现（崖山 MySQL 兼容模式在 MySQL 协议端口上
- * 提供标准 MySQL 语义），差异点与元数据服务在崖山实现里替换。
+ * Session behaviour such as transactions, isolation level and fetch size follows the MySQL implementation
+ * (the YashanDB MySQL compatibility mode provides standard MySQL semantics on the MySQL protocol port); the
+ * differences and the metadata service are replaced by the YashanDB implementation.
  * </p>
  *
  * @author open-cdm
@@ -39,12 +40,14 @@ import lombok.extern.slf4j.Slf4j;
 public class YashanDBMySQLHooks extends MyHooks {
 
     /**
-     * 崖山 MySQL 兼容模式未实现 {@code CONNECTION_ID()}，取出当前会话标识的等价写法。
+     * Equivalent way to obtain the current session identifier, because the YashanDB MySQL compatibility mode
+     * does not implement {@code CONNECTION_ID()}.
      * <p>
-     * 实测 23.4.1.109：{@code SELECT CONNECTION_ID()} 报 {@code YAS-04243 invalid identifier}，
-     * {@code @@connection_id} / {@code @@pseudo_thread_id} 报 {@code YAS-04607 unknown system variable}；
-     * 而 {@code SYS_CONTEXT('USERENV','SID')} 与 {@code SHOW PROCESSLIST} 的首列取值一致
-     * （同一会话均为同一编号），因此以此为降级来源。
+     * Measured on 23.4.1.109: {@code SELECT CONNECTION_ID()} raises {@code YAS-04243 invalid identifier}, and
+     * {@code @@connection_id} / {@code @@pseudo_thread_id} raise {@code YAS-04607 unknown system variable};
+     * whereas {@code SYS_CONTEXT('USERENV','SID')} returns the same value as the first column of
+     * {@code SHOW PROCESSLIST} (the same session always yields the same number). It is therefore used as the
+     * fallback source.
      * </p>
      */
     private static final String SESSION_ID_SQL = "SELECT SYS_CONTEXT('USERENV','SID') FROM DUAL";
@@ -59,15 +62,16 @@ public class YashanDBMySQLHooks extends MyHooks {
     }
 
     /**
-     * 会话初始化阶段 {@code DefaultRdbSession} 会调用本方法获取连接级查询标识，
-     * 异常会直接导致建连失败，因此这里对 MySQL 原生写法做兼容降级。
+     * During session initialization {@code DefaultRdbSession} calls this method to obtain the connection-level
+     * query identifier; an exception here fails the whole connection, so the native MySQL form is downgraded to
+     * a compatible fallback.
      */
     @Override
     public String getQueryID(Connection conn) throws SQLException {
         try {
             return super.getQueryID(conn);
         } catch (SQLException e) {
-            log.debug("YashanDB(MySQL mode) does not implement CONNECTION_ID(), fallback to SYS_CONTEXT: {}", e.getMessage());
+            log.error("YashanDB(MySQL mode) does not implement CONNECTION_ID(), fallback to SYS_CONTEXT: {}", e.getMessage());
         }
 
         try (Statement statement = conn.createStatement();

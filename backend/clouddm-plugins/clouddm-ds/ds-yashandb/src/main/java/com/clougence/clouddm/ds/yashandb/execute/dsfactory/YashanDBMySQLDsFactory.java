@@ -27,19 +27,21 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 崖山数据库（YashanDB）MySQL 兼容模式连接工厂。
+ * Connection factory for the YashanDB MySQL compatibility mode.
  * <p>
- * 崖山 MySQL 兼容模式对外提供标准 MySQL 协议端口（实测 23.4.1.109 单机为 {@code 1690}），
- * 官方明示可用 MySQL 客户端/驱动直连，因此本变体使用 {@code com.mysql.cj.jdbc.Driver}，
- * 连接串形如 {@code jdbc:mysql://host:1690/database}。
+ * The YashanDB MySQL compatibility mode serves the standard MySQL protocol port ({@code 1690} on the tested
+ * single-node instance 23.4.1.109); the official documentation states that MySQL clients/drivers can connect
+ * to it directly, so this variant uses {@code com.mysql.cj.jdbc.Driver} and a connection URL of the form
+ * {@code jdbc:mysql://host:1690/database}.
  * </p>
  * <p>
- * 为什么不用崖山自己的驱动 + {@code ?compatVector=mysql}：该参数只做 <b>SQL 方言</b>兼容，
- * 驱动的 JDBC 元数据语义仍是 Oracle 取向。实测同一实例上，
- * {@code getCatalogs()} 返回 0 行、{@code getSchemas()} 返回全大写并混入幽灵 schema
- * {@code $MY_test}、{@code identifierQuoteString} 是双引号（MySQL 是反引号），
- * 且 {@code DatabaseMetaData.getColumns()} 直接抛 {@code YAS-04323 arguments count must be 2}，
- * 无法复用 {@code dsc-common-mysql} 整族假定「MySQL Connector/J 语义」的元数据实现。
+ * Why not use the YashanDB driver with {@code ?compatVector=mysql}: that parameter only provides <b>SQL
+ * dialect</b> compatibility, while the driver's JDBC metadata semantics remain Oracle-oriented. Measured on
+ * the same instance: {@code getCatalogs()} returns 0 rows, {@code getSchemas()} returns all-uppercase names
+ * mixed with a ghost schema {@code $MY_test}, {@code identifierQuoteString} is a double quote (MySQL uses a
+ * backtick), and {@code DatabaseMetaData.getColumns()} directly raises
+ * {@code YAS-04323 arguments count must be 2}. The metadata implementations in {@code dsc-common-mysql}, which
+ * as a whole assume "MySQL Connector/J semantics", therefore cannot be reused.
  * </p>
  *
  * @author open-cdm
@@ -49,15 +51,17 @@ public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
 
     private static final String                DRIVER_CLASS     = "com.mysql.cj.jdbc.Driver";
 
-    /** 崖山在 {@code information_schema.ENGINES} 中登记的引擎名，用于确认目标实例确实是崖山。 */
+    /** Engine name YashanDB registers in {@code information_schema.ENGINES}, used to confirm the target instance is really YashanDB. */
     private static final String                YASHANDB_ENGINE  = "YashanDB";
 
     /**
-     * 本变体固定对应 MySQL 兼容模式。
+     * This variant always corresponds to the MySQL compatibility mode.
      * <p>
-     * 与 GoldenDB「两个变体共用一个工厂、靠驱动属性传期望模式」不同，崖山两个变体的驱动与连接协议
-     * 完全不同，各自绑定了独立的 driver family 与工厂，因此期望模式由工厂自持，无需再往驱动属性里
-     * 塞自定义项（也避免无效属性被透传给 yasdb 驱动）。
+     * Unlike GoldenDB, whose two variants share one factory and pass the expected mode through a driver
+     * property, the two YashanDB variants use completely different drivers and connection protocols and each
+     * binds its own driver family and factory. The expected mode is therefore held by the factory itself; no
+     * custom property needs to be pushed into the driver properties (which also avoids passing invalid
+     * properties through to the yasdb driver).
      * </p>
      */
     private static final YashanDBCompatibilityMode EXPECTED_MODE = YashanDBCompatibilityMode.MYSQL;
@@ -97,11 +101,11 @@ public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
     }
 
     /**
-     * 连接后确认目标实例确实运行在崖山 MySQL 兼容模式上。
+     * Confirms after connecting that the target instance really runs in the YashanDB MySQL compatibility mode.
      * <p>
-     * 崖山 MySQL 兼容模式没有 {@code COMPAT_VECTOR} 之类的系统变量可供判断，但它在
-     * {@code information_schema.ENGINES} 里把自己登记为唯一引擎 {@code YashanDB}，
-     * 而标准 MySQL 会返回 {@code InnoDB} 等，因此以此作为指纹。
+     * The YashanDB MySQL compatibility mode has no system variable such as {@code COMPAT_VECTOR} to check, but
+     * it registers itself as the only engine {@code YashanDB} in {@code information_schema.ENGINES}, whereas
+     * standard MySQL returns {@code InnoDB} and others. That is therefore used as the fingerprint.
      * </p>
      */
     private void validateCompatibilityMode(Connection connection) throws SQLException {
@@ -146,7 +150,7 @@ public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
         putSocketTimeout(properties, dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey()));
         putIfNotBlank(properties, "characterEncoding", dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey()));
         putIfNotBlank(properties, "connectionTimeZone", dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey()));
-        // 与 dsc-common-mysql 的缺省保持一致：崖山的 bit(1) 不应被驱动当成 Boolean。
+        // Keep consistent with the dsc-common-mysql default: YashanDB bit(1) must not be treated as Boolean.
         properties.putIfAbsent("tinyInt1isBit", "false");
         return properties;
     }
@@ -170,8 +174,9 @@ public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        // 库名在界面上可能填在「默认 Schema」或「默认数据库」任一栏位，两者都接受；
-        // 实测崖山 MySQL 兼容模式允许不带库名连接，因此都为空时同样照常构造连接串。
+        // The database name may be filled in either the "default schema" or the "default database" field in the
+        // UI; both are accepted. Measured: the YashanDB MySQL compatibility mode allows connecting without a
+        // database name, so the URL is built the same way when both are empty.
         String database = StringUtils.defaultIfBlank(dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey()),
             dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey()));
 

@@ -22,11 +22,11 @@ import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
 
 /**
- * 崖山数据库（YashanDB）MySQL 兼容模式元数据服务。
+ * Metadata service for the YashanDB MySQL compatibility mode.
  * <p>
- * 版本号、当前库等均沿用 {@link MyMetaService} 的 MySQL 实现（{@code version()} /
- * {@code select database()}），崖山 MySQL 兼容模式的表现与 MySQL 一致，无需覆写；
- * 仅把 UMI 服务替换为崖山实现。
+ * Version and current database both reuse the MySQL implementation of {@link MyMetaService}
+ * ({@code version()} / {@code select database()}), since the YashanDB MySQL compatibility mode behaves the same
+ * as MySQL and needs no override; only the UMI service is replaced with the YashanDB implementation.
  * </p>
  *
  * @author open-cdm

@@ -22,10 +22,11 @@ import com.clougence.clouddm.dsfamily.oracle.execute.OraSession;
 import com.clougence.drivers.DsObject;
 
 /**
- * 崖山数据库会话。
+ * Session for YashanDB.
  * <p>
- * 崖山数据库为 Oracle 兼容数据库，因此复用 {@link OraSession} 的语句处理与 Explain 能力，
- * 仅通过 {@link YashanDBOracleHooks} 替换元数据服务中的崖山差异实现。
+ * YashanDB is an Oracle-compatible database, so it reuses the statement handling and Explain capabilities of
+ * {@link OraSession} and only replaces the YashanDB-specific metadata behaviour through
+ * {@link YashanDBOracleHooks}.
  *
  * @author open-cdm
  */

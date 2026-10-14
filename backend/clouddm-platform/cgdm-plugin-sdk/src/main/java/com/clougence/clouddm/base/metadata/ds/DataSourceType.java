@@ -44,7 +44,7 @@ public enum DataSourceType {
     KingbaseESSQLServer("kesms", "KingbaseESSQLServer", 0, 78),
     GoldenDBMySQL("gdbmy", "GoldenDBMySQL", 0, 79),
     GoldenDBOracle("gdbora", "GoldenDBOracle", 0, 80),
-    YashanDBOracle("yasdb", "YashanDBOracle", 0, 81),
+    YashanDBOracle("yasora", "YashanDBOracle", 0, 81),
     YashanDBMySQL("yasmy", "YashanDBMySQL", 0, 82),
     OceanBase("ob", "OceanBase", 0, 90),
     ObForOracle("obo", "ObForOracle", 0, 100),

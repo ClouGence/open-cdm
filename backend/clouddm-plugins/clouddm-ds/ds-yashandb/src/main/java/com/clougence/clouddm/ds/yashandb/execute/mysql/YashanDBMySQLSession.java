@@ -22,17 +22,17 @@ import com.clougence.clouddm.dsfamily.mysql.execute.MySession;
 import com.clougence.drivers.DsObject;
 
 /**
- * 崖山数据库（YashanDB）MySQL 兼容模式会话。
+ * Session for the YashanDB MySQL compatibility mode.
  * <p>
- * 直接复用 {@link MySession}：本变体使用 MySQL Connector/J 连接崖山的 MySQL 协议端口，
- * 会话行为（含父类 {@code killCurrentQuery()} 对 {@code com.mysql.cj.jdbc.ConnectionImpl}
- * 的强转）与标准 MySQL 完全一致，无需覆写。
+ * Reuses {@link MySession} directly: this variant connects to the MySQL protocol port of YashanDB with MySQL
+ * Connector/J, so session behaviour (including the parent class {@code killCurrentQuery()} cast to
+ * {@code com.mysql.cj.jdbc.ConnectionImpl}) is exactly the same as standard MySQL and needs no override.
  * </p>
  * <p>
- * 对比：KingbaseES 的 MySQL 变体走的是 Kingbase 自己的驱动，就必须覆写
- * {@code killCurrentQuery()} 改用 {@code unwrap(BaseConnection.class)}；崖山若改用
- * {@code jdbc:yasdb://...?compatVector=mysql}（见 {@code YashanDBMySQLDsFactory} 的说明）
- * 会面临同样问题，这也是本变体选择标准 MySQL 驱动的直接原因之一。
+ * For comparison: the MySQL variant of KingbaseES uses Kingbase's own driver and therefore has to override
+ * {@code killCurrentQuery()} with {@code unwrap(BaseConnection.class)}; YashanDB would face the same problem if
+ * it switched to {@code jdbc:yasdb://...?compatVector=mysql} (see the notes in {@code YashanDBMySQLDsFactory}),
+ * which is one of the direct reasons this variant chooses the standard MySQL driver.
  * </p>
  *
  * @author open-cdm

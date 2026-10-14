@@ -27,10 +27,11 @@ import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProp
 import com.clougence.drivers.adapter.ConvertUtils;
 
 /**
- * 崖山数据库（YashanDB）连接配置 SPI 基类。
+ * Base SPI class for the YashanDB data source connection configuration.
  * <p>
- * 两个兼容模式（Oracle / MySQL）的连接能力一致，差别仅在于具体的配置类与默认端口，
- * 因此由子类通过构造器注入自己的 {@link AbstractYashanDBConfig} 实现与 {@code defaultPort}。
+ * The two compatibility modes (Oracle / MySQL) expose the same connection capabilities; they differ only in
+ * the concrete config class and the default port, so each subclass injects its own
+ * {@link AbstractYashanDBConfig} implementation and {@code defaultPort} through the constructor.
  * </p>
  *
  * @author open-cdm
