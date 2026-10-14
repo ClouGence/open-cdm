@@ -4407,7 +4407,7 @@
   "sql-connection-open": "打开连接",
   "sql-connection-disconnect": "断开连接",
   "sql-connection-reconnect": "重新连接",
-  "sql-connection-disconnected": "连接已断开，请重新连接",
+  "sql-connection-disconnected": "连接已断开",
   "sql-connection-connecting": "正在打开连接…",
   "sql-connection-connected": "已连接",
   "sql-connection-disconnecting": "正在断开连接…",

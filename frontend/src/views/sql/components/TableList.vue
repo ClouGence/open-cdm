@@ -49,7 +49,14 @@
           >
             <SearchOutlined aria-hidden="true" />
           </button>
-          <button type="button" class="object-refresh-button" :aria-label="$t('shua-xin')" :title="$t('shua-xin')" @click="handleRefreshTree">
+          <button
+            type="button"
+            class="object-refresh-button"
+            :disabled="tableListLoading"
+            :aria-label="$t('shua-xin')"
+            :title="$t('shua-xin')"
+            @click="handleRefreshTree"
+          >
             <cc-svg-icon :size="16" name="refresh" />
           </button>
         </div>
@@ -59,34 +66,38 @@
         @contextmenu.prevent.stop="onContextmenu"
         :class="!['TABLE', 'VIEW', 'PROC', 'FUNC'].includes(currentTab.leafType) ? 'no-indent' : ''"
       >
-        <loading :active="tableListLoading" :is-full-page="false"></loading>
-        <div class="table-list-tree">
-          <v-tree
-            :emptyText="$t('dian-ji-jia-zai-shu-ju')"
-            ref="tableTree"
-            key-field="key"
-            :load="handleExpandLoadNode"
-            :render="renderNode"
-            :nodeIndent="20"
-            :renderNodeAmount="200"
-            @click="handleVTreeClick"
-            @node-right-click="handleNodeRightClick"
-          >
-            <template #empty>
-              <div v-if="!tableListLoading">
-                <span>{{ $t('zan-wu-shu-ju') }}</span>
-                <br />
-                <a-button type="text" ghost @click="handleRefreshTree">
-                  <CustomIcon type="icon-v2-Refresh" />
-                  <span style="padding-left: 5px">{{ $t('dian-ji-jia-zai-shu-ju') }}</span>
-                </a-button>
-              </div>
-            </template>
-          </v-tree>
-        </div>
+        <loading :active="tableListLoading && !showInitialSkeleton" :is-full-page="false"></loading>
+        <SqlLoadingSkeleton v-if="showInitialSkeleton" />
+        <Transition name="sql-content-reveal">
+          <div v-show="!showInitialSkeleton" class="table-list-tree" :aria-busy="tableListLoading">
+            <v-tree
+              :emptyText="$t('dian-ji-jia-zai-shu-ju')"
+              ref="tableTree"
+              key-field="key"
+              :load="handleExpandLoadNode"
+              :render="renderNode"
+              :nodeIndent="20"
+              :renderNodeAmount="200"
+              @click="handleVTreeClick"
+              @node-right-click="handleNodeRightClick"
+            >
+              <template #empty>
+                <div v-if="!tableListLoading">
+                  <span>{{ $t('zan-wu-shu-ju') }}</span>
+                  <br />
+                  <a-button type="text" ghost @click="handleRefreshTree">
+                    <CustomIcon type="icon-v2-Refresh" />
+                    <span style="padding-left: 5px">{{ $t('dian-ji-jia-zai-shu-ju') }}</span>
+                  </a-button>
+                </div>
+              </template>
+            </v-tree>
+          </div>
+        </Transition>
       </div>
       <div class="object-list-pagination">
-        <span class="object-list-pagination__total">{{ $t('gong') }}{{ filteredObjectCount }}{{ $t('tiao') }}</span>
+        <span v-if="showInitialSkeleton" class="object-count-skeleton" aria-hidden="true" />
+        <span v-else class="object-list-pagination__total">{{ $t('gong') }}{{ filteredObjectCount }}{{ $t('tiao') }}</span>
         <div class="object-list-pagination__actions">
           <button
             type="button"
@@ -997,6 +1008,7 @@ import appLogger from '@/utils/logger';
 import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import VTree from '@wsfe/vue-tree';
 import Loading from 'vue-loading-overlay';
+import SqlLoadingSkeleton from '@/views/sql/components/SqlLoadingSkeleton';
 import { mapGetters, mapState } from 'vuex';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import copyMixin from '@/mixins/copyMixin';
@@ -1202,6 +1214,7 @@ export default {
     ReadOnlyEditor,
     // GenDataModal,
     Loading,
+    SqlLoadingSkeleton,
     VTree
   },
   props: {
@@ -1464,6 +1477,10 @@ export default {
     }
   },
   computed: {
+    showInitialSkeleton() {
+      const currentLeaf = this.currentTab[this.currentTab.leafType];
+      return this.tableListLoading && !currentLeaf?.loaded && !currentLeaf?.treeData?.length;
+    },
     ...mapState(['globalDsSetting']),
     ...mapGetters(['isDesktop', 'getMenus', 'getBrowserMenus', 'getQuickQuery', 'getDsClassify', 'genQualifierText', 'targetDsList', 'ddlList']),
     objectTypeTabs() {
@@ -3929,6 +3946,14 @@ export default {
 };
 </script>
 <style scoped lang="less">
+.object-count-skeleton {
+  display: block;
+  width: 48px;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--border-primary);
+}
+
 .object-type-trigger {
   display: inline-flex;
   width: 32px;

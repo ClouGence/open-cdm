@@ -5,6 +5,7 @@
         ref="dataSourceTree"
         :current-tab="currentTab"
         :tree-data="treeData"
+        :loading="dataSourceLoading"
         :list-levels="listLevels"
         :detail-levels="detailLevels"
         :list-leaf="listLeaf"
@@ -20,7 +21,8 @@
       />
       <div class="query-container">
         <div class="content">
-          <div class="tab-wrap">
+          <SqlLoadingSkeleton v-if="restoringWorkspace && !tabs.length" variant="workspace" />
+          <div v-show="!restoringWorkspace || tabs.length" class="tab-wrap">
             <div class="sql-sidebar-toggle-slot" :class="{ 'sql-sidebar-toggle-slot--visible': dataSourceSidebarHidden }">
               <transition name="sql-sidebar-toggle">
                 <button
@@ -89,94 +91,101 @@
             </div>
           </div>
           <!-- Empty Status -->
-          <div v-if="!tabs.length" class="empty-state-container">
+          <div v-if="!restoringWorkspace && !tabs.length" class="empty-state-container">
             <SqlEmptyState />
           </div>
 
-          <div class="query-content-container" v-if="tabs.length">
-            <loading :active.sync="fullLoading" :is-full-page="false"></loading>
-            <div v-if="currentTab.type === TAB_TYPE.QUERY && globalDsSetting[currentTab.dsType]" class="query-content">
-              <div class="query">
-                <TableList
-                  v-if="currentTab.connected && currentTab.node"
-                  ref="tableList"
-                  :get-node-data="getTableNodeData"
-                  :handle-add-tab="handleAddTab"
-                  :list-leaf="listLeaf"
-                  :table-list-loading="tableListLoading"
-                  :currentTab="currentTab"
-                  :handle-query-table="handleQueryTable"
-                  :rdb-object-detail="rdbObjectDetail"
-                />
-                <div class="query-editor-container">
-                  <div class="layout-content-main">
-                    <SqlViewer
-                      ref="sqlViewer"
-                      :handleGetDsSetting="handleGetDsSetting"
-                      :createSession="createSession"
-                      :storeQueryTabs="storeQueryTabs"
-                      :tab="currentTab"
-                      :tabs="tabs"
-                      :completion-data="completionData"
-                      :rdb-object-detail="rdbObjectDetail"
-                      :handle-click-ds-status-icon="handleClickDsStatusIcon"
-                      @workspace-connection-error="handleWorkspaceConnectionError"
-                      @open-script="handleOpenSqlScript"
-                      @script-deleted="handleSqlScriptDeleted"
-                      @script-renamed="handleSqlScriptRenamed"
-                    >
-                      <template #connection-context>
-                        <div v-if="currentTab.connected && currentTab.node" class="query-schema-select__content">
-                          <a-select
-                            v-if="currentTab.selectOptions && currentTab.node.levels[currentTab.node.levels.length - 1] !== 'INSTANCE'"
-                            class="schema-select-style"
-                            v-model:value="currentTab.selectValue"
-                            show-search
-                            size="small"
-                            :options="currentTab.selectOptions || []"
-                            @select="handleChangeSchema"
-                          ></a-select>
-                          <CustomIcon
-                            class="query-connection-icon"
-                            :type="currentTab.dsType"
-                            :instance-type="currentTab.node.INSTANCE.attr.dsDeployType"
-                            size="14px"
-                            aria-hidden="true"
-                          />
-                          <div class="query-connection-label">@{{ currentTab.node.INSTANCE.attr.dsHost }}</div>
-                        </div>
-                      </template>
-                    </SqlViewer>
-                  </div>
-                  <div ref="result" class="result-wrapper">
-                    <Result :id="`result_${currentTab.key}`" :ref="`result_`" :resultList="currentTab.resultList" :tab="currentTab" />
+          <Transition name="sql-content-reveal">
+            <div class="query-content-container" v-if="tabs.length">
+              <loading :active.sync="fullLoading" :is-full-page="false"></loading>
+              <div v-if="currentTab.type === TAB_TYPE.QUERY && globalDsSetting[currentTab.dsType]" class="query-content">
+                <div class="query">
+                  <TableList
+                    v-if="currentTab.connected && currentTab.node"
+                    ref="tableList"
+                    :get-node-data="getTableNodeData"
+                    :handle-add-tab="handleAddTab"
+                    :list-leaf="listLeaf"
+                    :table-list-loading="tableListLoading || sessionLoading || restoringWorkspace"
+                    :currentTab="currentTab"
+                    :handle-query-table="handleQueryTable"
+                    :rdb-object-detail="rdbObjectDetail"
+                  />
+                  <SqlLoadingSkeleton
+                    v-else-if="currentTab.node && ['connecting', 'reconnecting'].includes(currentTab.workspaceConnectionState)"
+                    variant="objects"
+                    class="table-list-container"
+                  />
+                  <div class="query-editor-container">
+                    <div class="layout-content-main">
+                      <SqlViewer
+                        ref="sqlViewer"
+                        :handleGetDsSetting="handleGetDsSetting"
+                        :createSession="createSession"
+                        :storeQueryTabs="storeQueryTabs"
+                        :tab="currentTab"
+                        :tabs="tabs"
+                        :completion-data="completionData"
+                        :rdb-object-detail="rdbObjectDetail"
+                        :handle-click-ds-status-icon="handleClickDsStatusIcon"
+                        @workspace-connection-error="handleWorkspaceConnectionError"
+                        @open-script="handleOpenSqlScript"
+                        @script-deleted="handleSqlScriptDeleted"
+                        @script-renamed="handleSqlScriptRenamed"
+                      >
+                        <template #connection-context>
+                          <div v-if="currentTab.connected && currentTab.node" class="query-schema-select__content">
+                            <a-select
+                              v-if="currentTab.selectOptions && currentTab.node.levels[currentTab.node.levels.length - 1] !== 'INSTANCE'"
+                              class="schema-select-style"
+                              v-model:value="currentTab.selectValue"
+                              show-search
+                              size="small"
+                              :options="currentTab.selectOptions || []"
+                              @select="handleChangeSchema"
+                            ></a-select>
+                            <CustomIcon
+                              class="query-connection-icon"
+                              :type="currentTab.dsType"
+                              :instance-type="currentTab.node.INSTANCE.attr.dsDeployType"
+                              size="14px"
+                              aria-hidden="true"
+                            />
+                            <div class="query-connection-label">@{{ currentTab.node.INSTANCE.attr.dsHost }}</div>
+                          </div>
+                        </template>
+                      </SqlViewer>
+                    </div>
+                    <div ref="result" class="result-wrapper">
+                      <Result :id="`result_${currentTab.key}`" :ref="`result_`" :resultList="currentTab.resultList" :tab="currentTab" />
+                    </div>
                   </div>
                 </div>
               </div>
+              <div v-if="currentTab.type !== TAB_TYPE.QUERY && !currentTab.connected" class="workspace-connection-notice" role="status">
+                {{ currentTab.msgContent || $t('sql-connection-disconnected') }}
+                <Button v-if="!getWorkspaceConnection(currentTab.dsId).busy" @click="handleClickDsStatusIcon">{{ $t('sql-connection-open') }}</Button>
+              </div>
+              <div v-if="currentTab.type === TAB_TYPE.STRUCT" class="query-content" :inert="!currentTab.connected">
+                <StructView
+                  :handleClickDsStatusIcon="handleClickDsStatusIcon"
+                  :tab="currentTab"
+                  :set-active-key="setActiveKey"
+                  :handle-refresh-tables="handleRefreshTables"
+                  :store-query-tabs="storeQueryTabs"
+                  ref="struct-view"
+                />
+              </div>
+              <div v-if="currentTab.type === TAB_TYPE.DATA" class="query-content" :inert="!currentTab.connected">
+                <lucky-sheet-data-view
+                  :tab="currentTab"
+                  ref="data-view"
+                  :set-loading="setLoading"
+                  :handle-click-ds-status-icon="handleClickDsStatusIcon"
+                />
+              </div>
             </div>
-            <div v-if="currentTab.type !== TAB_TYPE.QUERY && !currentTab.connected" class="workspace-connection-notice" role="status">
-              {{ currentTab.msgContent || $t('sql-connection-disconnected') }}
-              <Button v-if="!getWorkspaceConnection(currentTab.dsId).busy" @click="handleClickDsStatusIcon">{{ $t('sql-connection-open') }}</Button>
-            </div>
-            <div v-if="currentTab.type === TAB_TYPE.STRUCT" class="query-content" :inert="!currentTab.connected">
-              <StructView
-                :handleClickDsStatusIcon="handleClickDsStatusIcon"
-                :tab="currentTab"
-                :set-active-key="setActiveKey"
-                :handle-refresh-tables="handleRefreshTables"
-                :store-query-tabs="storeQueryTabs"
-                ref="struct-view"
-              />
-            </div>
-            <div v-if="currentTab.type === TAB_TYPE.DATA" class="query-content" :inert="!currentTab.connected">
-              <lucky-sheet-data-view
-                :tab="currentTab"
-                ref="data-view"
-                :set-loading="setLoading"
-                :handle-click-ds-status-icon="handleClickDsStatusIcon"
-              />
-            </div>
-          </div>
+          </Transition>
         </div>
       </div>
     </div>
@@ -221,6 +230,7 @@ import TableList from '@/views/sql/components/TableList';
 import StructView from '@/views/sql/components/StructView';
 import DataSourceTree from '@/views/sql/components/DataSourceTree';
 import SqlEmptyState from '@/views/sql/components/SqlEmptyState';
+import SqlLoadingSkeleton from '@/views/sql/components/SqlLoadingSkeleton';
 import { clearAllPending } from '@/services/http/cancelRequest';
 import LuckySheetDataView from '@/views/sql/components/LuckySheetDataView';
 import browseMixin from '@/mixins/browseMixin';
@@ -260,6 +270,7 @@ export default {
     Result,
     TableList,
     SqlEmptyState,
+    SqlLoadingSkeleton,
     Loading
   },
   data() {
@@ -275,11 +286,14 @@ export default {
       scrollTop: 0,
       treeInstance: null,
       tableListLoading: false,
+      tableListRequestId: 0,
       rdbObjectDetailLoading: true,
       completionData: {},
       TAB_TYPE,
       active: '',
       treeData: [],
+      dataSourceLoading: true,
+      restoringWorkspace: true,
       newMode: true,
       TAB_ACTION,
       dataSourceSidebarHidden: false,
@@ -336,10 +350,14 @@ export default {
     // }
     this.workspaceBlockedDsIds = JSON.parse(localStorage.getItem(`clouddm_workspace_disconnected_${this.userInfo.uid}`) || '[]');
     document.addEventListener('visibilitychange', this.handleWorkspaceVisibility);
-    await this.listDockTask();
+    this.listDockTask().catch((error) => appLogger.error('Load async tasks failed', error));
     await this.setDataViewImage();
-    await this.getDataSourceData();
-    await this.getLocalQueryData();
+    try {
+      await this.getDataSourceData();
+      await this.getLocalQueryData();
+    } finally {
+      this.restoringWorkspace = false;
+    }
     this.$bus.on(EVENT_BUS_NAME_LIST.WS_RES_ASYNC_EVENT, this.handleAsyncEvent);
     this.$bus.on(EVENT_BUS_NAME_LIST.SOCKET_CONNECTION_CLOSE, this.handleSocketConnectionClose);
     this.$bus.on(EVENT_BUS_NAME_LIST.SOCKET_CONNECTION_OPEN, this.handleGetDsSetting);
@@ -654,14 +672,18 @@ export default {
       return this.$refs.dataSourceTree?.handleGetTreeData?.() || [];
     },
     async getDataSourceData() {
-      this.treeData = [];
-      await this.listLevels();
-      const hasStoredExpandedKeys = this.$refs.dataSourceTree?.hasStoredExpandedKeys;
-      if (this.treeData.length) {
-        this.hasDatasource = true;
-        if (!hasStoredExpandedKeys) {
-          await this.listLevels(this.treeData[0], {}, () => {});
+      this.dataSourceLoading = true;
+      try {
+        await this.listLevels();
+        const hasStoredExpandedKeys = this.$refs.dataSourceTree?.hasStoredExpandedKeys;
+        if (this.treeData.length) {
+          this.hasDatasource = true;
+          if (!hasStoredExpandedKeys) {
+            await this.listLevels(this.treeData[0], {}, () => {});
+          }
         }
+      } finally {
+        this.dataSourceLoading = false;
       }
     },
     setDataViewImage() {
@@ -737,9 +759,6 @@ export default {
       }
       const generation = connection?.generation;
       appLogger.debug('listLevels', node);
-      if (!node) {
-        this.treeData = [];
-      }
 
       let statusRes = '';
       const checkingConnection = node?.nodeType === 'INSTANCE' && !connectionAction && connection.status !== 'connected';
@@ -767,6 +786,7 @@ export default {
           return false;
         }
         if (levelRes.success && Array.isArray(levelRes.data)) {
+          if (!node) this.treeData = [];
           const children = [];
           if (node && isRefreshCache) {
             this.completionData[node.key] = [];
@@ -986,6 +1006,7 @@ export default {
       const generation = connection.generation;
       const { node, leafType } = currentTab;
 
+      const requestId = ++this.tableListRequestId;
       this.tableListLoading = true;
 
       const leafList = [];
@@ -994,6 +1015,7 @@ export default {
       const noLegal = node?.key?.includes('/');
       if (noLegal) {
         this.$Message.warning(this.$t('fa-mi-ming-cheng-bu-zhi-chi'));
+        this.tableListLoading = false;
         return;
       }
 
@@ -1035,23 +1057,18 @@ export default {
           }
 
           currentTab[leafType].treeData = leafList;
+          currentTab[leafType].loaded = true;
           if (this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
             await this.$refs.tableList.handleSetData(leafList);
             await this.$refs.tableList.handleFilter(currentTab[leafType].searchKey);
           }
         } else {
           this.setInstanceErrorIcon(node?.INSTANCE?.id);
-          if (this.$refs.tableList && this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
-            await this.$refs.tableList.handleSetData(leafList);
-          }
         }
       } catch (e) {
         this.setInstanceErrorIcon(node?.INSTANCE?.id);
-        if (this.$refs.tableList && this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
-          await this.$refs.tableList.handleSetData(leafList);
-        }
       } finally {
-        this.tableListLoading = false;
+        if (requestId === this.tableListRequestId) this.tableListLoading = false;
       }
 
       this.storeQueryTabs();

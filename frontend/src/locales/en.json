@@ -4428,7 +4428,7 @@
   "sql-connection-open": "Open Connection",
   "sql-connection-disconnect": "Disconnect",
   "sql-connection-reconnect": "Reconnect",
-  "sql-connection-disconnected": "Disconnected. Please reconnect.",
+  "sql-connection-disconnected": "Disconnected",
   "sql-connection-connecting": "Opening connection…",
   "sql-connection-connected": "Connected",
   "sql-connection-disconnecting": "Disconnecting…",

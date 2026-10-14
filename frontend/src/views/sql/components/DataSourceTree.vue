@@ -14,6 +14,7 @@ import utilMixin from '@/mixins/utilMixin';
 import { clearAllPending } from '@/services/http/cancelRequest';
 import AddDataSource from '@/views/dataSource/AddDataSource';
 import TreeNodeLabel from '@/views/sql/components/TreeNodeLabel';
+import SqlLoadingSkeleton from '@/views/sql/components/SqlLoadingSkeleton';
 
 const DATASOURCE_EXPANDED_KEYS_KEY = 'clouddm_datasource_expanded_keys';
 const SEARCH_PANEL_EXPANDED_WIDTH = 280;
@@ -27,9 +28,11 @@ export default {
     AddDataSource,
     DoubleLeftOutlined,
     SearchOutlined,
+    SqlLoadingSkeleton,
     VTree
   },
   props: {
+    loading: Boolean,
     currentTab: Object,
     listLevels: Function,
     listLeaf: Function,
@@ -45,6 +48,9 @@ export default {
     handleWorkspaceConnection: Function
   },
   watch: {
+    loading(loading) {
+      if (!loading) this.$nextTick(this.checkTreeDataAndToggle);
+    },
     treeData: {
       handler(newData) {
         // Delay checking v-tree actual data status
@@ -64,6 +70,8 @@ export default {
   data() {
     const storedHide = this.getStoredHideState();
     const storedExpandedKeys = this.getStoredExpandedKeys();
+    let initialWidth = 250;
+    if (storedHide) initialWidth = 0;
     return {
       testDsMsg: '',
       showAddDsModal: false,
@@ -132,7 +140,7 @@ export default {
       unmounting: false,
       selectedNode: null,
       hide: storedHide,
-      dataSourceWidth: 0,
+      dataSourceWidth: initialWidth,
       preDataSourceWidth: 250,
       refreshingTree: false,
       sidebarAnimating: false,
@@ -281,7 +289,7 @@ export default {
       }
     },
     checkTreeDataAndToggle() {
-      if (!this.$refs.tree) {
+      if (!this.$refs.tree || this.loading) {
         return;
       }
 
@@ -1423,7 +1431,14 @@ export default {
         >
           <cc-svg-icon :size="16" name="focus" :color="`${isDark ? '#fff' : '#000'}`" />
         </button>
-        <button type="button" class="data-source-toolbar-button" :aria-label="$t('shua-xin')" :title="$t('shua-xin')" @click="handleRefreshTree">
+        <button
+          type="button"
+          class="data-source-toolbar-button"
+          :disabled="loading"
+          :aria-label="$t('shua-xin')"
+          :title="$t('shua-xin')"
+          @click="handleRefreshTree"
+        >
           <cc-svg-icon name="refresh" :size="16" :color="`${isDark ? '#fff' : '#000'}`" />
         </button>
         <button
@@ -1436,22 +1451,26 @@ export default {
           <DoubleLeftOutlined aria-hidden="true" />
         </button>
       </div>
-      <div class="datasource-tree" @contextmenu.prevent.stop="onContextmenu">
-        <v-tree
-          emptyText=" "
-          ref="tree"
-          keyField="key"
-          :load="handleExpandLoadNode"
-          :render="renderNode"
-          :expand-on-filter="false"
-          :expanded-keys="expandedKeys"
-          @node-right-click="handleNodeRightClick"
-          @node-dblclick="handleDblClick"
-          @expand="handleTreeExpand"
-          :nodeIndent="10"
-          :renderNodeAmount="200"
-          @click="handleNodeClick"
-        ></v-tree>
+      <div class="datasource-tree" :aria-busy="loading" @contextmenu.prevent.stop="onContextmenu">
+        <SqlLoadingSkeleton v-if="loading && !treeData.length" />
+        <Transition name="sql-content-reveal">
+          <v-tree
+            v-show="!loading || treeData.length"
+            emptyText=" "
+            ref="tree"
+            keyField="key"
+            :load="handleExpandLoadNode"
+            :render="renderNode"
+            :expand-on-filter="false"
+            :expanded-keys="expandedKeys"
+            @node-right-click="handleNodeRightClick"
+            @node-dblclick="handleDblClick"
+            @expand="handleTreeExpand"
+            :nodeIndent="10"
+            :renderNodeAmount="200"
+            @click="handleNodeClick"
+          ></v-tree>
+        </Transition>
       </div>
     </div>
     <CCModal :title="menuModal.title" v-model="menuModal.show" :mask-closable="false" :closable="false" :keyboard="false">
