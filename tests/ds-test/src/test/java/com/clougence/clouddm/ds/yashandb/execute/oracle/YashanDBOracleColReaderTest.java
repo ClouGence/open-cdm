@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.yashandb.execute;
+package com.clougence.clouddm.ds.yashandb.execute.oracle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -39,9 +39,9 @@ import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
  *
  * @author open-cdm
  */
-class YashanDBColReaderTest {
+class YashanDBOracleColReaderTest {
 
-    private final YashanDBColReader reader = new YashanDBColReader();
+    private final YashanDBOracleColReader reader = new YashanDBOracleColReader();
 
     private static ColMetaData col(String type) {
         ColMetaData cm = new ColMetaData();

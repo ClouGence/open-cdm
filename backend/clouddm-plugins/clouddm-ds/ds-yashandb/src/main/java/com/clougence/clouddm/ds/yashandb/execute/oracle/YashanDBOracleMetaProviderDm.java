@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.yashandb.execute;
+package com.clougence.clouddm.ds.yashandb.execute.oracle;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,7 +45,7 @@ import com.clougence.utils.CollectionUtils;
  *
  * @author open-cdm
  */
-public class YashanDBMetaProviderDm extends OraMetaProviderDm {
+public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     private static final String YAS_TABLE   = "select TAB.OWNER,TAB.TABLE_NAME,TABLESPACE_NAME,TAB.TABLE_TYPE,TAB.LOG_TABLE,TAB.LOG_ROWIDS,TAB.LOG_PK,TAB.LOG_SEQ,COMMENTS,TAB.TEMPORARY,TAB.IOT_TYPE ,\n"
                                               + "   TAB.STATUS as VALID_FLAG, TAB.CLUSTER_NAME, TAB.PCT_FREE, TAB.PCT_USED, TAB.INI_TRANS,TAB.MAX_TRANS, TAB.INITIAL_EXTENT, TAB.NEXT_EXTENT, TAB.MIN_EXTENTS, TAB.MAX_EXTENTS,\n"
@@ -103,11 +103,11 @@ public class YashanDBMetaProviderDm extends OraMetaProviderDm {
     /** 是否在 schema 列表中排除数据库自维护的 schema（崖山为 {@code DATABASE_MAINTAINED = 'Y'}）。 */
     private final boolean excludeMaintainedSchemas;
 
-    public YashanDBMetaProviderDm(Connection connection){
+    public YashanDBOracleMetaProviderDm(Connection connection){
         this(connection, true);
     }
 
-    public YashanDBMetaProviderDm(Connection connection, boolean excludeMaintainedSchemas){
+    public YashanDBOracleMetaProviderDm(Connection connection, boolean excludeMaintainedSchemas){
         super(connection, excludeMaintainedSchemas);
         this.excludeMaintainedSchemas = excludeMaintainedSchemas;
     }

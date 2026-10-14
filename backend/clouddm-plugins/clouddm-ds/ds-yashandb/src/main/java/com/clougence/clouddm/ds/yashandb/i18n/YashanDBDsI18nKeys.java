@@ -20,5 +20,6 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/yashandb-config")
 public interface YashanDBDsI18nKeys {
 
-    String PLUGIN_NAME_YASHANDB = "PLUGIN_NAME_YASHANDB";
+    String PLUGIN_NAME_YASHANDB_ORACLE = "PLUGIN_NAME_YASHANDB_ORACLE";
+    String PLUGIN_NAME_YASHANDB_MYSQL  = "PLUGIN_NAME_YASHANDB_MYSQL";
 }

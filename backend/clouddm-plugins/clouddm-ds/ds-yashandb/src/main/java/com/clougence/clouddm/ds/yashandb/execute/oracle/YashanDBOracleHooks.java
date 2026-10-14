@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.yashandb.execute;
+package com.clougence.clouddm.ds.yashandb.execute.oracle;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.dsfamily.oracle.execute.OraHooks;
@@ -29,11 +29,11 @@ import com.clougence.clouddm.sdk.execute.session.result.ColReader;
  *
  * @author open-cdm
  */
-public class YashanDBHooks extends OraHooks {
+public class YashanDBOracleHooks extends OraHooks {
 
     private final String clientCharset;
 
-    public YashanDBHooks(DataSourceConfig config){
+    public YashanDBOracleHooks(DataSourceConfig config){
         super(config);
         // 父类字段为 private，这里自行解析一遍（解析逻辑与父类一致）
         this.clientCharset = config instanceof com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties e ? e.getClientCharset() : null;
@@ -41,11 +41,11 @@ public class YashanDBHooks extends OraHooks {
 
     @Override
     public DsMetaService createMetaService(Session session) {
-        return new YashanDBMetaService(session);
+        return new YashanDBOracleMetaService(session);
     }
 
     @Override
     public ColReader createColReader() {
-        return new YashanDBColReader(this.clientCharset);
+        return new YashanDBOracleColReader(this.clientCharset);
     }
 }

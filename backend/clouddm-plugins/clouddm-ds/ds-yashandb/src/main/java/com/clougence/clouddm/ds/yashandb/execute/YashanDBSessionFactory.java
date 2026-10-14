@@ -17,18 +17,32 @@ package com.clougence.clouddm.ds.yashandb.execute;
 
 import java.sql.Connection;
 
-import com.clougence.clouddm.ds.yashandb.dsconf.YashanDBConfig;
+import com.clougence.clouddm.ds.yashandb.dsconf.AbstractYashanDBConfig;
+import com.clougence.clouddm.ds.yashandb.execute.mysql.YashanDBMySQLSession;
+import com.clougence.clouddm.ds.yashandb.execute.oracle.YashanDBOracleSession;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionFactory;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
+import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.drivers.DsObject;
 
-public class YashanDBSessionFactory extends RdbSessionFactory<YashanDBConfig> {
+public class YashanDBSessionFactory extends RdbSessionFactory<AbstractYashanDBConfig> {
 
     @Override
-    protected Session newSession(YashanDBConfig dsConfig, SessionContextDTO contextDTO, DsObject<Connection> dsObject, DsResourceManager ownerRM) throws Exception {
-        YashanDBSession session = new YashanDBSession(contextDTO.getSessionId(), dsConfig, dsObject);
+    protected Session newSession(AbstractYashanDBConfig dsConfig, SessionContextDTO contextDTO, DsObject<Connection> dsObject,
+                                 DsResourceManager ownerRM) throws Exception {
+        DefaultRdbSession session;
+        switch (dsConfig.getDataSourceType()) {
+            case YashanDBOracle:
+                session = new YashanDBOracleSession(contextDTO.getSessionId(), dsConfig, dsObject);
+                break;
+            case YashanDBMySQL:
+                session = new YashanDBMySQLSession(contextDTO.getSessionId(), dsConfig, dsObject);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported YashanDB data source type: " + dsConfig.getDataSourceType());
+        }
         session.initSession(ownerRM, contextDTO);
         return session;
     }

@@ -45,6 +45,7 @@ public enum DataSourceType {
     GoldenDBMySQL("gdbmy", "GoldenDBMySQL", 0, 79),
     GoldenDBOracle("gdbora", "GoldenDBOracle", 0, 80),
     YashanDBOracle("yasdb", "YashanDBOracle", 0, 81),
+    YashanDBMySQL("yasmy", "YashanDBMySQL", 0, 82),
     OceanBase("ob", "OceanBase", 0, 90),
     ObForOracle("obo", "ObForOracle", 0, 100),
     Db2("db2", "Db2", 0, 110),

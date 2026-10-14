@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.yashandb.execute;
+package com.clougence.clouddm.ds.yashandb.execute.oracle;
 
 import java.sql.Connection;
 import java.util.Map;
@@ -43,15 +43,15 @@ import lombok.extern.slf4j.Slf4j;
  * @author open-cdm
  */
 @Slf4j
-public class YashanDBMetaService extends OraMetaService {
+public class YashanDBOracleMetaService extends OraMetaService {
 
-    public YashanDBMetaService(Session rdbSession){
+    public YashanDBOracleMetaService(Session rdbSession){
         super(rdbSession);
     }
 
     @Override
     protected DmRdbUmiService rdbUmiService(Connection con) {
-        return new YashanDBUmiServiceDm(con);
+        return new YashanDBOracleUmiServiceDm(con);
     }
 
     @Override

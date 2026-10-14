@@ -18,20 +18,21 @@ package com.clougence.clouddm.ds.yashandb.dsconf;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.*;
-import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
 /**
- * 崖山数据库（YashanDB）连接配置。
+ * 崖山数据库（YashanDB）连接配置基类。
  * <p>
- * 崖山数据库为 Oracle 兼容数据库，连接串形如 {@code jdbc:yasdb://host:1688/database}。
+ * 崖山数据库的服务端兼容模式在安装期确定（Oracle 兼容模式为默认，MySQL 兼容模式通过
+ * {@code --mode mysql} 安装），两种模式的<b>连接配置项</b>完全相同，差异集中在
+ * {@code DataSourceType}、默认端口、JDBC 驱动与连接串形态上（详见
+ * {@link YashanDBCompatibilityMode}），因此公共字段与取值逻辑上提到本类。
  * </p>
  *
  * @author open-cdm
@@ -39,9 +40,7 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 @Setter
 @FieldNameConstants
-@Serialization(provider = YashanDBSerializationSpi.PROVIDER_NAME)
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class YashanDBConfig extends DataSourceConfig implements ClientTimeZoneExtProperties {
+public abstract class AbstractYashanDBConfig extends DataSourceConfig implements ClientTimeZoneExtProperties {
 
     @ConfigDef(name = Fields.defaultCatalog, group = DsConfigGroup.GENERAL, labelKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
     private String  defaultCatalog;
@@ -58,8 +57,8 @@ public class YashanDBConfig extends DataSourceConfig implements ClientTimeZoneEx
     @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", group = DsConfigGroup.ADVANCED, labelKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
     private Integer soTimeoutSec;
 
-    public YashanDBConfig(){
-        setDataSourceType(DataSourceType.YashanDBOracle);
+    protected AbstractYashanDBConfig(DataSourceType dataSourceType){
+        setDataSourceType(dataSourceType);
     }
 
     public Properties asDriverProperties() {

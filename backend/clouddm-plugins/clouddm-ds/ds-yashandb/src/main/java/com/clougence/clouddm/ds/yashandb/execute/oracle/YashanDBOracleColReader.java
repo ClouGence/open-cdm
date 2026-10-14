@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.yashandb.execute;
+package com.clougence.clouddm.ds.yashandb.execute.oracle;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.dsfamily.oracle.execute.OraColReader;
@@ -55,13 +55,13 @@ import com.clougence.utils.StringUtils;
  *
  * @author open-cdm
  */
-public class YashanDBColReader extends OraColReader {
+public class YashanDBOracleColReader extends OraColReader {
 
-    public YashanDBColReader(){
+    public YashanDBOracleColReader(){
         this(null);
     }
 
-    public YashanDBColReader(String clientCharset){
+    public YashanDBOracleColReader(String clientCharset){
         super(clientCharset);
     }
 

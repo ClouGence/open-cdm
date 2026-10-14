@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.yashandb.execute;
+package com.clougence.clouddm.ds.yashandb.execute.oracle;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -36,18 +36,18 @@ import com.clougence.utils.StringUtils;
  * 崖山数据库 UMI 服务。
  * <p>
  * 层级结构、对象类型分派与 Oracle 完全一致，因此直接复用 {@link OraUmiServiceDm} 的分派实现，
- * 仅把元数据读取替换为崖山的数据字典实现 {@link YashanDBMetaProviderDm}。
+ * 仅把元数据读取替换为崖山的数据字典实现 {@link YashanDBOracleMetaProviderDm}。
  * </p>
  *
  * @author open-cdm
  */
-public class YashanDBUmiServiceDm extends OraUmiServiceDm {
+public class YashanDBOracleUmiServiceDm extends OraUmiServiceDm {
 
-    private final YashanDBMetaProviderDm provider;
+    private final YashanDBOracleMetaProviderDm provider;
 
-    public YashanDBUmiServiceDm(Connection connection){
+    public YashanDBOracleUmiServiceDm(Connection connection){
         super(connection);
-        this.provider = new YashanDBMetaProviderDm(connection);
+        this.provider = new YashanDBOracleMetaProviderDm(connection);
     }
 
     @Override

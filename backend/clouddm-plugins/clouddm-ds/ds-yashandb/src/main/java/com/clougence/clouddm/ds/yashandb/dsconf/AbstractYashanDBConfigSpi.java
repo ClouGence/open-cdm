@@ -26,25 +26,42 @@ import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.adapter.ConvertUtils;
 
-public class YashanDBConfigSpi extends AbstractDsConfigSpi {
+/**
+ * 崖山数据库（YashanDB）连接配置 SPI 基类。
+ * <p>
+ * 两个兼容模式（Oracle / MySQL）的连接能力一致，差别仅在于具体的配置类与默认端口，
+ * 因此由子类通过构造器注入自己的 {@link AbstractYashanDBConfig} 实现与 {@code defaultPort}。
+ * </p>
+ *
+ * @author open-cdm
+ */
+public abstract class AbstractYashanDBConfigSpi extends AbstractDsConfigSpi {
+
+    private final Class<? extends AbstractYashanDBConfig> configClass;
+    private final String                                  defaultPort;
+
+    protected AbstractYashanDBConfigSpi(Class<? extends AbstractYashanDBConfig> configClass, String defaultPort){
+        this.configClass = configClass;
+        this.defaultPort = defaultPort;
+    }
 
     @Override
     public String defaultPort() {
-        return "1688";
+        return this.defaultPort;
     }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
-        return YashanDBConfig.class;
+        return configClass;
     }
 
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
-        YashanDBConfig config = (YashanDBConfig) dsConfig;
-        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(YashanDBConfig.Fields.connectTimeoutMs), false);
-        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(YashanDBConfig.Fields.soTimeoutSec), false);
-        config.setDefaultCatalog(defaultConfig.get(YashanDBConfig.Fields.defaultCatalog));
-        config.setDefaultSchema(defaultConfig.get(YashanDBConfig.Fields.defaultSchema));
+        AbstractYashanDBConfig config = (AbstractYashanDBConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(AbstractYashanDBConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(AbstractYashanDBConfig.Fields.soTimeoutSec), false);
+        config.setDefaultCatalog(defaultConfig.get(AbstractYashanDBConfig.Fields.defaultCatalog));
+        config.setDefaultSchema(defaultConfig.get(AbstractYashanDBConfig.Fields.defaultSchema));
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(defaultConfig.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD));

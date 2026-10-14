@@ -26,22 +26,24 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 崖山数据库（YashanDB）配置序列化 SPI 基类。
+ * <p>
+ * 两个兼容模式的序列化实现只差 {@code name()}（必须等于 {@code DataSourceType} 的枚举名），
+ * 编解码逻辑完全一致，因此在这里共享。
+ * </p>
+ *
+ * @author open-cdm
+ */
 @Slf4j
-public class YashanDBSerializationSpi implements SerializationService {
-
-    public static final String PROVIDER_NAME = "YashanDBOracle"; // ref DataSourceType.YashanDBOracle
+public abstract class AbstractYashanDBSerializationSpi implements SerializationService {
 
     private final ObjectMapper objectMapper;
 
-    public YashanDBSerializationSpi(ClassLoader classLoader){
+    protected AbstractYashanDBSerializationSpi(ClassLoader classLoader){
         TypeFactory typeFactory = TypeFactory.defaultInstance().withClassLoader(classLoader);
         this.objectMapper = new ObjectMapper();
         this.objectMapper.setTypeFactory(typeFactory);
-    }
-
-    @Override
-    public String name() {
-        return PROVIDER_NAME;
     }
 
     @Override

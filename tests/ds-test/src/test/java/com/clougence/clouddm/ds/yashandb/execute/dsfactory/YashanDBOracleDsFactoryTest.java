@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import com.clougence.drivers.DsConfigKeys;
 
 /**
- * Locks down {@link YashanDBDsFactory#buildJdbcUrl(Properties)}.
+ * Locks down {@link YashanDBOracleDsFactory#buildJdbcUrl(Properties)}.
  * <p>
  * YashanDB only exposes a database-name form of the URL ({@code jdbc:yasdb://host:port/database}); there is no
  * SID/service-name variant like Oracle, so the database name is mandatory and the port falls back to {@code 1688}.
@@ -35,9 +35,9 @@ import com.clougence.drivers.DsConfigKeys;
  *
  * @author open-cdm
  */
-public class YashanDBDsFactoryTest {
+public class YashanDBOracleDsFactoryTest {
 
-    private final YashanDBDsFactory factory = new YashanDBDsFactory();
+    private final YashanDBOracleDsFactory factory = new YashanDBOracleDsFactory();
 
     private static Properties config(String host, String database) {
         Properties props = new Properties();

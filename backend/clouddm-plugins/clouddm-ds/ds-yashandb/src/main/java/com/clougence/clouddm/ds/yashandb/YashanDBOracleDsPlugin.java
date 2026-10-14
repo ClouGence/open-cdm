@@ -18,8 +18,8 @@ package com.clougence.clouddm.ds.yashandb;
 import com.clougence.adapter.oracle.OracleSqlTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.yashandb.dsconf.YashanDBConfigSpi;
-import com.clougence.clouddm.ds.yashandb.dsconf.YashanDBSerializationSpi;
+import com.clougence.clouddm.ds.yashandb.dsconf.oracle.YashanDBOracleConfigSpi;
+import com.clougence.clouddm.ds.yashandb.dsconf.oracle.YashanDBOracleSerializationSpi;
 import com.clougence.clouddm.ds.yashandb.execute.YashanDBSessionFactory;
 import com.clougence.clouddm.ds.yashandb.i18n.YashanDBDsI18nKeys;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
@@ -49,20 +49,20 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /**
- * 崖山数据库（YashanDB）数据源插件。
+ * 崖山数据库（YashanDB）数据源插件（Oracle 兼容模式）。
  * <p>
- * 崖山数据库为 Oracle 兼容数据库，因此本插件复用 {@code dsfamily.oracle} 提供的方言、DDL、
+ * 崖山数据库的 Oracle 兼容模式复用 {@code dsfamily.oracle} 提供的方言、DDL、
  * 对象编辑与 SQL 分析能力，仅在连接、元数据等崖山存在差异处做覆写。
  *
  * @author open-cdm
  */
-@Plugin(name = "i18n::" + YashanDBDsI18nKeys.PLUGIN_NAME_YASHANDB,          //
+@Plugin(name = "i18n::" + YashanDBDsI18nKeys.PLUGIN_NAME_YASHANDB_ORACLE,          //
         includePackages = { "com.clougence.clouddm.ds.yashandb.execute.*",          //
                             "com.clougence.clouddm.ds.yashandb.execute.dsfactory.*", //
                             "com.clougence.clouddm.dsfamily.execute.*",             //
                             "com.clougence.clouddm.dsfamily.oracle.execute.*"       //
         }, dsProduct = DataSourceType.YashanDBOracle)
-public class YashanDBDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
+public class YashanDBOracleDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
     public void init(SchemaBinder binder) {
@@ -84,8 +84,8 @@ public class YashanDBDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     }
 
     private void configBasic(DsPluginBinder dsPlugin) {
-        dsPlugin.addPluginSpi(new YashanDBConfigSpi());
-        dsPlugin.addPluginSpi(new YashanDBSerializationSpi(dsPlugin.getPluginClassLoader()));
+        dsPlugin.addPluginSpi(new YashanDBOracleConfigSpi());
+        dsPlugin.addPluginSpi(new YashanDBOracleSerializationSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configExecute(DsPluginBinder dsPlugin) {

@@ -39,13 +39,13 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.clougence.adapter.oracle.OracleSqlTypes;
-import com.clougence.clouddm.ds.yashandb.execute.YashanDBMetaProviderDm;
+import com.clougence.clouddm.ds.yashandb.execute.oracle.YashanDBOracleMetaProviderDm;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 /**
- * Covers YashanDB metadata acquisition in {@link YashanDBMetaProviderDm}.
+ * Covers YashanDB metadata acquisition in {@link YashanDBOracleMetaProviderDm}.
  *
  * <p>YashanDB follows the Oracle data dictionary closely enough to reuse the whole
  * {@code dsfamily.oracle} implementation, but its dictionary differs in specific
@@ -66,7 +66,7 @@ import com.clougence.schema.umi.struts.UmiTypes;
  * <p>JDBC behaviour is simulated with JDK dynamic proxies (same pattern as
  * {@code CrdbMetaProviderDmTest}), so no real YashanDB instance is required.
  */
-public final class YashanDBMetaProviderDmTest {
+public final class YashanDBOracleMetaProviderDmTest {
 
     private static final String SCHEMA = "SZ_NCIS_CUSTOMER";
 
@@ -289,26 +289,26 @@ public final class YashanDBMetaProviderDmTest {
 
     // ------------------------------------------------------------------ helpers
 
-    private static YashanDBMetaProviderDm newProvider(CapturingConnection connection) {
-        return new YashanDBMetaProviderDm(connection.proxy(), true);
+    private static YashanDBOracleMetaProviderDm newProvider(CapturingConnection connection) {
+        return new YashanDBOracleMetaProviderDm(connection.proxy(), true);
     }
 
     @SuppressWarnings("unchecked")
-    private static Map<String, List<RdbColumn>> fetchTableColumns(YashanDBMetaProviderDm provider, Connection connection, String catalog, String schema,
+    private static Map<String, List<RdbColumn>> fetchTableColumns(YashanDBOracleMetaProviderDm provider, Connection connection, String catalog, String schema,
                                                                   List<String> tables) throws Exception {
         return (Map<String, List<RdbColumn>>) invoke(provider, "fetchTableColumns", new Class<?>[] { Connection.class, String.class, String.class, List.class },//
                 new Object[] { connection, catalog, schema, tables });
     }
 
     @SuppressWarnings("unchecked")
-    private static List<RdbTable> fetchSelectObjectByPart(YashanDBMetaProviderDm provider, Connection connection, String catalog, String schema,
+    private static List<RdbTable> fetchSelectObjectByPart(YashanDBOracleMetaProviderDm provider, Connection connection, String catalog, String schema,
                                                           List<String> tables) throws Exception {
         return (List<RdbTable>) invoke(provider, "fetchSelectObjectByPart", new Class<?>[] { Connection.class, String.class, String.class, List.class },//
                 new Object[] { connection, catalog, schema, tables });
     }
 
-    private static Object invoke(YashanDBMetaProviderDm provider, String name, Class<?>[] types, Object[] args) throws Exception {
-        Method method = YashanDBMetaProviderDm.class.getDeclaredMethod(name, types);
+    private static Object invoke(YashanDBOracleMetaProviderDm provider, String name, Class<?>[] types, Object[] args) throws Exception {
+        Method method = YashanDBOracleMetaProviderDm.class.getDeclaredMethod(name, types);
         method.setAccessible(true);
         try {
             return method.invoke(provider, args);
@@ -379,7 +379,7 @@ public final class YashanDBMetaProviderDmTest {
 
         private CapturingConnection(List<Map<String, Object>> defaultRows){
             this.defaultRows = defaultRows;
-            ClassLoader loader = YashanDBMetaProviderDmTest.class.getClassLoader();
+            ClassLoader loader = YashanDBOracleMetaProviderDmTest.class.getClassLoader();
             this.proxy = (Connection) Proxy.newProxyInstance(loader, new Class<?>[] { Connection.class }, this::invokeConnection);
         }
 
@@ -430,7 +430,7 @@ public final class YashanDBMetaProviderDmTest {
         }
 
         private PreparedStatement preparedStatement(List<Map<String, Object>> rows) {
-            ClassLoader loader = YashanDBMetaProviderDmTest.class.getClassLoader();
+            ClassLoader loader = YashanDBOracleMetaProviderDmTest.class.getClassLoader();
             return (PreparedStatement) Proxy.newProxyInstance(loader, new Class<?>[] { PreparedStatement.class }, (proxy, method, args) -> {
                 String name = method.getName();
                 if ("setString".equals(name) && args != null && args.length >= 2) {
@@ -452,7 +452,7 @@ public final class YashanDBMetaProviderDmTest {
         }
 
         private static ResultSet resultSet(List<Map<String, Object>> rows) {
-            ClassLoader loader = YashanDBMetaProviderDmTest.class.getClassLoader();
+            ClassLoader loader = YashanDBOracleMetaProviderDmTest.class.getClassLoader();
             return (ResultSet) Proxy.newProxyInstance(loader, new Class<?>[] { ResultSet.class }, new ResultSetHandler(rows));
         }
     }
@@ -511,7 +511,7 @@ public final class YashanDBMetaProviderDmTest {
         }
 
         private ResultSetMetaData metaData() {
-            ClassLoader loader = YashanDBMetaProviderDmTest.class.getClassLoader();
+            ClassLoader loader = YashanDBOracleMetaProviderDmTest.class.getClassLoader();
             return (ResultSetMetaData) Proxy.newProxyInstance(loader, new Class<?>[] { ResultSetMetaData.class }, (proxy, method, args) -> {
                 if ("getColumnCount".equals(method.getName())) {
                     return 1;

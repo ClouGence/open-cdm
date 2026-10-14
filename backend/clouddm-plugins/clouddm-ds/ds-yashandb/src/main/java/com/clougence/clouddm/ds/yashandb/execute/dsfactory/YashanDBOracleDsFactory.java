@@ -33,16 +33,21 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 崖山数据库（YashanDB）连接工厂。
+ * 崖山数据库（YashanDB）Oracle 兼容模式连接工厂。
  * <p>
  * 崖山数据库 JDBC 连接串格式为 {@code jdbc:yasdb://host:port/database}，默认端口 1688，
  * 驱动类为 {@code com.yashandb.jdbc.Driver}。
+ * </p>
+ * <p>
+ * 崖山两种兼容模式的连接协议不同（Oracle 模式走崖山自有协议与 {@code 1688}，MySQL 模式走标准
+ * MySQL 协议端口并由 {@link YashanDBMySQLDsFactory} 负责），因此两者各自绑定独立的 driver
+ * family 与工厂，而不是像 GoldenDB 那样共用一个工厂靠驱动属性区分模式。
  * </p>
  *
  * @author open-cdm
  */
 @Slf4j
-public class YashanDBDsFactory implements DsFactory<Connection> {
+public class YashanDBOracleDsFactory implements DsFactory<Connection> {
 
     private static final char[] TIME_ZONE_INJECT_CHAR = new char[] { ' ', ';', '\'' };
 

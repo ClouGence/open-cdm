@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.yashandb.execute;
+package com.clougence.clouddm.ds.yashandb.execute.oracle;
 
 import java.sql.Connection;
 
@@ -25,13 +25,13 @@ import com.clougence.drivers.DsObject;
  * 崖山数据库会话。
  * <p>
  * 崖山数据库为 Oracle 兼容数据库，因此复用 {@link OraSession} 的语句处理与 Explain 能力，
- * 仅通过 {@link YashanDBHooks} 替换元数据服务中的崖山差异实现。
+ * 仅通过 {@link YashanDBOracleHooks} 替换元数据服务中的崖山差异实现。
  *
  * @author open-cdm
  */
-public class YashanDBSession extends OraSession {
+public class YashanDBOracleSession extends OraSession {
 
-    public YashanDBSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
-        super(newSessionId, dsConfig, dsObject, new YashanDBHooks(dsConfig));
+    public YashanDBOracleSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
+        super(newSessionId, dsConfig, dsObject, new YashanDBOracleHooks(dsConfig));
     }
 }
