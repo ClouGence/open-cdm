@@ -172,7 +172,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['isDesktop', 'getMenus', 'getBrowserMenus', 'isDark'])
+    ...mapGetters(['isDesktop', 'getMenus', 'getBrowserMenus', 'getLevels', 'isDark'])
   },
   mounted() {
     this.unmounting = false;
@@ -280,7 +280,9 @@ export default {
           }
           const node = tree.getNode(key);
           if (node) {
-            tree.setExpand(key, true, true);
+            if (!node.INSTANCE || !this.getWorkspaceConnection(node.INSTANCE.id).blocked) {
+              tree.setExpand(key, true, true);
+            }
             expanded = true;
           } else {
             await new Promise((resolve) => setTimeout(resolve, 150));
@@ -606,7 +608,16 @@ export default {
       this.doActionLoading = true;
       await this.browseDoAction(this.menuModal.actionData, callback, callbackFail);
     },
-    handleDblClick(node) {
+    async handleDblClick(node) {
+      if (node.nodeType === NODE_TYPE.INSTANCE) {
+        const connection = this.getWorkspaceConnection(node.INSTANCE.id);
+        if (connection.busy) return;
+        if (connection.status !== 'connected' && !(await this.handleWorkspaceConnection('open', node))) return;
+        if (this.getLevels(node.INSTANCE.attr.dsType).length > node.levels.length) {
+          this.$refs.tree.setExpand(node.key, true);
+          return;
+        }
+      }
       if (node.isLeaf) {
         this.handleAddTab(TAB_TYPE.QUERY, node);
       }
@@ -726,9 +737,13 @@ export default {
     },
     collapseWorkspaceInstance(node) {
       const tree = this.$refs.tree;
-      if (tree.getNode(node.key)) {
+      const instance = tree.getNode(node.key);
+      if (instance) {
         tree.setExpand(node.key, false);
         tree.updateNode(node.key, { children: [] });
+        // Clearing children marks the node as loaded and leaf in VTree; reset it for lazy reconnection.
+        instance.isLeaf = this.getLevels(instance.INSTANCE.attr.dsType).length <= instance.levels.length;
+        instance._loaded = false;
       }
       this.expandedKeys = this.expandedKeys.filter((key) => key !== node.key && !key.startsWith(`${node.key}.`));
       this.saveExpandedKeys();
@@ -782,6 +797,25 @@ export default {
       this.$refs.tree.setSelected(node.key, true);
     },
     async handleExpandLoadNode(node, resolve, reject) {
+      if (node?.nodeType === NODE_TYPE.INSTANCE) {
+        const connection = this.getWorkspaceConnection(node.INSTANCE.id);
+        if (connection.busy) {
+          resolve();
+          return;
+        }
+        if (connection.status !== 'connected') {
+          let children;
+          const opened = await this.handleWorkspaceConnection('open', node, false, (loaded) => {
+            children = loaded;
+          });
+          if (opened) {
+            resolve(children);
+          } else {
+            resolve();
+          }
+          return;
+        }
+      }
       await this.getNodeData(node, {}, resolve, reject);
     },
     handleTreeExpand(node) {

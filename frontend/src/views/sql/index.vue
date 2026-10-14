@@ -469,7 +469,7 @@ export default {
       await stopped;
       if (!this.socket.connected) throw new Error(this.$t('sql-connection-stop-unavailable'));
     },
-    async handleWorkspaceConnection(action, node, automatic = false) {
+    async handleWorkspaceConnection(action, node, automatic = false, resolve = null) {
       const instance = this.getWorkspaceInstance(node);
       const dsId = instance.INSTANCE.id;
       const connection = this.getWorkspaceConnection(dsId);
@@ -532,7 +532,7 @@ export default {
           const opened = await this.$services.dmQueryOpenConnection({ data: { dsId }, modal: false });
           if (!opened.success) throw new Error(this.workspaceConnectionErrorText(opened.msg));
           const dsLevels = this.getLevels(instance.INSTANCE.attr.dsType);
-          if (dsLevels.length > instance.levels.length && !(await this.listLevels(instance, {}, null, null, true, true))) {
+          if (dsLevels.length > instance.levels.length && !(await this.listLevels(instance, {}, resolve, null, true, true))) {
             throw new Error(this.$t('sql-connection-open-failed'));
           }
           for (const tab of tabs.filter((item) => item.type === TAB_TYPE.QUERY && this.tabs.includes(item))) {
