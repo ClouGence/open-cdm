@@ -36,7 +36,8 @@ const bundledIcons = {
   GoldenDBMySQL: goldendbIcon,
   GoldenDBOracle: goldendbIcon,
   Valkey: valkeyIcon,
-  YashanDBOracle: yashandbIcon
+  YashanDBOracle: yashandbIcon,
+  YashanDBMySQL: yashandbIcon
 };
 
 /**

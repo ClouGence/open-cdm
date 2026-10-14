@@ -1,5 +1,5 @@
 {
-  "mysql": ["MySQL", "GoldenDBMySQL", "KingbaseESMySQL", "GaussDBForMySQL", "AuroraMySQL"],
+  "mysql": ["MySQL", "GoldenDBMySQL", "KingbaseESMySQL", "YashanDBMySQL", "GaussDBForMySQL", "AuroraMySQL"],
   "pg": [
     "Hana",
     "Hudi",
