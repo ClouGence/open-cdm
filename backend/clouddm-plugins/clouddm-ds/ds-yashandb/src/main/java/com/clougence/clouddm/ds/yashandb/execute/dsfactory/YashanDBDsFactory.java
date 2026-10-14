@@ -177,7 +177,8 @@ public class YashanDBDsFactory implements DsFactory<Connection> {
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String database = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         if (StringUtils.isBlank(database)) {
-            throw new IllegalArgumentException("YashanDB database name is required.");
+            // 崖山的连接串必须带库名，界面上对应 "Catalog" / "默认数据库" 一项，这里给出可操作的提示。
+            throw new IllegalArgumentException("YashanDB database name is required, please fill in the 'Catalog' field (默认数据库) of the data source configuration.");
         }
 
         String[] hostPort = host.split(":");
