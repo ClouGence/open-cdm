@@ -4403,5 +4403,21 @@
   "query-fetched-count": "已获取 {0} 条",
   "query-effective-statement": "实际执行内容",
   "query-examples-icon": "E",
-  "query-examples-title": "语句示例"
+  "query-examples-title": "语句示例",
+  "sql-connection-open": "打开连接",
+  "sql-connection-disconnect": "断开连接",
+  "sql-connection-reconnect": "重新连接",
+  "sql-connection-disconnected": "连接已断开，请重新连接",
+  "sql-connection-connecting": "正在打开连接…",
+  "sql-connection-connected": "已连接",
+  "sql-connection-disconnecting": "正在断开连接…",
+  "sql-connection-reconnecting": "正在重新连接…",
+  "sql-connection-failed": "工作台连接失败，请重试。",
+  "sql-connection-confirm-title": "确认释放工作台连接",
+  "sql-connection-confirm-content": "将释放当前工作台中数据源“{name}”的查询会话。正在执行的查询将被中断，手动事务中的未提交修改将回滚。编辑器内容和标签页会保留，不会自动重放 SQL。是否继续？",
+  "sql-connection-open-failed": "无法打开工作台连接，请检查数据源或重试。",
+  "sql-connection-close-failed": "未能释放工作台会话，请重试断开或重新连接。",
+  "sql-connection-stop-timeout": "查询尚未停止，会话已保留。请等待查询结束，或重试断开连接、重新连接。",
+  "sql-connection-stop-unavailable": "工作台通道不可用，无法确认查询已停止。请恢复连接后重试。",
+  "sql-connection-editor-busy": "数据编辑操作仍在进行，请完成后再断开或重新连接。"
 }

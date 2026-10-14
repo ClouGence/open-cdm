@@ -45,10 +45,15 @@
       <div v-html="tab.message.text"></div>
       <CustomIcon type="icon-v2-close2" @click="handleCloseError" hoverStyle />
     </div>
-    <div class="query-message Error" v-if="!tab.connected && tab.msgContent">
+    <div class="query-message" :class="tab.workspaceConnectionState === 'disconnected' ? 'Info' : 'Error'" v-if="!tab.connected && tab.msgContent">
       {{ tab.msgContent }}
-      <Button type="text" size="small" @click="handleClickDsStatusIcon">
-        {{ $t('zhong-xin-lian-jie') }}
+      <Button
+        v-if="!['connecting', 'reconnecting', 'disconnecting'].includes(tab.workspaceConnectionState)"
+        type="text"
+        size="small"
+        @click="handleClickDsStatusIcon"
+      >
+        {{ $t(tab.workspaceConnectionState === 'disconnected' ? 'sql-connection-open' : 'sql-connection-reconnect') }}
       </Button>
     </div>
     <CCModal v-model="showNoPassedRuleModal" :title="$t('gui-ze-xiao-yan-shi-bai')" :width="800">
@@ -374,6 +379,10 @@ export default {
       // this.analysisSplit(selectedSql);
     },
     async handleRun(selectedSql, position, force = false) {
+      if (!this.tab.connected || !this.tab.sessionId) {
+        this.$Message.warning(this.$t('sql-connection-disconnected'));
+        return;
+      }
       this.tab.running = true;
       this.tab.result.active = 'message';
       this.tab.currentQueryType = 'query';
@@ -470,6 +479,10 @@ export default {
       this.$refs.editor.formatSql();
     },
     handleInterceptor(confName, callback, focus = false, silence = false) {
+      if (!this.tab.connected || !this.tab.sessionId) {
+        this.$Message.warning(this.$t('sql-connection-disconnected'));
+        return;
+      }
       if (this.tab.support[confName].conf === 'No') {
         this.$Message.error({
           background: true,
@@ -787,6 +800,7 @@ export default {
               currentTab.msgContent = entity.message;
               currentTab.msgFromWs = true;
               currentTab.connected = false;
+              this.$emit('workspace-connection-error', currentTab);
             }
 
             if (entity.mode === 'Hint') {

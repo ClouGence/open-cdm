@@ -1,6 +1,6 @@
 <script lang="jsx">
 import appLogger from '@/utils/logger';
-import { DoubleLeftOutlined, SearchOutlined } from '@ant-design/icons-vue';
+import { DisconnectOutlined, DoubleLeftOutlined, LinkOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 import VTree from '@wsfe/vue-tree';
@@ -40,7 +40,9 @@ export default {
     getNodeData: Function,
     getNodeByKey: Function,
     handleAddTab: Function,
-    refreshTabSelectOptions: Function
+    refreshTabSelectOptions: Function,
+    getWorkspaceConnection: Function,
+    handleWorkspaceConnection: Function
   },
   watch: {
     treeData: {
@@ -714,8 +716,21 @@ export default {
     handleGetTreeData() {
       return this.$refs.tree.getTreeData();
     },
+    collapseWorkspaceInstance(node) {
+      const tree = this.$refs.tree;
+      if (tree.getNode(node.key)) {
+        tree.setExpand(node.key, false);
+        tree.updateNode(node.key, { children: [] });
+      }
+      this.expandedKeys = this.expandedKeys.filter((key) => key !== node.key && !key.startsWith(`${node.key}.`));
+      this.saveExpandedKeys();
+    },
     renderNode(node) {
-      const { title, icon, children, nodeType, INSTANCE } = node;
+      const { title, icon, nodeType, INSTANCE } = node;
+      const connection = nodeType === 'INSTANCE' && this.getWorkspaceConnection(INSTANCE.id);
+      let connectionColor = 'var(--text-tertiary)';
+      if (connection.status === 'failed') connectionColor = 'var(--error-color)';
+      if (connection.status === 'connected') connectionColor = 'var(--success-color)';
       return (
         <div class='node'>
           {icon && nodeType === 'INSTANCE' ? (
@@ -730,27 +745,26 @@ export default {
             html={this.highlight(title, this.searchKey)}
             labelStyle={{
               marginLeft: '3px',
-              marginRight: `${nodeType === 'INSTANCE' && !node.connected ? '20px' : '0'}`,
               color: `${node.isNew ? 'green' : this.isDark ? '#fff' : '#000'}`,
               fontWeight: `${node.isNew ? 'bold' : 'default'}`
             }}
           />
-          {nodeType === 'INSTANCE' && !node.connected && (
-            <Tooltip placement='right' content={node.connectedMsg} transfer style={{ position: 'absolute', right: '3px' }}>
-              <cc-svg-icon
-                name='ds-disconnect'
-                size={12}
-                style={{
-                  color: 'red',
-                  marginRight: '3px'
-                }}
-              />
+          {nodeType === 'INSTANCE' && (
+            <Tooltip
+              placement='right'
+              content={this.$t(`sql-connection-${connection.status}`)}
+              transfer
+              style={{ marginLeft: '4px', marginRight: '3px' }}>
+              {connection.busy ? (
+                <Icon type='ios-loading' class='workspace-connection-spinner' />
+              ) : (
+                <Icon
+                  type={connection.status === 'connected' ? 'ios-checkmark-circle' : 'ios-close-circle-outline'}
+                  size={14}
+                  style={{ color: connectionColor }}
+                />
+              )}
             </Tooltip>
-          )}
-          {children && children.length > 0 && (
-            <div class='node-badge' style='font-weight: bold;color: #bbb;'>
-              [{children.length}]
-            </div>
           )}
         </div>
       );
@@ -1040,12 +1054,40 @@ export default {
         this.selectedNode && this.selectedNode.nodeType === NODE_TYPE.ENV ? null : this.selectedNode.INSTANCE.attr.dsType,
         this.selectedNode.nodeType
       );
-      if (menuList) {
+      if (menuList || this.selectedNode.nodeType === NODE_TYPE.INSTANCE) {
         const items = [];
-        menuList.forEach((menu, menuIndex) => {
+        const node = this.selectedNode;
+        const connection = node.INSTANCE && this.getWorkspaceConnection(node.INSTANCE.id);
+        if (node.nodeType === NODE_TYPE.INSTANCE) {
+          items.push(
+            {
+              label: this.$t('sql-connection-open'),
+              icon: <LinkOutlined style={{ fontSize: '16px' }} />,
+              disabled: connection.busy || connection.status === 'connected',
+              onClick: () => this.handleWorkspaceConnection('open', node)
+            },
+            {
+              label: this.$t('sql-connection-disconnect'),
+              icon: <DisconnectOutlined style={{ fontSize: '16px' }} />,
+              disabled: connection.busy || !connection.wasConnected || connection.status === 'disconnected',
+              onClick: () => this.handleWorkspaceConnection('disconnect', node)
+            },
+            {
+              label: this.$t('sql-connection-reconnect'),
+              icon: <ReloadOutlined style={{ fontSize: '16px' }} />,
+              disabled: connection.busy || !connection.wasConnected,
+              divided: true,
+              onClick: () => this.handleWorkspaceConnection('reconnect', node)
+            }
+          );
+        }
+        (menuList || []).forEach((menu, menuIndex) => {
           if (menu.menuId !== 'MENU_SEPARATOR') {
             items.push({
               label: resolveBrowserMenuLabel(menu),
+              disabled:
+                connection?.busy ||
+                (connection?.blocked && (menu.menuId.includes('REFRESH') || menu.menuId === DS_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_CONSOLE)),
               svgProps: {
                 class: 'svg-icon'
               },
@@ -1537,6 +1579,15 @@ export default {
 </template>
 
 <style scoped lang="less">
+.workspace-connection-spinner {
+  animation: workspace-connection-spin 1s linear infinite;
+}
+@keyframes workspace-connection-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 :deep(.ctree-tree-node__title) {
   padding-left: 0;
   margin-left: 0;
