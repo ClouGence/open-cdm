@@ -92,7 +92,7 @@
           </div>
           <!-- Empty Status -->
           <div v-if="!restoringWorkspace && !tabs.length" class="empty-state-container">
-            <SqlEmptyState />
+            <SqlEmptyState :has-data-source="treeData.length > 0" />
           </div>
 
           <Transition name="sql-content-reveal">
