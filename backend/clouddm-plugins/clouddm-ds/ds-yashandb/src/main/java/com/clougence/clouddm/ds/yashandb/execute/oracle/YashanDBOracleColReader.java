@@ -39,7 +39,14 @@ import com.clougence.utils.StringUtils;
  * <li>{@code number}/{@code numeric}/{@code decimal} -> {@code getObject} yields {@code BigDecimal} (NUMBER(38)
  * may exceed the Long/Integer range); consistent with the Oracle family, read it as a string to keep precision;</li>
  * <li>{@code double} -> {@code Double}, {@code real}/{@code float} -> {@code Float};</li>
- * <li>{@code boolean}/{@code bit} -> {@code Boolean};</li>
+ * <li>{@code boolean} -> {@code Boolean} (JDBC type {@code Types.BOOLEAN} = 16);</li>
+ * <li>{@code bit} -> read as a string. A YashanDB {@code BIT} column holds up to 64 bits and is a distinct
+ * JDBC type ({@code Types.BIT} = -7) from {@code BOOLEAN}. {@code getBoolean} collapses any non-zero
+ * {@code BIT(n>1)} to {@code true} (255 -&gt; {@code true}), which loses the value; {@code getString} returns
+ * the binary digits ({@code 255} -&gt; {@code "11111111"}), which is lossless. Note that the MySQL family
+ * {@code BitValueFetcher} cannot be reused here: it assumes {@code getString} returns a <i>decimal</i>
+ * string and applies {@code BigInteger(str, 10).toString(2)}, which would double-convert the already-binary
+ * string that YashanDB returns;</li>
  * <li>{@code time} -> {@code rs.getTime} works;</li>
  * <li>{@code timestamp_tz} (including {@code TIMESTAMP WITH TIME ZONE} columns) and {@code timestamp_ltz}
  * (including {@code TIMESTAMP WITH LOCAL TIME ZONE} columns) -> {@code rs.getObject(OffsetDateTime/OffsetTime.class)} works;</li>
@@ -85,7 +92,11 @@ public class YashanDBOracleColReader extends OraColReader {
             case "numeric", "decimal" -> STRING_VALUE_FETCHER;
             case "double" -> DOUBLE_VALUE_FETCHER;
             case "real" -> FLOAT_VALUE_FETCHER;
-            case "bit", "boolean" -> BOOLEAN_VALUE_FETCHER;
+            // BIT and BOOLEAN are different JDBC types on YashanDB (Types.BIT = -7 vs Types.BOOLEAN = 16).
+            // BIT can hold up to 64 bits, and getBoolean() would collapse every non-zero value to true;
+            // getString() returns the lossless binary digits instead.
+            case "bit" -> STRING_VALUE_FETCHER;
+            case "boolean" -> BOOLEAN_VALUE_FETCHER;
             case "varchar" -> STRING_VALUE_FETCHER;
             case "time" -> TIME_VALUE_FETCHER;
             case "timestamp_tz", "timestamp_ltz" -> DATETIMEZ_VALUE_FETCHER;

@@ -58,7 +58,7 @@ import com.clougence.schema.umi.struts.UmiTypes;
  * {@code SEGMENT_COLUMN_ID}) are never referenced — their Oracle-compatible aliases are supplied
  * as {@code null} literals instead, so the shared converters keep working;</li>
  * <li><b>Type vocabulary</b> — YashanDB reports native names such as {@code BIGINT},
- * {@code TINYINT}, {@code DOUBLE}, {@code BOOLEAN}, {@code TIME}, {@code JSON} and
+ * {@code TINYINT}, {@code DOUBLE}, {@code BOOLEAN}, {@code BIT}, {@code TIME}, {@code JSON} and
  * {@code UNKNOWN} (view columns), which are normalized onto Oracle family type names
  * inside the SQL so the shared converter keeps working.</li>
  * </ul>
@@ -85,9 +85,25 @@ public final class YashanDBOracleMetaProviderDmTest {
         assertTrue(sql.contains("'TINYINT','NUMBER BIGINT'"), sql);
         assertTrue(sql.contains("'DOUBLE','BINARY DOUBLE'"), sql);
         assertTrue(sql.contains("'BOOLEAN','PLSQL_BOOLEAN'"), sql);
+        // BIT is a YashanDB native type that OracleSqlTypes does not know at all: without this mapping
+        // toOracleType("BIT") throws UnsupportedOperationException and breaks the whole table browse.
+        assertTrue(sql.contains("'BIT','RAW'"), sql);
         assertTrue(sql.contains("'TIME','DATE'"), sql);
         assertTrue(sql.contains("'JSON','CLOB'"), sql);
         assertTrue(sql.contains("'UNKNOWN','VARCHAR'"), sql);
+    }
+
+    @Test
+    void fetchTableColumns_sqlConvertsBitLengthFromBitsToBytes() throws Exception {
+        CapturingConnection connection = new CapturingConnection(Collections.emptyList());
+
+        fetchTableColumns(newProvider(connection), connection.proxy(), null, SCHEMA, Collections.singletonList("CUS_REGION"));
+
+        String sql = connection.sqlOf("DBA_TAB_COLS");
+        // YashanDB reports DATA_LENGTH for BIT in bits while the Oracle type it is normalized to (RAW) counts
+        // bytes, so a BIT(64) column must be reported as RAW(8) rather than RAW(64).
+        assertTrue(sql.contains("case when COLS.DATA_TYPE = 'BIT' then ceil(COLS.DATA_LENGTH/8) else COLS.DATA_LENGTH end"), sql);
+        assertFalse(sql.contains(",COLS.DATA_LENGTH,"), sql);
     }
 
     @Test
@@ -217,19 +233,23 @@ public final class YashanDBOracleMetaProviderDmTest {
                 columnRow("T", "A_TIME", "DATE", 3, "Y", 8L, null, null, null),//
                 columnRow("T", "A_JSON", "CLOB", 4, "Y", 32000L, null, null, null),//
                 columnRow("T", "A_UNKNOWN", "VARCHAR", 5, "Y", 1L, null, null, null),//
-                columnRow("T", "A_TIMESTAMP", "TIMESTAMP(6)", 6, "Y", 8L, null, 6, 6));
+                columnRow("T", "A_BIT", "RAW", 6, "Y", 8L, null, null, null),//
+                columnRow("T", "A_TIMESTAMP", "TIMESTAMP(6)", 7, "Y", 8L, null, 6, 6));
         CapturingConnection connection = new CapturingConnection(rows);
 
         List<RdbColumn> columns = fetchTableColumns(newProvider(connection), connection.proxy(), null, SCHEMA, Collections.singletonList("T")).get("T");
 
-        assertEquals(7, columns.size());
+        assertEquals(8, columns.size());
         assertTrue(columns.get(0).getSqlType().isNumber(), "BIGINT should be numeric");
         assertEquals(OracleSqlTypes.BINARY_DOUBLE, columns.get(1).getSqlType());
         assertTrue(columns.get(2).getSqlType().isBoolean(), "BOOLEAN should stay boolean");
         assertEquals(OracleSqlTypes.DATE, columns.get(3).getSqlType());
         assertEquals(OracleSqlTypes.CLOB, columns.get(4).getSqlType());
         assertEquals(OracleSqlTypes.VARCHAR2, columns.get(5).getSqlType());
-        assertEquals(OracleSqlTypes.TIMESTAMP, columns.get(6).getSqlType());
+        // a BIT(n) column is reported as RAW(ceil(n/8)) and must not throw inside toOracleType
+        assertEquals(OracleSqlTypes.RAW, columns.get(6).getSqlType());
+        assertEquals(8L, columns.get(6).getByteLength(), "BIT(64) must be reported as 8 bytes");
+        assertEquals(OracleSqlTypes.TIMESTAMP, columns.get(7).getSqlType());
     }
 
     @Test

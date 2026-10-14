@@ -16,8 +16,14 @@
 package com.clougence.clouddm.ds.yashandb.execute.oracle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.sql.ResultSet;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,11 +37,14 @@ import com.clougence.clouddm.dsfamily.execute.fetcher.StringAsClobFetcher;
 import com.clougence.clouddm.dsfamily.execute.fetcher.StringValueFetcher;
 import com.clougence.clouddm.dsfamily.execute.fetcher.TimeValueFetcher;
 import com.clougence.clouddm.dsfamily.execute.fetcher.DateTimeWithZoneValueFetcher;
+import com.clougence.clouddm.sdk.execute.session.ResultColMeta;
+import com.clougence.clouddm.sdk.execute.session.result.ReaderOptions;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
+import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcherContext;
 
 /**
- * 崖山结果集列类型映射测试。类型名为 1.10.7 驱动在 23.4.7 服务端上
- * {@code ResultSetMetaData.getColumnTypeName()} 的小写实测值。
+ * Column type mapping test for the YashanDB result set reader. The type names are the lower-case values
+ * measured from {@code ResultSetMetaData.getColumnTypeName()} with the 1.10.7 driver against the 23.4.7 server.
  *
  * @author open-cdm
  */
@@ -74,10 +83,22 @@ class YashanDBOracleColReaderTest {
     @Test
     void yashanNativeBooleanAndStringTypes() {
         assertEquals(BooleanValueFetcher.class, fetcherClass("boolean"));
-        assertEquals(BooleanValueFetcher.class, fetcherClass("bit"));
         assertEquals(StringValueFetcher.class, fetcherClass("varchar"));
         assertEquals(StringValueFetcher.class, fetcherClass("ds_interval"));
         assertEquals(StringValueFetcher.class, fetcherClass("ym_interval"));
+    }
+
+    /**
+     * BIT and BOOLEAN are distinct JDBC types on YashanDB ({@code Types.BIT} = -7 vs {@code Types.BOOLEAN} = 16)
+     * and must not share a fetcher: a {@code BIT} column holds up to 64 bits, so {@code getBoolean} would collapse
+     * every non-zero value to {@code true} and lose the value. {@code getString} returns the binary digits
+     * (255 -&gt; {@code "11111111"}), which is lossless.
+     */
+    @Test
+    void bitAndBooleanMustNotShareAFetcher() {
+        assertEquals(StringValueFetcher.class, fetcherClass("bit"));
+        assertEquals(BooleanValueFetcher.class, fetcherClass("boolean"));
+        assertNotEquals(fetcherClass("bit"), fetcherClass("boolean"), "BIT must not be read as a boolean");
     }
 
     @Test
@@ -89,19 +110,19 @@ class YashanDBOracleColReaderTest {
 
     @Test
     void varchar2ReportedAsVarcharMustResolve() {
-        // 崖山驱动把 VARCHAR2 与 VARCHAR 都报告为 "varchar"，父类只认识 varchar2
+        // the YashanDB driver reports both VARCHAR2 and VARCHAR as "varchar", while the parent only knows varchar2
         assertEquals(StringValueFetcher.class, fetcherClass("varchar"));
     }
 
     @Test
     void yashanJsonMustUseGetStringNotGetClob() {
-        // 崖山 JSON 列 rs.getClob 会抛 "Cannot convert an instance of JSON to type CLOB"
+        // rs.getClob on a YashanDB JSON column raises "Cannot convert an instance of JSON to type CLOB"
         assertEquals(StringValueFetcher.class, fetcherClass("json"));
     }
 
     @Test
     void oracleCompatibleNamesStillWork() {
-        // 父类对 varchar2 用 OracleStringValueFetcher（处理 Oracle 字符集），行为正确
+        // the parent uses OracleStringValueFetcher for varchar2 (handles the Oracle charset), which is correct
         assertEquals(com.clougence.clouddm.dsfamily.oracle.execute.fetcher.OracleStringValueFetcher.class,
             fetcherClass("varchar2"));
         assertEquals(StringAsClobFetcher.class, fetcherClass("clob"));
@@ -116,10 +137,10 @@ class YashanDBOracleColReaderTest {
 
     @Test
     void everyBusinessColumnTypeResolves() {
-        // 驱动 1.10.7 在 23.4.7 上 ResultSetMetaData.getColumnTypeName() 的小写实测词表，
-        // 不允许出现 null（出现即网格显示 "Unsupported xxx type."）。
-        // 注意：驱动把 VARCHAR2/VARCHAR 都报为 "varchar"，DECIMAL/NUMERIC 都报为 "number"，
-        // BINARY_FLOAT 报为 "float"，BINARY_DOUBLE 报为 "double"，INT 报为 "integer"。
+        // Lower-case vocabulary measured from ResultSetMetaData.getColumnTypeName() with the 1.10.7 driver against
+        // the 23.4.7 server; none of them may resolve to null (a null fetcher makes the grid show
+        // "Unsupported xxx type."). Note that the driver reports VARCHAR2/VARCHAR both as "varchar",
+        // DECIMAL/NUMERIC both as "number", BINARY_FLOAT as "float", BINARY_DOUBLE as "double", INT as "integer".
         String[] all = { "bigint", "blob", "boolean", "char", "clob", "date", "double", "float", "integer",
                          "json", "number", "nvarchar", "raw", "smallint", "time", "timestamp", "timestamp_tz",
                          "ds_interval", "ym_interval", "tinyint", "varchar", "nchar", "nclob", "bit", "real",
@@ -128,5 +149,56 @@ class YashanDBOracleColReaderTest {
             ValueFetcher f = reader.readColumn("C1", col(type));
             assertNotNull(f, "type '" + type + "' must resolve to a fetcher");
         }
+    }
+
+    /**
+     * End-to-end check of the lossless BIT read, using a proxied {@link ResultSet} that behaves like the YashanDB
+     * driver for a {@code bit(8)} column holding 255: {@code getString} yields the binary digits and
+     * {@code getBoolean} yields {@code true}. The second half of the test is the control: it shows what the old
+     * mapping ({@code BIT} wired to {@code BOOLEAN_VALUE_FETCHER}) would have returned for the same row.
+     */
+    @Test
+    void bitIsReadLosslesslyWhileBooleanKeepsBooleanSemantics() throws Exception {
+        ResultSet rs = proxyResultSet("11111111", true);
+
+        ValueFetcher bitFetcher = reader.readColumn("C1", col("bit"));
+        assertEquals("11111111", bitFetcher.getString("C1", rs, newContext(col("bit"), bitFetcher)));
+
+        ValueFetcher booleanFetcher = reader.readColumn("C1", col("boolean"));
+        assertEquals("true", booleanFetcher.getString("C1", rs, newContext(col("boolean"), booleanFetcher)));
+        assertEquals(Boolean.TRUE, booleanFetcher.getBoolean("C1", rs, newContext(col("boolean"), booleanFetcher)));
+    }
+
+    private static ValueFetcherContext newContext(ColMetaData cm, ValueFetcher fetcher) {
+        return new ValueFetcherContext("v-" + cm.getColumnType(), new ResultColMeta(cm, fetcher), new ReaderOptions());
+    }
+
+    private static ResultSet proxyResultSet(String stringValue, boolean booleanValue) {
+        InvocationHandler handler = (proxy, method, args) -> {
+            String name = method.getName();
+            if ("getString".equals(name)) {
+                return stringValue;
+            }
+            if ("getBoolean".equals(name)) {
+                return booleanValue;
+            }
+            if ("wasNull".equals(name)) {
+                return false;
+            }
+            if ("close".equals(name)) {
+                return null;
+            }
+            if (method.getReturnType() == boolean.class) {
+                return false;
+            }
+            if (method.getReturnType() == int.class) {
+                return 0;
+            }
+            if (method.getReturnType() == long.class) {
+                return 0L;
+            }
+            return null;
+        };
+        return (ResultSet) Proxy.newProxyInstance(YashanDBOracleColReaderTest.class.getClassLoader(), new Class<?>[] { ResultSet.class }, handler);
     }
 }

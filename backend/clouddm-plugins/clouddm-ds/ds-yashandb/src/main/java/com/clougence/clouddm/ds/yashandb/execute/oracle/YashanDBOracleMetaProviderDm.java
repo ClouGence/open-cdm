@@ -70,14 +70,22 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
     /**
      * YashanDB {@code DBA_TAB_COLS.DATA_TYPE} uses YashanDB's own type names
-     * (BIGINT/TINYINT/DOUBLE/BOOLEAN/TIME/JSON), and the DATA_TYPE of view columns is even {@code UNKNOWN}.
+     * (BIGINT/TINYINT/DOUBLE/BOOLEAN/BIT/TIME/JSON), and the DATA_TYPE of view columns is even {@code UNKNOWN}.
      * None of these are covered by the Oracle family {@code OracleSqlTypes}; passing them straight to
-     * {@code OracleSqlTypes.toOracleType(..)} throws UnsupportedOperationException.
+     * {@code OracleSqlTypes.toOracleType(..)} throws UnsupportedOperationException (which is not swallowed by
+     * {@code OraMetaProviderUtils}, so a single BIT column used to break the whole table browse).
      * <p>
      * The YashanDB native type names are therefore normalized at the SQL layer to the closest Oracle family
      * type names (keeping the column aliases unchanged so the result set conversion logic of
      * {@code OraMetaProviderUtils} can still be reused). All mapping targets have been verified to be accepted
      * by DDL on YashanDB 23.4.7.
+     * </p>
+     * <p>
+     * Note on {@code BIT} -&gt; {@code RAW}: the Oracle family has no BIT type, and {@code RAW} is its closest
+     * binary type ({@code OracleType.RAW}, binary). The mapping is approximate rather than exactly equivalent:
+     * YashanDB reports {@code DATA_LENGTH} for BIT in <b>bits</b> while RAW counts <b>bytes</b>, so
+     * {@link #YAS_DATA_LENGTH} divides the BIT length by 8 to keep the reported size the same as the real
+     * storage (a {@code BIT(64)} is reported as {@code RAW(8)}).
      * </p>
      */
     private static final String YAS_DATA_TYPE
@@ -86,6 +94,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
               + "'TINYINT','NUMBER BIGINT'," //
               + "'DOUBLE','BINARY DOUBLE'," //
               + "'BOOLEAN','PLSQL_BOOLEAN'," //
+              + "'BIT','RAW'," //
               + "'TIME','DATE'," //
               + "'JSON','CLOB'," //
               + "'UNKNOWN','VARCHAR'," //
@@ -98,7 +107,15 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
      */
     private static final String YAS_DATA_SCALE = "case when COLS.DATA_TYPE like 'TIMESTAMP%' then COLS.DATA_PRECISION else COLS.DATA_SCALE end as DATA_SCALE";
 
-    private static final String YAS_COLUMNS = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME," + YAS_DATA_TYPE + ",COLS.DATA_TYPE_OWNER,COLS.COLUMN_ID,COLS.DATA_LENGTH,COLS.CHAR_LENGTH,COLS.DATA_PRECISION," + YAS_DATA_SCALE
+    /**
+     * YashanDB reports {@code DATA_LENGTH} for BIT columns in <b>bits</b>, whereas the Oracle type it is
+     * normalized to ({@code RAW}) counts <b>bytes</b>; convert it so the size shown matches the real storage
+     * (a {@code BIT(64)} becomes {@code RAW(8)}).
+     */
+    private static final String YAS_DATA_LENGTH = "case when COLS.DATA_TYPE = 'BIT' then ceil(COLS.DATA_LENGTH/8) else COLS.DATA_LENGTH end as DATA_LENGTH";
+
+    private static final String YAS_COLUMNS = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME," + YAS_DATA_TYPE + ",COLS.DATA_TYPE_OWNER,COLS.COLUMN_ID," + YAS_DATA_LENGTH
+                                              + ",COLS.CHAR_LENGTH,COLS.DATA_PRECISION," + YAS_DATA_SCALE
                                               + ",COLS.NULLABLE,null CHARACTER_SET_NAME,COLS.HIDDEN_COLUMN,COLS.VIRTUAL_COLUMN,COLS.IDENTITY_COLUMN,COMM.COMMENTS,COLS.DATA_DEFAULT from SYS.DBA_TAB_COLS COLS\n"
                                               + "left join SYS.DBA_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME";
 
