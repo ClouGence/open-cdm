@@ -1,5 +1,4 @@
 export const queryApi = {
-  dmQueryOpenConnection: '/api/entry/query/openConnection',
   dmQueryCreateSession: '/api/entry/query/createSession',
   dmQueryClosesSession: '/api/entry/query/closeSession',
   dmQueryFetchDsStatusConf: '/api/entry/query/fetchDsStatusConf',

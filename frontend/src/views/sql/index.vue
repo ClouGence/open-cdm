@@ -129,6 +129,7 @@
                         :rdb-object-detail="rdbObjectDetail"
                         :handle-click-ds-status-icon="handleClickDsStatusIcon"
                         @workspace-connection-error="handleWorkspaceConnectionError"
+                        @workspace-connection-success="handleWorkspaceConnectionSuccess"
                         @open-script="handleOpenSqlScript"
                         @script-deleted="handleSqlScriptDeleted"
                         @script-renamed="handleSqlScriptRenamed"
@@ -222,6 +223,7 @@ import { cloneDeep as deepClone } from '@/utils/lodash';
 import { Modal } from 'ant-design-vue';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import dayjs from 'dayjs';
+import { isCancel } from 'axios';
 import SqlViewer from '@/views/sql/components/SqlViewer';
 import Result from '@/views/sql/components/Result';
 import './style/index.less';
@@ -401,11 +403,10 @@ export default {
           tab.msgFromWs = false;
         });
     },
-    workspaceConnectionErrorText(message) {
-      if (!message) return this.$t('sql-connection-open-failed');
-      const template = document.createElement('template');
-      template.innerHTML = message;
-      return template.content.textContent.trim();
+    handleWorkspaceConnectionSuccess(tab) {
+      const connection = this.getWorkspaceConnection(tab.dsId);
+      if (connection.blocked || connection.busy) return;
+      this.setWorkspaceConnectionState(tab.dsId, 'connected');
     },
     handleWorkspaceConnectionError(tab) {
       const connection = this.getWorkspaceConnection(tab.dsId);
@@ -529,23 +530,33 @@ export default {
           this.setWorkspaceConnectionState(dsId, 'disconnected');
           this.$refs.dataSourceTree?.collapseWorkspaceInstance(instance);
         } else {
-          const opened = await this.$services.dmQueryOpenConnection({ data: { dsId }, modal: false });
-          if (!opened.success) throw new Error(this.workspaceConnectionErrorText(opened.msg));
           const dsLevels = this.getLevels(instance.INSTANCE.attr.dsType);
-          if (dsLevels.length > instance.levels.length && !(await this.listLevels(instance, {}, resolve, null, true, true))) {
-            throw new Error(this.$t('sql-connection-open-failed'));
+          let accessed = false;
+          if (dsLevels.length > instance.levels.length) {
+            accessed = await this.listLevels(instance, {}, resolve, null, true, true);
+            if (!accessed) throw new Error(this.$t('sql-connection-open-failed'));
           }
           for (const tab of tabs.filter((item) => item.type === TAB_TYPE.QUERY && this.tabs.includes(item))) {
             if (!(await this.createSession(tab, null, true))) throw new Error(this.$t('sql-connection-open-failed'));
+            if (!tab.autoCommit) accessed = true;
+          }
+          if (this.currentTab.dsId === dsId && this.currentTab.type === TAB_TYPE.QUERY) {
+            if (!(await this.listLeaf(true, true))) throw new Error(this.$t('sql-connection-open-failed'));
+            accessed = true;
           }
           if (this.workspaceUnmounted) return false;
           connection.blocked = false;
           this.storeWorkspaceDisconnect(dsId, false);
-          this.setWorkspaceConnectionState(dsId, 'connected');
-          if (this.currentTab.dsId === dsId && this.currentTab.type === TAB_TYPE.QUERY) await this.listLeaf();
+          if (accessed) {
+            this.setWorkspaceConnectionState(dsId, 'connected');
+          } else {
+            this.setWorkspaceConnectionState(dsId, 'disconnected');
+          }
         }
         this.storeQueryTabs();
-        if (!automatic) this.$Message.success(this.$t(`sql-connection-${connection.status}`));
+        if (!automatic && (action === 'disconnect' || connection.status === 'connected')) {
+          this.$Message.success(this.$t(`sql-connection-${connection.status}`));
+        }
         return true;
       } catch (error) {
         appLogger.error('Workspace connection operation failed', error);
@@ -767,10 +778,6 @@ export default {
         this.setWorkspaceConnectionState(node.INSTANCE.id, 'connecting');
       }
       try {
-        if (checkingConnection) {
-          const opened = await this.$services.dmQueryOpenConnection({ data: { dsId: node.INSTANCE.id }, modal: false });
-          if (!opened.success) throw new Error(this.workspaceConnectionErrorText(opened.msg));
-        }
         if (node?.nodeType === 'INSTANCE') {
           statusRes = await this.$services.dmQueryFetchDsStatusConf({ data: { dsId: node.INSTANCE.id } });
         }
@@ -853,7 +860,7 @@ export default {
             }
           });
 
-          if (node?.nodeType === 'INSTANCE' && !connectionAction) {
+          if (connection && !connectionAction) {
             this.setWorkspaceConnectionState(node.INSTANCE.id, 'connected');
           }
           if (statusRes?.data?.dsStatus && node?.nodeType === 'INSTANCE') {
@@ -907,28 +914,9 @@ export default {
       const instanceId = typeof data === 'object' ? data.instanceId : data;
       const connection = this.getWorkspaceConnection(instanceId);
       if (connection.blocked || connection.busy) return;
-      const generation = connection.generation;
-      const targetTab = this.currentTab;
-      if (targetTab?.node?.INSTANCE?.id === instanceId) {
-        let tempConnected = null;
-        const res = await this.$services.dmQueryFetchDsStatusConf({
-          data: {
-            dsId: instanceId
-          }
-        });
-        if (connection.blocked || connection.busy || generation !== connection.generation) return;
-        if (this.tabs.includes(targetTab) && targetTab.node?.INSTANCE?.id === instanceId) {
-          tempConnected = res?.data?.dsStatus && res?.data?.dsStatus === 'Normal';
-
-          if (targetTab.node) {
-            targetTab.connected = tempConnected;
-            targetTab.msgContent = data?.msgContent;
-          }
-        }
-      }
-
+      if (typeof data === 'object' && data.connected) return;
+      this.setWorkspaceConnectionState(instanceId, 'failed', data?.msgContent || this.$t('sql-connection-open-failed'));
       if (typeof data !== 'object') return;
-      if (!data.connected) this.setWorkspaceConnectionState(instanceId, 'failed', data.msgContent);
       if (this.$refs.dataSourceTree) {
         const treeData = this.$refs.dataSourceTree.handleGetTreeData();
         treeData.forEach((env) => {
@@ -998,11 +986,11 @@ export default {
         { message: this.$refs.sqlViewer?.onmessage }
       );
     },
-    async listLeaf(isRefreshCache = false) {
+    async listLeaf(isRefreshCache = false, connectionAction = false) {
       const currentTab = this.currentTab;
-      if (!currentTab.connected || !currentTab.node?.INSTANCE) return;
+      if (!currentTab.node?.INSTANCE) return false;
       const connection = this.getWorkspaceConnection(currentTab.dsId);
-      if (connection.blocked) return;
+      if ((connection.blocked || connection.busy) && !connectionAction) return false;
       const generation = connection.generation;
       const { node, leafType } = currentTab;
 
@@ -1016,7 +1004,7 @@ export default {
       if (noLegal) {
         this.$Message.warning(this.$t('fa-mi-ming-cheng-bu-zhi-chi'));
         this.tableListLoading = false;
-        return;
+        return false;
       }
 
       try {
@@ -1028,7 +1016,9 @@ export default {
           }
         });
 
-        if (connection.generation !== generation || connection.blocked || this.workspaceUnmounted) return;
+        if (connection.generation !== generation || (connection.blocked && !connectionAction) || this.workspaceUnmounted || isCancel(leafRes)) {
+          return false;
+        }
         if (leafRes.success) {
           const completionKey = node.key;
           const obj = Object.create(null);
@@ -1058,20 +1048,23 @@ export default {
 
           currentTab[leafType].treeData = leafList;
           currentTab[leafType].loaded = true;
-          if (this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
+          if (!connectionAction) this.setWorkspaceConnectionState(currentTab.dsId, 'connected');
+          if (this.currentTab.key === currentTab.key && currentTab.leafType === leafType && this.$refs.tableList) {
             await this.$refs.tableList.handleSetData(leafList);
             await this.$refs.tableList.handleFilter(currentTab[leafType].searchKey);
           }
-        } else {
-          this.setInstanceErrorIcon(node?.INSTANCE?.id);
+          return true;
         }
       } catch (e) {
-        this.setInstanceErrorIcon(node?.INSTANCE?.id);
+        appLogger.error(e);
       } finally {
         if (requestId === this.tableListRequestId) this.tableListLoading = false;
+        this.storeQueryTabs();
       }
-
-      this.storeQueryTabs();
+      if (!connectionAction && connection.generation === generation && !connection.blocked) {
+        this.setWorkspaceConnectionState(currentTab.dsId, 'failed', this.$t('sql-connection-open-failed'));
+      }
+      return false;
     },
     async handleAddTab(type, node, options = {}) {
       const connection = this.getWorkspaceConnection(node.INSTANCE.id);
@@ -1079,7 +1072,6 @@ export default {
         this.$Message.warning(this.$t('sql-connection-disconnected'));
         return;
       }
-      if (connection.status !== 'connected' && !(await this.handleWorkspaceConnection('open', node, true))) return;
       this.storeActiveTab();
       if (this.disableAddTab()) {
         return;
@@ -1101,8 +1093,7 @@ export default {
 
       if (hasSameTab) {
         if (type === TAB_TYPE.QUERY) {
-          await this.createSession(this.currentTab);
-          await this.listLeaf();
+          if (await this.createSession(this.currentTab)) await this.listLeaf();
         }
         return;
       }
@@ -1153,7 +1144,7 @@ export default {
       if (!res.success) return;
       if (res.success) {
         tab.support = res.data;
-        tab.connected = connection.status === 'connected';
+        tab.connected = res.data.dsStatus === 'Normal';
         tab.workspaceConnectionState = connection.status;
         tab.msgContent = res.data.dsStatusMessage;
         tab.isolation = res.data.isolation.defaultValue;
@@ -1273,8 +1264,7 @@ export default {
 
       switch (type) {
         case TAB_TYPE.QUERY:
-          await this.createSession(this.currentTab);
-          await this.listLeaf();
+          if (await this.createSession(this.currentTab)) await this.listLeaf();
           break;
         case TAB_TYPE.STRUCT:
         case TAB_TYPE.DATA:
@@ -1780,15 +1770,22 @@ export default {
               initIsolation: tab.isolation
             }
           });
-          if (!res.success || !res.data?.sessionId) return false;
+          if (isCancel(res)) return false;
+          if (!res.success || !res.data?.sessionId) throw new Error(this.$t('sql-connection-open-failed'));
           if (!this.tabs.includes(tab) || this.workspaceUnmounted) {
             await this.$services.dmQueryClosesSession({ data: { sessionId: [res.data.sessionId] } });
             return false;
           }
           tab.sessionId = res.data.sessionId;
           if (connection.generation !== generation) return false;
+          if (!tab.autoCommit && !connectionAction) this.setWorkspaceConnectionState(tab.dsId, 'connected');
           if (next) next();
           return true;
+        } catch (error) {
+          if (!connectionAction && connection.generation === generation && !connection.blocked && !this.workspaceUnmounted) {
+            this.setWorkspaceConnectionState(tab.dsId, 'failed', error.message || this.$t('sql-connection-open-failed'));
+          }
+          return false;
         } finally {
           this.sessionRequests.delete(tab);
           this.sessionLoading = this.sessionRequests.size > 0;
@@ -1900,19 +1897,8 @@ export default {
           targetTab.support = res.data;
           if (res.data.dsStatus !== 'Normal') {
             this.setWorkspaceConnectionState(dsId, 'failed', res.data.dsStatusMessage);
-          } else if (connection.status === 'disconnected') {
-            connection.busy = true;
-            this.setWorkspaceConnectionState(dsId, 'connecting');
-            try {
-              const opened = await this.$services.dmQueryOpenConnection({ data: { dsId }, modal: false });
-              if (connection.generation !== generation || this.workspaceUnmounted) return;
-              if (!opened.success) throw new Error(this.workspaceConnectionErrorText(opened.msg));
-              this.setWorkspaceConnectionState(dsId, 'connected');
-            } catch (error) {
-              this.setWorkspaceConnectionState(dsId, 'failed', error.message || this.$t('sql-connection-open-failed'));
-            } finally {
-              connection.busy = false;
-            }
+          } else if (connection.status !== 'failed') {
+            targetTab.connected = true;
           }
 
           if (!restore && !targetTab.sessionId) {

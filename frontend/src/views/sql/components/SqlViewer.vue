@@ -115,7 +115,7 @@ export default {
     CommandExamples,
     SqlLoadingSkeleton
   },
-  emits: ['open-script', 'script-deleted', 'script-renamed'],
+  emits: ['open-script', 'script-deleted', 'script-renamed', 'workspace-connection-error', 'workspace-connection-success'],
   props: {
     handleClickDsStatusIcon: Function,
     handleGetDsSetting: Function,
@@ -986,6 +986,7 @@ export default {
 
         // Export information may come from ResultSetMeta or ResultSet, so process it centrally.
         if (queryData.object.resultType === 'ResultSetMeta' || queryData.object.resultType === 'ResultSet') {
+          this.$emit('workspace-connection-success', currentTab);
           const resultData =
             queryData.object.resultType === 'ResultSetMeta'
               ? queryData.object

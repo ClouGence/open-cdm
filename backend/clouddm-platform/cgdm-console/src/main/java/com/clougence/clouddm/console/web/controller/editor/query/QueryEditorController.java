@@ -31,7 +31,6 @@ import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -67,8 +66,6 @@ import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.resource.ResourceCategory;
 import com.clougence.clouddm.sdk.resource.ResourceSpi;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -112,19 +109,6 @@ public class QueryEditorController {
     private DmSupportSpiWrapper  dmSupportSpiWrapper;
     @Resource
     private RdpOpAuditService    opAuditService;
-    @Resource
-    private DmDsService          dmDsService;
-
-    @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/openConnection", method = RequestMethod.POST)
-    public ResWebData<?> openConnection(@Valid @RequestBody AvailableDsFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        this.objectCacheDao.ownDataSource(puid, fo.getDsId());
-        this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, fo.getDsId(), AuthKind.DataSource, RdpAuthUtils.genEmptyResPath(), SecDataAuthLabel.DM_DAUTH_QUERY);
-        return ResWebDataUtils.buildSuccess(this.dmDsService.testConnect(fo.getDsId()));
-    }
 
     @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/createSession", method = RequestMethod.POST)
