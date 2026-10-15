@@ -16,12 +16,7 @@
 package com.clougence.clouddm.console.web.service.ai;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -30,12 +25,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.config.AiProperties;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.model.ai.AiContextReference;
-import com.clougence.clouddm.console.web.model.ai.AiError;
-import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
-import com.clougence.clouddm.console.web.model.ai.AiSqlResult;
-import com.clougence.clouddm.console.web.model.ai.AiSqlSelection;
-import com.clougence.clouddm.console.web.model.ai.AiTurnContext;
+import com.clougence.clouddm.console.web.model.ai.*;
 import com.clougence.clouddm.console.web.model.fo.ai.AiGetSessionFO;
 import com.clougence.clouddm.console.web.model.fo.ai.AiSessionListFO;
 import com.clougence.clouddm.console.web.model.fo.ai.AiSwitchModelFO;

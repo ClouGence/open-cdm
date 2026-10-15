@@ -29,13 +29,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.utils.ExceptionUtils;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import okhttp3.Call;
-import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+
+import okhttp3.*;
 
 public class ChatHttpTransport implements AutoCloseable {
     private final Set<Call>     activeCalls = ConcurrentHashMap.newKeySet();

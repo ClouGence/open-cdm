@@ -21,11 +21,7 @@ import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
 import com.clougence.clouddm.console.web.model.ai.AiSqlSelection;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record AiTurnFO(@NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String sessionId, @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String requestId,
                        @Size(max = 128) String streamClientId, @NotBlank @Size(max = 16384) String prompt, @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String engineId,

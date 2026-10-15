@@ -18,10 +18,10 @@ package com.clougence.clouddm.platform.dal.mapper.ai;
 import java.util.Date;
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.ai.DmAiSessionDO;
+import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
+import com.clougence.clouddm.platform.dal.model.ai.DmAiSessionDO;
 
 public interface DmAiSessionMapper extends BaseMapper<DmAiSessionDO> {
     List<DmAiSessionDO> findPageByUid(@Param("puid") String puid, @Param("uid") String uid, @Param("beforeModifiedAt") Date beforeModifiedAt, @Param("beforeId") String beforeId,

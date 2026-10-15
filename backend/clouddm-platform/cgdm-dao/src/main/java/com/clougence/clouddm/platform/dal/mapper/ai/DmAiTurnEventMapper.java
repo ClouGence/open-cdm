@@ -17,10 +17,10 @@ package com.clougence.clouddm.platform.dal.mapper.ai;
 
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.ai.DmAiTurnEventDO;
+import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
+import com.clougence.clouddm.platform.dal.model.ai.DmAiTurnEventDO;
 
 public interface DmAiTurnEventMapper extends BaseMapper<DmAiTurnEventDO> {
     List<DmAiTurnEventDO> findByRunIdAfterSeq(@Param("runId") String runId, @Param("seq") long seq);

@@ -18,12 +18,12 @@ package com.clougence.clouddm.platform.dal.mapper.ai;
 import java.util.Date;
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.ai.AiVerificationStatus;
-import com.clougence.clouddm.platform.dal.model.ai.DmAiModelConfigDO;
+import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.apache.ibatis.annotations.Param;
+import com.clougence.clouddm.platform.dal.model.ai.AiVerificationStatus;
+import com.clougence.clouddm.platform.dal.model.ai.DmAiModelConfigDO;
 
 public interface DmAiModelConfigMapper extends BaseMapper<DmAiModelConfigDO> {
     IPage<DmAiModelConfigDO> findPageByProviderCodes(IPage<DmAiModelConfigDO> page, @Param("keyword") String keyword, @Param("providerCodes") List<String> providerCodes);

@@ -24,12 +24,7 @@ import java.util.function.Consumer;
 import org.springframework.stereotype.Component;
 
 import com.clougence.clouddm.console.web.model.vo.ai.AiEngineConfigVO;
-import com.clougence.clouddm.ds.ai.ChatEndpoint;
-import com.clougence.clouddm.ds.ai.ChatProtocolConstants;
-import com.clougence.clouddm.ds.ai.ChatRequest;
-import com.clougence.clouddm.ds.ai.ChatResponse;
-import com.clougence.clouddm.ds.ai.ChatToolChoice;
-import com.clougence.clouddm.ds.ai.StreamingChatClient;
+import com.clougence.clouddm.ds.ai.*;
 import com.clougence.clouddm.ds.ai.dashscope.DashScopeStreamingChatClient;
 import com.clougence.clouddm.ds.ai.deepseek.DeepSeekStreamingChatClient;
 import com.clougence.clouddm.ds.ai.kimi.KimiStreamingChatClient;

@@ -15,14 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.ai;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -34,31 +27,18 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.config.AiProperties;
-import com.clougence.clouddm.console.web.model.ai.AiError;
-import com.clougence.clouddm.console.web.model.ai.AiRunEventType;
-import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
-import com.clougence.clouddm.console.web.model.ai.AiTurnContext;
-import com.clougence.clouddm.console.web.model.ai.AiTurnStart;
+import com.clougence.clouddm.console.web.model.ai.*;
 import com.clougence.clouddm.console.web.model.fo.ai.AiSwitchModelFO;
 import com.clougence.clouddm.console.web.model.fo.ai.AiTurnFO;
 import com.clougence.clouddm.console.web.model.fo.ai.AiUserInputAnswerFO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiEngineConfigVO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiTurnRecordVO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiUserInputRequestVO;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiHistoryEventMapper;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiHistoryMapper;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiSessionMapper;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiTurnEventMapper;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiTurnRunMapper;
-import com.clougence.clouddm.platform.dal.model.ai.AiTurnStatus;
-import com.clougence.clouddm.platform.dal.model.ai.DmAiHistoryDO;
-import com.clougence.clouddm.platform.dal.model.ai.DmAiHistoryEventDO;
-import com.clougence.clouddm.platform.dal.model.ai.DmAiSessionDO;
-import com.clougence.clouddm.platform.dal.model.ai.DmAiTurnEventDO;
-import com.clougence.clouddm.platform.dal.model.ai.DmAiTurnRunDO;
+import com.clougence.clouddm.platform.dal.mapper.ai.*;
+import com.clougence.clouddm.platform.dal.model.ai.*;
 import com.clougence.utils.JsonUtils;
-
 import com.fasterxml.jackson.databind.JsonNode;
+
 import jakarta.annotation.Resource;
 
 @Service

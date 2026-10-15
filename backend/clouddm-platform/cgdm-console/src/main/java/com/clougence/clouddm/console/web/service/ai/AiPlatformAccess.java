@@ -16,14 +16,7 @@
 package com.clougence.clouddm.console.web.service.ai;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.stereotype.Component;
 
@@ -36,12 +29,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.model.ai.AiColumn;
-import com.clougence.clouddm.console.web.model.ai.AiContextReference;
-import com.clougence.clouddm.console.web.model.ai.AiError;
-import com.clougence.clouddm.console.web.model.ai.AiForeignKey;
-import com.clougence.clouddm.console.web.model.ai.AiObject;
-import com.clougence.clouddm.console.web.model.ai.AiTableSchema;
+import com.clougence.clouddm.console.web.model.ai.*;
 import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;

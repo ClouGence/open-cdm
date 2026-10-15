@@ -18,7 +18,6 @@ package com.clougence.clouddm.console.web.model.vo.ai;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record AiUserInputRequestVO(@JsonProperty(AiSqlConstants.FIELD_SCHEMA_VERSION) int schemaVersion, @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_REQUEST_ID) String requestId,

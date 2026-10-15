@@ -18,9 +18,9 @@ package com.clougence.clouddm.init.component.scripts;
 import java.sql.Statement;
 import java.util.List;
 
-import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
-
 import org.flywaydb.core.api.migration.Context;
+
+import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
 
 public class V202609300001__ai_sql_assistant extends AbstractUpgradeJavaMigration {
 

@@ -15,9 +15,10 @@
  */
 package com.clougence.clouddm.console.web.model.ai;
 
+import org.hibernate.validator.constraints.CodePointLength;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.validator.constraints.CodePointLength;
 
 /** SQL text selected by the user, never executed by the assistant. */
 public record AiSqlSelection(@NotBlank @CodePointLength(max = 512) String title, @NotBlank String sql, @Min(1) int startLine, @Min(1) int endLine) {

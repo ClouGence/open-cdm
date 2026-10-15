@@ -18,10 +18,10 @@ package com.clougence.clouddm.platform.dal.mapper.ai;
 import java.util.Date;
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.ai.DmAiHistoryDO;
+import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
+import com.clougence.clouddm.platform.dal.model.ai.DmAiHistoryDO;
 
 public interface DmAiHistoryMapper extends BaseMapper<DmAiHistoryDO> {
     List<DmAiHistoryDO> findPageBySessionId(@Param("sessionId") Long sessionId, @Param("beforeId") Long beforeId, @Param("limit") int limit, @Param("lock") boolean lock);

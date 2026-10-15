@@ -24,7 +24,6 @@ import com.clougence.clouddm.ds.ai.ChatRequest;
 import com.clougence.clouddm.ds.ai.ChatToolChoice;
 import com.clougence.clouddm.ds.ai.openai.OpenAiStreamingChatClient;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class MiniMaxStreamingChatClient extends OpenAiStreamingChatClient {

@@ -18,11 +18,11 @@ package com.clougence.clouddm.platform.dal.mapper.ai;
 import java.util.Date;
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.ai.AiPreset;
-import com.clougence.clouddm.platform.dal.model.ai.DmAiProviderConfigDO;
+import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
+import com.clougence.clouddm.platform.dal.model.ai.AiPreset;
+import com.clougence.clouddm.platform.dal.model.ai.DmAiProviderConfigDO;
 
 public interface DmAiProviderConfigMapper extends BaseMapper<DmAiProviderConfigDO> {
     List<String> findCodes();

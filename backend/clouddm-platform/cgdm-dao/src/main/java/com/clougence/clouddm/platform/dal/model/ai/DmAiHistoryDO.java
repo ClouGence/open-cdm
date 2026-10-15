@@ -17,12 +17,12 @@ package com.clougence.clouddm.platform.dal.model.ai;
 
 import java.util.Date;
 
-import com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler;
+
 import lombok.Getter;
 import lombok.Setter;
 

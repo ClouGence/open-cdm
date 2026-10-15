@@ -16,11 +16,7 @@
 package com.clougence.clouddm.console.web.service.ai;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
@@ -29,8 +25,8 @@ import com.clougence.clouddm.console.web.util.SseResponseUtils;
 import com.clougence.clouddm.ds.ai.ChatToolCall;
 import com.clougence.clouddm.ds.ai.tool.ChatToolOutcome;
 import com.clougence.utils.JsonUtils;
-
 import com.fasterxml.jackson.databind.JsonNode;
+
 import lombok.Getter;
 
 /** Generation state belongs to the run; browser connections only subscribe to it. */

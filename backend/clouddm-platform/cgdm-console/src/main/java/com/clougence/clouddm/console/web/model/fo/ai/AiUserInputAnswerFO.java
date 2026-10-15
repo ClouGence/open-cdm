@@ -18,8 +18,8 @@ package com.clougence.clouddm.console.web.model.fo.ai;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

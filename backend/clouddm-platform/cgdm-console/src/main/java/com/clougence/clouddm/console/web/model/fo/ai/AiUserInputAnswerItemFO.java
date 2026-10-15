@@ -18,8 +18,8 @@ package com.clougence.clouddm.console.web.model.fo.ai;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.Size;
 
 public record AiUserInputAnswerItemFO(@JsonProperty(AiSqlConstants.FIELD_QUESTION_ID) String questionId, String question, @Size(max = 20) List<String> values) {

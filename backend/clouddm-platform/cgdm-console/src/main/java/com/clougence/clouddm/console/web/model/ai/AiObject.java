@@ -15,10 +15,11 @@
  */
 package com.clougence.clouddm.console.web.model.ai;
 
+import org.hibernate.validator.constraints.CodePointLength;
+
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.CodePointLength;
 
 public record AiObject(@NotNull UmiTypes type, @NotNull @CodePointLength(min = 1, max = 512) String name) {
 }

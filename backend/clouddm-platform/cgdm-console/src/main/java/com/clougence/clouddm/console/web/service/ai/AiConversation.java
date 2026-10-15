@@ -16,27 +16,19 @@
 package com.clougence.clouddm.console.web.service.ai;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import com.clougence.clouddm.console.web.model.ai.AiCompactionBlock;
-import com.clougence.clouddm.console.web.model.ai.AiCompactionSelection;
-import com.clougence.clouddm.console.web.model.ai.AiError;
-import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
-import com.clougence.clouddm.console.web.model.ai.AiTurnContext;
+import com.clougence.clouddm.console.web.model.ai.*;
 import com.clougence.clouddm.console.web.model.vo.ai.AiTurnRecordVO;
 import com.clougence.clouddm.ds.ai.ChatProtocolConstants;
 import com.clougence.clouddm.ds.ai.ChatResponse;
 import com.clougence.clouddm.ds.ai.ChatToolCall;
 import com.clougence.clouddm.platform.dal.model.ai.DmAiSessionDO;
 import com.clougence.utils.JsonUtils;
-
 import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingType;
+
 import lombok.Getter;
 
 /** Derived model context; original conversation rows are never removed by compaction. */

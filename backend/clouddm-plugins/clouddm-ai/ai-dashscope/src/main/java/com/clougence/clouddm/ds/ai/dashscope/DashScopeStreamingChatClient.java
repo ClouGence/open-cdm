@@ -21,32 +21,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.ds.ai.ChatEndpoint;
-import com.clougence.clouddm.ds.ai.ChatHttpTransport;
-import com.clougence.clouddm.ds.ai.ChatProtocolConstants;
-import com.clougence.clouddm.ds.ai.ChatRequest;
-import com.clougence.clouddm.ds.ai.ChatResponse;
-import com.clougence.clouddm.ds.ai.ChatStreamControl;
-import com.clougence.clouddm.ds.ai.ChatStreamListener;
-import com.clougence.clouddm.ds.ai.ChatToolArguments;
-import com.clougence.clouddm.ds.ai.ChatToolChoice;
-import com.clougence.clouddm.ds.ai.StreamingChatClient;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationParam;
 import com.alibaba.dashscope.base.HalfDuplexParamBase;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import com.alibaba.dashscope.protocol.ApiServiceOption;
-import com.alibaba.dashscope.protocol.HalfDuplexRequest;
-import com.alibaba.dashscope.protocol.HttpMethod;
-import com.alibaba.dashscope.protocol.HttpRequest;
-import com.alibaba.dashscope.protocol.Protocol;
-import com.alibaba.dashscope.protocol.StreamingMode;
+import com.alibaba.dashscope.protocol.*;
 import com.alibaba.dashscope.tools.ToolBase;
 import com.alibaba.dashscope.tools.ToolFunction;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.clougence.clouddm.ds.ai.*;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.Request;

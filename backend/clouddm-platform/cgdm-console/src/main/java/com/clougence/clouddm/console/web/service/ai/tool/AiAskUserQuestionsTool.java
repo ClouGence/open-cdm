@@ -15,11 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.ai.tool;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
 import com.clougence.clouddm.console.web.model.ai.AiUserInputQuestionType;

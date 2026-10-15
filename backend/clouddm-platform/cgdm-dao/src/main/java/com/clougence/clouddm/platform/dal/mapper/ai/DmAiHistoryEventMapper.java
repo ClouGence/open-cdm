@@ -17,10 +17,10 @@ package com.clougence.clouddm.platform.dal.mapper.ai;
 
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.ai.DmAiHistoryEventDO;
+import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
+import com.clougence.clouddm.platform.dal.model.ai.DmAiHistoryEventDO;
 
 public interface DmAiHistoryEventMapper extends BaseMapper<DmAiHistoryEventDO> {
     List<DmAiHistoryEventDO> findByHistoryIds(@Param("historyIds") List<Long> historyIds, @Param("lock") boolean lock);

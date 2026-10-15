@@ -18,11 +18,11 @@ package com.clougence.clouddm.platform.dal.mapper.ai;
 import java.util.Date;
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.ai.AiTurnStatus;
-import com.clougence.clouddm.platform.dal.model.ai.DmAiTurnRunDO;
+import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
+import com.clougence.clouddm.platform.dal.model.ai.AiTurnStatus;
+import com.clougence.clouddm.platform.dal.model.ai.DmAiTurnRunDO;
 
 public interface DmAiTurnRunMapper extends BaseMapper<DmAiTurnRunDO> {
     List<DmAiTurnRunDO> findByHistoryIds(@Param("historyIds") List<Long> historyIds, @Param("lock") boolean lock);

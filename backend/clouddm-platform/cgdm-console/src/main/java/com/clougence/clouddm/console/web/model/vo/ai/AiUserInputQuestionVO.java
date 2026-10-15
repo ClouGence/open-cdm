@@ -20,8 +20,8 @@ import java.util.List;
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
 import com.clougence.clouddm.console.web.model.ai.AiUserInputQuestionType;
 import com.clougence.clouddm.ds.ai.tool.ChatToolParameter;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

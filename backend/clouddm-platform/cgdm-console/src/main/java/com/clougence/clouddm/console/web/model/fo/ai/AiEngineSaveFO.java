@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ai;
 
+import org.hibernate.validator.constraints.CodePointLength;
+
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
 import com.clougence.clouddm.platform.dal.model.ai.AiPreset;
 
@@ -24,7 +26,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.CodePointLength;
 
 @Getter
 @Setter
