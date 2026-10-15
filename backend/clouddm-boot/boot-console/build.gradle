@@ -37,6 +37,7 @@ dependencies {
     // project
     implementation project(':boot-initialization')
     implementation project(':cgdm-console')
+    implementation project(':ai-console')
     implementation project(':cgdm-dao')
     implementation project(':cgdm-api')
     implementation project(':cg-rpc')

@@ -59,8 +59,9 @@ public class RequestAuthServiceImpl implements RequestAuthService, UnifiedPostCo
     public void init() throws ClassNotFoundException {
         ClassLoader classLoader = Objects.requireNonNull(this.applicationContext.getClassLoader());
         CgResourceScanner scanner = new CgResourceScanner(new ClassPathResourceLoader(classLoader, SCAN_PATH));
-        Set<Class<?>> scanningClassSet1 = RdpClassUtil.getClassSet(classLoader, scanner, new String[] { "com.clougence.rdp.controller" }, RestController.class);
-        Set<Class<?>> scanningClassSet2 = RdpClassUtil.getClassSet(classLoader, scanner, new String[] { "com.clougence.rdp.controller" }, Controller.class);
+        String[] controllerPackages = { "com.clougence.rdp.controller", "com.clougence.clouddm.ai.controller" };
+        Set<Class<?>> scanningClassSet1 = RdpClassUtil.getClassSet(classLoader, scanner, controllerPackages, RestController.class);
+        Set<Class<?>> scanningClassSet2 = RdpClassUtil.getClassSet(classLoader, scanner, controllerPackages, Controller.class);
         Set<Class<?>> scanSet = new HashSet<>();
         scanSet.addAll(scanningClassSet1);
         scanSet.addAll(scanningClassSet2);

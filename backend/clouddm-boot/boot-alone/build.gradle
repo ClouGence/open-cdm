@@ -48,6 +48,7 @@ dependencies {
     implementation project(':cgdm-share-libs')
     implementation project(':cgdm-sidecar')
     implementation project(':cgdm-console')
+    implementation project(':ai-console')
     implementation project(':cgdm-web')
 
     implementation project(':dsc-common')

@@ -33,6 +33,7 @@
               <span>{{ $t('ge-shi') }}</span>
             </div>
           </Button>
+          <slot name="assistant-control" />
         </div>
         <div class="operator-btn-group" v-if="isSupportTx || isSupportIsolation || isSupportReadOnly">
           <Button size="small" v-if="isSupportIsolation">
@@ -273,6 +274,33 @@ export default {
   :deep(.ivu-checkbox-wrapper) {
     margin-right: 0;
     pointer-events: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .operators {
+    height: auto;
+    flex-basis: auto;
+    min-height: 44px;
+
+    .operator-character {
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .left {
+        flex-wrap: wrap;
+        flex-shrink: 1;
+      }
+
+      .right {
+        flex-basis: 100%;
+        margin-left: 0;
+      }
+    }
+  }
+
+  .operator-btn-group {
+    flex-wrap: wrap;
   }
 }
 </style>

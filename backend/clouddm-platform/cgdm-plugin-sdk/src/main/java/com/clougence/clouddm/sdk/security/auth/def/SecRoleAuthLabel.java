@@ -142,6 +142,9 @@ public interface SecRoleAuthLabel {
                                                                                                                                   SecSysRole.DEV_ROLE_NAME })
     String DM_QUERY_CONSOLE                = "DM_QUERY_CONSOLE";
 
+    @AuthLabel(order = 20, category = SecAuthCategory.CAT_RDP, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_AI_ENGINE_MANAGE)
+    String DM_AI_ENGINE_MANAGE             = "DM_AI_ENGINE_MANAGE";
+
     @AuthLabel(order = 1, category = SecAuthCategory.CAT_DM_CONSOLE, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_QUERY_EXPORT, tag = { SecSysRole.DBA_ROLE_NAME,
                                                                                                                                  SecSysRole.DEV_ROLE_NAME })
     String DM_QUERY_EXPORT                 = "DM_QUERY_EXPORT";

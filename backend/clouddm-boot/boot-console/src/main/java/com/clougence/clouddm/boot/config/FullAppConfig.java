@@ -22,14 +22,17 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.clougence.clouddm.ai.config.AiModuleConfiguration;
 import com.clougence.clouddm.console.web.global.handler.StaticResourceNoCacheFilter;
 import com.clougence.clouddm.init.InitApplication;
 
 import jakarta.servlet.Filter;
 
 @SpringBootConfiguration
+@Import(AiModuleConfiguration.class)
 @EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
 @ComponentScan(value = { "com.clougence.clouddm.boot", "com.clougence.clouddm.init",//
                          "com.clougence.clouddm.console.web", "com.clougence.clouddm.console.web.*", //

@@ -126,11 +126,14 @@ instance.interceptors.response.use(
     return Promise.resolve(checkStatus(res));
   },
   (error) => {
+    if (error.config) removePending(error.config);
+    if (axios.isCancel(error)) return Promise.reject(error);
     if (error.response) {
       return Promise.reject(checkStatus(error.response));
     }
     if (error.code === 'ECONNABORTED' && error.message.indexOf('timeout') !== -1) {
-      return Promise.reject(new Error(i18n.global.t('qing-qiu-chao-shi')));
+      error.message = i18n.global.t('qing-qiu-chao-shi');
+      return Promise.reject(error);
     }
     return Promise.reject(error instanceof Error ? error : new Error(error));
   }
@@ -144,6 +147,14 @@ const request = async (opt) => {
   };
 
   const { url: requestUrl, msg, modal = true, page } = options;
+  let abort;
+  if (options.signal) {
+    const cancellation = axios.CancelToken.source();
+    options.cancelToken = cancellation.token;
+    abort = () => cancellation.cancel('Request aborted');
+    if (options.signal.aborted) abort();
+    options.signal.addEventListener('abort', abort, { once: true });
+  }
 
   try {
     // if (!['/login', '/register', '/logout', '/globalSettings', '/list_org', '/login_supplement', '/checkSupplement', '/load_supplement_info'].includes(options.url)) {
@@ -233,58 +244,60 @@ const request = async (opt) => {
     }
     return res;
   } catch (err) {
-    if (typeof err === 'object' && err.toString().includes('Cancel')) {
+    if (axios.isCancel(err)) {
+      if (options.throwError) throw err;
       return err;
     }
-    switch (err.status) {
-      case 401:
-        appLogger.debug('router', Router);
-        if (Router.history?.current && Router.history?.current.name === 'Login') {
-          appLogger.debug('No Redirect');
-        } else {
-          await Router.push({ name: 'Login' });
-        }
-        break;
-      case 498:
-        eventBus.emit('setOpPasswordModal');
-        break;
-      case 499:
-        eventBus.emit('showEnterOpPwdModal');
-        break;
-      case 406:
-        let errmsg = i18n.global.t('nin-mei-you-gai-quan-xian-de-cao-zuo-qing-lian-xi-zhu-zhang-hao-huo-guan-li-yuan');
-        if (err.msg && typeof err.msg === 'string') {
-          errmsg = err.msg;
-        }
-        // Permission error added to queue
-        errorQueue.addError({
-          title: i18n.global.t('quan-xian-yi-chang'),
-          content: errmsg,
-          type: 'error',
-          url: err.config?.url || ''
-        });
-        break;
-      case 307:
-        break;
-      default:
-        if (showActiveLicense(err.status)) {
-          eventBus.emit(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL, formatError(err.msg));
-        } else if (err.config && err.config.url) {
-          const url = new URL(err.config.url);
-          const pathList = url.pathname.split('/');
-          if (pathList.length > 1 && pathList[1] === 'clouddm') {
-            if (url.pathname !== '/api/entry/dmGlobalSettings') {
-              errorQueue.addError({
-                title: 'ERROR',
-                content: i18n.global.t('chan-pin-ji-qun-wu-fa-fang-wen'),
-                type: 'error',
-                url: err.config?.url
-              });
-            }
-          } else {
+    await handleHttpError(err);
+    if (options.throwError) throw err;
+    return err;
+  } finally {
+    if (abort) options.signal.removeEventListener('abort', abort);
+  }
+};
+
+async function handleHttpError(err) {
+  switch (err.status) {
+    case 401:
+      appLogger.debug('router', Router);
+      if (Router.history?.current && Router.history?.current.name === 'Login') {
+        appLogger.debug('No Redirect');
+      } else {
+        await Router.push({ name: 'Login' });
+      }
+      break;
+    case 498:
+      eventBus.emit('setOpPasswordModal');
+      break;
+    case 499:
+      eventBus.emit('showEnterOpPwdModal');
+      break;
+    case 406:
+      let errmsg = i18n.global.t('nin-mei-you-gai-quan-xian-de-cao-zuo-qing-lian-xi-zhu-zhang-hao-huo-guan-li-yuan');
+      if (err.msg && typeof err.msg === 'string') {
+        errmsg = err.msg;
+      }
+      // Permission error added to queue
+      errorQueue.addError({
+        title: i18n.global.t('quan-xian-yi-chang'),
+        content: errmsg,
+        type: 'error',
+        url: err.config?.url || ''
+      });
+      break;
+    case 307:
+      break;
+    default:
+      if (showActiveLicense(err.status)) {
+        eventBus.emit(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL, formatError(err.msg));
+      } else if (err.config && err.config.url) {
+        const url = new URL(err.config.url, window.location.origin);
+        const pathList = url.pathname.split('/');
+        if (pathList.length > 1 && pathList[1] === 'clouddm') {
+          if (url.pathname !== '/api/entry/dmGlobalSettings') {
             errorQueue.addError({
               title: 'ERROR',
-              content: err.msg || i18n.global.t('xi-tong-yi-chang'),
+              content: i18n.global.t('chan-pin-ji-qun-wu-fa-fang-wen'),
               type: 'error',
               url: err.config?.url
             });
@@ -294,12 +307,43 @@ const request = async (opt) => {
             title: 'ERROR',
             content: err.msg || i18n.global.t('xi-tong-yi-chang'),
             type: 'error',
-            url: ''
+            url: err.config?.url
           });
         }
-    }
-    return err;
+      } else {
+        errorQueue.addError({
+          title: 'ERROR',
+          content: err.msg || i18n.global.t('xi-tong-yi-chang'),
+          type: 'error',
+          url: ''
+        });
+      }
   }
-};
+}
+
+// Streaming consumers retain the Response body and control its lifetime themselves.
+export async function fetchRequest(url, { data, signal, accept = 'application/json' } = {}) {
+  const response = await fetch(`${baseURL}${url}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { Accept: accept, 'Content-Type': 'application/json', 'Accept-Language': i18n.global.locale.value },
+    body: JSON.stringify(data),
+    signal
+  });
+  if (!response.ok) {
+    let payload = null;
+    if ((response.headers.get('content-type') || '').includes('application/json')) {
+      payload = await response.json().catch(() => null);
+    }
+    const error = new Error(payload?.msg || payload?.message || response.statusText);
+    error.status = response.status;
+    error.msg = error.message;
+    error.data = payload;
+    error.config = { url };
+    await handleHttpError(error);
+    throw error;
+  }
+  return response;
+}
 
 export default request;

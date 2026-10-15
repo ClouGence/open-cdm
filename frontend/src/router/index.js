@@ -30,6 +30,12 @@ async function fetchMyAuthIfNeeded() {
 
 const systemChildren = [
   {
+    path: '/settings/ai',
+    name: '/settings/ai',
+    component: () => import('@/views/ai/index.vue'),
+    meta: { requiredAuth: 'DM_AI_ENGINE_MANAGE' }
+  },
+  {
     path: '/settings/preferences',
     name: '/settings/preferences',
     component: Preference,

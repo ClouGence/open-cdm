@@ -1,7 +1,9 @@
 <template>
-  <div class="sql-home-container sql-workspace">
+  <div class="sql-home-container sql-workspace" :class="{ 'sql-workspace--compact': compactWorkspace }">
+    <AppPageTabs v-if="compactWorkspace" v-model="mobileView" :tabs="mobileTabs" @change="selectMobileWorkspace" />
     <div class="content">
       <data-source-tree
+        v-show="!compactWorkspace || mobileView === 'datasources'"
         ref="dataSourceTree"
         :current-tab="currentTab"
         :tree-data="treeData"
@@ -16,7 +18,7 @@
         :refresh-tab-select-options="refreshTabSelectOptions"
         @sidebar-state-change="handleDataSourceSidebarStateChange"
       />
-      <div class="query-container">
+      <div class="query-container" v-show="!compactWorkspace || mobileView !== 'datasources'">
         <div class="content">
           <div class="tab-wrap">
             <div class="sql-sidebar-toggle-slot" :class="{ 'sql-sidebar-toggle-slot--visible': dataSourceSidebarHidden }">
@@ -96,7 +98,8 @@
             <div v-if="currentTab.type === TAB_TYPE.QUERY && globalDsSetting[currentTab.dsType]" class="query-content">
               <div class="query">
                 <TableList
-                  v-if="currentTab.connected && currentTab.node"
+                  v-if="currentTab.connected && currentTab.node && currentTab.leafGroup?.length"
+                  v-show="!compactWorkspace || mobileView === 'objects'"
                   ref="tableList"
                   :get-node-data="getTableNodeData"
                   :handle-add-tab="handleAddTab"
@@ -106,9 +109,17 @@
                   :handle-query-table="handleQueryTable"
                   :rdb-object-detail="rdbObjectDetail"
                 />
-                <div class="query-editor-container">
+                <div
+                  class="query-editor-container"
+                  :class="{
+                    'query-editor-container--results-collapsed': currentTab.result.collapsed,
+                    'query-editor-container--results-maximized': currentTab.result.maximized
+                  }"
+                  v-show="!compactWorkspace || mobileView === 'query'"
+                >
                   <div class="layout-content-main">
                     <SqlViewer
+                      v-if="currentTab.support"
                       ref="sqlViewer"
                       :handleGetDsSetting="handleGetDsSetting"
                       :createSession="createSession"
@@ -118,6 +129,7 @@
                       :completion-data="completionData"
                       :rdb-object-detail="rdbObjectDetail"
                       :handle-click-ds-status-icon="handleClickDsStatusIcon"
+                      @switch-tab="handleChangeTab"
                       @open-script="handleOpenSqlScript"
                       @script-deleted="handleSqlScriptDeleted"
                       @script-renamed="handleSqlScriptRenamed"
@@ -201,6 +213,8 @@
 <script>
 import appLogger from '@/utils/logger';
 import Loading from 'vue-loading-overlay';
+import { useMediaQuery } from '@vueuse/core';
+import AppPageTabs from '@/components/layout/AppPageTabs.vue';
 import 'vue-loading-overlay/dist/css/index.css';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { Modal } from 'ant-design-vue';
@@ -244,6 +258,7 @@ export default {
   name: 'Sql',
   mixins: [browseMixin, sqlMixin],
   components: {
+    AppPageTabs,
     CustomIcon,
     DoubleRightOutlined,
     LuckySheetDataView,
@@ -255,8 +270,12 @@ export default {
     SqlEmptyState,
     Loading
   },
+  setup() {
+    return { compactWorkspace: useMediaQuery('(max-width: 767px)') };
+  },
   data() {
     return {
+      mobileView: 'datasources',
       needGetDataFromIndexedDb: true,
       tabManager: null,
       contextData: null,
@@ -341,15 +360,39 @@ export default {
     this.currentTab.executeInfoScrollDown = true;
   },
   computed: {
+    mobileTabs() {
+      return [
+        { name: 'datasources', label: this.$t('sql-mobile-datasources') },
+        { name: 'objects', label: this.$t('sql-mobile-objects'), disabled: !this.currentTab.connected || !this.currentTab.leafGroup?.length },
+        { name: 'query', label: this.$t('sql-mobile-query'), disabled: !this.tabs.length }
+      ];
+    },
     fullLoading() {
       return this.loading;
     },
     ...mapState(['globalDsSetting', 'userInfo', 'socket']),
     ...mapGetters(['isDesktop', 'getNodeType', 'getLeafGroup', 'getLevels', 'getLeafExpand'])
   },
+  watch: {
+    compactWorkspace(compact) {
+      if (compact) this.selectMobileWorkspace(this.tabs.length ? 'query' : 'datasources');
+    },
+    'currentTab.key'() {
+      if (this.compactWorkspace) this.selectMobileWorkspace(this.tabs.length ? 'query' : 'datasources');
+    }
+  },
   methods: {
+    selectMobileWorkspace(view) {
+      this.mobileView = view;
+      if (view === 'datasources' && this.dataSourceSidebarHidden) {
+        this.$nextTick(() => this.handleExpandDataSourceSidebar());
+      }
+    },
     handleDataSourceSidebarStateChange(hidden) {
       this.dataSourceSidebarHidden = hidden;
+      if (hidden && this.compactWorkspace && this.mobileView === 'datasources') {
+        this.selectMobileWorkspace('datasources');
+      }
     },
     handleExpandDataSourceSidebar() {
       this.$refs.dataSourceTree?.handleSwitchHide();
@@ -745,8 +788,7 @@ export default {
     async listLeaf(isRefreshCache = false) {
       const currentTab = this.currentTab;
       const { node, leafType } = currentTab;
-
-      this.tableListLoading = true;
+      if (!leafType) return;
 
       const leafList = [];
 
@@ -757,6 +799,7 @@ export default {
         return;
       }
 
+      this.tableListLoading = true;
       try {
         const leafRes = await this.$services.dmBrowseListLeaf({
           data: {
@@ -794,7 +837,7 @@ export default {
           }
 
           currentTab[leafType].treeData = leafList;
-          if (this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
+          if (this.$refs.tableList && this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
             await this.$refs.tableList.handleSetData(leafList);
             await this.$refs.tableList.handleFilter(currentTab[leafType].searchKey);
           }
@@ -836,6 +879,7 @@ export default {
       }
 
       if (hasSameTab) {
+        if (this.compactWorkspace) this.selectMobileWorkspace('query');
         if (type === TAB_TYPE.QUERY) {
           await this.createSession(this.currentTab);
           await this.listLeaf();
@@ -886,14 +930,14 @@ export default {
         }
       });
 
-      if (res.success) {
-        tab.support = res.data;
-        tab.connected = res.data.dsStatus === 'Normal';
-        tab.msgContent = res.data.dsStatusMessage;
-        tab.isolation = res.data.isolation.defaultValue;
-        tab.autoCommit = res.data.autoCommit.defaultValue === 'true';
-        tab.readOnly = res.data.readOnly.defaultValue === 'true';
-      }
+      if (!res.success) return;
+
+      tab.support = res.data;
+      tab.connected = res.data.dsStatus === 'Normal';
+      tab.msgContent = res.data.dsStatusMessage;
+      tab.isolation = res.data.isolation.defaultValue;
+      tab.autoCommit = res.data.autoCommit.defaultValue === 'true';
+      tab.readOnly = res.data.readOnly.defaultValue === 'true';
 
       switch (type) {
         case TAB_TYPE.QUERY:
@@ -911,6 +955,9 @@ export default {
           tab.expandedKeys = [];
           tab.result = {
             active: 'message',
+            collapsed: false,
+            maximized: false,
+            collapsedBeforeMaximize: false,
             list: []
           };
           tab.text = '';
@@ -1253,6 +1300,9 @@ export default {
 
         tab.result = {
           active: 'message',
+          collapsed: false,
+          maximized: false,
+          collapsedBeforeMaximize: false,
           list: []
         };
         tab.executeInfo = [];
@@ -1512,6 +1562,7 @@ export default {
       }
     },
     handleQueryTable(text) {
+      if (this.compactWorkspace) this.selectMobileWorkspace('query');
       this.$refs.sqlViewer.setSql(text);
     },
     disableAddTab() {
@@ -1789,6 +1840,30 @@ export default {
 };
 </script>
 <style scoped lang="less">
+.sql-workspace--compact {
+  > .app-page-tabs {
+    flex-shrink: 0;
+  }
+
+  :deep(.data-source-container),
+  :deep(.table-list-container) {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 1;
+  }
+
+  :deep(.tree-resize),
+  :deep(.table-list-resize),
+  :deep(.data-source-sidebar-toggle),
+  .sql-sidebar-toggle-slot {
+    display: none;
+  }
+
+  .query-editor-container {
+    overflow-y: auto;
+  }
+}
+
 .connection-error-content {
   display: flex;
   align-items: center;

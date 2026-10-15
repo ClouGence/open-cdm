@@ -1,4 +1,7 @@
 export default {
+  aiSessionId: null,
+  aiCapabilities: null,
+  aiCapabilitiesError: '',
   ruleSetting: {
     queryConf: {
       supportDs: [],
