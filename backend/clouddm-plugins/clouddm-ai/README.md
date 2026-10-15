@@ -9,8 +9,7 @@ clouddm-ai/
 ├── ai-deepseek/  DeepSeek 模型参数适配，复用 ai-openai 协议实现
 ├── ai-kimi/      继承 OpenAI 客户端，Kimi 请求参数与思考回放
 ├── ai-minimax/   继承 OpenAI 客户端，MiniMax 请求参数与敏感响应处理
-├── ai-dashscope/ DashScope 2.22.11 原生 SDK、原生 SSE 与模型通道选择
-└── ai-console/   CloudDM 引擎配置、密钥、会话、SQL 工具、权限与 Web API
+└── ai-dashscope/ DashScope 2.22.11 原生 SDK、原生 SSE 与模型通道选择
 ```
 
 ## 依赖与实现
@@ -29,11 +28,27 @@ clouddm-ai/
 - 工具调用保留原始参数字符串，到执行层统一解析。无效参数通过配对的 `Error:` 工具结果返回模型；续接请求将不能回放的参数规范化为 `{}`，保留调用 ID 和错误结果。空参数、代码围栏、引号包裹与尾逗号沿用 ReAkh 的参数处理方式。
 - 传输层区分鉴权、404 模型/API 地址不存在、无效请求、限流、超时、服务失败、地址解析和协议错误，并保留异常原因。内容过滤按准确错误码识别；无效 JSON/UTF-8 不归为网络故障。会话层拒绝缺失或未知结束标记，防止误存成功。
 - 压缩材料不回放内部思考字段，工具结果只截取前 2,000 字符并标记 `[truncated]`；完整聊天、SQL 和工具结果继续保存在原始历史。压缩最多尝试三次；空摘要或请求失败不提交，取消立即停止重试。摘要与 ReAkh 一样按非空正文验收，不另外检查结束标记或估算摘要长度。
-- `ai-console` 组装五种预设的客户端，负责解密凭据、平台错误映射和 SQL 工具装配。预设直接决定调用协议：DashScope 使用原生 SDK，其余预设复用 OpenAI 兼容通道；不另外保存或传递协议字段。
-- `boot-alone`、`boot-console` 引用 `ai-console`；七个 AI 模块通过运行时依赖进入发行包 `libs/`。不作为数据库插件放入 `plugins/`，Sidecar 不携带 AI 模块。
+- `cgdm-console` 中的 `AiModelClient` 组装五种预设的客户端，负责解密凭据、平台错误映射和 SQL 工具装配。预设直接决定调用协议：DashScope 使用原生 SDK，其余预设复用 OpenAI 兼容通道；不另外保存或传递协议字段。
+- `cgdm-console` 直接依赖六个模型协议/供应商模块，随运行时依赖进入发行包 `libs/`。`boot-alone`、`boot-console` 沿用平台 Console 依赖与组件扫描，不单独引入 AI 业务模块。不作为数据库插件放入 `plugins/`，Sidecar 不携带模型协议/供应商模块。
 
 新增模型时在本目录增加对应 `ai-*` 模块，实现 `StreamingChatClient`，注册 Gradle 并在业务装配处绑定；
 兼容 OpenAI wire protocol 的厂商可以复用 `ai-openai`，无需复制流解析和连接清理。
+
+## 平台业务归属与装配
+
+AI 平台业务遵循现有 Console / DAO 分层；本目录仅保留模型协议和供应商实现。
+
+| 职责 | 模块及包路径 |
+| --- | --- |
+| 引擎、会话与轮次 Controller | `cgdm-console`：`console.web.controller.ai` |
+| 引擎、会话、生成、流式恢复、权限元数据与模型客户端装配 | `cgdm-console`：`console.web.service.ai`，工具位于其 `tool` 子包 |
+| 请求与响应 | `cgdm-console`：`console.web.model.fo.ai`、`console.web.model.vo.ai`；内部对话数据位于 `console.web.model.ai` |
+| 运行限额配置 | `cgdm-console`：现有 `console.web.component.config` 下的 `AiProperties` |
+| Mapper、DO 与持久化枚举 | `cgdm-dao`：`platform.dal.mapper.ai`、`platform.dal.model.ai`；XML 位于该模块的 `mybatis/mapper` |
+| SSE 就绪回调 | `cgdm-console`：`AiStreamInterceptor` 放在现有 `global.handler`，由 `WebConfigurer` 统一注册 |
+| 国际化 | `DmI18nUtils` 统一加载 `i18n/ai/messages`；接口标签合入现有 `i18n/request-label`，使用实际 Controller / 方法名 |
+
+完整应用沿用启动配置已有的 Console 与 DAL 扫描，Mapper 由 `DmDalConfig` 统一注册，使用现有 `sqlSessionFactory` 与事务管理器。DAO 不依赖 Console 或模型客户端；`AiPreset`、`AiVerificationStatus`、`AiTurnStatus` 随持久化模型归属 DAO。数据库表、密文、JSON 字段和 `/api/entry/ai/turn`、`/api/entry/ai/engine` 接口契约保持不变，不新增 migration，也不需要迁移数据。
 
 ## DM 通用能力复用
 
@@ -111,7 +126,7 @@ ReAkh 的 `OpenAIErrorDecoder` 使用具体上游异常，`ChatUpstreamException
 
 前端四个辅助文件也已核对：`index.js` 在 DM request 上保留空白并转换 AI 业务错误；`aiStream.js` 解码轮次事件、校验序号并管理恢复/超时；`aiMarkdown.js` 处理模型换行和安全 Markdown；`aiShareImage.js` 负责会话图片选取及排版。HTTP、登录失效和流式请求入口已直接复用 DM HTTP 层。
 
-此次删除 `ChatTokenEstimator`、两种 OpenAI Customizer 接口及两个空实现、DeepSeek/Kimi/MiniMax 三个请求 Customizer、MiniMax 响应 Customizer，以及合并后的 `AiModelClientImpl`，共 10 个类型。token 算法及厂商行为不变，jtokkit 依赖只留在实际调用它的 `ai-console`。
+此次删除 `ChatTokenEstimator`、两种 OpenAI Customizer 接口及两个空实现、DeepSeek/Kimi/MiniMax 三个请求 Customizer、MiniMax 响应 Customizer，以及合并后的 `AiModelClientImpl`，共 10 个类型。token 算法及厂商行为不变，jtokkit 依赖只留在实际调用它的 `cgdm-console`。
 
 ## 轮次执行与订阅职责
 
@@ -259,16 +274,16 @@ usage 尚未返回时记录 null，不把缺失用量当作 0。日志不打印 
 
 ```bash
 cd backend
-./gradlew :ai-common:build :ai-openai:build :ai-deepseek:build :ai-kimi:build :ai-minimax:build :ai-dashscope:build :ai-console:build
+./gradlew :ai-common:build :ai-openai:build :ai-deepseek:build :ai-kimi:build :ai-minimax:build :ai-dashscope:build :cgdm-dao:build :cgdm-console:build
 ```
 
-当前模块无测试类，`test NO-SOURCE` 不能视为行为验证。流式行为通过隔离 HTTP 服务与临时 JShell
+模型协议与供应商模块无测试类，`test NO-SOURCE` 不能视为行为验证。流式行为通过隔离 HTTP 服务与临时 JShell
 检查，覆盖分片、终态、取消、超时、资源释放、模型参数隔离、HTTP 回环连接、代理和重定向。
 隔离 HTTP/SSE 检查覆盖 Kimi 采样参数、MiniMax thinking 与敏感过滤、独立/内联思考分片、工具结果续接、空思考字段回放、原生 DashScope 文本/多模态消息及工具分片、usage 明细、GPT-5 参数归一化、HTTP/SSE 过滤错误、原始工具中断快照、取消、超时和关闭后的拒绝调用，并同时回归 OpenAI / DeepSeek。没有对应厂商的 API Key 时，不能将此检查视为真实厂商服务验收。真实模型测试通过 AI 配置页面执行；不会发送数据库内容。
 
 模块依赖图变化后执行 `cd package && ./all_build.sh` 并通过 IDEA 重启原配置。
 发行包验证使用 `./gradlew -Pprofile=dev -Ptarget=all :pkg-alone:tgz :pkg-console:tgz :pkg-sidecar:tgz -x test`，
-确认 Alone/Console 的 `libs/` 包含上述七个模块，`plugins/` 和 Sidecar 不包含 AI 模块。
+确认 Alone/Console 的 `libs/` 包含上述六个模型协议/供应商模块，`plugins/` 和 Sidecar 不包含 AI 模块。
 
 SQL 工具结果随活动快照持久化，断线重连和历史恢复按原调用顺序显示；聊天最终正文被替换、停止或失败都不会清空已有 SQL 卡片。同一轮成功批次按调用顺序追加到一个 SQL 代码块，批次之间仅保留一处换行，不自动添加空行；复制和插入操作完整的合并 SQL。不同轮次保持各自的代码块，工具过程仍按实际调用记录展示。最终结果中的 `sql` 汇总成功批次，用于整条回复复制；已有历史的汇总 SQL 继续展示，不重复叠加工具结果和最终汇总。工具参数不完整或校验失败不会生成 SQL 卡片。
 
@@ -292,7 +307,7 @@ SQL 工具结果随活动快照持久化，断线重连和历史恢复按原调�
 
 ## Prompt 组装
 
-提示词统一位于 `ai-console/src/main/resources/ai/prompt/`。通用工具及错误恢复规则不依赖数据库选择；仅表结构工具规则按数据库上下文启用。SQL 只通过 `generateSql` 交付完整语句批次，不执行 SQL。
+提示词统一位于 `backend/clouddm-platform/cgdm-console/src/main/resources/ai/prompt/`。通用工具及错误恢复规则不依赖数据库选择；仅表结构工具规则按数据库上下文启用。SQL 只通过 `generateSql` 交付完整语句批次，不执行 SQL。
 
 最终答复使用独立的精简系统上下文，只保留安全、语言、回答格式、SQL 交付和运行时信息；历史整理成与 ReAkh 一致的 transcript，移除思考及供应商回放字段，单条工具结果保留前 2000 字符。原始历史和已交付 SQL 产物不受材料裁剪影响。
 

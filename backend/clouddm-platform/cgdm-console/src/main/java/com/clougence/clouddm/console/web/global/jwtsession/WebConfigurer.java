@@ -30,6 +30,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
+import com.clougence.clouddm.console.web.global.handler.AiStreamInterceptor;
 import com.clougence.clouddm.console.web.global.handler.TimeCostInterceptor;
 import com.clougence.clouddm.console.web.global.mcp.McpSessionManager;
 import com.clougence.rdp.component.openapi.OpenApiSessionManager;
@@ -46,10 +47,13 @@ import lombok.extern.slf4j.Slf4j;
 public class WebConfigurer implements WebMvcConfigurer, WebSocketConfigurer {
 
     @Resource
-    private ApplicationContext applicationContext;
+    private ApplicationContext  applicationContext;
+
+    @Resource
+    private AiStreamInterceptor aiStreamInterceptor;
 
     @Value("${console.config.cross.origins:}")
-    private String             allowedOrigins;
+    private String              allowedOrigins;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -115,6 +119,7 @@ public class WebConfigurer implements WebMvcConfigurer, WebSocketConfigurer {
         registry.addInterceptor(dmJwtInterceptor());
         registry.addInterceptor(dmApiSessionManager());
         registry.addInterceptor(dmMcpSessionManager());
+        registry.addInterceptor(aiStreamInterceptor).addPathPatterns("/api/entry/ai/turn/streamTurn", "/api/entry/ai/turn/resumeTurn");
     }
 
     @Override

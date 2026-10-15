@@ -17,13 +17,25 @@ package com.clougence.clouddm.console.web.global.jwtsession;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
@@ -59,9 +71,8 @@ public class RequestAuthServiceImpl implements RequestAuthService, UnifiedPostCo
     public void init() throws ClassNotFoundException {
         ClassLoader classLoader = Objects.requireNonNull(this.applicationContext.getClassLoader());
         CgResourceScanner scanner = new CgResourceScanner(new ClassPathResourceLoader(classLoader, SCAN_PATH));
-        String[] controllerPackages = { "com.clougence.rdp.controller", "com.clougence.clouddm.ai.controller" };
-        Set<Class<?>> scanningClassSet1 = RdpClassUtil.getClassSet(classLoader, scanner, controllerPackages, RestController.class);
-        Set<Class<?>> scanningClassSet2 = RdpClassUtil.getClassSet(classLoader, scanner, controllerPackages, Controller.class);
+        Set<Class<?>> scanningClassSet1 = RdpClassUtil.getClassSet(classLoader, scanner, new String[] { "com.clougence.rdp.controller" }, RestController.class);
+        Set<Class<?>> scanningClassSet2 = RdpClassUtil.getClassSet(classLoader, scanner, new String[] { "com.clougence.rdp.controller" }, Controller.class);
         Set<Class<?>> scanSet = new HashSet<>();
         scanSet.addAll(scanningClassSet1);
         scanSet.addAll(scanningClassSet2);
