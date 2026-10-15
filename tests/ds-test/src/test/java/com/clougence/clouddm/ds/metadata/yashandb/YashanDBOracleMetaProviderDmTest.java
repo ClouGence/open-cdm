@@ -266,14 +266,14 @@ public final class YashanDBOracleMetaProviderDmTest {
     @Test
     void fetchTableColumns_mapsLengthCommentAndNotNullConstraint() throws Exception {
         List<Map<String, Object>> rows = Collections.singletonList(//
-                columnRow("CUS_REGION", "REGION_CD", "VARCHAR", 0, "N", 80L, 20L, null, null, "区域编码"));
+                columnRow("CUS_REGION", "REGION_CD", "VARCHAR", 0, "N", 80L, 20L, null, null, "region code"));
         CapturingConnection connection = new CapturingConnection(rows);
 
         RdbColumn column = fetchTableColumns(newProvider(connection), connection.proxy(), null, SCHEMA, Collections.singletonList("CUS_REGION")).get("CUS_REGION").get(0);
 
         assertEquals("CUS_REGION", column.getTable());
         assertEquals("REGION_CD", column.getName());
-        assertEquals("区域编码", column.getComment());
+        assertEquals("region code", column.getComment());
         assertEquals(80L, column.getByteLength());
         assertEquals(20L, column.getCharLength());
         assertFalse(column.getConstraints().isEmpty(), "NULLABLE=N should add a non-null constraint");
@@ -290,8 +290,8 @@ public final class YashanDBOracleMetaProviderDmTest {
 
     @Test
     void fetchSelectObjectByPart_keepsTableAndViewResults() throws Exception {
-        Map<String, Object> tableRow = objectRow("CUS_REGION", "TABLE", "区域地址;");
-        Map<String, Object> viewRow = objectRow("BIL_FT_APP_VW", "VIEW", "财务交易表视图");
+        Map<String, Object> tableRow = objectRow("CUS_REGION", "TABLE", "region address;");
+        Map<String, Object> viewRow = objectRow("BIL_FT_APP_VW", "VIEW", "financial transaction view");
         CapturingConnection connection = new CapturingConnection(Collections.emptyList());
         connection.routeRows("SYS.ALL_TABLES", Collections.singletonList(tableRow));
         connection.routeRows("SYS.ALL_VIEWS", Collections.singletonList(viewRow));
@@ -301,10 +301,10 @@ public final class YashanDBOracleMetaProviderDmTest {
         assertEquals(2, objects.size());
         assertEquals("CUS_REGION", objects.get(0).getName());
         assertEquals(UmiTypes.Table, objects.get(0).getUmiType());
-        assertEquals("区域地址;", objects.get(0).getComment());
+        assertEquals("region address;", objects.get(0).getComment());
         assertEquals("BIL_FT_APP_VW", objects.get(1).getName());
         assertEquals(UmiTypes.View, objects.get(1).getUmiType());
-        assertEquals("财务交易表视图", objects.get(1).getComment());
+        assertEquals("financial transaction view", objects.get(1).getComment());
     }
 
     // ------------------------------------------------------------------ helpers

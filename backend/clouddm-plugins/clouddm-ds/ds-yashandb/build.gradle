@@ -21,7 +21,8 @@ plugins {
 dependencies {
     // project
     implementation project(':dsc-common-oracle')
-    // MySQL 兼容模式变体复用 dsc-common-mysql 的方言/元数据/对象编辑实现
+    // The MySQL-compatible variant reuses the dialect, metadata and object editing
+    // implementation from dsc-common-mysql.
     implementation project(':dsc-common-mysql')
 
     // share lib (compileOnly)
@@ -29,8 +30,8 @@ dependencies {
 
     // driver libs (compileOnly)
     compileOnly 'com.yashandb:yashandb-jdbc:1.10.7'
-    // MySQL 兼容模式使用标准 MySQL 协议端口，走 MySQL Connector/J
-    // 版本与 package/pkg/builtin-drivers 中内置的制品保持一致
+    // MySQL-compatible mode uses the standard MySQL protocol port through MySQL Connector/J.
+    // Keep the version in sync with the artifact bundled in package/pkg/builtin-drivers.
     compileOnly 'com.mysql:mysql-connector-j:8.4.0'
 
     //for test
