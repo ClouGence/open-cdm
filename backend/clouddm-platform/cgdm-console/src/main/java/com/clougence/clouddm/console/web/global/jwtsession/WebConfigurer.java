@@ -47,13 +47,10 @@ import lombok.extern.slf4j.Slf4j;
 public class WebConfigurer implements WebMvcConfigurer, WebSocketConfigurer {
 
     @Resource
-    private ApplicationContext  applicationContext;
-
-    @Resource
-    private AiStreamInterceptor aiStreamInterceptor;
+    private ApplicationContext applicationContext;
 
     @Value("${console.config.cross.origins:}")
-    private String              allowedOrigins;
+    private String             allowedOrigins;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -109,6 +106,11 @@ public class WebConfigurer implements WebMvcConfigurer, WebSocketConfigurer {
     }
 
     @Bean
+    public AiStreamInterceptor dmAiStreamInterceptor() {
+        return new AiStreamInterceptor();
+    }
+
+    @Bean
     public WebSoInterceptor dmWebSoInterceptor() {
         return new WebSoInterceptor();
     }
@@ -119,7 +121,7 @@ public class WebConfigurer implements WebMvcConfigurer, WebSocketConfigurer {
         registry.addInterceptor(dmJwtInterceptor());
         registry.addInterceptor(dmApiSessionManager());
         registry.addInterceptor(dmMcpSessionManager());
-        registry.addInterceptor(aiStreamInterceptor).addPathPatterns("/api/entry/ai/turn/streamTurn", "/api/entry/ai/turn/resumeTurn");
+        registry.addInterceptor(dmAiStreamInterceptor());
     }
 
     @Override

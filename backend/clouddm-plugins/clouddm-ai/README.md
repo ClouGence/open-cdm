@@ -45,7 +45,7 @@ AI 平台业务遵循现有 Console / DAO 分层；本目录仅保留模型协�
 | 请求与响应 | `cgdm-console`：`console.web.model.fo.ai`、`console.web.model.vo.ai`；内部对话数据位于 `console.web.model.ai` |
 | 运行限额配置 | `cgdm-console`：现有 `console.web.component.config` 下的 `AiProperties` |
 | Mapper、DO 与持久化枚举 | `cgdm-dao`：`platform.dal.mapper.ai`、`platform.dal.model.ai`；XML 位于该模块的 `mybatis/mapper` |
-| SSE 就绪回调 | `cgdm-console`：`AiStreamInterceptor` 放在现有 `global.handler`，由 `WebConfigurer` 统一注册 |
+| SSE 就绪回调 | `cgdm-console`：`AiStreamInterceptor` 放在现有 `global.handler`，由 `WebConfigurer` 沿用其他拦截器的 `@Bean` 方法统一注册，通过请求中的 `AiEventSink` 属性识别待处理响应 |
 | 国际化 | `DmI18nUtils` 统一加载 `i18n/ai/messages`；接口标签合入现有 `i18n/request-label`，使用实际 Controller / 方法名 |
 
 完整应用沿用启动配置已有的 Console 与 DAL 扫描，Mapper 由 `DmDalConfig` 统一注册，使用现有 `sqlSessionFactory` 与事务管理器。DAO 不依赖 Console 或模型客户端；`AiPreset`、`AiVerificationStatus`、`AiTurnStatus` 随持久化模型归属 DAO。数据库表、密文、JSON 字段和 `/api/entry/ai/turn`、`/api/entry/ai/engine` 接口契约保持不变，不新增 migration，也不需要迁移数据。

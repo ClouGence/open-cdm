@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.console.web.global.handler;
 
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 
 import com.clougence.clouddm.console.web.service.ai.AiEventSink;
@@ -24,7 +23,6 @@ import jakarta.servlet.AsyncContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@Component
 public class AiStreamInterceptor implements AsyncHandlerInterceptor {
     @Override
     public void afterConcurrentHandlingStarted(HttpServletRequest request, HttpServletResponse response, Object handler) {
