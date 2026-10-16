@@ -1,0 +1,5 @@
+<final_answer_context>
+  <reason>The provider truncated the previous response.</reason>
+  <rule>Write one concise, complete final answer from existing conversation and tool results only.</rule>
+  <rule>Do not call tools or continue the interrupted response verbatim.</rule>
+</final_answer_context>

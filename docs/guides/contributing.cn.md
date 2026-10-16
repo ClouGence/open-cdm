@@ -119,6 +119,17 @@ cd package && ./package.sh --docker x86_64
 - 编码：UTF-8
 - 保持统一文件头，添加版权说明。
 
+先在 IDEA 中打开项目，等待索引完成并保存文件，再在仓库根目录执行：
+
+```bash
+./scripts/format_java.sh               # 优化 imports 并格式化变更的 Java 文件
+./scripts/format_java.sh --check       # 只检查，不修改
+./scripts/format_java.sh --dry-run     # 预览文件列表
+./scripts/format_java.sh --format-only # 仅格式化，无需 IDEA
+```
+
+脚本沿用 IDEA 的 imports 设置和 `codeformat.xml` 格式配置，不更新 Git 暂存区。
+
 ### 编程风格
 
 - 数据库实体使用 `DO` 后缀，表单对象使用 `FO` 后缀，请求响应数据使用 `VO` 后缀。

@@ -37,6 +37,12 @@ include 'inner-auth-define'; project(":inner-auth-define").projectDir = file('cl
 include 'inner-website'; project(":inner-website").projectDir = file('clouddm-plugins/clouddm-inner/inner-website')
 
 // plugins for features
+include 'ai-common'; project(":ai-common").projectDir = file('clouddm-plugins/clouddm-ai/ai-common')
+include 'ai-openai'; project(":ai-openai").projectDir = file('clouddm-plugins/clouddm-ai/ai-openai')
+include 'ai-deepseek'; project(":ai-deepseek").projectDir = file('clouddm-plugins/clouddm-ai/ai-deepseek')
+include 'ai-kimi'; project(":ai-kimi").projectDir = file('clouddm-plugins/clouddm-ai/ai-kimi')
+include 'ai-minimax'; project(":ai-minimax").projectDir = file('clouddm-plugins/clouddm-ai/ai-minimax')
+include 'ai-dashscope'; project(":ai-dashscope").projectDir = file('clouddm-plugins/clouddm-ai/ai-dashscope')
 include 'plus-sec-rules'; project(":plus-sec-rules").projectDir = file('clouddm-plugins/clouddm-features/plus-sec-rules')
 include 'plus-file-convert'; project(":plus-file-convert").projectDir = file('clouddm-plugins/clouddm-features/plus-file-convert')
 include 'plus-faker'; project(":plus-faker").projectDir = file('clouddm-plugins/clouddm-features/plus-faker')

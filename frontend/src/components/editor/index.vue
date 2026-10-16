@@ -54,6 +54,8 @@ export default {
         tabSize: 4,
         lineNumbersMinChars: 3,
         scrollBeyondLastLine: false,
+        hideCursorInOverviewRuler: true,
+        overviewRulerBorder: false,
         theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
@@ -70,6 +72,7 @@ export default {
       hoverProviderList: [],
       fontSizePanelExpanded: false,
       languageRequestVersion: 0,
+      editorInitVersion: 0,
       validateTimer: null,
       splitTimer: null,
       editorDisposableList: [],
@@ -108,14 +111,18 @@ export default {
       }
     },
     async init() {
-      this.currentTab.language = await resolveSqlEditorLanguage(
+      const version = ++this.editorInitVersion;
+      const tab = this.currentTab;
+      const language = await resolveSqlEditorLanguage(
         monaco,
         this.currentTab.dsType,
         this.getDsSettings(),
         getLanguage(this.currentTab.dsType),
         this.getDsLanguageCapability()
       );
-      this.defaultOpts.language = this.currentTab.language;
+      if (version !== this.editorInitVersion || this.currentTab.key !== tab.key) return;
+      tab.language = language;
+      this.defaultOpts.language = language;
       let editorText = this.currentTab.text;
       if (typeof editorText !== 'string') {
         editorText = '';
@@ -132,7 +139,7 @@ export default {
       this.registerHover(this.defaultOpts.language);
       this.addActions();
       this.installSuggestIconRenderer();
-      this.setEditorInstance(this.monacoEditor);
+      this.setEditorInstance(this.monacoEditor, tab.key);
       this.installCurrentStatementOverlay();
       this.editorDisposableList.push(
         this.monacoEditor.onDidScrollChange(() => {
@@ -1580,6 +1587,7 @@ export default {
     }
   },
   beforeUnmount() {
+    this.editorInitVersion++;
     document.removeEventListener('click', this.handleFontSizeOutsideClick);
     this.handleDispose();
   },

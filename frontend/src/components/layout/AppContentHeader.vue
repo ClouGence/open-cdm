@@ -72,6 +72,7 @@ export default {
       if (path.indexOf('/settings/profile') === 0 || path.indexOf('/system/profile') > -1) {
         return this.$t('ge-ren-zi-liao');
       }
+      if (path.indexOf('/settings/ai') === 0) return this.$t('ai.settings');
       if (path.indexOf('/settings/preferences') === 0 || path.indexOf('/system/preference') > -1) {
         return this.$t('nav-tong-yong');
       }

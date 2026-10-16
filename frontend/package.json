@@ -33,6 +33,7 @@
     "@theshy/v-resize": "1.1.2",
     "@vueuse/core": "13.4.0",
     "@wsfe/vue-tree": "4.1.1",
+    "@zumer/snapdom": "2.0.1",
     "ant-design-vue": "4.2.6",
     "autoprefixer": "9.8.8",
     "axios": "0.21.1",

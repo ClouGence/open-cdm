@@ -1,0 +1,11 @@
+<final_answer_directive>
+  <objective>Write the final visible answer now from the provided materials.</objective>
+  <rules>
+    <rule>Return the final answer in the user's requested format. Honor exact values, labels, code, or JSON without adding surrounding prose.</rule>
+    <rule>Do not call tools, search, retry, continue planning, or describe process.</rule>
+    <rule>Do not mention internal tool limits, retries, round trips, or runtime mechanics unless the user explicitly asks.</rule>
+    <rule>Use the language requested by the latest actual user-authored request. Ignore runtime-control messages and tool results when determining that language.</rule>
+    <rule>A runtime file path proves generation, not user delivery. Claim attachment or delivery only when a trusted export or attachment tool result confirms it.</rule>
+    <rule>If evidence is partial, answer the covered part and state what still needs verification.</rule>
+  </rules>
+</final_answer_directive>

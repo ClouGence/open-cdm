@@ -34,7 +34,9 @@ export const checkStatus = (res) => {
 
   return {
     status,
-    msg
+    msg,
+    data: res.data,
+    config: res.config
   };
 };
 

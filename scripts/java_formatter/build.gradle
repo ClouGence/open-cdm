@@ -1,0 +1,100 @@
+import org.eclipse.jdt.core.ToolFactory
+import org.eclipse.jdt.core.dom.AST
+import org.eclipse.jdt.core.dom.ASTParser
+import org.eclipse.jdt.core.formatter.CodeFormatter
+import org.eclipse.jface.text.Document
+
+import javax.xml.parsers.DocumentBuilderFactory
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.eclipse.jdt:org.eclipse.jdt.core:3.43.0'
+        classpath 'org.eclipse.platform:org.eclipse.text:3.14.400'
+    }
+}
+
+apply from: 'idea_imports.gradle'
+
+// Keep formatting independent of the application's build and plugin packaging.
+tasks.register('formatChanged') {
+    doLast {
+        def repoRoot = projectDir.parentFile.parentFile
+        def factory = DocumentBuilderFactory.newInstance()
+        factory.setFeature('http://apache.org/xml/features/disallow-doctype-decl', true)
+        def config = factory.newDocumentBuilder().parse(new File(repoRoot, 'codeformat.xml'))
+        def profiles = config.getElementsByTagName('profile')
+        def profile = (0..<profiles.length).collect { profiles.item(it) }
+                .find { it.getAttribute('name') == 'cdm-format' }
+        if (profile == null) {
+            throw new GradleException('Missing cdm-format profile in codeformat.xml')
+        }
+        def options = [:]
+        def settings = profile.getElementsByTagName('setting')
+        for (int i = 0; i < settings.length; i++) {
+            def setting = settings.item(i)
+            options[setting.getAttribute('id')] = setting.getAttribute('value')
+        }
+        options['org.eclipse.jdt.core.compiler.source'] = '17'
+        options['org.eclipse.jdt.core.compiler.compliance'] = '17'
+        options['org.eclipse.jdt.core.compiler.codegen.targetPlatform'] = '17'
+        def formatter = ToolFactory.createCodeFormatter(options)
+        def paths = file(providers.gradleProperty('formatFiles').get())
+                .getText('UTF-8').split('\u0000')
+        def originals = paths.collectEntries { path -> [(path): new File(repoRoot, path).getText('UTF-8')] }
+        def sources = originals
+        def optimizeImports = !providers.gradleProperty('ideaLauncher').getOrElse('').isEmpty()
+        if (optimizeImports) {
+            sources = prepareIdeaImports(repoRoot, originals)
+        }
+        def updates = [:]
+        paths.each { path ->
+            def sourceFile = new File(repoRoot, path)
+            def source = sources[path]
+            def parser = ASTParser.newParser(AST.getJLSLatest())
+            parser.setSource(source.toCharArray())
+            parser.setUnitName(sourceFile.name)
+            parser.setCompilerOptions(options)
+            def syntaxError = parser.createAST(null).getProblems().find { it.isError() }
+            if (syntaxError != null) {
+                throw new GradleException("${path}:${syntaxError.sourceLineNumber}: ${syntaxError.message}. No files written.")
+            }
+            def lineSeparator = '\n'
+            if (source.contains('\r\n')) {
+                lineSeparator = '\r\n'
+            }
+            def kind = CodeFormatter.K_COMPILATION_UNIT
+            if (sourceFile.name == 'module-info.java') {
+                kind = CodeFormatter.K_MODULE_INFO
+            }
+            def edit = formatter.format(kind | CodeFormatter.F_INCLUDE_COMMENTS,
+                    source, 0, source.length(), 0, lineSeparator)
+            if (edit == null) {
+                throw new GradleException("Cannot format ${path}; check Java syntax. No files written.")
+            }
+            def document = new Document(source)
+            edit.apply(document)
+            if (originals[path] != document.get()) {
+                updates[sourceFile] = document.get()
+            }
+        }
+        if (providers.gradleProperty('formatMode').get() == 'check') {
+            updates.keySet().each { println "Needs formatting: ${repoRoot.toPath().relativize(it.toPath())}" }
+            if (!updates.isEmpty()) {
+                throw new GradleException('Run ./scripts/format_java.sh to apply formatting.')
+            }
+            println "Java style check passed (${paths.length} files, imports optimized: ${optimizeImports})."
+        } else {
+            // Do not overwrite edits made while IDEA or the formatter was preparing results.
+            originals.each { path, original ->
+                if (new File(repoRoot, path).getText('UTF-8') != original) {
+                    throw new GradleException("File changed during formatting: ${path}. No files written.")
+                }
+            }
+            updates.each { sourceFile, formatted -> sourceFile.setText(formatted, 'UTF-8') }
+            println "Updated ${updates.size()} of ${paths.length} Java files (imports optimized: ${optimizeImports})."
+        }
+    }
+}
