@@ -17,6 +17,23 @@ package com.clougence.clouddm.console.web.model.ai;
 
 import com.clougence.clouddm.console.web.model.vo.ai.AiTurnRecordVO;
 import com.clougence.clouddm.platform.dal.model.ai.DmAiSessionDO;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record AiTurnStart(DmAiSessionDO session, AiTurnRecordVO turn, boolean existing) {
+import lombok.Getter;
+
+@Getter
+public final class AiTurnStart {
+    private final DmAiSessionDO  session;
+
+    private final AiTurnRecordVO turn;
+
+    private final boolean        existing;
+
+    @JsonCreator
+    public AiTurnStart(@JsonProperty("session") DmAiSessionDO session, @JsonProperty("turn") AiTurnRecordVO turn, @JsonProperty("existing") boolean existing){
+        this.session = session;
+        this.turn = turn;
+        this.existing = existing;
+    }
 }

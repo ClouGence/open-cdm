@@ -18,6 +18,23 @@ package com.clougence.clouddm.console.web.model.ai;
 import java.util.List;
 
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record AiContextReference(UmiTypes type, String name, List<String> columns) {
+import lombok.Getter;
+
+@Getter
+public final class AiContextReference {
+    private final UmiTypes     type;
+
+    private final String       name;
+
+    private final List<String> columns;
+
+    @JsonCreator
+    public AiContextReference(@JsonProperty("type") UmiTypes type, @JsonProperty("name") String name, @JsonProperty("columns") List<String> columns){
+        this.type = type;
+        this.name = name;
+        this.columns = columns;
+    }
 }

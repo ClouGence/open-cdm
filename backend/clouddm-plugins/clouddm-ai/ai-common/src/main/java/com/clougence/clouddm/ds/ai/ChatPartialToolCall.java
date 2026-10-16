@@ -15,6 +15,27 @@
  */
 package com.clougence.clouddm.ds.ai;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
 /** Raw fragments retained for interruption recovery; arguments may be incomplete JSON. */
-public record ChatPartialToolCall(Integer index, String id, String name, String arguments) {
+@Getter
+public final class ChatPartialToolCall {
+    private final Integer index;
+
+    private final String  id;
+
+    private final String  name;
+
+    private final String  arguments;
+
+    @JsonCreator
+    public ChatPartialToolCall(@JsonProperty("index") Integer index, @JsonProperty("id") String id, @JsonProperty("name") String name, @JsonProperty("arguments") String arguments){
+        this.index = index;
+        this.id = id;
+        this.name = name;
+        this.arguments = arguments;
+    }
 }

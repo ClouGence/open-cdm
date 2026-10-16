@@ -52,10 +52,10 @@ public final class ChatToolRegistry {
                 throw new IllegalArgumentException("Tool class must be public.");
             }
             ChatToolSpecification specification = ChatToolSchemas.specification(method);
-            if (specifications.putIfAbsent(specification.name(), specification) != null) {
-                throw new IllegalArgumentException("Duplicate tool name: " + specification.name());
+            if (specifications.putIfAbsent(specification.getName(), specification) != null) {
+                throw new IllegalArgumentException("Duplicate tool name: " + specification.getName());
             }
-            executors.put(specification.name(), new ChatToolExecutor(target, method, validator));
+            executors.put(specification.getName(), new ChatToolExecutor(target, method, validator));
         }
     }
 

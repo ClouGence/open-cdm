@@ -18,24 +18,54 @@ package com.clougence.clouddm.console.web.model.fo.ai;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-public record AiUserInputAnswerFO(@JsonProperty(AiSqlConstants.FIELD_SCHEMA_VERSION) Integer schemaVersion,
-                                  @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_REQUEST_ID) @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String requestId,
-                                  @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_HISTORY_ID) @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String requestHistoryId,
-                                  @JsonProperty(AiSqlConstants.FIELD_ANSWER_TEXT) @Size(max = 16384) String answerText,
-                                  @Valid @Size(max = 20) List<AiUserInputAnswerItemFO> answers) {
-    public AiUserInputAnswerFO{
+@Getter
+@EqualsAndHashCode
+public final class AiUserInputAnswerFO {
+    @JsonProperty(AiSqlConstants.FIELD_SCHEMA_VERSION)
+    private final Integer                       schemaVersion;
+
+    @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_REQUEST_ID)
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String                        requestId;
+
+    @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_HISTORY_ID)
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String                        requestHistoryId;
+
+    @JsonProperty(AiSqlConstants.FIELD_ANSWER_TEXT)
+    @Size(max = 16384)
+    private final String                        answerText;
+
+    @Valid
+    @Size(max = 20)
+    private final List<AiUserInputAnswerItemFO> answers;
+
+    @JsonCreator
+    public AiUserInputAnswerFO(@JsonProperty(AiSqlConstants.FIELD_SCHEMA_VERSION) Integer schemaVersion, @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_REQUEST_ID) String requestId,
+                               @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_HISTORY_ID) String requestHistoryId, @JsonProperty(AiSqlConstants.FIELD_ANSWER_TEXT) String answerText,
+                               @JsonProperty("answers") List<AiUserInputAnswerItemFO> answers){
         if (schemaVersion == null) {
             schemaVersion = 2;
         }
         if (answers == null) {
             answers = List.of();
         }
+        this.schemaVersion = schemaVersion;
+        this.requestId = requestId;
+        this.requestHistoryId = requestHistoryId;
+        this.answerText = answerText;
+        this.answers = answers;
     }
 }

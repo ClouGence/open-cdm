@@ -45,10 +45,10 @@ public class DashScopeStreamingChatClient implements StreamingChatClient {
     @Override
     public ChatResponse stream(ChatEndpoint endpoint, ChatRequest input, ChatStreamControl control, ChatStreamListener listener) throws IOException {
         control.checkActive();
-        if (input.toolChoice() == ChatToolChoice.REQUIRED) {
+        if (input.getToolChoice() == ChatToolChoice.REQUIRED) {
             throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
         }
-        boolean multimodal = DashScopeConstants.isMultimodal(input.model());
+        boolean multimodal = DashScopeConstants.isMultimodal(input.getModel());
         HalfDuplexRequest sdkRequest = sdkRequest(endpoint, input, multimodal);
         HttpRequest sdkHttpRequest;
         try {
@@ -65,17 +65,17 @@ public class DashScopeStreamingChatClient implements StreamingChatClient {
             .header("Accept", "text/event-stream")
             .post(RequestBody.create(sdkHttpRequest.getBody().toString(), MediaType.get("application/json; charset=utf-8")))
             .build();
-        DashScopeStreamParser parser = new DashScopeStreamParser(input.showReasoning());
+        DashScopeStreamParser parser = new DashScopeStreamParser(input.isShowReasoning());
         return transport.stream(httpRequest, control, parser, listener);
     }
 
     private HalfDuplexRequest sdkRequest(ChatEndpoint endpoint, ChatRequest input, boolean multimodal) {
         List<ToolBase> tools = new ArrayList<>();
-        for (Map<String, Object> tool : input.tools()) {
+        for (Map<String, Object> tool : input.getTools()) {
             tools.add(JsonUtils.fromJson(JsonUtils.toJson(tool), ToolFunction.class));
         }
         List<Map<String, Object>> messages = new ArrayList<>();
-        for (Map<String, Object> original : input.messages()) {
+        for (Map<String, Object> original : input.getMessages()) {
             Map<String, Object> message = new LinkedHashMap<>(original);
             if ("assistant".equals(message.get("role"))) {
                 if (message.containsKey(ChatProtocolConstants.FIELD_TOOL_CALLS)) {
@@ -85,9 +85,9 @@ public class DashScopeStreamingChatClient implements StreamingChatClient {
                 if (message.get("content") == null) {
                     message.put("content", "");
                 }
-                if (input.showReasoning() && message.containsKey("tool_calls")) {
+                if (input.isShowReasoning() && message.containsKey("tool_calls")) {
                     message.putIfAbsent(ChatProtocolConstants.FIELD_REASONING_CONTENT, "");
-                } else if (!input.showReasoning()) {
+                } else if (!input.isShowReasoning()) {
                     message.remove(ChatProtocolConstants.FIELD_REASONING_CONTENT);
                 }
             }
@@ -104,14 +104,14 @@ public class DashScopeStreamingChatClient implements StreamingChatClient {
             }
             var builder = MultiModalConversationParam.builder()
                 .apiKey(endpoint.getApiKey())
-                .model(input.model())
+                .model(input.getModel())
                 .messages(multimodalMessages)
                 .tools(tools)
-                .toolChoice(input.toolChoice().getValue())
-                .maxTokens(input.maxOutputTokens())
-                .enableThinking(input.showReasoning())
+                .toolChoice(input.getToolChoice().getValue())
+                .maxTokens(input.getMaxOutputTokens())
+                .enableThinking(input.isShowReasoning())
                 .incrementalOutput(true);
-            input.parameters().forEach(builder::parameter);
+            input.getParameters().forEach(builder::parameter);
             param = builder.build();
             task = DashScopeConstants.MULTIMODAL_TASK;
         } else {
@@ -125,15 +125,15 @@ public class DashScopeStreamingChatClient implements StreamingChatClient {
             }
             var builder = GenerationParam.builder()
                 .apiKey(endpoint.getApiKey())
-                .model(input.model())
+                .model(input.getModel())
                 .messages(generationMessages)
                 .tools(tools)
-                .toolChoice(input.toolChoice().getValue())
-                .maxTokens(input.maxOutputTokens())
-                .enableThinking(input.showReasoning())
+                .toolChoice(input.getToolChoice().getValue())
+                .maxTokens(input.getMaxOutputTokens())
+                .enableThinking(input.isShowReasoning())
                 .incrementalOutput(true)
                 .resultFormat("message");
-            input.parameters().forEach(builder::parameter);
+            input.getParameters().forEach(builder::parameter);
             param = builder.build();
         }
         ApiServiceOption options = ApiServiceOption.builder()

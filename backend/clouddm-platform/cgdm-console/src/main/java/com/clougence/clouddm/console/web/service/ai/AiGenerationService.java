@@ -86,14 +86,14 @@ public class AiGenerationService {
             if (continueAfterResponse(run, conversation, reply, state, request)) {
                 continue;
             }
-            if (reply.tools().isEmpty()) {
+            if (reply.getTools().isEmpty()) {
                 conversation.addAssistant(reply);
                 return complete(run, context, conversation, AiSqlResult.fromText(run.getEvents().draft(), run.getEvents().generatedSql()), state.usage());
             }
             state.setCompletionGateRetries(0);
             int previousToolCalls = state.getToolCalls();
             conversation.addAssistant(reply);
-            if (!toolService.validateBatch(reply.tools(), conversation)) {
+            if (!toolService.validateBatch(reply.getTools(), conversation)) {
                 continue;
             }
             AiSqlResult waiting = executeTools(run, context, conversation, registry, reply, state);
@@ -134,7 +134,7 @@ public class AiGenerationService {
                 break;
             }
             compactedRequest = true;
-            state.addUsage(compacted.usage());
+            state.addUsage(compacted.getUsage());
         }
         state.setNextDirective(null);
         log.info("AI turn model request: sessionId={}, turnId={}, requestId={}, requestNumber={}, engineId={}, messageCount={}, toolCount={}, contextUsage={}", run.getSession()
@@ -147,35 +147,35 @@ public class AiGenerationService {
         run.getEvents().emit(AiSqlConstants.EVENT_PHASE, phase);
         ChatResponse reply = client
             .stream(engine, messages, definitions, null, run.getHandle(), text -> run.getEvents().emit(AiSqlConstants.EVENT_TEXT_DELTA, Map.of(AiSqlConstants.FIELD_TEXT, text)));
-        state.addUsage(reply.usage());
+        state.addUsage(reply.getUsage());
         check(run, context);
-        if (reply.finishReason() == ChatFinishReason.CONTENT_FILTER && reply.text().isBlank()) {
+        if (reply.getFinishReason() == ChatFinishReason.CONTENT_FILTER && reply.getText().isBlank()) {
             String message = DmI18nUtils.getMessage(ChatProtocolConstants.ERROR_MODEL_CONTENT_FILTERED);
             run.getEvents().emit(AiSqlConstants.EVENT_TEXT_DELTA, Map.of(AiSqlConstants.FIELD_TEXT, message));
-            reply = new ChatResponse(message, reply.reasoningContent(), List.of(), reply.usage(), ChatFinishReason.CONTENT_FILTER);
+            reply = new ChatResponse(message, reply.getReasoningContent(), List.of(), reply.getUsage(), ChatFinishReason.CONTENT_FILTER);
         }
-        if (reply.finishReason() == null || reply.finishReason() == ChatFinishReason.OTHER) {
+        if (reply.getFinishReason() == null || reply.getFinishReason() == ChatFinishReason.OTHER) {
             throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
         }
-        if (state.isFinalAnswer() && reply.finishReason() != ChatFinishReason.STOP && reply.finishReason() != ChatFinishReason.CONTENT_FILTER) {
-            if (reply.finishReason() == ChatFinishReason.LENGTH) {
+        if (state.isFinalAnswer() && reply.getFinishReason() != ChatFinishReason.STOP && reply.getFinishReason() != ChatFinishReason.CONTENT_FILTER) {
+            if (reply.getFinishReason() == ChatFinishReason.LENGTH) {
                 throw AiError.MODEL_OUTPUT_TRUNCATED.exception();
             }
             throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
         }
         // Terminal and truncated responses never execute tool requests.
-        if (state.isFinalAnswer() || reply.finishReason() == ChatFinishReason.LENGTH || reply.finishReason() == ChatFinishReason.CONTENT_FILTER) {
-            return new ChatResponse(reply.text(), reply.reasoningContent(), List.of(), reply.usage(), reply.finishReason());
+        if (state.isFinalAnswer() || reply.getFinishReason() == ChatFinishReason.LENGTH || reply.getFinishReason() == ChatFinishReason.CONTENT_FILTER) {
+            return new ChatResponse(reply.getText(), reply.getReasoningContent(), List.of(), reply.getUsage(), reply.getFinishReason());
         }
         return reply;
     }
 
     private boolean continueAfterResponse(AiActiveRun run, AiConversation conversation, ChatResponse reply, AiGenerationState state, int request) {
-        if (reply.finishReason() == ChatFinishReason.LENGTH) {
+        if (reply.getFinishReason() == ChatFinishReason.LENGTH) {
             continueTruncated(run, conversation, reply, state, request);
             return true;
         }
-        if (!state.isFinalAnswer() && reply.finishReason() == ChatFinishReason.STOP && reply.tools().isEmpty() && reply.text().isBlank()) {
+        if (!state.isFinalAnswer() && reply.getFinishReason() == ChatFinishReason.STOP && reply.getTools().isEmpty() && reply.getText().isBlank()) {
             state.setCompletionGateRetries(0);
             conversation.addAssistant(reply);
             if (!state.isEmptyRetried()) {
@@ -188,7 +188,7 @@ public class AiGenerationService {
             }
             return true;
         }
-        if (reply.tools().isEmpty() && reply.finishReason() == ChatFinishReason.TOOL_CALLS) {
+        if (reply.getTools().isEmpty() && reply.getFinishReason() == ChatFinishReason.TOOL_CALLS) {
             conversation.addAssistant(reply);
             if (state.getCompletionGateRetries() < MAX_COMPLETION_GATE_RETRIES) {
                 state.setCompletionGateRetries(state.getCompletionGateRetries() + 1);
@@ -210,21 +210,21 @@ public class AiGenerationService {
             state.setLengthRetried(true);
             state.setNextDirective(prompts.lengthContinuationPrompt());
             log.warn("AI output truncated; continuing once: sessionId={}, turnId={}, requestNumber={}, textCharacters={}, usage={}", run.getSession().getSessionId(), run.getTurn()
-                .getId(), request + 1, reply.text().length(), reply.usage());
+                .getId(), request + 1, reply.getText().length(), reply.getUsage());
         } else {
             state.setFinalAnswer(true);
             state.setNextDirective(prompts.lengthFinalPrompt());
             run.getEvents().replaceDraft("");
             log.warn("AI continuation truncated; composing final answer without tools: sessionId={}, turnId={}, requestNumber={}, usage={}", run.getSession()
-                .getSessionId(), run.getTurn().getId(), request + 1, reply.usage());
+                .getSessionId(), run.getTurn().getId(), request + 1, reply.getUsage());
         }
     }
 
     private AiSqlResult executeTools(AiActiveRun run, AiMetadataContext context, AiConversation conversation, ChatToolRegistry registry, ChatResponse reply,
                                      AiGenerationState state) {
-        for (ChatToolCall call : reply.tools()) {
+        for (ChatToolCall call : reply.getTools()) {
             check(run, context);
-            boolean userInput = AiSqlConstants.TOOL_ASK_USER_QUESTIONS.equals(call.name());
+            boolean userInput = AiSqlConstants.TOOL_ASK_USER_QUESTIONS.equals(call.getName());
             if (!userInput && state.getToolCalls() >= limits.getMaxToolCalls()) {
                 conversation.addToolResult(call, prompts.toolLimitResult());
                 continue;
@@ -233,24 +233,24 @@ public class AiGenerationService {
                 state.setToolCalls(state.getToolCalls() + 1);
             }
             long started = System.nanoTime();
-            log.info("AI tool started: sessionId={}, turnId={}, toolCallId={}, toolName={}", run.getSession().getSessionId(), run.getTurn().getId(), call.id(), call.name());
-            boolean registered = registry.executor(call.name()) != null;
+            log.info("AI tool started: sessionId={}, turnId={}, toolCallId={}, toolName={}", run.getSession().getSessionId(), run.getTurn().getId(), call.getId(), call.getName());
+            boolean registered = registry.executor(call.getName()) != null;
             if (registered) {
                 run.getEvents().toolStarted(call);
             }
             ChatToolOutcome outcome = toolService.execute(registry, call, run.getHandle(), run.getPermit());
             log.info("AI tool completed: sessionId={}, turnId={}, toolCallId={}, toolName={}, success={}, resultCharacters={}, elapsedMs={}", run.getSession()
-                .getSessionId(), run.getTurn().getId(), call.id(), call.name(), outcome.success(), outcome.text().length(), (System.nanoTime() - started) / 1_000_000);
+                .getSessionId(), run.getTurn().getId(), call.getId(), call.getName(), outcome.isSuccess(), outcome.getText().length(), (System.nanoTime() - started) / 1_000_000);
             check(run, context);
             sessions.saveReferences(run, context);
             if (registered) {
                 run.getEvents().toolCompleted(call, outcome);
             }
-            if (outcome.success() && userInput) {
+            if (outcome.isSuccess() && userInput) {
                 AiSqlResult delivered = AiSqlResult.fromText("", run.getEvents().generatedSql());
-                return new AiSqlResult(AiSqlConstants.RESULT_NEEDS_INPUT, delivered.sql(), reply.text(), (AiUserInputRequestVO) outcome.value());
+                return new AiSqlResult(AiSqlConstants.RESULT_NEEDS_INPUT, delivered.getSql(), reply.getText(), (AiUserInputRequestVO) outcome.getValue());
             }
-            conversation.addToolResult(call, outcome.text());
+            conversation.addToolResult(call, outcome.getText());
         }
         return null;
     }
@@ -262,7 +262,7 @@ public class AiGenerationService {
             return null;
         }
         log.info("AI context compaction started: sessionId={}, turnId={}, historyTurns={}, currentMessages={}, maxOutputTokens={}", run.getSession().getSessionId(), run.getTurn()
-            .getId(), selection.historyCount(), selection.currentMessageCount(), AiPromptBuilder.COMPACT_OUTPUT_TOKENS);
+            .getId(), selection.getHistoryCount(), selection.getCurrentMessageCount(), AiPromptBuilder.COMPACT_OUTPUT_TOKENS);
         run.getEvents().emit(AiSqlConstants.EVENT_PHASE, Map.of(AiSqlConstants.FIELD_PHASE, AiSqlConstants.PHASE_COMPACTING));
         ChatResponse response = null;
         boolean usageComplete = true;
@@ -273,13 +273,13 @@ public class AiGenerationService {
             try {
                 response = client.stream(engine, conversation.compactionMessages(selection), List.of(), AiPromptBuilder.COMPACT_OUTPUT_TOKENS, run.getHandle(), text -> {
                 });
-                if (response.usage() == null) {
+                if (response.getUsage() == null) {
                     usageComplete = false;
                 } else {
-                    inputTokens += response.usage().inputTokens();
-                    outputTokens += response.usage().outputTokens();
+                    inputTokens += response.getUsage().getInputTokens();
+                    outputTokens += response.getUsage().getOutputTokens();
                 }
-                if (response.text().isBlank()) {
+                if (response.getText().isBlank()) {
                     throw AiError.CONTEXT_COMPACTION_FAILED.exception();
                 }
             } catch (RuntimeException e) {
@@ -293,9 +293,9 @@ public class AiGenerationService {
                 continue;
             }
             check(run, context);
-            String summary = response.text().strip();
-            if (selection.currentMessageCount() == 0) {
-                store.saveCompaction(run.getSession().getSessionId(), run.getTurn().getId(), summary, selection.anchorId());
+            String summary = response.getText().strip();
+            if (selection.getCurrentMessageCount() == 0) {
+                store.saveCompaction(run.getSession().getSessionId(), run.getTurn().getId(), summary, selection.getAnchorId());
             }
             conversation.acceptSummary(summary, selection);
             ChatUsage usage = null;
@@ -305,8 +305,8 @@ public class AiGenerationService {
             log.info("AI context compaction completed: sessionId={}, turnId={}, historyTurns={}, currentMessages={}, attempt={}, summaryCharacters={}, usage={}, elapsedMs={}", run
                 .getSession()
                 .getSessionId(), run.getTurn()
-                    .getId(), selection.historyCount(), selection.currentMessageCount(), attempt, summary.length(), usage, (System.nanoTime() - started) / 1_000_000);
-            return new ChatResponse(summary, response.reasoningContent(), List.of(), usage, response.finishReason());
+                    .getId(), selection.getHistoryCount(), selection.getCurrentMessageCount(), attempt, summary.length(), usage, (System.nanoTime() - started) / 1_000_000);
+            return new ChatResponse(summary, response.getReasoningContent(), List.of(), usage, response.getFinishReason());
         }
         throw AiError.CONTEXT_COMPACTION_FAILED.exception();
     }

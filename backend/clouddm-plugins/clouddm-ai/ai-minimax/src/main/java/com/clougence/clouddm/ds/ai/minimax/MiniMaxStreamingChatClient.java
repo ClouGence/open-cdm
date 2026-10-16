@@ -29,19 +29,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class MiniMaxStreamingChatClient extends OpenAiStreamingChatClient {
     @Override
     protected ChatRequest customizeRequest(ChatRequest request) {
-        Map<String, Object> parameters = new LinkedHashMap<>(request.parameters());
-        if (request.toolChoice() == ChatToolChoice.REQUIRED || request.parameters().containsKey("response_format") || request.parameters().containsKey("web_search_options")
-            || request.parameters().containsKey(ChatProtocolConstants.PARAMETER_MAX_COMPLETION_TOKENS)) {
+        Map<String, Object> parameters = new LinkedHashMap<>(request.getParameters());
+        if (request.getToolChoice() == ChatToolChoice.REQUIRED || request.getParameters().containsKey("response_format")
+            || request.getParameters().containsKey("web_search_options") || request.getParameters().containsKey(ChatProtocolConstants.PARAMETER_MAX_COMPLETION_TOKENS)) {
             throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
         }
         parameters.put(ChatProtocolConstants.PARAMETER_TEMPERATURE, 1.0D);
         parameters.put(ChatProtocolConstants.PARAMETER_TOP_P, 0.95D);
         String thinking = "disabled";
-        if (request.showReasoning()) {
+        if (request.isShowReasoning()) {
             thinking = "adaptive";
         }
         parameters.put(ChatProtocolConstants.PARAMETER_THINKING, Map.of("type", thinking));
-        return new ChatRequest(request.model(), request.messages(), request.tools(), request.toolChoice(), request.maxOutputTokens(), request.showReasoning(), parameters);
+        return new ChatRequest(request
+            .getModel(), request.getMessages(), request.getTools(), request.getToolChoice(), request.getMaxOutputTokens(), request.isShowReasoning(), parameters);
     }
 
     @Override

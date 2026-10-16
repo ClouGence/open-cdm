@@ -119,17 +119,17 @@ public class AiEngineProbeService {
         try {
             ChatResponse reply = client.stream(engine, messages, tools, null, handle, text -> {
             });
-            if (reply.tools().size() != 1) {
+            if (reply.getTools().size() != 1) {
                 throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
             }
-            ChatToolCall call = reply.tools().get(0);
+            ChatToolCall call = reply.getTools().get(0);
             JsonNode arguments;
             try {
-                arguments = ChatToolArguments.parse(call.arguments());
+                arguments = ChatToolArguments.parse(call.getArguments());
             } catch (IllegalArgumentException e) {
                 throw ThirdPartyApiException.as().with(e, ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
             }
-            if (!AiSqlConstants.TOOL_PROBE.equals(call.name()) || arguments.size() != 1 || !nonce.equals(arguments.path(AiSqlConstants.FIELD_NONCE).asText())) {
+            if (!AiSqlConstants.TOOL_PROBE.equals(call.getName()) || arguments.size() != 1 || !nonce.equals(arguments.path(AiSqlConstants.FIELD_NONCE).asText())) {
                 throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
             }
         } catch (ThirdPartyApiException e) {

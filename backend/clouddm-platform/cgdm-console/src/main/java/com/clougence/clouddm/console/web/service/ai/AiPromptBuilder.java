@@ -115,11 +115,11 @@ public class AiPromptBuilder {
             .append(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(createdAt.atZone(runtimeTimeZone(context))))
             .append("</current_time>\n");
         Map<String, Object> database = new LinkedHashMap<>();
-        database.put(AiSqlConstants.FIELD_DIALECT, context.dialect());
-        database.put(AiSqlConstants.FIELD_NAMESPACE, context.namespace());
+        database.put(AiSqlConstants.FIELD_DIALECT, context.getDialect());
+        database.put(AiSqlConstants.FIELD_NAMESPACE, context.getNamespace());
         content.append("  <database_context>").append(HtmlUtils.htmlEscape(JsonUtils.toJson(database), StandardCharsets.UTF_8.name())).append("</database_context>\n");
-        if (context.selection() != null) {
-            content.append("  <selected_sql>").append(HtmlUtils.htmlEscape(JsonUtils.toJson(context.selection()), StandardCharsets.UTF_8.name())).append("</selected_sql>\n");
+        if (context.getSelection() != null) {
+            content.append("  <selected_sql>").append(HtmlUtils.htmlEscape(JsonUtils.toJson(context.getSelection()), StandardCharsets.UTF_8.name())).append("</selected_sql>\n");
         }
         content.append("</runtime_context>");
         return Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_USER, AiSqlConstants.FIELD_CONTENT, content.toString());
@@ -187,14 +187,14 @@ public class AiPromptBuilder {
     }
 
     private ZoneId runtimeTimeZone(AiTurnContext context) {
-        if (StringUtils.isNotBlank(context.timezone())) {
+        if (StringUtils.isNotBlank(context.getTimezone())) {
             try {
-                return ZoneId.of(StringUtils.trim(context.timezone()));
+                return ZoneId.of(StringUtils.trim(context.getTimezone()));
             } catch (DateTimeException e) {
                 // Browsers can fall back to getTimezoneOffset when their zone ID is unavailable.
             }
         }
-        Integer minutes = context.timezoneOffsetMin();
+        Integer minutes = context.getTimezoneOffsetMin();
         if (minutes != null && minutes >= -14 * 60 && minutes <= 14 * 60) {
             return ZoneOffset.ofTotalSeconds(-minutes * 60);
         }
@@ -223,7 +223,7 @@ public class AiPromptBuilder {
         Map<String, String> toolNames = new HashMap<>();
         for (AiCompactionBlock block : blocks) {
             transcript.append("  <turn>\n");
-            for (Map<String, Object> message : block.messages()) {
+            for (Map<String, Object> message : block.getMessages()) {
                 appendTranscriptMessage(transcript, message, toolNames);
             }
             transcript.append("  </turn>\n");

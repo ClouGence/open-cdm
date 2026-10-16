@@ -15,7 +15,32 @@
  */
 package com.clougence.clouddm.ds.ai;
 
-public record ChatUsage(long inputTokens, long outputTokens, Long cachedInputTokens, Long reasoningTokens) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
+public final class ChatUsage {
+    private final long inputTokens;
+
+    private final long outputTokens;
+
+    private final Long cachedInputTokens;
+
+    private final Long reasoningTokens;
+
+    @JsonCreator
+    public ChatUsage(@JsonProperty("inputTokens") long inputTokens, @JsonProperty("outputTokens") long outputTokens, @JsonProperty("cachedInputTokens") Long cachedInputTokens,
+                     @JsonProperty("reasoningTokens") Long reasoningTokens){
+        this.inputTokens = inputTokens;
+        this.outputTokens = outputTokens;
+        this.cachedInputTokens = cachedInputTokens;
+        this.reasoningTokens = reasoningTokens;
+    }
+
     public ChatUsage(long inputTokens, long outputTokens){
         this(inputTokens, outputTokens, null, null);
     }

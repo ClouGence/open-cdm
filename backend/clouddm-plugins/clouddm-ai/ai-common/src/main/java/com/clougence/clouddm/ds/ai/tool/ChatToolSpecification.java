@@ -18,9 +18,25 @@ package com.clougence.clouddm.ds.ai.tool;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public record ChatToolSpecification(String name, String description, Map<String, Object> parameters) {
-    public ChatToolSpecification{
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class ChatToolSpecification {
+    private final String              name;
+
+    private final String              description;
+
+    private final Map<String, Object> parameters;
+
+    @JsonCreator
+    public ChatToolSpecification(@JsonProperty("name") String name, @JsonProperty("description") String description, @JsonProperty("parameters") Map<String, Object> parameters){
         parameters = Map.copyOf(parameters);
+        this.name = name;
+        this.description = description;
+        this.parameters = parameters;
     }
 
     public Map<String, Object> definition() {

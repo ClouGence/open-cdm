@@ -16,9 +16,26 @@
 package com.clougence.clouddm.console.web.model.fo.ai;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
 
-public record AiCancelTurnFO(@NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String sessionId, @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String requestId) {
+@Getter
+public final class AiCancelTurnFO {
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String sessionId;
+
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String requestId;
+
+    @JsonCreator
+    public AiCancelTurnFO(@JsonProperty("sessionId") String sessionId, @JsonProperty("requestId") String requestId){
+        this.sessionId = sessionId;
+        this.requestId = requestId;
+    }
 }

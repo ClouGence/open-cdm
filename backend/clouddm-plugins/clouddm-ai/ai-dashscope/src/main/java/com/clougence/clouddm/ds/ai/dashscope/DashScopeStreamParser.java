@@ -48,8 +48,8 @@ class DashScopeStreamParser implements ChatStreamDecoder {
 
     public ChatResponse parse(InputStream input, ChatStreamControl control, ChatStreamListener deltas) throws IOException {
         if (!showReasoning) {
-            deltas = new ChatStreamListener(deltas.text(), value -> {
-            }, deltas.interrupted());
+            deltas = new ChatStreamListener(deltas.getText(), value -> {
+            }, deltas.getInterrupted());
         }
         BufferedReader reader = new BufferedReader(
             new InputStreamReader(input, StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)));
@@ -181,7 +181,7 @@ class DashScopeStreamParser implements ChatStreamDecoder {
                 throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
             }
             reasoning.append(thought.textValue());
-            deltas.reasoning().accept(thought.textValue());
+            deltas.getReasoning().accept(thought.textValue());
         }
         JsonNode textNode = message.get("content");
         if (textNode != null && !textNode.isNull()) {

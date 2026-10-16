@@ -26,14 +26,15 @@ import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 public class KimiStreamingChatClient extends OpenAiStreamingChatClient {
     @Override
     protected ChatRequest customizeRequest(ChatRequest request) {
-        Map<String, Object> parameters = new LinkedHashMap<>(request.parameters());
-        if (request.parameters().containsKey(ChatProtocolConstants.PARAMETER_MAX_COMPLETION_TOKENS)) {
+        Map<String, Object> parameters = new LinkedHashMap<>(request.getParameters());
+        if (request.getParameters().containsKey(ChatProtocolConstants.PARAMETER_MAX_COMPLETION_TOKENS)) {
             throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
         }
         parameters.put(ChatProtocolConstants.PARAMETER_TEMPERATURE, 1.0D);
         parameters.put(ChatProtocolConstants.PARAMETER_TOP_P, 0.95D);
         parameters.put(ChatProtocolConstants.PARAMETER_REASONING_EFFORT, "max");
-        return new ChatRequest(request.model(), request.messages(), request.tools(), request.toolChoice(), request.maxOutputTokens(), request.showReasoning(), parameters);
+        return new ChatRequest(request
+            .getModel(), request.getMessages(), request.getTools(), request.getToolChoice(), request.getMaxOutputTokens(), request.isShowReasoning(), parameters);
     }
 
     @Override

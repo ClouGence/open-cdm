@@ -18,8 +18,43 @@ package com.clougence.clouddm.console.web.model.ai;
 import java.time.Instant;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record AiTableSchema(AiObject object, String comment, List<AiColumn> columns, boolean columnsComplete, List<String> primaryKey, List<AiForeignKey> foreignKeys,
-                            boolean keysKnown, @JsonFormat(shape = JsonFormat.Shape.STRING) Instant schemaReadAt) {
+import lombok.Getter;
+
+@Getter
+public final class AiTableSchema {
+    private final AiObject           object;
+
+    private final String             comment;
+
+    private final List<AiColumn>     columns;
+
+    private final boolean            columnsComplete;
+
+    private final List<String>       primaryKey;
+
+    private final List<AiForeignKey> foreignKeys;
+
+    private final boolean            keysKnown;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private final Instant            schemaReadAt;
+
+    @JsonCreator
+    public AiTableSchema(@JsonProperty("object") AiObject object, @JsonProperty("comment") String comment, @JsonProperty("columns") List<AiColumn> columns,
+                         @JsonProperty("columnsComplete") boolean columnsComplete, @JsonProperty("primaryKey") List<String> primaryKey,
+                         @JsonProperty("foreignKeys") List<AiForeignKey> foreignKeys, @JsonProperty("keysKnown") boolean keysKnown,
+                         @JsonProperty("schemaReadAt") Instant schemaReadAt){
+        this.object = object;
+        this.comment = comment;
+        this.columns = columns;
+        this.columnsComplete = columnsComplete;
+        this.primaryKey = primaryKey;
+        this.foreignKeys = foreignKeys;
+        this.keysKnown = keysKnown;
+        this.schemaReadAt = schemaReadAt;
+    }
 }

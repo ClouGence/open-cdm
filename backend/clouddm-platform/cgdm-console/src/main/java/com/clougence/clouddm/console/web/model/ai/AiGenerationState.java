@@ -37,8 +37,8 @@ public class AiGenerationState {
         if (usage == null) {
             usageComplete = false;
         } else {
-            inputTokens += usage.inputTokens();
-            outputTokens += usage.outputTokens();
+            inputTokens += usage.getInputTokens();
+            outputTokens += usage.getOutputTokens();
         }
     }
 

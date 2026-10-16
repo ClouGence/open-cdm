@@ -17,9 +17,36 @@ package com.clougence.clouddm.console.web.model.ai;
 
 import org.hibernate.validator.constraints.CodePointLength;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /** SQL text selected by the user, never executed by the assistant. */
-public record AiSqlSelection(@NotBlank @CodePointLength(max = 512) String title, @NotBlank String sql, @Min(1) int startLine, @Min(1) int endLine) {
+@Getter
+@EqualsAndHashCode
+public final class AiSqlSelection {
+    @NotBlank
+    @CodePointLength(max = 512)
+    private final String title;
+
+    @NotBlank
+    private final String sql;
+
+    @Min(1)
+    private final int    startLine;
+
+    @Min(1)
+    private final int    endLine;
+
+    @JsonCreator
+    public AiSqlSelection(@JsonProperty("title") String title, @JsonProperty("sql") String sql, @JsonProperty("startLine") int startLine, @JsonProperty("endLine") int endLine){
+        this.title = title;
+        this.sql = sql;
+        this.startLine = startLine;
+        this.endLine = endLine;
+    }
 }

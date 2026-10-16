@@ -84,7 +84,7 @@ public class AiSessionService {
     }
 
     public Map<String, Object> switchModel(String puid, String uid, AiSwitchModelFO fo) {
-        AiEngineConfigVO engine = engines.requireAvailable(puid, uid, fo.engineId(), fo.engineVersion());
+        AiEngineConfigVO engine = engines.requireAvailable(puid, uid, fo.getEngineId(), fo.getEngineVersion());
         DmAiSessionDO session = store.switchModel(puid, uid, fo, engine);
         Map<String, Object> result = new LinkedHashMap<>();
         result.put(AiSqlConstants.FIELD_ENGINE_ID, session.getEngineId());
@@ -106,7 +106,7 @@ public class AiSessionService {
 
     public AiMetadataContext context(String puid, String uid, AiTurnRecordVO turn) {
         try {
-            return context(puid, uid, JsonUtils.toObj(turn.getContextJson(), AiTurnContext.class).levels());
+            return context(puid, uid, JsonUtils.toObj(turn.getContextJson(), AiTurnContext.class).getLevels());
         } catch (ErrorMessageException e) {
             if (AiError.INVALID_REQUEST.name().equals(e.getErrorCode())) {
                 throw AiError.CONTEXT_REVOKED.exception();
@@ -201,7 +201,7 @@ public class AiSessionService {
         } else if (!history.isEmpty()) {
             database = JsonUtils.toObj(history.get(0).getContextJson(), AiTurnContext.class);
         }
-        AiMetadataContext current = context(puid, uid, database.levels());
+        AiMetadataContext current = context(puid, uid, database.getLevels());
         AiConversation conversation = new AiConversation(prompts,
             limits.getContextTokens(),
             prompts.system(current.getLevels() != null, database),
@@ -249,24 +249,24 @@ public class AiSessionService {
         summary.put(AiSqlConstants.FIELD_SCHEMA_READ_AT, context.getSchemas()
             .values()
             .stream()
-            .map(s -> s.schemaReadAt())
+            .map(s -> s.getSchemaReadAt())
             .max(Instant::compareTo)
             .map(Instant::toString)
             .orElse(null));
         summary.put(AiSqlConstants.FIELD_SOURCE_FRESHNESS, AiSqlConstants.SOURCE_CACHED_OR_LIVE);
         summary.put(AiSqlConstants.FIELD_HISTORY_COMPACTED, conversation.isHistoryCompacted());
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put(AiSqlConstants.FIELD_STATUS, candidate.status());
-        result.put(AiSqlConstants.FIELD_SQL, candidate.sql());
-        result.put(AiSqlConstants.FIELD_MESSAGE, candidate.message());
-        if (candidate.userInputRequest() != null) {
-            result.put(AiSqlConstants.FIELD_USER_INPUT_REQUEST, candidate.userInputRequest());
+        result.put(AiSqlConstants.FIELD_STATUS, candidate.getStatus());
+        result.put(AiSqlConstants.FIELD_SQL, candidate.getSql());
+        result.put(AiSqlConstants.FIELD_MESSAGE, candidate.getMessage());
+        if (candidate.getUserInputRequest() != null) {
+            result.put(AiSqlConstants.FIELD_USER_INPUT_REQUEST, candidate.getUserInputRequest());
         }
         result.put(AiSqlConstants.FIELD_CONTEXT_SUMMARY, summary);
         result.put(AiSqlConstants.FIELD_REPLAY_MESSAGES, conversation.replayMessages());
         String resultJson = JsonUtils.toJson(result);
         AiTurnStatus status = AiTurnStatus.NEEDS_INPUT;
-        if (AiSqlConstants.RESULT_GENERATED.equals(candidate.status())) {
+        if (AiSqlConstants.RESULT_GENERATED.equals(candidate.getStatus())) {
             status = AiTurnStatus.COMPLETED;
         }
         String usageJson = null;

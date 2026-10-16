@@ -17,8 +17,31 @@ package com.clougence.clouddm.ds.ai;
 
 import java.util.List;
 
-public record ChatResponse(String text, String reasoningContent, List<ChatToolCall> tools, ChatUsage usage, ChatFinishReason finishReason) {
-    public ChatResponse{
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class ChatResponse {
+    private final String             text;
+
+    private final String             reasoningContent;
+
+    private final List<ChatToolCall> tools;
+
+    private final ChatUsage          usage;
+
+    private final ChatFinishReason   finishReason;
+
+    @JsonCreator
+    public ChatResponse(@JsonProperty("text") String text, @JsonProperty("reasoningContent") String reasoningContent, @JsonProperty("tools") List<ChatToolCall> tools,
+                        @JsonProperty("usage") ChatUsage usage, @JsonProperty("finishReason") ChatFinishReason finishReason){
         tools = List.copyOf(tools);
+        this.text = text;
+        this.reasoningContent = reasoningContent;
+        this.tools = tools;
+        this.usage = usage;
+        this.finishReason = finishReason;
     }
 }

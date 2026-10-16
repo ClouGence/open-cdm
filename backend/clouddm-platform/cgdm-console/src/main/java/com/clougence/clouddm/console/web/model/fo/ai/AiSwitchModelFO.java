@@ -16,12 +16,43 @@
 package com.clougence.clouddm.console.web.model.fo.ai;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
 
-public record AiSwitchModelFO(@NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String sessionId, @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String engineId,
-                              @NotNull @Min(1) Integer engineVersion, @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String previousEngineId,
-                              @NotNull @Min(1) Integer previousEngineVersion) {
+@Getter
+public final class AiSwitchModelFO {
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String  sessionId;
+
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String  engineId;
+
+    @NotNull
+    @Min(1)
+    private final Integer engineVersion;
+
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String  previousEngineId;
+
+    @NotNull
+    @Min(1)
+    private final Integer previousEngineVersion;
+
+    @JsonCreator
+    public AiSwitchModelFO(@JsonProperty("sessionId") String sessionId, @JsonProperty("engineId") String engineId, @JsonProperty("engineVersion") Integer engineVersion,
+                           @JsonProperty("previousEngineId") String previousEngineId, @JsonProperty("previousEngineVersion") Integer previousEngineVersion){
+        this.sessionId = sessionId;
+        this.engineId = engineId;
+        this.engineVersion = engineVersion;
+        this.previousEngineId = previousEngineId;
+        this.previousEngineVersion = previousEngineVersion;
+    }
 }

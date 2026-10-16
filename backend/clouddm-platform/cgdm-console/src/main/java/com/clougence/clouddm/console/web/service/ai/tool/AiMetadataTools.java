@@ -38,13 +38,13 @@ public class AiMetadataTools {
         AiObject after = null;
         if (cursor != null) {
             AiCandidateCursor position = context.getCursors().get(cursor);
-            if (position == null || !position.keyword().equals(keyword)) {
+            if (position == null || !position.getKeyword().equals(keyword)) {
                 throw new IllegalArgumentException("Invalid current-turn table reference or cursor. Search tables again to obtain valid references.");
             }
-            after = position.after();
+            after = position.getAfter();
         }
         List<AiObject> matches = platform.listObjects(context.getPuid(), context.getUid(), context.getLevels(), keyword);
-        Comparator<AiObject> order = Comparator.comparing(AiObject::name).thenComparing(o -> o.type().name());
+        Comparator<AiObject> order = Comparator.comparing(AiObject::getName).thenComparing(o -> o.getType().name());
         List<Map<String, String>> items = new ArrayList<>();
         List<AiObject> disclosed = new ArrayList<>();
         Map<String, AiObject> added = new LinkedHashMap<>();
@@ -58,7 +58,8 @@ public class AiMetadataTools {
             if (isNew) {
                 ref = UUID.randomUUID().toString();
             }
-            Map<String, String> item = Map.of(AiSqlConstants.FIELD_OBJECT_REF, ref, AiSqlConstants.FIELD_TYPE, object.type().name(), AiSqlConstants.FIELD_NAME, object.name());
+            Map<String, String> item = Map
+                .of(AiSqlConstants.FIELD_OBJECT_REF, ref, AiSqlConstants.FIELD_TYPE, object.getType().name(), AiSqlConstants.FIELD_NAME, object.getName());
             if (items.size() >= 200) {
                 more = true;
                 break;
@@ -101,23 +102,23 @@ public class AiMetadataTools {
             List<AiTableSchema> refreshed = platform.describeTables(context.getPuid(), context.getUid(), context.getLevels(), List.copyOf(total), handle);
             handle.checkActive();
             for (AiTableSchema schema : refreshed) {
-                context.getSchemas().put(schema.object(), schema);
+                context.getSchemas().put(schema.getObject(), schema);
             }
         }
         platform.authorizeReferences(context.getPuid(), context.getUid(), context.getLevels(), references(context, List.of()));
         List<Map<String, Object>> tables = new ArrayList<>();
         for (AiTableSchema schema : context.getSchemas().values()) {
-            String ref = context.getCandidates().entrySet().stream().filter(e -> e.getValue().equals(schema.object())).map(Map.Entry::getKey).findFirst().orElseThrow();
+            String ref = context.getCandidates().entrySet().stream().filter(e -> e.getValue().equals(schema.getObject())).map(Map.Entry::getKey).findFirst().orElseThrow();
             Map<String, Object> item = new LinkedHashMap<>();
             item.put(AiSqlConstants.FIELD_OBJECT_REF, ref);
-            item.put(AiSqlConstants.FIELD_OBJECT, schema.object());
-            item.put(AiSqlConstants.FIELD_COMMENT, schema.comment());
-            item.put(AiSqlConstants.FIELD_COLUMNS, schema.columns());
-            item.put(AiSqlConstants.FIELD_COLUMNS_COMPLETE, schema.columnsComplete());
-            item.put(AiSqlConstants.FIELD_PRIMARY_KEY, schema.primaryKey());
-            item.put(AiSqlConstants.FIELD_FOREIGN_KEYS, schema.foreignKeys());
-            item.put(AiSqlConstants.FIELD_KEYS_KNOWN, schema.keysKnown());
-            item.put(AiSqlConstants.FIELD_SCHEMA_READ_AT, schema.schemaReadAt());
+            item.put(AiSqlConstants.FIELD_OBJECT, schema.getObject());
+            item.put(AiSqlConstants.FIELD_COMMENT, schema.getComment());
+            item.put(AiSqlConstants.FIELD_COLUMNS, schema.getColumns());
+            item.put(AiSqlConstants.FIELD_COLUMNS_COMPLETE, schema.isColumnsComplete());
+            item.put(AiSqlConstants.FIELD_PRIMARY_KEY, schema.getPrimaryKey());
+            item.put(AiSqlConstants.FIELD_FOREIGN_KEYS, schema.getForeignKeys());
+            item.put(AiSqlConstants.FIELD_KEYS_KNOWN, schema.isKeysKnown());
+            item.put(AiSqlConstants.FIELD_SCHEMA_READ_AT, schema.getSchemaReadAt());
             tables.add(item);
         }
         handle.checkActive();
@@ -130,16 +131,16 @@ public class AiMetadataTools {
             AiTableSchema schema = context.getSchemas().get(object);
             List<String> columns = List.of();
             if (schema != null) {
-                columns = schema.columns().stream().map(column -> column.name()).toList();
+                columns = schema.getColumns().stream().map(column -> column.getName()).toList();
             }
-            return new AiContextReference(object.type(), object.name(), columns);
+            return new AiContextReference(object.getType(), object.getName(), columns);
         }).toList();
         Map<AiObject, Set<String>> merged = new LinkedHashMap<>();
         List<AiContextReference> all = new ArrayList<>(previous);
         all.addAll(current);
         for (AiContextReference ref : all) {
-            merged.computeIfAbsent(new AiObject(ref.type(), ref.name()), ignored -> new LinkedHashSet<>()).addAll(ref.columns());
+            merged.computeIfAbsent(new AiObject(ref.getType(), ref.getName()), ignored -> new LinkedHashSet<>()).addAll(ref.getColumns());
         }
-        return merged.entrySet().stream().map(e -> new AiContextReference(e.getKey().type(), e.getKey().name(), List.copyOf(e.getValue()))).toList();
+        return merged.entrySet().stream().map(e -> new AiContextReference(e.getKey().getType(), e.getKey().getName(), List.copyOf(e.getValue()))).toList();
     }
 }

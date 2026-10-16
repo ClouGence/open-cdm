@@ -123,12 +123,12 @@ public class AiConversation {
         int preservedStart = blocks.size();
         for (int i = blocks.size() - 1; i >= 0; i--) {
             AiCompactionBlock block = blocks.get(i);
-            int count = messageTokens(block.messages());
+            int count = messageTokens(block.getMessages());
             if (preservedTokens + count > tailBudget) {
                 break;
             }
             preservedTokens += count;
-            preservedTextMessages += (int) block.messages().stream().filter(message -> !AiSqlConstants.ROLE_TOOL.equals(message.get(AiSqlConstants.FIELD_ROLE))).count();
+            preservedTextMessages += (int) block.getMessages().stream().filter(message -> !AiSqlConstants.ROLE_TOOL.equals(message.get(AiSqlConstants.FIELD_ROLE))).count();
             preservedStart = i;
             if (preservedTextMessages >= 5 && preservedTokens >= Math.min(2048, tailBudget)) {
                 break;
@@ -142,11 +142,11 @@ public class AiConversation {
         int currentMessageCount = 0;
         Long anchorId = null;
         for (AiCompactionBlock block : selected) {
-            if (block.anchorId() != null) {
+            if (block.getAnchorId() != null) {
                 historyCount++;
-                anchorId = block.anchorId();
+                anchorId = block.getAnchorId();
             } else {
-                currentMessageCount += block.messages().size();
+                currentMessageCount += block.getMessages().size();
             }
         }
         if (currentMessageCount > 0) {
@@ -156,26 +156,26 @@ public class AiConversation {
     }
 
     public List<Map<String, Object>> compactionMessages(AiCompactionSelection selection) {
-        return prompts.compactionMessages(summary, selection.blocks());
+        return prompts.compactionMessages(summary, selection.getBlocks());
     }
 
     public void acceptSummary(String value, AiCompactionSelection selection) {
         summary = value;
-        history.subList(0, selection.historyCount()).clear();
-        current.subList(1, 1 + selection.currentMessageCount()).clear();
-        runtimeCompacted |= selection.currentMessageCount() > 0;
+        history.subList(0, selection.getHistoryCount()).clear();
+        current.subList(1, 1 + selection.getCurrentMessageCount()).clear();
+        runtimeCompacted |= selection.getCurrentMessageCount() > 0;
         historyCompacted = true;
     }
 
     public void addAssistant(ChatResponse reply) {
         List<Map<String, Object>> encoded = new ArrayList<>();
-        for (ChatToolCall call : reply.tools()) {
+        for (ChatToolCall call : reply.getTools()) {
             Map<String, Object> function = new LinkedHashMap<>();
-            function.put(AiSqlConstants.FIELD_NAME, call.name());
-            function.put(AiSqlConstants.FIELD_ARGUMENTS, call.arguments());
+            function.put(AiSqlConstants.FIELD_NAME, call.getName());
+            function.put(AiSqlConstants.FIELD_ARGUMENTS, call.getArguments());
 
             Map<String, Object> tool = new LinkedHashMap<>();
-            tool.put(AiSqlConstants.FIELD_ID, call.id());
+            tool.put(AiSqlConstants.FIELD_ID, call.getId());
             tool.put(AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION);
             tool.put(AiSqlConstants.FIELD_FUNCTION, function);
             encoded.add(tool);
@@ -183,9 +183,9 @@ public class AiConversation {
 
         Map<String, Object> message = new LinkedHashMap<>();
         message.put(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_ASSISTANT);
-        message.put(AiSqlConstants.FIELD_CONTENT, reply.text());
-        if (!reply.reasoningContent().isEmpty()) {
-            message.put(ChatProtocolConstants.FIELD_REASONING_CONTENT, reply.reasoningContent());
+        message.put(AiSqlConstants.FIELD_CONTENT, reply.getText());
+        if (!reply.getReasoningContent().isEmpty()) {
+            message.put(ChatProtocolConstants.FIELD_REASONING_CONTENT, reply.getReasoningContent());
         }
         if (!encoded.isEmpty()) {
             message.put(AiSqlConstants.FIELD_TOOL_CALLS, encoded);
@@ -194,7 +194,7 @@ public class AiConversation {
     }
 
     public void addToolResult(ChatToolCall call, String text) {
-        add(Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_TOOL, AiSqlConstants.FIELD_MODEL_TOOL_CALL_ID, call.id(), AiSqlConstants.FIELD_CONTENT, text));
+        add(Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_TOOL, AiSqlConstants.FIELD_MODEL_TOOL_CALL_ID, call.getId(), AiSqlConstants.FIELD_CONTENT, text));
     }
 
     private void add(Map<String, Object> message) {

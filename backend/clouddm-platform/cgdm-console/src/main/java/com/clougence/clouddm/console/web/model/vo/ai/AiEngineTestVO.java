@@ -18,6 +18,27 @@ package com.clougence.clouddm.console.web.model.vo.ai;
 import java.time.Instant;
 
 import com.clougence.clouddm.platform.dal.model.ai.AiVerificationStatus;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record AiEngineTestVO(int version, AiVerificationStatus verificationStatus, Instant verifiedAt, String errorCode) {
+import lombok.Getter;
+
+@Getter
+public final class AiEngineTestVO {
+    private final int                  version;
+
+    private final AiVerificationStatus verificationStatus;
+
+    private final Instant              verifiedAt;
+
+    private final String               errorCode;
+
+    @JsonCreator
+    public AiEngineTestVO(@JsonProperty("version") int version, @JsonProperty("verificationStatus") AiVerificationStatus verificationStatus,
+                          @JsonProperty("verifiedAt") Instant verifiedAt, @JsonProperty("errorCode") String errorCode){
+        this.version = version;
+        this.verificationStatus = verificationStatus;
+        this.verifiedAt = verifiedAt;
+        this.errorCode = errorCode;
+    }
 }

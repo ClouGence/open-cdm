@@ -18,8 +18,38 @@ package com.clougence.clouddm.console.web.model.ai;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.model.fo.ai.AiUserInputAnswerFO;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
 
 /** Immutable database and editor selection snapshot for one request, independent of the conversation. */
-public record AiTurnContext(List<String> levels, List<String> namespace, String dialect, AiSqlSelection selection, AiUserInputAnswerFO userInputAnswer, String timezone,
-                            Integer timezoneOffsetMin) {
+@Getter
+public final class AiTurnContext {
+    private final List<String>        levels;
+
+    private final List<String>        namespace;
+
+    private final String              dialect;
+
+    private final AiSqlSelection      selection;
+
+    private final AiUserInputAnswerFO userInputAnswer;
+
+    private final String              timezone;
+
+    private final Integer             timezoneOffsetMin;
+
+    @JsonCreator
+    public AiTurnContext(@JsonProperty("levels") List<String> levels, @JsonProperty("namespace") List<String> namespace, @JsonProperty("dialect") String dialect,
+                         @JsonProperty("selection") AiSqlSelection selection, @JsonProperty("userInputAnswer") AiUserInputAnswerFO userInputAnswer,
+                         @JsonProperty("timezone") String timezone, @JsonProperty("timezoneOffsetMin") Integer timezoneOffsetMin){
+        this.levels = levels;
+        this.namespace = namespace;
+        this.dialect = dialect;
+        this.selection = selection;
+        this.userInputAnswer = userInputAnswer;
+        this.timezone = timezone;
+        this.timezoneOffsetMin = timezoneOffsetMin;
+    }
 }

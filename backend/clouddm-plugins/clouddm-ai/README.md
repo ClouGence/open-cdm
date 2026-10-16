@@ -50,6 +50,8 @@ AI 平台业务遵循现有 Console / DAO 分层；本目录仅保留模型协�
 
 完整应用沿用启动配置已有的 Console 与 DAL 扫描，Mapper 由 `DmDalConfig` 统一注册，使用现有 `sqlSessionFactory` 与事务管理器。DAO 不依赖 Console 或模型客户端；`AiPreset`、`AiVerificationStatus`、`AiTurnStatus` 随持久化模型归属 DAO。数据库表、密文、JSON 字段和 `/api/entry/ai/turn`、`/api/entry/ai/engine` 接口契约保持不变，不新增 migration，也不需要迁移数据。
 
+AI 数据对象使用普通 Java 类，明确声明字段与构造方法，通过 Lombok 生成 getter；调用方使用 `getXxx()` / `isXxx()`。只读对象保留 `final` 字段和必要的集合副本，JSON 构造参数显式标注字段名。值相等语义仅用于元数据对象 `AiObject` 的集合查找，以及重复请求校验涉及的 `AiSqlSelection`、`AiUserInputAnswerFO`、`AiUserInputAnswerItemFO`；`ChatUsage` 保留日志所需的 `toString()`。工具参数结构从字段上的 `@ChatToolParameter` 和校验注解读取，嵌套集合继续保留元素类型与校验约束。调整这些对象时，应核对 JSON 往返、缺省值、嵌套校验及工具 Schema，避免改变接口和历史数据的字段格式。
+
 ## DM 通用能力复用
 
 - 元数据对象与历史引用直接使用 DM 的 `UmiTypes`，只查询 `Table`、`View`；读取结构和引用复核也限定这两种类型，不保留 AI 对象类型枚举或转换层。历史 JSON 的类型名称仍为 `Table`、`View`，不需要数据迁移。其余枚举分别描述 AI 轮次、事件、验证、提问及供应商协议，属于 AI 业务与协议定义。
@@ -89,7 +91,7 @@ AI 平台业务遵循现有 Console / DAO 分层；本目录仅保留模型协�
 | `DashScopeStreamParser` | 解析原生 output/usage/敏感标志/工具分片。 | 使用 `JsonUtils`；原生字段与结束规则不同于 OpenAI，也不属于 DM 出站 SSE。 |
 | `DashScopeToolCallBuffer` | 保存原生工具 index、ID、名称和参数。 | ID 更新而非 OpenAI 式追加，不能混用两种协议状态。 |
 | `ChatToolRegistry` | 每次运行配对注册工具规格与执行器，拒绝重名，按名称路由。 | 使用 JDK Map；普通 Bean 注册不表达当前运行的工具集及上下文。 |
-| `ChatToolSchemas` | 把方法参数、record、枚举及集合元素校验约束转成工具 schema。 | 使用反射、Jakarta 注解。DM `JsonSchemaElementUtils` 处理 MCP 类字段、`McpField` 和 MCP 国际化，不处理此处的方法参数与 TYPE_USE 约束；协议模块也不能反向依赖 Console。 |
+| `ChatToolSchemas` | 把方法参数、普通类字段、枚举及集合元素校验约束转成工具 schema。 | 使用反射、Jakarta 注解。DM `JsonSchemaElementUtils` 处理 MCP 类字段、`McpField` 和 MCP 国际化，不处理此处的方法参数与 TYPE_USE 约束；协议模块也不能反向依赖 Console。 |
 | `ChatToolExecutor` | 参数绑定、校验并反射调用工具，透传业务异常。 | 直接使用 `JsonUtils.toJavaType` 和 DM 注入的 `Validator.forExecutables()`；保留的是工具方法参数配对与调用协议。 |
 | `AiExecutors` | 隔离模型、元数据、事件写入、控制任务，统一关闭线程池。 | 线程工厂使用 `ThreadUtils`；AI 的上限、拒绝策略和慢连接隔离不能直接借用公共业务工作池。 |
 | `AiProperties` | 集中读取 AI 并发、次数、超时、上下文预算及提示词启动配置，并校验运行限额。 | 沿用 DM 的 `@Value("${配置名:默认值}")` 字段注入，保留正数校验，没有独立配置读取框架。 |
@@ -98,7 +100,7 @@ AI 平台业务遵循现有 Console / DAO 分层；本目录仅保留模型协�
 | `AiMetadataExecutor` | 隔离执行元数据 RPC，传递语言环境，限制超时，持有物理执行名额。 | 使用 `CompletableFuture`、定时器和 DM 元数据服务；普通异步提交不管理 AI deadline 及超时后仍阻塞的 RPC 名额。 |
 | `AiRunHandle` | 保存首个 AI 失败原因，转换轮次过期并传播取消。 | 底层直接使用 `ChatStreamControl` 和 DM 异常；保留轮次截止与首次业务失败的优先级，不再保留独立供应商异常。 |
 | `AiEventSink` | 浏览器连接独立排队写 SSE，生成轮次/请求/序号、心跳，处理慢写与断开。 | 使用 `SseEmitter`、`JsonUtils`、`ClientDisconnectUtils`；普通 SSE 写出没有 AI 队列、序号、终态及独立 writer 的规则。 |
-| `AiEventFrame` | 表示一个待发送帧。 | 队列数据 record，没有另造通用 SSE API。 |
+| `AiEventFrame` | 表示一个待发送帧。 | 队列帧数据类，没有另造通用 SSE API。 |
 | `AiRunEvents` | 保存草稿/工具活动快照，先持久化再广播，按序回放并支持重订阅。 | 通用存储和事件通知不管理 AI 生成状态及“记账成功才可见”的回放规则。 |
 | `AiActiveRun` | 聚合本机运行、名额、句柄、事件和发布/worker 完成标记。 | 是运行数据；一个 Future 的完成标记不能同时表达终态发布与物理 worker 退出。 |
 | `AiRunFollower` | 保存跟随其他节点运行的轮次及浏览器订阅。 | 是跟随数据，与本机持有 worker/名额的运行对象职责不同。 |

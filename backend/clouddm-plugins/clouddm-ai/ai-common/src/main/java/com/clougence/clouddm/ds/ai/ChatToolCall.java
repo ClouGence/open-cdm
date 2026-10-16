@@ -15,5 +15,23 @@
  */
 package com.clougence.clouddm.ds.ai;
 
-public record ChatToolCall(String id, String name, String arguments) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class ChatToolCall {
+    private final String id;
+
+    private final String name;
+
+    private final String arguments;
+
+    @JsonCreator
+    public ChatToolCall(@JsonProperty("id") String id, @JsonProperty("name") String name, @JsonProperty("arguments") String arguments){
+        this.id = id;
+        this.name = name;
+        this.arguments = arguments;
+    }
 }

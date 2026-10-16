@@ -18,14 +18,32 @@ package com.clougence.clouddm.console.web.model.fo.ai;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-public record AiUserInputAnswerItemFO(@JsonProperty(AiSqlConstants.FIELD_QUESTION_ID) String questionId, String question, @Size(max = 20) List<String> values) {
-    public AiUserInputAnswerItemFO{
+@Getter
+@EqualsAndHashCode
+public final class AiUserInputAnswerItemFO {
+    @JsonProperty(AiSqlConstants.FIELD_QUESTION_ID)
+    private final String       questionId;
+
+    private final String       question;
+
+    @Size(max = 20)
+    private final List<String> values;
+
+    @JsonCreator
+    public AiUserInputAnswerItemFO(@JsonProperty(AiSqlConstants.FIELD_QUESTION_ID) String questionId, @JsonProperty("question") String question,
+                                   @JsonProperty("values") List<String> values){
         if (values == null) {
             values = List.of();
         }
+        this.questionId = questionId;
+        this.question = question;
+        this.values = values;
     }
 }

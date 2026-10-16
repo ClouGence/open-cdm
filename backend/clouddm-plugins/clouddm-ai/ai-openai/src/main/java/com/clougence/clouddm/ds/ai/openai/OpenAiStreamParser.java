@@ -50,8 +50,8 @@ class OpenAiStreamParser implements ChatStreamDecoder {
     public ChatResponse parse(InputStream input, ChatStreamControl handle, ChatStreamListener listener) throws IOException {
         ChatStreamListener deltaSink = listener;
         if (!showReasoning) {
-            deltaSink = new ChatStreamListener(listener.text(), value -> {
-            }, listener.interrupted());
+            deltaSink = new ChatStreamListener(listener.getText(), value -> {
+            }, listener.getInterrupted());
         }
         BufferedInputStream buffered = new BufferedInputStream(input);
         ByteArrayOutputStream line = new ByteArrayOutputStream();
@@ -117,8 +117,8 @@ class OpenAiStreamParser implements ChatStreamDecoder {
             }
             state.getContent().finish(deltaSink);
             ChatResponse response = finish(state);
-            log.info("AI stream closed: finishReason={}, textCharacters={}, toolCalls={}, usage={}, elapsedMs={}", response.finishReason(), state.getText()
-                .length(), response.tools().size(), state.getUsage(), (System.nanoTime() - started) / 1_000_000);
+            log.info("AI stream closed: finishReason={}, textCharacters={}, toolCalls={}, usage={}, elapsedMs={}", response.getFinishReason(), state.getText()
+                .length(), response.getTools().size(), state.getUsage(), (System.nanoTime() - started) / 1_000_000);
             return response;
         } catch (ThirdPartyApiException | IOException e) {
             log.warn("AI stream parsing failed: finishReason={}, textCharacters={}, toolCalls={}, usage={}, pendingLineBytes={}, pendingFrameCharacters={}, elapsedMs={}, errorType={}", state
@@ -216,7 +216,7 @@ class OpenAiStreamParser implements ChatStreamDecoder {
                 throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
             }
             state.getReasoningContent().append(reasoning.textValue());
-            deltaSink.reasoning().accept(reasoning.textValue());
+            deltaSink.getReasoning().accept(reasoning.textValue());
         }
         JsonNode text = delta.get("content");
         if (text != null && !text.isNull()) {

@@ -15,5 +15,23 @@
  */
 package com.clougence.clouddm.ds.ai;
 
-public record ChatStreamInterruption(ChatStreamSnapshot snapshot, Throwable error, boolean cancelled) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class ChatStreamInterruption {
+    private final ChatStreamSnapshot snapshot;
+
+    private final Throwable          error;
+
+    private final boolean            cancelled;
+
+    @JsonCreator
+    public ChatStreamInterruption(@JsonProperty("snapshot") ChatStreamSnapshot snapshot, @JsonProperty("error") Throwable error, @JsonProperty("cancelled") boolean cancelled){
+        this.snapshot = snapshot;
+        this.error = error;
+        this.cancelled = cancelled;
+    }
 }

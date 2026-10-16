@@ -101,7 +101,7 @@ public class ChatHttpTransport implements AutoCloseable {
             if (cancelled) {
                 interruptionError = null;
             }
-            listener.interrupted().accept(new ChatStreamInterruption(decoder.snapshot(), interruptionError, cancelled));
+            listener.getInterrupted().accept(new ChatStreamInterruption(decoder.snapshot(), interruptionError, cancelled));
             if (failure instanceof IOException io) {
                 throw io;
             }

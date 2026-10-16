@@ -50,7 +50,7 @@ public class OpenAiStreamingChatClient implements StreamingChatClient {
     @Override
     public ChatResponse stream(ChatEndpoint endpoint, ChatRequest request, ChatStreamControl control, ChatStreamListener listener) throws IOException {
         ChatRequest input = customizeRequest(OpenAiModelCompatibilityHelper.normalizeParameters(request));
-        List<Map<String, Object>> messages = input.messages().stream().map(message -> {
+        List<Map<String, Object>> messages = input.getMessages().stream().map(message -> {
             if (!"assistant".equals(message.get("role"))) {
                 return message;
             }
@@ -71,28 +71,28 @@ public class OpenAiStreamingChatClient implements StreamingChatClient {
             return adapted;
         }).toList();
 
-        Map<String, Object> body = new LinkedHashMap<>(input.parameters());
-        body.put("model", input.model());
+        Map<String, Object> body = new LinkedHashMap<>(input.getParameters());
+        body.put("model", input.getModel());
         body.put("messages", messages);
         body.put("stream", true);
         body.put("stream_options", Map.of("include_usage", true));
-        if (input.maxOutputTokens() != null) {
-            if (OpenAiModelCompatibilityHelper.usesMaxCompletionTokens(input.model())) {
-                body.putIfAbsent(ChatProtocolConstants.PARAMETER_MAX_COMPLETION_TOKENS, input.maxOutputTokens());
+        if (input.getMaxOutputTokens() != null) {
+            if (OpenAiModelCompatibilityHelper.usesMaxCompletionTokens(input.getModel())) {
+                body.putIfAbsent(ChatProtocolConstants.PARAMETER_MAX_COMPLETION_TOKENS, input.getMaxOutputTokens());
             } else {
-                body.put("max_tokens", input.maxOutputTokens());
+                body.put("max_tokens", input.getMaxOutputTokens());
             }
         }
-        if (!input.tools().isEmpty()) {
-            body.put("tools", input.tools());
+        if (!input.getTools().isEmpty()) {
+            body.put("tools", input.getTools());
         }
-        body.put("tool_choice", input.toolChoice().getValue());
+        body.put("tool_choice", input.getToolChoice().getValue());
         Request httpRequest = new Request.Builder().url(endpoint.getUrl())
             .header("Authorization", "Bearer " + endpoint.getApiKey())
             .header("Accept", "text/event-stream")
             .post(RequestBody.create(JsonUtils.toJson(body), MediaType.get("application/json; charset=utf-8")))
             .build();
-        OpenAiStreamParser parser = new OpenAiStreamParser(this::isContentFiltered, this::finishReasonWhenMissing, input.showReasoning());
+        OpenAiStreamParser parser = new OpenAiStreamParser(this::isContentFiltered, this::finishReasonWhenMissing, input.isShowReasoning());
         return transport.stream(httpRequest, control, parser, listener);
     }
 

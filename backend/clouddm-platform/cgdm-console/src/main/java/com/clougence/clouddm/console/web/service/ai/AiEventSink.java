@@ -124,10 +124,10 @@ public class AiEventSink {
                 }
                 writeStarted = System.nanoTime();
                 try {
-                    if (AiSqlConstants.EVENT_HEARTBEAT.equals(frame.type())) {
+                    if (AiSqlConstants.EVENT_HEARTBEAT.equals(frame.getType())) {
                         emitter.send(SseEmitter.event().comment(AiSqlConstants.EVENT_HEARTBEAT));
                     } else {
-                        emitter.send(SseEmitter.event().id(frame.id()).name(frame.type()).data(frame.json(), MediaType.APPLICATION_JSON));
+                        emitter.send(SseEmitter.event().id(frame.getId()).name(frame.getType()).data(frame.getJson(), MediaType.APPLICATION_JSON));
                     }
                 } finally {
                     writeStarted = 0;

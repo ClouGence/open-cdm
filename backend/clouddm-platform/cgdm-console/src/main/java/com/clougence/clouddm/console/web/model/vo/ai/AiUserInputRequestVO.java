@@ -18,8 +18,34 @@ package com.clougence.clouddm.console.web.model.vo.ai;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record AiUserInputRequestVO(@JsonProperty(AiSqlConstants.FIELD_SCHEMA_VERSION) int schemaVersion, @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_REQUEST_ID) String requestId,
-                                   String title, List<AiUserInputQuestionVO> questions, @JsonProperty(AiSqlConstants.FIELD_SUBMIT_LABEL) String submitLabel) {
+import lombok.Getter;
+
+@Getter
+public final class AiUserInputRequestVO {
+    @JsonProperty(AiSqlConstants.FIELD_SCHEMA_VERSION)
+    private final int                         schemaVersion;
+
+    @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_REQUEST_ID)
+    private final String                      requestId;
+
+    private final String                      title;
+
+    private final List<AiUserInputQuestionVO> questions;
+
+    @JsonProperty(AiSqlConstants.FIELD_SUBMIT_LABEL)
+    private final String                      submitLabel;
+
+    @JsonCreator
+    public AiUserInputRequestVO(@JsonProperty(AiSqlConstants.FIELD_SCHEMA_VERSION) int schemaVersion, @JsonProperty(AiSqlConstants.FIELD_USER_INPUT_REQUEST_ID) String requestId,
+                                @JsonProperty("title") String title, @JsonProperty("questions") List<AiUserInputQuestionVO> questions,
+                                @JsonProperty(AiSqlConstants.FIELD_SUBMIT_LABEL) String submitLabel){
+        this.schemaVersion = schemaVersion;
+        this.requestId = requestId;
+        this.title = title;
+        this.questions = questions;
+        this.submitLabel = submitLabel;
+    }
 }

@@ -17,10 +17,29 @@ package com.clougence.clouddm.console.web.model.vo.ai;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
 import com.clougence.clouddm.ds.ai.tool.ChatToolParameter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
 
-public record AiUserInputOptionVO(@ChatToolParameter(name = AiSqlConstants.FIELD_ID, description = "Stable option ID.") @NotBlank String id,
-                                  @ChatToolParameter(name = AiSqlConstants.FIELD_LABEL, description = "Short answer label.") @NotBlank String label,
-                                  @ChatToolParameter(name = AiSqlConstants.FIELD_DESCRIPTION, description = "Optional brief explanation.", required = false) String description) {
+@Getter
+public final class AiUserInputOptionVO {
+    @ChatToolParameter(name = AiSqlConstants.FIELD_ID, description = "Stable option ID.")
+    @NotBlank
+    private final String id;
+
+    @ChatToolParameter(name = AiSqlConstants.FIELD_LABEL, description = "Short answer label.")
+    @NotBlank
+    private final String label;
+
+    @ChatToolParameter(name = AiSqlConstants.FIELD_DESCRIPTION, description = "Optional brief explanation.", required = false)
+    private final String description;
+
+    @JsonCreator
+    public AiUserInputOptionVO(@JsonProperty("id") String id, @JsonProperty("label") String label, @JsonProperty("description") String description){
+        this.id = id;
+        this.label = label;
+        this.description = description;
+    }
 }

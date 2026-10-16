@@ -15,5 +15,26 @@
  */
 package com.clougence.clouddm.console.web.model.vo.ai;
 
-public record AiModelVO(String id, int version, String name, String model) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class AiModelVO {
+    private final String id;
+
+    private final int    version;
+
+    private final String name;
+
+    private final String model;
+
+    @JsonCreator
+    public AiModelVO(@JsonProperty("id") String id, @JsonProperty("version") int version, @JsonProperty("name") String name, @JsonProperty("model") String model){
+        this.id = id;
+        this.version = version;
+        this.name = name;
+        this.model = model;
+    }
 }

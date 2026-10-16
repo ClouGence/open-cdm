@@ -17,8 +17,28 @@ package com.clougence.clouddm.ds.ai;
 
 import java.util.List;
 
-public record ChatStreamSnapshot(String text, String reasoningContent, List<ChatPartialToolCall> tools, ChatUsage usage) {
-    public ChatStreamSnapshot{
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class ChatStreamSnapshot {
+    private final String                    text;
+
+    private final String                    reasoningContent;
+
+    private final List<ChatPartialToolCall> tools;
+
+    private final ChatUsage                 usage;
+
+    @JsonCreator
+    public ChatStreamSnapshot(@JsonProperty("text") String text, @JsonProperty("reasoningContent") String reasoningContent, @JsonProperty("tools") List<ChatPartialToolCall> tools,
+                              @JsonProperty("usage") ChatUsage usage){
         tools = List.copyOf(tools);
+        this.text = text;
+        this.reasoningContent = reasoningContent;
+        this.tools = tools;
+        this.usage = usage;
     }
 }

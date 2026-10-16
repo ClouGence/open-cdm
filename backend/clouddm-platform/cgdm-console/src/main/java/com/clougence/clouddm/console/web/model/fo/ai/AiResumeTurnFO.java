@@ -16,11 +16,31 @@
 package com.clougence.clouddm.console.web.model.fo.ai;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
 
-public record AiResumeTurnFO(@NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String sessionId, @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String requestId,
-                             @Size(max = 128) String streamClientId) {
+@Getter
+public final class AiResumeTurnFO {
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String sessionId;
+
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String requestId;
+
+    @Size(max = 128)
+    private final String streamClientId;
+
+    @JsonCreator
+    public AiResumeTurnFO(@JsonProperty("sessionId") String sessionId, @JsonProperty("requestId") String requestId, @JsonProperty("streamClientId") String streamClientId){
+        this.sessionId = sessionId;
+        this.requestId = requestId;
+        this.streamClientId = streamClientId;
+    }
 }

@@ -97,8 +97,8 @@ final class OpenAiModelCompatibilityHelper {
     }
 
     static ChatRequest normalizeParameters(ChatRequest request) {
-        Map<String, Object> parameters = new LinkedHashMap<>(request.parameters());
-        String effort = normalizeReasoningEffort(request.model(), (String) parameters.get(ChatProtocolConstants.PARAMETER_REASONING_EFFORT));
+        Map<String, Object> parameters = new LinkedHashMap<>(request.getParameters());
+        String effort = normalizeReasoningEffort(request.getModel(), (String) parameters.get(ChatProtocolConstants.PARAMETER_REASONING_EFFORT));
         Number temperature = (Number) parameters.get(ChatProtocolConstants.PARAMETER_TEMPERATURE);
         Number topP = (Number) parameters.get(ChatProtocolConstants.PARAMETER_TOP_P);
         Double temperatureValue = null;
@@ -110,10 +110,11 @@ final class OpenAiModelCompatibilityHelper {
             topPValue = topP.doubleValue();
         }
         parameters.put(ChatProtocolConstants.PARAMETER_REASONING_EFFORT, effort);
-        parameters.put(ChatProtocolConstants.PARAMETER_TEMPERATURE, normalizeTemperature(request.model(), temperatureValue, effort));
-        parameters.put(ChatProtocolConstants.PARAMETER_TOP_P, normalizeTopP(request.model(), topPValue, effort));
+        parameters.put(ChatProtocolConstants.PARAMETER_TEMPERATURE, normalizeTemperature(request.getModel(), temperatureValue, effort));
+        parameters.put(ChatProtocolConstants.PARAMETER_TOP_P, normalizeTopP(request.getModel(), topPValue, effort));
         parameters.values().removeIf(Objects::isNull);
-        return new ChatRequest(request.model(), request.messages(), request.tools(), request.toolChoice(), request.maxOutputTokens(), request.showReasoning(), parameters);
+        return new ChatRequest(request
+            .getModel(), request.getMessages(), request.getTools(), request.getToolChoice(), request.getMaxOutputTokens(), request.isShowReasoning(), parameters);
     }
 
     static boolean usesMaxCompletionTokens(String modelName) {

@@ -17,5 +17,27 @@ package com.clougence.clouddm.console.web.model.ai;
 
 import java.util.List;
 
-public record AiCompactionSelection(List<AiCompactionBlock> blocks, int historyCount, int currentMessageCount, Long anchorId) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class AiCompactionSelection {
+    private final List<AiCompactionBlock> blocks;
+
+    private final int                     historyCount;
+
+    private final int                     currentMessageCount;
+
+    private final Long                    anchorId;
+
+    @JsonCreator
+    public AiCompactionSelection(@JsonProperty("blocks") List<AiCompactionBlock> blocks, @JsonProperty("historyCount") int historyCount,
+                                 @JsonProperty("currentMessageCount") int currentMessageCount, @JsonProperty("anchorId") Long anchorId){
+        this.blocks = blocks;
+        this.historyCount = historyCount;
+        this.currentMessageCount = currentMessageCount;
+        this.anchorId = anchorId;
+    }
 }

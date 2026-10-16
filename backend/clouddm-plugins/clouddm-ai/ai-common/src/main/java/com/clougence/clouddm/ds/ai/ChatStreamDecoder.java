@@ -26,6 +26,6 @@ public interface ChatStreamDecoder {
 
     default ChatResponse contentFiltered() {
         ChatStreamSnapshot partial = snapshot();
-        return new ChatResponse(partial.text(), partial.reasoningContent(), List.of(), partial.usage(), ChatFinishReason.CONTENT_FILTER);
+        return new ChatResponse(partial.getText(), partial.getReasoningContent(), List.of(), partial.getUsage(), ChatFinishReason.CONTENT_FILTER);
     }
 }

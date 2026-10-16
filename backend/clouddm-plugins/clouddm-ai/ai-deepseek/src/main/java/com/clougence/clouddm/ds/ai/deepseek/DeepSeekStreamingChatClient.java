@@ -25,13 +25,14 @@ import com.clougence.clouddm.ds.ai.openai.OpenAiStreamingChatClient;
 public class DeepSeekStreamingChatClient extends OpenAiStreamingChatClient {
     @Override
     protected ChatRequest customizeRequest(ChatRequest request) {
-        Map<String, Object> parameters = new LinkedHashMap<>(request.parameters());
+        Map<String, Object> parameters = new LinkedHashMap<>(request.getParameters());
         String thinking = "disabled";
-        if (request.showReasoning()) {
+        if (request.isShowReasoning()) {
             thinking = "enabled";
         }
         parameters.put(ChatProtocolConstants.PARAMETER_THINKING, Map.of("type", thinking));
-        return new ChatRequest(request.model(), request.messages(), request.tools(), request.toolChoice(), request.maxOutputTokens(), request.showReasoning(), parameters);
+        return new ChatRequest(request
+            .getModel(), request.getMessages(), request.getTools(), request.getToolChoice(), request.getMaxOutputTokens(), request.isShowReasoning(), parameters);
     }
 
     @Override

@@ -18,5 +18,20 @@ package com.clougence.clouddm.console.web.model.ai;
 import java.util.List;
 import java.util.Map;
 
-public record AiCompactionBlock(Long anchorId, List<Map<String, Object>> messages) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class AiCompactionBlock {
+    private final Long                      anchorId;
+
+    private final List<Map<String, Object>> messages;
+
+    @JsonCreator
+    public AiCompactionBlock(@JsonProperty("anchorId") Long anchorId, @JsonProperty("messages") List<Map<String, Object>> messages){
+        this.anchorId = anchorId;
+        this.messages = messages;
+    }
 }

@@ -97,7 +97,7 @@ public class AiTurnController {
     public ResWebData<?> createSession(@Valid @RequestBody AiCreateSessionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        AiEngineConfigVO engine = engines.requireAvailable(puid, uid, fo.engineId(), fo.engineVersion());
+        AiEngineConfigVO engine = engines.requireAvailable(puid, uid, fo.getEngineId(), fo.getEngineVersion());
         return ResWebDataUtils.buildSuccess(sessions.create(puid, uid, engine));
     }
 
@@ -130,7 +130,7 @@ public class AiTurnController {
     public ResWebData<?> cancelTurn(@Valid @RequestBody AiCancelTurnFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        AiTurnRecordVO turn = turns.cancel(puid, uid, fo.sessionId(), fo.requestId());
+        AiTurnRecordVO turn = turns.cancel(puid, uid, fo.getSessionId(), fo.getRequestId());
         return ResWebDataUtils.buildSuccess(Map.of(AiSqlConstants.FIELD_TURN_ID, turn.getId(), AiSqlConstants.FIELD_STATUS, turn.getStatus()));
     }
 
@@ -139,7 +139,7 @@ public class AiTurnController {
     public ResWebData<?> deleteSession(@Valid @RequestBody AiSessionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        store.delete(puid, uid, fo.sessionId());
+        store.delete(puid, uid, fo.getSessionId());
         return ResWebDataUtils.buildSuccess(Map.of(AiSqlConstants.FIELD_DELETED, true));
     }
 

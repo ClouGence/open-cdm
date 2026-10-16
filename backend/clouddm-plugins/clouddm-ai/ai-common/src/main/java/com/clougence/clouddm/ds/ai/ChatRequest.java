@@ -20,13 +20,32 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
 /** Provider-neutral chat input; extension parameters cannot override the streaming contract. */
-public record ChatRequest(String model, List<Map<String, Object>> messages, List<Map<String, Object>> tools, ChatToolChoice toolChoice, Integer maxOutputTokens,
-                          boolean showReasoning, Map<String, Object> parameters) {
+@Getter
+public final class ChatRequest {
+    private final String                    model;
 
-    private static final Set<String> RESERVED = Set.of("model", "messages", "tools", "tool_choice", "stream", "stream_options", "max_tokens", "n");
+    private final List<Map<String, Object>> messages;
 
-    public ChatRequest{
+    private final List<Map<String, Object>> tools;
+
+    private final ChatToolChoice            toolChoice;
+
+    private final Integer                   maxOutputTokens;
+
+    private final boolean                   showReasoning;
+
+    private final Map<String, Object>       parameters;
+
+    @JsonCreator
+    public ChatRequest(@JsonProperty("model") String model, @JsonProperty("messages") List<Map<String, Object>> messages, @JsonProperty("tools") List<Map<String, Object>> tools,
+                       @JsonProperty("toolChoice") ChatToolChoice toolChoice, @JsonProperty("maxOutputTokens") Integer maxOutputTokens,
+                       @JsonProperty("showReasoning") boolean showReasoning, @JsonProperty("parameters") Map<String, Object> parameters){
         Objects.requireNonNull(toolChoice);
         if (model == null || model.isBlank() || messages.isEmpty() || (maxOutputTokens != null && maxOutputTokens <= 0)
             || (toolChoice == ChatToolChoice.REQUIRED && tools.isEmpty()) || parameters.keySet().stream().anyMatch(RESERVED::contains)) {
@@ -35,5 +54,14 @@ public record ChatRequest(String model, List<Map<String, Object>> messages, List
         messages = List.copyOf(messages);
         tools = List.copyOf(tools);
         parameters = Map.copyOf(parameters);
+        this.model = model;
+        this.messages = messages;
+        this.tools = tools;
+        this.toolChoice = toolChoice;
+        this.maxOutputTokens = maxOutputTokens;
+        this.showReasoning = showReasoning;
+        this.parameters = parameters;
     }
+
+    private static final Set<String> RESERVED = Set.of("model", "messages", "tools", "tool_choice", "stream", "stream_options", "max_tokens", "n");
 }

@@ -15,7 +15,26 @@
  */
 package com.clougence.clouddm.ds.ai.tool;
 
-public record ChatToolOutcome(boolean success, String text, Object value) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class ChatToolOutcome {
+    private final boolean success;
+
+    private final String  text;
+
+    private final Object  value;
+
+    @JsonCreator
+    public ChatToolOutcome(@JsonProperty("success") boolean success, @JsonProperty("text") String text, @JsonProperty("value") Object value){
+        this.success = success;
+        this.text = text;
+        this.value = value;
+    }
+
     public static ChatToolOutcome error(String message) {
         return new ChatToolOutcome(false, ChatToolConstants.ERROR_PREFIX + message, null);
     }

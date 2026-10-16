@@ -17,5 +17,20 @@ package com.clougence.clouddm.console.web.model.ai;
 
 import java.util.Map;
 
-public record AiForeignKey(String table, Map<String, String> columns) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class AiForeignKey {
+    private final String              table;
+
+    private final Map<String, String> columns;
+
+    @JsonCreator
+    public AiForeignKey(@JsonProperty("table") String table, @JsonProperty("columns") Map<String, String> columns){
+        this.table = table;
+        this.columns = columns;
+    }
 }

@@ -79,18 +79,18 @@ public class AiRunEvents {
 
     public synchronized void toolStarted(ChatToolCall call) {
         String phase = AiSqlConstants.PHASE_READING;
-        if (AiSqlConstants.TOOL_LIST_TABLES.equals(call.name())) {
+        if (AiSqlConstants.TOOL_LIST_TABLES.equals(call.getName())) {
             phase = AiSqlConstants.PHASE_SEARCHING;
-        } else if (AiSqlConstants.TOOL_GENERATE_SQL.equals(call.name())) {
+        } else if (AiSqlConstants.TOOL_GENERATE_SQL.equals(call.getName())) {
             phase = AiSqlConstants.PHASE_GENERATING;
         }
         emit(AiSqlConstants.EVENT_PHASE, Map.of(AiSqlConstants.FIELD_PHASE, phase));
-        emit(AiSqlConstants.EVENT_TOOL_STARTED, Map.of(AiSqlConstants.FIELD_TOOL_CALL_ID, call.id(), AiSqlConstants.FIELD_TOOL_NAME, call.name()));
+        emit(AiSqlConstants.EVENT_TOOL_STARTED, Map.of(AiSqlConstants.FIELD_TOOL_CALL_ID, call.getId(), AiSqlConstants.FIELD_TOOL_NAME, call.getName()));
     }
 
     public synchronized void toolCompleted(ChatToolCall call, ChatToolOutcome outcome) {
         List<Map<String, String>> observed = new ArrayList<>();
-        if (outcome.success() && !AiSqlConstants.TOOL_GENERATE_SQL.equals(call.name()) && outcome.value() instanceof Map<?, ?> value) {
+        if (outcome.isSuccess() && !AiSqlConstants.TOOL_GENERATE_SQL.equals(call.getName()) && outcome.getValue() instanceof Map<?, ?> value) {
             JsonNode exposed = JsonUtils.defaultObjectMapper().valueToTree(value);
             for (JsonNode item : exposed.path(AiSqlConstants.FIELD_ITEMS)) {
                 String type = item.path(AiSqlConstants.FIELD_TYPE).textValue();
@@ -105,16 +105,16 @@ public class AiRunEvents {
             }
         }
         String status = AiSqlConstants.TOOL_STATUS_ERROR;
-        if (outcome.success()) {
+        if (outcome.isSuccess()) {
             status = AiSqlConstants.TOOL_STATUS_OK;
         }
         Map<String, Object> completed = new LinkedHashMap<>();
-        completed.put(AiSqlConstants.FIELD_TOOL_CALL_ID, call.id());
-        completed.put(AiSqlConstants.FIELD_TOOL_NAME, call.name());
+        completed.put(AiSqlConstants.FIELD_TOOL_CALL_ID, call.getId());
+        completed.put(AiSqlConstants.FIELD_TOOL_NAME, call.getName());
         completed.put(AiSqlConstants.FIELD_OBJECTS, observed);
         completed.put(AiSqlConstants.FIELD_STATUS, status);
-        if (outcome.success() && AiSqlConstants.TOOL_GENERATE_SQL.equals(call.name())) {
-            completed.put(AiSqlConstants.FIELD_RESULT, outcome.value());
+        if (outcome.isSuccess() && AiSqlConstants.TOOL_GENERATE_SQL.equals(call.getName())) {
+            completed.put(AiSqlConstants.FIELD_RESULT, outcome.getValue());
         }
         emit(AiSqlConstants.EVENT_TOOL_COMPLETED, completed);
     }

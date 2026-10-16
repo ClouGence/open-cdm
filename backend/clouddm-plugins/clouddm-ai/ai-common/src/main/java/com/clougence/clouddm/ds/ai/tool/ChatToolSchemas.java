@@ -84,16 +84,19 @@ final class ChatToolSchemas {
             kind = ChatToolConstants.INTEGER;
         } else if (Number.class.isAssignableFrom(raw) || raw == double.class || raw == float.class) {
             kind = ChatToolConstants.NUMBER;
-        } else if (raw.isRecord()) {
+        } else if (Arrays.stream(raw.getDeclaredFields()).anyMatch(field -> field.isAnnotationPresent(ChatToolParameter.class))) {
             kind = ChatToolConstants.OBJECT;
             Map<String, Object> properties = new LinkedHashMap<>();
             List<String> required = new ArrayList<>();
-            for (RecordComponent component : raw.getRecordComponents()) {
-                ChatToolParameter contract = component.getAnnotation(ChatToolParameter.class);
-                if (contract == null) {
-                    throw new IllegalArgumentException("Tool record component requires @ChatToolParameter: " + component.getName());
+            for (Field field : raw.getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers()) || field.isSynthetic()) {
+                    continue;
                 }
-                Map<String, Object> property = schema(component.getAnnotatedType());
+                ChatToolParameter contract = field.getAnnotation(ChatToolParameter.class);
+                if (contract == null) {
+                    throw new IllegalArgumentException("Tool field requires @ChatToolParameter: " + field.getName());
+                }
+                Map<String, Object> property = schema(field.getAnnotatedType());
                 property.put(ChatToolConstants.DESCRIPTION, contract.description());
                 properties.put(contract.name(), property);
                 if (contract.required()) {

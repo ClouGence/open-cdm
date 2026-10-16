@@ -83,11 +83,11 @@ public class AiToolService {
     public boolean validateBatch(List<ChatToolCall> calls, AiConversation conversation) {
         Set<String> ids = new LinkedHashSet<>();
         for (ChatToolCall call : calls) {
-            if (!ids.add(call.id())) {
+            if (!ids.add(call.getId())) {
                 throw ThirdPartyApiException.as().with(ChatProtocolConstants.ERROR_MODEL_PROTOCOL);
             }
         }
-        if (calls.size() > 1 && calls.stream().anyMatch(call -> AiSqlConstants.TOOL_ASK_USER_QUESTIONS.equals(call.name()))) {
+        if (calls.size() > 1 && calls.stream().anyMatch(call -> AiSqlConstants.TOOL_ASK_USER_QUESTIONS.equals(call.getName()))) {
             for (ChatToolCall call : calls) {
                 conversation.addToolResult(call, ChatToolConstants.ERROR_PREFIX + AiSqlConstants.TOOL_ASK_USER_QUESTIONS
                                                  + " must be the only tool call in its assistant turn. No tool in this batch was executed; plan a new batch.");
@@ -98,35 +98,35 @@ public class AiToolService {
     }
 
     public ChatToolOutcome execute(ChatToolRegistry registry, ChatToolCall call, AiRunHandle handle, AiPermit permit) {
-        if (AiSqlConstants.TOOL_GENERATE_SQL.equals(call.name()) || AiSqlConstants.TOOL_ASK_USER_QUESTIONS.equals(call.name())) {
+        if (AiSqlConstants.TOOL_GENERATE_SQL.equals(call.getName()) || AiSqlConstants.TOOL_ASK_USER_QUESTIONS.equals(call.getName())) {
             return execute(registry, call);
         }
         return executor.submit(handle, permit, () -> execute(registry, call)).join();
     }
 
     private ChatToolOutcome execute(ChatToolRegistry registry, ChatToolCall call) {
-        ChatToolExecutor executor = registry.executor(call.name());
+        ChatToolExecutor executor = registry.executor(call.getName());
         if (executor == null) {
-            return ChatToolOutcome.error("Tool not found: " + call.name() + ". Use a registered tool name.");
+            return ChatToolOutcome.error("Tool not found: " + call.getName() + ". Use a registered tool name.");
         }
         try {
-            Object value = executor.execute(ChatToolArguments.parse(call.arguments()));
+            Object value = executor.execute(ChatToolArguments.parse(call.getArguments()));
             String text = registry.resultText(value);
             return new ChatToolOutcome(!text.startsWith(ChatToolConstants.ERROR_PREFIX), text, value);
         } catch (CancellationException e) {
             throw e;
         } catch (IllegalArgumentException e) {
-            log.warn("AI tool arguments rejected: toolCallId={}, toolName={}", call.id(), call.name(), e);
+            log.warn("AI tool arguments rejected: toolCallId={}, toolName={}", call.getId(), call.getName(), e);
             return ChatToolOutcome.error(e.getMessage());
         } catch (ErrorMessageException e) {
             // Authorization and lifecycle failures remain terminal; ordinary tool failures are returned to the model.
             if (!AiError.METADATA_FAILED.name().equals(e.getErrorCode())) {
                 throw e;
             }
-            log.error("AI tool failed: {}", call.name(), e);
+            log.error("AI tool failed: {}", call.getName(), e);
             return ChatToolOutcome.error(AiError.METADATA_FAILED.message());
         } catch (Exception e) {
-            log.error("AI tool failed: {}", call.name(), e);
+            log.error("AI tool failed: {}", call.getName(), e);
             return ChatToolOutcome.error(AiError.METADATA_FAILED.message());
         }
     }

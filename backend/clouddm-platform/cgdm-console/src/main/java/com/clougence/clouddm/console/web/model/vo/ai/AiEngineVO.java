@@ -19,7 +19,53 @@ import java.time.Instant;
 
 import com.clougence.clouddm.platform.dal.model.ai.AiPreset;
 import com.clougence.clouddm.platform.dal.model.ai.AiVerificationStatus;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record AiEngineVO(String id, String name, AiPreset preset, String model, String baseUrl, int version, AiVerificationStatus verificationStatus, Integer verifiedVersion,
-                         Instant verifiedAt, boolean hasApiKey, Instant createdAt, Instant modifiedAt) {
+import lombok.Getter;
+
+@Getter
+public final class AiEngineVO {
+    private final String               id;
+
+    private final String               name;
+
+    private final AiPreset             preset;
+
+    private final String               model;
+
+    private final String               baseUrl;
+
+    private final int                  version;
+
+    private final AiVerificationStatus verificationStatus;
+
+    private final Integer              verifiedVersion;
+
+    private final Instant              verifiedAt;
+
+    private final boolean              hasApiKey;
+
+    private final Instant              createdAt;
+
+    private final Instant              modifiedAt;
+
+    @JsonCreator
+    public AiEngineVO(@JsonProperty("id") String id, @JsonProperty("name") String name, @JsonProperty("preset") AiPreset preset, @JsonProperty("model") String model,
+                      @JsonProperty("baseUrl") String baseUrl, @JsonProperty("version") int version, @JsonProperty("verificationStatus") AiVerificationStatus verificationStatus,
+                      @JsonProperty("verifiedVersion") Integer verifiedVersion, @JsonProperty("verifiedAt") Instant verifiedAt, @JsonProperty("hasApiKey") boolean hasApiKey,
+                      @JsonProperty("createdAt") Instant createdAt, @JsonProperty("modifiedAt") Instant modifiedAt){
+        this.id = id;
+        this.name = name;
+        this.preset = preset;
+        this.model = model;
+        this.baseUrl = baseUrl;
+        this.version = version;
+        this.verificationStatus = verificationStatus;
+        this.verifiedVersion = verifiedVersion;
+        this.verifiedAt = verifiedAt;
+        this.hasApiKey = hasApiKey;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+    }
 }

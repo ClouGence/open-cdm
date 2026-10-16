@@ -18,8 +18,26 @@ package com.clougence.clouddm.console.web.model.ai;
 import org.hibernate.validator.constraints.CodePointLength;
 
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-public record AiObject(@NotNull UmiTypes type, @NotNull @CodePointLength(min = 1, max = 512) String name) {
+@Getter
+@EqualsAndHashCode
+public final class AiObject {
+    @NotNull
+    private final UmiTypes type;
+
+    @NotNull
+    @CodePointLength(min = 1, max = 512)
+    private final String   name;
+
+    @JsonCreator
+    public AiObject(@JsonProperty("type") UmiTypes type, @JsonProperty("name") String name){
+        this.type = type;
+        this.name = name;
+    }
 }

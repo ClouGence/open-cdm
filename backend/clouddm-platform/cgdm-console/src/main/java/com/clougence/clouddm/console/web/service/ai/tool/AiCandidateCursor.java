@@ -16,6 +16,20 @@
 package com.clougence.clouddm.console.web.service.ai.tool;
 
 import com.clougence.clouddm.console.web.model.ai.AiObject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record AiCandidateCursor(String keyword, AiObject after) {
+import lombok.Getter;
+
+@Getter
+public final class AiCandidateCursor {
+    private final String   keyword;
+
+    private final AiObject after;
+
+    @JsonCreator
+    public AiCandidateCursor(@JsonProperty("keyword") String keyword, @JsonProperty("after") AiObject after){
+        this.keyword = keyword;
+        this.after = after;
+    }
 }

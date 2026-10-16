@@ -73,7 +73,7 @@ public class AiModelClient {
             ChatResponse reply = clients.get(engine.getPreset()).stream(endpoint, request, handle.getStreamControl(), deltas);
             handle.checkActive();
             log.info("AI model request completed: engineId={}, model={}, finishReason={}, textCharacters={}, toolCalls={}, usage={}, elapsedMs={}", engine.getId(), engine
-                .getModel(), reply.finishReason(), reply.text().length(), reply.tools().size(), reply.usage(), (System.nanoTime() - started) / 1_000_000);
+                .getModel(), reply.getFinishReason(), reply.getText().length(), reply.getTools().size(), reply.getUsage(), (System.nanoTime() - started) / 1_000_000);
             return reply;
         } catch (ThirdPartyApiException e) {
             handle.checkActive();

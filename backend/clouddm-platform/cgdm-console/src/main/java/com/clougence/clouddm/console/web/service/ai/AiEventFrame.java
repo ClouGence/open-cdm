@@ -15,5 +15,23 @@
  */
 package com.clougence.clouddm.console.web.service.ai;
 
-public record AiEventFrame(String id, String type, String json) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class AiEventFrame {
+    private final String id;
+
+    private final String type;
+
+    private final String json;
+
+    @JsonCreator
+    public AiEventFrame(@JsonProperty("id") String id, @JsonProperty("type") String type, @JsonProperty("json") String json){
+        this.id = id;
+        this.type = type;
+        this.json = json;
+    }
 }

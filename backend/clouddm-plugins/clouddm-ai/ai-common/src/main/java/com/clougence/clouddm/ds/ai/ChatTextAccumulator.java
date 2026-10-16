@@ -79,10 +79,10 @@ public class ChatTextAccumulator {
     private void write(String chunk, ChatStreamListener listener) {
         if (thinking) {
             reasoning.append(chunk);
-            listener.reasoning().accept(chunk);
+            listener.getReasoning().accept(chunk);
         } else if (!chunk.isEmpty()) {
             text.append(chunk);
-            listener.text().accept(chunk);
+            listener.getText().accept(chunk);
         }
     }
 }

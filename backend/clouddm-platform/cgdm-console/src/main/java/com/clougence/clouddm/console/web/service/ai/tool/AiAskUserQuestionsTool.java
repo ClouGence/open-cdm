@@ -37,32 +37,32 @@ public final class AiAskUserQuestionsTool {
         List<AiUserInputQuestionVO> normalized = new ArrayList<>();
         Set<String> ids = new HashSet<>();
         for (AiUserInputQuestionVO question : questions) {
-            String id = question.id().strip();
+            String id = question.getId().strip();
             if (!ids.add(id)) {
                 throw new IllegalArgumentException("Question IDs must be unique.");
             }
             List<AiUserInputOptionVO> options = List.of();
-            if (question.type() != AiUserInputQuestionType.FREE_TEXT) {
-                if (question.options() == null || question.options().size() < 2 || question.options().size() > 3) {
+            if (question.getType() != AiUserInputQuestionType.FREE_TEXT) {
+                if (question.getOptions() == null || question.getOptions().size() < 2 || question.getOptions().size() > 3) {
                     throw new IllegalArgumentException("Choice questions require 2-3 options.");
                 }
                 Set<String> optionIds = new HashSet<>();
                 options = new ArrayList<>();
-                for (AiUserInputOptionVO option : question.options()) {
-                    String optionId = option.id().strip();
+                for (AiUserInputOptionVO option : question.getOptions()) {
+                    String optionId = option.getId().strip();
                     if (!optionIds.add(optionId)) {
                         throw new IllegalArgumentException("Option IDs must be unique.");
                     }
-                    options.add(new AiUserInputOptionVO(optionId, option.label().strip(), option.description()));
+                    options.add(new AiUserInputOptionVO(optionId, option.getLabel().strip(), option.getDescription()));
                 }
             }
             normalized.add(new AiUserInputQuestionVO(id,
-                question.label(),
-                question.question().strip(),
-                question.type(),
+                question.getLabel(),
+                question.getQuestion().strip(),
+                question.getType(),
                 options,
-                !Boolean.FALSE.equals(question.allowCustom()),
-                !Boolean.FALSE.equals(question.required())));
+                !Boolean.FALSE.equals(question.getAllowCustom()),
+                !Boolean.FALSE.equals(question.getRequired())));
         }
         return new AiUserInputRequestVO(2, UUID.randomUUID().toString(), title, normalized, submitLabel);
     }

@@ -19,5 +19,27 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-public record AiSessionListVO(List<Map<String, Object>> items, boolean hasMore, Instant nextModifiedAt, String nextId) {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class AiSessionListVO {
+    private final List<Map<String, Object>> items;
+
+    private final boolean                   hasMore;
+
+    private final Instant                   nextModifiedAt;
+
+    private final String                    nextId;
+
+    @JsonCreator
+    public AiSessionListVO(@JsonProperty("items") List<Map<String, Object>> items, @JsonProperty("hasMore") boolean hasMore, @JsonProperty("nextModifiedAt") Instant nextModifiedAt,
+                           @JsonProperty("nextId") String nextId){
+        this.items = items;
+        this.hasMore = hasMore;
+        this.nextModifiedAt = nextModifiedAt;
+        this.nextId = nextId;
+    }
 }

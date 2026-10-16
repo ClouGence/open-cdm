@@ -109,10 +109,10 @@ public class AiPlatformAccess {
     private void requireObjects(String uid, DsLevels levels, List<AiObject> objects) {
         ResourceAccessInfo allowed = resources.getAllowBrowseInfo(levels, uid);
         for (AiObject object : objects) {
-            if (object.type() != UmiTypes.Table && object.type() != UmiTypes.View) {
+            if (object.getType() != UmiTypes.Table && object.getType() != UmiTypes.View) {
                 throw AiError.INVALID_REQUEST.exception();
             }
-            if (!allowed.isAllAllow() && !allowed.getAllowQueryList().contains(object.name())) {
+            if (!allowed.isAllAllow() && !allowed.getAllowQueryList().contains(object.getName())) {
                 throw AiError.CONTEXT_REVOKED.exception();
             }
         }
@@ -134,7 +134,7 @@ public class AiPlatformAccess {
                 result.add(new AiObject(type, entry.getObjName()));
             }
         }
-        List<AiObject> objects = result.stream().sorted(Comparator.comparing(AiObject::name).thenComparing(o -> o.type().name())).toList();
+        List<AiObject> objects = result.stream().sorted(Comparator.comparing(AiObject::getName).thenComparing(o -> o.getType().name())).toList();
         authorizeObjects(puid, uid, levels, objects);
         return objects;
     }
@@ -147,9 +147,9 @@ public class AiPlatformAccess {
         Map<AiObject, AiTableSchema> authorized = new LinkedHashMap<>();
         for (AiObject object : objects) {
             handle.checkActive();
-            Value value = schema.detailLeaf(levels.dsDO(), levels.levelsParam(), object.type(), object.name(), false);
+            Value value = schema.detailLeaf(levels.dsDO(), levels.levelsParam(), object.getType(), object.getName(), false);
             handle.checkActive();
-            if (!(value instanceof RdbTable table) || !object.name().equals(table.getName()) || table.getColumns() == null || table.getColumns().isEmpty()) {
+            if (!(value instanceof RdbTable table) || !object.getName().equals(table.getName()) || table.getColumns() == null || table.getColumns().isEmpty()) {
                 throw AiError.METADATA_FAILED.exception();
             }
             tables.put(object, table);
@@ -158,12 +158,18 @@ public class AiPlatformAccess {
         List<AiTableSchema> result = new ArrayList<>();
         for (AiTableSchema visible : authorized.values()) {
             handle.checkActive();
-            List<AiForeignKey> keys = authorizedForeignKeys(tables.get(visible.object()), visible, authorized);
-            result.add(new AiTableSchema(visible
-                .object(), visible.comment(), visible.columns(), visible.columnsComplete(), visible.primaryKey(), keys, visible.keysKnown(), visible.schemaReadAt()));
+            List<AiForeignKey> keys = authorizedForeignKeys(tables.get(visible.getObject()), visible, authorized);
+            result.add(new AiTableSchema(visible.getObject(),
+                visible.getComment(),
+                visible.getColumns(),
+                visible.isColumnsComplete(),
+                visible.getPrimaryKey(),
+                keys,
+                visible.isKeysKnown(),
+                visible.getSchemaReadAt()));
         }
         authorizeReferences(puid, uid, levels, result.stream()
-            .map(table -> new AiContextReference(table.object().type(), table.object().name(), table.columns().stream().map(AiColumn::name).toList()))
+            .map(table -> new AiContextReference(table.getObject().getType(), table.getObject().getName(), table.getColumns().stream().map(AiColumn::getName).toList()))
             .toList());
         handle.checkActive();
         return List.copyOf(result);
@@ -172,7 +178,7 @@ public class AiPlatformAccess {
     private AiTableSchema describeColumns(String puid, String uid, DsLevels levels, AiObject object, RdbTable table) {
         List<AiColumn> columns = new ArrayList<>();
         List<String> objectPath = new ArrayList<>(levels.dbLevels());
-        objectPath.add(object.name());
+        objectPath.add(object.getName());
         boolean fullTable = authorization
             .checkResAuthWithoutError(puid, uid, levels.dsDO().getId(), RdpAuthUtils.genResPathByList(objectPath), SecDataAuthLabel.DM_DAUTH_QUERY, AuthKind.DataSource);
         for (RdbColumn column : table.getColumns().values()) {
@@ -196,7 +202,7 @@ public class AiPlatformAccess {
         }
         List<String> primaryKey = List.of();
         Set<String> visibleColumns = new HashSet<>();
-        columns.forEach(column -> visibleColumns.add(column.name()));
+        columns.forEach(column -> visibleColumns.add(column.getName()));
         if (columns.isEmpty()) {
             throw AiError.CONTEXT_REVOKED.exception();
         }
@@ -223,7 +229,7 @@ public class AiPlatformAccess {
             return result;
         }
         Set<String> sourceColumns = new HashSet<>();
-        source.columns().forEach(column -> sourceColumns.add(column.name()));
+        source.getColumns().forEach(column -> sourceColumns.add(column.getName()));
         for (RdbForeignKey key : table.getForeignKeys()) {
             AiObject target = new AiObject(UmiTypes.Table, key.getReferenceTable());
             if (!authorized.containsKey(target) || !Objects.equals(table.getCatalog(), key.getReferenceCatalog()) || !Objects.equals(table.getSchema(), key.getReferenceSchema())
@@ -231,9 +237,9 @@ public class AiPlatformAccess {
                 continue;
             }
             Set<String> targetColumns = new HashSet<>();
-            authorized.get(target).columns().forEach(column -> targetColumns.add(column.name()));
+            authorized.get(target).getColumns().forEach(column -> targetColumns.add(column.getName()));
             if (sourceColumns.containsAll(key.getReferenceMapping().keySet()) && targetColumns.containsAll(key.getReferenceMapping().values())) {
-                result.add(new AiForeignKey(target.name(), Map.copyOf(key.getReferenceMapping())));
+                result.add(new AiForeignKey(target.getName(), Map.copyOf(key.getReferenceMapping())));
             }
         }
         return List.copyOf(result);
@@ -241,18 +247,18 @@ public class AiPlatformAccess {
 
     public void authorizeReferences(String puid, String uid, DsLevels levels, List<AiContextReference> references) {
         levels = namespace(puid, uid, levels.levels());
-        requireObjects(uid, levels, references.stream().map(r -> new AiObject(r.type(), r.name())).toList());
+        requireObjects(uid, levels, references.stream().map(r -> new AiObject(r.getType(), r.getName())).toList());
         for (AiContextReference reference : references) {
-            if (reference.columns().isEmpty()) {
+            if (reference.getColumns().isEmpty()) {
                 continue;
             }
             List<String> path = new ArrayList<>(levels.dbLevels());
-            path.add(reference.name());
+            path.add(reference.getName());
             if (authorization
                 .checkResAuthWithoutError(puid, uid, levels.dsDO().getId(), RdpAuthUtils.genResPathByList(path), SecDataAuthLabel.DM_DAUTH_QUERY, AuthKind.DataSource)) {
                 continue;
             }
-            for (String column : reference.columns()) {
+            for (String column : reference.getColumns()) {
                 if (!authorization.checkResAuthWithoutError(puid, uid, levels.dsDO().getId(), RdpAuthUtils
                     .genResPathByList(path, column), SecDataAuthLabel.DM_DAUTH_QUERY, AuthKind.DataSource)) {
                     throw AiError.CONTEXT_REVOKED.exception();

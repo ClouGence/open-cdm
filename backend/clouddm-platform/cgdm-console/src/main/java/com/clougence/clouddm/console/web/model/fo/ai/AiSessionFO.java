@@ -16,9 +16,21 @@
 package com.clougence.clouddm.console.web.model.fo.ai;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
 
-public record AiSessionFO(@NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String sessionId) {
+@Getter
+public final class AiSessionFO {
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String sessionId;
+
+    @JsonCreator
+    public AiSessionFO(@JsonProperty("sessionId") String sessionId){
+        this.sessionId = sessionId;
+    }
 }

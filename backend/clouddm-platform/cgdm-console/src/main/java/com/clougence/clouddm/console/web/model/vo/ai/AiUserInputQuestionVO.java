@@ -20,18 +20,54 @@ import java.util.List;
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
 import com.clougence.clouddm.console.web.model.ai.AiUserInputQuestionType;
 import com.clougence.clouddm.ds.ai.tool.ChatToolParameter;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
 
-public record AiUserInputQuestionVO(@ChatToolParameter(name = AiSqlConstants.FIELD_ID, description = "Stable question ID.") @NotBlank String id,
-                                    @ChatToolParameter(name = AiSqlConstants.FIELD_LABEL, description = "Optional short section label.", required = false) String label,
-                                    @ChatToolParameter(name = AiSqlConstants.FIELD_QUESTION, description = "Main question shown to the user.") @NotBlank String question,
-                                    @ChatToolParameter(name = AiSqlConstants.FIELD_TYPE, description = "Question interaction type.") @NotNull AiUserInputQuestionType type,
-                                    @ChatToolParameter(name = AiSqlConstants.FIELD_OPTIONS, description = "Two or three distinct answers for choice questions. Omit for FREE_TEXT.", required = false) @Valid @Size(max = 3) List<AiUserInputOptionVO> options,
-                                    @ChatToolParameter(name = AiSqlConstants.FIELD_ALLOW_CUSTOM, description = "Allow free-form text in addition to a choice. Defaults to true.", required = false) @JsonProperty(AiSqlConstants.FIELD_ALLOW_CUSTOM) Boolean allowCustom,
-                                    @ChatToolParameter(name = AiSqlConstants.FIELD_REQUIRED, description = "Require an answer. Defaults to true.", required = false) Boolean required) {
+@Getter
+public final class AiUserInputQuestionVO {
+    @ChatToolParameter(name = AiSqlConstants.FIELD_ID, description = "Stable question ID.")
+    @NotBlank
+    private final String                    id;
+
+    @ChatToolParameter(name = AiSqlConstants.FIELD_LABEL, description = "Optional short section label.", required = false)
+    private final String                    label;
+
+    @ChatToolParameter(name = AiSqlConstants.FIELD_QUESTION, description = "Main question shown to the user.")
+    @NotBlank
+    private final String                    question;
+
+    @ChatToolParameter(name = AiSqlConstants.FIELD_TYPE, description = "Question interaction type.")
+    @NotNull
+    private final AiUserInputQuestionType   type;
+
+    @ChatToolParameter(name = AiSqlConstants.FIELD_OPTIONS, description = "Two or three distinct answers for choice questions. Omit for FREE_TEXT.", required = false)
+    @Valid
+    @Size(max = 3)
+    private final List<AiUserInputOptionVO> options;
+
+    @ChatToolParameter(name = AiSqlConstants.FIELD_ALLOW_CUSTOM, description = "Allow free-form text in addition to a choice. Defaults to true.", required = false)
+    @JsonProperty(AiSqlConstants.FIELD_ALLOW_CUSTOM)
+    private final Boolean                   allowCustom;
+
+    @ChatToolParameter(name = AiSqlConstants.FIELD_REQUIRED, description = "Require an answer. Defaults to true.", required = false)
+    private final Boolean                   required;
+
+    @JsonCreator
+    public AiUserInputQuestionVO(@JsonProperty("id") String id, @JsonProperty("label") String label, @JsonProperty("question") String question,
+                                 @JsonProperty("type") AiUserInputQuestionType type, @JsonProperty("options") List<AiUserInputOptionVO> options,
+                                 @JsonProperty(AiSqlConstants.FIELD_ALLOW_CUSTOM) Boolean allowCustom, @JsonProperty("required") Boolean required){
+        this.id = id;
+        this.label = label;
+        this.question = question;
+        this.type = type;
+        this.options = options;
+        this.allowCustom = allowCustom;
+        this.required = required;
+    }
 }

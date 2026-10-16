@@ -19,13 +19,73 @@ import java.util.List;
 
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
 import com.clougence.clouddm.console.web.model.ai.AiSqlSelection;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.Getter;
 
-public record AiTurnFO(@NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String sessionId, @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String requestId,
-                       @Size(max = 128) String streamClientId, @NotBlank @Size(max = 16384) String prompt, @NotNull @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String engineId,
-                       @NotNull @Min(1) Integer engineVersion, @Pattern(regexp = AiSqlConstants.UUID_PATTERN) String regenerateTurnId,
-                       @NotNull @Size(max = 16) List<@NotNull @Size(min = 1, max = 512) String> levels, @Valid AiSqlSelection selection, @Valid AiUserInputAnswerFO userInputAnswer,
-                       @Size(max = 128) String timezone, Integer timezoneOffsetMin) {
+@Getter
+public final class AiTurnFO {
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String                                          sessionId;
+
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String                                          requestId;
+
+    @Size(max = 128)
+    private final String                                          streamClientId;
+
+    @NotBlank
+    @Size(max = 16384)
+    private final String                                          prompt;
+
+    @NotNull
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String                                          engineId;
+
+    @NotNull
+    @Min(1)
+    private final Integer                                         engineVersion;
+
+    @Pattern(regexp = AiSqlConstants.UUID_PATTERN)
+    private final String                                          regenerateTurnId;
+
+    @NotNull
+    @Size(max = 16)
+    private final List<@NotNull @Size(min = 1, max = 512) String> levels;
+
+    @Valid
+    private final AiSqlSelection                                  selection;
+
+    @Valid
+    private final AiUserInputAnswerFO                             userInputAnswer;
+
+    @Size(max = 128)
+    private final String                                          timezone;
+
+    private final Integer                                         timezoneOffsetMin;
+
+    @JsonCreator
+    public AiTurnFO(@JsonProperty("sessionId") String sessionId, @JsonProperty("requestId") String requestId, @JsonProperty("streamClientId") String streamClientId,
+                    @JsonProperty("prompt") String prompt, @JsonProperty("engineId") String engineId, @JsonProperty("engineVersion") Integer engineVersion,
+                    @JsonProperty("regenerateTurnId") String regenerateTurnId, @JsonProperty("levels") List<@NotNull @Size(min = 1, max = 512) String> levels,
+                    @JsonProperty("selection") AiSqlSelection selection, @JsonProperty("userInputAnswer") AiUserInputAnswerFO userInputAnswer,
+                    @JsonProperty("timezone") String timezone, @JsonProperty("timezoneOffsetMin") Integer timezoneOffsetMin){
+        this.sessionId = sessionId;
+        this.requestId = requestId;
+        this.streamClientId = streamClientId;
+        this.prompt = prompt;
+        this.engineId = engineId;
+        this.engineVersion = engineVersion;
+        this.regenerateTurnId = regenerateTurnId;
+        this.levels = levels;
+        this.selection = selection;
+        this.userInputAnswer = userInputAnswer;
+        this.timezone = timezone;
+        this.timezoneOffsetMin = timezoneOffsetMin;
+    }
 }

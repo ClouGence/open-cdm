@@ -19,8 +19,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.console.web.model.vo.ai.AiUserInputRequestVO;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record AiSqlResult(String status, String sql, String message, AiUserInputRequestVO userInputRequest) {
+import lombok.Getter;
+
+@Getter
+public final class AiSqlResult {
+    private final String               status;
+
+    private final String               sql;
+
+    private final String               message;
+
+    private final AiUserInputRequestVO userInputRequest;
+
+    @JsonCreator
+    public AiSqlResult(@JsonProperty("status") String status, @JsonProperty("sql") String sql, @JsonProperty("message") String message,
+                       @JsonProperty("userInputRequest") AiUserInputRequestVO userInputRequest){
+        this.status = status;
+        this.sql = sql;
+        this.message = message;
+        this.userInputRequest = userInputRequest;
+    }
+
     public static AiSqlResult fromText(String text, List<String> statements) {
         String sql = null;
         if (!statements.isEmpty()) {

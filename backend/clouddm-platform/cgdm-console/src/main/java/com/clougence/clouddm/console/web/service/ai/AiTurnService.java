@@ -71,43 +71,44 @@ public class AiTurnService {
         if (!authorization.checkRoleAuthWithoutError(puid, uid, SecRoleAuthLabel.DM_QUERY_CONSOLE)) {
             throw AiError.FORBIDDEN.exception();
         }
-        if (fo.selection() != null && fo.selection().endLine() < fo.selection().startLine()) {
+        if (fo.getSelection() != null && fo.getSelection().getEndLine() < fo.getSelection().getStartLine()) {
             throw AiError.INVALID_REQUEST.exception();
         }
         AiTurnRecordVO existing = store.duplicate(puid, uid, fo);
         if (existing != null) {
-            return resume(puid, uid, new AiResumeTurnFO(fo.sessionId(), fo.requestId(), fo.streamClientId()));
+            return resume(puid, uid, new AiResumeTurnFO(fo.getSessionId(), fo.getRequestId(), fo.getStreamClientId()));
         }
-        DmAiSessionDO session = store.requireOwner(puid, uid, fo.sessionId());
-        if (!fo.engineId().equals(session.getEngineId()) || fo.engineVersion() != session.getEngineVersion()) {
+        DmAiSessionDO session = store.requireOwner(puid, uid, fo.getSessionId());
+        if (!fo.getEngineId().equals(session.getEngineId()) || fo.getEngineVersion() != session.getEngineVersion()) {
             throw AiError.SESSION_MODEL_CHANGED.exception();
         }
         engines.requireAvailable(puid, uid, session.getEngineId(), session.getEngineVersion());
-        AiMetadataContext context = sessions.context(puid, uid, fo.levels());
+        AiMetadataContext context = sessions.context(puid, uid, fo.getLevels());
         AiPermit permit;
         try {
             permit = capacity.acquire(uid, session.getEngineId(), false);
         } catch (ErrorMessageException e) {
             existing = store.duplicate(puid, uid, fo);
             if (existing != null) {
-                return resume(puid, uid, new AiResumeTurnFO(fo.sessionId(), fo.requestId(), fo.streamClientId()));
+                return resume(puid, uid, new AiResumeTurnFO(fo.getSessionId(), fo.getRequestId(), fo.getStreamClientId()));
             }
             throw e;
         }
         AiTurnStart started = null;
         AiActiveRun run = null;
         try {
-            started = store.begin(puid, uid, fo, sessions.snapshot(fo.levels(), context, fo.selection(), fo.userInputAnswer(), fo.timezone(), fo.timezoneOffsetMin()));
-            if (started.existing()) {
+            started = store
+                .begin(puid, uid, fo, sessions.snapshot(fo.getLevels(), context, fo.getSelection(), fo.getUserInputAnswer(), fo.getTimezone(), fo.getTimezoneOffsetMin()));
+            if (started.isExisting()) {
                 permit.close();
-                return resume(puid, uid, new AiResumeTurnFO(fo.sessionId(), fo.requestId(), fo.streamClientId()));
+                return resume(puid, uid, new AiResumeTurnFO(fo.getSessionId(), fo.getRequestId(), fo.getStreamClientId()));
             }
-            AiRunHandle handle = new AiRunHandle(Duration.between(store.now().toInstant(), started.turn().getDeadline().toInstant()));
-            String runId = started.turn().getRunId();
-            AiRunEvents events = new AiRunEvents(started.turn().getDeadline().toInstant(), (type, data) -> store.appendEvent(runId, type, data));
-            run = new AiActiveRun(puid, uid, started.session(), started.turn(), handle, permit, events, LocaleContextHolder.getLocale());
+            AiRunHandle handle = new AiRunHandle(Duration.between(store.now().toInstant(), started.getTurn().getDeadline().toInstant()));
+            String runId = started.getTurn().getRunId();
+            AiRunEvents events = new AiRunEvents(started.getTurn().getDeadline().toInstant(), (type, data) -> store.appendEvent(runId, type, data));
+            run = new AiActiveRun(puid, uid, started.getSession(), started.getTurn(), handle, permit, events, LocaleContextHolder.getLocale());
             active.put(run.getTurn().getId(), run);
-            AiEventSink sink = streams.subscribe(started.turn(), events, fo.streamClientId());
+            AiEventSink sink = streams.subscribe(started.getTurn(), events, fo.getStreamClientId());
             AiActiveRun executing = run;
             executors.getProvider().execute(() -> execute(executing));
             return sink;
@@ -117,8 +118,8 @@ public class AiTurnService {
                 run.getEvents().disconnect();
             }
             permit.close();
-            if (started != null && !started.existing()) {
-                store.finish(session.getSessionId(), started.turn().getId(), AiTurnStatus.FAILED, null, null, AiError.AI_BUSY.name(), AiError.AI_BUSY.message(), null);
+            if (started != null && !started.isExisting()) {
+                store.finish(session.getSessionId(), started.getTurn().getId(), AiTurnStatus.FAILED, null, null, AiError.AI_BUSY.name(), AiError.AI_BUSY.message(), null);
             }
             if (e instanceof RejectedExecutionException) {
                 throw AiError.AI_BUSY.exception();
@@ -146,8 +147,8 @@ public class AiTurnService {
         if (!authorization.checkRoleAuthWithoutError(puid, uid, SecRoleAuthLabel.DM_QUERY_CONSOLE)) {
             throw AiError.FORBIDDEN.exception();
         }
-        store.requireOwner(puid, uid, fo.sessionId());
-        AiTurnRecordVO turn = store.findRequest(fo.sessionId(), fo.requestId());
+        store.requireOwner(puid, uid, fo.getSessionId());
+        AiTurnRecordVO turn = store.findRequest(fo.getSessionId(), fo.getRequestId());
         if (turn == null) {
             throw AiError.NOT_FOUND.exception();
         }
@@ -157,7 +158,7 @@ public class AiTurnService {
         if (running != null) {
             events = running.getEvents();
         }
-        return streams.resume(puid, uid, turn, events, fo.streamClientId());
+        return streams.resume(puid, uid, turn, events, fo.getStreamClientId());
     }
 
     private void execute(AiActiveRun run) {

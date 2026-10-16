@@ -254,8 +254,8 @@ public class AiTurnStore {
     }
 
     public AiTurnRecordVO duplicate(String puid, String uid, AiTurnFO fo) {
-        DmAiSessionDO session = requireOwner(puid, uid, fo.sessionId());
-        AiTurnRecordVO found = findRequest(session, fo.requestId(), false);
+        DmAiSessionDO session = requireOwner(puid, uid, fo.getSessionId());
+        AiTurnRecordVO found = findRequest(session, fo.getRequestId(), false);
         if (found != null) {
             requireSameRequest(found, fo);
         }
@@ -264,19 +264,20 @@ public class AiTurnStore {
 
     private void requireSameRequest(AiTurnRecordVO found, AiTurnFO fo) {
         AiTurnContext context = JsonUtils.toObj(found.getContextJson(), AiTurnContext.class);
-        if (!Objects.equals(fo.prompt(), found.getPrompt()) || !Objects.equals(fo.engineId(), found.getEngineId()) || fo.engineVersion() != found.getEngineVersion()
-            || !fo.levels().equals(context.levels()) || !Objects.equals(fo.selection(), context.selection()) || !Objects.equals(fo.userInputAnswer(), context.userInputAnswer())) {
+        if (!Objects.equals(fo.getPrompt(), found.getPrompt()) || !Objects.equals(fo.getEngineId(), found.getEngineId()) || fo.getEngineVersion() != found.getEngineVersion()
+            || !fo.getLevels().equals(context.getLevels()) || !Objects.equals(fo.getSelection(), context.getSelection())
+            || !Objects.equals(fo.getUserInputAnswer(), context.getUserInputAnswer())) {
             throw AiError.REQUEST_CONFLICT.exception();
         }
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public AiTurnStart begin(String puid, String uid, AiTurnFO fo, AiTurnContext context) {
-        String sessionId = fo.sessionId();
-        String requestId = fo.requestId();
-        String prompt = fo.prompt();
-        String engineId = fo.engineId();
-        int engineVersion = fo.engineVersion();
+        String sessionId = fo.getSessionId();
+        String requestId = fo.getRequestId();
+        String prompt = fo.getPrompt();
+        String engineId = fo.getEngineId();
+        int engineVersion = fo.getEngineVersion();
         DmAiSessionDO session = requireOwner(puid, uid, session(sessionId, true));
         AiTurnRecordVO found = findRequest(session, requestId, true);
         if (found != null) {
@@ -294,8 +295,8 @@ public class AiTurnStore {
                 throw AiError.SESSION_BUSY.exception();
             }
         }
-        if (fo.regenerateTurnId() != null) {
-            AiTurnRecordVO target = lock(fo.regenerateTurnId());
+        if (fo.getRegenerateTurnId() != null) {
+            AiTurnRecordVO target = lock(fo.getRegenerateTurnId());
             if (target == null || !sessionId.equals(target.getSessionId())) {
                 throw AiError.NOT_FOUND.exception();
             }
@@ -304,8 +305,8 @@ public class AiTurnStore {
             }
             // Edit or re-answer from this question; later answers and any derived summary must not leak into replay.
             AiTurnContext previousContext = JsonUtils.toObj(target.getContextJson(), AiTurnContext.class);
-            if (previousContext.userInputAnswer() != null) {
-                AiTurnRecordVO question = find(previousContext.userInputAnswer().requestHistoryId());
+            if (previousContext.getUserInputAnswer() != null) {
+                AiTurnRecordVO question = find(previousContext.getUserInputAnswer().getRequestHistoryId());
                 if (question != null && sessionId.equals(question.getSessionId())) {
                     historyEvents.deleteByHistoryIdAndType(question.getHistoryId(), AiSqlConstants.HISTORY_EVENT_USER_INPUT_ANSWERED);
                 }
@@ -318,7 +319,7 @@ public class AiTurnStore {
             session.setCompactAnchorHistoryId(null);
             sessions.updateCompactionBySessionId(session.getSessionId(), session.getCompactSummary(), session.getCompactAnchorHistoryId());
         }
-        AiTurnRecordVO question = validateUserInputAnswer(session, fo.userInputAnswer());
+        AiTurnRecordVO question = validateUserInputAnswer(session, fo.getUserInputAnswer());
         DmAiHistoryDO history = new DmAiHistoryDO();
         history.setUuid(UUID.randomUUID().toString());
         history.setSessionId(session.getId());
@@ -351,7 +352,7 @@ public class AiTurnStore {
             answer.setSessionId(session.getId());
             answer.setHistoryId(question.getHistoryId());
             answer.setEventType(AiSqlConstants.HISTORY_EVENT_USER_INPUT_ANSWERED);
-            answer.setEventData(JsonUtils.toJson(fo.userInputAnswer()));
+            answer.setEventData(JsonUtils.toJson(fo.getUserInputAnswer()));
             answer.setGmtCreate(now);
             answer.setGmtModified(now);
             historyEvents.insert(answer);
@@ -370,13 +371,13 @@ public class AiTurnStore {
             return null;
         }
         List<AiTurnRecordVO> latest = list(session, null, 1, true);
-        if (latest.isEmpty() || latest.get(0).getStatus() != AiTurnStatus.NEEDS_INPUT || !latest.get(0).getId().equals(answer.requestHistoryId())) {
+        if (latest.isEmpty() || latest.get(0).getStatus() != AiTurnStatus.NEEDS_INPUT || !latest.get(0).getId().equals(answer.getRequestHistoryId())) {
             throw AiError.INVALID_REQUEST.exception();
         }
         AiTurnRecordVO question = latest.get(0);
         var result = JsonUtils.toObj(question.getResultJson(), JsonNode.class);
         AiUserInputRequestVO request = JsonUtils.defaultObjectMapper().convertValue(result.get(AiSqlConstants.FIELD_USER_INPUT_REQUEST), AiUserInputRequestVO.class);
-        if (request == null || !request.requestId().equals(answer.requestId()) || question.getUserInputAnswerJson() != null) {
+        if (request == null || !request.getRequestId().equals(answer.getRequestId()) || question.getUserInputAnswerJson() != null) {
             throw AiError.INVALID_REQUEST.exception();
         }
         return question;
@@ -384,7 +385,7 @@ public class AiTurnStore {
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public DmAiSessionDO switchModel(String puid, String uid, AiSwitchModelFO fo, AiEngineConfigVO engine) {
-        DmAiSessionDO session = requireOwner(puid, uid, session(fo.sessionId(), true));
+        DmAiSessionDO session = requireOwner(puid, uid, session(fo.getSessionId(), true));
         if (session.getActiveTurnId() != null) {
             AiTurnRecordVO active = lock(session.getActiveTurnId());
             if (active != null && active.getStatus() == AiTurnStatus.RUNNING && !active.getDeadline().after(now())) {
@@ -393,7 +394,7 @@ public class AiTurnStore {
                 throw AiError.SESSION_BUSY.exception();
             }
         }
-        if (!fo.previousEngineId().equals(session.getEngineId()) || fo.previousEngineVersion() != session.getEngineVersion()) {
+        if (!fo.getPreviousEngineId().equals(session.getEngineId()) || fo.getPreviousEngineVersion() != session.getEngineVersion()) {
             throw AiError.SESSION_MODEL_CHANGED.exception();
         }
         session.setEngineId(engine.getId());

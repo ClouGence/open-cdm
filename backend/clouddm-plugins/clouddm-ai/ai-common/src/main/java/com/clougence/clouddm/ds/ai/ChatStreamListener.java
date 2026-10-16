@@ -17,8 +17,28 @@ package com.clougence.clouddm.ds.ai;
 
 import java.util.function.Consumer;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
 /** Callbacks run on the stream worker; interrupted snapshots are provisional and never executable. */
-public record ChatStreamListener(Consumer<String> text, Consumer<String> reasoning, Consumer<ChatStreamInterruption> interrupted) {
+@Getter
+public final class ChatStreamListener {
+    private final Consumer<String>                 text;
+
+    private final Consumer<String>                 reasoning;
+
+    private final Consumer<ChatStreamInterruption> interrupted;
+
+    @JsonCreator
+    public ChatStreamListener(@JsonProperty("text") Consumer<String> text, @JsonProperty("reasoning") Consumer<String> reasoning,
+                              @JsonProperty("interrupted") Consumer<ChatStreamInterruption> interrupted){
+        this.text = text;
+        this.reasoning = reasoning;
+        this.interrupted = interrupted;
+    }
+
     public ChatStreamListener(Consumer<String> text){
         this(text, value -> {
         }, value -> {

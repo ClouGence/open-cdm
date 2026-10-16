@@ -141,6 +141,8 @@ cd frontend && npm run check-i18n
 - 使用 Jakarta Bean Validation 注解时，不要设置 `message` 属性，直接使用注解的默认校验消息。
 - 不要使用 `@SneakyThrows`；需要 `try/catch` 异常时，用简短 `msg` 描述错误，并通过 `log.error(msg, e)` 打印异常。
 - Java 中能用 Lombok 解决 getter / setter 模板代码的地方，优先使用 Lombok。
+- Lombok 注解按实际用途添加，不默认叠加 `@EqualsAndHashCode`、`@ToString` 等；值比较、集合键或日志输出等真实使用场景需要时才保留。
+- 同时需要 getter 和 setter，且需要三个及以上 Lombok 注解时，使用 `@Data` 合并其覆盖的注解；`@Data` 不覆盖的构造器、日志等注解按需保留。不要为了使用 `@Data` 给只读对象增加 setter。
 - 重复胶水代码要适度收敛，但收敛方式不能比原逻辑更难懂。
 - 注释只解释不明显的业务约束、协议边界或复杂流程，不写重复代码字面含义的注释。
 - 前端调用后端时，使用的接口名称要求格式为驼峰命名法。
