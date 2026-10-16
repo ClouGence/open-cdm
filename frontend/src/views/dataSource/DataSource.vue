@@ -45,7 +45,7 @@
             :aria-pressed="selectedAddDataSourceType === type.dsKey"
             @click="handleSelectAddDataSourceType(type.dsKey)"
           >
-            <span class="add-datasource-type-icon">
+            <span class="add-datasource-type-icon" :class="{ 'is-goldendb': ['GoldenDBMySQL', 'GoldenDBOracle'].includes(type.dsKey) }">
               <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
             </span>
             <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
@@ -80,7 +80,13 @@
             <Table size="small" border class="datasource-table" :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
               <template #instanceId="{ row }">
                 <div class="datasource-identity">
-                  <DataSourceIcon class="datasource-type-icon" size="24px" :type="row.dataSourceType" :instanceType="row.deployType"></DataSourceIcon>
+                  <DataSourceIcon
+                    class="datasource-type-icon"
+                    size="24px"
+                    :type="row.dataSourceType"
+                    :instanceType="row.deployType"
+                    leftMargin="0"
+                  ></DataSourceIcon>
                   <div class="datasource-info-text">
                     <div class="datasource-main-info">
                       <Tooltip :content="row.instanceDesc || $t('zan-wu-miao-shu')" placement="bottom" transfer>
@@ -103,19 +109,6 @@
                       >
                         <span class="datasource-creating-indicator"></span>
                       </Tooltip>
-                      <div>
-                        <Tooltip
-                          placement="right"
-                          class="alarm-icon"
-                          transfer
-                          :content="$t('cun-zai-yi-chang-de-hou-tai-ren-wu-qing-dian-ji-chu-li')"
-                          v-if="row.consoleTaskState === 'FAILED'"
-                        >
-                          <span style="display: inline-block; margin-left: 6px" @click="handleGoConsoleJob(row)">
-                            <i class="iconfont iconyibuforce"></i>
-                          </span>
-                        </Tooltip>
-                      </div>
                     </div>
                     <div class="data-job-desc datasource-secondary-content datasource-id-text">
                       {{ row.instanceId }}
@@ -642,7 +635,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['productClusterList', 'myAuth']),
+    ...mapState(['myAuth']),
     ...mapState(['globalDsSetting', 'dmGlobalSetting']),
     ...mapGetters(['isDesktop']),
     SECOND_CONFIRM_EVENT_LIST() {
@@ -1003,6 +996,7 @@ export default {
               this.accountInfo.clientSecurityFile = this.accountInfo.tlsKeystoreFile;
               break;
             case 'PostgreSQL':
+            case 'CockroachDB':
               datasourceUpdateData.secretFilePassword = this.accountInfo?.secretFilePassword || '';
               this.accountInfo.secretFile = this.accountInfo.clientSecretFile;
               break;
@@ -1090,9 +1084,6 @@ export default {
         accessKey: '',
         secretKey: ''
       };
-    },
-    handleGoConsoleJob(row) {
-      this.$router.push({ path: `/ccsystem/state/task/${row.consoleJobId}` });
     },
     handleChangeSearchType() {
       // Reset all search values when switching query type
@@ -1214,13 +1205,14 @@ export default {
 
 .add-datasource-type-search {
   width: 320px;
+  max-width: 100%;
   flex: 0 0 auto;
 }
 
 .add-datasource-type-grid {
   display: grid;
   flex: 1 1 auto;
-  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-content: start;
   gap: 10px;
   min-height: 0;
@@ -1232,6 +1224,14 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  @media (max-width: 767px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 479px) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1272,6 +1272,11 @@ export default {
   flex: 0 0 20px;
   align-items: center;
   justify-content: center;
+
+  &.is-goldendb {
+    width: 40px;
+    flex-basis: 40px;
+  }
 }
 
 .add-datasource-type-name {
@@ -1312,9 +1317,9 @@ export default {
 }
 
 .datasource-type-icon {
-  display: inline-flex;
-  width: 28px;
-  flex: 0 0 28px;
+  display: inline-flex !important;
+  width: 48px;
+  flex: 0 0 48px !important;
   align-items: center;
   justify-content: center;
 }

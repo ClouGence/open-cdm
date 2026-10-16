@@ -1,5 +1,5 @@
 // List of HTML tags allowed by DomPuriffy
-export const ALLOWED_HTML_TAGS = [
+const ALLOWED_HTML_TAGS = [
   'h1',
   'h2',
   'h3',

@@ -68,14 +68,6 @@
           </div>
           <div class="table-container audit-log-table">
             <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
-              <template #resourceValue="{ row }">
-                <p v-if="row.resourceType !== 'PURE_URL'">
-                  {{ row.resourceVO && row.resourceVO.resourceFlag }}
-                </p>
-                <p v-if="row.resourceType === 'PURE_URL'">
-                  {{ row.operationUri || row.resourceValue }}
-                </p>
-              </template>
               <template #operator="{ row }">
                 <div class="operator-cell">
                   <div>{{ row.userName }}</div>
@@ -254,7 +246,10 @@ export default {
         },
         {
           title: this.$t('cao-zuo-zi-yuan'),
-          slot: 'resourceValue',
+          key: 'operationResource',
+          ellipsis: true,
+          tooltip: true,
+          tooltipMaxWidth: 400,
           width: 220
         },
         {
@@ -300,6 +295,9 @@ export default {
         {
           title: this.$t('ri-zhi-wei-yi-xin-xi'),
           key: 'uuidKey',
+          ellipsis: true,
+          tooltip: true,
+          tooltipMaxWidth: 400,
           width: 320
         }
       ],
@@ -397,6 +395,12 @@ export default {
     this.$bus.off(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, this.handleOpAuditExportEvent);
   },
   methods: {
+    getOperationResource(row) {
+      if (row.resourceType === 'PURE_URL') {
+        return row.operationUri || row.resourceValue || '';
+      }
+      return row.resourceVO?.resourceFlag || '';
+    },
     handleEnterSearch(e) {
       if (e.code === 'Enter') {
         e.preventDefault();
@@ -564,7 +568,10 @@ export default {
         .rdpAuditQueryAll({ data: this.searchData })
         .then((res) => {
           if (res.success) {
-            this.logData = res.data.records;
+            this.logData = res.data.records.map((record) => ({
+              ...record,
+              operationResource: this.getOperationResource(record)
+            }));
             this.total = res.data.total;
           }
           this.refreshLoading = false;

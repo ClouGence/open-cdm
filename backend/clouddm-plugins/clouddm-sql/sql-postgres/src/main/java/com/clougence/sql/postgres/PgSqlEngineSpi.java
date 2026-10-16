@@ -15,15 +15,9 @@
  */
 package com.clougence.sql.postgres;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
-import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
@@ -36,26 +30,14 @@ import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 
 /** @author mode */
-public class PgSqlEngineSpi implements SqlEngineSpi {
-    public static final String                     NAME           = "PG SQL";
+public class PgSqlEngineSpi extends AbstractPgSqlEngineSpi {
 
-    private final MetaService                      metaService;
-    private final Map<String, SplitAnalysisSpi>    splitCache     = new ConcurrentHashMap<>();
-    private final Map<String, SecDomainResolveSpi> secDomainCache = new ConcurrentHashMap<>();
-    private final Map<String, BehaviorAnalysisSpi> behaviorCache  = new ConcurrentHashMap<>();
-    private final Map<String, RewriteSpi>          rewriteCache   = new ConcurrentHashMap<>();
-    private final Map<String, DslProvider>         dslCache       = new ConcurrentHashMap<>();
+    public static final String NAME = "PG SQL";
+
+    private final MetaService  metaService;
 
     public PgSqlEngineSpi(MetaService metaService){
         this.metaService = metaService;
-    }
-
-    private PostgresVersion resolveVersion(SqlParserParameters parameters) {
-        return PostgresVersion.parse(parameters.version());
-    }
-
-    private static String parserKey(SqlParserParameters parameters) {
-        return parameters.values().entrySet().stream().sorted(Map.Entry.comparingByKey()).map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("&"));
     }
 
     @Override
@@ -64,43 +46,32 @@ public class PgSqlEngineSpi implements SqlEngineSpi {
     }
 
     @Override
-    public DslProvider dslProvider(SqlParserParameters parameters) {
-        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
-        String key = parserKey(parserParameters);
-        return dslCache.computeIfAbsent(key, value -> new PgDslProvider(resolveVersion(parserParameters)));
+    protected PostgresVersion resolveVersion(SqlParserParameters parameters) {
+        return PostgresVersion.parse(parameters.version());
     }
 
     @Override
-    public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
-        String key = parserKey(parserParameters);
-        return splitCache.computeIfAbsent(key, value -> new PgSplitAnalysisSpi(resolveVersion(parserParameters)));
+    protected DslProvider newDslProvider(PostgresVersion version) {
+        return new PgDslProvider(version, NAME);
     }
 
     @Override
-    public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
-        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
-        String key = parserKey(parserParameters);
-        return secDomainCache.computeIfAbsent(key, value -> new PgSecDomainResolveSpi(metaService, resolveVersion(parserParameters)));
+    protected SplitAnalysisSpi newSplitAnalysisSpi(PostgresVersion version) {
+        return new PgSplitAnalysisSpi(version);
     }
 
     @Override
-    public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
-        String key = parserKey(parserParameters);
-        return behaviorCache.computeIfAbsent(key, value -> new PgBehaviorAnalysisSpi(resolveVersion(parserParameters)));
+    protected SecDomainResolveSpi newSecDomainResolveSpi(PostgresVersion version) {
+        return new PgSecDomainResolveSpi(metaService, version);
     }
 
     @Override
-    public LineageAnalysisSpi lineageAnalysisSpi(SqlParserParameters parameters) {
-        return LineageAnalysisSpi.EMPTY;
+    protected BehaviorAnalysisSpi newBehaviorAnalysisSpi(PostgresVersion version) {
+        return new PgBehaviorAnalysisSpi(version);
     }
 
     @Override
-    public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
-        SqlParserParameters parserParameters = SqlParserParameters.nullToEmpty(parameters);
-        String key = parserKey(parserParameters);
-        return rewriteCache.computeIfAbsent(key, value -> new PgRewriteSpi(resolveVersion(parserParameters)));
+    protected RewriteSpi newRewriteSpi(PostgresVersion version) {
+        return new PgRewriteSpi(version);
     }
-
 }

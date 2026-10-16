@@ -23,6 +23,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.ads.i18n.AdsMyConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -39,13 +40,15 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = AdsMySerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AdsMyConfig extends DataSourceConfig {
+public class AdsMyConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
+
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultSchema, //
             group = DsConfigGroup.GENERAL, labelKey = AdsMyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, defaultValue = "Asia/Shanghai", //
             group = DsConfigGroup.OPTIONS, labelKey = AdsMyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED

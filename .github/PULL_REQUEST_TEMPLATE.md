@@ -6,25 +6,9 @@
 
 <!-- Link related issues or write "None". Example: Closes #123 -->
 
-## Type of Change
+## Test Plan (Required)
 
-- [ ] Bug fix
-- [ ] Feature
-- [ ] Refactor
-- [ ] Documentation
-- [ ] Test
-- [ ] Build / tooling
-- [ ] Other
-
-## Changes
-
-<!-- List the main implementation changes. -->
-
-- 
-
-## Test Plan
-
-<!-- Describe the commands or manual checks you ran. -->
+<!-- Do not remove or leave this section blank. Select at least one option and describe the test scope, steps, and results under "Details". If not tested, explain why. -->
 
 - [ ] Not tested (explain why below)
 - [ ] Unit tests
@@ -45,4 +29,4 @@ Details:
 - [ ] The change follows the repository coding standards.
 - [ ] Documentation was updated when behavior or usage changed.
 - [ ] Tests were added or updated for behavior changes.
-- [ ] I checked that generated files, dependency directories, logs, and local artifacts are not included.
+- [ ] I confirmed that generated files, dependency directories, logs, and local build artifacts are not included.

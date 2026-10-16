@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.system.DmSshConfigMapper">
-
     <resultMap id="dmSshConfigDO" type="com.clougence.clouddm.platform.dal.model.datasource.DmSshConfigDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -12,13 +11,20 @@
         <result column="host" property="host"/>
         <result column="port" property="port"/>
         <result column="username" property="username"/>
-        <result column="auth_type" property="authType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SshAuthTypeHandler"/>
-        <result column="password" property="password" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
-        <result column="private_key_data" property="privateKeyData" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
-        <result column="private_key_passphrase" property="privateKeyPassphrase" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
-        <result column="con_features" property="conFeatures" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="proxy_type" property="proxyType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SshProxyTypeHandler"/>
-        <result column="proxy_features" property="proxyFeatures" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.SshProxyFeaturesTypeHandler"/>
+        <result column="auth_type" property="authType"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SshAuthTypeHandler"/>
+        <result column="password" property="password"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="private_key_data" property="privateKeyData"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="private_key_passphrase" property="privateKeyPassphrase"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="con_features" property="conFeatures"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="proxy_type" property="proxyType"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SshProxyTypeHandler"/>
+        <result column="proxy_features" property="proxyFeatures"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.SshProxyFeaturesTypeHandler"/>
     </resultMap>
 
     <sql id="dmSshConfigColumns">
@@ -42,32 +48,43 @@
     <select id="queryList" resultMap="dmSshConfigDO">
         SELECT
             <include refid="dmSshConfigColumns"/>
-        FROM dm_ssh_config
-        WHERE 1 = 1
-        <if test="clusterId != null and clusterId > 0">
-            AND cluster_id = #{clusterId}
-        </if>
-        <if test="search != null and search != ''">
-            AND (
-                   name LIKE CONCAT('%', #{search}, '%')
-                OR host LIKE CONCAT('%', #{search}, '%')
-                OR username LIKE CONCAT('%', #{search}, '%')
-            )
-        </if>
-        ORDER BY gmt_modified DESC, id DESC
+        FROM
+            dm_ssh_config
+        WHERE
+            1 = 1
+            <if test="clusterId != null and clusterId > 0">
+                AND
+                cluster_id = #{clusterId}
+            </if>
+            <if test="search != null and search != ''">
+                AND
+                (
+                    name LIKE CONCAT('%', #{search}, '%')
+                OR
+                    host LIKE CONCAT('%', #{search}, '%')
+                OR
+                    username LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+        ORDER BY
+            gmt_modified DESC, id DESC
     </select>
 
     <select id="queryById" resultMap="dmSshConfigDO">
         SELECT
             <include refid="dmSshConfigColumns"/>
-        FROM dm_ssh_config
-        WHERE id = #{id}
+        FROM
+            dm_ssh_config
+        WHERE
+            id = #{id}
         LIMIT 1
     </select>
 
     <delete id="deleteById">
-        DELETE FROM dm_ssh_config
-        WHERE id = #{id}
+        DELETE FROM
+            dm_ssh_config
+        WHERE
+            id = #{id}
         LIMIT 1
     </delete>
 </mapper>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.secrule.DmSecRulesMapper">
-
     <resultMap id="dmSecRulesDO" type="com.clougence.clouddm.platform.dal.model.secrule.DmSecRuleDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -10,15 +10,18 @@
         <result column="rule_id" property="ruleId"/>
         <result column="rule_name" property="name"/>
         <result column="rule_desc" property="description"/>
-        <result column="rule_type" property="scriptType" javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType"/>
+        <result column="rule_type" property="scriptType"
+                javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType"/>
         <result column="rule_def" property="scriptDef"/>
         <result column="rule_content" property="scriptContent"/>
         <result column="rule_md5" property="scriptMD5"/>
         <result column="inner_share" property="innerShare"/>
         <result column="deprecated" property="deprecated"/>
 
-        <result column="ds_range" property="ruleDsRange" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="rule_target" property="ruleTarget" javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleTarget"/>
+        <result column="ds_range" property="ruleDsRange"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="rule_target" property="ruleTarget"
+                javaType="com.clougence.clouddm.platform.dal.model.secrule.RuleTarget"/>
     </resultMap>
 
     <sql id="allColumns">
@@ -45,40 +48,46 @@
         FROM
             dm_sec_rules
         WHERE
-            rule_id = #{ruleStrId} and inner_share = 1
-        limit 1
+            rule_id     = #{ruleStrId}
+            AND
+            inner_share = 1
+        LIMIT 1
     </select>
 
     <update id="updateInnerRuleById">
-        update
+        UPDATE
             dm_sec_rules
-        set
-            rule_id     = #{ruleDO.ruleId},
-            rule_name   = #{ruleDO.name},
-            rule_desc   = #{ruleDO.description},
-            rule_type   = #{ruleDO.scriptType, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType},
-            rule_def    = #{ruleDO.scriptDef},
-            rule_content= #{ruleDO.scriptContent},
-            rule_md5    = #{ruleDO.scriptMD5},
-            ds_range    = #{ruleDO.ruleDsRange, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
-            rule_target = #{ruleDO.ruleTarget, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleTarget},
-            inner_share = #{ruleDO.innerShare},
-            deprecated  = #{ruleDO.deprecated},
-            gmt_modified= now()
+        SET
+            rule_id      = #{ruleDO.ruleId},
+            rule_name    = #{ruleDO.name},
+            rule_desc    = #{ruleDO.description},
+            rule_type    = #{ruleDO.scriptType, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType},
+            rule_def     = #{ruleDO.scriptDef},
+            rule_content = #{ruleDO.scriptContent},
+            rule_md5     = #{ruleDO.scriptMD5},
+            ds_range     = #{ruleDO.ruleDsRange, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+            rule_target  = #{ruleDO.ruleTarget, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleTarget},
+            inner_share  = #{ruleDO.innerShare},
+            deprecated   = #{ruleDO.deprecated},
+            gmt_modified = NOW()
         WHERE
-            id = #{ruleId} and inner_share = 1
-            limit 1
+            id          = #{ruleId}
+            AND
+            inner_share = 1
+        LIMIT 1
     </update>
 
     <delete id="markInnerDeprecatedById">
-        update
+        UPDATE
             dm_sec_rules
-        set
-            deprecated  = 1,
-            gmt_modified= now()
+        SET
+            deprecated   = 1,
+            gmt_modified = NOW()
         WHERE
-            rule_id = #{ruleStrId} and inner_share = 1
-        limit 1
+            rule_id     = #{ruleStrId}
+            AND
+            inner_share = 1
+        LIMIT 1
     </delete>
 
     <select id="searchRules" resultMap="dmSecRulesDO">
@@ -87,10 +96,13 @@
         FROM
             dm_sec_rules
         WHERE
-            (owner_uid = #{ownerUid} or inner_share = 1)
-            <if test="searchKeywords != null">AND (rule_name like concat('%',#{searchKeywords},'%') or rule_desc like concat('%',#{searchKeywords},'%'))</if>
-        order by
-            gmt_create desc
+            (owner_uid = #{ownerUid} OR inner_share = 1)
+            <if test="searchKeywords != null">
+                AND
+                (rule_name LIKE CONCAT('%', #{searchKeywords}, '%') OR rule_desc LIKE CONCAT('%', #{searchKeywords}, '%'))
+            </if>
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="listByUid" resultMap="dmSecRulesDO">
@@ -99,9 +111,9 @@
         FROM
             dm_sec_rules
         WHERE
-            (owner_uid = #{ownerUid} or inner_share = 1)
-        order by
-            gmt_create desc
+            (owner_uid = #{ownerUid} OR inner_share = 1)
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="queryByIds" resultMap="dmSecRulesDO">
@@ -110,10 +122,14 @@
         FROM
             dm_sec_rules
         WHERE
-            id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach> and
-            ((owner_uid = #{ownerUid} and inner_share = 0) or inner_share = 1)
-        order by
-            gmt_create desc
+            id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND
+            ((owner_uid = #{ownerUid} AND inner_share = 0) OR inner_share = 1)
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="queryById" resultMap="dmSecRulesDO">
@@ -122,33 +138,43 @@
         FROM
             dm_sec_rules
         WHERE
-            id = #{ruleId} and ((owner_uid = #{ownerUid} and inner_share = 0) or inner_share = 1)
-        limit 1
+            id          = #{ruleId}
+            AND
+            ((owner_uid = #{ownerUid} AND inner_share = 0) OR inner_share = 1)
+        LIMIT 1
     </select>
 
     <delete id="deleteByUidAndId">
         DELETE FROM
             dm_sec_rules
         WHERE
-            owner_uid = #{ownerUid} AND id = #{ruleId} and inner_share = 0
-        limit 1
+            owner_uid   = #{ownerUid}
+            AND
+            id          = #{ruleId}
+            AND
+            inner_share = 0
+        LIMIT 1
     </delete>
 
     <update id="updateRule">
-        update
+        UPDATE
             dm_sec_rules
-        set
-            rule_name   = #{ruleDO.name},
-            rule_desc   = #{ruleDO.description},
-            rule_type   = #{ruleDO.scriptType, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType},
-            rule_def    = #{ruleDO.scriptDef},
-            rule_content= #{ruleDO.scriptContent},
-            rule_md5    = #{ruleDO.scriptMD5},
-            ds_range    = #{ruleDO.ruleDsRange, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
-            rule_target = #{ruleDO.ruleTarget, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleTarget},
-            gmt_modified= now()
+        SET
+            rule_name    = #{ruleDO.name},
+            rule_desc    = #{ruleDO.description},
+            rule_type    = #{ruleDO.scriptType, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType},
+            rule_def     = #{ruleDO.scriptDef},
+            rule_content = #{ruleDO.scriptContent},
+            rule_md5     = #{ruleDO.scriptMD5},
+            ds_range     = #{ruleDO.ruleDsRange, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+            rule_target  = #{ruleDO.ruleTarget, javaType=com.clougence.clouddm.platform.dal.model.secrule.RuleTarget},
+            gmt_modified = NOW()
         WHERE
-            owner_uid = #{ownerUid} AND id = #{ruleId} and inner_share = 0
-        limit 1
+            owner_uid   = #{ownerUid}
+            AND
+            id          = #{ruleId}
+            AND
+            inner_share = 0
+        LIMIT 1
     </update>
 </mapper>

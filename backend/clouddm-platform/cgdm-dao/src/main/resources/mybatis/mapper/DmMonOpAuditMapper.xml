@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.monitor.DmMonOpAuditMapper">
-
     <resultMap id="rdpOperationAuditDO" type="com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -74,131 +73,154 @@
             <![CDATA[ AND resource_type = #{resourceType} ]]>
         </if>
         <if test="userNameLike != null and userNameLike != ''">
-            <![CDATA[ AND user_name like CONCAT('%',#{userNameLike},'%') ]]>
+            <![CDATA[ AND user_name LIKE CONCAT('%', #{userNameLike}, '%') ]]>
         </if>
     </sql>
 
     <delete id="clearData">
-        delete
-        from operation_audit
+        DELETE FROM
+            operation_audit
     </delete>
 
     <select id="queryByConditionJoinUrlAuth" resultMap="rdpOperationAuditDO">
         SELECT
-        <include refid="rdpOperationAudit"/>
+            <include refid="rdpOperationAudit"/>
         FROM
-        dm_mon_op_audit
-        WHERE 1=1
-        <if test="startId != 0">
-            <![CDATA[ AND id < #{startId} ]]>
-        </if>
-        <if test="dateStart != null">
-            <![CDATA[AND operate_date >= #{dateStart} ]]>
-        </if>
-        <if test="dateEnd != null">
-            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
-        </if>
-        <if test="securityLevel != null">
-            <![CDATA[ AND security_level = #{securityLevel} ]]>
-        </if>
-        ORDER BY id DESC LIMIT #{pageSize}
+            dm_mon_op_audit
+        WHERE
+            1 = 1
+            <if test="startId != 0">
+                <![CDATA[ AND id < #{startId} ]]>
+            </if>
+            <if test="dateStart != null">
+                <![CDATA[ AND operate_date >= #{dateStart} ]]>
+            </if>
+            <if test="dateEnd != null">
+                <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+            </if>
+            <if test="securityLevel != null">
+                <![CDATA[ AND security_level = #{securityLevel} ]]>
+            </if>
+        ORDER BY id DESC
+        LIMIT #{pageSize}
     </select>
 
     <select id="queryByUidJoinUrlAuth" resultMap="rdpOperationAuditDO">
         SELECT
-        <include refid="rdpOperationAudit"/>
+            <include refid="rdpOperationAudit"/>
         FROM
-        dm_mon_op_audit
-        WHERE 1=1
-        <if test="startId != 0">
-            <![CDATA[ AND id < #{startId} ]]>
-        </if>
-        AND uid= #{uid}
-        <if test="dateStart != null">
-            <![CDATA[ AND operate_date >= #{dateStart} ]]>
-        </if>
-        <if test="dateEnd != null">
-            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
-        </if>
-        <if test="securityLevel != null">
-            <![CDATA[ AND security_level = #{securityLevel} ]]>
-        </if>
-        <if test="auditType != null">
-            <![CDATA[ AND audit_type = #{auditType} ]]>
-        </if>
-        <if test="resourceType != null">
-            <![CDATA[ AND resource_type = #{resourceType} ]]>
-        </if>
-        ORDER BY operate_date DESC,id LIMIT #{pageSize}
+            dm_mon_op_audit
+        WHERE
+            1 = 1
+            <if test="startId != 0">
+                <![CDATA[ AND id < #{startId} ]]>
+            </if>
+            AND
+            uid = #{uid}
+            <if test="dateStart != null">
+                <![CDATA[ AND operate_date >= #{dateStart} ]]>
+            </if>
+            <if test="dateEnd != null">
+                <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+            </if>
+            <if test="securityLevel != null">
+                <![CDATA[ AND security_level = #{securityLevel} ]]>
+            </if>
+            <if test="auditType != null">
+                <![CDATA[ AND audit_type = #{auditType} ]]>
+            </if>
+            <if test="resourceType != null">
+                <![CDATA[ AND resource_type = #{resourceType} ]]>
+            </if>
+        ORDER BY
+            operate_date DESC, id
+        LIMIT #{pageSize}
     </select>
 
     <select id="queryByUidsJoinUrlAuth" resultMap="rdpOperationAuditDO">
         SELECT
-        <include refid="rdpOperationAudit"/>
+            <include refid="rdpOperationAudit"/>
         FROM
-        dm_mon_op_audit
-        WHERE 1=1
-        <if test="startId != 0">
-            <![CDATA[ AND id < #{startId} ]]>
-        </if>
-        AND owner_uid = #{ownerUid}
-        <if test="dateStart != null">
-            <![CDATA[ AND operate_date >= #{dateStart} ]]>
-        </if>
-        <if test="dateEnd != null">
-            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
-        </if>
-        <if test="securityLevel != null">
-            <![CDATA[ AND security_level = #{securityLevel} ]]>
-        </if>
-        <if test="auditType != null">
-            <![CDATA[ AND audit_type = #{auditType} ]]>
-        </if>
-        <if test="resourceType != null">
-            <![CDATA[ AND resource_type = #{resourceType} ]]>
-        </if>
-        ORDER BY operate_date DESC,id LIMIT #{pageSize}
+            dm_mon_op_audit
+        WHERE
+            1 = 1
+            <if test="startId != 0">
+                <![CDATA[ AND id < #{startId} ]]>
+            </if>
+            AND
+            owner_uid = #{ownerUid}
+            <if test="dateStart != null">
+                <![CDATA[ AND operate_date >= #{dateStart} ]]>
+            </if>
+            <if test="dateEnd != null">
+                <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+            </if>
+            <if test="securityLevel != null">
+                <![CDATA[ AND security_level = #{securityLevel} ]]>
+            </if>
+            <if test="auditType != null">
+                <![CDATA[ AND audit_type = #{auditType} ]]>
+            </if>
+            <if test="resourceType != null">
+                <![CDATA[ AND resource_type = #{resourceType} ]]>
+            </if>
+        ORDER BY
+            operate_date DESC, id
+        LIMIT #{pageSize}
     </select>
 
     <select id="querySection" resultType="com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO">
         SELECT
-        <include refid="rdpOperationAudit"/>
+            <include refid="rdpOperationAudit"/>
         FROM
-        dm_mon_op_audit
-        WHERE 1=1
-        <if test="startId != 0">
-            <![CDATA[ AND id < #{startId} ]]>
-        </if>
-        ORDER BY operate_date DESC,id limit #{pageSize}
+            dm_mon_op_audit
+        WHERE
+            1 = 1
+            <if test="startId != 0">
+                <![CDATA[ AND id < #{startId} ]]>
+            </if>
+        ORDER BY
+            operate_date DESC, id
+        LIMIT #{pageSize}
     </select>
 
     <select id="queryByCondition" resultType="com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO">
         SELECT
-        <include refid="rdpOperationAudit"/>
+            <include refid="rdpOperationAudit"/>
         FROM
-        dm_mon_op_audit
-        WHERE 1=1
-        <include refid="operationAuditCondition"/>
-        <if test="startId != 0">
-            <![CDATA[ AND id < #{startId} ]]>
-        </if>
-        ORDER BY operate_date DESC,id LIMIT #{pageSize}
+            dm_mon_op_audit
+        WHERE
+            1 = 1
+            <include refid="operationAuditCondition"/>
+            <if test="startId != 0">
+                <![CDATA[ AND id < #{startId} ]]>
+            </if>
+        ORDER BY
+            operate_date DESC, id
+        LIMIT #{pageSize}
     </select>
 
     <select id="pageByCondition" resultType="com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO">
         SELECT
-        <include refid="rdpOperationAudit"/>
+            <include refid="rdpOperationAudit"/>
         FROM
-        dm_mon_op_audit
-        WHERE 1=1
-        <include refid="operationAuditCondition"/>
-        ORDER BY operate_date DESC,id LIMIT #{pageSize} OFFSET #{offset}
+            dm_mon_op_audit
+        WHERE
+            1 = 1
+            <include refid="operationAuditCondition"/>
+        ORDER BY
+            operate_date DESC, id
+        LIMIT #{pageSize}
+        OFFSET #{offset}
     </select>
 
     <select id="countByCondition" resultType="long">
-        SELECT COUNT(*)
-        FROM dm_mon_op_audit
-        WHERE 1=1
-        <include refid="operationAuditCondition"/>
+        SELECT
+            COUNT(*)
+        FROM
+            dm_mon_op_audit
+        WHERE
+            1 = 1
+            <include refid="operationAuditCondition"/>
     </select>
 </mapper>

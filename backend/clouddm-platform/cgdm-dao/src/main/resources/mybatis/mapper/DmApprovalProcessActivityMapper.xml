@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.approval.DmApprovalProcessActivityMapper">
-
     <resultMap id="DmApprovalProcessActivityDO" type="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -30,73 +29,112 @@
     </sql>
 
     <update id="updateContext">
-        UPDATE dm_approval_process_activity
-        SET context = #{context}, gmt_modified = NOW()
-        WHERE process_id = #{processId}
-          AND activity_id = #{activityId}
+        UPDATE
+            dm_approval_process_activity
+        SET
+            context      = #{context},
+            gmt_modified = NOW()
+        WHERE
+            process_id  = #{processId}
+            AND
+            activity_id = #{activityId}
     </update>
 
     <update id="claimPreInitTask">
-        UPDATE dm_approval_process_activity
-        SET task_status = 'RUNNING', context = #{context}, gmt_modified = NOW()
-        WHERE process_id = #{processId}
-          AND activity_id = #{activityId}
-          AND (task_status = 'INIT' OR (task_status = 'RUNNING' AND gmt_modified <![CDATA[ < ]]> #{expiredBefore}))
+        UPDATE
+            dm_approval_process_activity
+        SET
+            task_status  = 'RUNNING',
+            context      = #{context},
+            gmt_modified = NOW()
+        WHERE
+            process_id   = #{processId}
+            AND
+            activity_id  = #{activityId}
+            AND
+            (task_status = 'INIT' OR (task_status = 'RUNNING' AND gmt_modified <![CDATA[ < ]]> #{expiredBefore}))
     </update>
 
     <update id="heartbeatPreInitTask">
-        UPDATE dm_approval_process_activity
-        SET gmt_modified = NOW()
-        WHERE process_id = #{processId}
-          AND activity_id = #{activityId}
-          AND task_status = 'RUNNING'
-          AND JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
+        UPDATE
+            dm_approval_process_activity
+        SET
+            gmt_modified = NOW()
+        WHERE
+            process_id                                     = #{processId}
+            AND
+            activity_id                                    = #{activityId}
+            AND
+            task_status                                    = 'RUNNING'
+            AND
+            JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
     </update>
 
     <update id="updatePreInitContext">
-        UPDATE dm_approval_process_activity
-        SET context = #{context}, gmt_modified = NOW()
-        WHERE process_id = #{processId}
-          AND activity_id = #{activityId}
-          AND task_status = 'RUNNING'
-          AND JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
+        UPDATE
+            dm_approval_process_activity
+        SET
+            context      = #{context},
+            gmt_modified = NOW()
+        WHERE
+            process_id                                     = #{processId}
+            AND
+            activity_id                                    = #{activityId}
+            AND
+            task_status                                    = 'RUNNING'
+            AND
+            JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
     </update>
 
     <update id="completePreInitTask">
-        UPDATE dm_approval_process_activity
-        SET task_status = #{taskStatus}, context = #{context}, gmt_modified = NOW()
-        WHERE process_id = #{processId}
-          AND activity_id = #{activityId}
-          AND task_status = 'RUNNING'
-          AND JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
+        UPDATE
+            dm_approval_process_activity
+        SET
+            task_status  = #{taskStatus},
+            context      = #{context},
+            gmt_modified = NOW()
+        WHERE
+            process_id                                     = #{processId}
+            AND
+            activity_id                                    = #{activityId}
+            AND
+            task_status                                    = 'RUNNING'
+            AND
+            JSON_UNQUOTE(JSON_EXTRACT(context, '$.runId')) = #{runId}
     </update>
 
     <select id="queryByTicketId" resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">
-        select
-        <include refid="all_col"/>
-        from dm_approval_process_activity
-        where ticket_id = #{ticketId}
-        order by order_number asc
+        SELECT
+            <include refid="all_col"/>
+        FROM
+            dm_approval_process_activity
+        WHERE
+            ticket_id = #{ticketId}
+        ORDER BY order_number ASC
     </select>
 
     <select id="queryByProcessIdAndActivityId"
             resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">
-        select
-        <include refid="all_col"/>
-        from dm_approval_process_activity
-        where process_id = #{processId}
-        and activity_id = #{activityId}
+        SELECT
+            <include refid="all_col"/>
+        FROM
+            dm_approval_process_activity
+        WHERE
+            process_id  = #{processId}
+            AND
+            activity_id = #{activityId}
     </select>
 
     <select id="queryByProcessIdAndActivityIdForUpdate"
             resultType="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO">
-        select
-        <include refid="all_col"/>
-        from dm_approval_process_activity
-        where process_id = #{processId}
-        and activity_id = #{activityId}
-        for update
+        SELECT
+            <include refid="all_col"/>
+        FROM
+            dm_approval_process_activity
+        WHERE
+            process_id  = #{processId}
+            AND
+            activity_id = #{activityId}
+        FOR UPDATE
     </select>
-
-
 </mapper>

@@ -60,198 +60,246 @@
     </sql>
 
     <select id="queryAuthCountByUser" resultType="long">
-        SELECT count(*)
-        FROM dm_auth_res
-        WHERE owner_uid = #{ownerUid}
+        SELECT
+            COUNT(*)
+        FROM
+            dm_auth_res
+        WHERE
+            owner_uid = #{ownerUid}
     </select>
 
     <select id="queryByPathLike" resultMap="resAuthDO">
         SELECT
-        <include refid="rdpResAuth"/>
+            <include refid="rdpResAuth"/>
         FROM
-        dm_auth_res
+            dm_auth_res
         WHERE
-        owner_uid = #{ownerUid} and
-        res_id = #{resId} and
-        kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
-        <if test="prefixList != null and prefixList.size() > 0">
-            <foreach collection="prefixList" item="item" index="index" separator="or" open="and (" close=")">
-                #{item} like concat(res_path,'%')
-            </foreach>
-        </if>
+            owner_uid = #{ownerUid}
+            AND
+            res_id    = #{resId}
+            AND
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            <if test="prefixList != null and prefixList.size() > 0">
+                <foreach collection="prefixList" item="item" index="index" separator="or" open="and (" close=")">
+                    #{item} LIKE CONCAT(res_path, '%')
+                </foreach>
+            </if>
     </select>
 
     <select id="queryByLikePath" resultMap="resAuthDO">
         SELECT
-        <include refid="rdpResAuth"/>
+            <include refid="rdpResAuth"/>
         FROM
-        dm_auth_res
+            dm_auth_res
         WHERE
-        owner_uid = #{ownerUid} and
-        res_id = #{resId} and
-        kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind} and
-        res_path like concat(#{path},'%')
+            owner_uid = #{ownerUid}
+            AND
+            res_id    = #{resId}
+            AND
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            AND
+            res_path  LIKE CONCAT(#{path}, '%')
     </select>
-
 
     <select id="queryByPath" resultMap="resAuthDO">
         SELECT
-        <include refid="rdpResAuth"/>
+            <include refid="rdpResAuth"/>
         FROM
-        dm_auth_res
+            dm_auth_res
         WHERE
-        owner_uid = #{ownerUid} and
-        res_id = #{resId} and
-        kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind} and
-        res_path = #{path}
+            owner_uid = #{ownerUid}
+            AND
+            res_id    = #{resId}
+            AND
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            AND
+            res_path  = #{path}
     </select>
 
     <select id="listByKind" resultMap="resAuthDO">
         SELECT
-        <include refid="rdpResAuth"/>
+            <include refid="rdpResAuth"/>
         FROM
-        dm_auth_res
+            dm_auth_res
         WHERE
-        owner_uid = #{ownerUid} and
-        kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            owner_uid = #{ownerUid}
+            AND
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
     </select>
 
     <select id="listEffectiveGlobalByUser" resultMap="resAuthDO">
         SELECT
-        <include refid="rdpResAuth"/>
+            <include refid="rdpResAuth"/>
         FROM
-        dm_auth_res
+            dm_auth_res
         WHERE
-        owner_uid = #{ownerUid} and
-        kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind} and
-        res_id = 0 and
-        res_path = '/' and
-        (start_time is null or start_time &lt; now()) and
-        (end_time is null or end_time &gt; now())
+            owner_uid   = #{ownerUid}
+            AND
+            kind_type   = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            AND
+            res_id      = 0
+            AND
+            res_path    = '/'
+            AND
+            (start_time IS NULL OR start_time <![CDATA[ < ]]> NOW())
+            AND
+            (end_time   IS NULL OR end_time <![CDATA[ > ]]> NOW())
     </select>
 
     <select id="listEffectiveGlobalAuthUsersByPrimaryUid" resultMap="com.clougence.clouddm.platform.dal.mapper.auth.DmAuthUserMapper.rdpUserDO">
         SELECT
-        u.id,
-        u.gmt_create,
-        u.gmt_modified,
-        u.uid,
-        u.email,
-        u.username,
-        u.phone,
-        u.account,
-        u.password,
-        u.op_password,
-        u.role_id,
-        u.access_key,
-        u.secret_key,
-        u.last_try_login_time,
-        u.login_fail_count,
-        u.login_locked,
-        u.last_try_op_verify_time,
-        u.op_verify_fail_count,
-        u.op_locked,
-        u.account_type,
-        u.bind_type,
-        u.bind_account,
-        u.allow_local,
-        u.disable,
-        u.parent_id,
-        u.user_status,
-        u.contact_me,
-        u.src,
-        u.keyword,
-        u.client_id,
-        u.country,
-        u.maintainer,
-        u.last_date_update_pwd,
-        u.union_id,
-        u.sso_type,
-        u.customer_id,
-        u.saas_user_status,
-        u.access_token,
-        u.marketplace_type,
-        u.use_mfa
-        FROM dm_auth_user u
-        JOIN dm_auth_res r ON u.uid = r.owner_uid
-        WHERE r.kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
-        and r.res_id = 0
-        and r.res_path = '/'
-        and (r.start_time is null or r.start_time &lt; now())
-        and (r.end_time is null or r.end_time &gt; now())
-        and u.parent_id = (
-            SELECT p.id
-            FROM dm_auth_user p
-            WHERE p.uid = #{puid}
-        )
+            u.id,
+            u.gmt_create,
+            u.gmt_modified,
+            u.uid,
+            u.email,
+            u.username,
+            u.phone,
+            u.account,
+            u.password,
+            u.op_password,
+            u.role_id,
+            u.access_key,
+            u.secret_key,
+            u.last_try_login_time,
+            u.login_fail_count,
+            u.login_locked,
+            u.last_try_op_verify_time,
+            u.op_verify_fail_count,
+            u.op_locked,
+            u.account_type,
+            u.bind_type,
+            u.bind_account,
+            u.allow_local,
+            u.disable,
+            u.parent_id,
+            u.user_status,
+            u.contact_me,
+            u.src,
+            u.keyword,
+            u.client_id,
+            u.country,
+            u.maintainer,
+            u.last_date_update_pwd,
+            u.union_id,
+            u.sso_type,
+            u.customer_id,
+            u.saas_user_status,
+            u.access_token,
+            u.marketplace_type,
+            u.use_mfa
+        FROM
+            dm_auth_user u
+        JOIN
+            dm_auth_res r
+        ON
+            u.uid = r.owner_uid
+        WHERE
+            r.kind_type   = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            AND
+            r.res_id      = 0
+            AND
+            r.res_path    = '/'
+            AND
+            (r.start_time IS NULL OR r.start_time <![CDATA[ < ]]> NOW())
+            AND
+            (r.end_time   IS NULL OR r.end_time <![CDATA[ > ]]> NOW())
+            AND
+            u.parent_id   = (
+        SELECT
+            p.id
+        FROM
+            dm_auth_user p
+        WHERE
+            p.uid = #{puid}
+            )
     </select>
 
     <select id="listWithoutLabels" resultMap="resAuthDO">
         SELECT
-        <include refid="rdpResAuthWithoutAuthLabel"/>
+            <include refid="rdpResAuthWithoutAuthLabel"/>
         FROM
-        dm_auth_res
+            dm_auth_res
         WHERE
-        owner_uid = #{ownerUid} and
-        kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            owner_uid = #{ownerUid}
+            AND
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
     </select>
 
     <update id="updateAuthById">
         UPDATE
-        dm_auth_res
+            dm_auth_res
         SET
-        res_auth_label = #{resAuthLabel}
-        <if test="startTime != null">, start_time=#{startTime}</if>
-        <if test="endTime != null">, end_time=#{endTime}</if>
+            res_auth_label = #{resAuthLabel}
+            <if test="startTime != null">
+                ,
+                start_time = #{startTime}
+            </if>
+            <if test="endTime != null">
+                ,
+                end_time = #{endTime}
+            </if>
         WHERE
-        id = #{id}
+            id = #{id}
     </update>
 
     <delete id="deleteByRes">
-        DELETE
-        FROM dm_auth_res
-        WHERE res_id = #{resId}
-          and kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+        DELETE FROM
+            dm_auth_res
+        WHERE
+            res_id    = #{resId}
+            AND
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
     </delete>
 
     <delete id="deleteByUser">
-        DELETE
-        FROM dm_auth_res
-        WHERE owner_uid = #{ownerUid}
+        DELETE FROM
+            dm_auth_res
+        WHERE
+            owner_uid = #{ownerUid}
     </delete>
 
     <delete id="deleteGlobalByUser">
-        DELETE
-        FROM dm_auth_res
-        WHERE owner_uid = #{ownerUid}
-          and kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
-          and res_id = 0
-          and res_path = '/'
+        DELETE FROM
+            dm_auth_res
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            AND
+            res_id    = 0
+            AND
+            res_path  = '/'
     </delete>
 
     <delete id="deleteByPrefix">
-        DELETE
-        FROM dm_auth_res
-        WHERE res_path like concat(#{prefixPath}, '%')
-          and kind_type = #{kindType}
+        DELETE FROM
+            dm_auth_res
+        WHERE
+            res_path  LIKE CONCAT(#{prefixPath}, '%')
+            AND
+            kind_type = #{kindType}
     </delete>
 
     <delete id="deleteByEndTimeExceed">
-        DELETE
-        FROM dm_auth_res
-        WHERE end_time is not null
-        <![CDATA[ and end_time <= #{endTime} ]]>
+        DELETE FROM
+            dm_auth_res
+        WHERE
+            end_time IS NOT NULL
+            <![CDATA[ AND end_time <= #{endTime} ]]>
     </delete>
 
     <delete id="deleteByPath">
-        delete
-        FROM
-        dm_auth_res
+        DELETE FROM
+            dm_auth_res
         WHERE
-        owner_uid = #{ownerUid} and
-        res_id = #{resId} and
-        kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind} and
-        res_path = #{path}
+            owner_uid = #{ownerUid}
+            AND
+            res_id    = #{resId}
+            AND
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            AND
+            res_path  = #{path}
     </delete>
 
     <select id="queryByUniqueKey" resultMap="resAuthDO">
@@ -260,9 +308,12 @@
         FROM
             dm_auth_res
         WHERE
-            res_id    = #{resId} and
-            owner_uid = #{ownerUid} and
-            res_path  = #{resPath} and
+            res_id    = #{resId}
+            AND
+            owner_uid = #{ownerUid}
+            AND
+            res_path  = #{resPath}
+            AND
             kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
     </select>
 </mapper>

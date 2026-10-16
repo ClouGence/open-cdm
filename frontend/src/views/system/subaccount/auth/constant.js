@@ -7,6 +7,8 @@ const ELEMENT_TYPE_MAP = {
   Schema: 'SCHEMA',
   SCHEMA: 'SCHEMA',
   EXTERNAL_SCHEMA: 'SCHEMA',
+  Topic: 'TOPIC',
+  TOPIC: 'TOPIC',
   Table: 'TABLE',
   TABLE: 'TABLE',
   Column: 'COLUMN',
@@ -32,12 +34,14 @@ const ELEMENT_TYPE_REF_MAP = {
   Instance: 'instanceTree',
   CATALOG: 'catalogTree',
   SCHEMA: 'schemaTree',
+  TOPIC: 'tableTree',
   TABLE: 'tableTree'
 };
 const ELEMENT_REVERSE_TYPE_MAP = {
   INSTANCE: 'Instance',
   CATALOG: 'Catalog',
   SCHEMA: 'Schema',
+  TOPIC: 'Topic',
   TABLE: 'Table',
   COLUMN: 'Column',
   VIEW: 'View',
@@ -51,11 +55,11 @@ const ELEMENT_REVERSE_TYPE_MAP = {
 };
 
 const AUTH_ELEMENT_TYPES = [
-  'DataJob',
   'Instance',
   'Catalog',
   'Schema',
   'Table',
+  'Topic',
   'Column',
   'View',
   'Materialized',

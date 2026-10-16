@@ -18,6 +18,8 @@ package com.clougence.clouddm.console.web.model.fo.editor.data;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +30,8 @@ public class ChangeRowFO {
     private Map<String, String> whereData = new HashMap<>();
     private Map<String, String> newData   = new HashMap<>();
 
+    // Empty newData is valid for an INSERT that only uses database defaults.
+    private DataEditorSqlType   dmlType;
     private Integer             sequence;
 
 }

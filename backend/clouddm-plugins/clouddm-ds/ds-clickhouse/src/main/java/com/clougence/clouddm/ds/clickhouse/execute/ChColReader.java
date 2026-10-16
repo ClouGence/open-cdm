@@ -27,20 +27,30 @@ import com.clougence.utils.StringUtils;
  **/
 public class ChColReader extends AbstractColReader {
 
-    private static final ValueFetcher TUPLE_VALUE_FETCHER = new ChTupleValueFetcher();
+    private static final ValueFetcher TUPLE_VALUE_FETCHER = new ChStructuredValueFetcher(true);
+    private static final ValueFetcher ARRAY_VALUE_FETCHER = new ChStructuredValueFetcher(false);
+    private static final ValueFetcher TIME_VALUE_FETCHER  = new ChTimeValueFetcher();
 
     @Override
     public ValueFetcher readColumn(String col, ColMetaData colMetaData) {
         String colType = StringUtils.defaultString(colMetaData.getColumnType(), "").toLowerCase();
-        if (colType.startsWith("nullable(")) {
-            colType = colType.substring(9, colType.lastIndexOf(")"));
-        }
+        colType = unwrapColumnType(colType);
         if (colType.startsWith("fixedstring")) {
             colType = "fixedstring";
         } else if (colType.startsWith("decimal")) {
             colType = "decimal";
-        } else if (colType.startsWith("datetime64")) {
-            colType = "datetime64";
+        } else if (colType.startsWith("datetime")) {
+            colType = "datetime";
+        } else if (colType.startsWith("time64")) {
+            colType = "time64";
+        } else if (colType.startsWith("enum")) {
+            colType = "enum";
+        } else if (colType.startsWith("json")) {
+            colType = "json";
+        } else if (colType.startsWith("object")) {
+            colType = "object";
+        } else if (colType.startsWith("interval")) {
+            colType = "interval";
         } else if (colType.startsWith("map")) {
             colType = "map";
         } else if (colType.startsWith("array")) {
@@ -51,6 +61,8 @@ public class ChColReader extends AbstractColReader {
             colType = "dynamic";
         } else if (colType.startsWith("variant")) {
             colType = "variant";
+        } else if (colType.startsWith("nested")) {
+            colType = "nested";
         }
         switch (colType) {
             case "bool":
@@ -89,9 +101,20 @@ public class ChColReader extends AbstractColReader {
             case "array":
             case "dynamic":
             case "variant":
+            case "enum":
+            case "nothing":
+            case "interval":
                 return STRING_VALUE_FETCHER;
             case "tuple":
+            case "point":
                 return TUPLE_VALUE_FETCHER;
+            case "nested":
+            case "ring":
+            case "polygon":
+            case "multipolygon":
+            case "linestring":
+            case "multilinestring":
+                return ARRAY_VALUE_FETCHER;
             case "date":
             case "date32":
                 return DATE_VALUE_FETCHER;
@@ -103,6 +126,31 @@ public class ChColReader extends AbstractColReader {
                 return DATETIME_VALUE_FETCHER;
             default:
                 return null;
+        }
+    }
+
+    private String unwrapColumnType(String colType) {
+        while (true) {
+            if (colType.startsWith("nullable(") || colType.startsWith("lowcardinality(")) {
+                colType = colType.substring(colType.indexOf('(') + 1, colType.lastIndexOf(')')).trim();
+            } else if (colType.startsWith("simpleaggregatefunction(")) {
+                // Skip the function, including parameters such as groupUniqArrayArray(2).
+                int depth = 0;
+                int index = colType.indexOf('(') + 1;
+                for (; index < colType.length(); index++) {
+                    char ch = colType.charAt(index);
+                    if (ch == '(') {
+                        depth++;
+                    } else if (ch == ')') {
+                        depth--;
+                    } else if (ch == ',' && depth == 0) {
+                        break;
+                    }
+                }
+                colType = colType.substring(index + 1, colType.lastIndexOf(')')).trim();
+            } else {
+                return colType;
+            }
         }
     }
 }

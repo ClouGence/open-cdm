@@ -180,10 +180,13 @@ public class QueryApi {
                 if (vo.getMsgList() == null) {
                     vo.setMsgList(new ArrayList<>());
                 }
-                for (WsInfoEntity entity : m.getEntities()) {
-                    if (entity.getMode() == MessageMode.Console) {
-                        vo.getMsgList().add(m);
-                    }
+                // Errors and warnings are relevant to an API caller regardless of the display mode they were
+                // produced for. Decide once per message so a message carrying several matching entities is
+                // reported a single time.
+                if (m.getEntities().stream().anyMatch(entity -> entity.getMode() == MessageMode.Console
+                        || entity.getLevel() == MessageLevel.Error
+                        || entity.getLevel() == MessageLevel.Warn)) {
+                    vo.getMsgList().add(m);
                 }
                 break;
             }

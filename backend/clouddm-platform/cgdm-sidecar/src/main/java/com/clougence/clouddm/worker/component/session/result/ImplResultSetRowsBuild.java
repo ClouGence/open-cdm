@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.component.resultfile.ResultSetOverflowException;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSet;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
@@ -39,7 +40,6 @@ import com.clougence.clouddm.worker.component.session.storage.ResultStorage;
 import com.clougence.clouddm.worker.component.session.storage.RowStorage;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.io.result.ResultSetOverflowException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,8 +56,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
     private final ValueFetcherContext[] columnFetcherCtx;
     private Map<String, ColMetaData>    cacheRowMeta;
     private long                        fetcherDataSize;
-    private long                        expansionSize;
-    private boolean                     fetcherOverflow;
 
     public ImplResultSetRowsBuild(String resultId, String sessionID, QueryRequest query, ResultListenerContainer listeners, //
                                   SessionSupport ss, ResultStorage localCache, List<ValueFetcherContext> metaCtx){
@@ -90,8 +88,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
         this.columnList = null;
         this.columnFetcher = null;
         this.fetcherDataSize = 0;
-        this.expansionSize = 0;
-        this.fetcherOverflow = false;
     }
 
     @Override
@@ -128,14 +124,15 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                             throw new SQLException("Value fetcher error: " + fetcherCtx.getErrObject());
                         }
                     }
-                } catch (Exception e) {
+                } catch (ResultSetOverflowException e) {
+                    // Do not commit an incomplete cached row when a column reaches the result byte limit.
+                    row.getOutput().discardRow();
                     throw e;
                 } finally {
                     fetcherCtx.free();
                 }
 
                 this.fetcherDataSize += value.getTotalSize();
-                this.expansionSize += value.getTotalSize();
 
                 if (!silent) {
                     data.add(value);
@@ -152,9 +149,6 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 rowDTO.setData(data);
                 this.get().getRowSet().add(rowDTO);
             }
-        } catch (ResultSetOverflowException e) {
-            this.expansionSize += e.getOverflowSize();
-            this.fetcherOverflow = true;
         }
     }
 
@@ -179,14 +173,15 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                             throw new SQLException("Value fetcher error: " + fetcherCtx.getErrObject());
                         }
                     }
-                } catch (Exception e) {
+                } catch (ResultSetOverflowException e) {
+                    // Do not commit an incomplete cached row when a column reaches the result byte limit.
+                    row.getOutput().discardRow();
                     throw e;
                 } finally {
                     fetcherCtx.free();
                 }
 
                 this.fetcherDataSize += value.getTotalSize();
-                this.expansionSize += value.getTotalSize();
 
                 if (!silent) {
                     data.add(value);
@@ -203,25 +198,12 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
                 rowDTO.setData(data);
                 this.get().getRowSet().add(rowDTO);
             }
-        } catch (ResultSetOverflowException e) {
-            this.expansionSize += e.getOverflowSize();
-            this.fetcherOverflow = true;
         }
     }
 
     @Override
     public long dataSize() {
         return this.fetcherDataSize;
-    }
-
-    @Override
-    public long expansionSize() {
-        return this.expansionSize;
-    }
-
-    @Override
-    public boolean fetcherOverflow() {
-        return this.fetcherOverflow;
     }
 
     @Override

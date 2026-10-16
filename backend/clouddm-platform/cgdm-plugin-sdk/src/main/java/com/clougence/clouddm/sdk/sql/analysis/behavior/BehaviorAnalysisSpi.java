@@ -15,12 +15,13 @@
  */
 package com.clougence.clouddm.sdk.sql.analysis.behavior;
 
+import com.clougence.clouddm.sdk.Spi;
+import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
+import com.clougence.schema.umi.struts.UmiTypes;
+
 import java.io.Reader;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import com.clougence.clouddm.sdk.Spi;
-import com.clougence.schema.umi.struts.UmiTypes;
 
 /**
  * Analyzes semantic behaviors and resource relationships expressed by SQL statements.
@@ -32,4 +33,9 @@ public interface BehaviorAnalysisSpi extends Spi {
 
     /** The caller owns and closes {@code queryReader}. */
     Stream<StatementBehavior> analysisBehaviorStream(Reader queryReader, Map<UmiTypes, Object> levels, int baseLine, int baseColumn);
+
+    /** Supplies runtime metadata context; existing implementations keep the original analysis contract. */
+    default Stream<StatementBehavior> analysisBehaviorWithContextStream(Reader reader, ContextInfo context, int baseLine, int baseColumn) {
+        return analysisBehaviorStream(reader, context.getLevelsParam(), baseLine, baseColumn);
+    }
 }

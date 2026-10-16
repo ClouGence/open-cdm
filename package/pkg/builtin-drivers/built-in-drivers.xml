@@ -16,6 +16,9 @@
     <driver driverFamily="PostgreSQL JDBC" version="42.7.10">
         <resource type="maven">org.postgresql:postgresql:42.7.10</resource>
     </driver>
+    <driver driverFamily="KingbaseES JDBC Driver" version="9.0.1">
+        <resource type="maven">cn.com.kingbase:kingbase8:9.0.1</resource>
+    </driver>
     <driver driverFamily="MariaDB Java Client" version="3.5.8">
         <resource type="maven">org.mariadb.jdbc:mariadb-java-client:3.5.8</resource>
     </driver>
@@ -45,5 +48,8 @@
     </driver>
     <driver driverFamily="Jedis" version="7.4.1">
         <resource type="maven">redis.clients:jedis:7.4.1</resource>
+    </driver>
+    <driver driverFamily="Valkey GLIDE" version="2.5.1">
+        <resource type="maven">io.valkey:valkey-glide:2.5.1</resource>
     </driver>
 </drivers>

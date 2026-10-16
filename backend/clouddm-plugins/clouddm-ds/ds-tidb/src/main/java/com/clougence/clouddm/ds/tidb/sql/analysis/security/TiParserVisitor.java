@@ -1464,7 +1464,12 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
     public Void visitSelectStarElement(SelectStarElementContext ctx) {
         builder.handleBuildSelectItem(() -> {
             RdbColumnDomain rdbColumnDomain = new RdbColumnDomain();
-            rdbColumnDomain.setTable(getName(ctx.uid()));
+            if (ctx.dottedId() == null) {
+                rdbColumnDomain.setTable(getName(ctx.uid()));
+            } else {
+                rdbColumnDomain.setSchema(getName(ctx.uid()));
+                rdbColumnDomain.setTable(getName(ctx.dottedId().uid()));
+            }
             rdbColumnDomain.setColumn("*");
             builder.handleDomain(rdbColumnDomain, DomainSource.COLUMN);
         });
@@ -2417,10 +2422,10 @@ public class TiParserVisitor extends TiDBParserBaseVisitor<Void> {
         }
         builder.handleDomain(columnTypeDomain, DomainSource.COLUMN_TYPE);
 
-        if (ctx.UNSIGNED() != null) {
+        if (!ctx.UNSIGNED().isEmpty()) {
             builder.addAttr(MyAttribute.UNSIGNED, true);
         }
-        if (ctx.ZEROFILL() != null) {
+        if (!ctx.ZEROFILL().isEmpty()) {
             builder.addAttr(MyAttribute.ZEROFILL, true);
         }
 

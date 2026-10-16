@@ -41,7 +41,7 @@ public interface ConfigRService {
      */
     DataSourceConfig fetchDsConfigWithOverrides(long dsId, Map<String, String> configOverrides);
 
-    List<ConfigData> fetchDsConfig(String instanceId, List<String> names);
+    List<ConfigData> fetchDsConfigByInstanceIdAndNames(String instanceId, List<String> names);
 
     ToolConfig fetchToolConfig(String toolName);
 

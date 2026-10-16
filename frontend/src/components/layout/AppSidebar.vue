@@ -79,7 +79,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['includesDM', 'isDesktop']),
+    ...mapGetters(['isDesktop']),
     ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl', 'dmGlobalSetting']),
     displaySidebarVersion() {
       return this.sidebarVersion || resolveDisplayVersion(this.dmGlobalSetting);
@@ -101,7 +101,7 @@ export default {
       if (path.indexOf('/ticket') > -1) {
         return 'ticket';
       }
-      if (path.indexOf('/datasource') === 0 || path.indexOf('/system/ccdatasource') > -1) {
+      if (path.indexOf('/datasource') === 0) {
         return '/datasource';
       }
       if (path === '/env' || path.indexOf('/env/') === 0 || path.indexOf('/system/env') > -1) {
@@ -196,7 +196,7 @@ export default {
       }
     },
     handleGoHome() {
-      if (this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE')) {
+      if (this.myCatLog.includes('CAT_DM_CONSOLE')) {
         saveLastWorkbenchRoute(this.$route, this.userInfo?.uid);
         this.$router.push({ path: '/sql' }).catch(() => {});
         return;

@@ -285,7 +285,6 @@ export default {
   mixins: [copyMixin, enterOpPwdMixin, encryptMixin],
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'myCatLog', 'myAuth']),
-    ...mapGetters(['includesDM']),
     accountFormTitle() {
       return this.accountFormMode === 'create' ? this.$t('chuang-jian-zi-zhang-hao') : this.$t('xiu-gai');
     },

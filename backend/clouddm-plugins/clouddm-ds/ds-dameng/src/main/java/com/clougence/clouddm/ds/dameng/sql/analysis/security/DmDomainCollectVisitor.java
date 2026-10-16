@@ -605,7 +605,7 @@ public class DmDomainCollectVisitor extends DmSqlParserBaseVisitor<Void> {
             RdbViewDomain domain = new RdbViewDomain();
             setViewName(domain, schemaScoped(NameParts.from(ctx.commentTarget().qualifiedName())));
             add(domain, RuleQueryType.ALTER_VIEW);
-        } else {
+        } else if (ctx.commentTarget().COLUMN() != null) {
             tableDomain(schemaScoped(columnTableName(ctx.commentTarget().qualifiedName())), RuleQueryType.COMMENT_COLUMN);
         }
         return null;

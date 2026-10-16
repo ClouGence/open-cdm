@@ -51,7 +51,10 @@ public class SrStatementParser implements AntlrStatementParser {
             int type = start.getType();
             if (type == StarRocksParser.SEMICOLON) {
                 break;
-            } else if (type == StarRocksParser.SIMPLE_COMMENT || type == StarRocksParser.BRACKETED_COMMENT) {
+            } else if (type == StarRocksParser.WS) {
+                continue;
+            } else if (type == StarRocksParser.SIMPLE_COMMENT || type == StarRocksParser.BRACKETED_COMMENT
+                || type == StarRocksParser.OPTIMIZER_HINT) {
                 startToken = start;
             } else {
                 break;
@@ -64,7 +67,10 @@ public class SrStatementParser implements AntlrStatementParser {
             if (type == StarRocksParser.SEMICOLON) {
                 endToken = end;
                 break;
-            } else if (type == StarRocksParser.SIMPLE_COMMENT || type == StarRocksParser.BRACKETED_COMMENT) {
+            } else if (type == StarRocksParser.WS) {
+                continue;
+            } else if (type == StarRocksParser.SIMPLE_COMMENT || type == StarRocksParser.BRACKETED_COMMENT
+                || type == StarRocksParser.OPTIMIZER_HINT) {
                 endToken = end;
             } else {
                 break;

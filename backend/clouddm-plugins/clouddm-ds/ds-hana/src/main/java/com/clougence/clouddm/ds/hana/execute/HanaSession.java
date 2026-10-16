@@ -16,10 +16,13 @@
 package com.clougence.clouddm.ds.hana.execute;
 
 import java.sql.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
+import com.clougence.clouddm.sdk.execute.session.SessionCallback;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.HashUtils;
@@ -41,9 +44,91 @@ public class HanaSession extends DefaultRdbSession {
             """;
     private static final String DELETE_EXPLAIN_SQL = "DELETE FROM EXPLAIN_PLAN_TABLE WHERE STATEMENT_NAME = ?";
     private String              currentExplainId;
+    private final Object        executionLock = new Object();
+    private Object              activeExecution;
+    private boolean             cancelInProgress;
 
     public HanaSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
         super(newSessionId, dsConfig, dsObject, new HanaHooks());
+    }
+
+    @Override
+    protected void execQuery(long beginTime, QueryRequest query, ResultBuilder builder, AtomicBoolean receiveSignal) throws Exception {
+        try {
+            super.execQuery(beginTime, query, builder, receiveSignal);
+        } finally {
+            synchronized (this.executionLock) {
+                this.activeExecution = null;
+            }
+        }
+    }
+
+    @Override
+    public <V> V executeQuery(SessionCallback<V> callback) throws Exception {
+        return super.executeQuery(connection -> {
+            this.beginExecution();
+            try {
+                return callback.doCallback(connection);
+            } catch (Exception e) {
+                this.handleExecutionFailure(e);
+                throw e;
+            } finally {
+                synchronized (this.executionLock) {
+                    this.activeExecution = null;
+                    this.rdbCancelSignal.set(false);
+                }
+            }
+        });
+    }
+
+    private void beginExecution() throws SQLException {
+        synchronized (this.executionLock) {
+            // Fail fast instead of making the query worker wait for cancellation I/O.
+            if (this.cancelInProgress) {
+                throw new SQLException("HANA cancellation is still in progress");
+            }
+            this.activeExecution = new Object();
+            this.rdbCancelSignal.set(false);
+        }
+    }
+
+    @Override
+    public void cancel() {
+        try {
+            this.killCurrentQuery();
+        } catch (Exception e) {
+            log.error("cancel HANA session {} failed", this.getSessionId(), e);
+            throw ThirdPartyApiException.as().with(e);
+        }
+    }
+
+    @Override
+    public void killCurrentQuery() throws Exception {
+        Object execution;
+        synchronized (this.executionLock) {
+            execution = this.activeExecution;
+            if (execution == null || this.cancelInProgress) {
+                return;
+            }
+            this.cancelInProgress = true;
+            this.rdbCancelSignal.set(true);
+        }
+        try (DsObject<Connection> cancelConnection = this.dsObject.unsafeSimilar()) {
+            synchronized (this.executionLock) {
+                // The original request may have finished while the independent connection was opening.
+                if (this.activeExecution != execution || this.dsObject.isClose()) {
+                    return;
+                }
+            }
+            this.rdbHook().killProcess(cancelConnection.getTarget(), this.getCurrentQueryId());
+        } catch (Exception e) {
+            this.rdbCancelSignal.set(false);
+            throw e;
+        } finally {
+            synchronized (this.executionLock) {
+                this.cancelInProgress = false;
+            }
+        }
     }
 
     @Override
@@ -66,18 +151,29 @@ public class HanaSession extends DefaultRdbSession {
 
     @Override
     protected Statement createStatement(Connection conn, QueryRequest query) throws SQLException {
+        this.beginExecution();
         if (!query.isUseExplain()) {
             return super.createStatement(conn, query);
         }
         query.setUsingValueProcess(false);
         PreparedStatement stmt = conn.prepareStatement(QUERY_EXPLAIN_SQL, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        stmt.setFetchSize(200);
-        stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
-        return stmt;
+        try {
+            stmt.setFetchSize(200);
+            stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
+            return stmt;
+        } catch (SQLException e) {
+            try {
+                stmt.close();
+            } catch (SQLException closeError) {
+                e.addSuppressed(closeError);
+            }
+            throw e;
+        }
     }
 
     @Override
     protected boolean executeStatement(Statement ps, QueryRequest query, ResultBuilder builder) throws SQLException {
+        this.checkCancelled();
         if (!query.isUseExplain()) {
             return super.executeStatement(ps, query, builder);
         }
@@ -88,9 +184,11 @@ public class HanaSession extends DefaultRdbSession {
         }
         try (PreparedStatement explain = (PreparedStatement) this.rdbHook().explainStatement(ps.getConnection(), query)) {
             super.applyArgs(query, explain);
+            this.checkCancelled();
             explain.execute();
         }
         ((PreparedStatement) ps).setString(1, this.currentExplainId);
+        this.checkCancelled();
         return ((PreparedStatement) ps).execute();
     }
 
@@ -112,15 +210,41 @@ public class HanaSession extends DefaultRdbSession {
 
     @Override
     protected void throwQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder, Exception e) {
+        this.handleExecutionFailure(e);
         try {
             this.cleanupExplainPlan();
-        } catch (SQLException cleanupError) {
+        } catch (Exception cleanupError) {
+            e.addSuppressed(cleanupError);
             log.error("cleanup HANA explain plan failed", cleanupError);
         }
         super.throwQueryRequest(beginTime, query, builder, e);
     }
 
+    private void checkCancelled() throws SQLException {
+        if (this.rdbCancelSignal.get()) {
+            throw new SQLException("HANA query cancelled before execution");
+        }
+    }
+
+    private void handleExecutionFailure(Exception e) {
+        // Only server error 139 confirms that cancellation rolled the transaction back.
+        for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SQLException sqlError) {
+                if (sqlError.getErrorCode() == 139) {
+                    this.rdbHasUnCommitted = false;
+                }
+                if (sqlError.getSQLState() != null && sqlError.getSQLState().startsWith("08")) {
+                    this.doClose();
+                }
+            }
+        }
+    }
+
     private void cleanupExplainPlan() throws SQLException {
+        if (this.dsObject.isClose()) {
+            this.currentExplainId = null;
+            return;
+        }
         if (this.currentExplainId == null) {
             return;
         }

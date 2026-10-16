@@ -29,6 +29,7 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultColDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultFileReadDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultSetRService;
+import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.file.RemoteFileService;
@@ -41,6 +42,7 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
@@ -54,6 +56,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostConstruct {
+
+    private static final int            CLEAR_BATCH_SIZE                        = 500;
+    private static final int            ACTIVE_FILE_PROTECTION_MINUTES          = 2;
+    private static final int            DEFAULT_RESULT_CACHE_CAPACITY_MEGABYTES = 1024;
+    private static final long           BYTES_PER_MEGABYTE                      = 1024L * 1024L;
+
     @Resource
     private SystemDal                   systemDal;
     @Resource
@@ -75,102 +83,176 @@ public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostCons
     }
 
     private void doClearJob() {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        c.add(Calendar.MINUTE, -2); // 2min pre check.
+        try {
+            Integer capacityMegaBytes = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineResultCacheCapacityMegaByte, Integer.class);
+            if (capacityMegaBytes == null) {
+                capacityMegaBytes = DEFAULT_RESULT_CACHE_CAPACITY_MEGABYTES;
+            }
+            long capacityBytes = capacityMegaBytes * BYTES_PER_MEGABYTE;
 
-        while (true) {
-            List<DmExecFileDO> files = this.execDal.fileMapper().queryByAfterHeartbeatTime(c.getTime(), 500);
-            if (files.isEmpty()) {
-                break;
+            Map<String, List<DmExecFileDO>> filesByWorker = this.loadFilesByWorker();
+            Map<String, DmSysWorkerDO> connectedWorkers = new HashMap<>();
+            List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryByConnStatus(WorkerConnStatus.CONNECTED);
+            for (DmSysWorkerDO worker : workers) {
+                connectedWorkers.put(worker.getWorkerSeqNumber(), worker);
             }
 
-            Map<String, Integer> timeoutConfigCache = new HashMap<>();
-            for (DmExecFileDO f : files) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, -ACTIVE_FILE_PROTECTION_MINUTES);
+            Date activeFileSafePoint = calendar.getTime();
+
+            for (Map.Entry<String, List<DmExecFileDO>> entry : filesByWorker.entrySet()) {
+                if (!connectedWorkers.containsKey(entry.getKey())) {
+                    continue;
+                }
                 try {
-                    URI fileUri = DmConvertUtils.createFileUri(f.getFileUri());
-                    String fsName = fileUri.getScheme().toLowerCase();
-                    if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
-                        String wsn = fileUri.getHost();
-                        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(wsn);
-                        if (worker == null) {
-                            this.execDal.fileMapper().incrementTryCountByUniqueId(f.getUniqueId(), "worker offline.");
+                    this.clearWorkerFiles(entry.getKey(), entry.getValue(), capacityBytes, activeFileSafePoint);
+                } catch (Exception e) {
+                    log.error("Clear result cache failed, worker=" + entry.getKey(), e);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Clear result cache failed.", e);
+        }
+    }
+
+    private Map<String, List<DmExecFileDO>> loadFilesByWorker() {
+        Map<String, List<DmExecFileDO>> result = new HashMap<>();
+        long afterId = 0;
+        while (true) {
+            List<DmExecFileDO> files = this.execDal.fileMapper().queryAfterId(afterId, CLEAR_BATCH_SIZE);
+            if (files.isEmpty()) {
+                return result;
+            }
+
+            for (DmExecFileDO file : files) {
+                afterId = file.getId();
+                try {
+                    URI fileUri = DmConvertUtils.createFileUri(file.getFileUri());
+                    if (!StringUtils.equalsIgnoreCase(fileUri.getScheme(), "wsn")) {
+                        continue;
+                    }
+                    result.computeIfAbsent(fileUri.getHost(), key -> new ArrayList<>()).add(file);
+                } catch (Exception e) {
+                    log.error("Parse result file URI failed, uniqueId=" + file.getUniqueId(), e);
+                }
+            }
+
+            if (files.size() < CLEAR_BATCH_SIZE) {
+                return result;
+            }
+        }
+    }
+
+    private void clearWorkerFiles(String wsn, List<DmExecFileDO> files, long capacityBytes, Date activeFileSafePoint) {
+        Map<String, Long> fileSizes = new HashMap<>();
+        long usageBytes = 0;
+        boolean snapshotComplete = true;
+
+        for (DmExecFileDO file : files) {
+            try {
+                long fileSize = this.fetchFileSize(wsn, DmConvertUtils.createFileUri(file.getFileUri()).getPath());
+                if (fileSize < 0) {
+                    if (file.getStatus() != FileStatus.Pending || file.getHeartbeat().before(activeFileSafePoint)) {
+                        this.execDal.fileMapper().deleteFileByUniqueId(file.getUniqueId());
+                    }
+                    continue;
+                }
+                fileSizes.put(file.getUniqueId(), fileSize);
+                usageBytes += fileSize;
+            } catch (Exception e) {
+                snapshotComplete = false;
+                this.execDal.fileMapper().incrementTryCountByUniqueId(file.getUniqueId(), "file size check error: " + e.getMessage());
+            }
+        }
+
+        for (DmExecFileDO file : files) {
+            Long fileSize = fileSizes.get(file.getUniqueId());
+            if (file.getStatus() == FileStatus.Delete) {
+                try {
+                    if (fileSize == null) {
+                        DmExecFileDO current = this.execDal.fileMapper().queryFileByUniqueId(file.getUniqueId());
+                        if (current == null) {
                             continue;
                         }
                     }
-
-                    if (f.getTryCount() >= 10) {
-                        deleteFile(f);
-                        continue;
-                    }
-
-                    switch (f.getStatus()) {
-                        case Pending: {
-                            if (this.existsFile(f)) {
-                                this.execDal.fileMapper().updateAccessTimeByUniqueId(f.getUniqueId(), "File exists during pending check.");
-                            } else {
-                                this.execDal.fileMapper().deleteFileByUniqueId(f.getUniqueId());
-                            }
-                            break;
+                    if (this.deleteFile(file)) {
+                        if (fileSize != null) {
+                            usageBytes -= fileSize;
                         }
-                        case Delete: {
-                            deleteFile(f);
-                            break;
-                        }
-                        default: {
-                            int cacheTimeoutSec = this.getTimeoutByOwnerUid(f.getOwnerUid(), timeoutConfigCache);
-                            long fileLastTime = f.getGmtModified().getTime() + (cacheTimeoutSec * 1000L);
-                            if (fileLastTime > System.currentTimeMillis()) {
-                                this.execDal.fileMapper().updateHeartbeatByUniqueId(f.getUniqueId());
-                            } else {
-                                deleteFile(f);
-                            }
-                        }
+                        fileSizes.remove(file.getUniqueId());
                     }
                 } catch (Exception e) {
-                    this.execDal.fileMapper().incrementTryCountByUniqueId(f.getUniqueId(), "file clear error: " + e.getMessage());
+                    this.execDal.fileMapper().incrementTryCountByUniqueId(file.getUniqueId(), "file clear error: " + e.getMessage());
                 }
             }
         }
-    }
 
-    private int getTimeoutByOwnerUid(String ownerUid, Map<String, Integer> timeoutConfigCache) {
-        if (timeoutConfigCache.containsKey(ownerUid)) {
-            return timeoutConfigCache.get(ownerUid);
+        if (!snapshotComplete || usageBytes <= capacityBytes) {
+            return;
         }
 
-        Integer configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineResultCacheTimeoutSec, Integer.class);
-        if (configValue == null) {
-            timeoutConfigCache.put(ownerUid, 300);
-            return 300;
-        } else {
-            timeoutConfigCache.put(ownerUid, configValue);
-            return configValue;
+        List<DmExecFileDO> candidates = new ArrayList<>();
+        for (DmExecFileDO file : files) {
+            if (fileSizes.containsKey(file.getUniqueId()) && (file.getStatus() == FileStatus.Ready || file.getStatus() == FileStatus.Failed)
+                && file.getHeartbeat().before(activeFileSafePoint)) {
+                candidates.add(file);
+            }
         }
+        candidates.sort(Comparator.comparing(DmExecFileDO::getGmtModified).thenComparing(DmExecFileDO::getId));
+
+        long usageBeforeBytes = usageBytes;
+        int deletedCount = 0;
+        for (DmExecFileDO candidate : candidates) {
+            if (usageBytes <= capacityBytes) {
+                break;
+            }
+
+            DmExecFileDO current = this.execDal.fileMapper().queryFileByUniqueId(candidate.getUniqueId());
+            if (current == null || (current.getStatus() != FileStatus.Ready && current.getStatus() != FileStatus.Failed) || !current.getHeartbeat().before(activeFileSafePoint)
+                || current.getGmtModified().after(candidate.getGmtModified())) {
+                continue;
+            }
+
+            try {
+                URI fileUri = DmConvertUtils.createFileUri(current.getFileUri());
+                long previousSize = fileSizes.get(candidate.getUniqueId());
+                long currentSize = this.fetchFileSize(wsn, fileUri.getPath());
+                if (currentSize < 0) {
+                    this.execDal.fileMapper().deleteFileByUniqueId(current.getUniqueId());
+                    usageBytes -= previousSize;
+                    continue;
+                }
+
+                usageBytes += currentSize - previousSize;
+                if (usageBytes <= capacityBytes) {
+                    break;
+                }
+                if (this.deleteFile(current)) {
+                    usageBytes -= currentSize;
+                    deletedCount++;
+                }
+            } catch (Exception e) {
+                this.execDal.fileMapper().incrementTryCountByUniqueId(current.getUniqueId(), "file clear error: " + e.getMessage());
+            }
+        }
+
+        log.info("Result cache clear finished, worker={}, capacityBytes={}, usageBeforeBytes={}, usageAfterBytes={}, deletedCount={}", wsn, capacityBytes, usageBeforeBytes, usageBytes, deletedCount);
     }
 
-    private void deleteFile(DmExecFileDO f) {
-        URI fileUri = DmConvertUtils.createFileUri(f.getFileUri());
-        String fsName = fileUri.getScheme().toLowerCase();
-        if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
-            String wsn = fileUri.getHost();
-            RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
-            this.resultSetRService.deleteFile(sendDTO, fileUri.getPath(), false);
-            log.info("delete file [{}] on worker [{}] success.", fileUri.getPath(), wsn);
-        }
-        this.execDal.fileMapper().deleteFileByUniqueId(f.getUniqueId());
-    }
-
-    private boolean existsFile(DmExecFileDO f) {
-        URI fileUri = DmConvertUtils.createFileUri(f.getFileUri());
-        String fsName = fileUri.getScheme().toLowerCase();
-        if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
-            String wsn = fileUri.getHost();
-            RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
-            return this.resultSetRService.fileSize(sendDTO, fileUri.getPath()) >= 0;
-        } else {
+    private boolean deleteFile(DmExecFileDO file) {
+        URI fileUri = DmConvertUtils.createFileUri(file.getFileUri());
+        String wsn = fileUri.getHost();
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
+        this.resultSetRService.deleteFile(sendDTO, fileUri.getPath(), false);
+        if (this.resultSetRService.fileSize(sendDTO, fileUri.getPath()) >= 0) {
+            this.execDal.fileMapper().incrementTryCountByUniqueId(file.getUniqueId(), "physical file still exists after delete.");
             return false;
         }
+
+        this.execDal.fileMapper().deleteFileByUniqueId(file.getUniqueId());
+        log.info("Delete result file [{}] on worker [{}] success.", fileUri.getPath(), wsn);
+        return true;
     }
 
     @Override

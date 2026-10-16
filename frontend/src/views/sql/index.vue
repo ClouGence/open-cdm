@@ -34,7 +34,7 @@
               </transition>
             </div>
             <div class="sql-tabs-style" v-if="tabs.length">
-              <a-tabs type="card" v-model:activeKey="active" @tabClick="handleChangeTab" :key="tabsKey">
+              <a-tabs type="card" v-model:activeKey="active" @tabClick="handleChangeTab">
                 <a-tab-pane v-for="(tab, index) in tabs" :key="tab.key">
                   <template #tab>
                     <div @contextmenu.prevent.stop="onContextmenu($event, tab)">
@@ -52,7 +52,7 @@
                         type="icon-v2-close2"
                         hoverStyle
                         customStyle="radius-hover"
-                        @click.native="handleCloseTab(tab.key)"
+                        @click.stop="handleCloseTab(tab.key)"
                       />
                     </div>
                   </template>
@@ -69,10 +69,13 @@
                               <span class="dropdown-item-title truncate">{{ getTabDisplayTitle(tab) }}</span>
                             </Tooltip>
                             <span class="dropdown-item-desc truncate">
-                              [{{ tab.node.INSTANCE.attr.dsInstanceDesc || tab.node.INSTANCE.attr.dsInstance }}]
+                              <template v-if="tab.node?.INSTANCE">
+                                [{{ tab.node.INSTANCE.attr.dsInstanceDesc || tab.node.INSTANCE.attr.dsInstance }}]
+                              </template>
+                              <template v-else>[{{ $t('sql-favorites-unconnected') }}]</template>
                             </span>
                             <div class="dropdown-item-close">
-                              <CustomIcon type="icon-v2-close2" customStyle="icon-v2-hover" hoverStyle @click.native="handleCloseTab(tab.key)" />
+                              <CustomIcon type="icon-v2-close2" customStyle="icon-v2-hover" hoverStyle @click.stop="handleCloseTab(tab.key)" />
                             </div>
                           </div>
                         </a-menu-item>
@@ -93,6 +96,7 @@
             <div v-if="currentTab.type === TAB_TYPE.QUERY && globalDsSetting[currentTab.dsType]" class="query-content">
               <div class="query">
                 <TableList
+                  v-if="currentTab.connected && currentTab.node"
                   ref="tableList"
                   :get-node-data="getTableNodeData"
                   :handle-add-tab="handleAddTab"
@@ -114,11 +118,14 @@
                       :completion-data="completionData"
                       :rdb-object-detail="rdbObjectDetail"
                       :handle-click-ds-status-icon="handleClickDsStatusIcon"
+                      @open-script="handleOpenSqlScript"
+                      @script-deleted="handleSqlScriptDeleted"
+                      @script-renamed="handleSqlScriptRenamed"
                     >
                       <template #connection-context>
-                        <div class="query-schema-select__content">
+                        <div v-if="currentTab.connected && currentTab.node" class="query-schema-select__content">
                           <a-select
-                            v-if="currentTab.selectOptions"
+                            v-if="currentTab.selectOptions && currentTab.node.levels[currentTab.node.levels.length - 1] !== 'INSTANCE'"
                             class="schema-select-style"
                             v-model:value="currentTab.selectValue"
                             show-search
@@ -168,12 +175,25 @@
     </div>
     <!-- Hide, avoid double-counting. -->
     <CCModal v-model="showConnectedModal" :title="$t('cuo-wu')" :zIndex="1100">
-      <div>{{ connectedInstance.connectedMsg }}</div>
+      <div class="connection-error-content">
+        <CustomIcon
+          class="connection-error-icon"
+          :type="connectedInstance.INSTANCE.attr.dsType"
+          :instance-type="connectedInstance.INSTANCE.attr.dsDeployType"
+          size="20px"
+          aria-hidden="true"
+        />
+        <span>{{ $t('sql-connection-error-source', { name: connectedInstance.INSTANCE.name }) }}</span>
+      </div>
       <template #footer>
-        <Button @click="handleCloseConnectedModal(false)">{{ $t('guan-bi') }}</Button>
-        <Button type="primary" @click="handleCloseConnectedModal(true)">
-          {{ $t('zhong-xin-lian-jie') }}
-        </Button>
+        <Button @click="showConnectedModal = false">{{ $t('guan-bi') }}</Button>
+      </template>
+    </CCModal>
+    <CCModal v-model="showScriptCloseModal" :title="$t('sql-favorites-close-title')" :width="500" :closable="false" :keyboard="false">
+      <p>{{ $t('sql-favorites-close-description') }}</p>
+      <template #footer>
+        <Button @click="cancelScriptClose">{{ $t('qu-xiao') }}</Button>
+        <Button type="primary" @click="discardScriptAndClose">{{ $t('sql-favorites-discard-close') }}</Button>
       </template>
     </CCModal>
   </div>
@@ -198,7 +218,7 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import LuckySheetDataView from '@/views/sql/components/LuckySheetDataView';
 import browseMixin from '@/mixins/browseMixin';
 import { UPDATE_EDITOR_SET } from '@/store/mutationTypes';
-import { ASYNC_TASK_STATUS, SOCKET_TYPE, hasSchema, noStruct, WS_REQ_QUERY_TYPE, WS_TYPE } from '@/utils';
+import { ASYNC_TASK_STATUS, SOCKET_TYPE, noStruct, WS_REQ_QUERY_TYPE, WS_TYPE } from '@/utils';
 import { sendWebSocket } from '@/services/socket';
 import sqlMixin from '@/mixins/sqlMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
@@ -252,7 +272,6 @@ export default {
       completionData: {},
       TAB_TYPE,
       active: '',
-      tabsKey: 0,
       treeData: [],
       newMode: true,
       TAB_ACTION,
@@ -276,10 +295,14 @@ export default {
       },
       showCount: 20,
       spinning: false,
-      hasSchema,
       noStruct,
       datasourceList: [],
-      hasDatasource: false
+      hasDatasource: false,
+      showScriptCloseModal: false,
+      closingScriptTabKey: '',
+      pendingCloseTabKeys: [],
+      bulkCloseFocusKey: '',
+      scriptLoadSequence: 0
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -331,6 +354,65 @@ export default {
     handleExpandDataSourceSidebar() {
       this.$refs.dataSourceTree?.handleSwitchHide();
     },
+    async handleOpenSqlScript(script) {
+      const targetTab = this.currentTab;
+      if (!targetTab || targetTab.type !== TAB_TYPE.QUERY || !this.tabs.includes(targetTab)) return;
+      this.syncCurrentEditorTextToTab();
+      const originalText = targetTab.text || '';
+      const requestSequence = ++this.scriptLoadSequence;
+      let detail = script;
+      if (!script.forceReload || typeof script.sqlContent !== 'string') {
+        const res = await this.$services.dmQueryScriptDetail({ data: { scriptId: script.scriptId } });
+        if (!res.success) {
+          this.$Message.error(res.msg || this.$t('sql-favorites-load-failed'));
+          return;
+        }
+        detail = res.data;
+      }
+      if (requestSequence !== this.scriptLoadSequence || this.currentTab !== targetTab || !this.tabs.includes(targetTab)) return;
+      this.syncCurrentEditorTextToTab();
+      if (targetTab.text !== originalText) {
+        this.$Message.warning(this.$t('sql-favorites-load-cancelled-edited'));
+        return;
+      }
+
+      Object.assign(targetTab, {
+        text: detail.sqlContent,
+        scriptId: detail.scriptId,
+        scriptName: detail.name,
+        scriptVersion: detail.version,
+        scriptSavedText: detail.sqlContent,
+        scriptDsType: detail.dsType,
+        scriptAssociationRevision: (targetTab.scriptAssociationRevision || 0) + 1,
+        isEditing: false
+      });
+      await this.$nextTick();
+      if (this.currentTab === targetTab) this.$refs.sqlViewer?.monacoEditor?.setValue(detail.sqlContent);
+      this.storeQueryTabs();
+    },
+    handleSqlScriptDeleted(scriptId) {
+      this.tabs.forEach((tab) => {
+        if (tab.scriptId !== scriptId) return;
+        tab.scriptId = null;
+        tab.scriptVersion = null;
+        tab.scriptName = null;
+        tab.scriptSavedText = null;
+        tab.scriptDsType = null;
+        tab.scriptAssociationRevision = (tab.scriptAssociationRevision || 0) + 1;
+        tab.isEditing = false;
+      });
+      this.storeQueryTabs();
+    },
+    handleSqlScriptRenamed({ scriptId, name, previousVersion, version, sqlContent }) {
+      this.tabs.forEach((tab) => {
+        if (tab.scriptId !== scriptId) return;
+        tab.scriptName = name;
+        if (tab.scriptVersion === previousVersion && tab.scriptSavedText === sqlContent) {
+          tab.scriptVersion = version;
+        }
+      });
+      this.storeQueryTabs();
+    },
     onContextmenu(event, tab) {
       this.contextData = tab;
       ContextMenu.showContextMenu({
@@ -349,12 +431,6 @@ export default {
         minWidth: 176
       });
     },
-    async handleCloseConnectedModal(reConnected = true) {
-      this.showConnectedModal = false;
-      if (reConnected) {
-        await this.handleTestConnect();
-      }
-    },
     handleSocketConnectionClose() {
       this.tabs.forEach((tab) => {
         tab.stopping = false;
@@ -372,8 +448,7 @@ export default {
     },
     ...mapMutations([UPDATE_EDITOR_SET]),
     getTreeData() {
-      const treeData = this.$refs.dataSourceTree.handleGetTreeData();
-      return treeData;
+      return this.$refs.dataSourceTree?.handleGetTreeData?.() || [];
     },
     async getDataSourceData() {
       this.treeData = [];
@@ -470,8 +545,11 @@ export default {
             refreshCache: isRefreshCache
           }
         });
-        if (levelRes.success && levelRes.data && levelRes.data.length) {
+        if (levelRes.success && Array.isArray(levelRes.data)) {
           const children = [];
+          if (node && isRefreshCache) {
+            this.completionData[node.key] = [];
+          }
           levelRes.data.forEach((level) => {
             const { objId, objName, objType, objAttr = null } = level;
             if (node) {
@@ -544,72 +622,72 @@ export default {
           //   this.$refs.dataSourceTree.handleSetExpandedKeys(node);
           // }
 
-          if (levelRes.data.length) {
-            if (node) {
-              if (resolve) {
-                resolve(children);
-              } else {
-                this.$refs.dataSourceTree.handleAppendList(node.key, children);
-              }
-            } else {
-              await this.$refs.dataSourceTree.handleSetData(this.treeData, true);
-            }
-            // await this.$refs.dataSourceTree.handleSetData(this.treeData, true);
-            // if (node) {
-            //   await this.$refs.dataSourceTree.handleSetSelected(node.key);
-            // }
-          } else {
+          if (node) {
             if (resolve) {
-              resolve();
+              resolve(children);
+            } else if (isRefreshCache) {
+              await this.$refs.dataSourceTree.handleUpdateNode(node.key, { children });
+            } else {
+              this.$refs.dataSourceTree.handleAppendList(node.key, children);
             }
+          } else {
+            await this.$refs.dataSourceTree.handleSetData(this.treeData, true);
           }
+          // await this.$refs.dataSourceTree.handleSetData(this.treeData, true);
+          // if (node) {
+          //   await this.$refs.dataSourceTree.handleSetSelected(node.key);
+          // }
         } else {
           appLogger.debug('fail', levelRes);
           if (typeof levelRes === 'object' && levelRes.toString().includes('Cancel')) {
             appLogger.debug('reset');
+            if (resolve) resolve([]);
             return;
           }
 
-          if (levelRes.code !== '10103' && levelRes.code !== '10201') {
-            // this.$refs.dataSourceTree.handleSetData(this.treeData);
-            if (resolve) {
-              resolve();
-            }
-          }
+          if (resolve) resolve([]);
         }
       } catch (e) {
         appLogger.error(e);
+        if (resolve) resolve([]);
       }
     },
     async setInstanceErrorIcon(data) {
-      if (this.currentTab && this.currentTab.node && this.currentTab.node.INSTANCE.id === data.instanceId) {
+      const instanceId = typeof data === 'object' ? data.instanceId : data;
+      const targetTab = this.currentTab;
+      if (targetTab?.node?.INSTANCE?.id === instanceId) {
         let tempConnected = null;
         const res = await this.$services.dmQueryFetchDsStatusConf({
           data: {
-            dsId: data.instanceId
+            dsId: instanceId
           }
         });
-        tempConnected = res?.data?.dsStatus && res?.data?.dsStatus === 'Normal';
+        if (this.tabs.includes(targetTab) && targetTab.node?.INSTANCE?.id === instanceId) {
+          tempConnected = res?.data?.dsStatus && res?.data?.dsStatus === 'Normal';
 
-        this.currentTab.connected = tempConnected;
-        this.currentTab.msgContent = data.msgContent;
+          if (targetTab.node) {
+            targetTab.connected = tempConnected;
+            targetTab.msgContent = data?.msgContent;
+          }
+        }
       }
 
+      if (typeof data !== 'object') return;
       if (this.$refs.dataSourceTree) {
         const treeData = this.$refs.dataSourceTree.handleGetTreeData();
         treeData.forEach((env) => {
           if (env.children) {
             env.children.forEach(async (instance) => {
-              if (instance.INSTANCE.id === data.instanceId) {
-                instance.connected = data.connected;
-                instance.connectedMsg = data.msgContent;
+              if (instance.INSTANCE.id === instanceId) {
+                instance.connected = data?.connected;
+                instance.connectedMsg = data?.msgContent;
                 await this.$refs.dataSourceTree.handleUpdateNode(instance.key, {
-                  connected: data.connected,
-                  connectedMsg: data.msgContent
+                  connected: data?.connected,
+                  connectedMsg: data?.msgContent
                 });
-                if (!data.connected && !data?.noModal) {
+                if (!data?.connected && !data?.noModal) {
+                  this.connectedInstance = { code: data?.code, ...instance };
                   this.showConnectedModal = true;
-                  this.connectedInstance = { code: data.code, ...instance };
                 }
               }
             });
@@ -665,7 +743,8 @@ export default {
       );
     },
     async listLeaf(isRefreshCache = false) {
-      const { node, leafType } = this.currentTab;
+      const currentTab = this.currentTab;
+      const { node, leafType } = currentTab;
 
       this.tableListLoading = true;
 
@@ -681,7 +760,7 @@ export default {
       try {
         const leafRes = await this.$services.dmBrowseListLeaf({
           data: {
-            levels: node.levels.map((l) => this.currentTab.node[l].id),
+            levels: node.levels.map((l) => node[l].id),
             leafType,
             refreshCache: isRefreshCache
           }
@@ -689,7 +768,7 @@ export default {
 
         if (leafRes.success) {
           const completionKey = node.key;
-          const obj = {};
+          const obj = Object.create(null);
           leafRes.data.forEach((leaf) => {
             const { objName, objType, objAttr } = leaf;
             const tempObjName = objAttr && objAttr.rdb_roi ? objAttr.rdb_roi : objName;
@@ -714,18 +793,20 @@ export default {
             this.completionData[completionKey] = { [leafType]: obj };
           }
 
-          this.currentTab[leafType].treeData = leafList;
-          await this.$refs.tableList.handleSetData(leafList);
-          await this.$refs.tableList.handleFilter(this.currentTab[this.currentTab.leafType].searchKey);
+          currentTab[leafType].treeData = leafList;
+          if (this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
+            await this.$refs.tableList.handleSetData(leafList);
+            await this.$refs.tableList.handleFilter(currentTab[leafType].searchKey);
+          }
         } else {
-          this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
-          if (this.$refs.tableList) {
+          this.setInstanceErrorIcon(node?.INSTANCE?.id);
+          if (this.$refs.tableList && this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
             await this.$refs.tableList.handleSetData(leafList);
           }
         }
       } catch (e) {
-        this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
-        if (this.$refs.tableList) {
+        this.setInstanceErrorIcon(node?.INSTANCE?.id);
+        if (this.$refs.tableList && this.currentTab.key === currentTab.key && currentTab.leafType === leafType) {
           await this.$refs.tableList.handleSetData(leafList);
         }
       } finally {
@@ -1198,19 +1279,30 @@ export default {
     },
     async rdbObjectDetail(tableName, params = { expand: true, selected: true }, resolve = () => {}, isRefreshCache = false) {
       const { expand, selected, selectedNode } = params;
-      const { node } = this.currentTab;
+      const currentTab = this.currentTab;
+      const { node, leafType } = currentTab;
       try {
         const res = await this.$services.dmBrowseRdbObjectDetail({
           data: {
-            levels: this.browseGenLevelsData(this.currentTab.node),
+            levels: this.browseGenLevelsData(node),
             targetName: tableName,
-            targetType: this.currentTab.leafType,
+            targetType: leafType,
             refreshCache: isRefreshCache
           }
         });
 
+        if (this.currentTab !== currentTab || currentTab.leafType !== leafType) {
+          resolve();
+          return;
+        }
+
         if (res.success) {
-          const curNode = this.getNodeByKey(this.currentTab[this.currentTab.leafType].treeData, `${node.key}.\`${tableName}\``);
+          const curNode = this.getNodeByKey(currentTab[leafType].treeData, `${node.key}.\`${tableName}\``);
+          const completionItem = this.completionData[node.key]?.[leafType]?.[tableName];
+          if (!curNode || !completionItem) {
+            resolve();
+            return;
+          }
           const children = [];
           const columnList = [];
           res.data.group.forEach((groupItem) => {
@@ -1247,25 +1339,25 @@ export default {
           });
 
           curNode.children = children;
-          this.completionData[this.currentTab.node.key][this.currentTab.leafType][tableName].columnList = columnList;
+          completionItem.columnList = columnList;
           // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
-          if (selected) {
+          if (selected && this.currentTab.key === currentTab.key) {
             if (selectedNode) {
               this.$refs.tableList.handleSetSelected(selectedNode);
             } else {
               this.$refs.tableList.handleSetSelected(curNode);
             }
           }
-          this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id, true);
+          this.setInstanceErrorIcon(node?.INSTANCE?.id, true);
           resolve(children);
         } else {
-          this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
+          this.setInstanceErrorIcon(node?.INSTANCE?.id);
           // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
           resolve();
         }
       } catch (e) {
         appLogger.error(e);
-        this.setInstanceErrorIcon(this.currentTab?.node?.INSTANCE?.id);
+        this.setInstanceErrorIcon(node?.INSTANCE?.id);
         // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
         resolve();
       }
@@ -1284,31 +1376,12 @@ export default {
       const index = this.tabs.findIndex((tab) => tab.key === this.contextData.key);
       switch (actionType) {
         case TAB_ACTION.DELETE_ALL:
-          this.tabs = [];
-          this.active = '';
+          this.bulkCloseFocusKey = '';
+          this.queueTabsForClose(this.tabs.map((tab) => tab.key));
           break;
         case TAB_ACTION.DELETE_OTHER_ALL:
-          this.currentTab = this.tabs[index];
-          const tabs = [];
-          for (let i = 0; i < this.tabs.length; i++) {
-            if (i !== index) {
-              tabs.push(this.tabs[i]);
-            }
-          }
-          this.closesSession(tabs);
-          const removeTabIds = [];
-          this.tabs.forEach((tab) => {
-            if (tab.tabId !== this.currentTab.tabId) {
-              removeTabIds.push(tab.tabId);
-            }
-          });
-
-          const tabInstance = this.tabManager.getInstance();
-          if (tabInstance) {
-            tabInstance.bulkDelete(removeTabIds);
-          }
-          this.tabs = [this.currentTab];
-          this.active = this.currentTab.key;
+          this.bulkCloseFocusKey = this.tabs[index]?.key || '';
+          this.queueTabsForClose(this.tabs.filter((tab, tabIndex) => tabIndex !== index).map((tab) => tab.key));
           break;
         case TAB_ACTION.DELETE_LEFT_ALL:
           break;
@@ -1317,66 +1390,99 @@ export default {
         default:
           break;
       }
-
-      this.storeQueryTabs();
     },
     handleCloseTab(targetKey) {
-      const editTabList = this.tabs.filter((tab) => tab.key === targetKey);
-      if (editTabList.length) {
-        const editTab = editTabList[0];
-        if (editTab.type === 'DATA' && this.dataViewIsEditing(editTab)) {
-          Modal.confirm({
-            title: this.$t('ti-shi'),
-            content: this.$t(
-              'dang-qian-ye-mian-huan-you-wei-ti-jiao-de-xiu-gai-qing-xian-ti-jiao-hou-guan-bi-dian-ji-li-ji-guan-bi-jiang-diu-shi-dang-qian-xiu-gai'
-            ),
-            okText: this.$t('li-ji-guan-bi'),
-            onOk: () => this.removeTab(targetKey)
-          });
-        } else if (editTab.type === 'STRUCT' && this.structViewIsEditing(editTab)) {
-          Modal.confirm({
-            title: this.$t('ti-shi'),
-            content: this.$t(
-              'dang-qian-biao-jie-gou-huan-you-wei-ti-jiao-de-xiu-gai-qing-xian-ti-jiao-hou-guan-bi-dian-ji-li-ji-guan-bi-jiang-diu-shi-dang-qian-xiu-gai'
-            ),
-            okText: this.$t('li-ji-guan-bi'),
-            onOk: () => this.removeTab(targetKey)
-          });
-        } else {
-          this.removeTab(targetKey);
-        }
+      this.bulkCloseFocusKey = '';
+      this.queueTabsForClose([targetKey]);
+    },
+    queueTabsForClose(keys) {
+      this.pendingCloseTabKeys = keys.filter((key) => this.tabs.some((tab) => tab.key === key));
+      this.continueClosingTabs();
+    },
+    continueClosingTabs() {
+      const targetKey = this.pendingCloseTabKeys.shift();
+      if (!targetKey) {
+        const focusKey = this.bulkCloseFocusKey;
+        this.bulkCloseFocusKey = '';
+        if (focusKey && this.tabs.some((tab) => tab.key === focusKey)) this.handleChangeTab(focusKey);
+        return;
       }
+      const editTab = this.tabs.find((tab) => tab.key === targetKey);
+      if (!editTab) {
+        this.continueClosingTabs();
+        return;
+      }
+      if (editTab.type === TAB_TYPE.QUERY && editTab.scriptId && editTab.text !== editTab.scriptSavedText) {
+        this.closingScriptTabKey = targetKey;
+        this.showScriptCloseModal = true;
+        return;
+      }
+      if (editTab.type === 'DATA' && this.dataViewIsEditing(editTab)) {
+        this.confirmCloseEditedTab(
+          targetKey,
+          'dang-qian-ye-mian-huan-you-wei-ti-jiao-de-xiu-gai-qing-xian-ti-jiao-hou-guan-bi-dian-ji-li-ji-guan-bi-jiang-diu-shi-dang-qian-xiu-gai'
+        );
+        return;
+      }
+      if (editTab.type === 'STRUCT' && this.structViewIsEditing(editTab)) {
+        this.confirmCloseEditedTab(
+          targetKey,
+          'dang-qian-biao-jie-gou-huan-you-wei-ti-jiao-de-xiu-gai-qing-xian-ti-jiao-hou-guan-bi-dian-ji-li-ji-guan-bi-jiang-diu-shi-dang-qian-xiu-gai'
+        );
+        return;
+      }
+      this.removeTab(targetKey);
+      this.$nextTick(this.continueClosingTabs);
+    },
+    confirmCloseEditedTab(targetKey, contentKey) {
+      Modal.confirm({
+        title: this.$t('ti-shi'),
+        content: this.$t(contentKey),
+        okText: this.$t('li-ji-guan-bi'),
+        onOk: () => {
+          this.removeTab(targetKey);
+          this.$nextTick(this.continueClosingTabs);
+        },
+        onCancel: this.cancelPendingTabClose
+      });
+    },
+    cancelPendingTabClose() {
+      this.pendingCloseTabKeys = [];
+      this.bulkCloseFocusKey = '';
+    },
+    cancelScriptClose() {
+      this.showScriptCloseModal = false;
+      this.closingScriptTabKey = '';
+      this.cancelPendingTabClose();
+    },
+    discardScriptAndClose() {
+      const key = this.closingScriptTabKey;
+      this.showScriptCloseModal = false;
+      this.closingScriptTabKey = '';
+      if (key) this.removeTab(key);
+      this.$nextTick(this.continueClosingTabs);
     },
     removeTab(key) {
-      let deleteIndex = 0;
-      let deleteTabId = '';
-      this.tabs.forEach((tab, index) => {
-        if (tab.key === key) {
-          delete window.luckysheetData[this.active];
-          deleteIndex = index;
-          deleteTabId = tab.tabId;
-          this.tabs.splice(index, 1);
-          this.closesSession([tab]);
-          this.tabManager.deleteTabData(tab.tabId);
-        }
-      });
+      const deleteIndex = this.tabs.findIndex((tab) => tab.key === key);
+      if (deleteIndex < 0) return;
+      const wasCurrent = this.currentTab.key === key;
+      const [deletedTab] = this.tabs.splice(deleteIndex, 1);
+      delete window.luckysheetData[key];
+      this.closesSession([deletedTab]);
+      this.tabManager.deleteTabData(deletedTab.tabId);
 
       const len = this.tabs.length;
-      if (len > 0) {
+      if (len > 0 && wasCurrent) {
         const activeIndex = deleteIndex ? deleteIndex - 1 : 0;
         this.active = this.tabs[activeIndex].key;
-        this.tabsKey++;
         window.luckysheetData.activeKey = this.active;
-        this.handleChangeTab(this.active, true);
-      } else {
+        this.handleChangeTab(this.active);
+      } else if (!len) {
         this.active = '';
         this.currentTab = {};
       }
 
       this.storeQueryTabs();
-      if (deleteTabId) {
-        this.tabManager.deleteTabData(deleteTabId);
-      }
     },
     async createSession(tab, next) {
       this.sessionLoading = true;
@@ -1389,16 +1495,18 @@ export default {
             initIsolation: isolation
           }
         });
-        if (res.success) {
-          this.tabs.forEach((item) => {
-            if (item.key === tab.key) {
-              item.sessionId = res.data.sessionId;
-            }
-          });
+        if (res.success && res.data?.sessionId) {
+          if (!this.tabs.includes(tab)) {
+            await this.$services.dmQueryClosesSession({ data: { sessionId: [res.data.sessionId] } });
+            return false;
+          }
+          tab.sessionId = res.data.sessionId;
           if (next) {
             next();
           }
+          return true;
         }
+        return false;
       } finally {
         this.sessionLoading = false;
       }
@@ -1421,6 +1529,8 @@ export default {
       this.active = key;
     },
     async handleChangeTab(activeKey) {
+      // Closing or reselecting the current tab must not refresh its object list.
+      if (this.currentTab.key === activeKey) return;
       appLogger.debug(this.currentTab.type);
       if (this.currentTab.type === 'STRUCT') {
         appLogger.debug('editing', this.structViewIsEditing(this.currentTab));
@@ -1467,21 +1577,8 @@ export default {
 
       await changeTab(activeKey);
     },
-    async handleTestConnect() {
-      if (this.connectedInstance.ENV.id && this.connectedInstance.INSTANCE.id) {
-        try {
-          const res = await this.$services.dmDataSourceTestConnect({
-            data: {
-              dataSourceId: this.connectedInstance.INSTANCE.id
-            }
-          });
-        } catch (e) {
-          appLogger.error(e);
-        }
-      }
-    },
     async handleClickDsStatusIcon() {
-      if (this.currentTab && this.currentTab.node.ENV?.id && this.currentTab.node.INSTANCE?.id) {
+      if (this.currentTab?.node?.ENV?.id && this.currentTab.node.INSTANCE?.id) {
         try {
           const res = await this.$services.dmDataSourceTestConnect({
             data: {
@@ -1494,9 +1591,11 @@ export default {
       }
     },
     async handleGetDsSetting(restore = false) {
-      if (this.currentTab && this.currentTab.dsId) {
+      const targetTab = this.currentTab;
+      if (targetTab && targetTab.dsId) {
+        const dsId = targetTab.dsId;
         // Do not call interface if websocket returns msgContent
-        const hasWsMessage = this.currentTab.msgFromWs;
+        const hasWsMessage = targetTab.msgFromWs;
 
         if (hasWsMessage) {
           return;
@@ -1504,32 +1603,33 @@ export default {
 
         const res = await this.$services.dmQueryFetchDsStatusConf({
           data: {
-            dsId: this.currentTab.dsId
+            dsId
           }
         });
+        if (!this.tabs.includes(targetTab) || targetTab.dsId !== dsId) return;
 
         if (res.success) {
-          this.currentTab.support = res.data;
-          this.currentTab.connected = res.data.dsStatus === 'Normal';
+          targetTab.support = res.data;
+          targetTab.connected = res.data.dsStatus === 'Normal';
 
           if (!restore) {
-            this.currentTab.msgContent = res.data.dsStatusMessage;
-            this.currentTab.isolation = res.data.isolation.defaultValue;
-            this.currentTab.autoCommit = res.data.autoCommit.defaultValue === 'true';
-            this.currentTab.readOnly = res.data.readOnly.defaultValue === 'true';
+            targetTab.msgContent = res.data.dsStatusMessage;
+            targetTab.isolation = res.data.isolation.defaultValue;
+            targetTab.autoCommit = res.data.autoCommit.defaultValue === 'true';
+            targetTab.readOnly = res.data.readOnly.defaultValue === 'true';
           }
 
-          if (this.currentTab.sessionId) {
+          if (targetTab.sessionId) {
             sendWebSocket(
               {
                 type: WS_TYPE.WS_REQ_QUERY,
                 object: {
-                  sessionId: this.currentTab.sessionId,
+                  sessionId: targetTab.sessionId,
                   queryType: WS_REQ_QUERY_TYPE.RECOVER_STATUS,
-                  levels: this.browseGenLevelsData(this.currentTab.node),
-                  rdbAutoCommit: this.currentTab.autoCommit,
-                  rdbReadOnly: this.currentTab.readOnly,
-                  rdbIsolation: this.currentTab.isolation
+                  levels: this.browseGenLevelsData(targetTab.node),
+                  rdbAutoCommit: targetTab.autoCommit,
+                  rdbReadOnly: targetTab.readOnly,
+                  rdbIsolation: targetTab.isolation
                 }
               },
               { message: this.$refs.sqlViewer?.onmessage }
@@ -1689,6 +1789,20 @@ export default {
 };
 </script>
 <style scoped lang="less">
+.connection-error-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  text-align: center;
+}
+
+.connection-error-icon {
+  flex-shrink: 0;
+}
+
 // common style
 :deep(.icon-v2-hover:hover) {
   vertical-align: middle;

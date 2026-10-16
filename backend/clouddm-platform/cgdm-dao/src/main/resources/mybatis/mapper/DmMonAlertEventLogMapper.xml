@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.monitor.DmMonAlertEventLogMapper">
-
     <resultMap id="rdpAlertEventLogDO" type="com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertEventLogDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -32,29 +31,36 @@
             <include refid="rdpAlertEventLog"/>
         FROM
             dm_mon_alert_event_log
-        WHERE 1 = 1
+        WHERE
+            1 = 1
             <if test="startId != 0">
                 <![CDATA[
-                AND id < #{startId}
+                    AND
+                    id < #{startId}
                 ]]>
             </if>
             <if test="startTime != null">
                 <![CDATA[
-                AND gmt_create > #{startTime}
+                    AND
+                    gmt_create > #{startTime}
                 ]]>
             </if>
             <if test="endTime != null">
                 <![CDATA[
-                AND gmt_create < #{endTime}
+                    AND
+                    gmt_create < #{endTime}
                 ]]>
             </if>
             <if test="status != null">
-                AND status = #{status,javaType=com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus}
+                AND
+                status = #{status,javaType=com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus}
             </if>
             <if test="uid != null">
-                AND uid = #{uid}
+                AND
+                uid = #{uid}
             </if>
         ORDER BY
-            gmt_create DESC,id LIMIT #{pageSize}
+            gmt_create DESC, id
+        LIMIT #{pageSize}
     </select>
 </mapper>

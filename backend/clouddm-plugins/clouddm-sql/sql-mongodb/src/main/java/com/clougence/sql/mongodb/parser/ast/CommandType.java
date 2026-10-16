@@ -49,6 +49,7 @@ public enum CommandType {
     KILL_OP,
     RUN_COMMAND,
     ADMIN_COMMAND,
+    ADMIN_READ,
     FSYNC,
     FSYNC_UNLOCK,
     CURRENT_OP

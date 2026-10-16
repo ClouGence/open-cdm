@@ -1,14 +1,4 @@
 export default {
-  taskInfoDbMapHistory: {
-    functionConfig: null,
-    tableFilterConfig: null,
-    cleanDataConfig: null
-  },
-  taskInfoHistory: {
-    functionConfig: null,
-    tableFilterConfig: null,
-    cleanDataConfig: null
-  },
   ruleSetting: {
     queryConf: {
       supportDs: [],
@@ -33,67 +23,10 @@ export default {
   globalSetting: {
     features: {}
   },
-  ccGlobalSetting: {},
   dmGlobalSetting: {},
   globalDsSetting: {},
-  dsTypeList: {},
-  clusterListMap: {},
-  allClusterWorkers: 0,
-  allClusterRunningWorkers: 0,
-  deployEnvListMap: {},
-  productClusterList: [],
-  selectCcProductCluster: null,
-  aliyunRegionListMap: {},
-  selfRegionListMap: {},
-  regionList: [],
-  metaCenterSearchParams: {},
-  selectedWorker: {},
-  logo: {
-    loginLogo: '',
-    headerLogo: ''
-  },
-  blackUri: [],
-  setPkAndIdFlags: {},
-  globalConfig: {},
-  sourceConnection: false,
-  sinkConnection: false,
-  dataSourceDeployTypes: [],
-  sourceDataSourceTypes: [],
-  sinkDataSourceTypes: [],
-  sourceInstance: [],
-  sinkInstance: [],
-  sourceDbList: [],
-  sinkDbList: [],
-  showTest1: false,
-  showTest2: false,
-  tableDatas: [],
-  selectedTables: {},
-  compareSelectedTables: [],
-  compareSelectedDbs: [],
-  firstToTableFilter: false,
-  firstToCleanData: false,
-  sinkTableList: {},
-  selectedColumns: {},
-  tableInfo: [],
-  cleanDataData: [],
-  sinkColumns: {},
-  cleanDataSinkTables: [],
-  urlLabels: [],
-  userRole: '',
-  specsMap: {},
-  rdsData: [],
-  addedRdsList: [],
-  firstAddDataSource: true,
-  selectedCluster: {},
-  clusterList: [],
-  jobData: null,
-  licenseStatus: {
-    success: false
-  },
-  docUrlPrefix: 'https://www.clougence.com/cc-doc',
   contactUsUrl: 'https://www.cdmgr.com/',
   dmDocUrlPrefix: 'https://www.clougence.com/dm-doc',
-  bladePipeApply: 'https://www.clougence.com/dm-doc/clouddm',
   myCatLog: [],
   mySystemMenuItems: [],
   sidebarMenu: {
@@ -103,7 +36,5 @@ export default {
   myAuth: [],
   defaultRedirectUrl: '',
   publicKey: '',
-  remainTrialDay: null,
-  lastChildTableSubOptions: {},
-  theme: 'light' // Current theme: 'light' | 'dark'
+  theme: 'light'
 };

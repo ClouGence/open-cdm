@@ -22,10 +22,19 @@
 
 <script>
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
+import cockroachdbIcon from '@/assets/datasource/cockroachdb.svg';
+import goldendbIcon from '@/assets/datasource/goldendb.png';
+import valkeyIcon from '@/assets/datasource/valkey.svg';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 
+const goldenDBTypes = ['GoldenDB', 'GoldenDBMySQL', 'GoldenDBOracle'];
 const bundledIcons = {
-  Cloudberry: cloudberryIcon
+  Cloudberry: cloudberryIcon,
+  CockroachDB: cockroachdbIcon,
+  GoldenDB: goldendbIcon,
+  GoldenDBMySQL: goldendbIcon,
+  GoldenDBOracle: goldendbIcon,
+  Valkey: valkeyIcon
 };
 
 /**
@@ -92,8 +101,12 @@ export default {
       return this.$store && this.$store.state && this.$store.state.theme;
     },
     iconStyle() {
+      let width = this.size;
+      if (goldenDBTypes.includes(this.type)) {
+        width = '100%';
+      }
       return {
-        width: this.size,
+        width,
         height: this.size,
         color: this.disabled ? '#A8A8A8' : this.color,
         filter: this.disabled ? 'grayscale(100%)' : 'none'
@@ -122,9 +135,13 @@ export default {
       };
 
       if (this.resource || this.bundledIcon) {
-        style.width = this.size;
+        let width = this.size;
+        if (goldenDBTypes.includes(this.type)) {
+          width = `calc(${this.size} + ${this.size})`;
+        }
+        style.width = width;
         style.height = this.size;
-        style['min-width'] = this.size;
+        style['min-width'] = width;
         style['line-height'] = this.size;
       }
       return style;
@@ -137,7 +154,11 @@ export default {
         MySQL: this.instanceType !== 'ALIBABA_CLOUD_HOSTED' ? 'MySQL' : 'RDSforMySQL',
         PostgreSQL: this.instanceType !== 'ALIBABA_CLOUD_HOSTED' ? 'PostgreSQL' : 'RDSforPostgreSQL',
         Greenplum: this.instanceType !== 'ALIBABA_CLOUD_HOSTED' ? 'Greenplum' : 'ADBforPG',
-        SQLServer: this.instanceType === 'ALIBABA_CLOUD_HOSTED' ? 'SQLServerBlue' : 'SQLServer'
+        SQLServer: this.instanceType === 'ALIBABA_CLOUD_HOSTED' ? 'SQLServerBlue' : 'SQLServer',
+        KingbaseESPostgreSQL: 'KingbaseES',
+        KingbaseESMySQL: 'KingbaseES',
+        KingbaseESOracle: 'KingbaseES',
+        KingbaseESSQLServer: 'KingbaseES'
       };
 
       // Based on current theme

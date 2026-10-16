@@ -12,9 +12,14 @@ export const getLanguage = (type) => {
     case 'MySQL':
       return 'mysql';
     case 'PostgreSQL':
+    case 'CockroachDB':
       return 'pgsql';
     case 'Redis':
       return 'redis';
+    case 'Valkey':
+      return 'redis';
+    case 'Kafka':
+      return 'kafka';
     default:
       return 'sql';
   }

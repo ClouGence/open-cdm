@@ -27,6 +27,7 @@ import com.clougence.clouddm.console.web.component.analysis.*;
 import com.clougence.clouddm.console.web.component.approval.ApprovalService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
@@ -53,6 +54,8 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
     private ApprovalService      approvalService;
     @Resource
     private QueryAnalysisService queryAnalysisService;
+    @Resource
+    private DmDsConfigService    dsConfigService;
 
     @Override
     protected String analysisType() {
@@ -79,6 +82,7 @@ public class BehaviorPreInitHandler extends AbstractPreInitHandler {
             .currentUid(approvalDO.getOwnerUid())
             .dataSourceId(approvalDO.getBindDsId())
             .levels(context.getDsLevels().levelsParam())
+            .parameters(this.dsConfigService.fetchSqlParserParameters(context.getDsConfig(), context.getDsLevels().levelsParam()))
             .skip(QueryAnalysisFeature.REWRITE, QueryAnalysisFeature.LINEAGE, QueryAnalysisFeature.MASKING)
             .build();
 

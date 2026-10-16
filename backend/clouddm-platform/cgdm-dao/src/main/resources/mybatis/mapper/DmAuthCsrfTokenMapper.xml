@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.auth.DmAuthCsrfTokenMapper">
-
     <resultMap id="dmCsrfTokenDO" type="com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -22,27 +21,37 @@
     </sql>
 
     <select id="queryByToken" resultMap="dmCsrfTokenDO">
-        select <include refid="rdpCsrfToken"/>
-        from dm_auth_csrf_token
-        where token = #{token}
-        limit 1
+        SELECT
+            <include refid="rdpCsrfToken"/>
+        FROM
+            dm_auth_csrf_token
+        WHERE
+            token = #{token}
+        LIMIT 1
     </select>
 
     <delete id="deleteByToken">
-        delete from dm_auth_csrf_token where token = #{token}
+        DELETE FROM
+            dm_auth_csrf_token
+        WHERE
+            token = #{token}
     </delete>
 
     <delete id="deleteBeforeTime">
-        delete from dm_auth_csrf_token where gmt_modified &lt;= #{date}
+        DELETE FROM
+            dm_auth_csrf_token
+        WHERE
+            gmt_modified <![CDATA[ <= ]]> #{date}
     </delete>
 
     <update id="updateToken">
-        update dm_auth_csrf_token
-        set
-            gmt_modified = now(),
+        UPDATE
+            dm_auth_csrf_token
+        SET
+            gmt_modified = NOW(),
             jump_url     = #{data.jumpUrl},
             secret_token = #{data.secretToken}
-        where
+        WHERE
             token = #{token}
     </update>
 </mapper>

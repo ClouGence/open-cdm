@@ -71,7 +71,8 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
                 FeishuConfigKey.LoginEnable.getConfigKey(),//
                 FeishuConfigKey.LoginAppID.getConfigKey(),//
                 FeishuConfigKey.LoginAppSecret.getConfigKey(),//
-                FeishuConfigKey.LoginApiTimeoutSec.getConfigKey()));
+                FeishuConfigKey.LoginApiTimeoutSec.getConfigKey(),//
+                FeishuConfigKey.LoginRoleMap.getConfigKey()));
         Map<String, String> configMap = new HashMap<>();
         for (ConfigData c : configList) {
             configMap.put(c.getConfigName(), c.getConfigValue());

@@ -60,8 +60,24 @@
     :required="fieldRequired"
     :error="fieldError"
   >
-    <options-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
-    <span v-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
+    <div :class="{ 'ui-form-field-with-help': descriptionAsPopover }">
+      <options-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
+      <Poptip
+        v-if="descriptionAsPopover"
+        trigger="click"
+        placement="top"
+        transfer
+        word-wrap
+        :width="320"
+        popper-class="ui-form-field-help-popover"
+        :content="field.descI18N"
+      >
+        <button type="button" class="ui-form-field-help" :aria-label="fieldLabel + ' ' + $t('shuo-ming')">
+          <Icon type="ios-help-circle-outline" :size="18" />
+        </button>
+      </Poptip>
+      <span v-else-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
+    </div>
   </FormItem>
   <FormItem v-else-if="field.type === 'TransactionControl'" :label="fieldLabel" :required="fieldRequired" :error="fieldError">
     <transaction-control-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
@@ -88,8 +104,24 @@
     <span v-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
   </FormItem>
   <FormItem v-else-if="field.type === 'Input' || field.type === 'Password'" :label="fieldLabel" :required="fieldRequired" :error="fieldError">
-    <input-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
-    <span v-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
+    <div :class="{ 'ui-form-field-with-help': descriptionAsPopover }">
+      <input-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
+      <Poptip
+        v-if="descriptionAsPopover"
+        trigger="click"
+        placement="top"
+        transfer
+        word-wrap
+        :width="320"
+        popper-class="ui-form-field-help-popover"
+        :content="field.descI18N"
+      >
+        <button type="button" class="ui-form-field-help" :aria-label="fieldLabel + ' ' + $t('shuo-ming')">
+          <Icon type="ios-help-circle-outline" :size="18" />
+        </button>
+      </Poptip>
+      <span v-else-if="field.descI18N" class="ui-form-field-desc" v-html="field.descI18N"></span>
+    </div>
   </FormItem>
 </template>
 <script>
@@ -173,6 +205,9 @@ export default {
     }
   },
   computed: {
+    descriptionAsPopover() {
+      return this.field.props?.descriptionAsPopover === true && !!this.field.descI18N;
+    },
     fieldLabel() {
       const label = this.field.titleI18N || this.field.field;
       const labelMap = {
@@ -255,6 +290,43 @@ export default {
 <style lang="less" scoped>
 .driver-selection-form-item {
   margin-bottom: 24px;
+}
+
+.ui-form-field-with-help {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  > :first-child {
+    flex: 0 1 280px;
+    min-width: 0;
+  }
+
+  > :deep(.ivu-poptip) {
+    flex: none;
+  }
+}
+
+:global(.ui-form-field-help-popover) {
+  max-width: calc(100vw - 32px);
+}
+
+:global(.ui-form-field-help-popover .ivu-poptip-body-content) {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.ui-form-field-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .ui-form-field-desc {

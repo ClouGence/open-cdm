@@ -43,8 +43,9 @@ public class FunctionArgBuilder extends AbstractDomainBuilder {
         }
 
         if (status == DomainSource.SELECT) {
-            RdbSelectDomain domain = (RdbSelectDomain) list.get(0);
-            domain.setMode(RdbQueryMode.SUB_CALL);
+            if (list.get(0) instanceof RdbSelectDomain domain) {
+                domain.setMode(RdbQueryMode.SUB_CALL);
+            }
             this.callArgsDomain.getDomains().addAll(list);
             return;
         }

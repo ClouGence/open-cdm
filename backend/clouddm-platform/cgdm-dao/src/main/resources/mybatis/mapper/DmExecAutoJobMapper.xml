@@ -15,10 +15,13 @@
         <result column="end_time" property="endTime"/>
         <result column="last_report_time" property="lastReportTime"/>
         <result column="worker_seq_number" property="workerSeqNumber"/>
-        <result column="config" property="config" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="exec_type" property="execType" javaType="com.clougence.clouddm.platform.dal.model.execution.AutoExecType"/>
+        <result column="config" property="config"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="exec_type" property="execType"
+                javaType="com.clougence.clouddm.platform.dal.model.execution.AutoExecType"/>
         <result column="schedule_time" property="scheduleTime"/>
-        <result column="levels" property="levels" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="levels" property="levels"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="normal" property="normal"/>
     </resultMap>
 
@@ -43,155 +46,254 @@
     </sql>
 
     <select id="queryById" resultMap="autoExecJobDO">
-        select
+        SELECT
             <include refid="sqlJob"/>
-        from
+        FROM
             dm_exec_auto_job
-        where
+        WHERE
             id = #{jobId}
     </select>
 
     <update id="updateJobStatus">
-        update dm_exec_auto_job
-        set status = #{status}
-        where id = #{jobId}
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status = #{status}
+        WHERE
+            id = #{jobId}
     </update>
+
     <update id="markJobFailedIfActive">
-        update dm_exec_auto_job
-        set status = 'FAILED'
-        where id = #{jobId}
-          and status not in ('FAILED', 'FINISH', 'TERMINATION')
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status = 'FAILED'
+        WHERE
+            id         = #{jobId}
+            AND
+            status NOT IN ('FAILED', 'FINISH', 'TERMINATION')
     </update>
+
     <update id="finishJobIfActive">
-        update dm_exec_auto_job
-        set status = 'FINISH', end_time = now()
-        where id = #{jobId}
-          and status not in ('FAILED', 'FINISH', 'TERMINATION')
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status   = 'FINISH',
+            end_time = NOW()
+        WHERE
+            id         = #{jobId}
+            AND
+            status NOT IN ('FAILED', 'FINISH', 'TERMINATION')
     </update>
+
     <update id="pauseJobIfActive">
-        update dm_exec_auto_job
-        set status = 'PAUSE'
-        where id = #{jobId}
-          and status not in ('PAUSE', 'FAILED', 'FINISH', 'TERMINATION')
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status = 'PAUSE'
+        WHERE
+            id         = #{jobId}
+            AND
+            status NOT IN ('PAUSE', 'FAILED', 'FINISH', 'TERMINATION')
     </update>
+
     <update id="retryJob">
-        update dm_exec_auto_job
-        set status = 'INIT',normal = 1
-        where id = #{jobId}
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status = 'INIT',
+            normal = 1
+        WHERE
+            id = #{jobId}
     </update>
+
     <update id="updateReportTime">
-        update dm_exec_auto_job
-        set last_report_time = now()
-        where id in <foreach collection="jobIdList" item="item" separator="," open="(" close=")">#{item}</foreach>
+        UPDATE
+            dm_exec_auto_job
+        SET
+            last_report_time = NOW()
+        WHERE
+            id IN
+            <foreach collection="jobIdList" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </update>
+
     <update id="startJob">
-        update dm_exec_auto_job
-        set status = 'EXECUTING',
-            last_report_time = now()
-        where id = #{jobId}
-          and worker_seq_number = #{wsn}
-          and status = 'WAIT_EXEC'
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status           = 'EXECUTING',
+            last_report_time = NOW()
+        WHERE
+            id                = #{jobId}
+            AND
+            worker_seq_number = #{wsn}
+            AND
+            status            = 'WAIT_EXEC'
     </update>
+
     <update id="startPreparedJob">
-        update dm_exec_auto_job
-        set status = 'INIT',
-            uid = #{uid}
-        where id = #{jobId}
-          and status = 'PREPARING'
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status = 'INIT',
+            uid    = #{uid}
+        WHERE
+            id     = #{jobId}
+            AND
+            status = 'PREPARING'
     </update>
+
     <update id="claimJobForPackaging">
-        update dm_exec_auto_job
-        set status = 'PACKAGING',
-            last_report_time = now()
-        where id = #{jobId}
-          and status = 'INIT'
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status           = 'PACKAGING',
+            last_report_time = NOW()
+        WHERE
+            id     = #{jobId}
+            AND
+            status = 'INIT'
     </update>
+
     <update id="heartbeatPackaging">
-        update dm_exec_auto_job
-        set last_report_time = now()
-        where id = #{jobId}
-          and status = 'PACKAGING'
+        UPDATE
+            dm_exec_auto_job
+        SET
+            last_report_time = NOW()
+        WHERE
+            id     = #{jobId}
+            AND
+            status = 'PACKAGING'
     </update>
+
     <update id="updateOverOutJob">
-        update dm_exec_auto_job
-        set status = 'INIT'
-        where #{date} > last_report_time
-          and status in ('PACKAGING', 'WAIT_EXEC')
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status = 'INIT'
+        WHERE
+            #{date} <![CDATA[ > ]]> last_report_time
+            AND
+            status IN ('PACKAGING', 'WAIT_EXEC')
     </update>
+
     <update id="updateQueryIdByJobId">
-        update dm_exec_auto_job
-        set query_id = #{queryId}
-        where id = #{jobId}
+        UPDATE
+            dm_exec_auto_job
+        SET
+            query_id = #{queryId}
+        WHERE
+            id = #{jobId}
     </update>
+
     <update id="updateWorkerErrorJob">
-        update dm_exec_auto_job
-        set status = 'PAUSE',normal = 0
-        where worker_seq_number = #{wsn} and status in ('EXECUTING','PAUSING')
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status = 'PAUSE',
+            normal = 0
+        WHERE
+            worker_seq_number = #{wsn}
+            AND
+            status            IN ('EXECUTING', 'PAUSING')
     </update>
+
     <update id="finishJob">
-        update dm_exec_auto_job
-        set status = 'FINISH', end_time = now()
-        where id = #{jobId}
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status   = 'FINISH',
+            end_time = NOW()
+        WHERE
+            id = #{jobId}
     </update>
+
     <update id="updateWorkerWaitExecuteJob">
-        update dm_exec_auto_job
-        set status = 'INIT'
-        where worker_seq_number = #{wsn} and status = 'WAIT_EXEC'
+        UPDATE
+            dm_exec_auto_job
+        SET
+            status = 'INIT'
+        WHERE
+            worker_seq_number = #{wsn}
+            AND
+            status            = 'WAIT_EXEC'
     </update>
+
     <select id="queryByBizId" resultMap="autoExecJobDO">
-        select
+        SELECT
             <include refid="sqlJob"/>
-        from dm_exec_auto_job
-        where biz_id = #{bizId}
+        FROM
+            dm_exec_auto_job
+        WHERE
+            biz_id = #{bizId}
     </select>
+
     <select id="queryByBizIdForUpdate"
             resultMap="autoExecJobDO">
-        select
-        <include refid="sqlJob"/>
-        from dm_exec_auto_job
-        where biz_id = #{bizId} for update
+        SELECT
+            <include refid="sqlJob"/>
+        FROM
+            dm_exec_auto_job
+        WHERE
+            biz_id = #{bizId}
+        FOR UPDATE
     </select>
 
     <select id="listUnFinishJobIdList" resultType="java.lang.Long">
-        select
+        SELECT
             id
-        from
+        FROM
             dm_exec_auto_job
-        where status = 'INIT'
-        and #{time} >= schedule_time
-        order by schedule_time asc
-            limit 20
+        WHERE
+            status = 'INIT'
+            AND
+            #{time} <![CDATA[ >= ]]> schedule_time
+        ORDER BY schedule_time ASC
+        LIMIT 20
     </select>
 
     <select id="listOverTimeJobIdList" resultType="java.lang.Long">
-        select
+        SELECT
             id
-        from
+        FROM
             dm_exec_auto_job
-        where status = 'INIT'
-        and #{time} >= next_dispatch_time
-        order by next_dispatch_time asc
-            limit 20
+        WHERE
+            status = 'INIT'
+            AND
+            #{time} <![CDATA[ >= ]]> next_dispatch_time
+        ORDER BY next_dispatch_time ASC
+        LIMIT 20
     </select>
 
     <select id="queryByIdForUpdate" resultMap="autoExecJobDO">
-        select
+        SELECT
             <include refid="sqlJob"/>
-            from dm_exec_auto_job
-        where id = #{id} for update
+        FROM
+            dm_exec_auto_job
+        WHERE
+            id = #{id}
+        FOR UPDATE
     </select>
+
     <select id="queryByDependOnBizId" resultMap="autoExecJobDO">
-        select
-        <include refid="sqlJob"/>
-        from dm_exec_auto_job
-        where depend_on_biz_id = #{bizId}
+        SELECT
+            <include refid="sqlJob"/>
+        FROM
+            dm_exec_auto_job
+        WHERE
+            depend_on_biz_id = #{bizId}
     </select>
+
     <select id="queryErrorJob" resultMap="autoExecJobDO">
-        select
-        <include refid="sqlJob"/>
-        from dm_exec_auto_job
-        where worker_seq_number = #{wsn} and status in ('EXECUTING','PAUSING')
+        SELECT
+            <include refid="sqlJob"/>
+        FROM
+            dm_exec_auto_job
+        WHERE
+            worker_seq_number = #{wsn}
+            AND
+            status            IN ('EXECUTING', 'PAUSING')
     </select>
-
-
 </mapper>

@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 import com.clougence.clouddm.ds.redis.definition.ui.editor.keys.RedisEditorProvider;
-import com.clougence.clouddm.ds.redis.execute.jdbc.JedisConnection;
+import com.clougence.drivers.adapter.AdapterConnection;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
@@ -55,7 +55,13 @@ public class RedisMetaService extends DefaultRdbMetaService {
     @Override
     public String getCurrentSchema() {
         try {
-            return this.rdbSession.executeQuery(con -> con.unwrap(JedisConnection.class).getSchema());
+            return this.rdbSession.executeQuery(con -> {
+                AdapterConnection adapterConn = con.unwrap(AdapterConnection.class);
+                if (adapterConn == null) {
+                    throw new SQLException("failed to unwrap AdapterConnection from " + con.getClass().getName());
+                }
+                return adapterConn.getSchema();
+            });
         } catch (Exception e) {
             String msg = "getCurrentSchema failed, " + ExceptionUtils.getRootCauseMessage(e);
             log.error(msg, e);

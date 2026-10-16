@@ -25,9 +25,6 @@ public abstract class AbstractSqlBuilder {
     public Dialect getDialect() { return DefaultDialect.DEFAULT; }
 
     protected String fmtTable(boolean useDelimited, String catalog, String schema, String table) {
-        catalog = getDialect().fmtName(useDelimited, catalog);
-        schema = getDialect().fmtName(useDelimited, schema);
-        table = getDialect().fmtName(useDelimited, table);
         return getDialect().fmtTableName(useDelimited, catalog, schema, table);
     }
 

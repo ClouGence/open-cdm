@@ -71,7 +71,6 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     @Resource
     private DmEnvParamService                    rdpDsEnvService;
     private Map<DataSourceType, DmSecRuleConfig> ruleSupportDsTypes;
-    private SecSettingDef                        ruleSettingDef;
 
     @Override
     public void init() throws Exception {
@@ -99,10 +98,6 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
                 this.ruleSupportDsTypes.put(dsType, ruleConf);
             }
         }
-
-        this.ruleSettingDef = new SecSettingDef();
-        this.ruleSettingDef.setQueryConf(this.createQueryConf());
-        this.ruleSettingDef.setSenConf(this.createSensitiveRuleDef());
     }
 
     @Override
@@ -266,7 +261,10 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     @Override
     public SecSettingDef ruleSettingDef() {
-        return this.ruleSettingDef;
+        SecSettingDef ruleSettingDef = new SecSettingDef();
+        ruleSettingDef.setQueryConf(this.createQueryConf());
+        ruleSettingDef.setSenConf(this.createSensitiveRuleDef());
+        return ruleSettingDef;
     }
 
     @Override
@@ -700,7 +698,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     private void checkQueryRuleSupport(RuleSaveFO fo) {
         for (DataSourceType dsType : fo.getDsRange()) {
-            if (!this.ruleSettingDef.getQueryConf().getTargets().containsKey(dsType)) {
+            if (!this.ruleSupportDsTypes.containsKey(dsType)) {
                 throw new UnsupportedOperationException();
             }
 

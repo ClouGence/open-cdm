@@ -118,7 +118,6 @@ public class ArrayValueFetcher extends StringAsClobFetcher {
                 }
             } finally {
                 subCtx.free();
-                array.free();
             }
             jsonGenerator.writeEndArray();
             jsonGenerator.flush();
@@ -147,11 +146,20 @@ public class ArrayValueFetcher extends StringAsClobFetcher {
         // t (truncated): F = false, T = true
         out.writeStartObject();
         out.writeStringField("m", "V");
-        out.writeObjectFieldStart("v");
+        out.writeFieldName("v");
         if (reader == null) {
             out.writeNull();
         } else {
-            out.writeString(reader, (int) eleBytesLimit);
+            StringBuilder value = new StringBuilder();
+            char[] buffer = new char[4096];
+            while (value.length() < eleBytesLimit) {
+                int length = reader.read(buffer, 0, (int) Math.min(buffer.length, eleBytesLimit - value.length()));
+                if (length < 0) {
+                    break;
+                }
+                value.append(buffer, 0, length);
+            }
+            out.writeString(value.toString());
         }
         out.writeStringField("t", truncated ? "T" : "F");
         out.writeEndObject();

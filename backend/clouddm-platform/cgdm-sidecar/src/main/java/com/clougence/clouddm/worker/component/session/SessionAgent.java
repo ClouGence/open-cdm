@@ -359,13 +359,16 @@ public class SessionAgent implements Session {
 
     @Override
     public void close() throws Exception {
-        this.cancel();
-        if (this.session.hasUnCommitted()) {
-            this.notifyService.rollbackSession(this.session.getSessionId());
+        try (Session closingSession = this.session) {
+            try {
+                this.cancel();
+                if (closingSession.hasUnCommitted()) {
+                    this.notifyService.rollbackSession(closingSession.getSessionId());
+                }
+            } finally {
+                this.resultBuilder.finished();
+            }
         }
-        this.resultBuilder.finished();
-        this.session.close();
-
     }
 
     // ----------- end for Query -----------

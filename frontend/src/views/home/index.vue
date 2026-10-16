@@ -155,16 +155,14 @@ export default {
   },
   mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
   computed: {
-    ...mapGetters(['isDesktop', 'displayVersion', 'includesDM', 'isInternalUser']),
-    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay', 'mySystemMenuItems']),
+    ...mapGetters(['isDesktop', 'displayVersion', 'isInternalUser']),
+    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
     isSqlRoute() {
       return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
     }
   },
   async created() {
-    await this.$store.dispatch('getRegionList');
-
     await this.$store.dispatch('getDmGlobalConfig');
 
     if (this.$route.path === '/') {
@@ -172,7 +170,6 @@ export default {
     }
 
     this.showChild = true;
-    await this.$store.dispatch('getRegionList');
     if (this.globalSetting.enableWaterMark) {
       const waterMark = await this.$services.rdpUserWatermark();
       this.watermarkStr = `${waterMark.data.user_name}_${waterMark.data.user_phone}`;
@@ -213,9 +210,7 @@ export default {
     this.$bus.on('showEnterOpPwdModal', this.showEnterOpPwdModal);
     this.$bus.on('dingDingSettingModal', this.setApprovalProcessModal);
     this.$bus.on(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL, (msg) => this.handleShowInactiveModal(msg));
-    if (this.includesDM) {
-      await this.checkVersion();
-    }
+    await this.checkVersion();
   },
   unmounted() {
     this.$bus.off('setOpPasswordModal');
@@ -362,9 +357,6 @@ export default {
         return;
       }
       this.handleGoBackHome();
-    },
-    goAsyncJobList() {
-      this.$router.push({ name: 'ASYNC_JOB_LIST' });
     },
     _setApprovalProcessModal() {
       this.$store.dispatch('getUserInfo');

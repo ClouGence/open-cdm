@@ -153,6 +153,7 @@ public class AutoExecServiceImpl implements AutoExecService {
         jobConfig.setRetryWaitTime(request.getRetryWaitTime());
         jobConfig.setErrorStrategy(request.getErrorStrategy());
         jobConfig.setRetryCount(request.getRetryCount());
+        jobConfig.setLanguageTag(request.getLanguageTag());
         job.setConfig(jobConfig);
         if (job.getExecType() == AutoExecType.IMMEDIATE) {
             job.setScheduleTime(new Date());
@@ -317,10 +318,12 @@ public class AutoExecServiceImpl implements AutoExecService {
         levels.add(dsDO.getId().toString());
         levels.addAll(job.getLevels());
 
+        Map<UmiTypes, Object> levelsParam = this.configService.parseLevels(levels).levelsParam();
         AnalysisQueryOptions options = AnalysisQueryOptions.builder()
             .currentUid(job.getUid())
             .dataSourceId(dsDO.getId())
-            .levels(this.configService.parseLevels(levels).levelsParam())
+            .levels(levelsParam)
+            .parameters(this.configService.fetchSqlParserParameters(dsConfig, levelsParam))
             .skip(QueryAnalysisFeature.REWRITE)
             .build();
 

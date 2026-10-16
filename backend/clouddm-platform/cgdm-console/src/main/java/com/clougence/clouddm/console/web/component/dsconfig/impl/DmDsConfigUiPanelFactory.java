@@ -28,10 +28,12 @@ import com.clougence.clouddm.base.metadata.ui.form.value.FieldOptionValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.MapValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.utils.StringUtils;
@@ -71,7 +73,7 @@ public class DmDsConfigUiPanelFactory {
             configSpi.customizePanels(panels);
         }
         for (UiPanel panel : panels.values()) {
-            panel.initI18n(PluginManager.findDsI18nUtil(dsType));
+            panel.initI18n(PluginManager.findDsI18nUtil(dsType), DmI18nUtils.getLocale());
         }
         return new ArrayList<>(panels.values());
     }
@@ -281,8 +283,10 @@ public class DmDsConfigUiPanelFactory {
         }
 
         // timeZone
-        DsConfigKvDef clientTimeZone = fields.get(CLIENT_TIME_ZONE_FIELD);
-        if (clientTimeZone != null) {
+        DsConfigKvDef clientTimeZone = fields.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD);
+        fields.remove(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD);
+        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
+        if (clientTimeZone != null && configSpi != null && ClientTimeZoneExtProperties.class.isAssignableFrom(configSpi.newConfig())) {
             panel.addField(timeZoneField(clientTimeZone));
         }
 

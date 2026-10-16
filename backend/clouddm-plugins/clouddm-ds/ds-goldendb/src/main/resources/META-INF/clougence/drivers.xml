@@ -1,0 +1,10 @@
+<drivers>
+    <driver driverFamily="GoldenDB MySQL JDBC Driver" version="5.1.46.86" default="true">
+        <driverName>com.clougence.clouddm.ds.goldendb.execute.dsfactory.GoldenDBDsFactory</driverName>
+        <resource type="file">gdb_mysql-connector-java-5.1.46.86.jar</resource>
+    </driver>
+    <driver driverFamily="GoldenDB Oracle JDBC Driver" version="5.1.46.77" default="true">
+        <driverName>com.clougence.clouddm.ds.goldendb.execute.dsfactory.GoldenDBDsFactory</driverName>
+        <resource type="file">gdb_mysql-connector-java-oracle-5.1.46.77.jar</resource>
+    </driver>
+</drivers>

@@ -33,124 +33,184 @@
         gmt_last_start,
         gmt_last_end
     </sql>
+
     <insert id="batchInsert">
-        insert into dm_exec_auto_task (
+        INSERT INTO
+            dm_exec_auto_task (
             auto_exec_job_id,
             exec_order,
             exec_sql,
             status,
             biz_id,
             query_id
-        ) values
-        <foreach collection="tasks" item="task" separator=",">
-            (
-                #{task.autoExecJobId},
-                #{task.execOrder},
-                #{task.execSql},
-                #{task.status},
-                #{task.bizId},
-                #{task.queryId}
             )
-        </foreach>
+        VALUES
+            <foreach collection="tasks" item="task" separator=",">
+                (
+                    #{task.autoExecJobId},
+                    #{task.execOrder},
+                    #{task.execSql},
+                    #{task.status},
+                    #{task.bizId},
+                    #{task.queryId}
+                )
+            </foreach>
     </insert>
+
     <delete id="deleteByJobId">
-        delete from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId}
+        DELETE FROM
+            dm_exec_auto_task
+        WHERE
+            auto_exec_job_id = #{jobId}
     </delete>
+
     <update id="updateStatusByTaskId">
-        update dm_exec_auto_task
-        set status = #{status}
-        where id = #{taskId}
+        UPDATE
+            dm_exec_auto_task
+        SET
+            status = #{status}
+        WHERE
+            id = #{taskId}
     </update>
+
     <update id="transactionCommit">
-        update dm_exec_auto_task
-        set status = 'FINISH'
-        where auto_exec_job_id = #{jobId} and status = 'WAIT_CONFIRM'
+        UPDATE
+            dm_exec_auto_task
+        SET
+            status = 'FINISH'
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           = 'WAIT_CONFIRM'
     </update>
 
     <update id="transactionRollback">
-        update dm_exec_auto_task
-        set status = 'ROLLBACK'
-        where auto_exec_job_id = #{jobId} and status in ('WAIT_CONFIRM','EXECUTING')
+        UPDATE
+            dm_exec_auto_task
+        SET
+            status = 'ROLLBACK'
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           IN ('WAIT_CONFIRM', 'EXECUTING')
     </update>
 
     <update id="updateStatusAndAffectLineByTaskId">
-        update dm_exec_auto_task
-        set status = #{status} ,affect_row = #{affectRow}
-        where id = #{taskId}
+        UPDATE
+            dm_exec_auto_task
+        SET
+            status     = #{status},
+            affect_row = #{affectRow}
+        WHERE
+            id = #{taskId}
     </update>
+
     <update id="retryTask">
-        update dm_exec_auto_task
-        set status = 'WAIT_EXEC'
-        where auto_exec_job_id = #{jobId} and status in ('FAILED','ROLLBACK','WAIT_CONFIRM','EXECUTING')
+        UPDATE
+            dm_exec_auto_task
+        SET
+            status = 'WAIT_EXEC'
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           IN ('FAILED', 'ROLLBACK', 'WAIT_CONFIRM', 'EXECUTING')
     </update>
+
     <update id="taskSkip">
-        update dm_exec_auto_task
-        set status = 'CANCELED'
-        where query_id = #{queryId}
+        UPDATE
+            dm_exec_auto_task
+        SET
+            status = 'CANCELED'
+        WHERE
+            query_id = #{queryId}
     </update>
+
     <delete id="cancelAllWaitTask">
-        update dm_exec_auto_task
-        set status = 'CANCELED'
-        where auto_exec_job_id = #{jobId} and status in ('WAIT_EXEC','EXECUTING')
+        UPDATE
+            dm_exec_auto_task
+        SET
+            status = 'CANCELED'
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           IN ('WAIT_EXEC', 'EXECUTING')
     </delete>
 
     <select id="queryNeedExecTaskIdsBatch" resultType="java.lang.Long">
-        select id
-        from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId}
-          and status in ('WAIT_EXEC','FAILED','ROLLBACK')
-          and exec_order <![CDATA[ > ]]> #{afterExecOrder}
-        order by exec_order
-        limit #{batchSize}
+        SELECT
+            id
+        FROM
+            dm_exec_auto_task
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           IN ('WAIT_EXEC', 'FAILED', 'ROLLBACK')
+            AND
+            exec_order       <![CDATA[ > ]]> #{afterExecOrder}
+        ORDER BY exec_order
+        LIMIT #{batchSize}
     </select>
 
     <select id="queryNeedExecTasksByIds" resultMap="taskDO">
-        select
+        SELECT
             <include refid="sqlTask"/>
-        from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId}
-          and status in ('WAIT_EXEC','FAILED','ROLLBACK')
-          and id in
-          <foreach collection="taskIds" item="taskId" separator="," open="(" close=")">
-              #{taskId}
-          </foreach>
-        order by exec_order
+        FROM
+            dm_exec_auto_task
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           IN ('WAIT_EXEC', 'FAILED', 'ROLLBACK')
+            AND
+            id               IN
+            <foreach collection="taskIds" item="taskId" separator="," open="(" close=")">
+                #{taskId}
+            </foreach>
+        ORDER BY exec_order
     </select>
 
     <select id="queryByBizId"  resultMap="taskDO">
-        select
-        <include refid="sqlTask"/>
-        from dm_exec_auto_task
-        where biz_id = #{bizId}
-    </select>
-    <select id="queryByQueryId" resultMap="taskDO">
-        select
+        SELECT
             <include refid="sqlTask"/>
-        from dm_exec_auto_task
-        where query_id = #{queryId}
+        FROM
+            dm_exec_auto_task
+        WHERE
+            biz_id = #{bizId}
     </select>
+
+    <select id="queryByQueryId" resultMap="taskDO">
+        SELECT
+            <include refid="sqlTask"/>
+        FROM
+            dm_exec_auto_task
+        WHERE
+            query_id = #{queryId}
+    </select>
+
     <select id="queryListByJobId" resultMap="taskDO">
-        select
-        <include refid="sqlTask"/>
-        from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId}
-        <if test="status != null">
-            and status = #{status}
-        </if>
+        SELECT
+            <include refid="sqlTask"/>
+        FROM
+            dm_exec_auto_task
+        WHERE
+            auto_exec_job_id = #{jobId}
+            <if test="status != null">
+                AND
+                status = #{status}
+            </if>
     </select>
+
     <select id="querySummaryListByJobId" resultMap="taskDO">
-        select
+        SELECT
             id,
             gmt_create,
             gmt_modified,
             auto_exec_job_id,
             exec_order,
-            case
-                when char_length(exec_sql) > #{sqlSummaryLength}
-                    then concat(substring(exec_sql, 1, #{sqlSummaryLength}), '...')
-                else exec_sql
-            end as exec_sql,
+            CASE
+            WHEN CHAR_LENGTH(exec_sql) <![CDATA[ > ]]> #{sqlSummaryLength}
+            THEN CONCAT(SUBSTRING(exec_sql, 1, #{sqlSummaryLength}), '...')
+            ELSE exec_sql
+            END AS exec_sql,
             status,
             affect_row,
             biz_id,
@@ -158,29 +218,46 @@
             exec_count,
             gmt_last_start,
             gmt_last_end
-        from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId}
-        <if test="status != null">
-            and status = #{status}
-        </if>
+        FROM
+            dm_exec_auto_task
+        WHERE
+            auto_exec_job_id = #{jobId}
+            <if test="status != null">
+                AND
+                status = #{status}
+            </if>
     </select>
+
     <select id="queryOneByJobIdAndStatus" resultMap="taskDO">
-        select
-        <include refid="sqlTask"/>
-        from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId}
-            and status = #{status}
+        SELECT
+            <include refid="sqlTask"/>
+        FROM
+            dm_exec_auto_task
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           = #{status}
     </select>
+
     <select id="queryNeedExecTaskCount" resultType="java.lang.Integer">
-        select
-            count(1)
-        from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId} and status in ('WAIT_EXEC','FAILED','ROLLBACK')
+        SELECT
+            COUNT(1)
+        FROM
+            dm_exec_auto_task
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           IN ('WAIT_EXEC', 'FAILED', 'ROLLBACK')
     </select>
+
     <select id="queryNeedExecTaskMaxOrder" resultType="java.lang.Integer">
-        select
-            coalesce(max(exec_order), 0)
-        from dm_exec_auto_task
-        where auto_exec_job_id = #{jobId} and status in ('WAIT_EXEC','FAILED','ROLLBACK')
+        SELECT
+            COALESCE(MAX(exec_order), 0)
+        FROM
+            dm_exec_auto_task
+        WHERE
+            auto_exec_job_id = #{jobId}
+            AND
+            status           IN ('WAIT_EXEC', 'FAILED', 'ROLLBACK')
     </select>
 </mapper>

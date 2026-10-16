@@ -12,6 +12,7 @@ tests/dbs
 ├── mysql/                          # MySQL 启动脚本和初始化 SQL
 ├── oracle/                         # Oracle 初始化 SQL、TCPS 启动脚本和 listener wallet
 ├── postgres/                       # PostgreSQL 启动脚本和初始化 SQL
+├── cockroachdb/                    # CockroachDB 单节点初始化 SQL
 ├── proxy/3proxy.cfg                # 无认证 3proxy 配置
 ├── proxy-auth/3proxy.cfg           # 账号密码认证 3proxy 配置
 └── ssh/                            # SSH Server 使用的公私钥和初始化脚本
@@ -49,6 +50,12 @@ docker compose -f tests/dbs/dbs_arm64/docker-compose.yml down
 docker compose -f tests/dbs/dbs_x86/docker-compose.yml up -d --force-recreate ssh_server
 ```
 
+只启动 CockroachDB 单节点及初始化脚本：
+
+```bash
+docker compose -f tests/dbs/dbs_x86/docker-compose.yml up -d cockroachdb
+```
+
 ## 数据源连接信息
 
 - 宿主机直连时使用 `127.0.0.1` 和对外端口。
@@ -65,6 +72,7 @@ docker compose -f tests/dbs/dbs_x86/docker-compose.yml up -d --force-recreate ss
 | DB2 | `db2` | `devtesterdb` | Port: `50000 (内)/2500 (外)`<br>用户: `db2inst1` / `123456` | - | - | - | arm64 compose 使用 `linux/amd64` 镜像 |
 | ClickHouse HTTP | `clickhouse` | `default` | Port: `8123 (内)/2812 (外)`<br>用户: `root` / `password123` | - | - | - | HTTP 端口 |
 | ClickHouse Native | `clickhouse` | `default` | Port: `9000 (内)/2900 (外)`<br>用户: `root` / `password123` | - | - | - | Native 端口 |
+| CockroachDB | `cockroachdb` | `defaultdb`（内置库，不新建） | Port: `26257 (内)/26257 (外)`<br>用户: `root` / `123456`<br>JDBC: `jdbc:postgresql://127.0.0.1:26257/defaultdb?sslmode=disable` | - | - | - | 单节点 `--accept-sql-without-tls`<br>`init/01-init.sql` 设置 root 密码并写入元数据样例表<br>DB Console: `28080 (外)/8080 (内)` |
 
 通过 SSH 通道访问这些数据源时，数据源 Host 使用 compose 服务名，例如 `mysql`、`postgres`、`oracle`，端口使用容器内端口。不要把数据源 Host 写成 `127.0.0.1`，因为在 SSH 转发场景下它表示 SSH Server 容器自身。
 

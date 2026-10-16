@@ -27,6 +27,7 @@ import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.StringUtils;
 
 /**
  * only for integration test
@@ -60,6 +61,7 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
 
         if (dsConfig.getSslMode() != null && dsConfig.getSslMode() != SslMode.DISABLED) {
             configSSL(dsConfig, resourceRM);
+            validateResolvedSslConfig(dsConfig);
         }
 
         DsObject<Connection> dsObject = resourceRM.requestResource(dsConfig);
@@ -88,6 +90,30 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
         dsConfig.setSslClientCertFileFormat(format(sslConfig.getClientCertFile()));
         dsConfig.setSslClientKeyFilePath(localPath(sslConfig.getClientKeyFile()));
         dsConfig.setSslClientKeyFileFormat(format(sslConfig.getClientKeyFile()));
+    }
+
+    private void validateResolvedSslConfig(T dsConfig) {
+        switch (dsConfig.getSslMode()) {
+            case CA -> requireResolvedSslFile(dsConfig.getSslCaFilePath(), "CA certificate is required.");
+            case TRUSTSTORE -> requireResolvedSslFile(dsConfig.getSslCaFilePath(), "TrustStore is required.");
+            case KEYSTORE_TRUSTSTORE -> {
+                requireResolvedSslFile(dsConfig.getSslCaFilePath(), "TrustStore is required.");
+                requireResolvedSslFile(dsConfig.getSslClientCertFilePath(), "KeyStore is required.");
+            }
+            case CLIENT_CERT -> {
+                requireResolvedSslFile(dsConfig.getSslCaFilePath(), "CA certificate is required.");
+                requireResolvedSslFile(dsConfig.getSslClientCertFilePath(), "Client certificate is required.");
+                requireResolvedSslFile(dsConfig.getSslClientKeyFilePath(), "Client private key is required.");
+            }
+            default -> {
+            }
+        }
+    }
+
+    private void requireResolvedSslFile(String filePath, String errorMessage) {
+        if (StringUtils.isBlank(filePath)) {
+            throw new IllegalArgumentException(errorMessage);
+        }
     }
 
     private static String localPath(SslFile sslFile) {

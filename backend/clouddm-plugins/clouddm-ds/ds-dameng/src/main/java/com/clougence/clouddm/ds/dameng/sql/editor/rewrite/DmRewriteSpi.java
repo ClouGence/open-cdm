@@ -31,6 +31,9 @@ public class DmRewriteSpi implements RewriteSpi {
         }
 
         List<AstSplitScript> scripts = DslHelper.splitDsl(DmDslProvider.INSTANCE, new StringReader(queryStr));
+        if (containsExplain(scripts.get(0).getAstTree())) {
+            return queryStr;
+        }
         Parser parser = scripts.get(0).getParser();
         DmSqlParser.SelectStatementContext select = findSelectStatement(scripts.get(0).getAstTree());
         if (select == null || select.selectOperand().selectQuery() == null) {

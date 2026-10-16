@@ -247,7 +247,7 @@ public class DmTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFacto
     @Override
     protected void fillTableColumnsUiPanelForAdvanced(TableEditorUiPanel uiPanel, DataSourceConfig dsConfig, EditorViewMode viewMode, Connection con) {
         super.fillTableColumnsUiPanelForAdvanced(uiPanel, dsConfig, viewMode, con);
-        uiPanel.getColumns().removeField(FIELD_COLUMN_DEFAULT);
+        uiPanel.getColumns().removeField(FIELD_COLUMN_DEFAULT_OPTION);
 
     }
 

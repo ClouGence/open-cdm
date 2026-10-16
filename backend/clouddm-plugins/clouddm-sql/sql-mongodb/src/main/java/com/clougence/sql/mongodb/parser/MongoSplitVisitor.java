@@ -34,6 +34,16 @@ public class MongoSplitVisitor extends MongoParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitReplicaSetFunction(MongoParser.ReplicaSetFunctionContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShardingFunction(MongoParser.ShardingFunctionContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
     public SplitQueryType visitDbCreateCollection(MongoParser.DbCreateCollectionContext ctx) {
         return SplitQueryType.CREATE_TABLE;
     }
@@ -293,7 +303,7 @@ public class MongoSplitVisitor extends MongoParserBaseVisitor<SplitQueryType> {
             case "profile" -> SplitQueryType.SYSTEM_SETTING_WRITE;
             case "killOp" -> SplitQueryType.ADMIN;
             case "currentOp", "serverStatus" -> SplitQueryType.PERFORMANCE;
-            case "listCollections", "buildInfo", "hello", "hostInfo" -> SplitQueryType.METADATA;
+            case "listCollections", "buildInfo", "hello", "hostInfo", "replSetGetStatus", "replSetGetConfig", "listShards", "balancerStatus", "isMaster" -> SplitQueryType.METADATA;
             case "dropDatabase" -> SplitQueryType.DROP_SCHEMA;
             case "create" -> hasKey(command, "viewOn") ? SplitQueryType.CREATE_VIEW : SplitQueryType.CREATE_TABLE;
             default -> SplitQueryType.UNKNOWN;

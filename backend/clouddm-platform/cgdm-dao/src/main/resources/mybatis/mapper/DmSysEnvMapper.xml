@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.system.DmSysEnvMapper">
-
     <resultMap id="rdpDsEnvDO" type="com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -23,16 +22,17 @@
 
     <select id="listByCondition" resultMap="rdpDsEnvDO">
         SELECT
-        <include refid="rdpDsEnv"/>
+            <include refid="rdpDsEnv"/>
         FROM
             dm_sys_env
         WHERE
             owner_uid = #{ownerUid}
             <if test="envName != null">
-                AND env_name like concat('%',#{envName},'%')
+                AND
+                env_name LIKE CONCAT('%', #{envName}, '%')
             </if>
-        order by
-            gmt_create desc
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="queryListByParameterKey" resultMap="rdpDsEnvDO">
@@ -45,16 +45,20 @@
             a.description
         FROM
             dm_sys_env a
-        LEFT JOIN dm_sys_env_param b on a.id = b.env_id
+        LEFT JOIN
+            dm_sys_env_param b
+        ON
+            a.id = b.env_id
         <where>
-            a.owner_uid = ${puid}
-            and b.config_key = #{paramKey}
+            a.owner_uid  = ${puid}
+            AND
+            b.config_key = #{paramKey}
         </where>
     </select>
 
     <select id="queryListByUid" resultMap="rdpDsEnvDO">
         SELECT
-        <include refid="rdpDsEnv"/>
+            <include refid="rdpDsEnv"/>
         FROM
             dm_sys_env
         WHERE
@@ -67,12 +71,17 @@
         FROM
             dm_sys_env
         WHERE
-            owner_uid = #{puid} and id in
-            <foreach collection="envIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+            owner_uid = #{puid}
+            AND
+            id        IN
+            <foreach collection="envIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <update id="updateDsEnv">
-        UPDATE dm_sys_env
+        UPDATE
+            dm_sys_env
         <set>
             <if test="envName != null">
                 env_name = #{envName},
@@ -80,14 +89,18 @@
             description = #{description},
         </set>
         WHERE
-        id = #{id} and owner_uid=#{ownerUid}
+            id        = #{id}
+            AND
+            owner_uid = #{ownerUid}
     </update>
 
     <delete id="deleteDsEnv">
-        DELETE
-        FROM dm_sys_env
-        WHERE id = #{id}
-          and owner_uid = #{ownerUid}
+        DELETE FROM
+            dm_sys_env
+        WHERE
+            id        = #{id}
+            AND
+            owner_uid = #{ownerUid}
     </delete>
 
     <select id="listByIds" resultType="com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO">
@@ -96,7 +109,10 @@
         FROM
             dm_sys_env
         WHERE
-            id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+            id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <select id="queryByEnvName" resultType="com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO">
@@ -105,9 +121,10 @@
         FROM
             dm_sys_env
         WHERE
-            owner_uid = #{ownerUid} and
+            owner_uid = #{ownerUid}
+            AND
             env_name  = #{envName}
-        limit 1
+        LIMIT 1
     </select>
 
     <select id="queryByEnvID" resultType="com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO">
@@ -116,8 +133,9 @@
         FROM
             dm_sys_env
         WHERE
-            owner_uid = #{ownerUid} and
+            owner_uid = #{ownerUid}
+            AND
             id        = #{envId}
-        limit 1
+        LIMIT 1
     </select>
 </mapper>

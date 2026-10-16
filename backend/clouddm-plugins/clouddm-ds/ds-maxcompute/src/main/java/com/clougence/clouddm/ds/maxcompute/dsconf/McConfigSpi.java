@@ -15,11 +15,7 @@
  */
 package com.clougence.clouddm.ds.maxcompute.dsconf;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
@@ -31,8 +27,9 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.UiUtils;
 import com.clougence.clouddm.base.metadata.ui.form.value.FieldOptionValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.clouddm.ds.maxcompute.i18n.McConfigI18nKeys;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
@@ -60,7 +57,7 @@ public class McConfigSpi extends AbstractDsConfigSpi {
         config.setDefaultSchema(defaultConfig.get(McConfig.Fields.defaultSchema));
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
-        config.setClientTimeZone(defaultConfig.get(McConfig.Fields.clientTimeZone));
+        config.setClientTimeZone(defaultConfig.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD));
         config.setInteractiveMode(ConvertUtils.toBoolean(defaultConfig.get(McConfig.Fields.interactiveMode), false));
 
         boolean blank = StringUtils.isBlank(defaultConfig.get(McConfig.Fields.schemaStyle));

@@ -606,7 +606,7 @@
               </a-tooltip>
             </div>
             <div class="option">
-              <a-checkbox v-model="genDataModal.globalConfigs.ignoreErrors">
+              <a-checkbox v-model:checked="genDataModal.globalConfigs.ignoreErrors">
                 {{ $t('yu-dao-cuo-wu-shi-ji-xu') }}
               </a-checkbox>
               <a-tooltip placement="bottom" style="margin-left: 3px; margin-right: 5px">
@@ -933,10 +933,10 @@
     <CCModal v-model="showTicketModal" :title="$t('ti-jiao-gong-dan')" @cancel="showTicketModal = false" @ok="showTicketModal = false">
       <a-form :model="ticketData" :rules="ticketRuleValidate" ref="ticketContent" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
         <a-form-item :label="$t('biao-ti')" prop="ticketTitle">
-          <a-input v-model="ticketData.ticketTitle" />
+          <a-input v-model:value="ticketData.ticketTitle" />
         </a-form-item>
         <a-form-item :label="$t('xu-qiu-miao-shu')" prop="description">
-          <a-input type="textarea" v-model="ticketData.description" :rows="4" />
+          <a-textarea v-model:value="ticketData.description" :rows="4" />
         </a-form-item>
       </a-form>
       <template #footer>
@@ -2234,6 +2234,11 @@ export default {
     },
     handleDblClick(node) {
       appLogger.debug('dbl click');
+      if (node.nodeType === 'TOPIC') {
+        this.handleQueryTable(node.objAttr.quickQuery);
+        return;
+      }
+      if (node.nodeType === 'MQ_TOPIC_PROP_GROUP' || node.nodeType === 'MQ_TOPIC_PROP') return;
       let sql = '';
       const dsQueryMap = this.getQuickQuery(this.currentTab.dsType);
       const dsClassify = this.getDsClassify(this.currentTab.dsType);
@@ -2541,6 +2546,9 @@ export default {
     },
     handleChangeTab(leafType) {
       this.currentTab.leafType = leafType;
+      this.currentTab.expandedKeys = [];
+      this.currentTab.selectedTable = null;
+      this.selectedNode = null;
       this.ensureObjectPagination();
       const refreshCache = true;
       this.listLeaf(refreshCache);
@@ -2599,6 +2607,7 @@ export default {
       const node = this.$refs.tableTree.getSelectedNode();
       const isNotNode = event.target.classList && event.target.classList.length && event.target.classList[0] === 'vtree-tree__block-area';
       const items = [];
+      const menuIcons = { [TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_COMMAND_TEMPLATE]: TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_REQUEST };
       const targetType = isNotNode || !node ? this.currentTab.leafType : node.nodeType;
       const browserMenus = this.getBrowserMenus(this.currentTab.dsType, targetType) || [];
       let menuList = browserMenus;
@@ -2615,7 +2624,7 @@ export default {
                 svgProps: {
                   class: 'svg-icon'
                 },
-                svgIcon: `#icon-svg-${menu.menuId}`,
+                svgIcon: `#icon-svg-${menuIcons[menu.menuId] || menu.menuId}`,
                 onClick: () => this.handleRightClickMenu(menu.menuId)
               });
             }
@@ -2628,7 +2637,7 @@ export default {
                 svgProps: {
                   class: 'svg-icon'
                 },
-                svgIcon: `#icon-svg-${menu.menuId}`,
+                svgIcon: `#icon-svg-${menuIcons[menu.menuId] || menu.menuId}`,
                 divided: menuList[menuIndex + 1] && menuList[menuIndex + 1].menuId === 'MENU_SEPARATOR',
                 onClick: () => this.handleRightClickMenu(menu.menuId)
               });
@@ -2928,6 +2937,9 @@ export default {
           break;
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_COPY_NAME:
           this.copyText(this.selectedNode.objName || this.selectedNode.title);
+          break;
+        case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PERMISSIONS:
+          this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
           break;
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_FAKER:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_FAKER_INCREMENT:
@@ -3266,12 +3278,14 @@ export default {
             await this.browseGenAction(data.actionType, this.browseGenLevelsData(data.node), data.callback, data.other);
           }
           break;
+        case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_COMMAND_TEMPLATE:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_VIEW_REQUEST:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_REQUEST:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_FUNCTION_REQUEST:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PROCEDURE_REQUEST:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TRIGGER_REQUEST:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_SYNONYM_REQUEST:
+        case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_SEQUENCE_REQUEST:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_MATERIALIZED_REQUEST:
           res = await this.$services.dmBrowseActionsRequestScript({
             data: {
@@ -3282,9 +3296,13 @@ export default {
           });
 
           if (res.success) {
-            this.sqlModal.show = true;
-            this.sqlModal.title = this.$t('huo-qu-ddl-yu-ju-tabletitle', [table.title]);
-            this.sqlModal.sql = res.data.sql;
+            if (actionType === TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_COMMAND_TEMPLATE) {
+              this.handleQueryTable(res.data.sql);
+            } else {
+              this.sqlModal.show = true;
+              this.sqlModal.title = this.$t('huo-qu-ddl-yu-ju-tabletitle', [table.title]);
+              this.sqlModal.sql = res.data.sql;
+            }
           }
           break;
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_GENERATE:

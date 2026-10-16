@@ -1,0 +1,108 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.dsfamily.sqlserver.execute;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
+import com.clougence.clouddm.sdk.execute.session.SessionHook;
+import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
+import com.clougence.drivers.DsObject;
+import com.clougence.sql.sqlserver.editor.rewrite.MsSqlRewriteSpi;
+import com.clougence.utils.StringUtils;
+import com.clougence.utils.io.IOUtils;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @author bucketli 2022/3/28 19:25:30
+ */
+@Slf4j
+public class MsSqlSession extends DefaultRdbSession {
+
+    private boolean showPlanEnabled;
+
+    public MsSqlSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject){
+        super(newSessionId, dsConfig, dsObject, new MsSqlHooks());
+    }
+
+    protected MsSqlSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject, SessionHook sessionHook){
+        super(newSessionId, dsConfig, dsObject, sessionHook);
+    }
+
+    @Override
+    protected void beforeQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
+        super.beforeQueryRequest(beginTime, query, builder);
+
+        if (query.isUseExplain()) {
+            if (!StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace(query.getQueryBody(), MsSqlRewriteSpi.showPlanMarker(query.getQueryId()))) {
+                throw new SQLException("Explain request does not contain a SHOWPLAN query");
+            }
+
+            Statement statement = this.currentResource().createStatement();
+            try {
+                statement.execute("set showplan_all on;");
+                this.showPlanEnabled = true;
+            } finally {
+                IOUtils.closeQuietly(statement);
+            }
+
+        }
+    }
+
+    @Override
+    protected void afterQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
+        try {
+            super.afterQueryRequest(beginTime, query, builder);
+        } finally {
+            this.disableShowPlan();
+        }
+    }
+
+    @Override
+    protected boolean executeStatement(Statement statement, QueryRequest query, ResultBuilder builder) throws SQLException {
+        if (query.isUseExplain()) {
+            return statement.execute(query.getQueryBody());
+        } else {
+            return super.executeStatement(statement, query, builder);
+        }
+    }
+
+    @Override
+    protected void throwQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder, Exception e) {
+        try {
+            this.disableShowPlan();
+        } catch (SQLException cleanupError) {
+            log.error("cleanup SQL Server SHOWPLAN failed", cleanupError);
+        }
+        super.throwQueryRequest(beginTime, query, builder, e);
+    }
+
+    private void disableShowPlan() throws SQLException {
+        if (!this.showPlanEnabled) {
+            return;
+        }
+        try (Statement statement = this.currentResource().createStatement()) {
+            statement.execute("set showplan_all off;");
+        } finally {
+            this.showPlanEnabled = false;
+        }
+    }
+}

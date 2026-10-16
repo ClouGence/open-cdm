@@ -94,7 +94,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         return switch (type) {
             case FIND, AGGREGATE, FIND_ONE, COUNT, DISTINCT, COUNT_DOCUMENTS -> SplitQueryType.SELECT;
             case DATA_SIZE, HELLO, EXPLAIN -> SplitQueryType.PERFORMANCE;
-            case LIST_COLLECTIONS, LIST_INDEXES, SHOW_DATABASES, SHOW_COLLECTIONS -> SplitQueryType.METADATA;
+            case LIST_COLLECTIONS, LIST_INDEXES, SHOW_DATABASES, SHOW_COLLECTIONS, RS_STATUS, RS_CONF, RS_REPLICATION_INFO, SH_STATUS, SH_BALANCER_STATUS -> SplitQueryType.METADATA;
             case VALIDATE -> SplitQueryType.ADMIN_TABLE;
             case CREATE_INDEX, CREATE_INDEXES -> SplitQueryType.ADD_INDEX;
             case CREATE_VIEW -> SplitQueryType.CREATE_VIEW;
@@ -120,7 +120,7 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             case FSYNC_UNLOCK -> BehaviorAction.UNLOCK;
             case PROFILE -> BehaviorAction.CONFIGURE;
             case KILL_OP -> BehaviorAction.TERMINATE;
-            case HOST_INFO, CURRENT_OP, SERVER_STATUS, BUILD_INFO, GET_LOG_COMPONENTS, DB_STATS, LATENCY_STATS -> BehaviorAction.READ;
+            case HOST_INFO, CURRENT_OP, SERVER_STATUS, BUILD_INFO, GET_LOG_COMPONENTS, DB_STATS, LATENCY_STATS, RS_STATUS, RS_CONF, RS_REPLICATION_INFO, SH_STATUS, SH_BALANCER_STATUS -> BehaviorAction.READ;
             default -> null;
         };
         if (commandAction != null) {

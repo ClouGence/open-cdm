@@ -29,8 +29,107 @@ public class OraSplitVisitor extends PlSqlParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitAudit_traditional(Audit_traditionalContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitNoaudit_statement(Noaudit_statementContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitUnified_auditing(Unified_auditingContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitUnified_noauditing(Unified_noauditingContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitCreate_audit_policy(Create_audit_policyContext ctx) {
+        return SplitQueryType.CREATE_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitAlter_audit_policy(Alter_audit_policyContext ctx) {
+        return SplitQueryType.ALTER_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitDrop_audit_policy(Drop_audit_policyContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitAnalyze(AnalyzeContext ctx) {
+        if (ctx.DELETE() != null || ctx.compute_clauses() != null || ctx.ESTIMATE() != null) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if (ctx.TABLE() != null) {
+            return SplitQueryType.ADMIN_TABLE;
+        }
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitPurge_statement(Purge_statementContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitCreate_database(Create_databaseContext ctx) {
+        return SplitQueryType.CREATE_CATALOG;
+    }
+
+    @Override
+    public SplitQueryType visitAlter_database(Alter_databaseContext ctx) {
+        return SplitQueryType.ALTER_CATALOG;
+    }
+
+    @Override
+    public SplitQueryType visitDrop_database(Drop_databaseContext ctx) {
+        return SplitQueryType.DROP_CATALOG;
+    }
+
+    @Override
+    public SplitQueryType visitCreate_pluggable_database(Create_pluggable_databaseContext ctx) {
+        return SplitQueryType.CREATE_CATALOG;
+    }
+
+    @Override
+    public SplitQueryType visitAlter_pluggable_database(Alter_pluggable_databaseContext ctx) {
+        return SplitQueryType.ALTER_CATALOG;
+    }
+
+    @Override
+    public SplitQueryType visitDrop_pluggable_database(Drop_pluggable_databaseContext ctx) {
+        return SplitQueryType.DROP_CATALOG;
+    }
+
+    @Override
+    public SplitQueryType visitCreate_tablespace(Create_tablespaceContext ctx) {
+        return SplitQueryType.CREATE_TABLESPACE;
+    }
+
+    @Override
+    public SplitQueryType visitAlter_tablespace(Alter_tablespaceContext ctx) {
+        if (ctx.new_tablespace_name() != null) {
+            return SplitQueryType.RENAME_TABLESPACE;
+        }
+        return SplitQueryType.ALTER_TABLESPACE;
+    }
+
+    @Override
+    public SplitQueryType visitDrop_tablespace(Drop_tablespaceContext ctx) {
+        return SplitQueryType.DROP_TABLESPACE;
+    }
+
+    @Override
     public SplitQueryType visitExplain_statement(Explain_statementContext ctx) {
-        return SplitQueryType.SELECT;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
@@ -209,13 +308,61 @@ public class OraSplitVisitor extends PlSqlParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitAlter_role(Alter_roleContext ctx) {
+        return SplitQueryType.ALTER_ROLE;
+    }
+
+    @Override
     public SplitQueryType visitDrop_role(Drop_roleContext ctx) {
         return SplitQueryType.DROP_ROLE;
     }
 
     @Override
     public SplitQueryType visitAlter_session(Alter_sessionContext ctx) {
-        return SplitQueryType.SWITCH_SCHEMA;
+        if (ctx.CLOSE() != null || ctx.SYNC() != null) {
+            return SplitQueryType.ADMIN;
+        }
+        Alter_session_set_clauseContext settings = ctx.alter_session_set_clause();
+        if (settings != null) {
+            if (settings.CONTAINER() != null) {
+                return SplitQueryType.SWITCH_CATALOG;
+            }
+            for (Parameter_nameContext parameter : settings.parameter_name()) {
+                if ("CURRENT_SCHEMA".equalsIgnoreCase(parameter.getText())) {
+                    return SplitQueryType.SWITCH_SCHEMA;
+                }
+            }
+        }
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSet_role(Set_roleContext ctx) {
+        return SplitQueryType.SWITCH_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitAlter_system(Alter_systemContext ctx) {
+        if (!ctx.alter_system_set_clause().isEmpty() || !ctx.alter_system_reset_clause().isEmpty()
+                || ctx.alter_system_security_clause() != null) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        if (ctx.archive_log_clause() != null || ctx.SWITCH() != null) {
+            return SplitQueryType.MAINTAIN_LOG;
+        }
+        if (ctx.affinity_clauses() != null) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        Alter_system_flush_clauseContext flush = ctx.alter_system_flush_clause();
+        if (flush != null) {
+            if (flush.REDO() != null) {
+                return SplitQueryType.ADMIN_REPLICATION;
+            }
+            if (flush.PASSWORDFILE_METADATA_CACHE() == null) {
+                return SplitQueryType.ADMIN_PERFORMANCE;
+            }
+        }
+        return SplitQueryType.ADMIN;
     }
 
     @Override

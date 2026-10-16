@@ -1,5 +1,5 @@
 [from_table_names]
-languageClass: com.clougence.clouddm.ds.sqlserver.language.MsSqlLanguageSpi
+languageClass: com.clougence.clouddm.dsfamily.sqlserver.language.MsSqlLanguageSpi
 schema: devtester
 sql:
 select * from |
@@ -11,7 +11,7 @@ expect:
 ]
 ----------
 [go_statement_boundary]
-languageClass: com.clougence.clouddm.ds.sqlserver.language.MsSqlLanguageSpi
+languageClass: com.clougence.clouddm.dsfamily.sqlserver.language.MsSqlLanguageSpi
 schema: devtester
 sql:
 select * from old_table

@@ -1197,9 +1197,9 @@ public class JSON {
      * <p>
      * may be implemented to provide static convertors for objects that may be
      * registered with
-     * {@link net.hasor.cobble.json.JSON#registerConvertor(Class, net.hasor.cobble.json.JSON.Convertor)}
+     * {@link JSON#registerConvertor(Class, JSON.Convertor)}
      * . These convertors are looked up by class, interface and super class by
-     * {@link net.hasor.cobble.json.JSON#getConvertor(Class)}. Convertors should be used when the
+     * {@link JSON#getConvertor(Class)}. Convertors should be used when the
      * classes to be converted cannot implement {@link Convertible} or
      * {@link Generator}.
      */
@@ -1223,7 +1223,7 @@ public class JSON {
     /* ------------------------------------------------------------ */
 
     /**
-     * A Literal JSON generator A utility instance of {@link net.hasor.cobble.json.JSON.Generator}
+     * A Literal JSON generator A utility instance of {@link JSON.Generator}
      * that holds a pre-generated string on JSON text.
      */
     public static class Literal implements Generator {

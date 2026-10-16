@@ -33,6 +33,7 @@ import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
+import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
@@ -51,6 +52,14 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
     protected abstract boolean isStatementContext(ParserRuleContext context);
 
     protected abstract AntlrStatementParser statementParser();
+
+    protected DslProvider fallbackDslProvider() {
+        return null;
+    }
+
+    protected boolean isStatementTerminated(Parser parser) {
+        return true;
+    }
 
     protected void beforeSplitStream() {
     }
@@ -121,8 +130,30 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
     private void streamingSplit(Reader reader, int baseLine, int baseColumn, Consumer<SplitScript> resultConsumer) {
         WindowedReader sourceReader = new WindowedReader(new NonClosingReader(reader));
+        LocationCursor location = new LocationCursor(sourceReader, new CodeLocation(baseLine, baseColumn));
+        try {
+            parseStream(dslProvider(), sourceReader, location, resultConsumer);
+        } catch (AntlerSyntaxException firstFailure) {
+            DslProvider fallback = fallbackDslProvider();
+            if (fallback == null) {
+                throw firstFailure;
+            }
+            // The window starts after the last emitted SQL and includes lexer read-ahead.
+            // Replay only this suffix so consumers never receive the same statement twice.
+            sourceReader.rewind();
+            LocationCursor retryLocation = new LocationCursor(sourceReader, new CodeLocation(location.line, location.column));
+            retryLocation.statementIndex = location.statementIndex;
+            try {
+                parseStream(fallback, sourceReader, retryLocation, resultConsumer);
+            } catch (AntlerSyntaxException fallbackFailure) {
+                firstFailure.addSuppressed(fallbackFailure);
+                throw firstFailure;
+            }
+        }
+    }
+
+    private void parseStream(DslProvider provider, WindowedReader sourceReader, LocationCursor location, Consumer<SplitScript> resultConsumer) {
         CharStream source = new UnbufferedCharStream(sourceReader);
-        DslProvider provider = dslProvider();
         Lexer lexer = provider.createLexer(source);
         lexer.setTokenFactory(new CommonTokenFactory(true));
         lexer.removeErrorListeners();
@@ -134,30 +165,25 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         parser.removeErrorListeners();
         parser.addErrorListener(SyntaxErrorListener.INSTANCE);
         parser.setBuildParseTree(true);
-        try (AntlrPredictionCaches.Lease ignored = AntlrPredictionCaches.acquire(lexer, parser, predictionCacheScope())) {
-            parser.addParseListener(new SplitListener(tokens, new LocationCursor(sourceReader, new CodeLocation(baseLine, baseColumn)), resultConsumer));
+        // A retry uses a different configuration and must not reuse the initial mode's DFA.
+        try (AntlrPredictionCaches.Lease ignored = AntlrPredictionCaches.acquire(lexer, parser, provider)) {
+            lexer.setLine(location.line);
+            lexer.setCharPositionInLine(location.column);
+            parser.addParseListener(new SplitListener(parser, tokens, location, resultConsumer));
             this.parseRoot(parser);
         }
     }
 
-    /**
-     * Scope key for the shared ANTLR prediction caches. The provider instance encodes the full
-     * parsing configuration (grammar version, features, sql mode), so different configurations
-     * never share DFA states that embed semantic-predicate decisions.
-     */
-    protected Object predictionCacheScope() {
-        return dslProvider();
-    }
-
     private final class SplitListener implements ParseTreeListener {
 
+        private final Parser                     parser;
         private final StreamingCommonTokenStream tokens;
         private final LocationCursor             location;
         private final Consumer<SplitScript>      resultConsumer;
         private ParserRuleContext                lastStatement;
-        private long                             statementIndex;
 
-        private SplitListener(StreamingCommonTokenStream tokens, LocationCursor location, Consumer<SplitScript> resultConsumer){
+        private SplitListener(Parser parser, StreamingCommonTokenStream tokens, LocationCursor location, Consumer<SplitScript> resultConsumer){
+            this.parser = parser;
             this.tokens = tokens;
             this.location = location;
             this.resultConsumer = resultConsumer;
@@ -177,23 +203,26 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
         @Override
         public void exitEveryRule(ParserRuleContext ctx) {
-            if (!isStatementContext(ctx)) {
+            if (parser.getNumberOfSyntaxErrors() > 0 || !isStatementContext(ctx) || !isStatementTerminated(parser)) {
                 return;
             }
 
             Token startToken = ctx.getStart();
             Token stopToken = ctx.getStop();
+            // ANTLR also exits unfinished rules while a syntax exception unwinds the parser.
+            if (stopToken == null) {
+                return;
+            }
             String script = statementParser().getTextKeepComment(this.tokens, this.lastStatement, startToken, stopToken);
-            ScriptLocation scriptLocation = this.location.locate(script, stopToken.getStopIndex());
+            ScriptLocation scriptLocation = this.location.locate(script);
 
             SplitScript split = new SplitScript();
-            split.setIndex(this.statementIndex++);
+            split.setIndex(this.location.statementIndex++);
             split.setScript(script);
             split.setType(collectTypes(ctx, script));
             split.setChildren(collectChildren(ctx, this.tokens));
-            ScriptLocation bodyStart = this.location.locate(startToken);
-            split.setBodyStartCodeLine(bodyStart.endLine());
-            split.setBodyStartCodeColumn(bodyStart.endColumn());
+            split.setBodyStartCodeLine(scriptLocation.startLine());
+            split.setBodyStartCodeColumn(scriptLocation.startColumn());
             split.setBodyEndCodeLine(scriptLocation.endLine());
             split.setBodyEndCodeColumn(scriptLocation.endColumn());
             this.resultConsumer.accept(split);
@@ -209,45 +238,36 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
     private static final class LocationCursor {
 
         private final WindowedReader source;
-        private final int            baseLine;
-        private final int            baseColumn;
         private int                  sourceOffset;
         private int                  line;
         private int                  column;
+        private long                 statementIndex;
 
         private LocationCursor(WindowedReader source, CodeLocation base){
             this.source = source;
-            this.baseLine = Math.max(1, base == null ? 1 : base.getLineNumber());
-            this.baseColumn = Math.max(0, base == null ? 0 : base.getColumnNumber());
-            this.line = this.baseLine;
-            this.column = this.baseColumn;
+            this.line = Math.max(1, base == null ? 1 : base.getLineNumber());
+            this.column = Math.max(0, base == null ? 0 : base.getColumnNumber());
         }
 
-        private ScriptLocation locate(String script, int stopOffset) {
-            int searchEnd = Math.min(this.source.endOffset(), Math.max(this.sourceOffset, stopOffset + 1) + script.length());
-            String sourceWindow = this.source.getText(this.sourceOffset, searchEnd);
+        private ScriptLocation locate(String script) {
+            // Token offsets count code points; reader offsets count UTF-16 units.
+            String sourceWindow = this.source.getText(this.sourceOffset, this.source.endOffset());
             int scriptOffset = sourceWindow.indexOf(script);
             if (scriptOffset < 0) {
                 throw new IllegalStateException("Split script is not part of its source");
             }
 
             advance(sourceWindow, 0, scriptOffset);
+            int startLine = this.line;
+            int startColumn = this.column;
             advance(script, 0, script.length());
             this.sourceOffset += scriptOffset + script.length();
             this.source.discardBefore(this.sourceOffset);
-            return new ScriptLocation(this.line, this.column);
-        }
-
-        private ScriptLocation locate(Token token) {
-            int tokenLine = Math.max(1, token.getLine());
-            int tokenColumn = Math.max(0, token.getCharPositionInLine());
-            int mappedLine = this.baseLine + tokenLine - 1;
-            int mappedColumn = tokenLine == 1 ? this.baseColumn + tokenColumn : tokenColumn;
-            return new ScriptLocation(mappedLine, mappedColumn);
+            return new ScriptLocation(startLine, startColumn, this.line, this.column);
         }
 
         private void advance(String value, int start, int end) {
-            for (int i = start; i < end; i++) {
+            for (int i = start; i < end; i += Character.charCount(value.codePointAt(i))) {
                 if (value.charAt(i) == '\n') {
                     this.line++;
                     this.column = 0;
@@ -258,7 +278,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         }
     }
 
-    private record ScriptLocation(int endLine, int endColumn) {
+    private record ScriptLocation(int startLine, int startColumn, int endLine, int endColumn) {
     }
 
     private static final class StreamingCommonTokenStream extends CommonTokenStream {
@@ -292,6 +312,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
 
         private final StringBuilder window = new StringBuilder();
         private int                 windowStart;
+        private int                 readOffset;
 
         private WindowedReader(Reader reader){
             super(reader);
@@ -300,9 +321,13 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         @Override
         public int read() throws IOException {
             checkInterrupted();
+            if (this.readOffset < this.window.length()) {
+                return this.window.charAt(this.readOffset++);
+            }
             int value = super.read();
             if (value >= 0) {
                 this.window.append((char) value);
+                this.readOffset++;
             }
             return value;
         }
@@ -310,9 +335,16 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         @Override
         public int read(char[] chars, int offset, int length) throws IOException {
             checkInterrupted();
+            if (this.readOffset < this.window.length()) {
+                int read = Math.min(length, this.window.length() - this.readOffset);
+                this.window.getChars(this.readOffset, this.readOffset + read, chars, offset);
+                this.readOffset += read;
+                return read;
+            }
             int read = super.read(chars, offset, length);
             if (read > 0) {
                 this.window.append(chars, offset, read);
+                this.readOffset += read;
             }
             return read;
         }
@@ -327,6 +359,11 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             return this.windowStart + this.window.length();
         }
 
+        private void rewind() {
+            this.windowStart = 0;
+            this.readOffset = 0;
+        }
+
         private String getText(int startOffset, int endOffset) {
             if (startOffset < this.windowStart || endOffset > endOffset()) {
                 throw new IllegalStateException("SQL source interval is outside the streaming window");
@@ -339,6 +376,7 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
             if (discardLength > 0) {
                 this.window.delete(0, discardLength);
                 this.windowStart += discardLength;
+                this.readOffset -= discardLength;
             }
         }
     }

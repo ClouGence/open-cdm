@@ -27,6 +27,7 @@ import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionHook;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
 
@@ -49,13 +50,14 @@ public class PgHooks implements SessionHook {
 
     @Override
     public void configSession(Connection resource, SessionContextDTO initContextDTO) throws SQLException {
+        // Configure JDBC session properties before schema SQL can start a transaction in manual-commit mode.
+        this.setIsolation(resource, initContextDTO.getRdbTxIsolation());
+        this.setReadOnly(resource, initContextDTO.isRdbReadOnly());
+        this.setAutoCommit(resource, initContextDTO.isRdbAutoCommit());
+
         if (StringUtils.isNotBlank(initContextDTO.getRdbSchema())) {
             this.setCurrentSchema(resource, initContextDTO.getRdbSchema());
         }
-
-        this.setAutoCommit(resource, initContextDTO.isRdbAutoCommit());
-        this.setIsolation(resource, initContextDTO.getRdbTxIsolation());
-        this.setReadOnly(resource, initContextDTO.isRdbReadOnly());
     }
 
     @Override
@@ -120,9 +122,32 @@ public class PgHooks implements SessionHook {
 
     @Override
     public PreparedStatement executeStatement(Connection conn, QueryRequest query) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        String sql = query.getQueryBody();
+        if (query.hasQueryType(SplitQueryType.TRANSACTION)) {
+            sql = rewriteBeginModes(sql);
+        }
+        PreparedStatement stmt = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(200);
         return stmt;
+    }
+
+    static String rewriteBeginModes(String sql) {
+        String command = sql.stripLeading();
+        String prefix = null;
+        if (StringUtils.startsWithIgnoreCase(command, "BEGIN TRANSACTION ")) {
+            prefix = "BEGIN TRANSACTION ";
+        } else if (StringUtils.startsWithIgnoreCase(command, "BEGIN WORK ")) {
+            prefix = "BEGIN WORK ";
+        } else if (StringUtils.startsWithIgnoreCase(command, "BEGIN ")) {
+            prefix = "BEGIN ";
+        } else if (StringUtils.startsWithIgnoreCase(command, "START TRANSACTION ")) {
+            prefix = "START TRANSACTION ";
+        }
+        if (prefix == null || command.substring(prefix.length()).isBlank()) {
+            return sql;
+        }
+        // pgJDBC begins the manual transaction implicitly before executing the first statement.
+        return "SET TRANSACTION " + command.substring(prefix.length());
     }
 
     @Override

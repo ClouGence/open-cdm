@@ -19,6 +19,7 @@ import java.sql.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.Session;
@@ -39,14 +40,16 @@ import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
 public class OraHooks implements SessionHook {
 
     private final boolean changeCatalog;
+    private final String  clientCharset;
 
     public OraHooks(DataSourceConfig config){
         this.changeCatalog = new OraSupportSpi().supportChangeCatalog(config) == RdbSupportLevel.Allow;
+        this.clientCharset = config instanceof ClientCharsetExtProperties e ? e.getClientCharset() : null;
     }
 
     @Override
     public ColReader createColReader() {
-        return new OraColReader();
+        return new OraColReader(this.clientCharset);
     }
 
     @Override

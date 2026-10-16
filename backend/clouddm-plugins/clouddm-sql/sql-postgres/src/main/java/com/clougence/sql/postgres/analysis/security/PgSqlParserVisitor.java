@@ -45,6 +45,8 @@ import com.clougence.sql.postgres.analysis.security.builder.PgBuilderFactory;
 import com.clougence.sql.postgres.analysis.security.builder.enums.PgAttribute;
 import com.clougence.sql.postgres.analysis.security.domain.PgTableDomain;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseVisitor;
+import com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_listContext;
+import com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_list_Context;
 
 public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
 
@@ -78,13 +80,13 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitColumn_and_period_list(com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_listContext ctx) {
+    public Void visitColumn_and_period_list(Column_and_period_listContext ctx) {
         dmVisitChildren(ctx);
         return null;
     }
 
     @Override
-    public Void visitColumn_and_period_list_(com.clougence.sql.postgres.parser.antlr.PgSqlParser.Column_and_period_list_Context ctx) {
+    public Void visitColumn_and_period_list_(Column_and_period_list_Context ctx) {
         dmVisitChildren(ctx);
         return null;
     }
@@ -112,23 +114,38 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitAnalyzestmt(AnalyzestmtContext ctx) {
-        RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
-        rdbResourceDomain.setAuditKind(SecQueryKind.ADMIN);
-        rdbResourceDomain.setSqlType(RuleQueryType.ADMIN_TABLE);
-        if (ctx.vacuum_relation_list_() != null) {
-            Vacuum_relationContext relation = ctx.vacuum_relation_list_().vacuum_relation_list().vacuum_relation(0);
-            Map<UmiTypes, String> map = BuilderUtil.parseTableName(handleQualifiedName(relation.qualified_name()));
-            rdbResourceDomain.setCatalog(map.get(UmiTypes.Catalog));
-            rdbResourceDomain.setSchema(map.get(UmiTypes.Schema));
-            rdbResourceDomain.setName(map.get(UmiTypes.Table));
-            rdbResourceDomain.setTarget(TargetType.Table);
-            rdbResourceDomain.setNeedSupply(true);
-        } else {
-            rdbResourceDomain.setTarget(TargetType.Unknown);
-            rdbResourceDomain.setNeedSupply(false);
-        }
-        builder.addDomain(rdbResourceDomain);
+        addMaintenanceDomains(ctx.vacuum_relation_list_());
         return null;
+    }
+
+    @Override
+    public Void visitVacuumstmt(VacuumstmtContext ctx) {
+        addMaintenanceDomains(ctx.vacuum_relation_list_());
+        return null;
+    }
+
+    private void addMaintenanceDomains(Vacuum_relation_list_Context relationList) {
+        if (relationList == null) {
+            RdbResourceDomain domain = new RdbResourceDomain();
+            domain.setAuditKind(SecQueryKind.ADMIN);
+            domain.setSqlType(RuleQueryType.ADMIN_TABLE);
+            domain.setTarget(TargetType.Unknown);
+            domain.setNeedSupply(false);
+            builder.addDomain(domain);
+            return;
+        }
+        for (Vacuum_relationContext relation : relationList.vacuum_relation_list().vacuum_relation()) {
+            RdbResourceDomain domain = new RdbResourceDomain();
+            domain.setAuditKind(SecQueryKind.ADMIN);
+            domain.setSqlType(RuleQueryType.ADMIN_TABLE);
+            Map<UmiTypes, String> map = BuilderUtil.parseTableName(handleQualifiedName(relation.qualified_name()));
+            domain.setCatalog(map.get(UmiTypes.Catalog));
+            domain.setSchema(map.get(UmiTypes.Schema));
+            domain.setName(map.get(UmiTypes.Table));
+            domain.setTarget(TargetType.Table);
+            domain.setNeedSupply(true);
+            builder.addDomain(domain);
+        }
     }
 
     @Override
@@ -1500,6 +1517,24 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitStmt(StmtContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitPg_stmt(Pg_stmtContext ctx) {
+        dmVisitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public Void visitExplainstmt(ExplainstmtContext ctx) {
+        ctx.explainablestmt().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitExplainablestmt(ExplainablestmtContext ctx) {
         dmVisitChildren(ctx);
         return null;
     }

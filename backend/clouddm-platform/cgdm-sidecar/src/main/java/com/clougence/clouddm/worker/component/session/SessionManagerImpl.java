@@ -48,7 +48,6 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
 import jakarta.annotation.Resource;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -123,7 +122,6 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
         return this.sessionMap.get(sessionId);
     }
 
-    @SneakyThrows
     @Override
     public SessionAgent createSession(DsResourceManager rm, DataSourceConfig dsConfig, SessionContextDTO contextDTO) {
         if (!rm.isReady()) {
@@ -196,7 +194,13 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
                                  + dsConfig.getDriverVersion() + "'.";
                 throw new ErrorMessageException(DmErrorCode.PLUGIN_DAMAGED_ERROR.code(), message);
             }
-            throw e;
+            if (e instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (e instanceof Error error) {
+                throw error;
+            }
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

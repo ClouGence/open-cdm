@@ -58,6 +58,113 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
+    public SplitQueryType visitSystemParameterAssignment(SystemParameterAssignmentContext ctx) {
+        String name = ctx.uid().getText();
+        if (name.equalsIgnoreCase("LOG_ARCHIVE_DEST_STATE") || name.equalsIgnoreCase("`LOG_ARCHIVE_DEST_STATE`")) {
+            return SplitQueryType.ADMIN_LOG;
+        }
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitAnalyzeStatistics(AnalyzeStatisticsContext ctx) {
+        if (ctx.PARTITION() != null) {
+            return SplitQueryType.ADMIN_PARTITION;
+        }
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitAnalyzeHistogram(AnalyzeHistogramContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitFlushPlanCache(FlushPlanCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitFreezeTenant(FreezeTenantContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitControlTenantMerge(ControlTenantMergeContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitClearMergeError(ClearMergeErrorContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitBackupDatabase(BackupDatabaseContext ctx) {
+        return SplitQueryType.DATA_EXPORT;
+    }
+
+    @Override
+    public SplitQueryType visitCancelBackup(CancelBackupContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitArchiveLog(ArchiveLogContext ctx) {
+        return SplitQueryType.ADMIN_LOG;
+    }
+
+    @Override
+    public SplitQueryType visitAddBackupPolicy(AddBackupPolicyContext ctx) {
+        return SplitQueryType.CREATE_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitDropBackupPolicy(DropBackupPolicyContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitFlashbackTable(FlashbackTableContext ctx) {
+        return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitFlashbackDatabase(FlashbackDatabaseContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitPurgeRecyclebin(PurgeRecyclebinContext ctx) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitShowRecyclebin(ShowRecyclebinContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitEnableSqlThrottle(EnableSqlThrottleContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitDisableSqlThrottle(DisableSqlThrottleContext ctx) {
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitShowTenant(ShowTenantContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowCreateTenant(ShowCreateTenantContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
     public SplitQueryType visitSetPassword(SetPasswordContext ctx) {
         return SplitQueryType.ALTER_USER;
     }
@@ -89,6 +196,16 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitAlterUserDefaultRole(AlterUserDefaultRoleContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultRole(SetDefaultRoleContext ctx) {
         return SplitQueryType.ALTER_USER;
     }
 
@@ -253,6 +370,21 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
+    public SplitQueryType visitOutlineStatement(OutlineStatementContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowTrace(ShowTraceContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowQueryResponseTime(ShowQueryResponseTimeContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
     public SplitQueryType visitCreateEvent(CreateEventContext ctx) {
         return SplitQueryType.CREATE_EVENT;
     }
@@ -339,7 +471,7 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitSimpleDescribeStatement(SimpleDescribeStatementContext ctx) {
-        return "EXPLAIN".equalsIgnoreCase(ctx.command.getText()) ? SplitQueryType.PERFORMANCE : SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -400,12 +532,14 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitShowObjectFilter(ShowObjectFilterContext ctx) {
         String entity = ctx.showCommonEntity().getText();
-        if (entity.equalsIgnoreCase("STATUS") || entity.equalsIgnoreCase("GLOBALSTATUS") || entity.equalsIgnoreCase("SESSIONSTATUS")) {
+        if (entity.equalsIgnoreCase("STATUS") || entity.equalsIgnoreCase("GLOBALSTATUS") || entity.equalsIgnoreCase("SESSIONSTATUS")
+            || entity.equalsIgnoreCase("LOCALSTATUS")) {
             return SplitQueryType.PERFORMANCE;
         }
         if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("GLOBALVARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES")
-            || entity.equalsIgnoreCase("DATABASES") || entity.equalsIgnoreCase("SCHEMAS") || entity.equalsIgnoreCase("CHARACTERSET") || entity.equalsIgnoreCase("COLLATION")
-            || entity.equalsIgnoreCase("FUNCTIONSTATUS") || entity.equalsIgnoreCase("PROCEDURESTATUS")) {
+            || entity.equalsIgnoreCase("LOCALVARIABLES") || entity.equalsIgnoreCase("DATABASES") || entity.equalsIgnoreCase("SCHEMAS")
+            || entity.equalsIgnoreCase("CHARACTERSET") || entity.equalsIgnoreCase("COLLATION")
+            || entity.equalsIgnoreCase("FUNCTIONSTATUS") || entity.equalsIgnoreCase("PROCEDURESTATUS") || entity.equalsIgnoreCase("PARAMETERS")) {
             return SplitQueryType.METADATA;
         }
         return SplitQueryType.UNKNOWN;
@@ -574,6 +708,21 @@ public class ObSplitVisitor extends ObForMySqlParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitSetVariable(SetVariableContext ctx) {
         return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetNames(SetNamesContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetCharset(SetCharsetContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetRole(SetRoleContext ctx) {
+        return SplitQueryType.SWITCH_ROLE;
     }
 
     public SplitQueryType visitChildren(RuleNode node) {

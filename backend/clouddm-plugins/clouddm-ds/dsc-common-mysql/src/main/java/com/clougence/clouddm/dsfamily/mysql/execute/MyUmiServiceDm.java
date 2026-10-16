@@ -36,7 +36,11 @@ import com.clougence.utils.StringUtils;
 public class MyUmiServiceDm extends AbstractRdbUmiService<MyMetaProviderDm> implements RdbUmiServiceDm {
 
     public MyUmiServiceDm(Connection con){
-        super(() -> new MyMetaProviderDm(con));
+        this(new MyMetaProviderDm(con));
+    }
+
+    protected MyUmiServiceDm(MyMetaProviderDm metadataProvider){
+        super(() -> metadataProvider);
     }
 
     @Override

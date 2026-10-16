@@ -26,7 +26,9 @@
         FROM
             dm_ds_tag
         WHERE
-            data_source_id = #{dsId} AND uid = #{uid}
+            data_source_id = #{dsId}
+            AND
+            uid            = #{uid}
         LIMIT 1
     </select>
 
@@ -36,40 +38,52 @@
         FROM
             dm_ds_tag
         WHERE
-            uid = #{uid} AND data_source_id in <foreach collection="dsIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+            uid            = #{uid}
+            AND
+            data_source_id IN
+            <foreach collection="dsIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
         LIMIT 1
     </select>
 
     <insert id="insertByDsAndUser">
-        INSERT INTO dm_ds_tag (
+        INSERT INTO
+            dm_ds_tag (
             gmt_create, gmt_modified, uid, data_source_id, instance_desc
-        ) VALUES (
-            now(), now(), #{uid}, #{dsId}, #{remark}
-        )
+            )
+        VALUES
+            (
+                NOW(), NOW(), #{uid}, #{dsId}, #{remark}
+            )
     </insert>
 
     <update id="updateByDsAndUser">
         UPDATE
             dm_ds_tag
         SET
-            gmt_modified  = now(),
+            gmt_modified  = NOW(),
             instance_desc = #{remark}
         WHERE
-            data_source_id = #{dsId} AND uid = #{uid}
+            data_source_id = #{dsId}
+            AND
+            uid            = #{uid}
     </update>
 
     <delete id="deleteByDsAndUser">
         DELETE FROM
             dm_ds_tag
         WHERE
-            data_source_id = #{dsId} AND uid = #{uid}
+            data_source_id = #{dsId}
+            AND
+            uid            = #{uid}
     </delete>
 
     <update id="updateForDesktop">
         UPDATE
             data_source_tag
         SET
-            gmt_modified  = now(),
-            uid = #{uid}
+            gmt_modified = NOW(),
+            uid          = #{uid}
     </update>
 </mapper>

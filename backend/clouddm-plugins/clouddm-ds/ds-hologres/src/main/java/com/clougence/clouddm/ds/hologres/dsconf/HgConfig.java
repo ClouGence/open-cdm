@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.ds.hologres.i18n.HgConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,7 +37,8 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = HgSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HgConfig extends DataSourceConfig {
+public class HgConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultCatalog, //
             group = DsConfigGroup.GENERAL, labelKey = HgConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = HgConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
@@ -45,7 +47,7 @@ public class HgConfig extends DataSourceConfig {
             group = DsConfigGroup.GENERAL, labelKey = HgConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = HgConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, //
             group = DsConfigGroup.OPTIONS, labelKey = HgConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = HgConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
@@ -73,20 +75,6 @@ public class HgConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty("sslmode", this.pgSslMode());
-        if (this.getSslMode() == SslMode.CA && !hasSslCaConfig()) {
-            throw new IllegalArgumentException("Hologres CA certificate is required.");
-        }
-        if (this.getSslMode() == SslMode.CLIENT_CERT) {
-            if (!hasSslCaConfig()) {
-                throw new IllegalArgumentException("Hologres CA certificate is required.");
-            }
-            if (!hasSslClientCertConfig()) {
-                throw new IllegalArgumentException("Hologres client certificate is required.");
-            }
-            if (!hasSslClientKeyConfig()) {
-                throw new IllegalArgumentException("Hologres client private key is required.");
-            }
-        }
         if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
             properties.setProperty("sslrootcert", this.getSslCaFilePath());
         }
@@ -100,18 +88,6 @@ public class HgConfig extends DataSourceConfig {
             properties.setProperty("sslpassword", this.getSslClientKeyPassword());
         }
         return properties;
-    }
-
-    private boolean hasSslCaConfig() {
-        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
-    }
-
-    private boolean hasSslClientCertConfig() {
-        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
-    }
-
-    private boolean hasSslClientKeyConfig() {
-        return StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
     }
 
     private String pgSslMode() {

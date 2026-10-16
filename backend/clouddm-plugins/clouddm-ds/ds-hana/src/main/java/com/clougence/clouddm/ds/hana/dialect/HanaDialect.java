@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.hana.dialect;
 
+import java.util.Locale;
+
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
 import com.clougence.utils.StringUtils;
@@ -38,6 +40,20 @@ public class HanaDialect extends AbstractDialect implements CompletionDialect {
         return "\"";
     }
 
+    @Override
+    protected String fmtNameValue(boolean useQualifier, String name) {
+        if (useQualifier) {
+            return name.replace("\"", "\"\"");
+        }
+        return name;
+    }
+
+    @Override
+    public String fmtTableName(boolean useDelimited, String catalog, String schema, String table) {
+        // Catalog identifies the connected tenant; local SQL names are schema.object.
+        return super.fmtTableName(useDelimited, null, schema, table);
+    }
+
     public String fmtComment(String str) {
         if (StringUtils.isBlank(str)) {
             return str;
@@ -48,7 +64,7 @@ public class HanaDialect extends AbstractDialect implements CompletionDialect {
 
     @Override
     public boolean isIdentifierChar(char c) {
-        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '"';
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '#' || c == '"';
     }
 
     @Override
@@ -57,6 +73,6 @@ public class HanaDialect extends AbstractDialect implements CompletionDialect {
         if (text.length() >= 2 && text.startsWith("\"") && text.endsWith("\"")) {
             return text.substring(1, text.length() - 1).replace("\"\"", "\"");
         }
-        return text;
+        return text.toUpperCase(Locale.ROOT);
     }
 }

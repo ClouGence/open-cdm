@@ -15,15 +15,20 @@
  */
 package com.clougence.clouddm.sdk.service.execute;
 
-import java.util.List;
-import java.util.Map;
-
 import com.clougence.clouddm.sdk.service.Service;
 import com.clougence.schema.umi.struts.UmiTypes;
+
+import java.util.List;
+import java.util.Map;
 
 public interface MetaService extends Service {
 
     List<MetaCol> fetchTableColumns(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String tableName);
+
+    /** Returns the indexed object (not its namespace or owning account), or null if the index is absent. */
+    default MetaIndexedObject fetchIndexedObject(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String indexName) {
+        throw new UnsupportedOperationException("Indexed object lookup is not supported");
+    }
 
     List<MetaObj> cachedObjectNames(String puid, String uid, long dsId, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam);
 }

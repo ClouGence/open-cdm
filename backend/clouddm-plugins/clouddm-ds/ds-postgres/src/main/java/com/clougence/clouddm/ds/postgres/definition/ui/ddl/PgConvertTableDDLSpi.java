@@ -28,6 +28,7 @@ public class PgConvertTableDDLSpi extends PgFamilyConvertTableDDLSpi {
     public PgConvertTableDDLSpi(){
         // for PG Family
         targetList.add(DataSourceType.PostgreSQL);
+        targetList.add(DataSourceType.CockroachDB);
         targetList.add(DataSourceType.Greenplum);
         targetList.add(DataSourceType.PolarDBPg);
         targetList.add(DataSourceType.GaussDB);

@@ -97,10 +97,6 @@ public class GaussDBDsFactory implements DsFactory<Connection> {
             Driver driver = new com.huawei.gaussdb.jdbc.Driver();
             Connection connect = driver.connect(jdbcUrl, props);
 
-            // Set auto-commit property after connection is established
-            if (StringUtils.isNotBlank(autoCommit)) {
-                connect.setAutoCommit(!StringUtils.equalsIgnoreCase("false", autoCommit));
-            }
             if (StringUtils.isNotBlank(clientEncoding) && !StringUtils.containsAny(clientEncoding, INJECT_CHAR)) {
                 String exec = "set client_encoding = " + clientEncoding;
                 try (Statement statement = connect.createStatement()) {
@@ -116,6 +112,10 @@ public class GaussDBDsFactory implements DsFactory<Connection> {
                 } catch (SQLException e) {
                     log.error("create connection applyProps failed '{}'", exec, e);
                 }
+            }
+            // Apply session SQL before disabling auto-commit so it cannot leave an active transaction behind.
+            if (StringUtils.isNotBlank(autoCommit)) {
+                connect.setAutoCommit(!StringUtils.equalsIgnoreCase("false", autoCommit));
             }
 
             return new DsObject<>(dsConfig, connect, this);

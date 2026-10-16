@@ -145,6 +145,18 @@ cd frontend && npm run check-i18n
 
 ## Java 后端规则
 
+- 修改 Java 代码后，必须对本次变更的 Java 文件执行 code format，使用仓库根目录 `codeformat.xml` 中的 Eclipse Formatter
+  配置（`cdm-format`），并执行 IntelliJ IDEA 的 Optimize Imports。代码格式化与 imports 优化是两项独立操作，
+  `codeformat.xml` 不能替代 IDEA 的 Java Imports 配置。
+- imports 以项目实际生效的 IDEA Java Code Style 配置为准，包括适用的 `.editorconfig` 和项目 Code Style；
+  未覆盖的设置使用 IDEA 当前选用的方案。分组、排序、空行及静态导入位置遵循 Import Layout，不另行硬编码分组顺序。
+- Optimize Imports 应清理未使用、重复和冗余导入，并遵循普通／静态导入的通配符阈值、强制通配符包列表及内部类导入设置。
+  IDEA 默认阈值通常为同包 5 个类、同类 3 个静态成员，实际值以生效配置为准；合并时必须处理名称冲突，
+  不得强制展开所有 `*`，也不得仅按数量机械合并。
+- 无法直接调用 IDEA 时，应先核对上述配置，再使用 Java 语法和符号引用分析整理 imports，验证符号绑定未改变；
+  不得仅按文本匹配判断导入是否使用。无法确认配置时，保留现有分组及通配符风格，仅清理能够确定的无用导入，
+  并说明未直接执行 IDEA Optimize Imports，不得将自制整理工具宣称为与 IDEA 完全等效。
+- 格式化及 imports 整理仅处理本次变更的 Java 文件，完成后检查 diff 并运行相关编译验证。
 - 遵循现有包结构和模块边界，避免跨层直接调用导致平台、插件、启动模块相互缠绕。
 - 优先使用项目已有基础设施，例如 `com.clougence.utils`、插件 SDK、DAO、服务层、统一异常和日志机制。
 - 数据库实体沿用 `DO` 后缀，表单对象沿用 `FO`，请求 / 响应对象沿用 `VO`。
@@ -183,6 +195,26 @@ cd frontend && npm run check-i18n
   不做机械展开。
 - 修改表结构、字段语义或默认数据时，同步检查 DAO、DO、mapper、初始化脚本、升级脚本、前端展示和测试。
 
+### MyBatis Mapper XML 可读性规则
+
+- 新增或修改 MyBatis Mapper XML 时，以
+  `backend/clouddm-platform/cgdm-dao/src/main/resources/mybatis/mapper/DmApprovalProcessMapper.xml` 为排版参考。
+- XML 使用 4 个空格缩进，每深入一层增加 4 个空格，禁止使用 Tab；自闭合标签写成 `<result .../>`，`/>` 前不加空格。
+- `DOCTYPE` 的公共标识和 URL 分成两行，第二行缩进 8 个空格。`<resultMap>`、`<sql>` 和每条 CRUD 语句等顶层代码块之间
+  只保留一个空行；同类 CRUD 语句也不能连续挤在一起或使用多个空行。
+- `resultMap` 每个字段映射独占一行。单行过长时，从 `javaType`、`typeHandler` 等扩展属性处换行，后续属性缩进 16 个空格。
+- SQL 关键字和标准函数名统一大写，例如 `SELECT`、`FROM`、`WHERE`、`AND`、`ORDER BY`、`NOW()`、`COUNT()`；
+  MyBatis 标签、参数名、列名、表名和字符串常量保持原有大小写。
+- `SELECT`、`FROM`、`WHERE`、`UPDATE`、`SET`、`INSERT INTO`、`VALUES`、`DELETE FROM` 等主要子句独占一行，
+  表名、字段、值和条件相对其子句再缩进一层。短小的 `ORDER BY id`、`GROUP BY type` 可以保持一行，多字段时按字段换行。
+- `WHERE` 中每个条件独占一行，第二个及后续条件的 `AND`、`OR` 独占一行；`SET` 中每个赋值独占一行。
+  只在同一个连续条件块或赋值块内用空格纵向对齐运算符，不跨 MyBatis 动态标签强行对齐。
+- 逗号放在当前字段、值或赋值行的行尾。`SELECT` 字段较多时优先使用 `<sql>` 和 `<include>` 复用，不写超长横向字段列表。
+- `<if>`、`<choose>`、`<when>`、`<otherwise>`、`<foreach>`、`<where>`、`<set>`、`<trim>` 等动态标签按 XML 层级缩进，
+  内部 SQL 在标签基础上再缩进一层；禁止把动态标签及其 SQL 内容压缩在同一行。
+- SQL 比较符包含 `<`、`>`、`<=` 或 `>=` 时，统一写成 `<![CDATA[ ... ]]>`，并在 CDATA 内侧保留一个空格；
+  不使用 `&lt;`、`&gt;` 等 XML 实体代替。
+
 ## 前后端契约
 
 - 前后端契约必须保持一致。
@@ -206,8 +238,9 @@ cd frontend && npm run check-i18n
 - 后端改动优先运行相关模块测试；影响公共模块、DAO、初始化、权限、SQL 执行或插件协议时扩大验证范围。
 - 前端改动优先运行 `npm run lint`、`npm run check-i18n` 和相关单测；用户可见流程变更要做浏览器级检查。
 - 可重复执行的前端浏览器测试流程统一维护在 `tests/frontend/`；一个用户流程只维护一份长期有效的流程文档，不按执行日期生成测试报告。
-- 前端用户可见行为、交互、布局、路由、权限、表单、状态流或接口契约发生变化时，浏览器测试前必须读取相关流程文档，测试后必须按当前真实实现创建或更新文档；具体格式和
-  Chrome 复测规则遵循 `frontend/AGENTS.md` 的“可复用的前端复测流程”章节。
+- 前端用户可见行为、交互、布局、路由、权限、表单、状态流或接口契约发生变化时，必须使用
+  [@Browser](plugin://browser@openai-bundled) 内置浏览器复测。测试前读取相关流程文档，测试后按当前真实实现创建或更新文档；具体格式和
+  @Browser 复测规则遵循 `frontend/AGENTS.md` 的“可复用的前端复测流程”章节。
 
 ## Review 规则
 

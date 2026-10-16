@@ -30,7 +30,6 @@ import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { setDayjsLocale } from '@/utils/dayjsSetup';
 import { cacheDmBootstrapStatus, isDmSystemBootstrapRequired, isDmSystemStarting } from './utils/dmGlobalSettings';
 import { UPDATE_DM_GLOBAL_SETTING, UPDATE_PUBLIC_KEY } from '@/store/mutationTypes';
-import { supportsCloudDMBuild } from '@/utils/product';
 
 const SYSTEM_READY_POLL_INTERVAL_MS = 2000;
 
@@ -152,9 +151,6 @@ export default {
     // refresh / direct URL 进入内部页时, login 流程被跳过, publicKey 与 dmGlobalSetting 不会再被填充
     // 这里在每次 bootstrap 拿到响应后同步写回 store, 让 encryptMixin / 数据源页等依赖项不会处于空状态
     commitDmGlobalSettings(globalSettingRes) {
-      if (!supportsCloudDMBuild) {
-        return;
-      }
       if (!globalSettingRes || !globalSettingRes.success || !globalSettingRes.data) {
         return;
       }

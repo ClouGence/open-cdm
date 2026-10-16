@@ -106,5 +106,6 @@
   "ui-menu-title-menu-browse-constraint-disable": "Disable",
   "ui-menu-title-menu-browse-user-drop": "Delete",
   "ui-menu-title-menu-browse-synonym-request": "Request DDL...",
-  "ui-menu-title-menu-browse-materialized-drop": "Delete"
+  "ui-menu-title-menu-browse-materialized-drop": "Delete",
+  "ui-menu-title-menu-browse-command-template": "Command templates"
 }

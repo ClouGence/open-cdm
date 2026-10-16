@@ -1,0 +1,6 @@
+<drivers>
+    <driver driverFamily="KingbaseES JDBC Driver" version="9.0.1">
+        <driverName>com.clougence.clouddm.ds.kingbasees.execute.dsfactory.KingbaseESDsFactory</driverName>
+        <resource type="maven">cn.com.kingbase:kingbase8:9.0.1</resource>
+    </driver>
+</drivers>

@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.system.DmSysEnvParamMapper">
-
     <resultMap id="rdpEnvParamDO" type="com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -24,59 +23,77 @@
     </sql>
 
     <delete id="deleteEnvParam">
-        delete from dm_sys_env_param where config_key = #{paramKey} and env_id = #{envId} and primary_uid = #{puid}
+        DELETE FROM
+            dm_sys_env_param
+        WHERE
+            config_key  = #{paramKey}
+            AND
+            env_id      = #{envId}
+            AND
+            primary_uid = #{puid}
     </delete>
 
     <select id="queryByParamKey" resultMap="rdpEnvParamDO">
-        select
+        SELECT
             <include refid="rdpEnvParamList"/>
-        from
+        FROM
             dm_sys_env_param
-        where
-            primary_uid = #{puid} and
-            config_key  = #{paramKey} and
+        WHERE
+            primary_uid = #{puid}
+            AND
+            config_key  = #{paramKey}
+            AND
             env_id      = #{envId}
-        limit 1
+        LIMIT 1
     </select>
 
     <select id="queryByParamKeySet" resultMap="rdpEnvParamDO">
-        select
+        SELECT
             <include refid="rdpEnvParamList"/>
-        from
+        FROM
             dm_sys_env_param
         <where>
             primary_uid = #{puid}
-            and config_key in <foreach collection="paramKeys" item="item" separator="," open="(" close=")">#{item}</foreach>
+            AND
+            config_key  IN
+            <foreach collection="paramKeys" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
         </where>
     </select>
 
     <select id="queryByEnvIdAndPUid" resultMap="rdpEnvParamDO">
-        select
+        SELECT
             <include refid="rdpEnvParamList"/>
-        from
+        FROM
             dm_sys_env_param
         <where>
-            env_id = #{envId}
-            and primary_uid = #{puid}
+            env_id      = #{envId}
+            AND
+            primary_uid = #{puid}
         </where>
     </select>
 
     <select id="queryByUid" resultMap="rdpEnvParamDO">
-        select
+        SELECT
             <include refid="rdpEnvParamList"/>
-        from
+        FROM
             dm_sys_env_param
         <where>
-           primary_uid = #{puid}
+            primary_uid = #{puid}
         </where>
     </select>
+
     <select id="queryByConfigKey" resultType="com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO">
-        select
-        <include refid="rdpEnvParamList"/>
-        from
-        dm_sys_env_param
+        SELECT
+            <include refid="rdpEnvParamList"/>
+        FROM
+            dm_sys_env_param
         <where>
-            config_key in <foreach collection="configKeys" item="item" separator="," open="(" close=")">#{item}</foreach>
+            config_key IN
+            <foreach collection="configKeys" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
         </where>
     </select>
 </mapper>

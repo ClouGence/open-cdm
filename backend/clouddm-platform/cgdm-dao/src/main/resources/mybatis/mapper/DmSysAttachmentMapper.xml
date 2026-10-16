@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.system.DmSysAttachmentMapper">
-
     <resultMap id="attachment" type="com.clougence.clouddm.platform.dal.model.system.DmSysAttachmentDO">
         <id column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -17,8 +16,16 @@
     </resultMap>
 
     <sql id="metadata_columns">
-        id, gmt_create, gmt_modified, owner_uid, approval_id, attachment_type,
-        attachment_status, file_name, file_size, file_hash
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        approval_id,
+        attachment_type,
+        attachment_status,
+        file_name,
+        file_size,
+        file_hash
     </sql>
 
     <select id="selectByIdForUpdate" resultMap="attachment">
@@ -65,7 +72,7 @@
         WHERE
             attachment_status = 'EDITING'
             AND
-            <![CDATA[gmt_modified <= #{before}]]>
+            <![CDATA[ gmt_modified <= #{before} ]]>
         ORDER BY gmt_modified
         LIMIT #{limit}
     </select>
@@ -78,7 +85,7 @@
             AND
             attachment_status = 'EDITING'
             AND
-            <![CDATA[gmt_modified <= #{before}]]>
+            <![CDATA[ gmt_modified <= #{before} ]]>
     </delete>
 
     <update id="touchEditing">
@@ -93,7 +100,7 @@
             AND
             attachment_status = 'EDITING'
             AND
-            <![CDATA[gmt_modified > #{before}]]>
+            <![CDATA[ gmt_modified > #{before} ]]>
     </update>
 
     <update id="lock">
@@ -110,6 +117,6 @@
             AND
             attachment_status = 'EDITING'
             AND
-            <![CDATA[gmt_modified > #{before}]]>
+            <![CDATA[ gmt_modified > #{before} ]]>
     </update>
 </mapper>

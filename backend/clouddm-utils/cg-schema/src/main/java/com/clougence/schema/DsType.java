@@ -35,6 +35,7 @@ public enum DsType {
     PolarDBMySQL("pmy", "PolarDBMySQL"),
     PolarDbX("pox", "PolarDbX"),
     TiDB("ti", "TiDB"),
+    GoldenDB("gdb", "GoldenDB"),
     Lindorm("ld", "Lindorm"),
 
     // PostgreSQL family
@@ -61,6 +62,7 @@ public enum DsType {
     OceanBase("ob", "OceanBase"),
     ObForOracle("obo", "ObForOracle"),
     Redis("red", "Redis"),
+    Valkey("vk", "Valkey"),
     ElasticSearch("es", "ElasticSearch"),
     MongoDB("mdb", "MongoDB"),
     DynamoDB("dyn", "DynamoDB"),

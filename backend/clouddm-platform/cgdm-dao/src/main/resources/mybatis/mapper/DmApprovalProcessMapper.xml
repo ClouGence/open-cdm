@@ -59,6 +59,7 @@
         WHERE
             id = #{id}
     </update>
+
     <update id="updateModified">
         UPDATE
             dm_approval_process
@@ -67,6 +68,7 @@
         WHERE
             id = #{id}
     </update>
+
     <update id="updateNotEndProcessByTicketId">
         UPDATE
             dm_approval_process
@@ -77,6 +79,7 @@
             AND
             process_status = 'INIT'
     </update>
+
     <update id="updateProcessStatus">
         UPDATE
             dm_approval_process

@@ -1,40 +1,25 @@
 import appLogger from '@/utils/logger';
 import {
-  REMAIN_TRIAL_DAY,
   SET_MENU_ITEMS,
   SET_THEME,
-  UPDATE_CC_GLOBAL_SETTING,
-  UPDATE_CLUSTER_LIST,
-  UPDATE_DEPLOY_ENV_LIST_MAP,
   UPDATE_DM_GLOBAL_SETTING,
-  UPDATE_DS_TYPE_LIST,
   UPDATE_EDITOR_SET,
   UPDATE_GLOBAL_SETTING,
   UPDATE_MY_AUTH,
   UPDATE_MY_CATALOG,
-  UPDATE_PRODUCT_CLUSTER,
   UPDATE_PUBLIC_KEY,
-  UPDATE_REGION_LIST_MAP,
   UPDATE_RULE_SETTING,
-  UPDATE_SELECT_PRODUCT_CLUSTER,
   UPDATE_SOCKET_STATUS,
-  UPDATE_TASK_INFO_DB_MAP_HISTORY,
-  UPDATE_TASK_INFO_HISTORY,
   UPDATE_USERINFO
 } from '@/store/mutationTypes';
 import router from '@/router';
 import { buildSidebarMenu, flattenSidebarMenu } from '@/utils/buildSidebarMenu';
-import { supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
 
-const URL_AUTH_MAPPING = {};
-
-function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.globalSetting, myAuth = state.myAuth) {
-  const includesDM = supportsCloudDMBuild;
+function applyMenuItems(state, myCatLog = state.myCatLog, myAuth = state.myAuth) {
   const isDesktop = !!state.dmGlobalSetting.personal;
   const sidebarMenu = buildSidebarMenu({
     myCatLog,
     myAuth,
-    includesDM,
     isDesktop,
     accountType: state.userInfo?.accountType
   });
@@ -59,214 +44,24 @@ export default {
     }
     applyMenuItems(state);
   },
-  [UPDATE_CLUSTER_LIST](state, list) {
-    const temp = {};
-    let workersNum = 0;
-    let runningWorkersNum = 0;
-    list.forEach((cluster) => {
-      workersNum += cluster.workerCount;
-      runningWorkersNum += cluster.runningCount;
-      temp[cluster.id] = {
-        name: cluster.clusterName,
-        desc: cluster.clusterDesc,
-        value: cluster.id,
-        ...cluster
-      };
-    });
-
-    state.clusterListMap = temp;
-    state.allClusterWorkers = workersNum;
-    state.allClusterRunningWorkers = runningWorkersNum;
-  },
-  [UPDATE_DEPLOY_ENV_LIST_MAP](state, list) {
-    const temp = {};
-    list.forEach((env) => {
-      temp[env.name] = {
-        name: env.nameI18n,
-        value: env.name
-      };
-    });
-
-    state.deployEnvListMap = temp;
-  },
-  [UPDATE_REGION_LIST_MAP](state, list) {
-    const temp = {};
-    const temp2 = {};
-    const temp3 = {};
-    list.aliyun.forEach((region) => {
-      const { regionName, regionNameI18n, regionKindI18n } = region;
-      temp3[regionName] = regionNameI18n;
-      if (temp[regionKindI18n]) {
-        temp[regionKindI18n].children.push(region);
-      } else {
-        temp[regionKindI18n] = {
-          name: regionKindI18n,
-          children: [region]
-        };
-      }
-    });
-    list.self.forEach((region) => {
-      const { regionKindI18n } = region;
-      if (temp2[regionKindI18n]) {
-        temp2[regionKindI18n].children.push(region);
-      } else {
-        temp2[regionKindI18n] = {
-          name: regionKindI18n,
-          children: [region]
-        };
-      }
-    });
-    state.aliyunRegionListMap = temp;
-    state.selfRegionListMap = temp2;
-    state.regionList = temp3;
-  },
-  [UPDATE_DS_TYPE_LIST](state, list) {
-    state.dsTypeList = list;
-  },
-  [UPDATE_PRODUCT_CLUSTER](state, list) {
-    state.productClusterList = list;
-  },
-  [UPDATE_SELECT_PRODUCT_CLUSTER](state, cluster) {
-    appLogger.debug('UPDATE_SELECT_PRODUCT_CLUSTER', cluster);
-    state.selectCcProductCluster = cluster;
-  },
   [UPDATE_MY_CATALOG](state, data) {
     state.myCatLog = data;
     applyMenuItems(state, data);
   },
-  [SET_MENU_ITEMS](state, { myCatLog, globalSetting, userInfo, myAuth }) {
-    applyMenuItems(state, myCatLog, globalSetting, myAuth || state.myAuth);
-  },
-  updateMetaCenterSearchParam(state, params) {
-    state.metaCenterSearchParams = params;
-  },
-  updateSelectedWorker(state, worker) {
-    state.selectedWorker = worker;
-  },
-  updateSetPkAndIdFlags(state, flags) {
-    state.setPkAndIdFlags = flags;
-  },
-  getGlobalConfig(state, config) {
-    state.globalConfig = config;
-  },
-  getUserRole(state, role) {
-    state.userRole = role;
-  },
-  getLicenseStatus(state, data) {
-    state.licenseStatus = data;
-  },
-  getBlackUri(state, blackUri) {
-    state.blackUri = blackUri;
-  },
-  getUrlLabels(state, list) {
-    state.urlLabels = list;
-  },
-  updateSelectProductCluster(state, cluster) {
-    state.selectCcProductCluster = cluster;
-  },
-  updateUserInfo(state, userInfo) {
-    state.userInfo = userInfo;
-  },
-  changeConnection(state, changeState) {
-    if (changeState.type === 'source') {
-      state.sourceConnection = changeState.ifConnection;
-    } else {
-      state.sinkConnection = changeState.ifConnection;
-    }
-  },
-  getDataSourceDeployTypes(state, list) {
-    state.dataSourceDeployTypes = list;
-  },
-  getSourceDataSourceTypes(state, list) {
-    state.sourceDataSourceTypes = list;
-  },
-  getSinkDataSourceTypes(state, list) {
-    state.sinkDataSourceTypes = list;
-  },
-  getSourceInstance(state, list) {
-    state.sourceInstanceList = list;
-  },
-  getSinkInstance(state, list) {
-    state.sinkInstanceList = list;
-  },
-  getSourceDbList(state, list) {
-    state.sourceDbList = list;
-  },
-  getSinkDbList(state, list) {
-    state.sinkDbList = list;
-  },
-  changeTest1(state, ifTest) {
-    state.showTest1 = ifTest;
-  },
-  changeTest2(state, ifTest) {
-    state.showTest2 = ifTest;
-  },
-  getTableDatas(state, data) {
-    state.tableDatas[data.db][data.index][data.type] = data.data;
-  },
-  updateCleanDataData(state, data) {
-    state.cleanDataData[`${data.table}|${data.db}`][data.index][data.type] = data.data;
-  },
-  getSelectedTables(state, data) {
-    state.selectedTables = data;
-  },
-  getSelectedColumns(state, data) {
-    state.selectedColumns = data;
-  },
-  updateSelectedTables(state, data) {
-    state.selectedTables[data.db][data.index][data.type] = data.data;
-  },
-  updateTableFilter(state) {
-    state.firstToTableFilter = true;
-  },
-  updateCleanData(state, firstToCleanData = true) {
-    state.firstToCleanData = firstToCleanData;
-  },
-  getSinkTableList(state, data) {
-    state.sinkTableList[data.db] = data.data;
-  },
-  getTableInfo(state, list) {
-    state.tableInfo = list;
-  },
-  getSinkColumns(state, data) {
-    state.sinkColumns[data.key] = data.data;
-  },
-  getCleanDataData(state, data) {
-    state.cleanDataData[`${data.table}|${data.db}`] = data.data;
-  },
-  clearCleanData(state) {
-    state.cleanDataData = {};
-  },
-  getCleanDataSinkTables(state, list) {
-    state.cleanDataSinkTables = list;
-  },
-  updateCompareSelectedTables(state, obj) {
-    state.compareSelectedTables = obj;
-  },
-  updateCompareSelectedDbs(state, obj) {
-    state.compareSelectedDbs = obj;
-  },
-  getJobDataForSimilarJob(state, data) {
-    state.jobData = data;
-  },
-  clearJobDataForSimilarJob(state) {
-    state.jobData = null;
+  [SET_MENU_ITEMS](state, { myCatLog, myAuth }) {
+    applyMenuItems(state, myCatLog, myAuth || state.myAuth);
   },
   [UPDATE_GLOBAL_SETTING](state, globalSetting) {
     appLogger.warn(UPDATE_GLOBAL_SETTING);
     state.globalSetting = globalSetting;
-    const includesCC = supportsCloudCanalBuild;
-    const includesDM = supportsCloudDMBuild;
-    applyMenuItems(state, state.myCatLog, globalSetting);
+    applyMenuItems(state);
     // Set menu entry after initialization of globalSetting
     let url = '';
     if (state.mySystemMenuItems.length) {
       url = state.mySystemMenuItems[0].key;
     }
-    state.docUrlPrefix = 'https://www.clougence.com/cc-doc';
     state.contactUsUrl = 'https://www.cdmgr.com/';
     state.dmDocUrlPrefix = 'https://www.clougence.com/dm-doc';
-    state.bladePipeApply = 'https://www.clougence.com/dm-doc/clouddm';
     if (state.myCatLog.includes('CAT_DM_CONSOLE')) {
       url = '/sql';
     } else if (state.myCatLog.includes('CAT_RDP_WORKER_ORDER')) {
@@ -282,7 +77,7 @@ export default {
     }
 
     if (!url) {
-      url = includesDM ? '/sql' : '/system';
+      url = '/sql';
     }
 
     appLogger.debug(url);
@@ -291,13 +86,6 @@ export default {
     if (window.location.hash === '#/') {
       router.push(url);
     }
-  },
-  [UPDATE_CC_GLOBAL_SETTING](state, ccGlobalSetting) {
-    if (!supportsCloudCanalBuild) {
-      return;
-    }
-
-    state.ccGlobalSetting = ccGlobalSetting;
   },
   [UPDATE_DM_GLOBAL_SETTING](state, dmGlobalSetting = {}) {
     state.dmGlobalSetting = dmGlobalSetting;
@@ -314,25 +102,6 @@ export default {
   [UPDATE_SOCKET_STATUS](state, socket) {
     appLogger.debug(socket);
     state.socket = socket;
-  },
-  [REMAIN_TRIAL_DAY](state, data) {
-    state.remainTrialDay = data;
-  },
-  updateLastChildTableSubOpts(state, data) {
-    if (!data) return (state.lastChildTableSubOptions = {});
-    state.lastChildTableSubOptions[data.key] = data.value;
-  },
-  [UPDATE_TASK_INFO_HISTORY](state, data) {
-    state.taskInfoHistory = {
-      ...state.taskInfoHistory,
-      ...data
-    };
-  },
-  [UPDATE_TASK_INFO_DB_MAP_HISTORY](state, data) {
-    state.taskInfoDbMapHistory = {
-      ...state.taskInfoDbMapHistory,
-      ...data
-    };
   },
   [SET_THEME](state, theme) {
     state.theme = theme;

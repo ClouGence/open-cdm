@@ -268,7 +268,7 @@ import appLogger from '@/utils/logger';
 import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
-import { mapGetters, mapState } from 'vuex';
+import { mapState } from 'vuex';
 import i18n from '@/i18n';
 import {
   AUTH_ELEMENT_TYPES,
@@ -292,7 +292,6 @@ export default {
       },
       resourceManager: false,
       selectedNodeKey: null,
-      selectedCcCluster: '',
       curRangeKey: 'permanent',
       authedData: {},
       showAuthedTreeModal: false,
@@ -303,11 +302,6 @@ export default {
       isView: true,
       loadingAuth: false,
       activeAuthTab: 'DataSource',
-      activeAuthType: 'datasource',
-      authTabs: [
-        { label: i18n.global.t('shu-ju-yuan'), value: 'DataSource', type: 'datasource' },
-        { label: i18n.global.t('ren-wu'), value: 'DataJob', type: 'task' }
-      ],
       ranges: [
         {
           label: i18n.global.t('jin-tian'),
@@ -343,16 +337,6 @@ export default {
         originalTreeData: [],
         searchType: 'all',
         searchKey: '',
-        loading: false,
-        selectedNode: null
-      },
-      task: {
-        batchCheckedKeys: [],
-        treeData: [],
-        stashTreeData: [],
-        originalTreeData: [],
-        searchKey: '',
-        searchType: 'all',
         loading: false,
         selectedNode: null
       },
@@ -448,17 +432,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['includesDM', 'includesCC']),
-    ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'productClusterList']),
-    getCcProductClusterList() {
-      const ccList = [];
-      this.productClusterList.forEach((cluster) => {
-        if (cluster.product === 'CloudCanal') {
-          ccList.push(cluster);
-        }
-      });
-      return ccList;
-    },
+    ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting']),
     isRootAccount() {
       return this.userInfo.accountType === 'PRIMARY_ACCOUNT';
     },
@@ -467,34 +441,22 @@ export default {
     },
     datasourceTreeSearchKey: {
       get() {
-        return this.activeAuthType === 'datasource' ? this.datasource.searchKey : this.task.searchKey;
+        return this.datasource.searchKey;
       },
       set(value) {
-        if (this.activeAuthType === 'datasource') {
-          this.datasource.searchKey = value;
-        } else {
-          this.task.searchKey = value;
-        }
+        this.datasource.searchKey = value;
       }
     },
     datasourceTreeSearchType: {
       get() {
-        return this.activeAuthType === 'datasource' ? this.datasource.searchType : this.task.searchType;
+        return this.datasource.searchType;
       },
       set(value) {
-        if (this.activeAuthType === 'datasource') {
-          this.datasource.searchType = value;
-        } else {
-          this.task.searchType = value;
-        }
+        this.datasource.searchType = value;
       }
     },
     showAuthTree() {
-      if (this.activeAuthType === 'datasource') {
-        return this.datasource.selectedNode || this.batchMode;
-      } else {
-        return this.task.selectedNode || this.batchMode;
-      }
+      return this.datasource.selectedNode || this.batchMode;
     },
     authStartTime: {
       get() {
@@ -553,19 +515,7 @@ export default {
       return this.curRangeKey === 'custom';
     },
     disableAuthTab() {
-      return (auth) => {
-        let disable = false;
-        if (this.previewMode) {
-          return true;
-        }
-        if (!this.includesCC && auth === 'DataJob') {
-          disable = true;
-        }
-        if (this.includesCC && this.includesDM && auth === 'DataJob') {
-          disable = true;
-        }
-        return disable;
-      };
+      return () => this.previewMode;
     }
   },
   watch: {
@@ -598,7 +548,6 @@ export default {
       this.isView = isView;
       this.isEdit = true;
       this.activeAuthTab = 'DataSource';
-      this.activeAuthType = 'datasource';
       this.lastRightTreeData = [];
       this.lastLeftTreeClickNode = '';
       this.rightTreeKeyword = '';
@@ -625,9 +574,6 @@ export default {
       this.datasource.selectedNode = null;
       this.datasource.searchKey = '';
       this.datasource.searchType = 'all';
-      this.task.selectedNode = null;
-      this.task.searchKey = '';
-      this.task.searchType = 'all';
       this.$nextTick(() => {
         this.$refs.instanceTree?.setData?.([]);
         this.$refs.catalogTree?.setData?.([]);
@@ -1681,133 +1627,6 @@ export default {
       return [traverse(originalTree), isEdit];
     },
 
-    async handleSwitchAuth(value, type) {
-      if (this.activeAuthTab === value) {
-        return;
-      }
-      this.datasourceTreeSearchType = 'all';
-      await this.handleGetPreviewData();
-      if (
-        this.authedData.appends &&
-        this.authedData.appends.length === 0 &&
-        this.authedData.deletes.length === 0 &&
-        this.authedData.updates.length === 0
-      ) {
-        this.activeAuthTab = value;
-        this.activeAuthType = type;
-        this.datasource.selectedNode = null;
-        this.task.selectedNode = null;
-        this.auth = {
-          checkedKeys: [],
-          startTime: null,
-          endTime: null,
-          originalTreeData: [],
-          batchTreeData: [],
-          diffuse: false,
-          treeData: [],
-          searchKey: '',
-          loading: false
-        };
-        if (this.activeAuthTab === 'DataJob' && this.getCcProductClusterList.length > 0) {
-          this.selectedCcCluster = this.getCcProductClusterList[0].clusterCode;
-        }
-        await this.listLevelsForDM();
-
-        this.authedData = [];
-        this.datasource.searchKey = '';
-        this.task.searchKey = '';
-      } else {
-        this.$Modal.confirm({
-          title: this.$t('zi-yuan-shou-quan-ti-shi'),
-          content: this.$t(
-            'dang-qian-lei-xing-de-zi-yuan-you-wei-ti-jiao-de-shou-quan-qing-ti-jiao-hou-zai-qie-huan-zi-yuan-lei-xing-ru-xuan-ze-hu-lve-bing-ji-xu-ben-ci-bian-geng-jiang-qing-kong'
-          ),
-          onText: this.$t('guan-bi'),
-          cancelText: this.$t('hu-lve-bing-ji-xu'),
-          onCancel: () => {
-            this.datasource.authedTreeData = [];
-            this.task.authedTreeData = [];
-
-            this.authedData = [];
-            this.datasource.searchKey = '';
-            this.task.searchKey = '';
-            this.activeAuthTab = value;
-            this.activeAuthType = type;
-            this.datasource.selectedNode = null;
-            this.task.selectedNode = null;
-            this.auth = {
-              checkedKeys: [],
-              startTime: null,
-              endTime: null,
-              originalTreeData: [],
-              batchTreeData: [],
-              diffuse: false,
-              treeData: [],
-              searchKey: '',
-              loading: false
-            };
-            this.listLevelsForDM();
-          }
-        });
-      }
-    },
-    handleChangeCcCluster(data) {
-      this.handleGetPreviewData();
-      if (
-        this.authedData.appends &&
-        this.authedData.appends.length === 0 &&
-        this.authedData.deletes.length === 0 &&
-        this.authedData.updates.length === 0
-      ) {
-        this.selectedCcCluster = data;
-        this.datasource.selectedNode = null;
-        this.task.selectedNode = null;
-        this.auth = {
-          checkedKeys: [],
-          startTime: null,
-          endTime: null,
-          originalTreeData: [],
-          batchTreeData: [],
-          diffuse: false,
-          treeData: [],
-          searchKey: '',
-          loading: false
-        };
-        this.listLevelsForDM();
-      } else {
-        this.$Modal.confirm({
-          title: this.$t('zi-yuan-shou-quan-ti-shi'),
-          content: this.$t(
-            'dang-qian-chan-pin-ji-qun-xia-you-wei-ti-jiao-de-shou-quan-qing-ti-jiao-hou-zai-qie-huan-chan-pin-ji-qun-ru-xuan-ze-hu-lve-bing-ji-xu-ben-ci-bian-geng-jiang-qing-kong'
-          ),
-          onText: this.$t('guan-bi'),
-          cancelText: this.$t('hu-lve-bing-ji-xu'),
-          onCancel: () => {
-            this.datasource.authedTreeData = [];
-            this.task.authedTreeData = [];
-
-            this.authedData = [];
-            this.selectedCcCluster = data;
-            this.datasource.searchKey = '';
-            this.task.searchKey = '';
-            this.datasource.selectedNode = null;
-            this.task.selectedNode = null;
-            this.auth = {
-              checkedKeys: [],
-              startTime: null,
-              endTime: null,
-              originalTreeData: [],
-              batchTreeData: [],
-              diffuse: false,
-              treeData: [],
-              searchKey: '',
-              loading: false
-            };
-            this.listLevelsForDM();
-          }
-        });
-      }
-    },
     onSearchTypChange() {
       let res = [];
       res = this.filterTreeOfType();
@@ -2001,20 +1820,12 @@ export default {
       };
 
       // this.datasource.selectedNode = null;
-      // this.task.selectedNode = null;
       if (needSwitch) {
         this.batchMode = !this.batchMode;
       }
       if (this.batchMode) {
-        if (this.activeAuthType === 'task') {
-          await this.handleGetAuthTree('DataJob');
-          appLogger.debug('set task');
-          this.auth.batchTreeData = deepClone(this.authList.DataJob);
-        }
-        if (this.activeAuthType === 'datasource') {
-          await this.handleGetAuthTree('Instance');
-          this.auth.batchTreeData = deepClone(this.authList.Instance);
-        }
+        await this.handleGetAuthTree('Instance');
+        this.auth.batchTreeData = deepClone(this.authList.Instance);
         this.$refs.authTree.setData(this.auth.batchTreeData);
       } else {
         this.handleReloadPage();

@@ -157,7 +157,7 @@
                   <span class="ticket-progress-step__content">
                     <strong>{{ step.title }}</strong>
                     <span>{{ step.time || '-' }}</span>
-                    <span class="ticket-progress-step__handler">{{ $t('chu-li-ren') }}：{{ step.handler || '-' }}</span>
+                    <span class="ticket-progress-step__handler" :title="step.handler || '-'">{{ $t('chu-li-ren') }}：{{ step.handler || '-' }}</span>
                   </span>
                 </button>
                 <span
@@ -178,7 +178,22 @@
             </div>
             <div class="ticket-step-summary__item">
               <span>{{ $t('chu-li-ren') }}</span>
-              <strong>{{ selectedTicketStep.handler || '-' }}</strong>
+              <div v-if="selectedTicketStep.handlers.length" v-processor-overflow class="ticket-processors">
+                <span class="ticket-processors__summary" :title="selectedTicketStep.handlers.join(', ')">
+                  {{ selectedTicketStep.handlers.join(', ') }}
+                </span>
+                <button
+                  type="button"
+                  class="ticket-processors__more"
+                  @click="
+                    processorActivityIndex = null;
+                    showProcessorsModal = true;
+                  "
+                >
+                  {{ $t('cha-kan-geng-duo') }}
+                </button>
+              </div>
+              <strong v-else>-</strong>
             </div>
             <div class="ticket-step-summary__item">
               <span>{{ $t('kai-shi-shi-jian') }}</span>
@@ -361,7 +376,7 @@
                       <Icon type="ios-alert-outline" />
                     </Poptip>
                     <span :class="['ticket-execution-status', `is-${autoExecJobInfo.status || 'INIT'}`]">
-                      {{ AUTO_EXEC_JOB_STATUS_I18N[autoExecJobInfo.status] }}
+                      {{ autoExecJobStatusText(autoExecJobInfo.status) }}
                     </span>
                   </span>
                   <div class="ticket-execution-context">
@@ -371,7 +386,7 @@
                   </div>
                   <div class="ticket-execution-actions">
                     <Button v-if="autoExecJobInfo.canEnd" type="text" size="small" @click="handleShowEndAutoExecJobModal">
-                      {{ $t('zhong-zhi') }}
+                      {{ $t('ticket-execution-action-terminate') }}
                     </Button>
                     <Button v-if="autoExecJobInfo.canPause" type="text" size="small" @click="handleShowStopAutoExecJobModal">
                       {{ $t('zan-ting') }}
@@ -384,7 +399,7 @@
                     </Button>
                     <Button type="text" size="small" @click="handleAutoExecLog(null)">
                       <Icon type="ios-list-box-outline" />
-                      {{ $t('tiao-du-ri-zhi') }}
+                      {{ $t('ticket-execution-scheduling-log') }}
                     </Button>
                     <Button type="text" size="small" @click="handleRefreshTaskList">
                       <Icon type="md-refresh" />
@@ -405,7 +420,7 @@
                         <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border size="small">
                           <template #status="{ row }">
                             <span :class="['ticket-task-status', `is-${row.status}`]">
-                              {{ AUTO_EXEC_TASK_STATUS_I18N[row.status] }}
+                              {{ autoExecTaskStatusText(row.status) }}
                             </span>
                           </template>
                           <template #action="{ row }">
@@ -413,10 +428,10 @@
                               {{ $t('cha-kan') }}
                             </Button>
                             <Button type="text" size="small" @click="handleAutoExecLog(row)">
-                              {{ $t('ri-zhi') }}
+                              {{ $t('ticket-execution-action-log') }}
                             </Button>
                             <Button v-if="row.canSkip" type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)">
-                              {{ $t('tiao-guo') }}
+                              {{ $t('ticket-execution-action-skip') }}
                             </Button>
                             <Button v-if="row.canCancelSkip" type="text" size="small" @click="handleShowContinueAutoExecTaskModal(row)">
                               {{ $t('qu-xiao-tiao-guo') }}
@@ -437,7 +452,7 @@
           <div v-else-if="selectedTicketStep.activities.length" class="ticket-activity-list">
             <div
               class="ticket-activity-row"
-              v-for="activity in selectedTicketStep.activities"
+              v-for="(activity, activityIndex) in selectedTicketStep.activities"
               :key="activity.processActivityId || activity.activityTitle"
             >
               <div>
@@ -446,7 +461,22 @@
               </div>
               <div>
                 <span>{{ $t('chu-li-ren') }}</span>
-                <strong>{{ activity.approvalUserList && activity.approvalUserList.length ? activity.approvalUserList.join(', ') : '-' }}</strong>
+                <div v-if="activity.approvalUserList?.length" v-processor-overflow class="ticket-processors">
+                  <span class="ticket-processors__summary" :title="activity.approvalUserList.join(', ')">
+                    {{ activity.approvalUserList.join(', ') }}
+                  </span>
+                  <button
+                    type="button"
+                    class="ticket-processors__more"
+                    @click="
+                      processorActivityIndex = activityIndex;
+                      showProcessorsModal = true;
+                    "
+                  >
+                    {{ $t('cha-kan-geng-duo') }}
+                  </button>
+                </div>
+                <strong v-else>-</strong>
               </div>
               <div>
                 <span>{{ $t('wan-cheng-shi-jian') }}</span>
@@ -536,6 +566,14 @@
         </div>
       </section>
     </div>
+    <CCModal v-model="showProcessorsModal" :title="$t('chu-li-ren')" :width="480">
+      <ul class="ticket-processors__list">
+        <li v-for="(name, index) in processorNames" :key="index" class="ticket-processors__person" :title="name">{{ name }}</li>
+      </ul>
+      <template #footer>
+        <Button @click="showProcessorsModal = false">{{ $t('guan-bi') }}</Button>
+      </template>
+    </CCModal>
     <CCModal v-model="showApprovalModal" :title="$t('shen-pi')" :closable="false">
       <Form>
         <FormItem :label="$t('yi-jian')">
@@ -651,10 +689,10 @@
         <Button @click="handleCloseModal">{{ $t('qu-xiao') }}</Button>
       </template>
     </CCModal>
-    <CCModal v-model="showAutoExecJobLogModal" :title="$t('ri-zhi')" @ok="handleCloseModal" :width="800">
+    <CCModal v-model="showAutoExecJobLogModal" :title="$t('ticket-execution-scheduling-log')" @ok="handleCloseModal" :width="800">
       <Table :columns="autoExecJobLogColumns" :data="autoExecJobLogList" border size="small" />
     </CCModal>
-    <CCModal v-model="showAutoExecTaskLogModal" :title="$t('ri-zhi')" @ok="handleCloseModal" :width="800">
+    <CCModal v-model="showAutoExecTaskLogModal" :title="$t('ticket-execution-action-log')" @ok="handleCloseModal" :width="800">
       <Table :columns="autoExecJobLogColumns" :data="autoExecTaskLogList" border size="small" />
     </CCModal>
     <CCModal v-model="showAutoExecTaskSQLModal" :title="$t('sql-yu-ju')" width="80vw" centered :draggable="false" class="responsive-sql-modal">
@@ -684,10 +722,10 @@
     <CCModal v-model="showRetryAutoExecJobModal" :title="$t('zhong-shi')" @ok="handleRetryAutoExecJob">
       {{ $t('jiang-zhong-xin-zhi-hang-yi-shi-bai-dai-zhi-hang-hui-gun-he-dai-que-ren-de-ren-wu') }}
     </CCModal>
-    <CCModal v-model="showEndAutoExecJobModal" :title="$t('zhong-zhi')" @ok="handleEndAutoExecJob">
+    <CCModal v-model="showEndAutoExecJobModal" :title="$t('ticket-execution-action-terminate')" @ok="handleEndAutoExecJob">
       {{ $t('zhong-zhi-hou-jiang-wu-fa-zhi-hang-ren-wu-qie-hui-guan-bi-gong-dan') }}
     </CCModal>
-    <CCModal v-model="showSkipAutoExecTaskModal" :title="$t('tiao-guo')" @ok="handleSkipAutoExecTask">
+    <CCModal v-model="showSkipAutoExecTaskModal" :title="$t('ticket-execution-action-skip')" @ok="handleSkipAutoExecTask">
       {{ $t('tiao-guo-hou-zhong-shi-ren-wu-shi-jiang-hui-tiao-guo-gai-sql-zhi-hang') }}
     </CCModal>
     <CCModal v-model="showContinueSkipAutoExecTaskModal" :title="$t('qu-xiao-tiao-guo')" @ok="handleContinueAutoExecTask">
@@ -750,35 +788,60 @@ const aggregateDmlExplainDetails = (details) => {
   });
 };
 
-const AUTO_EXEC_JOB_STATUS_I18N = {
-  INIT: '待执行',
-  WAIT_EXEC: '待执行',
-  EXECUTING: '执行中',
-  FAILED: '失败',
-  PAUSE: '暂停',
-  PAUSING: '暂停中',
-  FINISH: '已完成',
-  TERMINATION: '终止'
+const AUTO_EXEC_JOB_STATUS_I18N_KEYS = {
+  INIT: 'ticket-execution-waiting',
+  WAIT_EXEC: 'ticket-execution-waiting',
+  EXECUTING: 'ticket-execution-running',
+  FAILED: 'ticket-execution-failed',
+  PAUSE: 'ticket-execution-paused',
+  PAUSING: 'ticket-execution-pausing',
+  FINISH: 'ticket-execution-complete',
+  TERMINATION: 'ticket-execution-terminated'
 };
 
-const AUTO_EXEC_TASK_STATUS_I18N = {
-  WAIT_EXEC: '待执行',
-  EXECUTING: '执行中',
-  WAIT_CONFIRM: '等待确认',
-  FAILED: '失败',
-  FINISH: '完成',
-  ROLLBACK: '回滚',
-  CANCELED: '取消'
+const AUTO_EXEC_TASK_STATUS_I18N_KEYS = {
+  WAIT_EXEC: 'ticket-execution-waiting',
+  EXECUTING: 'ticket-execution-running',
+  WAIT_CONFIRM: 'ticket-execution-awaiting-confirmation',
+  FAILED: 'ticket-execution-failed',
+  FINISH: 'ticket-execution-complete',
+  ROLLBACK: 'ticket-execution-rollback',
+  CANCELED: 'ticket-execution-canceled'
+};
+
+const processorOverflowObservers = new WeakMap();
+const processorOverflow = {
+  mounted(el) {
+    const update = () => {
+      const summary = el.querySelector('.ticket-processors__summary');
+      // Compare against the full row so the button itself cannot keep the row overflowing.
+      el.classList.toggle('ticket-processors--overflow', summary.scrollWidth > el.clientWidth);
+    };
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    processorOverflowObservers.set(el, { observer, update });
+    update();
+  },
+  updated(el) {
+    processorOverflowObservers.get(el).update();
+  },
+  beforeUnmount(el) {
+    processorOverflowObservers.get(el).observer.disconnect();
+    processorOverflowObservers.delete(el);
+  }
 };
 
 export default {
   name: 'TicketDetail',
+  directives: { processorOverflow },
   components: {
     ReadOnlyEditor
   },
   mixins: [copyMixin],
   data() {
     return {
+      showProcessorsModal: false,
+      processorActivityIndex: null,
       autoExec: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
@@ -812,17 +875,17 @@ export default {
       showAutoExecTaskLogModal: false,
       autoExecJobLogColumns: [
         {
-          title: '等级',
+          title: this.$t('deng-ji'),
           key: 'logLevel',
           width: 100
         },
         {
-          title: '时间',
+          title: this.$t('shi-jian'),
           key: 'time',
           width: 200
         },
         {
-          title: '内容',
+          title: this.$t('nei-rong'),
           key: 'content'
         }
       ],
@@ -834,12 +897,12 @@ export default {
       autoExecTaskColumns: [],
       autoExecTaskColumnsWithTrans: [
         {
-          title: '序号',
+          title: this.$t('xu-hao'),
           key: 'executeOrder',
           width: 80
         },
         {
-          title: '执行次数',
+          title: this.$t('zhi-xing-ci-shu'),
           key: 'execCount',
           width: 100
         },
@@ -854,17 +917,17 @@ export default {
         //   width: 100
         // },
         {
-          title: '状态',
+          title: this.$t('zhuang-tai'),
           slot: 'status',
           width: 100
         },
         {
-          title: 'SQL 语句',
+          title: this.$t('sql-yu-ju'),
           key: 'execSql',
           ellipsis: true
         },
         {
-          title: '操作',
+          title: this.$t('cao-zuo'),
           width: 200,
           fixed: 'right',
           slot: 'action'
@@ -872,12 +935,12 @@ export default {
       ],
       autoExecTaskColumnsWithoutTrans: [
         {
-          title: '序号',
+          title: this.$t('xu-hao'),
           key: 'executeOrder',
           width: 80
         },
         {
-          title: '执行次数',
+          title: this.$t('zhi-xing-ci-shu'),
           key: 'execCount',
           width: 100
         },
@@ -887,24 +950,22 @@ export default {
         //   width: 100
         // },
         {
-          title: '状态',
+          title: this.$t('zhuang-tai'),
           slot: 'status',
           width: 100
         },
         {
-          title: 'SQL 语句',
+          title: this.$t('sql-yu-ju'),
           key: 'execSql',
           ellipsis: true
         },
         {
-          title: '操作',
+          title: this.$t('cao-zuo'),
           width: 200,
           fixed: 'right',
           slot: 'action'
         }
       ],
-      AUTO_EXEC_JOB_STATUS_I18N,
-      AUTO_EXEC_TASK_STATUS_I18N,
       autoExecJobInfo: {},
       autoExecTaskList: [],
       page: 1,
@@ -990,6 +1051,7 @@ export default {
           time: this.ticketDetail.gmtCreate,
           startTime: this.ticketDetail.gmtCreate,
           handler: this.ticketDetail.userName,
+          handlers: this.ticketDetail.userName ? [this.ticketDetail.userName] : [],
           statusText: this.TICKET_PROCESS_STATUS.FINISH,
           statusClass: 'finished',
           state: 'finished',
@@ -1033,6 +1095,7 @@ export default {
           time: process.finishTime || startTime,
           startTime,
           handler: state === 'pending' ? '' : process.execUserName,
+          handlers: state === 'pending' ? [] : process.execUserNameList || [],
           statusText,
           statusClass: state === 'pending' ? 'init' : state,
           state,
@@ -1043,6 +1106,12 @@ export default {
         });
       });
       return steps;
+    },
+    processorNames() {
+      if (this.processorActivityIndex !== null) {
+        return this.selectedTicketStep?.activities[this.processorActivityIndex]?.approvalUserList || [];
+      }
+      return this.selectedTicketStep?.handlers || [];
     },
     selectedTicketStep() {
       return this.ticketProgressSteps.find((step) => step.key === this.selectedStepKey) || this.ticketProgressSteps[0];
@@ -1136,6 +1205,9 @@ export default {
     }
   },
   watch: {
+    selectedStepKey() {
+      this.showProcessorsModal = false;
+    },
     analysisItems(items) {
       if (!items.some((item) => item.activityTitle === this.analysisResultTab)) {
         this.analysisResultTab = items[0]?.activityTitle || '';
@@ -1145,6 +1217,14 @@ export default {
   methods: {
     isCk,
     isMongoDB,
+    autoExecJobStatusText(status) {
+      const key = AUTO_EXEC_JOB_STATUS_I18N_KEYS[status];
+      return key ? this.$t(key) : status || '-';
+    },
+    autoExecTaskStatusText(status) {
+      const key = AUTO_EXEC_TASK_STATUS_I18N_KEYS[status];
+      return key ? this.$t(key) : status || '-';
+    },
     formatResourcePath(targetInfo) {
       if (!targetInfo) {
         return '-';
@@ -1521,7 +1601,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('终止成功');
+        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1535,7 +1615,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('重试成功');
+        this.$Message.success(this.$t('zhong-shi-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1550,7 +1630,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('暂停成功');
+        this.$Message.success(this.$t('zan-ting-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1566,7 +1646,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('跳过成功');
+        this.$Message.success(this.$t('tiao-guo-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1582,7 +1662,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success('取消跳过成功');
+        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
         await this.getTicketDetail();
         await this.queryAutoExecJobInfo();
         await this.queryAutoExecTaskList();
@@ -1791,7 +1871,7 @@ export default {
           item.execMsg = '';
           if (item.stageContext) {
             const stageContext = JSON.parse(item.stageContext);
-            item.execUserName = stageContext.execUserName ? stageContext.execUserName.join(',') : '';
+            item.execUserName = stageContext.execUserName ? stageContext.execUserName.join(', ') : '';
             item.execUserNameList = stageContext.execUserName;
             item.execMsg = stageContext.execMsg;
           }
@@ -1973,6 +2053,65 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.ticket-processors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  line-height: 24px;
+}
+
+.ticket-processors__summary {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-processors__more {
+  display: none;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1b61c9;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ticket-processors--overflow .ticket-processors__more {
+  display: block;
+}
+
+.ticket-processors__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  min-height: 96px;
+  max-height: ~'min(360px, 50vh)';
+  margin: 0;
+  padding: 16px 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.ticket-processors__person {
+  min-width: 0;
+  max-width: ~'min(280px, 100%)';
+  padding: 4px 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 24px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .horizontal-align {
   display: flex;
   align-items: center;
@@ -3309,25 +3448,22 @@ export default {
 
 .ticket-execution-context {
   min-width: 0;
+  align-items: flex-start;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 4px;
   color: var(--text-secondary);
   font-size: 13px;
+  line-height: 20px;
+}
+
+.ticket-execution-context > span {
+  display: block;
+  white-space: nowrap;
 }
 
 .ticket-execution-context > span + span {
-  position: relative;
-  padding-left: 13px;
-}
-
-.ticket-execution-context > span + span::before {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--border-primary);
-  transform: translateY(-50%);
-  content: '';
+  padding-left: 0;
 }
 
 .ticket-execution-status,

@@ -9,7 +9,7 @@ config:
           seedType:         # bytes | string | number | boolean | date | enums | custom
           allowNullable:    # true | false
           nullableRatio:    # 0 ~ 100 float
-          typeHandlerType:  # for example 'net.hasor.dbvisitor.types.handler.ClobTypeHandler'
+          typeHandlerType:  # for example 'net.xxx.types.handler.ClobTypeHandler'
           insertTemplate: "?"
           setTemplate: "?"
           whereTemplate: "?"

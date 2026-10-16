@@ -23,7 +23,6 @@ dependencies {
     // project
     antlr "org.antlr:antlr4:${ANTLR_VERSION}"
     implementation(project(':dsc-common'))
-    implementation "net.hasor:cobble-all:4.6.3"
     implementation "org.mybatis:mybatis:3.5.13"
 
     // share lib (compileOnly)

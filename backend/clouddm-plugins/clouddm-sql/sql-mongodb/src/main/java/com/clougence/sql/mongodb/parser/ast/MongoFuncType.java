@@ -69,7 +69,12 @@ public enum MongoFuncType {
     FSYNC_LOCK("fsyncLock", com.clougence.sql.mongodb.parser.ast.CommandType.FSYNC, com.clougence.sql.mongodb.parser.ast.CmdKindType.ADMIN),
     FSYNC_UNLOCK("fsyncUnlock", com.clougence.sql.mongodb.parser.ast.CommandType.FSYNC_UNLOCK, com.clougence.sql.mongodb.parser.ast.CmdKindType.ADMIN),
     CURRENT_OP("currentOp", com.clougence.sql.mongodb.parser.ast.CommandType.CURRENT_OP, com.clougence.sql.mongodb.parser.ast.CmdKindType.ADMIN),
-    EXPLAIN("explain", com.clougence.sql.mongodb.parser.ast.CommandType.EXPLAIN, com.clougence.sql.mongodb.parser.ast.CmdKindType.READ);
+    EXPLAIN("explain", com.clougence.sql.mongodb.parser.ast.CommandType.EXPLAIN, com.clougence.sql.mongodb.parser.ast.CmdKindType.READ),
+    RS_STATUS("rs.status", com.clougence.sql.mongodb.parser.ast.CommandType.ADMIN_READ, com.clougence.sql.mongodb.parser.ast.CmdKindType.READ),
+    RS_CONF("rs.conf", com.clougence.sql.mongodb.parser.ast.CommandType.ADMIN_READ, com.clougence.sql.mongodb.parser.ast.CmdKindType.READ),
+    RS_REPLICATION_INFO("rs.printReplicationInfo", com.clougence.sql.mongodb.parser.ast.CommandType.ADMIN_READ, com.clougence.sql.mongodb.parser.ast.CmdKindType.READ),
+    SH_STATUS("sh.status", com.clougence.sql.mongodb.parser.ast.CommandType.ADMIN_READ, com.clougence.sql.mongodb.parser.ast.CmdKindType.READ),
+    SH_BALANCER_STATUS("sh.balancerStatus", com.clougence.sql.mongodb.parser.ast.CommandType.ADMIN_READ, com.clougence.sql.mongodb.parser.ast.CmdKindType.READ);
 
     @Getter
     private final String                                           funcStr;

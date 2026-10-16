@@ -3,34 +3,46 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeTriggerReceiptMapper">
     <insert id="reserve" useGeneratedKeys="true" keyProperty="receipt.id">
-        INSERT
-        IGNORE INTO dm_change_trigger_receipt(
+            INSERT
+            IGNORE INTO dm_change_trigger_receipt(
             gmt_create, gmt_modified, owner_uid, ref_flow_id, provider, delivery_id, commit_id, trigger_type
-        ) VALUES (
-            NOW(), NOW(),
-        #{receipt.ownerUid},
-        #{receipt.refFlowId},
-        #{receipt.provider},
-        #{receipt.deliveryId},
-        #{receipt.commitId},
-        #{receipt.triggerType}
-        )
+            )
+        VALUES
+            (
+                NOW(), NOW(),
+                #{receipt.ownerUid},
+                #{receipt.refFlowId},
+                #{receipt.provider},
+                #{receipt.deliveryId},
+                #{receipt.commitId},
+                #{receipt.triggerType}
+            )
     </insert>
+
     <select id="queryOrphanIds" resultType="java.lang.Long">
-        SELECT receipt.id
-        FROM dm_change_trigger_receipt receipt
-        LEFT JOIN dm_change_flow flow
-          ON flow.id = receipt.ref_flow_id
-         AND flow.owner_uid = receipt.owner_uid
-        WHERE flow.id IS NULL
+        SELECT
+            receipt.id
+        FROM
+            dm_change_trigger_receipt receipt
+        LEFT JOIN
+            dm_change_flow flow
+        ON
+            flow.id        = receipt.ref_flow_id
+            AND
+            flow.owner_uid = receipt.owner_uid
+        WHERE
+            flow.id IS NULL
         ORDER BY receipt.id
         LIMIT #{batchSize}
     </select>
+
     <delete id="deleteOrphansByIds">
-        DELETE FROM dm_change_trigger_receipt
-        WHERE id IN
-        <foreach collection="ids" item="id" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
+        DELETE FROM
+            dm_change_trigger_receipt
+        WHERE
+            id IN
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
     </delete>
 </mapper>

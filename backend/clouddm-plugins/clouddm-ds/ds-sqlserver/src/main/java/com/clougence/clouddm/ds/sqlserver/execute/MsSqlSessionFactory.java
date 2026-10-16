@@ -19,6 +19,7 @@ import java.sql.Connection;
 
 import com.clougence.clouddm.ds.sqlserver.dsconf.MsSqlConfig;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionFactory;
+import com.clougence.clouddm.dsfamily.sqlserver.execute.MsSqlSession;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;

@@ -14,9 +14,11 @@
                 style="width: 300px; margin-right: 4px"
                 clearable
               />
-              <Select v-model="searchKey.queryType" style="width: 120px; margin-right: 4px">
+              <Select v-model="searchKey.queryType" style="width: 140px; margin-right: 4px">
                 <Option value="TITLE">{{ $t('biao-ti') }}</Option>
                 <Option value="BIZ_ID">{{ $t('gong-dan-hao') }}</Option>
+                <Option value="DESCRIPTION">{{ $t('miao-shu') }}</Option>
+                <Option value="CONTENT">{{ $t('gong-dan-nei-rong-inline') }}</Option>
               </Select>
               <Input :placeholder="ticketQueryPlaceholder" v-model="searchKey.queryValue" style="width: 280px; margin-right: 4px" clearable />
               <Button type="primary" ghost class="ticket-search-btn" @click="listTickets">
@@ -36,7 +38,7 @@
             </div>
           </div>
           <div class="table-container">
-            <Table size="small" :columns="ticketColumns" :data="ticketData" border :loading="loading">
+            <Table size="small" :columns="ticketColumns" :data="ticketData" :scroll="ticketTableScroll" border :loading="loading">
               <template #ticketStatus="{ row }">
                 <div :style="`display: flex;color:${TICKET_STATUS_COLOR[row.ticketStatus]}`">
                   <div style="margin-right: 3px">{{ TICKET_STATUS[row.ticketStatus] }}</div>
@@ -63,6 +65,22 @@
                   <CustomIcon :type="`icon-v2-${row.resourceType}`" :instanceType="row.deployEnvType"></CustomIcon>
                   {{ row.targetInfo }}
                 </span>
+              </template>
+              <template #description="{ row }">
+                <Poptip v-if="row.description" class="ticket-description-poptip" trigger="hover" transfer placement="top-start" :width="360">
+                  <span class="ticket-description-trigger">{{ row.description }}</span>
+                  <template #content>
+                    <div class="ticket-description-popover">
+                      <div class="ticket-description-popover__content">{{ row.description }}</div>
+                      <div class="ticket-description-popover__actions">
+                        <Button type="text" size="small" @click.stop="copyText(row.description)">
+                          {{ $t('fu-zhi') }}
+                        </Button>
+                      </div>
+                    </div>
+                  </template>
+                </Poptip>
+                <span v-else>-</span>
               </template>
               <template #time="{ row }">
                 {{ row.gmtCreate }}
@@ -125,10 +143,12 @@ import { APPROV_BIZ_MAP } from './constant';
 import AppPageTabs from '@/components/layout/AppPageTabs';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
+import copyMixin from '@/mixins/copyMixin';
 
 export default {
   name: 'Ticket',
   components: { AppPageTabs, CustomIcon, DataSourceIcon },
+  mixins: [copyMixin],
   data() {
     return {
       showTicketCreateModal: false,
@@ -169,7 +189,12 @@ export default {
         {
           title: this.$t('biao-ti'),
           key: 'ticketTitle',
-          minWidth: 200
+          width: 240
+        },
+        {
+          title: this.$t('miao-shu'),
+          slot: 'description',
+          width: 280
         },
         {
           title: this.$t('zi-yuan'),
@@ -202,11 +227,20 @@ export default {
     this.listTickets();
   },
   computed: {
+    ticketTableScroll() {
+      return { x: 1587 };
+    },
     ticketQueryPlaceholder() {
-      if (this.searchKey.queryType === 'BIZ_ID') {
-        return this.$t('qing-shu-ru-gong-dan-hao-cha-xun');
+      switch (this.searchKey.queryType) {
+        case 'BIZ_ID':
+          return this.$t('qing-shu-ru-gong-dan-hao-cha-xun');
+        case 'DESCRIPTION':
+          return this.$t('qing-shu-ru-gong-dan-miao-shu-guan-jian-zi-cha-xun');
+        case 'CONTENT':
+          return this.$t('qing-shu-ru-gong-dan-inline-nei-rong-guan-jian-zi-cha-xun');
+        default:
+          return this.$t('qing-shu-ru-gong-dan-biao-ti-guan-jian-zi-cha-xun');
       }
-      return this.$t('qing-shu-ru-gong-dan-biao-ti-guan-jian-zi-cha-xun');
     },
     TICKET_STATUS() {
       return TICKET_STATUS;
@@ -274,11 +308,21 @@ export default {
       this.loading = true;
       let ticketBizId = null;
       let ticketTitleName = null;
+      let ticketDescription = null;
+      let ticketContent = null;
       const queryValue = this.searchKey.queryValue.trim();
-      if (this.searchKey.queryType === 'BIZ_ID') {
-        ticketBizId = queryValue || null;
-      } else {
-        ticketTitleName = queryValue || null;
+      switch (this.searchKey.queryType) {
+        case 'BIZ_ID':
+          ticketBizId = queryValue || null;
+          break;
+        case 'DESCRIPTION':
+          ticketDescription = queryValue || null;
+          break;
+        case 'CONTENT':
+          ticketContent = queryValue || null;
+          break;
+        default:
+          ticketTitleName = queryValue || null;
       }
       const res = await this.$services.rdpTicketListBasic({
         data: {
@@ -288,6 +332,8 @@ export default {
           endTimeMs: new Date(this.searchKey.daterange[1]).getTime(),
           ticketBizId,
           ticketTitleName,
+          ticketDescription,
+          ticketContent,
           ticketListType: this.ticketListType,
           page: {
             pageSize: this.pageSize,
@@ -339,5 +385,37 @@ export default {
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
+}
+
+.ticket-description-poptip {
+  display: block;
+  width: 100%;
+}
+
+.ticket-description-poptip :deep(.ivu-poptip-rel) {
+  display: block;
+  width: 100%;
+}
+
+.ticket-description-trigger {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-description-popover__content {
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+}
+
+.ticket-description-popover__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
 }
 </style>

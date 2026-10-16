@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.execution.DmExecSessionMapper">
-
     <resultMap id="connectionSessionDO" type="com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -39,7 +38,9 @@
         FROM
             dm_exec_session
         WHERE
-            session_id = #{sessionId} and uid = #{uid}
+            session_id = #{sessionId}
+            AND
+            uid        = #{uid}
     </select>
 
     <select id="queryByUser" resultMap="connectionSessionDO">
@@ -57,12 +58,14 @@
         FROM
             dm_exec_session
         WHERE
-            session_id = #{sessionId} and wsn = #{wsn}
+            session_id = #{sessionId}
+            AND
+            wsn        = #{wsn}
     </select>
 
     <select id="getUserSessionCount" resultMap="connectionSessionDO">
         SELECT
-            count(1)
+            COUNT(1)
         FROM
             dm_exec_session
         WHERE
@@ -70,30 +73,43 @@
     </select>
 
     <update id="updateSessionQueryTime">
-        UPDATE dm_exec_session
-        SET gmt_modified = now(),last_query_time = now()
-        WHERE session_id = #{sessionId} and wsn = #{wsn}
+        UPDATE
+            dm_exec_session
+        SET
+            gmt_modified    = NOW(),
+            last_query_time = NOW()
+        WHERE
+            session_id = #{sessionId}
+            AND
+            wsn        = #{wsn}
     </update>
 
     <update id="updateSessionConfig">
         UPDATE
             dm_exec_session
         SET
-            gmt_modified = now(),
+            gmt_modified = NOW(),
             config       = #{config}
         WHERE
-            session_id = #{sessionId} and uid = #{uid}
+            session_id = #{sessionId}
+            AND
+            uid        = #{uid}
     </update>
 
     <delete id="deleteBySessionId">
-        DELETE
-        FROM dm_exec_session
-        WHERE session_id = #{sessionId}
+        DELETE FROM
+            dm_exec_session
+        WHERE
+            session_id = #{sessionId}
     </delete>
 
     <update id="updateAttachment">
-        UPDATE dm_exec_session
-        SET gmt_modified = now(), attach = #{data}
-        WHERE session_id = #{sessionId}
+        UPDATE
+            dm_exec_session
+        SET
+            gmt_modified = NOW(),
+            attach       = #{data}
+        WHERE
+            session_id = #{sessionId}
     </update>
 </mapper>

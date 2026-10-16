@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.dsfamily.mysql.i18n.MyConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,13 +37,14 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = MySerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MyConfig extends DataSourceConfig {
+public class MyConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultSchema, //
             group = DsConfigGroup.GENERAL, labelKey = MyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = MyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, defaultValue = "Asia/Shanghai", //
             group = DsConfigGroup.OPTIONS, labelKey = MyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = MyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
@@ -75,30 +77,15 @@ public class MyConfig extends DataSourceConfig {
         if (this.getSslMode() != null) {
             switch (this.getSslMode()) {
                 case CA, TRUSTSTORE -> {
-                    if (this.getSslMode() == SslMode.TRUSTSTORE && !hasSslCaConfig()) {
-                        throw new IllegalArgumentException("MySQL TrustStore is required.");
-                    }
                     applyTrustStore(properties);
                 }
                 case KEYSTORE_TRUSTSTORE -> {
-                    if (!hasSslCaConfig()) {
-                        throw new IllegalArgumentException("MySQL TrustStore is required.");
-                    }
-                    if (!hasSslClientCertConfig()) {
-                        throw new IllegalArgumentException("MySQL KeyStore is required.");
-                    }
                     applyTrustStore(properties);
                     applyClientKeyStore(properties);
                 }
                 case CLIENT_CERT -> {
-                    if (!hasSslCaConfig()) {
-                        throw new IllegalArgumentException("MySQL CA certificate is required.");
-                    }
                     applyTrustStore(properties, "");
                     String clientKeyStoreFilePath = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFilePath() : this.getSslClientCertFilePath();
-                    if (StringUtils.isBlank(clientKeyStoreFilePath) && !hasSslClientKeyStoreConfig()) {
-                        throw new IllegalArgumentException("MySQL client KeyStore is required.");
-                    }
                     if (StringUtils.isBlank(clientKeyStoreFilePath)) {
                         break;
                     }
@@ -122,18 +109,6 @@ public class MyConfig extends DataSourceConfig {
         properties.setProperty("useServerPrepStmts", "true");
         properties.setProperty("useOldAliasMetadataBehavior", "true");
         return properties;
-    }
-
-    private boolean hasSslCaConfig() {
-        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
-    }
-
-    private boolean hasSslClientCertConfig() {
-        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
-    }
-
-    private boolean hasSslClientKeyStoreConfig() {
-        return hasSslClientCertConfig() || StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
     }
 
     private void applyTrustStore(Properties properties) {

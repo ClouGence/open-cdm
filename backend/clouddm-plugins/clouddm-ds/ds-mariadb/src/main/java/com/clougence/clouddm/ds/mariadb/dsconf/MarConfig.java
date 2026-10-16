@@ -23,6 +23,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.mariadb.i18n.MarConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DriverSpecUtils;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -40,24 +41,25 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = MarSqlSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MarConfig extends DataSourceConfig {
+public class MarConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     private static final String MYSQL_CONNECTOR_J = "MySQL Connector/J";
 
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultSchema, //
             group = DsConfigGroup.GENERAL, labelKey = MarConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = MarConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
-    private String  defaultSchema;
+    private String              defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, defaultValue = "Asia/Shanghai", //
             group = DsConfigGroup.OPTIONS, labelKey = MarConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = MarConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
-    private String  clientTimeZone;
+    private String              clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
     @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
             group = DsConfigGroup.ADVANCED, labelKey = MarConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = MarConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
-    private Long    connectTimeoutMs;
+    private Long                connectTimeoutMs;
     @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
             group = DsConfigGroup.ADVANCED, labelKey = MarConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = MarConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
-    private Integer soTimeoutSec;
+    private Integer             soTimeoutSec;
 
     public MarConfig(){
         setDataSourceType(DataSourceType.MariaDB);

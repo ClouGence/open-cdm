@@ -235,7 +235,10 @@ public class ApprovalTaskProcessor {
     //  -- TicketService.confirmTicket
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void processWaitConfirm(DmApprovalDO approvalDO) {
-        DmApprovalDO ticketDO = approvalDal.approvalMapper().queryById(approvalDO.getId());
+        DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalDO.getId());
+        if (ticketDO == null || ticketDO.getTicketStatus() != ApprovalStatus.WAIT_CONFIRM) {
+            return;
+        }
 
         List<PrimaryUserVO> primaryUserVOS = queryOrderExecPerson(ticketDO);
         updatePerson(primaryUserVOS, ticketDO, ApprovalStage.CONFIRM);
@@ -339,6 +342,12 @@ public class ApprovalTaskProcessor {
 
         DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), rdpTicketStage);
         ApprovalStageMO mo = new ApprovalStageMO();
+        if (StringUtils.isNotBlank(processDO.getStageContext())) {
+            mo = JsonUtils.toObj(processDO.getStageContext(), ApprovalStageMO.class);
+        }
+        if (mo.getExecUserName() != null && new HashSet<>(mo.getExecUserName()).equals(new HashSet<>(personName))) {
+            return;
+        }
         mo.setExecUserName(personName);
         this.approvalDal.processMapper().updateContextById(processDO.getId(), JsonUtils.toJson(mo));
     }

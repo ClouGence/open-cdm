@@ -19,12 +19,16 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.ds.oceanbase.sql.ob4my.parser.ObMyDslProvider;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4my.parser.ObSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
 import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
 
 public class ObSecDomainResolveSpi extends MySecDomainResolveSpi {
+
+    private final SplitAnalysisSpi splitter = new ObSplitAnalysisSpi();
 
     public ObSecDomainResolveSpi(MetaService metaService){
         super(metaService, null);
@@ -33,6 +37,11 @@ public class ObSecDomainResolveSpi extends MySecDomainResolveSpi {
     @Override
     protected DslProvider dslProvider() {
         return ObMyDslProvider.INSTANCE;
+    }
+
+    @Override
+    protected SplitAnalysisSpi splitAnalysisSpi() {
+        return splitter;
     }
 
     @Override

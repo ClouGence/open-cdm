@@ -26,6 +26,7 @@ import lombok.Setter;
 public class DownloadResultFO {
 
     private String resultId;
+    private String downloadFileName;
 
     // private boolean compress;
     // private String  compressFormat;

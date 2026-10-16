@@ -28,7 +28,7 @@
     <update id="updateClusterDesc" parameterType="com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO">
         UPDATE
             dm_sys_cluster
-        set
+        SET
             cluster_desc = #{clusterDesc}
         WHERE
             id = #{id}
@@ -41,7 +41,7 @@
             dm_sys_cluster
         WHERE
             id = #{resId}
-        limit 1
+        LIMIT 1
     </select>
 
     <select id="listByIds" resultMap="clusterDO">
@@ -50,7 +50,10 @@
         FROM
             dm_sys_cluster
         WHERE
-            id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+            id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <select id="listByCondition" resultMap="clusterDO">
@@ -61,18 +64,22 @@
         WHERE
             uid = #{ownerUid}
             <if test="clusterName != null">
-                AND cluster_name LIKE concat('%',#{clusterName},'%')
+                AND
+                cluster_name LIKE CONCAT('%', #{clusterName}, '%')
             </if>
             <if test="cloudOrIdcName != null">
-                AND cloud_or_idc_name = #{cloudOrIdcName,javaType=com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName}
+                AND
+                cloud_or_idc_name = #{cloudOrIdcName,javaType=com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName}
             </if>
             <if test="region != null">
-                AND region = #{region}
+                AND
+                region = #{region}
             </if>
             <if test="clusterDesc != null">
-                AND cluster_desc LIKE concat('%',#{clusterDesc},'%')
+                AND
+                cluster_desc LIKE CONCAT('%', #{clusterDesc}, '%')
             </if>
-        order by gmt_create desc
+        ORDER BY gmt_create DESC
     </select>
 
     <select id="getClusterByName" resultMap="clusterDO">

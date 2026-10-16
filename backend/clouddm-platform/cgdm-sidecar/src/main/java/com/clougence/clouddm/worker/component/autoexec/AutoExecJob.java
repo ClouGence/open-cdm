@@ -21,12 +21,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.security.MessageDigest;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HexFormat;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -46,10 +41,10 @@ import com.clougence.clouddm.api.sidecar.autoexec.AutoExecMessageDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.AsyncWaitResult;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
+import com.clougence.clouddm.sdk.execute.dsconf.DsConfigField;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultCount;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultMessage;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigField;
 import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
@@ -135,8 +130,8 @@ public class AutoExecJob implements Runnable {
                 // PostgreSQL cannot switch database on an open connection, so the connection has to be opened
                 // against the target database. Mirrors sessionConfigOverrides on the console side.
                 Map<String, String> configOverrides = sessionConfigOverrides(this.job.getContextDTO());
-                DataSourceConfig dsConfig = configOverrides.isEmpty() ? this.configRService.fetchDsConfig(this.job.getDsId())
-                    : this.configRService.fetchDsConfigWithOverrides(this.job.getDsId(), configOverrides);
+                DataSourceConfig dsConfig = configOverrides.isEmpty() ? this.configRService.fetchDsConfig(this.job.getDsId()) : this.configRService
+                    .fetchDsConfigWithOverrides(this.job.getDsId(), configOverrides);
                 this.sessionAgent = this.sessionManager.createSession(backgroundRM, dsConfig, this.job.getContextDTO());
                 String currentQueryId = this.sessionAgent.getCurrentQueryId();
                 sendMessage(AutoExecMessageDTO.createQueryIdMessage(this.job.getJobId(), currentQueryId), true);
@@ -303,7 +298,9 @@ public class AutoExecJob implements Runnable {
             log.error("auto execution job failed, jobId: " + job.getJobId(), e);
             return JobResult.FAILED;
         } finally {
-            sessionAgent.setAutoCommit(true);
+            if (transaction) {
+                sessionAgent.setAutoCommit(true);
+            }
         }
     }
 

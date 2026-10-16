@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.platform.dal.mapper.execution;
 
-import java.util.Date;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -33,7 +32,7 @@ public interface DmExecFileMapper extends BaseMapper<DmExecFileDO> {
 
     void updateStatusByQueryId(String queryId, FileStatus toStatus, String message);
 
-    List<DmExecFileDO> queryByAfterHeartbeatTime(Date point, int limit);
+    List<DmExecFileDO> queryAfterId(long afterId, int limit);
 
     void updateHeartbeatByUniqueId(String uniqueId);
 

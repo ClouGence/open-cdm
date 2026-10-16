@@ -27,67 +27,75 @@
     </sql>
 
     <select id="queryMessengerByOwner" resultMap="dmMessengerDO">
-        select
+        SELECT
             <include refid="dmMessengerColumns"/>
-        from
+        FROM
             dm_sys_messenger
-        where
+        WHERE
             owner_uid = #{ownerUid}
-        order by
-            im_type asc,gmt_create asc
+        ORDER BY
+            im_type ASC, gmt_create ASC
     </select>
 
     <select id="queryMessengerByOwnerAndType" resultMap="dmMessengerDO">
-        select
+        SELECT
             <include refid="dmMessengerColumns"/>
-        from
+        FROM
             dm_sys_messenger
-        where
+        WHERE
             owner_uid = #{ownerUid}
             <if test="imType != null">
-                and im_type   = #{imType, javaType=com.clougence.clouddm.platform.dal.model.system.ImType}
+                AND
+                im_type = #{imType, javaType=com.clougence.clouddm.platform.dal.model.system.ImType}
             </if>
-        order by
-            im_type asc,gmt_create asc
+        ORDER BY
+            im_type ASC, gmt_create ASC
     </select>
 
     <select id="queryImById" resultMap="dmMessengerDO">
-        select
+        SELECT
             <include refid="dmMessengerColumns"/>
-        from
+        FROM
             dm_sys_messenger
-        where
-            owner_uid = #{ownerUid} and
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
             id        = #{imId}
-        order by
-            im_type asc,gmt_create asc
+        ORDER BY
+            im_type ASC, gmt_create ASC
     </select>
 
     <delete id="deleteByOwnerAndId">
-        delete from
+        DELETE FROM
             dm_sys_messenger
-        where
-            id = #{imId} and owner_uid = #{ownerUid}
+        WHERE
+            id        = #{imId}
+            AND
+            owner_uid = #{ownerUid}
     </delete>
 
     <update id="updateDisplayByOwnerAndId">
-        update
+        UPDATE
             dm_sys_messenger
-        set
-            im_display  = #{newData},
-            gmt_modified = now()
-        where
-            id = #{imId} and owner_uid = #{ownerUid}
+        SET
+            im_display   = #{newData},
+            gmt_modified = NOW()
+        WHERE
+            id        = #{imId}
+            AND
+            owner_uid = #{ownerUid}
     </update>
 
     <update id="updateWebhookUrlByOwnerAndId">
-        update
+        UPDATE
             dm_sys_messenger
-        set
+        SET
             webhook      = #{newData},
             secret       = #{newSecret},
-            gmt_modified = now()
-        where
-            id = #{imId} and owner_uid = #{ownerUid}
+            gmt_modified = NOW()
+        WHERE
+            id        = #{imId}
+            AND
+            owner_uid = #{ownerUid}
     </update>
 </mapper>

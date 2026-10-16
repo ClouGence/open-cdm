@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.secrule.DmSecSpecMapper">
-
     <resultMap id="dmSecSpecDO" type="com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -29,9 +29,12 @@
             dm_sec_spec
         WHERE
             owner_uid = #{ownerUid}
-            <if test="searchKeywords != null">AND (spec_name like concat('%',#{searchKeywords},'%') or description like concat('%',#{searchKeywords},'%'))</if>
-        order by
-            gmt_create desc
+            <if test="searchKeywords != null">
+                AND
+                (spec_name LIKE CONCAT('%', #{searchKeywords}, '%') OR description LIKE CONCAT('%', #{searchKeywords}, '%'))
+            </if>
+        ORDER BY
+            gmt_create DESC
     </select>
 
     <select id="queryByIdAndUid" resultMap="dmSecSpecDO">
@@ -40,8 +43,10 @@
         FROM
             dm_sec_spec
         WHERE
-            owner_uid = #{ownerUid} AND id = #{specId}
-        limit 1
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{specId}
+        LIMIT 1
     </select>
 
     <select id="queryByIds" resultMap="dmSecSpecDO">
@@ -50,58 +55,70 @@
         FROM
             dm_sec_spec
         WHERE
-            owner_uid = #{ownerUid} AND
-            id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+            owner_uid = #{ownerUid}
+            AND
+            id        IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <select id="queryByUid" resultType="com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO">
         SELECT
-        <include refid="allColumns"/>
+            <include refid="allColumns"/>
         FROM
-        dm_sec_spec
+            dm_sec_spec
         WHERE
-        owner_uid = #{ownerUid}
+            owner_uid = #{ownerUid}
     </select>
 
     <delete id="deleteByUidAndId">
         DELETE FROM
             dm_sec_spec
         WHERE
-            owner_uid = #{ownerUid} AND id = #{specId}
-        limit 1
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{specId}
+        LIMIT 1
     </delete>
 
     <update id="enableSpec">
-        update
+        UPDATE
             dm_sec_spec
-        set
-            enable      = 1,
-            gmt_modified= now()
-        where
-            owner_uid = #{ownerUid} AND id = #{specId}
-        limit 1
+        SET
+            enable       = 1,
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{specId}
+        LIMIT 1
     </update>
 
     <update id="disableSpec">
-        update
+        UPDATE
             dm_sec_spec
-        set
-            enable      = 0,
-            gmt_modified= now()
-        where
-            owner_uid = #{ownerUid} AND id = #{specId}
-        limit 1
+        SET
+            enable       = 0,
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{specId}
+        LIMIT 1
     </update>
 
     <update id="updateInfo">
-        update
+        UPDATE
             dm_sec_spec
-        set
-            spec_name   = #{newName},
-            description = #{newDesc},
-            gmt_modified= now()
-        where
-            owner_uid = #{ownerUid} AND id = #{specId}
-        limit 1
+        SET
+            spec_name    = #{newName},
+            description  = #{newDesc},
+            gmt_modified = NOW()
+        WHERE
+            owner_uid = #{ownerUid}
+            AND
+            id        = #{specId}
+        LIMIT 1
     </update>
 </mapper>

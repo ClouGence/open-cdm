@@ -1,30 +1,4 @@
 export const securityApi = {
-  // ruleList: '/api/entry/security/rules/ruleList',*
-  // ruleDetail: '/api/entry/security/rules/ruleDetail',*
-  // ruleSave: '/api/entry/security/rules/ruleSave',*
-  // ruleDelete: '/api/entry/security/rules/ruleDelete',*
-  // ruleExtract: '/api/entry/security/rules/ruleExtract',
-  // ruleFormat: '/api/entry/security/rules/ruleFormat',*
-  // ruleSupportDs: '/api/entry/security/rules/ruleSupportDs',*
-  // ruleSettingDef: '/api/entry/security/support/ruleSettingDef',*
-  // specRuleDetail: '/api/entry/security/rules/specRuleDetail',*
-  // specFetchRange: '/api/entry/security/range/specFetchRange',*
-  // specSaveRange: '/api/entry/security/range/specSaveRange',*
-  // specDeleteRange: '/api/entry/security/range/specDeleteRange',*
-  // specList: '/api/entry/security/rules/specList',*
-  // specDetail: '/api/entry/security/rules/specDetail',*
-  // specUpdateInfo: '/api/entry/security/rules/specUpdateInfo',
-  // specConfig: '/api/entry/security/rules/specConfig',
-  // specDelete: '/api/entry/security/rules/specDelete',
-  // specCreate: '/api/entry/security/rules/specCreate',
-  // specSaveRule: '/api/entry/security/rules/specSaveRule',
-  // rangeListEnv: '/api/entry/security/range/listEnv',*
-  // rangeListIns: '/api/entry/security/range/listIns',*
-  // rangeListLevels: '/api/entry/security/range/listLevels',*
-  // rangeListLeaf: '/api/entry/security/range/listLeaf',*
-  // rangeListColumn: '/api/entry/security/range/listColumn',*
-
-  // dm
   dmSecurityRulesRuleList: '/api/entry/security/rules/ruleList',
   dmSecurityRulesRuleDetail: '/api/entry/security/rules/ruleDetail',
   dmSecurityRulesRuleSave: '/api/entry/security/rules/ruleSave',

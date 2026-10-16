@@ -75,14 +75,6 @@
                     </div>
                   </template>
                 </Poptip>
-                <cc-iconfont
-                  v-if="row.consoleTaskState === 'FAILED'"
-                  @click="handleConsoleJob(row)"
-                  name="job-error"
-                  color="#FF6E0D"
-                  size="16"
-                  style="margin-left: 6px"
-                />
               </template>
               <template #desc="{ row }">
                 {{ row.workerDesc }}
@@ -367,7 +359,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['userInfo', 'regionList', 'myAuth']),
+    ...mapState(['userInfo', 'myAuth']),
     getRegionName() {
       let regionName = '';
       this.regions.forEach((region) => {
@@ -614,9 +606,6 @@ export default {
         this.workerConfig = res.data;
         this.showConfigModal = true;
       }
-    },
-    handleConsoleJob(record) {
-      this.$router.push({ path: `/system/console_job/${record.consoleJobId}` });
     }
   },
   created() {

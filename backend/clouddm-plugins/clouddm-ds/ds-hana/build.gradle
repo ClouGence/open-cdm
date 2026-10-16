@@ -21,7 +21,7 @@ plugins {
 dependencies {
     // project
     implementation project(':dsc-common')
-    implementation project(':sql-iso-sql2003')
+    implementation project(':sql-hana')
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')

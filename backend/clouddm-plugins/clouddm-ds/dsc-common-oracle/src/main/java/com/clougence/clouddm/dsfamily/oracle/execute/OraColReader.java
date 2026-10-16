@@ -17,6 +17,7 @@ package com.clougence.clouddm.dsfamily.oracle.execute;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.dsfamily.execute.AbstractColReader;
+import com.clougence.clouddm.dsfamily.oracle.execute.fetcher.OracleStringValueFetcher;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
 import com.clougence.utils.StringUtils;
 
@@ -27,22 +28,34 @@ import com.clougence.utils.StringUtils;
  **/
 public class OraColReader extends AbstractColReader {
 
+    private final ValueFetcher oracleStringValueFetcher;
+
+    public OraColReader(){
+        this(null);
+    }
+
+    public OraColReader(String clientCharset){
+        this.oracleStringValueFetcher = new OracleStringValueFetcher(clientCharset);
+    }
+
     @Override
     public ValueFetcher readColumn(String col, ColMetaData colMetaData) {
         String colType = StringUtils.defaultString(colMetaData.getColumnType(), "");
         switch (colType.toLowerCase()) {
             case "char":
-            case "nchar":
             case "varchar2":
+                return this.oracleStringValueFetcher;
+            case "nchar":
             case "nvarchar":
             case "nvarchar2":
             case "long":
                 return STRING_VALUE_FETCHER;
             case "clob":
             case "nclob":
-            case "json":
             case "sys.xmltype":
                 return STRING_AS_CLOB_FETCHER;
+            case "json":
+                return STRING_AS_READER_FETCHER;
             case "binary_float":
                 return FLOAT_VALUE_FETCHER;
             case "binary_double":

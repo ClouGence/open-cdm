@@ -28,8 +28,8 @@ import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
  */
 public final class BehaviorRelations {
 
-    private static final Map<TargetType, SecDataAuthKind>                           AUTH_KIND_OVERRIDES  = buildAuthKindOverrides();
-    private static final Map<BehaviorAction, Function<TargetType, SecDataAuthKind>> AUTH_KIND_RESOLVERS  = Map.ofEntries( //
+    private static final Map<TargetType, SecDataAuthKind>                           AUTH_KIND_OVERRIDES   = buildAuthKindOverrides();
+    private static final Map<BehaviorAction, Function<TargetType, SecDataAuthKind>> AUTH_KIND_RESOLVERS   = Map.ofEntries( //
             Map.entry(BehaviorAction.CREATE, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
             Map.entry(BehaviorAction.ALTER, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
             Map.entry(BehaviorAction.DROP, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.DDL)), //
@@ -39,19 +39,34 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.UPDATE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.DELETE, targetType -> SecDataAuthKind.WRITE), //
             Map.entry(BehaviorAction.MERGE, targetType -> SecDataAuthKind.WRITE), //
-            Map.entry(BehaviorAction.REPLACE, targetType -> SecDataAuthKind.WRITE), //
+            Map.entry(BehaviorAction.REPLACE, targetType -> switch (targetType) {
+                case User, Role, Profile, RowAccessPolicy, Quota, NamedCollection -> SecDataAuthKind.MANAGE;
+                case Resource, ResourceGroup -> SecDataAuthKind.MAINTAIN;
+                default -> SecDataAuthKind.WRITE;
+            }), //
             Map.entry(BehaviorAction.COPY, targetType -> SecDataAuthKind.WRITE), //
-            Map.entry(BehaviorAction.MOVE, targetType -> SecDataAuthKind.WRITE), //
+            Map.entry(BehaviorAction.MOVE, targetType -> switch (targetType) {
+                case Queue -> SecDataAuthKind.MAINTAIN;
+                case BrokerConversation, BrokerConversationGroup -> SecDataAuthKind.MANAGE;
+                default -> SecDataAuthKind.WRITE;
+            }), //
             Map.entry(BehaviorAction.CALL, targetType -> SecDataAuthKind.PROGRAM), //
             Map.entry(BehaviorAction.IMPORT, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.EXPORT, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.GRANT, targetType -> SecDataAuthKind.MANAGE), //
+            Map.entry(BehaviorAction.DENY, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.REVOKE, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.TRANSFER, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.LOCK, targetType -> null), //
             Map.entry(BehaviorAction.UNLOCK, targetType -> null), //
             Map.entry(BehaviorAction.CONFIGURE, targetType -> SecDataAuthKind.MANAGE), //
-            Map.entry(BehaviorAction.SWITCH, targetType -> null), //
+            Map.entry(BehaviorAction.SWITCH, targetType -> {
+                if (targetType == TargetType.AvailabilityGroup || targetType == TargetType.Log) {
+                    return SecDataAuthKind.MAINTAIN;
+                } else {
+                    return null;
+                }
+            }), //
             Map.entry(BehaviorAction.ANALYZE, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.APPLY, targetType -> SecDataAuthKind.MAINTAIN), //
             Map.entry(BehaviorAction.CHECKPOINT, targetType -> SecDataAuthKind.MAINTAIN), //
@@ -72,12 +87,24 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.UNSAFE, targetType -> SecDataAuthKind.UNSAFE), //
             Map.entry(BehaviorAction.UNKNOWN, targetType -> AUTH_KIND_OVERRIDES.getOrDefault(targetType, SecDataAuthKind.UNSAFE)));
 
-    private static final Set<TargetType>                                            LEVELS_BASED_TARGETS = EnumSet.of( //
+    private static final Set<TargetType>                                            LEVELS_BASED_TARGETS  = EnumSet.of( //
             TargetType.Environment, TargetType.Instance, TargetType.Machine, //
             TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.ConfigKey, TargetType.File, //
             TargetType.Query, TargetType.Update, TargetType.Delete, TargetType.Insert, TargetType.Call, //
             TargetType.Tablespace, TargetType.Log, TargetType.Library, TargetType.ResourceGroup, TargetType.Replication, //
             TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, TargetType.PrepareStatement);
+
+    // These types carry resolved instance or object-ancestor paths, including unnamed sets.
+    private static final Set<TargetType>                                            EXPLICIT_PATH_TARGETS = EnumSet
+        .of(TargetType.Resource, TargetType.StorageVolume, TargetType.SecurityIntegration, TargetType.GroupProvider, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot, TargetType.Quota, TargetType.Dictionary, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Profile, TargetType.RowAccessPolicy, TargetType.Cache, TargetType.Disk, TargetType.Cluster, TargetType.DataPart);
+
+    // These objects already carry their native scope; URI-style object names are opaque path content.
+    private static final Set<TargetType>                                            NATIVE_SCOPE_TARGETS  = EnumSet.of( //
+            TargetType.Topic, //
+            TargetType.Instance, TargetType.ServiceMasterKey, TargetType.Queue, TargetType.Link, TargetType.Replication, TargetType.Job, TargetType.Transaction, //
+            TargetType.Audit, TargetType.AuditSpecification, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Endpoint, //
+            TargetType.BrokerMessageType, TargetType.BrokerContract, TargetType.BrokerService, TargetType.BrokerRoute, TargetType.RemoteServiceBinding, //
+            TargetType.BrokerPriority, TargetType.EventNotification, TargetType.BrokerConversation, TargetType.BrokerConversationGroup, TargetType.XmlSchemaCollection);
 
     private BehaviorRelations(){
     }
@@ -102,24 +129,32 @@ public final class BehaviorRelations {
                 TargetType.Partition, TargetType.View, TargetType.Materialized, //
                 TargetType.Sequence, TargetType.Synonym, TargetType.Type, //
                 TargetType.ProgramObject, TargetType.Function, TargetType.Procedure, //
-                TargetType.Trigger, TargetType.Package, TargetType.Operator);
+                TargetType.Trigger, TargetType.Package, TargetType.Operator, TargetType.XmlSchemaCollection, TargetType.Dictionary);
     }
 
     private static void registerManageAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MANAGE, //
+                TargetType.Topic, //
                 TargetType.UserOrRole, TargetType.User, TargetType.Role, TargetType.Object, //
                 TargetType.Event, TargetType.Job, TargetType.Link, //
-                TargetType.Profile, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //
+                TargetType.Profile, TargetType.Quota, TargetType.NamedCollection, TargetType.TableEngine, TargetType.Context, TargetType.Queue, TargetType.QueueSubscriber, //
                 TargetType.Pipe, TargetType.SchedulerObject, TargetType.SchemaObject, TargetType.Library, //
                 TargetType.Replication, TargetType.PublicationSubscription, TargetType.Publication, TargetType.Subscription, //
-                TargetType.Log, TargetType.ConfigKey, //
+
+                TargetType.Log, TargetType.ConfigKey, TargetType.SecurityIntegration, TargetType.GroupProvider,//
+                TargetType.Certificate, TargetType.AsymmetricKey, TargetType.SymmetricKey, TargetType.Credential, //
+                TargetType.DatabaseMasterKey, TargetType.ServiceMasterKey, TargetType.DatabaseEncryptionKey, //
+                TargetType.ColumnMasterKey, TargetType.ColumnEncryptionKey, //
+                TargetType.Audit, TargetType.AuditSpecification, TargetType.Endpoint, TargetType.EventNotification, //
+                TargetType.BrokerMessageType, TargetType.BrokerContract, TargetType.BrokerService, TargetType.BrokerRoute, //
+                TargetType.RemoteServiceBinding, TargetType.BrokerPriority, TargetType.BrokerConversation, TargetType.BrokerConversationGroup, //
                 TargetType.Policy, TargetType.RowAccessPolicy, TargetType.MaskingPolicy, TargetType.RedactionPolicy);
     }
 
     private static void registerMaintainAuthKinds(Map<TargetType, SecDataAuthKind> overrides) {
         putAuthKinds(overrides, SecDataAuthKind.MAINTAIN, //
                 TargetType.Environment, TargetType.Instance, TargetType.Machine, //
-                TargetType.ResourceGroup);
+                TargetType.ResourceGroup, TargetType.EventSession, TargetType.AvailabilityGroup, TargetType.Resource, TargetType.StorageVolume, TargetType.ClusterNode, TargetType.Broker, TargetType.Statistics, TargetType.Tablet, TargetType.Replica, TargetType.Repository, TargetType.Snapshot, TargetType.Cache, TargetType.Disk, TargetType.Cluster, TargetType.DataPart);
     }
 
     private static void putAuthKinds(Map<TargetType, SecDataAuthKind> overrides, SecDataAuthKind authKind, TargetType... targetTypes) {
@@ -143,7 +178,31 @@ public final class BehaviorRelations {
             BehaviorObject subject = relation.getSubject();
             List<BehaviorObject> targets = relation.getTarget() == null ? List.of() : relation.getTarget();
             switch (relation.getAction()) {
-                case RENAME, MOVE -> {
+                case MOVE -> {
+                    if (subject.getObjectType() == TargetType.Queue || subject.getObjectType() == TargetType.BrokerConversation) {
+                        addRequest(requests, BehaviorAction.MOVE, subject, registry, dbVersion);
+                        targets.forEach(target -> addRequest(requests, BehaviorAction.MOVE, target, registry, dbVersion));
+                    } else if ((subject.getObjectType() == TargetType.Partition || subject.getObjectType() == TargetType.DataPart) && !targets.isEmpty()
+                               && targets.stream().allMatch(target -> target.getObjectType() == TargetType.Disk || target.getObjectType() == TargetType.StorageVolume)) {
+                        // A placement change moves existing data; it does not create its storage device.
+                        addRequest(requests, BehaviorAction.MOVE, subject, registry, dbVersion);
+                        targets.forEach(target -> addRequest(requests, BehaviorAction.READ, target, registry, dbVersion));
+                    } else {
+                        addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
+                        targets.forEach(target -> addRequest(requests, BehaviorAction.CREATE, target, registry, dbVersion));
+                    }
+                }
+                case DROP -> {
+                    addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
+                    targets.forEach(target -> {
+                        BehaviorAction action = BehaviorAction.DROP;
+                        if (subject.getObjectType() == TargetType.EventNotification) {
+                            action = relatedObjectAction(subject, target);
+                        }
+                        addRequest(requests, action, target, registry, dbVersion);
+                    });
+                }
+                case RENAME -> {
                     addRequest(requests, BehaviorAction.DROP, subject, registry, dbVersion);
                     targets.forEach(target -> {
                         addRequest(requests, BehaviorAction.CREATE, target, registry, dbVersion);
@@ -161,13 +220,23 @@ public final class BehaviorRelations {
                         addRequest(requests, BehaviorAction.READ, target, registry, dbVersion);
                     });
                 }
+                case RESTORE -> {
+                    addRequest(requests, BehaviorAction.RESTORE, subject, registry, dbVersion);
+                    targets.forEach(target -> {
+                        BehaviorAction action = BehaviorAction.RESTORE;
+                        if (target != null && target.getObjectType() == TargetType.Snapshot) {
+                            action = BehaviorAction.READ;
+                        }
+                        addRequest(requests, action, target, registry, dbVersion);
+                    });
+                }
                 case EXPORT -> {
                     addRequest(requests, BehaviorAction.EXPORT, subject, registry, dbVersion);
                     targets.forEach(target -> {
                         addRequest(requests, BehaviorAction.READ, target, registry, dbVersion);
                     });
                 }
-                case GRANT, REVOKE, TRANSFER -> {
+                case GRANT, DENY, REVOKE, TRANSFER -> {
                     addRequest(requests, relation.getAction(), subject, registry, dbVersion);
                     targets.forEach(target -> {
                         addRequest(requests, relation.getAction(), target, registry, dbVersion);
@@ -202,7 +271,7 @@ public final class BehaviorRelations {
             return;
         }
         TargetType targetType = Objects.requireNonNullElse(resource.getObjectType(), TargetType.Unknown);
-        String resourcePath = DmDsUtils.normalizeResourcePath(resource.getObjectPath());
+        String resourcePath = normalizedResourcePath(resource);
         RequestKey key = new RequestKey(action, targetType, resourcePath);
         SecDataAuthKind authKind = requiredAuthKind(action, targetType);
         if (isPermissionExempt(registry, action, resource, databaseVersion)) {
@@ -228,10 +297,39 @@ public final class BehaviorRelations {
             return "/";
         }
 
-        String sourcePath = DmDsUtils.normalizeResourcePath(object.getObjectPath());
+        String sourcePath = normalizedResourcePath(object);
         String currentPath = DmDsUtils.normalizeResourcePath(currentResourcePath);
         String instancePath = DmDsUtils.normalizeResourcePath(instanceResourcePath);
         TargetType targetType = Objects.requireNonNullElse(object.getObjectType(), TargetType.Unknown);
+
+        if (EXPLICIT_PATH_TARGETS.contains(targetType) || Objects.equals(sourcePath, currentPath) || !sourcePath.startsWith(instancePath)) {
+            return sourcePath;
+        }
+        // Native scope must survive both authorization and execution backfill.
+        if (NATIVE_SCOPE_TARGETS.contains(targetType)) {
+            return sourcePath;
+        }
+
+        ObjectName name = object.getObjectName();
+        if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup || targetType == TargetType.User || targetType == TargetType.Role
+             || targetType == TargetType.UserOrRole || targetType == TargetType.File || targetType == TargetType.Function || targetType == TargetType.Query
+             || targetType == TargetType.Log)
+            && name != null && (name.getSchema() == null || targetType == TargetType.Log)) {
+            // Explicit scope metadata takes precedence over legacy current-schema path completion.
+            String declaredPath = instancePath;
+            if (name.getCatalog() != null) {
+                declaredPath += name.getCatalog() + "/";
+            }
+            if (name.getSchema() != null) {
+                declaredPath += name.getSchema() + "/";
+            }
+            if (name.getObjectName() != null) {
+                declaredPath += name.getObjectName() + "/";
+            }
+            if (Objects.equals(sourcePath, DmDsUtils.normalizeResourcePath(declaredPath))) {
+                return sourcePath;
+            }
+        }
         if (Objects.equals(sourcePath, currentPath) || !sourcePath.startsWith(instancePath)) {
             return sourcePath;
         }
@@ -244,11 +342,42 @@ public final class BehaviorRelations {
         return DmDsUtils.normalizeResourcePath(currentPath + sourcePath.substring(instancePath.length()));
     }
 
+    private static String normalizedResourcePath(BehaviorObject object) {
+        String path = object.getObjectPath();
+        if (NATIVE_SCOPE_TARGETS.contains(object.getObjectType()) && path != null && path.startsWith("/") && path.endsWith("/")) {
+            // Do not strip a trailing slash that is part of a Broker object's name.
+            return path;
+        }
+        return DmDsUtils.normalizeResourcePath(path);
+    }
+
+    private static boolean isHypotheticalIndexOfTable(BehaviorObject index, BehaviorObject table) {
+        if (index == null || index.getObjectType() != TargetType.Index || index.getObjectName() == null || index.getObjectPath() == null) {
+            return false;
+        }
+        ObjectName name = index.getObjectName();
+        if (name.getCatalog() != null || name.getSchema() != null || name.getObjectName() == null) {
+            return false;
+        }
+        String path = index.getObjectPath();
+        String suffix = index.getObjectName().getObjectName() + "/";
+        if (!path.endsWith("/" + suffix)) {
+            return false;
+        }
+        String owner = path.substring(0, path.length() - suffix.length());
+        int namespace = owner.indexOf("/hypothetical_index/");
+        // Verify the declared owner, so a real catalog/schema/index named hypothetical_index is unaffected.
+        return namespace >= 0 && (owner.substring(0, namespace) + owner.substring(namespace + "/hypothetical_index".length())).equals(table.getObjectPath());
+    }
+
     private static BehaviorAction relatedObjectAction(BehaviorObject subject, BehaviorObject target) {
         TargetType subjectType = subject == null ? null : subject.getObjectType();
+        if (subjectType == TargetType.EventNotification && target != null && target.getObjectType() == TargetType.Queue) {
+            return BehaviorAction.ALTER;
+        }
         if (target != null && //
             target.getObjectType() == TargetType.Table && //
-            (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger)) {
+            (subjectType == TargetType.Index || subjectType == TargetType.Constraint || subjectType == TargetType.Trigger) && !isHypotheticalIndexOfTable(subject, target)) {
             return BehaviorAction.ALTER;
         }
         return BehaviorAction.READ;

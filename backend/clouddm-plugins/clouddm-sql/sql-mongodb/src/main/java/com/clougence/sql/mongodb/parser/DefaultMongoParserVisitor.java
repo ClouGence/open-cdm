@@ -309,6 +309,38 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     }
 
     @Override
+    public Object visitReplicaSetFunction(MongoParser.ReplicaSetFunctionContext ctx) {
+        String method = ctx.replicaSetMethod().getText();
+        AbstractMongoFunc command = MongoAdminReadCommands.resolveRs(method);
+        if (command == null) {
+            throw new UnsupportedOperationException("Unsupported MongoDB func rs." + method);
+        }
+        this.instStack.push(command);
+        return null;
+    }
+
+    @Override
+    public Object visitReplicaSetMethod(MongoParser.ReplicaSetMethodContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Object visitShardingFunction(MongoParser.ShardingFunctionContext ctx) {
+        String method = ctx.shardingMethod().getText();
+        AbstractMongoFunc command = MongoAdminReadCommands.resolveSh(method);
+        if (command == null) {
+            throw new UnsupportedOperationException("Unsupported MongoDB func sh." + method);
+        }
+        this.instStack.push(command);
+        return null;
+    }
+
+    @Override
+    public Object visitShardingMethod(MongoParser.ShardingMethodContext ctx) {
+        return null;
+    }
+
+    @Override
     public Object visitGetCollectionNames(MongoParser.GetCollectionNamesContext ctx) {
         ListCollectionsFunc listCollectionsFunc = new ListCollectionsFunc();
         listCollectionsFunc.addOption("authorizedCollections", "true");

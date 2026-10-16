@@ -6,7 +6,6 @@ export const initApi = {
   // Preview pending script
   dmInitPreviewScripts: '/api/entry/init/previewScripts',
   // Save Initialisation Configuration (complete mode)
-  dmInitApplyConfig: '/api/entry/init/applyConfig',
+  dmInitApplyConfig: '/api/entry/init/applyConfig'
   // Trigger system restart
-  dmInitRestart: '/api/entry/init/restart'
 };

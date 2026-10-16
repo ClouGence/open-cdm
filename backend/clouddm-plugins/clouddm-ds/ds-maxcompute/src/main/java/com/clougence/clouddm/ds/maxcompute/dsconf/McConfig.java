@@ -17,9 +17,13 @@ package com.clougence.clouddm.ds.maxcompute.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.maxcompute.i18n.McConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,7 +40,8 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @Serialization(provider = McSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class McConfig extends DataSourceConfig {
+public class McConfig extends DataSourceConfig implements//
+        ClientTimeZoneExtProperties {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.sdkEndpoint, //
             group = DsConfigGroup.GENERAL, labelKey = McConfigI18nKeys.CONFIG_MC_SDK_ENDPOINT_LABEL, descKey = McConfigI18nKeys.CONFIG_MC_SDK_ENDPOINT_DESC, readOnly = true)
@@ -54,7 +59,7 @@ public class McConfig extends DataSourceConfig {
             group = DsConfigGroup.GENERAL, labelKey = McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_LABEL, descKey = McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_DESC, readOnly = false)
     private Boolean schemaStyle;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(name = Fields.clientTimeZone, //
+    @ConfigDef(name = ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD, //
             group = DsConfigGroup.OPTIONS, labelKey = McConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = McConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED

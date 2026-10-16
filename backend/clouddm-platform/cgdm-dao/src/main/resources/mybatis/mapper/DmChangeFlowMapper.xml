@@ -56,16 +56,57 @@
         <result column="enable" property="enable"/>
         <result column="deleted" property="deleted"/>
     </resultMap>
+
     <sql id="dmChangeFlowColumns">
         id
-        , gmt_create, gmt_modified, owner_uid, flow_uid, flow_name, flow_desc, flow_manager_uid,
-        flow_status, flow_type, ref_parent_flow_id, flow_options, flow_scm_options,
-        ref_scm_id, ref_scm_type, scm_repo_space, scm_repo_identifier, scm_repo_name, scm_repo_url, scm_repo_branch,
-        scm_repo_event, scm_repo_script, scm_repo_hook_pwd, scm_repo_hook_signing_token, enable_hook, enable_trigger, trigger_token,
-        ds_id, ds_type, ds_instance, ds_desc, ds_path, ref_msg_id, ref_msg_type, msg_language,
-        enable_msg, event_flow_status, event_flow_config, event_change_life, event_change_notice,
-        callback_url, callback_method, enable_callback, flow_hashcode, enable, deleted
+        ,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        flow_uid,
+        flow_name,
+        flow_desc,
+        flow_manager_uid,
+        flow_status,
+        flow_type,
+        ref_parent_flow_id,
+        flow_options,
+        flow_scm_options,
+        ref_scm_id,
+        ref_scm_type,
+        scm_repo_space,
+        scm_repo_identifier,
+        scm_repo_name,
+        scm_repo_url,
+        scm_repo_branch,
+        scm_repo_event,
+        scm_repo_script,
+        scm_repo_hook_pwd,
+        scm_repo_hook_signing_token,
+        enable_hook,
+        enable_trigger,
+        trigger_token,
+        ds_id,
+        ds_type,
+        ds_instance,
+        ds_desc,
+        ds_path,
+        ref_msg_id,
+        ref_msg_type,
+        msg_language,
+        enable_msg,
+        event_flow_status,
+        event_flow_config,
+        event_change_life,
+        event_change_notice,
+        callback_url,
+        callback_method,
+        enable_callback,
+        flow_hashcode,
+        enable,
+        deleted
     </sql>
+
     <select id="listFlowByConditionAndPage" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -79,16 +120,17 @@
             flow_status        != 'DELETE'
             AND
             ref_parent_flow_id IS NULL
-        <if test="param.searchKeywords != null">
-            AND
-            flow_name          LIKE CONCAT('%', #{param.searchKeywords}, '%')
-        </if>
-        <if test="param.status != null">
-            AND
-            flow_status        = #{param.status}
-        </if>
+            <if test="param.searchKeywords != null">
+                AND
+                flow_name LIKE CONCAT('%', #{param.searchKeywords}, '%')
+            </if>
+            <if test="param.status != null">
+                AND
+                flow_status = #{param.status}
+            </if>
         ORDER BY gmt_create DESC
     </select>
+
     <select id="listFlowByIds" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -98,11 +140,12 @@
             owner_uid = #{ownerUid}
             AND
             id        IN
-        <foreach collection="ids" item="item" separator="," open="(" close=")">
-            #{item}
-        </foreach>
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
         ORDER BY gmt_create DESC
     </select>
+
     <select id="queryByIds" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -112,10 +155,11 @@
             owner_uid = #{ownerUid}
             AND
             id        IN
-        <foreach collection="flowIds" item="item" separator="," open="(" close=")">
-            #{item}
-        </foreach>
+            <foreach collection="flowIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
+
     <select id="queryByOwnerAndId" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -127,6 +171,7 @@
             id        = #{flowId}
         LIMIT 1
     </select>
+
     <select id="queryByOwnerAndIdForUpdate" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -139,6 +184,7 @@
         LIMIT 1
         FOR UPDATE
     </select>
+
     <select id="queryChildren" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -154,6 +200,7 @@
             deleted            = 0
         ORDER BY gmt_create ASC
     </select>
+
     <select id="queryChildrenByParentIds" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -167,11 +214,12 @@
             deleted            = 0
             AND
             ref_parent_flow_id IN
-        <foreach item="parentFlowId" collection="parentFlowIds" open="(" separator="," close=")">
-            #{parentFlowId}
-        </foreach>
+            <foreach item="parentFlowId" collection="parentFlowIds" open="(" separator="," close=")">
+                #{parentFlowId}
+            </foreach>
         ORDER BY gmt_create ASC
     </select>
+
     <select id="queryParentCandidates" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -189,6 +237,7 @@
             deleted     = 0
         ORDER BY gmt_create DESC
     </select>
+
     <select id="countChildren" resultType="int">
         SELECT
             COUNT(*)
@@ -203,6 +252,7 @@
             AND
             deleted            = 0
     </select>
+
     <select id="queryEnabledByOwnerAndDsId" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -220,6 +270,7 @@
             deleted     = 0
         ORDER BY gmt_create ASC
     </select>
+
     <select id="queryEnabledByOwnerAndScmId" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -237,6 +288,7 @@
             deleted     = 0
         ORDER BY gmt_create ASC
     </select>
+
     <select id="queryEnabledByOwnerAndImId" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -254,6 +306,7 @@
             deleted     = 0
         ORDER BY gmt_create ASC
     </select>
+
     <select id="queryEnabledByOwnerAndHash" resultMap="dmChangeFlowDO">
         SELECT
             <include refid="dmChangeFlowColumns"/>
@@ -271,6 +324,7 @@
             deleted       = 0
         ORDER BY gmt_create ASC
     </select>
+
     <update id="updateManagerByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -282,6 +336,7 @@
             AND
             id        = #{flowId}
     </update>
+
     <update id="updateNameByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -293,6 +348,7 @@
             AND
             id        = #{flowId}
     </update>
+
     <update id="updateDescByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -304,6 +360,7 @@
             AND
             id        = #{flowId}
     </update>
+
     <update id="updateStatusByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -315,6 +372,7 @@
             AND
             id        = #{flowId}
     </update>
+
     <update id="updateParentByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -331,6 +389,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="updateMessageConfigByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -349,6 +408,7 @@
             AND
             id        = #{flowId}
     </update>
+
     <update id="disableByOwnerAndScmId">
         UPDATE
             dm_change_flow
@@ -362,6 +422,7 @@
             AND
             deleted    = 0
     </update>
+
     <update id="disableByOwnerAndImId">
         UPDATE
             dm_change_flow
@@ -375,6 +436,7 @@
             AND
             deleted    = 0
     </update>
+
     <update id="deleteByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -391,6 +453,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="enableFlowByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -406,6 +469,7 @@
             AND
             deleted     = 0
     </update>
+
     <update id="disableFlowByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -419,6 +483,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="enableWebHookByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -432,6 +497,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="disableWebHookByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -445,6 +511,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="enableTriggerByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -458,6 +525,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="disableTriggerByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -471,6 +539,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="configCallBackByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -486,6 +555,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="configTriggerByOwnerAndId">
         UPDATE
             dm_change_flow
@@ -500,6 +570,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="updateScmRepoMetadata">
         UPDATE
             dm_change_flow
@@ -515,6 +586,7 @@
             AND
             deleted   = 0
     </update>
+
     <update id="updateWebhookSigningToken">
         UPDATE
             dm_change_flow

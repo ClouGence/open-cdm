@@ -265,8 +265,8 @@ public class RootUserConfig {
 
     @UserConfigDef(name = "onlineSelectRewriteDisable", defaultValue = "false", valueRange = "true, false", descKey = I18nUserConfigMsgKeys.SQL_RESULT_SELECT_REWRITE_DISABLE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Boolean       onlineSelectRewriteDisable;
-    @UserConfigDef(name = "onlineResultCacheTimeoutSec", defaultValue = "300", valueRange = "0 ~ 43200", descKey = I18nUserConfigMsgKeys.SQL_RESULT_CACHE_TIMEOUT_SEC, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
-    private Integer       onlineResultCacheTimeoutSec;
+    @UserConfigDef(name = "onlineResultCacheCapacityMegaByte", defaultValue = "1024", valueRange = "0 ~ 1048576 MB", descKey = I18nUserConfigMsgKeys.SQL_RESULT_CACHE_CAPACITY_MB, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
+    private Integer       onlineResultCacheCapacityMegaByte;
     //
     @UserConfigDef(name = "onlineMaxRecordCount", defaultValue = "1000", valueRange = "1 ~ 1000000, default 10000 records.", descKey = I18nUserConfigMsgKeys.SQL_RESULT_ONLINE_MAX_RECORD_COUNT, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Integer       onlineMaxRecordCount;

@@ -3,7 +3,8 @@ export default {
   name: 'CCSvgIcon',
   computed: {
     iconName() {
-      return `#icon-svg-${this.name}`;
+      const aliases = { TOPIC: 'SEQUENCE', MQ_TOPIC_PROP: 'COLUMN-DEFAULT' };
+      return `#icon-svg-${aliases[this.name] || this.name}`;
     }
   },
   props: {

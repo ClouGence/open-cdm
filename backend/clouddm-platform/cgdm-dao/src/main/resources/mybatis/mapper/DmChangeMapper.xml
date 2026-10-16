@@ -25,12 +25,30 @@
         <result column="last_commit_id" property="lastCommitId"/>
         <result column="lock_status" property="lockStatus"/>
     </resultMap>
+
     <sql id="dmChangeColumns">
         id
-        , gmt_create, gmt_modified, owner_uid, trigger_uid, ref_flow_id, ref_batch_id, ref_parent_change_id,
-        change_name, change_time, change_branch, current_step, current_status,
-        schedule_time, version, remark, try_times, last_commit_id, lock_status
+        ,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        trigger_uid,
+        ref_flow_id,
+        ref_batch_id,
+        ref_parent_change_id,
+        change_name,
+        change_time,
+        change_branch,
+        current_step,
+        current_status,
+        schedule_time,
+        version,
+        remark,
+        try_times,
+        last_commit_id,
+        lock_status
     </sql>
+
     <select id="listChangeByConditionAndPage" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>
@@ -40,12 +58,13 @@
             owner_uid   = #{param.ownerUid}
             AND
             ref_flow_id = #{param.flowId}
-        <if test="param.searchKeywords != null">
-            AND
-            change_name LIKE CONCAT('%', #{param.searchKeywords}, '%')
-        </if>
+            <if test="param.searchKeywords != null">
+                AND
+                change_name LIKE CONCAT('%', #{param.searchKeywords}, '%')
+            </if>
         ORDER BY change_time DESC
     </select>
+
     <select id="queryChangeById" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>
@@ -54,6 +73,7 @@
         WHERE
             id = #{changeId}
     </select>
+
     <select id="queryByIds" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>
@@ -63,10 +83,11 @@
             owner_uid = #{ownerUid}
             AND
             id        IN
-        <foreach collection="changeIds" item="changeId" separator="," open="(" close=")">
-            #{changeId}
-        </foreach>
+            <foreach collection="changeIds" item="changeId" separator="," open="(" close=")">
+                #{changeId}
+            </foreach>
     </select>
+
     <select id="countUnfinishedChangeByFlowId" resultType="int">
         SELECT
             COUNT(*)
@@ -79,6 +100,7 @@
             AND
             lock_status = 0
     </select>
+
     <select id="queryReadyChangeListByDate" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>
@@ -88,13 +110,14 @@
             current_status = 'READY'
             AND
             (
-                <![CDATA[#{date} >= schedule_time]]>
-                OR
+                <![CDATA[ #{date} >= schedule_time ]]>
+            OR
                 schedule_time IS NULL
             )
         ORDER BY schedule_time ASC
         LIMIT ${limit}
     </select>
+
     <select id="queryByBatchIds" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>
@@ -104,11 +127,12 @@
             owner_uid    = #{ownerUid}
             AND
             ref_batch_id IN
-        <foreach collection="batchIds" item="batchId" separator="," open="(" close=")">
-            #{batchId}
-        </foreach>
+            <foreach collection="batchIds" item="batchId" separator="," open="(" close=")">
+                #{batchId}
+            </foreach>
         ORDER BY id
     </select>
+
     <select id="queryByBatchIdForUpdate" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>
@@ -121,6 +145,7 @@
         ORDER BY id
         FOR UPDATE
     </select>
+
     <select id="queryUnlockedChangesByFlowIds" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>
@@ -132,11 +157,12 @@
             lock_status = 0
             AND
             ref_flow_id IN
-        <foreach collection="flowIds" item="flowId" separator="," open="(" close=")">
-            #{flowId}
-        </foreach>
+            <foreach collection="flowIds" item="flowId" separator="," open="(" close=")">
+                #{flowId}
+            </foreach>
         ORDER BY id
     </select>
+
     <update id="assignReadyChange">
         UPDATE
             dm_change
@@ -148,6 +174,7 @@
             AND
             version = #{version}
     </update>
+
     <update id="increTryTimes">
         UPDATE
             dm_change
@@ -161,6 +188,7 @@
             AND
             version = #{version}
     </update>
+
     <update id="updateStatusTo">
         UPDATE
             dm_change
@@ -174,6 +202,7 @@
             AND
             version = #{version}
     </update>
+
     <update id="updateStepTo">
         UPDATE
             dm_change
@@ -188,6 +217,7 @@
             AND
             version = #{version}
     </update>
+
     <update id="lockChangeById">
         UPDATE
             dm_change
@@ -199,6 +229,7 @@
             AND
             version = #{version}
     </update>
+
     <update id="updateBatch">
         UPDATE
             dm_change
@@ -210,6 +241,7 @@
             AND
             ref_batch_id IS NULL
     </update>
+
     <update id="updateTriggerUid">
         UPDATE
             dm_change
@@ -219,6 +251,7 @@
         WHERE
             id = #{changeId}
     </update>
+
     <select id="queryUnlockedChange" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>

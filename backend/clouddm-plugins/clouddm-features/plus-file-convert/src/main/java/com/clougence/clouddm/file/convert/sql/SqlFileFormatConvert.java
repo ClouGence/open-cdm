@@ -18,11 +18,12 @@ package com.clougence.clouddm.file.convert.sql;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -32,6 +33,7 @@ import com.clougence.clouddm.file.convert.sql.ds.*;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
@@ -42,6 +44,7 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.WellKnowFormat;
 import com.clougence.utils.io.FileUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.slf4j.Logger;
 
 public class SqlFileFormatConvert implements FileFormatConvert {
 
@@ -55,6 +58,7 @@ public class SqlFileFormatConvert implements FileFormatConvert {
         this.service = service;
         this.configService = configService;
 
+        map.put(DataSourceType.Hana, HanaValueHandler.HANDLER);
         map.put(DataSourceType.Oracle, OracleValueHandler.HANDLER);
         map.put(DataSourceType.ObForOracle, OracleValueHandler.HANDLER);
         map.put(DataSourceType.SQLServer, SqlServerValueHandler.HANDLER);
@@ -85,7 +89,7 @@ public class SqlFileFormatConvert implements FileFormatConvert {
     public Map<String, Object> getOption() {
         HashMap<String, Object> option = new HashMap<>();
         option.put("unsupportedDataSource", Arrays.asList(DataSourceType.Redis, DataSourceType.MongoDB));
-        option.put("unsupportedMergeInsert", Arrays.asList(DataSourceType.Oracle, DataSourceType.ObForOracle));
+        option.put("unsupportedMergeInsert", Arrays.asList(DataSourceType.Oracle, DataSourceType.ObForOracle, DataSourceType.Hana));
         return option;
     }
 
@@ -113,6 +117,13 @@ public class SqlFileFormatConvert implements FileFormatConvert {
             FileUtils.mkdirs(dstSqlFile.getParentFile());
             try (FileOutputStream fos = new FileOutputStream(dstSqlFile)) {
                 writeCnt += this.doExportToSql(exportId, query, rowMeta, rr, fos, report, option, batchSize);
+            } catch (IOException | RuntimeException e) {
+                try {
+                    Files.deleteIfExists(dstSqlFile.toPath());
+                } catch (IOException cleanupError) {
+                    e.addSuppressed(cleanupError);
+                }
+                throw e;
             }
 
             logger.info("convert done.");
@@ -126,6 +137,9 @@ public class SqlFileFormatConvert implements FileFormatConvert {
         long lastReport = 0;
         DataSourceType dsType = option.getDataSourceType();
         Dialect dialect = this.configService.findDialectByDsType(dsType == null ? DataSourceType.MySQL : dsType);
+
+        QueryResultConf readConf = query.getResultConf().clone();
+        readConf.setDisplayChars(Integer.MAX_VALUE);
 
         // reading data.
         List<String> header = meta.values().stream().map(ColMetaData::getColumn).collect(Collectors.toList());
@@ -146,18 +160,21 @@ public class SqlFileFormatConvert implements FileFormatConvert {
         }
 
         // sql file header
-        fos.write("/*".getBytes());
-        fos.write(("\n  Execute Time : " + WellKnowFormat.WKF_DATE_TIME24_S3.format(query.getRequestTime())).getBytes());
-        fos.write(("\n  Current Time : " + WellKnowFormat.WKF_DATE_TIME24_S3.format(new Date())).getBytes());
-        fos.write(("\n  SQL Command  : " + query.getQueryBody()).getBytes());
-        fos.write("\n*/\n".getBytes());
+        fos.write("/*".getBytes(StandardCharsets.UTF_8));
+        fos.write(("\n  Execute Time : " + WellKnowFormat.WKF_DATE_TIME24_S3.format(query.getRequestTime())).getBytes(StandardCharsets.UTF_8));
+        fos.write(("\n  Current Time : " + WellKnowFormat.WKF_DATE_TIME24_S3.format(new Date())).getBytes(StandardCharsets.UTF_8));
+        fos.write(("\n  SQL Command  : " + query.getQueryBody().replace("*/", "* / ")).getBytes(StandardCharsets.UTF_8));
+        fos.write("\n*/\n".getBytes(StandardCharsets.UTF_8));
 
         List<SqlRowData> rows = new ArrayList<>();
         long offset = option.getOffset();
         long limit = option.getLimit() < 0 ? rowCnt : Math.max(1, option.getLimit());
         long writeLength = 0;
         long writeCnt = 0;
-        for (int r = 0; r < rowCnt; r++) {
+        for (long r = 0; r < rowCnt; r++) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedIOException("SQL export cancelled");
+            }
             rr.nextRow();
             if (r < offset) {
                 continue;
@@ -168,7 +185,10 @@ public class SqlFileFormatConvert implements FileFormatConvert {
             for (int c = 0; c < meta.size(); c++) {
                 ColMetaData dataMeta = meta.get(header.get(c));
                 byte dataType = rr.nextDataType();
-                ResultSetValue value = rr.readAsString(dataMeta, query.getResultConf());
+                ResultSetValue value = rr.readAsString(dataMeta, readConf);
+                if (option.getColumns().get(c).isExport() && (value.isError() || !value.isComplete() || value.getMoreSize() > 0)) {
+                    throw new IOException("Cannot export incomplete or unreadable SQL value at row " + (r + 1) + ", column " + dataMeta.getColumn());
+                }
                 String valueStr = value.getValue();
                 if (value.isError()) {
                     valueStr = null;
@@ -217,6 +237,9 @@ public class SqlFileFormatConvert implements FileFormatConvert {
         SqlValueHandler handler = getValueHandler(option.getDataSourceType());
         for (SqlRowData row : rows) {
             for (int i = 0; i < row.getRowData().size(); i++) {
+                if (!option.getColumns().get(i).isExport()) {
+                    continue;
+                }
                 String data = row.getRowData().get(i);
                 if (data == null) {
                     row.getRowData().set(i, "NULL");
@@ -227,15 +250,15 @@ public class SqlFileFormatConvert implements FileFormatConvert {
         }
 
         Dialect dialect = this.configService.findDialectByDsType(option.getDataSourceType());
-        writer.write(("INSERT INTO " + dialect.fmtTableName(false, null, null, option.getTableName())).getBytes());
-        writer.write((" (" + sqlHeader + ") VALUES ").getBytes());
+        writer.write(("INSERT INTO " + dialect.fmtTableName(false, null, null, option.getTableName())).getBytes(StandardCharsets.UTF_8));
+        writer.write((" (" + sqlHeader + ") VALUES ").getBytes(StandardCharsets.UTF_8));
         for (int i = 0; i < rows.size(); i++) {
             if (i > 0) {
-                writer.write(",".getBytes());
+                writer.write(",".getBytes(StandardCharsets.UTF_8));
             }
-            writer.write(rows.get(i).toString(option.getColumns()).getBytes());
+            writer.write(rows.get(i).toString(option.getColumns()).getBytes(StandardCharsets.UTF_8));
         }
-        writer.write(";\n".getBytes());
+        writer.write(";\n".getBytes(StandardCharsets.UTF_8));
     }
 
     private SqlOption readSqlOption(String optionStr, ColMetaData[] metaData) {
@@ -256,7 +279,7 @@ public class SqlFileFormatConvert implements FileFormatConvert {
 
     private long readSqlValueBatchSize(SqlOption option) {
         if (!option.isMergeInsert() || option.getValueSize() == null || option.getValueSize() <= 0 || option.getDataSourceType() == DataSourceType.Oracle
-            || option.getDataSourceType() == DataSourceType.ObForOracle) {
+            || option.getDataSourceType() == DataSourceType.ObForOracle || option.getDataSourceType() == DataSourceType.Hana) {
             return 0;
         } else {
             return option.getValueSize() * 1024 * 1024; // MB to Bytes
@@ -285,19 +308,22 @@ public class SqlFileFormatConvert implements FileFormatConvert {
             }
 
             processSpi.begin(query, meta, flash);
-            dataBatch.parallelStream().forEach(row -> {
-                List<String> rowData = processSpi.processRow(query, meta, row.getRowData(), flash);
-                for (int i = 0; i < rowData.size(); i++) {
-                    String beforeData = row.getRowData().get(i);
-                    String afterData = rowData.get(i);
+            try {
+                dataBatch.parallelStream().forEach(row -> {
+                    List<String> rowData = processSpi.processRow(query, meta, row.getRowData(), flash);
+                    for (int i = 0; i < rowData.size(); i++) {
+                        String beforeData = row.getRowData().get(i);
+                        String afterData = rowData.get(i);
 
-                    row.getRowData().set(i, rowData.get(i));
-                    if (!StringUtils.equals(beforeData, afterData)) {
-                        row.getEntityTypes().set(i, ResultType.String); // masked data as string
+                        row.getRowData().set(i, rowData.get(i));
+                        if (!StringUtils.equals(beforeData, afterData)) {
+                            row.getEntityTypes().set(i, ResultType.String); // masked data as string
+                        }
                     }
-                }
-            });
-            processSpi.finish(query, flash);
+                });
+            } finally {
+                processSpi.finish(query, flash);
+            }
         }
     }
 }

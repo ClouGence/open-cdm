@@ -15,10 +15,7 @@
  */
 package com.clougence.clouddm.ds.dameng.execute;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +26,7 @@ import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.StringUtils;
 
 /**
  * @author bucketli 2022/3/28 19:25:30
@@ -41,6 +39,14 @@ public class DmSession extends DefaultRdbSession {
 
     @Override
     protected boolean executeStatement(Statement ps, QueryRequest query, ResultBuilder builder) throws SQLException {
+        if (!(ps instanceof PreparedStatement)) {
+            String sql = query.getQueryBody();
+            String statement = sql.stripLeading();
+            if (StringUtils.startsWithIgnoreCase(statement, "EXPLAIN SELECT ")) {
+                sql = "EXPLAIN FOR " + statement.substring("EXPLAIN ".length());
+            }
+            return ps.execute(sql);
+        }
         if (query.isUseCallable()) {
             CallableStatement call = (CallableStatement) ps;
             if (CollectionUtils.isNotEmpty(query.getQueryArgs())) {

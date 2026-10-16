@@ -21,6 +21,7 @@ import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.ds.hana.i18n.HanaConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
@@ -43,12 +44,18 @@ import lombok.experimental.FieldNameConstants;
 public class HanaConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultCatalog, //
-            group = DsConfigGroup.GENERAL, labelKey = HanaConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = HanaConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
+            group = DsConfigGroup.GENERAL, labelKey = HanaConfigI18nKeys.CONFIG_HANA_DATABASE_LABEL, descKey = HanaConfigI18nKeys.CONFIG_HANA_DATABASE_DESC, readOnly = false)
     private String  defaultCatalog;
     @ConfigDef(name = Fields.defaultSchema, //
             group = DsConfigGroup.GENERAL, labelKey = HanaConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = HanaConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
+    @ConfigDef(name = Fields.hostNameInCertificate, //
+            group = DsConfigGroup.SSH_SSL, labelKey = HanaConfigI18nKeys.CONFIG_HANA_TLS_HOST_LABEL, descKey = HanaConfigI18nKeys.CONFIG_HANA_TLS_HOST_DESC, readOnly = false)
+    private String  hostNameInCertificate;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(name = Fields.jdbcUrl, //
+            group = DsConfigGroup.ADVANCED, labelKey = HanaConfigI18nKeys.CONFIG_HANA_URL_LABEL, descKey = HanaConfigI18nKeys.CONFIG_HANA_URL_DESC, readOnly = false)
+    private String  jdbcUrl;
     @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
             group = DsConfigGroup.ADVANCED, labelKey = HanaConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = HanaConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
     private Long    connectTimeoutMs;
@@ -71,6 +78,26 @@ public class HanaConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
+        properties.setProperty(DsConfigKeys.CUSTOM_URL.getConfigKey(), safeStr(this.getJdbcUrl()));
+        properties.setProperty(DataSourceConfig.Fields.sshProxyEnabled, Boolean.toString(Boolean.TRUE.equals(this.getSshProxyEnabled())));
+
+        SslMode sslMode = this.getSslMode();
+        if (sslMode == null) {
+            sslMode = SslMode.DISABLED;
+        }
+
+        properties.setProperty(DsConfigKeys.SSL_MODE.getConfigKey(), sslMode.name());
+        if (sslMode != SslMode.DISABLED) {
+            properties.setProperty(DsConfigKeys.SSL_CA_FILE.getConfigKey(), safeStr(this.getSslCaFilePath()));
+            properties.setProperty(DsConfigKeys.SSL_CLIENT_CERT_FILE.getConfigKey(), safeStr(this.getSslClientCertFilePath()));
+            properties.setProperty(DsConfigKeys.SSL_CLIENT_KEY_FILE.getConfigKey(), safeStr(this.getSslClientKeyFilePath()));
+            properties.setProperty(DsConfigKeys.SSL_CLIENT_KEY_PASSWORD.getConfigKey(), safeStr(this.getSslClientKeyPassword()));
+            properties.setProperty("trustStorePassword", safeStr(this.getSslCaPassword()));
+            properties.setProperty("trustStoreType", safeStr(this.getSslCaFileFormat()));
+            properties.setProperty("keyStoreType", safeStr(this.getSslClientCertFileFormat()));
+            properties.setProperty("hostNameInCertificate", safeStr(this.getHostNameInCertificate()));
+        }
+
         return properties;
     }
 }

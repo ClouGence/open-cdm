@@ -378,6 +378,10 @@ public class I18nUtils {
 
     @SneakyThrows
     public String getMessage(String code, Object[] args, Locale locale) {
+        if (StringUtils.isBlank(code)) {
+            return code;
+        }
+
         String i18nKey = toI18nKey(locale);
 
         if (!this.i18nLoaded.contains(i18nKey)) {

@@ -64,7 +64,7 @@ import com.clougence.utils.supplier.ContextClassLoaderLocal;
  * conversion errors, you could do this:</p>
  * <pre>
  *   // No-args constructor gets the version that throws exceptions
- *   Converter myConverter = new net.hasor.utils.convert.convert.IntegerConverter();
+ *   Converter myConverter = new net.xxx.convert.convert.IntegerConverter();
  *   ConverterUtils.register(myConverter, Integer.TYPE);    // Native type
  *   ConverterUtils.register(myConverter, Integer.class);   // Wrapper class
  * </pre>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.config.impl;
+package com.clougence.rdp.service.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +84,11 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
 
     @PostConstruct
     private void init() {
-        resourceTypes.addAll(Arrays.asList(ResourceType.DATASOURCE, ResourceType.ACCOUNT, ResourceType.ROLE, ResourceType.DS_ENV));
+        resourceTypes.addAll(Arrays.asList(ResourceType.DATASOURCE, //
+                ResourceType.DATA_EXPORT, //
+                ResourceType.ACCOUNT, //
+                ResourceType.ROLE, //
+                ResourceType.DS_ENV));
 
         auditTypes.addAll(Arrays.asList(AuditType.ADD_DATA_SOURCE, //
                 AuditType.DELETE_DATA_SOURCE, //
@@ -93,6 +97,8 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                 AuditType.UPDATE_DATA_SOURCE_DESC, //
                 AuditType.UPDATE_DS_ACCOUNT_PASSWD, //
                 AuditType.DELETE_DS_ACCOUNT_PASSWD, //
+                AuditType.EXPORT_QUERY_RESULT, //
+                AuditType.DOWNLOAD_QUERY_RESULT, //
                 AuditType.ADD_SUB_ACCOUNT, //
                 AuditType.UPDATE_SUB_ACCOUNT, //
                 AuditType.MODIFY_SUB_ACCOUNT_AUTH, //
@@ -397,7 +403,8 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                 auditVO.setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), resourceFlagDesc(ResourceType.ROLE)));
             } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.DS_ENV.name()) && NumberUtils.isNumber(auditVO.getResourceValue())) {
                 auditVO.setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), resourceFlagDesc(ResourceType.DS_ENV)));
-
+            } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.DATA_EXPORT.name())) {
+                auditVO.setResourceVO(new ResourceVO(null, auditVO.getResourceName(), resourceFlagDesc(ResourceType.DATA_EXPORT)));
             }
         });
     }
@@ -408,6 +415,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             case ACCOUNT -> "Username";
             case ROLE -> "RoleName";
             case DS_ENV -> "DsEnvName";
+            case DATA_EXPORT -> "FileName";
             default -> null;
         };
     }

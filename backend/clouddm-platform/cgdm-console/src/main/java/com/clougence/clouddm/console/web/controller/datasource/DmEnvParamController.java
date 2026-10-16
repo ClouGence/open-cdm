@@ -28,6 +28,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
+import com.clougence.clouddm.console.web.model.fo.env.ListAllDsEnvFO;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmBindEnvParamFO;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmFetchEnvParamFO;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmUnbindEnvParamFO;
@@ -75,11 +76,11 @@ public class DmEnvParamController {
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/listEnvParamForSec", method = RequestMethod.POST)
-    public ResWebData<?> listEnvParamForSec(HttpServletRequest request) {
+    public ResWebData<?> listEnvParamForSec(@Valid @RequestBody ListAllDsEnvFO listAllDsEnvFO, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        List<DmEnvParamOpenVO> vos = this.dmEnvParamService.listEnvParamOpen(puid, uid);
+        List<DmEnvParamOpenVO> vos = this.dmEnvParamService.listEnvParamOpen(puid, uid, listAllDsEnvFO.getEnvName());
         return ResWebDataUtils.buildSuccess(vos);
     }
 

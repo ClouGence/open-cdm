@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.auth.DmAuthUserMapper">
-
     <resultMap id="rdpUserDO" type="com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO">
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
@@ -23,13 +22,16 @@
         <result column="last_try_op_verify_time" property="lastTryOpVerifyTime"/>
         <result column="op_verify_fail_count" property="opVerifyFailCount"/>
         <result column="op_locked" property="opLocked"/>
-        <result column="account_type" property="accountType" javaType="com.clougence.clouddm.platform.dal.model.auth.AccountType"/>
-        <result column="bind_type" property="bindType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.AccountBindTypeTypeHandler"/>
+        <result column="account_type" property="accountType"
+                javaType="com.clougence.clouddm.platform.dal.model.auth.AccountType"/>
+        <result column="bind_type" property="bindType"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.enums.AccountBindTypeTypeHandler"/>
         <result column="bind_account" property="bindAccount"/>
         <result column="allow_local" property="allowLocal"/>
         <result column="disable" property="disable"/>
         <result column="parent_id" property="parentId"/>
-        <result column="user_status" property="userStatus" javaType="com.clougence.clouddm.platform.dal.model.auth.UserStatus"/>
+        <result column="user_status" property="userStatus"
+                javaType="com.clougence.clouddm.platform.dal.model.auth.UserStatus"/>
         <result column="contact_me" property="contactMe"/>
         <result column="src" property="src"/>
         <result column="keyword" property="keyword"/>
@@ -40,10 +42,10 @@
         <result column="union_id" property="unionId"/>
         <result column="sso_type" property="ssoType"/>
         <result column="saas_user_status" property="saasUserStatus"/>
-        <result column="customer_id" property="customerId" />
-        <result column="access_token" property="accessToken" />
+        <result column="customer_id" property="customerId"/>
+        <result column="access_token" property="accessToken"/>
         <result column="marketplace_type" property="marketplaceType"/>
-        <result column="use_mfa" property="useMfa" />
+        <result column="use_mfa" property="useMfa"/>
     </resultMap>
 
     <sql id="rdpUser">
@@ -92,8 +94,10 @@
     <resultMap id="approvalPersonDO" type="com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj">
         <result column="uid" property="uid"/>
         <result column="username" property="username"/>
-        <result column="role_auth_labels" property="roleAuthLabels" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="res_auth_label" property="resAuthLabel" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="role_auth_labels" property="roleAuthLabels"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="res_auth_label" property="resAuthLabel"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="res_id" property="resId"/>
     </resultMap>
 
@@ -108,9 +112,10 @@
         FROM
             dm_auth_user
         WHERE
-            phone = #{phone}
-            AND account_type = 'PRIMARY_ACCOUNT'
-        limit 1
+            phone        = #{phone}
+            AND
+            account_type = 'PRIMARY_ACCOUNT'
+        LIMIT 1
     </select>
 
     <select id="querySubByPhone" resultMap="rdpUserDO">
@@ -119,8 +124,9 @@
         FROM
             dm_auth_user
         WHERE
-            phone = #{phone}
-            AND account_type = 'SUB_ACCOUNT'
+            phone        = #{phone}
+            AND
+            account_type = 'SUB_ACCOUNT'
     </select>
 
     <select id="queryPrimaryByEmail" resultMap="rdpUserDO">
@@ -129,9 +135,10 @@
         FROM
             dm_auth_user
         WHERE
-            email = #{email}
-            AND account_type = 'PRIMARY_ACCOUNT'
-        limit 1
+            email        = #{email}
+            AND
+            account_type = 'PRIMARY_ACCOUNT'
+        LIMIT 1
     </select>
 
     <select id="querySubByEmail" resultMap="rdpUserDO">
@@ -140,8 +147,9 @@
         FROM
             dm_auth_user
         WHERE
-            email = #{email}
-            AND account_type = 'SUB_ACCOUNT'
+            email        = #{email}
+            AND
+            account_type = 'SUB_ACCOUNT'
     </select>
 
     <select id="queryLocalLoginUserByAccount" resultMap="rdpUserDO">
@@ -150,9 +158,10 @@
         FROM
             dm_auth_user
         WHERE
-            account = #{account}
-            AND (bind_type = 'INTERNAL' OR allow_local = 1)
-        limit 1
+            account    = #{account}
+            AND
+            (bind_type = 'INTERNAL' OR allow_local = 1)
+        LIMIT 1
     </select>
 
     <select id="queryLocalLoginUserByEmail" resultMap="rdpUserDO">
@@ -161,9 +170,10 @@
         FROM
             dm_auth_user
         WHERE
-            email = #{email}
-            AND (bind_type = 'INTERNAL' OR allow_local = 1)
-        limit 1
+            email      = #{email}
+            AND
+            (bind_type = 'INTERNAL' OR allow_local = 1)
+        LIMIT 1
     </select>
 
     <select id="queryLocalLoginUserByPhone" resultMap="rdpUserDO">
@@ -172,9 +182,10 @@
         FROM
             dm_auth_user
         WHERE
-            phone = #{phone}
-            AND (bind_type = 'INTERNAL' OR allow_local = 1)
-        limit 1
+            phone      = #{phone}
+            AND
+            (bind_type = 'INTERNAL' OR allow_local = 1)
+        LIMIT 1
     </select>
 
     <select id="querySubAccountByPhoneAndAccount" resultMap="rdpUserDO">
@@ -183,9 +194,11 @@
         FROM
             dm_auth_user
         WHERE
-            phone = #{phone}
-            AND account = #{subAccount}
-            AND account_type = 'SUB_ACCOUNT'
+            phone        = #{phone}
+            AND
+            account      = #{subAccount}
+            AND
+            account_type = 'SUB_ACCOUNT'
     </select>
 
     <select id="querySubAccountByEmailAndAccount" resultMap="rdpUserDO">
@@ -194,9 +207,11 @@
         FROM
             dm_auth_user
         WHERE
-            email = #{email}
-            AND account = #{subAccount}
-            AND account_type = 'SUB_ACCOUNT'
+            email        = #{email}
+            AND
+            account      = #{subAccount}
+            AND
+            account_type = 'SUB_ACCOUNT'
     </select>
 
     <select id="queryByPhoneAndParentId" resultMap="rdpUserDO">
@@ -205,8 +220,9 @@
         FROM
             dm_auth_user
         WHERE
-            phone = #{phone}
-            AND parent_id = #{parentId}
+            phone     = #{phone}
+            AND
+            parent_id = #{parentId}
     </select>
 
     <select id="queryByEmailAndParentId" resultMap="rdpUserDO">
@@ -215,8 +231,9 @@
         FROM
             dm_auth_user
         WHERE
-            email = #{email}
-            AND parent_id = #{parentId}
+            email     = #{email}
+            AND
+            parent_id = #{parentId}
     </select>
 
     <select id="queryBySubAccount" resultMap="rdpUserDO">
@@ -235,8 +252,9 @@
             dm_auth_user
         WHERE
             account = #{subAccount}
-            AND uid != #{excludeUid}
-        limit 1
+            AND
+            uid     != #{excludeUid}
+        LIMIT 1
     </select>
 
     <select id="queryByPhoneAndParentIdExcludeUid" resultMap="rdpUserDO">
@@ -245,10 +263,12 @@
         FROM
             dm_auth_user
         WHERE
-            phone = #{phone}
-            AND parent_id = #{parentId}
-            AND uid != #{excludeUid}
-        limit 1
+            phone     = #{phone}
+            AND
+            parent_id = #{parentId}
+            AND
+            uid       != #{excludeUid}
+        LIMIT 1
     </select>
 
     <select id="queryByEmailAndParentIdExcludeUid" resultMap="rdpUserDO">
@@ -257,10 +277,12 @@
         FROM
             dm_auth_user
         WHERE
-            email = #{email}
-            AND parent_id = #{parentId}
-            AND uid != #{excludeUid}
-        limit 1
+            email     = #{email}
+            AND
+            parent_id = #{parentId}
+            AND
+            uid       != #{excludeUid}
+        LIMIT 1
     </select>
 
     <select id="queryBySubAccountAndBind" resultMap="rdpUserDO">
@@ -269,8 +291,10 @@
         FROM
             dm_auth_user
         WHERE
-            parent_id = #{parentId} and
-            account = #{subAccount} and
+            parent_id = #{parentId}
+            AND
+            account   = #{subAccount}
+            AND
             bind_type = #{bindType}
     </select>
 
@@ -280,11 +304,11 @@
         FROM
             dm_auth_user
         WHERE
-            parent_id = #{parentId}
-        and
+            parent_id    = #{parentId}
+            AND
             bind_account = #{bindAccount}
-        and
-            bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+            AND
+            bind_type    = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
     </select>
 
     <select id="queryByBindInfo" resultMap="rdpUserDO">
@@ -294,8 +318,8 @@
             dm_auth_user
         WHERE
             bind_account = #{bindAccount}
-        and
-            bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+            AND
+            bind_type    = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
     </select>
 
     <select id="queryByUnionInfo" resultMap="rdpUserDO">
@@ -304,15 +328,15 @@
         FROM
             dm_auth_user
         WHERE
-            union_id = #{unionId}
-        and
+            union_id  = #{unionId}
+            AND
             bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
-        limit 1
+        LIMIT 1
     </select>
 
     <select id="queryById" resultMap="rdpUserDO">
         SELECT
-        <include refid="rdpUser"/>
+            <include refid="rdpUser"/>
         FROM
             dm_auth_user
         WHERE
@@ -343,7 +367,10 @@
         FROM
             dm_auth_user
         WHERE
-            uid in <foreach collection="uids" item="item" separator="," open="(" close=")">#{item}</foreach>
+            uid IN
+            <foreach collection="uids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <select id="listByUserName" resultMap="rdpUserDO">
@@ -375,7 +402,7 @@
 
     <select id="queryCountByParentId" resultType="long">
         SELECT
-            count(*)
+            COUNT(*)
         FROM
             dm_auth_user
         WHERE
@@ -390,15 +417,19 @@
         WHERE
             parent_id = #{parentId}
             <if test="roleId != null and roleId != 0">
-                AND role_id=#{roleId}
+                AND
+                role_id = #{roleId}
             </if>
             <if test="prefix != null">
-                AND (
-                    (username LIKE CONCAT(#{prefix},'%') OR account LIKE
-                    CONCAT(#{prefix},'%')) OR uid = #{prefix}
+                AND
+                (
+                    (username LIKE CONCAT(#{prefix}, '%') OR account LIKE
+                    CONCAT(#{prefix}, '%'))
+                OR
+                    uid = #{prefix}
                 )
             </if>
-        order by gmt_create desc
+        ORDER BY gmt_create DESC
     </select>
 
     <select id="listPrimaryAccount" resultMap="rdpUserDO">
@@ -407,11 +438,13 @@
         FROM
             dm_auth_user
         WHERE
-            account_type = 'PRIMARY_ACCOUNT' and
-            email        != 'inner@clougence.com' and
+            account_type = 'PRIMARY_ACCOUNT'
+            AND
+            email        != 'inner@clougence.com'
+            AND
             disable      = 0
-        order by
-            username asc
+        ORDER BY
+            username ASC
     </select>
 
     <select id="listMaintainers" resultMap="rdpUserDO">
@@ -420,11 +453,13 @@
         FROM
             dm_auth_user
         WHERE
-            maintainer = 1
-            and disable = 0
-            and login_locked = 0
-            order by username asc
-        limit 5
+            maintainer   = 1
+            AND
+            disable      = 0
+            AND
+            login_locked = 0
+        ORDER BY username ASC
+        LIMIT 5
     </select>
 
     <select id="queryByConditions" resultMap="rdpUserDO">
@@ -433,10 +468,13 @@
         FROM
             dm_auth_user
         WHERE
-            phone = #{phone}
-        AND username = #{username}
-        AND email = #{email}
-        AND account_type = 'PRIMARY_ACCOUNT'
+            phone        = #{phone}
+            AND
+            username     = #{username}
+            AND
+            email        = #{email}
+            AND
+            account_type = 'PRIMARY_ACCOUNT'
     </select>
 
     <select id="searchUserByKeywords" resultMap="rdpUserInfoDO">
@@ -446,18 +484,25 @@
         FROM
             dm_auth_user
         WHERE
-            (id = #{primaryId} or parent_id = #{primaryId}) and
-            disable      = 0 and
+            (id          = #{primaryId} OR parent_id = #{primaryId})
+            AND
+            disable      = 0
+            AND
             login_locked = 0
-            <if test="keywords != null">and (
-                phone    LIKE CONCAT('%', #{keywords}, '%') or
-                username LIKE CONCAT('%', #{keywords}, '%') or
-                email    LIKE CONCAT('%', #{keywords}, '%') or
-                uid      LIKE CONCAT('%', #{keywords}, '%')
-            )
+            <if test="keywords != null">
+                AND
+                (
+                    phone LIKE CONCAT('%', #{keywords}, '%')
+                OR
+                    username LIKE CONCAT('%', #{keywords}, '%')
+                OR
+                    email LIKE CONCAT('%', #{keywords}, '%')
+                OR
+                    uid LIKE CONCAT('%', #{keywords}, '%')
+                )
             </if>
-        order by
-            username asc
+        ORDER BY
+            username ASC
     </select>
 
     <select id="queryPrimaryByUnionIdAndSsoType" resultMap="rdpUserDO">
@@ -466,10 +511,12 @@
         FROM
             dm_auth_user
         WHERE
-            union_id = #{unionId}
-        AND account_type = 'PRIMARY_ACCOUNT'
-        AND sso_type = #{ssoType}
-        limit 1
+            union_id     = #{unionId}
+            AND
+            account_type = 'PRIMARY_ACCOUNT'
+            AND
+            sso_type     = #{ssoType}
+        LIMIT 1
     </select>
 
     <select id="querySubByPrimaryId" resultMap="rdpUserDO">
@@ -479,7 +526,8 @@
             dm_auth_user
         WHERE
             parent_id = #{primaryId}
-        AND disable = false
+            AND
+            disable   = false
     </select>
 
     <select id="queryApproPerson" resultMap="approvalPersonDO">
@@ -490,45 +538,60 @@
             c.res_auth_label
         FROM
             dm_auth_user a
-            LEFT JOIN dm_auth_role b ON a.role_id = b.id
-            LEFT JOIN dm_auth_res c ON a.uid = c.owner_uid
+        LEFT JOIN
+            dm_auth_role b
+        ON
+            a.role_id = b.id
+        LEFT JOIN
+            dm_auth_res c
+        ON
+            a.uid = c.owner_uid
         WHERE
             a.account_type = #{accountType}
-            AND a.parent_id = #{parentId}
-            AND c.res_id = #{resId}
-            AND #{resPath} like concat(c.res_path,'%')
+            AND
+            a.parent_id    = #{parentId}
+            AND
+            c.res_id       = #{resId}
+            AND
+            #{resPath} LIKE CONCAT(c.res_path, '%')
     </select>
 
     <select id="queryPrimaryAccountCount" resultType="java.lang.Long">
         SELECT
-            count(*)
+            COUNT(*)
         FROM
             dm_auth_user
         WHERE
-            account_type = 'PRIMARY_ACCOUNT' and
-            email        != 'inner@clougence.com' and
+            account_type = 'PRIMARY_ACCOUNT'
+            AND
+            email        != 'inner@clougence.com'
+            AND
             disable      = 0
     </select>
 
     <select id="querySubAccountCount" resultType="java.lang.Long">
         SELECT
-            count(*)
+            COUNT(*)
         FROM
             dm_auth_user
         WHERE
-            account_type = 'SUB_ACCOUNT' AND
-            email != 'inner@clougence.com' AND
-            disable = 0
+            account_type = 'SUB_ACCOUNT'
+            AND
+            email        != 'inner@clougence.com'
+            AND
+            disable      = 0
     </select>
 
     <select id="queryUsableSubAccountCountByPrimary" resultType="java.lang.Long">
         SELECT
-            count(*)
+            COUNT(*)
         FROM
             dm_auth_user
         WHERE
-            parent_id    = #{parentId} and
-            account_type = 'SUB_ACCOUNT' and
+            parent_id    = #{parentId}
+            AND
+            account_type = 'SUB_ACCOUNT'
+            AND
             disable      = 0
     </select>
 
@@ -537,7 +600,11 @@
             <include refid="rdpUser"/>
         FROM
             dm_auth_user
-        where id  in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+        WHERE
+            id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
 
     <update id="updateRoleById">
@@ -554,8 +621,8 @@
             dm_auth_user
         SET
             last_try_login_time = #{lastTryLoginTime},
-            login_fail_count = #{loginFailCount},
-            login_locked = #{loginLocked}
+            login_fail_count    = #{loginFailCount},
+            login_locked        = #{loginLocked}
         WHERE
             id = #{id}
     </update>
@@ -564,8 +631,8 @@
         UPDATE
             dm_auth_user
         SET
-            password = #{password},
-            last_date_update_pwd = now()
+            password             = #{password},
+            last_date_update_pwd = NOW()
         WHERE
             id = #{id}
     </update>
@@ -591,8 +658,10 @@
     <update id="updateUserStatus">
         UPDATE
             dm_auth_user
-        SET user_status = #{userStatus,javaType=com.clougence.clouddm.platform.dal.model.auth.UserStatus}
-        WHERE uid = #{uid}
+        SET
+            user_status = #{userStatus,javaType=com.clougence.clouddm.platform.dal.model.auth.UserStatus}
+        WHERE
+            uid = #{uid}
     </update>
 
     <update id="updateAccessTokenByUid">
@@ -600,12 +669,13 @@
             dm_auth_user
         SET
             access_token = #{accessToken}
-        WHERE uid = #{uid}
+        WHERE
+            uid = #{uid}
     </update>
 
     <update id="updateSubAccountAndName">
         UPDATE
-        dm_auth_user
+            dm_auth_user
         <set>
             <if test="subAccount!=null and subAccount!=''">
                 account = #{subAccount},
@@ -615,13 +685,13 @@
             </if>
         </set>
         WHERE
-        uid = #{uid}
+            uid = #{uid}
     </update>
 
     <update id="updateUserName">
         UPDATE
             dm_auth_user
-        set
+        SET
             username = #{userName}
         WHERE
             uid = #{uid}
@@ -629,7 +699,7 @@
 
     <update id="updateUserContactInfo">
         UPDATE
-        dm_auth_user
+            dm_auth_user
         <set>
             <if test="phone!=null and phone!=''">
                 phone = #{phone},
@@ -639,7 +709,7 @@
             </if>
         </set>
         WHERE
-        uid = #{uid}
+            uid = #{uid}
     </update>
 
     <update id="updateUserAkSk">
@@ -666,7 +736,7 @@
         UPDATE
             dm_auth_user
         SET
-            last_date_update_pwd = now()
+            last_date_update_pwd = NOW()
         WHERE
             id = #{id}
     </update>
@@ -682,11 +752,11 @@
 
     <update id="updateMfaStatus">
         UPDATE
-        dm_auth_user
+            dm_auth_user
         SET
-        use_mfa = #{useMfa}
+            use_mfa = #{useMfa}
         WHERE
-        uid = #{uid}
+            uid = #{uid}
     </update>
 
     <update id="updateUserMarketplaceType">
@@ -740,9 +810,16 @@
             dm_auth_user.access_token,
             dm_auth_user.marketplace_type,
             dm_auth_user.use_mfa
-        FROM dm_auth_user left join dm_auth_role
-             ON dm_auth_user.role_id=dm_auth_role.id
-        WHERE parent_id=#{pid} and JSON_CONTAINS(dm_auth_role.role_auth_labels, '["' #{authLabel} '"]')
+        FROM
+            dm_auth_user
+        LEFT JOIN
+            dm_auth_role
+        ON
+            dm_auth_user.role_id = dm_auth_role.id
+        WHERE
+            parent_id = #{pid}
+            AND
+            JSON_CONTAINS(dm_auth_role.role_auth_labels, '["' #{authLabel} '"]')
     </select>
 
     <select id="queryUsernameByUid" resultType="java.lang.String">
@@ -763,10 +840,17 @@
             c.res_id
         FROM
             dm_auth_user a
-                LEFT JOIN dm_auth_role b ON a.role_id = b.id
-                LEFT JOIN dm_auth_res c ON a.uid = c.owner_uid
+        LEFT JOIN
+            dm_auth_role b
+        ON
+            a.role_id = b.id
+        LEFT JOIN
+            dm_auth_res c
+        ON
+            a.uid = c.owner_uid
         WHERE
             a.account_type = #{accountType}
-            AND a.parent_id = #{parentId}
+            AND
+            a.parent_id    = #{parentId}
     </select>
 </mapper>

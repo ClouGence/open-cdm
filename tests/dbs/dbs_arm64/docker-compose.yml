@@ -138,6 +138,26 @@ services:
     restart: always
     # User/Password: root/password123
 
+  cockroachdb:
+    image: cockroachdb/cockroach:v24.3.0
+    hostname: cockroachdb
+    command: start-single-node --accept-sql-without-tls --http-addr=0.0.0.0:8080
+    volumes:
+      - ../cockroachdb/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - 26257:26257
+      - 28080:8080
+    healthcheck:
+      test: [ "CMD", "/cockroach/cockroach", "sql", "--certs-dir=certs", "--host=127.0.0.1:26257", "-e", "SELECT 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: always
+    # SQL: 127.0.0.1:26257 / jdbc:postgresql://127.0.0.1:26257/defaultdb?sslmode=disable
+    # User/Password: root/123456 (set by init/01-init.sql)
+    # DB Console: http://127.0.0.1:28080
+
   ssh_server:
     image: lscr.io/linuxserver/openssh-server:latest
     environment:

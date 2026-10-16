@@ -27,7 +27,6 @@ import com.clougence.clouddm.comm.model.RSocketRespDTO;
 import com.clougence.clouddm.comm.util.RSocketRespUtil;
 import com.clougence.utils.JsonUtils;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -49,7 +48,6 @@ public class DmClientRSocketApiProxy implements RSocketApiProxy {
         return sendNonBlockRequest(method, args);
     }
 
-    @SneakyThrows
     private Object sendNonBlockRequest(Method method, Object[] args) {
         RSocketClientSender rSocketClientSender = applicationContext.getBean(RSocketClientSender.class);
         String fullMethodName = getMethodFullNameForSend(method);

@@ -18,7 +18,6 @@ package com.clougence.clouddm.dsfamily.oracle.execute;
 import java.io.IOException;
 import java.sql.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.session.*;
@@ -132,7 +131,7 @@ public class OraSession extends DefaultRdbSession {
         if (query.isUseCallable()) {
             CallableStatement call = (CallableStatement) ps;
             if (CollectionUtils.isNotEmpty(query.getQueryArgs())) {
-                List<QueryArg> inParams = query.getQueryArgs().stream().filter(item -> !item.isOutParam()).collect(Collectors.toList());
+                List<QueryArg> inParams = query.getQueryArgs().stream().filter(item -> !item.isOutParam()).toList();
                 for (QueryArg inParam : inParams) {
                     call.registerOutParameter(inParam.getIndex(), inParam.getJdbcType());
                 }

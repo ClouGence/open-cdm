@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.clougence.clouddm.platform.dal.mapper.execution.DmExecSqlAuditMapper">
     <resultMap id="dmSqlAudit" type="com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO">
         <result column="id" property="id"/>
@@ -54,151 +55,212 @@
 
     <sql id="sqlAuditCondition">
         AND uid IN (
-            SELECT scoped_user.uid
-            FROM dm_auth_user scoped_user
-            LEFT JOIN dm_auth_user primary_user ON primary_user.id = scoped_user.parent_id
-            WHERE scoped_user.uid = #{puid} OR primary_user.uid = #{puid}
-        )
-        <if test="uid != null and uid != ''">
-            AND uid = #{uid}
-        </if>
-        <if test="dateStart != null">
-            <![CDATA[ AND COALESCE(operate_time, gmt_create) >= #{dateStart} ]]>
-        </if>
-        <if test="dateEnd != null">
-            <![CDATA[ AND COALESCE(operate_time, gmt_create) <= #{dateEnd} ]]>
-        </if>
-        <if test="status != null">
-            AND status = #{status}
-        </if>
-        <if test="requester != null">
-            AND requester = #{requester}
-        </if>
-        <if test="dsId != null">
-            AND ds_id = #{dsId}
-        </if>
+        SELECT
+            scoped_user.uid
+        FROM
+            dm_auth_user scoped_user
+        LEFT JOIN
+            dm_auth_user primary_user
+        ON
+            primary_user.id = scoped_user.parent_id
+        WHERE
+            scoped_user.uid  = #{puid}
+            OR
+            primary_user.uid = #{puid}
+            )
+            <if test="uid != null and uid != ''">
+                AND
+                uid = #{uid}
+            </if>
+            <if test="dateStart != null">
+                <![CDATA[ AND COALESCE(operate_time, gmt_create) >= #{dateStart} ]]>
+            </if>
+            <if test="dateEnd != null">
+                <![CDATA[ AND COALESCE(operate_time, gmt_create) <= #{dateEnd} ]]>
+            </if>
+            <if test="status != null">
+                AND
+                status = #{status}
+            </if>
+            <if test="requester != null">
+                AND
+                requester = #{requester}
+            </if>
+            <if test="dsId != null">
+                AND
+                ds_id = #{dsId}
+            </if>
     </sql>
 
     <update id="markRunningByQueryId">
-        UPDATE dm_exec_sql_audit
-        SET status = 'RUNNING',
-            session_id = #{sessionId},
-            client_ip = #{clientIp},
+        UPDATE
+            dm_exec_sql_audit
+        SET
+            status          = 'RUNNING',
+            session_id      = #{sessionId},
+            client_ip       = #{clientIp},
             work_seq_number = #{workSeqNumber},
-            operate_time = #{operateTime},
-            affect_line = 0,
-            end_time = NULL,
-            message = NULL,
-            gmt_modified = CURRENT_TIMESTAMP
-        WHERE query_id = #{queryId}
-          AND status IN ('PENDING', 'FAILURE', 'ERROR')
+            operate_time    = #{operateTime},
+            affect_line     = 0,
+            end_time        = NULL,
+            message         = NULL,
+            gmt_modified    = CURRENT_TIMESTAMP
+        WHERE
+            query_id = #{queryId}
+            AND
+            status   IN ('PENDING', 'FAILURE', 'ERROR')
     </update>
 
     <update id="completeByQueryId">
-        UPDATE dm_exec_sql_audit
-        SET status = #{status},
-            session_id = COALESCE(#{sessionId}, session_id),
-            affect_line = #{affectLine},
-            message = #{message},
-            end_time = #{time},
+        UPDATE
+            dm_exec_sql_audit
+        SET
+            status       = #{status},
+            session_id   = COALESCE(#{sessionId}, session_id),
+            affect_line  = #{affectLine},
+            message      = #{message},
+            end_time     = #{time},
             gmt_modified = CURRENT_TIMESTAMP
-        WHERE query_id = #{queryId}
-          AND status IN ('PENDING', 'RUNNING')
+        WHERE
+            query_id = #{queryId}
+            AND
+            status   IN ('PENDING', 'RUNNING')
     </update>
 
     <update id="confirmSession">
-        UPDATE dm_exec_sql_audit
-        SET status = 'SUCCESS'
-        WHERE session_id = #{sessionId}
-          AND status = 'WAIT_CONFIRM'
+        UPDATE
+            dm_exec_sql_audit
+        SET
+            status = 'SUCCESS'
+        WHERE
+            session_id = #{sessionId}
+            AND
+            status     = 'WAIT_CONFIRM'
     </update>
 
     <update id="rollbackSession">
-        UPDATE dm_exec_sql_audit
-        SET status = 'ROLLBACK'
-        WHERE session_id = #{sessionId}
-          AND status = 'WAIT_CONFIRM'
+        UPDATE
+            dm_exec_sql_audit
+        SET
+            status = 'ROLLBACK'
+        WHERE
+            session_id = #{sessionId}
+            AND
+            status     = 'WAIT_CONFIRM'
     </update>
 
     <update id="updateErrorSql">
-        UPDATE dm_exec_sql_audit
-        SET status = 'ERROR'
-        WHERE work_seq_number = #{wsn}
-          AND status IN ('RUNNING', 'WAIT_CONFIRM')
+        UPDATE
+            dm_exec_sql_audit
+        SET
+            status = 'ERROR'
+        WHERE
+            work_seq_number = #{wsn}
+            AND
+            status          IN ('RUNNING', 'WAIT_CONFIRM')
     </update>
 
     <delete id="deleteAuditBeforeDate">
-        DELETE FROM dm_exec_sql_audit
-        WHERE uid IN (
-            SELECT scoped_user.uid
-            FROM dm_auth_user scoped_user
-            LEFT JOIN dm_auth_user primary_user ON primary_user.id = scoped_user.parent_id
-            WHERE scoped_user.uid = #{puid} OR primary_user.uid = #{puid}
-        )
-          AND #{date} > end_time
+        DELETE FROM
+            dm_exec_sql_audit
+        WHERE
+            uid IN (
+        SELECT
+            scoped_user.uid
+        FROM
+            dm_auth_user scoped_user
+        LEFT JOIN
+            dm_auth_user primary_user
+        ON
+            primary_user.id = scoped_user.parent_id
+        WHERE
+            scoped_user.uid  = #{puid}
+            OR
+            primary_user.uid = #{puid}
+            )
+            AND
+            #{date} <![CDATA[ > ]]> end_time
         LIMIT 500
     </delete>
 
     <select id="queryByQueryId" resultMap="dmSqlAudit">
         SELECT
-        <include refid="dmSqlAuditDOMap"/>
-        FROM dm_exec_sql_audit
-        WHERE query_id = #{queryId}
+            <include refid="dmSqlAuditDOMap"/>
+        FROM
+            dm_exec_sql_audit
+        WHERE
+            query_id = #{queryId}
     </select>
 
     <select id="queryWaitConfirmBySessionId" resultMap="dmSqlAudit">
         SELECT
-        <include refid="dmSqlAuditDOMap"/>
-        FROM dm_exec_sql_audit
-        WHERE session_id = #{sessionId}
-          AND status = 'WAIT_CONFIRM'
+            <include refid="dmSqlAuditDOMap"/>
+        FROM
+            dm_exec_sql_audit
+        WHERE
+            session_id = #{sessionId}
+            AND
+            status     = 'WAIT_CONFIRM'
         ORDER BY id
     </select>
 
     <select id="queryByCondition" resultMap="dmSqlAudit">
         SELECT
-        <include refid="dmSqlAuditDOMap"/>
-        FROM dm_exec_sql_audit
-        WHERE 1 = 1
-        <if test="startId != 0">
-            <![CDATA[ AND id < #{startId} ]]>
-        </if>
-        <if test="uid != null and uid != ''">
-            AND uid = #{uid}
-        </if>
-        <if test="dateStart != null">
-            <![CDATA[ AND gmt_create >= #{dateStart} ]]>
-        </if>
-        <if test="dateEnd != null">
-            <![CDATA[ AND gmt_create <= #{dateEnd} ]]>
-        </if>
-        <if test="status != null">
-            AND status = #{status}
-        </if>
-        <if test="requester != null">
-            AND requester = #{requester}
-        </if>
-        <if test="dsId != null">
-            AND ds_id = #{dsId}
-        </if>
+            <include refid="dmSqlAuditDOMap"/>
+        FROM
+            dm_exec_sql_audit
+        WHERE
+            1 = 1
+            <if test="startId != 0">
+                <![CDATA[ AND id < #{startId} ]]>
+            </if>
+            <if test="uid != null and uid != ''">
+                AND
+                uid = #{uid}
+            </if>
+            <if test="dateStart != null">
+                <![CDATA[ AND gmt_create >= #{dateStart} ]]>
+            </if>
+            <if test="dateEnd != null">
+                <![CDATA[ AND gmt_create <= #{dateEnd} ]]>
+            </if>
+            <if test="status != null">
+                AND
+                status = #{status}
+            </if>
+            <if test="requester != null">
+                AND
+                requester = #{requester}
+            </if>
+            <if test="dsId != null">
+                AND
+                ds_id = #{dsId}
+            </if>
         ORDER BY id DESC
         LIMIT #{pageSize}
     </select>
 
     <select id="pageByCondition" resultMap="dmSqlAudit">
         SELECT
-        <include refid="dmSqlAuditDOMap"/>
-        FROM dm_exec_sql_audit
-        WHERE 1 = 1
-        <include refid="sqlAuditCondition"/>
-        ORDER BY COALESCE(operate_time, gmt_create) DESC, id DESC
-        LIMIT #{pageSize} OFFSET #{offset}
+            <include refid="dmSqlAuditDOMap"/>
+        FROM
+            dm_exec_sql_audit
+        WHERE
+            1 = 1
+            <include refid="sqlAuditCondition"/>
+        ORDER BY
+            COALESCE(operate_time, gmt_create) DESC, id DESC
+        LIMIT #{pageSize}
+        OFFSET #{offset}
     </select>
 
     <select id="countByCondition" resultType="long">
-        SELECT COUNT(*)
-        FROM dm_exec_sql_audit
-        WHERE 1 = 1
-        <include refid="sqlAuditCondition"/>
+        SELECT
+            COUNT(*)
+        FROM
+            dm_exec_sql_audit
+        WHERE
+            1 = 1
+            <include refid="sqlAuditCondition"/>
     </select>
 </mapper>

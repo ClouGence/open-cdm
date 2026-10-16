@@ -53,6 +53,10 @@ public class TiRewriteSpi implements RewriteSpi {
 
     private boolean rewriterLimit(TokenStreamRewriter rewriter, ParseTree astTree, long maxLimit) {
         TiDBParser.DmlStatementContext dmlStat = ((TiDBParser.SqlStatementContext) astTree).dmlStatement();
+        // DAL statements may be selected together with queries in the SQL editor.
+        if (dmlStat == null) {
+            return false;
+        }
         if (dmlStat.selectStatement() != null) {
             TiDBParser.SelectStatementContext s = dmlStat.selectStatement();
             if (s instanceof TiDBParser.SimpleSelectContext) {

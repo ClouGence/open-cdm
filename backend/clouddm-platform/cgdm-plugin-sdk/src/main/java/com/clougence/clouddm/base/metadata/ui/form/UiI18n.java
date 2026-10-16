@@ -15,10 +15,16 @@
  */
 package com.clougence.clouddm.base.metadata.ui.form;
 
+import java.util.Locale;
+
 import com.clougence.utils.i18n.I18nUtils;
 
 @FunctionalInterface
 public interface UiI18n {
 
     void initI18n(I18nUtils messages);
+
+    default void initI18n(I18nUtils messages, Locale locale) {
+        this.initI18n(messages);
+    }
 }
