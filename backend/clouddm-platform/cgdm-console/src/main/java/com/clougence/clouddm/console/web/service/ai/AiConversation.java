@@ -168,24 +168,26 @@ public class AiConversation {
     }
 
     public void addAssistant(ChatResponse reply) {
+        List<Map<String, Object>> encoded = new ArrayList<>();
+        for (ChatToolCall call : reply.tools()) {
+            Map<String, Object> function = new LinkedHashMap<>();
+            function.put(AiSqlConstants.FIELD_NAME, call.name());
+            function.put(AiSqlConstants.FIELD_ARGUMENTS, call.arguments());
+
+            Map<String, Object> tool = new LinkedHashMap<>();
+            tool.put(AiSqlConstants.FIELD_ID, call.id());
+            tool.put(AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION);
+            tool.put(AiSqlConstants.FIELD_FUNCTION, function);
+            encoded.add(tool);
+        }
+
         Map<String, Object> message = new LinkedHashMap<>();
         message.put(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_ASSISTANT);
         message.put(AiSqlConstants.FIELD_CONTENT, reply.text());
         if (!reply.reasoningContent().isEmpty()) {
             message.put(ChatProtocolConstants.FIELD_REASONING_CONTENT, reply.reasoningContent());
         }
-        if (!reply.tools().isEmpty()) {
-            List<Map<String, Object>> encoded = new ArrayList<>();
-            for (ChatToolCall call : reply.tools()) {
-                Map<String, Object> function = new LinkedHashMap<>();
-                function.put(AiSqlConstants.FIELD_NAME, call.name());
-                function.put(AiSqlConstants.FIELD_ARGUMENTS, call.arguments());
-                Map<String, Object> tool = new LinkedHashMap<>();
-                tool.put(AiSqlConstants.FIELD_ID, call.id());
-                tool.put(AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION);
-                tool.put(AiSqlConstants.FIELD_FUNCTION, function);
-                encoded.add(tool);
-            }
+        if (!encoded.isEmpty()) {
             message.put(AiSqlConstants.FIELD_TOOL_CALLS, encoded);
         }
         add(message);

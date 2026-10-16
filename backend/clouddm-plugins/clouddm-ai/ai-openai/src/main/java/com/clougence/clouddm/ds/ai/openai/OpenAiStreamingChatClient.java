@@ -50,9 +50,7 @@ public class OpenAiStreamingChatClient implements StreamingChatClient {
     @Override
     public ChatResponse stream(ChatEndpoint endpoint, ChatRequest request, ChatStreamControl control, ChatStreamListener listener) throws IOException {
         ChatRequest input = customizeRequest(OpenAiModelCompatibilityHelper.normalizeParameters(request));
-        Map<String, Object> body = new LinkedHashMap<>(input.parameters());
-        body.put("model", input.model());
-        body.put("messages", input.messages().stream().map(message -> {
+        List<Map<String, Object>> messages = input.messages().stream().map(message -> {
             if (!"assistant".equals(message.get("role"))) {
                 return message;
             }
@@ -71,7 +69,11 @@ public class OpenAiStreamingChatClient implements StreamingChatClient {
                 adapted.remove(ChatProtocolConstants.FIELD_REASONING_CONTENT);
             }
             return adapted;
-        }).toList());
+        }).toList();
+
+        Map<String, Object> body = new LinkedHashMap<>(input.parameters());
+        body.put("model", input.model());
+        body.put("messages", messages);
         body.put("stream", true);
         body.put("stream_options", Map.of("include_usage", true));
         if (input.maxOutputTokens() != null) {

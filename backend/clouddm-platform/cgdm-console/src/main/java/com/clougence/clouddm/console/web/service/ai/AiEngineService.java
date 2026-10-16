@@ -156,6 +156,9 @@ public class AiEngineService {
                 provider.setAdapterType(engine.getPreset());
                 provider.setBaseUrl(engine.getBaseUrl());
                 provider.setAccessToken(engine.getAccessToken());
+                provider.setGmtCreate(now);
+                provider.setGmtModified(now);
+
                 DmAiModelConfigDO model = new DmAiModelConfigDO();
                 model.setModelCode(engine.getId());
                 model.setProviderCode(provider.getProviderCode());
@@ -165,10 +168,9 @@ public class AiEngineService {
                 model.setVerificationStatus(engine.getVerificationStatus());
                 model.setCreatedBy(engine.getCreatedBy());
                 model.setUpdatedBy(engine.getUpdatedBy());
-                provider.setGmtCreate(now);
-                provider.setGmtModified(now);
                 model.setGmtCreate(now);
                 model.setGmtModified(now);
+
                 providers.insert(provider);
                 models.insert(model);
             } else {
