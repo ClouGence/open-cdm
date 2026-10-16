@@ -404,6 +404,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         DmAuthUserDO userByUid = this.authDal.userMapper().queryByUid(approvalDO.getOwnerUid());
         if (userByUid == null) {
             vo.setUserName(approvalDO.getOwnerUid() + "(" + DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()) + ")");
+        } else if (StringUtils.isBlank(userByUid.getUsername())) {
+            vo.setUserName(userByUid.getAccount());
         } else {
             vo.setUserName(userByUid.getUsername());
         }
