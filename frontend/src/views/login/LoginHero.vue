@@ -65,6 +65,8 @@ const FOUNTAIN_TYPES = [
   'KingbaseESMySQL',
   'KingbaseESOracle',
   'KingbaseESSQLServer',
+  'YashanDBOracle',
+  'YashanDBMySQL',
   'Greenplum',
   'TDengine',
   'DynamoDB',

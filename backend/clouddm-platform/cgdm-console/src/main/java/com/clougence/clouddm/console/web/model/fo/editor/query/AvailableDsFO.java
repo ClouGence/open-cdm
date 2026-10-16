@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.editor.query;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +26,7 @@ import lombok.Setter;
 @Setter
 public class AvailableDsFO {
 
+    @NotNull
     private Long dsId;
 
 }

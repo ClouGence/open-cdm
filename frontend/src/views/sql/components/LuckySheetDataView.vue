@@ -320,6 +320,9 @@ export default {
     };
   },
   watch: {
+    'tab.connected'(connected) {
+      if (connected && !this.tab.rawTableData?.columnList?.length) this.handleGetTableData(-2, true, true, false, true);
+    },
     'tab.key': {
       handler(newVal, oldVal) {
         if (newVal !== oldVal) {
@@ -384,6 +387,7 @@ export default {
       XLSX.writeFile(workbook, `${this.tab.key}.csv`);
     },
     async handleRun() {
+      if (!this.tab.connected) return;
       this.executeSQLLoading = true;
       const data = this.generateDatasourceParams();
       this.executeInfo = [];
@@ -785,6 +789,7 @@ export default {
       this.handleGetTableData(-2, true);
     },
     async handleGetTableData(newOffset = -2, refresh = false, cancelSelect = true, force = false, mounted = false) {
+      if (!this.tab.connected) return;
       const getData = async () => {
         $('#luckysheet-postil-overshow').remove();
         this.handleEmptyUpdate();

@@ -81,4 +81,4 @@ touch /root/cgdm/sidecar/logs/sidecar.log
 /root/cgdm/sidecar/bin/startup.sh
 
 nohup /root/cgdm/sidecar/bin/checker.sh &
-tail -f /root/cgdm/sidecar/logs/sidecar.log
+tail -F /root/cgdm/sidecar/logs/sidecar.log

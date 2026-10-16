@@ -5,6 +5,7 @@
     :style="{ '--ai-panel-width': `${aiPanelWidth}px` }"
   >
     <operators
+      :inert="!monacoEditor"
       :tab="tab"
       :stopping="stopping"
       :handleRun="onRun"
@@ -34,8 +35,9 @@
       :class="{ 'sql-ai-workspace--open': aiBinding, 'sql-ai-workspace--narrow': aiNarrow, 'sql-ai-workspace--resizing': aiResizeDrag }"
       :style="aiBinding && aiWorkspaceHeight !== null ? { height: `${aiWorkspaceHeight}px` } : undefined"
     >
-      <div class="sql-ai-editor" v-show="!aiBinding || !aiNarrow || aiView === 'editor'">
+      <div class="sql-ai-editor sql-editor-stage" :aria-busy="!monacoEditor" v-show="!aiBinding || !aiNarrow || aiView === 'editor'">
         <Editor
+          :inert="!monacoEditor"
           :set-editor-instance="setEditorInstance"
           :current-tab="tab"
           ref="editor"
@@ -57,6 +59,9 @@
             />
           </template>
         </Editor>
+        <Transition name="sql-editor-loading">
+          <SqlLoadingSkeleton v-if="!monacoEditor" variant="editor" class="sql-editor-loading" />
+        </Transition>
       </div>
       <div
         v-if="aiBinding && !aiNarrow"
@@ -109,10 +114,19 @@
       <div v-html="tab.message.text"></div>
       <CustomIcon type="icon-v2-close2" @click="handleCloseError" hoverStyle />
     </div>
-    <div class="query-message Error" v-if="!tab.connected && tab.msgContent && (!aiBinding || !aiNarrow || aiView === 'editor')">
+    <div
+      class="query-message"
+      :class="tab.workspaceConnectionState === 'disconnected' ? 'Info' : 'Error'"
+      v-if="!tab.connected && tab.msgContent && (!aiBinding || !aiNarrow || aiView === 'editor')"
+    >
       {{ tab.msgContent }}
-      <Button type="text" size="small" @click="handleClickDsStatusIcon">
-        {{ $t('zhong-xin-lian-jie') }}
+      <Button
+        v-if="!['connecting', 'reconnecting', 'disconnecting'].includes(tab.workspaceConnectionState)"
+        type="text"
+        size="small"
+        @click="handleClickDsStatusIcon"
+      >
+        {{ $t(tab.workspaceConnectionState === 'disconnected' ? 'sql-connection-open' : 'sql-connection-reconnect') }}
       </Button>
     </div>
     <CCModal v-model="showNoPassedRuleModal" :title="$t('gui-ze-xiao-yan-shi-bai')" :width="800">
@@ -161,6 +175,7 @@ import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import formatError from '@/services/formatError';
 import SqlScriptPopover from '@/views/sql/components/SqlScriptPopover.vue';
 import CommandExamples from '@/views/sql/components/CommandExamples.vue';
+import SqlLoadingSkeleton from '@/views/sql/components/SqlLoadingSkeleton.vue';
 
 export default {
   name: 'SqlViewer',
@@ -170,9 +185,10 @@ export default {
     SqlScriptPopover,
     CommandExamples,
     AppPageTabs,
-    AiSqlPanel
+    AiSqlPanel,
+    SqlLoadingSkeleton
   },
-  emits: ['open-script', 'script-deleted', 'script-renamed', 'switch-tab'],
+  emits: ['open-script', 'script-deleted', 'script-renamed', 'switch-tab', 'workspace-connection-error', 'workspace-connection-success'],
   props: {
     handleClickDsStatusIcon: Function,
     handleGetDsSetting: Function,
@@ -591,6 +607,10 @@ export default {
       // this.analysisSplit(selectedSql);
     },
     async handleRun(selectedSql, position, force = false) {
+      if (!this.tab.connected || !this.tab.sessionId) {
+        this.$Message.warning(this.$t('sql-connection-disconnected'));
+        return;
+      }
       this.tab.running = true;
       this.tab.result.active = 'message';
       this.tab.currentQueryType = 'query';
@@ -687,6 +707,10 @@ export default {
       this.$refs.editor.formatSql();
     },
     handleInterceptor(confName, callback, focus = false, silence = false) {
+      if (!this.tab.connected || !this.tab.sessionId) {
+        this.$Message.warning(this.$t('sql-connection-disconnected'));
+        return;
+      }
       if (this.tab.support[confName].conf === 'No') {
         this.$Message.error({
           background: true,
@@ -1024,6 +1048,7 @@ export default {
               currentTab.msgContent = entity.message;
               currentTab.msgFromWs = true;
               currentTab.connected = false;
+              this.$emit('workspace-connection-error', currentTab);
             }
 
             if (entity.mode === 'Hint') {
@@ -1200,6 +1225,7 @@ export default {
 
         // Export information may come from ResultSetMeta or ResultSet, so process it centrally.
         if (queryData.object.resultType === 'ResultSetMeta' || queryData.object.resultType === 'ResultSet') {
+          this.$emit('workspace-connection-success', currentTab);
           const resultData =
             queryData.object.resultType === 'ResultSetMeta'
               ? queryData.object
@@ -1232,6 +1258,25 @@ export default {
 </script>
 <style lang="less">
 .sql-viewer {
+  .sql-editor-stage {
+    position: relative;
+  }
+  .sql-editor-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .sql-editor-loading-leave-active {
+    transition: opacity 0.16s ease-out;
+  }
+  .sql-editor-loading-leave-to {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sql-editor-loading-leave-active {
+      transition: none;
+    }
+  }
   position: relative;
 
   .sql-ai-workspace {

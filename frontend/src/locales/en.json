@@ -3700,6 +3700,9 @@
   "sql-empty-description": "After connecting a data source, browse schemas on the left or create a SQL query window directly.",
   "sql-empty-subaccount-description": "No query windows are open yet. Please request permission or click the left side to start querying.",
   "sql-empty-add-datasource": "Create Data Source",
+  "sql-empty-apply-permission": "Request Data Source Access",
+  "sql-empty-apply-permission-description": "Your account does not have data source access yet. Request access, or contact your administrator if you cannot submit a request.",
+  "sql-empty-contact-administrator": "No data sources are available to query. Contact your administrator to obtain access.",
   "sql-empty-add-datasource-desc": "Connect your database and start data querying",
   "sql-empty-config-datasource": "Configure Data Source",
   "sql-empty-config-datasource-desc": "Manage existing data source connections and settings",
@@ -4613,5 +4616,21 @@
       "NOT_TESTED": "Not tested"
     },
     "chooseModel": "Select model"
-  }
+  },
+  "sql-connection-open": "Open Connection",
+  "sql-connection-disconnect": "Disconnect",
+  "sql-connection-reconnect": "Reconnect",
+  "sql-connection-disconnected": "Disconnected",
+  "sql-connection-connecting": "Opening connection…",
+  "sql-connection-connected": "Connected",
+  "sql-connection-disconnecting": "Disconnecting…",
+  "sql-connection-reconnecting": "Reconnecting…",
+  "sql-connection-failed": "Workspace connection failed. Please retry.",
+  "sql-connection-confirm-title": "Release workspace connections",
+  "sql-connection-confirm-content": "Release query sessions for \"{name}\" in this workspace? Running queries will be interrupted and uncommitted changes in manual transactions rolled back. Editor text and tabs will be preserved. SQL will not be replayed.",
+  "sql-connection-open-failed": "Could not open the workspace connection. Check the data source or retry.",
+  "sql-connection-close-failed": "Could not release workspace sessions. Retry disconnecting or reconnecting.",
+  "sql-connection-stop-timeout": "The query has not stopped; its session was retained. Wait for it to finish or retry Disconnect or Reconnect.",
+  "sql-connection-stop-unavailable": "The workspace channel is unavailable. Restore it before retrying to stop the query.",
+  "sql-connection-editor-busy": "A data editor operation is still running. Wait for it before disconnecting or reconnecting."
 }

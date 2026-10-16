@@ -359,11 +359,12 @@ public class MyMetaProviderDm extends AbstractMetadataProvider implements MetaDa
 
     @Override
     protected Map<String, List<RdbIndex>> fetchIndexes(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
-        String sql = "select CONSTRAINT_TYPE,S.TABLE_SCHEMA,S.TABLE_NAME,S.INDEX_COMMENT,S.COMMENT,S.NON_UNIQUE,S.SEQ_IN_INDEX,S.COLLATION,INDEX_NAME,COLUMN_NAME,INDEX_TYPE,SUB_PART "
-                     + "FROM INFORMATION_SCHEMA.STATISTICS S "//
+        String sql = "select CONSTRAINT_TYPE,S.* " + "FROM INFORMATION_SCHEMA.STATISTICS S "//
                      + "left join INFORMATION_SCHEMA.TABLE_CONSTRAINTS CON on S.TABLE_SCHEMA = CON.TABLE_SCHEMA and S.TABLE_NAME = CON.TABLE_NAME and S.INDEX_NAME = CON.CONSTRAINT_NAME "//
-                     + "where (CONSTRAINT_TYPE not in ('PRIMARY KEY', 'UNIQUE', 'FOREIGN KEY') or CONSTRAINT_TYPE is null) "//
-                     + "    and S.NON_UNIQUE = 1 and S.TABLE_SCHEMA = ? and S.TABLE_NAME in " + buildWhereIn(tabs) + " order by SEQ_IN_INDEX asc";
+                     + "where ((CONSTRAINT_TYPE not in ('PRIMARY KEY', 'UNIQUE', 'FOREIGN KEY') or CONSTRAINT_TYPE is null) and S.NON_UNIQUE = 1 "//
+                     + "    or exists (select 1 from INFORMATION_SCHEMA.STATISTICS F where F.TABLE_SCHEMA = S.TABLE_SCHEMA and F.TABLE_NAME = S.TABLE_NAME "//
+                     + "        and F.INDEX_NAME = S.INDEX_NAME and F.COLUMN_NAME is null)) "//
+                     + "    and S.TABLE_SCHEMA = ? and S.TABLE_NAME in " + buildWhereIn(tabs) + " order by S.SEQ_IN_INDEX asc";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             List<String> params = new ArrayList<>(tabs);
@@ -415,6 +416,9 @@ public class MyMetaProviderDm extends AbstractMetadataProvider implements MetaDa
                      + "left join INFORMATION_SCHEMA.TABLE_CONSTRAINTS  T " //
                      + "on T.CONSTRAINT_CATALOG = S.TABLE_CATALOG and T.TABLE_SCHEMA = S.TABLE_SCHEMA and T.TABLE_NAME = S.TABLE_NAME and T.CONSTRAINT_NAME = S.INDEX_NAME and T.CONSTRAINT_SCHEMA = S.INDEX_SCHEMA " //
                      + "where S.TABLE_SCHEMA = ? and S.TABLE_NAME = " + buildWhereIn(tabs) + " and T.CONSTRAINT_TYPE IN ('PRIMARY KEY','UNIQUE') "//
+                     // Keep functional unique indexes out of column-based keys, including mixed indexes.
+                     + "and not exists (select 1 from INFORMATION_SCHEMA.STATISTICS F where F.TABLE_SCHEMA = S.TABLE_SCHEMA and F.TABLE_NAME = S.TABLE_NAME "//
+                     + "    and F.INDEX_NAME = S.INDEX_NAME and F.COLUMN_NAME is null) "//
                      + "order by S.SEQ_IN_INDEX asc";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {

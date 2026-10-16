@@ -40,6 +40,7 @@ dependencies {
     testImplementation(project(':ds-polardb'))
     testImplementation(project(':ds-oracle'))
     testImplementation(project(':ds-dameng'))
+    testImplementation(project(':ds-yashandb'))
     testImplementation(project(':ds-db2'))
     testImplementation(project(':ds-sqlserver'))
     testImplementation(project(':ds-hana'))

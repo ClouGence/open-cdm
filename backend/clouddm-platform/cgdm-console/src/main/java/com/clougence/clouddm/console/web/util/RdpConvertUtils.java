@@ -673,7 +673,13 @@ public class RdpConvertUtils {
         vo.setTicketTitle(ticketDO.getTicketTitle());
         vo.setTicketStatus(ticketDO.getTicketStatus());
         vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(ticketDO.getFinishTime()));
-        vo.setUserName(ownerUserDO == null ? DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()) : ownerUserDO.getUsername());
+        if (ownerUserDO == null) {
+            vo.setUserName(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+        } else if (StringUtils.isBlank(ownerUserDO.getUsername())) {
+            vo.setUserName(ownerUserDO.getAccount());
+        } else {
+            vo.setUserName(ownerUserDO.getUsername());
+        }
         vo.setResourceType(resourceType);
         return vo;
     }
