@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -171,7 +172,12 @@ public class JsonFileFormatConvert implements FileFormatConvert {
             processSpi.begin(query, meta, flash);
             List<String> rowData = processSpi.processRow(query, meta, row.getRowData(), flash);
             for (int i = 0; i < rowData.size(); i++) {
-                row.getRowData().set(i, rowData.get(i));
+                String value = rowData.get(i);
+                ColMetaData column = meta.get(row.getColumns().get(i));
+                if (!ColMetaData.JSON_DOCUMENT.equals(column.getColumnType()) && !Objects.equals(value, row.getRowData().get(i))) {
+                    row.getAsString().set(i, true);
+                }
+                row.getRowData().set(i, value);
             }
             processSpi.finish(query, flash);
         }
@@ -201,6 +207,7 @@ public class JsonFileFormatConvert implements FileFormatConvert {
             case ResultType.DateTimeZ:
                 return true;
             case ResultType.BigDecimal:
+            case ResultType.JsonDoc:
                 return false;
             default:
                 return true;

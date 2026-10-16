@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clougence.clouddm.file.convert.config.json.JsonOption;
-import com.clougence.utils.StringUtils;
+import com.clougence.utils.JsonUtils;
 
 import lombok.Getter;
 
@@ -51,7 +51,7 @@ public class JsonRowData {
             if (this.rowData.get(i) == null) {
                 value = "null";
             } else if (this.asString.get(i)) {
-                value = "\"" + escapeSpecialChar(this.rowData.get(i)) + "\"";
+                value = JsonUtils.toJson(this.rowData.get(i));
             } else {
                 value = this.rowData.get(i);
             }
@@ -59,7 +59,7 @@ public class JsonRowData {
             if (!first) {
                 sb.append(",");
             }
-            sb.append("\"").append(key).append("\":").append(value);
+            sb.append(JsonUtils.toJson(key)).append(":").append(value);
             first = false;
         }
 
@@ -67,14 +67,4 @@ public class JsonRowData {
         return sb.toString();
     }
 
-    private static String escapeSpecialChar(String data) {
-        data = StringUtils.replace(data, "\r", "\\r");
-        data = StringUtils.replace(data, "\n", "\\n");
-        data = StringUtils.replace(data, "\t", "\\t");
-        data = StringUtils.replace(data, "\b", "\\b");
-        data = StringUtils.replace(data, "\f", "\\f");
-        data = StringUtils.replace(data, "\"", "\\\"");
-        data = StringUtils.replace(data, "\\", "\\\\");
-        return data;
-    }
 }

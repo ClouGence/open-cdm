@@ -153,7 +153,7 @@ public class LocalDsSchemaService implements DsSchemaService {
             return null;
         }
 
-        if (leafType == UmiTypes.Topic && pattern != null && !pattern.isBlank() && !"*".equals(pattern)) {
+        if (pattern != null && !pattern.isBlank() && !"*".equals(pattern)) {
             return null;
         }
 

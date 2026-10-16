@@ -1,0 +1,6 @@
+<drivers>
+    <driver driverFamily="ES REST Client" version="8.19.0" default="true">
+        <driverName>com.clougence.clouddm.ds.es.execute.dsfactory.EsDsFactory</driverName>
+        <resource type="maven">org.elasticsearch.client:elasticsearch-rest-client:8.19.0</resource>
+    </driver>
+</drivers>

@@ -239,6 +239,20 @@ public class ResultFileReader implements ResultReader {
                 value = RowDataHelper.displayDouble(conf.getDisplayChars(), v);
                 break;
             }
+            case EntityType.JsonDoc: {
+                try {
+                    this.resultInput.readStream(header);
+                    if (!complete) {
+                        throw new IOException("Incomplete JSON document");
+                    }
+                    if (!header.isNull()) {
+                        value = IOUtils.toString(new InputStreamReader(this.resultInput, header.getCharset()));
+                    }
+                } finally {
+                    this.resultInput.finishReadData();
+                }
+                break;
+            }
             case EntityType.String: {
                 try {
                     this.resultInput.readStream(header);

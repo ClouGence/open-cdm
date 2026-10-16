@@ -34,4 +34,5 @@ public interface ResultType {
     byte DateTime   = (byte) 0x0E;
     byte DateTimeZ  = (byte) 0x0F;
     byte BigDecimal = (byte) 0x10;
+    byte JsonDoc    = (byte) 0x11;
 }

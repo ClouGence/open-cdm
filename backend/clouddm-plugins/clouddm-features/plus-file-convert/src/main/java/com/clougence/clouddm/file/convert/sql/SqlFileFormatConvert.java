@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.file.convert.config.sql.SqlOption;
@@ -44,7 +46,6 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.WellKnowFormat;
 import com.clougence.utils.io.FileUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.slf4j.Logger;
 
 public class SqlFileFormatConvert implements FileFormatConvert {
 
@@ -195,6 +196,9 @@ public class SqlFileFormatConvert implements FileFormatConvert {
                 }
 
                 writeLength += (valueStr == null ? 4 : valueStr.length());
+                if (dataType == ResultType.JsonDoc) {
+                    dataType = ResultType.String;
+                }
                 rowData.addData(valueStr, dataType);
             }
             rows.add(rowData);

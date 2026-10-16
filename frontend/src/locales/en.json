@@ -4402,8 +4402,8 @@
   "qing-xuan-ze-fu-ze-ren": "Select an owner",
   "qing-kong-xuan-ze": "Clear selection",
   "hana-sql-structural-validation": "Only SQL structure is checked; expressions, object resolution and permissions are not validated.",
-  "sql-format-failed": "Cannot format this SQL: it may be incomplete or contain unsupported syntax. The original text is unchanged.",
-  "sql-format-unavailable": "SQL formatting is not available for this data source.",
+  "sql-format-failed": "Cannot format this statement: it may be incomplete or contain unsupported syntax. The original text is unchanged.",
+  "sql-format-unavailable": "Statement formatting is not available for this data source.",
   "sql-diagnostic-error": "SQL syntax error",
   "sql-diagnostic-mismatch": "Syntax error: unexpected \"{input}\"; expected {expected}.",
   "sql-diagnostic-extra": "Syntax error: extra input \"{input}\"; expected {expected}.",
@@ -4424,5 +4424,8 @@
   "query-fetched-count": "Fetched {0} records",
   "query-effective-statement": "Executed statement",
   "query-examples-icon": "E",
-  "query-examples-title": "Statement examples"
+  "query-examples-title": "Statement examples",
+  "query-json-view": "JSON view",
+  "query-text-view": "Text view",
+  "query-format-too-large": "The request exceeds the language service size limit and cannot be formatted."
 }

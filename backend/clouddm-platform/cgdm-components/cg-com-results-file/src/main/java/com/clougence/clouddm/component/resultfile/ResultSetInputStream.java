@@ -280,7 +280,7 @@ public abstract class ResultSetInputStream extends InputStream {
         long dataHeaderLen = dataPos - offset;
         String charsetName = null;
 
-        if (EntityType.isTypeOf(typeCode, EntityType.String)) {
+        if (typeCode == EntityType.String || typeCode == EntityType.JsonDoc) {
             byte nameDataLenFieldByte = (byte) this.getByte(dataPos);
             long nameDataLen = this.getLengthData(dataPos + 1, nameDataLenFieldByte);
             long nameDataPos = dataPos + 1 + nameDataLenFieldByte;
@@ -472,14 +472,14 @@ public abstract class ResultSetInputStream extends InputStream {
     }
 
     public void readStream(DataHeader header) throws IOException {
-        if (header.typeOf(EntityType.Bytes) || header.typeOf(EntityType.String)) {
+        if (header.typeOf(EntityType.Bytes) || header.typeOf(EntityType.String) || header.typeOf(EntityType.JsonDoc)) {
             DataHeader nextData = this.nextDataHeader();
             if (nextData.position != header.position) {
                 throw new IOException("Data header position mismatch: expected " + header.position + ", but got " + nextData.position);
             }
             this.nextDataAndGet();
         } else {
-            throw new IOException("Invalid data header, only Bytes/String support Stream.");
+            throw new IOException("Invalid data header, only Bytes/String/JsonDoc support Stream.");
         }
     }
 

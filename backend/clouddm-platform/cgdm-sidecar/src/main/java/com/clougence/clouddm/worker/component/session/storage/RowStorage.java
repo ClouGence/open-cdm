@@ -453,10 +453,19 @@ public class RowStorage implements Closeable {
 
     protected ResultSetValue addString(byte tag, Reader v, ValueFetcherContext fvc) {
         this.checkFinished();
+        boolean document = ColMetaData.JSON_DOCUMENT.equals(fvc.getMeta().getMeta().getColumnType());
+        int displayLimit = this.displayChars;
+        if (document) {
+            displayLimit = Integer.MAX_VALUE;
+        }
 
         if (this.usingCache) {
             try {
-                this.outputStream.writeString(tag, v, StandardCharsets.UTF_8);
+                if (document) {
+                    this.outputStream.writeJsonDocument(tag, v, StandardCharsets.UTF_8);
+                } else {
+                    this.outputStream.writeString(tag, v, StandardCharsets.UTF_8);
+                }
             } catch (IOException e) {
                 fvc.markError(e);
             }
@@ -472,7 +481,7 @@ public class RowStorage implements Closeable {
             long fullSize = ctx.fullSize();
 
             try {
-                String displayed = ctx.sampleData(this.displayChars);
+                String displayed = ctx.sampleData(displayLimit);
                 long moreSize = fullSize - displayed.length();
                 return ResultSetValue.of(complete, mask, displayed, moreSize, fullSize);
             } catch (IOException e) {
@@ -483,10 +492,19 @@ public class RowStorage implements Closeable {
 
     protected ResultSetValue addString(byte tag, String v, ValueFetcherContext fvc) {
         this.checkFinished();
+        boolean document = ColMetaData.JSON_DOCUMENT.equals(fvc.getMeta().getMeta().getColumnType());
+        int displayLimit = this.displayChars;
+        if (document) {
+            displayLimit = Integer.MAX_VALUE;
+        }
 
         if (this.usingCache) {
             try {
-                this.outputStream.writeString(tag, v, StandardCharsets.UTF_8);
+                if (document) {
+                    this.outputStream.writeJsonDocument(tag, v, StandardCharsets.UTF_8);
+                } else {
+                    this.outputStream.writeString(tag, v, StandardCharsets.UTF_8);
+                }
             } catch (IOException e) {
                 fvc.markError(e);
             }
@@ -503,7 +521,7 @@ public class RowStorage implements Closeable {
                 long fullSize = ctx.fullSize();
 
                 try {
-                    String displayed = ctx.sampleData(this.displayChars);
+                    String displayed = ctx.sampleData(displayLimit);
                     long moreSize = fullSize - displayed.length();
                     return ResultSetValue.of(complete, mask, displayed, moreSize, fullSize);
                 } catch (IOException e) {
@@ -511,7 +529,7 @@ public class RowStorage implements Closeable {
                 }
             } else {
                 int fullSize = v.length();
-                String displayed = (fullSize > this.displayChars) ? v.substring(0, this.displayChars) : v;
+                String displayed = (fullSize > displayLimit) ? v.substring(0, displayLimit) : v;
                 return ResultSetValue.of(true, mask, displayed, fullSize - displayed.length(), fullSize);
             }
         }

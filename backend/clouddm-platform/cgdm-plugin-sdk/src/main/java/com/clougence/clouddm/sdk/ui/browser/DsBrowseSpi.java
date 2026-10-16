@@ -31,6 +31,9 @@ public interface DsBrowseSpi extends Spi {
 
     Map<UmiTypes, List<UmiTypes>> getLeafGroupMap();
 
+    /** Display labels only; resource types and authorization paths remain unchanged. */
+    default Map<UmiTypes, String> getLeafLabels() { return Map.of(); }
+
     List<UmiTypes> getLeafExpand();
 
     String getLeftQualifier();
