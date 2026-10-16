@@ -25,19 +25,32 @@ public final class CteScope {
 
     private final Map<String, CteBinding> bindings = new LinkedHashMap<>();
     private final CteScope                outer;
+    private final boolean caseSensitive;
 
     public CteScope(CteScope outer){
+        this(outer, false);
+    }
+
+    public CteScope(CteScope outer, boolean caseSensitive) {
         this.outer = outer;
+        this.caseSensitive = caseSensitive;
+    }
+
+    private String key(String name) {
+        if (caseSensitive) {
+            return name;
+        }
+        return name.toLowerCase(Locale.ROOT);
     }
 
     public CteBinding register(LineageCte cte) {
         CteBinding binding = new CteBinding(cte);
-        bindings.put(cte.name().toLowerCase(Locale.ROOT), binding);
+        bindings.put(key(cte.name()), binding);
         return binding;
     }
 
     public CteBinding find(String name) {
-        CteBinding binding = bindings.get(name.toLowerCase(Locale.ROOT));
+        CteBinding binding = bindings.get(key(name));
         if (binding != null || outer == null) {
             return binding;
         }

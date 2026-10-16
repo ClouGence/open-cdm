@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import com.clickhouse.jdbc.ClickHouseDriver;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
@@ -70,7 +71,7 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
 
         String chSessionTimeoutMs = dsConfig.getProperty(DsConfigKeys.CH_SESSION_TIMEOUT_MS.getConfigKey());
         String jdbcUrl = buildJdbcUrl(dsConfig);
-        com.clickhouse.jdbc.ClickHouseDriver driver = new com.clickhouse.jdbc.ClickHouseDriver();
+        ClickHouseDriver driver = new ClickHouseDriver();
         boolean clientV2;
         if (StringUtils.isBlank(driverVersion)) {
             clientV2 = false;

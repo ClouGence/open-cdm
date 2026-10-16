@@ -21,7 +21,6 @@ import java.util.Map;
 import com.clougence.clouddm.dsfamily.definition.ui.editor.data.DsFamilyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.sqlserver.dialect.SqlServerDialect;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.ui.editor.data.DataEditorAttributeKeys;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorColumn;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
 import com.clougence.clouddm.sdk.ui.editor.data.reload.EditorResultSet;
@@ -63,6 +62,12 @@ public class SqlServerDataEditorSpi extends DsFamilyDataEditorSpi {
         sb.append(" where %%physloc%% like ");
         sb.append(whereData.get("RID"));
         return sb.toString();
+    }
+
+    @Override
+    protected String buildDefaultInsert(RdbTable tableMeta) {
+        String tableName = getDialect().fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
+        return "insert into " + tableName + " default values";
     }
 
     @Override
@@ -159,11 +164,4 @@ public class SqlServerDataEditorSpi extends DsFamilyDataEditorSpi {
         return Reload.reload(sb.toString());
     }
 
-    protected boolean insertIgnore(RdbColumn colDef, String colValue) {
-        String readOnly = colDef.getAttribute(DataEditorAttributeKeys.INSERT_READ_ONLY);
-        if (Boolean.parseBoolean(colDef.getAttribute(DataEditorAttributeKeys.AUTOINCREMENT)) && StringUtils.isBlank(colValue)) {
-            return true;
-        }
-        return Boolean.parseBoolean(readOnly);
-    }
 }

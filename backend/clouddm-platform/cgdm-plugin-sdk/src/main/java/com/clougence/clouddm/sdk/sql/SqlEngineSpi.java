@@ -17,6 +17,7 @@ package com.clougence.clouddm.sdk.sql;
 
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.QueryResourceResolver;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -64,6 +65,11 @@ public interface SqlEngineSpi extends Spi {
      * @param parameters parser parameters, or null/empty to use implementation defaults.
      */
     SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters);
+
+    /** Returns a resolver for commands whose resource selectors depend on live metadata. */
+    default QueryResourceResolver queryResourceResolver() {
+        return null;
+    }
 
     // editor
 

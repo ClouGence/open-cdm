@@ -32,6 +32,9 @@ public interface CmdTemplateSpi extends Spi {
 
     String getQuickQuery(CmdTemplateOption option);
 
+    /** Examples supported by this plugin; titles are plugin i18n keys. */
+    default List<CmdExample> getExamples() { return List.of(); }
+
     /**
      * contain table, view, materialized
      */

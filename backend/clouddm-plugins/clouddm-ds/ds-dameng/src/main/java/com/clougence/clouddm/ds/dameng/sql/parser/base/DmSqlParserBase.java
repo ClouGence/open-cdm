@@ -298,7 +298,7 @@ public abstract class DmSqlParserBase extends Parser {
     }
 
     protected boolean isWithinGroupFunction(String functionName) {
-        return isFunctionName(functionName, "listagg", "percentile_cont", "percentile_disc");
+        return isFunctionName(functionName, "listagg", "listagg2", "percentile_cont", "percentile_disc");
     }
 
     protected boolean isNullTreatmentFunction(String functionName) {

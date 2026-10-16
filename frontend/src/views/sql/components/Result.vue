@@ -63,7 +63,7 @@
           <div v-for="(info, index) in tab.executeInfo" :key="index" class="result-info">
             <div class="info info--query" v-if="info.resultType === 'QueryScript'">
               <div class="level">{{ info.line }}</div>
-              <ExecutionSqlText class="message" :sql="info.script" />
+              <ExecutionSqlText class="message" :sql="info.script" :language="executionLanguage" />
             </div>
             <div
               class="info"
@@ -102,10 +102,27 @@
         class="result-content-wrapper"
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
+        <div class="result-summary">
+          <span role="status">{{ $t('query-fetched-count', [selectedTab.fetchCount || 0]) }}</span>
+          <Poptip v-if="selectedTab.querySql" trigger="click" transfer placement="top-start">
+            <template #content>
+              <div class="query-rewrite-details">
+                <pre class="query-rewrite-sql">{{ selectedTab.querySql }}</pre>
+              </div>
+            </template>
+            <button type="button" class="result-summary-link">{{ $t('query-effective-statement') }}</button>
+          </Poptip>
+          <button type="button" class="result-summary-link" @click="handleResultTabChange('message')">{{ $t('zhi-hang-xin-xi') }}</button>
+        </div>
         <div class="tip-footer">
           <div class="tip-footer-main">
             <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
-              <div v-if="tab.running && selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
+              <div
+                v-if="
+                  (tab.running || selectedTab.refreshOnProgress) && selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]
+                "
+                class="paginated-loading"
+              >
                 <div class="loading-spinner"></div>
               </div>
               <Page
@@ -121,37 +138,42 @@
             <div v-else class="stream-info">
               <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
             </div>
-            <Poptip word-wrap trigger="hover" transfer placement="bottom" class="tip-footer-sql-pop">
+            <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
+            <Poptip v-if="selectedTab.rewriteTags?.length" trigger="hover" transfer placement="top-start" class="tip-footer-sql-pop">
               <template #content>
-                <div v-if="selectedTab.rewriteTags?.length">
-                  {{ $t('zhong-xie-mo-kuai') }}
-                  <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
-                </div>
-                <div>
-                  {{ $t('yuan-shi-yu-ju') }}
-                  <span class="font-bold">{{ selectedTab.rewriteTags?.length ? selectedTab.original : selectedTab.querySql }}</span>
+                <div class="query-rewrite-details">
+                  <div class="query-rewrite-section">
+                    <div class="query-rewrite-label">{{ $t('zhong-xie-mo-kuai') }}</div>
+                    <div class="query-rewrite-tags">
+                      <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
+                    </div>
+                  </div>
+                  <div class="query-rewrite-section">
+                    <div class="query-rewrite-label">{{ $t('yuan-shi-yu-ju') }}</div>
+                    <pre class="query-rewrite-sql">{{ selectedTab.original }}</pre>
+                  </div>
+                  <div class="query-rewrite-section">
+                    <div class="query-rewrite-label">{{ $t('gai-xie-yu-ju') }}</div>
+                    <pre class="query-rewrite-sql">{{ selectedTab.querySql }}</pre>
+                  </div>
                 </div>
               </template>
-              <span class="tip-footer-sql">
-                <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
-                <a-tag v-if="selectedTab.rewriteTags?.length > 0" color="blue">{{ $t('zhong-xie') }}</a-tag>
-                {{ this.selectedTab.querySql }}
-              </span>
+              <a-tag color="blue">{{ $t('zhong-xie') }}</a-tag>
             </Poptip>
-            <a-popover v-if="tab.cost && tab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
+            <a-popover v-if="selectedTab.cost && selectedTab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
               <template #content>
-                <div v-for="costPop in tab.cost.popList" :key="costPop.text">
+                <div v-for="costPop in selectedTab.cost.popList" :key="costPop.text">
                   <a-icon :type="costPop.icon" :style="`color: ${costPop.color}`" :theme="costPop.theme" />
                   {{ costPop.text }}
                 </div>
               </template>
               <div class="cost-pop-trigger" @click="handleClickCostPop">
                 <a-icon
-                  :type="tab.cost.popList[tab.cost.popIndex].icon"
-                  :style="`color: ${tab.cost.popList[tab.cost.popIndex].color}`"
-                  :theme="tab.cost.popList[tab.cost.popIndex].theme"
+                  :type="selectedTab.cost.popList[selectedTab.cost.popIndex].icon"
+                  :style="`color: ${selectedTab.cost.popList[selectedTab.cost.popIndex].color}`"
+                  :theme="selectedTab.cost.popList[selectedTab.cost.popIndex].theme"
                 />
-                {{ tab.cost.popList[tab.cost.popIndex].text }}
+                {{ selectedTab.cost.popList[selectedTab.cost.popIndex].text }}
               </div>
             </a-popover>
           </div>
@@ -443,6 +465,7 @@ import { isMySQL } from '@/utils';
 import { mapGetters, mapState } from 'vuex';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 import ExecutionSqlText from '@/views/sql/components/ExecutionSqlText.vue';
+import { getBaseEditorLanguage } from '@/components/editor/sqlLanguage';
 import ContextMenu from '@imengyu/vue3-context-menu';
 import XEClipboard from 'xe-clipboard';
 
@@ -460,7 +483,6 @@ export default {
   },
   data() {
     return {
-      exportTypes: [],
       contextData: null,
       actionType: '',
       currentTableName: '',
@@ -521,6 +543,8 @@ export default {
       editorHeight: 250,
       paginatedLoading: {}, // Loading status for each result set
       paginatedLoadingTimers: {}, // Loading timers keyed by result set
+      paginatedRequests: {}, // Latest page request for each result set
+      paginatedRequestId: 0,
       columnWidths: {}, // Stored column widths
       tableScrollY: 240,
       tableResizeObserver: null
@@ -529,6 +553,12 @@ export default {
   computed: {
     ...mapState(['dmGlobalSetting']),
     ...mapGetters(['getQualifier']),
+    executionLanguage() {
+      return getBaseEditorLanguage(this.tab.dsType);
+    },
+    exportTypes() {
+      return this.dmGlobalSetting.fmtConvertDef || [];
+    },
     filteredColumns() {
       const keyword = (this.columnSearch || '').toLowerCase();
       return (this.insertOption.columns || []).filter((c) => !keyword || (c.columnName || '').toLowerCase().includes(keyword));
@@ -568,7 +598,9 @@ export default {
       return {
         resultId: this.selectedTab.resultId,
         receiveMode: this.selectedTab.receiveMode,
-        fetchCount: this.selectedTab.fetchCount
+        refreshOnProgress: this.selectedTab.refreshOnProgress,
+        fetchCount: this.selectedTab.fetchCount,
+        page: this.selectedTab.page
       };
     },
     antdColumns() {
@@ -613,6 +645,13 @@ export default {
   watch: {
     selectedResultProgress: {
       handler(current, previous) {
+        if (current.refreshOnProgress) {
+          if (current.receiveMode === 'PAGINATED' && current.resultId && current.fetchCount > 0) {
+            // Progress is published after cached rows are flushed.
+            this.changePage(current.page);
+          }
+          return;
+        }
         if (!this.tab.running || current.receiveMode !== 'PAGINATED' || !current.resultId) {
           return;
         }
@@ -633,7 +672,7 @@ export default {
           delete this.paginatedLoadingTimers[resultId];
         }, 2000);
       },
-      immediate: false
+      immediate: true
     },
     'tab.running': {
       handler(running) {
@@ -667,7 +706,6 @@ export default {
     }
   },
   mounted() {
-    this.exportTypes = this.dmGlobalSetting.fmtConvertDef;
     this.initAllTabsExportState();
     this.$bus.on(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO, (info) => {
       // Export info events contain resultId in ResultSetMeta, so cacheFile no longer needs separate handling.
@@ -718,6 +756,7 @@ export default {
     this.$bus.off('consoleMessageAppend');
     this.$bus.off(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO);
     this.$bus.off(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT);
+    this.paginatedRequests = {};
     const loadingTimerIds = Object.keys(this.paginatedLoadingTimers);
     for (let i = 0; i < loadingTimerIds.length; i++) {
       clearTimeout(this.paginatedLoadingTimers[loadingTimerIds[i]]);
@@ -1005,11 +1044,11 @@ export default {
 
       let text = String(value);
       const cellMeta = this.getCellValueMeta(column, rowIndex);
-      if (cellMeta && !cellMeta.complete && !cellMeta.error && !cellMeta.mask && cellMeta.moreSize > 0) {
+      if (cellMeta && !cellMeta.error && !cellMeta.mask && cellMeta.moreSize > 0) {
         try {
-          text = await this.fetchFullCellText(cellMeta, text);
+          text = await this.fetchFullCellText(cellMeta);
         } catch (error) {
-          appLogger.error('复制单元格完整内容失败:', error);
+          appLogger.error('Failed to copy the full cell value:', error);
           this.$Message.error(this.$t('fu-zhi-shi-bai'));
           return;
         }
@@ -1026,7 +1065,7 @@ export default {
         return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
       }
       if (receiveMode === 'STREAM') {
-        return rowIndex;
+        return Math.max(0, this.selectedTab.streamData.length - 30) + rowIndex;
       }
       const pageSize = this.selectedTab.size || 50;
       return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
@@ -1064,12 +1103,8 @@ export default {
           }
         } else if (receiveMode === 'STREAM') {
           const rowSetStream = this.selectedTab.rowSetStream;
-          const streamData = this.selectedTab.streamData || [];
-          const displayCount = 30;
-          const startIndex = streamData.length > displayCount ? streamData.length - displayCount : 0;
-          const actualIndex = startIndex + rowIndex;
-          if (rowSetStream && rowSetStream[actualIndex]) {
-            const rowItem = rowSetStream[actualIndex];
+          if (rowSetStream && rowSetStream[rowIndex]) {
+            const rowItem = rowSetStream[rowIndex];
             const rowData = rowItem.data || rowItem.row;
             if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
               cellValue = rowData[colIndex];
@@ -1096,10 +1131,11 @@ export default {
 
       return meta;
     },
-    async fetchFullCellText(cellMeta, initialValue) {
-      let content = initialValue || '';
+    async fetchFullCellText(cellMeta) {
+      let content = '';
       let moreSize = cellMeta.moreSize || 0;
       const fetchSize = 128 * 1024;
+      let offset = 0;
       let guard = 0;
 
       while (moreSize > 0 && guard < 100) {
@@ -1109,7 +1145,7 @@ export default {
             resultId: cellMeta.resultId,
             rowNumber: cellMeta.rowNumber,
             colNumber: cellMeta.colIndex,
-            offset: content.length,
+            offset,
             fetchSize
           }
         });
@@ -1118,7 +1154,7 @@ export default {
           throw new Error(res.message || 'fetch failed');
         }
 
-        const dataValue = res.data.value || res.data;
+        const dataValue = res.data.value;
         if (dataValue.error) {
           throw new Error('fetch error');
         }
@@ -1129,10 +1165,13 @@ export default {
         }
 
         content += chunk;
+        // Offsets count characters for text and bytes for binary values, not rendered hex characters.
+        offset += fetchSize;
         moreSize = dataValue.moreSize || 0;
-        if (dataValue.complete) {
-          break;
-        }
+      }
+
+      if (moreSize > 0) {
+        throw new Error('Cell value exceeds the copy fetch limit');
       }
 
       return content;
@@ -1313,13 +1352,27 @@ export default {
         const pageSize = 30;
         const offsetRow = (page - 1) * pageSize;
 
-        // Check cache.
-        if (tab.pageCache && tab.pageCache[page]) {
+        const expectedRows = Math.min(pageSize, Math.max(0, tab.fetchCount - offsetRow));
+        // A cached partial page becomes stale as additional rows arrive.
+        const cachedPage = tab.pageCache?.[page];
+        if (cachedPage && (!tab.refreshOnProgress || cachedPage.length >= expectedRows)) {
+          delete this.paginatedRequests[tab.resultId];
+          if (tab.refreshOnProgress) {
+            this.paginatedLoading[tab.resultId] = false;
+          }
           tab.showData = tab.pageCache[page];
           return;
         }
 
-        // Call API to fetch data.
+        const pending = this.paginatedRequests[tab.resultId];
+        if (pending && pending.page === page && pending.fetchCount === tab.fetchCount) {
+          return;
+        }
+        const request = { id: ++this.paginatedRequestId, page, fetchCount: tab.fetchCount };
+        this.paginatedRequests[tab.resultId] = request;
+        if (tab.refreshOnProgress) {
+          this.paginatedLoading[tab.resultId] = true;
+        }
         try {
           const res = await this.$services.dmQueryFetchResultPage({
             data: {
@@ -1329,6 +1382,9 @@ export default {
             }
           });
 
+          if (this.paginatedRequests[tab.resultId]?.id !== request.id) {
+            return;
+          }
           if (res.success && res.data && res.data.rowSet) {
             const { rowSet } = res.data;
             const { columnList } = tab;
@@ -1352,8 +1408,14 @@ export default {
             if (!tab.pageCache) {
               tab.pageCache = {};
             }
+            // A WebSocket result may have filled this page while the request was in flight.
+            if (tab.refreshOnProgress && tab.pageCache[page]?.length > list.length) {
+              return;
+            }
             tab.pageCache[page] = list;
-            tab.showData = list;
+            if (tab.page === page) {
+              tab.showData = list;
+            }
             // Save original rowSet data for moreSize and other metadata.
             if (!tab.rowSetCache) {
               tab.rowSetCache = {};
@@ -1361,11 +1423,18 @@ export default {
             tab.rowSetCache[page] = rowSet; // Save raw data from the current page
           }
         } catch (error) {
-          appLogger.error('获取分页数据失败:', error);
-          this.$Message.error(this.$t('huo-qu-fen-ye-shu-ju-shi-bai'));
+          if (this.paginatedRequests[tab.resultId]?.id === request.id) {
+            appLogger.error('获取分页数据失败:', error);
+            this.$Message.error(this.$t('huo-qu-fen-ye-shu-ju-shi-bai'));
+          }
+        } finally {
+          if (this.paginatedRequests[tab.resultId]?.id === request.id) {
+            delete this.paginatedRequests[tab.resultId];
+            if (tab.refreshOnProgress) {
+              this.paginatedLoading[tab.resultId] = false;
+            }
+          }
         }
-      } else if (receiveMode === 'STREAM') {
-        tab.page = page;
       } else {
         tab.page = page;
         tab.showData = tab.dataArr[page - 1];
@@ -2182,6 +2251,25 @@ export default {
   z-index: 9;
 }
 
+.result-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.result-summary-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--link-color, #1b61c9);
+  font: inherit;
+  cursor: pointer;
+}
+
 .tip-footer-main {
   flex: 1;
   min-width: 0;
@@ -2207,20 +2295,41 @@ export default {
 }
 
 .tip-footer-sql-pop {
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: 400px;
-  overflow: hidden;
+  flex-shrink: 0;
+  cursor: help;
 }
 
-.tip-footer-sql {
-  display: inline-block;
-  max-width: 100%;
-  padding-right: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: middle;
+.query-rewrite-details {
+  width: 560px;
+  max-width: calc(100vw - 64px);
+  max-height: ~'min(240px, 35vh)';
+  overflow: auto;
+  white-space: normal;
+}
+
+.query-rewrite-section + .query-rewrite-section {
+  margin-top: 16px;
+}
+
+.query-rewrite-label {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.query-rewrite-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.query-rewrite-sql {
+  margin: 0;
+  font-family: Menlo, Monaco, 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .tip-footer-right {

@@ -25,6 +25,18 @@ import com.clougence.utils.i18n.I18nUtils;
 
 public interface DataEditorSpi extends Spi {
 
+    /** Use database metadata instead of editor headers when generating write statements. */
+    default boolean requiresServerMetadata() {
+        return false;
+    }
+
+    default boolean isReadOnly(RdbTable tableMeta) {
+        return false;
+    }
+
+    default void validateUpdateCount(long updateCount) {
+    }
+
     String buildInsert(RdbTable tableMeta, Map<String, String> recordData);
 
     String buildUpdate(RdbTable tableMeta, Map<String, String> whereData, Map<String, String> setData);

@@ -16,11 +16,14 @@
 package com.clougence.clouddm.ds.mariadb.execute;
 
 import java.sql.Connection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyEditorProvider;
 import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,13 @@ public class MarMetaService extends MyMetaService {
 
     public MarMetaService(Session rdbSession){
         super(rdbSession);
+    }
+
+    @Override
+    public Map<String, String> getSqlParserParameters() {
+        Map<String, String> parameters = new LinkedHashMap<>(super.getSqlParserParameters());
+        parameters.put(SqlParserParameters.GRAMMAR_VERSION, "MariaDB");
+        return parameters;
     }
 
     @Override

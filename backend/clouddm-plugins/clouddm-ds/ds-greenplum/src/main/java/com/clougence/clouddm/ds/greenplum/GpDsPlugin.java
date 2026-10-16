@@ -33,6 +33,8 @@ import com.clougence.clouddm.ds.greenplum.execute.GpSessionSpi;
 import com.clougence.clouddm.ds.greenplum.execute.GpSupportSpi;
 import com.clougence.clouddm.ds.greenplum.i18n.GpDsI18nKeys;
 import com.clougence.clouddm.ds.greenplum.resource.GpEditorResourceSpi;
+import com.clougence.clouddm.ds.greenplum.sql.GpSqlEngineSpi;
+import com.clougence.clouddm.ds.greenplum.sql.analysis.sysobj.GpSysObjectRegistrySpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.template.PgCmdTemplateSpi;
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
@@ -77,12 +79,14 @@ public class GpDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configBasic(DsPluginBinder dsPlugin) {
         dsPlugin.addPluginSpi(new GpConfigSpi());
         dsPlugin.addPluginSpi(new GpSerializationSpi(dsPlugin.getPluginClassLoader()));
+        dsPlugin.addGlobalSpi(new GpSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new GpSysObjectRegistrySpi());
     }
 
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(GpSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
-        dsPlugin.bindSqlEngine("PG SQL", "ISO-SQL-92", "ISO-SQL-99");
+        dsPlugin.bindSqlEngine("Greenplum SQL", "ISO-SQL-92", "ISO-SQL-99");
 
         dsPlugin.addPluginSpi(new GpSessionSpi());
         dsPlugin.addPluginSpi(new GpSupportSpi());

@@ -376,6 +376,8 @@ public enum HanaTypes implements FieldType {
     static {
         ALIAS_NAMES_MAP.put("INT", "INTEGER");
         ALIAS_NAMES_MAP.put("LONGDATE", "TIMESTAMP");
+        ALIAS_NAMES_MAP.put("DAYDATE", "DATE");
+        ALIAS_NAMES_MAP.put("SECONDTIME", "TIME");
     }
 
     // hana support column/row table, row table fit tp, column table fit ap

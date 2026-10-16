@@ -35,6 +35,7 @@ import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -51,6 +52,7 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -80,6 +82,9 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     private DmAuthServiceForManage authServiceForManage;
     @Resource
     private DmDsConfigService      dmDsConfigService;
+
+    @Resource
+    private DsSchemaService        dsSchemaService;
 
     @Override
     public void checkResPath(String puid, String uid, long resId, AuthKind authKind, DsResPath resPath, String dataAuthLabel) {
@@ -125,11 +130,26 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
 
         DmDsDO dsDO = levels.dsDO();
         long dsId = dsDO.getId();
-        String sqlEngineName = this.dmDsConfigService.fetchSqlEngineSpi(dsId).name();
+        var sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(dsId);
+        String sqlEngineName = sqlEngine.name();
         SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngineName);
         String currentResourcePath = DmDsUtils.currentResourcePath(levels.levelsParam());
         String instanceResourcePath = DmDsUtils.instanceResourcePath(levels.levelsParam());
         for (QueryRequest request : requests) {
+            var resolver = sqlEngine.queryResourceResolver();
+            if (resolver != null) {
+                resolver.resolve(request, type -> this.dsSchemaService.listLeaf(dsDO, levels.levelsParam(), type, null, true)
+                    .stream()
+                    .map(DsElement::getObjName)
+                    .toList(), relation -> {
+                        var resources = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), List.of(relation));
+                        return resources.stream().allMatch(resource -> {
+                            String path = BehaviorRelations.resourcePath(resource.resource(), currentResourcePath, instanceResourcePath);
+                            return resource.authKind() == null
+                                   || this.checkResPathWithoutError(puid, uid, dsId, AuthKind.DataSource, () -> path, resource.authKind().getAuthLabel());
+                        });
+                    });
+            }
             List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations());
             for (BehaviorRequest behavior : behaviors) {
                 if (behavior.authKind() == null) {

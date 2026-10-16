@@ -18,6 +18,8 @@ export const getLanguage = (type) => {
       return 'redis';
     case 'Valkey':
       return 'redis';
+    case 'Kafka':
+      return 'kafka';
     default:
       return 'sql';
   }

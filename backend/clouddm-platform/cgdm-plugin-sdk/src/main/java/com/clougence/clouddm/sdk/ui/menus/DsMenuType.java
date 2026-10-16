@@ -66,6 +66,8 @@ public enum DsMenuType {
     //
     Endpoint(UmiTypes.Endpoint.getTypeName()),
     Topic(UmiTypes.Topic.getTypeName()),
+    MqTopicPropGroup("MQ_TOPIC_PROP_GROUP"),
+    MqTopicProp("MQ_TOPIC_PROP"),
     Key(UmiTypes.Key.getTypeName()),;
 
     private final String typeName;

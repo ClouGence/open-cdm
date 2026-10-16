@@ -1,8 +1,10 @@
 import { getLanguage } from '@/utils/tools';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
+import { kafkaLanguage } from './kafkaLanguage';
 
 const keywordCache = {};
-const registeredLanguages = {};
+const registeredLanguages = new Set();
+const languageDefinitions = { kafka: kafkaLanguage };
 
 export function getDsSetting(settings, dsType) {
   if (!dsType || !settings) {
@@ -21,6 +23,11 @@ export function getBaseEditorLanguage(dsType, fallbackLanguage = 'sql') {
 
 export async function resolveSqlEditorLanguage(monaco, dsType, settings, fallbackLanguage = 'sql', languageCapability = null) {
   const baseLanguage = getBaseEditorLanguage(dsType, fallbackLanguage);
+  const definition = languageDefinitions[baseLanguage];
+  if (definition) {
+    registerLanguage(monaco, baseLanguage, definition);
+    return baseLanguage;
+  }
   const keywordResource = languageCapability?.keywordResource;
   if (!keywordResource) {
     return baseLanguage;
@@ -34,7 +41,7 @@ export async function resolveSqlEditorLanguage(monaco, dsType, settings, fallbac
   const languageId = `cgdm-sql-${String(dsType)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')}`;
-  registerKeywordLanguage(monaco, languageId, keywords);
+  registerLanguage(monaco, languageId, createKeywordLanguage(keywords));
   return languageId;
 }
 
@@ -71,47 +78,56 @@ async function loadKeywordResource(resource) {
   return keywordCache[resource];
 }
 
-function registerKeywordLanguage(monaco, languageId, keywords) {
-  if (registeredLanguages[languageId]) {
+function registerLanguage(monaco, languageId, definition) {
+  if (registeredLanguages.has(languageId)) {
     return;
   }
-  registeredLanguages[languageId] = true;
 
   monaco.languages.register({ id: languageId });
-  monaco.languages.setMonarchTokensProvider(languageId, {
-    ignoreCase: true,
-    keywords,
-    tokenizer: {
-      root: [
-        [/[a-zA-Z_][\w$]*/, { cases: { '@keywords': 'keyword', '@default': 'identifier' } }],
-        [/--.*$/, 'comment'],
-        [/#.*$/, 'comment'],
-        [/\/\*/, 'comment', '@comment'],
-        [/"([^"\\]|\\.)*$/, 'string.invalid'],
-        [/'([^'\\]|\\.)*$/, 'string.invalid'],
-        [/"/, 'string', '@doubleString'],
-        [/'/, 'string', '@singleString'],
-        [/[{}()[\]]/, '@brackets'],
-        [/[;,.]/, 'delimiter'],
-        [/\d+\.\d+([eE][+-]?\d+)?/, 'number.float'],
-        [/\d+/, 'number'],
-        [/[+\-*/%=<>!~|&]+/, 'operator']
-      ],
-      comment: [
-        [/[^*/]+/, 'comment'],
-        [/\*\//, 'comment', '@pop'],
-        [/[*/]/, 'comment']
-      ],
-      doubleString: [
-        [/[^\\"]+/, 'string'],
-        [/\\./, 'string.escape'],
-        [/"/, 'string', '@pop']
-      ],
-      singleString: [
-        [/[^\\']+/, 'string'],
-        [/\\./, 'string.escape'],
-        [/'/, 'string', '@pop']
-      ]
+  if (definition.configuration) {
+    monaco.languages.setLanguageConfiguration(languageId, definition.configuration);
+  }
+  monaco.languages.setMonarchTokensProvider(languageId, definition.tokens);
+  registeredLanguages.add(languageId);
+}
+
+function createKeywordLanguage(keywords) {
+  return {
+    tokens: {
+      ignoreCase: true,
+      keywords,
+      tokenizer: {
+        root: [
+          [/[a-zA-Z_][\w$]*/, { cases: { '@keywords': 'keyword', '@default': 'identifier' } }],
+          [/--.*$/, 'comment'],
+          [/#.*$/, 'comment'],
+          [/\/\*/, 'comment', '@comment'],
+          [/"([^"\\]|\\.)*$/, 'string.invalid'],
+          [/'([^'\\]|\\.)*$/, 'string.invalid'],
+          [/"/, 'string', '@doubleString'],
+          [/'/, 'string', '@singleString'],
+          [/[{}()[\]]/, '@brackets'],
+          [/[;,.]/, 'delimiter'],
+          [/\d+\.\d+([eE][+-]?\d+)?/, 'number.float'],
+          [/\d+/, 'number'],
+          [/[+\-*/%=<>!~|&]+/, 'operator']
+        ],
+        comment: [
+          [/[^*/]+/, 'comment'],
+          [/\*\//, 'comment', '@pop'],
+          [/[*/]/, 'comment']
+        ],
+        doubleString: [
+          [/[^\\"]+/, 'string'],
+          [/\\./, 'string.escape'],
+          [/"/, 'string', '@pop']
+        ],
+        singleString: [
+          [/[^\\']+/, 'string'],
+          [/\\./, 'string.escape'],
+          [/'/, 'string', '@pop']
+        ]
+      }
     }
-  });
+  };
 }

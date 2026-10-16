@@ -1,0 +1,4 @@
+interface:
+  display_name: "Open CDM Upgrade Version"
+  short_description: "通过 SSH 安全升级并验证 Open-CDM 测试环境"
+  default_prompt: "使用 $open-cdm-upgrade-version 升级指定 SSH 用户名和 host 上的 Open-CDM 测试环境。"

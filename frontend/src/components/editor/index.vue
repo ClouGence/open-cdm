@@ -10,6 +10,7 @@ import { requestWebSocket } from '@/services/socket';
 import { WS_TYPE } from '@/utils';
 import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
 import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { canFormatSql, formatSqlDocument } from './sqlFormat';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const LANGUAGE_SPLIT_DELAY_MS = 500;
@@ -98,8 +99,14 @@ export default {
   },
   mounted() {
     this.init();
+    document.addEventListener('click', this.handleFontSizeOutsideClick);
   },
   methods: {
+    handleFontSizeOutsideClick(event) {
+      if (this.fontSizePanelExpanded && !this.$refs.fontSizeButtons?.contains(event.target)) {
+        this.fontSizePanelExpanded = false;
+      }
+    },
     async init() {
       this.currentTab.language = await resolveSqlEditorLanguage(
         monaco,
@@ -255,28 +262,31 @@ export default {
       };
     },
     formatDiagnosticMessage(message) {
+      if (message && this.$te(message)) {
+        return this.$t(message);
+      }
       if (!message) {
-        return 'SQL 语法错误';
+        return this.$t('sql-diagnostic-error');
       }
 
       let match = message.match(/^mismatched input '(.+)' expecting (.+)$/);
       if (match) {
-        return `语法错误：不应出现 "${match[1]}"，此处应为 ${this.formatExpectedTokens(match[2])}。`;
+        return this.$t('sql-diagnostic-mismatch', { input: match[1], expected: this.formatExpectedTokens(match[2]) });
       }
 
       match = message.match(/^extraneous input '(.+)' expecting (.+)$/);
       if (match) {
-        return `语法错误：多余的输入 "${match[1]}"，此处应为 ${this.formatExpectedTokens(match[2])}。`;
+        return this.$t('sql-diagnostic-extra', { input: match[1], expected: this.formatExpectedTokens(match[2]) });
       }
 
       match = message.match(/^missing (.+) at '(.+)'$/);
       if (match) {
-        return `语法错误：在 "${match[2]}" 附近缺少 ${this.formatExpectedTokens(match[1])}。`;
+        return this.$t('sql-diagnostic-missing', { input: match[2], expected: this.formatExpectedTokens(match[1]) });
       }
 
       match = message.match(/^no viable alternative at input (.+)$/);
       if (match) {
-        return `语法错误：无法识别 "${match[1]}" 附近的 SQL 结构。`;
+        return this.$t('sql-diagnostic-unrecognized', { input: match[1] });
       }
 
       return message;
@@ -287,17 +297,17 @@ export default {
         .split(',')
         .map((token) => this.formatExpectedToken(token.trim()))
         .filter(Boolean)
-        .join(' 或 ');
+        .join(this.$t('sql-diagnostic-or'));
     },
     formatExpectedToken(token) {
       const normalized = token.replace(/^'|'$/g, '');
       const tokenNameMap = {
-        '<EOF>': '语句结束',
-        EOF: '语句结束',
-        '--': '"--" 注释',
-        ';': '分号',
-        ID: '标识符',
-        IDENTIFIER: '标识符'
+        '<EOF>': this.$t('sql-token-end'),
+        EOF: this.$t('sql-token-end'),
+        '--': this.$t('sql-token-comment'),
+        ';': this.$t('sql-token-semicolon'),
+        ID: this.$t('sql-token-identifier'),
+        IDENTIFIER: this.$t('sql-token-identifier')
       };
       return tokenNameMap[normalized] || `"${normalized}"`;
     },
@@ -521,6 +531,9 @@ export default {
         iconEl.setAttribute('data-cgdm-icon', icon);
       });
     },
+    isHana() {
+      return (this.currentTab?.dsType || this.currentTab?.node?.INSTANCE?.attr?.dsType) === 'Hana';
+    },
     getDsLanguageCapability() {
       return this.currentTab?.support?.language || null;
     },
@@ -654,7 +667,7 @@ export default {
       if (model.getVersionId() === this.splitModelVersionId) {
         statement = this.findStatementAtPosition(position, model);
       }
-      if (!statement) {
+      if (!statement && !this.isHana()) {
         statement = this.findLocalStatementAtPosition(position, model);
       }
       if (!statement) {
@@ -983,6 +996,9 @@ export default {
       );
     },
     findSqlFragmentRanges(text) {
+      if (this.isHana()) {
+        return [{ startOffset: 0, endOffset: text.length }];
+      }
       const ranges = [];
       let startOffset = 0;
       let quote = null;
@@ -1226,7 +1242,11 @@ export default {
       return Array.from(suggestions.values()).sort((left, right) => this.compareCompletionSuggestions(left, right));
     },
     completionSuggestionKey(item) {
-      return `${item.kind || ''}:${this.getCompletionLabelText(item.label).toUpperCase()}`;
+      const label = this.getCompletionLabelText(item.label);
+      if (this.isHana()) {
+        return `${item.kind || ''}:${label}`;
+      }
+      return `${item.kind || ''}:${label.toUpperCase()}`;
     },
     toCompletionSortText(weight, label) {
       if (Number.isFinite(weight)) {
@@ -1346,7 +1366,28 @@ export default {
       });
       this.hoverProviderList.push(providerItem);
     },
-    formatSql() {},
+    formatSql() {
+      if (!canFormatSql(this.currentTab)) {
+        this.showLanguageServiceError(this.$t('sql-format-unavailable'));
+        return;
+      }
+      const editor = this.monacoEditor;
+      const model = editor?.getModel();
+      if (!model) {
+        return;
+      }
+      // Format the full document so selections inside literals/comments cannot change their contents.
+      const range = model.getFullModelRange();
+      const formatted = formatSqlDocument(model.getValue(), this.currentTab.dsType);
+      if (formatted === null) {
+        this.showLanguageServiceError(this.$t('sql-format-failed'));
+        return;
+      }
+      if (formatted === model.getValue()) return;
+      editor.pushUndoStop();
+      editor.executeEdits('sql-format', [{ range, text: formatted, forceMoveMarkers: true }]);
+      editor.pushUndoStop();
+    },
     getCurrentSqlTarget() {
       const model = this.monacoEditor?.getModel();
       const position = this.monacoEditor?.getPosition();
@@ -1364,6 +1405,9 @@ export default {
         };
       }
 
+      if (this.isHana()) {
+        return { sql: '', position: null };
+      }
       if (!position) {
         return {
           sql: model.getValue(),
@@ -1429,6 +1473,7 @@ export default {
       localStorage.setItem(SQL_EDITOR_FONT_SIZE_STORAGE_KEY, String(size));
       this.monacoEditor?.updateOptions({ fontSize: size });
       this.monacoEditorFountCss = `font-size-${size}`;
+      this.fontSizePanelExpanded = false;
     },
     getSQLSuggest(keywords) {
       const list = keywords.map((key) => ({
@@ -1535,6 +1580,7 @@ export default {
     }
   },
   beforeUnmount() {
+    document.removeEventListener('click', this.handleFontSizeOutsideClick);
     this.handleDispose();
   },
   watch: {
@@ -1551,22 +1597,23 @@ export default {
 
 <template>
   <div class="monaco-editor">
-    <div class="font-size-buttons" @mouseenter="fontSizePanelExpanded = true" @mouseleave="fontSizePanelExpanded = false">
+    <div class="font-size-buttons" ref="fontSizeButtons">
       <div class="language-service-error" v-if="languageServiceErrorMessage">
         {{ languageServiceErrorMessage }}
       </div>
-      <ButtonGroup>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(12)">
+      <ButtonGroup v-if="fontSizePanelExpanded" class="font-size-options">
+        <Button size="small" @click="setFontSize(12)">
           {{ $t('zi-hao-1') }}
         </Button>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(16)">
+        <Button size="small" @click="setFontSize(16)">
           {{ $t('zi-hao-2') }}
         </Button>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(20)">
+        <Button size="small" @click="setFontSize(20)">
           {{ $t('zi-hao-3') }}
         </Button>
-        <Button size="small" v-if="!fontSizePanelExpanded">T</Button>
       </ButtonGroup>
+      <Button size="small" :aria-expanded="fontSizePanelExpanded" @click.stop="fontSizePanelExpanded = !fontSizePanelExpanded">T</Button>
+      <slot name="editor-controls" />
     </div>
     <div :class="`${monacoEditorFountCss} monaco-editor-content`" ref="monacoEditor"></div>
   </div>
@@ -1703,8 +1750,8 @@ export default {
   right: 17px;
   z-index: 10;
   display: flex;
-  align-items: flex-start;
-  gap: 5px;
+  align-items: center;
+  gap: 4px;
 }
 .language-service-error {
   max-width: 360px;

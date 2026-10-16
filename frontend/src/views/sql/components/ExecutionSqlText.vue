@@ -99,10 +99,17 @@ export default {
     sql: {
       type: String,
       default: ''
+    },
+    language: {
+      type: String,
+      default: 'sql'
     }
   },
   computed: {
     tokens() {
+      if (!['sql', 'mysql', 'pgsql'].includes(this.language)) {
+        return [{ text: this.sql, type: '' }];
+      }
       return (this.sql.match(SQL_TOKEN_PATTERN) || []).map((text) => ({
         text,
         type: getTokenType(text)

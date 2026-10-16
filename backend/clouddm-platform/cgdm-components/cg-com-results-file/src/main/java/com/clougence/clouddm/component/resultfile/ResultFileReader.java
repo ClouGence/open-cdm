@@ -21,6 +21,8 @@ import java.math.BigInteger;
 import java.time.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.component.resultfile.ResultSetInputStream.DataHeader;
+import com.clougence.clouddm.component.resultfile.ResultSetInputStream.RowHeader;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.resultset.file.ResultReader;
 import com.clougence.clouddm.sdk.execute.resultset.file.ResultSetFileCode;
@@ -30,8 +32,6 @@ import com.clougence.clouddm.sdk.execute.session.result.ReaderOptions;
 import com.clougence.utils.HexadecimalUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.io.IOUtils;
-import com.clougence.clouddm.component.resultfile.ResultSetInputStream.DataHeader;
-import com.clougence.clouddm.component.resultfile.ResultSetInputStream.RowHeader;
 
 public class ResultFileReader implements ResultReader {
 
@@ -286,7 +286,9 @@ public class ResultFileReader implements ResultReader {
                     ByteArrayOutputStream tmp = new ByteArrayOutputStream();
                     IOUtils.copyLarge(this.resultInput, tmp, offset, length);
                     byte[] tmpBytes = tmp.toByteArray();
-                    value = HexadecimalUtils.bytes2hex(tmpBytes);
+                    if (!header.isNull()) {
+                        value = HexadecimalUtils.bytes2hex(tmpBytes);
+                    }
                     moreSize = this.resultInput.available();
                 } finally {
                     this.resultInput.finishReadData();

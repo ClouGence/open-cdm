@@ -293,7 +293,9 @@ public class AutoExecJob implements Runnable {
             log.error("auto execution job failed, jobId: " + job.getJobId(), e);
             return JobResult.FAILED;
         } finally {
-            sessionAgent.setAutoCommit(true);
+            if (transaction) {
+                sessionAgent.setAutoCommit(true);
+            }
         }
     }
 

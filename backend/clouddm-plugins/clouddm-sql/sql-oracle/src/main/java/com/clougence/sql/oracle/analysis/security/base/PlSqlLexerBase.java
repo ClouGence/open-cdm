@@ -27,9 +27,7 @@ public abstract class PlSqlLexerBase extends Lexer {
         self = this;
     }
 
-    protected boolean IsNewlineAtPos(int pos) {
-        // Use the column to locate the preceding line boundary: streaming input
-        // may already have discarded that character (for example, LA(-4)).
-        return getCharPositionInLine() == -pos - 1;
+    protected boolean isAtLineStart() {
+        return _tokenStartCharPositionInLine == 0;
     }
 }

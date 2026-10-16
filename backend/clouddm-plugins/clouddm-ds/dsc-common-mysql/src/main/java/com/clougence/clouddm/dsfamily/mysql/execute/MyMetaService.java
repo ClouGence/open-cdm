@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyEditorProvider;
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 import com.clougence.clouddm.sdk.execute.session.Session;
@@ -28,7 +29,6 @@ import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.sql.mysql.parser.MySqlVersion;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.jdbc.mapper.SingleValueRowMapper;
@@ -51,14 +51,13 @@ public class MyMetaService extends DefaultRdbMetaService {
             return this.rdbSession.executeQuery(c -> {
                 try (Statement statement = c.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT VERSION(), @@SESSION.sql_mode")) {
                     if (!resultSet.next()) {
-                        return Map.of(SqlParserParameters.VERSION, MySqlVersion.LATEST.versionString());
+                        return Map.of();
                     }
 
                     Map<String, String> parameters = new LinkedHashMap<>();
                     String version = resultSet.getString(1);
-                    parameters.put(SqlParserParameters.VERSION, MySqlVersion.parse(version).versionString());
                     if (StringUtils.isNotBlank(version)) {
-                        parameters.put(SqlParserParameters.EXACT_VERSION, Integer.toString(MySqlVersion.parseExactVersion(version)));
+                        parameters.put(SqlParserParameters.VERSION, version);
                     }
                     String sqlMode = resultSet.getString(2);
                     parameters.put(SqlParserParameters.SQL_MODE, sqlMode == null ? "" : sqlMode);
@@ -67,7 +66,7 @@ public class MyMetaService extends DefaultRdbMetaService {
             });
         } catch (Exception e) {
             log.warn("Get SQL parser parameters failed: {}", ExceptionUtils.getRootCauseMessage(e));
-            return Map.of(SqlParserParameters.VERSION, MySqlVersion.LATEST.versionString());
+            return Map.of();
         }
     }
 

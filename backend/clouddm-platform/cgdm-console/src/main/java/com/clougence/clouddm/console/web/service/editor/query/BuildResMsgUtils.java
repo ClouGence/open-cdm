@@ -97,6 +97,7 @@ public class BuildResMsgUtils {
         dto.setColumnList(result.getColumnList());
         dto.setColumnType(result.getColumnType());
         dto.setReceiveMode(result.getReceiveMode());
+        dto.setRefreshOnProgress(result.isRefreshOnProgress());
         dto.setReceiveCost(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_RECEIVE_COST_MESSAGE.name(), result.getCostTimeMs()));
         dto.setCacheFile(result.getCacheFileUri());
         dto.setQuerySql(result.getQuerySql());

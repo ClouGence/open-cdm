@@ -20,26 +20,16 @@ import java.util.Map;
 
 import com.clougence.clouddm.ds.starrocks.dialect.StarRocksDialect;
 import com.clougence.clouddm.dsfamily.definition.ui.editor.data.DsFamilyDataEditorSpi;
-import com.clougence.clouddm.sdk.ui.editor.data.DataEditorAttributeKeys;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorColumn;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.special.rdb.RdbTable;
-import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
 public class SrDataEditorSpi extends DsFamilyDataEditorSpi {
 
     @Override
     protected Dialect getDialect() { return StarRocksDialect.INSTANCE; }
-
-    protected boolean insertIgnore(RdbColumn colDef, String colValue) {
-        String readOnly = colDef.getAttribute(DataEditorAttributeKeys.INSERT_READ_ONLY);
-        if (Boolean.parseBoolean(colDef.getAttribute(DataEditorAttributeKeys.AUTOINCREMENT)) && StringUtils.isBlank(colValue)) {
-            return true;
-        }
-        return Boolean.parseBoolean(readOnly);
-    }
 
     @Override
     public String buildUpdate(RdbTable tableMeta, Map<String, String> whereData, Map<String, String> setData) {

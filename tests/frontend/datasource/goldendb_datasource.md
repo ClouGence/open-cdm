@@ -1,6 +1,6 @@
 # GoldenDB 数据源接入复测流程
 
-当前执行状态、真实证据与未覆盖门禁见 `tests/datasource/goldendb/goldendb-test-matrix.md`。本文只维护可重复执行的 Chrome
+当前执行状态、真实证据与未覆盖门禁见 `tests/datasource/goldendb/goldendb-test-matrix.md`。本文只维护可重复执行的 @Browser
 流程，
 不记录某一次执行的 PASS/FAIL。
 
@@ -28,7 +28,7 @@ GoldenDB Lite 7.3.02.02 可作为标准 JDBC、元信息、DML 和事务的补�
 - 官方 JDBC JAR 已分别按 `GoldenDB MySQL JDBC Driver / 5.1.46.86` 和 `GoldenDB Oracle JDBC Driver / 5.1.46.77`
   的运行时驱动目录约定安装；
 - IDEA 中 `DmAloneLauncher` 为 `RUNNING`，运行时加载的是本次构建的 `ds-goldendb-lib.jar`；
-- Chrome 已登录隔离测试账号，任务标签页位于 `codex` 组；
+- @Browser 已登录隔离测试账号；
 - 不读取浏览器 Cookie、Token、保存密码或 local storage。
 
 ## Test Data
@@ -219,13 +219,13 @@ SQL 分析矩阵。
 
 1. 快速连续点击两次“测试”，确认按钮 loading/禁用阻止重复连接任务或两个结果均正确收敛。
 2. 在 SQL 工作台快速连续点击“执行”，确认 loading/禁用状态阻止重复查询且最终只有一个终态。
-3. 在两个 Chrome 标签页同时执行不同 SELECT，确认结果不会串页签。
+3. 在两个 @Browser 标签页同时执行不同 SELECT，确认结果不会串页签。
 4. 刷新、前进后退、返回工作台再进入 SQL 工作台，确认已保存数据源仍存在；后端重启后先完整刷新 SQL
    工作台，再关闭并重开失效查询页签，确认执行按钮恢复可用。
 
 预期：没有重复保存、旧响应覆盖新状态或跨页签结果污染；按钮结束 loading；浏览器 Console 没有新增 GoldenDB 相关错误。
 
-清理：关闭额外 Chrome 页签与查询页签，不删除保存的数据源，确认没有手动事务遗留。
+清理：关闭额外 @Browser 页签与查询页签，不删除保存的数据源，确认没有手动事务遗留。
 
 ### GDB-UI-11 Oracle 兼容模式
 
@@ -269,6 +269,6 @@ SQL 分析矩阵。
 - 只有 GoldenDB Lite 单 DN：GDB-UI-07 和活动 CN 重连为 `BLOCKED`，不能替代 CN 验收；
 - 隔离租户管理员不能创建临时用户：最小权限矩阵为 `BLOCKED`，不得复用生产账号或降低密码策略；
 - 没有可控 SSH 或多 CN 环境：对应安全与重连分支为 `BLOCKED`，普通连接成功不能替代；
-- Chrome 未登录：UI 用例为 `BLOCKED`，不得用纯 API 冒充；
+- @Browser 未登录：UI 用例为 `BLOCKED`，不得用纯 API 冒充；
 - 运行插件不是本次构建：运行态用例为 `NOT RUN`；
 - 未完成已暴露元信息、DML、事务和 DDL 时，不能因为连接成功而将 GoldenDB 标为 PASS。

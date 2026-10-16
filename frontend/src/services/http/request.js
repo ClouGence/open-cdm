@@ -32,7 +32,17 @@ const UPDATE_DATA_SOURCE_STATUS_LIST = [
 ];
 
 // APIs whose failure is surfaced by the caller (toast / inline), not the global error modal.
-const SELF_HANDLED_ERROR_URLS = ['/login', '/datasource/connectds', '/api/entry/datasource/connectDs', '/api/entry/datasource/testConnect'];
+const SELF_HANDLED_ERROR_URLS = [
+  '/login',
+  '/datasource/connectds',
+  '/api/entry/datasource/connectDs',
+  '/api/entry/datasource/testConnect',
+  '/api/entry/query/script/create',
+  '/api/entry/query/script/update',
+  '/api/entry/query/script/list',
+  '/api/entry/query/script/detail',
+  '/api/entry/query/script/delete'
+];
 
 let baseURL = '';
 if (process.env.VUE_APP_BASE_URL) {
@@ -149,7 +159,7 @@ const request = async (opt) => {
           eventBus.emit(EVENT_BUS_NAME_LIST.SET_DATA_SOURCE_STATUS, {
             instanceId,
             connected: false,
-            msg: res.msg,
+            msgContent: res.msg,
             code: res.code
           });
         } else if (res.success) {
