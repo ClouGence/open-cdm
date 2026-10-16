@@ -45,9 +45,11 @@ final class ChatToolSchemas {
                 required.add(contract.name());
             }
         }
-        return new ChatToolSpecification(tool.name(),
-            tool.description(),
-            Map.of(ChatToolConstants.TYPE, ChatToolConstants.OBJECT, ChatToolConstants.PROPERTIES, properties, ChatToolConstants.REQUIRED, required));
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put(ChatToolConstants.TYPE, ChatToolConstants.OBJECT);
+        parameters.put(ChatToolConstants.PROPERTIES, properties);
+        parameters.put(ChatToolConstants.REQUIRED, required);
+        return new ChatToolSpecification(tool.name(), tool.description(), parameters);
     }
 
     private static Map<String, Object> schema(AnnotatedType annotated) {

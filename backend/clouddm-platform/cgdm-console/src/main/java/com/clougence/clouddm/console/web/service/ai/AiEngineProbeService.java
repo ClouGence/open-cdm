@@ -15,10 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.ai;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -93,23 +90,30 @@ public class AiEngineProbeService {
             throw AiError.FORBIDDEN.exception();
         }
         String nonce = UUID.randomUUID().toString();
-        List<Map<String, Object>> messages = List.of(Map.of( //
-                AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_USER, //
-                AiSqlConstants.FIELD_CONTENT, "Call " + AiSqlConstants.TOOL_PROBE + " once with this nonce: " + nonce + ". Do not produce other output."));
-        Map<String, Object> parameters = Map.of( //
-                AiSqlConstants.FIELD_TYPE, AiSqlConstants.SCHEMA_TYPE_OBJECT, //
-                AiSqlConstants.FIELD_ADDITIONAL_PROPERTIES, false, //
-                AiSqlConstants.FIELD_PROPERTIES, Map.of( //
-                        AiSqlConstants.FIELD_NONCE, Map.of( //
-                                AiSqlConstants.FIELD_TYPE, AiSqlConstants.SCHEMA_TYPE_STRING, //
-                                AiSqlConstants.FIELD_CONST, nonce)), //
-                AiSqlConstants.FIELD_REQUIRED, List.of(AiSqlConstants.FIELD_NONCE));
-        List<Map<String, Object>> tools = List.of(Map.of( //
-                AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION, //
-                AiSqlConstants.FIELD_FUNCTION, Map.of( //
-                        AiSqlConstants.FIELD_NAME, AiSqlConstants.TOOL_PROBE, //
-                        AiSqlConstants.FIELD_DESCRIPTION, "Return the provided nonce.", //
-                        AiSqlConstants.FIELD_PARAMETERS, parameters)));
+        Map<String, Object> message = new LinkedHashMap<>();
+        message.put(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_USER);
+        message.put(AiSqlConstants.FIELD_CONTENT, "Call " + AiSqlConstants.TOOL_PROBE + " once with this nonce: " + nonce + ". Do not produce other output.");
+        List<Map<String, Object>> messages = List.of(message);
+
+        Map<String, Object> nonceSchema = new LinkedHashMap<>();
+        nonceSchema.put(AiSqlConstants.FIELD_TYPE, AiSqlConstants.SCHEMA_TYPE_STRING);
+        nonceSchema.put(AiSqlConstants.FIELD_CONST, nonce);
+
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put(AiSqlConstants.FIELD_TYPE, AiSqlConstants.SCHEMA_TYPE_OBJECT);
+        parameters.put(AiSqlConstants.FIELD_ADDITIONAL_PROPERTIES, false);
+        parameters.put(AiSqlConstants.FIELD_PROPERTIES, Map.of(AiSqlConstants.FIELD_NONCE, nonceSchema));
+        parameters.put(AiSqlConstants.FIELD_REQUIRED, List.of(AiSqlConstants.FIELD_NONCE));
+
+        Map<String, Object> function = new LinkedHashMap<>();
+        function.put(AiSqlConstants.FIELD_NAME, AiSqlConstants.TOOL_PROBE);
+        function.put(AiSqlConstants.FIELD_DESCRIPTION, "Return the provided nonce.");
+        function.put(AiSqlConstants.FIELD_PARAMETERS, parameters);
+
+        Map<String, Object> tool = new LinkedHashMap<>();
+        tool.put(AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION);
+        tool.put(AiSqlConstants.FIELD_FUNCTION, function);
+        List<Map<String, Object>> tools = List.of(tool);
         AiVerificationStatus status = AiVerificationStatus.PASS;
         String errorCode = null;
         try {

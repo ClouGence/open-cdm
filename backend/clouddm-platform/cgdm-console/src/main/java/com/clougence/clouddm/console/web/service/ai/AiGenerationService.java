@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.service.ai;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -140,9 +141,10 @@ public class AiGenerationService {
             .getSessionId(), run.getTurn()
                 .getId(), run.getTurn().getRequestId(), request + 1, engine.getId(), messages.size(), definitions.size(), conversation.contextUsage(messages, definitions));
         sessions.saveReferences(run, context);
-        run.getEvents().emit(AiSqlConstants.EVENT_PHASE, Map.of( //
-                AiSqlConstants.FIELD_PHASE, AiSqlConstants.PHASE_GENERATING, //
-                AiSqlConstants.FIELD_CONTEXT_USAGE, conversation.contextUsage(messages, definitions)));
+        Map<String, Object> phase = new LinkedHashMap<>();
+        phase.put(AiSqlConstants.FIELD_PHASE, AiSqlConstants.PHASE_GENERATING);
+        phase.put(AiSqlConstants.FIELD_CONTEXT_USAGE, conversation.contextUsage(messages, definitions));
+        run.getEvents().emit(AiSqlConstants.EVENT_PHASE, phase);
         ChatResponse reply = client
             .stream(engine, messages, definitions, null, run.getHandle(), text -> run.getEvents().emit(AiSqlConstants.EVENT_TEXT_DELTA, Map.of(AiSqlConstants.FIELD_TEXT, text)));
         state.addUsage(reply.usage());

@@ -177,10 +177,14 @@ public class AiConversation {
         if (!reply.tools().isEmpty()) {
             List<Map<String, Object>> encoded = new ArrayList<>();
             for (ChatToolCall call : reply.tools()) {
-                encoded.add(Map.of( //
-                        AiSqlConstants.FIELD_ID, call.id(), //
-                        AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION, //
-                        AiSqlConstants.FIELD_FUNCTION, Map.of(AiSqlConstants.FIELD_NAME, call.name(), AiSqlConstants.FIELD_ARGUMENTS, call.arguments())));
+                Map<String, Object> function = new LinkedHashMap<>();
+                function.put(AiSqlConstants.FIELD_NAME, call.name());
+                function.put(AiSqlConstants.FIELD_ARGUMENTS, call.arguments());
+                Map<String, Object> tool = new LinkedHashMap<>();
+                tool.put(AiSqlConstants.FIELD_ID, call.id());
+                tool.put(AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION);
+                tool.put(AiSqlConstants.FIELD_FUNCTION, function);
+                encoded.add(tool);
             }
             message.put(AiSqlConstants.FIELD_TOOL_CALLS, encoded);
         }
@@ -287,17 +291,21 @@ public class AiConversation {
                 continue;
             }
             String requestId = (String) request.get(AiSqlConstants.FIELD_USER_INPUT_REQUEST_ID);
-            assistant.put(AiSqlConstants.FIELD_TOOL_CALLS, List.of(Map.of( //
-                    AiSqlConstants.FIELD_ID, requestId, //
-                    AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION, //
-                    AiSqlConstants.FIELD_FUNCTION, Map.of( //
-                            AiSqlConstants.FIELD_NAME, AiSqlConstants.TOOL_ASK_USER_QUESTIONS, //
-                            AiSqlConstants.FIELD_ARGUMENTS, JsonUtils.toJson(request)))));
+            Map<String, Object> function = new LinkedHashMap<>();
+            function.put(AiSqlConstants.FIELD_NAME, AiSqlConstants.TOOL_ASK_USER_QUESTIONS);
+            function.put(AiSqlConstants.FIELD_ARGUMENTS, JsonUtils.toJson(request));
+            Map<String, Object> tool = new LinkedHashMap<>();
+            tool.put(AiSqlConstants.FIELD_ID, requestId);
+            tool.put(AiSqlConstants.FIELD_TYPE, AiSqlConstants.TYPE_FUNCTION);
+            tool.put(AiSqlConstants.FIELD_FUNCTION, function);
+            assistant.put(AiSqlConstants.FIELD_TOOL_CALLS, List.of(tool));
             resolved.add(assistant);
-            resolved.add(Map.of( //
-                    AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_TOOL, //
-                    AiSqlConstants.FIELD_MODEL_TOOL_CALL_ID, requestId, //
-                    AiSqlConstants.FIELD_CONTENT, JsonUtils.toJson(answer)));
+
+            Map<String, Object> toolResult = new LinkedHashMap<>();
+            toolResult.put(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_TOOL);
+            toolResult.put(AiSqlConstants.FIELD_MODEL_TOOL_CALL_ID, requestId);
+            toolResult.put(AiSqlConstants.FIELD_CONTENT, JsonUtils.toJson(answer));
+            resolved.add(toolResult);
         }
         return resolved;
     }

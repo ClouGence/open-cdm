@@ -92,14 +92,17 @@ public class AiRunEvents {
         List<Map<String, String>> observed = new ArrayList<>();
         if (outcome.success() && !AiSqlConstants.TOOL_GENERATE_SQL.equals(call.name()) && outcome.value() instanceof Map<?, ?> value) {
             JsonNode exposed = JsonUtils.defaultObjectMapper().valueToTree(value);
-            exposed.path(AiSqlConstants.FIELD_ITEMS) //
-                .forEach(item -> observed.add(Map.of( //
-                        AiSqlConstants.FIELD_TYPE, item.path(AiSqlConstants.FIELD_TYPE).textValue(), //
-                        AiSqlConstants.FIELD_NAME, item.path(AiSqlConstants.FIELD_NAME).textValue())));
-            exposed.path(AiSqlConstants.FIELD_TABLES) //
-                .forEach(item -> observed.add(Map.of( //
-                        AiSqlConstants.FIELD_TYPE, item.path(AiSqlConstants.FIELD_OBJECT).path(AiSqlConstants.FIELD_TYPE).textValue(), //
-                        AiSqlConstants.FIELD_NAME, item.path(AiSqlConstants.FIELD_OBJECT).path(AiSqlConstants.FIELD_NAME).textValue())));
+            for (JsonNode item : exposed.path(AiSqlConstants.FIELD_ITEMS)) {
+                String type = item.path(AiSqlConstants.FIELD_TYPE).textValue();
+                String name = item.path(AiSqlConstants.FIELD_NAME).textValue();
+                observed.add(Map.of(AiSqlConstants.FIELD_TYPE, type, AiSqlConstants.FIELD_NAME, name));
+            }
+            for (JsonNode table : exposed.path(AiSqlConstants.FIELD_TABLES)) {
+                JsonNode object = table.path(AiSqlConstants.FIELD_OBJECT);
+                String type = object.path(AiSqlConstants.FIELD_TYPE).textValue();
+                String name = object.path(AiSqlConstants.FIELD_NAME).textValue();
+                observed.add(Map.of(AiSqlConstants.FIELD_TYPE, type, AiSqlConstants.FIELD_NAME, name));
+            }
         }
         String status = AiSqlConstants.TOOL_STATUS_ERROR;
         if (outcome.success()) {

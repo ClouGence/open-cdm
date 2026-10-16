@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.service.ai;
 
 import java.util.ArrayDeque;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -89,13 +90,14 @@ public class AiEventSink {
             return;
         }
         long seq = ++sequence;
-        String value = JsonUtils.toJson(Map.of( //
-                AiSqlConstants.FIELD_SESSION_ID, sessionId, //
-                AiSqlConstants.FIELD_TURN_ID, turnId, //
-                AiSqlConstants.FIELD_REQUEST_ID, requestId, //
-                AiSqlConstants.FIELD_SEQ, seq, //
-                AiSqlConstants.FIELD_TYPE, type, //
-                AiSqlConstants.FIELD_DATA, data));
+        Map<String, Object> event = new LinkedHashMap<>();
+        event.put(AiSqlConstants.FIELD_SESSION_ID, sessionId);
+        event.put(AiSqlConstants.FIELD_TURN_ID, turnId);
+        event.put(AiSqlConstants.FIELD_REQUEST_ID, requestId);
+        event.put(AiSqlConstants.FIELD_SEQ, seq);
+        event.put(AiSqlConstants.FIELD_TYPE, type);
+        event.put(AiSqlConstants.FIELD_DATA, data);
+        String value = JsonUtils.toJson(event);
         queue.add(new AiEventFrame(turnId + ":" + seq, type, value));
         if (AiSqlConstants.EVENT_DONE.equals(type)) {
             finishing = true;

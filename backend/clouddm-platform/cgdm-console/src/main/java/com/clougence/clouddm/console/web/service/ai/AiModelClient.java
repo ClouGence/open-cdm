@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.service.ai;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -41,12 +42,15 @@ import okhttp3.HttpUrl;
 @Component
 @Slf4j
 public class AiModelClient {
-    private final Map<AiPreset, StreamingChatClient> clients = Map.of( //
-            AiPreset.CUSTOM, new OpenAiStreamingChatClient(), //
-            AiPreset.DEEPSEEK, new DeepSeekStreamingChatClient(), //
-            AiPreset.KIMI, new KimiStreamingChatClient(), //
-            AiPreset.MINIMAX, new MiniMaxStreamingChatClient(), //
-            AiPreset.DASHSCOPE, new DashScopeStreamingChatClient());
+    private final Map<AiPreset, StreamingChatClient> clients = new EnumMap<>(AiPreset.class);
+
+    public AiModelClient(){
+        clients.put(AiPreset.CUSTOM, new OpenAiStreamingChatClient());
+        clients.put(AiPreset.DEEPSEEK, new DeepSeekStreamingChatClient());
+        clients.put(AiPreset.KIMI, new KimiStreamingChatClient());
+        clients.put(AiPreset.MINIMAX, new MiniMaxStreamingChatClient());
+        clients.put(AiPreset.DASHSCOPE, new DashScopeStreamingChatClient());
+    }
 
     public ChatResponse stream(AiEngineConfigVO engine, List<Map<String, Object>> messages, List<Map<String, Object>> tools, Integer maxOutputTokens, AiRunHandle handle,
                                Consumer<String> deltas) {

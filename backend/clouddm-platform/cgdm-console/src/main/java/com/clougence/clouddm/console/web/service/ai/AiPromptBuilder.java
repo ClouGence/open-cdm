@@ -155,8 +155,9 @@ public class AiPromptBuilder {
             .append("\n</final_answer_instructions>");
         List<Map<String, Object>> source = messages.stream().filter(message -> !AiSqlConstants.ROLE_SYSTEM.equals(message.get(AiSqlConstants.FIELD_ROLE))).toList();
         String materials = "<final_answer_materials>\n" + compactionTranscript(List.of(new AiCompactionBlock(null, source))) + "</final_answer_materials>\n";
-        return List.of(Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_SYSTEM, AiSqlConstants.FIELD_CONTENT, instructions.toString()), Map
-            .of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_USER, AiSqlConstants.FIELD_CONTENT, materials));
+        Map<String, Object> systemMessage = Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_SYSTEM, AiSqlConstants.FIELD_CONTENT, instructions.toString());
+        Map<String, Object> userMessage = Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_USER, AiSqlConstants.FIELD_CONTENT, materials);
+        return List.of(systemMessage, userMessage);
     }
 
     public String toolLimitReachedPrompt() {
@@ -212,8 +213,9 @@ public class AiPromptBuilder {
             appendTextTag(transcript, "  ", "prior_compacted_context", priorSummary);
         }
         transcript.append(compactionTranscript(blocks)).append("</context_compaction_request>");
-        return List.of(Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_SYSTEM, AiSqlConstants.FIELD_CONTENT, compact), Map
-            .of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_USER, AiSqlConstants.FIELD_CONTENT, transcript.toString()));
+        Map<String, Object> systemMessage = Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_SYSTEM, AiSqlConstants.FIELD_CONTENT, compact);
+        Map<String, Object> userMessage = Map.of(AiSqlConstants.FIELD_ROLE, AiSqlConstants.ROLE_USER, AiSqlConstants.FIELD_CONTENT, transcript.toString());
+        return List.of(systemMessage, userMessage);
     }
 
     public String compactionTranscript(List<AiCompactionBlock> blocks) {

@@ -75,20 +75,22 @@ public class AiSessionService {
         session.setEngineVersion(engine.getVersion());
         session.setEngineName(engine.getName());
         session = store.create(session);
-        return Map.of( //
-                AiSqlConstants.FIELD_SESSION_ID, session.getSessionId(), //
-                AiSqlConstants.FIELD_ENGINE_ID, session.getEngineId(), //
-                AiSqlConstants.FIELD_ENGINE_VERSION, session.getEngineVersion(), //
-                AiSqlConstants.FIELD_CREATED_AT, session.getGmtCreate().toInstant());
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put(AiSqlConstants.FIELD_SESSION_ID, session.getSessionId());
+        result.put(AiSqlConstants.FIELD_ENGINE_ID, session.getEngineId());
+        result.put(AiSqlConstants.FIELD_ENGINE_VERSION, session.getEngineVersion());
+        result.put(AiSqlConstants.FIELD_CREATED_AT, session.getGmtCreate().toInstant());
+        return result;
     }
 
     public Map<String, Object> switchModel(String puid, String uid, AiSwitchModelFO fo) {
         AiEngineConfigVO engine = engines.requireAvailable(puid, uid, fo.engineId(), fo.engineVersion());
         DmAiSessionDO session = store.switchModel(puid, uid, fo, engine);
-        return Map.of( //
-                AiSqlConstants.FIELD_ENGINE_ID, session.getEngineId(), //
-                AiSqlConstants.FIELD_ENGINE_VERSION, session.getEngineVersion(), //
-                AiSqlConstants.FIELD_ENGINE_NAME, session.getEngineName());
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put(AiSqlConstants.FIELD_ENGINE_ID, session.getEngineId());
+        result.put(AiSqlConstants.FIELD_ENGINE_VERSION, session.getEngineVersion());
+        result.put(AiSqlConstants.FIELD_ENGINE_NAME, session.getEngineName());
+        return result;
     }
 
     public AiMetadataContext context(String puid, String uid, List<String> names) {
@@ -173,10 +175,11 @@ public class AiSessionService {
         result.put(AiSqlConstants.FIELD_MODIFIED_AT, session.getGmtModified().toInstant());
         result.put(AiSqlConstants.FIELD_ACCESSIBLE, false);
         if (active != null) {
-            result.put(AiSqlConstants.FIELD_ACTIVE_TURN, Map.of( //
-                    AiSqlConstants.FIELD_ID, active.getId(), //
-                    AiSqlConstants.FIELD_REQUEST_ID, active.getRequestId(), //
-                    AiSqlConstants.FIELD_STATUS, active.getStatus()));
+            Map<String, Object> activeTurn = new LinkedHashMap<>();
+            activeTurn.put(AiSqlConstants.FIELD_ID, active.getId());
+            activeTurn.put(AiSqlConstants.FIELD_REQUEST_ID, active.getRequestId());
+            activeTurn.put(AiSqlConstants.FIELD_STATUS, active.getStatus());
+            result.put(AiSqlConstants.FIELD_ACTIVE_TURN, activeTurn);
         }
         List<AiTurnRecordVO> history = store.history(session.getSessionId());
         try {

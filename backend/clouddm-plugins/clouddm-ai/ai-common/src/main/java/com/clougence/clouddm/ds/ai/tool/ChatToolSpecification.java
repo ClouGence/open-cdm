@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.ai.tool;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public record ChatToolSpecification(String name, String description, Map<String, Object> parameters) {
@@ -23,11 +24,10 @@ public record ChatToolSpecification(String name, String description, Map<String,
     }
 
     public Map<String, Object> definition() {
-        return Map.of( //
-                ChatToolConstants.TYPE, ChatToolConstants.FUNCTION, //
-                ChatToolConstants.FUNCTION, Map.of( //
-                        ChatToolConstants.NAME, name, //
-                        ChatToolConstants.DESCRIPTION, description, //
-                        ChatToolConstants.PARAMETERS, parameters));
+        Map<String, Object> function = new LinkedHashMap<>();
+        function.put(ChatToolConstants.NAME, name);
+        function.put(ChatToolConstants.DESCRIPTION, description);
+        function.put(ChatToolConstants.PARAMETERS, parameters);
+        return Map.of(ChatToolConstants.TYPE, ChatToolConstants.FUNCTION, ChatToolConstants.FUNCTION, Map.copyOf(function));
     }
 }
