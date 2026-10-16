@@ -77,7 +77,15 @@
             @update-search-key="handleUpdateSearchKey"
           ></DataSourceHeader>
           <div class="table-container data-source-container datasource-list-panel">
-            <Table size="small" border class="datasource-table" :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
+            <Table
+              size="small"
+              border
+              class="datasource-table"
+              :columns="dataSourceColumn"
+              :data="showData"
+              :loading="refreshLoading"
+              :scroll="{ x: 'max-content' }"
+            >
               <template #instanceId="{ row }">
                 <div class="datasource-identity">
                   <DataSourceIcon
@@ -574,6 +582,12 @@ export default {
           key: 'instanceId',
           slot: 'instanceId',
           minWidth: 420
+        },
+        {
+          title: this.$t('huan-jing'),
+          key: 'dsEnvName',
+          minWidth: 160,
+          tooltip: true
         },
         {
           title: this.$t('wang-luo-di-zhi'),
