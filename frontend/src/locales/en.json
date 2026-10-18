@@ -4430,7 +4430,7 @@
   "query-examples-title": "Statement examples",
   "query-json-view": "JSON view",
   "query-text-view": "Text view",
-  "query-format-too-large": "The request exceeds the language service size limit and cannot be formatted."
+  "query-format-too-large": "The request exceeds the language service size limit and cannot be formatted.",
   "sql-connection-open": "Open Connection",
   "sql-connection-disconnect": "Disconnect",
   "sql-connection-reconnect": "Reconnect",

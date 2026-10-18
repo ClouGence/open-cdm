@@ -4409,7 +4409,7 @@
   "query-examples-title": "语句示例",
   "query-json-view": "JSON 查看",
   "query-text-view": "文本查看",
-  "query-format-too-large": "请求超过语言服务大小限制，无法格式化。"
+  "query-format-too-large": "请求超过语言服务大小限制，无法格式化。",
   "sql-connection-open": "打开连接",
   "sql-connection-disconnect": "断开连接",
   "sql-connection-reconnect": "重新连接",
