@@ -1,6 +1,7 @@
 <template>
   <div class="sql-viewer">
     <operators
+      :inert="!monacoEditor"
       :tab="tab"
       :stopping="stopping"
       :handleRun="onRun"
@@ -18,37 +19,48 @@
         <slot name="connection-context" />
       </template>
     </operators>
-    <Editor
-      :set-editor-instance="setEditorInstance"
-      :current-tab="tab"
-      ref="editor"
-      :completion-data="completionData"
-      :store-query-tabs="storeQueryTabs"
-      :rdb-object-detail="rdbObjectDetail"
-      :on-run="onRun"
-      @change="handleEditorChange"
-    >
-      <template #editor-controls>
-        <CommandExamples v-if="tab.support.commandExamples?.length" :key="tab.dsId" :examples="tab.support.commandExamples" />
-        <SqlScriptPopover
-          :tab="tab"
-          :get-editor-content="getEditorContent"
-          :store-query-tabs="storeQueryTabs"
-          @open-script="$emit('open-script', $event)"
-          @script-deleted="$emit('script-deleted', $event)"
-          @script-renamed="$emit('script-renamed', $event)"
-        />
-      </template>
-    </Editor>
+    <div class="sql-editor-stage" :aria-busy="!monacoEditor">
+      <Editor
+        :inert="!monacoEditor"
+        :set-editor-instance="setEditorInstance"
+        :current-tab="tab"
+        ref="editor"
+        :completion-data="completionData"
+        :store-query-tabs="storeQueryTabs"
+        :rdb-object-detail="rdbObjectDetail"
+        :on-run="onRun"
+        @change="handleEditorChange"
+      >
+        <template #editor-controls>
+          <CommandExamples v-if="tab.support.commandExamples?.length" :key="tab.dsId" :examples="tab.support.commandExamples" />
+          <SqlScriptPopover
+            :tab="tab"
+            :get-editor-content="getEditorContent"
+            :store-query-tabs="storeQueryTabs"
+            @open-script="$emit('open-script', $event)"
+            @script-deleted="$emit('script-deleted', $event)"
+            @script-renamed="$emit('script-renamed', $event)"
+          />
+        </template>
+      </Editor>
+      <Transition name="sql-editor-loading">
+        <SqlLoadingSkeleton v-if="!monacoEditor" variant="editor" class="sql-editor-loading" />
+      </Transition>
+    </div>
     <div class="editor-resize" />
     <div :class="`query-message ${tab.message.type}`" v-if="tab.message.text && tab.message.show && tab.connected">
       <div v-html="tab.message.text"></div>
       <CustomIcon type="icon-v2-close2" @click="handleCloseError" hoverStyle />
     </div>
-    <div class="query-message Error" v-if="!tab.connected && tab.msgContent">
+    <div class="query-message" :class="tab.workspaceConnectionState === 'disconnected' ? 'Info' : 'Error'" v-if="!tab.connected && tab.msgContent">
       {{ tab.msgContent }}
-      <Button type="text" size="small" @click="handleClickDsStatusIcon">
-        {{ $t('zhong-xin-lian-jie') }}
+      <Button
+        v-if="!['connecting', 'reconnecting', 'disconnecting'].includes(tab.workspaceConnectionState)"
+        type="text"
+        size="small"
+        @click="handleClickDsStatusIcon"
+      >
+        {{ $t(tab.workspaceConnectionState === 'disconnected' ? 'sql-connection-open' : 'sql-connection-reconnect') }}
       </Button>
     </div>
     <CCModal v-model="showNoPassedRuleModal" :title="$t('gui-ze-xiao-yan-shi-bai')" :width="800">
@@ -92,6 +104,7 @@ import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import formatError from '@/services/formatError';
 import SqlScriptPopover from '@/views/sql/components/SqlScriptPopover.vue';
 import CommandExamples from '@/views/sql/components/CommandExamples.vue';
+import SqlLoadingSkeleton from '@/views/sql/components/SqlLoadingSkeleton.vue';
 
 export default {
   name: 'SqlViewer',
@@ -99,9 +112,10 @@ export default {
     Editor,
     Operators,
     SqlScriptPopover,
-    CommandExamples
+    CommandExamples,
+    SqlLoadingSkeleton
   },
-  emits: ['open-script', 'script-deleted', 'script-renamed'],
+  emits: ['open-script', 'script-deleted', 'script-renamed', 'workspace-connection-error', 'workspace-connection-success'],
   props: {
     handleClickDsStatusIcon: Function,
     handleGetDsSetting: Function,
@@ -374,6 +388,10 @@ export default {
       // this.analysisSplit(selectedSql);
     },
     async handleRun(selectedSql, position, force = false) {
+      if (!this.tab.connected || !this.tab.sessionId) {
+        this.$Message.warning(this.$t('sql-connection-disconnected'));
+        return;
+      }
       this.tab.running = true;
       this.tab.result.active = 'message';
       this.tab.currentQueryType = 'query';
@@ -470,6 +488,10 @@ export default {
       this.$refs.editor.formatSql();
     },
     handleInterceptor(confName, callback, focus = false, silence = false) {
+      if (!this.tab.connected || !this.tab.sessionId) {
+        this.$Message.warning(this.$t('sql-connection-disconnected'));
+        return;
+      }
       if (this.tab.support[confName].conf === 'No') {
         this.$Message.error({
           background: true,
@@ -787,6 +809,7 @@ export default {
               currentTab.msgContent = entity.message;
               currentTab.msgFromWs = true;
               currentTab.connected = false;
+              this.$emit('workspace-connection-error', currentTab);
             }
 
             if (entity.mode === 'Hint') {
@@ -963,6 +986,7 @@ export default {
 
         // Export information may come from ResultSetMeta or ResultSet, so process it centrally.
         if (queryData.object.resultType === 'ResultSetMeta' || queryData.object.resultType === 'ResultSet') {
+          this.$emit('workspace-connection-success', currentTab);
           const resultData =
             queryData.object.resultType === 'ResultSetMeta'
               ? queryData.object
@@ -995,6 +1019,25 @@ export default {
 </script>
 <style lang="less">
 .sql-viewer {
+  .sql-editor-stage {
+    position: relative;
+  }
+  .sql-editor-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .sql-editor-loading-leave-active {
+    transition: opacity 0.16s ease-out;
+  }
+  .sql-editor-loading-leave-to {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sql-editor-loading-leave-active {
+      transition: none;
+    }
+  }
   position: relative;
 
   .editor-resize {

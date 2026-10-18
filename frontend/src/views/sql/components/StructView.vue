@@ -126,6 +126,9 @@ export default {
     }
   },
   watch: {
+    'tab.connected'(connected) {
+      if (connected && !this.tab.init && this.tab.editorType) this.getSchemaAndInitData();
+    },
     'tab.editorType': {
       async handler(newVal) {
         if (!this.tab.init && newVal) {
@@ -259,6 +262,7 @@ export default {
       return false;
     },
     async getSchemaAndInitData() {
+      if (!this.tab.connected) return;
       this.tab.init = false;
       this.initEditorLoading = true;
       try {
@@ -289,6 +293,7 @@ export default {
       }
     },
     async getSchema() {
+      if (!this.tab.connected) return;
       const { node } = this.tab;
       const res = await this.$services.dmEditorTableEditorDef({
         data: {
@@ -535,6 +540,7 @@ export default {
       });
     },
     async handleRun() {
+      if (!this.tab.connected) return;
       if (this.sqlStale) {
         this.$Message.warning(this.$t('table-editor-sql-stale'));
         return;

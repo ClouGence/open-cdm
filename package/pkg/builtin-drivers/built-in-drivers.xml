@@ -13,6 +13,10 @@
     <driver driverFamily="MySQL Connector/J" version="8.4.0">
         <resource type="maven">com.mysql:mysql-connector-j:8.4.0</resource>
     </driver>
+    <!-- YashanDB MySQL-compatible variant: standard MySQL protocol port, same Connector/J artifact. -->
+    <driver driverFamily="YashanDB MySQL JDBC Driver" version="8.4.0">
+        <resource type="maven">com.mysql:mysql-connector-j:8.4.0</resource>
+    </driver>
     <driver driverFamily="PostgreSQL JDBC" version="42.7.10">
         <resource type="maven">org.postgresql:postgresql:42.7.10</resource>
     </driver>

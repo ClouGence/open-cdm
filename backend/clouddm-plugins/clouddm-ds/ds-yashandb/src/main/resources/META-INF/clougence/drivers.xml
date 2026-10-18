@@ -1,0 +1,10 @@
+<drivers>
+    <driver driverFamily="YashanDB JDBC Driver" version="1.10.7" default="true">
+        <driverName>com.clougence.clouddm.ds.yashandb.execute.dsfactory.YashanDBOracleDsFactory</driverName>
+        <resource type="maven">com.yashandb:yashandb-jdbc:1.10.7</resource>
+    </driver>
+    <driver driverFamily="YashanDB MySQL JDBC Driver" version="8.4.0" default="true">
+        <driverName>com.clougence.clouddm.ds.yashandb.execute.dsfactory.YashanDBMySQLDsFactory</driverName>
+        <resource type="maven">com.mysql:mysql-connector-j:8.4.0</resource>
+    </driver>
+</drivers>
