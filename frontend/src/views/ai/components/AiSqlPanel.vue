@@ -478,6 +478,7 @@
 
 <script>
 import { markRaw } from 'vue';
+import { createUuid } from '@/utils/uuid';
 import AiActivityLog from './AiActivityLog.vue';
 import AiUserInputCard from './AiUserInputCard.vue';
 import {
@@ -564,7 +565,7 @@ export default {
       selectionDetailsOpen: false,
       selectionDetails: null,
       sessionId: null,
-      streamClientId: crypto.randomUUID(),
+      streamClientId: createUuid(),
       contextUsage: null,
       sessionDrafts: {},
       sessionVersion: null,
@@ -991,7 +992,7 @@ export default {
           this.sessionVersion = data.engineVersion;
           this.sessionEngineId = data.engineId;
         }
-        const requestId = crypto.randomUUID();
+        const requestId = createUuid();
         turn = {
           requestId,
           prompt,
@@ -1018,7 +1019,7 @@ export default {
     async regenerate(source, prompt = source.prompt) {
       if (!this.canRegenerate || !source.id) return;
       const turn = {
-        requestId: crypto.randomUUID(),
+        requestId: createUuid(),
         regenerateTurnId: source.id,
         prompt,
         context: {
