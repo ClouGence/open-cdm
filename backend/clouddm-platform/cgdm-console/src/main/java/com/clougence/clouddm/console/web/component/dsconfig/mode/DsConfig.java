@@ -31,6 +31,7 @@ import lombok.Setter;
 public class DsConfig {
 
     private Map<String, Object>       features;
+    private String                    classify;
     private DsConstantConfig          constant;
     private DsCategories              categories;
     private Map<String, List<DsMenu>> menus;
@@ -44,6 +45,7 @@ public class DsConfig {
     public DsConfig clone() {
         DsConfig dsConfig = new DsConfig();
         dsConfig.setFeatures(this.features.isEmpty() ? Collections.emptyMap() : new HashMap<>(this.features));
+        dsConfig.setClassify(this.classify);
         dsConfig.setConstant(this.constant.clone());
         dsConfig.setCategories(this.categories.clone());
         if (this.menus.isEmpty()) {

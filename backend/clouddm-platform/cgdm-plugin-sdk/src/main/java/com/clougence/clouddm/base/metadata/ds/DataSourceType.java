@@ -71,6 +71,7 @@ public enum DataSourceType {
     MongoDB("mdb", "MongoDB", 2, 20),
     Kafka("ka", "Kafka", 2, 30),
     ElasticSearch("es", "ElasticSearch", 2, 40),
+    Etcd("et", "Etcd", 2, 50),
 
     // cloud database
     AdbForMySQL("amy", "AdbForMySQL", 3, 10),

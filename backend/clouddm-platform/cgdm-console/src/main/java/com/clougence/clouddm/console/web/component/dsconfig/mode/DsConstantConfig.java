@@ -39,7 +39,11 @@ public class DsConstantConfig {
     @Override
     public DsConstantConfig clone() {
         DsConstantConfig r = new DsConstantConfig();
-        r.setQuickQueryMap(this.quickQueryMap.isEmpty() ? Collections.emptyMap() : new HashMap<>(this.quickQueryMap));
+        if (this.quickQueryMap == null || this.quickQueryMap.isEmpty()) {
+            r.setQuickQueryMap(Collections.emptyMap());
+        } else {
+            r.setQuickQueryMap(new HashMap<>(this.quickQueryMap));
+        }
         r.setCaseType(this.caseType);
         r.setLeftQualifier(this.leftQualifier);
         r.setRightQualifier(this.rightQualifier);

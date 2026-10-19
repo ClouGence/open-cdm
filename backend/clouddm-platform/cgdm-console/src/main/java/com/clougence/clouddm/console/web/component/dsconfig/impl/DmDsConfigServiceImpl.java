@@ -138,6 +138,9 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
             DsConfig config = new DsConfig();
             config.setFeatures(PluginManager.hasFeature(dsType));
+            if (dsType == DataSourceType.Etcd) {
+                config.setClassify("CACHE");
+            }
             config.setConstant(new DsConstantConfig());
             config.setCategories(new DsCategories());
             config.setMenus(new HashMap<>());
@@ -168,6 +171,8 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
                 option.setDelimited(true);
                 option.setDefaultLimit(20);
                 constant.setQuickQueryMap(loadQuickQueryMap(cmdTemplate, option));
+            } else {
+                constant.setQuickQueryMap(Collections.emptyMap());
             }
             DsBrowseSpi browseSpi = PluginManager.findDsBrowseSpi(dsType);
             if (browseSpi != null) {
@@ -320,7 +325,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
         List<UmiTypes> curLevelsDef = new ArrayList<>();
         Map<UmiTypes, Object> curLevelsParam = new HashMap<>();
-        for (int i = 2; i < levels.size(); i++) {
+        for (int i = 2; i < levels.size() && i < levelsDef.size(); i++) {
             UmiTypes umiType = UmiTypes.valueOfCode(levelsDef.get(i));
             curLevelsParam.put(umiType, levels.get(i));
             curLevelsDef.add(umiType);
