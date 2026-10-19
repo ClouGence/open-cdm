@@ -15,6 +15,7 @@ import { clearAllPending } from '@/services/http/cancelRequest';
 import AddDataSource from '@/views/dataSource/AddDataSource';
 import TreeNodeLabel from '@/views/sql/components/TreeNodeLabel';
 import SqlLoadingSkeleton from '@/views/sql/components/SqlLoadingSkeleton';
+import AppVersionInfo from '@/components/layout/AppVersionInfo';
 
 const DATASOURCE_EXPANDED_KEYS_KEY = 'clouddm_datasource_expanded_keys';
 const SEARCH_PANEL_EXPANDED_WIDTH = 280;
@@ -25,6 +26,7 @@ export default {
   emits: ['sidebar-state-change'],
   mixins: [copyMixin, datasourceMixin, browseMixin, utilMixin],
   components: {
+    AppVersionInfo,
     AddDataSource,
     DoubleLeftOutlined,
     SearchOutlined,
@@ -1506,6 +1508,9 @@ export default {
           ></v-tree>
         </Transition>
       </div>
+      <footer class="data-source-version-footer">
+        <AppVersionInfo />
+      </footer>
     </div>
     <CCModal :title="menuModal.title" v-model="menuModal.show" :mask-closable="false" :closable="false" :keyboard="false">
       <div style="margin-bottom: 5px; font-weight: bold">
@@ -1698,6 +1703,13 @@ export default {
     min-height: 0;
     overflow: hidden;
     opacity: 1;
+  }
+
+  .data-source-version-footer {
+    flex-shrink: 0;
+    min-width: 0;
+    padding: 16px;
+    border-top: 1px solid var(--border-light);
   }
 
   .data-source-filter {

@@ -65,6 +65,9 @@ export default {
   [SET_MENU_ITEMS](state, { myCatLog, myAuth }) {
     applyMenuItems(state, myCatLog, myAuth || state.myAuth);
   },
+  SET_PLUGIN_CAPABILITY_STATE(state, value) {
+    state.featureLoadState = value;
+  },
   [UPDATE_GLOBAL_SETTING](state, globalSetting) {
     appLogger.warn(UPDATE_GLOBAL_SETTING);
     state.globalSetting = globalSetting;

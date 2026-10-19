@@ -1,4 +1,10 @@
 {
+  "workspaceEdition": {
+    "enterprise": "Enterprise",
+    "community": "Community",
+    "loading": "Loading edition",
+    "retry": "Retry edition"
+  },
   "topic-permissions": "Topic permissions",
   "sql-mobile-datasources": "Data sources",
   "sql-mobile-objects": "Objects",
@@ -1552,7 +1558,7 @@
   "zhi-hang-shi-jian": "Execution Time",
   "zhi-hang-shi-jian-1": "Execution Time:",
   "zhi-hang-zhong": "In Progress",
-  "zhi-jie-dian-ji-huo-qu-xu-ke-zheng-shang-ye-ban-qing-lian-xi-clougence-gong-zuo-ren-yuan-huo-qu-xu-ke-zheng": " to get the license, for the commercial version, please contact ClouGence staff.",
+  "zhi-jie-dian-ji-huo-qu-xu-ke-zheng-shang-ye-ban-qing-lian-xi-clougence-gong-zuo-ren-yuan-huo-qu-xu-ke-zheng": " to get the license, for the enterprise edition, please contact ClouGence staff.",
   "zhi-jie-xia-zai": "Download",
   "zhi-you-zhi-chi-de-shu-ju-yuan-lei-xing-bing-qie-zai-zeng-liang-tong-bu-jie-duan-ke-yi-jin-hang-ding-yue-xiu-gai": "Only supported dataSource types and subscription modifications can be made during the incremental synchronization phase",
   "zhong-pao": "Replay",
@@ -3663,7 +3669,7 @@
   "gui-ze-xiao-yan-jie-guo": "Rule verification result",
   "jiao-yan-0": "Check and submit",
   "jin-xian-shi-yan-zhong": "Only Show Error",
-  "ru-xu-shang-ye-ban-qing": "If you need the commercial version, please",
+  "ru-xu-shang-ye-ban-qing": "If you need the enterprise edition, please",
   "de-shi-yong-jiang-hui-shou-xian": "The use of {0} will be limited.",
   "qing-tian-jia-wan-zheng-de-zi-duan-zhi-zhuan-huan-biao-da-shi-xin-xi": "Please add complete table field value conversion expression information",
   "zi-ren-wu-b-zhi-chi": "Subtasks do not support modifying subscriptions",
