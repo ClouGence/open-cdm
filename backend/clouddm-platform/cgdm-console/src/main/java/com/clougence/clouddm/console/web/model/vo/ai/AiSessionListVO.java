@@ -1,0 +1,45 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.console.web.model.vo.ai;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class AiSessionListVO {
+    private final List<Map<String, Object>> items;
+
+    private final boolean                   hasMore;
+
+    private final Instant                   nextModifiedAt;
+
+    private final String                    nextId;
+
+    @JsonCreator
+    public AiSessionListVO(@JsonProperty("items") List<Map<String, Object>> items, @JsonProperty("hasMore") boolean hasMore, @JsonProperty("nextModifiedAt") Instant nextModifiedAt,
+                           @JsonProperty("nextId") String nextId){
+        this.items = items;
+        this.hasMore = hasMore;
+        this.nextModifiedAt = nextModifiedAt;
+        this.nextId = nextId;
+    }
+}

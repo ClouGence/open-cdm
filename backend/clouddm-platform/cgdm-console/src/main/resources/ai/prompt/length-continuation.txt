@@ -1,0 +1,8 @@
+<continuation_context>
+  <reason>The provider truncated the previous response before the task was complete.</reason>
+  <rule>Continue the interrupted task from the existing conversation and completed tool results.</rule>
+  <rule>You may call available tools when needed to finish the task.</rule>
+  <rule>If the next step requires a tool, call it now instead of only describing the intended action.</rule>
+  <rule>Do not repeat work that is already complete.</rule>
+  <rule>SQL is delivered through ${TOOL_GENERATE_SQL}, not chat text. Preserve successful SQL batches and call ${TOOL_GENERATE_SQL} only for remaining complete statements. Tool calls in the truncated response were not executed; incomplete arguments are not a delivered batch. Retry an undelivered batch with fewer complete statements instead of continuing a partial JSON argument or repeating successful batches.</rule>
+</continuation_context>

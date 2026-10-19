@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100%" class="result-container">
+  <div style="height: 100%" class="result-container" :class="{ 'result-container--collapsed': tab.result.collapsed }">
     <div style="height: 100%; display: flex; flex-direction: column">
       <div class="tab-group">
         <a-tabs
@@ -57,6 +57,27 @@
             </a-dropdown>
           </template>
         </a-tabs>
+        <button
+          type="button"
+          class="result-maximize-toggle"
+          :aria-label="tab.result.maximized ? $t('sqlResult.restore') : $t('sqlResult.maximize')"
+          :title="tab.result.maximized ? $t('sqlResult.restore') : $t('sqlResult.maximize')"
+          :aria-pressed="Boolean(tab.result.maximized)"
+          @click="toggleMaximize"
+        >
+          <FullscreenExitOutlined v-if="tab.result.maximized" />
+          <FullscreenOutlined v-else />
+        </button>
+        <button
+          type="button"
+          class="result-collapse-toggle"
+          :aria-label="tab.result.collapsed ? $t('sqlResult.expand') : $t('sqlResult.collapse')"
+          :title="tab.result.collapsed ? $t('sqlResult.expand') : $t('sqlResult.collapse')"
+          :aria-expanded="!tab.result.collapsed"
+          @click="toggleCollapse"
+        >
+          <DoubleRightOutlined :style="{ transform: tab.result.collapsed ? 'rotate(-90deg)' : 'rotate(90deg)' }" />
+        </button>
       </div>
       <div class="result-info-container" style="height: 100%" v-if="tab.result.active === 'message'">
         <div ref="resultInfoMessages" class="result-info-messages sql-editor-typography">
@@ -457,6 +478,7 @@
 <script lang="jsx">
 import appLogger from '@/utils/logger';
 import dayjs from 'dayjs';
+import { DoubleRightOutlined, FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons-vue';
 import { Modal, Tooltip } from 'ant-design-vue';
 import { mysqlInsert, pgInsert } from '@/views/sql/components/typeGroup';
 import copyMixin from '@/mixins/copyMixin';
@@ -476,6 +498,9 @@ export default {
     tab: Object
   },
   components: {
+    DoubleRightOutlined,
+    FullscreenExitOutlined,
+    FullscreenOutlined,
     CustomIcon,
     ExecutionSqlText
     // AsyncJobDetail,
@@ -677,6 +702,7 @@ export default {
     'tab.running': {
       handler(running) {
         if (running) {
+          this.tab.result.collapsed = false;
           return;
         }
         const loadingTimerIds = Object.keys(this.paginatedLoadingTimers);
@@ -763,6 +789,21 @@ export default {
     }
   },
   methods: {
+    toggleMaximize() {
+      const result = this.tab.result;
+      if (result.maximized) {
+        result.maximized = false;
+        result.collapsed = result.collapsedBeforeMaximize;
+      } else {
+        result.collapsedBeforeMaximize = result.collapsed;
+        result.collapsed = false;
+        result.maximized = true;
+      }
+    },
+    toggleCollapse() {
+      this.tab.result.maximized = false;
+      this.tab.result.collapsed = !this.tab.result.collapsed;
+    },
     handleClickCostPop() {
       appLogger.warn(123, this.tab);
     },
@@ -887,6 +928,7 @@ export default {
       });
     },
     handleResultTabChange(activeKey) {
+      this.tab.result.collapsed = false;
       if (activeKey !== 'message' && activeKey !== 'async') {
         const exists = this.tab.result.list.some((item) => item.resultId === activeKey);
         if (!exists) {
@@ -1855,6 +1897,33 @@ export default {
   }
 
   overflow: hidden;
+
+  &--collapsed {
+    .result-info-container,
+    .result-content-wrapper {
+      display: none !important;
+    }
+  }
+
+  .result-collapse-toggle,
+  .result-maximize-toggle {
+    display: flex;
+    flex: 0 0 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--border-primary);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: -2px;
+    }
+  }
 
   .tab-group {
     display: flex;

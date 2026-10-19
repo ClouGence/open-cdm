@@ -12,6 +12,10 @@ export default {
   name: 'ReadOnlyEditor',
   props: {
     maxHeight: Number,
+    fontSize: {
+      type: Number,
+      default: SQL_EDITOR_TYPOGRAPHY.fontSize
+    },
     text: {
       type: String,
       default: ''
@@ -44,6 +48,10 @@ export default {
       type: Boolean,
       default: false
     },
+    alwaysConsumeMouseWheel: {
+      type: Boolean,
+      default: true
+    },
     lineNumberStart: {
       type: Number,
       default: 1
@@ -54,6 +62,9 @@ export default {
     }
   },
   watch: {
+    fontSize(fontSize) {
+      this.monacoEditor?.updateOptions({ fontSize });
+    },
     text(newVal, oldVal) {
       if (newVal && newVal !== oldVal) {
         this.createEditor();
@@ -137,6 +148,7 @@ export default {
               value: this.text, // The editor 's value
               language,
               ...(language === 'json' ? { wordWrap: 'on' } : SQL_EDITOR_TYPOGRAPHY),
+              fontSize: this.fontSize,
               scrollBeyondLastLine: false,
               readOnly: true,
               domReadOnly: true,
@@ -154,7 +166,7 @@ export default {
                 ...SQL_EDITOR_SCROLLBAR,
                 vertical: this.virtualScrollMode ? 'hidden' : 'auto',
                 handleMouseWheel: !this.virtualScrollMode,
-                alwaysConsumeMouseWheel: !this.virtualScrollMode
+                alwaysConsumeMouseWheel: !this.virtualScrollMode && this.alwaysConsumeMouseWheel
               },
               overviewRulerLanes: 0,
               hideCursorInOverviewRuler: true,
@@ -244,7 +256,7 @@ export default {
           ...SQL_EDITOR_SCROLLBAR,
           vertical: virtualScrollMode ? 'hidden' : 'auto',
           handleMouseWheel: !virtualScrollMode,
-          alwaysConsumeMouseWheel: !virtualScrollMode
+          alwaysConsumeMouseWheel: !virtualScrollMode && this.alwaysConsumeMouseWheel
         }
       });
     },

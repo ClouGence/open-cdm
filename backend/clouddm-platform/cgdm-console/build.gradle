@@ -28,6 +28,12 @@ dependencies {
     implementation project(':cg-com-results-file')
     implementation project(':cgdm-share-libs')
     implementation project(':cgdm-web')
+    implementation project(':ai-common')
+    implementation project(':ai-openai')
+    implementation project(':ai-deepseek')
+    implementation project(':ai-kimi')
+    implementation project(':ai-minimax')
+    implementation project(':ai-dashscope')
 
     // spring
     implementation "org.springframework.security:spring-security-core:5.7.5"
@@ -41,6 +47,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-mail:${SPRINGBOOT_VERSION}"
 
     // utils
+    implementation 'com.knuddels:jtokkit:1.1.0'
     implementation "com.fasterxml.uuid:java-uuid-generator:4.0"
     implementation "org.apache.commons:commons-lang3:3.12.0"
     implementation "com.google.guava:guava:${GUAVA_VERSION}"

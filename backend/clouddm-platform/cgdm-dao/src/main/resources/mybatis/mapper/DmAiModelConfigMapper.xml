@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.ai.DmAiModelConfigMapper">
+    <resultMap id="model" type="com.clougence.clouddm.platform.dal.model.ai.DmAiModelConfigDO">
+        <result column="id" property="id"/>
+        <result column="model_code" property="modelCode"/>
+        <result column="label" property="label"/>
+        <result column="provider_code" property="providerCode"/>
+        <result column="upstream_model_name" property="upstreamModelName"/>
+        <result column="version" property="version"/>
+        <result column="verification_status" property="verificationStatus"/>
+        <result column="verified_version" property="verifiedVersion"/>
+        <result column="verified_at" property="verifiedAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+    </resultMap>
+
+    <sql id="columns">id, model_code, label, provider_code, upstream_model_name, version, verification_status, verified_version, verified_at, created_by, updated_by, gmt_create, gmt_modified</sql>
+
+    <select id="findPageByProviderCodes" resultMap="model">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_model_config
+        WHERE
+            provider_code IN
+        <foreach collection="providerCodes" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+        <if test="keyword != null and keyword != ''">
+            AND
+            (
+                label LIKE CONCAT('%', #{keyword}, '%')
+                OR
+                upstream_model_name LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY
+            label,
+            model_code
+    </select>
+
+    <select id="findByProviderCodes" resultMap="model">
+        SELECT
+            model_code,
+            version,
+            label,
+            upstream_model_name
+        FROM
+            dm_ai_model_config
+        WHERE
+            provider_code IN
+        <foreach collection="providerCodes" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+        ORDER BY
+            label,
+            model_code
+    </select>
+
+    <select id="findByCode" resultMap="model">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_model_config
+        WHERE
+            model_code = #{code}
+    </select>
+
+    <update id="updateByCodeAndVersion">
+        UPDATE
+            dm_ai_model_config
+        SET
+            label               = #{label},
+            upstream_model_name = #{upstreamModelName},
+            updated_by          = #{updatedBy},
+            version             = #{version},
+            verification_status = #{verificationStatus},
+            verified_version    = #{verifiedVersion},
+            verified_at         = #{verifiedAt},
+            gmt_modified        = #{gmtModified}
+        WHERE
+            model_code = #{modelCode}
+            AND
+            version    = #{expectedVersion}
+    </update>
+
+    <update id="updateVerificationByCodeAndVersion">
+        UPDATE
+            dm_ai_model_config
+        SET
+            verification_status = #{status},
+            verified_version    = #{version},
+            verified_at         = #{verifiedAt}
+        WHERE
+            model_code = #{code}
+            AND
+            version    = #{version}
+    </update>
+
+    <delete id="deleteByCodeAndVersion">
+        DELETE FROM
+            dm_ai_model_config
+        WHERE
+            model_code = #{code}
+            AND
+            version    = #{version}
+    </delete>
+</mapper>

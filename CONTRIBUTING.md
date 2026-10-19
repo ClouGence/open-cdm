@@ -121,6 +121,17 @@ cd package && ./package.sh --docker x86_64
 - Encoding: UTF-8
 - Maintain consistent file headers with copyright notice
 
+Open the project in IDEA, wait for indexing, and save your files. Then run from the repository root:
+
+```bash
+./scripts/format_java.sh               # Optimize imports and format changed Java files
+./scripts/format_java.sh --check       # Check without modifying files
+./scripts/format_java.sh --dry-run     # Preview the file list
+./scripts/format_java.sh --format-only # Format only; IDEA is not required
+```
+
+The script uses IDEA's import settings and `codeformat.xml`, without updating Git's index.
+
 ### Coding Style
 
 - Database entities use the `DO` suffix, form objects use `FO`, and request/response types use `VO`

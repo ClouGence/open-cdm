@@ -21,7 +21,8 @@ function applyMenuItems(state, myCatLog = state.myCatLog, myAuth = state.myAuth)
     myCatLog,
     myAuth,
     isDesktop,
-    accountType: state.userInfo?.accountType
+    accountType: state.userInfo?.accountType,
+    canManageAi: state.aiCapabilities?.canManageEngines === true && myAuth.includes('DM_AI_ENGINE_MANAGE')
   });
 
   state.sidebarMenu = sidebarMenu;
@@ -29,6 +30,14 @@ function applyMenuItems(state, myCatLog = state.myCatLog, myAuth = state.myAuth)
 }
 
 export default {
+  SET_AI_SESSION_ID(state, sessionId) {
+    state.aiSessionId = sessionId;
+  },
+  SET_AI_CAPABILITIES(state, { value, error }) {
+    state.aiCapabilities = value;
+    state.aiCapabilitiesError = error;
+    applyMenuItems(state);
+  },
   [UPDATE_RULE_SETTING](state, data) {
     state.ruleSetting = data.ruleSetting;
   },
@@ -37,6 +46,11 @@ export default {
   },
   [UPDATE_USERINFO](state, userInfo) {
     appLogger.debug('UPDATE_USERINFO', userInfo);
+    if (state.userInfo?.uid !== userInfo?.uid) {
+      state.aiSessionId = null;
+      state.aiCapabilities = null;
+      state.aiCapabilitiesError = '';
+    }
     if (userInfo) {
       state.userInfo = { ...state.userInfo, ...userInfo };
     } else {

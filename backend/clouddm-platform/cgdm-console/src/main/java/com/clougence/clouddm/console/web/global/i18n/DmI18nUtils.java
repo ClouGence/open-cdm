@@ -15,7 +15,9 @@
  */
 package com.clougence.clouddm.console.web.global.i18n;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -53,6 +55,7 @@ public class DmI18nUtils {
         I18N_UTILS.loadResources("/i18n/desktop");
         I18N_UTILS.loadResources("/i18n/validation");
         I18N_UTILS.loadResources("/i18n/sec-rule-message");
+        I18N_UTILS.loadResources("/i18n/ai/messages");
         I18N_UTILS.loadResources(DmMcpI18nKey.class);
         I18N_UTILS.loadResources(I18nDmLabelKeys.class);
         I18N_UTILS.loadResources(I18nDmMsgKeys.class);

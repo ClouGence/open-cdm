@@ -298,6 +298,43 @@
                 flex: 1;
                 min-height: 0;
               }
+
+              &--results-maximized {
+                .layout-content-main {
+                  display: none;
+                }
+              }
+
+              &--results-collapsed {
+                .result-wrapper {
+                  flex: 0 0 44px;
+                }
+
+                .layout-content-main,
+                .sql-viewer,
+                .sql-ai-editor {
+                  display: flex;
+                  flex: 1;
+                  flex-direction: column;
+                  min-height: 0;
+                }
+
+                .sql-ai-workspace {
+                  flex: 1;
+                  height: 0 !important;
+                  min-height: 0;
+                }
+
+                .sql-ai-editor > .monaco-editor {
+                  flex: 1;
+                  min-height: 0;
+                }
+
+                .editor-resize,
+                .ai-editor-resize {
+                  display: none;
+                }
+              }
             }
           }
 
