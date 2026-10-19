@@ -32,21 +32,12 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
         if (context.splitItem(0).splitBlock() != null) {
             return SplitQueryType.BLOCK;
         }
-        List<String> words = new ArrayList<>();
-        // CTE subqueries and SQLScript bodies belong to a different scope.
-        for (HanaParser.SplitItemContext item : context.splitItem()) {
-            if (item.splitAtom() != null) {
-                // Session variable names are case-sensitive string values.
-                if (item.getStart().getType() == HanaParser.STRING) {
-                    words.add(item.getText());
-                } else {
-                    words.add(item.getText().toUpperCase(Locale.ROOT));
-                }
-            }
-        }
+
+        List<String> words = statementWords(context);
         if (words.isEmpty()) {
             return SplitQueryType.UNKNOWN;
         }
+
         String first = words.get(0);
         if ("WITH".equals(first)) {
             for (String word : words) {
@@ -56,6 +47,7 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
             }
             return SplitQueryType.UNKNOWN;
         }
+
         return switch (first) {
             case "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE", "GRANT", "REVOKE" -> SplitQueryType.valueOf(first);
             case "CREATE", "ALTER", "DROP", "RENAME", "COMMENT" -> ddlType(words);
@@ -76,6 +68,31 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
             case "EXPORT" -> SplitQueryType.DATA_EXPORT;
             default -> SplitQueryType.UNKNOWN;
         };
+    }
+
+    SplitQueryType additionalType(HanaParser.SplitStatementContext context) {
+        List<String> words = statementWords(context);
+        // Service shutdown and removal of all licenses can make the database unavailable.
+        if (startsWith(words, "ALTER", "SYSTEM", "STOP", "SERVICE") || startsWith(words, "UNSET", "SYSTEM", "LICENSE", "ALL")) {
+            return SplitQueryType.UNSAFE;
+        }
+        return null;
+    }
+
+    private List<String> statementWords(HanaParser.SplitStatementContext context) {
+        List<String> words = new ArrayList<>();
+        // CTE subqueries and SQLScript bodies belong to a different scope.
+        for (HanaParser.SplitItemContext item : context.splitItem()) {
+            if (item.splitAtom() != null) {
+                // Session variable names are case-sensitive string values.
+                if (item.getStart().getType() == HanaParser.STRING) {
+                    words.add(item.getText());
+                } else {
+                    words.add(item.getText().toUpperCase(Locale.ROOT));
+                }
+            }
+        }
+        return words;
     }
 
     private SplitQueryType ddlType(List<String> words) {
@@ -108,8 +125,11 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
         String action = words.get(0);
         if ("CREATE".equals(action) || "ALTER".equals(action) || "DROP".equals(action)) {
             List<String> target = words.subList(index, words.size());
-            if (startsWith(target, "AUDIT", "POLICY") || startsWith(target, "STRUCTURED", "PRIVILEGE")) {
+            if (startsWith(target, "AUDIT", "POLICY") || startsWith(target, "STRUCTURED", "PRIVILEGE") || startsWith(target, "WORKLOAD", "MAPPING")) {
                 return SplitQueryType.valueOf(action + "_POLICY");
+            }
+            if (startsWith(target, "WORKLOAD", "CLASS")) {
+                return SplitQueryType.valueOf(action + "_RESOURCE_GROUP");
             }
             if (Set.of("USERGROUP", "CREDENTIAL", "CERTIFICATE", "PSE").contains(object)
                 || (Set.of("JWT", "SAML", "LDAP", "X509").contains(object) && startsWith(target.subList(1, target.size()), "PROVIDER")) || startsWith(target, "PUBLIC", "KEY")
@@ -131,6 +151,9 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
     }
 
     private SplitQueryType settingType(List<String> words) {
+        if (startsWith(words, "SET", "SYSTEM", "LICENSE") || startsWith(words, "UNSET", "SYSTEM", "LICENSE", "ALL")) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
         if (words.size() > 1) {
             if ("PSE".equals(words.get(1))) {
                 return SplitQueryType.SYSTEM_SETTING_WRITE;
@@ -164,6 +187,12 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
             || startsWith(command, "CANCEL", "WORK", "IN", "SESSION")) {
             return SplitQueryType.ADMIN;
         }
+        if (startsWith(command, "CLEAR", "INIFILE", "CONTENT", "HISTORY") || startsWith(command, "STOP", "SERVICE")) {
+            return SplitQueryType.ADMIN;
+        }
+        if (startsWith(command, "ALTER", "CONFIGURATION") || startsWith(command, "RECONFIGURE", "SERVICE") || startsWith(command, "ALTER", "TABLE", "PLACEMENT")) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
         if (startsWith(command, "ALTER", "AUDIT", "LOG")) {
             return SplitQueryType.ALTER_LOG;
         }
@@ -186,5 +215,4 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
     private boolean startsWith(List<String> words, String... prefix) {
         return words.size() >= prefix.length && words.subList(0, prefix.length).equals(List.of(prefix));
     }
-
 }

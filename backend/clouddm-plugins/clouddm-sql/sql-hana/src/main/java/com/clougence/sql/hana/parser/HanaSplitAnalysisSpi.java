@@ -19,12 +19,13 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.sql.hana.parser.antlr.HanaParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.hana.parser.antlr.HanaParser;
 
 public class HanaSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
@@ -36,6 +37,14 @@ public class HanaSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     @Override
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return HanaSplitVisitor.INSTANCE;
+    }
+
+    @Override
+    protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof HanaParser.SplitStatementContext context && context.getParent() instanceof HanaParser.SplitRootContext) {
+            return HanaSplitVisitor.INSTANCE.additionalType(context);
+        }
+        return null;
     }
 
     @Override
