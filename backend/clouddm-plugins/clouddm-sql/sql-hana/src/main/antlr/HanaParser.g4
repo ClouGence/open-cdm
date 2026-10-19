@@ -131,7 +131,12 @@ splitStatement: splitItem+;
 splitItem: splitParentheses | splitCase | splitBlock | splitAtom;
 splitParentheses: LPAREN splitItem* RPAREN;
 splitAtom: ~(SEMI | LPAREN | RPAREN | BEGIN | END | CASE | ELSEIF | INVALID_CHARACTER | UNTERMINATED_COMMENT);
-splitCase: CASE splitCaseItem+ END;
+// Provider identity comparison is not a CASE expression. Keep its soft keywords
+// as WORD tokens so existing identifiers and strict expression parsing are unchanged.
+splitCase: CASE (
+    {"SENSITIVE".equalsIgnoreCase(_input.LT(1).getText()) || "INSENSITIVE".equalsIgnoreCase(_input.LT(1).getText())}? WORD IDENTITY
+    | splitCaseItem+ END
+);
 splitCaseItem: splitParentheses | splitCase | splitAtom;
 splitBlock: BEGIN splitBody END {
     int next = _input.LA(1);
