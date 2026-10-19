@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.ai.DmAiTurnRunMapper">
+    <resultMap id="run" type="com.clougence.clouddm.platform.dal.model.ai.DmAiTurnRunDO">
+        <result column="id" property="id"/>
+        <result column="run_id" property="runId"/>
+        <result column="uid" property="uid"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="history_id" property="historyId"/>
+        <result column="status" property="status"/>
+        <result column="event_seq" property="eventSeq"/>
+        <result column="error_code" property="errorCode"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="deadline" property="deadline"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+    </resultMap>
+
+    <sql id="columns">id, run_id, uid, session_id, history_id, status, event_seq, error_code, error_message, deadline, gmt_create, gmt_modified</sql>
+
+    <select id="findByHistoryIds" resultMap="run">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_turn_run
+        WHERE
+            history_id IN
+        <foreach collection="historyIds" item="historyId" open="(" separator="," close=")">
+            #{historyId}
+        </foreach>
+        <if test="lock">
+            FOR UPDATE
+        </if>
+    </select>
+
+    <select id="findBySessionIds" resultMap="run">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_turn_run
+        WHERE
+            session_id IN
+        <foreach collection="sessionIds" item="sessionId" open="(" separator="," close=")">
+            #{sessionId}
+        </foreach>
+    </select>
+
+    <select id="findRunningBySessionId" resultMap="run">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_turn_run
+        WHERE
+            session_id = #{sessionId}
+            AND
+            status     = 'RUNNING'
+        <if test="lock">
+            FOR UPDATE
+        </if>
+    </select>
+
+    <select id="findRunningByDeadline" resultMap="run">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_turn_run
+        WHERE
+            status = 'RUNNING'
+            AND
+            deadline <![CDATA[ <= ]]> #{now}
+        ORDER BY
+            deadline,
+            id
+        LIMIT #{limit}
+    </select>
+
+    <select id="findByRunIdForUpdate" resultMap="run">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_turn_run
+        WHERE
+            run_id = #{runId}
+        FOR UPDATE
+    </select>
+
+    <select id="findByRunId" resultMap="run">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_turn_run
+        WHERE
+            run_id = #{runId}
+    </select>
+
+    <update id="updateStatusByRunId">
+        UPDATE
+            dm_ai_turn_run
+        SET
+            status        = #{status},
+            error_code    = #{errorCode},
+            error_message = #{errorMessage},
+            gmt_modified  = #{gmtModified}
+        WHERE
+            run_id = #{runId}
+            AND
+            status = 'RUNNING'
+    </update>
+
+    <update id="updateSeqByRunId">
+        UPDATE
+            dm_ai_turn_run
+        SET
+            event_seq = #{seq}
+        WHERE
+            run_id = #{runId}
+    </update>
+
+    <delete id="deleteBySessionIdFromHistoryId">
+        DELETE FROM
+            dm_ai_turn_run
+        WHERE
+            session_id = #{sessionId}
+            AND
+            history_id <![CDATA[ >= ]]> #{historyId}
+    </delete>
+
+    <delete id="deleteBySessionId">
+        DELETE FROM
+            dm_ai_turn_run
+        WHERE
+            session_id = #{sessionId}
+    </delete>
+</mapper>

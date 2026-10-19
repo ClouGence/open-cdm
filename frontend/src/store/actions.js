@@ -9,6 +9,7 @@ import {
   SET_THEME
 } from '@/store/mutationTypes';
 import i18n from '@/i18n';
+import { aiRequest } from '@/services/ai';
 import { createWebSocket, hasWebSocketInstance } from '@/services/socket';
 import { services } from '@/services/http';
 import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
@@ -36,17 +37,35 @@ const initWebsocket = (globalSetting, loggedIn) => {
   createWebSocket(`${wsProtocol}://${host}/api/entry/ws/channel`);
 };
 
+let aiCapabilitiesSequence = 0;
+
 export default {
+  async loadAiCapabilities({ commit, state }) {
+    const sequence = ++aiCapabilitiesSequence;
+    const uid = state.userInfo?.uid;
+    if (!uid) return;
+    try {
+      const value = await aiRequest('turn/getCapabilities');
+      if (sequence !== aiCapabilitiesSequence || state.userInfo?.uid !== uid) return null;
+      commit('SET_AI_CAPABILITIES', { value, error: '' });
+      return value;
+    } catch (error) {
+      if (sequence === aiCapabilitiesSequence && state.userInfo?.uid === uid)
+        commit('SET_AI_CAPABILITIES', { value: null, error: error.code || 'NETWORK_ERROR' });
+      return null;
+    }
+  },
   async getRuleSetting({ commit }) {
     const res = await services.dmSecurityRulesRuleSettingDef();
     if (res.success) {
       commit(UPDATE_RULE_SETTING, { ruleSetting: res.data });
     }
   },
-  async getUserInfo({ commit }) {
+  async getUserInfo({ commit, dispatch }) {
     const userInfoRes = await services.rdpUserQueryLoginUser();
     if (userInfoRes.success) {
       commit(UPDATE_USERINFO, userInfoRes.data);
+      dispatch('loadAiCapabilities');
       const userAuthRes = await services.rdpUserListMyAuth();
       if (userAuthRes.success) {
         commit(UPDATE_MY_AUTH, userAuthRes.data);

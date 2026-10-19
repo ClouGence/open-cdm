@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.ai.DmAiHistoryMapper">
+    <resultMap id="history" type="com.clougence.clouddm.platform.dal.model.ai.DmAiHistoryDO">
+        <result column="id" property="id"/>
+        <result column="uuid" property="uuid"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="message" property="message"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="context_json" property="contextJson"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="model" property="model"/>
+        <result column="engine_version" property="engineVersion"/>
+        <result column="engine_name" property="engineName"/>
+        <result column="referenced_objects_json" property="referencedObjectsJson"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="usage_json" property="usageJson"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+    </resultMap>
+
+    <sql id="columns">id, uuid, session_id, request_id, message, context_json, model, engine_version, engine_name, referenced_objects_json, usage_json, gmt_create, gmt_modified</sql>
+
+    <select id="findPageBySessionId" resultMap="history">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_history
+        WHERE
+            session_id = #{sessionId}
+        <if test="beforeId != null">
+            AND
+            id <![CDATA[ < ]]> #{beforeId}
+        </if>
+        ORDER BY id DESC
+        LIMIT #{limit}
+        <if test="lock">
+            FOR UPDATE
+        </if>
+    </select>
+
+    <select id="findBySessionId" resultMap="history">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_history
+        WHERE
+            session_id = #{sessionId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="findIdsBySessionIds" resultMap="history">
+        SELECT
+            id,
+            uuid,
+            session_id
+        FROM
+            dm_ai_history
+        WHERE
+            session_id IN
+        <foreach collection="sessionIds" item="sessionId" open="(" separator="," close=")">
+            #{sessionId}
+        </foreach>
+        ORDER BY id
+    </select>
+
+    <select id="findByIds" resultMap="history">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_history
+        WHERE
+            id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY id DESC
+        <if test="lock">
+            FOR UPDATE
+        </if>
+    </select>
+
+    <select id="findByUuids" resultMap="history">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_history
+        WHERE
+            uuid IN
+        <foreach collection="uuids" item="uuid" open="(" separator="," close=")">
+            #{uuid}
+        </foreach>
+        ORDER BY id DESC
+    </select>
+
+    <select id="findCurrentTimeMillis" resultType="long">
+        SELECT
+            UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000
+    </select>
+
+    <select id="findByUuid" resultMap="history">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_history
+        WHERE
+            uuid = #{uuid}
+    </select>
+
+    <select id="findByUuidForUpdate" resultMap="history">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_history
+        WHERE
+            uuid = #{uuid}
+        FOR UPDATE
+    </select>
+
+    <select id="findBySessionIdAndRequestId" resultMap="history">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_history
+        WHERE
+            session_id = #{sessionId}
+            AND
+            request_id = #{requestId}
+        <if test="lock">
+            FOR UPDATE
+        </if>
+    </select>
+
+    <update id="updateUsageById">
+        UPDATE
+            dm_ai_history
+        SET
+            usage_json   = #{usageJson},
+            gmt_modified = #{gmtModified}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateReferencesById">
+        UPDATE
+            dm_ai_history
+        SET
+            referenced_objects_json = #{references,typeHandler=com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler}
+        WHERE
+            id = #{id}
+    </update>
+
+    <delete id="deleteBySessionIdFromId">
+        DELETE FROM
+            dm_ai_history
+        WHERE
+            session_id = #{sessionId}
+            AND
+            id <![CDATA[ >= ]]> #{historyId}
+    </delete>
+
+    <delete id="deleteBySessionId">
+        DELETE FROM
+            dm_ai_history
+        WHERE
+            session_id = #{sessionId}
+    </delete>
+</mapper>

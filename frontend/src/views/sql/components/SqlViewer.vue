@@ -1,5 +1,9 @@
 <template>
-  <div class="sql-viewer">
+  <div
+    class="sql-viewer"
+    :class="{ 'sql-viewer--assistant': aiBinding, 'sql-viewer--narrow': aiNarrow }"
+    :style="{ '--ai-panel-width': `${aiPanelWidth}px` }"
+  >
     <operators
       :inert="!monacoEditor"
       :tab="tab"
@@ -15,44 +19,106 @@
       :storeQueryTabs="storeQueryTabs"
       :formatSql="formatSql"
     >
+      <template #assistant-control>
+        <Button v-if="aiCapabilities?.canGenerate || aiCapabilitiesError" size="small" :disabled="!aiSupported" @click="toggleAi">
+          {{ $t('ai.assistant') }}
+        </Button>
+      </template>
       <template #connection-context>
         <slot name="connection-context" />
       </template>
     </operators>
-    <div class="sql-editor-stage" :aria-busy="!monacoEditor">
-      <Editor
-        :inert="!monacoEditor"
-        :set-editor-instance="setEditorInstance"
-        :current-tab="tab"
-        ref="editor"
-        :completion-data="completionData"
-        :store-query-tabs="storeQueryTabs"
-        :rdb-object-detail="rdbObjectDetail"
-        :on-run="onRun"
-        @change="handleEditorChange"
-      >
-        <template #editor-controls>
-          <CommandExamples v-if="tab.support.commandExamples?.length" :key="tab.dsId" :examples="tab.support.commandExamples" />
-          <SqlScriptPopover
-            :tab="tab"
-            :get-editor-content="getEditorContent"
-            :store-query-tabs="storeQueryTabs"
-            @open-script="$emit('open-script', $event)"
-            @script-deleted="$emit('script-deleted', $event)"
-            @script-renamed="$emit('script-renamed', $event)"
-          />
-        </template>
-      </Editor>
-      <Transition name="sql-editor-loading">
-        <SqlLoadingSkeleton v-if="!monacoEditor" variant="editor" class="sql-editor-loading" />
-      </Transition>
+    <AppPageTabs v-if="aiBinding && aiNarrow" v-model="aiView" :tabs="aiTabs" @change="layoutEditor" />
+    <div
+      ref="aiWorkspace"
+      class="sql-ai-workspace"
+      :class="{ 'sql-ai-workspace--open': aiBinding, 'sql-ai-workspace--narrow': aiNarrow, 'sql-ai-workspace--resizing': aiResizeDrag }"
+      :style="aiBinding && aiWorkspaceHeight !== null ? { height: `${aiWorkspaceHeight}px` } : undefined"
+    >
+      <div class="sql-ai-editor sql-editor-stage" :aria-busy="!monacoEditor" v-show="!aiBinding || !aiNarrow || aiView === 'editor'">
+        <Editor
+          :inert="!monacoEditor"
+          :set-editor-instance="setEditorInstance"
+          :current-tab="tab"
+          ref="editor"
+          :completion-data="completionData"
+          :store-query-tabs="storeQueryTabs"
+          :rdb-object-detail="rdbObjectDetail"
+          :on-run="onRun"
+          @change="handleEditorChange"
+        >
+          <template #editor-controls>
+            <CommandExamples v-if="tab.support.commandExamples?.length" :key="tab.dsId" :examples="tab.support.commandExamples" />
+            <SqlScriptPopover
+              :tab="tab"
+              :get-editor-content="getEditorContent"
+              :store-query-tabs="storeQueryTabs"
+              @open-script="$emit('open-script', $event)"
+              @script-deleted="$emit('script-deleted', $event)"
+              @script-renamed="$emit('script-renamed', $event)"
+            />
+          </template>
+        </Editor>
+        <Transition name="sql-editor-loading">
+          <SqlLoadingSkeleton v-if="!monacoEditor" variant="editor" class="sql-editor-loading" />
+        </Transition>
+      </div>
+      <div
+        v-if="aiBinding && !aiNarrow"
+        class="ai-panel-resize"
+        role="separator"
+        tabindex="0"
+        aria-orientation="vertical"
+        :aria-label="$t('ai.resizeWidth')"
+        :aria-valuenow="aiPanelWidth"
+        @pointerdown.prevent.stop="startAiResize($event, 'width')"
+        @pointermove="resizeAiWorkspace"
+        @pointerup="finishAiResize"
+        @pointercancel="finishAiResize"
+        @lostpointercapture="finishAiResize"
+        @keydown="resizeAiByKey($event, 'width')"
+      />
+      <AiSqlPanel
+        v-if="aiBinding"
+        v-show="!aiNarrow || aiView === 'assistant'"
+        :binding="aiBinding"
+        :sql-selection="aiSqlSelection"
+        :sql-font-size="aiSqlFontSize"
+        :initial-prompt="aiDraft"
+        @draft-change="saveAiDraft"
+        :target-active="aiTargetActive"
+        @close="closeAi"
+        @insert="insertAiSql"
+      />
     </div>
-    <div class="editor-resize" />
-    <div :class="`query-message ${tab.message.type}`" v-if="tab.message.text && tab.message.show && tab.connected">
+    <div
+      v-if="aiBinding"
+      class="ai-editor-resize"
+      role="separator"
+      tabindex="0"
+      aria-orientation="horizontal"
+      :aria-label="$t('ai.resizeHeight')"
+      :aria-valuenow="aiWorkspaceHeight"
+      @pointerdown.prevent.stop="startAiResize($event, 'height')"
+      @pointermove="resizeAiWorkspace"
+      @pointerup="finishAiResize"
+      @pointercancel="finishAiResize"
+      @lostpointercapture="finishAiResize"
+      @keydown="resizeAiByKey($event, 'height')"
+    />
+    <div v-else class="editor-resize" />
+    <div
+      :class="`query-message ${tab.message.type}`"
+      v-if="tab.message.text && tab.message.show && tab.connected && (!aiBinding || !aiNarrow || aiView === 'editor')"
+    >
       <div v-html="tab.message.text"></div>
       <CustomIcon type="icon-v2-close2" @click="handleCloseError" hoverStyle />
     </div>
-    <div class="query-message" :class="tab.workspaceConnectionState === 'disconnected' ? 'Info' : 'Error'" v-if="!tab.connected && tab.msgContent">
+    <div
+      class="query-message"
+      :class="tab.workspaceConnectionState === 'disconnected' ? 'Info' : 'Error'"
+      v-if="!tab.connected && tab.msgContent && (!aiBinding || !aiNarrow || aiView === 'editor')"
+    >
       {{ tab.msgContent }}
       <Button
         v-if="!['connecting', 'reconnecting', 'disconnecting'].includes(tab.workspaceConnectionState)"
@@ -89,7 +155,12 @@
 </template>
 <script>
 import appLogger from '@/utils/logger';
+import { markRaw } from 'vue';
+import AppPageTabs from '@/components/layout/AppPageTabs.vue';
+import AiSqlPanel from '@/views/ai/components/AiSqlPanel.vue';
+import { aiErrorMessage } from '@/services/ai';
 import * as monaco from 'monaco-editor';
+import { SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import Operators from '@/views/sql/components/Operators';
 import { chunk } from 'xe-utils';
@@ -113,9 +184,11 @@ export default {
     Operators,
     SqlScriptPopover,
     CommandExamples,
+    AppPageTabs,
+    AiSqlPanel,
     SqlLoadingSkeleton
   },
-  emits: ['open-script', 'script-deleted', 'script-renamed', 'workspace-connection-error', 'workspace-connection-success'],
+  emits: ['open-script', 'script-deleted', 'script-renamed', 'switch-tab', 'workspace-connection-error', 'workspace-connection-success'],
   props: {
     handleClickDsStatusIcon: Function,
     handleGetDsSetting: Function,
@@ -131,7 +204,30 @@ export default {
   },
   computed: {
     ...mapGetters(['isDesktop']),
-    ...mapState(['dmGlobalSetting']),
+    ...mapState(['dmGlobalSetting', 'aiCapabilities', 'aiCapabilitiesError']),
+    aiSupported() {
+      return !['MongoDB', 'Redis', 'Valkey'].includes(this.tab.dsType);
+    },
+    aiTabs() {
+      return [
+        { name: 'editor', label: this.$t('ai.editor') },
+        { name: 'assistant', label: this.$t('ai.assistant') }
+      ];
+    },
+    aiBinding() {
+      if (!this.aiOpen) return null;
+      let levels = [];
+      if (this.tab.node && this.aiSupported) levels = this.browseGenLevelsData(this.tab.node).map(String);
+      return {
+        tabKey: this.tab.key,
+        modelId: this.monacoEditor?.getModel()?.id,
+        dsType: this.tab.dsType,
+        levels
+      };
+    },
+    aiTargetActive() {
+      return !!this.aiBinding && this.editorTabKey === this.tab.key && !!this.aiBinding.modelId;
+    },
     noPassedRuleColumns() {
       const columns = [
         {
@@ -172,16 +268,139 @@ export default {
       noPassedRuleList: [],
       showNoPassedRuleModal: false,
       stopping: false,
-      monacoEditor: null
+      monacoEditor: null,
+      editorTabKey: null,
+      aiOpen: false,
+      aiDraft: '',
+      aiSqlSelection: null,
+      aiSqlFontSize: SQL_EDITOR_TYPOGRAPHY.fontSize,
+      aiSelectionDisposables: [],
+      aiNarrow: true,
+      aiView: 'assistant',
+      aiResizeObserver: null,
+      aiPanelWidth: 440,
+      aiWorkspaceHeight: null,
+      aiResizeDrag: null
     };
   },
   mounted() {
+    this.aiResizeObserver = markRaw(
+      new ResizeObserver(([entry]) => {
+        this.aiNarrow = entry.contentRect.width < 1000;
+        if (!this.aiNarrow) this.aiPanelWidth = Math.min(this.aiPanelWidth, entry.contentRect.width - 328);
+        this.layoutEditor();
+      })
+    );
+    this.aiResizeObserver.observe(this.$el);
     this.$bus.on('showNoPassedRuleListModal', (index) => this.handleShowUnPassedRuleListModal(index));
   },
   beforeUnmount() {
+    this.aiSelectionDisposables.forEach((listener) => listener.dispose());
+    this.finishAiResize();
+    this.aiResizeObserver?.disconnect();
     this.$bus.off('showNoPassedRuleListModal');
   },
   methods: {
+    startAiResize(event, axis) {
+      if (event.button !== 0) return;
+      const workspace = this.$refs.aiWorkspace.getBoundingClientRect();
+      this.aiResizeDrag = {
+        axis,
+        pointerId: event.pointerId,
+        handle: markRaw(event.currentTarget),
+        x: event.clientX,
+        y: event.clientY,
+        width: this.aiPanelWidth,
+        height: workspace.height
+      };
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    resizeAiWorkspace(event) {
+      const drag = this.aiResizeDrag;
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      if (drag.axis === 'width') {
+        this.setAiSize('width', drag.width + drag.x - event.clientX);
+      } else {
+        this.setAiSize('height', drag.height + event.clientY - drag.y);
+      }
+    },
+    setAiSize(axis, size) {
+      const workspace = this.$refs.aiWorkspace.getBoundingClientRect();
+      if (axis === 'width') {
+        this.aiPanelWidth = Math.max(320, Math.min(size, workspace.width - 328));
+      } else {
+        const container = this.$el.closest('.query-editor-container').getBoundingClientRect();
+        const maxHeight = Math.max(320, container.bottom - workspace.top - 74);
+        this.aiWorkspaceHeight = Math.max(320, Math.min(size, maxHeight));
+      }
+      this.layoutEditor();
+    },
+    resizeAiByKey(event, axis) {
+      let delta;
+      if (axis === 'width') {
+        if (event.key === 'ArrowLeft') delta = 20;
+        if (event.key === 'ArrowRight') delta = -20;
+      } else {
+        if (event.key === 'ArrowDown') delta = 20;
+        if (event.key === 'ArrowUp') delta = -20;
+      }
+      if (delta === undefined) return;
+      event.preventDefault();
+      const workspace = this.$refs.aiWorkspace.getBoundingClientRect();
+      const current = axis === 'width' ? this.aiPanelWidth : workspace.height;
+      this.setAiSize(axis, current + delta);
+    },
+    finishAiResize() {
+      const drag = this.aiResizeDrag;
+      this.aiResizeDrag = null;
+      if (drag?.handle.hasPointerCapture(drag.pointerId)) drag.handle.releasePointerCapture(drag.pointerId);
+    },
+    saveAiDraft(value) {
+      this.aiDraft = value;
+    },
+    layoutEditor() {
+      this.$nextTick(() => this.monacoEditor?.layout());
+    },
+    async toggleAi() {
+      if (this.aiBinding) {
+        this.closeAi();
+        return;
+      }
+      if (!this.aiCapabilities || this.aiCapabilitiesError) await this.$store.dispatch('loadAiCapabilities');
+      if (this.aiCapabilitiesError) {
+        this.$Message.error(aiErrorMessage({ code: this.aiCapabilitiesError }));
+        return;
+      }
+      if (!this.aiSupported || !this.aiCapabilities?.canGenerate || this.editorTabKey !== this.tab.key) return;
+      const model = this.monacoEditor?.getModel();
+      if (!model) return;
+      this.updateAiSelection();
+      this.aiOpen = true;
+      this.aiView = 'assistant';
+      this.layoutEditor();
+    },
+    closeAi() {
+      this.finishAiResize();
+      this.aiOpen = false;
+      this.layoutEditor();
+    },
+    insertAiSql({ binding, sql }) {
+      if (binding !== this.aiBinding || !this.aiTargetActive) return;
+      const editor = this.monacoEditor;
+      const model = editor.getModel();
+      const position = editor.getPosition();
+      const offset = model.getOffsetAt(position);
+      const text = sql.replace(/\r\n|\r|\n/g, model.getEOL());
+      editor.pushUndoStop();
+      editor.executeEdits('ai-sql', [{ range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column), text }]);
+      editor.pushUndoStop();
+      editor.setPosition(model.getPositionAt(offset + text.length));
+      this.aiView = 'editor';
+      this.$nextTick(() => {
+        editor.layout();
+        editor.focus();
+      });
+    },
     ...mapMutations([UPDATE_SOCKET_STATUS]),
     handleCloseModal() {
       this.currentSql = '';
@@ -520,8 +739,33 @@ export default {
       callback();
     },
     //
-    setEditorInstance(editor) {
+    setEditorInstance(editor, tabKey) {
+      this.aiSelectionDisposables.forEach((listener) => listener.dispose());
       this.monacoEditor = editor;
+      this.editorTabKey = tabKey;
+      this.aiSqlFontSize = editor.getOption(monaco.editor.EditorOption.fontSize);
+      this.aiSelectionDisposables = markRaw([
+        editor.onDidChangeCursorSelection(() => this.updateAiSelection()),
+        editor.onDidChangeModelContent(() => this.updateAiSelection()),
+        editor.onDidChangeConfiguration((event) => {
+          if (event.hasChanged(monaco.editor.EditorOption.fontSize)) {
+            this.aiSqlFontSize = editor.getOption(monaco.editor.EditorOption.fontSize);
+          }
+        })
+      ]);
+      this.updateAiSelection();
+    },
+    updateAiSelection() {
+      const editor = this.monacoEditor;
+      const model = editor?.getModel();
+      const selection = editor?.getSelection();
+      this.aiSqlSelection = null;
+      if (!model || !selection || selection.isEmpty() || this.editorTabKey !== this.tab.key) return;
+      const sql = model.getValueInRange(selection);
+      if (!sql.trim()) return;
+      let endLine = selection.endLineNumber;
+      if (selection.endColumn === 1 && endLine > selection.startLineNumber) endLine -= 1;
+      this.aiSqlSelection = { title: this.tab.title, sql, startLine: selection.startLineNumber, endLine };
     },
     handleEditorChange(value) {
       let content = value;
@@ -535,34 +779,29 @@ export default {
       return this.monacoEditor?.getValue() || '';
     },
     setSql(sql) {
-      appLogger.debug('setSql', sql);
-      const position = this.monacoEditor.getPosition();
-      let text = sql;
+      const editor = this.monacoEditor;
+      const model = editor.getModel();
+      const position = editor.getPosition();
+      const offset = model.getOffsetAt(position);
+      const normalized = sql.replace(/\r\n|\r|\n/g, model.getEOL());
+      let prefix = '';
+      let suffix = model.getEOL();
       if (position.column !== 1) {
-        text = `\n${sql}`;
-      } else {
-        text = `${sql}\n`;
+        prefix = model.getEOL();
+        suffix = '';
       }
-
-      const range = new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column);
-      this.monacoEditor.executeEdits('', [
+      editor.pushUndoStop();
+      editor.executeEdits('', [
         {
-          range,
-          text
+          range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+          text: prefix + normalized + suffix
         }
       ]);
-      this.monacoEditor.focus();
-
-      let selectRange;
-      if (position.column !== 1) {
-        // After inserting \n${sql}, the SQL starts at column 1 of the new line.
-        selectRange = new monaco.Range(position.lineNumber + 1, 1, position.lineNumber + 1, 1 + sql.length);
-      } else {
-        // After inserting ${sql}\n, the SQL starts at column 1 of the current line.
-        selectRange = new monaco.Range(position.lineNumber, 1, position.lineNumber, 1 + sql.length);
-      }
-
-      this.monacoEditor.setSelection(selectRange);
+      editor.pushUndoStop();
+      const start = model.getPositionAt(offset + prefix.length);
+      const end = model.getPositionAt(offset + prefix.length + normalized.length);
+      editor.setSelection(new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column));
+      editor.focus();
     },
     getColumnsList(res) {
       // const list = [];
@@ -1040,6 +1279,64 @@ export default {
   }
   position: relative;
 
+  .sql-ai-workspace {
+    display: flex;
+    min-width: 0;
+  }
+  .sql-ai-editor {
+    flex: 1;
+    min-width: 0;
+  }
+  .sql-ai-workspace--open {
+    height: ~'min(60vh, 560px)';
+    min-height: 320px;
+  }
+  .sql-ai-workspace--open .sql-ai-editor > .monaco-editor {
+    height: 100% !important;
+  }
+  .sql-ai-workspace--open > .ai-sql-panel {
+    flex: 0 0 var(--ai-panel-width);
+  }
+  .sql-ai-workspace--narrow > .ai-sql-panel {
+    flex: 1;
+  }
+
+  .sql-ai-workspace--resizing {
+    user-select: none;
+  }
+  .ai-panel-resize,
+  .ai-editor-resize {
+    touch-action: none;
+    z-index: 4;
+    &:hover,
+    &:focus-visible {
+      background: var(--border-secondary);
+      outline: none;
+    }
+  }
+  .ai-panel-resize {
+    flex: 0 0 8px;
+    cursor: col-resize;
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 3px;
+      width: 1px;
+      background: var(--border-light);
+    }
+  }
+  .ai-editor-resize {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 8px;
+    cursor: row-resize;
+  }
+
   .editor-resize {
     position: absolute;
     z-index: 3;
@@ -1051,6 +1348,10 @@ export default {
     //border-bottom: 1px solid #ddd;
     height: 6px;
     background: rgba(0, 0, 0, 0);
+  }
+
+  &.sql-viewer--assistant:not(.sql-viewer--narrow) .query-message {
+    width: calc(100% - var(--ai-panel-width) - 8px);
   }
 
   .query-message {

@@ -1,0 +1,9 @@
+<final_answer_context>
+  <tool_execution>ended</tool_execution>
+  <available_materials>Use the existing conversation and completed tool results only.</available_materials>
+  <user_experience>
+    <rule>Do not mention tool limits, retries, round trips, or runtime mechanics.</rule>
+    <rule>If evidence is incomplete, answer what is covered and preserve uncertainty within the requested output format. Offer further verification only when that format allows prose and the offer helps the user.</rule>
+    <rule>Make the continuation offer natural and low-pressure, not a failure notice.</rule>
+  </user_experience>
+</final_answer_context>

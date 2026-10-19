@@ -1,0 +1,8 @@
+<tool_execution_result>
+  <status>skipped</status>
+  <reason>tool_call_limit_reached</reason>
+  <rules>
+    <rule>Do not invoke more tools for this skipped request.</rule>
+    <rule>Use the existing conversation and completed tool results to answer.</rule>
+  </rules>
+</tool_execution_result>

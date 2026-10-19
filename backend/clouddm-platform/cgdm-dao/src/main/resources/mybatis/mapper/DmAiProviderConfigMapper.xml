@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.ai.DmAiProviderConfigMapper">
+    <resultMap id="provider" type="com.clougence.clouddm.platform.dal.model.ai.DmAiProviderConfigDO">
+        <result column="id" property="id"/>
+        <result column="provider_code" property="providerCode"/>
+        <result column="display_name" property="displayName"/>
+        <result column="adapter_type" property="adapterType"/>
+        <result column="base_url" property="baseUrl"/>
+        <result column="access_token" property="accessToken"
+                typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+    </resultMap>
+
+    <sql id="columns">id, provider_code, display_name, adapter_type, base_url, access_token, gmt_create, gmt_modified</sql>
+
+    <select id="findCodes" resultType="java.lang.String">
+        SELECT
+            provider_code
+        FROM
+            dm_ai_provider_config
+    </select>
+
+    <select id="findByCodes" resultMap="provider">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_provider_config
+        WHERE
+            provider_code IN
+        <foreach collection="codes" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+
+    <select id="findByCode" resultMap="provider">
+        SELECT
+            <include refid="columns"/>
+        FROM
+            dm_ai_provider_config
+        WHERE
+            provider_code = #{code}
+    </select>
+
+    <update id="updateByCode">
+        UPDATE
+            dm_ai_provider_config
+        SET
+            display_name = #{displayName},
+            adapter_type = #{adapterType},
+            base_url     = #{baseUrl},
+        <if test="replaceApiKey">
+            access_token = #{accessToken,typeHandler=com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler},
+        </if>
+            gmt_modified = #{gmtModified}
+        WHERE
+            provider_code = #{providerCode}
+    </update>
+
+    <delete id="deleteByCode">
+        DELETE FROM
+            dm_ai_provider_config
+        WHERE
+            provider_code = #{code}
+    </delete>
+</mapper>
