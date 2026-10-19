@@ -13,7 +13,7 @@ dependencies {
     implementation project(':cg-drivers')
     implementation project(':inner-driver-loader')
     implementation "org.slf4j:slf4j-api:${SLF4J_VERSION}"
-    runtimeOnly "org.slf4j:slf4j-simple:${SLF4J_VERSION}"
+    runtimeOnly "org.springframework.boot:spring-boot-starter-logging:${SPRINGBOOT_VERSION}"
 }
 
 description = 'pkg-builtin-drivers'
