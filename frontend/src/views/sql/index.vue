@@ -1667,7 +1667,7 @@ export default {
               this.$refs.tableList.handleSetSelected(curNode);
             }
           }
-          this.setInstanceErrorIcon(node?.INSTANCE?.id, true);
+          this.setWorkspaceConnectionState(currentTab.dsId, 'connected');
           resolve(children);
         } else {
           this.setInstanceErrorIcon(node?.INSTANCE?.id);
