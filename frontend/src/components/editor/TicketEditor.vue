@@ -1,5 +1,5 @@
 <script>
-import * as monaco from 'monaco-editor';
+import { monaco } from '@/components/editor/monaco';
 import { getLanguage } from '@/utils/tools';
 import { markRaw, nextTick } from 'vue';
 import { mapState } from 'vuex';
