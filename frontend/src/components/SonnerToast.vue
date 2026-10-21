@@ -1,6 +1,6 @@
 <template>
   <Sonner
-    class="toaster group"
+    class="clouddm-toaster toaster group"
     position="bottom-right"
     :expand="false"
     close-button
@@ -9,7 +9,7 @@
     :toast-options="{
       classes: {
         toast:
-          'group toast group-[.toaster]:bg-white group-[.toaster]:text-[#171717] group-[.toaster]:border-[#dfdfdf] group-[.toaster]:shadow-lg group-[.toaster]:rounded-lg group-[.toaster]:pr-10',
+          'group toast group-[.toaster]:bg-white group-[.toaster]:text-[#171717] group-[.toaster]:border-[#dfdfdf] group-[.toaster]:shadow-lg group-[.toaster]:rounded-lg',
         description: 'group-[.toast]:text-[#707070]',
         actionButton: 'group-[.toast]:bg-[#181d26] group-[.toast]:text-white',
         cancelButton: 'group-[.toast]:bg-[#f5f5f5] group-[.toast]:text-[#707070]',
@@ -78,8 +78,12 @@ import i18n from '@/i18n';
 const closeAriaLabel = computed(() => i18n.global.t('guan-bi'));
 </script>
 
-<style scoped>
-:deep([data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button) {
+<style>
+.clouddm-toaster [data-sonner-toast][data-styled='true'] {
+  padding-right: 40px;
+}
+
+.clouddm-toaster [data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button {
   right: 8px;
   top: 8px;
   left: unset;
@@ -95,12 +99,12 @@ const closeAriaLabel = computed(() => i18n.global.t('guan-bi'));
   box-shadow: none;
 }
 
-:deep([data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button:hover) {
+.clouddm-toaster [data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button:hover {
   background: #f5f5f5;
   color: #707070;
 }
 
-:deep([data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button:focus-visible) {
+.clouddm-toaster [data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button:focus-visible {
   box-shadow: 0 0 0 2px rgba(24, 29, 38, 0.12);
 }
 </style>

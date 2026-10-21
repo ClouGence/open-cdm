@@ -12,20 +12,26 @@ const copyMixin = {
           textArea.style.position = 'fixed';
           textArea.style.opacity = '0';
           textArea.value = text;
+          const activeElement = document.activeElement;
           document.body.appendChild(textArea);
-          textArea.select();
-          const copied = document.execCommand('copy');
-          document.body.removeChild(textArea);
-          if (!copied) {
-            throw new Error(this.$t('fu-zhi-shi-bai'));
+          try {
+            textArea.select();
+            if (!document.execCommand('copy')) {
+              throw new Error(this.$t('fu-zhi-shi-bai'));
+            }
+          } finally {
+            textArea.remove();
+            activeElement?.focus({ preventScroll: true });
           }
         }
         if (msg) {
           this.$Message.success(msg);
         }
+        return true;
       } catch (error) {
         appLogger.error(this.$t('fu-zhi-shi-bai'), error);
         this.$Message.error(this.$t('fu-zhi-shi-bai'));
+        return false;
       }
     }
   }

@@ -26,17 +26,6 @@
           <PlusOutlined />
         </Button>
         <Button
-          v-if="!historyOpen && turns.some((turn) => turn.confirmed && turn.result)"
-          type="text"
-          class="ai-icon-button"
-          :disabled="conversationLocked || !!editingRequestId"
-          :aria-label="$t('ai.shareConversation')"
-          :title="$t('ai.shareConversation')"
-          @click="openShare()"
-        >
-          <ShareAltOutlined />
-        </Button>
-        <Button
           v-if="!historyOpen"
           type="text"
           class="ai-icon-button"
@@ -294,17 +283,6 @@
               >
                 <ReloadOutlined />
               </Button>
-              <Button
-                v-if="turn.confirmed && turn.result"
-                type="text"
-                class="ai-icon-button"
-                :disabled="conversationLocked || !!editingRequestId"
-                :aria-label="$t('ai.shareConversation')"
-                :title="$t('ai.shareConversation')"
-                @click="openShare(turn)"
-              >
-                <ShareAltOutlined />
-              </Button>
               <time
                 v-if="turn.modifiedAt || turn.createdAt"
                 :datetime="turn.modifiedAt || turn.createdAt"
@@ -435,7 +413,6 @@
         <span :class="{ 'ai-panel-error': promptLength > 16384 }">{{ $t('ai.promptCount', { count: promptLength }) }}</span>
       </div>
     </div>
-    <AiShareModal v-if="shareOpen" :rows="shareRows" :initial-selected-ids="shareSelectedIds" @close="shareOpen = false" />
     <CCModal
       v-model="selectionDetailsOpen"
       :title="$t('ai.sqlReferenceDetails')"
@@ -496,24 +473,23 @@ import {
   LoadingOutlined,
   RightOutlined,
   ReloadOutlined,
-  SearchOutlined,
-  ShareAltOutlined
+  SearchOutlined
 } from '@ant-design/icons-vue';
 import { renderAiMessage } from '@/services/ai/aiMarkdown';
-import AiShareModal from './AiShareModal.vue';
 import CCModal from '@/components/ui/CCModal.vue';
 import AppBrandLogo from '@/components/layout/AppBrandLogo.vue';
 import DataSourceIcon from '@/components/function/DataSourceIcon.vue';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor.vue';
 import { SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import { aiRequest, aiErrorMessage } from '@/services/ai';
+import copyMixin from '@/mixins/copyMixin';
 import { streamAiTurn, resumeAiTurn } from '@/services/ai/aiStream';
 
 export default {
   name: 'AiSqlPanel',
+  mixins: [copyMixin],
   components: {
     AiActivityLog,
-    AiShareModal,
     AiUserInputCard,
     AppBrandLogo,
     DataSourceIcon,
@@ -533,8 +509,7 @@ export default {
     LoadingOutlined,
     RightOutlined,
     SearchOutlined,
-    ReloadOutlined,
-    ShareAltOutlined
+    ReloadOutlined
   },
   props: {
     binding: { type: Object, required: true },
@@ -546,9 +521,6 @@ export default {
   emits: ['close', 'insert', 'draft-change'],
   data() {
     return {
-      shareOpen: false,
-      shareRows: [],
-      shareSelectedIds: [],
       capabilities: null,
       models: [],
       selectedEngineId: '',
@@ -722,52 +694,6 @@ export default {
     this.streamController?.abort();
   },
   methods: {
-    async openShare(selectedTurn) {
-      if (this.conversationLocked || this.editingRequestId) return;
-      this.busy = true;
-      this.error = '';
-      try {
-        const shareTurns = [];
-        let beforeTurnId;
-        let data;
-        do {
-          data = await this.request('turn/getSession', { sessionId: this.sessionId, beforeTurnId, pageSize: 100 });
-          if (this.disposed) return;
-          if (!data.accessible) {
-            this.acceptSession(data, 'confirm');
-            return;
-          }
-          shareTurns.unshift(...data.turns.slice().reverse());
-          beforeTurnId = shareTurns[0]?.id;
-        } while (data.hasMore);
-        const rows = [];
-        for (const turn of shareTurns) {
-          if (!['COMPLETED', 'NEEDS_INPUT'].includes(turn.status) || !turn.result) continue;
-          rows.push({
-            id: `${turn.requestId}:user`,
-            role: 'user',
-            text: turn.prompt,
-            selection: turn.context?.selection
-          });
-          rows.push({
-            id: `${turn.requestId}:assistant`,
-            role: 'assistant',
-            text: turn.result.message,
-            sql: this.sqlOutput(turn),
-            request: turn.result.userInputRequest,
-            answers: turn.result.userInputRequest ? this.userInputAnswers(turn) : [],
-            inputState: turn.result.userInputRequest ? this.userInputState(turn, shareTurns) : 'expired'
-          });
-        }
-        this.shareRows = rows;
-        this.shareSelectedIds = rows.filter((row) => !selectedTurn || row.id.startsWith(`${selectedTurn.requestId}:`)).map((row) => row.id);
-        this.shareOpen = true;
-      } catch (error) {
-        if (!this.disposed) this.error = aiErrorMessage(error);
-      } finally {
-        this.busy = false;
-      }
-    },
     startEdit(turn) {
       if (!this.canRegenerate || !turn.id) return;
       this.editingRequestId = turn.requestId;
@@ -809,7 +735,7 @@ export default {
     },
     async copyMessage(turn) {
       try {
-        await navigator.clipboard.writeText(turn.prompt);
+        if (!(await this.copyText(turn.prompt, ''))) return;
         if (!this.disposed) this.showCopied(turn.requestId);
       } catch (error) {
         if (!this.disposed) this.error = aiErrorMessage(error);
@@ -837,7 +763,7 @@ export default {
         }
         const sql = this.sqlOutput(reply);
         if (sql) parts.push('```sql\n' + sql + '\n```');
-        await navigator.clipboard.writeText(parts.join('\n\n'));
+        if (!(await this.copyText(parts.join('\n\n'), ''))) return;
         if (!this.disposed) this.showCopied(`${turn.requestId}:reply`);
       } catch (error) {
         if (!this.disposed) this.error = aiErrorMessage(error);
@@ -1293,9 +1219,9 @@ export default {
       if (answer) return answer.answers.map((item) => ({ ...item, questionId: item.question_id }));
       return [];
     },
-    userInputState(turn, turns = this.turns) {
+    userInputState(turn) {
       if (turn.result.userInputAnswer) return 'answered';
-      const next = turns[turns.findIndex((item) => item.requestId === turn.requestId) + 1];
+      const next = this.turns[this.turns.findIndex((item) => item.requestId === turn.requestId) + 1];
       if (!next) return 'pending';
       return 'expired';
     },
@@ -1347,7 +1273,7 @@ export default {
           if (!this.targetActive || this.binding !== target) return;
           this.$emit('insert', { binding: target, sql });
         } else {
-          await navigator.clipboard.writeText(sql);
+          if (!(await this.copyText(sql, ''))) return;
         }
         if (this.disposed) return;
         const key = `${turn.requestId}:${action}`;
