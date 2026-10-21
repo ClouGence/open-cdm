@@ -7,6 +7,7 @@ const RULE_KIND_CONF_MAP = {
 };
 
 export default {
+  hasFeature: (state) => (featureId) => state.featureLoadState === 'ready' && state.globalSetting.features[featureId] === true,
   userInfo: (state) => state.userInfo,
   isDesktop: (state) => !!state.dmGlobalSetting.personal,
   isSaas: () => false,

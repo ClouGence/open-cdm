@@ -115,6 +115,7 @@ const createWebSocket = (url) => {
 
     if (rws.readyState === rws.OPEN) {
       store?.commit(UPDATE_SOCKET_STATUS, { connected: true, msg: i18n.global.t('lian-jie-yi-jian-li') });
+      store?.dispatch('loadPluginCapabilities');
       if (globalCallback.open) {
         globalCallback.open();
       }
