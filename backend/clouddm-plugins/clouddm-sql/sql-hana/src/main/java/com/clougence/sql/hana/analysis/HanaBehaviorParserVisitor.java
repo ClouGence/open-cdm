@@ -1036,6 +1036,366 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitSystemManagement(HanaParser.SystemManagementContext ctx) {
+        visitChildren(ctx);
+        RuleQueryType type = RuleQueryType.CONFIG_WRITE;
+        if (ctx.workloadClass() != null) {
+            type = RuleQueryType.valueOf(ctx.workloadClass().getStart().getText().toUpperCase(Locale.ROOT) + "_RESOURCE_GROUP");
+        } else if (ctx.workloadMapping() != null) {
+            type = RuleQueryType.valueOf(ctx.workloadMapping().getStart().getText().toUpperCase(Locale.ROOT) + "_POLICY");
+        } else if (ctx.systemReplication() != null) {
+            var replication = ctx.systemReplication();
+            type = RuleQueryType.ALTER_REPLICATION;
+            if (replication.REGISTER() != null) {
+                type = RuleQueryType.CREATE_REPLICATION;
+            } else if (replication.UNREGISTER() != null) {
+                type = RuleQueryType.DROP_REPLICATION;
+            }
+        } else if (ctx.systemIniHistory() != null || ctx.systemStopService() != null || ctx.systemReclaim() != null) {
+            type = RuleQueryType.ADMIN;
+        }
+        addDomain(new RdbResourceDomain(), type);
+        return null;
+    }
+
+    @Override
+    public Void visitSystemIni(HanaParser.SystemIniContext ctx) {
+        String layer = stringValue(ctx.layer);
+        if (!Set.of("SYSTEM", "HOST", "DATABASE").contains(layer) || (layer.equals("SYSTEM") != (ctx.layerName == null))) {
+            throw unsupported(ctx, "Invalid configuration layer or layer name");
+        }
+        BehaviorObject owner = objects.unnamedObject(TargetType.Catalog, ctx, UmiTypes.Catalog);
+        List<BehaviorObject> targets = new ArrayList<>();
+        String filename = stringValue(ctx.fileName);
+        requireSecurityPathPart(ctx, filename);
+        String prefix;
+        if (layer.equals("DATABASE")) {
+            String database = stringValue(ctx.layerName);
+            requireSecurityPathPart(ctx, database);
+            BehaviorObject tenant = objects.instanceObject(TargetType.Catalog, ctx.layerName, database);
+            tenant.setObjectName(new ObjectName(database, null, null));
+            targets.add(tenant);
+            owner = tenant;
+        } else if (layer.equals("HOST")) {
+            String host = stringValue(ctx.layerName);
+            requireSecurityPathPart(ctx, host);
+            targets.add(objects.instanceObject(TargetType.Machine, ctx.layerName, host));
+        }
+        prefix = owner.getObjectPath() + filename + "/" + layer + "/";
+        if (layer.equals("HOST")) {
+            prefix += stringValue(ctx.layerName) + "/";
+        }
+        BehaviorAction action = BehaviorAction.CONFIGURE;
+        if (ctx.UNSET() != null) {
+            action = BehaviorAction.RESET;
+        }
+        for (var entry : descendants(ctx, HanaParser.SystemIniKeyContext.class)) {
+            String section = stringValue(entry.section);
+            String keyName = stringValue(entry.key);
+            requireSecurityPathPart(entry, section);
+            BehaviorObject key = catalogObject(TargetType.ConfigKey, entry, entry.key, keyName);
+            BehaviorObject range = managementRange(TargetType.ConfigKey, entry.section, entry.key);
+            key.setStartLine(range.getStartLine());
+            key.setStartColumn(range.getStartColumn());
+            key.setObjectPath(prefix + section + "/" + keyName + "/");
+            if (layer.equals("DATABASE")) {
+                key.setObjectName(new ObjectName(stringValue(ctx.layerName), null, keyName));
+            }
+            addRelation(action, key).setTarget(targets);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSystemIniHistory(HanaParser.SystemIniHistoryContext ctx) {
+        addRelation(BehaviorAction.PURGE, managementRange(TargetType.Log, ctx.INIFILE().getSymbol(), ctx.HISTORY().getSymbol()));
+        return null;
+    }
+
+    @Override
+    public Void visitSystemReconfigure(HanaParser.SystemReconfigureContext ctx) {
+        String host = stringValue(ctx.host);
+        String service = stringValue(ctx.serviceName);
+        String name = null;
+        if (!host.isEmpty()) {
+            name = host + ":" + ctx.port.getText();
+        } else if (!service.isEmpty()) {
+            name = service;
+        }
+        BehaviorObject resource = catalogObject(TargetType.Resource, ctx, ctx.serviceName, name);
+        BehaviorObject range = managementRange(TargetType.Resource, ctx.serviceName, ctx.port);
+        resource.setEndLine(range.getEndLine());
+        resource.setEndColumn(range.getEndColumn());
+        // Empty endpoint selectors address a service-type collection, or all services.
+        resource.setObjectName(null);
+        addRelation(BehaviorAction.CONFIGURE, resource);
+        return null;
+    }
+
+    @Override
+    public Void visitSystemStopService(HanaParser.SystemStopServiceContext ctx) {
+        Token start = ctx.address;
+        Token stop = ctx.address;
+        String address;
+        if (ctx.address != null) {
+            address = stringValue(ctx.address);
+        } else {
+            start = ctx.host;
+            stop = ctx.port;
+            address = stringValue(ctx.host) + ":" + ctx.port.getText();
+        }
+        BehaviorObject service = catalogObject(TargetType.Resource, ctx, start, address);
+        BehaviorObject range = managementRange(TargetType.Resource, start, stop);
+        service.setEndLine(range.getEndLine());
+        service.setEndColumn(range.getEndColumn());
+        // A runtime endpoint is a resource path, not a schema-qualified SQL object name.
+        service.setObjectName(null);
+        addRelation(BehaviorAction.STOP, service);
+        addRelation(BehaviorAction.UNSAFE, service);
+        return null;
+    }
+
+    @Override
+    public Void visitSystemLicense(HanaParser.SystemLicenseContext ctx) {
+        BehaviorObject license = catalogObject(TargetType.ConfigKey, ctx, ctx.LICENSE().getSymbol(), "LICENSE");
+        if (ctx.UNSET() != null) {
+            addRelation(BehaviorAction.RESET, license);
+            addRelation(BehaviorAction.UNSAFE, license);
+        } else {
+            addRelation(BehaviorAction.CONFIGURE, license);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitWorkloadClass(HanaParser.WorkloadClassContext ctx) {
+        BehaviorObject resource;
+        if (ctx.ALL() != null) {
+            resource = objects.unnamedObject(TargetType.ResourceGroup, ctx.ALL().getSymbol(), UmiTypes.Catalog);
+        } else {
+            resource = securityLocal(TargetType.ResourceGroup, ctx.className);
+        }
+        BehaviorRelation relation = addRelation(securityAction(ctx), resource);
+        if (ctx.workloadParent() != null && ctx.workloadParent().identifier() != null) {
+            relation.setTarget(List.of(securityLocal(TargetType.ResourceGroup, ctx.workloadParent().identifier())));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitWorkloadMapping(HanaParser.WorkloadMappingContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.className != null) {
+            targets.add(securityLocal(TargetType.ResourceGroup, ctx.className));
+        }
+        List<HanaParser.WorkloadPropertyContext> properties = descendants(ctx, HanaParser.WorkloadPropertyContext.class);
+        Token schema = null;
+        for (var property : properties) {
+            if (stringValue(property.key).equals("SCHEMA NAME")) {
+                schema = property.value;
+            }
+        }
+        for (var property : properties) {
+            String key = stringValue(property.key);
+            String value = stringValue(property.value);
+            switch (key) {
+                case "USER NAME":
+                    targets.add(catalogObject(TargetType.User, property, property.value, value));
+                    break;
+                case "USERGROUP NAME":
+                    targets.add(catalogObject(TargetType.Object, property, property.value, value));
+                    break;
+                case "SCHEMA NAME":
+                    BehaviorObject schemaObject = catalogObject(TargetType.Schema, property, property.value, value);
+                    schemaObject.setObjectName(new ObjectName(Objects.toString(levels.get(UmiTypes.Catalog), null), value, null));
+                    targets.add(schemaObject);
+                    break;
+                case "OBJECT NAME":
+                    if (schema == null) {
+                        throw unsupported(ctx, "Workload object filter requires a schema filter");
+                    }
+                    String schemaName = stringValue(schema);
+                    requireSecurityPathPart(ctx, schemaName);
+                    BehaviorObject program = catalogObject(TargetType.ProgramObject, property, property.value, value);
+                    BehaviorObject owner = objects.unnamedObject(TargetType.Schema, schema, UmiTypes.Catalog);
+                    program.setObjectPath(owner.getObjectPath() + schemaName + "/" + value + "/");
+                    program.setObjectName(new ObjectName(Objects.toString(levels.get(UmiTypes.Catalog), null), schemaName, value));
+                    targets.add(program);
+                    break;
+                default:
+                    break;
+            }
+        }
+        addRelation(securityAction(ctx), securityLocal(TargetType.Policy, ctx.mappingName)).setTarget(securityTargets(targets));
+        return null;
+    }
+
+    @Override
+    public Void visitSystemPlacement(HanaParser.SystemPlacementContext ctx) {
+        BehaviorAction action = BehaviorAction.CONFIGURE;
+        if (ctx.UNSET() != null) {
+            action = BehaviorAction.RESET;
+        }
+        if (ctx.locationName != null) {
+            addRelation(action, securityLocal(TargetType.Resource, ctx.locationName));
+            return null;
+        }
+        List<BehaviorObject> targets = new ArrayList<>();
+        Token schema = null;
+        for (var selector : ctx.placementSelector()) {
+            if (selector.key.getType() == HanaParser.SCHEMA_NAME) {
+                schema = selector.value;
+            }
+        }
+        for (var selector : ctx.placementSelector()) {
+            if (selector.key.getType() == HanaParser.SCHEMA_NAME) {
+                String schemaName = stringValue(selector.value);
+                BehaviorObject schemaObject = catalogObject(TargetType.Schema, selector, selector.value, schemaName);
+                schemaObject.setObjectName(new ObjectName(Objects.toString(levels.get(UmiTypes.Catalog), null), schemaName, null));
+                targets.add(schemaObject);
+            } else if (selector.key.getType() == HanaParser.TABLE_NAME) {
+                BehaviorObject table = objects.unnamedObject(TargetType.Table, selector.value, UmiTypes.Catalog);
+                // A schema-less selector matches across schemas, including tables not yet created.
+                if (schema != null) {
+                    String schemaName = stringValue(schema);
+                    String tableName = stringValue(selector.value);
+                    requireSecurityPathPart(ctx, schemaName);
+                    requireSecurityPathPart(ctx, tableName);
+                    table.setObjectPath(table.getObjectPath() + schemaName + "/" + tableName + "/");
+                    table.setObjectName(new ObjectName(Objects.toString(levels.get(UmiTypes.Catalog), null), schemaName, tableName));
+                }
+                targets.add(table);
+            }
+        }
+        for (var property : ctx.placementProperty()) {
+            if (property.placementKey().LOCATION() != null && property.STRING() != null) {
+                String location = stringValue(property.STRING().getSymbol());
+                String keyword = location.toUpperCase(Locale.ROOT);
+                if (!Set.of("MASTER", "SLAVE", "ALL", "DEFAULT", "COORDINATOR").contains(keyword) && !keyword.startsWith("WORKER#")) {
+                    targets.add(catalogObject(TargetType.Resource, property, property.STRING().getSymbol(), location));
+                }
+            }
+        }
+        addRelation(action, managementRange(TargetType.Policy, ctx.TABLE().getSymbol(), ctx.PLACEMENT().getSymbol())).setTarget(securityTargets(targets));
+        return null;
+    }
+
+    @Override
+    public Void visitSystemVolume(HanaParser.SystemVolumeContext ctx) {
+        BehaviorObject owner = objects.unnamedObject(TargetType.StorageVolume, ctx.DATAVOLUME().getSymbol(), UmiTypes.Catalog);
+        List<BehaviorObject> targets = new ArrayList<>();
+        BehaviorObject site = null;
+        if (ctx.siteName != null || ctx.siteId != null) {
+            Token token = ctx.siteName;
+            String siteName;
+            if (token != null) {
+                siteName = stringValue(token);
+            } else {
+                token = ctx.siteId;
+                siteName = token.getText();
+            }
+            requireSecurityPathPart(ctx, siteName);
+            site = objects.instanceObject(TargetType.Replication, token, siteName);
+            owner = site;
+        }
+        if (ctx.path != null) {
+            String path = stringValue(ctx.path);
+            BehaviorObject file = objects.unnamedObject(TargetType.File, ctx.path, UmiTypes.Catalog);
+            file.setObjectPath(owner.getObjectPath() + path.replaceFirst("^/+", "") + "/");
+            file.setObjectName(new ObjectName(null, null, path));
+            targets.add(file);
+        }
+        if (site != null) {
+            targets.add(site);
+        }
+        BehaviorObject partition;
+        BehaviorAction action;
+        if (ctx.ADD() != null) {
+            partition = objects.unnamedObject(TargetType.Partition, ctx.PARTITION().getSymbol(), UmiTypes.Catalog);
+            partition.setObjectPath(owner.getObjectPath());
+            action = BehaviorAction.CREATE;
+        } else {
+            partition = catalogObject(TargetType.Partition, ctx, ctx.partitionId, ctx.partitionId.getText());
+            partition.setObjectPath(owner.getObjectPath() + ctx.partitionId.getText() + "/");
+            partition.setObjectName(new ObjectName(null, null, ctx.partitionId.getText()));
+            action = BehaviorAction.DROP;
+        }
+        addRelation(action, partition).setTarget(targets);
+        return null;
+    }
+
+    @Override
+    public Void visitSystemReclaim(HanaParser.SystemReclaimContext ctx) {
+        BehaviorObject subject;
+        BehaviorAction action = BehaviorAction.OPTIMIZE;
+        if (ctx.DATAVOLUME() != null) {
+            subject = objects.unnamedObject(TargetType.StorageVolume, ctx.DATAVOLUME().getSymbol(), UmiTypes.Catalog);
+        } else if (ctx.FLEXIBLE() != null) {
+            subject = managementRange(TargetType.Table, ctx.FLEXIBLE().getSymbol(), ctx.TABLES().getSymbol());
+        } else if (ctx.LOB() != null) {
+            Token start = ctx.LOB().getSymbol();
+            if (ctx.ROW() != null) {
+                start = ctx.ROW().getSymbol();
+            } else if (ctx.COLUMN() != null) {
+                start = ctx.COLUMN().getSymbol();
+            }
+            subject = managementRange(TargetType.File, start, ctx.SPACE().getSymbol());
+            action = BehaviorAction.PURGE;
+        } else if (ctx.VERSION() != null) {
+            subject = managementRange(TargetType.Resource, ctx.VERSION().getSymbol(), ctx.SPACE().getSymbol());
+            action = BehaviorAction.PURGE;
+        } else {
+            Token start = ctx.DATA().getSymbol();
+            if (ctx.ROW() != null) {
+                start = ctx.ROW().getSymbol();
+            }
+            subject = managementRange(TargetType.Resource, start, ctx.SPACE().getSymbol());
+        }
+        BehaviorRelation relation = addRelation(action, subject);
+        if (ctx.address != null) {
+            relation.setTarget(List.of(catalogObject(TargetType.Resource, ctx, ctx.address, stringValue(ctx.address))));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSystemReplication(HanaParser.SystemReplicationContext ctx) {
+        BehaviorObject replication;
+        if (ctx.siteName != null) {
+            String name = stringValue(ctx.siteName);
+            requireSecurityPathPart(ctx, name);
+            replication = objects.instanceObject(TargetType.Replication, ctx.siteName, name);
+        } else {
+            replication = managementRange(TargetType.Replication, ctx.SYSTEM(1).getSymbol(), ctx.REPLICATION(0).getSymbol());
+            replication.setObjectPath(objects.instanceObject(TargetType.Instance, ctx).getObjectPath());
+        }
+        BehaviorAction action = BehaviorAction.CONFIGURE;
+        if (ctx.REGISTER() != null) {
+            action = BehaviorAction.CREATE;
+        } else if (ctx.UNREGISTER() != null) {
+            action = BehaviorAction.DROP;
+        }
+        BehaviorRelation relation = addRelation(action, replication);
+        if (ctx.host != null) {
+            String host = stringValue(ctx.host);
+            requireSecurityPathPart(ctx, host);
+            relation.setTarget(List.of(objects.instanceObject(TargetType.Machine, ctx.host, host)));
+        }
+        if (ctx.DISABLE() != null || ctx.UNREGISTER() != null) {
+            addRelation(BehaviorAction.UNSAFE, replication);
+        }
+        return null;
+    }
+
+    private BehaviorObject managementRange(TargetType type, Token start, Token stop) {
+        BehaviorObject object = objects.unnamedObject(type, start, UmiTypes.Catalog);
+        BehaviorObject end = objects.unnamedObject(type, stop, UmiTypes.Catalog);
+        object.setEndLine(end.getEndLine());
+        object.setEndColumn(end.getEndColumn());
+        return object;
+    }
+
+    @Override
     public Void visitTransactionStatement(HanaParser.TransactionStatementContext ctx) {
         addRelation(BehaviorAction.SWITCH, objects.unnamedObject(TargetType.Transaction, ctx, UmiTypes.Catalog));
         addDomain(new RdbResourceDomain(), RuleQueryType.TRANSACTION);

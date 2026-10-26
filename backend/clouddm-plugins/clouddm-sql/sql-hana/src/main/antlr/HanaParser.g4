@@ -7,7 +7,7 @@ statement: query | insertStatement | updateStatement | deleteStatement | mergeSt
     | createSchema | createTable | createView | createIndex | createRoutine | createTrigger | createSequence | createSynonym
     | alterTable | dropStatement | renameStatement | truncateStatement | commentStatement
     | callStatement | anonymousBlock | block | sessionStatement | connectStatement | historySessionStatement | systemSessionStatement
-    | transactionStatement | explainStatement | securityStatement;
+    | transactionStatement | explainStatement | securityStatement | systemManagement;
 
 query: withClause? queryTerm (setOperator queryTerm)* orderBy? limitClause? lockClause? hintClause?;
 withClause: WITH cte (COMMA cte)*;
@@ -106,6 +106,54 @@ systemSessionStatement: ALTER SYSTEM (
     | CANCEL (WORK IN)? SESSION connectionId=STRING
     | DISCONNECT SESSION connectionId=STRING
 );
+// System/resource management: typed syntax, with opaque property and license values.
+systemManagement: systemIni | systemIniHistory | systemReconfigure | systemStopService | systemLicense
+    | workloadClass | workloadMapping | systemPlacement | systemVolume | systemReclaim | systemReplication;
+systemIni: ALTER SYSTEM ALTER CONFIGURATION LPAREN fileName=STRING COMMA layer=STRING (COMMA layerName=STRING)? RPAREN
+    (SET systemIniSet (COMMA systemIniSet)* | UNSET systemIniKey (COMMA systemIniKey)*)
+    (WITH RECONFIGURE)? (COMMENT STRING)?;
+systemIniKey: LPAREN section=STRING COMMA key=STRING RPAREN;
+systemIniSet: systemIniKey EQ STRING;
+systemIniHistory: ALTER SYSTEM CLEAR INIFILE CONTENT HISTORY;
+systemReconfigure: ALTER SYSTEM RECONFIGURE SERVICE LPAREN serviceName=STRING COMMA host=STRING COMMA port=INTEGER RPAREN;
+systemStopService: ALTER SYSTEM STOP SERVICE (address=STRING | LPAREN host=STRING COMMA port=INTEGER RPAREN)
+    (IMMEDIATE (WITH COREFILE)?)?;
+systemLicense: SET SYSTEM LICENSE STRING | UNSET SYSTEM LICENSE ALL;
+workloadClass: CREATE WORKLOAD CLASS className=identifier workloadParent? workloadProperties? workloadState?
+    | ALTER WORKLOAD CLASS (ALL workloadState | className=identifier
+        (workloadParent workloadProperties? workloadState? | workloadProperties workloadState? | workloadState))
+    | DROP WORKLOAD CLASS className=identifier;
+workloadParent: PARENT (identifier | NULL);
+workloadState: ENABLE | DISABLE;
+workloadProperties: SET? workloadProperty (COMMA workloadProperty)* (UNSET workloadKeys)?
+    | UNSET workloadKeys (SET workloadProperty (COMMA workloadProperty)*)?;
+workloadProperty: key=STRING EQ value=STRING;
+workloadKeys: STRING (COMMA STRING)*;
+workloadMapping: (CREATE | ALTER) WORKLOAD MAPPING mappingName=identifier WORKLOAD CLASS className=identifier
+        workloadProperties? (WITH WILDCARD STRING?)?
+    | DROP WORKLOAD MAPPING mappingName=identifier;
+systemPlacement: ALTER SYSTEM ALTER TABLE PLACEMENT
+    (LOCATION locationName=identifier (SET LPAREN placementLocationProperty (COMMA placementLocationProperty)* RPAREN | UNSET)
+    | (LPAREN placementSelector (COMMA placementSelector)* RPAREN)?
+        (SET LPAREN placementProperty (COMMA placementProperty)* RPAREN
+        | UNSET (LPAREN placementKey (COMMA placementKey)* RPAREN)?));
+placementSelector: key=(SCHEMA_NAME | TABLE_NAME | GROUP_NAME | GROUP_TYPE | SUB_TYPE) ARROW value=STRING;
+placementLocationProperty: (INCLUDE | EXCLUDE) ARROW STRING;
+placementProperty: placementKey ARROW (STRING | INTEGER);
+placementKey: LOCATION | MIN_ROWS_FOR_PARTITIONING | INITIAL_PARTITIONS | REPARTITIONING_THRESHOLD
+    | SAME_PARTITION_COUNT | DYNAMIC_RANGE_THRESHOLD | PAGE_LOADABLE | PERSISTENT_MEMORY | NUMA_NODE_INDEXES
+    | REPLICA_COUNT | REPLICA_TYPE;
+systemVolume: ALTER SYSTEM ALTER DATAVOLUME (ADD PARTITION (PATH path=STRING)? | DROP PARTITION partitionId=INTEGER)
+    (SYSTEM REPLICATION SITE (siteName=STRING | siteId=INTEGER))?;
+systemReclaim: ALTER SYSTEM RECLAIM (ROW? DATA SPACE IMMEDIATE? address=STRING?
+    | DATAVOLUME SPACE? address=STRING? INTEGER DEFRAGMENT | FLEXIBLE TABLES | (ROW | COLUMN)? LOB SPACE | VERSION SPACE);
+systemReplication: ALTER SYSTEM (
+    ENABLE SYSTEM REPLICATION siteName=STRING
+    | DISABLE SYSTEM REPLICATION FORCE?
+    | (REGISTER | UNREGISTER) SYSTEM REPLICATION SITE siteName=STRING REMOTE HOST host=STRING
+        REPLICATION MODE STRING (OPERATION MODE STRING)? FORCE? (FULL REPLICA)?
+);
+
 // Security management uses strict, typed rules. Payload strings remain opaque.
 securityStatement: securityUser | securityUsergroup | securityRole | securityGrant
     | securityPolicy | securityCredential | securityProvider | securityValidate
@@ -302,7 +350,13 @@ identifier: WORD | USER | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE 
     | PROVIDER | PSE | PUBLIC | PURPOSE | REMOTE | REPLICATION | RESET | RESOURCE | RESTRICTED | RESTRICTION
     | RETENTION | REVOKE | ROLE | ROOT | RULES | SAP | SOURCE | SSL | STANDARD | STRUCTURED | SUBJECT | SUCCESSFUL
     | SYSLOG | THREAD | TICKET | TIME | TRAIL | TRUST | TYPE | UNMASKED | UNSUCCESSFUL | UNTIL | URL | USAGE
-    | USERGROUP | VALID | VALIDATE | VERSION | VERSIONS | VIRTUAL | WARNING | WITHOUT | X509 | ZONE;
+    | USERGROUP | VALID | VALIDATE | VERSION | VERSIONS | VIRTUAL | WARNING | WITHOUT | X509 | ZONE
+    | CLASS | CONTENT | COREFILE | DATAVOLUME | DEFRAGMENT | DYNAMIC_RANGE_THRESHOLD | EXCLUDE | FLEXIBLE
+    | GROUP_NAME | GROUP_TYPE | IMMEDIATE | INCLUDE | INITIAL_PARTITIONS | LICENSE | LOB | LOCATION | MAPPING
+    | MIN_ROWS_FOR_PARTITIONING | MODE | NUMA_NODE_INDEXES | OPERATION | PAGE_LOADABLE | PARENT | PATH
+    | PERSISTENT_MEMORY | PLACEMENT | RECLAIM | RECONFIGURE | REGISTER | REPARTITIONING_THRESHOLD | REPLICA
+    | REPLICA_COUNT | REPLICA_TYPE | SAME_PARTITION_COUNT | SCHEMA_NAME | SERVICE | SITE | SPACE | STOP | SUB_TYPE
+    | TABLES | TABLE_NAME | UNREGISTER | WILDCARD | WORKLOAD;
 
 // Editor splitting checks structural boundaries even while expressions are incomplete.
 // Execution and audit must enter statementRoot; they never fall back to splitRoot.
