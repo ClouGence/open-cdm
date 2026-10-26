@@ -74,6 +74,15 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
             types.add(SplitQueryType.TRUNCATE_PARTITION);
         }
 
+        if (startsWith(words, "ALTER", "SYSTEM", "LOAD", "PERFTRACE")) {
+            types.add(SplitQueryType.CREATE_TABLE);
+            int tablesIndex = Collections.indexOfSubList(words, List.of("INTO", "TABLES"));
+            // Only the clause after the qualified output prefix replaces tables.
+            if (tablesIndex >= 0 && startsWith(tableOptions(words, tablesIndex + 2), "WITH", "REPLACE")) {
+                types.add(SplitQueryType.DROP_TABLE);
+            }
+        }
+
         return types;
     }
 
@@ -122,6 +131,12 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
             case "COMMIT", "ROLLBACK", "SAVEPOINT" -> SplitQueryType.TRANSACTION;
             case "SET", "UNSET" -> settingType(words);
             case "EXPLAIN" -> SplitQueryType.PERFORMANCE;
+            case "REFRESH" -> {
+                if (startsWith(words, "REFRESH", "STATISTICS")) {
+                    yield SplitQueryType.ADMIN_PERFORMANCE;
+                }
+                yield SplitQueryType.UNKNOWN;
+            }
             case "IMPORT" -> {
                 if (startsWith(words, "IMPORT", "SCAN")) {
                     yield SplitQueryType.METADATA;
@@ -229,6 +244,9 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
         if (startsWith(words, "ALTER", "SYSTEM")) {
             return alterSystemType(words.subList(2, words.size()));
         }
+        if (startsWith(words, "CREATE", "STATISTICS") || startsWith(words, "ALTER", "STATISTICS") || startsWith(words, "DROP", "STATISTICS")) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
 
         if (startsWith(words, "ALTER", "DATABASE") && words.size() > 3) {
             List<String> command = words.subList(3, words.size());
@@ -331,6 +349,10 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
     }
 
     private SplitQueryType alterSystemType(List<String> command) {
+        SplitQueryType diagnostic = diagnosticSystemType(command);
+        if (diagnostic != SplitQueryType.UNKNOWN) {
+            return diagnostic;
+        }
         if (startsWith(command, "LOGGING")) {
             return SplitQueryType.ADMIN_LOG;
         }
@@ -385,6 +407,58 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
             || startsWith(command, "ADD", "KEY", "MANAGEMENT", "CONFIGURATION") || startsWith(command, "ACTIVATE", "KEY", "MANAGEMENT", "CONFIGURATION")
             || startsWith(command, "ALTER", "KEY", "MANAGEMENT", "CONFIGURATION") || startsWith(command, "DROP", "KEY", "MANAGEMENT", "CONFIGURATION")) {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        return SplitQueryType.UNKNOWN;
+    }
+
+    private SplitQueryType diagnosticSystemType(List<String> command) {
+        if (command.isEmpty()) {
+            return SplitQueryType.UNKNOWN;
+        }
+        String action = command.get(0);
+        List<String> target = command.subList(1, command.size());
+        // Match the administrative command, never keywords inside its target SQL or options.
+        if (Set.of("ADD", "ALTER", "REMOVE", "ENABLE", "DISABLE").contains(action) && startsWith(target, "STATEMENT", "HINT")) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if ((Set.of("ADD", "REMOVE").contains(action) && startsWith(target, "ABSTRACT", "SQL", "PLAN", "FILTER"))
+            || (Set.of("ENABLE", "DISABLE", "REMOVE").contains(action) && startsWith(target, "ABSTRACT", "SQL", "PLAN", "ENTRY"))
+            || (Set.of("MIGRATE", "UPDATE").contains(action) && startsWith(target, "ABSTRACT", "SQL", "PLAN"))) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if (Set.of("START", "STOP").contains(action)) {
+            if (startsWith(target, "APPLY", "ABSTRACT", "SQL", "PLAN") || startsWith(target, "CAPTURE", "ABSTRACT", "SQL", "PLAN")
+                || startsWith(target, "SQLSCRIPT", "CODE", "COVERAGE")) {
+                return SplitQueryType.ADMIN_PERFORMANCE;
+            }
+            if (startsWith(target, "PERFTRACE")) {
+                return SplitQueryType.ADMIN_LOG;
+            }
+        }
+        if ((Set.of("START", "STOP", "SAVE", "CLEAR").contains(action) && startsWith(target, "KERNEL", "PROFILER"))
+            || (Set.of("START", "STOP", "CLEAR").contains(action) && startsWith(target, "SQLSCRIPT", "PLAN", "PROFILER"))) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if ("CLEAR".equals(action) && (startsWith(target, "CACHE") || startsWith(target, "COLUMN", "JOIN", "DATA", "STATISTICS") || startsWith(target, "TIMEZONE", "CACHE")
+                                       || startsWith(target, "SQL", "PLAN", "CACHE"))) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if (Set.of("CLEAR", "REFRESH", "REMOVE").contains(action)
+            && (startsWith(target, "RESULT", "CACHE") || startsWith(target, "STATIC", "RESULT", "CACHE") || startsWith(target, "DYNAMIC", "RESULT", "CACHE"))) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if ((Set.of("PIN", "UNPIN", "RECOMPILE").contains(action) && startsWith(target, "SQL", "PLAN", "CACHE", "ENTRY")) || startsWith(command, "REMOVE", "SQL", "PLAN", "CACHE")
+            || startsWith(command, "RESET", "MONITORING", "VIEW")) {
+            return SplitQueryType.ADMIN_PERFORMANCE;
+        }
+        if (startsWith(command, "CREATE", "RUNTIMEDUMP") || startsWith(command, "CREATE", "WAITGRAPH")) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        if ((Set.of("CLEAR", "REMOVE").contains(action) && startsWith(target, "TRACES")) || startsWith(command, "SAVE", "PERFTRACE")) {
+            return SplitQueryType.MAINTAIN_LOG;
+        }
+        if (startsWith(command, "LOAD", "PERFTRACE")) {
+            return SplitQueryType.DATA_IMPORT;
         }
         return SplitQueryType.UNKNOWN;
     }
