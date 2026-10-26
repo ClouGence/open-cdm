@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  A free and open-source database management tool for teams, featuring AI-powered SQL generation with database and conversation context, access control, data masking, SQL auditing, CI/CD, and cross-region deployment.
+  A free and open-source database management tool for teams, featuring AI-powered SQL generation, access control, data masking, SQL auditing, CI/CD, and cross-region deployment.
 </p>
 
 <p align="center">
