@@ -6,7 +6,8 @@ statementRoot: statement SEMI? EOF;
 statement: query | insertStatement | updateStatement | deleteStatement | mergeStatement
     | createSchema | createTable | createView | createIndex | createRoutine | createTrigger | createSequence | createSynonym
     | alterTable | dropStatement | renameStatement | truncateStatement | commentStatement
-    | callStatement | anonymousBlock | block | sessionStatement | transactionStatement | explainStatement;
+    | callStatement | anonymousBlock | block | sessionStatement | connectStatement | historySessionStatement | systemSessionStatement
+    | transactionStatement | explainStatement;
 
 query: withClause? queryTerm (setOperator queryTerm)* orderBy? limitClause? lockClause? hintClause?;
 withClause: WITH cte (COMMA cte)*;
@@ -97,6 +98,14 @@ loopStatement: LOOP blockItem* END LOOP;
 returnStatement: RETURN (query | expression)?;
 sessionStatement: SET SCHEMA identifier | SET TRANSACTION (READ ONLY | READ WRITE | ISOLATION LEVEL (READ COMMITTED | REPEATABLE READ | SERIALIZABLE))
     | SET SESSION? STRING EQ STRING | UNSET SESSION? STRING;
+connectStatement: CONNECT (userName=identifier PASSWORD (identifier | STRING) | WITH SAML ASSERTION STRING | WITH JWT STRING);
+historySessionStatement: SET historySessionTarget TO (NOW | COMMIT ID INTEGER | UTCTIMESTAMP STRING);
+historySessionTarget: HISTORY SESSION;
+systemSessionStatement: ALTER SYSTEM (
+    ALTER SESSION sessionId=INTEGER (SET key=STRING EQ value=STRING | UNSET key=STRING)
+    | CANCEL (WORK IN)? SESSION connectionId=STRING
+    | DISCONNECT SESSION connectionId=STRING
+);
 transactionStatement: COMMIT WORK? | ROLLBACK WORK? (TO SAVEPOINT identifier)? | SAVEPOINT identifier;
 explainStatement: EXPLAIN PLAN (SET STATEMENT_NAME EQ STRING)? FOR (query | insertStatement | updateStatement | deleteStatement | mergeStatement);
 
@@ -122,7 +131,8 @@ parameterMarker: QUESTION;
 literal: STRING | INTEGER | DECIMAL | NULL | TRUE | FALSE | DEFAULT;
 columnNames: LPAREN identifier (COMMA identifier)* RPAREN;
 qualifiedName: identifier (DOT identifier)*;
-identifier: WORD | USER | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE | INVERTED | HASH | VALUE | INDIVIDUAL;
+identifier: WORD | USER | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE | INVERTED | HASH | VALUE | INDIVIDUAL
+    | CONNECT | PASSWORD | SAML | ASSERTION | JWT | HISTORY | NOW | ID | UTCTIMESTAMP | SYSTEM | CANCEL | DISCONNECT;
 
 // Editor splitting checks structural boundaries even while expressions are incomplete.
 // Execution and audit must enter statementRoot; they never fall back to splitRoot.

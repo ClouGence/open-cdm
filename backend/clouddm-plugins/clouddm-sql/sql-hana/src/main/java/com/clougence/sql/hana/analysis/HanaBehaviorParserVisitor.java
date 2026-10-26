@@ -33,6 +33,7 @@ import com.clougence.sql.hana.parser.antlr.HanaParser;
 import com.clougence.sql.hana.parser.antlr.HanaParserBaseVisitor;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
@@ -427,10 +428,85 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
             addRelation(BehaviorAction.SWITCH, objects.unnamedObject(TargetType.Transaction, ctx, UmiTypes.Catalog));
             addDomain(new RdbResourceDomain(), RuleQueryType.TRANSACTION);
         } else {
-            addRelation(BehaviorAction.CONFIGURE, objects.unnamedObject(TargetType.Session, ctx, UmiTypes.Catalog));
-            addDomain(new RdbResourceDomain(), RuleQueryType.SESSION_SETTING_WRITE);
+            Token keyToken = ctx.STRING(0).getSymbol();
+            String key = stringValue(keyToken);
+            BehaviorAction action = BehaviorAction.CONFIGURE;
+            if (ctx.UNSET() != null) {
+                action = BehaviorAction.RESET;
+            }
+            addRelation(action, catalogObject(TargetType.ConfigKey, ctx, keyToken, key));
+            RuleQueryType type = RuleQueryType.SESSION_VARIABLE_RW;
+            if (Set.of("DATE_FORMAT", "TIME_FORMAT", "SECONDDATE_FORMAT", "TIMESTAMP_FORMAT").contains(key)) {
+                type = RuleQueryType.SESSION_SETTING_WRITE;
+            }
+            addDomain(new RdbResourceDomain(), type);
         }
         return null;
+    }
+
+    @Override
+    public Void visitConnectStatement(HanaParser.ConnectStatementContext ctx) {
+        BehaviorObject user;
+        if (ctx.userName != null) {
+            user = catalogObject(TargetType.User, ctx, ctx.userName.getStart(), name(ctx.userName));
+        } else {
+            // Authentication payloads do not statically identify a database user or provider.
+            user = catalogObject(TargetType.User, ctx, ctx.CONNECT().getSymbol(), null);
+        }
+        addRelation(BehaviorAction.SWITCH, user);
+        addDomain(new RdbResourceDomain(), RuleQueryType.SWITCH_USER);
+        return null;
+    }
+
+    @Override
+    public Void visitHistorySessionStatement(HanaParser.HistorySessionStatementContext ctx) {
+        addRelation(BehaviorAction.CONFIGURE, objects.unnamedObject(TargetType.Session, ctx.historySessionTarget(), UmiTypes.Catalog));
+        addDomain(new RdbResourceDomain(), RuleQueryType.SESSION_SETTING_WRITE);
+        return null;
+    }
+
+    @Override
+    public Void visitSystemSessionStatement(HanaParser.SystemSessionStatementContext ctx) {
+        if (ctx.sessionId != null) {
+            BehaviorObject session = catalogObject(TargetType.Session, ctx, ctx.sessionId, ctx.sessionId.getText());
+            String keyName = stringValue(ctx.key);
+            BehaviorObject key = catalogObject(TargetType.ConfigKey, ctx, ctx.key, keyName);
+            key.setObjectPath(session.getObjectPath() + keyName + "/");
+            BehaviorAction action = BehaviorAction.CONFIGURE;
+            if (ctx.UNSET() != null) {
+                action = BehaviorAction.RESET;
+            }
+            addRelation(action, session).setTarget(List.of(key));
+        } else {
+            BehaviorObject session = catalogObject(TargetType.Session, ctx, ctx.connectionId, stringValue(ctx.connectionId));
+            if (ctx.CANCEL() != null) {
+                // A connection ID locates the query's owning session, not the query's own identity.
+                BehaviorObject query = catalogObject(TargetType.Query, ctx, ctx.connectionId, null);
+                query.setObjectPath(session.getObjectPath());
+                addRelation(BehaviorAction.TERMINATE, query).setTarget(List.of(session));
+            } else {
+                addRelation(BehaviorAction.TERMINATE, session);
+            }
+        }
+        addDomain(new RdbResourceDomain(), RuleQueryType.ADMIN);
+        return null;
+    }
+
+    private BehaviorObject catalogObject(TargetType type, ParserRuleContext context, Token token, String name) {
+        BehaviorObject object = objects.unnamedObject(type, token, UmiTypes.Catalog);
+        if (name != null) {
+            if (name.contains("/")) {
+                throw unsupported(context, "Object name contains a resource path separator");
+            }
+            object.setObjectPath(object.getObjectPath() + name + "/");
+            object.setObjectName(new ObjectName(Objects.toString(levels.get(UmiTypes.Catalog), null), null, name));
+        }
+        return object;
+    }
+
+    private String stringValue(Token token) {
+        String text = token.getText();
+        return text.substring(text.indexOf('\'') + 1, text.length() - 1).replace("''", "'");
     }
 
     @Override
