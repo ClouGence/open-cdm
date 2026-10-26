@@ -35,14 +35,20 @@ import com.clougence.sql.hana.parser.antlr.HanaParserBaseVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
-    private final HanaAnalysisResult                                           result    = new HanaAnalysisResult();
+    private static final Comparator<BehaviorObject>                            SECURITY_SOURCE_ORDER = Comparator.comparingInt(BehaviorObject::getStartLine)
+        .thenComparingInt(BehaviorObject::getStartColumn)
+        .thenComparingInt(BehaviorObject::getEndLine)
+        .thenComparingInt(BehaviorObject::getEndColumn);
+
+    private final HanaAnalysisResult                                           result                = new HanaAnalysisResult();
     private final SplitScript                                                  script;
     private final Map<UmiTypes, Object>                                        levels;
     private final RdbBehaviorObjectFactory                                     objects;
-    private final Deque<Map<String, List<BehaviorObject>>>                     cteScopes = new ArrayDeque<>();
-    private final Deque<Map<String, List<BehaviorObject>>>                     variables = new ArrayDeque<>();
+    private final Deque<Map<String, List<BehaviorObject>>>                     cteScopes             = new ArrayDeque<>();
+    private final Deque<Map<String, List<BehaviorObject>>>                     variables             = new ArrayDeque<>();
     private final BiFunction<Map<UmiTypes, Object>, String, MetaIndexedObject> indexedObjectResolver;
     private boolean                                                            explaining;
 
@@ -507,6 +513,526 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     private String stringValue(Token token) {
         String text = token.getText();
         return text.substring(text.indexOf('\'') + 1, text.length() - 1).replace("''", "'");
+    }
+
+    @Override
+    public Void visitSecurityStatement(HanaParser.SecurityStatementContext ctx) {
+        visitChildren(ctx);
+        RuleQueryType type = RuleQueryType.CONFIG_WRITE;
+        ParserRuleContext statement = (ParserRuleContext) ctx.getChild(0);
+        String operation = statement.getStart().getText().toUpperCase(Locale.ROOT);
+        if (ctx.securityUser() != null) {
+            var grant = ctx.securityUser().securitySpecialGrant();
+            if (grant != null) {
+                type = RuleQueryType.valueOf(grant.getStart().getText().toUpperCase(Locale.ROOT));
+            } else {
+                type = RuleQueryType.valueOf(operation + "_USER");
+            }
+        } else if (ctx.securityRole() != null) {
+            type = RuleQueryType.valueOf(operation + "_ROLE");
+        } else if (ctx.securityGrant() != null) {
+            type = RuleQueryType.valueOf(operation);
+        } else if (ctx.securityPolicy() != null || ctx.securityAudit() != null) {
+            type = RuleQueryType.valueOf(operation + "_POLICY");
+        } else if (ctx.securityAuditLog() != null) {
+            type = RuleQueryType.ALTER_LOG;
+            if (ctx.securityAuditLog().CLEAR() != null) {
+                type = RuleQueryType.MAINTAIN_LOG;
+            }
+        } else if (ctx.securityValidate() != null || ctx.securityEncryption() != null && ctx.securityEncryption().VALIDATE() != null) {
+            type = RuleQueryType.ADMIN;
+        }
+        addDomain(new RdbResourceDomain(), type);
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityUser(HanaParser.SecurityUserContext ctx) {
+        BehaviorObject user = securityLocal(TargetType.User, ctx.userName);
+        var special = ctx.securitySpecialGrant();
+        if (special != null) {
+            BehaviorObject scope;
+            if (special.PUBLIC() != null) {
+                scope = catalogObject(TargetType.Role, special, special.PUBLIC().getSymbol(), "PUBLIC");
+            } else {
+                // HANA creates the personal schema with the user's name.
+                scope = object(TargetType.Schema, ctx.userName, List.of(name(ctx.userName)));
+            }
+            addRelation(securityAction(special), scope).setTarget(List.of(user));
+            return null;
+        }
+        var attempts = descendants(ctx, HanaParser.SecurityConnectAttemptsContext.class);
+        if (!attempts.isEmpty()) {
+            for (var attempt : attempts) {
+                addRelation(BehaviorAction.RESET, securityChild(TargetType.ConfigKey, attempt.securityAttemptKey(), "CONNECT ATTEMPTS", user));
+            }
+            return null;
+        }
+        List<BehaviorObject> targets = new ArrayList<>();
+        for (var provider : descendants(ctx, HanaParser.SecurityIdentityProviderContext.class)) {
+            if (provider.providerName != null) {
+                targets.add(securityLocal(TargetType.SecurityIntegration, provider.providerName));
+            } else if (provider.securityLdapIdentity() != null) {
+                targets.add(objects.unnamedObject(TargetType.SecurityIntegration, provider.securityLdapIdentity(), UmiTypes.Catalog));
+            }
+        }
+        for (var group : descendants(ctx, HanaParser.SecurityUsergroupReferenceContext.class)) {
+            targets.add(securityLocal(TargetType.Object, group.identifier()));
+        }
+        for (var remote : descendants(ctx, HanaParser.SecurityRemoteIdentityContext.class)) {
+            BehaviorObject target = securityLocal(TargetType.User, remote.userName);
+            BehaviorObject database = objects.unnamedObject(TargetType.Catalog, remote.databaseName, UmiTypes.Instance);
+            String catalog = name(remote.databaseName);
+            requireSecurityPathPart(remote, catalog);
+            target.setObjectPath(database.getObjectPath() + catalog + "/" + name(remote.userName) + "/");
+            target.setObjectName(new ObjectName(catalog, null, name(remote.userName)));
+            targets.add(target);
+        }
+        addRelation(securityAction(ctx), user).setTarget(securityTargets(targets));
+        int settingStart = result.getBehavior().getRelations().size();
+        for (var parameter : descendants(ctx, HanaParser.SecurityUserParameterContext.class)) {
+            var key = parameter.securityParameterName();
+            addRelation(BehaviorAction.CONFIGURE, securityChild(TargetType.ConfigKey, key, securityWords(key), user));
+        }
+        for (var clear : descendants(ctx, HanaParser.SecurityClearParametersContext.class)) {
+            for (var key : clear.securityParameterName()) {
+                addRelation(BehaviorAction.RESET, securityChild(TargetType.ConfigKey, key, securityWords(key), user));
+            }
+            if (clear.securityAllParameters() != null) {
+                BehaviorObject key = objects.unnamedObject(TargetType.ConfigKey, clear.securityAllParameters(), UmiTypes.Catalog);
+                key.setObjectPath(user.getObjectPath());
+                addRelation(BehaviorAction.RESET, key);
+            }
+        }
+        result.getBehavior()
+            .getRelations()
+            .subList(settingStart, result.getBehavior().getRelations().size())
+            .sort(Comparator.comparing(BehaviorRelation::getSubject, SECURITY_SOURCE_ORDER));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityUsergroup(HanaParser.SecurityUsergroupContext ctx) {
+        BehaviorObject group = securityLocal(TargetType.Object, ctx.groupName);
+        List<BehaviorObject> targets = new ArrayList<>();
+        for (var option : ctx.securityGroupOption()) {
+            for (var restriction : descendants(option, HanaParser.SecurityRestrictionDefinitionContext.class)) {
+                targets.add(securityChild(TargetType.Policy, restriction.identifier(), name(restriction.identifier()), group));
+            }
+            if (option.securityRestrictionNames() != null) {
+                for (var name : option.securityRestrictionNames().identifier()) {
+                    targets.add(securityChild(TargetType.Policy, name, name(name), group));
+                }
+            } else if (option.ALL() != null) {
+                BehaviorObject all = objects.unnamedObject(TargetType.Policy, option.ALL().getSymbol(), UmiTypes.Catalog);
+                all.setObjectPath(group.getObjectPath());
+                targets.add(all);
+            }
+        }
+        addRelation(securityAction(ctx), group).setTarget(securityTargets(targets));
+        int settingStart = result.getBehavior().getRelations().size();
+        for (var parameter : descendants(ctx, HanaParser.SecurityGroupParameterContext.class)) {
+            BehaviorObject key = catalogObject(TargetType.ConfigKey, parameter, parameter.key, stringValue(parameter.key));
+            key.setObjectPath(group.getObjectPath() + stringValue(parameter.key) + "/");
+            addRelation(BehaviorAction.CONFIGURE, key);
+        }
+        for (var clear : descendants(ctx, HanaParser.SecurityGroupClearParametersContext.class)) {
+            for (var token : clear.STRING()) {
+                BehaviorObject key = catalogObject(TargetType.ConfigKey, clear, token.getSymbol(), stringValue(token.getSymbol()));
+                key.setObjectPath(group.getObjectPath() + stringValue(token.getSymbol()) + "/");
+                addRelation(BehaviorAction.RESET, key);
+            }
+        }
+        for (var set : descendants(ctx, HanaParser.SecurityParameterSetContext.class)) {
+            var token = set.STRING().getSymbol();
+            BehaviorObject key = catalogObject(TargetType.ConfigKey, set, token, stringValue(token));
+            key.setObjectPath(group.getObjectPath() + stringValue(token) + "/");
+            addRelation(BehaviorAction.CONFIGURE, key);
+        }
+        result.getBehavior()
+            .getRelations()
+            .subList(settingStart, result.getBehavior().getRelations().size())
+            .sort(Comparator.comparing(BehaviorRelation::getSubject, SECURITY_SOURCE_ORDER));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityRole(HanaParser.SecurityRoleContext ctx) {
+        addRelation(securityAction(ctx), securityQualified(TargetType.Role, ctx.roleName, false));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityGrant(HanaParser.SecurityGrantContext ctx) {
+        TargetType recipientType = TargetType.UserOrRole;
+        if (ctx.recipient.identifier().size() == 2) {
+            recipientType = TargetType.Role;
+        }
+        BehaviorObject recipient = securityQualified(recipientType, ctx.recipient, false);
+        List<BehaviorObject> subjects = new ArrayList<>();
+        var scope = ctx.securityGrantScope();
+        if (!scope.securitySystemPrivilege().isEmpty()) {
+            subjects.add(objects.unnamedObject(TargetType.Catalog, ctx.getStart(), UmiTypes.Catalog));
+        } else if (scope.policyName != null) {
+            subjects.add(securityQualified(TargetType.Policy, scope.policyName, true));
+        } else if (scope.securityGrantObject() != null) {
+            var object = scope.securityGrantObject();
+            if (object.schemaName != null) {
+                subjects.add(object(TargetType.Schema, object.schemaName, List.of(name(object.schemaName))));
+            } else if (object.groupName != null) {
+                subjects.add(securityLocal(TargetType.Object, object.groupName));
+            } else if (object.sourceName != null) {
+                subjects.add(securityLocal(TargetType.Link, object.sourceName));
+            } else if (object.keyName != null) {
+                subjects.add(securityQualified(TargetType.ColumnEncryptionKey, object.keyName, true));
+            } else {
+                subjects.add(securityQualified(TargetType.SchemaObject, object.objectName, true));
+            }
+        } else {
+            for (var role : scope.roles) {
+                subjects.add(securityQualified(TargetType.Role, role, false));
+            }
+        }
+        for (var subject : subjects) {
+            addRelation(securityAction(ctx), subject).setTarget(List.of(recipient));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityPolicy(HanaParser.SecurityPolicyContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        for (var view : ctx.views) {
+            targets.add(securityQualified(TargetType.View, view, true));
+        }
+        if (ctx.procedureName != null) {
+            targets.add(securityQualified(TargetType.Procedure, ctx.procedureName, true));
+        }
+        if (ctx.expression() != null) {
+            // Analyze predicate dependencies in isolation: their actions are not executed by CREATE POLICY.
+            HanaBehaviorParserVisitor dependencies = new HanaBehaviorParserVisitor(script, levels, indexedObjectResolver);
+            dependencies.visit(ctx.expression());
+            for (var dependency : dependencies.result.getBehavior().getRelations()) {
+                targets.add(dependency.getSubject());
+                if (dependency.getTarget() != null) {
+                    targets.addAll(dependency.getTarget());
+                }
+            }
+        }
+        // Defining a policy does not execute its predicate or condition provider.
+        addRelation(securityAction(ctx), securityQualified(TargetType.Policy, ctx.policyName, true)).setTarget(securityTargets(targets));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityCredential(HanaParser.SecurityCredentialContext ctx) {
+        var identity = ctx.securityCredentialIdentity();
+        BehaviorObject credential = objects.unnamedObject(TargetType.Credential, identity, UmiTypes.Catalog);
+        String path = credential.getObjectPath();
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (identity.userName != null) {
+            BehaviorObject user = securityLocal(TargetType.User, identity.userName);
+            path = user.getObjectPath();
+            targets.add(user);
+        }
+        for (var token : List.of(identity.component, identity.purpose, identity.mechanism)) {
+            String part = stringValue(token);
+            requireSecurityPathPart(identity, part);
+            path += part + "/";
+        }
+        credential.setObjectPath(path);
+        addRelation(securityAction(ctx), credential).setTarget(securityTargets(targets));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityProvider(HanaParser.SecurityProviderContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        for (var group : descendants(ctx, HanaParser.SecurityUsergroupReferenceContext.class)) {
+            targets.add(securityLocal(TargetType.Object, group.identifier()));
+        }
+        addRelation(securityAction(ctx), securityLocal(TargetType.SecurityIntegration, ctx.providerName)).setTarget(securityTargets(targets));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityValidate(HanaParser.SecurityValidateContext ctx) {
+        BehaviorObject subject;
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.providerName != null) {
+            subject = securityLocal(TargetType.SecurityIntegration, ctx.providerName);
+            if (ctx.userName != null) {
+                targets.add(securityChild(TargetType.User, ctx.userName, name(ctx.userName), subject));
+            }
+        } else if (ctx.userName != null) {
+            subject = securityLocal(TargetType.User, ctx.userName);
+        } else {
+            subject = objects.unnamedObject(TargetType.User, ctx.USER(0).getSymbol(), UmiTypes.Catalog);
+        }
+        addRelation(BehaviorAction.VALIDATE, subject).setTarget(securityTargets(targets));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityAudit(HanaParser.SecurityAuditContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        var actions = ctx.securityAuditActions();
+        if (actions != null) {
+            if (actions.securityAuditUsers() != null) {
+                for (var user : actions.securityAuditUsers().identifier()) {
+                    targets.add(securityLocal(TargetType.User, user));
+                }
+            }
+            for (var object : actions.objects) {
+                TargetType type = TargetType.SchemaObject;
+                if (actions.securityAuditAction().stream().anyMatch(action -> action.EXECUTE() != null)) {
+                    type = TargetType.Procedure;
+                }
+                targets.add(securityQualified(type, object, true));
+            }
+            if (actions.schemaName != null) {
+                targets.add(object(TargetType.Schema, actions.schemaName, List.of(name(actions.schemaName))));
+            }
+        }
+        if (ctx.databaseName != null) {
+            targets.add(object(TargetType.Catalog, ctx.databaseName, List.of(name(ctx.databaseName))));
+        }
+        addRelation(securityAction(ctx), securityLocal(TargetType.Policy, ctx.policyName)).setTarget(securityTargets(targets));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityAuditLog(HanaParser.SecurityAuditLogContext ctx) {
+        BehaviorAction action = BehaviorAction.ALTER;
+        if (ctx.CLEAR() != null) {
+            action = BehaviorAction.PURGE;
+        }
+        BehaviorRelation relation = addRelation(action, objects.unnamedObject(TargetType.Log, ctx.securityAuditLogName(), UmiTypes.Catalog));
+        if (ctx.policyName != null) {
+            relation.setTarget(List.of(securityLocal(TargetType.Policy, ctx.policyName)));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityCertificate(HanaParser.SecurityCertificateContext ctx) {
+        BehaviorObject certificate;
+        if (ctx.certificateName != null) {
+            certificate = securityLocal(TargetType.Certificate, ctx.certificateName);
+        } else {
+            certificate = securityCertificateId(ctx.securityCertificateId());
+        }
+        addRelation(securityAction(ctx), certificate);
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityPublicKey(HanaParser.SecurityPublicKeyContext ctx) {
+        BehaviorObject key;
+        if (ctx.keyName != null) {
+            key = securityLocal(TargetType.AsymmetricKey, ctx.keyName);
+        } else {
+            key = objects.unnamedObject(TargetType.AsymmetricKey, ctx.securityPublicKeyType(), UmiTypes.Catalog);
+        }
+        addRelation(securityAction(ctx), key);
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityPse(HanaParser.SecurityPseContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        var option = ctx.securityPseOption();
+        if (option != null) {
+            for (var certificate : option.securityCertificateId()) {
+                targets.add(securityCertificateId(certificate));
+            }
+            for (var key : option.INTEGER()) {
+                targets.add(catalogObject(TargetType.AsymmetricKey, option, key.getSymbol(), key.getText()));
+            }
+        }
+        for (var assignment : descendants(ctx, HanaParser.SecurityPseTargetsContext.class)) {
+            TargetType type = TargetType.SecurityIntegration;
+            if (assignment.REMOTE() != null) {
+                type = TargetType.Link;
+            }
+            // SNI HOST values are matching strings, not topology object identities.
+            for (var name : assignment.identifier()) {
+                targets.add(securityLocal(type, name));
+            }
+        }
+        BehaviorAction action;
+        if (ctx.SET() != null) {
+            action = BehaviorAction.CONFIGURE;
+        } else if (ctx.UNSET() != null) {
+            action = BehaviorAction.RESET;
+        } else {
+            action = securityAction(ctx);
+        }
+        addRelation(action, securityLocal(TargetType.Object, ctx.pseName)).setTarget(securityTargets(targets));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityClientKey(HanaParser.SecurityClientKeyContext ctx) {
+        BehaviorObject key;
+        if (ctx.pairName != null) {
+            key = securityLocal(TargetType.AsymmetricKey, ctx.pairName);
+        } else {
+            key = securityQualified(TargetType.ColumnEncryptionKey, ctx.columnName, true);
+        }
+        BehaviorRelation relation = addRelation(securityAction(ctx), key);
+        if (ctx.securityKeyEncryption() != null) {
+            relation.setTarget(List.of(securityLocal(TargetType.AsymmetricKey, ctx.securityKeyEncryption().identifier())));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityEncryption(HanaParser.SecurityEncryptionContext ctx) {
+        if (ctx.securityEncryptionPassword() != null) {
+            var key = ctx.securityEncryptionPassword();
+            BehaviorAction action = BehaviorAction.CONFIGURE;
+            if (ctx.VALIDATE() != null) {
+                action = BehaviorAction.VALIDATE;
+            }
+            addRelation(action, securityNamed(TargetType.ConfigKey, key, List.of(securityWords(key)), false));
+        } else if (ctx.securityEncryptionControl() != null) {
+            var key = ctx.securityEncryptionControl();
+            addRelation(BehaviorAction.CONFIGURE, securityNamed(TargetType.ConfigKey, key, List.of(securityWords(key)), false));
+        } else if (ctx.securityCurrentKey() != null) {
+            addRelation(BehaviorAction.APPLY, objects.unnamedObject(TargetType.SymmetricKey, ctx.securityCurrentKey(), UmiTypes.Catalog));
+        } else {
+            ParserRuleContext change = ctx.securityApplicationKey();
+            if (change == null) {
+                change = ctx.securityRootEncryption();
+            }
+            if (change != null && (change.getStart().getType() == HanaParser.CREATE || change.getStart().getType() == HanaParser.ACTIVATE)) {
+                var roots = descendants(change, HanaParser.SecurityRootKeyContext.class);
+                BehaviorObject key;
+                if (!roots.isEmpty()) {
+                    key = objects.unnamedObject(TargetType.SymmetricKey, roots.get(0), UmiTypes.Catalog);
+                } else {
+                    key = objects.unnamedObject(TargetType.SymmetricKey, ((HanaParser.SecurityApplicationKeyContext) change).KEY().getSymbol(), UmiTypes.Catalog);
+                }
+                BehaviorAction action = BehaviorAction.CREATE;
+                if (change.getStart().getType() == HanaParser.ACTIVATE) {
+                    action = BehaviorAction.SWITCH;
+                }
+                addRelation(action, key);
+            } else {
+                Token start = null;
+                if (ctx.BACKUP() != null) {
+                    start = ctx.BACKUP().getSymbol();
+                }
+                if (start == null && ctx.LOG() != null) {
+                    start = ctx.LOG().getSymbol();
+                }
+                if (start == null) {
+                    start = ctx.PERSISTENCE().getSymbol();
+                }
+                String name = start.getText().toUpperCase(Locale.ROOT) + " ENCRYPTION";
+                BehaviorObject key = catalogObject(TargetType.ConfigKey, ctx, start, name);
+                BehaviorObject end = objects.unnamedObject(TargetType.ConfigKey, ctx.ENCRYPTION().getSymbol(), UmiTypes.Catalog);
+                key.setEndLine(end.getEndLine());
+                key.setEndColumn(end.getEndColumn());
+                addRelation(BehaviorAction.CONFIGURE, key);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityKeyConfiguration(HanaParser.SecurityKeyConfigurationContext ctx) {
+        BehaviorAction action = BehaviorAction.ALTER;
+        if (ctx.ADD() != null) {
+            action = BehaviorAction.CREATE;
+        } else if (ctx.ACTIVATE() != null) {
+            action = BehaviorAction.SWITCH;
+        } else if (ctx.DROP() != null) {
+            action = BehaviorAction.DROP;
+        }
+        addRelation(action, securityLocal(TargetType.ConfigKey, ctx.configName));
+        return null;
+    }
+
+    @Override
+    public Void visitSecurityClientPki(HanaParser.SecurityClientPkiContext ctx) {
+        BehaviorObject certificate;
+        if (ctx.securityRootCa() != null) {
+            certificate = objects.unnamedObject(TargetType.Certificate, ctx.securityRootCa(), UmiTypes.Catalog);
+        } else {
+            certificate = objects.unnamedObject(TargetType.Certificate, ctx.CERTIFICATES().getSymbol(), UmiTypes.Catalog);
+        }
+        BehaviorAction action = BehaviorAction.REPLACE;
+        if (ctx.DROP() != null) {
+            action = BehaviorAction.DROP;
+        }
+        addRelation(action, certificate);
+        return null;
+    }
+
+    private static List<BehaviorObject> securityTargets(List<BehaviorObject> targets) {
+        targets.sort(SECURITY_SOURCE_ORDER);
+        return targets;
+    }
+
+    private BehaviorObject securityLocal(TargetType type, HanaParser.IdentifierContext identifier) {
+        return securityNamed(type, identifier, List.of(name(identifier)), false);
+    }
+
+    private BehaviorObject securityQualified(TargetType type, HanaParser.QualifiedNameContext context, boolean schemaScoped) {
+        return securityNamed(type, context, names(context), schemaScoped);
+    }
+
+    private BehaviorObject securityNamed(TargetType type, ParserRuleContext context, List<String> parts, boolean schemaScoped) {
+        if (parts.size() > 2) {
+            throw unsupported(context, "Security object names cannot include a database qualifier");
+        }
+        for (String part : parts) {
+            requireSecurityPathPart(context, part);
+        }
+        BehaviorObject object = objects.unnamedObject(type, context, UmiTypes.Catalog);
+        String schema = null;
+        if (parts.size() == 2) {
+            schema = parts.get(0);
+        } else if (schemaScoped) {
+            schema = Objects.toString(levels.get(UmiTypes.Schema), null);
+        }
+        String path = object.getObjectPath();
+        if (schema != null) {
+            path += schema + "/";
+        }
+        String objectName = parts.get(parts.size() - 1);
+        object.setObjectPath(path + objectName + "/");
+        object.setObjectName(new ObjectName(Objects.toString(levels.get(UmiTypes.Catalog), null), schema, objectName));
+        return object;
+    }
+
+    private BehaviorObject securityChild(TargetType type, ParserRuleContext context, String name, BehaviorObject owner) {
+        BehaviorObject object = securityNamed(type, context, List.of(name), false);
+        object.setObjectPath(owner.getObjectPath() + name + "/");
+        return object;
+    }
+
+    private BehaviorObject securityCertificateId(HanaParser.SecurityCertificateIdContext ctx) {
+        if (ctx.identifier() != null) {
+            return securityLocal(TargetType.Certificate, ctx.identifier());
+        }
+        return catalogObject(TargetType.Certificate, ctx, ctx.INTEGER().getSymbol(), ctx.INTEGER().getText());
+    }
+
+    private void requireSecurityPathPart(ParserRuleContext context, String name) {
+        if (name.contains("/")) {
+            throw unsupported(context, "Object name contains a resource path separator");
+        }
+    }
+
+    private static BehaviorAction securityAction(ParserRuleContext context) {
+        return BehaviorAction.valueOf(context.getStart().getText().toUpperCase(Locale.ROOT));
+    }
+
+    private static String securityWords(ParserRuleContext context) {
+        return String.join(" ", descendants(context, TerminalNode.class).stream().map(ParseTree::getText).toList()).toUpperCase(Locale.ROOT);
     }
 
     @Override
