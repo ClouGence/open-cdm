@@ -7,7 +7,7 @@ statement: query | insertStatement | updateStatement | deleteStatement | mergeSt
     | createSchema | createTable | createView | createIndex | createRoutine | createTrigger | createSequence | createSynonym
     | alterTable | dropStatement | renameStatement | truncateStatement | commentStatement
     | callStatement | anonymousBlock | block | sessionStatement | connectStatement | historySessionStatement | systemSessionStatement
-    | transactionStatement | explainStatement | securityStatement | systemManagement;
+    | transactionStatement | explainStatement | securityStatement | systemManagement | databaseManagement;
 
 query: withClause? queryTerm (setOperator queryTerm)* orderBy? limitClause? lockClause? hintClause?;
 withClause: WITH cte (COMMA cte)*;
@@ -73,7 +73,7 @@ alterAction: ADD LPAREN tableElement (COMMA tableElement)* RPAREN
 dropStatement: DROP objectType qualifiedName (CASCADE | RESTRICT)?;
 objectType: SCHEMA | TABLE | VIEW | INDEX | SEQUENCE | SYNONYM | PROCEDURE | FUNCTION | TRIGGER;
 renameStatement: RENAME (TABLE | COLUMN | INDEX) qualifiedName TO qualifiedName;
-truncateStatement: TRUNCATE TABLE qualifiedName;
+truncateStatement: TRUNCATE TABLE qualifiedName maintenancePartitions?;
 commentStatement: COMMENT ON (TABLE | VIEW | COLUMN) qualifiedName IS (STRING | NULL);
 
 createRoutine: CREATE (OR REPLACE)? (PROCEDURE | FUNCTION) qualifiedName LPAREN (parameter (COMMA parameter)*)? RPAREN
@@ -153,6 +153,88 @@ systemReplication: ALTER SYSTEM (
     | (REGISTER | UNREGISTER) SYSTEM REPLICATION SITE siteName=STRING REMOTE HOST host=STRING
         REPLICATION MODE STRING (OPERATION MODE STRING)? FORCE? (FULL REPLICA)?
 );
+
+// Database lifecycle and data maintenance use typed clauses; payloads remain opaque.
+databaseManagement: tenantDatabase | databaseRuntime | databaseMaintenance | tableReplicas
+    | backupData | backupCancel | backupCheck | backupCatalog | backupSnapshot | backupList
+    | recoverDatabase | backupKeys | recoverKeys | tableLoad | tableUnload | deltaMerge
+    | catalogExport | catalogImport | exportRows | importRows | importScan;
+tenantDatabase: CREATE DATABASE tenant=identifier
+        (AS REPLICA OF sourceTenant=identifier? databaseLocation
+        | databaseLocation? databaseAddService* SYSTEM USER PASSWORD (identifier | STRING)
+            databaseOsIdentity? (NO START)? databaseRestart?)
+    | ALTER DATABASE tenant=identifier (databaseAddService+ | REMOVE STRING databaseLocation
+        | ALTER STRING databaseLocation TO LOCATION? STRING | databaseOsIdentity | databaseRestart
+        | (CREATE | DROP) FALLBACK SNAPSHOT | FINALIZE REPLICA (DROP SOURCE DATABASE)? | CANCEL REPLICA)
+    | RENAME DATABASE tenant=identifier TO newTenant=identifier
+    | DROP DATABASE tenant=identifier (DROP BACKUPS)?;
+databaseAddService: ADD STRING databaseLocation?;
+databaseLocation: AT LOCATION? STRING;
+databaseOsIdentity: OS USER STRING OS GROUP STRING;
+databaseRestart: (NO | DEFAULT) RESTART;
+databaseRuntime: ALTER SYSTEM (START DATABASE tenant=identifier (FROM FALLBACK SNAPSHOT)?
+    | STOP DATABASE tenant=identifier (IMMEDIATE (WITH COREFILE)?)?);
+databaseMaintenance: ALTER SYSTEM (SAVEPOINT | LOGGING (ON | OFF) | RECLAIM LOG);
+tableReplicas: ALTER SYSTEM (ENABLE | DISABLE) ALL (ASYNCHRONOUS | SYNCHRONOUS)? TABLE REPLICAS;
+backupTenant: FOR identifier;
+backupDestination: USING (FILE | BACKINT) LPAREN (directory=STRING COMMA)? prefix=STRING RPAREN;
+backupPasswords: ENCRYPTION ROOT KEYS BACKUP PASSWORD (STRING | LPAREN STRING (COMMA STRING)* RPAREN);
+backupData: BACKUP DATA (INCREMENTAL | DIFFERENTIAL)? backupTenant? backupDestination backupDataOption*;
+backupDataOption: ASYNCHRONOUS | COMPRESSED | RETAINED | (INCLUDE | EXCLUDE) CONFIGURATION
+    | TOOLOPTION STRING | COMMENT STRING | backupPasswords;
+backupCancel: BACKUP CANCEL backupTenant? backupId=INTEGER;
+backupCheck: BACKUP CHECK backupTenant? USING FILE LPAREN path=STRING RPAREN SIZE INTEGER
+    | BACKUP CHECK ACCESS backupTenant? BACKUP_ID backupId=INTEGER recoveryReference*;
+backupCatalog: BACKUP CATALOG ((SET | UNSET)? RETAINED backupTenant? BACKUP_ID backupId=INTEGER
+    | DELETE backupTenant? (ALL BEFORE)? BACKUP_ID backupId=INTEGER (WITH (FILE | BACKINT) | COMPLETE)?);
+backupSnapshot: BACKUP DATA FOR FULL SYSTEM
+    (CREATE SNAPSHOT (COMMENT STRING)? (TIMEOUT INTEGER)?
+    | CLOSE SNAPSHOT BACKUP_ID backupId=INTEGER (SUCCESSFUL STRING | UNSUCCESSFUL STRING?)
+    | DROP SNAPSHOT);
+backupList: BACKUP (LIST DATA backupTenant recoveryUntil | COMPLETE LIST DATA backupTenant)
+    (recoveryReference | backupPasswords | LIMIT INTEGER (OFFSET INTEGER)?)*;
+recoveryUntil: UNTIL (TIMESTAMP STRING | LOG POSITION INTEGER AT VOLUME INTEGER);
+recoveryReference: USING SOURCE source=STRING
+    | USING (CATALOG | LOG | DATA) PATH LPAREN paths+=STRING (COMMA paths+=STRING)* RPAREN
+    | USING BACKUP_ID backupId=INTEGER | USING SNAPSHOT | USING CATALOG BACKINT | USING RESUME
+    | backupDestination;
+recoveryOption: recoveryReference | CHECK ACCESS (ALL | USING (FILE | BACKINT))
+    | IGNORE (DELTA DATA BACKUPS | WORKERGROUPS | COMPATIBILITY CHECK)
+    | CLEAR LOG | SET LICENSE STRING | INCLUDE CONFIGURATION | TOOLOPTION STRING | backupPasswords;
+recoverDatabase: RECOVER DATA backupTenant? recoveryReference+ CLEAR LOG recoveryOption*
+    | RECOVER DATABASE backupTenant recoveryUntil recoveryOption*;
+rootKeys: ENCRYPTION ROOT KEYS;
+backupKeys: BACKUP rootKeys (rootKeyPurpose (COMMA rootKeyPurpose)*)? backupTenant? backupDestination;
+rootKeyPurpose: PERSISTENCE | APPLICATION | BACKUP | LOG;
+recoverKeys: RECOVER rootKeys (AND SETTINGS)? backupTenant backupDestination PASSWORD STRING;
+tableLoad: LOAD qualifiedName HISTORY? (ALL | DELTA | columnNames);
+tableUnload: UNLOAD qualifiedName (persistentMemory | PARTITION LPAREN unloadPartition (COMMA unloadPartition)* RPAREN)?;
+unloadPartition: INTEGER persistentMemory?;
+persistentMemory: (DELETE | RETAIN) PERSISTENT MEMORY;
+deltaMerge: MERGE HISTORY? DELTA OF qualifiedName (PART partitionId=INTEGER)?
+    (WITH PARAMETERS LPAREN STRING EQ STRING (COMMA STRING EQ STRING)* RPAREN)? (FORCE REBUILD)?;
+maintenancePartitions: PARTITION LPAREN INTEGER (COMMA INTEGER)* RPAREN;
+transferObjects: ALL | qualifiedName (COMMA qualifiedName)*;
+transferFormat: AS (BINARY (RAW | DATA)? | CSV);
+transferCredential: CREDENTIAL STRING;
+catalogExport: EXPORT transferObjects whereClause? transferFormat? INTO path=STRING
+    (WITH catalogExportOption (COMMA? catalogExportOption)*)?;
+catalogExportOption: REPLACE | THREADS INTEGER | SCRAMBLE BY STRING | NO (DEPENDENCIES | STATISTICS)
+    | ENCRYPTION PASSWORD STRING | transferCredential;
+catalogImport: IMPORT transferObjects transferFormat? FROM path=STRING databaseLocation?
+    (WITH catalogImportOption (COMMA? catalogImportOption)*)?;
+catalogImportOption: REPLACE | IGNORE EXISTING | DATA ONLY | THREADS INTEGER
+    | NO (DEPENDENCIES | STATISTICS) | ENCRYPTION PASSWORD STRING | transferCredential | IGNORE NUMA NODE;
+exportRows: EXPORT INTO path=STRING FROM qualifiedName (WITH exportRowsOption (COMMA? exportRowsOption)*)?;
+exportRowsOption: THREADS INTEGER | COLUMN LIST IN FIRST ROW | FIELD DELIMITED BY STRING
+    | OPTIONALLY ENCLOSED BY STRING | ESCAPE STRING | transferCredential;
+importRows: IMPORT FROM (CSV FILE | CONTROL FILE)? path=STRING (INTO qualifiedName)?
+    (WITH importRowsOption (COMMA? importRowsOption)*)?;
+importRowsOption: THREADS INTEGER | BATCH INTEGER | TABLE LOCK | SKIP_ROWS FIRST INTEGER ROW
+    | COLUMN LIST (IN FIRST ROW | columnNames) | FIELD DELIMITED BY STRING
+    | OPTIONALLY ENCLOSED BY STRING | ESCAPE STRING | (DATE | TIME | TIMESTAMP) FORMAT STRING
+    | FAIL ON INVALID DATA | ERROR LOG errorPath=STRING | transferCredential;
+importScan: IMPORT SCAN path=STRING (WITH transferCredential)?;
 
 // Security management uses strict, typed rules. Payload strings remain opaque.
 securityStatement: securityUser | securityUsergroup | securityRole | securityGrant
@@ -356,7 +438,14 @@ identifier: WORD | USER | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE 
     | MIN_ROWS_FOR_PARTITIONING | MODE | NUMA_NODE_INDEXES | OPERATION | PAGE_LOADABLE | PARENT | PATH
     | PERSISTENT_MEMORY | PLACEMENT | RECLAIM | RECONFIGURE | REGISTER | REPARTITIONING_THRESHOLD | REPLICA
     | REPLICA_COUNT | REPLICA_TYPE | SAME_PARTITION_COUNT | SCHEMA_NAME | SERVICE | SITE | SPACE | STOP | SUB_TYPE
-    | TABLES | TABLE_NAME | UNREGISTER | WILDCARD | WORKLOAD;
+    | TABLES | TABLE_NAME | UNREGISTER | WILDCARD | WORKLOAD
+    | ACCESS | ASYNCHRONOUS | BACKINT | BACKUPS | BACKUP_ID | BATCH | BINARY | CLOSE | COMPATIBILITY | COMPLETE
+    | COMPRESSED | CONTROL | DATE | DELIMITED | DELTA | DEPENDENCIES | DIFFERENTIAL | ENCLOSED | ERROR | EXISTING
+    | EXPORT | FAIL | FALLBACK | FIELD | FILE | FINALIZE | FORMAT | IMPORT | INCREMENTAL | INVALID | LIST | LOAD
+    | LOCK | LOGGING | NODE | NUMA | OPTIONALLY | OS | PART | PERSISTENT | POSITION | RAW | REBUILD | RECOVER
+    | REMOVE | REPLICAS | RESTART | RESUME | RETAIN | RETAINED | SCAN | SCRAMBLE | SETTINGS | SIZE | SKIP_ROWS
+    | SNAPSHOT | STATISTICS | SYNCHRONOUS | THREADS | TIMEOUT | TIMESTAMP | TOOLOPTION | UNLOAD | VOLUME
+    | WORKERGROUPS;
 
 // Editor splitting checks structural boundaries even while expressions are incomplete.
 // Execution and audit must enter statementRoot; they never fall back to splitRoot.

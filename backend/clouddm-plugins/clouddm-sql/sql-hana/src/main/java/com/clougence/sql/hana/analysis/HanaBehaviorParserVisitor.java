@@ -1396,6 +1396,448 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitDatabaseManagement(HanaParser.DatabaseManagementContext ctx) {
+        visitChildren(ctx);
+        for (SplitQueryType splitType : script.getType()) {
+            RuleQueryType type;
+            if (splitType == SplitQueryType.SYSTEM_SETTING_WRITE) {
+                type = RuleQueryType.CONFIG_WRITE;
+            } else {
+                type = RuleQueryType.valueOf(splitType.name());
+            }
+            addDomain(new RdbResourceDomain(), type);
+        }
+        return null;
+    }
+
+    private BehaviorObject databaseOwner(HanaParser.BackupTenantContext tenant, Token anchor) {
+        if (tenant != null) {
+            return object(TargetType.Catalog, tenant.identifier(), List.of(name(tenant.identifier())));
+        }
+        return objects.unnamedObject(TargetType.Catalog, anchor, UmiTypes.Catalog);
+    }
+
+    private BehaviorObject databaseResource(TargetType type, Token start, Token stop, BehaviorObject owner, String name) {
+        BehaviorObject value = managementRange(type, start, stop);
+        value.setObjectPath(owner.getObjectPath());
+        if (name != null) {
+            String pathName = name.replaceFirst("^/+", "");
+            value.setObjectPath(owner.getObjectPath() + pathName + "/");
+            value.setObjectName(new ObjectName(null, null, name));
+        }
+        return value;
+    }
+
+    private BehaviorObject databaseResource(TargetType type, Token token, BehaviorObject owner, String name) {
+        return databaseResource(type, token, token, owner, name);
+    }
+
+    @Override
+    public Void visitTenantDatabase(HanaParser.TenantDatabaseContext ctx) {
+        BehaviorObject tenant = object(TargetType.Catalog, ctx.tenant, List.of(name(ctx.tenant)));
+        List<BehaviorObject> targets = new ArrayList<>();
+        if (ctx.sourceTenant != null) {
+            targets.add(object(TargetType.Catalog, ctx.sourceTenant, List.of(name(ctx.sourceTenant))));
+        }
+        for (var location : descendants(ctx, HanaParser.DatabaseLocationContext.class)) {
+            Token token = location.STRING().getSymbol();
+            String address = stringValue(token);
+            TargetType type = TargetType.Machine;
+            if (address.contains(":")) {
+                type = TargetType.Resource;
+            }
+            targets.add(databaseResource(type, token, tenant, address));
+        }
+        if (ctx.getStart().getType() == HanaParser.RENAME) {
+            addRelation(BehaviorAction.RENAME, tenant).setTarget(List.of(object(TargetType.Catalog, ctx.newTenant, List.of(name(ctx.newTenant)))));
+        } else if (ctx.AS() != null) {
+            addRelation(BehaviorAction.CREATE, tenant).setTarget(targets);
+            BehaviorObject replication = databaseResource(TargetType.Replication, ctx.AS().getSymbol(), ctx.OF().getSymbol(), tenant, null);
+            addRelation(BehaviorAction.CREATE, replication).setTarget(targets);
+        } else if (ctx.FINALIZE() != null) {
+            BehaviorObject replication = databaseResource(TargetType.Replication, ctx.FINALIZE().getSymbol(), ctx.REPLICA().getSymbol(), tenant, null);
+            addRelation(BehaviorAction.DROP, replication);
+            if (ctx.SOURCE() != null) {
+                BehaviorObject source = managementRange(TargetType.Catalog, ctx.SOURCE().getSymbol(), ctx.getStop());
+                source.setObjectPath(objects.instanceObject(TargetType.Instance, ctx).getObjectPath());
+                addRelation(BehaviorAction.DROP, source);
+            }
+            addRelation(BehaviorAction.UNSAFE, replication);
+        } else if (ctx.CANCEL() != null) {
+            addRelation(BehaviorAction.RESET, databaseResource(TargetType.Replication, ctx.CANCEL().getSymbol(), ctx.REPLICA().getSymbol(), tenant, null));
+        } else if (ctx.FALLBACK() != null) {
+            BehaviorAction action = BehaviorAction.CREATE;
+            if (!ctx.DROP().isEmpty()) {
+                action = BehaviorAction.DROP;
+            }
+            addRelation(action, databaseResource(TargetType.Snapshot, ctx.FALLBACK().getSymbol(), ctx.SNAPSHOT().getSymbol(), tenant, null)).setTarget(List.of(tenant));
+        } else {
+            BehaviorAction action = securityAction(ctx);
+            if (ctx.getStart().getType() == HanaParser.ALTER && ctx.TO() != null) {
+                Token token = ctx.STRING(ctx.STRING().size() - 1).getSymbol();
+                targets.add(databaseResource(TargetType.Resource, token, tenant, stringValue(token)));
+            }
+            addRelation(action, tenant).setTarget(targets);
+            if (ctx.BACKUPS() != null) {
+                BehaviorObject backup = databaseResource(TargetType.Backup, ctx.BACKUPS().getSymbol(), tenant, null);
+                addRelation(BehaviorAction.PURGE, backup);
+                addRelation(BehaviorAction.UNSAFE, backup);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDatabaseRuntime(HanaParser.DatabaseRuntimeContext ctx) {
+        BehaviorObject tenant = object(TargetType.Catalog, ctx.tenant, List.of(name(ctx.tenant)));
+        if (ctx.FALLBACK() != null) {
+            BehaviorObject snapshot = databaseResource(TargetType.Snapshot, ctx.FALLBACK().getSymbol(), ctx.SNAPSHOT().getSymbol(), tenant, null);
+            addRelation(BehaviorAction.RESTORE, tenant).setTarget(List.of(snapshot));
+        }
+        BehaviorAction action = BehaviorAction.START;
+        if (ctx.STOP() != null) {
+            action = BehaviorAction.STOP;
+        }
+        addRelation(action, tenant);
+        if (ctx.STOP() != null || ctx.FALLBACK() != null) {
+            addRelation(BehaviorAction.UNSAFE, tenant);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDatabaseMaintenance(HanaParser.DatabaseMaintenanceContext ctx) {
+        if (ctx.SAVEPOINT() != null) {
+            addRelation(BehaviorAction.CHECKPOINT, objects.unnamedObject(TargetType.Catalog, ctx.SAVEPOINT().getSymbol(), UmiTypes.Catalog));
+        } else if (ctx.LOGGING() != null) {
+            BehaviorObject log = objects.unnamedObject(TargetType.Log, ctx.LOGGING().getSymbol(), UmiTypes.Catalog);
+            addRelation(BehaviorAction.CONFIGURE, log);
+            if (ctx.OFF() != null) {
+                addRelation(BehaviorAction.UNSAFE, log);
+            }
+        } else {
+            addRelation(BehaviorAction.PURGE, objects.unnamedObject(TargetType.Log, ctx.LOG().getSymbol(), UmiTypes.Catalog));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitTableReplicas(HanaParser.TableReplicasContext ctx) {
+        addRelation(BehaviorAction.CONFIGURE, managementRange(TargetType.Replication, ctx.ALL().getSymbol(), ctx.REPLICAS().getSymbol()));
+        return null;
+    }
+
+    private BehaviorObject backupDescriptor(HanaParser.BackupDestinationContext ctx, BehaviorObject owner) {
+        return databaseResource(TargetType.Backup, ctx.prefix, owner, stringValue(ctx.prefix));
+    }
+
+    private List<BehaviorObject> backupDirectory(HanaParser.BackupDestinationContext ctx, BehaviorObject owner) {
+        List<BehaviorObject> references = new ArrayList<>();
+        if (ctx.directory != null) {
+            references.add(databaseResource(TargetType.File, ctx.directory, owner, stringValue(ctx.directory)));
+        }
+        return references;
+    }
+
+    private List<BehaviorObject> recoveryReferences(ParserRuleContext ctx, BehaviorObject owner) {
+        List<BehaviorObject> references = new ArrayList<>();
+        for (var reference : descendants(ctx, HanaParser.RecoveryReferenceContext.class)) {
+            if (reference.source != null) {
+                references.add(databaseResource(TargetType.Resource, reference.source, owner, stringValue(reference.source)));
+            } else if (!reference.paths.isEmpty()) {
+                for (Token path : reference.paths) {
+                    references.add(databaseResource(TargetType.File, path, owner, stringValue(path)));
+                }
+            } else if (reference.backupId != null) {
+                references.add(databaseResource(TargetType.Backup, reference.backupId, owner, reference.backupId.getText()));
+            } else if (reference.SNAPSHOT() != null) {
+                references.add(databaseResource(TargetType.Snapshot, reference.SNAPSHOT().getSymbol(), owner, null));
+            } else if (reference.backupDestination() != null) {
+                references.addAll(backupDirectory(reference.backupDestination(), owner));
+                references.add(backupDescriptor(reference.backupDestination(), owner));
+            }
+        }
+        return references;
+    }
+
+    @Override
+    public Void visitBackupData(HanaParser.BackupDataContext ctx) {
+        BehaviorObject owner = databaseOwner(ctx.backupTenant(), ctx.DATA().getSymbol());
+        List<BehaviorObject> references = new ArrayList<>(List.of(owner));
+        references.addAll(backupDirectory(ctx.backupDestination(), owner));
+        addRelation(BehaviorAction.EXPORT, backupDescriptor(ctx.backupDestination(), owner)).setTarget(references);
+        return null;
+    }
+
+    @Override
+    public Void visitBackupCancel(HanaParser.BackupCancelContext ctx) {
+        BehaviorObject owner = databaseOwner(ctx.backupTenant(), ctx.BACKUP().getSymbol());
+        addRelation(BehaviorAction.TERMINATE, databaseResource(TargetType.Backup, ctx.backupId, owner, ctx.backupId.getText()));
+        return null;
+    }
+
+    @Override
+    public Void visitBackupCheck(HanaParser.BackupCheckContext ctx) {
+        BehaviorObject owner = databaseOwner(ctx.backupTenant(), ctx.BACKUP().getSymbol());
+        if (ctx.backupId != null) {
+            addRelation(BehaviorAction.VALIDATE, databaseResource(TargetType.Backup, ctx.backupId, owner, ctx.backupId.getText())).setTarget(recoveryReferences(ctx, owner));
+        } else {
+            BehaviorRelation relation = addRelation(BehaviorAction.VALIDATE, databaseResource(TargetType.File, ctx.path, owner, stringValue(ctx.path)));
+            if (ctx.backupTenant() != null) {
+                relation.setTarget(List.of(owner));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitBackupCatalog(HanaParser.BackupCatalogContext ctx) {
+        BehaviorObject owner = databaseOwner(ctx.backupTenant(), ctx.BACKUP().getSymbol());
+        BehaviorObject backup = databaseResource(TargetType.Backup, ctx.backupId, owner, ctx.backupId.getText());
+        if (ctx.DELETE() == null) {
+            BehaviorAction action = BehaviorAction.CONFIGURE;
+            if (ctx.UNSET() != null) {
+                action = BehaviorAction.RESET;
+            }
+            addRelation(action, backup);
+            return null;
+        }
+        BehaviorObject catalog = databaseResource(TargetType.Log, ctx.BACKUP().getSymbol(), ctx.CATALOG().getSymbol(), owner, null);
+        addRelation(BehaviorAction.PURGE, catalog).setTarget(List.of(backup));
+        if (ctx.WITH() != null || ctx.COMPLETE() != null) {
+            if (ctx.ALL() != null) {
+                BehaviorObject affected = databaseResource(TargetType.Backup, ctx.ALL().getSymbol(), ctx.BEFORE().getSymbol(), owner, null);
+                addRelation(BehaviorAction.PURGE, affected).setTarget(List.of(backup));
+            } else {
+                addRelation(BehaviorAction.PURGE, backup);
+            }
+        }
+        addRelation(BehaviorAction.UNSAFE, catalog);
+        return null;
+    }
+
+    @Override
+    public Void visitBackupSnapshot(HanaParser.BackupSnapshotContext ctx) {
+        BehaviorObject snapshot;
+        BehaviorAction action = BehaviorAction.DROP;
+        if (ctx.backupId != null) {
+            snapshot = objects.instanceObject(TargetType.Snapshot, ctx.backupId, ctx.backupId.getText());
+            action = BehaviorAction.ALTER;
+        } else {
+            snapshot = objects.instanceObject(TargetType.Snapshot, ctx.SNAPSHOT().getSymbol());
+            if (ctx.CREATE() != null) {
+                action = BehaviorAction.CREATE;
+            }
+        }
+        addRelation(action, snapshot);
+        return null;
+    }
+
+    @Override
+    public Void visitBackupList(HanaParser.BackupListContext ctx) {
+        BehaviorObject owner = databaseOwner(ctx.backupTenant(), ctx.DATA().getSymbol());
+        addRelation(BehaviorAction.READ, databaseResource(TargetType.Backup, ctx.DATA().getSymbol(), owner, null)).setTarget(recoveryReferences(ctx, owner));
+        return null;
+    }
+
+    @Override
+    public Void visitRecoverDatabase(HanaParser.RecoverDatabaseContext ctx) {
+        BehaviorObject owner = databaseOwner(ctx.backupTenant(), ctx.getStart());
+        if (ctx.backupTenant() == null) {
+            owner = databaseOwner(null, ctx.DATA().getSymbol());
+        }
+        addRelation(BehaviorAction.RECOVER, owner).setTarget(recoveryReferences(ctx, owner));
+        Token clearLog = null;
+        Token license = null;
+        Token configuration = null;
+        if (ctx.CLEAR() != null) {
+            clearLog = ctx.LOG().getSymbol();
+        }
+        for (var option : ctx.recoveryOption()) {
+            if (option.CLEAR() != null) {
+                clearLog = option.LOG().getSymbol();
+            } else if (option.SET() != null) {
+                license = option.LICENSE().getSymbol();
+            } else if (option.INCLUDE() != null) {
+                configuration = option.CONFIGURATION().getSymbol();
+            }
+        }
+        if (clearLog != null) {
+            addRelation(BehaviorAction.RESET, databaseResource(TargetType.Log, clearLog, owner, null));
+        }
+        if (license != null) {
+            addRelation(BehaviorAction.CONFIGURE, databaseResource(TargetType.ConfigKey, license, owner, "LICENSE"));
+        }
+        if (configuration != null) {
+            addRelation(BehaviorAction.RESTORE, databaseResource(TargetType.ConfigKey, configuration, owner, "CONFIGURATION"));
+        }
+        addRelation(BehaviorAction.UNSAFE, owner);
+        return null;
+    }
+
+    @Override
+    public Void visitBackupKeys(HanaParser.BackupKeysContext ctx) {
+        BehaviorObject owner = databaseOwner(ctx.backupTenant(), ctx.getStart());
+        BehaviorObject keys = databaseResource(TargetType.SymmetricKey, ctx.rootKeys().getStart(), ctx.rootKeys().getStop(), owner, null);
+        List<BehaviorObject> references = new ArrayList<>(List.of(keys));
+        references.addAll(backupDirectory(ctx.backupDestination(), owner));
+        addRelation(BehaviorAction.EXPORT, backupDescriptor(ctx.backupDestination(), owner)).setTarget(references);
+        return null;
+    }
+
+    @Override
+    public Void visitRecoverKeys(HanaParser.RecoverKeysContext ctx) {
+        BehaviorObject owner = databaseOwner(ctx.backupTenant(), ctx.getStart());
+        BehaviorObject keys = databaseResource(TargetType.SymmetricKey, ctx.rootKeys().getStart(), ctx.rootKeys().getStop(), owner, null);
+        List<BehaviorObject> references = backupDirectory(ctx.backupDestination(), owner);
+        references.add(backupDescriptor(ctx.backupDestination(), owner));
+        addRelation(BehaviorAction.RESTORE, keys).setTarget(references);
+        if (ctx.SETTINGS() != null) {
+            BehaviorObject settings = databaseResource(TargetType.ConfigKey, ctx.SETTINGS().getSymbol(), owner, null);
+            addRelation(BehaviorAction.RESTORE, settings);
+            addRelation(BehaviorAction.UNSAFE, settings);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitTableLoad(HanaParser.TableLoadContext ctx) {
+        BehaviorObject table = object(TargetType.Table, ctx.qualifiedName());
+        List<BehaviorObject> columns = new ArrayList<>();
+        if (ctx.columnNames() != null) {
+            for (var column : ctx.columnNames().identifier()) {
+                requireSecurityPathPart(column, name(column));
+                columns.add(databaseResource(TargetType.Column, column.getStart(), table, name(column)));
+            }
+        }
+        addRelation(BehaviorAction.LOAD, table).setTarget(columns);
+        return null;
+    }
+
+    @Override
+    public Void visitTableUnload(HanaParser.TableUnloadContext ctx) {
+        BehaviorObject table = object(TargetType.Table, ctx.qualifiedName());
+        if (ctx.unloadPartition().isEmpty()) {
+            // UNLOAD releases residency; DELETE PERSISTENT MEMORY does not delete table rows.
+            addRelation(BehaviorAction.RESET, table);
+        } else {
+            for (var partition : ctx.unloadPartition()) {
+                Token id = partition.INTEGER().getSymbol();
+                addRelation(BehaviorAction.RESET, databaseResource(TargetType.Partition, id, table, id.getText())).setTarget(List.of(table));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDeltaMerge(HanaParser.DeltaMergeContext ctx) {
+        BehaviorObject table = object(TargetType.Table, ctx.qualifiedName());
+        if (ctx.partitionId == null) {
+            addRelation(BehaviorAction.OPTIMIZE, table);
+        } else {
+            addRelation(BehaviorAction.OPTIMIZE, databaseResource(TargetType.Partition, ctx.partitionId, table, ctx.partitionId.getText())).setTarget(List.of(table));
+        }
+        return null;
+    }
+
+    private List<BehaviorObject> transferObjects(HanaParser.TransferObjectsContext ctx) {
+        if (ctx.ALL() != null) {
+            return List.of(objects.unnamedObject(TargetType.Catalog, ctx.ALL().getSymbol(), UmiTypes.Catalog));
+        }
+        List<BehaviorObject> result = new ArrayList<>();
+        for (var item : ctx.qualifiedName()) {
+            List<String> parts = names(item);
+            if (parts.size() == 2 && parts.get(1).equals("*")) {
+                result.add(object(TargetType.Schema, item, List.of(parts.get(0))));
+            } else {
+                result.add(object(TargetType.SchemaObject, item));
+            }
+        }
+        return result;
+    }
+
+    private List<BehaviorObject> transferReferences(ParserRuleContext ctx, BehaviorObject owner) {
+        List<BehaviorObject> references = new ArrayList<>();
+        for (var credential : descendants(ctx, HanaParser.TransferCredentialContext.class)) {
+            Token token = credential.STRING().getSymbol();
+            requireSecurityPathPart(credential, stringValue(token));
+            references.add(databaseResource(TargetType.Credential, token, owner, stringValue(token)));
+        }
+        for (var location : descendants(ctx, HanaParser.DatabaseLocationContext.class)) {
+            Token token = location.STRING().getSymbol();
+            references.add(databaseResource(TargetType.Resource, token, owner, stringValue(token)));
+        }
+        references.sort(SECURITY_SOURCE_ORDER);
+        return references;
+    }
+
+    @Override
+    public Void visitCatalogExport(HanaParser.CatalogExportContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        BehaviorObject file = databaseResource(TargetType.File, ctx.path, owner, stringValue(ctx.path));
+        List<BehaviorObject> references = new ArrayList<>(transferObjects(ctx.transferObjects()));
+        references.addAll(transferReferences(ctx, owner));
+        addRelation(BehaviorAction.EXPORT, file).setTarget(references);
+        if (ctx.whereClause() != null) {
+            visit(ctx.whereClause());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitCatalogImport(HanaParser.CatalogImportContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        List<BehaviorObject> references = new ArrayList<>(List.of(databaseResource(TargetType.File, ctx.path, owner, stringValue(ctx.path))));
+        references.addAll(transferReferences(ctx, owner));
+        for (var destination : transferObjects(ctx.transferObjects())) {
+            addRelation(BehaviorAction.IMPORT, destination).setTarget(references);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitExportRows(HanaParser.ExportRowsContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        BehaviorObject table = object(TargetType.Table, ctx.qualifiedName());
+        List<BehaviorObject> references = new ArrayList<>(List.of(table));
+        references.addAll(transferReferences(ctx, owner));
+        addRelation(BehaviorAction.EXPORT, databaseResource(TargetType.File, ctx.path, owner, stringValue(ctx.path))).setTarget(references);
+        return null;
+    }
+
+    @Override
+    public Void visitImportRows(HanaParser.ImportRowsContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        BehaviorObject table = objects.unnamedObject(TargetType.Table, ctx.FROM().getSymbol(), UmiTypes.Catalog);
+        if (ctx.qualifiedName() != null) {
+            table = object(TargetType.Table, ctx.qualifiedName());
+        }
+        BehaviorObject file = databaseResource(TargetType.File, ctx.path, owner, stringValue(ctx.path));
+        List<BehaviorObject> references = new ArrayList<>(List.of(file));
+        references.addAll(transferReferences(ctx, owner));
+        addRelation(BehaviorAction.IMPORT, table).setTarget(references);
+        for (var option : ctx.importRowsOption()) {
+            if (option.columnNames() != null) {
+                for (var column : option.columnNames().identifier()) {
+                    requireSecurityPathPart(column, name(column));
+                    addRelation(BehaviorAction.IMPORT, databaseResource(TargetType.Column, column.getStart(), table, name(column))).setTarget(List.of(file));
+                }
+            }
+            if (option.errorPath != null) {
+                addRelation(BehaviorAction.EXPORT, databaseResource(TargetType.File, option.errorPath, owner, stringValue(option.errorPath))).setTarget(List.of(table));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitImportScan(HanaParser.ImportScanContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        addRelation(BehaviorAction.READ, databaseResource(TargetType.File, ctx.path, owner, stringValue(ctx.path))).setTarget(transferReferences(ctx, owner));
+        return null;
+    }
+
+    @Override
     public Void visitTransactionStatement(HanaParser.TransactionStatementContext ctx) {
         addRelation(BehaviorAction.SWITCH, objects.unnamedObject(TargetType.Transaction, ctx, UmiTypes.Catalog));
         addDomain(new RdbResourceDomain(), RuleQueryType.TRANSACTION);
@@ -1615,7 +2057,14 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     @Override
     public Void visitTruncateStatement(HanaParser.TruncateStatementContext ctx) {
         BehaviorObject table = object(TargetType.Table, ctx.qualifiedName());
-        addRelation(BehaviorAction.DELETE, table);
+        if (ctx.maintenancePartitions() == null) {
+            addRelation(BehaviorAction.DELETE, table);
+        } else {
+            for (var partition : ctx.maintenancePartitions().INTEGER()) {
+                Token id = partition.getSymbol();
+                addRelation(BehaviorAction.DELETE, databaseResource(TargetType.Partition, id, table, id.getText())).setTarget(List.of(table));
+            }
+        }
         HanaDeleteDomain domain = new HanaDeleteDomain();
         configureName(domain, table);
         addDomain(domain, RuleQueryType.TRUNCATE);
