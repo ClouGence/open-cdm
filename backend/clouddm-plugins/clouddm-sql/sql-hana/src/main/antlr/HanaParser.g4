@@ -7,7 +7,7 @@ statement: query | insertStatement | updateStatement | deleteStatement | mergeSt
     | createSchema | createTable | createView | createIndex | createRoutine | createTrigger | createSequence | createSynonym
     | alterTable | dropStatement | renameStatement | truncateStatement | commentStatement
     | callStatement | anonymousBlock | block | sessionStatement | connectStatement | historySessionStatement | systemSessionStatement
-    | transactionStatement | explainStatement | securityStatement | systemManagement | databaseManagement;
+    | transactionStatement | explainStatement | securityStatement | systemManagement | databaseManagement | diagnosticStatement;
 
 query: withClause? queryTerm (setOperator queryTerm)* orderBy? limitClause? lockClause? hintClause?;
 withClause: WITH cte (COMMA cte)*;
@@ -33,7 +33,7 @@ limitClause: LIMIT INTEGER (OFFSET INTEGER)? (TOTAL ROWCOUNT)?;
 lockClause: FOR (UPDATE | SHARE) (OF qualifiedName (COMMA qualifiedName)*)? (NOWAIT | WAIT INTEGER | IGNORE LOCKED)?;
 hintClause: WITH HINT LPAREN identifier (LPAREN (literal (COMMA literal)*)? RPAREN)? (COMMA identifier)* RPAREN;
 
-insertStatement: (INSERT | UPSERT | REPLACE) INTO qualifiedName columnNames? (valuesClause | (OVERRIDING USER VALUE)? query) (WITH PRIMARY KEY)?;
+insertStatement: (INSERT INTO | (UPSERT | REPLACE) INTO?) qualifiedName columnNames? (valuesClause | (OVERRIDING USER VALUE)? query) (WITH PRIMARY KEY)?;
 valuesClause: VALUES valueRow (COMMA valueRow)*;
 valueRow: LPAREN expression (COMMA expression)* RPAREN;
 updateStatement: UPDATE (TOP INTEGER)? qualifiedName alias? fromClause? SET assignment (COMMA assignment)* fromClause? whereClause? hintClause?;
@@ -236,6 +236,76 @@ importRowsOption: THREADS INTEGER | BATCH INTEGER | TABLE LOCK | SKIP_ROWS FIRST
     | FAIL ON INVALID DATA | ERROR LOG errorPath=STRING | transferCredential;
 importScan: IMPORT SCAN path=STRING (WITH transferCredential)?;
 
+// Diagnostic SQL uses typed rules; embedded hint SQL is a matching definition.
+diagnosticStatement: diagnosticHint | abstractFilter | abstractPlan | diagnosticCache | diagnosticStatistics
+    | monitoringReset | runtimeDump | kernelProfiler | sqlscriptProfiler | perftrace | traceFiles;
+cachedPlan: SQL PLAN CACHE ENTRY planId=INTEGER (VARIANT variantId=INTEGER)?;
+diagnosticHint: ALTER SYSTEM (ADD STATEMENT HINT diagnosticHints diagnosticHintOverride? (COMMENT STRING)? diagnosticHintRoutine? FOR diagnosticHintTarget
+    | ALTER STATEMENT HINT (diagnosticHintOverride (COMMENT STRING)? | COMMENT STRING) diagnosticHintRoutine? FOR diagnosticHintTarget
+    | REMOVE STATEMENT HINT ALL? diagnosticHintRoutine? FOR diagnosticHintTarget
+    | (ENABLE | DISABLE) STATEMENT HINT (ALL | diagnosticHintRoutine? FOR diagnosticHintTarget));
+diagnosticHints: LPAREN (identifier (LPAREN (literal (COMMA literal)*)? RPAREN)?
+    (COMMA identifier (LPAREN (literal (COMMA literal)*)? RPAREN)?)*)? RPAREN;
+diagnosticHintOverride: NO? OVERRIDE;
+diagnosticHintRoutine: ON (PROCEDURE | FUNCTION) qualifiedName;
+diagnosticHintTarget: STATEMENT HASH hash=STRING | query | insertStatement | updateStatement | deleteStatement | mergeStatement;
+diagnosticPattern: {getInvokingContext(RULE_diagnosticHint) != null}? (HINT_PARAMETER | HINT_LIST);
+abstractFilter: ALTER SYSTEM (ADD ABSTRACT SQL PLAN FILTER filterName=STRING SET abstractFilterProperty (COMMA abstractFilterProperty)*
+    | REMOVE ABSTRACT SQL PLAN FILTER (filterName=STRING | ALL));
+abstractFilterProperty: key=STRING EQ value=STRING;
+abstractPlan: ALTER SYSTEM ((ENABLE | DISABLE | REMOVE) ABSTRACT SQL PLAN ENTRY (ALL | FOR planIds+=INTEGER (COMMA planIds+=INTEGER)*)
+    | (START | STOP) CAPTURE ABSTRACT SQL PLAN (FOR USER identifier (COMMA identifier)*)? (WITH SQL PLAN CACHE)?
+    | (START | STOP) APPLY ABSTRACT SQL PLAN
+    | MIGRATE ABSTRACT SQL PLAN
+    | UPDATE ABSTRACT SQL PLAN SET LOCATION abstractPlanLocation (COMMA abstractPlanLocation)* ALL);
+abstractPlanLocation: source=STRING TO destination=STRING;
+diagnosticCache: ALTER SYSTEM (CLEAR CACHE LPAREN cacheIds+=INTEGER (COMMA cacheIds+=INTEGER)* SYNC? RPAREN
+    | CLEAR COLUMN JOIN DATA STATISTICS
+    | CLEAR TIMEZONE CACHE DATASET dataset=STRING
+    | CLEAR diagnosticResultCache
+    | REFRESH diagnosticResultCache (qualifiedName | ENTRY entryId=INTEGER)
+    | REMOVE diagnosticResultCache ENTRY entryId=INTEGER
+    | CLEAR diagnosticSqlCache
+    | (PIN | UNPIN) diagnosticSqlCache ENTRY LIKE? entryId=INTEGER (WITH HINT diagnosticHints)?
+    | RECOMPILE diagnosticSqlCache ENTRY entryId=INTEGER
+    | REMOVE diagnosticSqlCache (ENTRY entryId=INTEGER | WHERE expression));
+diagnosticResultCache: (STATIC | DYNAMIC)? RESULT CACHE;
+diagnosticSqlCache: SQL PLAN CACHE;
+diagnosticStatistics: CREATE STATISTICS statisticName=qualifiedName? ON diagnosticStatisticsSource
+        (TYPE diagnosticStatisticsType)? diagnosticStatisticsProperties? diagnosticInitialRefresh?
+    | ALTER STATISTICS diagnosticStatisticsSelector diagnosticStatisticsAlter+ diagnosticInitialRefresh?
+    | (REFRESH | DROP) STATISTICS diagnosticStatisticsSelector;
+diagnosticStatisticsSelector: qualifiedName (COMMA qualifiedName)*
+    | ON diagnosticStatisticsSource (HAVING? TYPE (diagnosticStatisticsType | ALL) (REFRESH TYPE (AUTO | MANUAL | ALL))?)?;
+diagnosticStatisticsSource: qualifiedName columnNames? (EXACT | CASCADE)?;
+diagnosticStatisticsAlter: SET diagnosticStatisticsProperties | (ADD | DROP) VALID FOR diagnosticStatisticsUsage;
+diagnosticStatisticsProperties: diagnosticStatisticsProperty (COMMA diagnosticStatisticsProperty)*;
+diagnosticStatisticsProperty: BUCKETS INTEGER | CONSTRAINT STRING | QERROR (INTEGER | DECIMAL) | QTHETA (INTEGER | DECIMAL)
+    | MEMORY PERCENT? INTEGER | PERSISTENT (ON | OFF) | VALID FOR diagnosticStatisticsUsage
+    | REFRESH TYPE (AUTO | MANUAL | DEFAULT) | ENABLE (ON | OFF) | ACCURACY (INTEGER | DECIMAL) | PREFIX BITS INTEGER;
+diagnosticStatisticsUsage: (ESTIMATION | DATA DEPENDENCY) (COMMA (ESTIMATION | DATA DEPENDENCY))*;
+diagnosticStatisticsType: HISTOGRAM | SIMPLE | TOPK | SKETCH | SAMPLE (SAMPLE SIZE INTEGER)? | RECORD COUNT;
+diagnosticInitialRefresh: NO? INITIAL REFRESH;
+monitoringReset: ALTER SYSTEM RESET MONITORING VIEW qualifiedName;
+diagnosticLocation: AT LOCATION? (address=STRING | LPAREN host=STRING COMMA port=INTEGER RPAREN);
+runtimeDump: ALTER SYSTEM CREATE (RUNTIMEDUMP diagnosticLocation? (PROFILE profile=STRING)?
+    | WAITGRAPH diagnosticLocation? (ALL THREADS)?) (INTO FILE fileName=STRING)?;
+kernelProfiler: ALTER SYSTEM (START KERNEL PROFILER diagnosticLocation? kernelProfilerScope*
+        (USING ROLLING STRATEGY (INTERVAL INTEGER)?)? (MEMORY LIMIT INTEGER)? (SAMPLING INTERVAL INTEGER)?
+    | STOP KERNEL PROFILER diagnosticLocation? (USING ROLLING STRATEGY)?
+    | SAVE KERNEL PROFILER diagnosticLocation? (INTO (CPU FILE cpuFile=STRING (WAIT FILE waitFile=STRING)? | WAIT FILE waitFile=STRING))?
+    | CLEAR KERNEL PROFILER diagnosticLocation?);
+kernelProfilerScope: USER identifier | APPLICATIONUSER STRING | SESSION INTEGER | ROOT_STATEMENT_HASH STRING | TRACEPROFILE STRING;
+sqlscriptProfiler: ALTER SYSTEM ((START | STOP | CLEAR) SQLSCRIPT PLAN PROFILER (FOR (SESSION sessionId=INTEGER | PROCEDURE qualifiedName))?
+    | (START | STOP) SQLSCRIPT CODE COVERAGE (FOR SESSION sessionName=STRING)?);
+perftrace: ALTER SYSTEM (START PERFTRACE perftraceOption* | STOP PERFTRACE
+    | SAVE PERFTRACE (INTO FILE fileName=STRING)?
+    | LOAD PERFTRACE (FILE fileName=STRING)? INTO TABLES qualifiedName (WITH REPLACE)?);
+perftraceOption: USER identifier | APPLICATIONUSER STRING | APPLICATION STRING | PASSPORT_TRACELEVEL (MEDIUM | HIGH)
+    | PLAN_EXECUTION | FUNCTION_PROFILER | DURATION INTEGER | ROOT_STATEMENT_HASH STRING;
+traceFiles: ALTER SYSTEM (CLEAR TRACES LPAREN categories+=STRING (COMMA categories+=STRING)* RPAREN (UNTIL STRING)? (WITH BACKUP)?
+    | REMOVE TRACES LPAREN host=STRING COMMA files+=STRING (COMMA files+=STRING)* RPAREN);
+
 // Security management uses strict, typed rules. Payload strings remain opaque.
 securityStatement: securityUser | securityUsergroup | securityRole | securityGrant
     | securityPolicy | securityCredential | securityProvider | securityValidate
@@ -394,7 +464,7 @@ securityClientPki: ALTER SYSTEM CLIENTPKI (UPDATE (CERTIFICATES | securityRootCa
 securityRootCa: ROOT CA;
 
 transactionStatement: COMMIT WORK? | ROLLBACK WORK? (TO SAVEPOINT identifier)? | SAVEPOINT identifier;
-explainStatement: EXPLAIN PLAN (SET STATEMENT_NAME EQ STRING)? FOR (query | insertStatement | updateStatement | deleteStatement | mergeStatement);
+explainStatement: EXPLAIN PLAN (SET STATEMENT_NAME EQ STRING)? FOR (cachedPlan | query | insertStatement | updateStatement | deleteStatement | mergeStatement);
 
 expression: orExpression;
 orExpression: andExpression (OR andExpression)*;
@@ -407,7 +477,7 @@ predicate: additiveExpression ((EQ | NE | LT | LE | GT | GE) additiveExpression
 additiveExpression: multiplicativeExpression ((PLUS | MINUS_OP | CONCAT) multiplicativeExpression)*;
 multiplicativeExpression: unaryExpression ((STAR | DIV | MOD) unaryExpression)*;
 unaryExpression: (PLUS | MINUS_OP)* primary;
-primary: literal | variable | parameterMarker | functionCall | qualifiedName
+primary: literal | variable | parameterMarker | diagnosticPattern | functionCall | qualifiedName
     | LPAREN (query | expression) RPAREN | EXISTS LPAREN query RPAREN
     | CASE expression? (WHEN expression THEN expression)+ (ELSE expression)? END
     | CAST LPAREN expression AS dataType RPAREN;
@@ -445,7 +515,14 @@ identifier: WORD | USER | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE 
     | LOCK | LOGGING | NODE | NUMA | OPTIONALLY | OS | PART | PERSISTENT | POSITION | RAW | REBUILD | RECOVER
     | REMOVE | REPLICAS | RESTART | RESUME | RETAIN | RETAINED | SCAN | SCRAMBLE | SETTINGS | SIZE | SKIP_ROWS
     | SNAPSHOT | STATISTICS | SYNCHRONOUS | THREADS | TIMEOUT | TIMESTAMP | TOOLOPTION | UNLOAD | VOLUME
-    | WORKERGROUPS;
+    | WORKERGROUPS
+    | ABSTRACT | ACCURACY | APPLICATIONUSER | BITS | BUCKETS | CACHE | CAPTURE | CODE | COUNT | COVERAGE | CPU
+    | DATASET | DEPENDENCY | DURATION | DYNAMIC | ENTRY | ESTIMATION | EXACT | FILTER | FUNCTION_PROFILER | HIGH
+    | HISTOGRAM | INITIAL | INTERVAL | KERNEL | MANUAL | MEDIUM | MIGRATE | MONITORING | OVERRIDE
+    | PASSPORT_TRACELEVEL | PERCENT | PERFTRACE | PIN | PLAN_EXECUTION | PREFIX | PROFILE | PROFILER | QERROR
+    | QTHETA | RECOMPILE | RECORD | REFRESH | RESULT | ROLLING | ROOT_STATEMENT_HASH | RUNTIMEDUMP | SAMPLE
+    | SAMPLING | SAVE | SIMPLE | SKETCH | STATIC | STRATEGY | SYNC | TIMEZONE | TOPK | TRACEPROFILE | TRACES
+    | UNPIN | VARIANT | WAITGRAPH;
 
 // Editor splitting checks structural boundaries even while expressions are incomplete.
 // Execution and audit must enter statementRoot; they never fall back to splitRoot.

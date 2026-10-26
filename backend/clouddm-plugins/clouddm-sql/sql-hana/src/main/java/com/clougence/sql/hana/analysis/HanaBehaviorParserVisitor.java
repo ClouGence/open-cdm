@@ -1845,10 +1845,478 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitExplainStatement(HanaParser.ExplainStatementContext ctx) {
-        explaining = true;
+    public Void visitDiagnosticStatement(HanaParser.DiagnosticStatementContext ctx) {
         visitChildren(ctx);
-        explaining = false;
+        for (SplitQueryType type : script.getType()) {
+            addDomain(new RdbResourceDomain(), RuleQueryType.valueOf(type.name()));
+        }
+        return null;
+    }
+
+    private BehaviorObject diagnosticFamily(TargetType type, Token start, Token stop, String namespace) {
+        BehaviorObject category = databaseResource(type, start, stop, databaseOwner(null, start), namespace);
+        // Category keywords are a namespace, not an identifier in the SQL text.
+        category.setObjectName(null);
+        return category;
+    }
+
+    @Override
+    public Void visitCachedPlan(HanaParser.CachedPlanContext ctx) {
+        BehaviorObject cache = diagnosticFamily(TargetType.Cache, ctx.SQL().getSymbol(), ctx.CACHE().getSymbol(), "SQL PLAN CACHE");
+        BehaviorObject plan = databaseResource(TargetType.Cache, ctx.planId, cache, ctx.planId.getText());
+        if (ctx.variantId == null) {
+            addRelation(BehaviorAction.READ, plan);
+        } else {
+            addRelation(BehaviorAction.READ, databaseResource(TargetType.Cache, ctx.variantId, plan, ctx.variantId.getText())).setTarget(List.of(plan));
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDiagnosticHint(HanaParser.DiagnosticHintContext ctx) {
+        BehaviorObject hint = diagnosticFamily(TargetType.Policy, ctx.STATEMENT().getSymbol(), ctx.HINT().getSymbol(), "STATEMENT HINT");
+        List<BehaviorObject> references = new ArrayList<>();
+        if (ctx.diagnosticHintRoutine() != null) {
+            var routine = ctx.diagnosticHintRoutine();
+            TargetType type = TargetType.Procedure;
+            if (routine.FUNCTION() != null) {
+                type = TargetType.Function;
+            }
+            references.add(object(type, routine.qualifiedName()));
+        }
+        var target = ctx.diagnosticHintTarget();
+        if (target != null) {
+            if (target.hash != null) {
+                hint = databaseResource(TargetType.Policy, target.hash, hint, stringValue(target.hash));
+                references.add(databaseResource(TargetType.Query, target.hash, databaseOwner(null, target.hash), stringValue(target.hash)));
+            } else {
+                references.add(objects.unnamedObject(TargetType.Query, target, UmiTypes.Catalog));
+                references.addAll(diagnosticQueryReferences(target));
+            }
+        }
+        BehaviorAction action = BehaviorAction.CONFIGURE;
+        if (ctx.ADD() != null) {
+            action = BehaviorAction.CREATE;
+        } else if (ctx.REMOVE() != null) {
+            action = BehaviorAction.DROP;
+        } else if (ctx.ALTER().size() > 1) {
+            action = BehaviorAction.ALTER;
+        }
+        addRelation(action, hint).setTarget(references);
+        return null;
+    }
+
+    private List<BehaviorObject> diagnosticQueryReferences(HanaParser.DiagnosticHintTargetContext ctx) {
+        // Hint patterns describe matching SQL, including undeclared SQLScript variables.
+        // Do not visit them through the execution/audit path.
+        List<BehaviorObject> references = new ArrayList<>();
+        if (ctx.insertStatement() != null) {
+            references.add(object(TargetType.Table, ctx.insertStatement().qualifiedName()));
+        } else if (ctx.updateStatement() != null) {
+            references.add(object(TargetType.Table, ctx.updateStatement().qualifiedName()));
+        } else if (ctx.deleteStatement() != null) {
+            references.add(object(TargetType.Table, ctx.deleteStatement().qualifiedName()));
+        } else if (ctx.mergeStatement() != null) {
+            references.add(object(TargetType.Table, ctx.mergeStatement().qualifiedName()));
+        }
+        for (var table : descendants(ctx, HanaParser.TablePrimaryContext.class)) {
+            if (table.qualifiedName() == null) {
+                continue;
+            }
+            var qualified = table.qualifiedName();
+            boolean cteReference = false;
+            if (qualified.identifier().size() == 1) {
+                String tableName = name(qualified.identifier(0));
+                for (ParseTree parent = table.getParent(); parent != null; parent = parent.getParent()) {
+                    if (parent instanceof HanaParser.QueryContext query && query.withClause() != null
+                        && query.withClause().cte().stream().anyMatch(cte -> name(cte.identifier()).equals(tableName))) {
+                        cteReference = true;
+                        break;
+                    }
+                }
+            }
+            if (!cteReference) {
+                references.add(object(TargetType.Table, qualified));
+            }
+        }
+        for (var function : descendants(ctx, HanaParser.FunctionCallContext.class)) {
+            if (!HanaSqlFunctions.isBuiltIn(function.qualifiedName())) {
+                references.add(object(TargetType.Function, function.qualifiedName()));
+            }
+        }
+        references.sort(SECURITY_SOURCE_ORDER);
+        return references;
+    }
+
+    @Override
+    public Void visitAbstractFilter(HanaParser.AbstractFilterContext ctx) {
+        BehaviorObject filter = diagnosticFamily(TargetType.Policy, ctx.ABSTRACT().getSymbol(), ctx.FILTER().getSymbol(), "ABSTRACT SQL PLAN FILTER");
+        if (ctx.filterName == null) {
+            filter = databaseResource(TargetType.Policy, ctx.FILTER().getSymbol(), filter, null);
+        } else {
+            requireSecurityPathPart(ctx, stringValue(ctx.filterName));
+            filter = databaseResource(TargetType.Policy, ctx.filterName, filter, stringValue(ctx.filterName));
+        }
+        List<BehaviorObject> references = new ArrayList<>();
+        for (var property : ctx.abstractFilterProperty()) {
+            String key = stringValue(property.key);
+            if (key.equals("USER NAME") || key.equals("SCHEMA NAME")) {
+                TargetType type = TargetType.User;
+                if (key.equals("SCHEMA NAME")) {
+                    type = TargetType.Schema;
+                }
+                requireSecurityPathPart(property, stringValue(property.value));
+                BehaviorObject reference = catalogObject(type, property, property.value, stringValue(property.value));
+                if (type == TargetType.Schema) {
+                    reference.setObjectName(new ObjectName(Objects.toString(levels.get(UmiTypes.Catalog), null), stringValue(property.value), null));
+                }
+                references.add(reference);
+            }
+        }
+        BehaviorAction action = BehaviorAction.CREATE;
+        if (ctx.REMOVE() != null) {
+            action = BehaviorAction.DROP;
+        }
+        addRelation(action, filter).setTarget(references);
+        return null;
+    }
+
+    @Override
+    public Void visitAbstractPlan(HanaParser.AbstractPlanContext ctx) {
+        BehaviorObject plans = diagnosticFamily(TargetType.Resource, ctx.ABSTRACT().getSymbol(), ctx.PLAN(0).getSymbol(), "ABSTRACT SQL PLAN");
+        if (ctx.ENTRY() != null) {
+            BehaviorAction action = BehaviorAction.CONFIGURE;
+            if (ctx.REMOVE() != null) {
+                action = BehaviorAction.PURGE;
+            }
+            if (ctx.planIds.isEmpty()) {
+                addRelation(action, plans);
+            } else {
+                for (Token id : ctx.planIds) {
+                    addRelation(action, databaseResource(TargetType.Resource, id, plans, id.getText()));
+                }
+            }
+        } else if (ctx.CAPTURE() != null || ctx.APPLY() != null) {
+            Token start;
+            String family = "CAPTURE ABSTRACT SQL PLAN";
+            if (ctx.APPLY() != null) {
+                start = ctx.APPLY().getSymbol();
+                family = "APPLY ABSTRACT SQL PLAN";
+            } else {
+                start = ctx.CAPTURE().getSymbol();
+            }
+            BehaviorObject operation = diagnosticFamily(TargetType.Resource, start, ctx.PLAN(0).getSymbol(), family);
+            List<BehaviorObject> references = new ArrayList<>();
+            for (var user : ctx.identifier()) {
+                references.add(securityLocal(TargetType.User, user));
+            }
+            if (ctx.CACHE() != null) {
+                references.add(diagnosticFamily(TargetType.Cache, ctx.SQL(1).getSymbol(), ctx.CACHE().getSymbol(), "SQL PLAN CACHE"));
+            }
+            BehaviorAction action = BehaviorAction.START;
+            if (ctx.STOP() != null) {
+                action = BehaviorAction.STOP;
+            }
+            addRelation(action, operation).setTarget(references);
+        } else if (ctx.MIGRATE() != null) {
+            addRelation(BehaviorAction.REFRESH, plans);
+        } else {
+            List<BehaviorObject> references = new ArrayList<>();
+            BehaviorObject owner = databaseOwner(null, ctx.getStart());
+            for (var location : ctx.abstractPlanLocation()) {
+                references.add(databaseResource(TargetType.Resource, location.source, owner, stringValue(location.source)));
+                references.add(databaseResource(TargetType.Resource, location.destination, owner, stringValue(location.destination)));
+            }
+            addRelation(BehaviorAction.CONFIGURE, plans).setTarget(references);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDiagnosticCache(HanaParser.DiagnosticCacheContext ctx) {
+        if (ctx.diagnosticSqlCache() != null) {
+            var clause = ctx.diagnosticSqlCache();
+            BehaviorObject cache = diagnosticFamily(TargetType.Cache, clause.getStart(), clause.getStop(), "SQL PLAN CACHE");
+            List<BehaviorObject> references = new ArrayList<>();
+            if (ctx.entryId != null) {
+                BehaviorObject entry = databaseResource(TargetType.Cache, ctx.entryId, cache, ctx.entryId.getText());
+                if (ctx.LIKE() != null) {
+                    references.add(entry);
+                } else {
+                    cache = entry;
+                }
+            }
+            BehaviorAction action = BehaviorAction.PURGE;
+            if (ctx.PIN() != null) {
+                action = BehaviorAction.LOCK;
+            } else if (ctx.UNPIN() != null) {
+                action = BehaviorAction.UNLOCK;
+            } else if (ctx.RECOMPILE() != null) {
+                action = BehaviorAction.REFRESH;
+            }
+            addRelation(action, cache).setTarget(references);
+        } else if (ctx.diagnosticResultCache() != null) {
+            var clause = ctx.diagnosticResultCache();
+            BehaviorObject cache = diagnosticFamily(TargetType.Cache, clause.getStart(), clause.getStop(), securityWords(clause));
+            List<BehaviorObject> references = new ArrayList<>();
+            if (ctx.entryId != null) {
+                cache = databaseResource(TargetType.Cache, ctx.entryId, cache, ctx.entryId.getText());
+            } else if (ctx.qualifiedName() != null) {
+                cache = object(TargetType.Cache, ctx.qualifiedName());
+                references.add(object(TargetType.View, ctx.qualifiedName()));
+            }
+            BehaviorAction action = BehaviorAction.PURGE;
+            if (ctx.REFRESH() != null) {
+                action = BehaviorAction.REFRESH;
+            }
+            addRelation(action, cache).setTarget(references);
+        } else if (ctx.TIMEZONE() != null) {
+            BehaviorObject cache = diagnosticFamily(TargetType.Cache, ctx.TIMEZONE().getSymbol(), ctx.CACHE().getSymbol(), "TIMEZONE CACHE");
+            addRelation(BehaviorAction.PURGE, databaseResource(TargetType.Cache, ctx.dataset, cache, stringValue(ctx.dataset)));
+        } else if (ctx.STATISTICS() != null) {
+            addRelation(BehaviorAction.RESET, diagnosticFamily(TargetType.Statistics, ctx.COLUMN().getSymbol(), ctx.STATISTICS().getSymbol(), "COLUMN JOIN DATA STATISTICS"));
+        } else {
+            BehaviorObject cache = diagnosticFamily(TargetType.Cache, ctx.CACHE().getSymbol(), ctx.CACHE().getSymbol(), "CACHE");
+            for (Token id : ctx.cacheIds) {
+                addRelation(BehaviorAction.PURGE, databaseResource(TargetType.Cache, id, cache, id.getText()));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDiagnosticStatistics(HanaParser.DiagnosticStatisticsContext ctx) {
+        List<BehaviorObject> subjects = new ArrayList<>();
+        List<BehaviorObject> references = new ArrayList<>();
+        var source = ctx.diagnosticStatisticsSource();
+        if (ctx.diagnosticStatisticsSelector() != null) {
+            source = ctx.diagnosticStatisticsSelector().diagnosticStatisticsSource();
+        }
+        if (source != null) {
+            List<String> parts = names(source.qualifiedName());
+            if (parts.size() > 3) {
+                throw unsupported(source, "Statistics source requires at most database, schema and table");
+            }
+            for (String part : parts) {
+                requireSecurityPathPart(source, part);
+            }
+            // Statistics explicitly support database/linked-source qualifiers, unlike ordinary local DML.
+            BehaviorObject table = objects.object(TargetType.Table, source.qualifiedName(), parts);
+            references.add(table);
+            if (source.columnNames() != null) {
+                for (var column : source.columnNames().identifier()) {
+                    requireSecurityPathPart(column, name(column));
+                    references.add(databaseResource(TargetType.Column, column.getStart(), table, name(column)));
+                }
+            }
+            if (ctx.statisticName != null) {
+                subjects.add(object(TargetType.Statistics, ctx.statisticName));
+            } else {
+                subjects.add(databaseResource(TargetType.Statistics, ctx.STATISTICS().getSymbol(), table, null));
+            }
+        } else {
+            for (var name : ctx.diagnosticStatisticsSelector().qualifiedName()) {
+                subjects.add(object(TargetType.Statistics, name));
+            }
+        }
+        BehaviorAction action = securityAction(ctx);
+        for (BehaviorObject subject : subjects) {
+            addRelation(action, subject).setTarget(references);
+            if ((ctx.CREATE() != null || ctx.ALTER() != null) && (ctx.diagnosticInitialRefresh() == null || ctx.diagnosticInitialRefresh().NO() == null)) {
+                addRelation(BehaviorAction.REFRESH, subject).setTarget(references);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitMonitoringReset(HanaParser.MonitoringResetContext ctx) {
+        addRelation(BehaviorAction.RESET, object(TargetType.View, ctx.qualifiedName()));
+        return null;
+    }
+
+    private BehaviorObject diagnosticEndpoint(HanaParser.DiagnosticLocationContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        if (ctx.address != null) {
+            return databaseResource(TargetType.Resource, ctx.address, owner, stringValue(ctx.address));
+        }
+        BehaviorObject endpoint = databaseResource(TargetType.Resource, ctx.host, ctx.port, owner, null);
+        endpoint.setObjectPath(owner.getObjectPath() + stringValue(ctx.host) + ":" + ctx.port.getText() + "/");
+        return endpoint;
+    }
+
+    @Override
+    public Void visitRuntimeDump(HanaParser.RuntimeDumpContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        Token anchor = ctx.getStart();
+        if (ctx.RUNTIMEDUMP() != null) {
+            anchor = ctx.RUNTIMEDUMP().getSymbol();
+        } else {
+            anchor = ctx.WAITGRAPH().getSymbol();
+        }
+        BehaviorObject file = databaseResource(TargetType.File, anchor, owner, null);
+        if (ctx.fileName != null) {
+            file = databaseResource(TargetType.File, ctx.fileName, owner, stringValue(ctx.fileName));
+        }
+        List<BehaviorObject> references = new ArrayList<>();
+        if (ctx.diagnosticLocation() != null) {
+            references.add(diagnosticEndpoint(ctx.diagnosticLocation()));
+        }
+        if (ctx.profile != null) {
+            references.add(databaseResource(TargetType.Profile, ctx.profile, owner, stringValue(ctx.profile)));
+        }
+        addRelation(BehaviorAction.CREATE, file).setTarget(references);
+        return null;
+    }
+
+    @Override
+    public Void visitKernelProfiler(HanaParser.KernelProfilerContext ctx) {
+        BehaviorObject profiler = diagnosticFamily(TargetType.Resource, ctx.KERNEL().getSymbol(), ctx.PROFILER().getSymbol(), "KERNEL PROFILER");
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        List<BehaviorObject> references = new ArrayList<>();
+        if (ctx.diagnosticLocation() != null) {
+            references.add(diagnosticEndpoint(ctx.diagnosticLocation()));
+        }
+        for (var scope : ctx.kernelProfilerScope()) {
+            if (scope.USER() != null) {
+                references.add(securityLocal(TargetType.User, scope.identifier()));
+            } else if (scope.SESSION() != null) {
+                Token id = scope.INTEGER().getSymbol();
+                references.add(databaseResource(TargetType.Session, id, owner, id.getText()));
+            } else if (scope.ROOT_STATEMENT_HASH() != null) {
+                Token hash = scope.STRING().getSymbol();
+                references.add(databaseResource(TargetType.Query, hash, owner, stringValue(hash)));
+            } else if (scope.TRACEPROFILE() != null) {
+                Token profile = scope.STRING().getSymbol();
+                references.add(databaseResource(TargetType.Profile, profile, owner, stringValue(profile)));
+            }
+        }
+        if (ctx.cpuFile != null) {
+            references.add(databaseResource(TargetType.File, ctx.cpuFile, owner, stringValue(ctx.cpuFile)));
+        }
+        if (ctx.waitFile != null) {
+            references.add(databaseResource(TargetType.File, ctx.waitFile, owner, stringValue(ctx.waitFile)));
+        }
+        references.sort(SECURITY_SOURCE_ORDER);
+        BehaviorAction action = BehaviorAction.START;
+        if (ctx.STOP() != null) {
+            action = BehaviorAction.STOP;
+        } else if (ctx.SAVE() != null) {
+            action = BehaviorAction.FLUSH;
+        } else if (ctx.CLEAR() != null) {
+            action = BehaviorAction.PURGE;
+        }
+        addRelation(action, profiler).setTarget(references);
+        return null;
+    }
+
+    @Override
+    public Void visitSqlscriptProfiler(HanaParser.SqlscriptProfilerContext ctx) {
+        Token stop = ctx.getStart();
+        String namespace = "SQLSCRIPT PLAN PROFILER";
+        if (ctx.PROFILER() != null) {
+            stop = ctx.PROFILER().getSymbol();
+        } else {
+            stop = ctx.COVERAGE().getSymbol();
+            namespace = "SQLSCRIPT CODE COVERAGE";
+        }
+        BehaviorObject profiler = diagnosticFamily(TargetType.Resource, ctx.SQLSCRIPT().getSymbol(), stop, namespace);
+        List<BehaviorObject> references = new ArrayList<>();
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        if (ctx.sessionId != null) {
+            references.add(databaseResource(TargetType.Session, ctx.sessionId, owner, ctx.sessionId.getText()));
+        } else if (ctx.sessionName != null) {
+            references.add(databaseResource(TargetType.Session, ctx.sessionName, owner, stringValue(ctx.sessionName)));
+        } else if (ctx.qualifiedName() != null) {
+            references.add(object(TargetType.Procedure, ctx.qualifiedName()));
+        }
+        BehaviorAction action = BehaviorAction.START;
+        if (ctx.STOP() != null) {
+            action = BehaviorAction.STOP;
+        } else if (ctx.CLEAR() != null) {
+            action = BehaviorAction.PURGE;
+        }
+        addRelation(action, profiler).setTarget(references);
+        return null;
+    }
+
+    @Override
+    public Void visitPerftrace(HanaParser.PerftraceContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        BehaviorObject trace = diagnosticFamily(TargetType.Log, ctx.PERFTRACE().getSymbol(), ctx.PERFTRACE().getSymbol(), "PERFTRACE");
+        if (ctx.LOAD() != null) {
+            BehaviorObject prefix = object(TargetType.Resource, ctx.qualifiedName());
+            BehaviorObject tables = objects.unnamedObject(TargetType.Table, ctx.qualifiedName(), UmiTypes.Schema);
+            String path = prefix.getObjectPath();
+            tables.setObjectPath(path.substring(0, path.lastIndexOf('/', path.length() - 2) + 1));
+            BehaviorObject file = databaseResource(TargetType.File, ctx.PERFTRACE().getSymbol(), owner, null);
+            if (ctx.fileName != null) {
+                file = databaseResource(TargetType.File, ctx.fileName, owner, stringValue(ctx.fileName));
+            }
+            if (ctx.REPLACE() != null) {
+                addRelation(BehaviorAction.DROP, tables).setTarget(List.of(prefix));
+            }
+            addRelation(BehaviorAction.CREATE, tables).setTarget(List.of(prefix));
+            addRelation(BehaviorAction.IMPORT, tables).setTarget(List.of(prefix, file));
+            return null;
+        }
+        List<BehaviorObject> references = new ArrayList<>();
+        for (var option : ctx.perftraceOption()) {
+            if (option.USER() != null) {
+                references.add(securityLocal(TargetType.User, option.identifier()));
+            } else if (option.ROOT_STATEMENT_HASH() != null) {
+                Token hash = option.STRING().getSymbol();
+                references.add(databaseResource(TargetType.Query, hash, owner, stringValue(hash)));
+            }
+        }
+        if (ctx.fileName != null) {
+            references.add(databaseResource(TargetType.File, ctx.fileName, owner, stringValue(ctx.fileName)));
+        }
+        BehaviorAction action = BehaviorAction.START;
+        if (ctx.STOP() != null) {
+            action = BehaviorAction.STOP;
+        } else if (ctx.SAVE() != null) {
+            action = BehaviorAction.FLUSH;
+        }
+        addRelation(action, trace).setTarget(references);
+        return null;
+    }
+
+    @Override
+    public Void visitTraceFiles(HanaParser.TraceFilesContext ctx) {
+        BehaviorObject owner = databaseOwner(null, ctx.getStart());
+        if (ctx.CLEAR() != null) {
+            BehaviorObject traces = diagnosticFamily(TargetType.Log, ctx.TRACES().getSymbol(), ctx.TRACES().getSymbol(), "TRACES");
+            for (Token category : ctx.categories) {
+                String name = stringValue(category);
+                if (name.equals("*")) {
+                    name = null;
+                }
+                BehaviorObject trace = databaseResource(TargetType.Log, category, traces, name);
+                if (ctx.BACKUP() != null) {
+                    addRelation(BehaviorAction.COPY, trace);
+                }
+                addRelation(BehaviorAction.PURGE, trace);
+            }
+        } else {
+            BehaviorObject host = databaseResource(TargetType.Machine, ctx.host, owner, stringValue(ctx.host));
+            for (Token file : ctx.files) {
+                addRelation(BehaviorAction.DROP, databaseResource(TargetType.Log, file, host, stringValue(file))).setTarget(List.of(host));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitExplainStatement(HanaParser.ExplainStatementContext ctx) {
+        boolean previous = explaining;
+        explaining = true;
+        try {
+            visitChildren(ctx);
+        } finally {
+            explaining = previous;
+        }
+        addDomain(new RdbResourceDomain(), RuleQueryType.PERFORMANCE);
         return null;
     }
 
@@ -2314,7 +2782,7 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
 
     private BehaviorRelation addRelation(BehaviorAction action, BehaviorObject object) {
         BehaviorRelation relation = new BehaviorRelation();
-        if (explaining && action != BehaviorAction.CALL) {
+        if (explaining) {
             action = BehaviorAction.READ;
         }
         relation.setAction(action);
@@ -2324,6 +2792,10 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     }
 
     private void addDomain(RuleDomain domain, RuleQueryType type) {
+        if (explaining) {
+            // The explained DML and function calls are not executed or audited as mutations.
+            return;
+        }
         domain.setSqlType(type);
         domain.setAuditKind(type.getAuditKind());
         domain.setOptions(Map.of());
