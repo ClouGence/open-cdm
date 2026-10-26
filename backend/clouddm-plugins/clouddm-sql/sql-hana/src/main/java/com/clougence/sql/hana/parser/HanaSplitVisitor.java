@@ -7,6 +7,8 @@
 package com.clougence.sql.hana.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -29,11 +31,53 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSplitStatement(HanaParser.SplitStatementContext context) {
+        return collectTypes(context).iterator().next();
+    }
+
+    Set<SplitQueryType> collectTypes(HanaParser.SplitStatementContext context) {
+        Set<SplitQueryType> types = new LinkedHashSet<>();
         if (context.splitItem(0).splitBlock() != null) {
-            return SplitQueryType.BLOCK;
+            types.add(SplitQueryType.BLOCK);
+            return types;
         }
 
         List<String> words = statementWords(context);
+        SplitQueryType primary = statementType(words);
+        types.add(primary);
+        collectDatabaseTypes(words, types);
+        if (startsWith(words, "RECOVER")) {
+            collectRecoveryTypes(words, types);
+        }
+
+        if (startsWith(words, "BACKUP", "ENCRYPTION", "ROOT", "KEYS")) {
+            types.add(SplitQueryType.ADMIN);
+        }
+
+        if (startsWith(words, "BACKUP", "CATALOG", "DELETE")) {
+            types.add(SplitQueryType.UNSAFE);
+        }
+
+        if (primary == SplitQueryType.ADMIN_TABLE) {
+            int nameIndex = 1;
+            if (startsWith(words, "MERGE", "DELTA", "OF")) {
+                nameIndex = 3;
+            } else if (startsWith(words, "MERGE", "HISTORY", "DELTA", "OF")) {
+                nameIndex = 4;
+            }
+            List<String> options = tableOptions(words, nameIndex);
+            if (startsWith(options, "PART") || startsWith(options, "PARTITION")) {
+                types.add(SplitQueryType.ADMIN_PARTITION);
+            }
+        }
+
+        if (startsWith(words, "TRUNCATE", "TABLE") && startsWith(tableOptions(words, 2), "PARTITION")) {
+            types.add(SplitQueryType.TRUNCATE_PARTITION);
+        }
+
+        return types;
+    }
+
+    private SplitQueryType statementType(List<String> words) {
         if (words.isEmpty()) {
             return SplitQueryType.UNKNOWN;
         }
@@ -49,8 +93,22 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
         }
 
         return switch (first) {
-            case "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE", "GRANT", "REVOKE" -> SplitQueryType.valueOf(first);
+            case "SELECT", "INSERT", "UPDATE", "DELETE", "GRANT", "REVOKE" -> SplitQueryType.valueOf(first);
             case "CREATE", "ALTER", "DROP", "RENAME", "COMMENT" -> ddlType(words);
+            case "MERGE" -> {
+                if (startsWith(words, "MERGE", "DELTA", "OF") || startsWith(words, "MERGE", "HISTORY", "DELTA", "OF")) {
+                    yield SplitQueryType.ADMIN_TABLE;
+                }
+                yield SplitQueryType.MERGE;
+            }
+            case "LOAD", "UNLOAD" -> SplitQueryType.ADMIN_TABLE;
+            case "BACKUP" -> backupType(words);
+            case "RECOVER" -> {
+                if (startsWith(words, "RECOVER", "DATA") || startsWith(words, "RECOVER", "DATABASE") || startsWith(words, "RECOVER", "ENCRYPTION", "ROOT", "KEYS")) {
+                    yield SplitQueryType.DATA_IMPORT;
+                }
+                yield SplitQueryType.UNKNOWN;
+            }
             case "TRUNCATE" -> SplitQueryType.TRUNCATE_TABLE;
             case "CALL" -> SplitQueryType.CALL_PROG_OBJ;
             case "CONNECT" -> SplitQueryType.SWITCH_USER;
@@ -64,19 +122,89 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
             case "COMMIT", "ROLLBACK", "SAVEPOINT" -> SplitQueryType.TRANSACTION;
             case "SET", "UNSET" -> settingType(words);
             case "EXPLAIN" -> SplitQueryType.PERFORMANCE;
-            case "IMPORT" -> SplitQueryType.DATA_IMPORT;
+            case "IMPORT" -> {
+                if (startsWith(words, "IMPORT", "SCAN")) {
+                    yield SplitQueryType.METADATA;
+                }
+                yield SplitQueryType.DATA_IMPORT;
+            }
             case "EXPORT" -> SplitQueryType.DATA_EXPORT;
             default -> SplitQueryType.UNKNOWN;
         };
     }
 
-    SplitQueryType additionalType(HanaParser.SplitStatementContext context) {
-        List<String> words = statementWords(context);
-        // Service shutdown and removal of all licenses can make the database unavailable.
-        if (startsWith(words, "ALTER", "SYSTEM", "STOP", "SERVICE") || startsWith(words, "UNSET", "SYSTEM", "LICENSE", "ALL")) {
-            return SplitQueryType.UNSAFE;
+    private void collectDatabaseTypes(List<String> words, Set<SplitQueryType> types) {
+        if (startsWith(words, "CREATE", "DATABASE") && words.size() > 3 && Collections.indexOfSubList(words.subList(3, words.size()), List.of("AS", "REPLICA", "OF")) >= 0) {
+            types.add(SplitQueryType.CREATE_REPLICATION);
         }
-        return null;
+
+        if (startsWith(words, "DROP", "DATABASE") && words.size() > 3 && startsWith(words.subList(3, words.size()), "DROP", "BACKUPS")) {
+            types.add(SplitQueryType.ADMIN);
+            types.add(SplitQueryType.UNSAFE);
+        }
+
+        if (startsWith(words, "ALTER", "DATABASE") && words.size() > 3) {
+            List<String> command = words.subList(3, words.size());
+            if (startsWith(command, "FINALIZE", "REPLICA")) {
+                if (startsWith(command, "FINALIZE", "REPLICA", "DROP", "SOURCE", "DATABASE")) {
+                    types.add(SplitQueryType.DROP_CATALOG);
+                }
+                types.add(SplitQueryType.UNSAFE);
+            }
+        }
+
+        // Removing live replication state, stopping a database, or rewinding it affects availability/recovery.
+        if (startsWith(words, "ALTER", "SYSTEM", "STOP", "SERVICE") || startsWith(words, "ALTER", "SYSTEM", "STOP", "DATABASE")
+            || startsWith(words, "UNSET", "SYSTEM", "LICENSE", "ALL") || startsWith(words, "ALTER", "SYSTEM", "LOGGING", "OFF")
+            || startsWith(words, "ALTER", "SYSTEM", "DISABLE", "SYSTEM", "REPLICATION") || startsWith(words, "ALTER", "SYSTEM", "UNREGISTER", "SYSTEM", "REPLICATION", "SITE")
+            || (startsWith(words, "ALTER", "SYSTEM", "START", "DATABASE") && words.size() > 5 && startsWith(words.subList(5, words.size()), "FROM", "FALLBACK", "SNAPSHOT"))) {
+            types.add(SplitQueryType.UNSAFE);
+        }
+    }
+
+    private void collectRecoveryTypes(List<String> words, Set<SplitQueryType> types) {
+        if (startsWith(words, "RECOVER", "ENCRYPTION", "ROOT", "KEYS")) {
+            types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
+            // Without AND SETTINGS, recovered root keys are added rather than replacing the secure store.
+            if (startsWith(words, "RECOVER", "ENCRYPTION", "ROOT", "KEYS", "AND", "SETTINGS")) {
+                types.add(SplitQueryType.UNSAFE);
+            }
+        } else if (startsWith(words, "RECOVER", "DATA") || startsWith(words, "RECOVER", "DATABASE")) {
+            // Only outer clauses count; backup paths, password lists and comments are not executable SQL.
+            for (int index = 2; index < words.size(); index++) {
+                List<String> clause = words.subList(index, words.size());
+                if (startsWith(clause, "CLEAR", "LOG")) {
+                    types.add(SplitQueryType.MAINTAIN_LOG);
+                }
+                if (startsWith(clause, "SET", "LICENSE") || startsWith(clause, "INCLUDE", "CONFIGURATION")) {
+                    types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
+                }
+            }
+            types.add(SplitQueryType.UNSAFE);
+        }
+    }
+
+    private List<String> tableOptions(List<String> words, int nameIndex) {
+        int index = Math.min(nameIndex + 1, words.size());
+        // A keyword-shaped schema/table name is not a PART/PARTITION clause.
+        while (index + 1 < words.size() && ".".equals(words.get(index))) {
+            index += 2;
+        }
+        return words.subList(index, words.size());
+    }
+
+    private SplitQueryType backupType(List<String> words) {
+        if (startsWith(words, "BACKUP", "LIST", "DATA") || startsWith(words, "BACKUP", "COMPLETE", "LIST", "DATA")) {
+            return SplitQueryType.METADATA;
+        }
+        if (startsWith(words, "BACKUP", "DATA", "FOR", "FULL", "SYSTEM") || startsWith(words, "BACKUP", "CATALOG") || startsWith(words, "BACKUP", "CANCEL")
+            || startsWith(words, "BACKUP", "CHECK")) {
+            return SplitQueryType.ADMIN;
+        }
+        if (startsWith(words, "BACKUP", "DATA") || startsWith(words, "BACKUP", "ENCRYPTION", "ROOT", "KEYS")) {
+            return SplitQueryType.DATA_EXPORT;
+        }
+        return SplitQueryType.UNKNOWN;
     }
 
     private List<String> statementWords(HanaParser.SplitStatementContext context) {
@@ -90,6 +218,8 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
                 } else {
                     words.add(item.getText().toUpperCase(Locale.ROOT));
                 }
+            } else {
+                words.add("");
             }
         }
         return words;
@@ -99,6 +229,20 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
         if (startsWith(words, "ALTER", "SYSTEM")) {
             return alterSystemType(words.subList(2, words.size()));
         }
+
+        if (startsWith(words, "ALTER", "DATABASE") && words.size() > 3) {
+            List<String> command = words.subList(3, words.size());
+            if (startsWith(command, "FINALIZE", "REPLICA")) {
+                return SplitQueryType.ALTER_REPLICATION;
+            }
+            if (startsWith(command, "CANCEL", "REPLICA")) {
+                return SplitQueryType.ADMIN_REPLICATION;
+            }
+            if (startsWith(command, "CREATE", "FALLBACK", "SNAPSHOT") || startsWith(command, "DROP", "FALLBACK", "SNAPSHOT")) {
+                return SplitQueryType.ADMIN;
+            }
+        }
+
         if (startsWith(words, "CREATE", "RESTRICTED", "USER")) {
             return SplitQueryType.CREATE_USER;
         }
@@ -137,12 +281,17 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
                 return SplitQueryType.SYSTEM_SETTING_WRITE;
             }
         }
+
+        if ("DATABASE".equals(object)) {
+            object = "CATALOG";
+        }
         if ("PROCEDURE".equals(object) || "FUNCTION".equals(object)) {
             object = "PROG_OBJ";
         }
         if ("INDEX".equals(object) && "CREATE".equals(words.get(0))) {
             return SplitQueryType.ADD_INDEX;
         }
+
         try {
             return SplitQueryType.valueOf(words.get(0) + "_" + object);
         } catch (IllegalArgumentException e) {
@@ -182,6 +331,34 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
     }
 
     private SplitQueryType alterSystemType(List<String> command) {
+        if (startsWith(command, "LOGGING")) {
+            return SplitQueryType.ADMIN_LOG;
+        }
+        if (startsWith(command, "RECLAIM", "LOG")) {
+            return SplitQueryType.MAINTAIN_LOG;
+        }
+        if (startsWith(command, "SAVEPOINT") || startsWith(command, "START", "DATABASE") || startsWith(command, "STOP", "DATABASE")
+            || startsWith(command, "RECLAIM", "DATA", "SPACE") || startsWith(command, "RECLAIM", "ROW", "DATA", "SPACE") || startsWith(command, "RECLAIM", "DATAVOLUME")
+            || startsWith(command, "RECLAIM", "FLEXIBLE", "TABLES") || startsWith(command, "RECLAIM", "LOB", "SPACE") || startsWith(command, "RECLAIM", "ROW", "LOB", "SPACE")
+            || startsWith(command, "RECLAIM", "COLUMN", "LOB", "SPACE") || startsWith(command, "RECLAIM", "VERSION", "SPACE")) {
+            return SplitQueryType.ADMIN;
+        }
+        if (startsWith(command, "ALTER", "DATAVOLUME", "ADD", "PARTITION") || startsWith(command, "ALTER", "DATAVOLUME", "DROP", "PARTITION")) {
+            return SplitQueryType.SYSTEM_SETTING_WRITE;
+        }
+        if (startsWith(command, "REGISTER", "SYSTEM", "REPLICATION", "SITE")) {
+            return SplitQueryType.CREATE_REPLICATION;
+        }
+        if (startsWith(command, "UNREGISTER", "SYSTEM", "REPLICATION", "SITE")) {
+            return SplitQueryType.DROP_REPLICATION;
+        }
+        if (startsWith(command, "ENABLE") || startsWith(command, "DISABLE")) {
+            List<String> target = command.subList(1, command.size());
+            if (startsWith(target, "SYSTEM", "REPLICATION") || startsWith(target, "ALL", "TABLE", "REPLICAS") || startsWith(target, "ALL", "ASYNCHRONOUS", "TABLE", "REPLICAS")
+                || startsWith(target, "ALL", "SYNCHRONOUS", "TABLE", "REPLICAS")) {
+                return SplitQueryType.ALTER_REPLICATION;
+            }
+        }
         // Explicit session targets are runtime administration, not system configuration.
         if (startsWith(command, "ALTER", "SESSION") || startsWith(command, "DISCONNECT", "SESSION") || startsWith(command, "CANCEL", "SESSION")
             || startsWith(command, "CANCEL", "WORK", "IN", "SESSION")) {

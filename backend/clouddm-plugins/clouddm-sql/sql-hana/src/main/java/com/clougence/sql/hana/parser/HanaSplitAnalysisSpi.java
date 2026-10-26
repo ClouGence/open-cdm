@@ -15,11 +15,12 @@
  */
 package com.clougence.sql.hana.parser;
 
+import java.util.Set;
+
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -40,11 +41,8 @@ public class HanaSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
-    protected SplitQueryType additionalType(ParseTree tree) {
-        if (tree instanceof HanaParser.SplitStatementContext context && context.getParent() instanceof HanaParser.SplitRootContext) {
-            return HanaSplitVisitor.INSTANCE.additionalType(context);
-        }
-        return null;
+    protected Set<SplitQueryType> collectTypes(ParserRuleContext context, String script) {
+        return HanaSplitVisitor.INSTANCE.collectTypes((HanaParser.SplitStatementContext) context);
     }
 
     @Override
