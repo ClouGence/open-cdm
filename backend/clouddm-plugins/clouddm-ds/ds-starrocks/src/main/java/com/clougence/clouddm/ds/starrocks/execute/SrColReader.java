@@ -55,7 +55,12 @@ public class SrColReader extends AbstractColReader {
                 return STRING_VALUE_FETCHER;
             case "binary":
             case "varbinary":
-                return BYTES_VALUE_FETCHER;
+            // StarRocks exposes VARBINARY as a MySQL BLOB in result metadata.
+            case "tinyblob":
+            case "blob":
+            case "mediumblob":
+            case "longblob":
+                return BYTES_AS_STREAM_FETCHER;
             case "date":
                 return DATE_VALUE_FETCHER;
             case "datetime":
