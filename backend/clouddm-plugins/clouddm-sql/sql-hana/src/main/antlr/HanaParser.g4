@@ -522,7 +522,7 @@ identifier: WORD | USER | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE 
     | PASSPORT_TRACELEVEL | PERCENT | PERFTRACE | PIN | PLAN_EXECUTION | PREFIX | PROFILE | PROFILER | QERROR
     | QTHETA | RECOMPILE | RECORD | REFRESH | RESULT | ROLLING | ROOT_STATEMENT_HASH | RUNTIMEDUMP | SAMPLE
     | SAMPLING | SAVE | SIMPLE | SKETCH | STATIC | STRATEGY | SYNC | TIMEZONE | TOPK | TRACEPROFILE | TRACES
-    | UNPIN | VARIANT | WAITGRAPH;
+    | UNPIN | VARIANT | WAITGRAPH | STATEMENT_NAME;
 
 // Editor splitting checks structural boundaries even while expressions are incomplete.
 // Execution and audit must enter statementRoot; they never fall back to splitRoot.
