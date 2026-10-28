@@ -867,6 +867,7 @@ export default {
           // Save query type (plan query or normal query).
           metaData.queryType = currentTab.currentQueryType || 'query';
           metaData.fetchCount = 0;
+          metaData.transposed = false;
           metaData.cost = { ...currentTab.cost };
 
           // Initialize the result set object before data is available.

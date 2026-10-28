@@ -4417,7 +4417,8 @@
     "maximize": "最大化结果区",
     "restore": "恢复布局",
     "expand": "展开结果区",
-    "collapse": "收起结果区"
+    "collapse": "收起结果区",
+    "transpose": "转置"
   },
   "ai": {
     "contextUsage": "上下文占用",
