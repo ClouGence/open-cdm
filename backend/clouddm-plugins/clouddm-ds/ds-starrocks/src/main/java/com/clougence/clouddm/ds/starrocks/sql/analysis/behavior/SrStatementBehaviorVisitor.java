@@ -150,6 +150,18 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitShowCreateTableStatement(ShowCreateTableStatementContext ctx) {
+        TargetType targetType = TargetType.Table;
+        if (ctx.MATERIALIZED() != null) {
+            targetType = TargetType.Materialized;
+        } else if (ctx.VIEW() != null) {
+            targetType = TargetType.View;
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, object(targetType, ctx.table));
+        return null;
+    }
+
+    @Override
     public Void visitShowVariablesStatement(ShowVariablesStatementContext ctx) {
         add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx.VARIABLES().getSymbol()));
         return null;
