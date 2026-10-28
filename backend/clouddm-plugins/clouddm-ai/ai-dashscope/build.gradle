@@ -21,6 +21,7 @@ dependencies {
     api project(':ai-common')
     implementation('com.alibaba:dashscope-sdk-java:2.22.11') {
         exclude group: 'com.fasterxml.jackson.core'
+        exclude group: 'org.slf4j', module: 'slf4j-simple'
     }
 }
 
