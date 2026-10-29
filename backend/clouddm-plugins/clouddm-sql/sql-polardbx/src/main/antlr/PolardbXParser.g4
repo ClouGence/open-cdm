@@ -98,6 +98,7 @@ administrationStatement
     | cacheIndexStatement | flushStatement | killStatement
     | loadIndexIntoCache | resetStatement
     | shutdownStatement | dropRole
+    | clearStatement | resizeProcedureCache | reloadProcedures
     ;
 
 utilityStatement
@@ -1726,10 +1727,12 @@ setStatement
     ;
 
 showStatement
-    : SHOW logFormat=(BINARY | MASTER) LOGS                         #showMasterLogs
-    | SHOW CHARSET (LIKE STRING_LITERAL)?                           #showCharset
-    | SHOW logFormat=(BINLOG | RELAYLOG)
-      EVENTS (IN filename=STRING_LITERAL)?
+    : SHOW (FULL? logFormat=BINARY LOGS (WITH streamName=STRING_LITERAL)?
+      | logFormat=MASTER LOGS)                                     #showMasterLogs
+    | SHOW CHARSET showFilter?                                      #showCharset
+    | SHOW (logFormat=BINLOG EVENTS (WITH streamName=STRING_LITERAL)?
+      | logFormat=RELAYLOG EVENTS)
+        (IN filename=STRING_LITERAL)?
         (FROM fromPosition=decimalLiteral)?
         (LIMIT
           (offset=decimalLiteral ',')?
@@ -1753,10 +1756,18 @@ showStatement
     | SHOW CREATE USER userName                                     #showCreateUser
     | SHOW ENGINE engineName engineOption=(STATUS | MUTEX)          #showEngine
     | SHOW STORAGE? ENGINES                                         #showEngines
-    | SHOW MASTER STATUS                                            #showStatus
+    | SHOW FULL? MASTER STATUS (WITH streamName=STRING_LITERAL)?     #showStatus
     | SHOW PLUGINS                                                  #showPlugins
     | SHOW PRIVILEGES                                               #showPrivileges
-    | SHOW FULL? PROCESSLIST                                        #showProcessList
+    | SHOW (FULL? PROCESSLIST
+      | FULL? PHYSICAL_PROCESSLIST
+      | PHYSICAL FULL? PROCESSLIST)
+      (WHERE expression)?                                          #showProcessList
+    | SHOW FULL? (SLOW | PHYSICAL_SLOW)
+      (WHERE expression)?
+      (LIMIT (offset=decimalLiteral ',')? rowCount=decimalLiteral)?  #showSlow
+    | SHOW PROCEDURE CACHE                                          #showProcedureCache
+    | SHOW HELP                                                     #showHelp
     | SHOW PROFILES                                                 #showProfiles
     | SHOW SLAVE HOSTS                                              #showSlaveHosts
     | SHOW AUTHORS                                                  #showAuthros
@@ -1836,8 +1847,21 @@ flushStatement
     ;
 
 killStatement
-    : KILL connectionFormat=(CONNECTION | QUERY)?
-      decimalLiteral+
+    : KILL (connectionFormat=(CONNECTION | QUERY)? decimalLiteral | STRING_LITERAL)
+    ;
+
+// Command words are also listed in keywordsCanBeId to preserve ordinary identifiers.
+clearStatement
+    : CLEAR SLOW                                                    #clearSlow
+    | CLEAR PROCEDURE CACHE                                         #clearProcedureCache
+    ;
+
+resizeProcedureCache
+    : RESIZE PROCEDURE CACHE decimalLiteral
+    ;
+
+reloadProcedures
+    : RELOAD PROCEDURES
     ;
 
 loadIndexIntoCache
@@ -2601,6 +2625,8 @@ keywordsCanBeId
     | UNDO_BUFFER_SIZE | UNINSTALL | UNKNOWN | UNTIL | UPGRADE | USER | USE_FRM | USER_RESOURCES
     | VALIDATION | VALUE | VAR_POP | VAR_SAMP | VARIABLES | VARIANCE | VERSION_TOKEN_ADMIN | VIEW | WAIT | WARNINGS | WITHOUT
     | WORK | WRAPPER | X509 | XA | XA_RECOVER_ADMIN | XML
+    // PolarDB-X non-reserved command words
+    | CLEAR | RESIZE | PROCEDURES | PHYSICAL | PHYSICAL_PROCESSLIST | PHYSICAL_SLOW
     // MariaDB
     | VIA | LASTVAL | NEXTVAL | SETVAL | PREVIOUS | PERSISTENT | REPLICATION_MASTER_ADMIN | REPLICA | READ_ONLY_ADMIN | FEDERATED_ADMIN | BINLOG_MONITOR | BINLOG_REPLAY
     ;

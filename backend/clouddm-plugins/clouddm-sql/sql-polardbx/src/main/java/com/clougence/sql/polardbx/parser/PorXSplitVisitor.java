@@ -424,7 +424,7 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowCharset(ShowCharsetContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -438,7 +438,9 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
         if (entity.equalsIgnoreCase("STATUS") || entity.equalsIgnoreCase("GLOBALSTATUS") || entity.equalsIgnoreCase("SESSIONSTATUS")) {
             return SplitQueryType.PERFORMANCE;
         }
-        if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES") || entity.equalsIgnoreCase("GLOBALVARIABLES")) {
+        if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES") || entity.equalsIgnoreCase("GLOBALVARIABLES")
+            || entity.equalsIgnoreCase("CHARACTERSET") || entity.equalsIgnoreCase("COLLATION")
+            || entity.equalsIgnoreCase("DATABASES") || entity.equalsIgnoreCase("SCHEMAS")) {
             return SplitQueryType.METADATA;
         }
         return SplitQueryType.UNKNOWN;
@@ -476,7 +478,7 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowEngines(ShowEnginesContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -486,17 +488,57 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowPlugins(ShowPluginsContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowPrivileges(ShowPrivilegesContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowProcessList(ShowProcessListContext ctx) {
         return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowSlow(ShowSlowContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowProcedureCache(ShowProcedureCacheContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowHelp(ShowHelpContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitHelpStatement(HelpStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitClearSlow(ClearSlowContext ctx) {
+        return SplitQueryType.MAINTAIN_LOG;
+    }
+
+    @Override
+    public SplitQueryType visitClearProcedureCache(ClearProcedureCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitResizeProcedureCache(ResizeProcedureCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitReloadProcedures(ReloadProceduresContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
     }
 
     @Override

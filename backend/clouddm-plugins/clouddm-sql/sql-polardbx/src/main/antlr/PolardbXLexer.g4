@@ -21,6 +21,14 @@ channels { MYSQLCOMMENT, ERRORCHANNEL }
 // SKIP
 
 COVERING: C O V E R I N G;
+// PolarDB-X system commands; these words remain non-reserved in the parser.
+CLEAR: C L E A R;
+RESIZE: R E S I Z E;
+PROCEDURES: P R O C E D U R E S;
+PHYSICAL: P H Y S I C A L;
+PHYSICAL_PROCESSLIST: P H Y S I C A L '_' P R O C E S S L I S T;
+PHYSICAL_SLOW: P H Y S I C A L '_' S L O W;
+
 DBPARTITION: D B P A R T I T I O N;
 TBPARTITION: T B P A R T I T I O N;
 TBPARTITIONS: T B P A R T I T I O N S;
