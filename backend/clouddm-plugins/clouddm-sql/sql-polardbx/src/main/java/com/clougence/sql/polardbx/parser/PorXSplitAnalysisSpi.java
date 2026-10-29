@@ -42,16 +42,23 @@ public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
-        if (tree instanceof PolardbXParser.VariableClauseContext || tree instanceof PolardbXParser.MysqlVariableContext
-            || tree instanceof PolardbXParser.SetTransactionStatementContext || tree instanceof PolardbXParser.SlowSqlCclContext) {
-            // Stored bodies and plan-only SQL do not perform session actions now.
-            for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
-                if (parent instanceof PolardbXParser.RoutineBodyContext || parent instanceof PolardbXParser.CreateFunctionContext
-                    || parent instanceof PolardbXParser.CreateViewContext || parent instanceof PolardbXParser.AlterViewContext
-                    || parent instanceof PolardbXParser.FullDescribeStatementContext) {
-                    return null;
-                }
-            }
+        if (!(tree instanceof PolardbXParser.VariableClauseContext || tree instanceof PolardbXParser.MysqlVariableContext
+            || tree instanceof PolardbXParser.SetTransactionStatementContext || tree instanceof PolardbXParser.SlowSqlCclContext
+            || tree instanceof PolardbXParser.UdfFunctionCallContext || tree instanceof PolardbXParser.LockClauseContext
+            || tree instanceof PolardbXParser.SelectInsertValueContext || tree instanceof PolardbXParser.AtomTableItemContext)) {
+            return null;
+        }
+        if (!isExecuted(tree)) {
+            return null;
+        }
+        if (tree instanceof PolardbXParser.LockClauseContext) {
+            return SplitQueryType.QUERY_LOCK;
+        }
+        if (tree instanceof PolardbXParser.SelectInsertValueContext) {
+            return SplitQueryType.SELECT;
+        }
+        if (tree instanceof PolardbXParser.AtomTableItemContext table) {
+            return tableReadType(table);
         }
         if (tree instanceof PolardbXParser.VariableClauseContext variable && variable.getParent() instanceof PolardbXParser.SetVariableContext) {
             return PorXSplitVisitor.variableWriteType(variable);
@@ -81,6 +88,41 @@ public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         PolardbXParser.FullIdContext fullId = function.customFunctionName().fullId();
         String name = fullId.uid(fullId.uid().size() - 1).getText();
         return MySqlResourceRegistry.instance().isUserDefinedFunction(name, fullId.uid().size() > 1) ? SplitQueryType.CALL_PROG_OBJ : null;
+    }
+
+    private boolean isExecuted(ParseTree tree) {
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            // ANALYZE and TRACE have separate contexts and execute their SQL bodies.
+            if (parent instanceof PolardbXParser.FullDescribeStatementContext
+                || parent instanceof PolardbXParser.PolardbxExplainStatementContext
+                || parent instanceof PolardbXParser.BaselineStatementContext
+                || parent instanceof PolardbXParser.RoutineBodyContext || parent instanceof PolardbXParser.CreateFunctionContext
+                || parent instanceof PolardbXParser.CreateViewContext || parent instanceof PolardbXParser.AlterViewContext) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private SplitQueryType tableReadType(PolardbXParser.AtomTableItemContext table) {
+        PolardbXParser.FullIdContext name = table.tableName().fullId();
+        if (name.uid().size() != 2) {
+            return null;
+        }
+        String schema = name.uid(0).getText();
+        String object = name.uid(1).getText();
+        if (!(schema.equalsIgnoreCase("information_schema") || schema.equalsIgnoreCase("`information_schema`"))
+            || !(object.equalsIgnoreCase("PLAN_CACHE") || object.equalsIgnoreCase("`PLAN_CACHE`")
+                || object.equalsIgnoreCase("SPM") || object.equalsIgnoreCase("`SPM`"))) {
+            return null;
+        }
+        // AtomTableItem also occurs in UPDATE/DELETE targets; only query sources qualify.
+        for (ParseTree parent = table.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof PolardbXParser.QuerySpecificationContext || parent instanceof PolardbXParser.QuerySpecificationNointoContext) {
+                return SplitQueryType.PERFORMANCE;
+            }
+        }
+        return null;
     }
 
     @Override

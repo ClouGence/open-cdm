@@ -105,6 +105,7 @@ administrationStatement
 
 utilityStatement
     : simpleDescribeStatement | fullDescribeStatement
+    | explainAnalyzeStatement | polardbxExplainStatement | traceStatement | baselineStatement
     | helpStatement | useStatement | signalStatement
     | resignalStatement | diagnosticsStatement
     ;
@@ -1828,6 +1829,8 @@ showStatement
     | SHOW TABLEGROUP (WHERE expression)?                           #showTablegroup
     | SHOW (DATASOURCES | NODE)                                     #showDistributedStatus
     | SHOW (CCL_RULE uid (',' uid)* | CCL_RULES)                      #showCclRules
+    | SHOW TRACE ('(' expressions ')')? (WHERE expression)?
+      orderByClause? limitClause?                                   #showTrace
     | SHOW HELP                                                     #showHelp
     | SHOW PROFILES                                                 #showProfiles
     | SHOW SLAVE HOSTS                                              #showSlaveHosts
@@ -1914,6 +1917,7 @@ killStatement
 // Command words are also listed in keywordsCanBeId to preserve ordinary identifiers.
 clearStatement
     : CLEAR SLOW                                                    #clearSlow
+    | CLEAR PLANCACHE                                               #clearPlanCache
     | CLEAR PROCEDURE CACHE                                         #clearProcedureCache
     ;
 
@@ -1966,6 +1970,33 @@ loadedTableIndexes
       ( PARTITION '(' (partitionList=uidList | ALL) ')' )?
       ( indexFormat=(INDEX | KEY)? '(' indexList=uidList ')' )?
       (IGNORE LEAVES)?
+    ;
+
+// Plan-only wrappers are distinct from commands that execute the SQL body.
+polardbxExplainStatement
+    : EXPLAIN (LOGICALVIEW | LOGIC | SIMPLE | DETAIL | EXECUTE | PHYSICAL
+      | OPTIMIZER | SHARDING | COST | BASELINE | JSON_PLAN) describeObjectClause
+    ;
+
+explainAnalyzeStatement
+    : EXPLAIN ANALYZE selectStatement
+    ;
+
+traceStatement
+    : TRACE (selectStatement | withSelectStatement | insertStatement
+      | updateStatement | deleteStatement | replaceStatement)
+    ;
+
+baselineStatement
+    : BASELINE LIST (signedBaselineId (',' signedBaselineId)*)?
+    | BASELINE HELP
+    | BASELINE (ADD | FIX) SQL selectStatement
+    | BASELINE (LOAD | PERSIST | CLEAR | DELETE) (signedBaselineId (',' signedBaselineId)*)?
+    | BASELINE DELETE_PLAN signedBaselineId ',' signedBaselineId (',' signedBaselineId)*
+    ;
+
+signedBaselineId
+    : ('+' | '-')? unsignedInteger
     ;
 
 simpleDescribeStatement
@@ -2086,6 +2117,9 @@ userName
       | CCL_RULE | CCL_RULES | KEYWORD | TEMPLATE
       | MAX_CONCURRENCY | WAIT_QUEUE_SIZE | WAIT_TIMEOUT | FAST_MATCH
       | SLOW_SQL_CCL | GO | BACK
+      | LOGICALVIEW | LOGIC | DETAIL | OPTIMIZER
+      | COST | BASELINE | JSON_PLAN | TRACE
+      | FIX | DELETE_PLAN | PLANCACHE
     )  (host= LOCAL_ID)?;
 
 mysqlVariable
@@ -2703,6 +2737,9 @@ keywordsCanBeId
     | CCL_RULE | CCL_RULES | KEYWORD | TEMPLATE
     | MAX_CONCURRENCY | WAIT_QUEUE_SIZE | WAIT_TIMEOUT | FAST_MATCH
     | SLOW_SQL_CCL | GO | BACK
+    | LOGICALVIEW | LOGIC | DETAIL | OPTIMIZER
+    | COST | BASELINE | JSON_PLAN | TRACE
+    | FIX | DELETE_PLAN | PLANCACHE
     // MariaDB
     | VIA | LASTVAL | NEXTVAL | SETVAL | PREVIOUS | PERSISTENT | REPLICATION_MASTER_ADMIN | REPLICA | READ_ONLY_ADMIN | FEDERATED_ADMIN | BINLOG_MONITOR | BINLOG_REPLAY
     ;

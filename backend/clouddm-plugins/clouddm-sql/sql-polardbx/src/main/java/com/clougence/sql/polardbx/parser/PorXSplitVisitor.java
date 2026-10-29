@@ -369,6 +369,32 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
+    public SplitQueryType visitPolardbxExplainStatement(PolardbxExplainStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitBaselineStatement(BaselineStatementContext ctx) {
+        if (ctx.LIST() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        if (ctx.HELP() != null) {
+            return SplitQueryType.METADATA;
+        }
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowTrace(ShowTraceContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitClearPlanCache(ClearPlanCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
     public SplitQueryType visitFullDescribeStatement(FullDescribeStatementContext ctx) {
         return SplitQueryType.PERFORMANCE;
     }
