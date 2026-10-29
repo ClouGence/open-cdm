@@ -16,12 +16,14 @@ import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.sql.polardbx.parser.PolarXDslProvider;
 import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
 import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 import com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
@@ -82,11 +84,13 @@ final class PorXBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void> {
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
+    private final String                   currentSchema;
     private final StatementBehavior        behavior = new StatementBehavior();
 
     PorXStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
+        this.currentSchema = Objects.toString(levels.get(UmiTypes.Schema), "");
         behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
 
@@ -125,6 +129,186 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
         return null;
     }
 
+    @Override
+    public Void visitCreateUser(CreateUserContext ctx) {
+        users(ctx, SplitQueryType.CREATE_USER, BehaviorAction.CREATE);
+        return null;
+    }
+
+    @Override
+    public Void visitDropUser(DropUserContext ctx) {
+        users(ctx, SplitQueryType.DROP_USER, BehaviorAction.DROP);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserMysqlV56(AlterUserMysqlV56Context ctx) {
+        users(ctx, SplitQueryType.ALTER_USER, BehaviorAction.ALTER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
+        users(ctx, SplitQueryType.ALTER_USER, BehaviorAction.ALTER);
+        return null;
+    }
+
+    @Override
+    public Void visitAlterUserReadStrategy(AlterUserReadStrategyContext ctx) {
+        users(ctx, SplitQueryType.ALTER_USER, BehaviorAction.ALTER);
+        return null;
+    }
+
+    @Override
+    public Void visitSetPasswordStatement(SetPasswordStatementContext ctx) {
+        BehaviorObject subject = objects.instanceObject(TargetType.User, ctx);
+        if (ctx.userName() != null) {
+            subject = account(TargetType.User, ctx.userName());
+        }
+        add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, subject, List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateRole(CreateRoleContext ctx) {
+        for (RoleNameContext role : ctx.roleName()) {
+            add(SplitQueryType.CREATE_ROLE, BehaviorAction.CREATE, account(TargetType.Role, role), List.of());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitDropRole(DropRoleContext ctx) {
+        for (RoleNameContext role : ctx.roleName()) {
+            add(SplitQueryType.DROP_ROLE, BehaviorAction.DROP, account(TargetType.Role, role), List.of());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitGrantStatement(GrantStatementContext ctx) {
+        if (ctx.privilegeLevel() != null) {
+            List<BehaviorObject> targets = ctx.userAuthOption().stream()
+                .flatMap(auth -> descendants(auth, UserNameContext.class).stream())
+                .map(user -> account(TargetType.UserOrRole, user)).toList();
+            add(SplitQueryType.GRANT, BehaviorAction.GRANT, privilege(ctx.privilegeLevel(), ctx.privilegeObject), targets);
+        } else {
+            List<BehaviorObject> targets = recipients(ctx);
+            for (RoleNameContext role : ctx.roleName()) {
+                add(SplitQueryType.GRANT, BehaviorAction.GRANT, account(TargetType.Role, role), targets);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitRevokeStatement(RevokeStatementContext ctx) {
+        List<BehaviorObject> targets = recipients(ctx);
+        if (ctx.privilegeLevel() != null) {
+            add(SplitQueryType.REVOKE, BehaviorAction.REVOKE, privilege(ctx.privilegeLevel(), ctx.privilegeObject), targets);
+        } else if (!ctx.roleName().isEmpty()) {
+            for (RoleNameContext role : ctx.roleName()) {
+                add(SplitQueryType.REVOKE, BehaviorAction.REVOKE, account(TargetType.Role, role), targets);
+            }
+        } else {
+            for (BehaviorObject target : targets) {
+                add(SplitQueryType.REVOKE, BehaviorAction.REVOKE, target, List.of());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSetDefaultRole(SetDefaultRoleContext ctx) {
+        List<BehaviorObject> roles = ctx.roleName().stream().map(role -> account(TargetType.Role, role)).toList();
+        for (UserNameContext user : ctx.userName()) {
+            add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, account(TargetType.User, user), roles);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitShowGrants(ShowGrantsContext ctx) {
+        BehaviorObject subject;
+        if (ctx.userName() != null) {
+            subject = account(TargetType.UserOrRole, ctx.userName());
+        } else {
+            // Anchor the unnamed login identity without guessing it from the current schema.
+            ParserRuleContext anchor = new ParserRuleContext();
+            anchor.start = ctx.SHOW().getSymbol();
+            anchor.stop = ctx.GRANTS().getSymbol();
+            if (ctx.CURRENT_USER() != null) {
+                anchor.start = ctx.CURRENT_USER().getSymbol();
+                anchor.stop = anchor.start;
+                if (ctx.RR_BRACKET() != null) {
+                    anchor.stop = ctx.RR_BRACKET().getSymbol();
+                }
+            }
+            subject = objects.instanceObject(TargetType.User, anchor);
+        }
+        List<BehaviorObject> roles = ctx.roleName().stream().map(role -> account(TargetType.Role, role)).toList();
+        add(SplitQueryType.METADATA, BehaviorAction.READ, subject, roles);
+        return null;
+    }
+
+    @Override
+    public Void visitShowRoutingRules(ShowRoutingRulesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.ID().getSymbol()), List.of());
+        return null;
+    }
+
+    private void users(ParserRuleContext ctx, SplitQueryType type, BehaviorAction action) {
+        for (UserNameContext user : descendants(ctx, UserNameContext.class)) {
+            add(type, action, account(TargetType.User, user), List.of());
+        }
+    }
+
+    private BehaviorObject account(TargetType type, ParserRuleContext ctx) {
+        String name = unquote(ctx.getStart().getText());
+        Token host = null;
+        if (ctx instanceof UserNameContext user) {
+            host = user.host;
+        } else if (ctx instanceof RoleNameContext role) {
+            host = role.host;
+        }
+        if (host != null) {
+            name += "@" + unquote(host.getText().substring(1));
+        }
+        return objects.instanceObject(type, ctx, name);
+    }
+
+    private List<BehaviorObject> recipients(ParserRuleContext ctx) {
+        List<BehaviorObject> targets = new ArrayList<>();
+        // Only direct children are recipients; descendants also contain source role names.
+        for (int index = 0; index < ctx.getChildCount(); index++) {
+            ParseTree child = ctx.getChild(index);
+            if (child instanceof UserNameContext || child instanceof UidContext) {
+                targets.add(account(TargetType.UserOrRole, (ParserRuleContext) child));
+            }
+        }
+        return targets;
+    }
+
+    private BehaviorObject privilege(PrivilegeLevelContext ctx, Token explicitType) {
+        if (ctx instanceof GlobalPrivLevelContext) {
+            return objects.instanceObject(TargetType.Instance, ctx);
+        }
+        if (ctx instanceof CurrentSchemaPriviLevelContext) {
+            return objects.object(TargetType.Schema, ctx, List.of(currentSchema));
+        }
+        if (ctx instanceof DefiniteSchemaPrivLevelContext schema) {
+            return objects.object(TargetType.Schema, schema.uid(), List.of(unquote(text(schema.uid()))));
+        }
+        TargetType type = TargetType.Table;
+        if (explicitType != null && explicitType.getType() == PolardbXParser.FUNCTION) {
+            type = TargetType.Function;
+        } else if (explicitType != null && explicitType.getType() == PolardbXParser.PROCEDURE) {
+            type = TargetType.Procedure;
+        }
+        List<String> names = descendants(ctx, UidContext.class).stream().map(this::text).map(this::unquote).toList();
+        return objects.object(type, ctx, names);
+    }
+
     private void create(TableNameContext subject, List<TableNameContext> sources) {
         List<BehaviorObject> targets = sources.stream().map(this::table).filter(Objects::nonNull).toList();
         add(SplitQueryType.CREATE_TABLE, BehaviorAction.CREATE, table(subject), targets);
@@ -147,7 +331,15 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
     }
 
     private String unquote(String value) {
-        return value.length() >= 2 && value.charAt(0) == '`' && value.charAt(value.length() - 1) == '`' ? value.substring(1, value.length() - 1) : value;
+        if (value.length() < 2) {
+            return value;
+        }
+        char quote = value.charAt(0);
+        if ((quote == '`' || quote == '\'' || quote == '"') && value.charAt(value.length() - 1) == quote) {
+            String marker = String.valueOf(quote);
+            return value.substring(1, value.length() - 1).replace(marker + marker, marker);
+        }
+        return value;
     }
 
     private void add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
