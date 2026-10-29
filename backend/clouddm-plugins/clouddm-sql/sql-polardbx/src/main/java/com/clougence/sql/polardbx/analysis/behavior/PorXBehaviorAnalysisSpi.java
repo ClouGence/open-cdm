@@ -359,6 +359,20 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
         return null;
     }
 
+    @Override
+    public Void visitUdfFunctionCall(UdfFunctionCallContext ctx) {
+        if (!isExecuted(ctx)) {
+            return null;
+        }
+        for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext) {
+                add(behavior.getStatementType(), BehaviorAction.CALL, object(TargetType.Function, ctx.customFunctionName().fullId()), List.of());
+                return visitChildren(ctx);
+            }
+        }
+        return null;
+    }
+
     private boolean isExecuted(ParseTree tree) {
         for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
             if (parent instanceof FullDescribeStatementContext || parent instanceof PolardbxExplainStatementContext
@@ -446,6 +460,10 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
                 target = TargetType.Instance;
             }
             add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(target, entity), List.of());
+        } else if (entity.DATABASES() != null || entity.SCHEMAS() != null) {
+            add(SplitQueryType.METADATA, BehaviorAction.READ, objects.unnamedObject(TargetType.Schema, entity, UmiTypes.Catalog), List.of());
+        } else if (entity.CHARACTER() != null || entity.COLLATION() != null) {
+            add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, entity), List.of());
         }
         return null;
     }
@@ -454,6 +472,157 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
     public Void visitShowErrors(ShowErrorsContext ctx) {
         add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Session, ctx.errorFormat), List.of());
         return null;
+    }
+
+    @Override
+    public Void visitShowProcessList(ShowProcessListContext ctx) {
+        TargetType target = TargetType.Session;
+        Token start;
+        Token stop;
+        if (ctx.PHYSICAL_PROCESSLIST() != null) {
+            target = TargetType.Query;
+            start = ctx.PHYSICAL_PROCESSLIST().getSymbol();
+            stop = start;
+        } else {
+            start = ctx.PROCESSLIST().getSymbol();
+            stop = start;
+            if (ctx.PHYSICAL() != null) {
+                target = TargetType.Query;
+                start = ctx.PHYSICAL().getSymbol();
+            }
+        }
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, instanceRange(target, start, stop), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitKillStatement(KillStatementContext ctx) {
+        TargetType target = TargetType.Session;
+        if (ctx.STRING_LITERAL() != null || ctx.QUERY() != null) {
+            target = TargetType.Query;
+        }
+        add(SplitQueryType.ADMIN, BehaviorAction.TERMINATE, objects.instanceObject(target, ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowCharset(ShowCharsetContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.CHARSET().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowEngines(ShowEnginesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.ENGINES().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowPlugins(ShowPluginsContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.PLUGINS().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowPrivileges(ShowPrivilegesContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.PRIVILEGES().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowHelp(ShowHelpContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.HELP().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitHelpStatement(HelpStatementContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.HELP().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowSlow(ShowSlowContext ctx) {
+        Token anchor;
+        if (ctx.SLOW() != null) {
+            anchor = ctx.SLOW().getSymbol();
+        } else {
+            anchor = ctx.PHYSICAL_SLOW().getSymbol();
+        }
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Log, anchor), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitClearSlow(ClearSlowContext ctx) {
+        add(SplitQueryType.MAINTAIN_LOG, BehaviorAction.RESET, objects.instanceObject(TargetType.Log, ctx.SLOW().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowMasterLogs(ShowMasterLogsContext ctx) {
+        logRead(instanceRange(TargetType.Log, ctx.logFormat, ctx.LOGS().getSymbol()), ctx.streamName);
+        return null;
+    }
+
+    @Override
+    public Void visitShowStatus(ShowStatusContext ctx) {
+        logRead(instanceRange(TargetType.Log, ctx.MASTER().getSymbol(), ctx.STATUS().getSymbol()), ctx.streamName);
+        return null;
+    }
+
+    @Override
+    public Void visitShowLogEvents(ShowLogEventsContext ctx) {
+        BehaviorObject subject;
+        if (ctx.filename != null) {
+            subject = objects.instanceObject(TargetType.Log, ctx.filename, unquote(ctx.filename.getText()));
+        } else {
+            subject = instanceRange(TargetType.Log, ctx.logFormat, ctx.EVENTS().getSymbol());
+        }
+        logRead(subject, ctx.streamName);
+        return null;
+    }
+
+    @Override
+    public Void visitShowProcedureCache(ShowProcedureCacheContext ctx) {
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
+            instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitResizeProcedureCache(ResizeProcedureCacheContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.CONFIGURE,
+            instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitClearProcedureCache(ClearProcedureCacheContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.RESET,
+            instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitReloadProcedures(ReloadProceduresContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.LOAD, objects.instanceObject(TargetType.Cache, ctx.PROCEDURES().getSymbol()), List.of());
+        return null;
+    }
+
+    private void logRead(BehaviorObject subject, Token stream) {
+        List<BehaviorObject> targets = List.of();
+        if (stream != null) {
+            targets = List.of(objects.instanceObject(TargetType.Object, stream, unquote(stream.getText())));
+        }
+        add(SplitQueryType.LOG_READ, BehaviorAction.READ, subject, targets);
+    }
+
+    private BehaviorObject instanceRange(TargetType type, Token start, Token stop) {
+        ParserRuleContext anchor = new ParserRuleContext();
+        anchor.start = start;
+        anchor.stop = stop;
+        return objects.instanceObject(type, anchor);
     }
 
     private BehaviorObject variable(ParserRuleContext ctx, String name) {
