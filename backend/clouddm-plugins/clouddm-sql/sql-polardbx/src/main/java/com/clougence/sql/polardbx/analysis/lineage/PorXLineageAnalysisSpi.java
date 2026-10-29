@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.analysis.lineage;
+package com.clougence.sql.polardbx.analysis.lineage;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -22,9 +22,9 @@ import java.util.List;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.analysis.security.PorXSqlParserVisitor;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PorXSplitAnalysisSpi;
+import com.clougence.sql.polardbx.analysis.security.PorXSqlParserVisitor;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;

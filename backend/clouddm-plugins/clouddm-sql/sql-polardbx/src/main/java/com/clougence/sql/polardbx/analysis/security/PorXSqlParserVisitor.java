@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.analysis.security;
+package com.clougence.sql.polardbx.analysis.security;
 
-import static com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser.*;
+import static com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,8 +28,8 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParserBaseVisitor;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;

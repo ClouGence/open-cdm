@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.parser;
+package com.clougence.sql.polardbx.parser;
 
-import static com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser.*;
+import static com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParserBaseVisitor;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> {
@@ -92,6 +92,16 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitAlterUserMysqlV57(AlterUserMysqlV57Context ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitAlterUserReadStrategy(AlterUserReadStrategyContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultRole(SetDefaultRoleContext ctx) {
         return SplitQueryType.ALTER_USER;
     }
 
@@ -509,7 +519,12 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowGrants(ShowGrantsContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowRoutingRules(ShowRoutingRulesContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override

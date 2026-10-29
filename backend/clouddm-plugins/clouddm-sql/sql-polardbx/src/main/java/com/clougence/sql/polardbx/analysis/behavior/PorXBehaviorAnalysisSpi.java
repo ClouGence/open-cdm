@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.analysis.behavior;
+package com.clougence.sql.polardbx.analysis.behavior;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -19,10 +19,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PorXSplitAnalysisSpi;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParserBaseVisitor;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser.*;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;

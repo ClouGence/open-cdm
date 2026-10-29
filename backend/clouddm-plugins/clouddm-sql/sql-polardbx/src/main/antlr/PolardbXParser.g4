@@ -172,7 +172,7 @@ createFunction
     ;
 
 createRole
-    : CREATE ROLE (IF NOT EXISTS)? roleName
+    : CREATE ROLE (IF NOT EXISTS)? roleName (',' roleName)*
     ;
 
 createServer
@@ -1484,6 +1484,14 @@ alterUser
         )?
         (WITH userResourceOption+)?
         (userPasswordOption | userLockOption)*                      #alterUserMysqlV57
+    | ALTER USER userName readStrategyOption                        #alterUserReadStrategy
+    ;
+
+// Cloud account options remain contextual identifiers outside this clause.
+readStrategyOption
+    : {"READ_STRATEGY".equalsIgnoreCase(_input.LT(1).getText())}? ID
+      (NONE | {"FOLLOWER".equalsIgnoreCase(_input.LT(1).getText())
+                || "STALE".equalsIgnoreCase(_input.LT(1).getText())}? ID)
     ;
 
 createUser
@@ -1705,6 +1713,8 @@ setStatement
     | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
     | SET NAMES
         (charsetName (COLLATE collationName)? | DEFAULT)            #setNames
+    | SET DEFAULT ROLE (NONE | ALL | roleName (',' roleName)*)
+      TO userName (',' userName)*                                  #setDefaultRole
     | setPasswordStatement                                          #setPassword
     | setTransactionStatement                                       #setTransaction
     | setAutocommitStatement                                        #setAutocommit
@@ -1757,7 +1767,11 @@ showStatement
     | SHOW showSchemaEntity
         (schemaFormat=(FROM | IN) uid)? showFilter?                 #showSchemaFilter
     | SHOW routine=(FUNCTION | PROCEDURE) CODE fullId               #showRoutine
-    | SHOW GRANTS (FOR (userName|CURRENT_USER ('(' ')')?))?         #showGrants
+    | SHOW GRANTS
+      (FOR (userName | CURRENT_USER ('(' ')')?)
+        (USING roleName (',' roleName)*)?)?                        #showGrants
+    | SHOW {"ROUTING_RULES".equalsIgnoreCase(_input.LT(1).getText())}? ID
+      (WHERE expression)?                                          #showRoutingRules
     | SHOW indexFormat=(INDEX | INDEXES | KEYS)
       tableFormat=(FROM | IN) tableName
         (schemaFormat=(FROM | IN) uid)? (WHERE expression)?         #showIndexes
@@ -1963,7 +1977,7 @@ customFunctionName
     ;
 
 roleName
-    : uid | STRING_LITERAL
+    : (uid | STRING_LITERAL) (host=LOCAL_ID)?
     ;
 
 fullColumnName

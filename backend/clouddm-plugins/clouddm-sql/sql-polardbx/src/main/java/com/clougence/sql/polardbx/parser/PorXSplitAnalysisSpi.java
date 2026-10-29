@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.parser;
+package com.clougence.sql.polardbx.parser;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.editor.rewrite;
+package com.clougence.sql.polardbx.editor.rewrite;
 
 import java.io.StringReader;
 import java.util.List;
@@ -23,8 +23,8 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.DslHelper;

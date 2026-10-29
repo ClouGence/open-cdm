@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
-package com.clougence.clouddm.ds.polardb.i18n;
+package com.clougence.sql.polardbx.i18n;
 
 import com.clougence.utils.i18n.I18nResource;
 

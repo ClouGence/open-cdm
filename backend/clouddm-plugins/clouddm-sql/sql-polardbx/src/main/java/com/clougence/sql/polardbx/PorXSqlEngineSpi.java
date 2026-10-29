@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx;
+package com.clougence.sql.polardbx;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.analysis.behavior.PorXBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.polardb.sql.porx.analysis.security.PorXSecDomainResolveSpi;
-import com.clougence.clouddm.ds.polardb.sql.porx.editor.rewrite.PorXRewriteSpi;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PorXSplitAnalysisSpi;
+import com.clougence.sql.polardbx.analysis.behavior.PorXBehaviorAnalysisSpi;
+import com.clougence.sql.polardbx.analysis.security.PorXSecDomainResolveSpi;
+import com.clougence.sql.polardbx.editor.rewrite.PorXRewriteSpi;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
