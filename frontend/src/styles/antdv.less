@@ -113,8 +113,15 @@
   }
 }
 
-.ant-btn-dangerous {
-  background-color: #ff4d4f;
+.ant-btn-link.ant-btn-dangerous:not(:disabled) {
+  color: @error-color;
+  background: transparent;
+
+  &:hover,
+  &:focus {
+    color: @error-color;
+    background: transparent;
+  }
 }
 
 .ant-btn-primary.ant-btn-dangerous:not(:disabled) {

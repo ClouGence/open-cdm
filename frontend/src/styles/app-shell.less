@@ -578,6 +578,26 @@
   flex-direction: column;
 }
 
+@media (max-width: 767px) {
+  .sql-compact-header {
+    height: auto;
+    min-height: @shell-compact-header-height;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 16px;
+
+    &__brand {
+      height: auto;
+      padding: 0;
+    }
+
+    &__actions {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  }
+}
+
 .home--sql {
   height: 100vh;
   height: 100dvh;

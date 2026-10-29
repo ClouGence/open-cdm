@@ -10,6 +10,7 @@ import { requestWebSocket } from '@/services/socket';
 import { WS_TYPE } from '@/utils';
 import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
 import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
+import { canFormatSql, formatSqlDocument } from './sqlFormat';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const LANGUAGE_SPLIT_DELAY_MS = 500;
@@ -53,6 +54,8 @@ export default {
         tabSize: 4,
         lineNumbersMinChars: 3,
         scrollBeyondLastLine: false,
+        hideCursorInOverviewRuler: true,
+        overviewRulerBorder: false,
         theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
@@ -69,6 +72,7 @@ export default {
       hoverProviderList: [],
       fontSizePanelExpanded: false,
       languageRequestVersion: 0,
+      editorInitVersion: 0,
       validateTimer: null,
       splitTimer: null,
       editorDisposableList: [],
@@ -98,17 +102,30 @@ export default {
   },
   mounted() {
     this.init();
+    document.addEventListener('click', this.handleFontSizeOutsideClick);
   },
   methods: {
+    handleFontSizeOutsideClick(event) {
+      if (this.fontSizePanelExpanded && !this.$refs.fontSizeButtons?.contains(event.target)) {
+        this.fontSizePanelExpanded = false;
+      }
+    },
     async init() {
-      this.currentTab.language = await resolveSqlEditorLanguage(
+      const version = ++this.editorInitVersion;
+      const tab = this.currentTab;
+      const language = await resolveSqlEditorLanguage(
         monaco,
         this.currentTab.dsType,
         this.getDsSettings(),
         getLanguage(this.currentTab.dsType),
         this.getDsLanguageCapability()
       );
-      this.defaultOpts.language = this.currentTab.language;
+      if (version !== this.editorInitVersion || this.currentTab.key !== tab.key) {
+        return;
+      }
+      tab.language = language;
+      this.defaultOpts.language = language;
+      this.defaultOpts.quickSuggestions = { other: true, comments: false, strings: language === 'es' };
       let editorText = this.currentTab.text;
       if (typeof editorText !== 'string') {
         editorText = '';
@@ -125,7 +142,7 @@ export default {
       this.registerHover(this.defaultOpts.language);
       this.addActions();
       this.installSuggestIconRenderer();
-      this.setEditorInstance(this.monacoEditor);
+      this.setEditorInstance(this.monacoEditor, tab.key);
       this.installCurrentStatementOverlay();
       this.editorDisposableList.push(
         this.monacoEditor.onDidScrollChange(() => {
@@ -255,28 +272,31 @@ export default {
       };
     },
     formatDiagnosticMessage(message) {
+      if (message && this.$te(message)) {
+        return this.$t(message);
+      }
       if (!message) {
-        return 'SQL 语法错误';
+        return this.$t('sql-diagnostic-error');
       }
 
       let match = message.match(/^mismatched input '(.+)' expecting (.+)$/);
       if (match) {
-        return `语法错误：不应出现 "${match[1]}"，此处应为 ${this.formatExpectedTokens(match[2])}。`;
+        return this.$t('sql-diagnostic-mismatch', { input: match[1], expected: this.formatExpectedTokens(match[2]) });
       }
 
       match = message.match(/^extraneous input '(.+)' expecting (.+)$/);
       if (match) {
-        return `语法错误：多余的输入 "${match[1]}"，此处应为 ${this.formatExpectedTokens(match[2])}。`;
+        return this.$t('sql-diagnostic-extra', { input: match[1], expected: this.formatExpectedTokens(match[2]) });
       }
 
       match = message.match(/^missing (.+) at '(.+)'$/);
       if (match) {
-        return `语法错误：在 "${match[2]}" 附近缺少 ${this.formatExpectedTokens(match[1])}。`;
+        return this.$t('sql-diagnostic-missing', { input: match[2], expected: this.formatExpectedTokens(match[1]) });
       }
 
       match = message.match(/^no viable alternative at input (.+)$/);
       if (match) {
-        return `语法错误：无法识别 "${match[1]}" 附近的 SQL 结构。`;
+        return this.$t('sql-diagnostic-unrecognized', { input: match[1] });
       }
 
       return message;
@@ -287,17 +307,17 @@ export default {
         .split(',')
         .map((token) => this.formatExpectedToken(token.trim()))
         .filter(Boolean)
-        .join(' 或 ');
+        .join(this.$t('sql-diagnostic-or'));
     },
     formatExpectedToken(token) {
       const normalized = token.replace(/^'|'$/g, '');
       const tokenNameMap = {
-        '<EOF>': '语句结束',
-        EOF: '语句结束',
-        '--': '"--" 注释',
-        ';': '分号',
-        ID: '标识符',
-        IDENTIFIER: '标识符'
+        '<EOF>': this.$t('sql-token-end'),
+        EOF: this.$t('sql-token-end'),
+        '--': this.$t('sql-token-comment'),
+        ';': this.$t('sql-token-semicolon'),
+        ID: this.$t('sql-token-identifier'),
+        IDENTIFIER: this.$t('sql-token-identifier')
       };
       return tokenNameMap[normalized] || `"${normalized}"`;
     },
@@ -415,8 +435,11 @@ export default {
     },
     registerCompletion(lang) {
       const providerItem = monaco.languages.registerCompletionItemProvider(lang, {
-        triggerCharacters: [' ', '.', '`', '/', '$'],
+        triggerCharacters: [' ', '.', '`', '/', '$', '"', '?', '&'],
         provideCompletionItems: async (model, position) => {
+          if (model !== this.monacoEditor?.getModel()) {
+            return { suggestions: [] };
+          }
           this.sortText = 0;
           let suggestions = [];
 
@@ -520,6 +543,9 @@ export default {
         iconEl.classList.add('cgdm-completion-icon');
         iconEl.setAttribute('data-cgdm-icon', icon);
       });
+    },
+    isHana() {
+      return (this.currentTab?.dsType || this.currentTab?.node?.INSTANCE?.attr?.dsType) === 'Hana';
     },
     getDsLanguageCapability() {
       return this.currentTab?.support?.language || null;
@@ -654,7 +680,7 @@ export default {
       if (model.getVersionId() === this.splitModelVersionId) {
         statement = this.findStatementAtPosition(position, model);
       }
-      if (!statement) {
+      if (!statement && !this.isHana() && this.currentTab?.dsType !== 'ElasticSearch') {
         statement = this.findLocalStatementAtPosition(position, model);
       }
       if (!statement) {
@@ -983,6 +1009,9 @@ export default {
       );
     },
     findSqlFragmentRanges(text) {
+      if (this.isHana() || this.currentTab?.dsType === 'ElasticSearch') {
+        return [{ startOffset: 0, endOffset: text.length }];
+      }
       const ranges = [];
       let startOffset = 0;
       let quote = null;
@@ -1153,11 +1182,26 @@ export default {
     },
     async getDelayedBackendCompletionSuggest(model, position) {
       const versionId = model.getVersionId();
+      const sessionId = this.currentTab.sessionId;
       await this.waitForLanguageCompletion();
-      if (model.isDisposed() || model.getVersionId() !== versionId) {
+      if (
+        model.isDisposed() ||
+        model !== this.monacoEditor?.getModel() ||
+        model.getVersionId() !== versionId ||
+        this.currentTab.sessionId !== sessionId
+      ) {
         return [];
       }
-      return this.getBackendCompletionSuggest(position);
+      const suggestions = await this.getBackendCompletionSuggest(position);
+      if (
+        model.isDisposed() ||
+        model !== this.monacoEditor?.getModel() ||
+        model.getVersionId() !== versionId ||
+        this.currentTab.sessionId !== sessionId
+      ) {
+        return [];
+      }
+      return suggestions;
     },
     waitForLanguageCompletion() {
       return new Promise((resolve) => {
@@ -1208,7 +1252,15 @@ export default {
         insertText: item.insertText || item.label,
         umiType: item.umiType,
         icon: item.icon,
-        weight: item.weight
+        weight: item.weight,
+        range: item.range
+          ? new monaco.Range(
+              item.range.startPosition.lineNumber,
+              item.range.startPosition.columnNumber + 1,
+              item.range.endPosition.lineNumber,
+              item.range.endPosition.columnNumber + 1
+            )
+          : undefined
       };
     },
     mergeCompletionSuggestions(staticSuggestions, backendSuggestions) {
@@ -1226,7 +1278,11 @@ export default {
       return Array.from(suggestions.values()).sort((left, right) => this.compareCompletionSuggestions(left, right));
     },
     completionSuggestionKey(item) {
-      return `${item.kind || ''}:${this.getCompletionLabelText(item.label).toUpperCase()}`;
+      const label = this.getCompletionLabelText(item.label);
+      if (this.isHana() || this.getCurrentDsSetting()?.constant?.caseType === 'Sensitive') {
+        return `${item.kind || ''}:${label}`;
+      }
+      return `${item.kind || ''}:${label.toUpperCase()}`;
     },
     toCompletionSortText(weight, label) {
       if (Number.isFinite(weight)) {
@@ -1346,7 +1402,67 @@ export default {
       });
       this.hoverProviderList.push(providerItem);
     },
-    formatSql() {},
+    async formatSql() {
+      if (!canFormatSql(this.currentTab)) {
+        this.showLanguageServiceError(this.$t('sql-format-unavailable'));
+        return;
+      }
+      const editor = this.monacoEditor;
+      const model = editor?.getModel();
+      if (!model) {
+        return;
+      }
+      // Format the full document so selections inside literals/comments cannot change their contents.
+      const range = model.getFullModelRange();
+      const versionId = model.getVersionId();
+      const sessionId = this.currentTab.sessionId;
+      let formatted;
+      if (this.isDsLanguageSupport('FORMAT')) {
+        const sqlText = model.getValue();
+        if (this.isLanguageFragmentTooLarge(sqlText)) {
+          this.showLanguageServiceError(this.$t('query-format-too-large'));
+          return;
+        }
+        const request = this.buildLanguageRequest(null, { sqlText, startOffset: 0, startPosition: { lineNumber: 1, columnNumber: 0 } });
+        try {
+          const response = await this.requestLanguageWebSocket('FORMAT', request);
+          if (
+            model.isDisposed() ||
+            model !== this.monacoEditor?.getModel() ||
+            model.getVersionId() !== versionId ||
+            this.currentTab.sessionId !== sessionId
+          ) {
+            return;
+          }
+          if (this.handleLanguageServiceStatus(response) || this.handleLanguageServiceMessage(response)) {
+            return;
+          }
+          if (response?.result?.requestVersion !== request.requestVersion) {
+            return;
+          }
+          if (response.result.message) {
+            this.showLanguageServiceError(response.result.message);
+            return;
+          }
+          formatted = response.result.sqlText;
+        } catch {
+          this.showLanguageServiceError(this.$t('sql-format-failed'));
+          return;
+        }
+      } else {
+        formatted = formatSqlDocument(model.getValue(), this.currentTab.dsType);
+      }
+      if (typeof formatted !== 'string') {
+        this.showLanguageServiceError(this.$t('sql-format-failed'));
+        return;
+      }
+      if (formatted === model.getValue()) {
+        return;
+      }
+      editor.pushUndoStop();
+      editor.executeEdits('sql-format', [{ range, text: formatted, forceMoveMarkers: true }]);
+      editor.pushUndoStop();
+    },
     getCurrentSqlTarget() {
       const model = this.monacoEditor?.getModel();
       const position = this.monacoEditor?.getPosition();
@@ -1364,6 +1480,9 @@ export default {
         };
       }
 
+      if (this.isHana() || this.currentTab?.dsType === 'ElasticSearch') {
+        return { sql: '', position: null };
+      }
       if (!position) {
         return {
           sql: model.getValue(),
@@ -1429,6 +1548,7 @@ export default {
       localStorage.setItem(SQL_EDITOR_FONT_SIZE_STORAGE_KEY, String(size));
       this.monacoEditor?.updateOptions({ fontSize: size });
       this.monacoEditorFountCss = `font-size-${size}`;
+      this.fontSizePanelExpanded = false;
     },
     getSQLSuggest(keywords) {
       const list = keywords.map((key) => ({
@@ -1535,6 +1655,8 @@ export default {
     }
   },
   beforeUnmount() {
+    this.editorInitVersion++;
+    document.removeEventListener('click', this.handleFontSizeOutsideClick);
     this.handleDispose();
   },
   watch: {
@@ -1551,22 +1673,23 @@ export default {
 
 <template>
   <div class="monaco-editor">
-    <div class="font-size-buttons" @mouseenter="fontSizePanelExpanded = true" @mouseleave="fontSizePanelExpanded = false">
+    <div class="font-size-buttons" ref="fontSizeButtons">
       <div class="language-service-error" v-if="languageServiceErrorMessage">
         {{ languageServiceErrorMessage }}
       </div>
-      <ButtonGroup>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(12)">
+      <ButtonGroup v-if="fontSizePanelExpanded" class="font-size-options">
+        <Button size="small" @click="setFontSize(12)">
           {{ $t('zi-hao-1') }}
         </Button>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(16)">
+        <Button size="small" @click="setFontSize(16)">
           {{ $t('zi-hao-2') }}
         </Button>
-        <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(20)">
+        <Button size="small" @click="setFontSize(20)">
           {{ $t('zi-hao-3') }}
         </Button>
-        <Button size="small" v-if="!fontSizePanelExpanded">T</Button>
       </ButtonGroup>
+      <Button size="small" :aria-expanded="fontSizePanelExpanded" @click.stop="fontSizePanelExpanded = !fontSizePanelExpanded">T</Button>
+      <slot name="editor-controls" />
     </div>
     <div :class="`${monacoEditorFountCss} monaco-editor-content`" ref="monacoEditor"></div>
   </div>
@@ -1703,8 +1826,8 @@ export default {
   right: 17px;
   z-index: 10;
   display: flex;
-  align-items: flex-start;
-  gap: 5px;
+  align-items: center;
+  gap: 4px;
 }
 .language-service-error {
   max-width: 360px;

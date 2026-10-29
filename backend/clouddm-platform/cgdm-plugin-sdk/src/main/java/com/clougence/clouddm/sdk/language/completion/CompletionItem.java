@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.sdk.language.completion;
 
+import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import lombok.Getter;
@@ -31,4 +32,6 @@ public class CompletionItem {
     private String             insertText;
     private String             sortText;
     private Integer            weight;
+    /** Optional replacement range in the full editor document: one-based lines, zero-based UTF-16 columns. */
+    private BlockLocation      range;
 }

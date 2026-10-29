@@ -18,5 +18,6 @@ package com.clougence.clouddm.sdk.language;
 public enum DsLanguageSupport {
     COMPLETE,
     VALIDATE,
-    SPLIT
+    SPLIT,
+    FORMAT
 }

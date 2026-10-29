@@ -862,6 +862,9 @@ DISJOINT:                            D I S J O I N T;
 ELT:                                 E L T;
 ENCODE:                              E N C O D E;
 ENCRYPT:                             E N C R Y P T;
+DECRYPT:                             D E C R Y P T;
+LINK:                                L I N K;
+SYSTEM:                              S Y S T E M;
 ENDPOINT:                            E N D P O I N T;
 ENVELOPE:                            E N V E L O P E;
 EQUALS:                              E Q U A L S;
@@ -1104,6 +1107,55 @@ FEDERATED_ADMIN:                     F E D E R A T E D '_' A D M I N;
 READ_ONLY_ADMIN:                     R E A D '_' O N L Y '_' A D M I N;
 REPLICA:                             R E P L I C A;
 REPLICATION_MASTER_ADMIN:            R E P L I C A T I O N '_' M A S T E R '_' A D M I N;
+// OceanBase management keywords also remain available as identifiers.
+PARAMETERS:                          P A R A M E T E R S;
+QUEUE_TIME:                          Q U E U E '_' T I M E;
+RT:                                  R T;
+SCOPE:                               S C O P E;
+SPFILE:                              S P F I L E;
+TENANT:                              T E N A N T;
+THROTTLE:                            T H R O T T L E;
+ZONE:                                Z O N E;
+AUTO:                                A U T O;
+HISTOGRAM:                           H I S T O G R A M;
+BUCKETS:                             B U C K E T S;
+COMPUTE:                             C O M P U T E;
+ESTIMATE:                            E S T I M A T E;
+STATISTICS:                          S T A T I S T I C S;
+SAMPLE:                              S A M P L E;
+PERCENTAGE:                          P E R C E N T A G E;
+SIZE:                                S I Z E;
+SKEWONLY:                            S K E W O N L Y;
+INDEXED:                             I N D E X E D;
+FREEZE:                              F R E E Z E;
+MAJOR:                               M A J O R;
+MINOR:                               M I N O R;
+PLAN:                                P L A N;
+SQL_ID:                              S Q L '_' I D;
+CLEAR:                               C L E A R;
+FLASHBACK:                           F L A S H B A C K;
+RECYCLEBIN:                          R E C Y C L E B I N;
+BACKUP:                              B A C K U P;
+INCREMENTAL:                         I N C R E M E N T A L;
+ARCHIVELOG:                          A R C H I V E L O G;
+NOARCHIVELOG:                        N O A R C H I V E L O G;
+DESCRIPTION:                         D E S C R I P T I O N;
+CANCEL:                              C A N C E L;
+POLICY:                              P O L I C Y;
+RECOVERY_WINDOW:                     R E C O V E R Y '_' W I N D O W;
+PLUS_KEYWORD:                        P L U S;
+HIDDEN_COLUMN:                       H I D D E N;
+BASIC:                               B A S I C;
+OUTLINE:                             O U T L I N E;
+EXTENDED_NOADDR:                     E X T E N D E D '_' N O A D D R;
+PRETTY:                              P R E T T Y;
+PRETTY_COLOR:                        P R E T T Y '_' C O L O R;
+STATEMENT_ID:                        S T A T E M E N T '_' I D;
+TRACE:                               T R A C E;
+QUERY_RESPONSE_TIME:                 Q U E R Y '_' R E S P O N S E '_' T I M E;
+HINT:                                H I N T;
+NAMED_ARGUMENT_ASSIGN:               '=>';
+PARAMETER_MARK:                      '?';
 VAR_ASSIGN:                          ':=';
 PLUS_ASSIGN:                         '+=';
 MINUS_ASSIGN:                        '-=';
@@ -1160,7 +1212,7 @@ NULL_SPEC_LITERAL:                   '\\' 'N';
 BIT_STRING:                          BIT_STRING_L;
 STRING_CHARSET_NAME:                 '_' CHARSET_NAME;
 ID:                                  ID_LITERAL;
-REVERSE_QUOTE_ID:                    '`' ~'`'+ '`';
+REVERSE_QUOTE_ID:                    '`' ('``' | ~'`')+ '`';
 LOCAL_ID:                            '@'
                                 (
                                   [a-zA-Z0-9._$]+
@@ -1170,7 +1222,8 @@ LOCAL_ID:                            '@'
                                 );
 GLOBAL_ID:                           '@' '@' 
                                 (
-                                  [a-zA-Z0-9._$]+
+                                  (GLOBAL | SESSION | LOCAL) '.' BQUOTA_STRING
+                                  | [a-zA-Z0-9._$]+
                                   | BQUOTA_STRING
                                 );
 fragment CHARSET_NAME:               ARMSCII8 | ASCII | BIG5 | BINARY | CP1250 

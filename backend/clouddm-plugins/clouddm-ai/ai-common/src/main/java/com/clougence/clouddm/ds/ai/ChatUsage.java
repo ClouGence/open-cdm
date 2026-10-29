@@ -1,0 +1,47 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.ds.ai;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
+public final class ChatUsage {
+    private final long inputTokens;
+
+    private final long outputTokens;
+
+    private final Long cachedInputTokens;
+
+    private final Long reasoningTokens;
+
+    @JsonCreator
+    public ChatUsage(@JsonProperty("inputTokens") long inputTokens, @JsonProperty("outputTokens") long outputTokens, @JsonProperty("cachedInputTokens") Long cachedInputTokens,
+                     @JsonProperty("reasoningTokens") Long reasoningTokens){
+        this.inputTokens = inputTokens;
+        this.outputTokens = outputTokens;
+        this.cachedInputTokens = cachedInputTokens;
+        this.reasoningTokens = reasoningTokens;
+    }
+
+    public ChatUsage(long inputTokens, long outputTokens){
+        this(inputTokens, outputTokens, null, null);
+    }
+}

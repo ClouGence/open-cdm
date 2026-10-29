@@ -20,7 +20,7 @@ function group(key, labelKey, iconName, children) {
   };
 }
 
-export function buildSidebarMenu({ myCatLog, myAuth, isDesktop, accountType }) {
+export function buildSidebarMenu({ myCatLog, myAuth, isDesktop, accountType, canManageAi = false }) {
   const primary = [];
 
   if (myCatLog.includes('CAT_RDP_DS')) {
@@ -90,6 +90,9 @@ export function buildSidebarMenu({ myCatLog, myAuth, isDesktop, accountType }) {
   }
   if (myCatLog.includes('CAT_RDP_PRI_PREFERENCE_CONF') && myAuth.includes('RDP_PRI_USER_KV_CONF_R')) {
     settingsChildren.push(linkItem('/settings/preferences', '/#/settings/preferences', 'nav-tong-yong', 'icon-v2-preference'));
+  }
+  if (canManageAi) {
+    settingsChildren.push(linkItem('/settings/ai', '/#/settings/ai', 'ai.settings', 'icon-v2-preference'));
   }
   if (settingsChildren.length) {
     groups.push(group('settings', 'nav-she-zhi', 'icon-v2-preference', settingsChildren));

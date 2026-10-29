@@ -106,5 +106,6 @@
   "ui-menu-title-menu-browse-constraint-disable": "禁用",
   "ui-menu-title-menu-browse-user-drop": "删除",
   "ui-menu-title-menu-browse-synonym-request": "获取创建语句",
-  "ui-menu-title-menu-browse-materialized-drop": "删除"
+  "ui-menu-title-menu-browse-materialized-drop": "删除",
+  "ui-menu-title-menu-browse-command-template": "命令模板"
 }

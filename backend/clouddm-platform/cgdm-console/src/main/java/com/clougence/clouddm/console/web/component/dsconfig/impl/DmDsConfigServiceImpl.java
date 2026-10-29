@@ -177,7 +177,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
                 levels.add(0, DsMenuType.Env.getTypeName());
                 config.getCategories().setLevels(levels);
                 config.getCategories().setLeafExpand(browseSpi.getLeafExpand().stream().map(UmiTypes::getTypeName).collect(Collectors.toList()));
-                config.getCategories().setLeafGroup(loadLeaf(browseSpi.getLeafGroupMap()));
+                config.getCategories().setLeafGroup(loadLeaf(browseSpi.getLeafGroupMap(), browseSpi.getLeafLabels()));
 
                 constant.setLeftQualifier(browseSpi.getLeftQualifier());
                 constant.setRightQualifier(browseSpi.getRightQualifier());
@@ -277,10 +277,21 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return result;
     }
 
-    private Map<String, List<DsLevelLeaf>> loadLeaf(Map<UmiTypes, List<UmiTypes>> map) {
+    private Map<String, List<DsLevelLeaf>> loadLeaf(Map<UmiTypes, List<UmiTypes>> map, Map<UmiTypes, String> labels) {
         Map<String, List<DsLevelLeaf>> result = new HashMap<>(map.size());
         for (UmiTypes umiTypes : map.keySet()) {
-            result.put(umiTypes.getTypeName(), loadLeaf(map.get(umiTypes)));
+            List<DsLevelLeaf> leaves = new ArrayList<>();
+            for (DsLevelLeaf leaf : loadLeaf(map.get(umiTypes))) {
+                String label = labels.get(UmiTypes.valueOfCode(leaf.getType()));
+                if (label == null) {
+                    leaves.add(leaf);
+                } else {
+                    DsLevelLeaf named = leaf.clone();
+                    named.setI18n(label);
+                    leaves.add(named);
+                }
+            }
+            result.put(umiTypes.getTypeName(), leaves);
         }
 
         return result;

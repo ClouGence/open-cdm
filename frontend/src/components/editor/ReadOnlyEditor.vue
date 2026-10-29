@@ -12,6 +12,10 @@ export default {
   name: 'ReadOnlyEditor',
   props: {
     maxHeight: Number,
+    fontSize: {
+      type: Number,
+      default: SQL_EDITOR_TYPOGRAPHY.fontSize
+    },
     text: {
       type: String,
       default: ''
@@ -19,6 +23,10 @@ export default {
     language: {
       type: String,
       default: 'sql'
+    },
+    formatJson: {
+      type: Boolean,
+      default: false
     },
     dsType: {
       type: String,
@@ -40,6 +48,10 @@ export default {
       type: Boolean,
       default: false
     },
+    alwaysConsumeMouseWheel: {
+      type: Boolean,
+      default: true
+    },
     lineNumberStart: {
       type: Number,
       default: 1
@@ -50,10 +62,16 @@ export default {
     }
   },
   watch: {
+    fontSize(fontSize) {
+      this.monacoEditor?.updateOptions({ fontSize });
+    },
     text(newVal, oldVal) {
       if (newVal && newVal !== oldVal) {
         this.createEditor();
       }
+    },
+    formatJson() {
+      this.createEditor();
     },
     dsType() {
       this.applyLanguage();
@@ -68,6 +86,8 @@ export default {
   data() {
     return {
       monacoEditor: null,
+      jsonFormatWorker: null,
+      editorDisposed: false,
       viewportHeight: 0
     };
   },
@@ -111,6 +131,10 @@ export default {
   methods: {
     async createEditor() {
       if (this.text) {
+        const language = await this.resolveLanguage();
+        if (this.editorDisposed) {
+          return;
+        }
         if (this.monacoEditor) {
           const viewState = this.monacoEditor.saveViewState();
           this.monacoEditor.getModel().setValue(this.text);
@@ -119,12 +143,12 @@ export default {
           }
           this.applyLanguage();
         } else {
-          const language = await this.resolveLanguage();
           this.monacoEditor = markRaw(
             monaco.editor.create(this.$refs.readOnlyEditor, {
               value: this.text, // The editor 's value
               language,
-              ...SQL_EDITOR_TYPOGRAPHY,
+              ...(language === 'json' ? { wordWrap: 'on' } : SQL_EDITOR_TYPOGRAPHY),
+              fontSize: this.fontSize,
               scrollBeyondLastLine: false,
               readOnly: true,
               domReadOnly: true,
@@ -142,7 +166,7 @@ export default {
                 ...SQL_EDITOR_SCROLLBAR,
                 vertical: this.virtualScrollMode ? 'hidden' : 'auto',
                 handleMouseWheel: !this.virtualScrollMode,
-                alwaysConsumeMouseWheel: !this.virtualScrollMode
+                alwaysConsumeMouseWheel: !this.virtualScrollMode && this.alwaysConsumeMouseWheel
               },
               overviewRulerLanes: 0,
               hideCursorInOverviewRuler: true,
@@ -161,12 +185,45 @@ export default {
             }
           });
         }
+        this.formatJsonDocument();
         this.$nextTick(() => {
           this.updateViewportHeight();
           if (this.monacoEditor) {
             this.monacoEditor.layout();
           }
         });
+      }
+    },
+    async formatJsonDocument() {
+      const model = this.monacoEditor?.getModel();
+      if (!this.formatJson || model?.getLanguageId() !== 'json') {
+        return;
+      }
+      const version = model.getVersionId();
+      try {
+        if (!this.jsonFormatWorker) {
+          this.jsonFormatWorker = markRaw(
+            monaco.editor.createWebWorker({
+              moduleId: 'vs/language/json/jsonWorker',
+              label: 'json',
+              createData: { languageId: 'json', languageSettings: {}, enableSchemaRequest: false }
+            })
+          );
+        }
+        const worker = await this.jsonFormatWorker.withSyncedResources([model.uri]);
+        const edits = await worker.format(model.uri.toString(), null, { tabSize: 4, insertSpaces: true });
+        if (model.isDisposed() || model !== this.monacoEditor?.getModel() || model.getVersionId() !== version || !this.formatJson) {
+          return;
+        }
+        // Apply whitespace edits only to the display model; copying and chunk offsets use the original text.
+        model.applyEdits(
+          edits.map((edit) => ({
+            range: new monaco.Range(edit.range.start.line + 1, edit.range.start.character + 1, edit.range.end.line + 1, edit.range.end.character + 1),
+            text: edit.newText
+          }))
+        );
+      } catch {
+        // Keep the original display if the worker fails or the viewer closes while formatting.
       }
     },
     updateViewportHeight() {
@@ -199,7 +256,7 @@ export default {
           ...SQL_EDITOR_SCROLLBAR,
           vertical: virtualScrollMode ? 'hidden' : 'auto',
           handleMouseWheel: !virtualScrollMode,
-          alwaysConsumeMouseWheel: !virtualScrollMode
+          alwaysConsumeMouseWheel: !virtualScrollMode && this.alwaysConsumeMouseWheel
         }
       });
     },
@@ -235,11 +292,15 @@ export default {
     }
   },
   beforeUnmount() {
+    this.editorDisposed = true;
+    this.jsonFormatWorker?.dispose();
     if (this.fitViewport) {
       window.removeEventListener('resize', this.updateViewportHeight);
     }
     if (this.monacoEditor) {
+      const model = this.monacoEditor.getModel();
       this.monacoEditor.dispose();
+      model?.dispose();
     }
   }
 };

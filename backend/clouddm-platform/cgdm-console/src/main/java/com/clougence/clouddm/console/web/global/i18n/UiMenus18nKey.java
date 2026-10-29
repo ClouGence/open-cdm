@@ -111,5 +111,5 @@ public interface UiMenus18nKey {
     String UI_LEAF_TITLE_RDB_RETURNS           = UI_LEAF_TITLE_RDB_PREFIX + DsMenuType.RdbReturns.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_RDB_CONSTRAINT_GROUP  = UI_LEAF_TITLE_RDB_PREFIX + DsMenuType.RdbConstraintGroup.getTypeName().toUpperCase();
     String UI_LEAF_TITLE_RDB_FOREIGN_KEY_GROUP = UI_LEAF_TITLE_RDB_PREFIX + DsMenuType.RdbForeignGroup.getTypeName().toUpperCase();
-
+    String UI_LEAF_TITLE_MQ_TOPIC_PROP_GROUP   = UI_LEAF_TITLE_PREFIX + DsMenuType.MqTopicPropGroup.getTypeName().toUpperCase();
 }

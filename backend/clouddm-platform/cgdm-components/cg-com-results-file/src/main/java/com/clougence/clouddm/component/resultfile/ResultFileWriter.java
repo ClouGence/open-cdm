@@ -29,7 +29,7 @@ import com.clougence.utils.JsonUtils;
 public class ResultFileWriter implements Closeable {
 
     private final ResultSetOutputStream output;
-    private final int                   columnCount;
+    private final byte[]                columnTypes;
 
     public static ResultFileWriter open(File file, QueryRequest query, ColMetaData[] columns) throws IOException {
         return open(file, query, columns, Long.MAX_VALUE, Long.MAX_VALUE);
@@ -52,7 +52,13 @@ public class ResultFileWriter implements Closeable {
 
     public ResultFileWriter(ResultSetOutputStream output, QueryRequest query, ColMetaData[] columns) throws IOException{
         this.output = output;
-        this.columnCount = columns.length;
+        this.columnTypes = new byte[columns.length];
+        for (int i = 0; i < columns.length; i++) {
+            columnTypes[i] = EntityType.String;
+            if (ColMetaData.JSON_DOCUMENT.equals(columns[i].getColumnType())) {
+                columnTypes[i] = EntityType.JsonDoc;
+            }
+        }
         this.writeMetadata(query, columns);
     }
 
@@ -72,13 +78,17 @@ public class ResultFileWriter implements Closeable {
         if (values == null) {
             throw new NullPointerException("values is null");
         }
-        if (values.size() != this.columnCount) {
-            throw new IllegalArgumentException("values size " + values.size() + " does not match column count " + this.columnCount + ".");
+        if (values.size() != this.columnTypes.length) {
+            throw new IllegalArgumentException("values size " + values.size() + " does not match column count " + this.columnTypes.length + ".");
         }
 
         this.output.newRow();
-        for (String value : values) {
-            this.output.writeString((byte) 0, value, StandardCharsets.UTF_8);
+        for (int i = 0; i < values.size(); i++) {
+            if (columnTypes[i] == EntityType.JsonDoc) {
+                this.output.writeJsonDocument((byte) 0, values.get(i), StandardCharsets.UTF_8);
+            } else {
+                this.output.writeString((byte) 0, values.get(i), StandardCharsets.UTF_8);
+            }
         }
         this.output.closeRow();
     }

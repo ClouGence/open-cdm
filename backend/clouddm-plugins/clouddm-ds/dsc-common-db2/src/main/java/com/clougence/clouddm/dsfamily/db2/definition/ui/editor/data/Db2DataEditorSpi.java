@@ -21,7 +21,6 @@ import java.util.Map;
 import com.clougence.clouddm.dsfamily.db2.dialect.Db2Dialect;
 import com.clougence.clouddm.dsfamily.definition.ui.editor.data.DsFamilyDataEditorSpi;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.ui.editor.data.DataEditorAttributeKeys;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorColumn;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
 import com.clougence.clouddm.sdk.ui.editor.data.reload.EditorResultSet;
@@ -32,21 +31,12 @@ import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
 public class Db2DataEditorSpi extends DsFamilyDataEditorSpi {
 
     @Override
     protected Dialect getDialect() { return Db2Dialect.INSTANCE; }
-
-    protected boolean insertIgnore(RdbColumn colDef, String colValue) {
-        String readOnly = colDef.getAttribute(DataEditorAttributeKeys.INSERT_READ_ONLY);
-        if (Boolean.parseBoolean(colDef.getAttribute(DataEditorAttributeKeys.AUTOINCREMENT)) && StringUtils.isBlank(colValue)) {
-            return true;
-        }
-        return Boolean.parseBoolean(readOnly);
-    }
 
     @Override
     public String buildUpdate(RdbTable tableMeta, Map<String, String> whereData, Map<String, String> setData) {

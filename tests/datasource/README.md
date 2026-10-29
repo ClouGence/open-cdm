@@ -15,9 +15,10 @@ tests/datasource/<datasource>/
 
 - Docker Compose 测试数据库放在 `tests/dbs/`；
 - Gradle/Java 公共数据源测试放在 `tests/ds-test/`；
-- Chrome 数据源用户流程放在 `tests/frontend/datasource/`；
+- @Browser 数据源用户流程放在 `tests/frontend/datasource/`；
 - 各数据源专项矩阵和辅助脚本放在本目录；产品验收必须从 CloudDM 页面或运行时链路执行。
 
 当前已纳入：
 
 - [`goldendb/`](goldendb/README.md)：GoldenDB MySQL/Oracle 兼容模式专项测试。
+- [`hana/`](hana/README.md)：HANA 2.0 Platform 固定验证基线、环境准备和能力矩阵；实际环境待部署。

@@ -145,7 +145,7 @@ public class EditorConvertUtils {
         boolean hasWhereData = whereData != null && !whereData.isEmpty();
         if (hasNewData && hasWhereData) {
             paramDTO.setDmlType(DataEditorSqlType.UPDATE);
-        } else if (hasNewData) {
+        } else if (hasNewData || !hasWhereData && newData != null && data.getDmlType() == DataEditorSqlType.INSERT) {
             paramDTO.setDmlType(DataEditorSqlType.INSERT);
         } else if (hasWhereData) {
             paramDTO.setDmlType(DataEditorSqlType.DELETE);

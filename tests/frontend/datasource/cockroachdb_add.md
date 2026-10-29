@@ -33,7 +33,7 @@
 - 风险/目的：P0，确认 CockroachDB 出现在添加数据源类型列表并带有图标。
 - 初始路由与状态：已登录，位于 `/#/datasource`。
 - 测试数据：CRDB01。
-- Chrome 操作：点击“新增”，在类型选择弹窗中找到 CockroachDB。
+- @Browser 操作：点击“新增”，在类型选择弹窗中找到 CockroachDB。
 - 预期结果：类型名显示为 CockroachDB；图标可见且不是空白占位。
 - 恢复/清理：关闭类型选择弹窗。
 
@@ -42,7 +42,7 @@
 - 风险/目的：P0，确认默认端口、默认库和 PG JDBC 驱动家族。
 - 初始路由与状态：从类型选择确认后进入 `/#/datasource/add?dsType=CockroachDB`。
 - 测试数据：CRDB02。
-- Chrome 操作：查看端口、Catalog/默认库、驱动家族与 SSL 选项。
+- @Browser 操作：查看端口、Catalog/默认库、驱动家族与 SSL 选项。
 - 预期结果：端口为 `26257`；默认库为 `defaultdb`；驱动家族为 PostgreSQL JDBC；SSL 模式可选 TRUST / CA / CLIENT_CERT。
 - 恢复/清理：离开新增页，不保存。
 

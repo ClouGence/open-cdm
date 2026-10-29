@@ -1,0 +1,53 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+import java.nio.file.Files
+import java.util.concurrent.TimeUnit
+
+ext.prepareIdeaImports = { repoRoot, originals ->
+    def directory = Files.createTempDirectory('open-cdm-idea-imports-').toFile()
+    try {
+        def resultFile = new File(directory, 'result.json')
+        def requestFile = new File(directory, 'request.json')
+        requestFile.setText(JsonOutput.toJson([
+                repoRoot  : repoRoot.absolutePath,
+                resultPath: resultFile.absolutePath,
+                files     : originals.collect { path, source -> [path: path, originalText: source] }
+        ]), 'UTF-8')
+        def scriptFile = new File(directory, 'run.groovy')
+        def requestLiteral = requestFile.absolutePath.replace('\\', '\\\\').replace("'", "\\'")
+        scriptFile.setText("def request = new groovy.json.JsonSlurper().parse(new File('${requestLiteral}'))\n" +
+                file('optimize_imports.groovy').getText('UTF-8'), 'UTF-8')
+        def logFile = new File(directory, 'launcher.log')
+        def process = new ProcessBuilder(providers.gradleProperty('ideaLauncher').get(),
+                'ideScript', scriptFile.absolutePath)
+                .redirectErrorStream(true).redirectOutput(logFile).start()
+        if (!process.waitFor(20, TimeUnit.SECONDS)) {
+            process.destroyForcibly()
+            throw new GradleException('IDEA launcher timed out. No files written.')
+        }
+        if (process.exitValue() != 0) {
+            throw new GradleException("IDEA launcher failed: ${logFile.getText('UTF-8')}. No files written.")
+        }
+        def deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30)
+        while (!resultFile.isFile() && System.nanoTime() < deadline) {
+            Thread.sleep(50)
+        }
+        if (!resultFile.isFile()) {
+            throw new GradleException('IDEA ideScript returned no result. Check IDEA logs and Groovy scripting support. No files written.')
+        }
+        def response = new JsonSlurper().parse(resultFile, 'UTF-8')
+        if (response.ok != true) {
+            throw new GradleException("IDEA imports optimization failed: ${response.error}. No files written.")
+        }
+        def optimized = response.files.collectEntries { entry -> [(entry.path): entry.optimizedText] }
+        if (optimized.keySet() != originals.keySet()) {
+            throw new GradleException('IDEA returned a different file list. No files written.')
+        }
+        println "Prepared native IDEA imports (${originals.size()} files, project ${response.projectPath})."
+        println "IDEA import optimizers: ${response.optimizers.join(', ')}"
+        return optimized
+    } finally {
+        directory.deleteDir()
+    }
+}

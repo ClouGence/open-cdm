@@ -23,6 +23,8 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource({ "/META-INF/rdp/sdk/i18n/dm-auth-label", "/META-INF/rdp/sdk/i18n/rdp-auth-label" })
 public interface SecAuthI18nKeys {
 
+    String AUTH_KEY_DM_AI_ENGINE_MANAGE             = "AUTH_KEY_DM_AI_ENGINE_MANAGE";
+
     // for Auth Category
     String CAT_KEY_DM_CONSOLE                       = "CAT_KEY_DM_CONSOLE";
     String CAT_KEY_DM_SYS                           = "CAT_KEY_DM_SYS";

@@ -19,7 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.clougence.schema.umi.serializer.mq.MqValueSerializer;
 import com.clougence.schema.umi.serializer.rdb.*;
+import com.clougence.schema.umi.special.mq.MqValue;
 import com.clougence.schema.umi.special.rdb.*;
 import com.clougence.schema.umi.struts.UmiData;
 import com.clougence.schema.umi.struts.constraint.ConstraintObject;
@@ -43,6 +45,7 @@ public class SerializerRegistry {
         addSerializer(Primary.class, new PrimarySerializer<>(), Primary::new);
         addSerializer(Unique.class, new UniqueSerializer<>(), Unique::new);
         //
+        addSerializer(MqValue.class, new MqValueSerializer(), MqValue::new);
         addSerializer(RdbValue.class, new RdbValueSerializer(), RdbValue::new);
         addSerializer(RdbTable.class, new RdbTableSerializer(), RdbTable::new);
         addSerializer(RdbColumn.class, new RdbColumnSerializer(), RdbColumn::new);

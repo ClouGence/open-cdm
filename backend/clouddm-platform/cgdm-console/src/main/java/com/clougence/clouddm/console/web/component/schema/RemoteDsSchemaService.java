@@ -215,6 +215,10 @@ public class RemoteDsSchemaService implements DsSchemaService {
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             List<DsElement> dsElements = this.metaRService.listLeaf(sendDTO, dsConfig, levelsParam, leafType, pattern);
+            // A filtered listing must not replace the complete namespace cache.
+            if (pattern != null && !pattern.isBlank() && !"*".equals(pattern)) {
+                return dsElements;
+            }
 
             String catalog = (String) levelsParam.get(UmiTypes.Catalog);
             String schema = (String) levelsParam.get(UmiTypes.Schema);
@@ -234,6 +238,10 @@ public class RemoteDsSchemaService implements DsSchemaService {
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             Value value = this.metaRService.detailLeaf(sendDTO, dsConfig, levelsParam, leafType, leafName);
+            // Index ownership feeds DDL authorization and must not be served from the object-detail cache.
+            if (leafType == UmiTypes.Index) {
+                return value;
+            }
 
             String catalog = (String) levelsParam.get(UmiTypes.Catalog);
             String schema = (String) levelsParam.get(UmiTypes.Schema);

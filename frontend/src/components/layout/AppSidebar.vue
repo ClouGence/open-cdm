@@ -52,6 +52,9 @@
           </div>
         </div>
       </template>
+      <button v-if="aiCapabilitiesError" type="button" class="app-sidebar-item" @click="$store.dispatch('loadAiCapabilities')">
+        {{ $t('ai.retryCapabilities') }}
+      </button>
     </nav>
 
     <footer v-if="displaySidebarVersion" class="app-sidebar-footer">
@@ -80,7 +83,7 @@ export default {
   },
   computed: {
     ...mapGetters(['isDesktop']),
-    ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl', 'dmGlobalSetting']),
+    ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl', 'dmGlobalSetting', 'aiCapabilitiesError']),
     displaySidebarVersion() {
       return this.sidebarVersion || resolveDisplayVersion(this.dmGlobalSetting);
     },
@@ -125,6 +128,7 @@ export default {
       if (path.indexOf('/settings/profile') === 0 || path.indexOf('/system/profile') > -1) {
         return '/settings/profile';
       }
+      if (path.indexOf('/settings/ai') === 0) return '/settings/ai';
       if (path.indexOf('/settings/preferences') === 0 || path.indexOf('/system/preference') > -1) {
         return '/settings/preferences';
       }

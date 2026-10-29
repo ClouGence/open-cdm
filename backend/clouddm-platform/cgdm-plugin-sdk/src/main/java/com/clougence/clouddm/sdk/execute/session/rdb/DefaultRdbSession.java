@@ -39,7 +39,6 @@ import com.clougence.drivers.DsObject;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.io.FileUtils;
 import com.clougence.utils.io.IOUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,16 +49,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultRdbSession extends AbstractDsSession implements Session, KillCurrentQueryAble {
 
-    private final DsObject<Connection> dsObject;
-    private final AtomicBoolean        rdbCancelSignal;
-    protected boolean                  rdbAutoCommit;
-    protected boolean                  rdbReadOnly;
-    protected RdbIsolation             rdbIsolation;
-    private ColReader                  colReader;
+    protected final DsObject<Connection> dsObject;
+    protected final AtomicBoolean        rdbCancelSignal;
+    protected boolean                    rdbAutoCommit;
+    protected boolean                    rdbReadOnly;
+    protected RdbIsolation               rdbIsolation;
+    protected boolean                    rdbHasUnCommitted;
+    private ColReader                    colReader;
     // status
-    private String                     rdbConnectionId;
-    private boolean                    rdbHasUnCommitted;
-    private long                       rdbLastTestTime;
+    private String                       rdbConnectionId;
+    private long                         rdbLastTestTime;
 
     public DefaultRdbSession(String newSessionId, DataSourceConfig dsConfig, DsObject<Connection> dsObject, SessionHook sessionHook){
         super(newSessionId, dsConfig, sessionHook);
@@ -239,8 +238,8 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
             if (isExecuting()) {
                 this.cancel();
             }
-        } catch (Exception ignore) {
-
+        } catch (Exception e) {
+            log.error("cancel session {} before close failed", this.getSessionId(), e);
         } finally {
             doClose();
         }
@@ -311,14 +310,23 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
                 rb.receiveMessage(MessageLevel.Error, "The query has been cancelled.");
                 rb.finishRecord(true);
             }
+        } catch (Exception e) {
+            ex = e;
+            throw e;
         } finally {
             IOUtils.closeQuietly(ps);
-
-            if (!conn.isClosed() && query.getResultConf().isRefreshStatus()) {
-                this.refreshStatus(conn);
+            try {
+                if (!conn.isClosed() && query.getResultConf().isRefreshStatus()) {
+                    this.refreshStatus(conn);
+                }
+            } catch (SQLException refreshError) {
+                if (ex == null) {
+                    throw refreshError;
+                }
+                ex.addSuppressed(refreshError);
+            } finally {
+                this.rdbCancelSignal.set(false);
             }
-
-            this.rdbCancelSignal.set(false); // reset cancel signal
         }
     }
 
@@ -510,7 +518,6 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
         long beginFetchTimeMs = System.currentTimeMillis();
         long lastFetchTimeMs = System.currentTimeMillis();
         long maxFetchCountLimit = query.getResultConf().getFetchRecordCountLimit();
-        long maxFetchSizeLimit = query.getResultConf().getFetchResultSetBytesLimit();
         long maxPageSize = query.getResultConf().getFetchPageSize();
         ReceiveMode receiveMode = query.getResultConf().getReceiveMode();
 
@@ -518,92 +525,91 @@ public class DefaultRdbSession extends AbstractDsSession implements Session, Kil
         ResultSetMetaBuild meta = b.newResultMeta(query, resultId);
         ResultSetMetaData metaData = rs.getMetaData();
         ResultSetRowsBuild rb = meta.receiveMeta(extractMetaData(query, metaData));
-        meta.finishRecord(true);
+        try {
+            meta.finishRecord(true);
 
-        // process rows
-        boolean silentReceive = false;
-        long lastPageFetchCount = 0;
-        while (rs.next() && !this.rdbCancelSignal.get()) {
-            fetchCount++;
-            lastPageFetchCount++;
-            rb.receiveRow(silentReceive, rs);
+            // process rows
+            boolean silentReceive = false;
+            long lastPageFetchCount = 0;
+            while (!this.rdbCancelSignal.get() && rs.next()) {
+                rb.receiveRow(silentReceive, rs);
+                fetchCount++;
+                lastPageFetchCount++;
 
-            // receiveMode
-            switch (receiveMode) {
-                case STREAM: {
-                    rb.collectMetric(fetchCount);
-                    rb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
-                    rb.flushData();
-                    rb.finishAndContinue();
-                    lastPageFetchCount = 0;
-                    break;
-                }
-                case PAGINATED:
-                case PAGE_FULL: {
-                    if (!silentReceive && maxPageSize > 0 && lastPageFetchCount >= maxPageSize) {
-                        rb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
+                // receiveMode
+                switch (receiveMode) {
+                    case STREAM: {
                         rb.collectMetric(fetchCount);
+                        rb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
                         rb.flushData();
                         rb.finishAndContinue();
                         lastPageFetchCount = 0;
-                        silentReceive = receiveMode == ReceiveMode.PAGINATED;
+                        break;
                     }
-
-                    if (silentReceive) {
-                        if ((lastFetchTimeMs + 1500) < System.currentTimeMillis()) {
-                            lastFetchTimeMs = System.currentTimeMillis();
-                            ResultSetRowCountUpdateBuild cb = rb.newRowCountUpdate();
-                            cb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
-                            cb.collectMetric(fetchCount);
-                            cb.finishRecord(true);
+                    case PAGINATED:
+                    case PAGE_FULL: {
+                        if (!silentReceive && maxPageSize > 0 && lastPageFetchCount >= maxPageSize) {
+                            rb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
+                            rb.collectMetric(fetchCount);
                             rb.flushData();
+                            rb.finishAndContinue();
+                            lastPageFetchCount = 0;
+                            silentReceive = receiveMode == ReceiveMode.PAGINATED;
                         }
+
+                        if (silentReceive) {
+                            if ((lastFetchTimeMs + 1500) < System.currentTimeMillis()) {
+                                lastFetchTimeMs = System.currentTimeMillis();
+                                ResultSetRowCountUpdateBuild cb = rb.newRowCountUpdate();
+                                cb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
+                                cb.collectMetric(fetchCount);
+                                cb.finishRecord(true);
+                                rb.flushData();
+                            }
+                        }
+                        break;
                     }
+                    default: {
+                        ResultMessageBuild mb = b.newMessage(query);
+                        mb.receiveMessage(MessageLevel.Error, "the receive mode " + receiveMode + " not support.");
+                        mb.finishRecord(true);
+                        throw new SQLException("the receive mode " + receiveMode + " not support.");
+                    }
+                }
+
+                // fetch exit
+                if (maxFetchCountLimit > 0 && fetchCount >= maxFetchCountLimit) {
+                    ResultMessageBuild mb = b.newMessage(query);
+                    mb.receiveMessage(MessageLevel.Warn, "maximum number of receive rows limit " + maxFetchCountLimit + ", other rows will be skipped.");
+                    mb.finishRecord(true);
                     break;
                 }
-                default: {
-                    ResultMessageBuild mb = b.newMessage(query);
-                    mb.receiveMessage(MessageLevel.Error, "the receive mode " + receiveMode + " not support.");
-                    mb.finishRecord(true);
-                    throw new SQLException("the receive mode " + receiveMode + " not support.");
-                }
             }
 
-            // fetch exit
-            if (maxFetchCountLimit > 0 && fetchCount >= maxFetchCountLimit) {
+            if (silentReceive) {
+                ResultSetRowCountUpdateBuild cb = rb.newRowCountUpdate();
+                cb.collectMetric(fetchCount);
+                cb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
+                cb.finishRecord(true);
+                rb.flushData();
+                rb.finishAndSilent(true);
                 ResultMessageBuild mb = b.newMessage(query);
-                mb.receiveMessage(MessageLevel.Warn, "maximum number of receive rows limit " + maxFetchCountLimit + ", other rows will be skipped.");
+                mb.receiveMessage(MessageLevel.Info, fetchCount + " row retrieved finish.");
                 mb.finishRecord(true);
-                break;
+            } else {
+                rb.collectMetric(fetchCount);
+                rb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
+                rb.flushData();
+                rb.finishRecord(true);
             }
-            if (rb.fetcherOverflow()) {
-                String limitStr = FileUtils.readableFileSize(maxFetchSizeLimit);
-                ResultMessageBuild mb = b.newMessage(query);
-                mb.receiveMessage(MessageLevel.Warn, "maximum number of receive size limit " + limitStr + ", other rows will be skipped.");
-                mb.finishRecord(true);
-                break;
-            }
-        }
 
-        if (silentReceive) {
-            ResultSetRowCountUpdateBuild cb = rb.newRowCountUpdate();
-            cb.collectMetric(fetchCount);
-            cb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
-            cb.finishRecord(true);
-            rb.flushData();
-            rb.finishAndSilent(true);
-            ResultMessageBuild mb = b.newMessage(query);
-            mb.receiveMessage(MessageLevel.Info, fetchCount + " row retrieved finish.");
-            mb.finishRecord(true);
-        } else {
-            rb.collectMetric(fetchCount);
+            if (this.rdbCancelSignal.get()) {
+                log.warn("queryId " + query.getQueryId() + ", resultId " + resultId + ", cancel the query and block receive data.");
+            }
+        } catch (Exception e) {
             rb.collectCost(System.currentTimeMillis() - beginFetchTimeMs);
-            rb.flushData();
-            rb.finishRecord(true);
-        }
-
-        if (this.rdbCancelSignal.get()) {
-            log.warn("queryId " + query.getQueryId() + ", resultId " + resultId + ", cancel the query and block receive data.");
+            rb.finishRecord(false, e.getMessage(), e);
+            throw e;
         }
     }
 

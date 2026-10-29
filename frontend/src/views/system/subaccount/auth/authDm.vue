@@ -104,12 +104,12 @@
                       <span
                         class="auth-tabs__item"
                         :class="{
-                          'is-active': curRightTreeTab === 'TABLE',
-                          'is-disabled': !['Table', 'TABLE', 'AllType'].includes(curElementType)
+                          'is-active': curRightTreeTab === leafAuthTab,
+                          'is-disabled': !['Table', 'TABLE', 'Topic', 'TOPIC', 'AllType'].includes(curElementType)
                         }"
-                        @click="handleAuthTabClick('TABLE')"
+                        @click="handleAuthTabClick(leafAuthTab)"
                       >
-                        {{ $t('biao-quan-xian') }}
+                        {{ leafAuthTab === 'TOPIC' ? $t('topic-permissions') : $t('biao-quan-xian') }}
                       </span>
                     </div>
                     <div class="auth-tabs__extra">
@@ -175,7 +175,7 @@
                         :disableAll="previewMode || isView"
                       />
                     </div>
-                    <div v-show="curRightTreeTab === 'TABLE'">
+                    <div v-show="['TABLE', 'TOPIC'].includes(curRightTreeTab)">
                       <v-tree
                         :emptyText="$t('zan-wu-shu-ju')"
                         :render="renderAuthNode"
@@ -528,6 +528,12 @@ export default {
         }
       ];
     },
+    leafAuthTab() {
+      if (this.getNodeDataSourceType(this.curNode) === 'Kafka') {
+        return 'TOPIC';
+      }
+      return 'TABLE';
+    },
     showCustomAuthTime() {
       return this.curRangeKey === 'custom';
     }
@@ -560,7 +566,7 @@ export default {
         (name === 'Instance' && !['Instance', 'INSTANCE', 'AllType'].includes(this.curElementType)) ||
         (name === 'CATALOG' && !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(this.curElementType)) ||
         (name === 'SCHEMA' && !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(this.curElementType)) ||
-        (name === 'TABLE' && !['Table', 'TABLE', 'AllType'].includes(this.curElementType))
+        (['TABLE', 'TOPIC'].includes(name) && !['Table', 'TABLE', 'Topic', 'TOPIC', 'AllType'].includes(this.curElementType))
       ) {
         return;
       }
@@ -1069,6 +1075,9 @@ export default {
           case 'ENV':
             iconType = 'MachineENV';
             break;
+          case 'TOPIC':
+            iconType = 'TOPIC';
+            break;
           case 'TABLE':
             iconType = 'TABLE';
             break;
@@ -1327,6 +1336,8 @@ export default {
         CATALOG: 'catalogTree',
         EXTERNAL_CATALOG: 'catalogTree',
         Table: 'tableTree',
+        Topic: 'tableTree',
+        TOPIC: 'tableTree',
         TABLE: 'tableTree'
       };
       const normalizedTab =
@@ -1497,7 +1508,7 @@ export default {
         }
 
         // Data before reuse
-        if (node?.children[0]?.levels?.length) {
+        if (node?.children?.[0]?.levels?.length) {
           let final = [];
 
           // 1.1 Filtering and search conditions
@@ -1514,7 +1525,7 @@ export default {
           return;
         }
 
-        if (node?.objType === 'TABLE') {
+        if (['TABLE', 'TOPIC'].includes(node?.objType)) {
           const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
           this.$refs.dataSourceTree?.setData(final);
           if (node?.key && shouldLoadAuthTree) {
@@ -1734,7 +1745,7 @@ export default {
       }
 
       return tree.map((node) => {
-        if (node.objType === 'TABLE') {
+        if (['TABLE', 'TOPIC'].includes(node.objType)) {
           const { children, ...rest } = node;
           return rest;
         }
@@ -1798,7 +1809,7 @@ export default {
       return AUTH_ELEMENT_TYPES.includes(this.normalizeAuthElementType(elementType));
     },
     isResourceLeafNode(node) {
-      return !!node?.isLeaf || this.getNormalizedNodeType(node) === 'TABLE';
+      return !!node?.isLeaf || ['TABLE', 'TOPIC'].includes(this.getNormalizedNodeType(node));
     },
     canUseLazyPlaceholder(node) {
       return !this.isResourceLeafNode(node);
@@ -1869,7 +1880,7 @@ export default {
     },
     async canLoadResourceChildren(node) {
       const nodeType = this.getNormalizedNodeType(node);
-      if (!node || nodeType === 'TABLE') {
+      if (!node || ['TABLE', 'TOPIC'].includes(nodeType)) {
         return false;
       }
       if (nodeType === 'ENV' || nodeType === 'Env') {
@@ -2298,6 +2309,8 @@ export default {
               case 'EXTERNAL_CATALOG':
                 this.$refs.catalogTree?.setData(filterAuth);
                 break;
+              case 'Topic':
+              case 'TOPIC':
               case 'Table':
               case 'TABLE':
                 this.$refs.tableTree?.setData(filterAuth);
@@ -2498,6 +2511,7 @@ export default {
         case 'EXTERNAL_CATALOG':
           this.$refs.schemaTree.filter(this.rightTreeKeyword);
           break;
+        case 'TOPIC':
         case 'TABLE':
           this.$refs.tableTree.filter(this.rightTreeKeyword);
           break;
@@ -2687,6 +2701,9 @@ export default {
         .filter((node) => node !== null);
     },
     isLeafNode(node) {
+      if (this.getResTypeToIds(node) === 'Topic') {
+        return true;
+      }
       return node?.levels?.length > START_RECORD_NAMES_CONUT && node?.objType !== 'CATALOG' && node?.objType !== 'EXTERNAL_CATALOG';
     },
     removeChildrenByKey(tree, targetKey) {

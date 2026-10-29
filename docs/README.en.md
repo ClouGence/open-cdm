@@ -1,7 +1,17 @@
 <h1 align="center">CloudDM</h1>
 
 <p align="center">
-  A free and open-source database management tool designed for team use. It provides access control, data masking, SQL auditing, CI/CD, and cross-region deployment capabilities.
+  <a href="../LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License: Apache 2.0" /></a>
+  <a href="https://github.com/ClouGence/open-cdm/stargazers"><img src="https://img.shields.io/github/stars/ClouGence/open-cdm?style=flat" alt="GitHub stars" /></a>
+</p>
+
+<p align="center">
+  <a href="https://trendshift.io/repositories/31757"><img src="https://trendshift.io/api/badge/trendshift/repositories/31757/daily?language=Java" alt="Trendshift: #3 Java Repository of the Day" width="250" height="55" /></a>
+  <a href="https://trendshift.io/repositories/31757"><img src="https://trendshift.io/api/badge/trendshift/repositories/31757/weekly?language=Java" alt="Trendshift: #13 Java Repository of the Week" width="250" height="55" /></a>
+</p>
+
+<p align="center">
+  A free and open-source database management tool for teams, featuring an AI SQL assistant, access control, data masking, SQL auditing, CI/CD, and cross-region deployment.
 </p>
 
 <p align="center">
@@ -31,7 +41,7 @@
 | Homepage           | https://www.cdmgr.com/                          |
 | Documentation      | https://www.cdmgr.com/docs/intro/product_intro  |
 | License            | Apache License 2.0                              |
-| Current version    | 4.2.2                                           |
+| Current version    | 4.5.1                                           |
 | Main languages     | Java, JavaScript / TypeScript                   |
 | Deployment modes   | Standalone (Alone), Cluster (Console + Sidecar) |
 | Deployment targets | Install package, Docker, Kubernetes             |
@@ -99,7 +109,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.2.2
+  bladepipe/cgdm-alone:4.5.1
 
 # Faster image pulls in China
 docker run -d --name cgdm-alone \
@@ -108,7 +118,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.2.2
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.5.1
 ```
 
 Host directory mount example:
@@ -122,7 +132,7 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.2.2
+  bladepipe/cgdm-alone:4.5.1
 ```
 
 When `/data/cgdm/conf` is empty, CloudDM initializes it with the default configuration files on startup.
@@ -150,25 +160,25 @@ with the same volumes.
 ```bash
 # Default image
 docker rm -f cgdm-alone
-docker pull bladepipe/cgdm-alone:4.2.2
+docker pull bladepipe/cgdm-alone:4.5.1
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.2.2
+  bladepipe/cgdm-alone:4.5.1
 
 # China acceleration image
 docker rm -f cgdm-alone
-docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.2.2
+docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.5.1
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.2.2
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.5.1
 ```
 
 ### Initialization

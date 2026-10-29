@@ -456,6 +456,10 @@ public class MyMetaProviderUtils {
             containAndSetOpt("key_block_size", comment, KEY_BLOCK_SIZE, idx);
 
             String columnName = rs.getString("COLUMN_NAME");
+            if (columnName == null) {
+                columnName = rs.getString("EXPRESSION");
+                idx.setAttribute(INDEX_CONTAINS_EXPRESSION, "true");
+            }
             idx.addColumn(columnName);
 
             HashMap<String, String> storageType = new HashMap<>();
@@ -501,6 +505,9 @@ public class MyMetaProviderUtils {
             if (indexMap.containsKey(indexName)) {
                 indexMap.get(indexName).getColumnList().addAll(index.getColumnList());
                 Map<String, String> indexMapAtr = indexMap.get(indexName).getAttributes();
+                if (Boolean.parseBoolean(index.getAttribute(INDEX_CONTAINS_EXPRESSION))) {
+                    indexMap.get(indexName).setAttribute(INDEX_CONTAINS_EXPRESSION, "true");
+                }
 
                 if (indexMapAtr.containsKey(SUB_PART.getCodeKey())) {
                     String oldJsonMap = indexMapAtr.get(SUB_PART.getCodeKey());

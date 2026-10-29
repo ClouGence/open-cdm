@@ -28,6 +28,7 @@ export default {
       default: 'default'
     },
     ghost: Boolean,
+    danger: Boolean,
     loading: Boolean,
     disabled: Boolean,
     size: String,
@@ -39,7 +40,7 @@ export default {
       return this.ghost || this.type === 'ghost' || this.type === 'dashed';
     },
     isDanger() {
-      return this.type === 'error';
+      return this.danger || this.type === 'error';
     },
     antdType() {
       if (this.type === 'primary' || this.type === 'ghost') {

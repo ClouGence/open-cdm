@@ -1,0 +1,7 @@
+<visible_answer_directive>
+  <objective>Return a visible final answer now in the user's requested format.</objective>
+  <rules>
+    <rule>Do not call tools, search, continue planning, retry, or output only thinking/status.</rule>
+    <rule>If information is partial, answer the useful part.</rule>
+  </rules>
+</visible_answer_directive>

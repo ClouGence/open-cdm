@@ -71,7 +71,7 @@ public class FileResultSetOutputStream extends ResultSetOutputStream {
     protected void setBytes(long offset, byte[] b, int off, int length) throws IOException {
         if (offset + length > this.fileLimit) {
             long overflowSize = offset + length - this.fileLimit;
-            throw new ResultSetOverflowException("overflow: " + overflowSize, overflowSize);
+            throw new ResultSetOverflowException("Result cache size exceeds limit of " + this.fileLimit + " bytes", overflowSize);
         }
 
         if (this.ioAccessFile.getFilePointer() != offset) {
@@ -84,6 +84,15 @@ public class FileResultSetOutputStream extends ResultSetOutputStream {
     @Override
     protected void setLength(long length) throws IOException {
         this.ioAccessFile.setLength(length);
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            super.close();
+        } finally {
+            this.ioAccessFile.close();
+        }
     }
 
     @Override

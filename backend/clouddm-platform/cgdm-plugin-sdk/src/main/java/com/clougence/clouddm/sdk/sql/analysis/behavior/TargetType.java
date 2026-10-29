@@ -116,6 +116,9 @@ public enum TargetType {
     BrokerConversationGroup(null),
     XmlSchemaCollection(null),
 
+    // Kafka
+    Topic(UmiTypes.Topic),
+
     // cache
     Key(UmiTypes.Key),
 
@@ -133,6 +136,20 @@ public enum TargetType {
     // Persistent backup configuration and snapshots, independent of running jobs.
     Repository(null),
     Snapshot(null),
+
+    // Access-control resources and database dictionaries.
+    Quota(null),
+    Dictionary(null),
+    NamedCollection(null),
+    TableEngine(null),
+
+    // Runtime caches, configured storage disks, and named cluster topologies.
+    Cache(null),
+    Disk(null),
+    Cluster(null),
+
+    // Named physical data parts, distinct from logical partitions and files.
+    DataPart(null),
 
     ;
 

@@ -91,13 +91,14 @@ administrationStatement
     : alterUser | createUser | dropUser | grantStatement
     | createRole
     | grantProxy | renameUser | revokeStatement
-    | revokeProxy | analyzeTable | checkTable
+    | revokeProxy | analyzeTable | analyzeHistogram | analyzeStatistics | checkTable
     | checksumTable | optimizeTable | repairTable
     | createUdfFunction | installPlugin | uninstallPlugin
     | setStatement | showStatement | binlogStatement
     | cacheIndexStatement | flushStatement | killStatement
     | loadIndexIntoCache | resetStatement
-    | shutdownStatement | dropRole
+    | shutdownStatement | dropRole | alterSystemStatement | flashbackStatement | purgeRecyclebin
+    | outlineStatement
     ;
 
 utilityStatement
@@ -171,7 +172,7 @@ createFunction
     ;
 
 createRole
-    : CREATE ROLE (IF NOT EXISTS)? roleName
+    : CREATE ROLE (IF NOT EXISTS)? roleName (',' roleName)*
     ;
 
 createServer
@@ -750,11 +751,11 @@ callStatement
     ;
 
 procedureArgs
-    : (constant  | functionCall | expression)
-    (
-      ','
-      (constant  | functionCall | expression)
-    )*
+    : procedureArgument (',' procedureArgument)*
+    ;
+
+procedureArgument
+    : ((uid | CASCADE | FORCE) NAMED_ARGUMENT_ASSIGN)? (constant | functionCall | expression)
     ;
 
 deleteStatement
@@ -1489,6 +1490,12 @@ alterUser
         )?
         (WITH userResourceOption+)?
         (userPasswordOption | userLockOption)*                      #alterUserMysqlV57
+    | ALTER USER CURRENT_USER ('(' ')')?
+        (IDENTIFIED (WITH authPlugin)? BY STRING_LITERAL
+        | REQUIRE (NONE | tlsOption (AND? tlsOption)*)
+        | WITH userResourceOption+)                                 #alterUserMysqlV57
+    | ALTER USER (userName | CURRENT_USER ('(' ')')?)
+        DEFAULT ROLE defaultRoleClause                              #alterUserDefaultRole
     ;
 
 createUser
@@ -1547,15 +1554,16 @@ renameUser
     ;
 
 revokeStatement
-    : REVOKE privelegeClause (',' privelegeClause)*
+    : REVOKE ifExists? privelegeClause (',' privelegeClause)*
       ON
       privilegeObject=(TABLE | FUNCTION | PROCEDURE)?
       privilegeLevel
-      FROM userName (',' userName)*                                 //#detailRevoke
-    | REVOKE ALL PRIVILEGES? ',' GRANT OPTION
-      FROM userName (',' userName)*                                 //#shortRevoke
-    | REVOKE roleName (',' roleName)*
-      FROM (userName | uid) (',' (userName | uid))*                // #roleRevoke
+      FROM userName (',' userName)* (IGNORE UNKNOWN USER)?          //#detailRevoke
+    | REVOKE ifExists? ALL PRIVILEGES? ',' GRANT OPTION
+      FROM userName (',' userName)* (IGNORE UNKNOWN USER)?          //#shortRevoke
+    | REVOKE ifExists? roleName (',' roleName)*
+      FROM (userName | uid) (',' (userName | uid))*
+      (IGNORE UNKNOWN USER)?                                       // #roleRevoke
     ;
 
 revokeProxy
@@ -1584,7 +1592,7 @@ userAuthOption
 
 authenticationRule
     : authPlugin
-      ((BY | USING | AS) STRING_LITERAL)?                           #module
+      (BY PASSWORD? STRING_LITERAL | (USING | AS) STRING_LITERAL)?   #module
     | authPlugin
       (USING | AS) passwordFunctionClause                           #passwordModuleOption // MariaDB
     ;
@@ -1627,10 +1635,11 @@ privelegeClause
 
 privilege
     : ALL PRIVILEGES?
-    | ALTER ROUTINE?
+    | ALTER (ROUTINE | SYSTEM)?
     | CREATE
-      (TEMPORARY TABLES | ROUTINE | VIEW | USER | TABLESPACE | ROLE)?
-    | DELETE | DROP (ROLE)? | EVENT | EXECUTE | FILE | GRANT OPTION
+      (TEMPORARY TABLES | ROUTINE | VIEW | USER | TABLESPACE | ROLE | DATABASE LINK)?
+    | DELETE | DROP (ROLE | DATABASE LINK)? | EVENT | EXECUTE | FILE | GRANT OPTION
+    | ENCRYPT | DECRYPT
     | INDEX | INSERT | LOCK TABLES | PROCESS | PROXY
     | REFERENCES | RELOAD
     | REPLICATION (CLIENT | SLAVE | REPLICA)     // REPLICA is MariaDB-specific
@@ -1665,6 +1674,32 @@ renameUserClause
 analyzeTable
     : ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
        TABLE tables
+    ;
+
+analyzeHistogram
+    : ANALYZE TABLE tableName
+      (UPDATE HISTOGRAM ON uidList (WITH unsignedInteger BUCKETS)?
+      | DROP HISTOGRAM ON uidList)
+    ;
+
+analyzeStatistics
+    : ANALYZE TABLE tableName (PARTITION '(' uidList ')')?
+      (COMPUTE STATISTICS analyzeForClause?
+      | ESTIMATE STATISTICS analyzeForClause? (SAMPLE unsignedInteger (ROWS | PERCENTAGE))?)
+    ;
+
+analyzeForClause
+    : FOR ALL (INDEXED | HIDDEN_COLUMN)? COLUMNS analyzeSizeClause?
+    | FOR COLUMNS (analyzeColumnItem (','? analyzeColumnItem)*)?
+    ;
+
+analyzeColumnItem
+    : uid analyzeSizeClause?
+    | analyzeSizeClause
+    ;
+
+analyzeSizeClause
+    : SIZE (unsignedInteger | AUTO | REPEAT | SKEWONLY)
     ;
 
 checkTable
@@ -1704,21 +1739,91 @@ uninstallPlugin
     : UNINSTALL PLUGIN uid
     ;
 
+alterSystemStatement
+    : ALTER SYSTEM SET? systemParameterAssignment (',' systemParameterAssignment)* #alterSystemParameters
+    | ALTER SYSTEM ENABLE SQL THROTTLE
+      (FOR PRIORITY '<' '=' (DECIMAL_LITERAL | ZERO_DECIMAL | ONE_DECIMAL | TWO_DECIMAL))?
+      USING sqlThrottleMetric+                                      #enableSqlThrottle
+    | ALTER SYSTEM DISABLE SQL THROTTLE                              #disableSqlThrottle
+    | ALTER SYSTEM FLUSH PLAN CACHE
+      (SQL_ID '='? STRING_LITERAL (DATABASES '='? STRING_LITERAL)?)? GLOBAL? #flushPlanCache
+    | ALTER SYSTEM (MAJOR | MINOR) FREEZE                            #freezeTenant
+    | ALTER SYSTEM (SUSPEND | RESUME) MERGE                           #controlTenantMerge
+    | ALTER SYSTEM CLEAR MERGE ERROR                                 #clearMergeError
+    | ALTER SYSTEM BACKUP INCREMENTAL? DATABASE (PLUS_KEYWORD ARCHIVELOG)?
+      maintenanceDescription?                                       #backupDatabase
+    | ALTER SYSTEM CANCEL DELETE? BACKUP                            #cancelBackup
+    | ALTER SYSTEM (ARCHIVELOG | NOARCHIVELOG) maintenanceDescription? #archiveLog
+    | ALTER SYSTEM ADD DELETE BACKUP POLICY '='? STRING_LITERAL
+      (RECOVERY_WINDOW '='? STRING_LITERAL)?                         #addBackupPolicy
+    | ALTER SYSTEM DROP DELETE BACKUP POLICY '='? STRING_LITERAL     #dropBackupPolicy
+    ;
+
+maintenanceDescription
+    : DESCRIPTION '='? STRING_LITERAL
+    ;
+
+flashbackStatement
+    : FLASHBACK TABLE tableName TO BEFORE DROP (RENAME TO tableName)? #flashbackTable
+    | FLASHBACK (DATABASE | SCHEMA) uid TO BEFORE DROP (RENAME TO uid)? #flashbackDatabase
+    ;
+
+purgeRecyclebin
+    : PURGE ((TABLE | INDEX) tableName | (DATABASE | SCHEMA) uid | RECYCLEBIN)
+    ;
+
+outlineStatement
+    : CREATE (OR REPLACE)? FORMAT? OUTLINE uid ON
+      (explainableStatement (TO explainableStatement)?
+      // Optimizer hints remain hidden comments, just as in ordinary DML.
+      | STRING_LITERAL USING HINT)
+    | ALTER FORMAT? OUTLINE uid ADD explainableStatement (TO explainableStatement)?
+    | DROP FORMAT? OUTLINE fullId
+    ;
+
+systemParameterAssignment
+    : uid '=' (stringLiteral | '-'? decimalLiteral | booleanLiteral | NULL_LITERAL)
+      (COMMENT STRING_LITERAL)?
+      (SCOPE '=' (MEMORY | SPFILE | BOTH))?
+      ((SERVER | ZONE) '='? STRING_LITERAL)?
+    ;
+
+sqlThrottleMetric
+    : (RT | QUEUE_TIME) '=' decimalLiteral
+    ;
+
 setStatement
-    : SET variableClause ('=' | ':=') expression
-      (',' variableClause ('=' | ':=') expression)*                 #setVariable
+    : setPasswordStatement                                          #setPassword
+    | SET variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON)
+      (',' variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON))* #setVariable
     | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
     | SET NAMES
         (charsetName (COLLATE collationName)? | DEFAULT)            #setNames
-    | setPasswordStatement                                          #setPassword
+    | SET sessionSetItem (',' sessionSetItem)+                     #setSessionAssignments
+    | SET ROLE (DEFAULT | NONE | ALL (EXCEPT userName (',' userName)*)?
+        | userName (',' userName)*)                                #setRole
+    | SET DEFAULT ROLE defaultRoleClause
+        TO userName (',' userName)*                                 #setDefaultRole
     | setTransactionStatement                                       #setTransaction
     | setAutocommitStatement                                        #setAutocommit
     | SET fullId ('=' | ':=') expression
       (',' fullId ('=' | ':=') expression)*                         #setNewValueInsideTrigger
     ;
 
+sessionSetItem
+    : variableClause ('=' | ':=' | TO) (expression | DEFAULT | ON)
+    | NAMES (charsetName | DEFAULT) (COLLATE collationName)?
+    | (CHARACTER SET | CHARSET) (charsetName | DEFAULT)
+    ;
+
+defaultRoleClause
+    : NONE | ALL | roleName (',' roleName)*
+    ;
+
 showStatement
-    : SHOW logFormat=(BINARY | MASTER) LOGS                         #showMasterLogs
+    : SHOW TRACE (FORMAT '=' STRING_LITERAL)? showFilter?            #showTrace
+    | SHOW QUERY_RESPONSE_TIME                                       #showQueryResponseTime
+    | SHOW logFormat=(BINARY | MASTER) LOGS                         #showMasterLogs
     | SHOW CHARSET (LIKE STRING_LITERAL)?                           #showCharset
     | SHOW logFormat=(BINLOG | RELAYLOG)
       EVENTS (IN filename=STRING_LITERAL)?
@@ -1742,8 +1847,11 @@ showStatement
           | TABLE | TRIGGER | VIEW
         )
         fullId                                                      #showCreateFullIdObject
-    | SHOW CREATE USER userName                                     #showCreateUser
+    | SHOW CREATE USER (userName | CURRENT_USER ('(' ')')?)          #showCreateUser
     | SHOW ENGINE engineName engineOption=(STATUS | MUTEX)          #showEngine
+    | SHOW RECYCLEBIN                                               #showRecyclebin
+    | SHOW TENANT STATUS?                                           #showTenant
+    | SHOW CREATE TENANT uid                                        #showCreateTenant
     | SHOW STORAGE? ENGINES                                         #showEngines
     | SHOW MASTER STATUS                                            #showStatus
     | SHOW PLUGINS                                                  #showPlugins
@@ -1762,7 +1870,8 @@ showStatement
     | SHOW showSchemaEntity
         (schemaFormat=(FROM | IN) uid)? showFilter?                 #showSchemaFilter
     | SHOW routine=(FUNCTION | PROCEDURE) CODE fullId               #showRoutine
-    | SHOW GRANTS (FOR (userName|CURRENT_USER ('(' ')')?))?         #showGrants
+    | SHOW GRANTS (FOR (userName (USING roleName (',' roleName)*)?
+        | CURRENT_USER ('(' ')')?))?                                #showGrants
     | SHOW indexFormat=(INDEX | INDEXES | KEYS)
       tableFormat=(FROM | IN) tableName
         (schemaFormat=(FROM | IN) uid)? (WHERE expression)?         #showIndexes
@@ -1783,9 +1892,9 @@ variableClause
     ;
 
 showCommonEntity
-    : CHARACTER SET | COLLATION | DATABASES | SCHEMAS
+    : CHARACTER SET | COLLATION | DATABASES | SCHEMAS | PARAMETERS
     | FUNCTION STATUS | PROCEDURE STATUS
-    | (GLOBAL | SESSION)? (STATUS | VARIABLES)
+    | (GLOBAL | SESSION | LOCAL)? (STATUS | VARIABLES)
     ;
 
 showFilter
@@ -1825,7 +1934,7 @@ flushStatement
 
 killStatement
     : KILL connectionFormat=(CONNECTION | QUERY)?
-      decimalLiteral+
+      expression
     ;
 
 loadIndexIntoCache
@@ -1878,11 +1987,11 @@ simpleDescribeStatement
 
 fullDescribeStatement
     : command=(EXPLAIN | DESCRIBE | DESC)
-      (
-        formatType=(EXTENDED | PARTITIONS | FORMAT )
-        '='
-        formatValue=(TRADITIONAL | JSON)
-      )?
+      ( (BASIC | OUTLINE | EXTENDED | EXTENDED_NOADDR | PARTITIONS)? (PRETTY | PRETTY_COLOR)?
+      | FORMAT '=' (TRADITIONAL | JSON)
+      | INTO uid (SET STATEMENT_ID '=' constant)?
+      | SET STATEMENT_ID '=' constant
+      )
       describeObjectClause
     ;
 
@@ -1944,11 +2053,13 @@ diagnosticsConditionInformationName
     ;
 
 describeObjectClause
-    : (
-        selectStatement | deleteStatement | insertStatement
-        | replaceStatement | updateStatement
-      )                                                             #describeStatements
+    : explainableStatement                                          #describeStatements
     | FOR CONNECTION uid                                            #describeConnection
+    ;
+
+explainableStatement
+    : selectStatement | withSelectStatement | deleteStatement
+    | insertStatement | replaceStatement | updateStatement
     ;
 
 fullId
@@ -1968,7 +2079,7 @@ customFunctionName
     ;
 
 roleName
-    : uid | STRING_LITERAL
+    : (uid | STRING_LITERAL) LOCAL_ID?
     ;
 
 fullColumnName
@@ -1991,6 +2102,7 @@ mysqlVariable
 charsetName
     : BINARY
     | charsetNameBase
+    | ID
     | STRING_LITERAL
     | CHARSET_REVERSE_QOUTE_STRING
     ;
@@ -2052,6 +2164,10 @@ simpleId
 
 dottedId
     : '.' uid
+    ;
+
+unsignedInteger
+    : DECIMAL_LITERAL | ZERO_DECIMAL | ONE_DECIMAL | TWO_DECIMAL
     ;
 
 decimalLiteral
@@ -2455,6 +2571,7 @@ search_modifier:
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | PARAMETER_MARK                                                #parameterExpressionAtom
     | fullColumnName                                                #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | expressionAtom COLLATE collationName                          #collateExpressionAtom
@@ -2525,6 +2642,14 @@ dataTypeBase
 
 keywordsCanBeId
     : ACCOUNT | ACTION | AFTER | AGGREGATE | ALGORITHM | ANY
+    | DECRYPT | LINK | SYSTEM
+    | PARAMETERS | QUEUE_TIME | RT | SCOPE | SPFILE | TENANT | THROTTLE | ZONE
+    | AUTO | HISTOGRAM | BUCKETS | COMPUTE | ESTIMATE | STATISTICS | SAMPLE | PERCENTAGE
+    | SIZE | SKEWONLY | INDEXED | FREEZE | MAJOR | MINOR | PLAN | SQL_ID
+    | CLEAR | FLASHBACK | RECYCLEBIN | BACKUP | INCREMENTAL | ARCHIVELOG | NOARCHIVELOG | DESCRIPTION
+    | CANCEL | POLICY | RECOVERY_WINDOW | HIDDEN_COLUMN | PLUS_KEYWORD
+    | BASIC | OUTLINE | EXTENDED_NOADDR | PRETTY | PRETTY_COLOR | STATEMENT_ID
+    | TRACE | QUERY_RESPONSE_TIME | HINT
     | AT | AUDIT_ADMIN | AUTHORS | AUTOCOMMIT | AUTOEXTEND_SIZE
     | AUTO_INCREMENT | AVG | AVG_ROW_LENGTH | BACKUP_ADMIN | BEGIN | BINLOG | BINLOG_ADMIN | BINLOG_ENCRYPTION_ADMIN | BIT | BIT_AND | BIT_OR | BIT_XOR
     | BLOCK | BOOL | BOOLEAN | BTREE | CACHE | CASCADED | CHAIN | CHANGED

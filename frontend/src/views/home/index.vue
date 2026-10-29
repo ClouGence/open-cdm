@@ -47,7 +47,15 @@
     </div>
     <CCModal v-model="showDetailModal" :title="selectedCellDetail.column.property" v-if="showDetailModal" key="showDetailModal" :width="800">
       <div class="cell-detail">
-        <a-textarea v-model:value="cellDetailContent" :rows="15" readonly style="font-family: monospace; font-size: 12px" />
+        <ReadOnlyEditor
+          v-if="cellDetailJsonView"
+          :text="cellDetailContent"
+          language="json"
+          :format-json="selectedCellDetail.complete && !hasMoreData && !cellDetailLoading"
+          :border="0"
+          :max-height="360"
+        />
+        <a-textarea v-else v-model:value="cellDetailContent" :rows="15" readonly style="font-family: monospace; font-size: 12px" />
         <div v-if="cellDetailLoading" class="cell-detail-loading">
           <a-spin :spinning="cellDetailLoading" />
           <span style="margin-left: 8px">{{ $t('zheng-zai-jia-zai') }}</span>
@@ -56,6 +64,9 @@
       <template #footer>
         <a-button v-if="hasMoreData && !cellDetailLoading && !selectedCellDetail.error && !selectedCellDetail.mask" @click="handleLoadMoreCellData">
           {{ $t('jia-zai-geng-duo') }}
+        </a-button>
+        <a-button v-if="isJsonCell" @click="cellDetailJsonView = !cellDetailJsonView">
+          {{ $t(cellDetailJsonView ? 'query-text-view' : 'query-json-view') }}
         </a-button>
         <a-button type="primary" @click="handleDetailCopy">{{ $t('fu-zhi') }}</a-button>
         <a-button @click="handleCloseCellDetailModal">{{ $t('guan-bi') }}</a-button>
@@ -93,6 +104,7 @@
 import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import AppSidebar from '@/components/layout/AppSidebar';
+import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor.vue';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
 import AppContentHeader from '@/components/layout/AppContentHeader';
 import AppUserActions from '@/components/layout/AppUserActions';
@@ -109,6 +121,7 @@ import { resolveWorkbenchFallbackPath, resolveWorkbenchRoute } from '@/utils/wor
 export default {
   name: 'Home',
   components: {
+    ReadOnlyEditor,
     DmWaterMark,
     AppSidebar,
     AppBrandLogo,
@@ -144,6 +157,7 @@ export default {
         mask: false
       },
       cellDetailContent: '',
+      cellDetailJsonView: false,
       cellDetailLoading: false,
       hasMoreData: false,
       limitDays: 6,
@@ -158,6 +172,9 @@ export default {
     ...mapGetters(['isDesktop', 'displayVersion', 'isInternalUser']),
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
+    isJsonCell() {
+      return ['JSON_DOCUMENT', 'JSON', 'JSONB'].includes(this.selectedCellDetail.column.columnType) && !this.selectedCellDetail.error;
+    },
     isSqlRoute() {
       return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
     }
@@ -198,6 +215,7 @@ export default {
         };
         // Initialize content (show initial values)
         this.cellDetailContent = this.selectedCellDetail.cellValue || '';
+        this.cellDetailJsonView = this.isJsonCell;
         // Disable loading more if error or mask is true
         const canLoadMore = !this.selectedCellDetail.error && !this.selectedCellDetail.mask;
         this.hasMoreData = canLoadMore && (this.selectedCellDetail.moreSize || 0) > 0;
@@ -290,7 +308,8 @@ export default {
         return;
       }
 
-      const { resultId, rowNumber, colNumber } = this.selectedCellDetail;
+      const selectedDetail = this.selectedCellDetail;
+      const { resultId, rowNumber, colNumber } = selectedDetail;
 
       if (!resultId || rowNumber < 0 || colNumber < 0) {
         appLogger.error('缺少必要参数:', { resultId, rowNumber, colNumber });
@@ -315,6 +334,9 @@ export default {
           }
         });
 
+        if (!this.showDetailModal || selectedDetail !== this.selectedCellDetail) {
+          return;
+        }
         if (res.success && res.data) {
           // The data structure returned from the interface is {value: {complete, mark, error, moreSize, totalSize, value}
           const dataValue = res.data.value || res.data;
@@ -329,6 +351,7 @@ export default {
           this.cellDetailContent += value || '';
 
           // Update moreSize and totalSize
+          this.selectedCellDetail.complete = complete;
           this.selectedCellDetail.moreSize = moreSize || 0;
           this.selectedCellDetail.totalSize = totalSize || 0;
           // Disable loading more if error or mask is true
@@ -341,7 +364,9 @@ export default {
         appLogger.error('加载单元格数据失败:', error);
         this.$Message.error(this.$t('jia-zai-shu-ju-shi-bai'));
       } finally {
-        this.cellDetailLoading = false;
+        if (selectedDetail === this.selectedCellDetail) {
+          this.cellDetailLoading = false;
+        }
       }
     },
     handleGoBackHome() {

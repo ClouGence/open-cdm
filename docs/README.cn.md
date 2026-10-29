@@ -1,7 +1,17 @@
 <h1 align="center">CloudDM</h1>
 
 <p align="center">
-  一款免费且开源的数据库管理工具，适合团队化使用。它提供了访问控制、数据脱敏、SQL 审核、CI/CD 等能力，并支持跨地区部署。
+  <a href="../LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="开源协议：Apache 2.0" /></a>
+  <a href="https://github.com/ClouGence/open-cdm/stargazers"><img src="https://img.shields.io/github/stars/ClouGence/open-cdm?style=flat" alt="GitHub Stars" /></a>
+</p>
+
+<p align="center">
+  <a href="https://trendshift.io/repositories/31757"><img src="https://trendshift.io/api/badge/trendshift/repositories/31757/daily?language=Java" alt="Trendshift：Java 日榜第 3 名" width="250" height="55" /></a>
+  <a href="https://trendshift.io/repositories/31757"><img src="https://trendshift.io/api/badge/trendshift/repositories/31757/weekly?language=Java" alt="Trendshift：Java 周榜第 13 名" width="250" height="55" /></a>
+</p>
+
+<p align="center">
+  一款面向团队的免费开源数据库管理工具，支持AI SQL 助手，以及访问控制、数据脱敏、SQL 审核、CI/CD 和跨地区部署。
 </p>
 
 <p align="center">
@@ -32,7 +42,7 @@
 | 官网   | https://www.cdmgr.com/                         |
 | 文档   | https://www.cdmgr.com/docs/intro/product_intro |
 | 开源协议 | Apache License 2.0                             |
-| 当前版本 | 4.2.2                                          |
+| 当前版本 | 4.5.1                                          |
 | 主要语言 | Java、JavaScript / TypeScript                   |
 | 部署模式 | 单机模式（Alone）、集群模式（Console + Sidecar）            |
 | 部署方式 | 安装包、Docker、Kubernetes                          |
@@ -97,7 +107,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.2.2
+  bladepipe/cgdm-alone:4.5.1
 
 # 中国地区，使用加速镜像
 docker run -d --name cgdm-alone \
@@ -106,7 +116,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.2.2
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.5.1
 ```
 
 本地目录挂载示例：
@@ -120,7 +130,7 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.2.2
+  bladepipe/cgdm-alone:4.5.1
 ```
 
 当 `/data/cgdm/conf` 是空目录时，CloudDM 会在启动时自动写入默认配置文件。
@@ -145,25 +155,25 @@ gunzip -c cgdm-alone-image-<arch>.tar.gz | docker load
 ```bash
 # 默认镜像
 docker rm -f cgdm-alone
-docker pull bladepipe/cgdm-alone:4.2.2
+docker pull bladepipe/cgdm-alone:4.5.1
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.2.2
+  bladepipe/cgdm-alone:4.5.1
 
 # 中国区加速镜像
 docker rm -f cgdm-alone
-docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.2.2
+docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.5.1
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.2.2
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.5.1
 ```
 
 ### 初始化

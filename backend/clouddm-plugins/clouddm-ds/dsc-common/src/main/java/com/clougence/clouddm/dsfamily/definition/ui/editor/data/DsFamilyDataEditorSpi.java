@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorAttributeKeys;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSqlType;
@@ -53,7 +54,7 @@ public abstract class DsFamilyDataEditorSpi implements DataEditorSpi, DataEditor
         for (RdbColumn colDef : tableMeta.getColumns().values()) {
             String colValue = recordData.get(colDef.getName());
 
-            if (insertIgnore(colDef, colValue)) {
+            if (!recordData.containsKey(colDef.getName()) || insertIgnore(colDef)) {
                 continue;
             }
 
@@ -66,15 +67,30 @@ public abstract class DsFamilyDataEditorSpi implements DataEditorSpi, DataEditor
             insertCols.append(dialect.fmtName(true, colDef.getName()));
 
             if (colValue == null) {
-                colValue = colDef.getDefaultValue() != null ? "default" : "null";
-                insertValues.append(colValue);
+                insertValues.append("NULL");
             } else {
                 insertValues.append(this.templateOfInsert(dialect, colDef, colValue));
             }
         }
 
+        if (index == 0) {
+            return buildDefaultInsert(tableMeta);
+        }
+
         String tabName = dialect.fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
         return String.format("insert into %s (%s) values (%s)", tabName, insertCols, insertValues);
+    }
+
+    protected String buildDefaultInsert(RdbTable tableMeta) {
+        Dialect dialect = getDialect();
+        String tableName = dialect.fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
+        // Naming one writable column avoids including synthetic row identifiers or generated expressions.
+        for (RdbColumn column : tableMeta.getColumns().values()) {
+            if (!insertIgnore(column) || Boolean.parseBoolean(column.getAttribute(DataEditorAttributeKeys.AUTOINCREMENT))) {
+                return "insert into " + tableName + " (" + dialect.fmtName(true, column.getName()) + ") values (DEFAULT)";
+            }
+        }
+        throw ThirdPartyApiException.as().with(new IllegalArgumentException("No column accepts a default insert"));
     }
 
     @Override
@@ -256,7 +272,7 @@ public abstract class DsFamilyDataEditorSpi implements DataEditorSpi, DataEditor
 
     protected String templateOfInsert(Dialect dialect, RdbColumn col, String value) {
         if (value == null) {
-            return col.getDefaultValue() != null ? "default" : "null";
+            return "NULL";
         } else {
             return fmtDataValue(col.getSqlType(), value);
         }
@@ -288,7 +304,7 @@ public abstract class DsFamilyDataEditorSpi implements DataEditorSpi, DataEditor
         }
     }
 
-    protected boolean insertIgnore(RdbColumn colDef, String colValue) {
+    protected boolean insertIgnore(RdbColumn colDef) {
         String readOnly = colDef.getAttribute(DataEditorAttributeKeys.INSERT_READ_ONLY);
         return Boolean.parseBoolean(readOnly);
     }
@@ -302,13 +318,13 @@ public abstract class DsFamilyDataEditorSpi implements DataEditorSpi, DataEditor
         // fill auto key
         for (RdbColumn autoCol : autoCols) {
             String name = autoCol.getName();
-            if (sqlData.getUpdateData().containsKey(name)) {
-                String value = sqlData.getUpdateData().get(name);
+            String value = sqlData.getUpdateData().get(name);
+            if (value == null) {
                 String autoValue = null;
                 for (String key : generatedKeys.get(0).keySet()) {//auto list only one?
                     autoValue = generatedKeys.get(0).get(key);
                 }
-                sqlData.getUpdateData().put(name, StringUtils.isBlank(value) ? autoValue : value);
+                sqlData.getUpdateData().put(name, autoValue);
             }
         }
     }

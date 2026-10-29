@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.auth.model.QueryRelationAuthResult;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -51,11 +53,14 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -80,6 +85,9 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     private DmAuthServiceForManage authServiceForManage;
     @Resource
     private DmDsConfigService      dmDsConfigService;
+
+    @Resource
+    private DsSchemaService        dsSchemaService;
 
     @Override
     public void checkResPath(String puid, String uid, long resId, AuthKind authKind, DsResPath resPath, String dataAuthLabel) {
@@ -125,11 +133,38 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
 
         DmDsDO dsDO = levels.dsDO();
         long dsId = dsDO.getId();
-        String sqlEngineName = this.dmDsConfigService.fetchSqlEngineSpi(dsId).name();
+        var sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(dsId);
+        String sqlEngineName = sqlEngine.name();
         SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngineName);
         String currentResourcePath = DmDsUtils.currentResourcePath(levels.levelsParam());
         String instanceResourcePath = DmDsUtils.instanceResourcePath(levels.levelsParam());
         for (QueryRequest request : requests) {
+            var resolver = sqlEngine.queryResourceResolver();
+            if (resolver != null) {
+                Function<UmiTypes, List<String>> listObjectNames = type -> {
+                    List<DsElement> elements = this.dsSchemaService.listLeaf(dsDO, levels.levelsParam(), type, null, true);
+                    List<String> names = new ArrayList<>(elements.size());
+                    for (DsElement element : elements) {
+                        names.add(element.getObjName());
+                    }
+                    return Collections.unmodifiableList(names);
+                };
+                Predicate<BehaviorRelation> isRelationPermitted = relation -> {
+                    List<BehaviorRequest> resources = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), List.of(relation));
+                    for (BehaviorRequest resource : resources) {
+                        String path = BehaviorRelations.resourcePath(resource.resource(), currentResourcePath, instanceResourcePath);
+                        if (resource.authKind() == null) {
+                            continue;
+                        }
+                        String authLabel = resource.authKind().getAuthLabel();
+                        if (!this.checkResPathWithoutError(puid, uid, dsId, AuthKind.DataSource, () -> path, authLabel)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+                resolver.resolve(request, listObjectNames, isRelationPermitted);
+            }
             List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations());
             for (BehaviorRequest behavior : behaviors) {
                 if (behavior.authKind() == null) {

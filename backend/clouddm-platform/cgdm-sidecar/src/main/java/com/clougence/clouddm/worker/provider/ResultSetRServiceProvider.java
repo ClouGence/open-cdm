@@ -12,47 +12,44 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.provider;
+ */
+package com.clougence.clouddm.worker.provider;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import jakarta.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.console.notify.NotifyRService;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultColDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultFileReadDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultSetRService;
-import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.execute.session.QueryRequest;
-import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
 import com.clougence.clouddm.sdk.execute.resultset.file.FileFormatConvert;
 import com.clougence.clouddm.sdk.execute.resultset.file.ResultReader;
 import com.clougence.clouddm.sdk.execute.resultset.file.ResultReaderService;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
+import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
-import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.worker.services.SidecarFileServiceImpl;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -275,7 +272,16 @@ public class ResultSetRServiceProvider implements ResultSetRService, UnifiedPost
             // read column
             QueryRequest queryInfo = rr.getQueryInfo();
             ColMetaData meta = rr.getMetadataInfo()[Math.toIntExact(colNumber)];
-            ResultSetValue col = rr.readAsString(meta, queryInfo.getResultConf(), offset, length);
+            ResultSetValue col;
+            if (queryInfo.isUsingValueProcess() && Arrays.stream(rr.getMetadataInfo()).anyMatch(column -> ColMetaData.JSON_DOCUMENT.equals(column.getColumnType()))) {
+                ResultPageDTO page = resultPageRead(sendDTO, filePath, rowNumber, 1);
+                if (!page.isSuccess() || page.getRowSet().isEmpty()) {
+                    throw new IOException("Read masked document failed");
+                }
+                col = page.getRowSet().get(0).getData().get(Math.toIntExact(colNumber));
+            } else {
+                col = rr.readAsString(meta, queryInfo.getResultConf(), offset, length);
+            }
 
             ResultColDTO result = new ResultColDTO();
             result.setSuccess(true);

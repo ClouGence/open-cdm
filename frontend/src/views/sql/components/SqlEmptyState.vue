@@ -36,14 +36,19 @@
       </p>
 
       <div class="empty-actions">
-        <Tooltip :content="$t('shen-qing-quan-xian')" :disabled="canAddDataSource" transfer placement="top">
-          <span>
-            <Button class="empty-action empty-primary-action" type="primary" :disabled="!canAddDataSource" @click="handleAddDataSource">
-              <CustomIcon type="icon-v2-tianjiashujuyuan1" size="18" />
-              <span>{{ $t('sql-empty-add-datasource') }}</span>
-            </Button>
-          </span>
-        </Tooltip>
+        <Button v-if="canAddDataSource" class="empty-action empty-primary-action" type="primary" @click="handleAddDataSource">
+          <CustomIcon type="icon-v2-tianjiashujuyuan1" size="18" />
+          <span>{{ $t('sql-empty-add-datasource') }}</span>
+        </Button>
+        <Button
+          v-else-if="!hasDataSource && canApplyPermission"
+          class="empty-action empty-primary-action"
+          type="primary"
+          @click="handleApplyPermission"
+        >
+          <CustomIcon type="icon-v2-TicketAuth" size="18" />
+          <span>{{ $t('sql-empty-apply-permission') }}</span>
+        </Button>
       </div>
     </div>
   </div>
@@ -54,18 +59,36 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'SqlEmptyState',
+  props: {
+    hasDataSource: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
-    ...mapState(['myAuth']),
+    ...mapState(['myAuth', 'userInfo']),
     canAddDataSource() {
       return (this.myAuth || []).includes('RDP_DS_MANAGE');
     },
+    canApplyPermission() {
+      return this.userInfo.accountType === 'SUB_ACCOUNT';
+    },
     emptyDescription() {
-      return this.$t('sql-empty-description');
+      if (this.hasDataSource || this.canAddDataSource) {
+        return this.$t('sql-empty-description');
+      }
+      if (this.canApplyPermission) {
+        return this.$t('sql-empty-apply-permission-description');
+      }
+      return this.$t('sql-empty-contact-administrator');
     }
   },
   methods: {
     handleAddDataSource() {
       this.$router.push('/datasource');
+    },
+    handleApplyPermission() {
+      this.$router.push({ name: 'Permission', query: { type: 'apply' } });
     }
   }
 };

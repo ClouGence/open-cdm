@@ -673,6 +673,12 @@ public class MySqlParserVisitor extends MySqlParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitIndexType(IndexTypeContext ctx) {
+        // Access methods do not change the ordinary/unique index category used by audit rules.
+        return null;
+    }
+
+    @Override
     public Void visitCommonIndexOption(CommonIndexOptionContext ctx) {
         if (ctx.getChild(0).getText().equalsIgnoreCase("comment")) {
             String text = ctx.getChild(1).getText();

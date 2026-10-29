@@ -16,6 +16,7 @@
 package com.clougence.clouddm.api.console.configs;
 
 import java.util.List;
+import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SshConfig;
@@ -34,7 +35,13 @@ public interface ConfigRService {
 
     DataSourceConfig fetchDsConfig(long dsId);
 
-    List<ConfigData> fetchDsConfig(String instanceId, List<String> names);
+    /**
+     * Same as {@link #fetchDsConfig(long)} but applies datasource config overrides, so a worker can open the
+     * session against a database other than the datasource default.
+     */
+    DataSourceConfig fetchDsConfigWithOverrides(long dsId, Map<String, String> configOverrides);
+
+    List<ConfigData> fetchDsConfigByInstanceIdAndNames(String instanceId, List<String> names);
 
     ToolConfig fetchToolConfig(String toolName);
 

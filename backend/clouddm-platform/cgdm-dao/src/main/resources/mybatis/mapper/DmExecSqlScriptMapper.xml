@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.execution.DmExecSqlScriptMapper">
+    <resultMap id="sqlScriptDO" type="com.clougence.clouddm.platform.dal.model.execution.DmExecSqlScriptDO">
+        <id column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="ds_type" property="dsType"/>
+        <result column="name" property="name"/>
+        <result column="file_uri" property="fileUri"/>
+        <result column="status" property="status"
+                javaType="com.clougence.clouddm.platform.dal.model.execution.SqlScriptStatus"/>
+        <result column="version" property="version"/>
+    </resultMap>
+
+    <sql id="summary_col">
+        id
+        ,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        ds_type,
+        name,
+        file_uri,
+        status,
+        version
+    </sql>
+
+    <select id="listByOwner" resultMap="sqlScriptDO">
+        SELECT
+        <include refid="summary_col"/>
+        FROM
+        dm_exec_sql_script
+        WHERE
+        owner_uid = #{ownerUid}
+        AND
+        status = 'Ready'
+        AND
+        ds_type = #{dsType}
+        <if test="keyword != null and keyword != ''">
+            AND
+            name LIKE CONCAT('%', #{keyword}, '%') ESCAPE '='
+        </if>
+        ORDER BY
+        gmt_modified DESC,
+        id DESC
+    </select>
+
+    <select id="detail" resultMap="sqlScriptDO">
+        SELECT
+        <include refid="summary_col"/>
+        FROM
+        dm_exec_sql_script
+        WHERE
+        id = #{scriptId}
+        AND
+        owner_uid = #{ownerUid}
+        AND
+        status = 'Ready'
+    </select>
+
+    <update id="updateByVersion">
+        UPDATE
+            dm_exec_sql_script
+        SET name         = #{name},
+            ds_type      = #{dsType},
+            file_uri     = #{fileUri},
+            version      = version + 1,
+            gmt_modified = #{gmtModified}
+        WHERE id = #{scriptId}
+          AND owner_uid = #{ownerUid}
+          AND status = 'Ready'
+          AND version = #{version}
+    </update>
+
+    <update id="markDeleting">
+        UPDATE
+            dm_exec_sql_script
+        SET name         = NULL,
+            status       = 'Deleting',
+            gmt_modified = #{gmtModified}
+        WHERE id = #{scriptId}
+          AND owner_uid = #{ownerUid}
+          AND status = 'Ready'
+          AND version = #{version}
+    </update>
+
+    <select id="listDeleting" resultMap="sqlScriptDO">
+        SELECT
+        <include refid="summary_col"/>
+        FROM
+        dm_exec_sql_script
+        WHERE
+        status = 'Deleting'
+        AND
+        gmt_modified <![CDATA[ <= ]]> #{expireBefore}
+        ORDER BY id
+    </select>
+
+    <delete id="deleteDeleting">
+        DELETE
+        FROM dm_exec_sql_script
+        WHERE id = #{scriptId}
+          AND status = 'Deleting'
+    </delete>
+
+    <select id="listFileUris" resultType="java.lang.String">
+        SELECT file_uri
+        FROM dm_exec_sql_script
+    </select>
+</mapper>

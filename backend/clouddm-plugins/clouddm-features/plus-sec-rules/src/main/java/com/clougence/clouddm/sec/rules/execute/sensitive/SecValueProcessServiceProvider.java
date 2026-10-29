@@ -90,6 +90,15 @@ public class SecValueProcessServiceProvider implements ValueProcessService {
             return rowData;
         }
 
+        if (meta.values().stream().anyMatch(column -> ColMetaData.JSON_DOCUMENT.equals(column.getColumnType()))) {
+            JsonDocumentValues document = new JsonDocumentValues(meta, rowData);
+            List<String> processed = processScalarRow(query, document.getMetadata(), document.getValues(), flash);
+            return document.restore(processed);
+        }
+        return processScalarRow(query, meta, rowData, flash);
+    }
+
+    private List<String> processScalarRow(QueryRequest query, Map<String, ColMetaData> meta, List<String> rowData, Map<String, Object> flash) {
         SensitiveConfig conf = (SensitiveConfig) flash.get(SEN_KEY_CFG);
         ColMetaData[] colMeta = meta.values().toArray(new ColMetaData[0]);
         List<String> allColumns = meta.values().stream().map(ColMetaData::getColumn).collect(Collectors.toList());

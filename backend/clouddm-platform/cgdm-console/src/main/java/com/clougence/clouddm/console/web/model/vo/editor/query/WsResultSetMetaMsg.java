@@ -33,6 +33,7 @@ public class WsResultSetMetaMsg extends WsQueryResult {
     private List<String> columnList;
     private List<String> columnType;
     private ReceiveMode  receiveMode;
+    private boolean      refreshOnProgress;
 
     private String       receiveCost;
     private String       cacheFile;

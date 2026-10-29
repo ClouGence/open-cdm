@@ -44,6 +44,8 @@ public enum DataSourceType {
     KingbaseESSQLServer("kesms", "KingbaseESSQLServer", 0, 78),
     GoldenDBMySQL("gdbmy", "GoldenDBMySQL", 0, 79),
     GoldenDBOracle("gdbora", "GoldenDBOracle", 0, 80),
+    YashanDBOracle("yasora", "YashanDBOracle", 0, 81),
+    YashanDBMySQL("yasmy", "YashanDBMySQL", 0, 82),
     OceanBase("ob", "OceanBase", 0, 90),
     ObForOracle("obo", "ObForOracle", 0, 100),
     Db2("db2", "Db2", 0, 110),
@@ -67,6 +69,8 @@ public enum DataSourceType {
     Redis("re", "Redis", 2, 10),
     Valkey("vk", "Valkey", 2, 15),
     MongoDB("mdb", "MongoDB", 2, 20),
+    Kafka("ka", "Kafka", 2, 30),
+    ElasticSearch("es", "ElasticSearch", 2, 40),
 
     // cloud database
     AdbForMySQL("amy", "AdbForMySQL", 3, 10),

@@ -99,4 +99,4 @@ mkdir -p /root/cgdm/console/logs
 touch /root/cgdm/console/logs/console.log
 
 /root/cgdm/console/bin/startup.sh
-tail -f /root/cgdm/console/logs/console.log
+tail -F /root/cgdm/console/logs/console.log

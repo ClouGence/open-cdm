@@ -1,6 +1,17 @@
 // SQL workspace UI overrides — Supabase emerald theme
 
 .sql-workspace {
+  .sql-content-reveal-enter-active {
+    transition: opacity 0.16s ease-out;
+  }
+
+  .sql-content-reveal-enter-from {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sql-content-reveal-enter-active { transition: none; }
+  }
   // ─ VTree / CTree Selected / Hover (override @wsfe/ vue-tree Default Blue) - -
   .datasource-tree,
   .table-list-tree {

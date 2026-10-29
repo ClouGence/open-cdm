@@ -15,7 +15,10 @@
  */
 package com.clougence.clouddm.console.web.model.vo.editor.query;
 
+import java.util.List;
+
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
+import com.clougence.clouddm.sdk.ui.template.CmdExample;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,4 +43,5 @@ public class DsStatusConfVO {
     private DsStatusSupportConfVO explain;
     private DsStatusSupportConfVO format;
     private DsLanguageConfVO      language;
+    private List<CmdExample>      commandExamples = List.of();
 }

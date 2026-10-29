@@ -18,12 +18,7 @@ package com.clougence.clouddm.console.web.controller.editor.query;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
 
 import java.net.URI;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,6 +69,8 @@ import com.clougence.clouddm.sdk.resource.ResourceSpi;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.ui.template.CmdExample;
+import com.clougence.clouddm.sdk.ui.template.CmdTemplateSpi;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.utils.CollectionUtils;
@@ -83,12 +80,13 @@ import com.clougence.utils.i18n.I18nUtils;
 import com.clougence.utils.io.FileUtils;
 import com.clougence.utils.io.FilenameUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author mode create time is 2021/1/5
@@ -164,6 +162,13 @@ public class QueryEditorController {
         }
 
         I18nUtils dsI18n = PluginManager.findDsI18nUtil(entry.getDsType());
+        CmdTemplateSpi templates = PluginManager.findCmdTemplateSpi(entry.getDsType());
+        if (templates != null) {
+            vo.setCommandExamples(templates.getExamples()
+                .stream()
+                .map(example -> new CmdExample(dsI18n.getMessage(example.getTitleI18N(), null, DmI18nUtils.getLocale()), example.getStatement()))
+                .toList());
+        }
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(entry.getDsNumId());
         vo.setLanguage(loadDsLanguage(entry, dsConfig, dto));
         if (supportSpi != null) {
@@ -219,7 +224,8 @@ public class QueryEditorController {
             return language;
         }
 
-        boolean hasLanguageSpi = CollectionUtils.isNotEmpty(dsPlugin.findSpi(DsLanguageSpi.class));
+        List<DsLanguageSpi> languageSpis = dsPlugin.findSpi(DsLanguageSpi.class);
+        boolean hasLanguageSpi = CollectionUtils.isNotEmpty(languageSpis);
         boolean hasDslProvider = sqlEngine.dslProvider(SqlParserParameters.empty()) != null;
         boolean hasSplitAnalysisSpi = sqlEngine.splitAnalysisSpi(SqlParserParameters.empty()) != null;
 
@@ -227,9 +233,13 @@ public class QueryEditorController {
         if (hasLanguageSpi && hasDslProvider) {
             supports.add(DsLanguageSupport.COMPLETE);
             supports.add(DsLanguageSupport.VALIDATE);
+            supports.add(DsLanguageSupport.FORMAT);
         }
         if (hasLanguageSpi && hasSplitAnalysisSpi) {
             supports.add(DsLanguageSupport.SPLIT);
+        }
+        if (hasLanguageSpi) {
+            supports.retainAll(languageSpis.get(0).supports());
         }
 
         language.setSupported(!supports.isEmpty());
@@ -377,8 +387,7 @@ public class QueryEditorController {
         auditInfo.put("downloadFileName", downloadFileName);
         auditInfo.put("originalFileName", originalFileName);
         this.opAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fileDO
-            .getUniqueId(), auditInfo, SecurityLevel.HIGH, AuditType.DOWNLOAD_QUERY_RESULT, ResourceType.DATA_EXPORT,
-            downloadFileName);
+            .getUniqueId(), auditInfo, SecurityLevel.HIGH, AuditType.DOWNLOAD_QUERY_RESULT, ResourceType.DATA_EXPORT, downloadFileName);
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)

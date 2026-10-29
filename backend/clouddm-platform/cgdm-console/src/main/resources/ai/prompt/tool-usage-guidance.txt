@@ -1,0 +1,10 @@
+<tool_usage_guidance>
+  <context>This is an efficiency checkpoint after {threshold} tool calls, not a tool-call limit or a stop signal. Tools remain available.</context>
+  <objective>Finish the task correctly while avoiding low-value tool calls.</objective>
+  <procedure>
+    <step>If the task is unfinished, continue working; do not stop solely because this checkpoint appeared.</step>
+    <step>If gathered evidence is enough, answer now.</step>
+    <step>If one decisive gap remains, prefer one targeted tool call. Otherwise make only the distinct tool calls materially needed to finish.</step>
+    <step>Do not repeat similar tool calls.</step>
+  </procedure>
+</tool_usage_guidance>

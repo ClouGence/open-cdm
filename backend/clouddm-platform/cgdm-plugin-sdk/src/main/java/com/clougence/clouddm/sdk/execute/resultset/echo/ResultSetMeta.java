@@ -39,4 +39,5 @@ public class ResultSetMeta extends Result {
     private String       cacheFileUri;
     private DmFileType   cacheFileFormat;
     private ReceiveMode  receiveMode;
+    private boolean      refreshOnProgress;
 }
