@@ -17,6 +17,8 @@ package com.clougence.sql.polardbx.parser;
 
 import static com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
 
+import java.util.Locale;
+
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
@@ -158,6 +160,26 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitSetTransaction(SetTransactionContext ctx) {
         return SplitQueryType.TRANSACTION;
+    }
+
+    @Override
+    public SplitQueryType visitSetRole(SetRoleContext ctx) {
+        return SplitQueryType.SWITCH_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitSetCharset(SetCharsetContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetNames(SetNamesContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetAutocommit(SetAutocommitContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
     }
 
     @Override
@@ -416,8 +438,8 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
         if (entity.equalsIgnoreCase("STATUS") || entity.equalsIgnoreCase("GLOBALSTATUS") || entity.equalsIgnoreCase("SESSIONSTATUS")) {
             return SplitQueryType.PERFORMANCE;
         }
-        if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES")) {
-            return SplitQueryType.SESSION_VARIABLE_RW;
+        if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES") || entity.equalsIgnoreCase("GLOBALVARIABLES")) {
+            return SplitQueryType.METADATA;
         }
         return SplitQueryType.UNKNOWN;
     }
@@ -499,12 +521,12 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowErrors(ShowErrorsContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
     public SplitQueryType visitShowCountErrors(ShowCountErrorsContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
@@ -589,7 +611,34 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitSetVariable(SetVariableContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return variableWriteType(ctx.variableClause(0));
+    }
+
+    static SplitQueryType variableWriteType(VariableClauseContext ctx) {
+        if (ctx.LOCAL_ID() != null) {
+            return SplitQueryType.SESSION_VARIABLE_RW;
+        }
+        if (ctx.GLOBAL_ID() != null) {
+            String name = ctx.GLOBAL_ID().getText().toUpperCase(Locale.ROOT);
+            if (name.startsWith("@@GLOBAL.") || name.startsWith("@@PERSIST.") || name.startsWith("@@PERSIST_ONLY.")) {
+                return SplitQueryType.SYSTEM_SETTING_WRITE;
+            }
+            return SplitQueryType.SESSION_SETTING_WRITE;
+        }
+        // Scope keywords carry across assignments; @@ qualifiers apply to one target only.
+        SplitQueryType scope = SplitQueryType.SESSION_SETTING_WRITE;
+        SetVariableContext statement = (SetVariableContext) ctx.getParent();
+        for (VariableClauseContext variable : statement.variableClause()) {
+            if (variable.GLOBAL() != null || variable.PERSIST() != null) {
+                scope = SplitQueryType.SYSTEM_SETTING_WRITE;
+            } else if (variable.SESSION() != null || variable.LOCAL() != null) {
+                scope = SplitQueryType.SESSION_SETTING_WRITE;
+            }
+            if (variable == ctx) {
+                break;
+            }
+        }
+        return scope;
     }
 
     public SplitQueryType visitChildren(RuleNode node) {

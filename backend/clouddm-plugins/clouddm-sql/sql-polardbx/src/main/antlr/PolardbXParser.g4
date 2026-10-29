@@ -1182,6 +1182,7 @@ transactionMode
     : WITH CONSISTENT SNAPSHOT
     | READ WRITE
     | READ ONLY
+    | ISOLATION LEVEL (REPEATABLE READ | READ COMMITTED)
     ;
 
 lockTableElement
@@ -1713,6 +1714,8 @@ setStatement
     | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
     | SET NAMES
         (charsetName (COLLATE collationName)? | DEFAULT)            #setNames
+    | SET ROLE (DEFAULT | NONE | ALL (EXCEPT roleName (',' roleName)*)?
+      | roleName (',' roleName)*)                                   #setRole
     | SET DEFAULT ROLE (NONE | ALL | roleName (',' roleName)*)
       TO userName (',' userName)*                                  #setDefaultRole
     | setPasswordStatement                                          #setPassword

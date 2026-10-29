@@ -15,6 +15,8 @@
  */
 package com.clougence.sql.polardbx.parser;
 
+import java.util.Locale;
+
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -40,6 +42,35 @@ public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof PolardbXParser.VariableClauseContext || tree instanceof PolardbXParser.MysqlVariableContext
+            || tree instanceof PolardbXParser.SetTransactionStatementContext) {
+            // Stored bodies and plan-only SQL do not perform session actions now.
+            for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+                if (parent instanceof PolardbXParser.RoutineBodyContext || parent instanceof PolardbXParser.CreateFunctionContext
+                    || parent instanceof PolardbXParser.CreateViewContext || parent instanceof PolardbXParser.AlterViewContext
+                    || parent instanceof PolardbXParser.FullDescribeStatementContext) {
+                    return null;
+                }
+            }
+        }
+        if (tree instanceof PolardbXParser.VariableClauseContext variable && variable.getParent() instanceof PolardbXParser.SetVariableContext) {
+            return PorXSplitVisitor.variableWriteType(variable);
+        }
+        if (tree instanceof PolardbXParser.MysqlVariableContext variable) {
+            String name = variable.getText().toUpperCase(Locale.ROOT);
+            if (name.startsWith("@@GLOBAL.") || name.startsWith("@@PERSIST.") || name.startsWith("@@PERSIST_ONLY.")) {
+                return null;
+            }
+            return SplitQueryType.SESSION_VARIABLE_RW;
+        }
+        if (tree instanceof PolardbXParser.SetTransactionStatementContext transaction) {
+            if (transaction.GLOBAL() != null) {
+                return SplitQueryType.SYSTEM_SETTING_WRITE;
+            }
+            if (transaction.SESSION() != null) {
+                return SplitQueryType.SESSION_SETTING_WRITE;
+            }
+        }
         if (!(tree instanceof PolardbXParser.UdfFunctionCallContext function)) {
             return null;
         }
