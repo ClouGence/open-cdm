@@ -99,6 +99,8 @@ administrationStatement
     | loadIndexIntoCache | resetStatement
     | shutdownStatement | dropRole
     | clearStatement | resizeProcedureCache | reloadProcedures
+    | checkGlobalIndex | inspectIndex | ddlJobControl | rebalanceJobControl
+    | createCclRule | dropCclRule | clearCclRules | slowSqlCcl
     ;
 
 utilityStatement
@@ -1667,9 +1669,60 @@ renameUserClause
     : fromFirst=userName TO toFirst=userName
     ;
 
+// PolarDB-X maintenance operates on indexes and tasks, not transaction state.
+checkGlobalIndex
+    : CHECK GLOBAL INDEX uid (ON tableName)? (SHOW | CORRECTION_BASED_ON_PRIMARY)?
+    ;
+
+inspectIndex
+    : INSPECT FULL? INDEX (FROM tableName)? (MODE '=' (STATIC | DYNAMIC | MIXED))?
+    ;
+
+ddlJobControl
+    : (PAUSE | CONTINUE | CANCEL | ROLLBACK) DDL unsignedInteger asyncOption?
+    ;
+
+rebalanceJobControl
+    : (PAUSE | CONTINUE | CANCEL) REBALANCE unsignedInteger asyncOption?
+    ;
+
+asyncOption
+    : ASYNC '=' TRUE
+    ;
+
+unsignedInteger
+    : DECIMAL_LITERAL | ZERO_DECIMAL | ONE_DECIMAL | TWO_DECIMAL
+    ;
+
+createCclRule
+    : CREATE CCL_RULE ifNotExists? uid
+      ON (uid | '*') '.' (uid | '*') TO userName
+      FOR (SELECT | UPDATE | INSERT | DELETE)
+      (FILTER BY KEYWORD '(' STRING_LITERAL (',' STRING_LITERAL)* ')')?
+      (FILTER BY TEMPLATE '(' STRING_LITERAL ')')?
+      WITH cclRuleOption (',' cclRuleOption)*
+    ;
+
+cclRuleOption
+    : (MAX_CONCURRENCY | WAIT_QUEUE_SIZE | WAIT_TIMEOUT) '=' unsignedInteger
+    | FAST_MATCH '=' (ZERO_DECIMAL | ONE_DECIMAL)
+    ;
+
+dropCclRule
+    : DROP CCL_RULE ifExists? uid (',' uid)*
+    ;
+
+clearCclRules
+    : CLEAR CCL_RULES
+    ;
+
+slowSqlCcl
+    : SLOW_SQL_CCL (GO (STRING_LITERAL (unsignedInteger (unsignedInteger unsignedInteger?)?)?)? | SHOW | BACK)
+    ;
+
 analyzeTable
     : ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-       TABLE tables
+       TABLE tables asyncOption?
     ;
 
 checkTable
@@ -1682,7 +1735,7 @@ checksumTable
 
 optimizeTable
     : OPTIMIZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-      (TABLE | TABLES) tables
+      (TABLE | TABLES) tables asyncOption?
     ;
 
 repairTable
@@ -1767,6 +1820,14 @@ showStatement
       (WHERE expression)?
       (LIMIT (offset=decimalLiteral ',')? rowCount=decimalLiteral)?  #showSlow
     | SHOW PROCEDURE CACHE                                          #showProcedureCache
+    | SHOW (FULL? DDL | DDL RESULT)                                  #showDdl
+    | SHOW FULL? RULE (FROM tableName)?                              #showRule
+    | SHOW TOPOLOGY FROM tableName orderByClause?                    #showTopology
+    | SHOW PARTITIONS FROM tableName                                #showPartitions
+    | SHOW BROADCASTS                                               #showBroadcasts
+    | SHOW TABLEGROUP (WHERE expression)?                           #showTablegroup
+    | SHOW (DATASOURCES | NODE)                                     #showDistributedStatus
+    | SHOW (CCL_RULE uid (',' uid)* | CCL_RULES)                      #showCclRules
     | SHOW HELP                                                     #showHelp
     | SHOW PROFILES                                                 #showProfiles
     | SHOW SLAVE HOSTS                                              #showSlaveHosts
@@ -2017,7 +2078,15 @@ indexColumnName
     ;
 
 userName
-    : user=(STRING_LITERAL | ID | REVERSE_QUOTE_ID)  (host= LOCAL_ID)?;
+    : user=(STRING_LITERAL | ID | REVERSE_QUOTE_ID
+      | CORRECTION_BASED_ON_PRIMARY | INSPECT | STATIC | MIXED
+      | DDL | RESULT | PAUSE | CANCEL
+      | REBALANCE | ASYNC | RULE | TOPOLOGY
+      | BROADCASTS | TABLEGROUP | DATASOURCES | NODE
+      | CCL_RULE | CCL_RULES | KEYWORD | TEMPLATE
+      | MAX_CONCURRENCY | WAIT_QUEUE_SIZE | WAIT_TIMEOUT | FAST_MATCH
+      | SLOW_SQL_CCL | GO | BACK
+    )  (host= LOCAL_ID)?;
 
 mysqlVariable
     : LOCAL_ID
@@ -2627,6 +2696,13 @@ keywordsCanBeId
     | WORK | WRAPPER | X509 | XA | XA_RECOVER_ADMIN | XML
     // PolarDB-X non-reserved command words
     | CLEAR | RESIZE | PROCEDURES | PHYSICAL | PHYSICAL_PROCESSLIST | PHYSICAL_SLOW
+    | CORRECTION_BASED_ON_PRIMARY | INSPECT | STATIC | MIXED
+    | DDL | RESULT | PAUSE | CANCEL
+    | REBALANCE | ASYNC | RULE | TOPOLOGY
+    | BROADCASTS | TABLEGROUP | DATASOURCES | NODE
+    | CCL_RULE | CCL_RULES | KEYWORD | TEMPLATE
+    | MAX_CONCURRENCY | WAIT_QUEUE_SIZE | WAIT_TIMEOUT | FAST_MATCH
+    | SLOW_SQL_CCL | GO | BACK
     // MariaDB
     | VIA | LASTVAL | NEXTVAL | SETVAL | PREVIOUS | PERSISTENT | REPLICATION_MASTER_ADMIN | REPLICA | READ_ONLY_ADMIN | FEDERATED_ADMIN | BINLOG_MONITOR | BINLOG_REPLAY
     ;

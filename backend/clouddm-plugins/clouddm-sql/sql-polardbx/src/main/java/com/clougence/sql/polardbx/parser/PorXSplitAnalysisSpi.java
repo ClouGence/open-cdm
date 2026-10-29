@@ -43,7 +43,7 @@ public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof PolardbXParser.VariableClauseContext || tree instanceof PolardbXParser.MysqlVariableContext
-            || tree instanceof PolardbXParser.SetTransactionStatementContext) {
+            || tree instanceof PolardbXParser.SetTransactionStatementContext || tree instanceof PolardbXParser.SlowSqlCclContext) {
             // Stored bodies and plan-only SQL do not perform session actions now.
             for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
                 if (parent instanceof PolardbXParser.RoutineBodyContext || parent instanceof PolardbXParser.CreateFunctionContext
@@ -70,6 +70,10 @@ public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             if (transaction.SESSION() != null) {
                 return SplitQueryType.SESSION_SETTING_WRITE;
             }
+        }
+        if (tree instanceof PolardbXParser.SlowSqlCclContext ccl && ccl.GO() != null) {
+            // GO also terminates excess running queries when enabling/updating throttling.
+            return SplitQueryType.ADMIN;
         }
         if (!(tree instanceof PolardbXParser.UdfFunctionCallContext function)) {
             return null;

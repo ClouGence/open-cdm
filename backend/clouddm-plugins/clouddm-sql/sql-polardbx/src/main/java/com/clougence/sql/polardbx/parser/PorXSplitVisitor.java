@@ -43,6 +43,92 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
+    public SplitQueryType visitCheckGlobalIndex(CheckGlobalIndexContext ctx) {
+        if (ctx.SHOW() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitInspectIndex(InspectIndexContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDdlJobControl(DdlJobControlContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitRebalanceJobControl(RebalanceJobControlContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCreateCclRule(CreateCclRuleContext ctx) {
+        return SplitQueryType.CREATE_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitDropCclRule(DropCclRuleContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitClearCclRules(ClearCclRulesContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitShowDdl(ShowDdlContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowRule(ShowRuleContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowTopology(ShowTopologyContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowPartitions(ShowPartitionsContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowBroadcasts(ShowBroadcastsContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowTablegroup(ShowTablegroupContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowDistributedStatus(ShowDistributedStatusContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowCclRules(ShowCclRulesContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSlowSqlCcl(SlowSqlCclContext ctx) {
+        if (ctx.SHOW() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    @Override
     public SplitQueryType visitRepairTable(RepairTableContext ctx) {
         return SplitQueryType.ADMIN_TABLE;
     }
