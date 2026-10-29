@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.sql.polardbx.parser.PolarXDslProvider;
 import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
@@ -608,6 +609,221 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
     public Void visitReloadProcedures(ReloadProceduresContext ctx) {
         add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.LOAD, objects.instanceObject(TargetType.Cache, ctx.PROCEDURES().getSymbol()), List.of());
         return null;
+    }
+
+    @Override
+    public Void visitAnalyzeTable(AnalyzeTableContext ctx) {
+        maintainTables(ctx.tables(), BehaviorAction.ANALYZE);
+        return null;
+    }
+
+    @Override
+    public Void visitCheckTable(CheckTableContext ctx) {
+        maintainTables(ctx.tables(), BehaviorAction.VALIDATE);
+        return null;
+    }
+
+    @Override
+    public Void visitChecksumTable(ChecksumTableContext ctx) {
+        maintainTables(ctx.tables(), BehaviorAction.CHECKSUM);
+        return null;
+    }
+
+    @Override
+    public Void visitOptimizeTable(OptimizeTableContext ctx) {
+        maintainTables(ctx.tables(), BehaviorAction.OPTIMIZE);
+        return null;
+    }
+
+    @Override
+    public Void visitCheckGlobalIndex(CheckGlobalIndexContext ctx) {
+        SplitQueryType type = SplitQueryType.ADMIN;
+        BehaviorAction action = BehaviorAction.VALIDATE;
+        if (ctx.SHOW() != null) {
+            type = SplitQueryType.PERFORMANCE;
+            action = BehaviorAction.READ;
+        } else if (ctx.CORRECTION_BASED_ON_PRIMARY() != null) {
+            action = BehaviorAction.REPAIR;
+        }
+        String schema = currentSchema;
+        List<BehaviorObject> targets = List.of();
+        if (ctx.tableName() != null) {
+            targets = List.of(table(ctx.tableName()));
+            List<UidContext> names = ctx.tableName().fullId().uid();
+            if (names.size() == 2) {
+                schema = unquote(text(names.get(0)));
+            }
+        }
+        BehaviorObject index = objects.object(TargetType.Index, ctx.uid(), List.of(schema, unquote(text(ctx.uid()))));
+        add(type, action, index, targets);
+        return null;
+    }
+
+    @Override
+    public Void visitInspectIndex(InspectIndexContext ctx) {
+        BehaviorObject subject;
+        if (ctx.tableName() != null) {
+            subject = table(ctx.tableName());
+        } else {
+            subject = objects.unnamedObject(TargetType.Index, ctx.INDEX().getSymbol(), UmiTypes.Schema);
+        }
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, subject, List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowDdl(ShowDdlContext ctx) {
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
+            instanceRange(TargetType.Job, ctx.DDL().getSymbol(), ctx.getStop()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitDdlJobControl(DdlJobControlContext ctx) {
+        jobControl(ctx.getStart(), ctx.unsignedInteger());
+        return null;
+    }
+
+    @Override
+    public Void visitRebalanceJobControl(RebalanceJobControlContext ctx) {
+        jobControl(ctx.getStart(), ctx.unsignedInteger());
+        return null;
+    }
+
+    @Override
+    public Void visitShowRule(ShowRuleContext ctx) {
+        BehaviorObject subject;
+        if (ctx.tableName() != null) {
+            subject = table(ctx.tableName());
+        } else {
+            subject = objects.unnamedObject(TargetType.Table, ctx.RULE().getSymbol(), UmiTypes.Schema);
+        }
+        add(SplitQueryType.METADATA, BehaviorAction.READ, subject, List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowTopology(ShowTopologyContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, table(ctx.tableName()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowPartitions(ShowPartitionsContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, table(ctx.tableName()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowBroadcasts(ShowBroadcastsContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ,
+            objects.unnamedObject(TargetType.Table, ctx.BROADCASTS().getSymbol(), UmiTypes.Schema), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowTablegroup(ShowTablegroupContext ctx) {
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Object, ctx.TABLEGROUP().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowDistributedStatus(ShowDistributedStatusContext ctx) {
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.getStop()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitCreateCclRule(CreateCclRuleContext ctx) {
+        UidContext rule = ctx.uid(0);
+        BehaviorObject policy = objects.instanceObject(TargetType.Policy, rule, unquote(text(rule)));
+        List<BehaviorObject> targets = List.of(cclScope(ctx), account(TargetType.User, ctx.userName()));
+        add(SplitQueryType.CREATE_POLICY, BehaviorAction.CREATE, policy, targets);
+        return null;
+    }
+
+    @Override
+    public Void visitDropCclRule(DropCclRuleContext ctx) {
+        for (UidContext rule : ctx.uid()) {
+            add(SplitQueryType.DROP_POLICY, BehaviorAction.DROP, objects.instanceObject(TargetType.Policy, rule, unquote(text(rule))), List.of());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitClearCclRules(ClearCclRulesContext ctx) {
+        add(SplitQueryType.DROP_POLICY, BehaviorAction.DROP, objects.instanceObject(TargetType.Policy, ctx.CCL_RULES().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowCclRules(ShowCclRulesContext ctx) {
+        if (ctx.CCL_RULES() != null) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Policy, ctx.CCL_RULES().getSymbol()), List.of());
+        } else {
+            for (UidContext rule : ctx.uid()) {
+                add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Policy, rule, unquote(text(rule))), List.of());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSlowSqlCcl(SlowSqlCclContext ctx) {
+        Token anchor = ctx.SLOW_SQL_CCL().getSymbol();
+        if (ctx.SHOW() != null) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Policy, anchor), List.of());
+            return null;
+        }
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, anchor), List.of());
+        if (ctx.GO() != null) {
+            // GO can immediately terminate excess queries, in addition to configuring throttling.
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.TERMINATE, objects.instanceObject(TargetType.Query, ctx.GO().getSymbol()), List.of());
+        } else {
+            // BACK removes the generated rules, not every explicitly named CCL policy.
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.DROP, objects.instanceObject(TargetType.Policy, ctx.BACK().getSymbol()), List.of());
+        }
+        return null;
+    }
+
+    private void maintainTables(TablesContext ctx, BehaviorAction action) {
+        for (TableNameContext table : ctx.tableName()) {
+            add(SplitQueryType.ADMIN_TABLE, action, table(table), List.of());
+        }
+    }
+
+    private void jobControl(Token command, UnsignedIntegerContext id) {
+        BehaviorAction action = switch (command.getType()) {
+            case PolardbXParser.PAUSE -> BehaviorAction.STOP;
+            case PolardbXParser.CONTINUE -> BehaviorAction.START;
+            case PolardbXParser.CANCEL -> BehaviorAction.TERMINATE;
+            default -> BehaviorAction.RESET; // The remaining grammar alternative is ROLLBACK DDL.
+        };
+        add(SplitQueryType.ADMIN_JOB, action, objects.instanceObject(TargetType.Job, id, text(id)), List.of());
+    }
+
+    private BehaviorObject cclScope(CreateCclRuleContext ctx) {
+        // The scope consists of two uid-or-wildcard children between ON and TO.
+        ParseTree first = ctx.getChild(ctx.children.indexOf(ctx.ON()) + 1);
+        ParseTree last = ctx.getChild(ctx.children.indexOf(ctx.TO()) - 1);
+        ParserRuleContext scope = new ParserRuleContext();
+        if (first instanceof ParserRuleContext name) {
+            scope.start = name.getStart();
+        } else {
+            scope.start = ((TerminalNode) first).getSymbol();
+        }
+        if (last instanceof ParserRuleContext name) {
+            scope.stop = name.getStop();
+        } else {
+            scope.stop = ((TerminalNode) last).getSymbol();
+        }
+        if (first instanceof TerminalNode && last instanceof TerminalNode) {
+            return objects.instanceObject(TargetType.Instance, scope);
+        }
+        if (last instanceof TerminalNode) {
+            return objects.object(TargetType.Schema, scope, List.of(unquote(first.getText())));
+        }
+        return objects.object(TargetType.Table, scope, List.of(unquote(first.getText()), unquote(last.getText())));
     }
 
     private void logRead(BehaviorObject subject, Token stream) {
