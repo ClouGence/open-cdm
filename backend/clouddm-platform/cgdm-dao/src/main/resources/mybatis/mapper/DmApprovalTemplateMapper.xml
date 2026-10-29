@@ -13,6 +13,9 @@
         <result column="template_identity" property="templateIdentity"/>
         <result column="appro_url" property="approUrl"/>
         <result column="template_content" property="templateContent"/>
+        <result column="template_source" property="templateSource"/>
+        <result column="engine_config_id" property="engineConfigId"/>
+        <result column="version" property="version"/>
     </resultMap>
 
     <sql id="cacheAppro_allColumns">
@@ -24,7 +27,7 @@
         template_name,
         template_identity,
         appro_url,
-        template_content
+        template_content, template_source, engine_config_id, version
     </sql>
 
     <update id="updateTemplateBatch">
@@ -35,6 +38,12 @@
                 template_name = #{item.templateName}
             WHERE
                 template_identity = #{item.templateIdentity}
+                AND
+                primary_uid = #{item.primaryUid}
+                AND
+                approval_type = #{item.approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
+                AND
+                template_source = 'PROVIDER'
         </foreach>
     </update>
 
@@ -46,6 +55,10 @@
                 appro_template_name = #{item.templateName}
             WHERE
                 appro_template_identity = #{item.templateIdentity}
+                AND
+                primary_uid = #{item.primaryUid}
+                AND
+                appro_type = #{item.approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
         </foreach>
     </update>
 
@@ -58,13 +71,15 @@
             primary_uid = #{primaryUid}
     </select>
 
-    <select id="queryByUidAndTemId" resultMap="cacheApproTemplateDO">
+    <select id="queryByPrimaryUidAndTypeAndIdentity" resultMap="cacheApproTemplateDO">
         SELECT
             <include refid="cacheAppro_allColumns"/>
         FROM
             dm_approval_template
         WHERE
-            primary_uid       = #{primaryUid}
+            primary_uid = #{primaryUid}
+            AND
+            approval_type = #{type, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
             AND
             template_identity = #{templateId}
     </select>
@@ -87,6 +102,8 @@
             primary_uid   = #{primaryUid}
             AND
             approval_type = #{approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
+            AND
+            template_source = 'PROVIDER'
     </delete>
 
     <insert id="insertTemplateBatch">
@@ -110,4 +127,71 @@
                 )
             </foreach>
     </insert>
+
+    <select id="listCustomTemplates" resultMap="cacheApproTemplateDO">
+        SELECT
+            <include refid="cacheAppro_allColumns"/>
+        FROM
+            dm_approval_template
+        WHERE
+            primary_uid     = #{primaryUid}
+            AND
+            approval_type   = 'Internal'
+            AND
+            template_source = 'CUSTOM'
+        ORDER BY id
+    </select>
+
+    <select id="queryCustomByEngineId" resultMap="cacheApproTemplateDO">
+        SELECT
+            <include refid="cacheAppro_allColumns"/>
+        FROM
+            dm_approval_template
+        WHERE
+            primary_uid      = #{primaryUid}
+            AND
+            approval_type    = 'Internal'
+            AND
+            template_source  = 'CUSTOM'
+            AND
+            engine_config_id = #{engineConfigId}
+    </select>
+
+    <select id="queryCustomForUpdate" resultMap="cacheApproTemplateDO">
+        SELECT
+            <include refid="cacheAppro_allColumns"/>
+        FROM
+            dm_approval_template
+        WHERE
+            primary_uid       = #{primaryUid}
+            AND
+            approval_type     = 'Internal'
+            AND
+            template_source   = 'CUSTOM'
+            AND
+            template_identity = #{identity}
+        FOR UPDATE
+    </select>
+
+    <update id="updateCustomTemplate">
+        UPDATE
+            dm_approval_template
+        SET
+            template_name    = #{template.templateName},
+            template_content = #{template.templateContent},
+            gmt_modified     = #{template.gmtModified},
+            version          = #{template.version}
+        WHERE
+            id               = #{template.id}
+            AND
+            primary_uid      = #{template.primaryUid}
+            AND
+            approval_type    = 'Internal'
+            AND
+            template_source  = 'CUSTOM'
+            AND
+            engine_config_id = #{template.engineConfigId}
+            AND
+            version          = #{expectedVersion}
+    </update>
 </mapper>

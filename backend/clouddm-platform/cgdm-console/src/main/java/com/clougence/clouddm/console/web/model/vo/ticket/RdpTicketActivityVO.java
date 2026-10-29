@@ -22,6 +22,8 @@ import com.clougence.clouddm.console.web.component.approval.model.DmlExplainResu
 import com.clougence.clouddm.console.web.component.approval.model.TicketRuleCheckResult;
 import com.clougence.clouddm.console.web.constants.RdpTicketProcessActivityStatus;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBehavior;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalParticipantType;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalNodeTaskDO;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +32,11 @@ import lombok.Setter;
 @Setter
 public class RdpTicketActivityVO {
 
+    private List<DmApprovalNodeTaskDO>     approvalTasks;
+    private ApprovalParticipantType        approverType;
+    private String                         teamName;
+    private Integer                        requiredCount;
+    private Integer                        approvedCount;
     private Long                           processActivityId;
     private Long                           processId;
     private Long                           ticketId;

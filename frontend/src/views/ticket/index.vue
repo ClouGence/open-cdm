@@ -6,13 +6,12 @@
         <div class="content">
           <div class="option">
             <div class="left">
-              <DatePicker
-                v-model="searchKey.daterange"
-                format="yyyy-MM-dd HH:mm:ss"
-                type="datetimerange"
-                :placeholder="$t('qing-xuan-ze-shi-jian')"
+              <a-range-picker
+                v-model:value="searchKey.daterange"
+                format="YYYY-MM-DD HH:mm:ss"
+                show-time
+                :placeholder="[$t('kai-shi-shi-jian'), $t('jie-shu-shi-jian')]"
                 style="width: 300px; margin-right: 4px"
-                clearable
               />
               <Select v-model="searchKey.queryType" style="width: 140px; margin-right: 4px">
                 <Option value="TITLE">{{ $t('biao-ti') }}</Option>
@@ -39,6 +38,9 @@
           </div>
           <div class="table-container">
             <Table size="small" :columns="ticketColumns" :data="ticketData" :scroll="ticketTableScroll" border :loading="loading">
+              <template #bizId="{ row }">
+                <router-link :to="`/ticket/${row.id}`">{{ row.bizId }}</router-link>
+              </template>
               <template #ticketStatus="{ row }">
                 <div :style="`display: flex;color:${TICKET_STATUS_COLOR[row.ticketStatus]}`">
                   <div style="margin-right: 3px">{{ TICKET_STATUS[row.ticketStatus] }}</div>
@@ -67,18 +69,16 @@
                 </span>
               </template>
               <template #description="{ row }">
-                <Poptip v-if="row.description" class="ticket-description-poptip" trigger="hover" transfer placement="top-start" :width="360">
+                <Poptip
+                  v-if="row.description"
+                  class="ticket-description-poptip"
+                  trigger="hover"
+                  transfer
+                  placement="top-start"
+                  popper-class="description-popup"
+                  :content="row.description"
+                >
                   <span class="ticket-description-trigger">{{ row.description }}</span>
-                  <template #content>
-                    <div class="ticket-description-popover">
-                      <div class="ticket-description-popover__content">{{ row.description }}</div>
-                      <div class="ticket-description-popover__actions">
-                        <Button type="text" size="small" @click.stop="copyText(row.description)">
-                          {{ $t('fu-zhi') }}
-                        </Button>
-                      </div>
-                    </div>
-                  </template>
                 </Poptip>
                 <span v-else>-</span>
               </template>
@@ -143,12 +143,10 @@ import { APPROV_BIZ_MAP } from './constant';
 import AppPageTabs from '@/components/layout/AppPageTabs';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
-import copyMixin from '@/mixins/copyMixin';
 
 export default {
   name: 'Ticket',
   components: { AppPageTabs, CustomIcon, DataSourceIcon },
-  mixins: [copyMixin],
   data() {
     return {
       showTicketCreateModal: false,
@@ -176,7 +174,7 @@ export default {
         },
         {
           title: this.$t('gong-dan-hao'),
-          key: 'bizId',
+          slot: 'bizId',
           width: 160
         },
         {
@@ -328,8 +326,8 @@ export default {
         data: {
           ticketId: null,
           userName: '',
-          startTimeMs: new Date(this.searchKey.daterange[0]).getTime(),
-          endTimeMs: new Date(this.searchKey.daterange[1]).getTime(),
+          startTimeMs: this.searchKey.daterange?.[0]?.valueOf() ?? null,
+          endTimeMs: this.searchKey.daterange?.[1]?.valueOf() ?? null,
           ticketBizId,
           ticketTitleName,
           ticketDescription,
@@ -403,19 +401,5 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.ticket-description-popover__content {
-  max-height: 240px;
-  overflow: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  user-select: text;
-}
-
-.ticket-description-popover__actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
 }
 </style>

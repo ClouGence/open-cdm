@@ -64,4 +64,10 @@ public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
 
     void updateExpectedAffectedRows(@Param("ticketId") Long ticketId, @Param("expectedAffectedRows") Long expectedAffectedRows);
 
+    long countActiveByTemplate(@Param("primaryUid") String primaryUid, @Param("identity") String identity, @Param("approvalType") String approvalType,
+                               @Param("terminalStatuses") List<String> terminalStatuses);
+
+    List<DmApprovalDO> listCustomTickets(@Param("primaryUid") String primaryUid, @Param("pendingOnly") boolean pendingOnly);
+
+    List<DmApprovalDO> listPendingByBizIds(@Param("primaryUid") String primaryUid, @Param("bizIds") List<String> bizIds);
 }

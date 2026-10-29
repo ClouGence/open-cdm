@@ -160,8 +160,8 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ChangeApprovalInfo approvalInfo = findRdpApprovalType(change.getOwnerUid(), dsDO, locale);
         ApprovalType approvalType = approvalInfo.getApprovalType();
         if (approvalType != ApprovalType.Internal) {
-            if (!this.approvalFlowService.checkEnableApproval(change.getOwnerUid(), approvalType.getProviderType())) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), locale, approvalType));
+            if (!this.approvalFlowService.isApprovalConfigured(change.getOwnerUid(), approvalType.getProviderType())) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_CONFIGURED.name(), locale, approvalType));
             }
         }
 
@@ -173,6 +173,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         if (applicantUid == null) {
             applicantUid = flowDO.getFlowManagerUid();
         }
+
         ticket.setOwnerUid(applicantUid);
         ticket.setPrimaryUid(change.getOwnerUid());
         ticket.setBindDsId(dsDO.getId());

@@ -37,8 +37,7 @@ import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiEngineConfigVO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiEngineVO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiModelVO;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiModelConfigMapper;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiProviderConfigMapper;
+import com.clougence.clouddm.platform.dal.access.AiDal;
 import com.clougence.clouddm.platform.dal.model.ai.AiVerificationStatus;
 import com.clougence.clouddm.platform.dal.model.ai.DmAiModelConfigDO;
 import com.clougence.clouddm.platform.dal.model.ai.DmAiProviderConfigDO;
@@ -52,11 +51,9 @@ import okhttp3.HttpUrl;
 @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED, readOnly = true, isolation = Isolation.REPEATABLE_READ)
 public class AiEngineService {
     @Resource
-    private DmAiProviderConfigMapper providers;
+    private AiDal               aiDal;
     @Resource
-    private DmAiModelConfigMapper    models;
-    @Resource
-    private DmAuthServiceForBiz      authorization;
+    private DmAuthServiceForBiz authorization;
 
     public DmPageVO<AiEngineVO> list(String puid, String uid, AiEngineListFO fo) {
         if (!authorization.checkRoleAuthWithoutError(puid, uid, SecRoleAuthLabel.DM_AI_ENGINE_MANAGE)) {
@@ -70,11 +67,11 @@ public class AiEngineService {
         if (keyword != null) {
             keyword = keyword.trim();
         }
-        List<String> codes = providers.findCodes();
+        List<String> codes = aiDal.providerConfigMapper().findCodes();
         if (codes.isEmpty()) {
             return new DmPageVO<>(page.getPageNum(), page.getPageSize(), 0, List.of());
         }
-        IPage<DmAiModelConfigDO> engines = models.findPageByProviderCodes(new Page<>(page.getPageNum(), page.getPageSize()), keyword, codes);
+        IPage<DmAiModelConfigDO> engines = aiDal.modelConfigMapper().findPageByProviderCodes(new Page<>(page.getPageNum(), page.getPageSize()), keyword, codes);
         List<AiEngineVO> records = assemble(engines.getRecords()).stream().map(this::toVO).toList();
         return new DmPageVO<>(engines.getCurrent(), engines.getSize(), engines.getTotal(), records);
     }
@@ -83,11 +80,12 @@ public class AiEngineService {
         if (!authorization.checkRoleAuthWithoutError(puid, uid, SecRoleAuthLabel.DM_QUERY_CONSOLE)) {
             throw AiError.FORBIDDEN.exception();
         }
-        List<String> codes = providers.findCodes();
+        List<String> codes = aiDal.providerConfigMapper().findCodes();
         if (codes.isEmpty()) {
             return List.of();
         }
-        return models.findByProviderCodes(codes)
+        return aiDal.modelConfigMapper()
+            .findByProviderCodes(codes)
             .stream()
             .map(model -> new AiModelVO(model.getModelCode(), model.getVersion(), model.getLabel(), model.getUpstreamModelName()))
             .toList();
@@ -171,14 +169,16 @@ public class AiEngineService {
                 model.setGmtCreate(now);
                 model.setGmtModified(now);
 
-                providers.insert(provider);
-                models.insert(model);
+                aiDal.providerConfigMapper().insert(provider);
+                aiDal.modelConfigMapper().insert(model);
             } else {
-                if (models.updateByCodeAndVersion(engine.getId(), engine.getName(), engine.getModel(), engine.getUpdatedBy(), engine.getVersion() + 1, engine
-                    .getVerificationStatus(), null, null, fo.getVersion(), now) != 1) {
+                if (aiDal.modelConfigMapper()
+                    .updateByCodeAndVersion(engine.getId(), engine.getName(), engine.getModel(), engine.getUpdatedBy(), engine.getVersion() + 1, engine
+                        .getVerificationStatus(), null, null, fo.getVersion(), now) != 1) {
                     throw AiError.ENGINE_VERSION_CONFLICT.exception();
                 }
-                providers.updateByCode(engine.getProviderCode(), engine.getName(), engine.getPreset(), engine.getBaseUrl(), engine.getAccessToken(), replaceApiKey, now);
+                aiDal.providerConfigMapper()
+                    .updateByCode(engine.getProviderCode(), engine.getName(), engine.getPreset(), engine.getBaseUrl(), engine.getAccessToken(), replaceApiKey, now);
             }
         } catch (DuplicateKeyException e) {
             throw AiError.ENGINE_NAME_MODEL_CONFLICT.exception();
@@ -192,14 +192,14 @@ public class AiEngineService {
             throw AiError.FORBIDDEN.exception();
         }
         AiEngineConfigVO engine = requireVersion(fo.getId(), fo.getVersion());
-        if (models.deleteByCodeAndVersion(fo.getId(), fo.getVersion()) != 1) {
+        if (aiDal.modelConfigMapper().deleteByCodeAndVersion(fo.getId(), fo.getVersion()) != 1) {
             throw AiError.ENGINE_VERSION_CONFLICT.exception();
         }
-        providers.deleteByCode(engine.getProviderCode());
+        aiDal.providerConfigMapper().deleteByCode(engine.getProviderCode());
     }
 
     public AiEngineConfigVO find(String id) {
-        DmAiModelConfigDO model = models.findByCode(id);
+        DmAiModelConfigDO model = aiDal.modelConfigMapper().findByCode(id);
         if (model == null) {
             return null;
         }
@@ -215,7 +215,10 @@ public class AiEngineService {
             return List.of();
         }
         List<String> codes = values.stream().map(DmAiModelConfigDO::getProviderCode).distinct().toList();
-        Map<String, DmAiProviderConfigDO> configs = providers.findByCodes(codes).stream().collect(Collectors.toMap(DmAiProviderConfigDO::getProviderCode, Function.identity()));
+        Map<String, DmAiProviderConfigDO> configs = aiDal.providerConfigMapper()
+            .findByCodes(codes)
+            .stream()
+            .collect(Collectors.toMap(DmAiProviderConfigDO::getProviderCode, Function.identity()));
         List<AiEngineConfigVO> engines = new ArrayList<>();
         for (DmAiModelConfigDO model : values) {
             DmAiProviderConfigDO provider = configs.get(model.getProviderCode());
@@ -245,7 +248,7 @@ public class AiEngineService {
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public AiEngineConfigVO verify(String id, int version, AiVerificationStatus status) {
-        if (models.updateVerificationByCodeAndVersion(id, version, status, new Date()) != 1) {
+        if (aiDal.modelConfigMapper().updateVerificationByCodeAndVersion(id, version, status, new Date()) != 1) {
             throw AiError.ENGINE_VERSION_CONFLICT.exception();
         }
         AiEngineConfigVO current = find(id);

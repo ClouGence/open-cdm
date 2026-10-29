@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.mapper.system.DmSysUserConfMapper;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.utils.JsonUtils;
 
@@ -37,15 +37,15 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class InstallationReportState {
 
-    public static final String  INSTALL = "install";
-    public static final String  UPGRADE = "upgrade";
+    public static final String INSTALL = "install";
+    public static final String UPGRADE = "upgrade";
 
     @Resource
-    private DmSysUserConfMapper userConfMapper;
+    private SystemDal          systemDal;
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public String reportIfNecessary(String version, Predicate<String> reporter) {
-        DmSysUserConfDO configDO = this.userConfMapper.queryByUidAndConfigNameForUpdate(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport);
+        DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigNameForUpdate(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport);
         if (configDO == null) {
             log.warn("Skip installation report because its KV state does not exist, version={}", version);
             return null;
@@ -53,7 +53,7 @@ public class InstallationReportState {
 
         ReportConfig reportConfig = resolveConfig(version, configDO);
         if (!reportConfig.equals(parseConfigValue(configDO.getConfigValue()))) {
-            this.userConfMapper.updateConfigValueById(configDO.getId(), toConfigValue(reportConfig));
+            this.systemDal.userConfMapper().updateConfigValueById(configDO.getId(), toConfigValue(reportConfig));
         }
         if (reportConfig.isReported()) {
             return null;
@@ -63,7 +63,7 @@ public class InstallationReportState {
         }
 
         reportConfig.setReported(true);
-        if (this.userConfMapper.updateConfigValueById(configDO.getId(), toConfigValue(reportConfig)) != 1) {
+        if (this.systemDal.userConfMapper().updateConfigValueById(configDO.getId(), toConfigValue(reportConfig)) != 1) {
             throw new IllegalStateException("Failed to mark installation report as reported: " + version);
         }
         return reportConfig.getType();

@@ -17,6 +17,8 @@ public class ApprovalDalImpl implements ApprovalDal {
     @Resource
     private DmApprovalPersonMapper          personMapper;
     @Resource
+    private DmApprovalNodeTaskMapper        nodeTaskMapper;
+    @Resource
     private DmApprovalProcessActivityMapper activityMapper;
     @Resource
     private DmApprovalProcessMapper         processMapper;
@@ -31,6 +33,11 @@ public class ApprovalDalImpl implements ApprovalDal {
     @Override
     public DmApprovalPersonMapper personMapper() {
         return personMapper;
+    }
+
+    @Override
+    public DmApprovalNodeTaskMapper nodeTaskMapper() {
+        return nodeTaskMapper;
     }
 
     @Override

@@ -17,14 +17,10 @@ package com.clougence.clouddm.console.web.controller.approval;
 
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.Ignore;
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_WORKER_ORDER_APPROVE;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_WORKER_ORDER_EXECUTE;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_WORKER_ORDER_READ;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_WORKER_ORDER_REQUEST;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +31,8 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
+import com.clougence.clouddm.console.web.component.approval.CustomApprovalService;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalProviderOptionVO;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
@@ -53,10 +51,8 @@ import com.clougence.clouddm.console.web.model.vo.ticket.*;
 import com.clougence.clouddm.console.web.service.approval.ApprovalControlService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.MonitorDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.*;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
@@ -82,6 +78,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApprovalController {
 
+    @Resource
+    private CustomApprovalService  customApprovalService;
+    @Resource
+    private ApprovalDal            approvalDal;
     @Resource
     private ApprovalControlService approvalControlService;
     @Resource
@@ -117,6 +117,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_EXECUTE)
     @RequestMapping(value = "/confirm", method = RequestMethod.POST)
     public ResWebData<?> confirmTicket(@Valid @RequestBody DmConfirmTicketFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         fo.setConfirmUid(uid);
@@ -143,6 +144,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_APPROVE)
     @RequestMapping(value = "/approval", method = RequestMethod.POST)
     public ResWebData<?> approvalTicket(@Valid @RequestBody RdpApprovalFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
@@ -153,6 +155,8 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = { RDP_WORKER_ORDER_REQUEST, RDP_WORKER_ORDER_APPROVE })
     @RequestMapping(value = "/cancel", method = RequestMethod.POST)
     public ResWebData<?> cancelTicket(@Valid @RequestBody RdpCancelTicketFO fo, HttpServletRequest request) {
+        checkCustomClosePermission((String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
         String msg = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_CANCEL_AT_CONSOLE_MESSAGE.name());
@@ -163,6 +167,8 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = { RDP_WORKER_ORDER_REQUEST, RDP_WORKER_ORDER_APPROVE })
     @RequestMapping(value = "/close", method = RequestMethod.POST)
     public ResWebData<?> closeTicket(@Valid @RequestBody RdpCloseTicketFO fo, HttpServletRequest request) {
+        checkCustomClosePermission((String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
@@ -174,6 +180,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = { RDP_WORKER_ORDER_EXECUTE })
     @RequestMapping(value = "/retryAutoExecJob", method = RequestMethod.POST)
     public ResWebData<?> retryAutoExecJob(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
@@ -187,6 +194,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/skipAutoExecTask", method = RequestMethod.POST)
     public ResWebData<?> skipAutoExecTask(@Valid @RequestBody DmQueryAutoExecFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
@@ -207,6 +215,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/continueAutoExecTask", method = RequestMethod.POST)
     public ResWebData<?> continueAutoExecTask(@Valid @RequestBody DmQueryAutoExecFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         DmExecAutoTaskDO task = this.executionDal.autoTaskMapper().selectById(fo.getTaskId());
@@ -221,6 +230,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = { RDP_WORKER_ORDER_EXECUTE })
     @RequestMapping(value = "/stopAutoExecJob", method = RequestMethod.POST)
     public ResWebData<?> stopAutoExecJob(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
@@ -228,7 +238,11 @@ public class ApprovalController {
 
         this.approvalControlService.stopJob(puid, uid, fo.getTicketId());
         DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
-        String messageKey = directPause ? I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_DIRECT_PAUSE_MESSAGE.name() : I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_PAUSE_MESSAGE.name();
+        String messageKey = I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_PAUSE_MESSAGE.name();
+        if (directPause) {
+            messageKey = I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_DIRECT_PAUSE_MESSAGE.name();
+        }
+
         String message = DmI18nUtils.getMessage(messageKey, user.getUsername(), user.getUid());
         this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId()));
         return ResWebDataUtils.buildSuccess();
@@ -237,6 +251,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/endAutoExecJob", method = RequestMethod.POST)
     public ResWebData<?> endAutoExecJob(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         DmExecAutoJobDO job = this.queryAutoExecJob(puid, uid, fo.getTicketId());
@@ -284,16 +299,20 @@ public class ApprovalController {
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
         this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
         List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, fo.isRefreshCache());
-        vos = vos.stream().filter((vo -> {
-            return !vo.getObjType().equals(UmiTypes.ExternalCatalog.getTypeName());
-        })).collect(Collectors.toList());
-        return ResWebDataUtils.buildSuccess(vos);
+        List<BrowseLevelsVO> databases = new ArrayList<>();
+        for (BrowseLevelsVO vo : vos) {
+            if (!UmiTypes.ExternalCatalog.getTypeName().equals(vo.getObjType())) {
+                databases.add(vo);
+            }
+        }
+        return ResWebDataUtils.buildSuccess(databases);
 
     }
 
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/queryApprovalBaseInfo", method = RequestMethod.POST)
     public ResWebData<RdpTicketBaseInfoVO> queryTicketBaseInfo(@RequestBody RdpQueryTicketDetailFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
@@ -304,6 +323,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/queryQueryApprovalDetail", method = RequestMethod.POST)
     public ResWebData<?> queryQueryTicketDetail(@Valid @RequestBody DmQueryTicketDetailFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         fo.setUid(uid);
@@ -314,7 +334,8 @@ public class ApprovalController {
 
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/previewSqlFile", method = RequestMethod.POST)
-    public ResWebData<?> previewApprovalSql(@Valid @RequestBody DmApprovalSqlPreviewFO fo) {
+    public ResWebData<?> previewApprovalSql(@Valid @RequestBody DmApprovalSqlPreviewFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         if (fo.getStartLine() < 1 || fo.getLineCount() < 1 || fo.getLineCount() > 1000) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_PREVIEW_RANGE_INVALID_ERROR.name()));
         }
@@ -325,6 +346,7 @@ public class ApprovalController {
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/queryDataSourceAuthApprovalDetail", method = RequestMethod.POST)
     public ResWebData<RdpAuthTicketDetailVO> queryAuthTicketDetail(@RequestBody RdpQueryTicketDetailFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
@@ -335,6 +357,7 @@ public class ApprovalController {
     @RequestAuth(RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/queryAutoExecJobInfo", method = RequestMethod.POST)
     public ResWebData<?> queryAutoExecJobInfo(@Valid @RequestBody DmTicketFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         DmAutoExecJobVO vo = this.approvalControlService.queryExecJobInfo(puid, uid, fo.getTicketId());
@@ -344,6 +367,7 @@ public class ApprovalController {
     @RequestAuth(RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/queryAutoExecTaskList", method = RequestMethod.POST)
     public ResWebData<?> queryAutoExecTaskList(@Valid @RequestBody DmQueryTaskListFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         DmPageVO<DmAutoExecTaskVO> result = this.approvalControlService.queryExecTaskList(puid, uid, fo);
@@ -353,6 +377,7 @@ public class ApprovalController {
     @RequestAuth(RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/queryAutoExecTaskSql", method = RequestMethod.POST)
     public ResWebData<?> queryAutoExecTaskSql(@Valid @RequestBody DmQueryAutoExecFO fo, HttpServletRequest request) {
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), fo.getTicketId());
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         return ResWebDataUtils.buildSuccess(this.approvalControlService.queryExecTaskSql(puid, uid, fo));
@@ -361,11 +386,29 @@ public class ApprovalController {
     @RequestAuth(RDP_WORKER_ORDER_READ)
     @RequestMapping(value = "/autoExecLog", method = RequestMethod.POST)
     public ResWebData<?> queryExecLog(@Valid @RequestBody DmQueryExecLogFO fo, HttpServletRequest request) {
+        DmExecAutoJobDO job = executionDal.autoJobMapper().selectById(fo.getJobId());
+        DmApprovalDO ticket = null;
+        if (job != null) {
+            ticket = approvalDal.approvalMapper().queryByBizId(job.getDependOnBizId());
+        }
+
+        if (ticket == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CUSTOM_APPROVAL_NO_PERMISSION.name()));
+        }
+
+        checkTicketAccess((String) request.getAttribute(RdpUserService.PUID), (String) request.getAttribute(RdpUserService.UID), ticket.getId());
+        if (fo.getTaskId() != null) {
+            DmExecAutoTaskDO task = executionDal.autoTaskMapper().selectById(fo.getTaskId());
+            if (task == null || !job.getId().equals(task.getAutoExecJobId())) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CUSTOM_APPROVAL_NO_PERMISSION.name()));
+            }
+        }
+
         List<DmBizLogVO> result = this.approvalControlService.queryExecLog(fo);
         return ResWebDataUtils.buildSuccess(result);
     }
 
-    @RequestAuth(SecRoleAuthLabel.DM_DS_READ)
+    @RequestAuth(SecRoleAuthLabel.RDP_ENV_READ)
     @RequestMapping(value = "listTemplates", method = RequestMethod.POST)
     public ResWebData<?> listTemplates(@Valid @RequestBody RdpListApproTemplateFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -375,11 +418,11 @@ public class ApprovalController {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(SecRoleAuthLabel.DM_DS_READ)
+    @RequestAuth(SecRoleAuthLabel.RDP_ENV_READ)
     @RequestMapping(value = "approvalType", method = RequestMethod.POST)
     public ResWebData<?> ticketType(HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        List<Map<String, Object>> result = this.approvalControlService.getTicketTypes(puid);
+        List<ApprovalProviderOptionVO> result = this.approvalControlService.listApprovalProviders(puid);
         return ResWebDataUtils.buildSuccess(result);
     }
 
@@ -387,7 +430,7 @@ public class ApprovalController {
     // assistant
     //
 
-    @RequestAuth(SecRoleAuthLabel.DM_DS_MANAGE)
+    @RequestAuth(SecRoleAuthLabel.RDP_ENV_MANAGE)
     @RequestMapping(value = "refreshTemplates", method = RequestMethod.POST)
     public ResWebData<?> refreshTemplates(@Valid @RequestBody RdpListApproTemplateFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -396,7 +439,7 @@ public class ApprovalController {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(SecRoleAuthLabel.DM_DS_MANAGE)
+    @RequestAuth(SecRoleAuthLabel.RDP_ENV_MANAGE)
     @RequestMapping(value = "addTemplate", method = RequestMethod.POST)
     public ResWebData<?> addTemplate(@Valid @RequestBody RdpAddTemplateFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -408,7 +451,7 @@ public class ApprovalController {
         return ResWebDataUtils.buildSuccess("ok.");
     }
 
-    @RequestAuth(SecRoleAuthLabel.DM_DS_MANAGE)
+    @RequestAuth(SecRoleAuthLabel.RDP_ENV_MANAGE)
     @RequestMapping(value = "removeTemplate", method = RequestMethod.POST)
     public ResWebData<?> removeTemplate(@Valid @RequestBody RdpRemoveTemplateFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -418,6 +461,21 @@ public class ApprovalController {
 
         this.approvalControlService.removeTemplateById(puid, fo.getApprovalType(), fo.getTemplateId());
         return ResWebDataUtils.buildSuccess("ok.");
+    }
+
+    private void checkCustomClosePermission(String uid, long ticketId) {
+        DmApprovalDO ticket = approvalDal.approvalMapper().queryById(ticketId);
+        if (ticket != null && customApprovalService.isCustomApproval(ticket) && !uid.equals(ticket.getOwnerUid()) && !uid.equals(ticket.getPrimaryUid())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CUSTOM_APPROVAL_NO_PERMISSION.name()));
+        }
+    }
+
+    private void checkTicketAccess(String puid, String uid, long ticketId) {
+        DmApprovalDO ticket = approvalDal.approvalMapper().queryById(ticketId);
+        if (ticket == null || ticket.getDeleted() || !puid.equals(ticket.getPrimaryUid())
+            || (customApprovalService.isCustomApproval(ticket) && !customApprovalService.canRead(ticket, uid))) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CUSTOM_APPROVAL_NO_PERMISSION.name()));
+        }
     }
 
     private DmExecAutoJobDO queryAutoExecJob(String puid, String uid, long ticketId) {

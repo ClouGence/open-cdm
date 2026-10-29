@@ -93,12 +93,11 @@ public class CallbackController {
 
     @RequestMapping(value = "/event", method = { RequestMethod.POST, RequestMethod.GET })
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @SneakyThrows
     public Object event(@RequestParam(required = false) Map<String, String> params, //
                         @RequestParam String puid,                                  //
                         @RequestParam String platform,                              //
                         @RequestParam String eventType,                             //
-                        HttpServletRequest request) {
+                        HttpServletRequest request) throws IOException {
         if (platform == null || eventType == null) {
             return "failed platform or event is null.";
         }
@@ -119,8 +118,8 @@ public class CallbackController {
             return "failed no user.";
         }
 
-        if (!this.approvalFlowService.checkEnableApproval(puid, platform.getProviderType())) {
-            return "failed approval not enable.";
+        if (!this.approvalFlowService.isApprovalConfigured(puid, platform.getProviderType())) {
+            return "failed approval not configured.";
         }
 
         ApprovalCallbackSpi service = PluginManager.findSpi(ApprovalCallbackSpi.class, platform.getProviderType().name());
@@ -320,8 +319,7 @@ public class CallbackController {
             contextPath += "/";
         }
 
-        String redirectUrl = contextPath + "#/login?mfa=1&" +
-                             "mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8);
+        String redirectUrl = contextPath + "#/login?mfa=1&" + "mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8);
         response.sendRedirect(redirectUrl);
         return "needMfa.";
     }

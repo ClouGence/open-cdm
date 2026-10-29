@@ -28,37 +28,38 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RdpTicketBaseInfoVO {
+    private Long                     currentApprovalActivityId;
 
-    private Long                      id;
-    private String                    bizId;
-    private String                    gmtCreate;
-    private String                    gmtModified;
-    private String                    userName;
-    private Long                      dataSourceId;
-    private String                    dataSourceInstName;
-    private String                    dataSourceDesc;
-    private DataSourceType            dataSourceType;
-    private String                    dsOwnerUid;
-    private String                    dsEnvName;
-    private String                    targetInfo;
-    private ApprovalType              approType;
-    private String                    approTypeName;
-    private ApprovalBiz               approBiz;
-    private String                    approIdentity;
-    private String                    approTemplateName;
-    private String                    approComment;
-    private String                    description;
-    private String                    statusMessage;
-    private String                    ticketTitle;
-    private ApprovalStatus            ticketStatus;
-    private String                    finishTime;
+    private Long                     id;
+    private String                   bizId;
+    private String                   gmtCreate;
+    private String                   gmtModified;
+    private String                   userName;
+    private Long                     dataSourceId;
+    private String                   dataSourceInstName;
+    private String                   dataSourceDesc;
+    private DataSourceType           dataSourceType;
+    private String                   dsOwnerUid;
+    private String                   dsEnvName;
+    private String                   targetInfo;
+    private ApprovalType             approType;
+    private String                   approTypeName;
+    private ApprovalBiz              approBiz;
+    private String                   approIdentity;
+    private String                   approTemplateName;
+    private String                   approComment;
+    private String                   description;
+    private String                   statusMessage;
+    private String                   ticketTitle;
+    private ApprovalStatus           ticketStatus;
+    private String                   finishTime;
     private List<RdpTicketProcessVO> ticketProcessVOList;
-    private boolean                   canApproval;
-    private boolean                   canClose;
-    private boolean                   canExecute;
-    private boolean                   canAutoExec;
-    private String                    pcUrl;
-    private String                    mobileUrl;
-    private String                    ticketMessage;
+    private boolean                  canApproval;
+    private boolean                  canClose;
+    private boolean                  canExecute;
+    private boolean                  canAutoExec;
+    private String                   pcUrl;
+    private String                   mobileUrl;
+    private String                   ticketMessage;
 
 }

@@ -15,15 +15,21 @@
  */
 package com.clougence.clouddm.console.web.service.envparam;
 
+import static com.clougence.clouddm.console.web.component.approval.CustomApprovalConstants.TEMPLATE_ID_PREFIX;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
+import com.clougence.clouddm.console.web.component.approval.CustomApprovalConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmBindEnvParamFO;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmUnbindEnvParamFO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamOpenVO;
@@ -32,6 +38,7 @@ import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.SecRuleDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalTemplateDO;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
@@ -56,14 +63,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmEnvParamServiceImpl implements DmEnvParamService {
     @Resource
-    private SystemDal   systemDal;
+    private CustomApprovalConfigService customConfig;
+
     @Resource
-    private SecRuleDal  secRuleDal;
+    private SystemDal                   systemDal;
     @Resource
-    private ApprovalDal approvalDal;
+    private SecRuleDal                  secRuleDal;
+    @Resource
+    private ApprovalDal                 approvalDal;
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void bindEnvParam(String ownerUid, String uid, DmBindEnvParamFO fo) {
+        customConfig.lockConfiguration(ownerUid);
         long envId = fo.getEnvId();
         String paramKey = fo.getParamKey();
         String paramValue = fo.getParamValue();
@@ -89,7 +101,9 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void unbindEnvParam(String ownerUid, String uid, DmUnbindEnvParamFO fo) {
+        customConfig.lockConfiguration(ownerUid);
         long envId = fo.getEnvId();
         String paramKey = fo.getParamKey();
         String paramValue = null;
@@ -110,16 +124,28 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
             return;
         }
 
+        if (StringUtils.isNotBlank(afterValue)) {
+            EnvTicketMO binding = JsonUtils.toObj(afterValue, EnvTicketMO.class);
+            if (binding.getTemplateId() != null && binding.getTemplateId().startsWith(TEMPLATE_ID_PREFIX)) {
+                if (!ApprovalType.Internal.name().equals(binding.getApprovalType())) {
+                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CUSTOM_APPROVAL_CONFIG_INVALID.name()));
+                }
+
+                customConfig.lockAndValidateTemplate(ownerUid, binding.getTemplateId());
+            }
+        }
+
         if (StringUtils.isNotBlank(beforeValue)) {
             EnvTicketMO ticketMO = JsonUtils.toObj(beforeValue, EnvTicketMO.class);
             if (StringUtils.isNotBlank(ticketMO.getApprovalType())) {
                 ApprovalType approvalType = ApprovalType.Internal.valueOfCode(ticketMO.getApprovalType());
                 ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, approvalType.name());
-                if (approvalService != null) {
+                if (approvalService != null && !isTemplateReferenced(ownerUid, envId, configKey, ticketMO, afterValue)) {
                     approvalService.useTemplate(ownerUid, ticketMO.getTemplateId(), null);
                 }
             }
         }
+
         if (StringUtils.isNotBlank(afterValue)) {
             EnvTicketMO ticketMO = JsonUtils.toObj(afterValue, EnvTicketMO.class);
             if (StringUtils.isNotBlank(ticketMO.getApprovalType())) {
@@ -130,6 +156,40 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
                 }
             }
         }
+    }
+
+    private boolean isTemplateReferenced(String puid, long envId, String configKey, EnvTicketMO oldBinding, String afterValue) {
+        if (StringUtils.isNotBlank(afterValue)) {
+            EnvTicketMO next = JsonUtils.toObj(afterValue, EnvTicketMO.class);
+            if (oldBinding.getApprovalType().equals(next.getApprovalType()) && oldBinding.getTemplateId().equals(next.getTemplateId())) {
+                return true;
+            }
+        }
+
+        List<DmSysEnvParamDO> parameters = systemDal.envParamMapper().queryByUid(puid);
+        for (DmSysEnvParamDO parameter : parameters) {
+            if (parameter.getEnvId() == envId && configKey.equals(parameter.getConfigKey())) {
+                continue;
+            }
+
+            if (!Set.of(EnvParamKeys.SQL_TICKET_INFO, EnvParamKeys.CHANGE_TICKET_INFO, EnvParamKeys.AUTH_TICKET_INFO).contains(parameter.getConfigKey())
+                || StringUtils.isBlank(parameter.getConfigValue())) {
+                continue;
+            }
+
+            EnvTicketMO binding = JsonUtils.toObj(parameter.getConfigValue(), EnvTicketMO.class);
+            if (oldBinding.getApprovalType().equals(binding.getApprovalType()) && oldBinding.getTemplateId().equals(binding.getTemplateId())) {
+                return true;
+            }
+        }
+
+        List<String> terminal = new ArrayList<>();
+        for (ApprovalStatus status : ApprovalStatus.values()) {
+            if (ApprovalStatus.isEndStatus(status)) {
+                terminal.add(status.name());
+            }
+        }
+        return approvalDal.approvalMapper().countActiveByTemplate(puid, oldBinding.getTemplateId(), oldBinding.getApprovalType(), terminal) > 0;
     }
 
     @Override
@@ -181,6 +241,7 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
                 }
 
             }
+
             result.add(vo);
         }
 
@@ -203,9 +264,12 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
     @Override
     public List<DmSysEnvDO> queryListByParamKeyValue(String puid, String paramKey, String paramValue) {
         List<DmSysEnvParamDO> params = this.systemDal.envParamMapper().queryByParamKeySet(puid, Collections.singletonList(paramKey));
-        List<Long> collect = params.stream().filter(p -> {
-            return StringUtils.equals(p.getConfigValue(), paramValue);
-        }).map(DmSysEnvParamDO::getEnvId).collect(Collectors.toList());
+        List<Long> collect = new ArrayList<>();
+        for (DmSysEnvParamDO param : params) {
+            if (StringUtils.equals(param.getConfigValue(), paramValue)) {
+                collect.add(param.getEnvId());
+            }
+        }
 
         if (CollectionUtils.isEmpty(collect)) {
             return Collections.emptyList();
@@ -269,6 +333,10 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
             return DmEnvParamTicketDesVO.builder().openTicket(false).type("").typeI18n("").templateName("").build();
         }
 
+        if (ApprovalType.Internal.name().equals(providerCode) && ApprovalFlowService.INNER_TEMPLATE_ID.equals(ticketMO.getTemplateId())) {
+            return innerTicket();
+        }
+
         DmEnvParamTicketDesVO tVO = DmEnvParamTicketDesVO.builder()//
             .openTicket(true)
             .type(providerCode)
@@ -277,8 +345,14 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
             .templateName(ticketMO.getTemplateName())
             .build();
 
-        DmApprovalTemplateDO templateDO = this.approvalDal.templateMapper().queryByUidAndTemId(ownerUid, ticketMO.getTemplateId());
-        if (templateDO == null && !ApprovalType.Internal.name().equals(providerCode)) {
+        DmApprovalTemplateDO templateDO = this.approvalDal.templateMapper()
+            .queryByPrimaryUidAndTypeAndIdentity(ownerUid, ApprovalType.getByName(providerCode), ticketMO.getTemplateId());
+        if (ticketMO.getTemplateId() != null && ticketMO.getTemplateId().startsWith(TEMPLATE_ID_PREFIX) && templateDO != null) {
+            tVO.setTemplateName(templateDO.getTemplateName());
+        }
+
+        if (templateDO == null
+            && (!ApprovalType.Internal.name().equals(providerCode) || (ticketMO.getTemplateId() != null && ticketMO.getTemplateId().startsWith(TEMPLATE_ID_PREFIX)))) {
             tVO.setDelete(true);
         }
         return tVO;

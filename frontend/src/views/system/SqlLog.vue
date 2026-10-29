@@ -90,19 +90,24 @@
           <div class="table-container audit-log-table">
             <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
               <template #operator="{ row }">
-                <div class="operator-cell">
-                  <div>{{ row.userName }}</div>
-                  <div class="operator-uid">{{ formatUid(row.uid) }}</div>
-                </div>
+                <Poptip trigger="hover" transfer popper-class="description-popup" :content="formatUid(row.uid)" placement="top">
+                  <span>{{ row.userName }}</span>
+                </Poptip>
               </template>
               <template #datasource="{ row }">
-                <div class="datasource-cell">
-                  <div class="datasource-id">
+                <Poptip
+                  trigger="hover"
+                  transfer
+                  popper-class="description-popup"
+                  :content="formatDsRemark(row.dsRemark)"
+                  placement="top"
+                  :disabled="!row.dsRemark"
+                >
+                  <span class="datasource-id">
                     <CustomIcon :type="row.dataSourceType" />
                     <span>{{ row.dsResourceId }}</span>
-                  </div>
-                  <div class="datasource-desc">{{ formatDsRemark(row.dsRemark) }}</div>
-                </div>
+                  </span>
+                </Poptip>
               </template>
               <template #execSql="{ row }">
                 <div class="sql-content">
@@ -268,9 +273,11 @@ export default {
                 h('span', row.status),
                 (row.status === 'FAILURE' || row?.status === 'ERROR') && row?.message
                   ? h(
-                      resolveComponent('Tooltip'),
+                      resolveComponent('Poptip'),
                       {
                         content: row.message,
+                        trigger: 'hover',
+                        popperClass: 'description-popup',
                         placement: 'top',
                         transfer: true
                       },
@@ -556,15 +563,6 @@ export default {
   display: flex;
   flex-direction: column;
 
-  .operator-cell {
-    line-height: 20px;
-
-    .operator-uid {
-      color: #9ea7b4;
-      font-size: 12px;
-    }
-  }
-
   .log-time-range-label {
     margin-right: 10px;
   }
@@ -579,19 +577,10 @@ export default {
     border-radius: 6px;
   }
 
-  .datasource-cell {
-    line-height: 20px;
-
-    .datasource-id {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .datasource-desc {
-      color: #9ea7b4;
-      font-size: 12px;
-    }
+  .datasource-id {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .sql-content {

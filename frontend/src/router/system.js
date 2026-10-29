@@ -48,6 +48,12 @@ export default [
     component: () => import(/* webpackChunkName: "system-approval" */ '@/views/system/approval/form')
   },
   {
+    path: '/integrations/approval/internal/:engineId/edit',
+    name: 'DMInternalApprovalEdit',
+    component: () => import('@/views/system/approval/form'),
+    meta: { requiredAuth: 'RDP_PRI_USER_KV_CONF_R' }
+  },
+  {
     path: '/integrations/approval/:type/edit',
     name: 'DMApprovalEdit',
     component: () => import(/* webpackChunkName: "system-approval" */ '@/views/system/approval/form')

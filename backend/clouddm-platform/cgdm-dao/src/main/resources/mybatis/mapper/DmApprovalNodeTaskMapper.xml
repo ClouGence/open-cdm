@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.approval.DmApprovalNodeTaskMapper">
+
+    <resultMap id="nodeTask" type="com.clougence.clouddm.platform.dal.model.approval.DmApprovalNodeTaskDO">
+        <result column="id" property="id"/>
+        <result column="primary_uid" property="primaryUid"/>
+        <result column="process_activity_id" property="processActivityId"/>
+        <result column="approver_uid" property="approverUid"/>
+        <result column="approver_name" property="approverName"/>
+        <result column="status" property="status"/>
+        <result column="comment" property="comment"/>
+        <result column="start_time" property="startTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+    </resultMap>
+
+    <sql id="all_col">
+        id, primary_uid, process_activity_id, approver_uid, approver_name, status, comment, start_time, finish_time, gmt_create, gmt_modified
+    </sql>
+
+    <select id="listByActivityId" resultMap="nodeTask">
+        SELECT
+            <include refid="all_col"/>
+        FROM
+            dm_approval_node_task
+        WHERE
+            process_activity_id = #{activityId}
+        ORDER BY id
+    </select>
+
+    <select id="listByActivityIdForUpdate" resultMap="nodeTask">
+        SELECT
+            <include refid="all_col"/>
+        FROM
+            dm_approval_node_task
+        WHERE
+            process_activity_id = #{activityId}
+        ORDER BY id
+        FOR UPDATE
+    </select>
+
+    <select id="countPendingByApprover" resultType="long">
+        SELECT
+            COUNT(*)
+        FROM
+            dm_approval_node_task
+        WHERE
+            primary_uid         = #{primaryUid}
+            AND
+            approver_uid        = #{uid}
+            AND
+            process_activity_id = #{activityId}
+            AND
+            status              = 'PENDING'
+    </select>
+
+    <select id="listActivityIdsByApprover" resultType="long">
+        SELECT
+            DISTINCT process_activity_id
+        FROM
+            dm_approval_node_task
+        WHERE
+            primary_uid  = #{primaryUid}
+            AND
+            approver_uid = #{uid}
+        <if test="pendingOnly">
+            AND
+            status = 'PENDING'
+        </if>
+    </select>
+</mapper>

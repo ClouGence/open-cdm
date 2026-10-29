@@ -62,7 +62,7 @@
   >
     <div :class="{ 'ui-form-field-with-help': descriptionAsPopover }">
       <options-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
-      <Poptip v-if="descriptionAsPopover" trigger="click" placement="top" transfer word-wrap :width="320" popper-class="ui-form-field-help-popover">
+      <Poptip v-if="descriptionAsPopover" trigger="click" placement="top" transfer popper-class="description-popup ui-form-field-help-popover">
         <button type="button" class="ui-form-field-help" :aria-label="fieldLabel + ' ' + $t('shuo-ming')">
           <Icon type="ios-help-circle-outline" :size="18" />
         </button>
@@ -100,7 +100,7 @@
   <FormItem v-else-if="field.type === 'Input' || field.type === 'Password'" :label="fieldLabel" :required="fieldRequired" :error="fieldError">
     <div :class="{ 'ui-form-field-with-help': descriptionAsPopover }">
       <input-field :field="field" :form="form" :disabled="isFieldDisabled(field)" />
-      <Poptip v-if="descriptionAsPopover" trigger="click" placement="top" transfer word-wrap :width="320" popper-class="ui-form-field-help-popover">
+      <Poptip v-if="descriptionAsPopover" trigger="click" placement="top" transfer popper-class="description-popup ui-form-field-help-popover">
         <button type="button" class="ui-form-field-help" :aria-label="fieldLabel + ' ' + $t('shuo-ming')">
           <Icon type="ios-help-circle-outline" :size="18" />
         </button>
@@ -295,13 +295,8 @@ export default {
   }
 }
 
-:global(.ui-form-field-help-popover) {
-  max-width: calc(100vw - 32px);
-}
-
 :global(.ui-form-field-help-popover .ivu-poptip-body-content) {
   text-align: left;
-  overflow-wrap: anywhere;
 }
 
 :global(.ui-form-field-help-popover ul) {

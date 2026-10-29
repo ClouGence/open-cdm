@@ -60,7 +60,6 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
         List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
-                WechatConfigKey.ApprovalEnable.getConfigKey(),//
                 WechatConfigKey.ApprovalCorpId.getConfigKey(),//
                 WechatConfigKey.ApprovalSecret.getConfigKey(),//
                 WechatConfigKey.ApprovalAgentId.getConfigKey(),//
@@ -71,10 +70,10 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
             configMap.put(c.getConfigName(), c.getConfigValue());
         }
 
-        // enable is false.
-        String enableCfg = configMap.getOrDefault(WechatConfigKey.ApprovalEnable.getConfigKey(), "false");
-        if (!StringUtils.equalsIgnoreCase(enableCfg, "true")) {
-            logger.info("[WechatApprovalProviderSpi] IgnoreApproval[Wechat] primaryUid：" + ownerUid + ", enable is false.");
+        if (StringUtils.isBlank(configMap.get(WechatConfigKey.ApprovalCorpId.getConfigKey())) || StringUtils.isBlank(configMap.get(WechatConfigKey.ApprovalAgentId.getConfigKey()))
+            || StringUtils.isBlank(configMap.get(WechatConfigKey.ApprovalSecret.getConfigKey())) || StringUtils.isBlank(configMap.get(WechatConfigKey.ApprovalToken.getConfigKey()))
+            || StringUtils.isBlank(configMap.get(WechatConfigKey.ApprovalEncodingAesKey.getConfigKey()))) {
+            logger.info("Approval credentials incomplete for primaryUid: " + ownerUid);
             return new LifeSpiResponse();
         }
 
@@ -98,6 +97,21 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
             // finish
             logger.info("[WechatApprovalProviderSpi] StartApproval[Wechat] primaryUid：" + ownerUid);
             return new LifeSpiResponse();
+        }
+    }
+
+    @Override
+    public void testConnection(Map<String, String> config) throws ThirdPartyApiException {
+        try (WechatClient client = new WechatClient(logger,
+            config.get(WechatConfigKey.ApprovalCorpId.getConfigKey()),
+            config.get(WechatConfigKey.ApprovalAgentId.getConfigKey()),
+            config.get(WechatConfigKey.ApprovalSecret.getConfigKey()),
+            null)) {
+            client.getAccessToken();
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_API_TOKEN_ERROR, e.getMessage());
         }
     }
 
@@ -242,18 +256,22 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
                 info.setStatus(ApprovalInstanceStatus.RUNNING);
                 break;
             }
+
             case ACCEPTED: {
                 info.setStatus(ApprovalInstanceStatus.COMPLETED);
                 break;
             }
+
             case REJECTED: {
                 info.setStatus(ApprovalInstanceStatus.REFUSE);
                 break;
             }
+
             case REVOKED: {
                 info.setStatus(ApprovalInstanceStatus.CANCELED);
                 break;
             }
+
             default: {
                 info.setStatus(ApprovalInstanceStatus.FAILED);
             }
@@ -283,6 +301,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
             task.setTaskId(WechatConstant.DEFAULT_TASK_ID);
             tasks.add(task);
         }
+
         if (!tasks.isEmpty()) {
             map.put(WechatConstant.DEFAULT_ACTIVITY_ID, tasks);
         }

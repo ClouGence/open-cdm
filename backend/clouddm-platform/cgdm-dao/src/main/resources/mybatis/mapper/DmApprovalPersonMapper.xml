@@ -49,4 +49,13 @@
         WHERE
             ticket_bz_id = #{ticketBzId}
     </select>
+
+    <select id="listTicketBizIdsByUid" resultType="string">
+        SELECT
+            DISTINCT ticket_bz_id
+        FROM
+            dm_approval_person
+        WHERE
+            person_uid = #{uid}
+    </select>
 </mapper>

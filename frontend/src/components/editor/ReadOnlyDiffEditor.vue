@@ -123,7 +123,7 @@ export default {
       <div class="flex-1 font-bold">{{ $t('xiu-gai-qian') }}</div>
       <div class="flex-1 font-bold">{{ $t('xiu-gai-hou') }}</div>
     </div>
-    <div class="read-only-editor" ref="readOnlyEditor" :style="`height: 400px; border: ${borderStyle};`"></div>
+    <div class="read-only-editor sql-editor-typography" ref="readOnlyEditor" :style="`height: 400px; border: ${borderStyle};`"></div>
   </div>
 </template>
 

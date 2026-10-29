@@ -16,11 +16,14 @@
 package com.clougence.clouddm.sdk.approval;
 
 import java.util.List;
+import java.util.Map;
 
 import com.clougence.clouddm.sdk.LifeSpi;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 
 public interface ApprovalProviderSpi extends LifeSpi {
+
+    void testConnection(Map<String, String> config) throws ThirdPartyApiException;
 
     // create a third-party approval process and return jump url,approval identity and approval activity list
     ApprovalCreateInstanceResult createApprovalInstance(String ownerUid, ApprovalForm form) throws ThirdPartyApiException;

@@ -22,6 +22,7 @@
 
 <script>
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
+import cloudDmMark from '@/assets/logo-clouddm-mark.svg';
 import cockroachdbIcon from '@/assets/datasource/cockroachdb.svg';
 import goldendbIcon from '@/assets/datasource/goldendb.png';
 import valkeyIcon from '@/assets/datasource/valkey.svg';
@@ -116,6 +117,10 @@ export default {
       };
     },
     bundledIcon() {
+      if (this.iconName === 'Internal') {
+        return cloudDmMark;
+      }
+
       return bundledIcons[this.type] || '';
     },
     resourceUrl() {

@@ -31,14 +31,16 @@ import lombok.Setter;
 @Setter
 public class DmConfirmTicketFO {
 
-    @Min(value = 1, message = "ticketId must large than 0.")
+    @Min(1)
     private long                ticketId;
 
-    @NotNull(message = "confirmActionType can not be null.")
+    @NotNull
     private DmConfirmActionType confirmActionType;
 
     @JsonIgnore
     private String              confirmUid;
+
+    private String              requestId;
 
     private String              comment;
 

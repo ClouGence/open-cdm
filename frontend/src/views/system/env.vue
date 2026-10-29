@@ -25,23 +25,30 @@
           <div class="table-container">
             <Table :columns="getEnvColumns" :data="showEnvList" size="small" :loading="loading" border stripe>
               <template #envDesc="{ row }">
-                <a-tooltip :title="row.envDesc" placement="topLeft">
+                <Poptip
+                  :content="row.envDesc"
+                  :disabled="!row.envDesc"
+                  trigger="hover"
+                  placement="top-start"
+                  transfer
+                  popper-class="description-popup"
+                >
                   <div class="env-desc-cell">
                     {{ row.envDesc }}
                   </div>
-                </a-tooltip>
+                </Poptip>
               </template>
 
               <template #securitySpec="{ row }">
                 <div class="ticket-text-container">
                   <div v-if="!row.secDesVO.openSec" class="ticket-info">
                     <span class="ticket-status-text-error">{{ $t('wei-qi-yong') }}</span>
-                    <a-button type="link" size="small" class="ticket-config-btn" @click="handleSwitchSpecChange(row)">
+                    <a-button v-if="hasEnvManage" type="link" size="small" class="ticket-config-btn" @click="handleSwitchSpecChange(row)">
                       {{ $t('pei-zhi') }}
                     </a-button>
                   </div>
                   <div v-else class="ticket-info">
-                    <a-button type="link" size="small" class="ticket-config-btn" @click="handleDisableSecuritySpec(row)">
+                    <a-button v-if="hasEnvManage" type="link" size="small" class="ticket-config-btn" @click="handleDisableSecuritySpec(row)">
                       {{ $t('jin-yong') }}
                     </a-button>
                     <a-popover placement="top" trigger="hover" :overlay-style="{ maxWidth: '300px' }">
@@ -57,7 +64,7 @@
                           </div>
                         </div>
                       </template>
-                      <span class="ticket-status-text cursor-pointer">{{ $t('yi-qi-yong') }}</span>
+                      <span class="ticket-status-text">{{ $t('yi-qi-yong') }}</span>
                     </a-popover>
                   </div>
                 </div>
@@ -67,6 +74,7 @@
                 <div class="ticket-text-container">
                   <div class="ticket-info">
                     <a-button
+                      v-if="hasEnvManage"
                       type="link"
                       size="small"
                       class="ticket-config-btn"
@@ -74,13 +82,16 @@
                     >
                       {{ $t('pei-zhi') }}
                     </a-button>
-                    <span v-if="!row.sqlTicketInfo.openTicket" class="ticket-status-text-error">{{ $t('wei-qi-yong') }}</span>
+                    <span v-if="!row.sqlTicketInfo.openTicket" class="ticket-status-text-error">{{ $t('cicd-wei-pei-zhi') }}</span>
                     <a-popover v-else placement="top" trigger="hover" :overlay-style="{ maxWidth: '300px' }">
                       <template #content>
                         <div class="ticket-popover-content">
                           <div class="ticket-popover-item">
                             <span class="ticket-popover-label">{{ $t('liu-cheng-lei-xing') }}：</span>
-                            <span class="ticket-popover-value">{{ row.sqlTicketInfo.typeI18n }}</span>
+                            <span class="ticket-popover-value ticket-popover-engine">
+                              <CustomIcon v-if="row.sqlTicketInfo.type === 'Internal'" type="Internal" size="16px" />
+                              {{ row.sqlTicketInfo.typeI18n }}
+                            </span>
                           </div>
                           <div v-if="row.sqlTicketInfo.templateName" class="ticket-popover-item">
                             <span class="ticket-popover-label">{{ $t('mo-ban-ming-cheng') }}：</span>
@@ -91,7 +102,7 @@
                           </div>
                         </div>
                       </template>
-                      <span class="ticket-status-text cursor-pointer">{{ $t('yi-qi-yong') }}</span>
+                      <span class="ticket-template-name">{{ row.sqlTicketInfo.templateName }}</span>
                     </a-popover>
                   </div>
                 </div>
@@ -101,6 +112,7 @@
                 <div class="ticket-text-container">
                   <div class="ticket-info">
                     <a-button
+                      v-if="hasEnvManage"
                       type="link"
                       size="small"
                       class="ticket-config-btn"
@@ -108,13 +120,16 @@
                     >
                       {{ $t('pei-zhi') }}
                     </a-button>
-                    <span v-if="!row.changeTicketInfo.openTicket" class="ticket-status-text-error">{{ $t('wei-qi-yong') }}</span>
+                    <span v-if="!row.changeTicketInfo.openTicket" class="ticket-status-text-error">{{ $t('cicd-wei-pei-zhi') }}</span>
                     <a-popover v-else placement="top" trigger="hover" :overlay-style="{ maxWidth: '300px' }">
                       <template #content>
                         <div class="ticket-popover-content">
                           <div class="ticket-popover-item">
                             <span class="ticket-popover-label">{{ $t('liu-cheng-lei-xing') }}：</span>
-                            <span class="ticket-popover-value">{{ row.changeTicketInfo.typeI18n }}</span>
+                            <span class="ticket-popover-value ticket-popover-engine">
+                              <CustomIcon v-if="row.changeTicketInfo.type === 'Internal'" type="Internal" size="16px" />
+                              {{ row.changeTicketInfo.typeI18n }}
+                            </span>
                           </div>
                           <div v-if="row.changeTicketInfo.templateName" class="ticket-popover-item">
                             <span class="ticket-popover-label">{{ $t('mo-ban-ming-cheng') }}：</span>
@@ -125,7 +140,7 @@
                           </div>
                         </div>
                       </template>
-                      <span class="ticket-status-text cursor-pointer">{{ $t('yi-qi-yong') }}</span>
+                      <span class="ticket-template-name">{{ row.changeTicketInfo.templateName }}</span>
                     </a-popover>
                   </div>
                 </div>
@@ -134,12 +149,18 @@
               <template #authTicket="{ row }">
                 <div class="ticket-text-container">
                   <div v-if="!row.authTicketInfo.openTicket" class="ticket-button-only">
-                    <a-button type="link" size="small" @click="handleShowTicketChange(row, row.authTicketInfo, 'ticket_info_of_auth')">
+                    <a-button
+                      v-if="hasEnvManage"
+                      type="link"
+                      size="small"
+                      @click="handleShowTicketChange(row, row.authTicketInfo, 'ticket_info_of_auth')"
+                    >
                       {{ $t('pei-zhi') }}
                     </a-button>
                   </div>
                   <div v-else class="ticket-info">
                     <a-button
+                      v-if="hasEnvManage"
                       type="link"
                       size="small"
                       class="ticket-config-btn"
@@ -152,7 +173,10 @@
                         <div class="ticket-popover-content">
                           <div class="ticket-popover-item">
                             <span class="ticket-popover-label">{{ $t('liu-cheng-lei-xing') }}：</span>
-                            <span class="ticket-popover-value">{{ row.authTicketInfo.typeI18n }}</span>
+                            <span class="ticket-popover-value ticket-popover-engine">
+                              <CustomIcon v-if="row.authTicketInfo.type === 'Internal'" type="Internal" size="16px" />
+                              {{ row.authTicketInfo.typeI18n }}
+                            </span>
                           </div>
                           <div v-if="row.authTicketInfo.templateName" class="ticket-popover-item">
                             <span class="ticket-popover-label">{{ $t('mo-ban-ming-cheng') }}：</span>
@@ -163,7 +187,7 @@
                           </div>
                         </div>
                       </template>
-                      <span class="ticket-status-text cursor-pointer">{{ $t('yi-qi-yong') }}</span>
+                      <span class="ticket-template-name">{{ row.authTicketInfo.templateName }}</span>
                     </a-popover>
                   </div>
                 </div>
@@ -171,7 +195,7 @@
 
               <template #sqlLimit="{ row }">
                 <div class="sql-limit-container">
-                  <a-switch v-model:checked="row.allowAllStatements" @change="handleAllowAllStatementsChange(row)" />
+                  <a-switch :disabled="!hasEnvManage" v-model:checked="row.allowAllStatements" @change="handleAllowAllStatementsChange(row)" />
                   <span :class="row.allowAllStatements ? 'ticket-status-text' : 'ticket-status-text-error'">
                     {{ row.allowAllStatements ? $t('yi-qi-yong') : $t('wei-qi-yong') }}
                   </span>
@@ -231,86 +255,97 @@
 
     <CCModal
       v-model="showTicketModal"
-      :title="$t('qi-yong-gong-dan-qing-pei-zhi') + ` ${APPROVAL_TYPE_I18N[showTicketType]}`"
+      :width="560"
+      wrap-class-name="ticket-config-modal"
+      :title="$t('pei-zhi') + ` ${APPROVAL_TYPE_I18N[showTicketType]}`"
       @onOk="handleBindTicket"
       @onCancel="handleCloseTicketChange"
     >
-      <div class="ticket-list">
-        <div v-for="def in ticketTypeList" :key="def.approvalType">
-          <div v-if="def.enable">
-            <div
-              :class="`ticket ticket-enable ${ticketDataSelected.approvalType === def.approvalType ? 'ticket-selected' : ''}`"
-              @click="handleApprovalTypeChange(def)"
+      <div class="ticket-config-form">
+        <section class="ticket-config-section">
+          <h3 class="panel-subheading">{{ $t('lei-xing') }}</h3>
+          <div class="ticket-list">
+            <Tooltip
+              v-for="def in ticketTypeList"
+              :key="def.approvalType"
+              class="ticket-type-option"
+              :content="def.desc"
+              :disabled="def.available"
+              placement="bottom"
+              transfer
             >
-              <CustomIcon :type="`icon-v2-${def.approvalType}`" />
-              <div>{{ def.i18n }}</div>
-            </div>
-          </div>
-          <div v-else>
-            <Tooltip :content="def.desc" placement="bottom">
-              <div :class="`ticket ticket-disabled ${ticketDataSelected.approvalType === def.approvalType ? 'ticket-selected' : ''}`">
-                <CustomIcon :type="`icon-v2-${def.approvalType}`" />
-                <div>{{ def.i18n }}</div>
-              </div>
+              <button
+                type="button"
+                class="ticket-type-card"
+                :class="{ 'is-selected': ticketDataSelected.approvalType === def.approvalType }"
+                :aria-pressed="ticketDataSelected.approvalType === def.approvalType"
+                :disabled="!def.available"
+                @click="handleApprovalTypeChange(def)"
+              >
+                <CustomIcon :type="`icon-v2-${def.approvalType}`" size="20px" :disabled="!def.available" />
+                <span>{{ def.i18n }}</span>
+              </button>
             </Tooltip>
           </div>
-        </div>
-      </div>
-      <div style="display: flex; justify-content: center">
-        <div style="display: flex; width: 400px" v-if="!addTemplateTemplateDialog">
-          <Select
-            v-model="ticketDataSelected.templateId"
-            :disabled="ticketDataSelected.approvalType === 'Disable'"
-            :placeholder="$t('qing-xuan-ze-liu-cheng-mo-ban')"
-            :not-found-text="$t('zan-wu-shu-ju')"
-            filterable
-            class="select-wrap"
-          >
-            <template #prefix>
-              <CustomIcon :type="ticketDataSelected.approvalType" rightMargin />
-            </template>
-            <Option v-for="(temp, index) in templateList" :key="temp.templateIdentity" :value="temp.templateIdentity" :label="temp.approTemplateName">
-              <span>{{ temp.approTemplateName }}</span>
-              <CustomIcon v-if="isFeishuWechat" type="icon-v2-Delete2" class="option-icon" @click.native.stop="removeTemplate(index)" />
-              <CustomIcon
-                v-if="ticketDataSelected.approvalType === 'DingTalk'"
-                type="icon-v2-CopyOutline"
-                class="option-icon"
-                @click.native.stop="handleTempCopy(`${temp?.approTemplateName}:${temp?.templateIdentity}`)"
-              />
-            </Option>
-          </Select>
-          <Button
-            style="margin-left: 16px"
-            v-if="ticketDataSelected.approvalType !== 'Feishu' && ticketDataSelected.approvalType !== 'Wechat'"
-            :disabled="ticketDataSelected.approvalType === 'Disable'"
-            :loading="refreshTemplatesLoading"
-            @click="handleRefreshTemplates"
-            type="primary"
-          >
-            {{ $t('shua-xin-mo-ban') }}
-          </Button>
-          <Button style="margin-left: 16px" v-if="isFeishuWechat" @click="handleAddTemplateDialog" type="primary">
-            {{ $t('tian-jia-mo-ban') }}
-          </Button>
-          <CustomIcon type="icon-v2-help" @click="jumpToImDoc" v-if="isFeishuWechat" leftMargin="10px" hoverStyle />
-        </div>
-        <div style="display: flex; width: 400px" v-if="addTemplateTemplateDialog">
-          <Input v-model="ticketDataSelected.templateUrl" style="width: 300px" />
-          <Button style="margin-left: 16px" @click="handleAddTemplate" type="primary">
-            {{ $t('tian-jia-mo-ban') }}
-          </Button>
-        </div>
+        </section>
+        <section class="ticket-config-section">
+          <h3 class="panel-subheading">{{ $t('mo-ban') }}</h3>
+          <div v-if="!addTemplateTemplateDialog" class="ticket-template-controls">
+            <Select
+              v-model="ticketDataSelected.templateId"
+              :placeholder="$t('qing-xuan-ze-liu-cheng-mo-ban')"
+              :not-found-text="$t('zan-wu-shu-ju')"
+              filterable
+              class="select-wrap"
+            >
+              <template #prefix>
+                <CustomIcon :type="ticketDataSelected.approvalType" size="16px" />
+              </template>
+              <Option
+                v-for="(temp, index) in templateList"
+                :key="temp.templateIdentity"
+                :value="temp.templateIdentity"
+                :label="temp.approTemplateName"
+              >
+                <span>{{ temp.approTemplateName }}</span>
+                <CustomIcon v-if="isFeishuWechat" type="icon-v2-Delete2" class="option-icon" @click.native.stop="removeTemplate(index)" />
+                <CustomIcon
+                  v-if="ticketDataSelected.approvalType === 'DingTalk'"
+                  type="icon-v2-CopyOutline"
+                  class="option-icon"
+                  @click.native.stop="handleTempCopy(`${temp?.approTemplateName}:${temp?.templateIdentity}`)"
+                />
+              </Option>
+            </Select>
+            <Button
+              v-if="ticketDataSelected.approvalType !== 'Feishu' && ticketDataSelected.approvalType !== 'Wechat'"
+              :loading="refreshTemplatesLoading"
+              @click="handleRefreshTemplates"
+            >
+              {{ $t('shua-xin') }}
+            </Button>
+            <Button v-if="isFeishuWechat" @click="handleAddTemplateDialog">{{ $t('tian-jia-mo-ban') }}</Button>
+            <CustomIcon v-if="isFeishuWechat" type="icon-v2-help" @click="jumpToImDoc" hoverStyle />
+          </div>
+          <div v-else class="ticket-template-controls">
+            <Input v-model="ticketDataSelected.templateUrl" />
+            <Button @click="handleAddTemplate">{{ $t('tian-jia-mo-ban') }}</Button>
+          </div>
+        </section>
       </div>
       <template #footer>
-        <Button @click="handleCloseTicketChange">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleBindTicket">{{ $t('que-ding') }}</Button>
+        <div class="env-config-footer">
+          <Button :disabled="bindingTicket" @click="handleCloseTicketChange">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" :loading="bindingTicket" @click="handleBindTicket">{{ $t('que-ding') }}</Button>
+        </div>
       </template>
     </CCModal>
 
     <CCModal
       v-model="showEnableSpecModal"
-      :title="$t('qi-yong-an-quan-gui-fan-qing-xuan-ze')"
+      :width="520"
+      wrap-class-name="ticket-config-modal"
+      :title="$t('pei-zhi') + ' ' + $t('an-quan-gui-fan')"
       @onOk="handleBindSpec"
       @onCancel="handleCloseEnableSpecModal"
     >
@@ -319,18 +354,28 @@
         <router-link to="/data-access/rules?tab=security&type=create">{{ $t('an-quan-gui-fan-ye-mian') }}</router-link>
         {{ $t('chuang-jian') }}
       </Alert>
-      <Form ref="specForm" :model="specData" :rules="specDataValidate">
-        <FormItem prop="check_spec_id" label="">
-          <Select v-model="specData.check_spec_id" filterable transfer>
+      <Form
+        ref="specForm"
+        class="env-config-form ticket-config-form"
+        label-position="top"
+        hide-required-mark
+        :model="specData"
+        :rules="specDataValidate"
+      >
+        <FormItem prop="check_spec_id" :label="$t('an-quan-gui-fan')">
+          <Select v-model="specData.check_spec_id" filterable transfer :placeholder="$t('qing-xuan-ze-an-quan-gui-ze')">
             <Option v-for="spec in specList" :value="spec.specId" :key="spec.specId" :disabled="!spec.enable">
-              {{ spec.name }}({{ spec.description }})
+              {{ spec.name }}
+              <span v-if="spec.description">({{ spec.description }})</span>
             </Option>
           </Select>
         </FormItem>
       </Form>
       <template #footer>
-        <Button @click="handleCloseEnableSpecModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleBindSpec">{{ $t('que-ding') }}</Button>
+        <div class="env-config-footer">
+          <Button @click="handleCloseEnableSpecModal">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" @click="handleBindSpec">{{ $t('que-ding') }}</Button>
+        </div>
       </template>
     </CCModal>
 
@@ -380,6 +425,9 @@ export default {
   },
   computed: {
     ...mapState(['userInfo', 'myAuth']),
+    hasEnvManage() {
+      return this.myAuth.includes('RDP_ENV_MANAGE');
+    },
     isFeishuWechat() {
       return this.ticketDataSelected.approvalType === 'Feishu' || this.ticketDataSelected.approvalType === 'Wechat';
     },
@@ -420,6 +468,7 @@ export default {
       },
       specList: [],
       showEnableSpecModal: false,
+      bindingTicket: false,
       showDisableSpecModal: false,
       ticketTypeList: [],
       templateList: [],
@@ -475,7 +524,7 @@ export default {
           align: 'left'
         },
         {
-          title: this.$t('yu-ju-xian-zhi') || '控制台只读',
+          title: this.$t('yu-ju-xian-zhi'),
           slot: 'sqlLimit',
           width: 150,
           align: 'left'
@@ -778,22 +827,16 @@ export default {
       this.showTicketType = type;
       this.currentEnv = env;
       this.ticketData = {
-        approvalType: target.openTicket ? target.type : 'Disable',
+        approvalType: target.type,
         templateId: target.templateId,
         templateName: target.templateName
       };
       this.ticketDataSelected = { ...EMPTY_TICKET_SELECTED, ...this.ticketData };
 
-      if (this.ticketTypeList === null || this.ticketTypeList.length === 0) {
+      if (this.ticketTypeList.length === 0) {
         const res = await this.$services.dmTicketTicketType();
         if (res.success) {
           this.ticketTypeList = res.data;
-          this.ticketTypeList.unshift({
-            approvalType: 'Disable',
-            i18n: '禁用',
-            enable: type === 'ticket_info',
-            desc: '不可用'
-          });
           this.showTicketModal = true;
         } else {
           this.$Message.error(this.$t('cao-zuo-shi-bai'));
@@ -801,7 +844,6 @@ export default {
           return;
         }
       } else {
-        this.ticketTypeList[0].enable = type === 'ticket_info';
         this.showTicketModal = true;
       }
 
@@ -817,13 +859,6 @@ export default {
     },
     async handleApprovalTypeChange(def) {
       this.addTemplateTemplateDialog = false;
-
-      if (def.approvalType === 'Disable') {
-        this.templateList = [];
-        this.ticketDataSelected.approvalType = def.approvalType;
-        this.ticketDataSelected.templateId = '';
-        return;
-      }
 
       const res = await this.$services.dmTicketListTemplates({
         data: {
@@ -849,13 +884,18 @@ export default {
     },
     async handleRefreshTemplates() {
       this.refreshTemplatesLoading = true;
-      const res = await this.$services.dmTicketRefreshTemplates({
-        data: {
-          approvalType: this.ticketDataSelected.approvalType
+      try {
+        const res = await this.$services.dmTicketRefreshTemplates({
+          data: {
+            approvalType: this.ticketDataSelected.approvalType
+          }
+        });
+        if (res.success) {
+          this.templateList = res.data;
         }
-      });
-      this.templateList = res.data;
-      this.refreshTemplatesLoading = false;
+      } finally {
+        this.refreshTemplatesLoading = false;
+      }
     },
     handleAddTemplateDialog() {
       this.addTemplateTemplateDialog = true;
@@ -889,52 +929,39 @@ export default {
       }
     },
     async handleBindTicket() {
+      if (this.bindingTicket) {
+        return;
+      }
+
       const data = {
         approvalType: this.ticketDataSelected.approvalType,
         templateId: this.ticketDataSelected.templateId
       };
 
-      if (this.ticketDataSelected.approvalType === 'Disable') {
-        data.approvalType = '';
-        data.templateId = '';
-        data.templateName = '';
-      } else {
-        const found = this.templateList.find((d) => d.templateIdentity === this.ticketDataSelected.templateId);
-        if (found) {
-          data.templateName = found.approTemplateName;
-        } else {
-          this.$Message.error('模版不能为空');
-          return;
-        }
+      const found = this.templateList.find((d) => d.templateIdentity === this.ticketDataSelected.templateId);
+      if (!found) {
+        this.$Message.error(this.$t('qing-xuan-ze-liu-cheng-mo-ban'));
+        return;
       }
+      data.templateName = found.approTemplateName;
 
-      const approvalType = this.APPROVAL_TYPE_I18N[this.showTicketType];
-      const title =
-        this.ticketDataSelected.approvalType === 'Disable'
-          ? `环境 <b>${this.currentEnv.envName}</b> 上禁止 <b>${approvalType}</b>。`
-          : `环境 <b>${this.currentEnv.envName}</b> 中的 <b>${approvalType}</b> 使用<br/><b>${data.templateName}</b> 进行流程审批。`;
-
-      this.$Modal.confirm({
-        title: this.$t('cao-zuo-que-ren'),
-        content: title,
-        onOk: async () => {
-          const res = await this.$services.dmEnvParamBindEnvParam({
-            data: {
-              envId: this.currentEnv.envId,
-              paramKey: this.showTicketType,
-              paramValue: JSON.stringify(data)
-            }
-          });
-
-          if (res.success) {
-            this.$Message.success(`环境 ${this.currentEnv.envName} 可以使用 ${data.templateName} 向工单系统发起审批流程`);
-            this.handleCloseModal();
-            await this.listEnv();
-          } else {
-            this.handleCloseModal();
+      this.bindingTicket = true;
+      try {
+        const res = await this.$services.dmEnvParamBindEnvParam({
+          data: {
+            envId: this.currentEnv.envId,
+            paramKey: this.showTicketType,
+            paramValue: JSON.stringify(data)
           }
+        });
+
+        if (res.success) {
+          this.handleCloseModal();
+          await this.listEnv();
         }
-      });
+      } finally {
+        this.bindingTicket = false;
+      }
     }
   }
 };
@@ -944,45 +971,161 @@ export default {
 .env {
   height: 100%;
 
+  :deep(.ant-table-tbody > tr > td) {
+    font-size: 14px;
+  }
+
+  :deep(.ant-table-tbody .ant-btn-link),
+  :deep(.ant-table-tbody .ant-btn-link > span) {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  :deep(.ant-table-tbody .ant-btn-link:not(:disabled):hover > span:not(.ant-btn-loading-icon)) {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+
   .env-desc-cell {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    cursor: help;
   }
 }
 
+:global(.ticket-config-modal .ant-modal) {
+  max-width: calc(100vw - 48px);
+}
+
+:global(.ticket-config-modal .ant-modal .ant-modal-content .ant-modal-footer) {
+  margin-top: 24px;
+  padding: 0 !important;
+}
+
+.ticket-config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 8px;
+}
+
+.ticket-config-section .panel-subheading {
+  margin: 0 0 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.env-config-form :deep(.ivu-form-item-label) {
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 20px;
+}
+
 .ticket-list {
-  margin-top: 10px;
-  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ticket-type-option,
+.ticket-type-option :deep(.ivu-tooltip-rel) {
+  display: block;
+  height: 100%;
+  min-width: 0;
+}
+
+.ticket-type-card {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 48px;
+  min-width: 0;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ticket-type-card.is-selected {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: var(--bg-hover);
+}
+
+.ticket-type-card:disabled {
+  color: var(--text-disabled);
+  background: var(--bg-secondary);
+  cursor: not-allowed;
+}
+
+.ticket-type-card:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.ticket-template-controls {
   display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-  .ticket {
-    width: 60px;
-    height: 60px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    margin-right: 5px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.ticket-template-controls > .ivu-select,
+.ticket-template-controls > .ivu-input-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.ticket-popover-engine {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.env-config-form :deep(.ivu-form-item:last-child) {
+  margin-bottom: 0;
+}
+
+.env-config-footer {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 12px;
+}
+
+.env-config-footer :deep(.ant-btn) {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  :global(.ticket-config-modal .ant-modal) {
+    top: 24px;
+    max-width: calc(100vw - 32px);
   }
 
-  .ticket-enable {
-    cursor: pointer;
+  .ticket-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .ticket-disabled {
-    cursor: not-allowed;
-    background: #efefef;
+  .ticket-template-controls {
+    flex-wrap: wrap;
   }
 
-  .ticket-selected {
-    border: 2px solid #43cf7c;
+  .ticket-template-controls > .ivu-select,
+  .ticket-template-controls > .ivu-input-wrapper {
+    flex-basis: 100%;
   }
 }
 
@@ -1023,6 +1166,7 @@ export default {
 .ticket-info {
   display: flex;
   align-items: center;
+  gap: 8px;
   width: 100%;
   min-width: 0;
   white-space: nowrap;
@@ -1041,6 +1185,15 @@ export default {
 
 .ticket-status-text {
   color: var(--success-color);
+}
+
+.ticket-template-name {
+  cursor: default;
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ticket-status-text-error {
@@ -1077,6 +1230,14 @@ export default {
 [data-theme='dark'] {
   .ticket-status-text {
     color: var(--success-color) !important;
+  }
+
+  .ticket-template-name {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-right: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .ticket-status-text-error {

@@ -49,8 +49,6 @@ import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
-import lombok.SneakyThrows;
-
 public class DingApprovalProviderSpi implements ApprovalProviderSpi {
 
     private final static Logger                          logger           = LoggerUtil.getLoggerAppender();
@@ -70,7 +68,6 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) throws Exception {
         // fetch config
         List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
-                DingConfigKey.ApprovalEnable.getConfigKey(),//
                 DingConfigKey.ApprovalClientId.getConfigKey(),//
                 DingConfigKey.ApprovalClientSecret.getConfigKey()));
         Map<String, String> configMap = new HashMap<>();
@@ -78,10 +75,9 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
             configMap.put(c.getConfigName(), c.getConfigValue());
         }
 
-        // enable is false.
-        String enableCfg = configMap.getOrDefault(DingConfigKey.ApprovalEnable.getConfigKey(), "false");
-        if (!StringUtils.equalsIgnoreCase(enableCfg, "true")) {
-            logger.info("ignoreApproval[Ding] primaryUid：" + ownerUid + ", enable is false.");
+        if (StringUtils.isBlank(configMap.get(DingConfigKey.ApprovalClientId.getConfigKey()))
+            || StringUtils.isBlank(configMap.get(DingConfigKey.ApprovalClientSecret.getConfigKey()))) {
+            logger.info("Approval credentials incomplete for primaryUid: " + ownerUid);
             return new LifeSpiResponse();
         }
 
@@ -99,14 +95,20 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
             DingClient dingClient = new DingClient(logger, appKey, appSecret);
             this.clientMap.put(ownerUid, dingClient);
 
-            // start streamHandler
-            DingApprovalStreamHandler streamHandler = new DingApprovalStreamHandler(this.approvalService, this.pluginLoader);
-            streamHandler.start(appKey, appSecret);
-            this.streamHandlerMap.put(ownerUid, streamHandler);
-
             // finish
             logger.info("startApproval[Ding] primaryUid：" + ownerUid);
             return new LifeSpiResponse();
+        }
+    }
+
+    @Override
+    public void testConnection(Map<String, String> config) throws ThirdPartyApiException {
+        try (DingClient client = new DingClient(logger, config.get(DingConfigKey.ApprovalClientId.getConfigKey()), config.get(DingConfigKey.ApprovalClientSecret.getConfigKey()))) {
+            client.getApiToken();
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw ThirdPartyApiException.as().with(e, DingTalkI18nKeys.DINGTALK_CONNECTION_ERROR);
         }
     }
 
@@ -125,7 +127,7 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public LifeSpiResponse status(String ownerUid, LifeSpiRequest requestDTO) {
         LifeSpiStatus dto = new LifeSpiStatus();
-        dto.setRunning(this.streamHandlerMap.containsKey(ownerUid) || this.clientMap.containsKey(ownerUid));
+        dto.setRunning(this.clientMap.containsKey(ownerUid));
         dto.setNameKey(DingTalkI18nKeys.DINGTALK_APPROVAL_SERVICES_NAME);
         return new LifeSpiResponse(JsonUtils.toJson(dto));
     }
@@ -139,23 +141,43 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     }
 
     @Override
-    @SneakyThrows
     public ApprovalCreateInstanceResult createApprovalInstance(String ownerUid, ApprovalForm form) throws ThirdPartyApiException {
-        DingApi approvalApi = this.approvalApi(ownerUid);
+        try {
+            DingApi approvalApi = this.approvalApi(ownerUid);
 
-        String approvalIdentity = approvalApi.createInstance(form, form.getTicketUserPhone());
+            String approvalIdentity = approvalApi.createInstance(form, form.getTicketUserPhone());
+            synchronized (this) {
+                if (!this.streamHandlerMap.containsKey(ownerUid)) {
+                    DingClient client = this.clientMap.get(ownerUid);
+                    DingApprovalStreamHandler streamHandler = new DingApprovalStreamHandler(this.approvalService, this.pluginLoader);
+                    try {
+                        streamHandler.start(client.getAppKey(), client.getAppSecret());
+                        this.streamHandlerMap.put(ownerUid, streamHandler);
+                    } catch (Exception e) {
+                        IOUtils.closeQuietly(streamHandler);
+                        logger.error("Start DingTalk approval events failed", e);
+                    }
+                }
+            }
 
-        ApprovalCreateInstanceResult result = new ApprovalCreateInstanceResult();
-        result.setApprovalIdentity(approvalIdentity);
-        result.setActivityList(getApprovalActivityList(ownerUid, form));
-        ApprovalUrl approvalUrl = new ApprovalUrl();
-        approvalUrl.setPcUrl(approvalApi.getApprovalUrl(approvalIdentity));
-        result.setApprovalUrl(approvalUrl);
-        return result;
+            ApprovalCreateInstanceResult result = new ApprovalCreateInstanceResult();
+            result.setApprovalIdentity(approvalIdentity);
+            result.setActivityList(getApprovalActivityList(ownerUid, form));
+            ApprovalUrl approvalUrl = new ApprovalUrl();
+            approvalUrl.setPcUrl(approvalApi.getApprovalUrl(approvalIdentity));
+            result.setApprovalUrl(approvalUrl);
+            return result;
+
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = "DingTalk createApprovalInstance failed, ownerUid=" + ownerUid;
+            logger.error(msg, e);
+            throw ThirdPartyApiException.as().with(e, DingTalkI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
+        }
     }
 
-    @SneakyThrows
-    private List<ApprovalActivityInfo> getApprovalActivityList(String ownerUid, ApprovalForm info) {
+    private List<ApprovalActivityInfo> getApprovalActivityList(String ownerUid, ApprovalForm info) throws Exception {
         DingApi approvalApi = this.approvalApi(ownerUid);
 
         ProcessForecastResponseBodyResult result = approvalApi.getApprovalActivities(info);
@@ -173,110 +195,128 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     }
 
     @Override
-    @SneakyThrows
     public ApprovalInstanceInfo getLastInfo(String ownerUid, String identity) throws ThirdPartyApiException {
-        if (StringUtils.isBlank(identity)) {
-            throw ThirdPartyApiException.as().with(DingTalkI18nKeys.DINGTALK_APPROVAL_INSTANCE_IS_EMPTY);
-        }
-
-        DingApi approvalApi = this.approvalApi(ownerUid);
-
-        GetProcessInstanceResponseBodyResult result = approvalApi.getApprovalDetail(identity);;
-        List<GetProcessInstanceResponseBodyResultOperationRecords> operationRecords = result.getOperationRecords();
-        List<GetProcessInstanceResponseBodyResultTasks> tasks = result.getTasks();
-
-        Map<String, List<ApprovalActivity>> map = new HashMap<>();
-        for (GetProcessInstanceResponseBodyResultTasks task : tasks) {
-            // ignore
-            if (task.getStatus().equalsIgnoreCase("CANCELED")) {
-                continue;
+        try {
+            if (StringUtils.isBlank(identity)) {
+                throw ThirdPartyApiException.as().with(DingTalkI18nKeys.DINGTALK_APPROVAL_INSTANCE_IS_EMPTY);
             }
 
-            List<ApprovalActivity> list = map.getOrDefault(task.getActivityId(), new ArrayList<>());
-            ApprovalActivity dto = new ApprovalActivity();
-            dto.setTaskId(task.getTaskId().toString());
-            dto.setActivityId(task.getActivityId());
-            try {
-                DingUserDetailRO userDetailRO = approvalApi.getUserInfoByUid(task.getUserId());
-                dto.setUserName(userDetailRO.getResultInfo().getUserName());
-            } catch (Exception e) {
-                if (e.getMessage().contains("找不到该用户")) {
-                    dto.setUserName("[已离职用户]");
-                    logger.warn("dingtalk not find user,user does not exist or has resigned, user id is " + task.getUserId(), e);
+            DingApi approvalApi = this.approvalApi(ownerUid);
+
+            GetProcessInstanceResponseBodyResult result = approvalApi.getApprovalDetail(identity);
+            List<GetProcessInstanceResponseBodyResultOperationRecords> operationRecords = result.getOperationRecords();
+            List<GetProcessInstanceResponseBodyResultTasks> tasks = result.getTasks();
+
+            Map<String, List<ApprovalActivity>> map = new HashMap<>();
+            for (GetProcessInstanceResponseBodyResultTasks task : tasks) {
+                // ignore
+                if (DingTaskStatus.CANCELED.name().equalsIgnoreCase(task.getStatus())) {
+                    continue;
+                }
+
+                List<ApprovalActivity> list = map.getOrDefault(task.getActivityId(), new ArrayList<>());
+                ApprovalActivity dto = new ApprovalActivity();
+                dto.setTaskId(task.getTaskId().toString());
+                dto.setActivityId(task.getActivityId());
+                try {
+                    DingUserDetailRO userDetailRO = approvalApi.getUserInfoByUid(task.getUserId());
+                    dto.setUserName(userDetailRO.getResultInfo().getUserName());
+                } catch (Exception e) {
+                    if (e.getMessage().contains("找不到该用户")) {
+                        dto.setUserName("[已离职用户]");
+                        logger.warn("dingtalk not find user,user does not exist or has resigned, user id is " + task.getUserId(), e);
+                    } else {
+                        throw e;
+                    }
+                }
+
+                DingTaskStatus status = DingTaskStatus.getByName(task.getStatus());
+                DingTaskResult result1 = DingTaskResult.getByName(task.getResult());
+                if (status == DingTaskStatus.COMPLETED) {
+                    if (result1 == DingTaskResult.AGREE) {
+                        dto.setStatus(ApprovalActivityStatus.COMPLETED);
+                    } else if (result1 == DingTaskResult.REFUSE) {
+                        dto.setStatus(ApprovalActivityStatus.REFUSE);
+                    }
+                } else if (status == DingTaskStatus.RUNNING) {
+                    dto.setStatus(ApprovalActivityStatus.RUNNING);
+                } else if (status == DingTaskStatus.TERMINATED) {
+                    dto.setStatus(ApprovalActivityStatus.CANCELED);
                 } else {
-                    throw e;
+                    dto.setStatus(ApprovalActivityStatus.NEW);
                 }
-            }
 
-            DingTaskStatus status = DingTaskStatus.getByName(task.getStatus());
-            DingTaskResult result1 = DingTaskResult.getByName(task.getResult());
-            if (status == DingTaskStatus.COMPLETED) {
-                if (result1 == DingTaskResult.AGREE) {
-                    dto.setStatus(ApprovalActivityStatus.COMPLETED);
-                } else if (result1 == DingTaskResult.REFUSE) {
-                    dto.setStatus(ApprovalActivityStatus.REFUSE);
-                }
-            } else if (status == DingTaskStatus.RUNNING) {
-                dto.setStatus(ApprovalActivityStatus.RUNNING);
-            } else if (status == DingTaskStatus.TERMINATED) {
-                dto.setStatus(ApprovalActivityStatus.CANCELED);
-            } else {
-                dto.setStatus(ApprovalActivityStatus.NEW);
-            }
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-            dto.setStartTime(dateFormat.parse(task.getCreateTime()));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                dto.setStartTime(dateFormat.parse(task.getCreateTime()));
 
-            if (StringUtils.isNotEmpty(task.getFinishTime())) {
+                if (StringUtils.isNotEmpty(task.getFinishTime())) {
 
-                Date date = dateFormat.parse(task.getFinishTime());
-                dto.setFinishTime(date);
+                    Date date = dateFormat.parse(task.getFinishTime());
+                    dto.setFinishTime(date);
 
-                for (GetProcessInstanceResponseBodyResultOperationRecords operationRecord : operationRecords) {
-                    // instance start or end record, ignore
-                    if (operationRecord.getActivityId() == null) {
-                        continue;
-                    }
-                    if (operationRecord.getActivityId().equalsIgnoreCase(task.getActivityId()) && operationRecord.getUserId().equalsIgnoreCase(task.getUserId())) {
-                        dto.setRemark(operationRecord.getRemark());
-                        break;
+                    for (GetProcessInstanceResponseBodyResultOperationRecords operationRecord : operationRecords) {
+                        // instance start or end record, ignore
+                        if (operationRecord.getActivityId() == null) {
+                            continue;
+                        }
+
+                        if (operationRecord.getActivityId().equalsIgnoreCase(task.getActivityId()) && operationRecord.getUserId().equalsIgnoreCase(task.getUserId())) {
+                            dto.setRemark(operationRecord.getRemark());
+                            break;
+                        }
                     }
                 }
+
+                list.add(dto);
+                map.put(task.getActivityId(), list);
             }
-            list.add(dto);
-            map.put(task.getActivityId(), list);
+
+            ApprovalInstanceInfo approvalInstance = new ApprovalInstanceInfo();
+
+            ApprovalInstanceStatus approvalInstanceStatus = ApprovalInstanceStatus.valueOfIgnoreCase(result.getStatus());
+            if (approvalInstanceStatus == ApprovalInstanceStatus.COMPLETED && result.getResult().equalsIgnoreCase(DingTaskResult.REFUSE.name())) {
+                approvalInstanceStatus = ApprovalInstanceStatus.REFUSE;
+            }
+
+            approvalInstance.setMap(map);
+            approvalInstance.setStatus(approvalInstanceStatus);
+
+            return approvalInstance;
+
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = "DingTalk getLastInfo failed, ownerUid=" + ownerUid;
+            logger.error(msg, e);
+            throw ThirdPartyApiException.as().with(e, DingTalkI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
         }
-
-        ApprovalInstanceInfo approvalInstance = new ApprovalInstanceInfo();
-
-        ApprovalInstanceStatus approvalInstanceStatus = ApprovalInstanceStatus.valueOfIgnoreCase(result.getStatus());
-        if (approvalInstanceStatus == ApprovalInstanceStatus.COMPLETED && result.getResult().equalsIgnoreCase("REFUSE")) {
-            approvalInstanceStatus = ApprovalInstanceStatus.REFUSE;
-        }
-
-        approvalInstance.setMap(map);
-        approvalInstance.setStatus(approvalInstanceStatus);
-
-        return approvalInstance;
-
     }
 
     @Override
-    @SneakyThrows
     public List<ApprovalTemplate> getTemplates(String ownerUid) throws ThirdPartyApiException {
-        DingApi approvalApi = this.approvalApi(ownerUid);
+        try {
+            DingApi approvalApi = this.approvalApi(ownerUid);
 
-        List<ListUserVisibleBpmsProcessesResponseBodyResultProcessList> templates = approvalApi.getApprovalTemplates();
+            List<ListUserVisibleBpmsProcessesResponseBodyResultProcessList> templates = approvalApi.getApprovalTemplates();
 
-        List<ApprovalTemplate> templateDTOS = new ArrayList<>();
-        for (ListUserVisibleBpmsProcessesResponseBodyResultProcessList t : templates) {
-            ApprovalTemplate approvalTemplate = new ApprovalTemplate();
+            List<ApprovalTemplate> templateDTOS = new ArrayList<>();
+            for (ListUserVisibleBpmsProcessesResponseBodyResultProcessList t : templates) {
+                ApprovalTemplate approvalTemplate = new ApprovalTemplate();
 
-            approvalTemplate.setApproTemplateName(t.getName());
-            approvalTemplate.setApproUrl(t.getUrl());
-            approvalTemplate.setTemplateIdentity(t.getProcessCode());
-            templateDTOS.add(approvalTemplate);
+                approvalTemplate.setApproTemplateName(t.getName());
+                approvalTemplate.setApproUrl(t.getUrl());
+                approvalTemplate.setTemplateIdentity(t.getProcessCode());
+                templateDTOS.add(approvalTemplate);
+            }
+            return templateDTOS;
+
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = "DingTalk getTemplates failed, ownerUid=" + ownerUid;
+            logger.error(msg, e);
+            throw ThirdPartyApiException.as().with(e, DingTalkI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
         }
-        return templateDTOS;
     }
 
     @Override
@@ -285,22 +325,38 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     }
 
     @Override
-    @SneakyThrows
     public ApprovalUserInfo getUserDetailByUid(String ownerUid, String targetUserId) throws ThirdPartyApiException {
-        DingApi approvalApi = this.approvalApi(ownerUid);
+        try {
+            DingApi approvalApi = this.approvalApi(ownerUid);
 
-        DingUserDetailRO info = approvalApi.getUserInfoByUid(targetUserId);;
-        ApprovalUserInfo userInfo = new ApprovalUserInfo();
-        userInfo.setUsername(info.getResultInfo().getUserName());
-        return userInfo;
+            DingUserDetailRO info = approvalApi.getUserInfoByUid(targetUserId);
+            ApprovalUserInfo userInfo = new ApprovalUserInfo();
+            userInfo.setUsername(info.getResultInfo().getUserName());
+            return userInfo;
+
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = "DingTalk getUserDetailByUid failed, ownerUid=" + ownerUid;
+            logger.error(msg, e);
+            throw ThirdPartyApiException.as().with(e, DingTalkI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
+        }
     }
 
     @Override
-    @SneakyThrows
     public void cancelApprovalInst(String ownerUid, ApprovalInstanceCancelInfo info) throws ThirdPartyApiException {
-        DingApi approvalApi = this.approvalApi(ownerUid);
+        try {
+            DingApi approvalApi = this.approvalApi(ownerUid);
 
-        String uid = approvalApi.getDingUidByPhone(info.getTicketUserPhone());
-        approvalApi.cancelApproval(uid, info.getApprovalInstanceIdentity());
+            String uid = approvalApi.getDingUidByPhone(info.getTicketUserPhone());
+            approvalApi.cancelApproval(uid, info.getApprovalInstanceIdentity());
+
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = "DingTalk cancelApprovalInst failed, ownerUid=" + ownerUid;
+            logger.error(msg, e);
+            throw ThirdPartyApiException.as().with(e, DingTalkI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
+        }
     }
 }
