@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.sql.polardbx.parser.PolarXDslProvider;
 import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
+import com.clougence.sql.polardbx.parser.PorXSplitVisitor;
 import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
 import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 import com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
@@ -255,6 +256,220 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
     public Void visitShowRoutingRules(ShowRoutingRulesContext ctx) {
         add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, ctx.ID().getSymbol()), List.of());
         return null;
+    }
+
+    @Override
+    public Void visitUseStatement(UseStatementContext ctx) {
+        BehaviorObject schema = objects.object(TargetType.Schema, ctx.uid(), List.of(unquote(text(ctx.uid()))));
+        add(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, schema, List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitSetRole(SetRoleContext ctx) {
+        List<BehaviorObject> roles = ctx.roleName().stream().map(role -> account(TargetType.Role, role)).toList();
+        if (ctx.ALL() != null || ctx.NONE() != null || ctx.DEFAULT() != null) {
+            // EXCEPT roles filter the set; they are not independently activated roles.
+            add(SplitQueryType.SWITCH_ROLE, BehaviorAction.SWITCH, objects.instanceObject(TargetType.Role, ctx.ROLE().getSymbol()), roles);
+        } else {
+            for (BehaviorObject role : roles) {
+                add(SplitQueryType.SWITCH_ROLE, BehaviorAction.SWITCH, role, List.of());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitSetVariable(SetVariableContext ctx) {
+        SplitQueryType type = ctx.accept(PorXSplitVisitor.INSTANCE);
+        for (int index = 0; index < ctx.variableClause().size(); index++) {
+            VariableClauseContext variable = ctx.variableClause(index);
+            String name = variable.getText();
+            if (variable.uid() != null) {
+                name = text(variable.uid());
+            }
+            add(type, BehaviorAction.CONFIGURE, variable(variable, name), List.of());
+            visit(ctx.expression(index));
+        }
+        // Nested reads must not replace the first assignment's primary classification.
+        behavior.setStatementType(type);
+        return null;
+    }
+
+    @Override
+    public Void visitSetAutocommitStatement(SetAutocommitStatementContext ctx) {
+        Token key = ctx.AUTOCOMMIT().getSymbol();
+        add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, key, key.getText()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitSetNames(SetNamesContext ctx) {
+        add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitSetCharset(SetCharsetContext ctx) {
+        add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitSimpleSelect(SimpleSelectContext ctx) {
+        return select(ctx);
+    }
+
+    @Override
+    public Void visitParenthesisSelect(ParenthesisSelectContext ctx) {
+        return select(ctx);
+    }
+
+    @Override
+    public Void visitUnionSelect(UnionSelectContext ctx) {
+        return select(ctx);
+    }
+
+    @Override
+    public Void visitUnionParenthesisSelect(UnionParenthesisSelectContext ctx) {
+        return select(ctx);
+    }
+
+    private Void select(SelectStatementContext ctx) {
+        if (!isExecuted(ctx)) {
+            return null;
+        }
+        behavior.setStatementType(SplitQueryType.SELECT);
+        visitChildren(ctx);
+        behavior.setStatementType(SplitQueryType.SELECT);
+        return null;
+    }
+
+    @Override
+    public Void visitMysqlVariable(MysqlVariableContext ctx) {
+        if (!isExecuted(ctx)) {
+            return null;
+        }
+        for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext) {
+                add(behavior.getStatementType(), BehaviorAction.READ, variable(ctx, ctx.getText()), List.of());
+                break;
+            }
+        }
+        return null;
+    }
+
+    private boolean isExecuted(ParseTree tree) {
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof FullDescribeStatementContext || parent instanceof PolardbxExplainStatementContext
+                || parent instanceof BaselineStatementContext || parent instanceof RoutineBodyContext
+                || parent instanceof CreateFunctionContext || parent instanceof CreateViewContext || parent instanceof AlterViewContext) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
+        // Planning inspects referenced tables, but does not execute variable expressions.
+        for (TableNameContext table : descendants(ctx.describeObjectClause(), TableNameContext.class)) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, table(table), List.of());
+        }
+        behavior.setStatementType(SplitQueryType.PERFORMANCE);
+        return null;
+    }
+
+    @Override
+    public Void visitStartTransaction(StartTransactionContext ctx) {
+        add(SplitQueryType.TRANSACTION, BehaviorAction.START, objects.instanceObject(TargetType.Transaction, ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitBeginWork(BeginWorkContext ctx) {
+        add(SplitQueryType.TRANSACTION, BehaviorAction.START, objects.instanceObject(TargetType.Transaction, ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitCommitWork(CommitWorkContext ctx) {
+        add(SplitQueryType.TRANSACTION, BehaviorAction.STOP, objects.instanceObject(TargetType.Transaction, ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitRollbackWork(RollbackWorkContext ctx) {
+        add(SplitQueryType.TRANSACTION, BehaviorAction.RESET, objects.instanceObject(TargetType.Transaction, ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitSavepointStatement(SavepointStatementContext ctx) {
+        BehaviorObject savepoint = objects.instanceObject(TargetType.Object, ctx.uid(), unquote(text(ctx.uid())));
+        add(SplitQueryType.TRANSACTION, BehaviorAction.CREATE, savepoint, List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitReleaseStatement(ReleaseStatementContext ctx) {
+        BehaviorObject savepoint = objects.instanceObject(TargetType.Object, ctx.uid(), unquote(text(ctx.uid())));
+        add(SplitQueryType.TRANSACTION, BehaviorAction.DROP, savepoint, List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitRollbackStatement(RollbackStatementContext ctx) {
+        BehaviorObject savepoint = objects.instanceObject(TargetType.Object, ctx.uid(), unquote(text(ctx.uid())));
+        add(SplitQueryType.TRANSACTION, BehaviorAction.RESET, objects.instanceObject(TargetType.Transaction, ctx.ROLLBACK().getSymbol()), List.of(savepoint));
+        return null;
+    }
+
+    @Override
+    public Void visitSetTransactionStatement(SetTransactionStatementContext ctx) {
+        TargetType target = TargetType.Transaction;
+        if (ctx.transactionContext != null) {
+            target = TargetType.ConfigKey;
+        }
+        add(SplitQueryType.TRANSACTION, BehaviorAction.CONFIGURE, objects.instanceObject(target, ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitShowObjectFilter(ShowObjectFilterContext ctx) {
+        ShowCommonEntityContext entity = ctx.showCommonEntity();
+        if (entity.VARIABLES() != null) {
+            add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, entity), List.of());
+        } else if (entity.STATUS() != null && entity.FUNCTION() == null && entity.PROCEDURE() == null) {
+            TargetType target = TargetType.Session;
+            if (entity.GLOBAL() != null) {
+                target = TargetType.Instance;
+            }
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(target, entity), List.of());
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitShowErrors(ShowErrorsContext ctx) {
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Session, ctx.errorFormat), List.of());
+        return null;
+    }
+
+    private BehaviorObject variable(ParserRuleContext ctx, String name) {
+        if (name.startsWith("@@")) {
+            name = name.substring(2);
+            int dot = name.indexOf('.');
+            if (dot >= 0) {
+                String scope = name.substring(0, dot);
+                if (scope.equalsIgnoreCase("SESSION") || scope.equalsIgnoreCase("GLOBAL") || scope.equalsIgnoreCase("LOCAL")) {
+                    name = name.substring(dot + 1);
+                }
+            }
+        } else if (name.startsWith("@")) {
+            name = name.substring(1);
+        }
+        return objects.instanceObject(TargetType.ConfigKey, ctx, unquote(name));
     }
 
     private void users(ParserRuleContext ctx, SplitQueryType type, BehaviorAction action) {
