@@ -433,8 +433,11 @@ public class ApprovalController {
             if (fo.getDbLevels().size() < 4) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_CATALOG_OR_SCHEMA_NULL_ERROR.name()));
             }
-        } else if (fo.getDbLevels().size() < 3) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SCHEMA_NULL_ERROR.name()));
+        } else if (group.contains(UmiTypes.Schema.getTypeName())) {
+            if (fo.getDbLevels().size() < 3) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SCHEMA_NULL_ERROR.name()));
+            }
         }
+        // Env + Instance only (e.g. Etcd/Kafka): parseLevels already requires size >= 2
     }
 }

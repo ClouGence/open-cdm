@@ -152,7 +152,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
         if (dsLevels.levelsDef().contains(UmiTypes.Catalog)) {
             targetInfo += String.format("/%s/%s", levelsParam.get(UmiTypes.Catalog), levelsParam.get(UmiTypes.Schema));
-        } else {
+        } else if (dsLevels.levelsDef().contains(UmiTypes.Schema)) {
             targetInfo += String.format("/%s", levelsParam.get(UmiTypes.Schema));
         }
 
