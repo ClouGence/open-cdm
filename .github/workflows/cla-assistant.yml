@@ -18,7 +18,7 @@ jobs:
   recheck:
     name: Recheck CLA status
     if: github.event_name != 'issue_comment' || (github.event.issue.pull_request && github.event.comment.body == 'recheck')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Trigger hosted CLA Assistant
         env:

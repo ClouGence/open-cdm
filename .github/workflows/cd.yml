@@ -30,7 +30,7 @@ env:
 jobs:
   build-tgz:
     name: Build tgz
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       CG_CLOUDDM_MAIN_VERSION: ${{ inputs.version }}
     steps:
@@ -123,7 +123,7 @@ jobs:
 
   docker:
     name: Docker ${{ matrix.service }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build-tgz
     strategy:
       fail-fast: false
@@ -205,7 +205,7 @@ jobs:
 
   export-images:
     name: Export images ${{ matrix.arch }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [build-tgz, docker]
     strategy:
       fail-fast: false
@@ -297,7 +297,7 @@ jobs:
 
   release:
     name: Publish GitHub Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [build-tgz, docker, export-images]
     permissions:
       contents: write
