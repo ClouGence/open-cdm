@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import * as monaco from 'monaco-editor';
+import { monaco } from '@/components/editor/monaco';
 import { mapState } from 'vuex';
 import { resolveSqlEditorLanguage } from '@/components/editor/sqlLanguage';
 import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';

@@ -1,5 +1,5 @@
 <script>
-import * as monaco from 'monaco-editor';
+import { monaco } from '@/components/editor/monaco';
 import { markRaw } from 'vue';
 import { mapState } from 'vuex';
 import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
