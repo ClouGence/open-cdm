@@ -81,10 +81,17 @@ public class PgBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
                 dialectSystemFunction,
                 dialectFunctionBehavior,
                 splitVisitorFactory,
-                statement -> this.analyzeExtensionStatement(parser, statement, levels, baseLine, baseColumn));
+                statement -> this.analyzeDialectStatement(parser, statement, levels, baseLine, baseColumn));
             return holder[0];
         });
         return holder[0].behaviors();
+    }
+
+    protected StatementBehavior analyzeDialectStatement(Parser parser, PgSqlParser.StmtContext statement, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+        if (statement.extensionstmt() != null) {
+            return analyzeExtensionStatement(parser, statement.extensionstmt(), levels, baseLine, baseColumn);
+        }
+        return null;
     }
 
     protected StatementBehavior analyzeExtensionStatement(Parser parser, PgSqlParser.ExtensionstmtContext statement, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
