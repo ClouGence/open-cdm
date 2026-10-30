@@ -38,8 +38,26 @@ const initWebsocket = (globalSetting, loggedIn) => {
 };
 
 let aiCapabilitiesSequence = 0;
+let pluginCapabilitiesSequence = 0;
 
 export default {
+  async loadPluginCapabilities({ commit }) {
+    const sequence = ++pluginCapabilitiesSequence;
+    commit('SET_PLUGIN_CAPABILITY_STATE', 'loading');
+    try {
+      const res = await services.getGlobalSettings();
+      if (sequence !== pluginCapabilitiesSequence) return null;
+      if (!res.success || !res.data?.features || typeof res.data.features !== 'object' || Array.isArray(res.data.features)) {
+        throw new Error('Invalid plugin capability response');
+      }
+      commit(UPDATE_GLOBAL_SETTING, res.data);
+      commit('SET_PLUGIN_CAPABILITY_STATE', 'ready');
+      return res;
+    } catch (error) {
+      if (sequence === pluginCapabilitiesSequence) commit('SET_PLUGIN_CAPABILITY_STATE', 'error');
+      return null;
+    }
+  },
   async loadAiCapabilities({ commit, state }) {
     const sequence = ++aiCapabilitiesSequence;
     const uid = state.userInfo?.uid;
@@ -76,14 +94,13 @@ export default {
       }
     }
 
-    const globalSettingRes = await services.getGlobalSettings();
-    if (globalSettingRes.success) {
+    const globalSettingRes = await dispatch('loadPluginCapabilities');
+    if (globalSettingRes?.success) {
       commit('SET_MENU_ITEMS', {
         myCatLog: this.state.myCatLog,
         myAuth: this.state.myAuth
       });
 
-      commit(UPDATE_GLOBAL_SETTING, globalSettingRes.data);
       initWebsocket(globalSettingRes.data, userInfoRes.success);
       commit(SET_THEME, 'light');
       setPageIcon(WEBSIDE_FAVICON);

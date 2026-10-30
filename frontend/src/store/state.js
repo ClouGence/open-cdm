@@ -23,6 +23,7 @@ export default {
     auth: [],
     authArr: []
   },
+  featureLoadState: 'idle',
   globalSetting: {
     features: {}
   },
