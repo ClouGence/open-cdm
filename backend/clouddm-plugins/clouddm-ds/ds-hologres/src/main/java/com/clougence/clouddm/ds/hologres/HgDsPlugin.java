@@ -26,6 +26,8 @@ import com.clougence.clouddm.ds.hologres.dsconf.HgSerializationSpi;
 import com.clougence.clouddm.ds.hologres.execute.HgSessionFactory;
 import com.clougence.clouddm.ds.hologres.i18n.HgDsI18nKeys;
 import com.clougence.clouddm.ds.hologres.resource.HgEditorResourceSpi;
+import com.clougence.clouddm.ds.hologres.sql.HgSqlEngineSpi;
+import com.clougence.clouddm.ds.hologres.sql.analysis.sysobj.HgSysObjectRegistrySpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgEditorProvider;
@@ -80,7 +82,9 @@ public class HgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(HgSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
-        dsPlugin.bindSqlEngine("PG SQL");
+        dsPlugin.addGlobalSpi(new HgSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new HgSysObjectRegistrySpi());
+        dsPlugin.bindSqlEngine(HgSqlEngineSpi.NAME);
 
         dsPlugin.addPluginSpi(new PgSessionSpi());
         dsPlugin.addPluginSpi(new PgSupportSpi());

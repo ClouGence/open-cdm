@@ -1,34 +1,43 @@
 /*
  * Copyright 2026 杭州开云集致科技有限公司
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.clouddm.ds.starrocks.sql.analysis.behavior;
 
 import static com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksParser.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 /** Job definitions, executable bodies, data transfer and persistent backups. */
 class SrJobBehaviorVisitor extends SrStatementBehaviorVisitor {
     protected final Map<UmiTypes, Object> levels;
-    protected final int baseLine;
-    protected final int baseColumn;
+    protected final int                   baseLine;
+    protected final int                   baseColumn;
 
-    SrJobBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    SrJobBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         super(parser, levels, baseLine, baseColumn);
         this.levels = new HashMap<>();
         if (levels != null) {
@@ -199,8 +208,7 @@ class SrJobBehaviorVisitor extends SrStatementBehaviorVisitor {
     @Override
     public Void visitDropTaskStatement(DropTaskStatementContext ctx) {
         List<IdentifierContext> names = ctx.qualifiedName().identifier();
-        add(SplitQueryType.DROP_JOB, BehaviorAction.DROP,
-            objects.instanceObject(TargetType.Job, ctx.qualifiedName(), "task/" + name(names.get(names.size() - 1))));
+        add(SplitQueryType.DROP_JOB, BehaviorAction.DROP, objects.instanceObject(TargetType.Job, ctx.qualifiedName(), "task/" + name(names.get(names.size() - 1))));
         return null;
     }
 
@@ -280,8 +288,7 @@ class SrJobBehaviorVisitor extends SrStatementBehaviorVisitor {
         if (path != null) {
             files.add(inputFile(path));
         }
-        add(SplitQueryType.SELECT, BehaviorAction.CALL,
-            objects.object(TargetType.Function, ctx.FILES().getSymbol(), List.of(ctx.FILES().getText())), files);
+        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, ctx.FILES().getSymbol(), List.of(ctx.FILES().getText())), files);
         return null;
     }
 
@@ -381,8 +388,8 @@ class SrJobBehaviorVisitor extends SrStatementBehaviorVisitor {
                 continue;
             }
             List<ColumnRefContext> columns = descendants(comparison.left, ColumnRefContext.class);
-            if (columns.size() != 1 || !key.equalsIgnoreCase(name(columns.get(0))) ||
-                comparison.left.getStart() != columns.get(0).getStart() || comparison.left.getStop() != columns.get(0).getStop()) {
+            if (columns.size() != 1 || !key.equalsIgnoreCase(name(columns.get(0))) || comparison.left.getStart() != columns.get(0).getStart()
+                || comparison.left.getStop() != columns.get(0).getStop()) {
                 continue;
             }
             for (StringContext value : descendants(comparison.right, StringContext.class)) {

@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.oracle.analysis.behavior;
 
@@ -18,8 +27,8 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
-import com.clougence.sql.oracle.parser.antlr.PlSqlParserBaseVisitor;
 import com.clougence.sql.oracle.parser.antlr.PlSqlParser;
+import com.clougence.sql.oracle.parser.antlr.PlSqlParserBaseVisitor;
 import com.clougence.sql.oracle.parser.antlr.PlSqlParser.*;
 import com.clougence.utils.StringUtils;
 
@@ -71,24 +80,19 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
     public Void visitAlter_system(Alter_systemContext ctx) {
         if (!ctx.alter_system_set_clause().isEmpty()) {
             for (Alter_system_set_clauseContext setting : ctx.alter_system_set_clause()) {
-                addUnary(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE,
-                    principal(TargetType.ConfigKey, setting.system_parameter_name()));
+                addUnary(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, principal(TargetType.ConfigKey, setting.system_parameter_name()));
             }
         } else if (!ctx.alter_system_reset_clause().isEmpty()) {
             for (Alter_system_reset_clauseContext setting : ctx.alter_system_reset_clause()) {
-                addUnary(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.RESET,
-                    principal(TargetType.ConfigKey, setting.system_parameter_name()));
+                addUnary(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.RESET, principal(TargetType.ConfigKey, setting.system_parameter_name()));
             }
         } else if (ctx.alter_system_security_clause() != null) {
             // Wallet passwords and key material must not become resource names.
-            addUnary(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE,
-                objects.instanceObject(TargetType.ConfigKey, ctx.alter_system_security_clause()));
+            addUnary(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, ctx.alter_system_security_clause()));
         } else if (ctx.archive_log_clause() != null) {
-            addUnary(SplitQueryType.MAINTAIN_LOG, BehaviorAction.EXPORT,
-                objects.instanceObject(TargetType.Log, ctx.archive_log_clause()));
+            addUnary(SplitQueryType.MAINTAIN_LOG, BehaviorAction.EXPORT, objects.instanceObject(TargetType.Log, ctx.archive_log_clause()));
         } else if (ctx.SWITCH() != null) {
-            addUnary(SplitQueryType.MAINTAIN_LOG, BehaviorAction.SWITCH,
-                objects.instanceObject(TargetType.Log, ctx.LOGFILE().getSymbol()));
+            addUnary(SplitQueryType.MAINTAIN_LOG, BehaviorAction.SWITCH, objects.instanceObject(TargetType.Log, ctx.LOGFILE().getSymbol()));
         } else if (ctx.alter_system_flush_clause() != null) {
             systemFlush(ctx.alter_system_flush_clause());
         } else if (ctx.affinity_clauses() != null) {
@@ -101,9 +105,8 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
 
     private void systemFlush(Alter_system_flush_clauseContext ctx) {
         if (ctx.REDO() != null) {
-            addRelation(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.FLUSH,
-                objects.instanceObject(TargetType.Log, ctx.REDO().getSymbol()),
-                objects(object(TargetType.Catalog, ctx.id_expression())));
+            addRelation(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.FLUSH, objects
+                .instanceObject(TargetType.Log, ctx.REDO().getSymbol()), objects(object(TargetType.Catalog, ctx.id_expression())));
             return;
         }
         SplitQueryType type = SplitQueryType.ADMIN_PERFORMANCE;
@@ -162,17 +165,14 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
     public Void visitAlter_session(Alter_sessionContext ctx) {
         if (ctx.CLOSE() != null) {
             // Dots belong to the link name, not to a schema qualification.
-            addUnary(SplitQueryType.ADMIN, BehaviorAction.STOP,
-                objects.object(TargetType.Link, ctx.link_name(), List.of(ctx.link_name().getText())));
+            addUnary(SplitQueryType.ADMIN, BehaviorAction.STOP, objects.object(TargetType.Link, ctx.link_name(), List.of(ctx.link_name().getText())));
         } else if (ctx.SYNC() != null) {
             // Waits for active standby redo apply; does not start replication.
-            addUnary(SplitQueryType.ADMIN, BehaviorAction.APPLY,
-                objects.unnamedObject(TargetType.Catalog, ctx.SYNC().getSymbol(), UmiTypes.Catalog));
+            addUnary(SplitQueryType.ADMIN, BehaviorAction.APPLY, objects.unnamedObject(TargetType.Catalog, ctx.SYNC().getSymbol(), UmiTypes.Catalog));
         } else if (ctx.alter_session_set_clause() != null) {
             sessionSettings(ctx.alter_session_set_clause());
         } else {
-            addUnary(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE,
-                objects.instanceObject(TargetType.ConfigKey, ctx));
+            addUnary(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, ctx));
         }
         return null;
     }
@@ -193,16 +193,14 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
                 end = ctx.VISIBILITY();
                 name = "ROW ARCHIVAL VISIBILITY";
             }
-            addUnary(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE,
-                objects.instanceObject(TargetType.ConfigKey, ctx.start, end.getSymbol(), name));
+            addUnary(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, ctx.start, end.getSymbol(), name));
         } else {
             boolean switchesSchema = false;
             for (int i = 0; i < ctx.parameter_name().size(); i++) {
                 Parameter_nameContext parameter = ctx.parameter_name(i);
                 if ("CURRENT_SCHEMA".equalsIgnoreCase(parameter.getText())) {
                     switchesSchema = true;
-                    addUnary(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH,
-                        object(TargetType.Schema, ctx.session_parameter_value(i)));
+                    addUnary(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, object(TargetType.Schema, ctx.session_parameter_value(i)));
                 } else {
                     addUnary(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, principal(TargetType.ConfigKey, parameter));
                 }
@@ -226,8 +224,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
                 }
             }
             // ALL/NONE are unnamed sets; EXCEPT roles are filters, not enabled subjects.
-            addRelation(SplitQueryType.SWITCH_ROLE, BehaviorAction.SWITCH,
-                objects.instanceObject(TargetType.Role, ctx.ROLE().getSymbol()), references);
+            addRelation(SplitQueryType.SWITCH_ROLE, BehaviorAction.SWITCH, objects.instanceObject(TargetType.Role, ctx.ROLE().getSymbol()), references);
         } else {
             for (Role_nameContext role : ctx.role_name()) {
                 addUnary(SplitQueryType.SWITCH_ROLE, BehaviorAction.SWITCH, principal(TargetType.Role, role));
@@ -311,8 +308,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitCreate_tablespace(Create_tablespaceContext ctx) {
-        addRelation(SplitQueryType.CREATE_TABLESPACE, BehaviorAction.CREATE,
-            catalogObject(TargetType.Tablespace, first(ctx, Id_expressionContext.class)), tablespaceGroups(ctx));
+        addRelation(SplitQueryType.CREATE_TABLESPACE, BehaviorAction.CREATE, catalogObject(TargetType.Tablespace, first(ctx, Id_expressionContext.class)), tablespaceGroups(ctx));
         return null;
     }
 
@@ -906,12 +902,10 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         if (names.size() == 3 && "SYS".equals(names.get(0))) {
             names.remove(0);
         }
-        if (names.size() != 2 || !"DBMS_XPLAN".equals(names.get(0))
-                || !("DISPLAY".equals(names.get(1)) || "DISPLAY_CURSOR".equals(names.get(1)))) {
+        if (names.size() != 2 || !"DBMS_XPLAN".equals(names.get(0)) || !("DISPLAY".equals(names.get(1)) || "DISPLAY_CURSOR".equals(names.get(1)))) {
             return visitChildren(ctx);
         }
-        addUnary(SplitQueryType.SELECT, BehaviorAction.CALL,
-            objects.object(TargetType.Function, name, List.of("SYS", String.join(".", names))));
+        addUnary(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, name, List.of("SYS", String.join(".", names))));
         if ("DISPLAY".equals(names.get(1))) {
             displayPlanTable(name, arguments);
         } else {
@@ -924,8 +918,7 @@ final class OraStatementBehaviorVisitor extends PlSqlParserBaseVisitor<Void> {
         ExpressionContext table = null;
         for (int i = 0; i < arguments.size(); i++) {
             ArgumentContext argument = arguments.get(i);
-            if (argument.identifier() == null && i == 0
-                    || argument.identifier() != null && "TABLE_NAME".equals(oracleIdentifierKey(argument.identifier().getText()))) {
+            if (argument.identifier() == null && i == 0 || argument.identifier() != null && "TABLE_NAME".equals(oracleIdentifierKey(argument.identifier().getText()))) {
                 table = argument.expression();
             }
         }

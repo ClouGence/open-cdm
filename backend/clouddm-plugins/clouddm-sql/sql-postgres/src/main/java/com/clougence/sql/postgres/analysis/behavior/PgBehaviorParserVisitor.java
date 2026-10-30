@@ -35,20 +35,20 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
-    private final Parser                                                        parser;
-    private final PostgresVersion                                               version;
-    private final Map<UmiTypes, Object>                                         levels;
-    private final int                                                           baseLine;
-    private final int                                                           baseColumn;
-    private final Predicate<String>                                             dialectSystemFunction;
-    private final Function<List<String>, PgFunctionBehavior>                    dialectFunctionBehavior;
-    private final Function<PostgresVersion, PgSplitVisitor>                     splitVisitorFactory;
-    private final Function<PgSqlParser.ExtensionstmtContext, StatementBehavior> extensionBehavior;
-    private final List<StatementBehavior>                                       behaviors = new ArrayList<>();
+    private final Parser                                               parser;
+    private final PostgresVersion                                      version;
+    private final Map<UmiTypes, Object>                                levels;
+    private final int                                                  baseLine;
+    private final int                                                  baseColumn;
+    private final Predicate<String>                                    dialectSystemFunction;
+    private final Function<List<String>, PgFunctionBehavior>           dialectFunctionBehavior;
+    private final Function<PostgresVersion, PgSplitVisitor>            splitVisitorFactory;
+    private final Function<PgSqlParser.StmtContext, StatementBehavior> dialectBehavior;
+    private final List<StatementBehavior>                              behaviors = new ArrayList<>();
 
     PgBehaviorParserVisitor(Parser parser, PostgresVersion version, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, Predicate<String> dialectSystemFunction,
                             Function<List<String>, PgFunctionBehavior> dialectFunctionBehavior, Function<PostgresVersion, PgSplitVisitor> splitVisitorFactory,
-                            Function<PgSqlParser.ExtensionstmtContext, StatementBehavior> extensionBehavior){
+                            Function<PgSqlParser.StmtContext, StatementBehavior> dialectBehavior){
         this.parser = parser;
         this.version = version;
         this.levels = levels;
@@ -57,7 +57,7 @@ final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
         this.dialectSystemFunction = dialectSystemFunction;
         this.dialectFunctionBehavior = dialectFunctionBehavior;
         this.splitVisitorFactory = splitVisitorFactory;
-        this.extensionBehavior = extensionBehavior;
+        this.dialectBehavior = dialectBehavior;
     }
 
     List<StatementBehavior> behaviors() {
@@ -66,8 +66,8 @@ final class PgBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     @Override
     public Void visit(ParseTree tree) {
-        if (tree instanceof PgSqlParser.StmtContext statement && statement.extensionstmt() != null) {
-            StatementBehavior behavior = extensionBehavior.apply(statement.extensionstmt());
+        if (tree instanceof PgSqlParser.StmtContext statement) {
+            StatementBehavior behavior = dialectBehavior.apply(statement);
             if (behavior != null) {
                 behaviors.add(behavior);
                 return null;
