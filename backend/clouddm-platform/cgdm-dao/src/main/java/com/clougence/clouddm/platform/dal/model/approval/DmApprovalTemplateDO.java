@@ -32,16 +32,19 @@ import lombok.Setter;
 public class DmApprovalTemplateDO {
 
     @TableId(type = IdType.AUTO)
-    private Long         id;
+    private Long                   id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date         gmtCreate;
+    private Date                   gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date         gmtModified;
-    private String       primaryUid;
+    private Date                   gmtModified;
+    private String                 primaryUid;
     @TableField(typeHandler = RdpApprovalTypeHandler.class)
-    private ApprovalType approvalType;
-    private String       templateName;
-    private String       templateIdentity;
-    private String       approUrl;
-    private String       templateContent;
+    private ApprovalType           approvalType;
+    private String                 templateName;
+    private String                 templateIdentity;
+    private String                 approUrl;
+    private String                 templateContent;
+    private ApprovalTemplateSource templateSource;
+    private String                 engineConfigId;
+    private Long                   version;
 }

@@ -23,8 +23,10 @@ import lombok.Setter;
 @Setter
 public class RdpApprovalFO {
 
-    @Min(value = 1, message = "ticketId must large than 0.")
+    @Min(1)
     private long    ticketId;
+
+    private Long    processActivityId;
 
     private boolean rejected;
 

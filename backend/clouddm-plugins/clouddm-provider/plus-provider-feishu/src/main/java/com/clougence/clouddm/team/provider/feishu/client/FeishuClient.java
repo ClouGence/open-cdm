@@ -67,34 +67,42 @@ public class FeishuClient implements Closeable {
         this.apiClient = Client.newBuilder(this.appId, this.appSecret).requestTimeout(timeout, TimeUnit.SECONDS).build();
 
         if (includeWS) {
-            EventDispatcher build = EventDispatcher.newBuilder("", "")//
-                .onCustomizedEvent("approval_instance", new CustomEventHandler() {
-
-                    @Override
-                    public void handle(EventReq event) {
-                        customInstanceHandler(event);
-                    }
-                })
-                .onCustomizedEvent("approval_task", new CustomEventHandler() {
-
-                    @Override
-                    public void handle(EventReq event) {
-                        customTaskHandler(event);
-                    }
-                })
-                .build();
-
-            //this.wsClient = new com.lark.oapi.ws.Client.Builder(this.appId, this.appSecret)//
-            //    .autoReconnect(true)
-            //    .eventHandler(build)
-            //    .build();
-            this.wsClient = new WsClient.Builder(this.appId, this.appSecret)//
-                .autoReconnect(true)
-                .eventHandler(build)
-                .classLoader(this.getClass().getClassLoader())
-                .build(logger);
-            this.wsClient.start();
+            startEvents();
         }
+    }
+
+    public synchronized void startEvents() {
+        if (this.wsClient != null) {
+            return;
+        }
+
+        EventDispatcher build = EventDispatcher.newBuilder("", "")//
+            .onCustomizedEvent("approval_instance", new CustomEventHandler() {
+
+                @Override
+                public void handle(EventReq event) {
+                    customInstanceHandler(event);
+                }
+            })
+            .onCustomizedEvent("approval_task", new CustomEventHandler() {
+
+                @Override
+                public void handle(EventReq event) {
+                    customTaskHandler(event);
+                }
+            })
+            .build();
+
+        //this.wsClient = new com.lark.oapi.ws.Client.Builder(this.appId, this.appSecret)//
+        //    .autoReconnect(true)
+        //    .eventHandler(build)
+        //    .build();
+        this.wsClient = new WsClient.Builder(this.appId, this.appSecret)//
+            .autoReconnect(true)
+            .eventHandler(build)
+            .classLoader(this.getClass().getClassLoader())
+            .build(logger);
+        this.wsClient.start();
     }
 
     @Override

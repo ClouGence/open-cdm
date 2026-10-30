@@ -44,6 +44,9 @@ import com.lark.oapi.service.approval.v4.model.ApprovalNodeInfo;
 import com.lark.oapi.service.approval.v4.model.GetInstanceRespBody;
 import com.lark.oapi.service.approval.v4.model.InstanceTask;
 import com.lark.oapi.service.approval.v4.model.InstanceTimeline;
+import com.lark.oapi.service.auth.v3.model.InternalTenantAccessTokenReq;
+import com.lark.oapi.service.auth.v3.model.InternalTenantAccessTokenReqBody;
+import com.lark.oapi.service.auth.v3.model.InternalTenantAccessTokenResp;
 
 public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
 
@@ -62,7 +65,6 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
         List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
-                FeishuConfigKey.ApprovalEnable.getConfigKey(),//
                 FeishuConfigKey.ApprovalAppID.getConfigKey(),//
                 FeishuConfigKey.ApprovalAppSecret.getConfigKey(),//
                 FeishuConfigKey.ApprovalApiTimeoutSec.getConfigKey()));
@@ -71,10 +73,9 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
             configMap.put(c.getConfigName(), c.getConfigValue());
         }
 
-        // enable is false.
-        String enableCfg = configMap.getOrDefault(FeishuConfigKey.ApprovalEnable.getConfigKey(), "false");
-        if (!StringUtils.equalsIgnoreCase(enableCfg, "true")) {
-            logger.info("[FeishuApprovalProviderSpi] IgnoreApproval[Feishu] primaryUid：" + ownerUid + ", enable is false.");
+        if (StringUtils.isBlank(configMap.get(FeishuConfigKey.ApprovalAppID.getConfigKey()))
+            || StringUtils.isBlank(configMap.get(FeishuConfigKey.ApprovalAppSecret.getConfigKey()))) {
+            logger.info("Approval credentials incomplete for primaryUid: " + ownerUid);
             return new LifeSpiResponse();
         }
 
@@ -91,7 +92,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
 
             // start api client
             FeishuClient feishuClient = new FeishuClient(logger, appKey, appSecret, Integer.parseInt(apiTimeoutSec), null);
-            feishuClient.start(true);
+            feishuClient.start(false);
             this.clientMap.put(ownerUid, feishuClient);
 
             // start streamHandler
@@ -102,6 +103,26 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
             // finish
             logger.info("[FeishuApprovalProviderSpi] StartApproval[Feishu] primaryUid：" + ownerUid);
             return new LifeSpiResponse();
+        }
+    }
+
+    @Override
+    public void testConnection(Map<String, String> config) throws ThirdPartyApiException {
+        String appId = config.get(FeishuConfigKey.ApprovalAppID.getConfigKey());
+        String appSecret = config.get(FeishuConfigKey.ApprovalAppSecret.getConfigKey());
+        try (FeishuClient client = new FeishuClient(logger, appId, appSecret, 5, null)) {
+            client.start(false);
+            InternalTenantAccessTokenReq request = InternalTenantAccessTokenReq.newBuilder()
+                .internalTenantAccessTokenReqBody(InternalTenantAccessTokenReqBody.newBuilder().appId(appId).appSecret(appSecret).build())
+                .build();
+            InternalTenantAccessTokenResp response = client.apiClient().auth().v3().tenantAccessToken().internal(request);
+            if (!response.success()) {
+                throw ThirdPartyApiException.as().with(FeishuI18nKeys.FEISHU_UNKNOWN_CALL_API_ERROR, response.getMsg());
+            }
+        } catch (ThirdPartyApiException e) {
+            throw e;
+        } catch (Exception e) {
+            throw ThirdPartyApiException.as().with(e, FeishuI18nKeys.FEISHU_UNKNOWN_CALL_API_ERROR, e.getMessage());
         }
     }
 
@@ -145,6 +166,12 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
         String form = FeishuApiUtils.getFormParams(approvalActivities.getWidgets(), info);
         ApprovalCreateInstanceResult approvalCreateInstanceResult = new ApprovalCreateInstanceResult();
         String instance = approvalApi.createInstance(info, form, userIdByPhone);
+        try {
+            this.clientMap.get(ownerUid).startEvents();
+        } catch (Exception e) {
+            logger.error("Start Feishu approval events failed", e);
+        }
+
         approvalCreateInstanceResult.setApprovalIdentity(instance);
         approvalCreateInstanceResult.setActivityList(convertToApprovalActivityList(approvalActivities.getNodeInfoList()));
         ApprovalUrl approvalUrl = new ApprovalUrl();
@@ -203,10 +230,12 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
                 } else {
                     aaObj.setUserName("");
                 }
+
                 aaObj.setRemark(commentMap.get(instanceTask.getId()));
                 if (!instanceTask.getEndTime().equals("0")) {
                     aaObj.setFinishTime(new Date(Long.parseLong(instanceTask.getEndTime())));
                 }
+
                 aaObj.setStatus(taskStatus.convertStatus());
                 list.add(aaObj);
                 map.put(instanceTask.getNodeId(), list);
@@ -235,6 +264,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
         if (StringUtils.isNotBlank(before)) {
             approvalApi.unSubscribeTemplate(before);
         }
+
         if (StringUtils.isNotBlank(current)) {
             approvalApi.subscribeTemplate(current);
         }

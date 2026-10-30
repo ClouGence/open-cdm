@@ -625,6 +625,7 @@ export default {
         }
       };
 
+      this.showPendingResult(this.tab, wsData.object.requestId);
       this.handleCloseModal();
 
       this.tab.cost.popList = [
@@ -669,6 +670,7 @@ export default {
         }
       };
 
+      this.showPendingResult(this.tab, wsData.object.requestId);
       this.handleCloseModal();
 
       this.tab.cost.popList = [
@@ -840,6 +842,13 @@ export default {
       }
       return list;
     },
+    showPendingResult(tab, requestId) {
+      if (tab.result.pending) return;
+      const list = tab.result.list;
+      const showIndex = list.length ? list[list.length - 1].showIndex + 1 : 1;
+      tab.result.pending = { resultId: `pending-${requestId}`, requestId, showIndex, message: this.$t('zhi-xing-zhong') };
+      tab.result.active = tab.result.pending.resultId;
+    },
     onclose() {},
     onmessage(data) {
       try {
@@ -874,7 +883,9 @@ export default {
 
           // Initialize the result set object before data is available.
           const len = currentTab.result.list.length;
+          const pending = currentTab.result.pending;
           metaData.showIndex = len ? currentTab.result.list[len - 1].showIndex + 1 : 1;
+          if (pending?.requestId === metaData.requestId) metaData.showIndex = pending.showIndex;
           // Initialize exportState for the result tab.
           metaData.exportState = {
             exporting: false,
@@ -922,6 +933,7 @@ export default {
           // Add to the result list.
           currentTab.result.list.push(metaData);
           currentTab.result.active = metaData.resultId;
+          if (pending?.requestId === metaData.requestId) currentTab.result.pending = null;
         }
         // Progress updates carry the fetched count independently of the receive mode.
         if (queryData.object.resultType === 'ResultSetRows') {
@@ -1027,6 +1039,10 @@ export default {
         }
 
         if (queryData.object.resultType === 'Done') {
+          if (currentTab.result.pending?.requestId === queryData.object.requestId) {
+            if (currentTab.result.active === currentTab.result.pending.resultId) currentTab.result.active = 'message';
+            currentTab.result.pending = null;
+          }
           this.storeQueryTabs();
           currentTab.running = false;
         }
@@ -1036,6 +1052,7 @@ export default {
         }
 
         if (queryData.object.resultType === 'QueryScript') {
+          if (currentTab.running) this.showPendingResult(currentTab, queryData.object.requestId);
           currentTab.executeInfo.push({
             time: queryData.time,
             ...queryData.object
@@ -1055,9 +1072,13 @@ export default {
             }
 
             if (entity.mode === 'Hint') {
-              currentTab.message.show = true;
-              currentTab.message.text = formatError(entity.message);
-              currentTab.message.type = entity.level;
+              if (entity.level === 'Info' && currentTab.result.pending?.requestId === queryData.object.requestId) {
+                currentTab.result.pending.message = entity.message;
+              } else {
+                currentTab.message.show = true;
+                currentTab.message.text = formatError(entity.message);
+                currentTab.message.type = entity.level;
+              }
             } else {
               currentTab.executeInfo.push({
                 time: queryData.time,

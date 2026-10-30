@@ -118,10 +118,10 @@ tasks.register('buildx') {
 }
 
 tasks.register('local') {
-    dependsOn build
+    dependsOn build, customFatJar
     doLast {
         copy {
-            from("${buildDir}/libs") { include "${project.description}-lib.jar" }
+            from(customFatJar.archiveFile)
             into "${System.env.HOME}/clouddm/plugins"
         }
     }

@@ -15,9 +15,9 @@
  */
 package com.clougence.clouddm.console.web.component.approval;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,6 @@ import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.ThreadUtils;
 
 import jakarta.annotation.Resource;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -64,7 +63,7 @@ public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
         List<DmAuthUserDO> users = this.authDal.userMapper().listPrimaryAccount();
         for (DmAuthUserDO rdpUserDO : users) {
             for (ApprovalProvider provider : ApprovalFlowService.SUPPORT_LIST) {
-                startProviderIfEnabled(rdpUserDO.getUid(), provider);
+                startProviderIfConfigured(rdpUserDO.getUid(), provider);
             }
         }
 
@@ -78,49 +77,50 @@ public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
         }
     }
 
-    @SneakyThrows
     @Override
     public void notifyUserConfig(String ownerUid, List<UserConfigMO> configList) {
         if (configList == null || configList.isEmpty()) {
             return;
         }
 
-        restartModifiedProviders(ownerUid, configList);
+        try {
+            restartModifiedProviders(ownerUid, configList);
+        } catch (Exception e) {
+            String msg = "Restart approval providers failed, ownerUid=" + ownerUid;
+            log.error(msg, e);
+            throw new IllegalStateException(msg, e);
+        }
     }
 
     private void restartModifiedProviders(String ownerUid, List<UserConfigMO> configList) throws Exception {
-        Set<UserConfigTagType> filtered = configList.stream()
-            .filter(config -> config != null && config.getTagType() != null && (config.isInsert() || config.isUpdate() || config.isDelete()))
-            .map(UserConfigMO::getTagType)
-            .collect(Collectors.toSet());
+        Set<UserConfigTagType> modifiedTypes = new HashSet<>();
+        for (UserConfigMO config : configList) {
+            if (config.isInsert() || config.isUpdate() || config.isDelete()) {
+                modifiedTypes.add(config.getTagType());
+            }
+        }
 
         for (ApprovalProvider provider : ApprovalFlowService.SUPPORT_LIST) {
             UserConfigTagType tagType = convertToConfigTagType(provider);
-            if (tagType == null || !filtered.contains(tagType)) {
+            if (tagType == null || !modifiedTypes.contains(tagType)) {
                 continue;
             }
-            restartProvider(ownerUid, provider);
+
+            ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, provider.name());
+            if (service != null) {
+                service.stop(ownerUid, new LifeSpiRequest());
+                startProviderIfConfigured(ownerUid, provider);
+            }
         }
     }
 
-    private void restartProvider(String ownerUid, ApprovalProvider provider) throws Exception {
-        stopProvider(ownerUid, provider);
-        startProviderIfEnabled(ownerUid, provider);
-    }
-
-    private void stopProvider(String ownerUid, ApprovalProvider provider) throws Exception {
-        ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, provider.name());
-        if (service != null) {
-            service.stop(ownerUid, new LifeSpiRequest());
-        }
-    }
-
-    private void startProviderIfEnabled(String ownerUid, ApprovalProvider provider) {
+    private void startProviderIfConfigured(String ownerUid, ApprovalProvider provider) {
         ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, provider.name());
         if (service == null) {
             return;
         }
-        if (!this.approvalService.checkEnableApproval(ownerUid, provider)) {
+
+        if (!this.approvalService.isApprovalConfigured(ownerUid, provider)) {
             return;
         }
 

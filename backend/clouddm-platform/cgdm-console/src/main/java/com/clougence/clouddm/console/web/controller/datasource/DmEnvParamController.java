@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.controller.datasource;
 
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_DS_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_ENV_MANAGE;
 
 import java.util.List;
 
@@ -84,7 +84,7 @@ public class DmEnvParamController {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(DM_DS_MANAGE)
+    @RequestAuth(RDP_ENV_MANAGE)
     @RequestMapping(value = "/bindEnvParam", method = RequestMethod.POST)
     public ResWebData<?> bindEnvParam(@Valid @RequestBody DmBindEnvParamFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -94,7 +94,7 @@ public class DmEnvParamController {
         return ResWebDataUtils.buildSuccess();
     }
 
-    @RequestAuth(DM_DS_MANAGE)
+    @RequestAuth(RDP_ENV_MANAGE)
     @RequestMapping(value = "/unbindEnvParam", method = RequestMethod.POST)
     public ResWebData<?> unbindEnvParam(@Valid @RequestBody DmUnbindEnvParamFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

@@ -25,7 +25,7 @@
               <Button v-if="myAuth.includes('RDP_AUTH_MANAGE')" style="margin-right: 10px" @click="goBatchAuthorizationPage">
                 {{ $t('pi-liang-shou-quan') }}
               </Button>
-              <Button @click="handleClickAddBtn" type="primary" style="margin-right: 10px" icon="md-add">
+              <Button v-if="myAuth.includes('RDP_USER_MANAGE')" @click="handleClickAddBtn" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('tian-jia-zi-zhang-hao') }}
               </Button>
             </div>
@@ -82,21 +82,16 @@
                 </div>
               </template>
               <template #action="{ row }">
-                <div class="action">
-                  <a
-                    v-if="myAuth.includes('RDP_AUTH_READ')"
-                    :style="{ color: row.disable ? '#ccc' : '' }"
-                    @click="!row.disable && goAuthPage('edit', row)"
-                    type="primary"
-                  >
+                <div class="table-row-actions">
+                  <Button v-if="myAuth.includes('RDP_AUTH_READ')" type="text" size="small" :disabled="row.disable" @click="goAuthPage('edit', row)">
                     {{ $t('shou-quan') }}
-                  </a>
-                  <a v-if="myAuth.includes('RDP_USER_MANAGE')" @click="handleShowModifyAccount(row)">
+                  </Button>
+                  <Button v-if="myAuth.includes('RDP_USER_MANAGE')" type="text" size="small" @click="handleShowModifyAccount(row)">
                     {{ $t('xiu-gai') }}
-                  </a>
-                  <a v-if="myAuth.includes('RDP_USER_MANAGE')" @click="handleShowDeleteConfirm(row)">
+                  </Button>
+                  <Button v-if="myAuth.includes('RDP_USER_MANAGE')" type="text" size="small" @click="handleShowDeleteConfirm(row)">
                     {{ $t('shan-chu') }}
-                  </a>
+                  </Button>
                 </div>
               </template>
             </Table>
@@ -715,7 +710,7 @@ export default {
         const roleList = [];
         roleListRes.data.forEach((role) => {
           roleList.push({
-            name: role.aliasName,
+            name: role.aliasName || role.roleName,
             value: role.roleId
           });
         });
@@ -960,14 +955,6 @@ export default {
     color: #a8a8a8;
     font-size: 12px;
     line-height: 18px;
-  }
-
-  .action {
-    white-space: nowrap;
-
-    a {
-      margin-right: 16px;
-    }
   }
 
   .actions {

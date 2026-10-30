@@ -37,7 +37,7 @@ import com.clougence.clouddm.console.web.service.ai.tool.AiMetadataContext;
 import com.clougence.clouddm.console.web.service.ai.tool.AiMetadataTools;
 import com.clougence.clouddm.console.web.service.ai.tool.AiToolService;
 import com.clougence.clouddm.ds.ai.ChatUsage;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiSessionMapper;
+import com.clougence.clouddm.platform.dal.access.AiDal;
 import com.clougence.clouddm.platform.dal.model.ai.AiTurnStatus;
 import com.clougence.clouddm.platform.dal.model.ai.DmAiSessionDO;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
@@ -48,9 +48,9 @@ import jakarta.annotation.Resource;
 @Service
 public class AiSessionService {
     @Resource
-    private AiPromptBuilder     prompts;
+    private AiDal               aiDal;
     @Resource
-    private DmAiSessionMapper   sessions;
+    private AiPromptBuilder     prompts;
     @Resource
     private AiTurnStore         store;
     @Resource
@@ -325,7 +325,7 @@ public class AiSessionService {
         if (fo.getBeforeModifiedAt() != null) {
             beforeModifiedAt = Date.from(fo.getBeforeModifiedAt());
         }
-        List<DmAiSessionDO> values = sessions.findPageByUid(puid, uid, beforeModifiedAt, fo.getBeforeId(), keyword, fo.getPageSize() + 1);
+        List<DmAiSessionDO> values = aiDal.sessionMapper().findPageByUid(puid, uid, beforeModifiedAt, fo.getBeforeId(), keyword, fo.getPageSize() + 1);
         boolean hasMore = values.size() > fo.getPageSize();
         if (hasMore) {
             values = values.subList(0, fo.getPageSize());

@@ -34,7 +34,7 @@ import com.clougence.clouddm.console.web.model.fo.ai.AiUserInputAnswerFO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiEngineConfigVO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiTurnRecordVO;
 import com.clougence.clouddm.console.web.model.vo.ai.AiUserInputRequestVO;
-import com.clougence.clouddm.platform.dal.mapper.ai.*;
+import com.clougence.clouddm.platform.dal.access.AiDal;
 import com.clougence.clouddm.platform.dal.model.ai.*;
 import com.clougence.utils.JsonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,33 +45,26 @@ import jakarta.annotation.Resource;
 @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED, readOnly = true, isolation = Isolation.REPEATABLE_READ)
 public class AiTurnStore {
     @Resource
-    private DmAiSessionMapper      sessions;
+    private AiDal        aiDal;
     @Resource
-    private DmAiHistoryEventMapper historyEvents;
-    @Resource
-    private DmAiHistoryMapper      histories;
-    @Resource
-    private DmAiTurnRunMapper      runs;
-    @Resource
-    private DmAiTurnEventMapper    events;
-    @Resource
-    private AiProperties           limits;
+    private AiProperties limits;
 
     private DmAiSessionDO session(String sessionId, boolean lock) {
         DmAiSessionDO session;
         if (lock) {
-            session = sessions.findBySessionIdForUpdate(sessionId);
+            session = aiDal.sessionMapper().findBySessionIdForUpdate(sessionId);
         } else {
-            session = sessions.findBySessionId(sessionId);
+            session = aiDal.sessionMapper().findBySessionId(sessionId);
         }
         if (session == null) {
             return null;
         }
-        List<DmAiTurnRunDO> active = runs.findRunningBySessionId(session.getId(), lock);
+        List<DmAiTurnRunDO> active = aiDal.turnRunMapper().findRunningBySessionId(session.getId(), lock);
         if (active.isEmpty()) {
             return session;
         }
-        Map<Long, DmAiHistoryDO> values = histories.findByIds(active.stream().map(DmAiTurnRunDO::getHistoryId).toList(), lock)
+        Map<Long, DmAiHistoryDO> values = aiDal.historyMapper()
+            .findByIds(active.stream().map(DmAiTurnRunDO::getHistoryId).toList(), lock)
             .stream()
             .collect(Collectors.toMap(DmAiHistoryDO::getId, Function.identity()));
         for (DmAiTurnRunDO run : active) {
@@ -85,11 +78,11 @@ public class AiTurnStore {
     }
 
     public AiTurnRecordVO find(String id) {
-        return readTurn(histories.findByUuid(id), false);
+        return readTurn(aiDal.historyMapper().findByUuid(id), false);
     }
 
     private AiTurnRecordVO lock(String id) {
-        return readTurn(histories.findByUuidForUpdate(id), true);
+        return readTurn(aiDal.historyMapper().findByUuidForUpdate(id), true);
     }
 
     private AiTurnRecordVO readTurn(DmAiHistoryDO history, boolean lock) {
@@ -104,18 +97,18 @@ public class AiTurnStore {
     }
 
     public AiTurnRecordVO findRequest(String sessionId, String requestId) {
-        return findRequest(sessions.findBySessionId(sessionId), requestId, false);
+        return findRequest(aiDal.sessionMapper().findBySessionId(sessionId), requestId, false);
     }
 
     private AiTurnRecordVO findRequest(DmAiSessionDO session, String requestId, boolean lock) {
         if (session == null) {
             return null;
         }
-        return readTurn(histories.findBySessionIdAndRequestId(session.getId(), requestId, lock), lock);
+        return readTurn(aiDal.historyMapper().findBySessionIdAndRequestId(session.getId(), requestId, lock), lock);
     }
 
     public List<AiTurnRecordVO> list(String sessionId, AiTurnRecordVO before, int limit) {
-        return list(sessions.findBySessionId(sessionId), before, limit, false);
+        return list(aiDal.sessionMapper().findBySessionId(sessionId), before, limit, false);
     }
 
     private List<AiTurnRecordVO> list(DmAiSessionDO session, AiTurnRecordVO before, int limit, boolean lock) {
@@ -129,7 +122,7 @@ public class AiTurnStore {
         List<AiTurnRecordVO> values = new ArrayList<>();
         while (values.size() < limit) {
             int remaining = limit - values.size();
-            List<DmAiHistoryDO> page = histories.findPageBySessionId(session.getId(), beforeId, remaining, lock);
+            List<DmAiHistoryDO> page = aiDal.historyMapper().findPageBySessionId(session.getId(), beforeId, remaining, lock);
             values.addAll(assemble(page, lock));
             if (page.size() < remaining) {
                 break;
@@ -140,20 +133,21 @@ public class AiTurnStore {
     }
 
     public List<AiTurnRecordVO> history(String sessionId) {
-        DmAiSessionDO session = sessions.findBySessionId(sessionId);
+        DmAiSessionDO session = aiDal.sessionMapper().findBySessionId(sessionId);
         if (session == null) {
             return List.of();
         }
-        return assemble(histories.findBySessionId(session.getId()), false).stream().filter(turn -> turn.getStatus() != AiTurnStatus.RUNNING).toList();
+        return assemble(aiDal.historyMapper().findBySessionId(session.getId()), false).stream().filter(turn -> turn.getStatus() != AiTurnStatus.RUNNING).toList();
     }
 
     public List<AiTurnRecordVO> firstBySessionIds(List<Long> sessionIds) {
         if (sessionIds.isEmpty()) {
             return List.of();
         }
-        Set<Long> runnable = runs.findBySessionIds(sessionIds).stream().map(DmAiTurnRunDO::getHistoryId).collect(Collectors.toSet());
+        Set<Long> runnable = aiDal.turnRunMapper().findBySessionIds(sessionIds).stream().map(DmAiTurnRunDO::getHistoryId).collect(Collectors.toSet());
         Map<Long, Long> first = new LinkedHashMap<>();
-        for (DmAiHistoryDO history : histories.findIdsBySessionIds(sessionIds)) {
+        List<DmAiHistoryDO> histories = aiDal.historyMapper().findIdsBySessionIds(sessionIds);
+        for (DmAiHistoryDO history : histories) {
             if (runnable.contains(history.getId())) {
                 first.putIfAbsent(history.getSessionId(), history.getId());
             }
@@ -161,23 +155,24 @@ public class AiTurnStore {
         if (first.isEmpty()) {
             return List.of();
         }
-        return assemble(histories.findByIds(new ArrayList<>(first.values()), false), false);
+        return assemble(aiDal.historyMapper().findByIds(new ArrayList<>(first.values()), false), false);
     }
 
     public List<AiTurnRecordVO> active(List<String> ids) {
         if (ids.isEmpty()) {
             return List.of();
         }
-        return assemble(histories.findByUuids(ids), false);
+        return assemble(aiDal.historyMapper().findByUuids(ids), false);
     }
 
     public List<AiTurnRecordVO> expired(int limit) {
-        List<DmAiTurnRunDO> candidates = runs.findRunningByDeadline(now(), limit);
+        List<DmAiTurnRunDO> candidates = aiDal.turnRunMapper().findRunningByDeadline(now(), limit);
         if (candidates.isEmpty()) {
             return List.of();
         }
         List<Long> ids = candidates.stream().map(DmAiTurnRunDO::getHistoryId).toList();
-        Map<Long, AiTurnRecordVO> records = assemble(histories.findByIds(ids, false), false).stream().collect(Collectors.toMap(AiTurnRecordVO::getHistoryId, Function.identity()));
+        Map<Long, AiTurnRecordVO> records = assemble(aiDal.historyMapper().findByIds(ids, false), false).stream()
+            .collect(Collectors.toMap(AiTurnRecordVO::getHistoryId, Function.identity()));
         return candidates.stream().map(run -> records.get(run.getHistoryId())).filter(Objects::nonNull).toList();
     }
 
@@ -186,10 +181,13 @@ public class AiTurnStore {
             return List.of();
         }
         List<Long> ids = values.stream().map(DmAiHistoryDO::getId).toList();
-        Map<Long, DmAiTurnRunDO> byHistory = runs.findByHistoryIds(ids, lock).stream().collect(Collectors.toMap(DmAiTurnRunDO::getHistoryId, Function.identity()));
+        Map<Long, DmAiTurnRunDO> byHistory = aiDal.turnRunMapper().findByHistoryIds(ids, lock).stream().collect(Collectors.toMap(DmAiTurnRunDO::getHistoryId, Function.identity()));
         List<Long> sessionIds = values.stream().map(DmAiHistoryDO::getSessionId).distinct().toList();
-        Map<Long, DmAiSessionDO> owners = sessions.findByIds(sessionIds, lock).stream().collect(Collectors.toMap(DmAiSessionDO::getId, Function.identity()));
-        Map<Long, List<DmAiHistoryEventDO>> results = historyEvents.findByHistoryIds(ids, lock).stream().collect(Collectors.groupingBy(DmAiHistoryEventDO::getHistoryId));
+        Map<Long, DmAiSessionDO> owners = aiDal.sessionMapper().findByIds(sessionIds, lock).stream().collect(Collectors.toMap(DmAiSessionDO::getId, Function.identity()));
+        Map<Long, List<DmAiHistoryEventDO>> results = aiDal.historyEventMapper()
+            .findByHistoryIds(ids, lock)
+            .stream()
+            .collect(Collectors.groupingBy(DmAiHistoryEventDO::getHistoryId));
         List<AiTurnRecordVO> records = new ArrayList<>();
         for (DmAiHistoryDO history : values) {
             DmAiTurnRunDO run = byHistory.get(history.getId());
@@ -238,7 +236,7 @@ public class AiTurnStore {
         Date createdAt = now();
         session.setGmtCreate(createdAt);
         session.setGmtModified(createdAt);
-        sessions.insert(session);
+        aiDal.sessionMapper().insert(session);
         return session(session.getSessionId(), false);
     }
 
@@ -308,16 +306,16 @@ public class AiTurnStore {
             if (previousContext.getUserInputAnswer() != null) {
                 AiTurnRecordVO question = find(previousContext.getUserInputAnswer().getRequestHistoryId());
                 if (question != null && sessionId.equals(question.getSessionId())) {
-                    historyEvents.deleteByHistoryIdAndType(question.getHistoryId(), AiSqlConstants.HISTORY_EVENT_USER_INPUT_ANSWERED);
+                    aiDal.historyEventMapper().deleteByHistoryIdAndType(question.getHistoryId(), AiSqlConstants.HISTORY_EVENT_USER_INPUT_ANSWERED);
                 }
             }
-            historyEvents.deleteBySessionIdFromHistoryId(session.getId(), target.getHistoryId());
-            events.deleteBySessionIdFromHistoryId(session.getId(), target.getHistoryId());
-            runs.deleteBySessionIdFromHistoryId(session.getId(), target.getHistoryId());
-            histories.deleteBySessionIdFromId(session.getId(), target.getHistoryId());
+            aiDal.historyEventMapper().deleteBySessionIdFromHistoryId(session.getId(), target.getHistoryId());
+            aiDal.turnEventMapper().deleteBySessionIdFromHistoryId(session.getId(), target.getHistoryId());
+            aiDal.turnRunMapper().deleteBySessionIdFromHistoryId(session.getId(), target.getHistoryId());
+            aiDal.historyMapper().deleteBySessionIdFromId(session.getId(), target.getHistoryId());
             session.setCompactSummary(null);
             session.setCompactAnchorHistoryId(null);
-            sessions.updateCompactionBySessionId(session.getSessionId(), session.getCompactSummary(), session.getCompactAnchorHistoryId());
+            aiDal.sessionMapper().updateCompactionBySessionId(session.getSessionId(), session.getCompactSummary(), session.getCompactAnchorHistoryId());
         }
         AiTurnRecordVO question = validateUserInputAnswer(session, fo.getUserInputAnswer());
         DmAiHistoryDO history = new DmAiHistoryDO();
@@ -333,7 +331,7 @@ public class AiTurnStore {
         Date now = now();
         history.setGmtCreate(now);
         history.setGmtModified(now);
-        histories.insert(history);
+        aiDal.historyMapper().insert(history);
         DmAiTurnRunDO run = new DmAiTurnRunDO();
         run.setRunId(UUID.randomUUID().toString());
         run.setUid(uid);
@@ -343,10 +341,10 @@ public class AiTurnStore {
         run.setDeadline(new Date(now.getTime() + TimeUnit.SECONDS.toMillis(limits.getTurnSeconds())));
         run.setGmtCreate(now);
         run.setGmtModified(now);
-        runs.insert(run);
-        sessions.updateModifiedBySessionId(sessionId, now);
+        aiDal.turnRunMapper().insert(run);
+        aiDal.sessionMapper().updateModifiedBySessionId(sessionId, now);
         int titleLength = Math.min(80, prompt.codePointCount(0, prompt.length()));
-        sessions.updateTitleBySessionId(sessionId, prompt.substring(0, prompt.offsetByCodePoints(0, titleLength)));
+        aiDal.sessionMapper().updateTitleBySessionId(sessionId, prompt.substring(0, prompt.offsetByCodePoints(0, titleLength)));
         if (question != null) {
             DmAiHistoryEventDO answer = new DmAiHistoryEventDO();
             answer.setSessionId(session.getId());
@@ -355,12 +353,12 @@ public class AiTurnStore {
             answer.setEventData(JsonUtils.toJson(fo.getUserInputAnswer()));
             answer.setGmtCreate(now);
             answer.setGmtModified(now);
-            historyEvents.insert(answer);
+            aiDal.historyEventMapper().insert(answer);
             // The answer changes a question already covered by the checkpoint; rebuild it with the paired tool result.
             if (session.getCompactAnchorHistoryId() != null && question.getHistoryId() <= session.getCompactAnchorHistoryId()) {
                 session.setCompactSummary(null);
                 session.setCompactAnchorHistoryId(null);
-                sessions.updateCompactionBySessionId(session.getSessionId(), session.getCompactSummary(), session.getCompactAnchorHistoryId());
+                aiDal.sessionMapper().updateCompactionBySessionId(session.getSessionId(), session.getCompactSummary(), session.getCompactAnchorHistoryId());
             }
         }
         return new AiTurnStart(session(sessionId, false), find(history.getUuid()), false);
@@ -400,7 +398,7 @@ public class AiTurnStore {
         session.setEngineId(engine.getId());
         session.setEngineVersion(engine.getVersion());
         session.setEngineName(engine.getName());
-        sessions.updateModelBySessionId(session.getSessionId(), engine.getId(), engine.getVersion(), engine.getName(), now());
+        aiDal.sessionMapper().updateModelBySessionId(session.getSessionId(), engine.getId(), engine.getVersion(), engine.getName(), now());
         return session;
     }
 
@@ -411,16 +409,16 @@ public class AiTurnStore {
         if (session == null || turn == null || !turnId.equals(session.getActiveTurnId()) || turn.getStatus() != AiTurnStatus.RUNNING || !turn.getDeadline().after(now())) {
             throw AiError.TURN_EXPIRED.exception();
         }
-        sessions.updateCompactionBySessionId(sessionId, summary, anchorId);
+        aiDal.sessionMapper().updateCompactionBySessionId(sessionId, summary, anchorId);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void appendEvent(String runId, String type, Object data) {
-        DmAiTurnRunDO current = runs.findByRunId(runId);
-        if (current == null || sessions.findByIds(List.of(current.getSessionId()), true).isEmpty()) {
+        DmAiTurnRunDO current = aiDal.turnRunMapper().findByRunId(runId);
+        if (current == null || aiDal.sessionMapper().findByIds(List.of(current.getSessionId()), true).isEmpty()) {
             throw new CancellationException("AI run removed");
         }
-        DmAiTurnRunDO run = runs.findByRunIdForUpdate(runId);
+        DmAiTurnRunDO run = aiDal.turnRunMapper().findByRunIdForUpdate(runId);
         if (run == null) {
             throw new CancellationException("AI run removed");
         }
@@ -440,13 +438,14 @@ public class AiTurnStore {
         event.setCreatedMs(now.getTime());
         event.setGmtCreate(now);
         event.setGmtModified(now);
-        events.insert(event);
-        runs.updateSeqByRunId(runId, event.getSeq());
+        aiDal.turnEventMapper().insert(event);
+        aiDal.turnRunMapper().updateSeqByRunId(runId, event.getSeq());
     }
 
     public AiRunEvents replay(AiTurnRecordVO turn) {
         AiRunEvents state = new AiRunEvents(turn.getDeadline().toInstant());
-        for (DmAiTurnEventDO event : events.findByRunIdAfterSeq(turn.getRunId(), 0)) {
+        List<DmAiTurnEventDO> events = aiDal.turnEventMapper().findByRunIdAfterSeq(turn.getRunId(), 0);
+        for (DmAiTurnEventDO event : events) {
             state.replay(event.getSeq(), AiRunEventType.valueOf(event.getEventType()).getWireType(), JsonUtils.toObj(event.getEventData(), Object.class));
         }
         return state;
@@ -454,7 +453,7 @@ public class AiTurnStore {
 
     public Date now() {
         // Read an absolute database clock; its session timezone may differ from the JDBC Date mapping.
-        return new Date(histories.findCurrentTimeMillis());
+        return new Date(aiDal.historyMapper().findCurrentTimeMillis());
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
@@ -471,7 +470,7 @@ public class AiTurnStore {
         AiTurnRecordVO completed = terminal(session, turn, status, result, usage, error, errorMessage);
         if (running && compactSummary != null && completed.getStatus().isSuccessful()) {
             // The current anchor becomes replayable only with its successful terminal history, in this transaction.
-            sessions.updateCompactionBySessionId(sessionId, compactSummary, completed.getHistoryId());
+            aiDal.sessionMapper().updateCompactionBySessionId(sessionId, compactSummary, completed.getHistoryId());
         }
         return completed;
     }
@@ -491,7 +490,7 @@ public class AiTurnStore {
         turn.setUsageJson(usage);
         turn.setErrorCode(error);
         turn.setErrorMessage(errorMessage);
-        runs.updateStatusByRunId(turn.getRunId(), status, error, errorMessage, now);
+        aiDal.turnRunMapper().updateStatusByRunId(turn.getRunId(), status, error, errorMessage, now);
         if (result != null) {
             DmAiHistoryEventDO response = new DmAiHistoryEventDO();
             response.setSessionId(turn.getSessionDbId());
@@ -500,10 +499,10 @@ public class AiTurnStore {
             response.setEventData(result);
             response.setGmtCreate(now);
             response.setGmtModified(now);
-            historyEvents.insert(response);
+            aiDal.historyEventMapper().insert(response);
         }
-        histories.updateUsageById(turn.getHistoryId(), usage, now);
-        sessions.updateModifiedBySessionId(session.getSessionId(), now);
+        aiDal.historyMapper().updateUsageById(turn.getHistoryId(), usage, now);
+        aiDal.sessionMapper().updateModifiedBySessionId(session.getSessionId(), now);
         return find(turn.getId());
     }
 
@@ -514,7 +513,7 @@ public class AiTurnStore {
         if (session == null || turn == null || !sessionId.equals(turn.getSessionId()) || turn.getStatus() != AiTurnStatus.RUNNING || !turn.getDeadline().after(now())) {
             throw AiError.TURN_EXPIRED.exception();
         }
-        if (histories.updateReferencesById(turn.getHistoryId(), references) != 1) {
+        if (aiDal.historyMapper().updateReferencesById(turn.getHistoryId(), references) != 1) {
             throw AiError.TURN_EXPIRED.exception();
         }
     }
@@ -535,10 +534,10 @@ public class AiTurnStore {
         if (session.getActiveTurnId() != null) {
             throw AiError.SESSION_BUSY.exception();
         }
-        historyEvents.deleteBySessionId(session.getId());
-        events.deleteBySessionId(session.getId());
-        runs.deleteBySessionId(session.getId());
-        histories.deleteBySessionId(session.getId());
-        sessions.deleteBySessionId(sessionId);
+        aiDal.historyEventMapper().deleteBySessionId(session.getId());
+        aiDal.turnEventMapper().deleteBySessionId(session.getId());
+        aiDal.turnRunMapper().deleteBySessionId(session.getId());
+        aiDal.historyMapper().deleteBySessionId(session.getId());
+        aiDal.sessionMapper().deleteBySessionId(sessionId);
     }
 }

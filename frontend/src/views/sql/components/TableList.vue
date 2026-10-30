@@ -976,7 +976,7 @@
               <template #title="{ row }">
                 <div class="flex align-center">
                   <div>{{ row.titleI18N }}</div>
-                  <Poptip trigger="hover" placement="right" style="margin-left: 4px" transfer>
+                  <Poptip trigger="hover" placement="right" popper-class="description-popup" style="margin-left: 4px" transfer>
                     <CustomIcon type="icon-v2-HelpCircle" size="16px" hoverStyle />
                     <template #content>
                       {{ row.descI18N }}
@@ -1238,12 +1238,12 @@ export default {
       dbClickTimer: null,
       propertyColumns: [
         {
-          title: '属性',
+          title: this.$t('shu-xing'),
           width: 200,
           slot: 'title'
         },
         {
-          title: '值',
+          title: this.$t('zhi'),
           slot: 'value'
         }
       ],

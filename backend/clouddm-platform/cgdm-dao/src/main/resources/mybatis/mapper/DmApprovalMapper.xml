@@ -236,6 +236,23 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="ticketQuery.viewerUid != null">
+                AND
+                (
+                    appro_template_identity NOT LIKE 'CUSTOM-%'
+                    OR
+                    owner_uid = #{ticketQuery.viewerUid}
+                    OR
+                    primary_uid = #{ticketQuery.viewerUid}
+                    <if test="ticketQuery.customTicketIds != null and ticketQuery.customTicketIds.size() > 0">
+                        OR
+                        id IN
+                        <foreach collection="ticketQuery.customTicketIds" item="ticketId" separator="," open="(" close=")">
+                            #{ticketId}
+                        </foreach>
+                    </if>
+                )
+            </if>
             AND
             primary_uid = #{puid}
             AND
@@ -247,86 +264,71 @@
 
     <select id="listConfirmTicketByConditionAndPage" resultMap="DmApprovalDO">
         SELECT
-            a.id,
-            a.biz_id,
-            a.gmt_create,
-            a.gmt_modified,
-            a.owner_uid,
-            a.bind_ds_id,
-            a.target_info,
-            a.appro_type,
-            a.appro_biz,
-            a.appro_identity,
-            a.appro_template_name,
-            a.appro_template_identity,
-            a.appro_comment,
-            a.description,
-            a.status_message,
-            a.ticket_title,
-            a.ticket_status,
-            a.finish_time,
-            a.deleted,
-            a.primary_uid,
-            a.env_name,
-            a.approval_url
+            <include refid="basic_ticket_col"/>
         FROM
-            dm_approval a
-        LEFT JOIN
-            dm_approval_person b
-        ON
-            a.biz_id = b.ticket_bz_id
+            dm_approval
         <where>
             <if test="ticketQuery.uids != null and ticketQuery.uids.size() >0">
                 AND
-                a.owner_uid IN
+                owner_uid IN
                 <foreach collection="ticketQuery.uids" item="item" separator="," open="(" close=")">
                     #{item}
                 </foreach>
             </if>
             <if test="ticketQuery.startTime != null">
-                <![CDATA[ AND a.gmt_create > #{ticketQuery.startTime} ]]>
+                <![CDATA[ AND gmt_create > #{ticketQuery.startTime} ]]>
             </if>
             <if test="ticketQuery.endTime != null">
-                <![CDATA[ AND a.gmt_create < #{ticketQuery.endTime} ]]>
+                <![CDATA[ AND gmt_create < #{ticketQuery.endTime} ]]>
             </if>
             <if test="ticketQuery.ticketId != null">
-                <![CDATA[ AND a.id = #{ticketQuery.ticketId} ]]>
+                <![CDATA[ AND id = #{ticketQuery.ticketId} ]]>
             </if>
             <if test="ticketQuery.ticketBizId != null">
-                <![CDATA[ AND a.biz_id = #{ticketQuery.ticketBizId} ]]>
+                <![CDATA[ AND biz_id = #{ticketQuery.ticketBizId} ]]>
             </if>
             <if test="ticketQuery.ticketTitleName != null">
-                <![CDATA[ AND a.ticket_title LIKE CONCAT('%', #{ticketQuery.ticketTitleName}, '%') ]]>
+                <![CDATA[ AND ticket_title LIKE CONCAT('%', #{ticketQuery.ticketTitleName}, '%') ]]>
             </if>
             <if test="ticketQuery.ticketDescription != null">
                 <![CDATA[
                     AND
-                    a.description LIKE CONCAT('%', #{ticketQuery.ticketDescription}, '%')
+                    description LIKE CONCAT('%', #{ticketQuery.ticketDescription}, '%')
                 ]]>
             </if>
             <if test="ticketQuery.ticketContent != null">
                 <![CDATA[
                     AND
-                    a.content_type = 'INLINE'
+                    content_type = 'INLINE'
                     AND
-                    a.raw_sql      LIKE CONCAT('%', #{ticketQuery.ticketContent}, '%')
+                    raw_sql      LIKE CONCAT('%', #{ticketQuery.ticketContent}, '%')
                 ]]>
             </if>
             <if test="ticketQuery.ticketStatus != null">
-                <![CDATA[ AND a.ticket_status = #{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]>
-            </if>
-            <if test="ticketQuery.approvalPersonUid != null">
-                <![CDATA[ AND b.person_uid = #{ticketQuery.approvalPersonUid} ]]>
+                <![CDATA[ AND ticket_status = #{ticketQuery.ticketStatus,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus} ]]>
             </if>
             AND
-            a.deleted       = false
+            primary_uid = #{ticketQuery.primaryUid}
+            <choose>
+                <when test="ticketQuery.pendingTicketIds != null and ticketQuery.pendingTicketIds.size() > 0">
+                    AND
+                    id IN
+                    <foreach collection="ticketQuery.pendingTicketIds" item="ticketId" separator="," open="(" close=")">
+                        #{ticketId}
+                    </foreach>
+                </when>
+                <otherwise>
+                    AND
+                    1 = 0
+                </otherwise>
+            </choose>
             AND
-            a.ticket_status IN ('WAIT_CONFIRM', 'WAIT_APPROVAL', 'WAIT_EXEC')
+            deleted       = false
+            AND
+            ticket_status IN ('WAIT_CONFIRM', 'WAIT_APPROVAL', 'WAIT_EXEC')
         </where>
-        GROUP BY
-            a.id
         ORDER BY
-            a.gmt_create DESC
+            gmt_create DESC
     </select>
 
     <select id="queryByApproIdentity" resultMap="DmApprovalDO">
@@ -411,6 +413,7 @@
             bind_ds_id,
             appro_biz,
             appro_type,
+            appro_template_identity,
             ticket_status
         FROM
             dm_approval
@@ -452,5 +455,64 @@
         </where>
         ORDER BY
             gmt_create DESC
+    </select>
+
+    <select id="countActiveByTemplate" resultType="long">
+        SELECT
+            COUNT(*)
+        FROM
+            dm_approval
+        WHERE
+            primary_uid             = #{primaryUid}
+            AND
+            appro_type              = #{approvalType}
+            AND
+            appro_template_identity = #{identity}
+            AND
+            deleted                 = false
+            AND
+            ticket_status NOT IN
+            <foreach collection="terminalStatuses" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+    </select>
+
+    <select id="listCustomTickets" resultMap="DmApprovalDO">
+        SELECT
+            id,
+            ticket_status
+        FROM
+            dm_approval
+        WHERE
+            primary_uid = #{primaryUid}
+            AND
+            deleted     = false
+            AND
+            appro_template_identity LIKE 'CUSTOM-%'
+        <if test="pendingOnly">
+            AND
+            appro_type = 'Internal'
+            AND
+            ticket_status IN ('WAIT_APPROVAL', 'WAIT_CONFIRM')
+        </if>
+    </select>
+
+    <select id="listPendingByBizIds" resultMap="DmApprovalDO">
+        SELECT
+            id,
+            appro_template_identity
+        FROM
+            dm_approval
+        WHERE
+            primary_uid = #{primaryUid}
+            AND
+            deleted     = false
+            AND
+            ticket_status IN ('WAIT_CONFIRM', 'WAIT_APPROVAL', 'WAIT_EXEC')
+            AND
+            biz_id IN
+            <foreach collection="bizIds" item="bizId" open="(" separator="," close=")">
+                #{bizId}
+            </foreach>
     </select>
 </mapper>

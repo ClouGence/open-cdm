@@ -1,0 +1,85 @@
+// Shared visual primitives for CI/CD and approval orchestration.
+
+.flow-node-card() {
+  position: relative;
+  width: 264px;
+  height: 128px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  outline: 0;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    opacity 140ms ease;
+}
+
+.flow-node-header() {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.flow-node-name() {
+  display: block;
+  overflow: hidden;
+  margin-top: 8px;
+  color: var(--text-primary);
+  font-size: 15px;
+  line-height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-node-footer() {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 7px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.flow-node-actions() {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 2px;
+}
+
+.flow-node-action() {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.flow-inspector() {
+  display: flex;
+  align-self: stretch;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.flow-section-title() {
+  margin: 0 0 16px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}

@@ -29,7 +29,7 @@ import com.clougence.clouddm.console.web.model.ai.AiError;
 import com.clougence.clouddm.console.web.model.ai.AiRunEventType;
 import com.clougence.clouddm.console.web.model.ai.AiSqlConstants;
 import com.clougence.clouddm.console.web.model.vo.ai.AiTurnRecordVO;
-import com.clougence.clouddm.platform.dal.mapper.ai.DmAiTurnEventMapper;
+import com.clougence.clouddm.platform.dal.access.AiDal;
 import com.clougence.clouddm.platform.dal.model.ai.AiTurnStatus;
 import com.clougence.clouddm.platform.dal.model.ai.DmAiTurnEventDO;
 import com.clougence.utils.JsonUtils;
@@ -42,6 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AiStreamService {
     @Resource
+    private AiDal                                 aiDal;
+    @Resource
     private AiExecutors                           executors;
     @Resource
     private AiProperties                          limits;
@@ -49,8 +51,6 @@ public class AiStreamService {
     private AiTurnStore                           store;
     @Resource
     private AiSessionService                      sessions;
-    @Resource
-    private DmAiTurnEventMapper                   journal;
     private final Set<AiEventSink>                connections = ConcurrentHashMap.newKeySet();
     private final Map<AiEventSink, AiRunFollower> followers   = new ConcurrentHashMap<>();
 
@@ -120,7 +120,8 @@ public class AiStreamService {
                     continue;
                 }
                 sessions.authorize(follower.getPuid(), follower.getUid(), List.of(turn));
-                for (DmAiTurnEventDO event : journal.findByRunIdAfterSeq(turn.getRunId(), follower.getEvents().getLastPersistedSeq())) {
+                List<DmAiTurnEventDO> persistedEvents = aiDal.turnEventMapper().findByRunIdAfterSeq(turn.getRunId(), follower.getEvents().getLastPersistedSeq());
+                for (DmAiTurnEventDO event : persistedEvents) {
                     follower.getEvents().replay(event.getSeq(), AiRunEventType.valueOf(event.getEventType()).getWireType(), JsonUtils.toObj(event.getEventData(), Object.class));
                 }
                 if (turn.getStatus() != AiTurnStatus.RUNNING) {

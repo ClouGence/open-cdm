@@ -88,6 +88,7 @@ export const TICKET_STATUS_COLOR = {
 
 export const TICKET_PROCESS_STATUS = {
   INIT: i18n.global.t('chu-shi-hua'),
+  PAUSE: i18n.global.t('ticket-execution-paused'),
   REJECT: i18n.global.t('yi-ju-jue'),
   FINISH: i18n.global.t('yi-wan-cheng'),
   FAIL: i18n.global.t('yi-shi-bai'),

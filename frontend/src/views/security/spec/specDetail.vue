@@ -57,7 +57,7 @@
                 <i-switch
                   v-model="row.enable"
                   true-color="#52C41A"
-                  :disabled="row.deprecated"
+                  :disabled="!hasRuleManage || row.deprecated"
                   @on-change="handleEnableSpecRule(row, 'enable', false)"
                 />
               </template>
@@ -116,7 +116,7 @@
                 <i-switch
                   v-model="row.enable"
                   true-color="#52C41A"
-                  :disabled="row.deprecated"
+                  :disabled="!hasRuleManage || row.deprecated"
                   @on-change="handleEnableSpecRule(row, 'enable', false)"
                 />
               </template>
@@ -186,11 +186,11 @@
           </Tooltip>
         </template>
         <template #envDesc="{ row }">
-          <Tooltip :content="row.envDesc" placement="top" transfer>
+          <Poptip :content="row.envDesc" :disabled="!row.envDesc" trigger="hover" placement="top" transfer popper-class="description-popup">
             <span class="force-referer-cell">
               {{ row.envDesc }}
             </span>
-          </Tooltip>
+          </Poptip>
         </template>
       </Table>
       <template #footer>
@@ -221,6 +221,9 @@ export default {
   computed: {
     ...mapState(['ruleSetting', 'myAuth']),
     ...mapGetters(['getTargetType', 'getSenMode']),
+    hasRuleManage() {
+      return this.myAuth.includes('DM_SECRULES_MANAGE');
+    },
     isQuery() {
       return this.activeTab === 'QUERY';
     },

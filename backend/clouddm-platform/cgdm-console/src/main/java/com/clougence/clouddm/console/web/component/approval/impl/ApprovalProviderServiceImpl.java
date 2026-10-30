@@ -15,23 +15,29 @@
  */
 package com.clougence.clouddm.console.web.component.approval.impl;
 
+import static com.clougence.clouddm.console.web.component.approval.CustomApprovalConstants.TEMPLATE_ID_PREFIX;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
+import com.clougence.clouddm.console.web.component.approval.CustomApprovalConfigService;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalConnectionTestFO;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalProviderOptionVO;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
@@ -49,13 +55,11 @@ import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
 import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
 import com.clougence.clouddm.sdk.service.approval.ApprovalIdentity;
 import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
-import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import jakarta.annotation.Resource;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -65,6 +69,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
+    @Resource
+    private PlatformTransactionManager              transactionManager;
+    @Resource
+    private CustomApprovalConfigService             customConfig;
     @Resource
     private SystemDal                               systemDal;
     @Resource
@@ -89,7 +97,6 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
     }
 
     @Override
-    @SneakyThrows
     public void refreshTicket(ApprovalIdentity callback) {
         DmApprovalDO approvalDO = approvalDal.approvalMapper().queryByApproIdentity(callback.getApproIdentity(), callback.getProviderType(), callback.getOwnerUid());
         if (approvalDO == null) {
@@ -97,11 +104,11 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                     callback.getApproIdentity(), callback.getProviderType(), callback.getOwnerUid());
             return;
         }
+
         this.refreshApprovalStatus(approvalDO.getId());
     }
 
     @Override
-    @SneakyThrows
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void updateActivity(ApprovalActivity activity) {
         DmApprovalDO approvalDO = approvalDal.approvalMapper().queryByApproIdentity(activity.getApprovalIdentity(), activity.getPlatform(), activity.getPuid());
@@ -111,6 +118,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                     activity.getApprovalIdentity(), activity.getPlatform(), activity.getPuid());
             return;
         }
+
         DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(approvalDO.getId(), ApprovalStage.APPROVAL);
         DmApprovalProcessActivityDO activityDO = this.approvalDal.activityMapper().queryByProcessIdAndActivityIdForUpdate(processDO.getId(), activity.getActivityId());
 
@@ -129,12 +137,18 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                 break;
             }
         }
-        if (originTask == null && activity.getStatus() != ApprovalActivityStatus.CLOSE) {
+
+        if (originTask == null) {
+            if (activity.getStatus() == ApprovalActivityStatus.CLOSE) {
+                return;
+            }
+
             if (StringUtils.isEmpty(activity.getUserName())) {
                 ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, approvalDO.getApproType().name());
                 ApprovalUserInfo userInfo = service.getUserDetailByUid(approvalDO.getPrimaryUid(), activity.getUserId());
                 activity.setUserName(userInfo.getUsername());
             }
+
             list.add(activity);
         } else if (ApprovalActivityStatus.canUpdate(originTask.getStatus(), activity.getStatus())) {
             if (activity.getStatus() == ApprovalActivityStatus.CLOSE) {
@@ -150,36 +164,36 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
         approvalDal.activityMapper().updateContext(processDO.getId(), activityDO.getActivityId(), json);
     }
 
-    public List<Map<String, Object>> getTicketTypes(String ownerUid) {
-        List<Map<String, Object>> list = new ArrayList<>();
+    public List<ApprovalProviderOptionVO> listApprovalProviders(String ownerUid) {
+        List<ApprovalProviderOptionVO> list = new ArrayList<>();
 
         // inner
-        Map<String, Object> innerProvider = new HashMap<>();
-        innerProvider.put("approvalType", ApprovalType.Internal.name());
-        innerProvider.put("i18n", DmI18nUtils.getMessage(ApprovalType.Internal.getI18nKey()));
-        innerProvider.put("enable", true);
-        innerProvider.put("desc", "");
+        ApprovalProviderOptionVO innerProvider = new ApprovalProviderOptionVO();
+        innerProvider.setApprovalType(ApprovalType.Internal.name());
+        innerProvider.setI18n(DmI18nUtils.getMessage(ApprovalType.Internal.getI18nKey()));
+        innerProvider.setAvailable(true);
+        innerProvider.setDesc("");
         list.add(innerProvider);
 
         List<String> serviceNames = PluginManager.getSpiNamesByType(ApprovalProviderSpi.class);
 
         for (ApprovalProvider type : ApprovalFlowService.SUPPORT_LIST) {
-            Map<String, Object> provider = new HashMap<>();
-            provider.put("approvalType", type.name());
-            provider.put("i18n", DmI18nUtils.getMessage(ApprovalType.valueOfProvider(type).getI18nKey()));
+            ApprovalProviderOptionVO provider = new ApprovalProviderOptionVO();
+            provider.setApprovalType(type.name());
+            provider.setI18n(DmI18nUtils.getMessage(ApprovalType.valueOfProvider(type).getI18nKey()));
 
             // not found plugin
             if (!serviceNames.contains(type.name())) {
-                provider.put("enable", false);
-                provider.put("desc", DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_PLUGIN_NOT_FOUND.name()));
+                provider.setAvailable(false);
+                provider.setDesc(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_PLUGIN_NOT_FOUND.name()));
                 list.add(provider);
                 continue;
             }
 
-            // not enable
-            if (!this.checkEnableApproval(ownerUid, type)) {
-                provider.put("enable", false);
-                provider.put("desc", DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_ENABLE.name()));
+            // configuration incomplete
+            if (!this.isApprovalConfigured(ownerUid, type)) {
+                provider.setAvailable(false);
+                provider.setDesc(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_CONFIGURED.name()));
                 list.add(provider);
                 continue;
             }
@@ -188,31 +202,77 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
             LifeSpiResponse invoke = sdkService.status(ownerUid, new LifeSpiRequest());
             LifeSpiStatus info = JsonUtils.toObj(invoke.getBody(), LifeSpiStatus.class);
             if (!info.isRunning()) {
-                provider.put("enable", false);
-                provider.put("desc", DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_PLUGIN_STATUS_FAILED.name()));
+                provider.setAvailable(false);
+                provider.setDesc(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_PLUGIN_STATUS_FAILED.name()));
                 list.add(provider);
                 continue;
             }
 
-            provider.put("enable", true);
-            provider.put("desc", "");
+            provider.setAvailable(true);
+            provider.setDesc("");
             list.add(provider);
         }
 
         return list;
     }
 
-    public boolean checkEnableApproval(String ownerUid, ApprovalProvider type) {
-        String cfgKey = RdpConvertUtils.convertToApprovalEnableConfigKey(type);
-        if (StringUtils.isBlank(cfgKey)) {
+    public boolean isApprovalConfigured(String ownerUid, ApprovalProvider type) {
+        if (type == ApprovalProvider.Internal) {
             return true;
         }
 
-        DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, cfgKey);
-        if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
+        List<String> requiredKeys = requiredApprovalConfigKeys(type);
+        if (requiredKeys.isEmpty()) {
             return false;
         }
-        return StringUtils.equalsIgnoreCase(configDO.getConfigValue().trim(), "true");
+
+        List<DmSysUserConfDO> configs = systemDal.userConfMapper().listByUidAndConfigNames(ownerUid, requiredKeys);
+        Set<String> configuredKeys = new HashSet<>();
+        for (DmSysUserConfDO config : configs) {
+            if (StringUtils.isNotBlank(config.getConfigValue())) {
+                configuredKeys.add(config.getConfigName());
+            }
+        }
+        return configuredKeys.containsAll(requiredKeys);
+    }
+
+    private List<String> requiredApprovalConfigKeys(ApprovalProvider type) {
+        switch (type) {
+            case DingTalk:
+                return List.of(RootUserConfig.Fields.dingApprovalConfigAk, RootUserConfig.Fields.dingApprovalConfigSk);
+            case Feishu:
+                return List.of(RootUserConfig.Fields.feishuApprovalAppID, RootUserConfig.Fields.feishuApprovalAppSecret);
+            case Wechat:
+                return List
+                    .of(RootUserConfig.Fields.wechatApprovalCorpId, RootUserConfig.Fields.wechatApprovalAgentId, RootUserConfig.Fields.wechatApprovalSecret, RootUserConfig.Fields.wechatApprovalToken, RootUserConfig.Fields.wechatApprovalEncodingAesKey);
+            case Internal:
+                return List.of();
+            default:
+                return List.of();
+        }
+
+    }
+
+    public void testConnection(String ownerUid, ApprovalConnectionTestFO request) {
+        ApprovalProviderSpi provider = PluginManager.findSpi(ApprovalProviderSpi.class, request.getProvider().name());
+        if (provider == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), request.getProvider()));
+        }
+
+        List<String> keys = requiredApprovalConfigKeys(request.getProvider());
+        Map<String, String> config = new HashMap<>(request.getConfigs());
+        List<DmSysUserConfDO> savedConfigs = systemDal.userConfMapper().listByUidAndConfigNames(ownerUid, keys);
+        for (DmSysUserConfDO saved : savedConfigs) {
+            config.putIfAbsent(saved.getConfigName(), saved.getConfigValue());
+        }
+
+        for (String key : keys) {
+            if (StringUtils.isBlank(config.get(key))) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_CONFIGURED.name()));
+            }
+        }
+
+        provider.testConnection(config);
     }
 
     public List<RdpApproTemplateVO> listTemplates(String ownerUid, ApprovalType type) {
@@ -220,68 +280,95 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
             List<DmApprovalTemplateDO> templateDOS = approvalDal.templateMapper().listByPrimaryUidAndType(ownerUid, type);
             if (templateDOS.isEmpty()) {
                 return refreshTemplates(ownerUid, type);
-            } else {
-                return templateDOS.stream().map(cacheObj -> {
-                    RdpApproTemplateVO vo = new RdpApproTemplateVO();
-                    vo.setApproTemplateName(cacheObj.getTemplateName());
-                    vo.setTemplateIdentity(cacheObj.getTemplateIdentity());
-                    vo.setApproUrl(cacheObj.getApproUrl());
-                    return vo;
-                }).collect(Collectors.toList());
             }
 
-        } else {
-            return Collections.singletonList(ApprovalFlowService.innerTemplate());
-        }
-    }
-
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public List<RdpApproTemplateVO> refreshTemplates(String ownerUid, ApprovalType type) {
-        List<RdpApproTemplateVO> voList;
-        List<DmApprovalTemplateDO> cacheList;
-        if (type != ApprovalType.Internal) {
-            ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
-            if (approvalService == null) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
-            }
-
-            List<ApprovalTemplate> templates = approvalService.getTemplates(ownerUid);
-            cacheList = templates.stream().map(template -> {
-                DmApprovalTemplateDO templateDO = new DmApprovalTemplateDO();
-                templateDO.setPrimaryUid(ownerUid);
-                templateDO.setApprovalType(type);
-                templateDO.setTemplateName(template.getApproTemplateName());
-                templateDO.setTemplateIdentity(template.getTemplateIdentity());
-                templateDO.setApproUrl(template.getApproUrl());
-                return templateDO;
-            }).collect(Collectors.toList());
-
-            voList = cacheList.stream().map(cacheObj -> {
+            List<RdpApproTemplateVO> result = new ArrayList<>();
+            for (DmApprovalTemplateDO cacheObj : templateDOS) {
                 RdpApproTemplateVO vo = new RdpApproTemplateVO();
                 vo.setApproTemplateName(cacheObj.getTemplateName());
                 vo.setTemplateIdentity(cacheObj.getTemplateIdentity());
                 vo.setApproUrl(cacheObj.getApproUrl());
-                return vo;
-            }).collect(Collectors.toList());
-
-        } else {
-            RdpApproTemplateVO vo = ApprovalFlowService.innerTemplate();
-            voList = Collections.singletonList(vo);
-
-            DmApprovalTemplateDO templateDO = new DmApprovalTemplateDO();
-            templateDO.setApproUrl(vo.getApproUrl());
-            templateDO.setTemplateName(vo.getApproTemplateName());
-            templateDO.setApprovalType(ApprovalType.Internal);
-            templateDO.setTemplateIdentity(vo.getTemplateIdentity());
-            templateDO.setPrimaryUid(ownerUid);
-
-            cacheList = Collections.singletonList(templateDO);
+                result.add(vo);
+            }
+            return result;
         }
-        approvalDal.templateMapper().deleteByPrimaryUid(ownerUid, type);
-        if (CollectionUtils.isNotEmpty(cacheList)) {
-            approvalDal.templateMapper().insertTemplateBatch(cacheList);
+
+        List<RdpApproTemplateVO> templates = new ArrayList<>();
+        templates.add(ApprovalFlowService.innerTemplate());
+        List<DmApprovalTemplateDO> customTemplates = customConfig.listCustomTemplates(ownerUid);
+        for (DmApprovalTemplateDO template : customTemplates) {
+            RdpApproTemplateVO vo = new RdpApproTemplateVO();
+            vo.setApproTemplateName(template.getTemplateName());
+            vo.setTemplateIdentity(template.getTemplateIdentity());
+            templates.add(vo);
         }
-        return voList;
+        return templates;
+    }
+
+    public List<RdpApproTemplateVO> refreshTemplates(String ownerUid, ApprovalType type) {
+        // Provider I/O happens before acquiring the tenant database mutex.
+        List<DmApprovalTemplateDO> cacheList = new ArrayList<>();
+        if (type != ApprovalType.Internal) {
+            ApprovalProviderSpi provider = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
+            if (provider == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
+            }
+
+            Set<String> identities = new HashSet<>();
+            List<ApprovalTemplate> providerTemplates = provider.getTemplates(ownerUid);
+            for (ApprovalTemplate template : providerTemplates) {
+                if (!identities.add(template.getTemplateIdentity())) {
+                    continue;
+                }
+
+                DmApprovalTemplateDO cached = new DmApprovalTemplateDO();
+                cached.setPrimaryUid(ownerUid);
+                cached.setApprovalType(type);
+                cached.setTemplateSource(ApprovalTemplateSource.PROVIDER);
+                cached.setTemplateName(template.getApproTemplateName());
+                cached.setTemplateIdentity(template.getTemplateIdentity());
+                cached.setApproUrl(template.getApproUrl());
+                cached.setVersion(1L);
+                cacheList.add(cached);
+            }
+        }
+
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        transaction.executeWithoutResult(status -> {
+            customConfig.lockConfiguration(ownerUid);
+            if (type == ApprovalType.Internal) {
+                RdpApproTemplateVO builtin = ApprovalFlowService.innerTemplate();
+                DmApprovalTemplateDO existing = approvalDal.templateMapper().queryByPrimaryUidAndTypeAndIdentity(ownerUid, type, builtin.getTemplateIdentity());
+                if (existing == null) {
+                    existing = new DmApprovalTemplateDO();
+                    existing.setPrimaryUid(ownerUid);
+                    existing.setApprovalType(type);
+                    existing.setTemplateIdentity(builtin.getTemplateIdentity());
+                    existing.setTemplateName(builtin.getApproTemplateName());
+                    existing.setTemplateSource(ApprovalTemplateSource.BUILTIN);
+                    existing.setVersion(1L);
+                    approvalDal.templateMapper().insert(existing);
+                }
+            } else {
+                approvalDal.templateMapper().deleteByPrimaryUid(ownerUid, type);
+                if (!cacheList.isEmpty()) {
+                    approvalDal.templateMapper().insertTemplateBatch(cacheList);
+                }
+            }
+        });
+        if (type == ApprovalType.Internal) {
+            return listTemplates(ownerUid, type);
+        }
+
+        List<RdpApproTemplateVO> result = new ArrayList<>();
+        for (DmApprovalTemplateDO template : cacheList) {
+            RdpApproTemplateVO vo = new RdpApproTemplateVO();
+            vo.setApproTemplateName(template.getTemplateName());
+            vo.setTemplateIdentity(template.getTemplateIdentity());
+            vo.setApproUrl(template.getApproUrl());
+            result.add(vo);
+        }
+        return result;
     }
 
     public void cancelApprovalInst(Long ticketId) {
@@ -314,6 +401,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
             if (approvalService == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticket.getApproType()));
             }
+
             ApprovalInstanceInfo lastInfo = approvalService.getLastInfo(ticket.getPrimaryUid(), ticket.getApproIdentity());
             ApprovalInstanceStatus status = lastInfo.getStatus();
 
@@ -334,6 +422,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                     this.approvalHandler(ticket.getApproBiz()).approvalCanceled(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
+
                 case COMPLETED: {
                     // step1
                     this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.APPROVAL, ApprovalProcessStatus.FINISH, null);
@@ -341,6 +430,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                     this.approvalHandler(ticket.getApproBiz()).approvalApproved(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
+
                 case REFUSE: {
                     // step1
                     this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.APPROVAL, ApprovalProcessStatus.REJECT, null);
@@ -351,6 +441,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                     this.approvalHandler(ticket.getApproBiz()).approvalRejected(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
+
                 case FAILED: {
                     // step1
                     this.approvalStateService.updateApprovalStatus(ticket.getId(), ApprovalStatus.FAILED, null);
@@ -393,16 +484,23 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
     }
 
     public DmApprovalTemplateDO checkApprovalAndReturnTemplate(String ownerUid, ApprovalType type, String templateId, Locale locale) {
-        if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
+        if (templateId != null && templateId.startsWith(TEMPLATE_ID_PREFIX)) {
+            if (type != ApprovalType.Internal) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CUSTOM_APPROVAL_CONFIG_INVALID.name()));
+            }
+            return customConfig.lockAndValidateTemplate(ownerUid, templateId);
+        }
+
+        if (!this.isApprovalConfigured(ownerUid, type.getProviderType())) {
             if (locale == null) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_CONFIGURED.name(), type));
             } else {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), locale, type));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_CONFIGURED.name(), locale, type));
             }
         }
 
-        DmApprovalTemplateDO templateDO = this.approvalDal.templateMapper().queryByUidAndTemId(ownerUid, templateId);
-        if (templateDO == null) {
+        DmApprovalTemplateDO templateDO = this.approvalDal.templateMapper().queryByPrimaryUidAndTypeAndIdentity(ownerUid, type, templateId);
+        if (templateDO == null || templateDO.getApprovalType() != type) {
             if (locale == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name()));
             } else {
@@ -414,9 +512,10 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
     }
 
     public void addTemplateByUrl(String ownerUid, ApprovalType type, String templateUrl) {
-        if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
+        if (!this.isApprovalConfigured(ownerUid, type.getProviderType())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_CONFIGURED.name(), type));
         }
+
         ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
         if (approvalService == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
@@ -459,6 +558,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                 newList.add(str.trim());
             }
         }
+
         newList.add(templateId.trim());
         String configValue = StringUtils.join(newList, ",");
 
@@ -467,14 +567,16 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
         } else {
             this.systemDal.userConfMapper().updateUserConfig(ownerUid, templateListKey, configValue);
         }
+
         this.refreshTemplates(ownerUid, type);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void removeTemplateById(String ownerUid, ApprovalType type, String templateId) {
-        if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
+        if (!this.isApprovalConfigured(ownerUid, type.getProviderType())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_CONFIGURED.name(), type));
         }
+
         ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
         if (approvalService == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
@@ -504,6 +606,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                 newList.add(str.trim());
             }
         }
+
         configDO.setConfigValue(StringUtils.join(newList, ","));
 
         this.systemDal.userConfMapper().updateUserConfig(ownerUid, templateListKey, configDO.getConfigValue());

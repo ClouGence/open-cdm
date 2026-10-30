@@ -29,6 +29,8 @@ import com.clougence.clouddm.platform.dal.model.auth.*;
  **/
 public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
 
+    DmAuthUserDO lockByUid(@Param("uid") String uid);
+
     DmAuthUserDO queryById(long id);
 
     List<RsAuthPersonObj> searchUserByKeywords(@Param("primaryId") Long primaryId, @Param("keywords") String keywords);

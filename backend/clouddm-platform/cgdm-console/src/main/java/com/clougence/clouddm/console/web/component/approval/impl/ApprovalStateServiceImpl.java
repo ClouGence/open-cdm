@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.component.approval.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalExecutionStateMO;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
@@ -64,15 +66,25 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (!ApprovalStatus.isEndStatus(status)) {
             throw new IllegalArgumentException("Approval status is not terminal: " + status);
         }
+
         DmApprovalDO approval = this.approvalDal.approvalMapper().queryById(ticketId);
         if (approval == null) {
             throw new IllegalStateException("Approval does not exist, ticketId: " + ticketId);
         }
+
         this.updateApprovalStatus(ticketId, status, message);
-        ApprovalHandler handler = this.approvalHandlers.stream()//
-            .filter(candidate -> candidate.handleType() == approval.getApproBiz())//
-            .findFirst()//
-            .orElseThrow(() -> new IllegalStateException("ApprovalHandler about " + approval.getApproBiz() + " does not exist"));
+        ApprovalHandler handler = null;
+        for (ApprovalHandler candidate : this.approvalHandlers) {
+            if (candidate.handleType() == approval.getApproBiz()) {
+                handler = candidate;
+                break;
+            }
+        }
+
+        if (handler == null) {
+            throw new IllegalStateException("ApprovalHandler about " + approval.getApproBiz() + " does not exist");
+        }
+
         switch (status) {
             case FINISHED -> handler.approvalCompleted(ticketId, approval.getApproBiz(), this.imSenderService);
             case REJECTED -> handler.approvalRejected(ticketId, approval.getApproBiz(), this.imSenderService);
@@ -105,7 +117,32 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
                    || status == ApprovalProcessStatus.CLOSED) {
             finishTime = new Date();
         }
-        this.approvalDal.processMapper().updateProcessStatus(process.getId(), status, context == null ? process.getStageContext() : context, finishTime);
+
+        if (context != null && StringUtils.isNotBlank(process.getStageContext())) {
+            ApprovalStageMO oldSummary = JsonUtils.toObj(process.getStageContext(), ApprovalStageMO.class);
+            ApprovalStageMO newSummary = JsonUtils.toObj(context, ApprovalStageMO.class);
+            if (oldSummary.getCustomApproval() != null && newSummary.getCustomApproval() == null) {
+                newSummary.setCustomApproval(oldSummary.getCustomApproval());
+            }
+
+            if (oldSummary.getCustomExecution() != null) {
+                newSummary.setCustomExecution(oldSummary.getCustomExecution());
+            }
+
+            if (oldSummary.getExecutionAttempt() != null && newSummary.getExecutionAttempt() == null) {
+                newSummary.setExecutionAttempt(oldSummary.getExecutionAttempt());
+            }
+
+            if (oldSummary.getCustomApproval() != null || oldSummary.getCustomExecution() != null || oldSummary.getExecutionAttempt() != null) {
+                context = JsonUtils.toJson(newSummary);
+            }
+        }
+
+        if (context == null) {
+            context = process.getStageContext();
+        }
+
+        this.approvalDal.processMapper().updateProcessStatus(process.getId(), status, context, finishTime);
     }
 
     @Override
@@ -133,6 +170,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (activity == null) {
             throw new IllegalStateException("Approval activity does not exist, ticketId: " + ticketId + ", stage: " + stage + ", activityId: " + activityId);
         }
+
         activity.setTaskStatus(status);
         activity.setContext(context);
         this.approvalDal.activityMapper().updateById(activity);
@@ -143,9 +181,12 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
     public void initializeAnalysisActivities(long ticketId, List<ApprovalAnalysisStateMO> states) {
         DmApprovalProcessDO process = this.requireProcess(ticketId, ApprovalStage.EXPLAIN);
         List<DmApprovalProcessActivityDO> existing = this.approvalDal.activityMapper().queryByTicketId(ticketId);
-        if (existing.stream().anyMatch(activity -> process.getId().equals(activity.getProcessId()))) {
-            return;
+        for (DmApprovalProcessActivityDO activity : existing) {
+            if (process.getId().equals(activity.getProcessId())) {
+                return;
+            }
         }
+
         for (ApprovalAnalysisStateMO state : states) {
             this.initializeActivity(                     //
                     ticketId,                            //
@@ -191,6 +232,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (process == null) {
             return;
         }
+
         this.update(process.getId(), ApprovalExecutionStateMO.TYPE_PREPARATION, state -> {
             state.setExecutionStatus(ApprovalExecutionStateMO.STATUS_RUNNING);
             state.setFinishTimeUtc(null);
@@ -198,6 +240,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
             if (state.getStartTimeUtc() == null) {
                 state.setStartTimeUtc(System.currentTimeMillis());
             }
+
             state.setProcessedCount(processedCount);
             state.setTotalCount(totalCount);
         });
@@ -214,12 +257,14 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (process == null) {
             return;
         }
+
         this.finish(process.getId(), ApprovalExecutionStateMO.TYPE_PREPARATION);
         this.update(process.getId(), ApprovalExecutionStateMO.TYPE_DISPATCH, state -> {
             state.setExecutionStatus(ApprovalExecutionStateMO.STATUS_RUNNING);
             if (state.getStartTimeUtc() == null) {
                 state.setStartTimeUtc(System.currentTimeMillis());
             }
+
             state.setErrorMessage(null);
         });
     }
@@ -231,6 +276,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (approval == null) {
             return;
         }
+
         DmApprovalProcessDO process = this.ensureActivities(approval.getId());
         DmApprovalProcessActivityDO runningActivity = this.approvalDal.activityMapper().queryByProcessIdAndActivityId(process.getId(), ApprovalExecutionStateMO.TYPE_RUNNING);
         if (runningActivity != null && StringUtils.isNotBlank(runningActivity.getContext())) {
@@ -239,12 +285,14 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
                 return;
             }
         }
+
         this.finish(process.getId(), ApprovalExecutionStateMO.TYPE_DISPATCH);
         this.update(process.getId(), ApprovalExecutionStateMO.TYPE_RUNNING, state -> {
             state.setExecutionStatus(ApprovalExecutionStateMO.STATUS_RUNNING);
             if (state.getStartTimeUtc() == null) {
                 state.setStartTimeUtc(System.currentTimeMillis());
             }
+
             state.setErrorMessage(null);
         });
         this.updateApprovalStatus(approval.getId(), ApprovalStatus.RUNNING, null);
@@ -257,6 +305,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (approval == null) {
             return;
         }
+
         DmApprovalProcessDO process = this.ensureActivities(approval.getId());
         this.finish(process.getId(), ApprovalExecutionStateMO.TYPE_RUNNING);
         this.updateProcessStatus(approval.getId(), ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH, null);
@@ -270,12 +319,14 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (approval == null) {
             return;
         }
+
         DmApprovalProcessDO process = this.ensureActivities(approval.getId());
         for (String type : TYPES) {
             DmApprovalProcessActivityDO activity = this.approvalDal.activityMapper().queryByProcessIdAndActivityId(process.getId(), type);
             if (activity == null || StringUtils.isBlank(activity.getContext())) {
                 continue;
             }
+
             ApprovalExecutionStateMO state = JsonUtils.toObj(activity.getContext(), ApprovalExecutionStateMO.class);
             if (ApprovalExecutionStateMO.STATUS_RUNNING.equals(state.getExecutionStatus())) {
                 this.update(process.getId(), type, current -> {
@@ -286,6 +337,7 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
                 break;
             }
         }
+
         this.updateProcessStatus(approval.getId(), ApprovalStage.EXECUTION, ApprovalProcessStatus.FAIL, null);
         this.updateApprovalStatus(approval.getId(), ApprovalStatus.EXEC_FAIL, errorMessage);
     }
@@ -297,11 +349,13 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (process == null) {
             return;
         }
+
         for (String type : TYPES) {
             DmApprovalProcessActivityDO activity = this.approvalDal.activityMapper().queryByProcessIdAndActivityId(process.getId(), type);
             if (activity == null || StringUtils.isBlank(activity.getContext())) {
                 continue;
             }
+
             ApprovalExecutionStateMO state = JsonUtils.toObj(activity.getContext(), ApprovalExecutionStateMO.class);
             if (ApprovalExecutionStateMO.STATUS_RUNNING.equals(state.getExecutionStatus())) {
                 this.update(process.getId(), type, current -> {
@@ -318,11 +372,13 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         if (process == null) {
             throw new IllegalStateException("Approval execution process does not exist, ticketId: " + ticketId);
         }
+
         for (int i = 0; i < TYPES.size(); i++) {
             String type = TYPES.get(i);
             if (this.approvalDal.activityMapper().queryByProcessIdAndActivityId(process.getId(), type) != null) {
                 continue;
             }
+
             ApprovalExecutionStateMO state = new ApprovalExecutionStateMO(type, i + 1);
             this.initializeActivity(ticketId, ApprovalStage.EXECUTION, type, type, i + 1, ApprovalExecutionStateMO.STATUS_INIT, JsonUtils.toJson(state));
         }
@@ -330,10 +386,12 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
     }
 
     private long resolveStatementCount(long ticketId) {
-        for (DmApprovalProcessActivityDO activity : this.approvalDal.activityMapper().queryByTicketId(ticketId)) {
+        List<DmApprovalProcessActivityDO> activities = this.approvalDal.activityMapper().queryByTicketId(ticketId);
+        for (DmApprovalProcessActivityDO activity : activities) {
             if (!ApprovalAnalysisStateMO.TYPE_BEHAVIOR_ANALYSIS.equals(activity.getActivityId()) || StringUtils.isBlank(activity.getContext())) {
                 continue;
             }
+
             Long totalCount = JsonUtils.toObj(activity.getContext(), ApprovalAnalysisStateMO.class).getTotalCount();
             return totalCount == null ? 0L : totalCount;
         }
@@ -378,13 +436,19 @@ public class ApprovalStateServiceImpl implements ApprovalStateService {
         });
     }
 
-    private void update(long processId, String type, java.util.function.Consumer<ApprovalExecutionStateMO> updater) {
+    private void update(long processId, String type, Consumer<ApprovalExecutionStateMO> updater) {
         DmApprovalProcessActivityDO activity = this.approvalDal.activityMapper().queryByProcessIdAndActivityId(processId, type);
         if (activity == null) {
             return;
         }
-        ApprovalExecutionStateMO state = StringUtils.isBlank(activity.getContext()) ? new ApprovalExecutionStateMO(type, activity.getOrderNumber()) : JsonUtils
-            .toObj(activity.getContext(), ApprovalExecutionStateMO.class);
+
+        ApprovalExecutionStateMO state;
+        if (StringUtils.isBlank(activity.getContext())) {
+            state = new ApprovalExecutionStateMO(type, activity.getOrderNumber());
+        } else {
+            state = JsonUtils.toObj(activity.getContext(), ApprovalExecutionStateMO.class);
+        }
+
         updater.accept(state);
         activity.setContext(JsonUtils.toJson(state));
         activity.setTaskStatus(state.getExecutionStatus());

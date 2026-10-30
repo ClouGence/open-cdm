@@ -343,6 +343,16 @@
             id = #{id}
     </select>
 
+    <select id="lockByUid" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
+            uid = #{uid}
+        FOR UPDATE
+    </select>
+
     <select id="queryByUid" resultMap="rdpUserDO">
         SELECT
             <include refid="rdpUser"/>

@@ -50,8 +50,8 @@ import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.config.DmDalConfig;
-import com.clougence.clouddm.platform.dal.mapper.system.DmSysUserConfMapper;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -211,17 +211,17 @@ public class SysInitService {
             app.setLazyInitialization(true);
             app.setDefaultProperties(buildTaskProperties(jdbcUrl, dbUser, dbPass));
             try (ConfigurableApplicationContext context = app.run()) {
-                DmSysUserConfMapper mapper = context.getBean(DmSysUserConfMapper.class);
+                SystemDal systemDal = context.getBean(SystemDal.class);
                 TransactionTemplate transactionTemplate = new TransactionTemplate(context.getBean(PlatformTransactionManager.class));
-                transactionTemplate.executeWithoutResult(status -> markInstallationReportPending(mapper, version, type));
+                transactionTemplate.executeWithoutResult(status -> markInstallationReportPending(systemDal, version, type));
             }
         } catch (Exception e) {
             log.warn("[SysInitService] Failed to mark pending installation report, version={}, type={}. msg={}", version, type, e.getMessage());
         }
     }
 
-    private void markInstallationReportPending(DmSysUserConfMapper mapper, String version, String type) {
-        DmSysUserConfDO configDO = mapper.queryByUidAndConfigNameForUpdate(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport);
+    private void markInstallationReportPending(SystemDal systemDal, String version, String type) {
+        DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigNameForUpdate(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport);
         InstallationReportState.ReportConfig currentConfig = configDO == null ? null : InstallationReportState.parseConfigValue(configDO.getConfigValue());
         if (currentConfig != null && version.equals(currentConfig.getVersion()) && currentConfig.isReported()) {
             return;
@@ -230,9 +230,9 @@ public class SysInitService {
         String configValue = InstallationReportState.toConfigValue(InstallationReportState.pendingConfig(version, type));
         int affectedRows;
         if (configDO == null) {
-            affectedRows = mapper.insertUserConfig(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport, configValue);
+            affectedRows = systemDal.userConfMapper().insertUserConfig(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport, configValue);
         } else {
-            affectedRows = mapper.updateConfigValueById(configDO.getId(), configValue);
+            affectedRows = systemDal.userConfMapper().updateConfigValueById(configDO.getId(), configValue);
         }
         if (affectedRows != 1) {
             throw new IllegalStateException("Failed to save pending installation report: " + version);

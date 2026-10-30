@@ -196,9 +196,9 @@
       </Alert>
       <Table :columns="applyForceRefererColumns" :data="applyForceRefererList" size="small">
         <template #envDesc="{ row }">
-          <Tooltip :content="row.envDesc" placement="top" transfer>
+          <Poptip :content="row.envDesc" :disabled="!row.envDesc" trigger="hover" placement="top" transfer popper-class="description-popup">
             <span class="apply-force-env-desc-cell">{{ row.envDesc }}</span>
-          </Tooltip>
+          </Poptip>
         </template>
       </Table>
       <template #footer>

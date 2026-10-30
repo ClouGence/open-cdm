@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="monaco-container"></div>
+  <div ref="container" class="monaco-container sql-editor-typography"></div>
 </template>
 
 <script>

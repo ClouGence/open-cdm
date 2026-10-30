@@ -6,7 +6,7 @@
         <Button @click="getSpecList" type="primary" ghost>{{ $t('cha-xun') }}</Button>
       </template>
       <template v-slot:right>
-        <Button @click="handleAddSpec" type="primary" style="margin-right: 10px" icon="md-add">
+        <Button v-if="hasRuleManage" @click="handleAddSpec" type="primary" style="margin-right: 10px" icon="md-add">
           {{ $t('xin-jian-gui-fan') }}
         </Button>
       </template>
@@ -15,18 +15,23 @@
           <template #name="{ row }">
             <div>
               {{ row.name }}
-              <Icon type="ios-create-outline" style="margin-left: 5px; cursor: pointer" @click="handleEditSpecName(row)" />
+              <Icon v-if="hasRuleManage" type="ios-create-outline" style="margin-left: 5px; cursor: pointer" @click="handleEditSpecName(row)" />
             </div>
           </template>
           <template #description="{ row }">
             <div>
               {{ row.description }}
-              <Icon type="ios-create-outline" style="margin-left: 5px; cursor: pointer" @click="handleEditSpecDesc(row)" />
+              <Icon v-if="hasRuleManage" type="ios-create-outline" style="margin-left: 5px; cursor: pointer" @click="handleEditSpecDesc(row)" />
             </div>
           </template>
           <template #enable="{ row }">
             <div>
-              <i-switch v-model="row.enable" true-color="#52C41A" @on-change="handleEnableChange({ spec: row, enable: $event })" />
+              <i-switch
+                :disabled="!hasRuleManage"
+                v-model="row.enable"
+                true-color="#52C41A"
+                @on-change="handleEnableChange({ spec: row, enable: $event })"
+              />
             </div>
           </template>
           <template #action="{ row }">
@@ -65,11 +70,11 @@
       </Alert>
       <Table :columns="forceSpecRefererColumns" :data="forceSpecRefererList" size="small">
         <template #envDesc="{ row }">
-          <Tooltip :content="row.envDesc" placement="top" transfer>
+          <Poptip :content="row.envDesc" :disabled="!row.envDesc" trigger="hover" placement="top" transfer popper-class="description-popup">
             <span class="force-spec-env-desc-cell">
               {{ row.envDesc }}
             </span>
-          </Tooltip>
+          </Poptip>
         </template>
       </Table>
     </CCModal>
@@ -91,7 +96,7 @@ export default {
   components: { TableListLayout },
   created() {
     this.getSpecList();
-    if (this.$route.query.type === 'create') {
+    if (this.hasRuleManage && this.$route.query.type === 'create') {
       this.showCreateSpecModal = true;
     }
   },
@@ -176,7 +181,10 @@ export default {
     };
   },
   computed: {
-    ...mapState(['myAuth'])
+    ...mapState(['myAuth']),
+    hasRuleManage() {
+      return this.myAuth.includes('DM_SECRULES_MANAGE');
+    }
   },
   methods: {
     handleEditSpecName(row) {

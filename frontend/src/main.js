@@ -77,6 +77,7 @@ import './styles/iconfont.css';
 import 'view-ui-plus/dist/styles/viewuiplus.css';
 import './styles/iconfont';
 import './styles/app.less';
+import './styles/description-popover.less';
 import './iconfontJs';
 import './styles/iconfontCss.css';
 import '@/assets/iconfont-v2/iconfont.css';
@@ -92,6 +93,7 @@ import { LocaleProvider } from 'ant-design-vue';
 import * as filters from '@/filters';
 // Include Theme Styles
 import './styles/themes/theme.less';
+import './styles/hover-popover.less';
 
 // Determines whether the browser supports vue3
 checkES5Support();

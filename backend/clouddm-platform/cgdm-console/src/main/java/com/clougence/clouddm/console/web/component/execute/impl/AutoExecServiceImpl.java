@@ -54,6 +54,7 @@ import com.clougence.clouddm.console.web.component.analysis.AnalysisQueryOptions
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature;
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
+import com.clougence.clouddm.console.web.component.approval.CustomApprovalService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.execute.AutoExecService;
 import com.clougence.clouddm.console.web.component.execute.model.AutoExecCreateMO;
@@ -70,6 +71,8 @@ import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.*;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
@@ -124,6 +127,10 @@ public class AutoExecServiceImpl implements AutoExecService {
     private AuditService               auditService;
     @Resource
     private LocalFileService           localFileService;
+    @Resource
+    private CustomApprovalService      customApprovalService;
+    @Resource
+    private ApprovalDal                approvalDal;
     @Resource
     private PlatformTransactionManager txManager;
 
@@ -257,7 +264,35 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Override
     public void dispatchJob(Long jobId) {
-        if (this.execDal.autoJobMapper().claimJobForPackaging(jobId) != 1) {
+        TransactionTemplate tx = new TransactionTemplate(this.txManager);
+        Boolean claimed = tx.execute(status -> {
+            DmExecAutoJobDO pending = execDal.autoJobMapper().queryById(jobId);
+            if (pending == null || pending.getStatus() != AutoExecJobStatus.INIT) {
+                return false;
+            }
+
+            DmApprovalDO ticket = approvalDal.approvalMapper().queryByBizId(pending.getDependOnBizId());
+            boolean customApproval = ticket != null && customApprovalService.isCustomApproval(ticket);
+            if (customApproval) {
+                // Keep the ticket-before-job lock order used by ticket control operations.
+                ticket = approvalDal.approvalMapper().selectByIdForUpdate(ticket.getId());
+                if (ticket == null || ApprovalStatus.isEndStatus(ticket.getTicketStatus())) {
+                    return false;
+                }
+            }
+
+            if (execDal.autoJobMapper().claimJobForPackaging(jobId) != 1) {
+                return false;
+            }
+
+            if (customApproval && !customApprovalService.canExecute(ticket, pending.getUid())) {
+                execDal.autoJobMapper().updateJobStatus(jobId, AutoExecJobStatus.FAILED);
+                approvalStateService.failExecution(pending.getDependOnBizId(), DmI18nUtils.getMessage(I18nDmMsgKeys.CUSTOM_APPROVAL_NO_PERMISSION.name()));
+                return false;
+            }
+            return true;
+        });
+        if (!Boolean.TRUE.equals(claimed)) {
             return;
         }
         AutoExecTaskPackageInfo taskPackage;
@@ -279,7 +314,6 @@ public class AutoExecServiceImpl implements AutoExecService {
             throw e;
         }
 
-        TransactionTemplate tx = new TransactionTemplate(this.txManager);
         Map.Entry<RSocketSendDTO, AutoExecJobDTO> dispatch = tx.execute(status -> {
             DmExecAutoJobDO jobDO = execDal.autoJobMapper().queryByIdForUpdate(jobId);
             if (jobDO == null || jobDO.getStatus() != AutoExecJobStatus.PACKAGING) {

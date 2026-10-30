@@ -23,31 +23,7 @@
         </div>
 
         <div ref="canvasWrap" class="batch-canvas-wrap">
-          <div class="batch-zoom-toolbar" :aria-label="$t('cicd-batch-zoom-controls')">
-            <button
-              type="button"
-              :title="$t('cicd-batch-zoom-out')"
-              :aria-label="$t('cicd-batch-zoom-out')"
-              :disabled="zoomScale <= 0.5"
-              @click="zoomOut"
-            >
-              <Icon type="ios-remove" />
-            </button>
-            <span class="batch-zoom-value">{{ zoomPercent }}%</span>
-            <button
-              type="button"
-              :title="$t('cicd-batch-zoom-in')"
-              :aria-label="$t('cicd-batch-zoom-in')"
-              :disabled="zoomScale >= 1.5"
-              @click="zoomIn"
-            >
-              <Icon type="ios-add" />
-            </button>
-            <span class="batch-zoom-divider" aria-hidden="true"></span>
-            <button type="button" :title="$t('cicd-batch-fit-canvas')" :aria-label="$t('cicd-batch-fit-canvas')" @click="fitCanvas">
-              <Icon type="md-expand" />
-            </button>
-          </div>
+          <FlowCanvasZoom :model-value="zoomScale" @update:model-value="setZoom" @fit="fitCanvas" />
 
           <div ref="canvasHost" class="batch-canvas" @scroll.passive="handleCanvasScroll">
             <div class="batch-stage-shell" :style="{ width: `${layout.width * zoomScale}px`, height: `${layout.height * zoomScale}px` }">
@@ -218,6 +194,7 @@
 </template>
 
 <script>
+import FlowCanvasZoom from '@/components/widgets/FlowCanvasZoom.vue';
 import ReleaseFlowDatabaseTypeSelect from './ReleaseFlowDatabaseTypeSelect.vue';
 import ReleaseFlowInstanceSelect from './ReleaseFlowInstanceSelect.vue';
 
@@ -230,7 +207,7 @@ const NODE_SLOT_PADDING = 16;
 
 export default {
   name: 'ReleaseFlowBatchOrchestration',
-  components: { ReleaseFlowDatabaseTypeSelect, ReleaseFlowInstanceSelect },
+  components: { FlowCanvasZoom, ReleaseFlowDatabaseTypeSelect, ReleaseFlowInstanceSelect },
   props: {
     devopsUsers: { type: Array, required: true },
     devopsInsList: { type: Array, required: true },
@@ -263,9 +240,6 @@ export default {
     },
     rootDatabaseType() {
       return this.rootNode?.databaseType || this.instanceById(this.rootNode?.instanceId)?.objAttr?.dsType || '';
-    },
-    zoomPercent() {
-      return Math.round(this.zoomScale * 100);
     },
     layout() {
       const positions = {};
@@ -390,12 +364,6 @@ export default {
         canvas.scrollLeft = Math.max(0, offsetX + centerX * this.zoomScale - canvas.clientWidth / 2);
         canvas.scrollTop = Math.max(0, offsetY + centerY * this.zoomScale - canvas.clientHeight / 2);
       });
-    },
-    zoomOut() {
-      this.setZoom(this.zoomScale - 0.1);
-    },
-    zoomIn() {
-      this.setZoom(this.zoomScale + 0.1);
     },
     fitCanvas() {
       const canvas = this.$refs.canvasHost;
@@ -764,7 +732,8 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+@import '@/styles/flow-orchestration.less';
 .batch-orchestration {
   display: flex;
   flex: 1 1 auto;
@@ -915,67 +884,6 @@ export default {
   background: var(--bg-secondary, #f8fafc);
 }
 
-.batch-zoom-toolbar {
-  position: absolute;
-  z-index: 4;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 2px;
-  border: 1px solid var(--border-primary, #dfe4e1);
-  border-radius: 8px;
-  background: #fff;
-}
-
-.batch-zoom-toolbar button {
-  display: inline-flex;
-  width: 30px;
-  height: 30px;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  border-radius: 5px;
-  color: #657184;
-  background: transparent;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.batch-zoom-toolbar button:hover:not(:disabled) {
-  color: #188f63;
-  background: rgba(62, 207, 142, 0.1);
-}
-
-.batch-zoom-toolbar button:disabled {
-  color: #c7ced6;
-  cursor: not-allowed;
-}
-
-.batch-zoom-toolbar button:focus-visible {
-  outline: 2px solid rgba(36, 180, 126, 0.3);
-  outline-offset: -2px;
-}
-
-.batch-zoom-value {
-  width: 44px;
-  color: #707b89;
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  line-height: 30px;
-  text-align: center;
-  user-select: none;
-}
-
-.batch-zoom-divider {
-  width: 1px;
-  height: 18px;
-  margin: 0 2px;
-  background: var(--border-primary, #e5e9e7);
-}
-
 .batch-stage-shell {
   position: relative;
   flex: 0 0 auto;
@@ -1021,20 +929,7 @@ export default {
 }
 
 .batch-node {
-  position: relative;
-  width: 264px;
-  height: 128px;
-  padding: 12px 14px;
-  border: 1px solid #dfe4e1;
-  border-radius: 8px;
-  outline: 0;
-  background: #fff;
-  cursor: pointer;
-  user-select: none;
-  transition:
-    border-color 140ms ease,
-    box-shadow 140ms ease,
-    opacity 140ms ease;
+  .flow-node-card();
 }
 
 .batch-node:hover {
@@ -1054,10 +949,7 @@ export default {
 }
 
 .batch-node__header {
-  justify-content: space-between;
-  gap: 8px;
-  color: #707b89;
-  font-size: 12px;
+  .flow-node-header();
 }
 
 .batch-node__level {
@@ -1084,14 +976,7 @@ export default {
 }
 
 .batch-node__name {
-  display: block;
-  overflow: hidden;
-  margin-top: 8px;
-  color: #181d26;
-  font-size: 15px;
-  line-height: 22px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  .flow-node-name();
 }
 
 .batch-node__meta {
@@ -1104,11 +989,7 @@ export default {
 }
 
 .batch-node__footer {
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 7px;
-  color: #657184;
-  font-size: 12px;
+  .flow-node-footer();
 }
 
 .batch-node__footer > span:first-child {
@@ -1118,20 +999,11 @@ export default {
 }
 
 .batch-node__actions {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 2px;
+  .flow-node-actions();
 }
 
 .batch-node__actions button {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  color: #657184;
-  background: transparent;
-  cursor: pointer;
+  .flow-node-action();
 }
 
 .batch-node__actions button:hover {
@@ -1146,15 +1018,7 @@ export default {
 }
 
 .batch-inspector {
-  display: flex;
-  align-self: stretch;
-  height: 100%;
-  min-width: 0;
-  min-height: 0;
-  flex-direction: column;
-  overflow: hidden;
-  background: #f7f9f8;
-  border-radius: 8px;
+  .flow-inspector();
 }
 
 .batch-inspector__header {

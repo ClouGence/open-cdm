@@ -214,6 +214,41 @@
 
 // ─── Integration list pages ─────────────────────────────────────────────────
 
+.table-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+
+  .dm-button.ant-btn-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    text-decoration: none;
+    background: transparent;
+    box-shadow: none;
+
+    &:not(:disabled) {
+      color: var(--primary-color);
+    }
+
+    &:not(:disabled):hover > span:not(.ant-btn-loading-icon) {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1px;
+    }
+
+    &:disabled {
+      color: var(--text-disabled);
+    }
+  }
+}
+
 .integration-list-page {
   height: 100%;
 
@@ -658,4 +693,17 @@
 .ivu-breadcrumb {
   color: var(--text-tertiary);
   font-size: 13px;
+}
+@media (max-width: 600px) {
+  .ant-picker-dropdown .ant-picker-datetime-panel {
+    flex-direction: column;
+  }
+
+  .ant-picker-dropdown .ant-picker-time-panel {
+    height: 140px;
+  }
+
+  .ant-picker-dropdown .ant-picker-time-panel-column {
+    height: 100px;
+  }
 }

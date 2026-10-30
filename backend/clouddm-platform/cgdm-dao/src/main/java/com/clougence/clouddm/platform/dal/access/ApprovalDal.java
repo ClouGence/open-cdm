@@ -8,6 +8,8 @@ public interface ApprovalDal {
 
     DmApprovalPersonMapper personMapper();
 
+    DmApprovalNodeTaskMapper nodeTaskMapper();
+
     DmApprovalProcessActivityMapper activityMapper();
 
     DmApprovalProcessMapper processMapper();
