@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.hologres.sql.analysis;
+package com.clougence.clouddm.ds.hologres.sql.analysis.security;
 
 import java.util.Locale;
 
@@ -99,12 +99,13 @@ final class HgSecDomainParserVisitor extends PgSqlParserVisitor {
 
         var args = HgPermissionCall.arguments(call);
         boolean create = type == SplitQueryType.CREATE_USER;
+        boolean membershipCall = create || type == SplitQueryType.GRANT || type == SplitQueryType.REVOKE;
         boolean literalArguments = !args.isEmpty() && args.size() <= 2 && (create || args.size() == 2);
         for (var arg : args) {
             literalArguments &= HgPermissionCall.literal(arg) != null;
         }
 
-        if (type != SplitQueryType.GRANT && type != SplitQueryType.REVOKE && type != SplitQueryType.CREATE_USER || !literalArguments) {
+        if (!membershipCall || !literalArguments) {
             RdbResourceDomain domain = new RdbResourceDomain(RuleQueryType.UNSAFE, SecQueryKind.OTHER, false, TargetType.Instance);
             builder.addDomain(domain);
             return null;

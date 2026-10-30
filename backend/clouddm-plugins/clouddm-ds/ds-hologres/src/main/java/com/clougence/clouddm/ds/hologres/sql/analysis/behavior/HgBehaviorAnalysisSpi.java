@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.hologres.sql.analysis;
+package com.clougence.clouddm.ds.hologres.sql.analysis.behavior;
 
 import java.util.Map;
 
@@ -55,6 +55,7 @@ public class HgBehaviorAnalysisSpi extends PgBehaviorAnalysisSpi {
         var args = HgPermissionCall.arguments(call);
         SplitQueryType type = HgPermissionCall.type(call);
         boolean create = type == SplitQueryType.CREATE_USER;
+        boolean membershipCall = create || type == SplitQueryType.GRANT || type == SplitQueryType.REVOKE;
         boolean literalArguments = !args.isEmpty() && args.size() <= 2 && (create || args.size() == 2);
         for (var arg : args) {
             literalArguments &= HgPermissionCall.literal(arg) != null;
@@ -63,7 +64,7 @@ public class HgBehaviorAnalysisSpi extends PgBehaviorAnalysisSpi {
         RdbBehaviorObjectFactory objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
         StatementBehavior result = new StatementBehavior();
         result.setStatementType(type);
-        if (type != SplitQueryType.GRANT && type != SplitQueryType.REVOKE && type != SplitQueryType.CREATE_USER || !literalArguments) {
+        if (!membershipCall || !literalArguments) {
             // Model migration/cleanup and runtime-computed principals cannot be reduced to one named grant.
             BehaviorRelation relation = new BehaviorRelation();
             relation.setAction(BehaviorAction.UNSAFE);

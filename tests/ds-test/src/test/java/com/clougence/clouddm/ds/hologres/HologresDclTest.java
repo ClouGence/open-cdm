@@ -33,7 +33,7 @@ import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.ds.hologres.dsconf.HgConfig;
 import com.clougence.clouddm.ds.hologres.dsconf.HgConfigSpi;
 import com.clougence.clouddm.ds.hologres.sql.HgSqlEngineSpi;
-import com.clougence.clouddm.ds.hologres.sql.analysis.HgSysObjectRegistrySpi;
+import com.clougence.clouddm.ds.hologres.sql.analysis.sysobj.HgSysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;

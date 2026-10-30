@@ -27,7 +27,7 @@ import com.clougence.clouddm.ds.hologres.execute.HgSessionFactory;
 import com.clougence.clouddm.ds.hologres.i18n.HgDsI18nKeys;
 import com.clougence.clouddm.ds.hologres.resource.HgEditorResourceSpi;
 import com.clougence.clouddm.ds.hologres.sql.HgSqlEngineSpi;
-import com.clougence.clouddm.ds.hologres.sql.analysis.HgSysObjectRegistrySpi;
+import com.clougence.clouddm.ds.hologres.sql.analysis.sysobj.HgSysObjectRegistrySpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgEditorProvider;

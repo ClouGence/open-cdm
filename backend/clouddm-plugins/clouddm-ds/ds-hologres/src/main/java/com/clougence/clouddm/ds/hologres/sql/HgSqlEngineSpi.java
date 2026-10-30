@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.ds.hologres.sql;
 
-import com.clougence.clouddm.ds.hologres.sql.analysis.HgBehaviorAnalysisSpi;
-import com.clougence.clouddm.ds.hologres.sql.analysis.HgSecDomainResolveSpi;
+import com.clougence.clouddm.ds.hologres.sql.analysis.behavior.HgBehaviorAnalysisSpi;
+import com.clougence.clouddm.ds.hologres.sql.analysis.security.HgSecDomainResolveSpi;
 import com.clougence.clouddm.ds.hologres.sql.parser.HgSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
