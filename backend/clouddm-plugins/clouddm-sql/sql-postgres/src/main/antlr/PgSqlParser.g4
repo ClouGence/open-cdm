@@ -49,7 +49,7 @@ stmt
     ;
 
 extensionstmt
-    : {isExtensionStatement()}? (CREATE | ALTER | DROP | GRANT | REVOKE | Identifier) (~(SEMI | END_P))+
+    : {isExtensionStatement()}? (CREATE | ALTER | DROP | GRANT | REVOKE | SHOW | Identifier) (~(SEMI | END_P))+
     ;
 
 pg_stmt
@@ -764,7 +764,7 @@ colconstraintelem
     : NOT NULL_P                                #constraintNotNull
     | NULL_P                                    #constraintNull
     | UNIQUE unique_null_treatment_? definition_? optconstablespace?    #constraintUnique
-    | PRIMARY KEY definition_? optconstablespace?   #constraintPrimary
+    | PRIMARY KEY hash_sharding? definition_? optconstablespace?   #constraintPrimary
     | CHECK OPEN_PAREN a_expr CLOSE_PAREN no_inherit_?  #constraintCheck
     | DEFAULT b_expr                                    #constraintDefault
     | GENERATED generated_when AS (
@@ -821,7 +821,7 @@ constraintelem
         | existingindex constraintattributespec
     )
     | PRIMARY KEY (
-        OPEN_PAREN columnlist CLOSE_PAREN c_include_? definition_? optconstablespace? constraintattributespec
+        OPEN_PAREN columnlist CLOSE_PAREN hash_sharding? c_include_? definition_? optconstablespace? constraintattributespec
         | existingindex constraintattributespec
     )
     | EXCLUDE access_method_clause? OPEN_PAREN exclusionconstraintlist CLOSE_PAREN c_include_? definition_? optconstablespace? exclusionwhereclause?
@@ -1928,9 +1928,9 @@ defacl_privilege_target
 //create index
 
 indexstmt
-    : CREATE unique_? INDEX concurrently_? index_name_? ON relation_expr access_method_clause? OPEN_PAREN index_params CLOSE_PAREN include_?
+    : CREATE unique_? inverted_index? INDEX concurrently_? index_name_? ON relation_expr access_method_clause? OPEN_PAREN index_params CLOSE_PAREN hash_sharding? include_?
         unique_null_treatment_? reloptions_? opttablespace? where_clause?
-    | CREATE unique_? INDEX concurrently_? IF_P NOT EXISTS name ON relation_expr access_method_clause? OPEN_PAREN index_params CLOSE_PAREN
+    | CREATE unique_? inverted_index? INDEX concurrently_? IF_P NOT EXISTS name ON relation_expr access_method_clause? OPEN_PAREN index_params CLOSE_PAREN hash_sharding?
         include_? unique_null_treatment_? reloptions_? opttablespace? where_clause?
     ;
 
@@ -1977,8 +1977,16 @@ index_elem
     | OPEN_PAREN a_expr CLOSE_PAREN index_elem_options
     ;
 
+inverted_index : {isIndexExtension("INVERTED")}? Identifier;
+
+hash_sharding
+    : {isIndexExtension("USING")}? USING {isIndexExtension("HASH")}? Identifier
+        (WITH {isIndexExtension("BUCKET_COUNT")}? Identifier EQUAL a_expr)?
+    ;
+
 include_
     : INCLUDE OPEN_PAREN index_including_params CLOSE_PAREN
+    | {isIndexExtension("STORING")}? Identifier OPEN_PAREN name_list CLOSE_PAREN
 
     ;
 
@@ -2996,7 +3004,12 @@ deallocatestmt
     ;
 
 insertstmt
-    : with_clause_? INSERT INTO insert_target insert_rest on_conflict_? returning_clause?
+    : with_clause_? (INSERT INTO insert_target insert_rest on_conflict_?
+        | upsert_keyword INTO insert_target insert_rest) returning_clause?
+    ;
+
+upsert_keyword
+    : {isUpsertKeyword()}? Identifier
     ;
 
 insert_target
@@ -3091,7 +3104,11 @@ merge_values_clause
     ;
 
 deletestmt
-    : with_clause_? DELETE_P FROM relation_expr_opt_alias using_clause? where_or_current_clause? returning_clause?
+    : with_clause_? DELETE_P FROM relation_expr_opt_alias using_clause? where_or_current_clause? mutation_limit_clause? returning_clause?
+    ;
+
+mutation_limit_clause
+    : {isMutationLimit()}? (sort_clause select_limit? | select_limit)
     ;
 
 using_clause
@@ -3127,7 +3144,7 @@ nowait_or_skip_
     ;
 
 updatestmt
-    : with_clause_? UPDATE relation_expr_opt_alias SET set_clause_list from_clause? where_or_current_clause? returning_clause?
+    : with_clause_? UPDATE relation_expr_opt_alias SET set_clause_list from_clause? where_or_current_clause? mutation_limit_clause? returning_clause?
     ;
 
 set_clause_list
@@ -3439,8 +3456,12 @@ values_clause
     ;
 
 from_clause
-    : FROM from_list
+    : FROM from_list snapshot_clause?
 
+    ;
+
+snapshot_clause
+    : {isSnapshotClause()}? AS OF SYSTEM_P TIME a_expr
     ;
 
 from_list
@@ -3508,8 +3529,21 @@ join_using_alias_
     ;
 
 relation_expr
-    : qualified_name STAR?
-    | ONLY (qualified_name | OPEN_PAREN qualified_name CLOSE_PAREN)
+    : qualified_name index_hint? STAR?
+    | ONLY (qualified_name | OPEN_PAREN qualified_name CLOSE_PAREN) index_hint?
+    ;
+
+index_hint
+    : {isIndexExtension("@")}? Operator
+        (index_hint_name | OPEN_BRACKET Integral CLOSE_BRACKET
+        | {isIndexExtension("{")}? ErrorCharacter index_hint_option (COMMA index_hint_option)* {isIndexExtension("}")}? ErrorCharacter)
+    ;
+
+index_hint_name : name | PRIMARY;
+index_hint_option
+    : {isIndexExtension("FORCE_INDEX")}? Identifier EQUAL (index_hint_name | OPEN_BRACKET Integral CLOSE_BRACKET)
+    | ASC | DESC
+    | {isIndexExtension("NO_INDEX_JOIN") || isIndexExtension("NO_ZIGZAG_JOIN") || isIndexExtension("NO_FULL_SCAN") || isIndexExtension("IGNORE_FOREIGN_KEYS") || isIndexExtension("FORCE_INVERTED_INDEX")}? Identifier
     ;
 
 relation_expr_list
