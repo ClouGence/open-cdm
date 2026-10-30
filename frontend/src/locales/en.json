@@ -4431,7 +4431,8 @@
     "maximize": "Maximize results",
     "restore": "Restore layout",
     "expand": "Expand results",
-    "collapse": "Collapse results"
+    "collapse": "Collapse results",
+    "transpose": "Transpose"
   },
   "ai": {
     "contextUsage": "Context usage",

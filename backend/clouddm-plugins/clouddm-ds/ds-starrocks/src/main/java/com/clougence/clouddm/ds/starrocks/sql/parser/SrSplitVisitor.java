@@ -25,7 +25,7 @@ public class SrSplitVisitor extends StarRocksBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitShowCreateTableStatement(ShowCreateTableStatementContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override

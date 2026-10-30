@@ -24,6 +24,7 @@
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
 import cloudDmMark from '@/assets/logo-clouddm-mark.svg';
 import cockroachdbIcon from '@/assets/datasource/cockroachdb.svg';
+import etcdIcon from '@/assets/datasource/etcd.svg';
 import goldendbIcon from '@/assets/datasource/goldendb.png';
 import valkeyIcon from '@/assets/datasource/valkey.svg';
 import yashandbIcon from '@/assets/datasource/yashandb.svg';
@@ -33,6 +34,7 @@ const goldenDBTypes = ['GoldenDB', 'GoldenDBMySQL', 'GoldenDBOracle'];
 const bundledIcons = {
   Cloudberry: cloudberryIcon,
   CockroachDB: cockroachdbIcon,
+  Etcd: etcdIcon,
   GoldenDB: goldendbIcon,
   GoldenDBMySQL: goldendbIcon,
   GoldenDBOracle: goldendbIcon,
@@ -121,7 +123,11 @@ export default {
         return cloudDmMark;
       }
 
-      return bundledIcons[this.type] || '';
+      let name = this.type;
+      if (name && name.startsWith('icon-v2-')) {
+        name = name.slice(8);
+      }
+      return bundledIcons[name] || '';
     },
     resourceUrl() {
       return this.resource ? getPluginResourceUrl(this.resource) : '';

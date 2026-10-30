@@ -86,7 +86,7 @@ public class DmDsUtils {
         //
         List<UmiTypes> curLevelsDef = new ArrayList<>();
         Map<UmiTypes, Object> curLevelsParam = new HashMap<>();
-        for (int i = 2; i < levels.size(); i++) {
+        for (int i = 2; i < levels.size() && i < levelsDef.size(); i++) {
             UmiTypes umiType = UmiTypes.valueOfCode(levelsDef.get(i));
             curLevelsParam.put(umiType, levels.get(i));
             curLevelsDef.add(umiType);

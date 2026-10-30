@@ -22,6 +22,7 @@ import com.clougence.clouddm.console.web.component.approval.PreInitHandler;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -83,9 +84,14 @@ public class ApprovalPreInitService {
         List<String> levels = new ArrayList<>();
         levels.add(String.valueOf(dsDO.getDsEnvId()));
         levels.add(String.valueOf(dsDO.getId()));
+        DsConfig constantSettings = this.dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
+        List<String> configuredLevels = constantSettings == null || constantSettings.getCategories() == null ? null : constantSettings.getCategories().getLevels();
+        // Env+Instance only (e.g. Etcd/Kafka): empty dbLevels is valid, do not fall back to targetInfo.
+        // Other DS: keep legacy fallback when levels is null/empty so old tickets still resolve catalog/schema.
+        boolean envInstanceOnly = configuredLevels != null && configuredLevels.size() <= 2;
         if (CollectionUtils.isNotEmpty(approvalDO.getLevels())) {
             levels.addAll(approvalDO.getLevels());
-        } else if (StringUtils.isNotBlank(approvalDO.getTargetInfo())) {
+        } else if (!envInstanceOnly && StringUtils.isNotBlank(approvalDO.getTargetInfo())) {
             levels.addAll(Arrays.stream(approvalDO.getTargetInfo().split("/")).filter(StringUtils::isNotBlank).toList());
         }
 

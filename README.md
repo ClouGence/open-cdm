@@ -1,7 +1,17 @@
 <h1 align="center">CloudDM</h1>
 
 <p align="center">
-  A free and open-source database management tool designed for team use. It provides access control, data masking, SQL auditing, CI/CD, and cross-region deployment capabilities.
+  <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License: Apache 2.0" /></a>
+  <a href="https://github.com/ClouGence/open-cdm/stargazers"><img src="https://img.shields.io/github/stars/ClouGence/open-cdm?style=flat" alt="GitHub stars" /></a>
+</p>
+
+<p align="center">
+  <a href="https://trendshift.io/repositories/31757"><img src="https://trendshift.io/api/badge/trendshift/repositories/31757/daily?language=Java" alt="Trendshift: #3 Java Repository of the Day" width="250" height="55" /></a>
+  <a href="https://trendshift.io/repositories/31757"><img src="https://trendshift.io/api/badge/trendshift/repositories/31757/weekly?language=Java" alt="Trendshift: #13 Java Repository of the Week" width="250" height="55" /></a>
+</p>
+
+<p align="center">
+  A free and open-source database management tool for teams, featuring an AI SQL assistant, access control, data masking, SQL auditing, CI/CD, and cross-region deployment.
 </p>
 
 <p align="center">

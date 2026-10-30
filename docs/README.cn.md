@@ -1,7 +1,17 @@
 <h1 align="center">CloudDM</h1>
 
 <p align="center">
-  一款免费且开源的数据库管理工具，适合团队化使用。它提供了访问控制、数据脱敏、SQL 审核、CI/CD 等能力，并支持跨地区部署。
+  <a href="../LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="开源协议：Apache 2.0" /></a>
+  <a href="https://github.com/ClouGence/open-cdm/stargazers"><img src="https://img.shields.io/github/stars/ClouGence/open-cdm?style=flat" alt="GitHub Stars" /></a>
+</p>
+
+<p align="center">
+  <a href="https://trendshift.io/repositories/31757"><img src="https://trendshift.io/api/badge/trendshift/repositories/31757/daily?language=Java" alt="Trendshift：Java 日榜第 3 名" width="250" height="55" /></a>
+  <a href="https://trendshift.io/repositories/31757"><img src="https://trendshift.io/api/badge/trendshift/repositories/31757/weekly?language=Java" alt="Trendshift：Java 周榜第 13 名" width="250" height="55" /></a>
+</p>
+
+<p align="center">
+  一款面向团队的免费开源数据库管理工具，支持AI SQL 助手，以及访问控制、数据脱敏、SQL 审核、CI/CD 和跨地区部署。
 </p>
 
 <p align="center">

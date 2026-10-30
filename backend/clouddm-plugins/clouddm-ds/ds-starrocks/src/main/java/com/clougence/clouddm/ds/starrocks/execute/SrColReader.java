@@ -55,7 +55,16 @@ public class SrColReader extends AbstractColReader {
                 return STRING_VALUE_FETCHER;
             case "binary":
             case "varbinary":
-                return BYTES_VALUE_FETCHER;
+            // StarRocks sends VARBINARY as BLOB; missing binary flags make Connector/J report TEXT variants.
+            case "tinyblob":
+            case "blob":
+            case "mediumblob":
+            case "longblob":
+            case "tinytext":
+            case "text":
+            case "mediumtext":
+            case "longtext":
+                return BYTES_AS_STREAM_FETCHER;
             case "date":
                 return DATE_VALUE_FETCHER;
             case "datetime":

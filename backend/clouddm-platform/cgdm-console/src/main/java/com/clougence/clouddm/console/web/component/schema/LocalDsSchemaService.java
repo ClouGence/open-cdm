@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.component.schema;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -121,13 +122,19 @@ public class LocalDsSchemaService implements DsSchemaService {
 
     @Override
     public List<DsElement> listLevels(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
+        DsConfig dmDsConfig = configService.dsConstantSettings(dsDO.getDataSourceType());
+        List<String> configuredLevels = dmDsConfig.getCategories().getLevels();
+        // Env + Instance only (e.g. Etcd/Kafka): no catalog/schema level to list
+        if (configuredLevels != null && configuredLevels.size() <= 2) {
+            return Collections.emptyList();
+        }
+
         if (refreshCache || isDisableMetaCache()) {
             return null;
         }
 
-        DsConfig dmDsConfig = configService.dsConstantSettings(dsDO.getDataSourceType());
         MetaInformationType leafType;
-        if (levelsParam.get(UmiTypes.Catalog) == null && UmiTypes.Catalog.getTypeName().equals(dmDsConfig.getCategories().getLevels().get(2))) {
+        if (levelsParam.get(UmiTypes.Catalog) == null && UmiTypes.Catalog.getTypeName().equals(configuredLevels.get(2))) {
             leafType = MetaInformationType.CatalogList;
         } else {
             leafType = MetaInformationType.SchemaList;

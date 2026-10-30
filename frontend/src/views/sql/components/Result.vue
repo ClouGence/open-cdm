@@ -220,6 +220,15 @@
               </a-popover>
             </div>
             <div class="tip-footer-right">
+              <div
+                class="tip-footer-transpose-btn"
+                :class="{ 'tip-footer-transpose-btn--active': selectedTab.transposed }"
+                v-if="selectedTab.receiveMode !== 'STREAM'"
+                @click="toggleTranspose"
+              >
+                <CustomIcon type="icon-v2-qiehuanmoshi2" hoverStyle />
+                <span>{{ $t('sqlResult.transpose') }}</span>
+              </div>
               <div class="tip-footer-export" v-if="!selectedTab.exportState?.exporting && selectedTab.exportState?.percent !== 100">
                 <Poptip
                   v-if="selectedTab.exportState?.errorStatus === 'FAILED' && selectedTab.exportState?.errorMessage"
@@ -251,7 +260,7 @@
               :class="{ 'result-set-style--empty': !selectedTab.showData?.length }"
               :ref="`result_table_${tab.result.active}`"
               :columns="antdColumns"
-              :dataSource="selectedTab.showData"
+              :dataSource="displayData"
               :pagination="false"
               :scroll="tableScroll"
               size="small"
@@ -268,7 +277,13 @@
                 </div>
               </template>
               <template #bodyCell="{ column, record, index }">
-                <template v-if="column.dataIndex !== 'seq'">
+                <template v-if="column.dataIndex === 'seq'">
+                  <span>{{ getRowNumber(index) }}</span>
+                </template>
+                <template v-else-if="selectedTab.transposed && column.dataIndex === '__field__'">
+                  <div class="transposed-field-cell">{{ record.__field__ }}</div>
+                </template>
+                <template v-else>
                   <div class="vxe-input-tpl" @dblclick.stop="handleCellDetail(record, column, index)">
                     <span v-if="record[column.dataIndex] === null" style="color: #ccc; font-style: italic">NULL</span>
                     <pre v-else style="overflow: hidden; margin: 0">{{ record[column.dataIndex] }}</pre>
@@ -282,9 +297,6 @@
                       </div>
                     </div>
                   </div>
-                </template>
-                <template v-else>
-                  <span>{{ getRowNumber(index) }}</span>
                 </template>
               </template>
             </a-table>
@@ -655,6 +667,9 @@ export default {
       if (!this.selectedTab || !this.selectedTab.columnListSeq) {
         return [];
       }
+      if (this.selectedTab.transposed) {
+        return this.transposedAntdColumns;
+      }
       return this.selectedTab.columnListSeq.map((col, index) => {
         const colKey = col.type === 'seq' ? 'seq' : col.field;
         const currentWidth = this.columnWidths[colKey] || (col.type === 'seq' ? 50 : col.width || 100);
@@ -685,9 +700,70 @@ export default {
     },
     tableScroll() {
       return {
-        x: 'max-content',
+        x: this.antdColumns.reduce((sum, col) => sum + (col.width || 100), 0),
         y: this.tableScrollY
       };
+    },
+    displayData() {
+      const tab = this.selectedTab;
+      if (!tab.transposed) {
+        return tab.showData;
+      }
+      const columnList = tab.columnList || [];
+      const sourceRows = this.transposedSourceRows;
+      return columnList.map((columnName, colIndex) => {
+        const record = { __field__: columnName };
+        sourceRows.forEach((item, rowIndex) => {
+          const rowData = item.data || item.row;
+          const cell = rowData ? rowData[colIndex] : null;
+          if (cell) {
+            record[`__r${rowIndex}`] = cell.value;
+          }
+        });
+        return record;
+      });
+    },
+    // Raw row objects for the current page; the transposed view is built from these arrays instead of
+    // the name-keyed showData objects so duplicate column names keep their own rows.
+    transposedSourceRows() {
+      const tab = this.selectedTab;
+      if ((tab.receiveMode || 'PAGE_FULL') === 'PAGINATED') {
+        return tab.rowSetCache?.[tab.page || 1] || [];
+      }
+      const page = tab.page || 1;
+      const size = tab.size || 50;
+      const start = (page - 1) * size;
+      return (tab.data || []).slice(start, start + size);
+    },
+    transposedAntdColumns() {
+      const columns = [
+        {
+          title: this.$t('zi-duan-ming-cheng'),
+          dataIndex: '__field__',
+          key: '__field__',
+          width: this.columnWidths.__field__ || 160,
+          fixed: 'left',
+          resizable: true,
+          originalTitle: this.$t('zi-duan-ming-cheng')
+        }
+      ];
+      this.transposedSourceRows.forEach((item, index) => {
+        const key = `__r${index}`;
+        const rowNumber = String(this.getRowNumber(index));
+        columns.push({
+          title: rowNumber,
+          dataIndex: key,
+          key,
+          width: this.columnWidths[key] || 100,
+          ellipsis: {
+            showTitle: true
+          },
+          resizable: true,
+          originalTitle: rowNumber,
+          sourceRowIndex: index
+        });
+      });
+      return columns;
     }
   },
   watch: {
@@ -1070,14 +1146,21 @@ export default {
       this.currentTableName = '';
     },
     handleCustomRow(record, index) {
-      return {
+      const handlers = {
         onClick: (event) => {
           this.handleRowClick(record, index, event);
-        },
-        onContextmenu: (event) => {
-          this.handleRowContextMenu(record, index, event);
         }
       };
+      // In the transposed view a displayed row is a source column, so the row-level menu does not apply.
+      if (!this.selectedTab.transposed) {
+        handlers.onContextmenu = (event) => {
+          this.handleRowContextMenu(record, index, event);
+        };
+      }
+      return handlers;
+    },
+    toggleTranspose() {
+      this.selectedTab.transposed = !this.selectedTab.transposed;
     },
     handleRowClick(record, index, event) {
       // Handle row clicks.
@@ -1142,14 +1225,23 @@ export default {
       return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
     },
     getCellValueMeta(column, rowIndex) {
-      const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
-      if (colIndex < 0) {
+      // Under transpose the display row is the source column and the display column is the source row.
+      let colIndex;
+      let sourceRowIndex;
+      if (this.selectedTab.transposed) {
+        colIndex = rowIndex;
+        sourceRowIndex = column.sourceRowIndex;
+      } else {
+        colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
+        sourceRowIndex = rowIndex;
+      }
+      if (colIndex < 0 || sourceRowIndex === undefined || sourceRowIndex < 0) {
         return null;
       }
 
       const meta = {
         resultId: this.selectedTab.resultId,
-        rowNumber: this.getCellRowNumber(rowIndex),
+        rowNumber: this.getCellRowNumber(sourceRowIndex),
         colIndex,
         complete: true,
         moreSize: 0,
@@ -1165,8 +1257,8 @@ export default {
         if (receiveMode === 'PAGINATED') {
           const currentPage = this.selectedTab.page || 1;
           const rowSetCache = this.selectedTab.rowSetCache;
-          if (rowSetCache && rowSetCache[currentPage] && rowSetCache[currentPage][rowIndex]) {
-            const rowItem = rowSetCache[currentPage][rowIndex];
+          if (rowSetCache && rowSetCache[currentPage] && rowSetCache[currentPage][sourceRowIndex]) {
+            const rowItem = rowSetCache[currentPage][sourceRowIndex];
             const rowData = rowItem.data || rowItem.row;
             if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
               cellValue = rowData[colIndex];
@@ -1174,8 +1266,8 @@ export default {
           }
         } else if (receiveMode === 'STREAM') {
           const rowSetStream = this.selectedTab.rowSetStream;
-          if (rowSetStream && rowSetStream[rowIndex]) {
-            const rowItem = rowSetStream[rowIndex];
+          if (rowSetStream && rowSetStream[sourceRowIndex]) {
+            const rowItem = rowSetStream[sourceRowIndex];
             const rowData = rowItem.data || rowItem.row;
             if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
               cellValue = rowData[colIndex];
@@ -1260,10 +1352,15 @@ export default {
       const colIndex = cellMeta ? cellMeta.colIndex : -1;
       const rowNumber = cellMeta ? cellMeta.rowNumber : rowIndex;
       const cellValue = record[column.dataIndex || column.property] || '';
+      // Under transpose the field-name column holds the source column name for this record.
+      let property = column.dataIndex || column.property;
+      if (this.selectedTab.transposed) {
+        property = record.__field__;
+      }
 
       this.$bus.emit('showCellDetailModal', {
         row: record,
-        column: { property: column.dataIndex || column.property, columnType: this.selectedTab.columnType?.[colIndex] },
+        column: { property, columnType: this.selectedTab.columnType?.[colIndex] },
         resultId: this.selectedTab.resultId,
         rowNumber,
         colNumber: colIndex,
@@ -2509,6 +2606,33 @@ export default {
   align-items: center;
   gap: 4px;
   cursor: pointer;
+  white-space: nowrap;
+}
+
+.tip-footer-transpose-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 4px;
+  border-radius: 6px;
+
+  &--active {
+    color: var(--primary-color);
+  }
+}
+
+.transposed-field-cell {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  font-weight: 500;
+  background: var(--bg-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

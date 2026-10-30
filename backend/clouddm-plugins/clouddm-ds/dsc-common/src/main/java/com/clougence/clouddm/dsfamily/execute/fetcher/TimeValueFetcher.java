@@ -38,22 +38,36 @@ public class TimeValueFetcher extends AbstractValueFetcher {
 
     @Override
     public LocalTime getTime(String columnName, ResultSet rs, ValueFetcherContext ctx) throws SQLException {
-        java.sql.Time date = rs.getTime(columnName);
-        return date == null ? null : date.toLocalTime();
+        try {
+            return rs.getObject(columnName, LocalTime.class);
+        } catch (SQLException e) {
+            // Older drivers may not support JDBC 4.2 time conversions.
+            java.sql.Time time = rs.getTime(columnName);
+            if (time == null) {
+                return null;
+            }
+            return time.toLocalTime();
+        }
     }
 
     // only for array. getSize untrustworthy
     @Override
     public String getString(String columnName, ResultSet rs, ValueFetcherContext ctx) throws SQLException {
-        java.sql.Time date = rs.getTime(columnName);
-        return date == null ? null : getFormat(ctx).format(date.toLocalTime());
+        LocalTime time = getTime(columnName, rs, ctx);
+        if (time == null) {
+            return null;
+        }
+        return getFormat(ctx).format(time);
     }
 
     // only for array. getSize untrustworthy
     @Override
     public Reader getReader(String columnName, ResultSet rs, ValueFetcherContext ctx) throws SQLException {
-        java.sql.Time date = rs.getTime(columnName);
-        return date == null ? null : new StringReader(getFormat(ctx).format(date.toLocalTime()));
+        LocalTime time = getTime(columnName, rs, ctx);
+        if (time == null) {
+            return null;
+        }
+        return new StringReader(getFormat(ctx).format(time));
     }
 
     private static WellKnowFormat getFormat(ValueFetcherContext ctx) {
