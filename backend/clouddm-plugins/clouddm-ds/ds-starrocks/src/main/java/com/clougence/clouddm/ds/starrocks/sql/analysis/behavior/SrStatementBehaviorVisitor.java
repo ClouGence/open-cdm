@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.clouddm.ds.starrocks.sql.analysis.behavior;
 
@@ -13,29 +22,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.antlr.v4.runtime.BailErrorStrategy;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksBaseVisitor;
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksParser;
-import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
 
 class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
-    private final String                   currentSchema;
+    private final String                     currentSchema;
     protected final Parser                   parser;
     protected final RdbBehaviorObjectFactory objects;
-    private final StatementBehavior        behavior = new StatementBehavior();
+    private final StatementBehavior          behavior = new StatementBehavior();
 
     SrStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         this.parser = parser;
@@ -664,8 +666,8 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         Token stop = allType.getStop();
         IdentifierOrStringContext database = ctx.getRuleContext(IdentifierOrStringContext.class, 0);
         BehaviorObject subject = objects.instanceObject(type, start);
-        if (type == TargetType.Schema || type == TargetType.Table || type == TargetType.View
-            || type == TargetType.Materialized || (type == TargetType.Function && allType.GLOBAL() == null)) {
+        if (type == TargetType.Schema || type == TargetType.Table || type == TargetType.View || type == TargetType.Materialized
+            || (type == TargetType.Function && allType.GLOBAL() == null)) {
             subject = objects.unnamedObject(type, start, UmiTypes.Catalog);
             if (type == TargetType.Function) {
                 subject.setObjectPath(objects.instanceObject(type, start).getObjectPath() + "default_catalog/");
@@ -784,15 +786,15 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitCreateSecurityIntegrationStatement(CreateSecurityIntegrationStatementContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE,
-            objects.instanceObject(TargetType.SecurityIntegration, ctx.identifier(), name(ctx.identifier())), integrationProviders(ctx.properties().property()));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE, objects
+            .instanceObject(TargetType.SecurityIntegration, ctx.identifier(), name(ctx.identifier())), integrationProviders(ctx.properties().property()));
         return null;
     }
 
     @Override
     public Void visitAlterSecurityIntegrationStatement(AlterSecurityIntegrationStatementContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.ALTER,
-            objects.instanceObject(TargetType.SecurityIntegration, ctx.identifier(), name(ctx.identifier())), integrationProviders(ctx.propertyList().property()));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.ALTER, objects
+            .instanceObject(TargetType.SecurityIntegration, ctx.identifier(), name(ctx.identifier())), integrationProviders(ctx.propertyList().property()));
         return null;
     }
 
@@ -813,8 +815,7 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     @Override
     public Void visitCreateGroupProviderStatement(CreateGroupProviderStatementContext ctx) {
         List<BehaviorObject> targets = new ArrayList<>();
-        boolean fileProvider = ctx.properties().property().stream()
-            .anyMatch(property -> "type".equals(name(property.key)) && "file".equals(name(property.value)));
+        boolean fileProvider = ctx.properties().property().stream().anyMatch(property -> "type".equals(name(property.key)) && "file".equals(name(property.value)));
         if (fileProvider) {
             for (PropertyContext property : ctx.properties().property()) {
                 if ("group_file_url".equals(name(property.key))) {
@@ -828,8 +829,7 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
                 }
             }
         }
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE,
-            objects.instanceObject(TargetType.GroupProvider, ctx.identifier(), name(ctx.identifier())), targets);
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE, objects.instanceObject(TargetType.GroupProvider, ctx.identifier(), name(ctx.identifier())), targets);
         return null;
     }
 
@@ -953,7 +953,6 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         return null;
     }
 
-
     @Override
     public Void visitAdminSetConfigStatement(AdminSetConfigStatementContext ctx) {
         PropertyContext property = ctx.property();
@@ -967,8 +966,7 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
                 }
             }
         }
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE,
-            objects.instanceObject(TargetType.ConfigKey, property.key, key), integrations);
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, property.key, key), integrations);
         return null;
     }
 
@@ -997,18 +995,16 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     @Override
     public Void visitModifyFrontendHostClause(ModifyFrontendHostClauseContext ctx) {
         // HOST omits the port: retain the known address range instead of inventing an endpoint.
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.RENAME,
-            objects.instanceObject(TargetType.ClusterNode, ctx.string(0), "frontend/" + name(ctx.string(0))),
-            List.of(objects.instanceObject(TargetType.ClusterNode, ctx.string(1), "frontend/" + name(ctx.string(1)))));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.RENAME, objects.instanceObject(TargetType.ClusterNode, ctx.string(0), "frontend/" + name(ctx.string(0))), List
+            .of(objects.instanceObject(TargetType.ClusterNode, ctx.string(1), "frontend/" + name(ctx.string(1)))));
         return null;
     }
 
     @Override
     public Void visitModifyBackendClause(ModifyBackendClauseContext ctx) {
         if (ctx.HOST() != null) {
-            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.RENAME,
-                objects.instanceObject(TargetType.ClusterNode, ctx.string(0), "backend/" + name(ctx.string(0))),
-                List.of(objects.instanceObject(TargetType.ClusterNode, ctx.string(1), "backend/" + name(ctx.string(1)))));
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.RENAME, objects.instanceObject(TargetType.ClusterNode, ctx.string(0), "backend/" + name(ctx.string(0))), List
+                .of(objects.instanceObject(TargetType.ClusterNode, ctx.string(1), "backend/" + name(ctx.string(1)))));
         } else {
             add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.ALTER, clusterNode(ctx.string(0), "backend"));
         }
@@ -1040,15 +1036,15 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         if (ctx.REPLACE() != null) {
             action = BehaviorAction.REPLACE;
         }
-        add(SplitQueryType.CREATE_RESOURCE_GROUP, action,
-            objects.instanceObject(TargetType.ResourceGroup, ctx.identifier(), name(ctx.identifier())), classifierTargets(ctx.classifier()));
+        add(SplitQueryType.CREATE_RESOURCE_GROUP, action, objects
+            .instanceObject(TargetType.ResourceGroup, ctx.identifier(), name(ctx.identifier())), classifierTargets(ctx.classifier()));
         return null;
     }
 
     @Override
     public Void visitAlterResourceGroupStatement(AlterResourceGroupStatementContext ctx) {
-        add(SplitQueryType.ALTER_RESOURCE_GROUP, BehaviorAction.ALTER,
-            objects.instanceObject(TargetType.ResourceGroup, ctx.identifier(), name(ctx.identifier())), classifierTargets(ctx.classifier()));
+        add(SplitQueryType.ALTER_RESOURCE_GROUP, BehaviorAction.ALTER, objects
+            .instanceObject(TargetType.ResourceGroup, ctx.identifier(), name(ctx.identifier())), classifierTargets(ctx.classifier()));
         return null;
     }
 
@@ -1141,15 +1137,15 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitCreateResourceStatement(CreateResourceStatementContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE,
-            objects.instanceObject(TargetType.Resource, ctx.resourceName, name(ctx.resourceName)), resourceTargets(ctx.properties()));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE, objects
+            .instanceObject(TargetType.Resource, ctx.resourceName, name(ctx.resourceName)), resourceTargets(ctx.properties()));
         return null;
     }
 
     @Override
     public Void visitAlterResourceStatement(AlterResourceStatementContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.ALTER,
-            objects.instanceObject(TargetType.Resource, ctx.resourceName, name(ctx.resourceName)), resourceTargets(ctx.properties()));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.ALTER, objects
+            .instanceObject(TargetType.Resource, ctx.resourceName, name(ctx.resourceName)), resourceTargets(ctx.properties()));
         return null;
     }
 
@@ -1159,8 +1155,8 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         for (StringContext location : ctx.locationsDesc().stringList().string()) {
             locations.add(fileLocation(location));
         }
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE,
-            objects.instanceObject(TargetType.StorageVolume, ctx.storageVolumeName, name(ctx.storageVolumeName)), locations);
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE, objects
+            .instanceObject(TargetType.StorageVolume, ctx.storageVolumeName, name(ctx.storageVolumeName)), locations);
         return null;
     }
 
@@ -1170,16 +1166,16 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         BehaviorObject end = objects.instanceObject(TargetType.Instance, ctx.VOLUME().getSymbol());
         instance.setEndLine(end.getEndLine());
         instance.setEndColumn(end.getEndColumn());
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, instance,
-            List.of(objects.instanceObject(TargetType.StorageVolume, ctx.identifierOrString(), name(ctx.identifierOrString()))));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, instance, List
+            .of(objects.instanceObject(TargetType.StorageVolume, ctx.identifierOrString(), name(ctx.identifierOrString()))));
         return null;
     }
 
     @Override
     public Void visitInstallPluginStatement(InstallPluginStatementContext ctx) {
         // The installed name comes from the manifest, not the archive's filename.
-        add(SplitQueryType.CREATE_LIBRARY, BehaviorAction.CREATE,
-            objects.instanceObject(TargetType.Library, ctx.PLUGIN().getSymbol()), List.of(fileLocation(ctx.identifierOrString())));
+        add(SplitQueryType.CREATE_LIBRARY, BehaviorAction.CREATE, objects.instanceObject(TargetType.Library, ctx.PLUGIN().getSymbol()), List
+            .of(fileLocation(ctx.identifierOrString())));
         return null;
     }
 
@@ -1213,15 +1209,13 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
                 sources.add(fileLocation(property.value));
             }
         }
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.IMPORT,
-            smallFile(ctx.string().getStart(), ctx.catalog, ctx.properties(), name(ctx.string())), sources);
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.IMPORT, smallFile(ctx.string().getStart(), ctx.catalog, ctx.properties(), name(ctx.string())), sources);
         return null;
     }
 
     @Override
     public Void visitDropFileStatement(DropFileStatementContext ctx) {
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.DROP,
-            smallFile(ctx.string().getStart(), ctx.catalog, ctx.properties(), name(ctx.string())));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.DROP, smallFile(ctx.string().getStart(), ctx.catalog, ctx.properties(), name(ctx.string())));
         return null;
     }
 
@@ -1234,8 +1228,7 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     @Override
     public Void visitAddSqlBlackListStatement(AddSqlBlackListStatementContext ctx) {
         // Native SQL blacklist IDs are generated at execution time.
-        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE,
-            objects.instanceObject(TargetType.Policy, ctx.string(), "sql_blacklist"));
+        add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CREATE, objects.instanceObject(TargetType.Policy, ctx.string(), "sql_blacklist"));
         return null;
     }
 
@@ -1249,8 +1242,7 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
             if (backend) {
                 targets = List.of(objects.instanceObject(TargetType.ClusterNode, id.getSymbol(), "backend/id/" + id.getText()));
             }
-            add(SplitQueryType.SYSTEM_SETTING_WRITE, action,
-                objects.instanceObject(TargetType.Policy, id.getSymbol(), namespace + id.getText()), targets);
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, action, objects.instanceObject(TargetType.Policy, id.getSymbol(), namespace + id.getText()), targets);
         }
         return null;
     }
@@ -1399,7 +1391,6 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitDelBackendBlackListStatement(DelBackendBlackListStatementContext ctx) {
         return blacklistEntries(ctx, true, BehaviorAction.DROP);
     }
-
 
     private List<BehaviorObject> maintenanceTargets(QualifiedNameContext tableName, PartitionNamesContext partitions, TargetType type) {
         BehaviorObject table = object(type, tableName);
@@ -1568,9 +1559,8 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
             }
         }
         if (tablet != null && backend != null) {
-            add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE,
-                objects.instanceObject(TargetType.Replica, tablet, "tablet/" + name(tablet) + "/backend/" + name(backend)),
-                List.of(objects.instanceObject(TargetType.ClusterNode, backend, "backend/id/" + name(backend))));
+            add(SplitQueryType.ADMIN, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.Replica, tablet, "tablet/" + name(tablet) + "/backend/" + name(backend)), List
+                .of(objects.instanceObject(TargetType.ClusterNode, backend, "backend/id/" + name(backend))));
         }
         return null;
     }
@@ -1595,8 +1585,8 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
     @Override
     public Void visitShowTabletStatement(ShowTabletStatementContext ctx) {
         if (ctx.INTEGER_VALUE() != null) {
-            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
-                objects.instanceObject(TargetType.Tablet, ctx.INTEGER_VALUE().getSymbol(), "tablet/" + ctx.INTEGER_VALUE().getText()));
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects
+                .instanceObject(TargetType.Tablet, ctx.INTEGER_VALUE().getSymbol(), "tablet/" + ctx.INTEGER_VALUE().getText()));
         } else {
             for (BehaviorObject target : maintenanceTargets(ctx.qualifiedName(), ctx.partitionNames(), TargetType.Tablet)) {
                 add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, target);
@@ -1770,7 +1760,8 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
 
     @Override
     public Void visitDropDataCacheRuleStatement(DropDataCacheRuleStatementContext ctx) {
-        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP, objects.instanceObject(TargetType.Policy, ctx.INTEGER_VALUE().getSymbol(), "datacache/" + ctx.INTEGER_VALUE().getText()));
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP, objects
+            .instanceObject(TargetType.Policy, ctx.INTEGER_VALUE().getSymbol(), "datacache/" + ctx.INTEGER_VALUE().getText()));
         return null;
     }
 

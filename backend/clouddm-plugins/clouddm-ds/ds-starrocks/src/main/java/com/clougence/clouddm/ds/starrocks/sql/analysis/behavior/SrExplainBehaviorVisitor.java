@@ -1,7 +1,17 @@
 /*
  * Copyright 2026 杭州开云集致科技有限公司
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.clouddm.ds.starrocks.sql.analysis.behavior;
 
@@ -17,7 +27,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 
@@ -25,7 +38,7 @@ import com.clougence.schema.umi.struts.UmiTypes;
 final class SrExplainBehaviorVisitor extends SrJobBehaviorVisitor {
     private boolean planning;
 
-    SrExplainBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    SrExplainBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         super(parser, levels, baseLine, baseColumn);
     }
 
@@ -41,9 +54,9 @@ final class SrExplainBehaviorVisitor extends SrJobBehaviorVisitor {
     }
 
     private void orderRelations() {
-        behavior().getRelations().sort(Comparator
-            .comparingInt((BehaviorRelation relation) -> relation.getSubject().getStartLine())
-            .thenComparingInt(relation -> relation.getSubject().getStartColumn()));
+        behavior().getRelations()
+            .sort(Comparator.comparingInt((BehaviorRelation relation) -> relation.getSubject().getStartLine())
+                .thenComparingInt(relation -> relation.getSubject().getStartColumn()));
     }
 
     @Override
@@ -153,8 +166,7 @@ final class SrExplainBehaviorVisitor extends SrJobBehaviorVisitor {
     public Void visitInformationFunctionExpression(InformationFunctionExpressionContext ctx) {
         // FE information functions are evaluated during analysis, including plain EXPLAIN.
         Token function = ctx.getStart();
-        super.add(SplitQueryType.SELECT, BehaviorAction.CALL,
-            objects.object(TargetType.Function, function, List.of(function.getText())), List.of());
+        super.add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, function, List.of(function.getText())), List.of());
         return null;
     }
 
@@ -165,8 +177,7 @@ final class SrExplainBehaviorVisitor extends SrJobBehaviorVisitor {
             // Repeated lookups of the same function definition have one metadata dependency.
             for (BehaviorRelation existing : behavior().getRelations()) {
                 if (existing.getAction() == action && existing.getSubject().getObjectType() == TargetType.Function
-                    && existing.getSubject().getObjectPath().equals(subject.getObjectPath())
-                    && existing.getTarget().size() == targets.size()) {
+                    && existing.getSubject().getObjectPath().equals(subject.getObjectPath()) && existing.getTarget().size() == targets.size()) {
                     boolean same = true;
                     for (int i = 0; i < targets.size(); i++) {
                         BehaviorObject old = existing.getTarget().get(i);
@@ -187,43 +198,38 @@ final class SrExplainBehaviorVisitor extends SrJobBehaviorVisitor {
 
     @Override
     public Void visitShowProfilelistStatement(ShowProfilelistStatementContext ctx) {
-        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
-            objects.instanceObject(TargetType.Profile, ctx.PROFILELIST().getSymbol(), "query_profile"));
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Profile, ctx.PROFILELIST().getSymbol(), "query_profile"));
         return null;
     }
 
     @Override
     public Void visitAnalyzeProfileStatement(AnalyzeProfileStatementContext ctx) {
-        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
-            objects.instanceObject(TargetType.Profile, ctx.string(), "query_profile/" + name(ctx.string())));
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Profile, ctx.string(), "query_profile/" + name(ctx.string())));
         return null;
     }
 
     @Override
     public Void visitAlterPlanAdvisorAddStatement(AlterPlanAdvisorAddStatementContext ctx) {
-        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.CONFIGURE,
-            objects.instanceObject(TargetType.Policy, ctx.PLAN().getSymbol(), ctx.ADVISOR().getSymbol(), "plan_advisor"));
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.CONFIGURE, objects
+            .instanceObject(TargetType.Policy, ctx.PLAN().getSymbol(), ctx.ADVISOR().getSymbol(), "plan_advisor"));
         return visit(ctx.queryStatement());
     }
 
     @Override
     public Void visitShowPlanAdvisorStatement(ShowPlanAdvisorStatementContext ctx) {
-        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
-            objects.instanceObject(TargetType.Policy, ctx.PLAN().getSymbol(), ctx.ADVISOR().getSymbol(), "plan_advisor"));
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Policy, ctx.PLAN().getSymbol(), ctx.ADVISOR().getSymbol(), "plan_advisor"));
         return null;
     }
 
     @Override
     public Void visitAlterPlanAdvisorDropStatement(AlterPlanAdvisorDropStatementContext ctx) {
-        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP,
-            objects.instanceObject(TargetType.Policy, ctx.string(), "plan_advisor/" + name(ctx.string())));
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP, objects.instanceObject(TargetType.Policy, ctx.string(), "plan_advisor/" + name(ctx.string())));
         return null;
     }
 
     @Override
     public Void visitTruncatePlanAdvisorStatement(TruncatePlanAdvisorStatementContext ctx) {
-        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE,
-            objects.instanceObject(TargetType.Policy, ctx.PLAN().getSymbol(), ctx.ADVISOR().getSymbol(), "plan_advisor"));
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE, objects.instanceObject(TargetType.Policy, ctx.PLAN().getSymbol(), ctx.ADVISOR().getSymbol(), "plan_advisor"));
         return null;
     }
 }
