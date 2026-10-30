@@ -168,7 +168,26 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDropstmt(DropstmtContext ctx) {
-        return super.visitDropstmt(ctx);
+        if (!"INDEX".equalsIgnoreCase(ctx.getChild(1).getText())) {
+            throw new UnsupportedOperationException("unsupported SQL: " + this.getText(ctx));
+        }
+        for (Any_nameContext anyName : ctx.any_name_list_().any_name()) {
+            builder.enterDropIndex();
+            builder.enterObjName(NameType.INDEX);
+            builder.addAttr(CommonAttribute.VALUE, getName(lastNamePart(anyName).getText()));
+            builder.exitObjName();
+            builder.exitDropIndex();
+        }
+        return null;
+    }
+
+    private ParseTree lastNamePart(Any_nameContext ctx) {
+        AttrsContext attrs = ctx.attrs();
+        if (attrs == null) {
+            return ctx.colid();
+        }
+        List<Attr_nameContext> names = attrs.attr_name();
+        return names.get(names.size() - 1);
     }
 
     private List<String> handleQualifiedName(Qualified_nameContext ctx) {
@@ -586,7 +605,18 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     @Override
     public Void visitIndexstmt(IndexstmtContext ctx) {
         builder.handleCreateIndex(() -> {
-            dmVisitChildren(ctx);
+            if (ctx.unique_() != null) {
+                ctx.unique_().accept(this);
+            }
+            if (ctx.index_name_() != null) {
+                ctx.index_name_().accept(this);
+            } else if (ctx.name() != null) {
+                builder.enterObjName(NameType.INDEX);
+                ctx.name().accept(this);
+                builder.exitObjName();
+            }
+            ctx.relation_expr().accept(this);
+            ctx.index_params().accept(this);
         });
         return null;
     }
