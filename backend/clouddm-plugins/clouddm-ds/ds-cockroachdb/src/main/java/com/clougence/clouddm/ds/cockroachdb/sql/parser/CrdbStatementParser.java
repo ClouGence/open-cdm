@@ -17,38 +17,62 @@ package com.clougence.clouddm.ds.cockroachdb.sql.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.Locale;
+import java.util.Set;
+
 import org.antlr.v4.runtime.*;
-import com.clougence.dslpaser.parse.SyntaxErrorListener;
+import org.antlr.v4.runtime.tree.TerminalNode;
+
 import com.clougence.clouddm.ds.cockroachdb.sql.parser.antlr.CrdbSqlParser;
+import com.clougence.dslpaser.parse.SyntaxErrorListener;
+import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 public final class CrdbStatementParser {
-    private static final Set<String> SHOW_OBJECTS = Set.of("COLUMNS", "CONSTRAINTS", "INDEX", "INDEXES", "CREATE", "TABLES", "SCHEMAS", "SEQUENCES", "TYPES", "ENUMS", "DATABASES", "ROLES", "USERS");
-    private CrdbStatementParser() {}
+    private static final Set<String> SHOW_OBJECTS = Set
+        .of("COLUMNS", "CONSTRAINTS", "INDEX", "INDEXES", "CREATE", "TABLES", "SCHEMAS", "SEQUENCES", "TYPES", "ENUMS", "DATABASES", "ROLES", "USERS");
 
-    public static boolean isExtension(TokenStream tokens) {
-        return "SHOW".equalsIgnoreCase(tokens.LT(1).getText()) && SHOW_OBJECTS.contains(tokens.LT(2).getText().toUpperCase(Locale.ROOT));
+    private CrdbStatementParser(){
     }
 
-    public static CrdbSqlParser.StatementContext parse(TokenStream source, ParserRuleContext context) {
-        List<Token> statement = new ArrayList<>();
-        for (int i = context.getStart().getTokenIndex(); i <= context.getStop().getTokenIndex(); i++) {
-            statement.add(new CommonToken(source.get(i)));
+    public static boolean isExtension(TokenStream tokens) {
+        String first = tokens.LT(1).getText().toUpperCase(Locale.ROOT);
+        String second = tokens.LT(2).getText().toUpperCase(Locale.ROOT);
+        if (first.equals("GRANT") || first.equals("REVOKE")) {
+            return true;
         }
+
+        if (second.equals("DATABASE")) {
+            return first.equals("DROP") || first.equals("CREATE") && tokens.LT(3).getText().equalsIgnoreCase("IF");
+        }
+
+        if (first.equals("CREATE") || first.equals("ALTER") || first.equals("DROP")) {
+            return second.equals("ROLE") || second.equals("USER") || second.equals("GROUP") || first.equals("ALTER") && second.equals("DEFAULT");
+        }
+        return first.equals("SHOW") && SHOW_OBJECTS.contains(second);
+    }
+
+    public static CrdbSqlParser.StatementContext parse(PgSqlParser.ExtensionstmtContext context) {
+        List<Token> statement = new ArrayList<>();
+        for (var child : context.children) {
+            // extensionstmt consists of terminals; retain token locations without re-lexing the SQL text.
+            TerminalNode node = (TerminalNode) child;
+            statement.add(new CommonToken(node.getSymbol()));
+        }
+
         CrdbSqlParser parser = new CrdbSqlParser(new CommonTokenStream(new ListTokenSource(statement)));
         parser.removeErrorListeners();
         parser.addErrorListener(SyntaxErrorListener.INSTANCE);
         return parser.root().statement();
     }
 
+    public static String name(String value) {
+        if (value.startsWith("\"")) {
+            return value.substring(1, value.length() - 1).replace("\"\"", "\"");
+        }
+        return value.toLowerCase(Locale.ROOT);
+    }
+
     public static List<String> names(CrdbSqlParser.Qualified_nameContext context) {
-        return context.identifier().stream().map(id -> {
-            String name = id.getText();
-            if (name.startsWith("\"")) {
-                return name.substring(1, name.length() - 1).replace("\"\"", "\"");
-            }
-            return name.toLowerCase(Locale.ROOT);
-        }).toList();
+        return context.identifier().stream().map(id -> name(id.getText())).toList();
     }
 }

@@ -17,22 +17,25 @@ package com.clougence.clouddm.ds.cockroachdb.sql.parser;
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Parser;
+
+import com.clougence.sql.postgres.analysis.security.base.PgSqlParserBase;
 import com.clougence.sql.postgres.parser.PgDslProvider;
 import com.clougence.sql.postgres.parser.PostgresVersion;
-import com.clougence.sql.postgres.analysis.security.base.PgSqlParserBase;
 
 public class CrdbDslProvider extends PgDslProvider {
-    public CrdbDslProvider(PostgresVersion version) {
+    public CrdbDslProvider(PostgresVersion version){
         super(version, "CockroachDB SQL");
     }
 
     @Override
     public Parser createParser(Lexer lexer) {
         PgSqlParserBase parser = (PgSqlParserBase) super.createParser(lexer);
+        parser.setIndexExtensions(true);
+        parser.setMutationLimit(true);
         parser.setUpsertKeyword(tokens -> "UPSERT".equalsIgnoreCase(tokens.LT(1).getText()));
         parser.setSnapshotClause(tokens -> "AS".equalsIgnoreCase(tokens.LT(1).getText()) && "OF".equalsIgnoreCase(tokens.LT(2).getText()));
         parser.setExtensionPredicates(CrdbStatementParser::isExtension, null, null);
-        parser.addParseListener(new CrdbStatementListener(parser));
+        parser.addParseListener(new CrdbStatementListener());
         return parser;
     }
 }

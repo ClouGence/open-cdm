@@ -15,15 +15,12 @@
  */
 package com.clougence.clouddm.ds.cockroachdb.sql.parser;
 
-import org.antlr.v4.runtime.Parser;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseListener;
 
 final class CrdbStatementListener extends PgSqlParserBaseListener {
-    private final Parser parser;
-    CrdbStatementListener(Parser parser) { this.parser = parser; }
     @Override
     public void exitExtensionstmt(PgSqlParser.ExtensionstmtContext ctx) {
-        CrdbStatementParser.parse(parser.getTokenStream(), ctx);
+        CrdbStatementParser.parse(ctx);
     }
 }
