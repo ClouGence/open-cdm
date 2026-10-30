@@ -102,7 +102,66 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
 
     @Override
     public Void visitTableName(TableNameContext ctx) {
+        // INSERT/REPLACE sources are attached to the destination write relation.
+        for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof InsertStatementContext || parent instanceof ReplaceStatementContext) {
+                return null;
+            }
+        }
         add(SplitQueryType.SELECT, BehaviorAction.READ, table(ctx), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitInsertStatement(InsertStatementContext ctx) {
+        SplitQueryType type = SplitQueryType.INSERT;
+        BehaviorAction action = BehaviorAction.INSERT;
+        if (ctx.duplicatedFirst != null) {
+            type = SplitQueryType.MERGE;
+            action = BehaviorAction.MERGE;
+        }
+        return write(ctx, ctx.tableName(), type, action, true);
+    }
+
+    @Override
+    public Void visitReplaceStatement(ReplaceStatementContext ctx) {
+        return write(ctx, ctx.tableName(), SplitQueryType.MERGE, BehaviorAction.MERGE, true);
+    }
+
+    @Override
+    public Void visitSingleUpdateStatement(SingleUpdateStatementContext ctx) {
+        return write(ctx, ctx.tableName(), SplitQueryType.UPDATE, BehaviorAction.UPDATE, false);
+    }
+
+    @Override
+    public Void visitSingleDeleteStatement(SingleDeleteStatementContext ctx) {
+        return write(ctx, ctx.tableName(), SplitQueryType.DELETE, BehaviorAction.DELETE, false);
+    }
+
+    private Void write(ParserRuleContext ctx, TableNameContext destination, SplitQueryType type, BehaviorAction action, boolean attachSources) {
+        if (!isExecuted(ctx)) {
+            return null;
+        }
+        List<BehaviorObject> sources = List.of();
+        if (attachSources) {
+            sources = descendants(ctx, TableNameContext.class).stream().filter(table -> table != destination).map(this::table).toList();
+        }
+        add(type, action, table(destination), sources);
+        // Evaluate expressions and subqueries without reclassifying the destination as a read.
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+            if (child != destination) {
+                visit(child);
+            }
+        }
+        behavior.setStatementType(type);
+        return null;
+    }
+
+    @Override
+    public Void visitCreateView(CreateViewContext ctx) {
+        List<BehaviorObject> sources = descendants(ctx.selectStatement(), TableNameContext.class).stream().map(this::table).toList();
+        add(SplitQueryType.CREATE_VIEW, BehaviorAction.CREATE, object(TargetType.View, ctx.fullId()), sources);
         return null;
     }
 
@@ -352,7 +411,9 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
             return null;
         }
         for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
-            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext) {
+            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext
+                || parent instanceof InsertStatementContext || parent instanceof ReplaceStatementContext
+                || parent instanceof SingleUpdateStatementContext || parent instanceof SingleDeleteStatementContext) {
                 add(behavior.getStatementType(), BehaviorAction.READ, variable(ctx, ctx.getText()), List.of());
                 break;
             }
@@ -366,7 +427,9 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
             return null;
         }
         for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
-            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext) {
+            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext
+                || parent instanceof InsertStatementContext || parent instanceof ReplaceStatementContext
+                || parent instanceof SingleUpdateStatementContext || parent instanceof SingleDeleteStatementContext) {
                 add(behavior.getStatementType(), BehaviorAction.CALL, object(TargetType.Function, ctx.customFunctionName().fullId()), List.of());
                 return visitChildren(ctx);
             }
@@ -387,11 +450,98 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
 
     @Override
     public Void visitFullDescribeStatement(FullDescribeStatementContext ctx) {
-        // Planning inspects referenced tables, but does not execute variable expressions.
-        for (TableNameContext table : descendants(ctx.describeObjectClause(), TableNameContext.class)) {
+        return explain(ctx.describeObjectClause());
+    }
+
+    @Override
+    public Void visitPolardbxExplainStatement(PolardbxExplainStatementContext ctx) {
+        return explain(ctx.describeObjectClause());
+    }
+
+    private Void explain(DescribeObjectClauseContext ctx) {
+        // Planning inspects table metadata without executing the SQL body.
+        for (TableNameContext table : descendants(ctx, TableNameContext.class)) {
             add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, table(table), List.of());
         }
         behavior.setStatementType(SplitQueryType.PERFORMANCE);
+        return null;
+    }
+
+    @Override
+    public Void visitLockClause(LockClauseContext ctx) {
+        if (!isExecuted(ctx)) {
+            return null;
+        }
+        ParseTree query = ctx.getParent();
+        for (TableNameContext table : descendants(query, TableNameContext.class)) {
+            ParseTree owner = table.getParent();
+            while (owner != query && !(owner instanceof SelectStatementContext)) {
+                owner = owner.getParent();
+            }
+            // A subquery has its own lock clause; an outer lock must not leak into it.
+            if (owner == query) {
+                add(behavior.getStatementType(), BehaviorAction.LOCK, table(table), List.of());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitShowTrace(ShowTraceContext ctx) {
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Session, ctx.TRACE().getSymbol()), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitClearPlanCache(ClearPlanCacheContext ctx) {
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.RESET,
+            objects.unnamedObject(TargetType.Cache, ctx.PLANCACHE().getSymbol(), UmiTypes.Schema), List.of());
+        return null;
+    }
+
+    @Override
+    public Void visitBaselineStatement(BaselineStatementContext ctx) {
+        Token command = ctx.BASELINE().getSymbol();
+        if (ctx.HELP() != null) {
+            add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.Instance, command), List.of());
+            return null;
+        }
+        if (ctx.selectStatement() != null) {
+            List<BehaviorObject> sources = descendants(ctx.selectStatement(), TableNameContext.class).stream().map(this::table).toList();
+            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.Object, command), sources);
+            return null;
+        }
+        List<SignedBaselineIdContext> ids = ctx.signedBaselineId();
+        if (ctx.DELETE_PLAN() != null) {
+            BehaviorObject baseline = objects.instanceObject(TargetType.Object, ids.get(0), ids.get(0).getText());
+            for (SignedBaselineIdContext id : ids.subList(1, ids.size())) {
+                BehaviorObject plan = objects.childObject(TargetType.Object, id, baseline, id.getText());
+                add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP, plan, List.of(baseline));
+            }
+            return null;
+        }
+        SplitQueryType type = SplitQueryType.ADMIN_PERFORMANCE;
+        BehaviorAction action;
+        if (ctx.LIST() != null) {
+            type = SplitQueryType.PERFORMANCE;
+            action = BehaviorAction.READ;
+        } else if (ctx.LOAD() != null) {
+            action = BehaviorAction.LOAD;
+        } else if (ctx.PERSIST() != null) {
+            action = BehaviorAction.FLUSH;
+        } else if (ctx.CLEAR() != null) {
+            action = BehaviorAction.RESET;
+        } else {
+            action = BehaviorAction.DROP;
+        }
+        // Some maintenance commands span schemas; IDs are instance-level symbolic selectors.
+        if (ids.isEmpty()) {
+            add(type, action, objects.instanceObject(TargetType.Object, command), List.of());
+        } else {
+            for (SignedBaselineIdContext id : ids) {
+                add(type, action, objects.instanceObject(TargetType.Object, id, id.getText()), List.of());
+            }
+        }
         return null;
     }
 
