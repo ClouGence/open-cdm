@@ -5272,7 +5272,7 @@ modify_col_properties
     ;
 
 col_default
-    : DEFAULT  expression
+    : DEFAULT (ON NULL_)? expression
     ;
 
 modify_col_visibility

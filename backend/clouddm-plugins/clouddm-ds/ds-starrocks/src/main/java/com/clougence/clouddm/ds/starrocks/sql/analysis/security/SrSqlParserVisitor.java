@@ -780,7 +780,7 @@ public class SrSqlParserVisitor extends StarRocksBaseVisitor<Void> {
     public Void visitShowCreateTableStatement(ShowCreateTableStatementContext ctx) {
         RdbResourceDomain rdbResourceDomain = new RdbResourceDomain();
         rdbResourceDomain.setAuditKind(SecQueryKind.QUERY);
-        rdbResourceDomain.setSqlType(RuleQueryType.UNKNOWN);
+        rdbResourceDomain.setSqlType(RuleQueryType.METADATA);
         if (ctx.table != null) {
             List<String> names = new ArrayList<>();
             for (IdentifierContext identifierContext : ctx.qualifiedName().identifier()) {

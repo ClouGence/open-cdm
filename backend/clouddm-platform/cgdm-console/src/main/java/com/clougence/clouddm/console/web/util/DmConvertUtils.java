@@ -431,10 +431,15 @@ public class DmConvertUtils {
             mo.setKeys(Collections.emptyList());
         }
 
-        List<BrowseIndexMO> indexes = new ArrayList<>();
-        indexes.addAll(uniqueKeys.stream().map(DmConvertUtils::convertToBrowseIndexMO).toList());
-        indexes.addAll(indices.stream().map(DmConvertUtils::convertToBrowseIndexMO).toList());
-        mo.setIndexes(indexes);
+        // A unique key and its backing index can share a name; expose one browse node per index name.
+        Map<String, BrowseIndexMO> indexes = new LinkedHashMap<>();
+        for (RdbUniqueKey uniqueKey : uniqueKeys) {
+            indexes.put(uniqueKey.getName(), convertToBrowseIndexMO(uniqueKey));
+        }
+        for (RdbIndex index : indices) {
+            indexes.put(index.getName(), convertToBrowseIndexMO(index));
+        }
+        mo.setIndexes(new ArrayList<>(indexes.values()));
 
         mo.setPartitions(Collections.emptyList());
 
