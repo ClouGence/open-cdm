@@ -482,4 +482,8 @@ export default {
     padding: 16px;
   }
 }
+
+[data-theme='dark'] .approval-type-icon {
+  filter: brightness(0) invert(1);
+}
 </style>

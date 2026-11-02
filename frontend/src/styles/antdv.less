@@ -103,8 +103,8 @@
 
   &[disabled],
   &:disabled {
-    background: #ececec !important;
-    border-color: #dadada !important;
+    background: var(--disabled-bg) !important;
+    border-color: var(--border-primary) !important;
     color: #999 !important;
 
     span {
@@ -156,8 +156,8 @@
 
     &[disabled] {
       color: #999 !important;
-      border-color: #dadada !important;
-      background: #ececec !important;
+      border-color: var(--border-primary) !important;
+      background: var(--disabled-bg) !important;
     }
 
     &:hover {
@@ -415,7 +415,7 @@
 }
 
 .ant-card-bordered {
-  border-color: #dadada !important;
+  border-color: var(--border-primary) !important;
 }
 
 .ant-alert {

@@ -362,15 +362,15 @@ export default {
   min-height: 34px;
   gap: 8px;
   padding: 3px 8px;
-  background: #fff;
-  border: 1px solid #dcdee2;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
   overflow: hidden;
   cursor: pointer;
 }
 
 .security-ds-range-selected-empty {
-  color: #b9c0cc;
+  color: var(--text-tertiary);
 }
 
 .security-ds-range-selected-content {
@@ -384,12 +384,12 @@ export default {
 
 .security-ds-range-selected-arrow {
   flex: 0 0 auto;
-  color: #8a94a6;
+  color: var(--text-tertiary);
   font-size: 16px;
 }
 
 .security-ds-range-placeholder {
-  color: #b9c0cc;
+  color: var(--text-tertiary);
   font-size: 13px;
 }
 
@@ -404,8 +404,8 @@ export default {
   font-size: 13px;
   font-weight: 600;
   line-height: 32px;
-  background: #fff;
-  border: 1px dashed #cfd6df;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-primary);
   border-radius: 4px;
   cursor: pointer;
   transition:
@@ -416,7 +416,7 @@ export default {
 
 .security-ds-range-picker-button:hover {
   color: #139766;
-  background: #f7fcfa;
+  background: var(--bg-hover);
   border-color: #3ecf8e;
 }
 
@@ -446,7 +446,7 @@ export default {
 .security-ds-range-modal-summary {
   flex: 1;
   min-width: 0;
-  color: #5b667a;
+  color: var(--text-secondary);
   font-size: 13px;
   line-height: 20px;
 }
@@ -454,7 +454,7 @@ export default {
 .security-ds-range-select-all {
   flex: 0 0 auto;
   margin-right: 0;
-  color: #27364d;
+  color: var(--text-primary);
   font-size: 13px;
   line-height: 20px;
 }
@@ -473,11 +473,11 @@ export default {
   min-width: 0;
   height: 34px;
   padding: 0 10px;
-  color: #596377;
+  color: var(--text-secondary);
   font-size: 13px;
   line-height: 32px;
-  background: #fff;
-  border: 1px solid #dcdfe6;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
   cursor: pointer;
   transition:
@@ -493,7 +493,7 @@ export default {
 
 .security-ds-range-select-card-active {
   color: #24a877;
-  background: #edf8f3;
+  background: var(--success-bg);
   border-color: #3ecf8e;
 }
 
@@ -525,8 +525,8 @@ export default {
   flex: 0 0 auto;
   width: 32px;
   height: 26px;
-  background: #fff;
-  border: 1px solid #dcdfe6;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
   transition:
     border-color 0.15s ease,
@@ -534,7 +534,7 @@ export default {
 }
 
 .security-ds-range-icon-card:hover {
-  background: #f7fbff;
+  background: var(--bg-hover);
   border-color: #3ecf8e;
 }
 
@@ -547,11 +547,11 @@ export default {
   max-width: 116px;
   height: 26px;
   padding: 0 8px;
-  color: #596377;
+  color: var(--text-secondary);
   font-size: 12px;
   line-height: 24px;
-  background: #fff;
-  border: 1px solid #dcdfe6;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
 }
 
@@ -569,12 +569,12 @@ export default {
   max-width: 132px;
   height: 26px;
   padding: 0 10px;
-  color: #596377;
+  color: var(--text-secondary);
   font-size: 12px;
   line-height: 24px;
   vertical-align: middle;
-  background: #fff;
-  border: 1px solid #dcdfe6;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
   transition:
     border-color 0.15s ease,
@@ -583,8 +583,8 @@ export default {
 }
 
 .security-ds-range-tag:hover {
-  color: #344054;
-  background: #f7fbff;
+  color: var(--text-primary);
+  background: var(--bg-hover);
   border-color: #3ecf8e;
 }
 
@@ -605,7 +605,7 @@ export default {
   font-weight: 600;
   line-height: 22px;
   white-space: nowrap;
-  background: #eaf8f2;
+  background: var(--success-bg);
   border-radius: 11px;
   cursor: pointer;
   transition:
@@ -615,7 +615,7 @@ export default {
 
 .security-ds-range-more:hover {
   color: #139766;
-  background: #daf3e9;
+  background: var(--bg-hover);
 }
 
 .security-ds-range-selected-count {
@@ -626,7 +626,7 @@ export default {
 
 .security-ds-range-selected-count:hover {
   color: #24a877;
-  background: #eaf8f2;
+  background: var(--success-bg);
 }
 
 /deep/.security-ds-range-modal .ivu-modal-footer {
@@ -654,16 +654,16 @@ export default {
 
 .security-ds-range-popover-title {
   padding: 2px 0 10px;
-  color: #27364d;
+  color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
   line-height: 20px;
-  border-bottom: 1px solid #edf0f5;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .security-ds-range-popover-group {
   padding: 12px 0;
-  border-bottom: 1px solid #f0f2f5;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .security-ds-range-popover-group-title {
@@ -671,14 +671,14 @@ export default {
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
-  color: #4d5a70;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
   line-height: 18px;
 }
 
 .security-ds-range-popover-group-count {
-  color: #8a94a6;
+  color: var(--text-tertiary);
   font-weight: 500;
 }
 
@@ -695,6 +695,6 @@ export default {
 }
 
 .security-ds-range-empty {
-  color: #9aa3b2;
+  color: var(--text-tertiary);
 }
 </style>

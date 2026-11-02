@@ -4368,4 +4368,8 @@ export default {
     transition-duration: 0.01ms;
   }
 }
+
+[data-theme='dark'] .ticket-meta-item__product-icon {
+  filter: brightness(0) invert(1);
+}
 </style>

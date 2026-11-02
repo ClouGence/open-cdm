@@ -125,7 +125,7 @@ export default {
       return targetHeight;
     },
     borderStyle() {
-      return this.border > 0 ? `${this.border}px solid #ccc` : 'none';
+      return this.border > 0 ? `${this.border}px solid var(--border-primary)` : 'none';
     }
   },
   methods: {

@@ -1021,7 +1021,7 @@ export default {
   position: relative;
   margin: 9px 0 6px;
   padding-left: 12px;
-  color: #181d26;
+  color: var(--text-primary);
   font-size: 16px;
   font-weight: 500;
   line-height: 1.4;

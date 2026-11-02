@@ -442,9 +442,9 @@
     &[disabled]:hover {
       background-color: var(--disabled-bg) !important;
       border-color: var(--border-primary) !important;
-      color: var(--text-disabled) !important;
+      color: var(--text-secondary) !important;
       cursor: not-allowed !important;
-      opacity: 0.6;
+      opacity: 1;
     }
   }
 
@@ -1280,6 +1280,47 @@
     background-color: var(--bg-tertiary);
     border-color: var(--border-primary);
     color: var(--text-primary);
+  }
+
+  .ivu-tag.ivu-tag-error {
+    background-color: var(--error-bg) !important;
+    border-color: var(--error-color) !important;
+    color: var(--error-color) !important;
+
+    .ivu-tag-text {
+      color: inherit !important;
+    }
+  }
+
+  .ivu-tag.ivu-tag-warning {
+    background-color: var(--warning-bg) !important;
+    border-color: var(--warning-color) !important;
+    color: var(--warning-color) !important;
+
+    .ivu-tag-text {
+      color: inherit !important;
+    }
+  }
+
+  .ivu-tag.ivu-tag-success {
+    background-color: var(--success-bg) !important;
+    border-color: var(--success-color) !important;
+    color: var(--success-color) !important;
+
+    .ivu-tag-text {
+      color: inherit !important;
+    }
+  }
+
+  .ivu-modal-header-inner,
+  .ivu-modal-confirm-head-title,
+  .ivu-modal-confirm-body {
+    color: var(--text-primary);
+  }
+
+  .ivu-modal-header,
+  .ivu-modal-footer {
+    border-color: var(--border-primary);
   }
 
   // Partition Line
@@ -3542,11 +3583,7 @@
   span[style*='#ccc'],
   span[style*='#CCCCCC'],
   span[style*='rgb(204, 204, 204)'],
-  span[style*='rgb(204,204,204)'],
-  div[style*='#ccc'],
-  div[style*='#CCCCCC'],
-  div[style*='rgb(204, 204, 204)'],
-  div[style*='rgb(204,204,204)'] {
+  span[style*='rgb(204,204,204)'] {
     opacity: 0.5 !important;
     cursor: not-allowed !important;
   }
