@@ -56,7 +56,6 @@ export default {
         scrollBeyondLastLine: false,
         hideCursorInOverviewRuler: true,
         overviewRulerBorder: false,
-        theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
         },
@@ -132,7 +131,6 @@ export default {
         this.currentTab.text = editorText;
       }
       this.defaultOpts.value = editorText;
-      this.defaultOpts.theme = 'vs';
       if (this.monacoEditor) {
         this.handleDispose();
       }

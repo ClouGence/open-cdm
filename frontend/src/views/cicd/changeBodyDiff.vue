@@ -26,10 +26,6 @@ export default {
     dsType: {
       type: String,
       default: ''
-    },
-    theme: {
-      type: String,
-      default: 'vs'
     }
   },
   computed: {
@@ -49,7 +45,6 @@ export default {
   },
   async mounted() {
     this.editor = monaco.editor.createDiffEditor(this.$refs.container, {
-      theme: this.theme,
       ...SQL_EDITOR_TYPOGRAPHY,
       scrollbar: SQL_EDITOR_SCROLLBAR,
       automaticLayout: true,

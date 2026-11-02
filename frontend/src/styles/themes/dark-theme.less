@@ -7,6 +7,13 @@
     color: var(--text-primary);
   }
 
+  .ivu-btn[disabled],
+  .ant-btn[disabled] {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-disabled) !important;
+    border-color: var(--border-primary) !important;
+  }
+
   // Card styles
   .job-detail-wrapper,
   .job-detail-container,
@@ -790,17 +797,6 @@
 
   // General text color fixes
   .ivu-form-item-label {
-    color: var(--text-primary) !important;
-  }
-
-  // Ensure that all p tags are displayed correctly in dark theme.
-  p {
-    color: var(--text-primary) !important;
-  }
-
-  // Ensure that all span tags are displayed correctly in dark theme.
-  // Exclude elements with inline styles to avoid overriding status colors and other special styles.
-  span:not([style*='color']) {
     color: var(--text-primary) !important;
   }
 
@@ -3224,14 +3220,6 @@
 
   .ivu-select-placeholder {
     color: red !important;
-  }
-
-  .ivu-icon {
-    color: unset !important;
-
-    &:hover {
-      color: unset !important;
-    }
   }
 
   // ===== Authorization page: mask layer prevents white flicker =====

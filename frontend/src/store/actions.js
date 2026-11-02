@@ -85,7 +85,6 @@ export default {
 
       commit(UPDATE_GLOBAL_SETTING, globalSettingRes.data);
       initWebsocket(globalSettingRes.data, userInfoRes.success);
-      commit(SET_THEME, 'light');
       setPageIcon(WEBSIDE_FAVICON);
       document.title = 'CloudDM';
     }
@@ -117,18 +116,13 @@ export default {
     commit(SET_THEME, theme);
   },
   initTheme({ commit }) {
-    // Follow the system theme by default
-    let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-
-    // Prefer the user preference
-    if (localStorage.getItem('app-theme')) {
-      theme = localStorage.getItem('app-theme');
+    let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    try {
+      const savedTheme = localStorage.getItem('app-theme');
+      if (['light', 'dark'].includes(savedTheme)) theme = savedTheme;
+    } catch {
+      // The appearance still works when browser storage is unavailable.
     }
-
-    if (theme) {
-      commit(SET_THEME, theme);
-    } else {
-      commit(SET_THEME, 'light');
-    }
+    commit(SET_THEME, theme);
   }
 };

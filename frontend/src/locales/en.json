@@ -4669,5 +4669,7 @@
   "approval-team-execute-reason": "Unavailable: work order execution permission is missing for {members}",
   "ticket-create-similar": "Create similar ticket",
   "ticket-similar-load-failed": "Could not load the original ticket. Retry or return to the ticket list.",
-  "ticket-similar-target-unavailable": "The original data source is unavailable. Select the target instance and database again."
+  "ticket-similar-target-unavailable": "The original data source is unavailable. Select the target instance and database again.",
+  "appearance-switch-light": "Switch to light mode",
+  "appearance-switch-dark": "Switch to dark mode"
 }

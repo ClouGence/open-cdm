@@ -421,7 +421,7 @@ export default {
 }
 
 .app-content-header__crumb {
-  color: #4b5563;
+  color: var(--text-secondary);
   font-size: 18px;
   font-weight: 600;
   line-height: 24px;
@@ -433,7 +433,7 @@ export default {
   }
 
   &.is-current {
-    color: #1f2937;
+    color: var(--text-primary);
   }
 }
 
@@ -447,7 +447,10 @@ export default {
 }
 
 .app-content-header__separator {
-  color: #6b7280;
+  color: var(--text-tertiary);
   font-weight: 600;
+}
+[data-theme='dark'] .app-content-header__link :deep(.icon-v2) {
+  filter: brightness(0) invert(1) !important;
 }
 </style>

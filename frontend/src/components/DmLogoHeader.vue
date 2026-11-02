@@ -10,6 +10,7 @@
         </div>
       </div>
       <div class="right">
+        <ThemeToggle />
         <LangSwitcher class="lang-switcher" />
         <div class="go-login" v-if="showGoLogin">
           {{ $t('yi-you-zhang-hao-qu') }}
@@ -22,6 +23,7 @@
 
 <script>
 import LangSwitcher from '@/components/LangSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 import logoClouddm from '@/assets/logo-clouddm.svg';
 
 export default {
@@ -61,7 +63,8 @@ export default {
     };
   },
   components: {
-    LangSwitcher
+    LangSwitcher,
+    ThemeToggle
   },
   methods: {
     goLogin() {
@@ -147,11 +150,12 @@ export default {
   }
 }
 
-&.is-dark {
-  .logo-header {
-    .login-type {
-      color: #fff;
-    }
+.logo-header.is-dark {
+  .login-type {
+    color: var(--text-secondary);
+  }
+  .product-title {
+    filter: brightness(0) invert(1);
   }
 }
 </style>

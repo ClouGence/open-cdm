@@ -118,19 +118,13 @@ export default {
     state.socket = socket;
   },
   [SET_THEME](state, theme) {
+    if (!['light', 'dark'].includes(theme)) return;
     state.theme = theme;
-    //RequestAnimationFrame: Ensure DOM changes are synchronized with browser rendering to avoid flashing and Carton
-    requestAnimationFrame(() => {
-      document.documentElement.setAttribute('data-theme', theme);
-    });
-    // Endurance of the walk to avoid blocking the main course
+    document.documentElement.setAttribute('data-theme', theme);
     try {
-      requestIdleCallback
-        ? requestIdleCallback(() => localStorage.setItem('app-theme', theme))
-        : setTimeout(() => localStorage.setItem('app-theme', theme), 0);
+      localStorage.setItem('app-theme', theme);
     } catch (err) {
       appLogger.debug(err);
-      localStorage.setItem('app-theme', theme);
     }
   }
 };

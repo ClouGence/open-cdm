@@ -937,7 +937,7 @@ export default {
     .create-ticket-content {
       width: 320px;
       flex-shrink: 0;
-      background: #f8fafc;
+      background: var(--bg-secondary);
       padding: 24px;
       border-radius: 10px;
       overflow-y: auto;
