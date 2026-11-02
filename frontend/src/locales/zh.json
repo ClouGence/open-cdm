@@ -4649,6 +4649,8 @@
   "ticket-create-similar": "创建相似工单",
   "ticket-similar-load-failed": "无法读取原工单，请重试或返回工单列表。",
   "ticket-similar-target-unavailable": "原工单的数据源已不可用，请重新选择目标实例和数据库。",
-  "appearance-switch-light": "切换为浅色模式",
-  "appearance-switch-dark": "切换为深色模式"
+  "appearance-light": "浅色",
+  "appearance-dark": "深色",
+  "appearance-system": "跟随系统",
+  "appearance-menu-label": "外观：{mode}"
 }

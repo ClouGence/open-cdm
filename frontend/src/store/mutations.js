@@ -117,12 +117,19 @@ export default {
     appLogger.debug(socket);
     state.socket = socket;
   },
-  [SET_THEME](state, theme) {
-    if (!['light', 'dark'].includes(theme)) return;
+  [SET_THEME](state, mode) {
+    if (!['light', 'dark', 'system'].includes(mode)) return;
+
+    let theme = mode;
+    if (mode === 'system') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    state.themeMode = mode;
     state.theme = theme;
     document.documentElement.setAttribute('data-theme', theme);
     try {
-      localStorage.setItem('app-theme', theme);
+      localStorage.setItem('app-theme', mode);
     } catch (err) {
       appLogger.debug(err);
     }

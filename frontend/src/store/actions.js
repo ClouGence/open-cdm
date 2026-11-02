@@ -108,21 +108,18 @@ export default {
     }
   },
   // Theme-related actions
-  toggleTheme({ commit, state }) {
-    const newTheme = state.theme === 'light' ? 'dark' : 'light';
-    commit(SET_THEME, newTheme);
-  },
   setTheme({ commit }, theme) {
     commit(SET_THEME, theme);
   },
   initTheme({ commit }) {
-    let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    let theme = 'system';
     try {
       const savedTheme = localStorage.getItem('app-theme');
-      if (['light', 'dark'].includes(savedTheme)) theme = savedTheme;
+      if (['light', 'dark', 'system'].includes(savedTheme)) theme = savedTheme;
     } catch {
       // The appearance still works when browser storage is unavailable.
     }
+
     commit(SET_THEME, theme);
   }
 };
