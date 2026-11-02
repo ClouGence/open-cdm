@@ -113,3 +113,11 @@ body {
     border-color 0.2s ease,
     color 0.2s ease;
 }
+
+// Switch all surfaces together; restore normal interaction transitions after the first paint.
+html.theme-changing,
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
+  transition: none !important;
+}

@@ -15,6 +15,8 @@ import {
 import router from '@/router';
 import { buildSidebarMenu, flattenSidebarMenu } from '@/utils/buildSidebarMenu';
 
+let themeTransitionFrame = 0;
+
 function applyMenuItems(state, myCatLog = state.myCatLog, myAuth = state.myAuth) {
   const isDesktop = !!state.dmGlobalSetting.personal;
   const sidebarMenu = buildSidebarMenu({
@@ -125,9 +127,26 @@ export default {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
+    const root = document.documentElement;
+    const changing = root.getAttribute('data-theme') !== theme;
+    if (changing) {
+      root.classList.add('theme-changing');
+      cancelAnimationFrame(themeTransitionFrame);
+    }
+
     state.themeMode = mode;
     state.theme = theme;
-    document.documentElement.setAttribute('data-theme', theme);
+    root.setAttribute('data-theme', theme);
+    if (changing) {
+      // Keep transitions disabled through the first paint, including Vue and Monaco updates.
+      themeTransitionFrame = requestAnimationFrame(() => {
+        themeTransitionFrame = requestAnimationFrame(() => {
+          root.classList.remove('theme-changing');
+          themeTransitionFrame = 0;
+        });
+      });
+    }
+
     try {
       localStorage.setItem('app-theme', mode);
     } catch (err) {
