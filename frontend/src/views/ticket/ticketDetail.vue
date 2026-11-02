@@ -10,6 +10,16 @@
             </div>
           </div>
           <div class="ticket-overview__actions">
+            <Button
+              v-if="
+                ['DM_QUERY', 'DM_CHANGE'].includes(ticketDetail.approBiz) &&
+                ticketDetail.contentType === 'INLINE' &&
+                myAuth.includes('RDP_WORKER_ORDER_REQUEST')
+              "
+              @click="$router.push({ path: '/ticket_create', query: { sourceTicketId: ticketId } })"
+            >
+              {{ $t('ticket-create-similar') }}
+            </Button>
             <Button type="primary" v-if="ticketDetail.pcUrl" @click="handleGoToTheApproval">
               {{ thirdPartyName[ticketDetail.approType] }}
             </Button>
