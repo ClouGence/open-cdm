@@ -90,6 +90,22 @@
   color-scheme: dark;
 }
 
+// Override fixed fills in monochrome object sprites so each <use> inherits its own theme color.
+#icon-svg-TABLE path,
+#icon-svg-VIEW path,
+#icon-svg-SEQUENCE path,
+#icon-svg-TABLESPACE path,
+#icon-svg-MATERIALIZED path,
+#icon-svg-SYNONYM path,
+#icon-svg-FUNC path,
+#icon-svg-FUNC-PARAM-copy path,
+#icon-svg-FUNC-RETURN path,
+#icon-svg-PROC path,
+#icon-svg-PROC-PARAM path,
+#icon-svg-TRIGGER path {
+  fill: currentColor;
+}
+
 body {
   transition:
     background-color 0.2s ease,
