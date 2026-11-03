@@ -271,9 +271,9 @@ export default {
 }
 
 [data-theme='dark'] .operators .operator-btn-group .sql-run-button:not([disabled]) {
-  background: var(--success-bg) !important;
-  border-color: var(--border-primary) !important;
-  color: var(--primary-color) !important;
+  background: #238636 !important;
+  border-color: #238636 !important;
+  color: var(--text-primary) !important;
 
   :deep(span) {
     color: inherit !important;
