@@ -10,6 +10,7 @@
             </div>
           </div>
           <div class="ticket-overview__actions">
+            <Button @click="handleCopyTicketUrl">{{ $t('fu-zhi-lian-jie') }}</Button>
             <Button
               v-if="
                 ['DM_QUERY', 'DM_CHANGE'].includes(ticketDetail.approBiz) &&
@@ -2160,6 +2161,9 @@ export default {
       } finally {
         this.sqlContentAction = '';
       }
+    },
+    handleCopyTicketUrl() {
+      this.copyText(window.location.href);
     },
     handleShowCloseTicketModal() {
       this.showCloseTicketModal = true;
