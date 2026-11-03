@@ -453,16 +453,4 @@ export default {
 [data-theme='dark'] .app-content-header__link :deep(.icon-v2) {
   filter: brightness(0) invert(1) !important;
 }
-
-@media (max-width: 767px) {
-  .app-content-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .app-content-header__right {
-    justify-content: space-between;
-  }
-}
 </style>

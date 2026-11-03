@@ -1,31 +1,46 @@
 <template>
-  <div class="theme-toggle" role="radiogroup" :aria-label="label" @keydown="navigate">
+  <ThemeDropdown v-model:open="open" :trigger="['click']" placement="bottomRight">
     <button
-      v-for="mode in modes"
-      :key="mode"
       type="button"
-      role="radio"
-      class="theme-option"
-      :aria-checked="themeMode === mode"
-      :aria-label="$t(`appearance-${mode}`)"
-      :title="$t(`appearance-${mode}`)"
-      :tabindex="themeMode === mode ? 0 : -1"
-      @click="selectTheme(mode)"
+      ref="trigger"
+      class="theme-toggle"
+      :aria-label="label"
+      :title="label"
+      aria-haspopup="menu"
+      :aria-expanded="open"
+      @keydown.down.prevent="focusMenu"
+      @keydown.esc="open = false"
     >
-      <ThemeIcon :mode="mode" />
+      <ThemeIcon :mode="themeMode" />
     </button>
-  </div>
+    <template #overlay>
+      <ThemeMenu ref="menu" class="theme-menu" @keydown="navigateMenu" :selected-keys="[themeMode]" @click="selectTheme">
+        <ThemeMenuItem
+          v-for="mode in modes"
+          :key="mode"
+          role="menuitemradio"
+          :aria-checked="themeMode === mode"
+          :aria-label="$t(`appearance-${mode}`)"
+          :title="$t(`appearance-${mode}`)"
+          class="theme-option"
+        >
+          <ThemeIcon :mode="mode" />
+        </ThemeMenuItem>
+      </ThemeMenu>
+    </template>
+  </ThemeDropdown>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import ThemeIcon from './ThemeIcon.vue';
+import { Dropdown as ThemeDropdown, Menu as ThemeMenu, MenuItem as ThemeMenuItem } from 'ant-design-vue';
 
 export default {
   name: 'ThemeToggle',
-  components: { ThemeIcon },
+  components: { ThemeDropdown, ThemeMenu, ThemeMenuItem, ThemeIcon },
   data() {
-    return { modes: ['light', 'system', 'dark'] };
+    return { open: false, modes: ['light', 'dark', 'system'] };
   },
   computed: {
     ...mapState(['themeMode']),
@@ -34,25 +49,39 @@ export default {
     }
   },
   methods: {
-    selectTheme(mode) {
-      this.$store.dispatch('setTheme', mode);
-    },
-    navigate(event) {
-      const steps = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 };
-      if (!(event.key in steps) && !['Home', 'End'].includes(event.key)) return;
-
-      event.preventDefault();
-      let index = this.modes.indexOf(this.themeMode);
-      if (event.key === 'Home') {
-        index = 0;
-      } else if (event.key === 'End') {
-        index = this.modes.length - 1;
+    focusMenu() {
+      if (this.open) {
+        this.$refs.menu.$el.querySelector('[aria-checked="true"]').focus();
       } else {
-        index = (index + steps[event.key] + this.modes.length) % this.modes.length;
+        this.open = true;
+      }
+    },
+    navigateMenu(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        return;
       }
 
-      this.selectTheme(this.modes[index]);
-      event.currentTarget.querySelectorAll('button')[index].focus();
+      if (event.key === 'Escape') {
+        this.open = false;
+        this.$refs.trigger.focus();
+        return;
+      }
+
+      if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+
+      event.preventDefault();
+      const options = [...this.$refs.menu.$el.querySelectorAll('[role="menuitemradio"]')];
+      const index = options.indexOf(event.target.closest('[role="menuitemradio"]'));
+      let next = index + 1;
+      if (event.key === 'ArrowUp') next = index - 1;
+
+      options[(next + options.length) % options.length].focus();
+    },
+    selectTheme({ key }) {
+      this.$store.dispatch('setTheme', key);
+      this.open = false;
+      this.$refs.trigger.focus();
     }
   }
 };
@@ -61,41 +90,36 @@ export default {
 <style scoped>
 .theme-toggle {
   display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 2px;
-  padding: 1px;
-  border: 1px solid var(--border-primary);
-  border-radius: 8px;
-  background: var(--bg-secondary);
-}
-
-.theme-option {
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
   padding: 0;
-  border: 1px solid transparent;
+  border: none;
   border-radius: 6px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   background: transparent;
   cursor: pointer;
 }
 
-.theme-option:hover {
+.theme-toggle:hover {
   background: var(--bg-hover);
 }
 
-.theme-option[aria-checked='true'] {
-  background: var(--bg-card);
-  border-color: var(--border-primary);
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--info-color);
+  outline-offset: 2px;
+}
+
+.theme-menu :deep(.theme-option) {
+  min-width: 36px;
+  padding-inline: 12px;
+  text-align: center;
   color: var(--text-primary);
 }
 
-.theme-option:focus-visible {
-  outline: 2px solid var(--info-color);
-  outline-offset: 2px;
+.theme-menu :deep(.theme-option svg) {
+  display: block;
+  margin: 7px auto;
 }
 </style>
