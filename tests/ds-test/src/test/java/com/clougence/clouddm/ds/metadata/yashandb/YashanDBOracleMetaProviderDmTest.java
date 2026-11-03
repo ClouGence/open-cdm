@@ -15,26 +15,14 @@
  */
 package com.clougence.clouddm.ds.metadata.yashandb;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -78,8 +66,10 @@ public final class YashanDBOracleMetaProviderDmTest {
 
         fetchTableColumns(newProvider(connection), connection.proxy(), null, SCHEMA, Collections.singletonList("CUS_REGION"));
 
-        String sql = connection.sqlOf("DBA_TAB_COLS");
-        assertNotNull(sql, "fetchTableColumns should read DBA_TAB_COLS");
+        String sql = connection.sqlOf("ALL_TAB_COLS");
+        assertNotNull(sql, "fetchTableColumns should read ALL_TAB_COLS");
+        assertTrue(sql.contains("SYS.ALL_COL_COMMENTS"), sql);
+        assertFalse(sql.contains("DBA_"), sql);
         // every YashanDB native name that is absent from OracleSqlTypes must be mapped in SQL
         assertTrue(sql.contains("'BIGINT','NUMBER BIGINT'"), sql);
         assertTrue(sql.contains("'TINYINT','NUMBER BIGINT'"), sql);
@@ -99,7 +89,7 @@ public final class YashanDBOracleMetaProviderDmTest {
 
         fetchTableColumns(newProvider(connection), connection.proxy(), null, SCHEMA, Collections.singletonList("CUS_REGION"));
 
-        String sql = connection.sqlOf("DBA_TAB_COLS");
+        String sql = connection.sqlOf("ALL_TAB_COLS");
         // YashanDB reports DATA_LENGTH for BIT in bits while the Oracle type it is normalized to (RAW) counts
         // bytes, so a BIT(64) column must be reported as RAW(8) rather than RAW(64).
         assertTrue(sql.contains("case when COLS.DATA_TYPE = 'BIT' then ceil(COLS.DATA_LENGTH/8) else COLS.DATA_LENGTH end"), sql);
@@ -112,7 +102,7 @@ public final class YashanDBOracleMetaProviderDmTest {
 
         fetchTableColumns(newProvider(connection), connection.proxy(), null, SCHEMA, Collections.singletonList("CUS_REGION"));
 
-        String sql = connection.sqlOf("DBA_TAB_COLS");
+        String sql = connection.sqlOf("ALL_TAB_COLS");
         // the column does not exist on YashanDB, so the Oracle-compatible alias must come from a null literal
         assertFalse(sql.contains("COLS.CHARACTER_SET_NAME"), sql);
         assertTrue(sql.contains("null CHARACTER_SET_NAME"), sql);
@@ -127,7 +117,7 @@ public final class YashanDBOracleMetaProviderDmTest {
 
         fetchTableColumns(newProvider(connection), connection.proxy(), null, SCHEMA, Collections.singletonList("CUS_REGION"));
 
-        String sql = connection.sqlOf("DBA_TAB_COLS");
+        String sql = connection.sqlOf("ALL_TAB_COLS");
         // YashanDB keeps the TIMESTAMP fractional-seconds precision in DATA_PRECISION, Oracle keeps it in DATA_SCALE
         assertTrue(sql.contains("case when COLS.DATA_TYPE like 'TIMESTAMP%' then COLS.DATA_PRECISION else COLS.DATA_SCALE end"), sql);
     }
@@ -344,13 +334,13 @@ public final class YashanDBOracleMetaProviderDmTest {
         }
     }
 
-    private static Map<String, Object> columnRow(String table, String column, String dataType, int columnId, String nullable, Long dataLength,
-                                                 Long charLength, Integer dataPrecision, Integer dataScale) {
+    private static Map<String, Object> columnRow(String table, String column, String dataType, int columnId, String nullable, Long dataLength, Long charLength,
+                                                 Integer dataPrecision, Integer dataScale) {
         return columnRow(table, column, dataType, columnId, nullable, dataLength, charLength, dataPrecision, dataScale, null);
     }
 
-    private static Map<String, Object> columnRow(String table, String column, String dataType, int columnId, String nullable, Long dataLength,
-                                                 Long charLength, Integer dataPrecision, Integer dataScale, String comment) {
+    private static Map<String, Object> columnRow(String table, String column, String dataType, int columnId, String nullable, Long dataLength, Long charLength,
+                                                 Integer dataPrecision, Integer dataScale, String comment) {
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("OWNER", SCHEMA);
         row.put("TABLE_NAME", table);
@@ -391,11 +381,11 @@ public final class YashanDBOracleMetaProviderDmTest {
 
     private static final class CapturingConnection {
 
-        private final List<String>                        issuedSql   = new ArrayList<>();
-        private final List<String>                        boundParams = new ArrayList<>();
-        private final Map<String, List<Map<String, Object>>> routes  = new LinkedHashMap<>();
-        private final List<Map<String, Object>>           defaultRows;
-        private final Connection                          proxy;
+        private final List<String>                           issuedSql   = new ArrayList<>();
+        private final List<String>                           boundParams = new ArrayList<>();
+        private final Map<String, List<Map<String, Object>>> routes      = new LinkedHashMap<>();
+        private final List<Map<String, Object>>              defaultRows;
+        private final Connection                             proxy;
 
         private CapturingConnection(List<Map<String, Object>> defaultRows){
             this.defaultRows = defaultRows;
