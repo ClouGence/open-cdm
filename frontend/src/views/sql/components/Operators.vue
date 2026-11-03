@@ -3,9 +3,9 @@
     <div class="operator-character">
       <div class="left">
         <div class="operator-btn-group">
-          <Button size="small" type="primary" :disabled="isRunning" :loading="tab.running" @click="handleRun('run')">
+          <Button class="sql-run-button" size="small" type="primary" :disabled="isRunning" :loading="tab.running" @click="handleRun('run')">
             <div class="operator-btn-content">
-              <CustomIcon v-if="!tab.running" type="icon-v2-ConsoleRun" :color="tab.running ? '#999' : '#fff'" size="14px" right-margin="4px" />
+              <CustomIcon v-if="!tab.running" type="icon-v2-ConsoleRun" size="14px" right-margin="4px" />
               <span>{{ $t('zhi-hang') }}</span>
             </div>
           </Button>
@@ -268,6 +268,16 @@ export default {
 .operator-btn-content span {
   display: inline-flex;
   align-items: center;
+}
+
+[data-theme='dark'] .operators .operator-btn-group .sql-run-button:not([disabled]) {
+  background: var(--success-bg) !important;
+  border-color: var(--border-primary) !important;
+  color: var(--primary-color) !important;
+
+  :deep(span) {
+    color: inherit !important;
+  }
 }
 
 .readonly-operator-btn {
