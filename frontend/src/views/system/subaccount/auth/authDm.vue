@@ -714,13 +714,13 @@ export default {
       this.globalResourceOriginalEnabled = !!globalAuth;
       if (globalAuth) {
         this.globalResourceAuthId = globalAuth.id;
-        this.globalResourceOriginalStartTime = this.formatAuthTime(globalAuth.startTime);
-        this.globalResourceOriginalEndTime = this.formatAuthTime(globalAuth.endTime);
-        if (globalAuth.startTime) {
-          this.authTime.startTime = dayjs(globalAuth.startTime);
+        this.globalResourceOriginalStartTime = this.authTimeMs(globalAuth.startTimeMs);
+        this.globalResourceOriginalEndTime = this.authTimeMs(globalAuth.endTimeMs);
+        if (globalAuth.startTimeMs != null) {
+          this.authTime.startTime = dayjs(globalAuth.startTimeMs);
         }
-        if (globalAuth.endTime) {
-          this.authTime.endTime = dayjs(globalAuth.endTime);
+        if (globalAuth.endTimeMs != null) {
+          this.authTime.endTime = dayjs(globalAuth.endTimeMs);
         }
         this.syncAuthRangeKeyFromTime();
       }
@@ -733,8 +733,8 @@ export default {
       }
       await this.handleGetPreviewData();
     },
-    formatAuthTime(value) {
-      return value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : null;
+    authTimeMs(value) {
+      return value == null ? null : dayjs(value).valueOf();
     },
     syncAuthRangeKeyFromTime() {
       this.curRangeKey = this.authTime?.startTime || this.authTime?.endTime ? 'custom' : 'permanent';
@@ -928,8 +928,8 @@ export default {
             flattenAuthArr.forEach((authItem) => {
               if (authItem.checked && authDataTree.isEdit) {
                 appends.push({
-                  startTime: authDataTree?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
-                  endTime: authDataTree?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
+                  startTimeMs: authDataTree?.authTime?.startTime?.valueOf() ?? null,
+                  endTimeMs: authDataTree?.authTime?.endTime?.valueOf() ?? null,
                   resId: instanceItem?.objId,
                   authLabels: [authItem?.key],
                   resPaths: getResTypeToNames(authDataTree)
@@ -938,8 +938,6 @@ export default {
 
               if (authItem.action === 'deletes' && authDataTree.isEdit) {
                 deletes.push({
-                  startTime: authDataTree?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
-                  endTime: authDataTree?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
                   resId: instanceItem?.objId,
                   authLabels: [authItem?.key],
                   resPaths: getResTypeToNames(authDataTree)
@@ -982,14 +980,14 @@ export default {
       if (this.activeAuthTab !== 'DataSource') {
         return changes;
       }
-      const startTime = this.formatAuthTime(this.authStartTime);
-      const endTime = this.formatAuthTime(this.authEndTime);
+      const startTime = this.authTimeMs(this.authStartTime);
+      const endTime = this.authTimeMs(this.authEndTime);
       const authData = {
         resId: 0,
         resPaths: [],
         authLabels: [],
-        startTime,
-        endTime
+        startTimeMs: startTime,
+        endTimeMs: endTime
       };
       if (this.authTarget.resourceManage && !this.globalResourceOriginalEnabled) {
         changes.appends.push(authData);
@@ -1262,8 +1260,6 @@ export default {
         .filter((item) => this.isPathPrefix(currentPath, item.resPaths))
         .map((item) => ({
           authId: item?.id || 0,
-          startTime: item?.startTime ? dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss') : null,
-          endTime: item?.endTime ? dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss') : null,
           resId,
           authLabels: item.authLabels,
           resPaths: item.resPaths
@@ -2245,8 +2241,8 @@ export default {
             const rawAuthData = Array.isArray(hasAutn.data) ? hasAutn.data : [];
             const authData = rawAuthData;
             authData.forEach((authWrap) => {
-              if (authWrap.startTime) this.authTime.startTime = dayjs(authWrap.startTime);
-              if (authWrap.endTime) this.authTime.endTime = dayjs(authWrap.endTime);
+              if (authWrap.startTimeMs != null) this.authTime.startTime = dayjs(authWrap.startTimeMs);
+              if (authWrap.endTimeMs != null) this.authTime.endTime = dayjs(authWrap.endTimeMs);
               const dsAuthKinds = Array.isArray(authWrap?.dsAuthKinds) ? authWrap.dsAuthKinds : [];
               if (dsAuthKinds.length) hasAuthList.push(...dsAuthKinds);
 
@@ -2260,8 +2256,8 @@ export default {
               if (!exists && allExistInFlatten) {
                 this.timeList[node.key].push({
                   auths: dsAuthKinds,
-                  startTime: authWrap.startTime ? dayjs(authWrap.startTime) : null,
-                  endTime: authWrap.endTime ? dayjs(authWrap.endTime) : null,
+                  startTime: authWrap.startTimeMs != null ? dayjs(authWrap.startTimeMs) : null,
+                  endTime: authWrap.endTimeMs != null ? dayjs(authWrap.endTimeMs) : null,
                   level: authWrap.level
                 });
               }

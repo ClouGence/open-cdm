@@ -1393,13 +1393,15 @@ export default {
     },
     formattedAuths() {
       return this.authList.map((authItem) => {
+        const startTime = authItem.startTimeMs == null ? null : dayjs(authItem.startTimeMs).format('YYYY-MM-DD HH:mm:ss');
+        const endTime = authItem.endTimeMs == null ? null : dayjs(authItem.endTimeMs).format('YYYY-MM-DD HH:mm:ss');
         let effectiveTime = this.$t('yong-jiu');
-        if (authItem.startTime && authItem.endTime) {
-          effectiveTime = `${authItem.startTime} - ${authItem.endTime}`;
-        } else if (authItem.startTime) {
-          effectiveTime = `${this.$t('cong-0')} ${authItem.startTime} ${this.$t('kai-shi-zhi-yong-jiu')}`;
-        } else if (authItem.endTime) {
-          effectiveTime = `${this.$t('cong-shen-pi-tong-guo-dao')} ${authItem.endTime} ${this.$t('jie-shu')}`;
+        if (startTime && endTime) {
+          effectiveTime = `${startTime} - ${endTime}`;
+        } else if (startTime) {
+          effectiveTime = `${this.$t('cong-0')} ${startTime} ${this.$t('kai-shi-zhi-yong-jiu')}`;
+        } else if (endTime) {
+          effectiveTime = `${this.$t('cong-shen-pi-tong-guo-dao')} ${endTime} ${this.$t('jie-shu')}`;
         }
         return {
           resId: authItem.resId,

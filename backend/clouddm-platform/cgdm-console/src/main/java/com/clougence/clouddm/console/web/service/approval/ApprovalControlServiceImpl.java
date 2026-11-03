@@ -98,7 +98,6 @@ import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.DateFormatType;
 import com.clougence.utils.future.CgFuture;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -740,7 +739,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     public RdpAuthTicketDetailVO queryAuthTicketDetail(String ownerUid, String uid, long ticketId) {
         DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
         DmAuthApprovalDO authTicketInfo = this.authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
-        RdpAddAuthTicketFO fo = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
+        RdpAddAuthTicketFO fo = RdpConvertUtils.readAuthTicket(authTicketInfo.getApplyAuthInfo());
 
         RdpAuthTicketDetailVO vo = new RdpAuthTicketDetailVO();
         if (!CollectionUtils.isEmpty(fo.getApplyAuths())) {
