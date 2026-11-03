@@ -2581,9 +2581,9 @@ export default {
   }
 
   .ticket-status-total.analysis-status {
-    color: #1677ff;
-    border-color: #91caff;
-    background: #e6f4ff;
+    color: var(--ticket-running-color, #1677ff);
+    border-color: var(--ticket-running-border, #91caff);
+    background: var(--ticket-running-bg, #e6f4ff);
   }
 
   .ticket-detail-operators {
@@ -2818,8 +2818,8 @@ export default {
       }
 
       &.status-running {
-        color: #1677ff;
-        background: #e6f4ff;
+        color: var(--ticket-running-color, #1677ff);
+        background: var(--ticket-running-bg, #e6f4ff);
       }
 
       &.status-failed {
@@ -2997,6 +2997,12 @@ export default {
   color: var(--text-primary);
   background: var(--bg-card);
   overflow: hidden;
+}
+
+:global([data-theme='dark'] .ticket-detail-page) {
+  --ticket-running-color: var(--link-color);
+  --ticket-running-bg: color-mix(in srgb, var(--link-color) 12%, var(--bg-card));
+  --ticket-running-border: color-mix(in srgb, var(--link-color) 30%, var(--border-primary));
 }
 
 .ticket-detail-page .ticket-detail-container {
@@ -3265,8 +3271,8 @@ export default {
 .ticket-state-badge--running,
 .analysis-item-status.status-running,
 .analysis-item-status.status-active {
-  color: #1677ff;
-  background: #e6f4ff;
+  color: var(--ticket-running-color, #1677ff);
+  background: var(--ticket-running-bg, #e6f4ff);
 }
 
 .ticket-state-badge--error,

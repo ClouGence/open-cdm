@@ -123,6 +123,16 @@
         {{ $t(tab.workspaceConnectionState === 'disconnected' ? 'sql-connection-open' : 'sql-connection-reconnect') }}
       </Button>
     </div>
+    <CCModal
+      v-model="operationConfirm.visible"
+      wrap-class-name="sql-operation-confirm"
+      :title="$t('cao-zuo-que-ren')"
+      :width="520"
+      @on-ok="confirmOperation"
+      @on-cancel="closeOperationConfirm"
+    >
+      {{ operationConfirm.message }}
+    </CCModal>
     <CCModal v-model="showNoPassedRuleModal" :title="$t('gui-ze-xiao-yan-shi-bai')" :width="800">
       <Table :columns="noPassedRuleColumns" :data="noPassedRuleList" border stripe>
         <template #lines="{ row }">
@@ -261,6 +271,7 @@ export default {
       currentWarnLevel: '',
       noPassedRuleList: [],
       showNoPassedRuleModal: false,
+      operationConfirm: { visible: false, message: '', callback: null },
       stopping: false,
       monacoEditor: null,
       editorTabKey: null,
@@ -722,17 +733,23 @@ export default {
 
       if (this.tab.support[confName].conf === 'Hint') {
         if (!this.tab.autoCommit || focus) {
-          this.$Modal.confirm({
-            title: this.tab.support[confName].hint,
-            onOk: () => {
-              callback.apply(this);
-            }
-          });
+          this.operationConfirm.message = this.tab.support[confName].hint;
+          this.operationConfirm.callback = callback;
+          this.operationConfirm.visible = true;
           return;
         }
       }
 
       callback();
+    },
+    confirmOperation() {
+      const callback = this.operationConfirm.callback;
+      this.closeOperationConfirm();
+      callback.apply(this);
+    },
+    closeOperationConfirm() {
+      this.operationConfirm.visible = false;
+      this.operationConfirm.callback = null;
     },
     //
     setEditorInstance(editor, tabKey) {
@@ -1282,6 +1299,10 @@ export default {
 };
 </script>
 <style lang="less">
+.sql-operation-confirm .ant-modal .ant-modal-content .ant-modal-footer {
+  justify-content: flex-end !important;
+}
+
 .sql-viewer {
   .sql-editor-stage {
     position: relative;
