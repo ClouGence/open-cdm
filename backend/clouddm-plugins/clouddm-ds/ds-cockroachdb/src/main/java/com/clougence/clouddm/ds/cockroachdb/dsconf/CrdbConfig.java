@@ -23,6 +23,8 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.ds.cockroachdb.i18n.CrdbConfigI18nKeys;
+import com.clougence.clouddm.ds.cockroachdb.sql.CrdbSqlEngineSpi;
+import com.clougence.sql.postgres.PgSqlEngineSpi;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -57,6 +59,16 @@ public class CrdbConfig extends DataSourceConfig {
 
     public CrdbConfig(){
         setDataSourceType(DataSourceType.CockroachDB);
+    }
+
+    @Override
+    public String getSqlEngine() {
+        String engine = super.getSqlEngine();
+        // Existing CockroachDB connections stored the formerly bound PostgreSQL engine.
+        if (PgSqlEngineSpi.NAME.equals(engine)) {
+            return CrdbSqlEngineSpi.NAME;
+        }
+        return engine;
     }
 
     public Properties asDriverProperties() {

@@ -3,12 +3,19 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.mysql.analysis.reference;
 
-import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
-import static com.clougence.sql.common.registry.RegisteredResourceType.PROCEDURE;
-import static com.clougence.sql.common.registry.RegisteredResourceType.TABLE;
+import static com.clougence.sql.common.registry.RegisteredResourceType.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -175,17 +182,13 @@ public final class MySqlResourceRegistry {
         register(functionBehaviors, FUNCTION, 50700, Integer.MAX_VALUE, BehaviorAction.LOCK, "SERVICE_GET_READ_LOCKS", "SERVICE_GET_WRITE_LOCKS", "SERVICE_RELEASE_LOCKS");
         register(functionBehaviors, FUNCTION, 50600, Integer.MAX_VALUE, BehaviorAction.CONFIGURE, "SET_FIREWALL_MODE");
         register(functionBehaviors, FUNCTION, 80023, Integer.MAX_VALUE, BehaviorAction.CONFIGURE, "SET_FIREWALL_GROUP_MODE");
-        register(functionBehaviors, FUNCTION, 80013, Integer.MAX_VALUE, BehaviorAction.SWITCH, "GROUP_REPLICATION_SET_AS_PRIMARY",
-                "GROUP_REPLICATION_SWITCH_TO_MULTI_PRIMARY_MODE", "GROUP_REPLICATION_SWITCH_TO_SINGLE_PRIMARY_MODE");
+        register(functionBehaviors, FUNCTION, 80013, Integer.MAX_VALUE, BehaviorAction.SWITCH, "GROUP_REPLICATION_SET_AS_PRIMARY", "GROUP_REPLICATION_SWITCH_TO_MULTI_PRIMARY_MODE", "GROUP_REPLICATION_SWITCH_TO_SINGLE_PRIMARY_MODE");
         register(functionBehaviors, FUNCTION, 80013, Integer.MAX_VALUE, BehaviorAction.CONFIGURE, "GROUP_REPLICATION_SET_WRITE_CONCURRENCY");
         register(functionBehaviors, FUNCTION, 80016, Integer.MAX_VALUE, BehaviorAction.CONFIGURE, "GROUP_REPLICATION_SET_COMMUNICATION_PROTOCOL");
-        register(functionBehaviors, FUNCTION, 80026, Integer.MAX_VALUE, BehaviorAction.CONFIGURE, "GROUP_REPLICATION_DISABLE_MEMBER_ACTION",
-                "GROUP_REPLICATION_ENABLE_MEMBER_ACTION");
+        register(functionBehaviors, FUNCTION, 80026, Integer.MAX_VALUE, BehaviorAction.CONFIGURE, "GROUP_REPLICATION_DISABLE_MEMBER_ACTION", "GROUP_REPLICATION_ENABLE_MEMBER_ACTION");
         register(functionBehaviors, FUNCTION, 80026, Integer.MAX_VALUE, BehaviorAction.RESET, "GROUP_REPLICATION_RESET_MEMBER_ACTIONS");
-        register(functionBehaviors, FUNCTION, 80022, Integer.MAX_VALUE, BehaviorAction.ALTER, "ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_SOURCE",
-                "ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_SOURCE");
-        register(functionBehaviors, FUNCTION, 80023, Integer.MAX_VALUE, BehaviorAction.ALTER, "ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_MANAGED",
-                "ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_MANAGED");
+        register(functionBehaviors, FUNCTION, 80022, Integer.MAX_VALUE, BehaviorAction.ALTER, "ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_SOURCE", "ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_SOURCE");
+        register(functionBehaviors, FUNCTION, 80023, Integer.MAX_VALUE, BehaviorAction.ALTER, "ASYNCHRONOUS_CONNECTION_FAILOVER_ADD_MANAGED", "ASYNCHRONOUS_CONNECTION_FAILOVER_DELETE_MANAGED");
         register(functionBehaviors, FUNCTION, 80027, Integer.MAX_VALUE, BehaviorAction.RESET, "ASYNCHRONOUS_CONNECTION_FAILOVER_RESET");
     }
 

@@ -851,6 +851,9 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
     public Void visitInsertstmt(InsertstmtContext ctx) {
         builder.handleInsert(() -> {
             dmVisitChildren(ctx);
+            if (ctx.upsert_keyword() != null) {
+                builder.addAttr(CommonAttribute.INSERT_CONFLICT, RdbInsertConflictStrategy.UPDATE);
+            }
         });
 
         return null;

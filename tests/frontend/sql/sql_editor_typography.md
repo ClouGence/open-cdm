@@ -47,7 +47,7 @@
 - 初始路由与状态：依次打开 SQL 工作台、工单 SQL 内容、CI/CD SQL 变更弹窗、CI/CD Diff 弹窗和 SQL 管理日志详情。
 - 测试数据：D01、D03。
 - 准备方法：记录各入口可稳定定位的业务对象。
-- @Browser 操作：在每个入口检查相同 SQL 片段；分别读取可编辑、只读和 Diff 两侧 Monaco 文本的 `font-family`、`font-size`、`font-weight`、`line-height` 与 `letter-spacing`。
+- @Browser 操作：在每个入口检查相同 SQL 片段；SQL 管理日志分别打开控制台来源（原始语句/执行语句 Diff）和工单来源（只读 SQL）；分别读取可编辑、只读和 Diff 两侧实际 `.view-line`、语法 token 与行号的 `font-family`、`font-size`、`font-weight`、`line-height` 与 `letter-spacing`，不能只检查 `.view-lines` 容器或 Monaco 配置。
 - 预期结果：所有 SQL Monaco 编辑器的默认计算样式均落在同一字体族，且为 14px、400、21px、0；Diff 左右两侧一致；页面没有通过局部 props 或 CSS 将 SQL 内容改回粗体；JSON 编辑器不受本规范影响。
 - 恢复/清理：关闭全部弹窗并返回 SQL 工作台。
 
@@ -118,7 +118,7 @@
 - 测试数据：不适用。
 - 准备方法：无。
 - @Browser 操作：完成页面目视验证后，结合源码检查所有 SQL Monaco 创建入口。
-- 预期结果：所有 SQL Monaco 创建入口复用 `SQL_EDITOR_TYPOGRAPHY`；页面不传入另一套字体 props；唯一允许的运行时差异是 SQL 工作台用户主动调整字号。
+- 预期结果：所有 SQL Monaco 创建入口复用 `SQL_EDITOR_TYPOGRAPHY`；两个 Diff 组件的外层容器显式带有 `sql-editor-typography`，保证统一样式覆盖内部两个编辑器（Diff 不会自动传递 `extraEditorClassName`）；页面不传入另一套字体 props；唯一允许的运行时差异是 SQL 工作台用户主动调整字号及跟随该字号的 AI SQL 预览。
 - 恢复/清理：无。
 
 ## Cleanup

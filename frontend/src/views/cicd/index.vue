@@ -62,12 +62,12 @@
                 </div>
               </template>
               <template #action="{ row }">
-                <div class="action flow-actions">
+                <div class="action flow-actions table-row-actions">
                   <span class="flow-action-item">
                     <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
                   </span>
                   <span v-if="flowDescendantCount(row)" class="flow-action-item">
-                    <Button class="flow-dependency-action" type="text" @click="showDependency(row)">{{ $t('cicd-dependency-action') }}</Button>
+                    <Button type="text" @click="showDependency(row)">{{ $t('cicd-dependency-action') }}</Button>
                   </span>
                   <Dropdown
                     v-if="canManageFlow"
@@ -132,12 +132,12 @@
                   <span>{{ row.flowManagerName || '-' }}</span>
                   <span>{{ row.createTime || '-' }}</span>
                 </div>
-                <div class="flow-actions flow-mobile-actions">
+                <div class="flow-actions flow-mobile-actions table-row-actions">
                   <span class="flow-action-item">
                     <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
                   </span>
                   <span v-if="flowDescendantCount(row)" class="flow-action-item">
-                    <Button class="flow-dependency-action" type="text" @click="showDependency(row)">{{ $t('cicd-dependency-action') }}</Button>
+                    <Button type="text" @click="showDependency(row)">{{ $t('cicd-dependency-action') }}</Button>
                   </span>
                   <Dropdown
                     v-if="canManageFlow"
@@ -1496,32 +1496,6 @@ export default {
   }
 }
 
-.flow-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-
-  :deep(.ivu-tooltip) {
-    display: inline-flex;
-    align-items: center;
-  }
-
-  :deep(.ivu-tooltip-rel) {
-    display: inline-flex;
-    align-items: center;
-  }
-
-  :deep(.dm-button.ant-btn-link) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 22px;
-    padding: 0 2px;
-    line-height: 22px;
-  }
-}
-
 .flow-table-container {
   border: 1px solid var(--border-light);
   border-radius: 8px;
@@ -1580,15 +1554,6 @@ export default {
 
 .flow-more-delete:not(.ivu-dropdown-item-disabled) {
   color: #ed4014;
-}
-
-.flow-dependency-action,
-.flow-dependency-action:hover,
-.flow-dependency-action:focus,
-.flow-dependency-action:active {
-  border-color: transparent !important;
-  background: transparent !important;
-  box-shadow: none !important;
 }
 
 .flow-mobile-list {

@@ -27,10 +27,13 @@ import lombok.Setter;
 @Setter
 public class ApprovalStageMO {
 
-    private List<String> execUserName;
+    private CustomApprovalContext    customApproval;
+    private ApprovalExecutionContext customExecution;
+    private ApprovalExecutionAttempt executionAttempt;
+    private List<String>             execUserName;
 
-    private String       execMsg;
+    private String                   execMsg;
 
     // Is it automatically executed by the system
-    private boolean      isAutoExecute;
+    private boolean                  isAutoExecute;
 }

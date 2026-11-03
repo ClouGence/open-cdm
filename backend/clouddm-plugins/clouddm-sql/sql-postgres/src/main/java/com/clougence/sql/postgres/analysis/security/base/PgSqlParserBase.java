@@ -49,8 +49,12 @@ public abstract class PgSqlParserBase extends Parser {
 
     private PostgresVersion        version = PostgresVersion.LATEST;
     private Predicate<TokenStream> extensionStatement;
+    private Predicate<TokenStream> upsertKeyword;
+    private Predicate<TokenStream> snapshotClause;
     private Predicate<TokenStream> extensionSuffix;
     private Predicate<TokenStream> extensionCursorOption;
+    private boolean                indexExtensions;
+    private boolean                mutationLimit;
 
     public PgSqlParserBase(TokenStream input){
         super(input);
@@ -63,6 +67,24 @@ public abstract class PgSqlParserBase extends Parser {
         this.extensionSuffix = suffix;
         this.extensionCursorOption = cursorOption;
     }
+
+    public final void setUpsertKeyword(Predicate<TokenStream> predicate) { this.upsertKeyword = predicate; }
+
+    public final void setSnapshotClause(Predicate<TokenStream> predicate) { this.snapshotClause = predicate; }
+
+    public final void setIndexExtensions(boolean enabled) { this.indexExtensions = enabled; }
+
+    public final void setMutationLimit(boolean enabled) { this.mutationLimit = enabled; }
+
+    protected final boolean isIndexExtension(String keyword) {
+        return indexExtensions && keyword.equalsIgnoreCase(getTokenStream().LT(1).getText());
+    }
+
+    protected final boolean isMutationLimit() { return mutationLimit; }
+
+    protected final boolean isSnapshotClause() { return snapshotClause != null && snapshotClause.test(getTokenStream()); }
+
+    protected final boolean isUpsertKeyword() { return upsertKeyword != null && upsertKeyword.test(getTokenStream()); }
 
     protected final boolean isExtensionStatement() { return extensionStatement != null && extensionStatement.test(getTokenStream()); }
 

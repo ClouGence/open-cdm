@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.mongodb.analysis.behavior;
 
@@ -94,7 +103,8 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         return switch (type) {
             case FIND, AGGREGATE, FIND_ONE, COUNT, DISTINCT, COUNT_DOCUMENTS -> SplitQueryType.SELECT;
             case DATA_SIZE, HELLO, EXPLAIN -> SplitQueryType.PERFORMANCE;
-            case LIST_COLLECTIONS, LIST_INDEXES, SHOW_DATABASES, SHOW_COLLECTIONS, RS_STATUS, RS_CONF, RS_REPLICATION_INFO, SH_STATUS, SH_BALANCER_STATUS -> SplitQueryType.METADATA;
+            case LIST_COLLECTIONS, LIST_INDEXES, SHOW_DATABASES, SHOW_COLLECTIONS, RS_STATUS, RS_CONF, RS_REPLICATION_INFO, SH_STATUS, SH_BALANCER_STATUS ->
+                SplitQueryType.METADATA;
             case VALIDATE -> SplitQueryType.ADMIN_TABLE;
             case CREATE_INDEX, CREATE_INDEXES -> SplitQueryType.ADD_INDEX;
             case CREATE_VIEW -> SplitQueryType.CREATE_VIEW;
@@ -120,7 +130,9 @@ public class MongoBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
             case FSYNC_UNLOCK -> BehaviorAction.UNLOCK;
             case PROFILE -> BehaviorAction.CONFIGURE;
             case KILL_OP -> BehaviorAction.TERMINATE;
-            case HOST_INFO, CURRENT_OP, SERVER_STATUS, BUILD_INFO, GET_LOG_COMPONENTS, DB_STATS, LATENCY_STATS, RS_STATUS, RS_CONF, RS_REPLICATION_INFO, SH_STATUS, SH_BALANCER_STATUS -> BehaviorAction.READ;
+            case HOST_INFO, CURRENT_OP, SERVER_STATUS, BUILD_INFO, GET_LOG_COMPONENTS, DB_STATS, LATENCY_STATS, RS_STATUS, RS_CONF, RS_REPLICATION_INFO, SH_STATUS,
+                    SH_BALANCER_STATUS ->
+                BehaviorAction.READ;
             default -> null;
         };
         if (commandAction != null) {

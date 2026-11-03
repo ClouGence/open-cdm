@@ -3,6 +3,15 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.clouddm.console.web.component.approval.schedule;
 
@@ -22,6 +31,7 @@ import com.clougence.clouddm.console.web.component.approval.PreInitHandler;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.PreInitContext;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -83,9 +93,14 @@ public class ApprovalPreInitService {
         List<String> levels = new ArrayList<>();
         levels.add(String.valueOf(dsDO.getDsEnvId()));
         levels.add(String.valueOf(dsDO.getId()));
+        DsConfig constantSettings = this.dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
+        List<String> configuredLevels = constantSettings == null || constantSettings.getCategories() == null ? null : constantSettings.getCategories().getLevels();
+        // Env+Instance only (e.g. Etcd/Kafka): empty dbLevels is valid, do not fall back to targetInfo.
+        // Other DS: keep legacy fallback when levels is null/empty so old tickets still resolve catalog/schema.
+        boolean envInstanceOnly = configuredLevels != null && configuredLevels.size() <= 2;
         if (CollectionUtils.isNotEmpty(approvalDO.getLevels())) {
             levels.addAll(approvalDO.getLevels());
-        } else if (StringUtils.isNotBlank(approvalDO.getTargetInfo())) {
+        } else if (!envInstanceOnly && StringUtils.isNotBlank(approvalDO.getTargetInfo())) {
             levels.addAll(Arrays.stream(approvalDO.getTargetInfo().split("/")).filter(StringUtils::isNotBlank).toList());
         }
 

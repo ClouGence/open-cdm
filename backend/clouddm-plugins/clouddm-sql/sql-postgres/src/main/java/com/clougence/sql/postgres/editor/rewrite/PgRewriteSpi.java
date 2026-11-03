@@ -89,8 +89,17 @@ public class PgRewriteSpi implements RewriteSpi {
             return false;
         }
 
+        PgSqlParser.Select_no_parensContext select = selectStmt.select_no_parens();
         PgSqlParser.Select_limitContext limitContext = simple.select_limit();
+        if (limitContext == null && select.select_limit_() != null) {
+            limitContext = select.select_limit_().select_limit();
+        }
+
         if (limitContext != null) {
+            if (limitContext.limit_clause() == null || limitContext.limit_clause().select_limit_value() == null) {
+                return false;
+            }
+
             PgSqlParser.Select_limit_valueContext limit = limitContext.limit_clause().select_limit_value();
 
             long sqlLimit = Long.parseLong(limit.getText());
@@ -102,7 +111,11 @@ public class PgRewriteSpi implements RewriteSpi {
                 return false;
             }
         } else {
-            rewriter.insertAfter(simple.getStop(), " LIMIT " + maxLimit);
+            if (select.sort_clause_() != null) {
+                rewriter.insertAfter(select.sort_clause_().getStop(), " LIMIT " + maxLimit);
+            } else {
+                rewriter.insertAfter(simple.getStop(), " LIMIT " + maxLimit);
+            }
             return true;
         }
     }

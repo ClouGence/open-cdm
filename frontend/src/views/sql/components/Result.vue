@@ -5,7 +5,7 @@
         <a-tabs
           v-model:activeKey="tab.result.active"
           class="message-tabs"
-          :class="{ 'message-tabs--with-results': tab.result?.list?.length }"
+          :class="{ 'message-tabs--with-results': tab.result?.list?.length || tab.result.pending }"
           type="card"
           @tabClick="handleResultTabChange"
         >
@@ -18,7 +18,13 @@
             </template>
           </a-tab-pane>
         </a-tabs>
-        <a-tabs v-model:activeKey="tab.result.active" class="right" type="card" @tabClick="handleResultTabChange" v-if="tab.result?.list?.length">
+        <a-tabs
+          v-model:activeKey="tab.result.active"
+          class="right"
+          type="card"
+          @tabClick="handleResultTabChange"
+          v-if="tab.result?.list?.length || tab.result.pending"
+        >
           <a-tab-pane v-for="res in tab.result.list" :key="res.resultId" :name="res.resultId">
             <template #tab>
               <div @contextmenu.prevent.stop="onContextmenu($event, res)">
@@ -32,6 +38,14 @@
                   @click.native.stop="handleCloseResultTab('current', res.resultId)"
                 />
               </div>
+            </template>
+          </a-tab-pane>
+          <a-tab-pane v-if="tab.result.pending" :key="tab.result.pending.resultId" :name="tab.result.pending.resultId">
+            <template #tab>
+              <span class="result-pending-tab">
+                <span class="loading-spinner" />
+                {{ $t('jie-guo') }}{{ tab.result.pending.showIndex }}
+              </span>
             </template>
           </a-tab-pane>
           <template #rightExtra>
@@ -123,151 +137,171 @@
         class="result-content-wrapper"
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
-        <div class="result-summary">
-          <span role="status">{{ $t('query-fetched-count', [selectedTab.fetchCount || 0]) }}</span>
-          <Poptip v-if="selectedTab.querySql" trigger="click" transfer placement="top-start">
-            <template #content>
-              <div class="query-rewrite-details">
-                <pre class="query-rewrite-sql">{{ selectedTab.querySql }}</pre>
-              </div>
-            </template>
-            <button type="button" class="result-summary-link">{{ $t('query-effective-statement') }}</button>
-          </Poptip>
-          <button type="button" class="result-summary-link" @click="handleResultTabChange('message')">{{ $t('zhi-hang-xin-xi') }}</button>
+        <div v-if="selectedTab === tab.result.pending" class="result-pending" role="status" aria-live="polite">
+          <span class="result-pending-spinner" aria-hidden="true" />
+          <div class="result-pending-message">{{ selectedTab.message }}</div>
         </div>
-        <div class="tip-footer">
-          <div class="tip-footer-main">
-            <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
-              <div
-                v-if="
-                  (tab.running || selectedTab.refreshOnProgress) && selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]
-                "
-                class="paginated-loading"
-              >
-                <div class="loading-spinner"></div>
-              </div>
-              <Page
-                :model-value="selectedTab.page"
-                :page-size="selectedTab.receiveMode === 'PAGINATED' ? 30 : 50"
-                :total="selectedTab.receiveMode === 'PAGINATED' ? selectedTab.fetchCount || selectedTab.total : selectedTab.total"
-                placement="top"
-                show-total
-                size="small"
-                @on-change="changePage($event)"
-              ></Page>
-            </div>
-            <div v-else class="stream-info">
-              <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
-            </div>
-            <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
-            <Poptip v-if="selectedTab.rewriteTags?.length" trigger="hover" transfer placement="top-start" class="tip-footer-sql-pop">
+        <template v-else>
+          <div class="result-summary">
+            <span role="status">{{ $t('query-fetched-count', [selectedTab.fetchCount || 0]) }}</span>
+            <Poptip v-if="selectedTab.querySql" trigger="click" transfer placement="top-start">
               <template #content>
                 <div class="query-rewrite-details">
-                  <div class="query-rewrite-section">
-                    <div class="query-rewrite-label">{{ $t('zhong-xie-mo-kuai') }}</div>
-                    <div class="query-rewrite-tags">
-                      <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
-                    </div>
-                  </div>
-                  <div class="query-rewrite-section">
-                    <div class="query-rewrite-label">{{ $t('yuan-shi-yu-ju') }}</div>
-                    <pre class="query-rewrite-sql">{{ selectedTab.original }}</pre>
-                  </div>
-                  <div class="query-rewrite-section">
-                    <div class="query-rewrite-label">{{ $t('gai-xie-yu-ju') }}</div>
-                    <pre class="query-rewrite-sql">{{ selectedTab.querySql }}</pre>
-                  </div>
+                  <pre class="query-rewrite-sql">{{ selectedTab.querySql }}</pre>
                 </div>
               </template>
-              <a-tag color="blue">{{ $t('zhong-xie') }}</a-tag>
+              <button type="button" class="result-summary-link">{{ $t('query-effective-statement') }}</button>
             </Poptip>
-            <a-popover v-if="selectedTab.cost && selectedTab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
-              <template #content>
-                <div v-for="costPop in selectedTab.cost.popList" :key="costPop.text">
-                  <a-icon :type="costPop.icon" :style="`color: ${costPop.color}`" :theme="costPop.theme" />
-                  {{ costPop.text }}
+            <button type="button" class="result-summary-link" @click="handleResultTabChange('message')">{{ $t('zhi-hang-xin-xi') }}</button>
+          </div>
+          <div class="tip-footer">
+            <div class="tip-footer-main">
+              <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
+                <div
+                  v-if="
+                    (tab.running || selectedTab.refreshOnProgress) &&
+                    selectedTab.receiveMode === 'PAGINATED' &&
+                    paginatedLoading[selectedTab.resultId]
+                  "
+                  class="paginated-loading"
+                >
+                  <div class="loading-spinner"></div>
                 </div>
-              </template>
-              <div class="cost-pop-trigger" @click="handleClickCostPop">
-                <a-icon
-                  :type="selectedTab.cost.popList[selectedTab.cost.popIndex].icon"
-                  :style="`color: ${selectedTab.cost.popList[selectedTab.cost.popIndex].color}`"
-                  :theme="selectedTab.cost.popList[selectedTab.cost.popIndex].theme"
-                />
-                {{ selectedTab.cost.popList[selectedTab.cost.popIndex].text }}
+                <Page
+                  :model-value="selectedTab.page"
+                  :page-size="selectedTab.receiveMode === 'PAGINATED' ? 30 : 50"
+                  :total="selectedTab.receiveMode === 'PAGINATED' ? selectedTab.fetchCount || selectedTab.total : selectedTab.total"
+                  placement="top"
+                  show-total
+                  size="small"
+                  @on-change="changePage($event)"
+                ></Page>
               </div>
-            </a-popover>
-          </div>
-          <div class="tip-footer-right">
-            <div class="tip-footer-export" v-if="!selectedTab.exportState?.exporting && selectedTab.exportState?.percent !== 100">
-              <Poptip
-                v-if="selectedTab.exportState?.errorStatus === 'FAILED' && selectedTab.exportState?.errorMessage"
-                :content="selectedTab.exportState.errorMessage"
-                trigger="hover"
-                placement="top-end"
-                word-wrap
-                transfer
-              >
-                <CustomIcon type="icon-v2-ErrorColorful" size="16px" color="#ff4d4f" style="cursor: pointer" />
-              </Poptip>
-              <div class="tip-footer-export-btn" @click="handleResultExport">
-                <CustomIcon type="icon-v2-daochu" hoverStyle />
-                <span>{{ $t('dao-chu') }}</span>
+              <div v-else class="stream-info">
+                <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
               </div>
-            </div>
-            <div class="download-warp">
-              <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="resetTabExportState">{{ $t('fan-hui') }}</a>
-              <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="openDownloadFileNameModal">{{ $t('xia-zai') }}</a>
-              <div v-if="selectedTab.exportState?.exporting" class="export-progress-modal">
-                <a-progress :percent="selectedTab.exportState?.percent || 0" size="small" style="width: 100px" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="result-table-container" v-if="selectedTab">
-          <a-table
-            class="result-set-style"
-            :class="{ 'result-set-style--empty': !selectedTab.showData?.length }"
-            :ref="`result_table_${tab.result.active}`"
-            :columns="antdColumns"
-            :dataSource="selectedTab.showData"
-            :pagination="false"
-            :scroll="tableScroll"
-            size="small"
-            bordered
-            :rowKey="(record, index) => index"
-            :customRow="handleCustomRow"
-          >
-            <template #headerCell="{ column }">
-              <div class="header-cell-content">
-                <a-tooltip :title="column.originalTitle || column.title" placement="top">
-                  <span class="header-title">{{ column.originalTitle || column.title }}</span>
-                </a-tooltip>
-                <div v-if="column.resizable" class="resize-handle" @mousedown.stop="handleResize($event, column)" @click.stop></div>
-              </div>
-            </template>
-            <template #bodyCell="{ column, record, index }">
-              <template v-if="column.dataIndex !== 'seq'">
-                <div class="vxe-input-tpl" @dblclick.stop="handleCellDetail(record, column, index)">
-                  <span v-if="record[column.dataIndex] === null" style="color: #ccc; font-style: italic">NULL</span>
-                  <pre v-else style="overflow: hidden; margin: 0">{{ record[column.dataIndex] }}</pre>
-                  <div v-if="!getCellComplete(column, index)" class="cell-incomplete-badge"></div>
-                  <div class="op">
-                    <div @click.stop="handleCellCopy(record, column, index)" style="margin-right: 3px">
-                      <cc-iconfont name="copy" :size="12" />
+              <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
+              <Poptip v-if="selectedTab.rewriteTags?.length" trigger="hover" transfer placement="top-start" class="tip-footer-sql-pop">
+                <template #content>
+                  <div class="query-rewrite-details">
+                    <div class="query-rewrite-section">
+                      <div class="query-rewrite-label">{{ $t('zhong-xie-mo-kuai') }}</div>
+                      <div class="query-rewrite-tags">
+                        <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
+                      </div>
                     </div>
-                    <div @click.stop="handleCellDetail(record, column, index)">
-                      <cc-iconfont name="eye" :size="12" />
+                    <div class="query-rewrite-section">
+                      <div class="query-rewrite-label">{{ $t('yuan-shi-yu-ju') }}</div>
+                      <pre class="query-rewrite-sql">{{ selectedTab.original }}</pre>
+                    </div>
+                    <div class="query-rewrite-section">
+                      <div class="query-rewrite-label">{{ $t('gai-xie-yu-ju') }}</div>
+                      <pre class="query-rewrite-sql">{{ selectedTab.querySql }}</pre>
                     </div>
                   </div>
+                </template>
+                <a-tag color="blue">{{ $t('zhong-xie') }}</a-tag>
+              </Poptip>
+              <a-popover v-if="selectedTab.cost && selectedTab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
+                <template #content>
+                  <div v-for="costPop in selectedTab.cost.popList" :key="costPop.text">
+                    <a-icon :type="costPop.icon" :style="`color: ${costPop.color}`" :theme="costPop.theme" />
+                    {{ costPop.text }}
+                  </div>
+                </template>
+                <div class="cost-pop-trigger" @click="handleClickCostPop">
+                  <a-icon
+                    :type="selectedTab.cost.popList[selectedTab.cost.popIndex].icon"
+                    :style="`color: ${selectedTab.cost.popList[selectedTab.cost.popIndex].color}`"
+                    :theme="selectedTab.cost.popList[selectedTab.cost.popIndex].theme"
+                  />
+                  {{ selectedTab.cost.popList[selectedTab.cost.popIndex].text }}
+                </div>
+              </a-popover>
+            </div>
+            <div class="tip-footer-right">
+              <div
+                class="tip-footer-transpose-btn"
+                :class="{ 'tip-footer-transpose-btn--active': selectedTab.transposed }"
+                v-if="selectedTab.receiveMode !== 'STREAM'"
+                @click="toggleTranspose"
+              >
+                <CustomIcon type="icon-v2-qiehuanmoshi2" hoverStyle />
+                <span>{{ $t('sqlResult.transpose') }}</span>
+              </div>
+              <div class="tip-footer-export" v-if="!selectedTab.exportState?.exporting && selectedTab.exportState?.percent !== 100">
+                <Poptip
+                  v-if="selectedTab.exportState?.errorStatus === 'FAILED' && selectedTab.exportState?.errorMessage"
+                  :content="selectedTab.exportState.errorMessage"
+                  trigger="hover"
+                  placement="top-end"
+                  word-wrap
+                  transfer
+                >
+                  <CustomIcon type="icon-v2-ErrorColorful" size="16px" color="#ff4d4f" style="cursor: pointer" />
+                </Poptip>
+                <div class="tip-footer-export-btn" @click="handleResultExport">
+                  <CustomIcon type="icon-v2-daochu" hoverStyle />
+                  <span>{{ $t('dao-chu') }}</span>
+                </div>
+              </div>
+              <div class="download-warp">
+                <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="resetTabExportState">{{ $t('fan-hui') }}</a>
+                <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="openDownloadFileNameModal">{{ $t('xia-zai') }}</a>
+                <div v-if="selectedTab.exportState?.exporting" class="export-progress-modal">
+                  <a-progress :percent="selectedTab.exportState?.percent || 0" size="small" style="width: 100px" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="result-table-container" v-if="selectedTab">
+            <a-table
+              class="result-set-style"
+              :class="{ 'result-set-style--empty': !selectedTab.showData?.length }"
+              :ref="`result_table_${tab.result.active}`"
+              :columns="antdColumns"
+              :dataSource="displayData"
+              :pagination="false"
+              :scroll="tableScroll"
+              size="small"
+              bordered
+              :rowKey="(record, index) => index"
+              :customRow="handleCustomRow"
+            >
+              <template #headerCell="{ column }">
+                <div class="header-cell-content">
+                  <a-tooltip :title="column.originalTitle || column.title" placement="top">
+                    <span class="header-title">{{ column.originalTitle || column.title }}</span>
+                  </a-tooltip>
+                  <div v-if="column.resizable" class="resize-handle" @mousedown.stop="handleResize($event, column)" @click.stop></div>
                 </div>
               </template>
-              <template v-else>
-                <span>{{ getRowNumber(index) }}</span>
+              <template #bodyCell="{ column, record, index }">
+                <template v-if="column.dataIndex === 'seq'">
+                  <span>{{ getRowNumber(index) }}</span>
+                </template>
+                <template v-else-if="selectedTab.transposed && column.dataIndex === '__field__'">
+                  <div class="transposed-field-cell">{{ record.__field__ }}</div>
+                </template>
+                <template v-else>
+                  <div class="vxe-input-tpl" @dblclick.stop="handleCellDetail(record, column, index)">
+                    <span v-if="record[column.dataIndex] === null" style="color: #ccc; font-style: italic">NULL</span>
+                    <pre v-else style="overflow: hidden; margin: 0">{{ record[column.dataIndex] }}</pre>
+                    <div v-if="!getCellComplete(column, index)" class="cell-incomplete-badge"></div>
+                    <div class="op">
+                      <div @click.stop="handleCellCopy(record, column, index)" style="margin-right: 3px">
+                        <cc-iconfont name="copy" :size="12" />
+                      </div>
+                      <div @click.stop="handleCellDetail(record, column, index)">
+                        <cc-iconfont name="eye" :size="12" />
+                      </div>
+                    </div>
+                  </div>
+                </template>
               </template>
-            </template>
-          </a-table>
-        </div>
+            </a-table>
+          </div>
+        </template>
       </div>
     </div>
     <CCModal v-model="showInsertSqlModal" @on-cancel="hideShowInsertSqlModal" title="Insert SQL" :width="1000" :mask-closable="false" transfer>
@@ -616,6 +650,7 @@ export default {
       if (['message', 'async'].includes(this.tab.result.active)) {
         return {};
       }
+      if (this.tab.result.pending?.resultId === this.tab.result.active) return this.tab.result.pending;
       const matched = this.tab.result.list.find((item) => item.resultId === this.tab.result.active);
       return matched || {};
     },
@@ -631,6 +666,9 @@ export default {
     antdColumns() {
       if (!this.selectedTab || !this.selectedTab.columnListSeq) {
         return [];
+      }
+      if (this.selectedTab.transposed) {
+        return this.transposedAntdColumns;
       }
       return this.selectedTab.columnListSeq.map((col, index) => {
         const colKey = col.type === 'seq' ? 'seq' : col.field;
@@ -662,9 +700,70 @@ export default {
     },
     tableScroll() {
       return {
-        x: 'max-content',
+        x: this.antdColumns.reduce((sum, col) => sum + (col.width || 100), 0),
         y: this.tableScrollY
       };
+    },
+    displayData() {
+      const tab = this.selectedTab;
+      if (!tab.transposed) {
+        return tab.showData;
+      }
+      const columnList = tab.columnList || [];
+      const sourceRows = this.transposedSourceRows;
+      return columnList.map((columnName, colIndex) => {
+        const record = { __field__: columnName };
+        sourceRows.forEach((item, rowIndex) => {
+          const rowData = item.data || item.row;
+          const cell = rowData ? rowData[colIndex] : null;
+          if (cell) {
+            record[`__r${rowIndex}`] = cell.value;
+          }
+        });
+        return record;
+      });
+    },
+    // Raw row objects for the current page; the transposed view is built from these arrays instead of
+    // the name-keyed showData objects so duplicate column names keep their own rows.
+    transposedSourceRows() {
+      const tab = this.selectedTab;
+      if ((tab.receiveMode || 'PAGE_FULL') === 'PAGINATED') {
+        return tab.rowSetCache?.[tab.page || 1] || [];
+      }
+      const page = tab.page || 1;
+      const size = tab.size || 50;
+      const start = (page - 1) * size;
+      return (tab.data || []).slice(start, start + size);
+    },
+    transposedAntdColumns() {
+      const columns = [
+        {
+          title: this.$t('zi-duan-ming-cheng'),
+          dataIndex: '__field__',
+          key: '__field__',
+          width: this.columnWidths.__field__ || 160,
+          fixed: 'left',
+          resizable: true,
+          originalTitle: this.$t('zi-duan-ming-cheng')
+        }
+      ];
+      this.transposedSourceRows.forEach((item, index) => {
+        const key = `__r${index}`;
+        const rowNumber = String(this.getRowNumber(index));
+        columns.push({
+          title: rowNumber,
+          dataIndex: key,
+          key,
+          width: this.columnWidths[key] || 100,
+          ellipsis: {
+            showTitle: true
+          },
+          resizable: true,
+          originalTitle: rowNumber,
+          sourceRowIndex: index
+        });
+      });
+      return columns;
     }
   },
   watch: {
@@ -705,6 +804,10 @@ export default {
           this.tab.result.collapsed = false;
           return;
         }
+        if (this.tab.result.pending) {
+          if (this.tab.result.active === this.tab.result.pending.resultId) this.tab.result.active = 'message';
+          this.tab.result.pending = null;
+        }
         const loadingTimerIds = Object.keys(this.paginatedLoadingTimers);
         for (let i = 0; i < loadingTimerIds.length; i++) {
           clearTimeout(this.paginatedLoadingTimers[loadingTimerIds[i]]);
@@ -717,7 +820,7 @@ export default {
       }
     },
     'tab.result.list.length'(length) {
-      if (!length && !['message', 'async'].includes(this.tab.result.active)) {
+      if (!length && !this.tab.result.pending && !['message', 'async'].includes(this.tab.result.active)) {
         this.tab.result.active = 'message';
       }
     },
@@ -884,7 +987,9 @@ export default {
         }
         this.tab.result.list.splice(deleteIndex, 1);
         const activeIndex = deleteIndex ? deleteIndex - 1 : 0;
-        this.tab.result.active = this.tab.result.list.length ? this.tab.result.list[activeIndex].resultId : 'message';
+        if (this.tab.result.active !== this.tab.result.pending?.resultId) {
+          this.tab.result.active = this.tab.result.list.length ? this.tab.result.list[activeIndex].resultId : 'message';
+        }
       } else if (type === 'other') {
         if (this.contextData.resultId === 'message') {
           this.tab.result.active = 'message';
@@ -930,7 +1035,7 @@ export default {
     handleResultTabChange(activeKey) {
       this.tab.result.collapsed = false;
       if (activeKey !== 'message' && activeKey !== 'async') {
-        const exists = this.tab.result.list.some((item) => item.resultId === activeKey);
+        const exists = this.tab.result.pending?.resultId === activeKey || this.tab.result.list.some((item) => item.resultId === activeKey);
         if (!exists) {
           this.tab.result.active = 'message';
           activeKey = 'message';
@@ -1041,14 +1146,21 @@ export default {
       this.currentTableName = '';
     },
     handleCustomRow(record, index) {
-      return {
+      const handlers = {
         onClick: (event) => {
           this.handleRowClick(record, index, event);
-        },
-        onContextmenu: (event) => {
-          this.handleRowContextMenu(record, index, event);
         }
       };
+      // In the transposed view a displayed row is a source column, so the row-level menu does not apply.
+      if (!this.selectedTab.transposed) {
+        handlers.onContextmenu = (event) => {
+          this.handleRowContextMenu(record, index, event);
+        };
+      }
+      return handlers;
+    },
+    toggleTranspose() {
+      this.selectedTab.transposed = !this.selectedTab.transposed;
     },
     handleRowClick(record, index, event) {
       // Handle row clicks.
@@ -1113,14 +1225,23 @@ export default {
       return ((this.selectedTab.page || 1) - 1) * pageSize + rowIndex;
     },
     getCellValueMeta(column, rowIndex) {
-      const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
-      if (colIndex < 0) {
+      // Under transpose the display row is the source column and the display column is the source row.
+      let colIndex;
+      let sourceRowIndex;
+      if (this.selectedTab.transposed) {
+        colIndex = rowIndex;
+        sourceRowIndex = column.sourceRowIndex;
+      } else {
+        colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
+        sourceRowIndex = rowIndex;
+      }
+      if (colIndex < 0 || sourceRowIndex === undefined || sourceRowIndex < 0) {
         return null;
       }
 
       const meta = {
         resultId: this.selectedTab.resultId,
-        rowNumber: this.getCellRowNumber(rowIndex),
+        rowNumber: this.getCellRowNumber(sourceRowIndex),
         colIndex,
         complete: true,
         moreSize: 0,
@@ -1136,8 +1257,8 @@ export default {
         if (receiveMode === 'PAGINATED') {
           const currentPage = this.selectedTab.page || 1;
           const rowSetCache = this.selectedTab.rowSetCache;
-          if (rowSetCache && rowSetCache[currentPage] && rowSetCache[currentPage][rowIndex]) {
-            const rowItem = rowSetCache[currentPage][rowIndex];
+          if (rowSetCache && rowSetCache[currentPage] && rowSetCache[currentPage][sourceRowIndex]) {
+            const rowItem = rowSetCache[currentPage][sourceRowIndex];
             const rowData = rowItem.data || rowItem.row;
             if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
               cellValue = rowData[colIndex];
@@ -1145,8 +1266,8 @@ export default {
           }
         } else if (receiveMode === 'STREAM') {
           const rowSetStream = this.selectedTab.rowSetStream;
-          if (rowSetStream && rowSetStream[rowIndex]) {
-            const rowItem = rowSetStream[rowIndex];
+          if (rowSetStream && rowSetStream[sourceRowIndex]) {
+            const rowItem = rowSetStream[sourceRowIndex];
             const rowData = rowItem.data || rowItem.row;
             if (rowData && Array.isArray(rowData) && rowData[colIndex]) {
               cellValue = rowData[colIndex];
@@ -1231,10 +1352,15 @@ export default {
       const colIndex = cellMeta ? cellMeta.colIndex : -1;
       const rowNumber = cellMeta ? cellMeta.rowNumber : rowIndex;
       const cellValue = record[column.dataIndex || column.property] || '';
+      // Under transpose the field-name column holds the source column name for this record.
+      let property = column.dataIndex || column.property;
+      if (this.selectedTab.transposed) {
+        property = record.__field__;
+      }
 
       this.$bus.emit('showCellDetailModal', {
         row: record,
-        column: { property: column.dataIndex || column.property, columnType: this.selectedTab.columnType?.[colIndex] },
+        column: { property, columnType: this.selectedTab.columnType?.[colIndex] },
         resultId: this.selectedTab.resultId,
         rowNumber,
         colNumber: colIndex,
@@ -1853,6 +1979,48 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.result-pending {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: var(--text-secondary);
+  overflow: hidden;
+}
+
+.result-pending-spinner {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 8px;
+  border: 2px solid var(--border-primary);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: loading-spin 0.8s linear infinite;
+}
+
+.result-pending-message {
+  text-align: center;
+}
+
+.result-pending-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-right: 21px;
+}
+
+.result-pending-tab .loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e8e8e8;
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: loading-spin 0.8s linear infinite;
+}
+
 .cost-pop {
   flex-shrink: 0;
   color: #aaa;
@@ -2438,6 +2606,33 @@ export default {
   align-items: center;
   gap: 4px;
   cursor: pointer;
+  white-space: nowrap;
+}
+
+.tip-footer-transpose-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 4px;
+  border-radius: 6px;
+
+  &--active {
+    color: var(--primary-color);
+  }
+}
+
+.transposed-field-cell {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  font-weight: 500;
+  background: var(--bg-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

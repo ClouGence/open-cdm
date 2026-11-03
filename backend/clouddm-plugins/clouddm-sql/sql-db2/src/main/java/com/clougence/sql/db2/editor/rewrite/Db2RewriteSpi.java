@@ -1,6 +1,17 @@
 /*
  * Copyright 2026 杭州开云集致科技有限公司
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.clougence.sql.db2.editor.rewrite;
 
@@ -74,9 +85,7 @@ public class Db2RewriteSpi implements RewriteSpi {
     public String rewriteToExplain(String queryId, String queryStr, RewriteContext context) {
         CommonTokenStream tokens = new CommonTokenStream(Db2DslProvider.INSTANCE.createLexer(CharStreams.fromString(queryStr)));
         tokens.fill();
-        List<Token> defaultTokens = tokens.getTokens().stream()
-                .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF)
-                .toList();
+        List<Token> defaultTokens = tokens.getTokens().stream().filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF).toList();
         Token first = defaultTokens.isEmpty() ? null : defaultTokens.get(0);
         if (first != null && first.getType() == Db2SqlLexer.EXPLAIN) {
             Token target = explainTarget(defaultTokens);

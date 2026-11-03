@@ -793,10 +793,6 @@
     color: var(--text-primary) !important;
   }
 
-  .ivu-tooltip-inner {
-    color: var(--text-primary) !important;
-  }
-
   // Ensure that all p tags are displayed correctly in dark theme.
   p {
     color: var(--text-primary) !important;
@@ -921,13 +917,6 @@
   .graph-container {
     background: var(--bg-secondary) !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45) !important;
-  }
-
-  .custom-tooltip {
-    background-color: var(--bg-secondary) !important;
-    border: 1px solid var(--border-primary) !important;
-    color: var(--text-primary) !important;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5) !important;
   }
 
   // ===== Ant Drawer dark adaptation (NodeFormModal / NodeFormModalNew / NodeDataDrawer) =====
@@ -1078,67 +1067,6 @@
     }
   }
 
-  // Tooltip
-  .ivu-tooltip-inner,
-  .ant-tooltip-inner {
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-primary);
-  }
-
-  .ivu-tooltip-arrow,
-  .ant-tooltip-arrow {
-    &::before {
-      background-color: var(--bg-tertiary);
-      border-color: var(--border-primary);
-    }
-  }
-
-  // Poptip
-  .ivu-poptip {
-    &-content {
-      background-color: var(--bg-secondary) !important;
-      border: 1px solid var(--border-primary) !important;
-      color: var(--text-primary) !important;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-    }
-
-    &-title {
-      background-color: var(--bg-secondary) !important;
-      color: var(--text-primary) !important;
-      border-bottom: 1px solid var(--border-primary) !important;
-    }
-
-    &-body {
-      background-color: var(--bg-secondary) !important;
-      color: var(--text-primary) !important;
-    }
-
-    &-footer {
-      background-color: var(--bg-secondary) !important;
-      border-top: 1px solid var(--border-primary) !important;
-    }
-
-    &-arrow:after {
-      border-top-color: var(--bg-secondary) !important;
-      border-bottom-color: var(--bg-secondary) !important;
-    }
-
-    &-body-content-inner {
-      color: var(--text-primary) !important;
-    }
-  }
-
-  .ivu-poptip-popper[x-placement^='right'] {
-    .ivu-poptip-arrow {
-      border-right-color: #aaa !important;
-    }
-
-    .ivu-poptip-arrow:after {
-      border-right-color: #aaa !important;
-    }
-  }
-
   .ivu-poptip-transfer {
     .ivu-table-filter-list {
       .ivu-table-filter-select-item {
@@ -1152,13 +1080,6 @@
       .ivu-table-filter-select-item-selected {
         color: var(--primary-color) !important;
       }
-    }
-  }
-
-  .ant-popover {
-    &-inner {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-primary) !important;
     }
   }
 

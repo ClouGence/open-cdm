@@ -1,21 +1,35 @@
 // 审批引擎 provider 配置定义
 // type: ApprovalProvider 枚举名（DingTalk / Feishu / Wechat）
-// enableField: 该 provider 的启用标志 KV，存字符串 'true' / 'false'
 // fields: 该 provider 在 form 里展示的 KV 字段列表
-//   widget=switch  → boolean 开关，KV 存字符串
 //   password=true  → 密码输入框，编辑模式下"留空保留旧值"
 
+export const APPROVAL_FLOW_CONTEXT_TYPE = 'CUSTOM_APPROVAL_FLOW';
+export const APPROVAL_FLOW_SCHEMA_VERSION = 2;
+export const APPROVAL_PARTICIPANT_TYPES = { TEAM: 'TEAM', PERSON: 'PERSON' };
+export const APPROVAL_EXECUTION_MODES = { MANUAL: 'MANUAL', AUTO: 'AUTO' };
+export const APPROVAL_TASK_STATUSES = {
+  WAITING: 'WAITING',
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELED: 'CANCELED'
+};
+
 export const APPROVAL_PROVIDERS = [
+  {
+    type: 'Internal',
+    labelKey: 'approval-internal-engine',
+    primaryField: 'engineName',
+    fields: [{ key: 'engineName', labelKey: 'approval-engine-name', required: true }]
+  },
   {
     type: 'DingTalk',
     labelKey: 'ding-ding-shen-pi',
     iconResource: 'webside/DingTalk@login-icon',
     primaryField: 'dingApprovalConfigAk',
     primaryLabelKey: 'approval-field-dingtalk-ak',
-    enableField: 'dingEnableApprovalService',
     helpUrl: 'https://www.cdmgr.com/docs/integrations/approval/dingtalk_approval',
     fields: [
-      { key: 'dingEnableApprovalService', labelKey: 'approval-enable-service', widget: 'switch' },
       { key: 'dingApprovalConfigAk', labelKey: 'approval-field-dingtalk-ak', required: true },
       { key: 'dingApprovalConfigSk', labelKey: 'approval-field-dingtalk-sk', required: true, password: true }
     ]
@@ -26,10 +40,8 @@ export const APPROVAL_PROVIDERS = [
     iconResource: 'webside/Feishu@login-icon',
     primaryField: 'feishuApprovalAppID',
     primaryLabelKey: 'approval-field-feishu-app-id',
-    enableField: 'feishuEnableApprovalService',
     helpUrl: 'https://www.cdmgr.com/docs/integrations/approval/feishu_approval',
     fields: [
-      { key: 'feishuEnableApprovalService', labelKey: 'approval-enable-service', widget: 'switch' },
       { key: 'feishuApprovalAppID', labelKey: 'approval-field-feishu-app-id', required: true },
       { key: 'feishuApprovalAppSecret', labelKey: 'approval-field-feishu-app-secret', required: true, password: true },
       { key: 'feishuApprovalApiTimeoutSec', labelKey: 'approval-field-feishu-api-timeout', required: true }
@@ -41,10 +53,8 @@ export const APPROVAL_PROVIDERS = [
     iconResource: 'webside/Wechat@login-icon',
     primaryField: 'wechatApprovalCorpId',
     primaryLabelKey: 'approval-field-wechat-corp-id',
-    enableField: 'wechatEnableApprovalService',
     helpUrl: 'https://www.cdmgr.com/docs/integrations/approval/wechat_approval',
     fields: [
-      { key: 'wechatEnableApprovalService', labelKey: 'approval-enable-service', widget: 'switch' },
       { key: 'wechatApprovalCorpId', labelKey: 'approval-field-wechat-corp-id', required: true },
       { key: 'wechatApprovalAgentId', labelKey: 'approval-field-wechat-agent-id', required: true },
       { key: 'wechatApprovalSecret', labelKey: 'approval-field-wechat-secret', required: true, password: true },
@@ -65,11 +75,7 @@ export function getProviderByType(type) {
 
 function readConfig(configMap, key) {
   const c = configMap[key];
-  return c?.currentCount ?? c?.configValue ?? '';
-}
-
-export function isEnabled(configMap, def) {
-  return readConfig(configMap, def.enableField) === 'true';
+  return c?.configValue ?? '';
 }
 
 export function isConfigured(configMap, def) {

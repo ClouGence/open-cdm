@@ -25,14 +25,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
+import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateClusterFO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
-import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -51,17 +52,19 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class EmbeddedWorkerBootstrap {
 
-    private static final String DEFAULT_REGION = "customer";
+    private static final String          DEFAULT_REGION = "customer";
     @Resource
-    private SystemDal           systemDal;
+    private SystemDal                    systemDal;
     @Resource
-    private AuthDal             authDal;
+    private AuthDal                      authDal;
     @Resource
-    private ClusterService      clusterService;
+    private ClusterService               clusterService;
     @Resource
-    private WorkerService       workerService;
+    private WorkerService                workerService;
     @Resource
-    private NamingDao       namingDao;
+    private NamingDao                    namingDao;
+    @Resource
+    private List<DmWorkerRegisterNotify> workerRegisterNotifiers;
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void init() {
@@ -74,6 +77,11 @@ public class EmbeddedWorkerBootstrap {
         DmSysWorkerDO worker = ensureWorker(primaryUser.getUid(), clusterId);
         resetWorkerStatus(worker);
         applyEmbeddedWorkerConfig(worker.getId(), primaryUser.getUid());
+
+        // Embedded transport skips RSocket registration, so recover interrupted work before starting the local worker.
+        for (DmWorkerRegisterNotify notifier : this.workerRegisterNotifiers) {
+            notifier.notifyRegister(worker.getWorkerSeqNumber());
+        }
 
         log.info("embedded worker bootstrap ready, uid={}, workerId={}, wsn={}", primaryUser.getUid(), worker.getId(), worker.getWorkerSeqNumber());
     }
@@ -135,42 +143,52 @@ public class EmbeddedWorkerBootstrap {
             worker.setUid(ownerUid);
             changed = true;
         }
+
         if (worker.getClusterId() != clusterId) {
             worker.setClusterId(clusterId);
             changed = true;
         }
+
         if (worker.getCloudOrIdcName() == null) {
             worker.setCloudOrIdcName(cluster != null && cluster.getCloudOrIdcName() != null ? cluster.getCloudOrIdcName() : CloudOrIdcName.SELF_MAINTENANCE);
             changed = true;
         }
+
         if (StringUtils.isBlank(worker.getRegion())) {
             worker.setRegion(cluster != null ? StringUtils.defaultIfBlank(cluster.getRegion(), DEFAULT_REGION) : DEFAULT_REGION);
             changed = true;
         }
+
         if (StringUtils.isBlank(worker.getWorkerSeqNumber())) {
             worker.setWorkerSeqNumber(this.namingDao.genWorkerSequenceNumber());
             changed = true;
         }
+
         if (StringUtils.isBlank(worker.getWorkerName())) {
             worker.setWorkerName(this.namingDao.genWorkerName());
             changed = true;
         }
+
         if (StringUtils.isBlank(worker.getWorkerDesc())) {
             worker.setWorkerDesc(worker.getWorkerName());
             changed = true;
         }
+
         if (StringUtils.isBlank(worker.getScheduleIp())) {
             worker.setScheduleIp(localIp);
             changed = true;
         }
+
         if (worker.getLifeCycleState() == null) {
             worker.setLifeCycleState(LifeCycleState.CREATED);
             changed = true;
         }
+
         if (worker.getDeployStatus() == null) {
             worker.setDeployStatus(DeployStatus.INSTALLED);
             changed = true;
         }
+
         if (worker.getWorkerState() != WorkerState.WAIT_TO_ONLINE) {
             worker.setWorkerState(WorkerState.WAIT_TO_ONLINE);
             changed = true;

@@ -22,8 +22,9 @@
   letter-spacing: 0;
   font-variant-ligatures: none;
 
-  .view-lines *,
-  .margin-view-overlays * {
+  // Codicons are excluded: the folding chevron in the gutter is an icon font glyph, overriding it with the SQL font renders it as a hollow box.
+  .view-lines *:not(.codicon),
+  .margin-view-overlays *:not(.codicon) {
     font-family: inherit;
     font-size: inherit;
     font-weight: inherit;

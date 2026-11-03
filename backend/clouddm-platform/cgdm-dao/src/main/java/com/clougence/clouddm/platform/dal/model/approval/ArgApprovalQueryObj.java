@@ -18,8 +18,6 @@ package com.clougence.clouddm.platform.dal.model.approval;
 import java.util.Date;
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
-
 import lombok.Builder;
 import lombok.Data;
 
@@ -31,25 +29,31 @@ import lombok.Data;
 @Builder
 public class ArgApprovalQueryObj {
 
-    private Long            ticketId;
+    private String         viewerUid;
 
-    private String          ticketBizId;
+    private Long           ticketId;
+
+    private String         ticketBizId;
 
     private ApprovalStatus ticketStatus;
 
-    private List<String>    uids;
+    private List<String>   uids;
 
-    private Date            startTime;
+    private Date           startTime;
 
-    private Date            endTime;
+    private Date           endTime;
 
-    private String          ticketTitleName;
+    private String         ticketTitleName;
 
-    private String          ticketDescription;
+    private String         ticketDescription;
 
-    private String          ticketContent;
+    private String         ticketContent;
 
-    private List<Long>      dsIds;
+    private List<Long>     dsIds;
 
-    private String          approvalPersonUid;
+    private String         primaryUid;
+
+    private List<Long>     customTicketIds;
+
+    private List<Long>     pendingTicketIds;
 }

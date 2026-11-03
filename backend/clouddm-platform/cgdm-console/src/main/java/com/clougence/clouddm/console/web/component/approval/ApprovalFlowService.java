@@ -64,7 +64,7 @@ public interface ApprovalFlowService {
 
     void cancelAllProcess(long ticketId);
 
-    boolean checkEnableApproval(String ownerUid, ApprovalProvider type);
+    boolean isApprovalConfigured(String ownerUid, ApprovalProvider type);
 
     void transitionTicketToTerminal(long ticketId, ApprovalStatus terminalStatus, String statusMessage);
 

@@ -50,7 +50,7 @@ const DmTableOverflowCell = {
     },
     maxWidth: {
       type: Number,
-      default: 250
+      default: 560
     }
   },
   data() {
@@ -83,8 +83,7 @@ const DmTableOverflowCell = {
         placement: 'top',
         content: String(this.content ?? ''),
         disabled: this.tooltipDisabled,
-        width: this.maxWidth,
-        wordWrap: true,
+        popperClass: 'description-popup',
         padding: '8px 12px',
         class: 'dm-table-cell-tooltip'
       },
@@ -111,12 +110,7 @@ const DmTableOverflowCell = {
             'div',
             {
               style: {
-                maxHeight: '240px',
-                overflow: 'auto',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-all',
-                cursor: 'text',
-                userSelect: 'text'
+                maxWidth: `${this.maxWidth - 24}px`
               }
             },
             this.content

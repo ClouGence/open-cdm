@@ -1,9 +1,9 @@
 <template>
-  <div ref="container" class="monaco-container"></div>
+  <div ref="container" class="monaco-container sql-editor-typography"></div>
 </template>
 
 <script>
-import * as monaco from 'monaco-editor';
+import { monaco } from '@/components/editor/monaco';
 import { mapState } from 'vuex';
 import { resolveSqlEditorLanguage } from '@/components/editor/sqlLanguage';
 import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';

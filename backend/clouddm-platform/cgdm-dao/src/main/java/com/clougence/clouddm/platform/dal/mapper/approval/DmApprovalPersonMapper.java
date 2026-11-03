@@ -33,4 +33,6 @@ public interface DmApprovalPersonMapper extends BaseMapper<DmApprovalPersonDO> {
     List<DmApprovalPersonDO> queryByTicketBzId(@Param("ticketBzId") String ticketBzId);
 
     int deleteByTicketBzId(@Param("ticketBzId") String ticketBzId);
+
+    List<String> listTicketBizIdsByUid(@Param("uid") String uid);
 }

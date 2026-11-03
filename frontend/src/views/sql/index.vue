@@ -78,7 +78,7 @@
                               <template v-if="tab.node?.INSTANCE">
                                 [{{ tab.node.INSTANCE.attr.dsInstanceDesc || tab.node.INSTANCE.attr.dsInstance }}]
                               </template>
-                              <template v-else>[{{ $t('sql-favorites-unconnected') }}]</template>
+                              <template v-else>[{{ $t('sql-query-unconnected') }}]</template>
                             </span>
                             <div class="dropdown-item-close">
                               <CustomIcon type="icon-v2-close2" customStyle="icon-v2-hover" hoverStyle @click.stop="handleCloseTab(tab.key)" />
@@ -144,8 +144,6 @@
                         @workspace-connection-error="handleWorkspaceConnectionError"
                         @workspace-connection-success="handleWorkspaceConnectionSuccess"
                         @open-script="handleOpenSqlScript"
-                        @script-deleted="handleSqlScriptDeleted"
-                        @script-renamed="handleSqlScriptRenamed"
                       >
                         <template #connection-context>
                           <div v-if="currentTab.connected && currentTab.node" class="query-schema-select__content">
@@ -217,13 +215,6 @@
       </div>
       <template #footer>
         <Button @click="showConnectedModal = false">{{ $t('guan-bi') }}</Button>
-      </template>
-    </CCModal>
-    <CCModal v-model="showScriptCloseModal" :title="$t('sql-favorites-close-title')" :width="500" :closable="false" :keyboard="false">
-      <p>{{ $t('sql-favorites-close-description') }}</p>
-      <template #footer>
-        <Button @click="cancelScriptClose">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="discardScriptAndClose">{{ $t('sql-favorites-discard-close') }}</Button>
       </template>
     </CCModal>
   </div>
@@ -341,8 +332,6 @@ export default {
       noStruct,
       datasourceList: [],
       hasDatasource: false,
-      showScriptCloseModal: false,
-      closingScriptTabKey: '',
       pendingCloseTabKeys: [],
       bulkCloseFocusKey: '',
       scriptLoadSequence: 0,
@@ -632,61 +621,24 @@ export default {
     },
     async handleOpenSqlScript(script) {
       const targetTab = this.currentTab;
-      if (!targetTab || targetTab.type !== TAB_TYPE.QUERY || !this.tabs.includes(targetTab)) return;
-      this.syncCurrentEditorTextToTab();
-      const originalText = targetTab.text || '';
+      const editor = this.$refs.sqlViewer?.monacoEditor;
+      if (!targetTab || targetTab.type !== TAB_TYPE.QUERY || !editor) return;
+      const model = editor.getModel();
+      const selection = editor.getSelection();
+      const version = model.getVersionId();
       const requestSequence = ++this.scriptLoadSequence;
-      let detail = script;
-      if (!script.forceReload || typeof script.sqlContent !== 'string') {
-        const res = await this.$services.dmQueryScriptDetail({ data: { scriptId: script.scriptId } });
-        if (!res.success) {
-          this.$Message.error(res.msg || this.$t('sql-favorites-load-failed'));
-          return;
-        }
-        detail = res.data;
+      const res = await this.$services.dmQueryScriptDetail({ data: { scriptId: script.scriptId } });
+      if (requestSequence !== this.scriptLoadSequence || this.currentTab !== targetTab || this.$refs.sqlViewer?.monacoEditor !== editor) return;
+      if (!res.success) {
+        this.$Message.error(res.msg || this.$t('sql-favorites-load-failed'));
+        return;
       }
-      if (requestSequence !== this.scriptLoadSequence || this.currentTab !== targetTab || !this.tabs.includes(targetTab)) return;
-      this.syncCurrentEditorTextToTab();
-      if (targetTab.text !== originalText) {
+      if (editor.getModel() !== model || model.getVersionId() !== version) {
         this.$Message.warning(this.$t('sql-favorites-load-cancelled-edited'));
         return;
       }
-
-      Object.assign(targetTab, {
-        text: detail.sqlContent,
-        scriptId: detail.scriptId,
-        scriptName: detail.name,
-        scriptVersion: detail.version,
-        scriptSavedText: detail.sqlContent,
-        scriptDsType: detail.dsType,
-        scriptAssociationRevision: (targetTab.scriptAssociationRevision || 0) + 1,
-        isEditing: false
-      });
-      await this.$nextTick();
-      if (this.currentTab === targetTab) this.$refs.sqlViewer?.monacoEditor?.setValue(detail.sqlContent);
-      this.storeQueryTabs();
-    },
-    handleSqlScriptDeleted(scriptId) {
-      this.tabs.forEach((tab) => {
-        if (tab.scriptId !== scriptId) return;
-        tab.scriptId = null;
-        tab.scriptVersion = null;
-        tab.scriptName = null;
-        tab.scriptSavedText = null;
-        tab.scriptDsType = null;
-        tab.scriptAssociationRevision = (tab.scriptAssociationRevision || 0) + 1;
-        tab.isEditing = false;
-      });
-      this.storeQueryTabs();
-    },
-    handleSqlScriptRenamed({ scriptId, name, previousVersion, version, sqlContent }) {
-      this.tabs.forEach((tab) => {
-        if (tab.scriptId !== scriptId) return;
-        tab.scriptName = name;
-        if (tab.scriptVersion === previousVersion && tab.scriptSavedText === sqlContent) {
-          tab.scriptVersion = version;
-        }
-      });
+      if (!this.$refs.sqlViewer.insertFavoriteSql(res.data.sqlContent, selection)) return;
+      targetTab.lastInsertedScriptId = res.data.scriptId;
       this.storeQueryTabs();
     },
     onContextmenu(event, tab) {
@@ -1424,6 +1376,14 @@ export default {
           if (this.tabs.length) {
             let hasActiveKey = false;
             this.tabs.forEach((tab) => {
+              if (tab.type === TAB_TYPE.QUERY) {
+                // Migrate legacy favorite tabs to ordinary query drafts.
+                if (!tab.dsType) tab.dsType = tab.scriptDsType;
+                for (const field of ['scriptId', 'scriptName', 'scriptVersion', 'scriptSavedText', 'scriptDsType', 'scriptAssociationRevision']) {
+                  delete tab[field];
+                }
+                tab.isEditing = false;
+              }
               if (tab.type === TAB_TYPE.STRUCT) {
                 this.resetStoredStructEditorState(tab);
               }
@@ -1733,11 +1693,6 @@ export default {
         this.continueClosingTabs();
         return;
       }
-      if (editTab.type === TAB_TYPE.QUERY && editTab.scriptId && editTab.text !== editTab.scriptSavedText) {
-        this.closingScriptTabKey = targetKey;
-        this.showScriptCloseModal = true;
-        return;
-      }
       if (editTab.type === 'DATA' && this.dataViewIsEditing(editTab)) {
         this.confirmCloseEditedTab(
           targetKey,
@@ -1770,18 +1725,6 @@ export default {
     cancelPendingTabClose() {
       this.pendingCloseTabKeys = [];
       this.bulkCloseFocusKey = '';
-    },
-    cancelScriptClose() {
-      this.showScriptCloseModal = false;
-      this.closingScriptTabKey = '';
-      this.cancelPendingTabClose();
-    },
-    discardScriptAndClose() {
-      const key = this.closingScriptTabKey;
-      this.showScriptCloseModal = false;
-      this.closingScriptTabKey = '';
-      if (key) this.removeTab(key);
-      this.$nextTick(this.continueClosingTabs);
     },
     removeTab(key) {
       const deleteIndex = this.tabs.findIndex((tab) => tab.key === key);
@@ -1866,6 +1809,7 @@ export default {
     async handleChangeTab(activeKey) {
       // Closing or reselecting the current tab must not refresh its object list.
       if (this.currentTab.key === activeKey) return;
+      this.scriptLoadSequence++;
       appLogger.debug(this.currentTab.type);
       if (this.currentTab.type === 'STRUCT') {
         appLogger.debug('editing', this.structViewIsEditing(this.currentTab));

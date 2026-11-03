@@ -22,6 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.hologres.sql.HgSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.postgres.dsconf.AbstractPgConfigSpi;
 import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.adapter.ConvertUtils;
@@ -41,6 +42,7 @@ public class HgConfigSpi extends AbstractPgConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         HgConfig config = (HgConfig) dsConfig;
+        config.setSqlEngine(HgSqlEngineSpi.NAME);
         Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(HgConfig.Fields.connectTimeoutMs), false);
         Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(HgConfig.Fields.soTimeoutSec), false);
         config.setUserName(defaultConfig.get(DataSourceConfig.Fields.userName));
@@ -51,6 +53,12 @@ public class HgConfigSpi extends AbstractPgConfigSpi {
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(defaultConfig.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD));
         return dsConfig;
+    }
+
+    @Override
+    public void customizeUiMap(Map<String, String> uiMap, Map<String, String> configMap) {
+        super.customizeUiMap(uiMap, configMap);
+        uiMap.put(DataSourceConfig.Fields.sqlEngine, HgSqlEngineSpi.NAME);
     }
 
     @Override

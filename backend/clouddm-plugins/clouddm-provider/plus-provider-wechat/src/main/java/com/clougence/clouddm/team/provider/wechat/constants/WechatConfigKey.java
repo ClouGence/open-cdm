@@ -23,7 +23,6 @@ import lombok.Getter;
 @Getter
 public enum WechatConfigKey {
 
-    ApprovalEnable("wechatEnableApprovalService"),
     ApprovalCorpId("wechatApprovalCorpId"),
     ApprovalSecret("wechatApprovalSecret"),
     ApprovalAgentId("wechatApprovalAgentId"),

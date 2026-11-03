@@ -17,7 +17,6 @@ package com.clougence.clouddm.console.web.component.approval.schedule;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -25,10 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
-import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
-import com.clougence.clouddm.console.web.component.approval.ApprovalPersonService;
-import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
+import com.clougence.clouddm.console.web.component.approval.*;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
@@ -97,6 +93,8 @@ public class ApprovalTaskProcessor {
     @Resource
     private ApprovalPersonService                   approvalPersonService;
     @Resource
+    private CustomApprovalService                   customApprovalService;
+    @Resource
     private PlatformTransactionManager              txManager;
     private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
 
@@ -125,6 +123,7 @@ public class ApprovalTaskProcessor {
             }
 
             this.approvalStateService.updateApprovalStatus(ticketId, ApprovalStatus.WAIT_APPROVAL, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
+            this.customApprovalService.startApproval(ticketId);
             return false;
         }
 
@@ -152,42 +151,53 @@ public class ApprovalTaskProcessor {
             if (approvalDO == null || approvalDO.getTicketStatus() != ApprovalStatus.PRE_INIT_RUN) {
                 return;
             }
+
             DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.EXPLAIN);
             if (processDO == null) {
                 throw new IllegalStateException("EXPLAIN process not found, ticketId=" + ticketId);
             }
 
-            List<DmApprovalProcessActivityDO> children = this.approvalDal.activityMapper()
-                .queryByTicketId(ticketId)
-                .stream()//
-                .filter(activity -> processDO.getId().equals(activity.getProcessId()))
-                .filter(activity -> activity.getTaskStatus() != null)
-                .filter(activity -> !ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(activity.getActivityId()))
-                .toList();
-            if (children.isEmpty() || children.stream().anyMatch(a -> !isPreInitChildTerminal(a.getTaskStatus()))) {
+            List<DmApprovalProcessActivityDO> activities = this.approvalDal.activityMapper().queryByTicketId(ticketId);
+            boolean hasAnalysis = false;
+            boolean failed = false;
+            String failureMessage = null;
+            for (DmApprovalProcessActivityDO activity : activities) {
+                if (!processDO.getId().equals(activity.getProcessId()) || activity.getTaskStatus() == null
+                    || ApprovalAnalysisStateMO.TYPE_SQL_RECOGNITION.equals(activity.getActivityId())) {
+                    continue;
+                }
+
+                hasAnalysis = true;
+                if (!ApprovalAnalysisStateMO.STATUS_FINISHED.equals(activity.getTaskStatus()) && !ApprovalAnalysisStateMO.STATUS_FAILED.equals(activity.getTaskStatus())) {
+                    return;
+                }
+
+                if (ApprovalAnalysisStateMO.STATUS_FAILED.equals(activity.getTaskStatus())) {
+                    failed = true;
+                    if (StringUtils.isBlank(failureMessage) && StringUtils.isNotBlank(activity.getContext())) {
+                        ApprovalAnalysisStateMO analysis = JsonUtils.toObj(activity.getContext(), ApprovalAnalysisStateMO.class);
+                        failureMessage = analysis.getErrorMessage();
+                    }
+                }
+            }
+
+            if (!hasAnalysis) {
                 return;
             }
 
-            if (children.stream().anyMatch(a -> ApprovalAnalysisStateMO.STATUS_FAILED.equals(a.getTaskStatus()))) {
-                String message = children.stream()//
-                    .filter(a -> ApprovalAnalysisStateMO.STATUS_FAILED.equals(a.getTaskStatus()))
-                    .map(DmApprovalProcessActivityDO::getContext)
-                    .filter(StringUtils::isNotBlank)
-                    .map(c -> JsonUtils.toObj(c, ApprovalAnalysisStateMO.class).getErrorMessage())
-                    .filter(StringUtils::isNotBlank)
-                    .findFirst()
-                    .orElse(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()));
-                this.approvalFlowService.failTicket(ticketId, message, approvalDO.getPrimaryUid());
+            if (failed) {
+                if (StringUtils.isBlank(failureMessage)) {
+                    failureMessage = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name());
+                }
+
+                this.approvalFlowService.failTicket(ticketId, failureMessage, approvalDO.getPrimaryUid());
                 return;
             }
 
             this.approvalStateService.updateProcessStatus(ticketId, ApprovalStage.EXPLAIN, ApprovalProcessStatus.FINISH, null);
             this.approvalStateService.updateApprovalStatus(ticketId, ApprovalStatus.WAIT_APPROVAL, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
+            this.customApprovalService.startApproval(ticketId);
         });
-    }
-
-    private static boolean isPreInitChildTerminal(String status) {
-        return ApprovalAnalysisStateMO.STATUS_FINISHED.equals(status) || ApprovalAnalysisStateMO.STATUS_FAILED.equals(status);
     }
 
     // WAIT_APPROVAL -> [WAIT_APPROVAL \ WAIT_CONFIRM \ REJECTED]
@@ -203,6 +213,7 @@ public class ApprovalTaskProcessor {
                     approvalHandler(approvalDO.getApproBiz()).createApproval(ticketDO.getId(), imSenderService);
                 }
             }
+
             getLastInfoIfNecessary(processDO, approvalDO);
         }
 
@@ -237,6 +248,10 @@ public class ApprovalTaskProcessor {
     public void processWaitConfirm(DmApprovalDO approvalDO) {
         DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalDO.getId());
         if (ticketDO == null || ticketDO.getTicketStatus() != ApprovalStatus.WAIT_CONFIRM) {
+            return;
+        }
+
+        if (customApprovalService.isCustomApproval(ticketDO)) {
             return;
         }
 
@@ -284,7 +299,7 @@ public class ApprovalTaskProcessor {
             }
         }
 
-        return userVOS.stream().distinct().collect(Collectors.toList());
+        return new ArrayList<>(new LinkedHashSet<>(userVOS));
     }
 
     // WAIT_EXEC -> [RUNNING \ FINISHED]
@@ -345,9 +360,11 @@ public class ApprovalTaskProcessor {
         if (StringUtils.isNotBlank(processDO.getStageContext())) {
             mo = JsonUtils.toObj(processDO.getStageContext(), ApprovalStageMO.class);
         }
+
         if (mo.getExecUserName() != null && new HashSet<>(mo.getExecUserName()).equals(new HashSet<>(personName))) {
             return;
         }
+
         mo.setExecUserName(personName);
         this.approvalDal.processMapper().updateContextById(processDO.getId(), JsonUtils.toJson(mo));
     }

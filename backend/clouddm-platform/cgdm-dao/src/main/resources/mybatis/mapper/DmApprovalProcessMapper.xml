@@ -90,4 +90,19 @@
         WHERE
             id = #{id}
     </update>
+
+    <select id="listExecutionByTicketIds" resultMap="ticketProcessDO">
+        SELECT
+            ticket_id,
+            stage_context
+        FROM
+            dm_approval_process
+        WHERE
+            ticket_stage = 'EXECUTION'
+            AND
+            ticket_id IN
+            <foreach collection="ticketIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </select>
 </mapper>

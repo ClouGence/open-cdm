@@ -708,7 +708,10 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitInsertstmt(InsertstmtContext ctx) {
-        return hasToken(ctx, CONFLICT) ? SplitQueryType.MERGE : SplitQueryType.INSERT;
+        if (ctx.upsert_keyword() != null || hasToken(ctx, CONFLICT)) {
+            return SplitQueryType.MERGE;
+        }
+        return SplitQueryType.INSERT;
     }
 
     @Override

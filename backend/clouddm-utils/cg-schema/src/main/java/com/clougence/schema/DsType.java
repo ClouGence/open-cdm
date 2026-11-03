@@ -56,6 +56,7 @@ public enum DsType {
     Db2("db2", "Db2"),
     ClickHouse("ck", "ClickHouse"),
     Kafka("ka", "Kafka"),
+    Etcd("et", "Etcd"),
     RocketMQ("rmq", "RocketMQ"),
     RabbitMQ("rbq", "RabbitMQ"),
     AutoMq("amq", "AutoMQ"),

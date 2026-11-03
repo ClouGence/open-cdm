@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.component.dsconfig.mode;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.clougence.clouddm.base.metadata.ds.DsClassify;
 import com.clougence.clouddm.console.web.model.vo.DefaultDsKvConfigVO;
 
 import lombok.Getter;
@@ -31,6 +32,7 @@ import lombok.Setter;
 public class DsConfig {
 
     private Map<String, Object>       features;
+    private DsClassify                classify;
     private DsConstantConfig          constant;
     private DsCategories              categories;
     private Map<String, List<DsMenu>> menus;
@@ -44,6 +46,7 @@ public class DsConfig {
     public DsConfig clone() {
         DsConfig dsConfig = new DsConfig();
         dsConfig.setFeatures(this.features.isEmpty() ? Collections.emptyMap() : new HashMap<>(this.features));
+        dsConfig.setClassify(this.classify);
         dsConfig.setConstant(this.constant.clone());
         dsConfig.setCategories(this.categories.clone());
         if (this.menus.isEmpty()) {

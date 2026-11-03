@@ -23,7 +23,6 @@ import lombok.Getter;
 @Getter
 public enum DingConfigKey {
 
-    ApprovalEnable("dingEnableApprovalService"),
     ApprovalClientId("dingApprovalConfigAk"),
     ApprovalClientSecret("dingApprovalConfigSk"),
 

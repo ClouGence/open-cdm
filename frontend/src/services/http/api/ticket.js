@@ -1,4 +1,9 @@
 export const ticketApi = {
+  dmApprovalTestConnection: '/api/entry/approval/configuration/testConnection',
+  dmApprovalConfigurationQuery: '/api/entry/approval/configuration/query',
+  dmApprovalSaveEngine: '/api/entry/approval/configuration/saveEngine',
+  dmApprovalSaveTeams: '/api/entry/approval/configuration/saveTeams',
+  dmApprovalDeleteEngine: '/api/entry/approval/configuration/deleteEngine',
   dmTicketCreate: '/api/entry/approval/create',
   dmTicketUploadSqlFile: '/api/entry/resource/sqlfile/upload',
   dmTicketPreviewSqlFile: '/api/entry/resource/sqlfile/preview',

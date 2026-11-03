@@ -363,6 +363,12 @@ export default {
           { label: this.$t('pei-zhi'), to: path }
         ];
       }
+      if (/^\/integrations\/approval\/internal\/[^/]+\/edit$/.test(path)) {
+        return [
+          { label: this.$t('nav-shen-pi-yin-qing'), to: '/integrations/approval' },
+          { label: this.$route.query.engineName || this.$t('approval-internal-engine'), to: path }
+        ];
+      }
       if (path === '/integrations/approval/create') {
         return [
           { label: this.$t('nav-shen-pi-yin-qing'), to: '/integrations/approval' },

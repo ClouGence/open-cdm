@@ -69,10 +69,14 @@
           <div class="table-container audit-log-table">
             <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
               <template #operator="{ row }">
-                <div class="operator-cell">
-                  <div>{{ row.userName }}</div>
-                  <div class="operator-uid">{{ formatUid(row.uid) }}</div>
-                </div>
+                <Poptip trigger="hover" transfer popper-class="description-popup" :content="formatUid(row.uid)" placement="top">
+                  <span>{{ row.userName }}</span>
+                </Poptip>
+              </template>
+              <template #uuidKey="{ row }">
+                <Button type="text" text-primary :disabled="!row.uuidKey" @click="handleViewUuidKey(row)">
+                  {{ $t('cha-kan') }}
+                </Button>
               </template>
               <template #detail="{ row }">
                 <div>
@@ -99,6 +103,12 @@
         />
       </div>
     </div>
+    <CCModal v-model="showUuidKey" :title="$t('ri-zhi-wei-yi-xin-xi')" width="720px">
+      <pre class="log-unique-info">{{ selectedUuidKey }}</pre>
+      <template #footer>
+        <Button @click="showUuidKey = false">{{ $t('guan-bi') }}</Button>
+      </template>
+    </CCModal>
     <CCModal v-model="showAuditDetail" :title="$t('cha-kan-ri-zhi')" width="1200px">
       <div>
         <div class="log-content">
@@ -206,6 +216,8 @@ export default {
       searchType: 'user',
       refreshLoading: false,
       showAuditDetail: false,
+      showUuidKey: false,
+      selectedUuidKey: '',
       showExport: false,
       exportLoading: false,
       page: 1,
@@ -295,10 +307,8 @@ export default {
         {
           title: this.$t('ri-zhi-wei-yi-xin-xi'),
           key: 'uuidKey',
-          ellipsis: true,
-          tooltip: true,
-          tooltipMaxWidth: 400,
-          width: 320
+          slot: 'uuidKey',
+          width: 160
         }
       ],
       logData: [],
@@ -621,6 +631,10 @@ export default {
           }
         });
     },
+    handleViewUuidKey(row) {
+      this.selectedUuidKey = row.uuidKey;
+      this.showUuidKey = true;
+    },
     handleCancel() {
       this.showAuditDetail = false;
       this.showExport = false;
@@ -637,15 +651,6 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  .operator-cell {
-    line-height: 20px;
-
-    .operator-uid {
-      color: #9ea7b4;
-      font-size: 12px;
-    }
-  }
 
   .log-time-range-label {
     margin-right: 10px;
@@ -666,6 +671,14 @@ export default {
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
+}
+
+.log-unique-info {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 21px;
 }
 
 .export-row-count {

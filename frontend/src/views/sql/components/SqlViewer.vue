@@ -49,14 +49,7 @@
         >
           <template #editor-controls>
             <CommandExamples v-if="tab.support.commandExamples?.length" :key="tab.dsId" :examples="tab.support.commandExamples" />
-            <SqlScriptPopover
-              :tab="tab"
-              :get-editor-content="getEditorContent"
-              :store-query-tabs="storeQueryTabs"
-              @open-script="$emit('open-script', $event)"
-              @script-deleted="$emit('script-deleted', $event)"
-              @script-renamed="$emit('script-renamed', $event)"
-            />
+            <SqlScriptPopover :tab="tab" :get-editor-content="getEditorContent" @open-script="$emit('open-script', $event)" />
           </template>
         </Editor>
         <Transition name="sql-editor-loading">
@@ -159,7 +152,7 @@ import { markRaw } from 'vue';
 import AppPageTabs from '@/components/layout/AppPageTabs.vue';
 import AiSqlPanel from '@/views/ai/components/AiSqlPanel.vue';
 import { aiErrorMessage } from '@/services/ai';
-import * as monaco from 'monaco-editor';
+import { monaco } from '@/components/editor/monaco';
 import { SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import Operators from '@/views/sql/components/Operators';
@@ -188,7 +181,7 @@ export default {
     AiSqlPanel,
     SqlLoadingSkeleton
   },
-  emits: ['open-script', 'script-deleted', 'script-renamed', 'switch-tab', 'workspace-connection-error', 'workspace-connection-success'],
+  emits: ['open-script', 'switch-tab', 'workspace-connection-error', 'workspace-connection-success'],
   props: {
     handleClickDsStatusIcon: Function,
     handleGetDsSetting: Function,
@@ -632,6 +625,7 @@ export default {
         }
       };
 
+      this.showPendingResult(this.tab, wsData.object.requestId);
       this.handleCloseModal();
 
       this.tab.cost.popList = [
@@ -676,6 +670,7 @@ export default {
         }
       };
 
+      this.showPendingResult(this.tab, wsData.object.requestId);
       this.handleCloseModal();
 
       this.tab.cost.popList = [
@@ -771,9 +766,18 @@ export default {
       let content = value;
       if (typeof content !== 'string') content = this.monacoEditor?.getValue() || '';
       this.tab.text = content;
-      if (this.tab.scriptId) {
-        this.tab.isEditing = content !== this.tab.scriptSavedText;
-      }
+    },
+    insertFavoriteSql(sql, selection) {
+      const editor = this.monacoEditor;
+      const model = editor.getModel();
+      const offset = model.getOffsetAt(selection.getStartPosition());
+      const text = sql.replace(/\r\n|\r|\n/g, model.getEOL());
+      editor.pushUndoStop();
+      if (!editor.executeEdits('sql-favorite', [{ range: selection, text }])) return false;
+      editor.pushUndoStop();
+      editor.setPosition(model.getPositionAt(offset + text.length));
+      editor.focus();
+      return true;
     },
     getEditorContent() {
       return this.monacoEditor?.getValue() || '';
@@ -838,6 +842,13 @@ export default {
       }
       return list;
     },
+    showPendingResult(tab, requestId) {
+      if (tab.result.pending) return;
+      const list = tab.result.list;
+      const showIndex = list.length ? list[list.length - 1].showIndex + 1 : 1;
+      tab.result.pending = { resultId: `pending-${requestId}`, requestId, showIndex, message: this.$t('zhi-xing-zhong') };
+      tab.result.active = tab.result.pending.resultId;
+    },
     onclose() {},
     onmessage(data) {
       try {
@@ -867,11 +878,14 @@ export default {
           // Save query type (plan query or normal query).
           metaData.queryType = currentTab.currentQueryType || 'query';
           metaData.fetchCount = 0;
+          metaData.transposed = false;
           metaData.cost = { ...currentTab.cost };
 
           // Initialize the result set object before data is available.
           const len = currentTab.result.list.length;
+          const pending = currentTab.result.pending;
           metaData.showIndex = len ? currentTab.result.list[len - 1].showIndex + 1 : 1;
+          if (pending?.requestId === metaData.requestId) metaData.showIndex = pending.showIndex;
           // Initialize exportState for the result tab.
           metaData.exportState = {
             exporting: false,
@@ -919,6 +933,7 @@ export default {
           // Add to the result list.
           currentTab.result.list.push(metaData);
           currentTab.result.active = metaData.resultId;
+          if (pending?.requestId === metaData.requestId) currentTab.result.pending = null;
         }
         // Progress updates carry the fetched count independently of the receive mode.
         if (queryData.object.resultType === 'ResultSetRows') {
@@ -1024,6 +1039,10 @@ export default {
         }
 
         if (queryData.object.resultType === 'Done') {
+          if (currentTab.result.pending?.requestId === queryData.object.requestId) {
+            if (currentTab.result.active === currentTab.result.pending.resultId) currentTab.result.active = 'message';
+            currentTab.result.pending = null;
+          }
           this.storeQueryTabs();
           currentTab.running = false;
         }
@@ -1033,6 +1052,7 @@ export default {
         }
 
         if (queryData.object.resultType === 'QueryScript') {
+          if (currentTab.running) this.showPendingResult(currentTab, queryData.object.requestId);
           currentTab.executeInfo.push({
             time: queryData.time,
             ...queryData.object
@@ -1052,9 +1072,13 @@ export default {
             }
 
             if (entity.mode === 'Hint') {
-              currentTab.message.show = true;
-              currentTab.message.text = formatError(entity.message);
-              currentTab.message.type = entity.level;
+              if (entity.level === 'Info' && currentTab.result.pending?.requestId === queryData.object.requestId) {
+                currentTab.result.pending.message = entity.message;
+              } else {
+                currentTab.message.show = true;
+                currentTab.message.text = formatError(entity.message);
+                currentTab.message.type = entity.level;
+              }
             } else {
               currentTab.executeInfo.push({
                 time: queryData.time,

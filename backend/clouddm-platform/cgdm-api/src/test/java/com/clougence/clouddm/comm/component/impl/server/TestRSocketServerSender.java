@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.clougence.clouddm.comm.component.impl.server;
 
 import java.util.ArrayList;
@@ -7,10 +22,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import jakarta.annotation.PreDestroy;
-
-import com.clougence.utils.ExceptionUtils;
-import com.clougence.utils.RandomUtils;
 import org.slf4j.MDC;
 import org.springframework.messaging.rsocket.RSocketRequester;
 
@@ -31,10 +42,13 @@ import com.clougence.clouddm.comm.model.rsocket.AsyncRequestFuture;
 import com.clougence.clouddm.comm.util.RSocketRespUtil;
 import com.clougence.clouddm.model.TestWorkerStatusDO;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.HostUtil;
+import com.clougence.utils.RandomUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 
+import jakarta.annotation.PreDestroy;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 

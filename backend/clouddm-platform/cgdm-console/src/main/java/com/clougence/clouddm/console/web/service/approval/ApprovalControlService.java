@@ -16,8 +16,8 @@
 package com.clougence.clouddm.console.web.service.approval;
 
 import java.util.List;
-import java.util.Map;
 
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalProviderOptionVO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.DmPageVO;
@@ -69,13 +69,17 @@ public interface ApprovalControlService {
 
     DmPageVO<DmAutoExecTaskVO> queryExecTaskList(String puid, String uid, DmQueryTaskListFO fo);
 
+    void prepareCustomExecutionJob(long ticketId);
+
+    void startAutomaticExecution(long ticketId);
+
     String queryExecTaskSql(String puid, String uid, DmQueryAutoExecFO fo);
 
-    List<DmBizLogVO> queryExecLog(DmQueryExecLogFO  fo);
+    List<DmBizLogVO> queryExecLog(DmQueryExecLogFO fo);
 
     List<RdpApproTemplateVO> listTemplates(String ownerUid, ApprovalType approvalType);
 
-    List<Map<String, Object>> getTicketTypes(String ownerUid);
+    List<ApprovalProviderOptionVO> listApprovalProviders(String ownerUid);
 
     //
     // assistant

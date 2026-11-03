@@ -23,11 +23,11 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKeys;
-import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
+import com.clougence.clouddm.sdk.LoggerUtil;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.LoggerUtil;
+import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKeys;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.timer.HashedWheelTimer;
 import com.clougence.utils.timer.Timer;
@@ -110,6 +110,7 @@ public class WechatClient implements Closeable {
 
     @Override
     public void close() throws IOException {
+        this.timer.stop();
         WechatClientKiller.close(this.logger, this.httpClient);
     }
 
@@ -131,22 +132,27 @@ public class WechatClient implements Closeable {
 
             OkHttpClient httpClient = this.httpClient;
             Request request = new Request.Builder().url(tokenEndpoint).get().build();
-            Response response = httpClient.newCall(request).execute();
-            if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_API_TOKEN_ERROR, response.code() + ":" + response.body().string());
+            try (Response response = httpClient.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_API_TOKEN_ERROR, response.code() + ":" + response.body().string());
+                }
+
+                JSONObject object = JSONObject.parseObject(response.body().string());
+                String accessToken = object.getString("access_token");
+                if (StringUtils.isBlank(accessToken)) {
+                    throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_API_TOKEN_ERROR, object.getString("errmsg"));
+                }
+
+                this.wechatCache.putAccessToken(corpId, secret, accessToken);
+
+                //
+                int expiresSec = object.getIntValue("expires_in");
+                timer.newTimeout(t -> {
+                    this.wechatCache.clearAccessToken(corpId, secret);
+                }, expiresSec, TimeUnit.SECONDS);
+
+                return accessToken;
             }
-
-            JSONObject object = JSONObject.parseObject(response.body().string());
-            String accessToken = object.getString("access_token");
-            this.wechatCache.putAccessToken(corpId, secret, accessToken);
-
-            //
-            int expiresSec = object.getIntValue("expires_in");
-            timer.newTimeout(t -> {
-                this.wechatCache.clearAccessToken(corpId, secret);
-            }, expiresSec, TimeUnit.SECONDS);
-
-            return accessToken;
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {

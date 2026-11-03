@@ -1,0 +1,8 @@
+<drivers>
+    <driver driverFamily="Etcd" version="0.7.7" default="true">
+        <driverName>com.clougence.clouddm.ds.etcd.execute.dsfactory.EtcdDsFactory</driverName>
+        <resource type="maven">io.etcd:jetcd-core:0.7.7</resource>
+        <!-- vertx-grpc depends on vertx-core via BOM; aether may skip unmanaged versions -->
+        <resource type="maven">io.vertx:vertx-core:4.5.1</resource>
+    </driver>
+</drivers>

@@ -207,7 +207,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         if (!mutations.add(ctx))
             return null;
         BehaviorAction action = BehaviorAction.INSERT;
-        if (ctx.on_conflict_() != null) {
+        if (ctx.upsert_keyword() != null || ctx.on_conflict_() != null) {
             action = BehaviorAction.MERGE;
         }
         BehaviorRelation relation = addRelation(action, object(TargetType.Table, ctx.insert_target().qualified_name()), tableReferences(ctx));

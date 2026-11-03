@@ -592,8 +592,10 @@ export default {
           this.goBatchAuthorizationPage();
           return;
         }
-        this.isEdit = this.$route.query.type === 'edit' || this.isBatchUserAuth;
-        this.isView = this.$route.query.type === 'view';
+
+        const canManageAuth = this.myAuth.includes('RDP_AUTH_MANAGE');
+        this.isEdit = canManageAuth && (this.$route.query.type === 'edit' || this.isBatchUserAuth);
+        this.isView = this.$route.query.type === 'view' || (!canManageAuth && this.$route.query.type === 'edit');
         if (this.isBatchUserAuth) {
           this.uid = this.batchTargetUids[0];
           this.subAccount = '';

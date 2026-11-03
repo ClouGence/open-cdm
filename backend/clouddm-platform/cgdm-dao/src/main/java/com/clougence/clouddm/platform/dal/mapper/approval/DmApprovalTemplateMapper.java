@@ -32,13 +32,21 @@ public interface DmApprovalTemplateMapper extends BaseMapper<DmApprovalTemplateD
 
     List<DmApprovalTemplateDO> listByPrimaryUidAndType(@Param("primaryUid") String primaryUid, @Param("type") ApprovalType type);
 
-    DmApprovalTemplateDO queryByUidAndTemId(@Param("primaryUid") String primaryUid, @Param("templateId") String templateId);
+    DmApprovalTemplateDO queryByPrimaryUidAndTypeAndIdentity(@Param("primaryUid") String primaryUid, @Param("type") ApprovalType type, @Param("templateId") String templateId);
 
-    void deleteByPrimaryUid(String primaryUid, ApprovalType approvalType);
+    void deleteByPrimaryUid(@Param("primaryUid") String primaryUid, @Param("approvalType") ApprovalType approvalType);
 
     int insertTemplateBatch(@Param("cacheList") List<DmApprovalTemplateDO> cacheList);
 
     void updateTemplateBatch(@Param("cacheList") List<DmApprovalTemplateDO> cacheList);
 
     void updateApprovalTemplateBatch(@Param("cacheList") List<DmApprovalTemplateDO> cacheList);
+
+    List<DmApprovalTemplateDO> listCustomTemplates(@Param("primaryUid") String primaryUid);
+
+    DmApprovalTemplateDO queryCustomByEngineId(@Param("primaryUid") String primaryUid, @Param("engineConfigId") String engineConfigId);
+
+    DmApprovalTemplateDO queryCustomForUpdate(@Param("primaryUid") String primaryUid, @Param("identity") String identity);
+
+    int updateCustomTemplate(@Param("template") DmApprovalTemplateDO template, @Param("expectedVersion") long expectedVersion);
 }

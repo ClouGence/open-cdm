@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.component.schema;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -171,15 +172,21 @@ public class RemoteDsSchemaService implements DsSchemaService {
 
     @Override
     public List<DsElement> listLevels(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
+        DsConfig dmDsConfig = dsConfigService.dsConstantSettings(dsDO.getDataSourceType());
+        List<String> configuredLevels = dmDsConfig.getCategories().getLevels();
+        // Env + Instance only (e.g. Etcd/Kafka): no catalog/schema level to list
+        if (configuredLevels != null && configuredLevels.size() <= 2) {
+            return Collections.emptyList();
+        }
+
         RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO, levelsParam);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             List<DsElement> dsElements = this.metaRService.listLevels(sendDTO, dsConfig, levels, levelsParam);
 
-            DsConfig dmDsConfig = dsConfigService.dsConstantSettings(dsDO.getDataSourceType());
             MetaInformationType metaType;
-            if (levelsParam.get(UmiTypes.Catalog) == null && UmiTypes.Catalog.getTypeName().equals(dmDsConfig.getCategories().getLevels().get(2))) {
+            if (levelsParam.get(UmiTypes.Catalog) == null && UmiTypes.Catalog.getTypeName().equals(configuredLevels.get(2))) {
                 metaType = MetaInformationType.CatalogList;
             } else {
                 metaType = MetaInformationType.SchemaList;

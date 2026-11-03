@@ -199,6 +199,21 @@ cd frontend && npm run check-i18n
   不做机械展开。
 - 修改表结构、字段语义或默认数据时，同步检查 DAO、DO、mapper、初始化脚本、升级脚本、前端展示和测试。
 
+### Flyway 数据订正
+
+- `collectScript()` 只放 DDL 结构变更；历史数据回填、状态转换、缓存去重等 `INSERT`、`UPDATE`、`DELETE`
+  数据订正放到 `beforeMigrate(Connection)` 或 `afterMigrate(Connection)`，不要混入 `collectScript()`。
+- 执行顺序为 `beforeMigrate()` → `collectScript()` → `afterMigrate()`。依赖旧字段或必须在结构变更前完成的订正放到
+  `beforeMigrate()`；依赖新增字段、表或新结构的订正放到 `afterMigrate()`。
+- 唯一索引、非空约束等依赖数据订正结果时，必须先订正数据，再在对应钩子中执行依赖的 DDL，并注释说明顺序依赖；
+  不要在 `collectScript()` 中提前建立这些约束。
+- 简单订正沿用 `safeExecute(connection, sql)`；需要参数绑定或逐条处理时，使用 `PreparedStatement`，通过
+  try-with-resources 释放语句和结果集，复杂业务转换放在 Java 中完成。
+- 订正必须限定正确的账号归属、业务类型、来源及待订正状态，并保证重复执行幂等。缓存去重须明确保留规则，
+  不得误删自定义业务定义、在途实例或历史记录。
+- 参考现有 `V202607270001__sql_audit_ack` 的参数化订正和 `V202607290003__consolidated_upgrade` 的
+  “先回填、再加约束”写法。验证时使用隔离测试库，覆盖存量数据、重复执行、订正范围及约束生效，不直接重跑共享开发库迁移。
+
 ### MyBatis Mapper XML 可读性规则
 
 - 新增或修改 MyBatis Mapper XML 时，以

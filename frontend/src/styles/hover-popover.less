@@ -1,0 +1,54 @@
+// Shared white surfaces, including overlays teleported outside their page.
+.ivu-tooltip-popper,
+.ivu-poptip-popper,
+.ant-tooltip,
+.ant-popover {
+  --text-primary: #171717;
+  --text-secondary: #515a6e;
+  --antd-arrow-background-color: #fff;
+}
+
+.ivu-tooltip-popper .ivu-tooltip-inner,
+.ivu-poptip-popper .ivu-poptip-inner,
+.ant-tooltip .ant-tooltip-inner,
+.ant-popover .ant-popover-inner {
+  background-color: #fff;
+  color: #515a6e;
+}
+
+.ivu-tooltip-popper .ivu-tooltip-inner {
+  max-width: ~'min(300px, calc(100vw - 32px))';
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ant-tooltip {
+  max-width: ~'min(560px, calc(100vw - 32px))';
+
+  .ant-tooltip-inner {
+    overflow-wrap: anywhere;
+  }
+}
+
+.ant-tooltip .ant-tooltip-arrow::before,
+.ant-popover .ant-popover-arrow::before {
+  background-color: #fff;
+}
+
+.ivu-tooltip-popper {
+  &[x-placement^='top'] .ivu-tooltip-arrow {
+    border-top-color: #fff;
+  }
+
+  &[x-placement^='right'] .ivu-tooltip-arrow {
+    border-right-color: #fff;
+  }
+
+  &[x-placement^='bottom'] .ivu-tooltip-arrow {
+    border-bottom-color: #fff;
+  }
+
+  &[x-placement^='left'] .ivu-tooltip-arrow {
+    border-left-color: #fff;
+  }
+}

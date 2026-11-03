@@ -28,12 +28,12 @@
           <span :style="`font-style: italic;font-size: 14px;font-weight: 500;color: ${row.needCreated ? '#ff6e0d' : ''}`">
             {{ row.configName }}
             {{ row.needCreated ? $t('dai-chuang-jian') : '' }}
-            <Tooltip transfer placement="right" style="position: absolute; right: 0; top: 0">
+            <Poptip transfer trigger="hover" placement="right" popper-class="description-popup" style="position: absolute; right: 0; top: 0">
               <template #content>
                 <div v-html="row.description"></div>
               </template>
               <a><CustomIcon size="14px" type="icon-v2-InfoColorful" /></a>
-            </Tooltip>
+            </Poptip>
           </span>
         </div>
       </template>

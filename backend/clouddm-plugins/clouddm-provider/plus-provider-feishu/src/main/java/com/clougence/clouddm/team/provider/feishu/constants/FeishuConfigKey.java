@@ -23,7 +23,6 @@ import lombok.Getter;
 @Getter
 public enum FeishuConfigKey {
 
-    ApprovalEnable("feishuEnableApprovalService"),
     ApprovalAppID("feishuApprovalAppID"),
     ApprovalAppSecret("feishuApprovalAppSecret"),
     ApprovalApiTimeoutSec("feishuApprovalApiTimeoutSec"),

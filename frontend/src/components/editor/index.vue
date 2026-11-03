@@ -1,5 +1,5 @@
 <script>
-import * as monaco from 'monaco-editor';
+import { monaco } from '@/components/editor/monaco';
 import * as actions from 'monaco-editor/esm/vs/platform/actions/common/actions';
 import { mapGetters, mapState } from 'vuex';
 import { markRaw, toRaw } from 'vue';

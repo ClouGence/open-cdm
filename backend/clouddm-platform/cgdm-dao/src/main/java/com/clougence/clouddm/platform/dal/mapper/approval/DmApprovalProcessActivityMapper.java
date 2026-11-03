@@ -17,6 +17,7 @@ package com.clougence.clouddm.platform.dal.mapper.approval;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -41,4 +42,8 @@ public interface DmApprovalProcessActivityMapper extends BaseMapper<DmApprovalPr
 
     int completePreInitTask(@Param("processId") Long processId, @Param("activityId") String activityId, @Param("taskStatus") String taskStatus, @Param("runId") String runId,
                             @Param("context") String context);
+
+    List<DmApprovalProcessActivityDO> listCustomActivities(@Param("ticketId") long ticketId, @Param("processId") long processId);
+
+    List<Long> listTicketIdsByActivities(@Param("activityIds") List<Long> activityIds, @Param("ticketIds") Set<Long> ticketIds, @Param("pendingOnly") boolean pendingOnly);
 }

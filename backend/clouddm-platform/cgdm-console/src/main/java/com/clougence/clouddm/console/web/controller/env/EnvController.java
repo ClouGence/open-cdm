@@ -17,7 +17,6 @@ package com.clougence.clouddm.console.web.controller.env;
 
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.Ignore;
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_DS_MANAGE;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_ENV_MANAGE;
 
 import java.util.List;
@@ -30,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.checkrules.SpecListFO;
 import com.clougence.clouddm.console.web.model.fo.env.AddDsEnvFO;
@@ -47,7 +47,6 @@ import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
-import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpOpAuditService;
 
@@ -81,7 +80,7 @@ public class EnvController {
         return ResWebDataUtils.buildSuccess(DsEnvVO.generateVO(dsEnvDOs));
     }
 
-    @RequestAuth(DM_DS_MANAGE)
+    @RequestAuth(RDP_ENV_MANAGE)
     @RequestMapping(value = "/listSpec", method = RequestMethod.POST)
     public ResWebData<?> listSpec(@RequestBody @Valid SpecListFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
