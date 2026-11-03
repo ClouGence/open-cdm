@@ -66,8 +66,8 @@ export default {
   gap: 2px;
   padding: 3px;
   border: 1px solid var(--border-primary);
-  border-radius: 999px;
-  background: var(--bg-primary);
+  border-radius: 8px;
+  background: var(--bg-secondary);
 }
 
 .theme-option {
@@ -77,8 +77,8 @@ export default {
   width: 32px;
   height: 32px;
   padding: 0;
-  border: none;
-  border-radius: 50%;
+  border: 1px solid transparent;
+  border-radius: 6px;
   color: var(--text-secondary);
   background: transparent;
   cursor: pointer;
@@ -89,12 +89,13 @@ export default {
 }
 
 .theme-option[aria-checked='true'] {
-  background: #007bff;
-  color: #ffffff;
+  background: var(--bg-card);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
 }
 
 .theme-option:focus-visible {
-  outline: 2px solid #007bff;
+  outline: 2px solid var(--info-color);
   outline-offset: 2px;
 }
 </style>
