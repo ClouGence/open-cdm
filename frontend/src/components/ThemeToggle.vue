@@ -64,7 +64,7 @@ export default {
   flex-shrink: 0;
   align-items: center;
   gap: 2px;
-  padding: 3px;
+  padding: 1px;
   border: 1px solid var(--border-primary);
   border-radius: 8px;
   background: var(--bg-secondary);
@@ -74,8 +74,8 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: 1px solid transparent;
   border-radius: 6px;
