@@ -316,8 +316,8 @@
     }
 
     &-primary {
-      background-color: var(--primary-color) !important;
-      border-color: var(--primary-color) !important;
+      background-color: var(--primary-button-bg) !important;
+      border-color: var(--primary-button-bg) !important;
       color: #ffffff !important;
 
       span {
@@ -336,7 +336,7 @@
         &:hover {
           border-color: var(--primary-color) !important;
           color: #ffffff !important;
-          background-color: var(--primary-color) !important;
+          background-color: var(--primary-button-bg) !important;
 
           span {
             color: #ffffff !important;
@@ -344,9 +344,12 @@
         }
       }
 
-      &:hover {
+      &:hover,
+      &:focus,
+      &:active {
         opacity: 0.92;
-        border-color: var(--primary-color) !important;
+        background-color: var(--primary-button-bg) !important;
+        border-color: var(--primary-button-bg) !important;
         color: #ffffff !important;
       }
     }
