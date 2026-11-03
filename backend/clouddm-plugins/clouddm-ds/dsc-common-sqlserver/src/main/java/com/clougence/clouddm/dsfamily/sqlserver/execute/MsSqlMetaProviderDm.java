@@ -375,6 +375,15 @@ public class MsSqlMetaProviderDm extends AbstractMetadataProvider implements Met
     }
 
     @Override
+    protected List<RdbTable> fetchSelectObjectByPart(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
+        List<RdbTable> tables = fetchTableByPart(conn, catalog, schema, tabs);
+        if (!tables.isEmpty()) {
+            return tables;
+        }
+        return fetchViewByPart(conn, catalog, schema, tabs);
+    }
+
+    @Override
     protected List<RdbTable> fetchMaterializedByPart(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
         return Collections.emptyList();
     }
