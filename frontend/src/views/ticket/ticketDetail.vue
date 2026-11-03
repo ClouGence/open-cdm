@@ -26,8 +26,11 @@
             <Button v-if="ticketDetail.canClose" @click="handleShowCloseTicketModal">
               {{ $t('guan-bi') }}
             </Button>
-            <Button class="refresh-btn" :loading="loading" @click="getTicketDetail('refresh')">
-              <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
+            <Button :disabled="loading" :aria-busy="loading" :aria-label="$t('shua-xin')" @click="getTicketDetail('refresh')">
+              <span class="ticket-refresh-icon" aria-hidden="true">
+                <Icon v-if="loading" type="ios-loading" class="ivu-load-loop" />
+                <CustomIcon v-else type="icon-v2-Refresh" />
+              </span>
             </Button>
           </div>
         </div>
@@ -2162,6 +2165,9 @@ export default {
       this.showCloseTicketModal = true;
     },
     async getTicketDetail(type) {
+      if (this.loading) {
+        return;
+      }
       const showLoading = type !== 'auto';
       if (showLoading) {
         this.loading = true;
@@ -2170,54 +2176,46 @@ export default {
         ticketId: this.ticketId,
         refreshCache: type === 'refresh'
       };
-      const res = await this.$services.rdpTicketQueryTicketBaseInfo({ data, modal: showLoading });
+      try {
+        const res = await this.$services.rdpTicketQueryTicketBaseInfo({ data, modal: showLoading });
 
-      if (showLoading) {
-        this.loading = false;
-      }
-      if (res.success) {
-        this.ticketType = res.data?.approBiz;
-        this.ticketDetail = res.data;
-        this.ticketDetail.ticketProcessVOList.forEach((item) => {
-          item.execUserName = '';
-          item.execMsg = '';
-          if (item.stageContext) {
-            const stageContext = JSON.parse(item.stageContext);
-            item.execUserName = stageContext.execUserName ? stageContext.execUserName.join(', ') : '';
-            item.execUserNameList = stageContext.execUserName;
-            item.execMsg = stageContext.execMsg;
-          }
-          if (!item.execUserName && ['EXPLAIN', 'EXECUTION'].includes(item.ticketStage)) {
-            const systemHandler = this.$t('clouddm-system-handler');
-            item.execUserName = systemHandler;
-            item.execUserNameList = [systemHandler];
-          }
-        });
-        const validStepKeys = new Set(this.ticketProgressSteps.map((step) => step.key));
-        if (!this.ticketStepManuallySelected || !validStepKeys.has(this.selectedStepKey)) {
-          const currentStep = this.ticketProgressSteps.find((step) => ['active', 'failed'].includes(step.state));
-          const defaultStep = currentStep || this.ticketProgressSteps[this.ticketProgressSteps.length - 1];
-          this.selectedStepKey = defaultStep?.key || 'CREATE';
-          this.ticketStepManuallySelected = false;
-        }
-
-        switch (res.data?.approBiz) {
-          case 'DATA_SOURCE_AUTH':
-            const resAuth = await this.$services.rdpTicketQueryDataSourceAuthTicketDetail({ data: { ticketId: this.ticketId } });
-            if (resAuth.success) {
-              this.ticketDetail.applyAuths = resAuth.data.applyAuths;
-              this.authList = resAuth.data.applyAuths;
+        if (res.success) {
+          this.ticketType = res.data?.approBiz;
+          const ticketDetail = res.data;
+          ticketDetail.ticketProcessVOList.forEach((item) => {
+            item.execUserName = '';
+            item.execMsg = '';
+            if (item.stageContext) {
+              const stageContext = JSON.parse(item.stageContext);
+              item.execUserName = stageContext.execUserName ? stageContext.execUserName.join(', ') : '';
+              item.execUserNameList = stageContext.execUserName;
+              item.execMsg = stageContext.execMsg;
             }
-            break;
-          case 'DM_QUERY':
-          case 'DM_CHANGE':
-            const initializeSqlContent = !this.ticketSqlContentInitialized;
-            const resQuery = await this.$services.dmTicketQueryQueryTicketDetail({
-              data: {
-                ticketId: this.ticketId
+            if (!item.execUserName && ['EXPLAIN', 'EXECUTION'].includes(item.ticketStage)) {
+              const systemHandler = this.$t('clouddm-system-handler');
+              item.execUserName = systemHandler;
+              item.execUserNameList = [systemHandler];
+            }
+          });
+          switch (res.data?.approBiz) {
+            case 'DATA_SOURCE_AUTH':
+              const resAuth = await this.$services.rdpTicketQueryDataSourceAuthTicketDetail({ data: { ticketId: this.ticketId } });
+              if (!resAuth.success) {
+                return;
               }
-            });
-            if (resQuery.success) {
+              ticketDetail.applyAuths = resAuth.data.applyAuths;
+              this.authList = resAuth.data.applyAuths;
+              break;
+            case 'DM_QUERY':
+            case 'DM_CHANGE':
+              const resQuery = await this.$services.dmTicketQueryQueryTicketDetail({
+                data: {
+                  ticketId: this.ticketId
+                }
+              });
+              if (!resQuery.success) {
+                return;
+              }
               this.noPassedRuleList = resQuery.data.checkedList || [];
               this.analysisBehaviors = resQuery.data.behaviors || [];
               this.analysisSqlCount = resQuery.data.totalCount ?? null;
@@ -2226,20 +2224,33 @@ export default {
                 await this.queryAutoExecJobInfo();
                 await this.queryAutoExecTaskList();
               }
-              this.ticketDetail.ticketMessage = resQuery.data?.ticketMessage || '';
-              this.ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
-              this.ticketDetail.contentType = resQuery.data?.contentType || 'INLINE';
-              this.ticketDetail.attachmentId = resQuery.data?.attachmentId;
-              this.ticketDetail.attachmentFileName = resQuery.data?.attachmentFileName || '';
-              this.ticketDetail.attachmentFileSize = resQuery.data?.attachmentFileSize || 0;
-              if (initializeSqlContent) {
-                await this.loadTicketSqlContent();
-                this.ticketSqlContentInitialized = true;
-              }
-            }
-            break;
-          default:
-            break;
+              ticketDetail.ticketMessage = resQuery.data?.ticketMessage || '';
+              ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
+              ticketDetail.contentType = resQuery.data?.contentType || 'INLINE';
+              ticketDetail.attachmentId = resQuery.data?.attachmentId;
+              ticketDetail.attachmentFileName = resQuery.data?.attachmentFileName || '';
+              ticketDetail.attachmentFileSize = resQuery.data?.attachmentFileSize || 0;
+              break;
+            default:
+              break;
+          }
+          this.ticketDetail = ticketDetail;
+          const validStepKeys = new Set(this.ticketProgressSteps.map((step) => step.key));
+          if (!this.ticketStepManuallySelected || !validStepKeys.has(this.selectedStepKey)) {
+            const currentStep = this.ticketProgressSteps.find((step) => ['active', 'failed'].includes(step.state));
+            const defaultStep = currentStep || this.ticketProgressSteps[this.ticketProgressSteps.length - 1];
+            this.selectedStepKey = defaultStep?.key || 'CREATE';
+            this.ticketStepManuallySelected = false;
+          }
+
+          if (['DM_QUERY', 'DM_CHANGE'].includes(ticketDetail.approBiz) && !this.ticketSqlContentInitialized) {
+            await this.loadTicketSqlContent();
+            this.ticketSqlContentInitialized = true;
+          }
+        }
+      } finally {
+        if (showLoading) {
+          this.loading = false;
         }
       }
     },
@@ -3244,6 +3255,15 @@ export default {
 
 .ticket-overview__actions :deep(.ivu-btn) {
   margin: 0;
+}
+
+.ticket-refresh-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
 }
 
 .ticket-state-badge,
