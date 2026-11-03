@@ -104,18 +104,19 @@
       :class="`query-message ${tab.message.type}`"
       v-if="tab.message.text && tab.message.show && tab.connected && (!aiBinding || !aiNarrow || aiView === 'editor')"
     >
-      <div v-html="tab.message.text"></div>
-      <CustomIcon type="icon-v2-close2" @click="handleCloseError" hoverStyle />
+      <div class="query-message__text" v-html="tab.message.text"></div>
+      <CustomIcon class="query-message__action" type="icon-v2-close2" @click="handleCloseError" hoverStyle />
     </div>
     <div
       class="query-message"
       :class="tab.workspaceConnectionState === 'disconnected' ? 'Info' : 'Error'"
       v-if="!tab.connected && tab.msgContent && (!aiBinding || !aiNarrow || aiView === 'editor')"
     >
-      {{ tab.msgContent }}
+      <span class="query-message__text">{{ tab.msgContent }}</span>
       <Button
         v-if="!['connecting', 'reconnecting', 'disconnecting'].includes(tab.workspaceConnectionState)"
-        type="text"
+        class="query-message__action"
+        type="default"
         size="small"
         @click="handleClickDsStatusIcon"
       >
@@ -1387,19 +1388,33 @@ export default {
     max-height: 200px;
     overflow: auto;
     display: flex;
+    gap: 12px;
     justify-content: space-between;
     align-items: center;
+    color: var(--text-primary);
+    border-left: 3px solid var(--border-primary);
+
+    .query-message__text {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .query-message__action {
+      flex-shrink: 0;
+    }
 
     &.Error {
-      background: #ffdcdc;
+      background: var(--error-bg);
+      border-left-color: var(--error-color);
     }
 
     &.Warn {
-      background: #fffddc;
+      background: var(--warning-bg);
+      border-left-color: var(--warning-color);
     }
 
     &.Info {
-      background: #dedede;
+      background: var(--bg-secondary);
     }
   }
 }
