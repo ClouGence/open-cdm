@@ -325,7 +325,7 @@
       }
 
       &.ivu-btn-ghost {
-        border-color: var(--primary-color) !important;
+        border-color: var(--primary-button-bg) !important;
         color: var(--primary-color) !important;
         background: transparent !important;
 
@@ -334,7 +334,7 @@
         }
 
         &:hover {
-          border-color: var(--primary-color) !important;
+          border-color: var(--primary-button-bg) !important;
           color: #ffffff !important;
           background-color: var(--primary-button-bg) !important;
 
@@ -1137,9 +1137,14 @@
       }
 
       &-active {
-        background-color: var(--primary-color);
-        border-color: #ffffff !important;
+        background-color: var(--primary-button-bg) !important;
+        border-color: var(--primary-button-bg) !important;
         color: #ffffff !important;
+
+        &:hover {
+          background-color: var(--primary-button-bg) !important;
+          border-color: var(--primary-button-bg) !important;
+        }
       }
 
       a {
@@ -1594,18 +1599,20 @@
   .ant-switch {
     background-color: var(--text-disabled);
 
-    &-checked {
-      background-color: var(--primary-color);
+    &-checked:not([disabled]):not(.ivu-switch-disabled):not(.ant-switch-disabled) {
+      background-color: var(--primary-button-bg) !important;
+      border-color: var(--primary-button-bg) !important;
     }
 
     // Disabled switch
     &[disabled],
     &-disabled {
       background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
       cursor: not-allowed !important;
       opacity: 0.6;
 
-      &-checked {
+      &-checked:not([disabled]):not(.ivu-switch-disabled):not(.ant-switch-disabled) {
         background-color: var(--disabled-bg) !important;
         opacity: 0.6;
       }
