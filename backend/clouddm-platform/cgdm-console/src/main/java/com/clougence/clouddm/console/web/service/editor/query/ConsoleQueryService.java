@@ -1275,7 +1275,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     }
                     consumer.accept(BuildResMsgUtils.buildConsoleMsg(queryDTO, message, MessageLevel.Info, true));
                 }
-            } else {
+            } else if (applyAutoCommit != null) {
                 this.queryService.commitSession(curUid, sessionId);
                 this.queryService.closeSession(curUid, sessionId);
 
