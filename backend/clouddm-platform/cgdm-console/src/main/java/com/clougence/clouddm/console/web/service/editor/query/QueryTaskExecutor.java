@@ -16,12 +16,17 @@
 package com.clougence.clouddm.console.web.service.editor.query;
 
 import java.io.Closeable;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 
+import org.springframework.context.i18n.LocaleContext;
+import org.springframework.context.i18n.LocaleContextHolder;
+
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.ThreadUtils;
 import com.clougence.utils.timer.HashedWheelTimer;
 
@@ -113,7 +118,20 @@ public class QueryTaskExecutor implements Closeable {
     }
 
     public void submitTask(QueryTask task) {
-        TaskWorker worker = new TaskWorker(this, task);
+        Locale locale = DmI18nUtils.getLocale();
+        QueryTask localizedTask = () -> {
+            LocaleContext previousContext = LocaleContextHolder.getLocaleContext();
+            try {
+                LocaleContextHolder.setLocale(locale);
+                return task.doQuery();
+            } finally {
+                LocaleContextHolder.setLocaleContext(previousContext);
+            }
+        };
+        enqueue(new TaskWorker(this, localizedTask));
+    }
+
+    private void enqueue(TaskWorker worker) {
         this.tasks.add(worker);
         wakeUp();
     }
@@ -135,10 +153,10 @@ public class QueryTaskExecutor implements Closeable {
                 ExitCode exitCode = this.task.doQuery();
                 if (exitCode.isUseDelay()) {
                     if (exitCode.getDelayTime() == 0) {
-                        this.executor.submitTask(this.task);
+                        this.executor.enqueue(this);
                     } else {
                         this.executor.timer.newTimeout(t -> {
-                            this.executor.submitTask(this.task);
+                            this.executor.enqueue(this);
                         }, exitCode.getDelayTime(), exitCode.getDelayUnit());
                     }
                 }

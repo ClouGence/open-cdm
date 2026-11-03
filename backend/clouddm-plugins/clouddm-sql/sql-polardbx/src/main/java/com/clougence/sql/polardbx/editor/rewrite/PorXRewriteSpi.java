@@ -51,6 +51,11 @@ public class PorXRewriteSpi implements RewriteSpi {
 
     private boolean rewriterLimit(TokenStreamRewriter rewriter, ParseTree astTree, long maxLimit) {
         PolardbXParser.DmlStatementContext dmlStat = ((PolardbXParser.SqlStatementContext) astTree).dmlStatement();
+        // EXPLAIN ANALYZE and TRACE can be classified as SELECT without a top-level DML node.
+        // Preserve their SQL body so pagination does not change the plan or traced execution.
+        if (dmlStat == null) {
+            return false;
+        }
         if (dmlStat.selectStatement() != null) {
             PolardbXParser.SelectStatementContext s = dmlStat.selectStatement();
             if (s instanceof PolardbXParser.SimpleSelectContext) {
