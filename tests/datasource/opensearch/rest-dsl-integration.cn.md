@@ -1,6 +1,6 @@
 # OpenSearch REST DSL 集成验收
 
-本文件是第 4 步的长期集成用例，开发完成后统一验收，不作为已通过的证据。不自动启动 CloudDM，不执行数据库升级。第 4 步已完成后端 DSL 接入及单元验证，以下集成用例均为 `NOT RUN`。第 5 步已接通单次查询输出，具体用例见[元数据与执行验收](metadata-execution.cn.md)；第 6 步已接入符合条件的自动分页，见[分页与导出验收](pagination-export.cn.md)；前端高亮映射仍待后续步骤，完成后统一验收。
+本文件是第 4 步的长期集成用例，开发完成后统一验收，不作为已通过的证据。不自动启动 CloudDM，不执行数据库升级。第 4 步已完成后端 DSL 接入及单元验证，以下集成用例均为 `NOT RUN`。第 5 步已接通单次查询输出，具体用例见[元数据与执行验收](metadata-execution.cn.md)；第 6 步已接入符合条件的自动分页，见[分页与导出验收](pagination-export.cn.md)；第 8 步已接入前端 REST 高亮映射和当前请求选择，页面流程见[OpenSearch 入口与 REST 工作台](../../frontend/datasource/opensearch_datasource.md)，完成后统一验收。
 
 ## 准备与记录
 
