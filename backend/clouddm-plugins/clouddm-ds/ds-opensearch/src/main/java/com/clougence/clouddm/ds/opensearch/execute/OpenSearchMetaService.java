@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.opensearch.execute;
 
+import java.util.*;
 import java.util.regex.Pattern;
 
 import com.clougence.clouddm.ds.opensearch.definition.ui.OpenSearchCommandTemplates;

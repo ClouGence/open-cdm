@@ -136,7 +136,7 @@ public class RestDslLanguageSpi implements DsLanguageSpi {
                 case "PUT" -> List.of("_doc", "_create", "_mapping", "_settings");
                 case "DELETE" -> List.of("_doc");
                 case "HEAD" -> List.of("_doc", "_source");
-                default -> List.of();
+                default -> List.<String> of();
             };
             case PARAMETER -> {
                 if (context.parent().endsWith("/_search")) {
@@ -153,10 +153,10 @@ public class RestDslLanguageSpi implements DsLanguageSpi {
                     List.of("match_all", "match", "match_phrase", "term", "terms", "range", "bool", "exists", "prefix", "wildcard");
                 case "bool" -> List.of("must", "filter", "should", "must_not", "minimum_should_match");
                 case "exists" -> List.of("field");
-                case "aggs", "aggregations" -> List.of();
+                case "aggs", "aggregations" -> List.<String> of();
                 default -> List.of("field", "size", "order", "gte", "gt", "lte", "lt");
             };
-            default -> List.of();
+            default -> List.<String> of();
         });
         if (context.kind() == EsCompletionKind.ENDPOINT && (context.parent().equals("GET") || context.parent().equals("POST")) && profile.capabilities() != null
             && profile.capabilities().legacyKnnSearch()) {
