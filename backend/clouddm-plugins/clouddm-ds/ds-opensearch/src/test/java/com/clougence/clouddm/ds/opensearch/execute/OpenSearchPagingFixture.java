@@ -38,10 +38,11 @@ final class OpenSearchPagingFixture implements Function<HttpExchange, OpenSearch
     int                  scrollSize;
     int                  failPage;
     int                  emptyPage;
-    int                  repeatPage;
+    int                  repeatSortAt = -1;
     int                  blockPage;
     boolean              pit;
     boolean              sorted;
+    boolean              routedDuplicateIds;
     boolean              closeFailure;
     boolean              blockClose;
     boolean              partialOpen;
@@ -108,9 +109,6 @@ final class OpenSearchPagingFixture implements Function<HttpExchange, OpenSearch
                 size = body.path("size").asInt();
             }
             int from = offset;
-            if (page == repeatPage) {
-                from = 0;
-            }
             int to = Math.min(snapshotDocuments, from + size);
             if (page == emptyPage) {
                 to = from;
@@ -127,6 +125,10 @@ final class OpenSearchPagingFixture implements Function<HttpExchange, OpenSearch
             var values = hits.putArray("hits");
             for (int i = from; i < to; i++) {
                 var hit = values.addObject().put("_index", "books").put("_id", "doc-" + i).put("_score", 1.0);
+                if (routedDuplicateIds) {
+                    // Two shard-local documents share an ID, including the pair at the page boundary.
+                    hit.put("_id", "doc-" + ((i + 1) / 2));
+                }
                 hit.putObject("_source").put("id", i).put("value", "中文 😀").put("payload", payload).put("large", "18446744073709551615");
                 if (pit) {
                     // Equal primary keys across simulated shards; tie values also exercise 64-bit JSON transport.
@@ -136,7 +138,11 @@ final class OpenSearchPagingFixture implements Function<HttpExchange, OpenSearch
                     } else {
                         sort.add(1.0);
                     }
-                    sort.add(9007199254740993L + i);
+                    long shardDoc = 9007199254740993L + i;
+                    if (i == repeatSortAt) {
+                        shardDoc--;
+                    }
+                    sort.add(shardDoc);
                 } else if (sorted) {
                     hit.putArray("sort").add(i / 7);
                 }

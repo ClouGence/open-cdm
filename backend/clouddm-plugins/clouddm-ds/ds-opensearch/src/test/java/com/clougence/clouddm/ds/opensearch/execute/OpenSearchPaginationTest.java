@@ -174,13 +174,42 @@ public class OpenSearchPaginationTest {
     }
 
     @Test
-    public void repeatedPagesAndPrematureEndFailInsteadOfSilentlyDroppingRows() throws Exception {
-        prepare("3.9.0");
-        peer.repeatPage = 2;
-        rejected(OpenSearchDsI18nKeys.OPENSEARCH_CURSOR_NOT_ADVANCING);
-        assertEquals(1000, results.rows.size());
-        assertEquals(List.of("pit-2"), peer.cleared);
-        close();
+    public void routedDuplicateIdsWithinAndAcrossPagesKeepEveryDocument() throws Exception {
+        for (String version : List.of("2.19.5", "3.9.0")) {
+            prepare(version);
+            peer.routedDuplicateIds = true;
+            execute("GET /books/_search\n{\"size\":3000}");
+            assertEquals(2505, results.rows.size());
+            for (int i = 0; i < results.rows.size(); i++) {
+                var row = results.rows.get(i);
+                assertEquals("doc-" + ((i + 1) / 2), row.get("_id"));
+                assertEquals(i, peer.mapper.readTree((String) row.get("_source")).path("id").intValue());
+            }
+            assertEquals(2505, results.metrics.get(results.metrics.size() - 1).intValue());
+            assertEquals(List.of(peer.latestId), peer.cleared);
+            assertTrue(results.completions.contains("ResultSetRowsBuild:true"));
+            assertFalse(results.errorNotified);
+            assertFalse(session.isExecuting());
+            close();
+        }
+    }
+
+    @Test
+    public void repeatedPitSortValuesWithinAndAcrossPagesStillFail() throws Exception {
+        for (int repeatedAt : List.of(1, 1000)) {
+            prepare("3.9.0");
+            peer.repeatSortAt = repeatedAt;
+            rejected(OpenSearchDsI18nKeys.OPENSEARCH_CURSOR_NOT_ADVANCING);
+            assertEquals(repeatedAt / 1000 * 1000, results.rows.size());
+            assertEquals(List.of(peer.latestId), peer.cleared);
+            assertTrue(results.errorNotified);
+            assertFalse(session.isExecuting());
+            close();
+        }
+    }
+
+    @Test
+    public void prematureScrollEndStillFailsInsteadOfSilentlyDroppingRows() throws Exception {
         prepare("2.19.5");
         peer.emptyPage = 2;
         rejected(OpenSearchDsI18nKeys.OPENSEARCH_CURSOR_INCOMPLETE);

@@ -16,10 +16,8 @@
 package com.clougence.clouddm.ds.opensearch.execute;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import com.clougence.clouddm.ds.opensearch.definition.ui.OpenSearchCommandTemplates;
 import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
@@ -46,7 +44,6 @@ final class OpenSearchSearchCursor implements AutoCloseable {
     private final int                        pageSortCount;
     private String                           cursorId;
     private JsonNode                         after;
-    private Set<String>                      previousIds      = Set.of();
     private int                              scrollSize;
     private boolean                          closed;
 
@@ -175,15 +172,10 @@ final class OpenSearchSearchCursor implements AutoCloseable {
         if (!hits.isArray() || hits.size() > maximum) {
             throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_RESPONSE_INVALID);
         }
-        Set<String> ids = new HashSet<>();
         JsonNode lastSort = after;
         for (JsonNode hit : hits) {
             if (!hit.isObject() || !index.equals(hit.path("_index").asText()) || !hit.path("_id").isTextual()) {
                 throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_RESPONSE_INVALID);
-            }
-            String id = hit.path("_id").asText();
-            if (!ids.add(id) || previousIds.contains(id)) {
-                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_CURSOR_NOT_ADVANCING);
             }
             if (pit) {
                 JsonNode sort = hit.path("sort");
@@ -207,7 +199,6 @@ final class OpenSearchSearchCursor implements AutoCloseable {
             }
         }
         after = lastSort;
-        previousIds = ids;
         return response.body();
     }
 
