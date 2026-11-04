@@ -66,8 +66,6 @@ public class OpenSearchConfigSpi extends AbstractDsConfigSpi {
         host.setTitleI18N(OpenSearchDsI18nKeys.OPENSEARCH_ENDPOINTS_LABEL);
         host.setDescI18N(OpenSearchDsI18nKeys.OPENSEARCH_ENDPOINTS_DESC);
         host.setProps(Map.of("descriptionAsPopover", true));
-        // The language engine is introduced with query execution, after connection support.
-        panels.values().forEach(panel -> panel.removeField(DataSourceConfig.Fields.sqlEngine));
     }
 
     @Override

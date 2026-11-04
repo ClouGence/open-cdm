@@ -23,15 +23,10 @@ import com.clougence.sql.es.antlr.EsParser;
 import com.clougence.sql.es.antlr.EsParserBaseListener;
 
 final class EsRequestValidator extends EsParserBaseListener {
-    private final EsServerVersion version;
+    private final RestApiProfile profile;
 
     EsRequestValidator(SqlParserParameters parameters){
-        String number = SqlParserParameters.nullToEmpty(parameters).version();
-        if (number == null || number.isBlank()) {
-            version = null;
-        } else {
-            version = EsServerVersion.parse(number);
-        }
+        profile = RestApiProfile.from(parameters);
     }
 
     @Override
@@ -81,27 +76,34 @@ final class EsRequestValidator extends EsParserBaseListener {
             }
         }
 
-        if (version == null) {
+        if (profile.capabilities() == null) {
             return;
         }
 
-        EsVersionCapabilities capabilities = version.capabilities();
+        EsVersionCapabilities capabilities = profile.capabilities();
         boolean indexed = !path.isEmpty() && !path.get(0).value().startsWith("_");
         if (!capabilities.mappingTypes() && indexed && path.size() >= 2) {
             EsPathSegment second = path.get(1);
             if (!second.value().startsWith("_") || (path.size() >= 3 && second.value().equals("_mapping") && !path.get(2).value().equals("field"))) {
-                unsupported(second.range(), "mapping types");
+                profile.unsupported(second.range(), "mapping types");
             }
         }
 
         for (EsQueryParameter parameter : request.parameters()) {
+            if (parameter.name().equals("sort")) {
+                for (String sort : parameter.value().split(",")) {
+                    if (profile.excludedSorts().contains(sort.split(":", 2)[0])) {
+                        profile.unsupported(parameter.range(), "_shard_doc");
+                    }
+                }
+            }
             if (!capabilities.mappingTypes() && parameter.name().equals("include_type_name")) {
-                unsupported(parameter.range(), "include_type_name");
+                profile.unsupported(parameter.range(), "include_type_name");
             }
         }
 
         if (indexed && path.size() == 2 && path.get(1).value().equals("_knn_search") && !capabilities.legacyKnnSearch()) {
-            unsupported(path.get(1).range(), "_knn_search");
+            profile.unsupported(path.get(1).range(), "_knn_search");
         }
 
         // Only search request options are versioned here; document fields with these names are ordinary data.
@@ -110,14 +112,11 @@ final class EsRequestValidator extends EsParserBaseListener {
         if ((search || typedSearch) && request.body() != null) {
             for (EsJsonMember member : request.body().members()) {
                 String name = member.name().value();
-                if ((name.equals("knn") && !capabilities.searchKnn()) || (name.equals("retriever") && !capabilities.retriever())) {
-                    unsupported(member.name().range(), name);
+                if (profile.excludedSearchFields().contains(name) || (name.equals("knn") && !capabilities.searchKnn()) || (name.equals("retriever") && !capabilities.retriever())) {
+                    profile.unsupported(member.name().range(), name);
                 }
             }
         }
     }
 
-    private void unsupported(EsSourceRange range, String feature) {
-        throw new EsParseException(range, EsSqlI18nKeys.ES_VERSION_FEATURE_UNSUPPORTED, feature, version.number());
-    }
 }

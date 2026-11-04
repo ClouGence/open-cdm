@@ -81,11 +81,11 @@
 
 | 能力 / 入口 | 当前实现位置 | 支持边界 / 验证要求 | 产品状态 |
 | --- | --- | --- | --- |
-| 新增、保存重开、修改、测试连接 | 已注册独立产品、配置及序列化；入口隐藏 | HTTPS、用户名密码及约定证书配置待连接步骤实现；本步创建客户端不表示连接成功 | NOT RUN |
-| Session、取消、终态、资源清理 | 原型；未接入现有执行链 | 双会话隔离，迟到/重复取消、写入结果未知、断网/关闭；HTTP 取消不等于服务器任务取消 | NOT RUN |
+| 新增、保存重开、修改、测试连接 | `ds-opensearch` 配置、序列化与 SessionFactory；产品入口已开放 | 第 3 步已实现多地址、认证、TLS、连接池及超时；新增/保存/修改/连接验证待统一验收 | NOT RUN |
+| Session、取消、终态、资源清理 | `OpenSearchClient`、`OpenSearchSession` 及异步交换生命周期 | 双会话隔离，迟到/重复取消、写入结果未知、断网/关闭；HTTP 取消不等于服务器任务取消 | NOT RUN |
 | 插件和驱动类加载 | `ds-opensearch`；真实 `PluginLoadHelper`、Maven preparer、带租约的工厂 | 独立包加载、在线准备、离线恢复及 HC5 隔离通过；Console/Sidecar 实际部署待验证；未引入 SDK 或提升 Jackson | PARTIAL：第 2 步加载范围 PASS，部署 NOT RUN |
 | 索引/字段、Mapping/Settings | 未接入 | 精确索引、OpenSearch 类型、普通账号可见性、系统索引边界 | NOT RUN |
-| REST 编辑、拆句、补全、格式化 | 未接入 | 复用 ES 语法基础，产品/版本能力一致，未知能力不擅自放行 | NOT RUN |
+| REST 编辑、拆句、补全、格式化 | `sql-es` 的 `RestApiProfile` / `RestDslLanguageSpi` 与两插件的固定产品绑定 | 共用语法；校验、分析、改写和执行入口使用产品/版本；长期用例见 [DSL 集成验收](rest-dsl-integration.cn.md) | PARTIAL：单元测试 PASS，集成 NOT RUN |
 | 基础查询/聚合、文档读写及索引管理 | 仅 V08 部分原型 | API/参数白名单、更新计数、部分失败、异步任务边界逐项验证 | NOT RUN |
 | Scroll/PIT、结果展示与导出 | 仅 V08 原型 | 按版本、查询形状和平台限制选择策略；清理失败保留真实终态 | NOT RUN |
 | 权限、只读、审计与脱敏 | 未接入 | 跨索引引用、隐式 Pipeline、聚合与扩展输出；导出同样受控 | NOT RUN |
@@ -123,3 +123,22 @@ AWS 托管/Serverless、SQL/PPL、Bulk/MSearch、向量/Neural/Hybrid 查询、D
 首次现有 `cg-drivers` 全集运行中，`deleteLocalResources_shouldBeOwnedByDriverVersion` 的时间戳变化断言失败（删除前后为同一毫秒）；该测试单独复跑和 26 条全集复跑均通过。公共 `VerDef` 沿用毫秒时间戳，本步未修改它，也不将此偶发失败隐藏为首次全过。
 
 执行中曾观察到 HC5 立即关闭时后台打印 `ClosedSelectorException`，发生在 selector 已关闭后的 `SingleCoreIOReactor.doTerminate/closeOpenChannels`；客户端状态仍为 SHUT_DOWN。补充快速创建/关闭探针后，两阶段均通过线程释放断言，最终脚本退出码 0，出现 `OPENSEARCH_PLUGIN_VERIFICATION_COMPLETE`。该日志现象仍保留为后续生产传输生命周期验证的关注项，当前样本不能证明任意在途请求或关闭竞争安全。另有现有 `DsObject.close` 的“close ignored”日志，其当前实现会在调用 closer 后打印该信息，不能据此推定未执行关闭。本步未改公共类或屏蔽原生日志。
+
+## 7. 第 4 步自动化验证
+
+本轮 27 项单元测试全部通过，ES 与 OpenSearch 插件编译、打包成功。两个插件包均包含更新后的 sql-es 嵌套依赖，OpenSearch 插件没有将 HC5 测试依赖打入生产包。
+
+运行命令（不启动应用、不访问数据库）：
+
+```bash
+cd backend
+./gradlew :sql-es:test :ds-opensearch:test :ds-es:compileJava :ds-es:customFatJar :ds-opensearch:customFatJar
+```
+
+- `EsDslRegressionTest`：ES 原有版本边界、危险路由/参数拒绝、跨索引引用、文档字面值、Unicode、拆句、格式化和限制改写。
+- `RestApiProfileTest`：独立产品识别、非法版本拒绝、缺失版本的保守能力、2.4 PIT 与 3.3 稳定排序边界。
+- `OpenSearchDslTest`：原生超时参数、Mapping/查询差异、嵌套向量与脚本入口拒绝、普通数据不误判、资源分析、改写和引擎身份固定。
+- `RestDslLanguageTest`：产品/版本补全、产品参数覆盖、诊断，以及两产品共用编辑语法。
+- `OpenSearchSessionPolicyTest`：不启动 HTTP 的客户端替身状态，验证执行入口使用已探测版本、固定产品、检查授权范围及拒绝已关闭会话。
+
+上述单元验证不代表页面、插件独立运行、网络故障、实际查询、分页或权限流程已经通过；这些集成结果保持 `NOT RUN`。

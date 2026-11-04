@@ -37,6 +37,8 @@ import org.apache.hc.core5.io.CloseMode;
 import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchConfig;
 import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.sql.es.RestApiProfile;
+import com.clougence.sql.es.RestProduct;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -100,7 +102,8 @@ public final class OpenSearchClient implements AutoCloseable {
                         throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_VERSION_INVALID);
                     }
                     version = root.path("version").path("number").asText();
-                    if (!version.matches("[23]\\.\\d+\\.\\d+(?:[-+][A-Za-z0-9.-]+)?")) {
+                    RestApiProfile.from(RestProduct.OPENSEARCH.parameters(version));
+                    if (version.isBlank()) {
                         throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_VERSION_INVALID);
                     }
                 } catch (IOException e) {

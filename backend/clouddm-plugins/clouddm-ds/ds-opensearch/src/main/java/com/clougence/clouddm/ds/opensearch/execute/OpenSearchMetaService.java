@@ -22,10 +22,10 @@ import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
+import com.clougence.sql.es.RestProduct;
 
 public class OpenSearchMetaService implements DsMetaService {
     private final OpenSearchSession session;
@@ -43,7 +43,7 @@ public class OpenSearchMetaService implements DsMetaService {
     public String getVersion() { return session.readVersion(); }
 
     @Override
-    public Map<String, String> getSqlParserParameters() { return Map.of(SqlParserParameters.VERSION, getVersion()); }
+    public Map<String, String> getSqlParserParameters() { return RestProduct.OPENSEARCH.parameters(getVersion()).values(); }
 
     @Override
     public String getCurrentCatalog() { return null; }

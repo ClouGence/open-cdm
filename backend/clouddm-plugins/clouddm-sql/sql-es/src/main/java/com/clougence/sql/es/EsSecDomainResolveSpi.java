@@ -44,7 +44,7 @@ public class EsSecDomainResolveSpi implements SecDomainResolveSpi {
 
     private EsRequestDomain resolve(DataSourceType dsType, SplitScript script) {
         EsRequest request = new EsRequestParser(parameters).parse(script.getScript());
-        EsRequestAnalysis analysis = EsRequestPolicy.analyze(request);
+        EsRequestAnalysis analysis = EsRequestPolicy.analyze(request, parameters);
         EsRequestDomain domain = new EsRequestDomain();
         domain.setSplitScript(script);
         domain.setDsType(dsType);

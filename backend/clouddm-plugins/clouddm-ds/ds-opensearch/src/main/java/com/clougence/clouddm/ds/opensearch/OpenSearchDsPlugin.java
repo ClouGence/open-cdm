@@ -22,13 +22,16 @@ import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSessionFactory;
 import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSessionSpi;
 import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSupportSpi;
 import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
+import com.clougence.clouddm.ds.opensearch.language.OpenSearchLanguageSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.es.OpenSearchSqlEngineSpi;
 
 @Plugin(name = "i18n::" + OpenSearchDsI18nKeys.PLUGIN_NAME_OPENSEARCH, includePackages = { "com.clougence.clouddm.ds.opensearch.execute.*",
                                                                                            "org.apache.hc.*" }, dsProduct = DataSourceType.OpenSearch)
@@ -44,6 +47,8 @@ public class OpenSearchDsPlugin implements DsPlugin, SchemaPlugin {
     public void loadPlugin(DsPluginBinder binder) {
         SchemaFramework.install(this);
         binder.bindDsDriverFamily(DRIVER_FAMILY);
+        binder.bindSqlEngine(OpenSearchSqlEngineSpi.NAME);
+        binder.addPluginSpi(new OpenSearchLanguageSpi(binder.findGlobalService(MetaService.class)));
         binder.bindDsSessionFactory(OpenSearchSessionFactory.class);
         binder.addPluginSpi(new OpenSearchSessionSpi());
         binder.addPluginSpi(new OpenSearchSupportSpi());

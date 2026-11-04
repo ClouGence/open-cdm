@@ -20,9 +20,11 @@ import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 
 public class EsRewriteSpi implements RewriteSpi {
-    private final EsRequestParser parser;
+    private final EsRequestParser     parser;
+    private final SqlParserParameters parameters;
 
     public EsRewriteSpi(SqlParserParameters parameters){
+        this.parameters = parameters;
         parser = new EsRequestParser(parameters);
     }
 
@@ -36,7 +38,7 @@ public class EsRewriteSpi implements RewriteSpi {
         if (EsOperation.resolve(request) != EsOperation.SEARCH) {
             return queryStr;
         }
-        EsRequestPolicy.analyze(request);
+        EsRequestPolicy.analyze(request, parameters);
         EsSearchLimit limit = EsSearchLimit.resolve(request);
         if (limit.range() != null && limit.size() <= maximum) {
             return queryStr;

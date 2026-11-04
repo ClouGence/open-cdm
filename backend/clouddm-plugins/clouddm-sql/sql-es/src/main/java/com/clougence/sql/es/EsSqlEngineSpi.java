@@ -28,6 +28,16 @@ import com.clougence.dslpaser.antlr.DslProvider;
 public class EsSqlEngineSpi implements SqlEngineSpi {
     public static final String NAME = "ES DSL";
 
+    private final RestProduct  product;
+
+    public EsSqlEngineSpi(){
+        this(RestProduct.ELASTICSEARCH);
+    }
+
+    protected EsSqlEngineSpi(RestProduct product){
+        this.product = product;
+    }
+
     @Override
     public String name() {
         return NAME;
@@ -35,12 +45,12 @@ public class EsSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        return new EsSplitAnalysisSpi(parameters);
+        return new EsSplitAnalysisSpi(product.parameters(parameters));
     }
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return new EsBehaviorAnalysisSpi(parameters);
+        return new EsBehaviorAnalysisSpi(product.parameters(parameters));
     }
 
     @Override
@@ -50,7 +60,7 @@ public class EsSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public DslProvider dslProvider(SqlParserParameters parameters) {
-        return new EsDslProvider(parameters);
+        return new EsDslProvider(product.parameters(parameters));
     }
 
     @Override
@@ -60,11 +70,11 @@ public class EsSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SecDomainResolveSpi secDomainResolveSpi(SqlParserParameters parameters) {
-        return new EsSecDomainResolveSpi(parameters);
+        return new EsSecDomainResolveSpi(product.parameters(parameters));
     }
 
     @Override
     public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
-        return new EsRewriteSpi(parameters);
+        return new EsRewriteSpi(product.parameters(parameters));
     }
 }
