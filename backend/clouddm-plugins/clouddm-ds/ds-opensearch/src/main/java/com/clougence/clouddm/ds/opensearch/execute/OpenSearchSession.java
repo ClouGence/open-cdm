@@ -1,0 +1,201 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.ds.opensearch.execute;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchConfig;
+import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
+import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
+import com.clougence.clouddm.sdk.execute.session.*;
+import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.drivers.DsObject;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class OpenSearchSession implements Session {
+    @Getter
+    private final String                     sessionId;
+    @Getter
+    private final OpenSearchConfig           dsConfig;
+    @Getter
+    private final DsMetaService              metaService;
+    private final DsObject<OpenSearchClient> resource;
+    private final OpenSearchClient           client;
+    private final Object                     stateLock      = new Object();
+    private final List<SessionCloseListener> closeListeners = new ArrayList<>();
+    private final AtomicInteger              executing      = new AtomicInteger();
+    @Getter
+    private volatile long                    lastQueryTime  = System.currentTimeMillis();
+    @Getter
+    private volatile boolean                 readOnly;
+    private boolean                          closed;
+
+    public OpenSearchSession(SessionContextDTO context, OpenSearchConfig config, DsObject<OpenSearchClient> resource){
+        sessionId = context.getSessionId();
+        dsConfig = config;
+        readOnly = context.isRdbReadOnly() || Boolean.TRUE.equals(config.getReadOnly());
+        this.resource = resource;
+        client = resource.getTarget();
+        metaService = new OpenSearchMetaService(this);
+        resource.addCloseListener(this::onResourceClosed);
+    }
+
+    String readVersion() {
+        long sequence;
+        synchronized (stateLock) {
+            checkOpen();
+            if (executing.get() > 0) {
+                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_SESSION_BUSY);
+            }
+            sequence = client.cancellationSequence();
+            executing.incrementAndGet();
+            lastQueryTime = System.currentTimeMillis();
+        }
+        try {
+            String version = client.probe(sequence);
+            dsConfig.setVersion(version);
+            return version;
+        } finally {
+            executing.decrementAndGet();
+        }
+    }
+
+    @Override
+    public void cancel() {
+        synchronized (stateLock) {
+            client.cancel();
+        }
+    }
+
+    @Override
+    public boolean isExecuting() { return executing.get() > 0; }
+
+    @Override
+    public void close() {
+        resource.close();
+    }
+
+    private void onResourceClosed() {
+        List<SessionCloseListener> listeners;
+        synchronized (stateLock) {
+            closed = true;
+            listeners = List.copyOf(closeListeners);
+            closeListeners.clear();
+        }
+
+        for (SessionCloseListener listener : listeners) {
+            try {
+                listener.onClose(sessionId);
+            } catch (Exception e) {
+                String msg = "OpenSearch session close listener failed";
+                log.error(msg, e);
+            }
+        }
+    }
+
+    @Override
+    public void addCloseListener(SessionCloseListener listener) {
+        synchronized (stateLock) {
+            if (!closed && !resource.isClose()) {
+                closeListeners.add(listener);
+                return;
+            }
+        }
+        listener.onClose(sessionId);
+    }
+
+    private void checkOpen() {
+        if (closed || resource.isClose()) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_CLIENT_CLOSED);
+        }
+    }
+
+    @Override
+    public String getCurrentQueryId() { return null; }
+
+    @Override
+    public void executeQuery(QueryRequest query, ResultBuilder builder) {
+        throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+    }
+
+    @Override
+    public <V> V executeQuery(SessionCallback<V> callback) {
+        throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+    }
+
+    @Override
+    public void commit() {
+        throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+    }
+
+    @Override
+    public void rollback() {
+        throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+    }
+
+    @Override
+    public boolean isAutoCommit() { return true; }
+
+    @Override
+    public boolean hasUnCommitted() {
+        return false;
+    }
+
+    @Override
+    public RdbIsolation getIsolation() { return RdbIsolation.DEFAULT; }
+
+    @Override
+    public void setAutoCommit(boolean autoCommit) {
+        if (!autoCommit) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+        }
+    }
+
+    @Override
+    public void setIsolation(RdbIsolation isolation) {
+        if (isolation != RdbIsolation.DEFAULT) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+        }
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        synchronized (stateLock) {
+            checkOpen();
+            this.readOnly = readOnly || Boolean.TRUE.equals(dsConfig.getReadOnly());
+        }
+    }
+
+    @Override
+    public void setCurrentCatalog(String catalog) {
+        if (catalog != null && !catalog.isBlank()) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+        }
+    }
+
+    @Override
+    public void setCurrentSchema(String schema) {
+        if (schema != null && !schema.isBlank()) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+        }
+    }
+}

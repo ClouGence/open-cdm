@@ -15,13 +15,20 @@
  */
 package com.clougence.clouddm.ds.opensearch.dsconf;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
+import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 
 public class OpenSearchConfigSpi extends AbstractDsConfigSpi {
     @Override
@@ -30,8 +37,52 @@ public class OpenSearchConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig config, Map<String, String> values) {
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> values) {
+        OpenSearchConfig config = (OpenSearchConfig) dsConfig;
+        try {
+            config.setHandshakeTimeoutMs(Integer.parseInt(values.getOrDefault(OpenSearchConfig.Fields.handshakeTimeoutMs, "5000")));
+            config.setMaxResponseBytes(Integer.parseInt(values.getOrDefault(OpenSearchConfig.Fields.maxResponseBytes, "16777216")));
+            config.setConnectTimeoutMs(Integer.parseInt(values.getOrDefault(OpenSearchConfig.Fields.connectTimeoutMs, "5000")));
+            config.setSocketTimeoutMs(Integer.parseInt(values.getOrDefault(OpenSearchConfig.Fields.socketTimeoutMs, "30000")));
+            config.setRequestTimeoutMs(Integer.parseInt(values.getOrDefault(OpenSearchConfig.Fields.requestTimeoutMs, "30000")));
+            config.setConnectionRequestTimeoutMs(Integer.parseInt(values.getOrDefault(OpenSearchConfig.Fields.connectionRequestTimeoutMs, "5000")));
+            config.setMaxConnections(Integer.parseInt(values.getOrDefault(OpenSearchConfig.Fields.maxConnections, "20")));
+            config.setMaxConnectionsPerRoute(Integer.parseInt(values.getOrDefault(OpenSearchConfig.Fields.maxConnectionsPerRoute, "10")));
+        } catch (NumberFormatException e) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_LIMITS_INVALID);
+        }
+        config.validateLimits();
+        if (config.getHost() != null && !config.getHost().isBlank()) {
+            OpenSearchEndpoints.parse(config.getHost());
+        }
         return config;
+    }
+
+    @Override
+    public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
+        UiPanelField host = panels.get(DsConfigGroup.GENERAL).findField(DataSourceConfig.Fields.host);
+        host.setType(UiPanelFieldType.Input);
+        host.setChildren(new ArrayList<>());
+        host.setTitleI18N(OpenSearchDsI18nKeys.OPENSEARCH_ENDPOINTS_LABEL);
+        host.setDescI18N(OpenSearchDsI18nKeys.OPENSEARCH_ENDPOINTS_DESC);
+        host.setProps(Map.of("descriptionAsPopover", true));
+        // The language engine is introduced with query execution, after connection support.
+        panels.values().forEach(panel -> panel.removeField(DataSourceConfig.Fields.sqlEngine));
+    }
+
+    @Override
+    public Map<String, String> configMapFromUi(Map<String, String> configMap, Map<String, String> uiMap) {
+        if (!uiMap.containsKey(DataSourceConfig.Fields.host)) {
+            return Map.of();
+        }
+        var endpoints = OpenSearchEndpoints.parse(uiMap.get(DataSourceConfig.Fields.host));
+        return Map.of(DataSourceConfig.Fields.host, String.join(",", endpoints.stream().map(Object::toString).toList()));
+    }
+
+    @Override
+    public void customizeUiMap(Map<String, String> uiMap, Map<String, String> configMap) {
+        uiMap.remove(ADDRESS_FIELD);
+        uiMap.remove(PORT_FIELD);
     }
 
     @Override
@@ -41,7 +92,7 @@ public class OpenSearchConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public boolean supportSSL() {
-        return false;
+        return true;
     }
 
     @Override
@@ -61,6 +112,6 @@ public class OpenSearchConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public List<SslMode> sslModeSet() {
-        return List.of(SslMode.DISABLED);
+        return List.of(SslMode.CA, SslMode.TRUSTSTORE, SslMode.CLIENT_CERT, SslMode.KEYSTORE_TRUSTSTORE);
     }
 }

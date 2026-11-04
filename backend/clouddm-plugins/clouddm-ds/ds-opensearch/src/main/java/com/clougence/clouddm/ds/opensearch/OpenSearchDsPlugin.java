@@ -18,6 +18,9 @@ package com.clougence.clouddm.ds.opensearch;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchConfigSpi;
 import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchSerializationSpi;
+import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSessionFactory;
+import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSessionSpi;
+import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSupportSpi;
 import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -27,8 +30,8 @@ import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
-@Plugin(name = "i18n::" + OpenSearchDsI18nKeys.PLUGIN_NAME_OPENSEARCH, display = false,
-        includePackages = { "com.clougence.clouddm.ds.opensearch.execute.*", "org.apache.hc.*" }, dsProduct = DataSourceType.OpenSearch)
+@Plugin(name = "i18n::" + OpenSearchDsI18nKeys.PLUGIN_NAME_OPENSEARCH, includePackages = { "com.clougence.clouddm.ds.opensearch.execute.*",
+                                                                                           "org.apache.hc.*" }, dsProduct = DataSourceType.OpenSearch)
 public class OpenSearchDsPlugin implements DsPlugin, SchemaPlugin {
     public static final String DRIVER_FAMILY = "OpenSearch HTTP Client";
 
@@ -41,6 +44,9 @@ public class OpenSearchDsPlugin implements DsPlugin, SchemaPlugin {
     public void loadPlugin(DsPluginBinder binder) {
         SchemaFramework.install(this);
         binder.bindDsDriverFamily(DRIVER_FAMILY);
+        binder.bindDsSessionFactory(OpenSearchSessionFactory.class);
+        binder.addPluginSpi(new OpenSearchSessionSpi());
+        binder.addPluginSpi(new OpenSearchSupportSpi());
         binder.bindPluginI18n(OpenSearchDsI18nKeys.class);
         binder.addPluginSpi(new OpenSearchConfigSpi());
         binder.addPluginSpi(new OpenSearchSerializationSpi(binder.getPluginClassLoader()));
