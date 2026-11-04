@@ -128,6 +128,7 @@ final class OpenSearchPagingFixture implements Function<HttpExchange, OpenSearch
                 if (routedDuplicateIds) {
                     // Two shard-local documents share an ID, including the pair at the page boundary.
                     hit.put("_id", "doc-" + ((i + 1) / 2));
+                    hit.put("_routing", "route-" + (i % 2));
                 }
                 hit.putObject("_source").put("id", i).put("value", "中文 😀").put("payload", payload).put("large", "18446744073709551615");
                 if (pit) {

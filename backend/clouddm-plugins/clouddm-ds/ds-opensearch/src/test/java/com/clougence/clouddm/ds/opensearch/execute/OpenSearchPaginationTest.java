@@ -45,6 +45,7 @@ public class OpenSearchPaginationTest {
     private OpenSearchPagingFixture    peer;
     private RecordingOpenSearchResults results;
     private QueryResultConf            limits;
+    private boolean                    masking;
 
     private void prepare(String version) throws Exception {
         stub = new OpenSearchHttpStub();
@@ -180,15 +181,32 @@ public class OpenSearchPaginationTest {
             peer.routedDuplicateIds = true;
             execute("GET /books/_search\n{\"size\":3000}");
             assertEquals(2505, results.rows.size());
+            assertTrue(results.metadata.get(0).containsKey("_routing"));
             for (int i = 0; i < results.rows.size(); i++) {
                 var row = results.rows.get(i);
                 assertEquals("doc-" + ((i + 1) / 2), row.get("_id"));
+                assertEquals("route-" + (i % 2), row.get("_routing"));
                 assertEquals(i, peer.mapper.readTree((String) row.get("_source")).path("id").intValue());
             }
             assertEquals(2505, results.metrics.get(results.metrics.size() - 1).intValue());
             assertEquals(List.of(peer.latestId), peer.cleared);
             assertTrue(results.completions.contains("ResultSetRowsBuild:true"));
             assertFalse(results.errorNotified);
+            assertFalse(session.isExecuting());
+            close();
+        }
+    }
+
+    @Test
+    public void routedPagesStillRejectUnmaskedRoutingWhenMaskingIsRequired() throws Exception {
+        for (String version : List.of("2.19.5", "3.9.0")) {
+            prepare(version);
+            peer.routedDuplicateIds = true;
+            masking = true;
+            rejected(OpenSearchDsI18nKeys.OPENSEARCH_MASKING_UNSUPPORTED);
+            assertTrue(results.rows.isEmpty());
+            assertEquals(List.of(peer.latestId), peer.cleared);
+            assertTrue(results.errorNotified);
             assertFalse(session.isExecuting());
             close();
         }
@@ -442,6 +460,7 @@ public class OpenSearchPaginationTest {
         query.setQueryId("page-test");
         query.setQueryBody(command);
         query.setResultConf(limits);
+        query.setUsingValueProcess(masking);
         try (var analysis = new EsBehaviorAnalysisSpi(RestProduct.OPENSEARCH.parameters(stub.version)).analysisBehaviorStream(new StringReader(command), Map.of(), 1, 0)) {
             query.setRelations(analysis.toList().get(0).getRelations());
         }

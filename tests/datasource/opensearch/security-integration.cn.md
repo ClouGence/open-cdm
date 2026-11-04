@@ -51,7 +51,7 @@ WRITE 是平台既有的写权限，包含更新脚本删除文档和 upsert 的
 | SEC-02 | books 查询引用 lookup；再依次用默认 shapes、MLT like/unlike、嵌套排序、highlight_query、rescore、聚合 filters 引用关联索引 | 任一关联索引缺 READ 都拒绝；补齐权限后执行；安全规则范围也包含关联索引 | NOT RUN |
 | SEC-03 | books 有 WRITE、lookup 无 READ，执行带 lookup 的 update/delete by query | 关联 READ 与主索引 WRITE 分别校验；不能用 WRITE 覆盖关联读取 | NOT RUN |
 | SEC-04 | 平台允许，数据库账号分别在预检查和业务请求返回 401/403 | 保留拒绝终态，不绕过预检查、不自动重放、不切换账号；后续合法查询可用 | NOT RUN |
-| SEC-05 | 数据源只读、会话只读分别测试全部写命令；尝试解除会话只读 | 都不发送写请求；数据源只读不能被会话开关覆盖；读取继续可用 | NOT RUN |
+| SEC-05 | 配置数据源只读，保存并重开会话后测试全部写命令；检查工作台工具栏 | 不发送写请求，读取继续可用；工作台不提供会话只读切换，数据源只读限制不能被解除；内部会话只读状态切换另由单元测试覆盖 | NOT RUN |
 | SEC-06 | 测试别名、数据流、通配符、多索引、远程索引、Bulk/MSearch、wrapper/percolate、存储脚本 | 完整资源无法分析时明确拒绝，不进入业务执行或导出 | NOT RUN |
 | SEC-07 | 在主索引分别设置 default_pipeline、final_pipeline、search.default_pipeline，再恢复为 _none | 相关执行拒绝；恢复后成功；关联索引也保持精确解析；错误不得包含 Pipeline 处理的数据 | NOT RUN |
 | SEC-08 | 匹配组合/组件模板、传统模板创建新索引；再使用无匹配模板的名字；移除模板读取权限 | 命中模板创建拒绝且索引未创建；无匹配可创建；无权读取拒绝且不执行 PUT | NOT RUN |

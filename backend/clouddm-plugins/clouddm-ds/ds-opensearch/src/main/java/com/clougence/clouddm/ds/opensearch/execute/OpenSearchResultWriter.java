@@ -440,7 +440,7 @@ final class OpenSearchResultWriter {
     void writeContinuous(EsRequest request, OpenSearchClient client, long limit, boolean pit) throws Exception {
         index = request.segments().get(0).value();
         ObjectNode shape = JsonNodeFactory.instance.objectNode();
-        for (String name : List.of("_index", "_id", "_type", "_source", "_ignored", "sort")) {
+        for (String name : List.of("_index", "_id", "_type", "_routing", "_source", "_ignored", "sort")) {
             shape.put(name, "");
         }
         for (String name : List.of("_score", "_version", "_seq_no", "_primary_term")) {

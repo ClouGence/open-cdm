@@ -74,6 +74,30 @@ public class OpenSearchSecurityTest {
     }
 
     @Test
+    public void sessionReadOnlyCanBeEnabledAndDisabledWithoutTransactionChanges() {
+        String command = "PUT /books/_doc/1\n{}";
+        session.setReadOnly(true);
+        assertTrue(session.isReadOnly());
+        assertTrue(session.isAutoCommit());
+        reject(query(command, false), OpenSearchDsI18nKeys.OPENSEARCH_READ_ONLY);
+        assertTrue(stub.requests.isEmpty());
+
+        session.setReadOnly(false);
+        assertFalse(session.isReadOnly());
+        stub.responder = exchange -> {
+            var metadata = OpenSearchHttpStub.metadata(exchange);
+            if (metadata != null) {
+                return metadata;
+            }
+            return OpenSearchHttpStub.json(201, "{\"_index\":\"books\",\"_id\":\"1\",\"result\":\"created\"}");
+        };
+        results = new RecordingOpenSearchResults();
+        session.executeQuery(query(command, false), results.builder());
+        assertFalse(results.errorNotified);
+        assertTrue(stub.requests.stream().anyMatch(request -> request.startsWith("PUT /books/_doc/1")));
+    }
+
+    @Test
     public void missingRelatedIndexOrTamperedBehaviorCannotReachTheServer() {
         String command = "POST /books/_update_by_query\n{\"query\":{\"terms\":{\"tag\":{\"index\":\"lookup\",\"id\":\"1\",\"path\":\"tags\"}}}}";
         QueryRequest missing = query(command, false);
