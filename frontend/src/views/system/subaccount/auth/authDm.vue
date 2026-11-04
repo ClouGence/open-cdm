@@ -1137,14 +1137,12 @@ export default {
       }
     },
     renderAuthNode(node) {
-      const style = {
-        color: '#000'
-      };
+      const style = {};
       if (this.previewMode && node?.isLeaf) {
         if (node?.action === 'deletes' || (this.isBatchRevoke && node?.action === 'appends')) {
-          style.color = 'red';
+          style.color = 'var(--error-color)';
         } else if (node?.action === 'appends') {
-          style.color = 'green';
+          style.color = 'var(--success-color)';
         }
       }
       return (

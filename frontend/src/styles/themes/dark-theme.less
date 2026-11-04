@@ -1824,6 +1824,55 @@
     }
   }
 
+  .vtree-tree-node,
+  .vtree-tree-node__title {
+    color: var(--text-primary);
+  }
+
+  .vtree-tree-node__title:hover {
+    background-color: var(--bg-hover) !important;
+  }
+
+  .vtree-tree-node__title_selected,
+  .vtree-tree-node__title_selected:hover {
+    background-color: var(--bg-select) !important;
+  }
+
+  .vtree-tree-node__checkbox {
+    background-color: var(--bg-card) !important;
+    border-color: var(--text-tertiary) !important;
+  }
+
+  .vtree-tree-node__checkbox:hover,
+  .vtree-tree-node__checkbox:focus {
+    border-color: var(--primary-color) !important;
+  }
+
+  .vtree-tree-node__checkbox_checked,
+  .vtree-tree-node__checkbox_indeterminate,
+  .vtree-tree-node__checkbox_checked:hover,
+  .vtree-tree-node__checkbox_indeterminate:hover {
+    background-color: var(--primary-button-bg) !important;
+    border-color: var(--primary-button-bg) !important;
+  }
+
+  .vtree-tree-node__checkbox_disabled,
+  .vtree-tree-node__checkbox_disabled:hover {
+    background-color: var(--disabled-bg) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  .vtree-tree-node__checkbox_disabled.vtree-tree-node__checkbox_checked,
+  .vtree-tree-node__checkbox_disabled.vtree-tree-node__checkbox_indeterminate {
+    background-color: var(--primary-button-bg) !important;
+    border-color: var(--primary-button-bg) !important;
+  }
+
+  .vtree-tree-node__title_disabled,
+  .vtree-tree__empty-text_default {
+    color: var(--text-disabled);
+  }
+
   .ant-tree,
   .ant-tree-list,
   .ant-tree-list-holder,
