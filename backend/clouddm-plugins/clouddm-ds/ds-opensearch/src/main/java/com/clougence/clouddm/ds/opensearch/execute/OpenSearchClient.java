@@ -17,8 +17,6 @@ package com.clougence.clouddm.ds.opensearch.execute;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.*;
 
 import javax.net.ssl.SSLException;
 
@@ -49,23 +47,25 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class OpenSearchClient implements AutoCloseable {
-    private final CloseableHttpAsyncClient http;
-    private final ScheduledExecutorService deadlines;
-    private final List<URI>                endpoints;
-    private final int                      queueTimeoutMs;
-    private final int                      requestTimeoutMs;
-    private final int                      maxResponseBytes;
-    private final ObjectMapper             mapper    = JsonMapper.builder()
+    private final CloseableHttpAsyncClient         http;
+    private final ScheduledExecutorService         deadlines;
+    private final List<URI>                        endpoints;
+    private final int                              queueTimeoutMs;
+    private final int                              requestTimeoutMs;
+    private final int                              maxResponseBytes;
+    private final ObjectMapper                     mapper    = JsonMapper.builder()
         .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
         .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
         .build();
-    private final Object                   stateLock = new Object();
-    private final Set<OpenSearchExchange>  pending   = new HashSet<>();
-    private boolean                        closed;
-    private long                           cancellationSequence;
-    private int                            nextEndpoint;
+    private final Object                           stateLock = new Object();
+    private final Map<OpenSearchExchange, Boolean> pending   = new HashMap<>();
+    private int                                    cursors;
+    private boolean                                transportClosed;
+    private boolean                                closed;
+    private long                                   cancellationSequence;
+    private int                                    nextEndpoint;
     @Getter
-    private volatile String                serverVersion;
+    private volatile String                        serverVersion;
 
     public OpenSearchClient(CloseableHttpAsyncClient http, ScheduledExecutorService deadlines, List<URI> endpoints, OpenSearchConfig config){
         this.http = http;
@@ -96,7 +96,7 @@ public final class OpenSearchClient implements AutoCloseable {
         }
         for (int attempt = 0; attempt < endpoints.size(); attempt++) {
             try {
-                OpenSearchResponse response = request(AsyncRequestBuilder.get(endpoints.get((start + attempt) % endpoints.size())), sequence, maxResponseBytes, null);
+                OpenSearchResponse response = request(AsyncRequestBuilder.get(endpoints.get((start + attempt) % endpoints.size())), sequence, maxResponseBytes, null, false, false);
                 if (response.status() != 200) {
                     throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_HTTP_ERROR, response.status());
                 }
@@ -153,12 +153,12 @@ public final class OpenSearchClient implements AutoCloseable {
         throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_CONNECT_FAILED);
     }
 
-    private OpenSearchResponse request(AsyncRequestBuilder request, long sequence, int responseLimit, OpenSearchExecutionContext execution) throws InterruptedException,
-                                                                                                                                            ExecutionException {
+    private OpenSearchResponse request(AsyncRequestBuilder request, long sequence, int responseLimit, OpenSearchExecutionContext execution, boolean retainCursorResponse,
+                                       boolean cleanup) throws InterruptedException, ExecutionException {
         OpenSearchExchange exchange = new OpenSearchExchange(deadlines, requestTimeoutMs);
         synchronized (stateLock) {
-            checkActive(sequence);
-            pending.add(exchange);
+            checkRequest(sequence, cleanup);
+            pending.put(exchange, cleanup);
             exchange.startQueue(queueTimeoutMs);
         }
         ScheduledFuture<?> totalDeadline = null;
@@ -177,11 +177,13 @@ public final class OpenSearchClient implements AutoCloseable {
                 exchange.failed(e);
             }
             OpenSearchResponse response = exchange.await();
-            if (execution != null) {
-                execution.checkActive();
-            }
-            synchronized (stateLock) {
-                checkActive(sequence);
+            if (!retainCursorResponse) {
+                if (execution != null) {
+                    execution.checkActive();
+                }
+                synchronized (stateLock) {
+                    checkRequest(sequence, cleanup);
+                }
             }
             return response;
         } catch (InterruptedException e) {
@@ -356,10 +358,14 @@ public final class OpenSearchClient implements AutoCloseable {
     }
 
     private AsyncRequestBuilder newRequest(String method, String path, OpenSearchExecutionContext execution) {
+        return newRequest(method, path, execution, false);
+    }
+
+    private AsyncRequestBuilder newRequest(String method, String path, OpenSearchExecutionContext execution, boolean cleanup) {
         execution.checkActive();
         URI endpoint;
         synchronized (stateLock) {
-            checkActive(execution.sequence());
+            checkRequest(execution.sequence(), cleanup);
             endpoint = endpoints.get(nextEndpoint);
             nextEndpoint = (nextEndpoint + 1) % endpoints.size();
         }
@@ -367,8 +373,12 @@ public final class OpenSearchClient implements AutoCloseable {
     }
 
     private OpenSearchJsonResponse perform(AsyncRequestBuilder request, OpenSearchExecutionContext execution, int limit) {
+        return perform(request, execution, limit, false, false);
+    }
+
+    private OpenSearchJsonResponse perform(AsyncRequestBuilder request, OpenSearchExecutionContext execution, int limit, boolean retainCursorResponse, boolean cleanup) {
         try {
-            OpenSearchResponse response = request(request, execution.sequence(), limit, execution);
+            OpenSearchResponse response = request(request, execution.sequence(), limit, execution, retainCursorResponse, cleanup);
             JsonNode body = null;
             if (response.body().length > 0) {
                 try {
@@ -380,7 +390,9 @@ public final class OpenSearchClient implements AutoCloseable {
                     throw e;
                 }
             }
-            execution.checkActive();
+            if (!retainCursorResponse) {
+                execution.checkActive();
+            }
             return new OpenSearchJsonResponse(response.status(), body);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -411,6 +423,62 @@ public final class OpenSearchClient implements AutoCloseable {
         }
     }
 
+    JsonNode parseBody(EsRequest request) throws IOException {
+        if (request.rawBody() == null) {
+            return mapper.createObjectNode();
+        }
+        return mapper.readTree(request.rawBody());
+    }
+
+    OpenSearchJsonResponse executeCursor(String method, String path, Map<String, String> parameters, JsonNode body, long byteLimit, OpenSearchExecutionContext execution,
+                                         boolean cleanup) {
+        // Cursor POST parameters belong in the URI, including the bodyless PIT creation request.
+        if (!parameters.isEmpty()) {
+            StringJoiner query = new StringJoiner("&", "?", "");
+            parameters.forEach((name, value) -> query
+                .add(java.net.URLEncoder.encode(name, java.nio.charset.StandardCharsets.UTF_8) + "=" + java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8)));
+            path += query;
+        }
+        AsyncRequestBuilder request = newRequest(method, path, execution, cleanup);
+        if (body != null) {
+            request.setEntity(body.toString(), ContentType.APPLICATION_JSON);
+        }
+        int limit = maxResponseBytes;
+        if (byteLimit > 0) {
+            limit = (int) Math.min(limit, byteLimit);
+        }
+        return perform(request, execution, limit, true, cleanup);
+    }
+
+    void retainCursor(OpenSearchExecutionContext execution) {
+        synchronized (stateLock) {
+            execution.checkActive();
+            checkActive(execution.sequence());
+            cursors++;
+        }
+    }
+
+    void releaseCursor() {
+        boolean finish;
+        synchronized (stateLock) {
+            cursors--;
+            finish = closed && cursors == 0;
+        }
+        if (finish) {
+            closeTransport();
+        }
+    }
+
+    private void checkRequest(long sequence, boolean cleanup) {
+        if (cleanup) {
+            if (transportClosed || cursors == 0) {
+                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_CLIENT_CLOSED);
+            }
+            return;
+        }
+        checkActive(sequence);
+    }
+
     private void checkActive(long sequence) {
         if (closed) {
             throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_CLIENT_CLOSED);
@@ -424,7 +492,7 @@ public final class OpenSearchClient implements AutoCloseable {
         List<OpenSearchExchange> exchanges;
         synchronized (stateLock) {
             cancellationSequence++;
-            exchanges = List.copyOf(pending);
+            exchanges = pending.entrySet().stream().filter(entry -> !entry.getValue()).map(Map.Entry::getKey).toList();
         }
         exchanges.forEach(OpenSearchExchange::cancel);
     }
@@ -432,13 +500,34 @@ public final class OpenSearchClient implements AutoCloseable {
     @Override
     public void close() {
         List<OpenSearchExchange> exchanges;
+        boolean finish;
         synchronized (stateLock) {
             if (closed) {
                 return;
             }
             closed = true;
             cancellationSequence++;
-            exchanges = List.copyOf(pending);
+            exchanges = pending.entrySet().stream().filter(entry -> !entry.getValue()).map(Map.Entry::getKey).toList();
+            finish = cursors == 0;
+            if (!finish) {
+                // Let the execution's finally release its cursor, but bound transport lifetime if result output stalls.
+                deadlines.schedule(this::closeTransport, 5, TimeUnit.SECONDS);
+            }
+        }
+        exchanges.forEach(OpenSearchExchange::cancel);
+        if (finish) {
+            closeTransport();
+        }
+    }
+
+    private void closeTransport() {
+        List<OpenSearchExchange> exchanges;
+        synchronized (stateLock) {
+            if (transportClosed) {
+                return;
+            }
+            transportClosed = true;
+            exchanges = List.copyOf(pending.keySet());
         }
         try {
             exchanges.forEach(OpenSearchExchange::cancel);

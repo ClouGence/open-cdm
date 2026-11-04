@@ -9,7 +9,7 @@
 - 准备普通账号与只读账号。密码、CA、令牌、抓包及原始业务数据不写入仓库。
 - 索引树只使用 Resolve Index 返回的精确具体索引，包含账号可访问的隐藏/关闭索引；别名、数据流及其 backing index 不作为本期可执行目标。系统索引可见性由服务端权限控制，不根据名称猜测并隐藏；普通账号的实际边界需验收。
 - 支持 GET/POST 单索引 search/count、GET/HEAD 文档或 source、创建/替换/更新/删除文档、同步 update/delete by query，以及创建/删除索引、更新 Mapping/白名单 Settings、读取索引定义/Mapping/Settings/Alias。Alias 只读。Bulk/MSearch、SQL/PPL、集群/Security、向量/Neural/Hybrid、异步任务仍不开放。
-- 本步只输出单次 REST 响应，应用行数/字节限制；自动 Scroll/PIT 分页留到第 6 步。总命中与本次输出条数分别展示，不能据此声称已获取全部文档。
+- 第 5 步验证单次 REST 响应及行数/字节限制；第 6 步新增的自动 Scroll/PIT 分页另见[分页与导出验收](pagination-export.cn.md)。总命中与本次输出条数分别展示，不能据此声称已获取全部文档。
 
 ## 元数据与展示
 

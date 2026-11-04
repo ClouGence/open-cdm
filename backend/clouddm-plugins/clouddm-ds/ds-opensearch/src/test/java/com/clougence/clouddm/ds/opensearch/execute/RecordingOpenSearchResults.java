@@ -24,13 +24,19 @@ import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.ResultColMeta;
 
 final class RecordingOpenSearchResults {
-    final List<Map<String, Object>>        rows        = new CopyOnWriteArrayList<>();
-    final List<Map<String, ResultColMeta>> metadata    = new CopyOnWriteArrayList<>();
-    final List<Long>                       counts      = new CopyOnWriteArrayList<>();
-    final List<String>                     completions = new CopyOnWriteArrayList<>();
-    final List<String>                     messages    = new CopyOnWriteArrayList<>();
-    boolean                                errorNotified;
-    private final ResultBuilder            builder     = proxy(ResultBuilder.class);
+    final List<Map<String, Object>>                  rows        = new CopyOnWriteArrayList<>();
+    final List<Map<String, ResultColMeta>>           metadata    = new CopyOnWriteArrayList<>();
+    final List<Long>                                 counts      = new CopyOnWriteArrayList<>();
+    final List<String>                               completions = new CopyOnWriteArrayList<>();
+    final List<String>                               messages    = new CopyOnWriteArrayList<>();
+    final List<Boolean>                              silentRows  = new CopyOnWriteArrayList<>();
+    final List<Integer>                              metrics     = new CopyOnWriteArrayList<>();
+    boolean                                          refreshOnProgress;
+    int                                              flushes;
+    java.util.function.Consumer<Map<String, Object>> onRow       = row -> {
+                                                                 };
+    boolean                                          errorNotified;
+    private final ResultBuilder                      builder     = proxy(ResultBuilder.class);
 
     ResultBuilder builder() {
         return builder;
@@ -54,6 +60,8 @@ final class RecordingOpenSearchResults {
                     metadata.add((Map<String, ResultColMeta>) args[0]);
                     return proxy(ResultBuilder.ResultSetRowsBuild.class);
                 case "receiveRow":
+                    onRow.accept((Map<String, Object>) args[1]);
+                    silentRows.add((Boolean) args[0]);
                     rows.add((Map<String, Object>) args[1]);
                     break;
                 case "receiveUpdateCount":
@@ -70,7 +78,16 @@ final class RecordingOpenSearchResults {
                     break;
                 case "dataSize":
                     return 0L;
-                case "collectCost", "collectMetric", "flushData", "finishAndContinue":
+                case "setRefreshOnProgress":
+                    refreshOnProgress = (Boolean) args[0];
+                    break;
+                case "collectMetric":
+                    metrics.add((Integer) args[0]);
+                    break;
+                case "flushData":
+                    flushes++;
+                    break;
+                case "collectCost", "finishAndContinue":
                     break;
                 default:
                     throw new AssertionError("Unexpected result callback: " + method.getName());

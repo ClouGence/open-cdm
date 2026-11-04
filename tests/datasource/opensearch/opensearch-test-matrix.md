@@ -87,7 +87,7 @@
 | 索引/字段、Mapping/Settings | 第 5 步：OpenSearchMetaService / 独立类型映射 | 精确索引、OpenSearch 类型、普通账号可见性、系统索引边界 | NOT RUN |
 | REST 编辑、拆句、补全、格式化 | `sql-es` 的 `RestApiProfile` / `RestDslLanguageSpi` 与两插件的固定产品绑定 | 共用语法；校验、分析、改写和执行入口使用产品/版本；长期用例见 [DSL 集成验收](rest-dsl-integration.cn.md) | PARTIAL：单元测试 PASS，集成 NOT RUN |
 | 基础查询/聚合、文档读写及索引管理 | 第 5 步：OpenSearchClient / Session / ResultWriter | API/参数白名单、更新计数、部分失败、异步任务边界逐项验证 | NOT RUN |
-| Scroll/PIT、结果展示与导出 | 仅 V08 原型 | 按版本、查询形状和平台限制选择策略；清理失败保留真实终态 | NOT RUN |
+| Scroll/PIT、结果展示与导出 | 第 6 步：OpenSearchSearchCursor / ResultWriter，复用现有缓存与导出服务 | 按版本、保守查询形状及平台限制选择策略；清理失败保留真实终态；[长期验收用例](pagination-export.cn.md) | PARTIAL：单元测试 PASS，实库/页面/文件导出 NOT RUN |
 | 权限、只读、审计与脱敏 | 未接入 | 跨索引引用、隐式 Pipeline、聚合与扩展输出；导出同样受控 | NOT RUN |
 | 页面、文案、能力开关 | 未接入 | 按仓库规则完成 Web 构建及 @Browser 复测 | NOT RUN |
 | 工单/CI/CD、发布包和重启恢复 | 未接入 | 单独完成约定流程；alone、Console/Sidecar 和离线驱动方案 | NOT RUN |
@@ -156,3 +156,16 @@ cd backend
 | 资源生命周期 | 真实 HC5 + 进程内 HTTP 模拟：断连写请求不重放、单连接取消后恢复、总期限覆盖预检查、超限恢复、关闭阻止后续写入、失败通知与状态复位 | NOT RUN |
 
 长期应用/实库用例见[元数据与基础执行验收](metadata-execution.cn.md)。回环 HTTP 模拟不证明真实集群兼容、权限、TLS、页面、Sidecar/Console 部署或全量分页；第 1 步实库原型仍只代表当时的原型范围。
+
+## 9. 第 6 步自动化验证
+
+OpenSearch 模块 45 项测试通过（原有 27 项 + 新增分页 18 项），共享 `sql-es` 22 项回归通过，合计 67 项；ES 编译和 OpenSearch 插件打包成功。修复当前分支 `OpenSearchMetaService`、`OpenSearchResultWriter` 缺失的集合导入后完成编译，未执行格式化。没有启动应用、执行数据库升级或连接实库。
+
+| 范围 | 自动化验证 | 集成状态 |
+| --- | --- | --- |
+| 策略选择 | 2.0/2.4/2.19/3.0/3.2 选择 Scroll，3.3/3.9 选择 PIT；不合格形状保留单次请求；缺权不自动回退 | NOT RUN |
+| 排序与快照协议 | 默认 score、显式排序、已有稳定键、精确 64 位 search_after、最新 ID、模拟快照后新增文档不混入；最终行数/ID/顺序逐一比对 | 多分片与并发增删改实库 NOT RUN |
+| 结果与缓存契约 | 单结果 ID/固定列、静默后续行、STREAM、末批截断、跨页累计大小、已知总数提前结束及相邻重复页拒绝 | 页面/真实缓存/下载文件 NOT RUN |
+| 取消与清理 | 完成响应解码与取消/关闭竞争、在途续页、输出失败、查询超时、重复取消、清理失败 suppressed、部分 PIT、关闭时阻塞输出的资源回收上限 | 实库上下文清理及部署环境 NOT RUN |
+
+测试采用真实 HC5 与进程内协议模拟，不把模拟服务的快照行为当作 OpenSearch 服务端正确性证据。[分页与导出验收](pagination-export.cn.md)规定真实多分片样本、快照后并发增删改、完整 ID 集合对比、排序和导出文件核对；待统一执行后回填结果。

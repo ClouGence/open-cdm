@@ -254,6 +254,18 @@ public class OpenSearchSession implements Session {
                 client.checkIndex(name, write && name.equals(analysis.index().name()), search && name.equals(analysis.index().name()), execution);
             }
         }
+        if (analysis.operation() == EsOperation.SEARCH) {
+            long limit = EsSearchLimit.resolve(request).size();
+            long maximum = query.getResultConf().getFetchRecordCountLimit();
+            if (maximum > 0) {
+                limit = Math.min(limit, maximum);
+            }
+            boolean pit = RestApiProfile.from(parameters).capabilities().pitShardDoc();
+            if (limit > EsSearchPagination.PAGE_SIZE && OpenSearchSearchCursor.supports(request, pit)) {
+                new OpenSearchResultWriter(query, builder, execution, start).writeContinuous(request, client, limit, pit);
+                return;
+            }
+        }
         OpenSearchJsonResponse response = client.execute(request, query.getResultConf().getFetchResultSetBytesLimit(), execution);
         new OpenSearchResultWriter(query, builder, execution, start).write(request, analysis.operation(), response);
     }

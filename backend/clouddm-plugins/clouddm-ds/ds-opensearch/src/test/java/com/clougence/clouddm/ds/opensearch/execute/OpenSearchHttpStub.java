@@ -39,6 +39,7 @@ final class OpenSearchHttpStub implements AutoCloseable {
     private final ExecutorService                       workers   = Executors.newCachedThreadPool();
     final List<String>                                  requests  = new CopyOnWriteArrayList<>();
     volatile Function<HttpExchange, OpenSearchResponse> responder = exchange -> json(500, "{}");
+    volatile String                                     version   = "3.9.0";
     private DsObject<OpenSearchClient>                  resource;
 
     OpenSearchHttpStub() throws IOException{
@@ -47,10 +48,11 @@ final class OpenSearchHttpStub implements AutoCloseable {
         server.createContext("/", exchange -> {
             try (exchange) {
                 String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                exchange.setAttribute("requestBody", body);
                 requests.add(exchange.getRequestMethod() + " " + exchange.getRequestURI() + "\n" + body);
                 OpenSearchResponse response;
                 if (exchange.getRequestURI().getPath().equals("/")) {
-                    response = json(200, "{\"version\":{\"distribution\":\"opensearch\",\"number\":\"3.9.0\"}}");
+                    response = json(200, "{\"version\":{\"distribution\":\"opensearch\",\"number\":\"" + version + "\"}}");
                 } else {
                     response = responder.apply(exchange);
                 }
@@ -83,6 +85,10 @@ final class OpenSearchHttpStub implements AutoCloseable {
         context.setSessionId("http-unit-test");
         requests.clear();
         return new OpenSearchSession(context, config, resource);
+    }
+
+    OpenSearchClient client() {
+        return resource.getTarget();
     }
 
     static OpenSearchResponse json(int status, String json) {

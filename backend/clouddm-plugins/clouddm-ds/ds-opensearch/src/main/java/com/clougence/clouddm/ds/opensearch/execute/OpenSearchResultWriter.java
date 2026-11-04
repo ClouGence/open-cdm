@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.opensearch.execute;
 
+import java.util.*;
+
 import java.nio.charset.StandardCharsets;
 import java.sql.JDBCType;
 
@@ -120,7 +122,7 @@ final class OpenSearchResultWriter {
         }
     }
 
-    private static void checkStatus(JsonNode body, int status) {
+    static void checkStatus(JsonNode body, int status) {
         if (body == null || !body.isObject()) {
             throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_RESPONSE_INVALID);
         }
@@ -430,6 +432,83 @@ final class OpenSearchResultWriter {
             processed.add(copy);
         }
         return processed;
+    }
+
+    void writeContinuous(EsRequest request, OpenSearchClient client, long limit, boolean pit) throws Exception {
+        index = request.segments().get(0).value();
+        ObjectNode shape = JsonNodeFactory.instance.objectNode();
+        for (String name : List.of("_index", "_id", "_type", "_source", "_ignored", "sort")) {
+            shape.put(name, "");
+        }
+        for (String name : List.of("_score", "_version", "_seq_no", "_primary_term")) {
+            shape.put(name, 0);
+        }
+        // All pages share one schema and one result cache, used by both page display and export.
+        var meta = builder.newResultMeta(query, builder.newResultId(query));
+        meta.setRefreshOnProgress(true);
+        ResultSetRowsBuild rows = null;
+        try {
+            try (OpenSearchSearchCursor cursor = new OpenSearchSearchCursor(client, request, execution, query.getResultConf().getFetchResultSetBytesLimit(), pit)) {
+                if (query.isUsingValueProcess() || !cursor.hasVisibleSort()) {
+                    shape.remove("sort");
+                }
+                Map<String, ResultColMeta> columns = columns(List.of(shape), "_source");
+                rows = meta.receiveMeta(columns);
+                meta.finishRecord(true);
+                long total = -1;
+                boolean first = true;
+                while (count < limit) {
+                    JsonNode response = cursor.nextPage(limit - count);
+                    if (first) {
+                        JsonNode hitsTotal = response.path("hits").path("total");
+                        if (hitsTotal.isIntegralNumber() && hitsTotal.canConvertToLong()) {
+                            total = hitsTotal.longValue();
+                        } else if (hitsTotal.path("relation").asText().equals("eq") && hitsTotal.path("value").isIntegralNumber()
+                            && hitsTotal.path("value").canConvertToLong()) {
+                            total = hitsTotal.path("value").longValue();
+                        }
+                        first = false;
+                    }
+                    if (response.has("aggregations")) {
+                        throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_CONTINUOUS_RESPONSE_UNSUPPORTED);
+                    }
+                    JsonNode hits = response.path("hits").path("hits");
+                    if (hits.isEmpty()) {
+                        if (total >= 0 && count < Math.min(limit, total)) {
+                            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_CURSOR_INCOMPLETE);
+                        }
+                        break;
+                    }
+                    List<JsonNode> page = new ArrayList<>();
+                    for (JsonNode hit : hits) {
+                        for (var field : hit.properties()) {
+                            if (!columns.containsKey(field.getKey()) && !(query.isUsingValueProcess() && field.getKey().equals("sort"))) {
+                                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_CONTINUOUS_RESPONSE_UNSUPPORTED);
+                            }
+                        }
+                        if (page.size() < limit - count) {
+                            page.add(hit);
+                        }
+                    }
+                    appendRows(rows, columns, prepareDocuments(page));
+                    rows.flushData();
+                    var progress = rows.newRowCountUpdate();
+                    progress.collectMetric(count);
+                    progress.collectCost(System.currentTimeMillis() - start);
+                    progress.finishRecord(true);
+                }
+            }
+            finishRows(rows);
+        } catch (Exception e) {
+            if (rows == null) {
+                meta.finishRecord(false, e.getMessage(), e);
+            } else {
+                rows.collectCost(System.currentTimeMillis() - start);
+                rows.finishRecord(false, e.getMessage(), e);
+            }
+            throw e;
+        }
+        message(MessageLevel.Info, OpenSearchDsI18nKeys.OPENSEARCH_CONTINUOUS_RESULT, count);
     }
 
     private void message(MessageLevel level, String key, Object... args) {
