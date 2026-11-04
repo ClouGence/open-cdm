@@ -71,6 +71,7 @@ public enum DataSourceType {
     MongoDB("mdb", "MongoDB", DsClassify.DOCUMENT, 2, 20),
     Kafka("ka", "Kafka", DsClassify.MQ, 2, 30),
     ElasticSearch("es", "ElasticSearch", DsClassify.SEARCH, 2, 40),
+    OpenSearch("os", "OpenSearch", DsClassify.SEARCH, 2, 45),
     Etcd("et", "Etcd", DsClassify.CACHE, 2, 50),
 
     // cloud database
