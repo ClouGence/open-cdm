@@ -84,9 +84,9 @@
 | 新增、保存重开、修改、测试连接 | `ds-opensearch` 配置、序列化与 SessionFactory；产品入口已开放 | 第 3 步已实现多地址、认证、TLS、连接池及超时；新增/保存/修改/连接验证待统一验收 | NOT RUN |
 | Session、取消、终态、资源清理 | `OpenSearchClient`、`OpenSearchSession` 及异步交换生命周期 | 双会话隔离，迟到/重复取消、写入结果未知、断网/关闭；HTTP 取消不等于服务器任务取消 | NOT RUN |
 | 插件和驱动类加载 | `ds-opensearch`；真实 `PluginLoadHelper`、Maven preparer、带租约的工厂 | 独立包加载、在线准备、离线恢复及 HC5 隔离通过；Console/Sidecar 实际部署待验证；未引入 SDK 或提升 Jackson | PARTIAL：第 2 步加载范围 PASS，部署 NOT RUN |
-| 索引/字段、Mapping/Settings | 未接入 | 精确索引、OpenSearch 类型、普通账号可见性、系统索引边界 | NOT RUN |
+| 索引/字段、Mapping/Settings | 第 5 步：OpenSearchMetaService / 独立类型映射 | 精确索引、OpenSearch 类型、普通账号可见性、系统索引边界 | NOT RUN |
 | REST 编辑、拆句、补全、格式化 | `sql-es` 的 `RestApiProfile` / `RestDslLanguageSpi` 与两插件的固定产品绑定 | 共用语法；校验、分析、改写和执行入口使用产品/版本；长期用例见 [DSL 集成验收](rest-dsl-integration.cn.md) | PARTIAL：单元测试 PASS，集成 NOT RUN |
-| 基础查询/聚合、文档读写及索引管理 | 仅 V08 部分原型 | API/参数白名单、更新计数、部分失败、异步任务边界逐项验证 | NOT RUN |
+| 基础查询/聚合、文档读写及索引管理 | 第 5 步：OpenSearchClient / Session / ResultWriter | API/参数白名单、更新计数、部分失败、异步任务边界逐项验证 | NOT RUN |
 | Scroll/PIT、结果展示与导出 | 仅 V08 原型 | 按版本、查询形状和平台限制选择策略；清理失败保留真实终态 | NOT RUN |
 | 权限、只读、审计与脱敏 | 未接入 | 跨索引引用、隐式 Pipeline、聚合与扩展输出；导出同样受控 | NOT RUN |
 | 页面、文案、能力开关 | 未接入 | 按仓库规则完成 Web 构建及 @Browser 复测 | NOT RUN |
@@ -142,3 +142,17 @@ cd backend
 - `OpenSearchSessionPolicyTest`：不启动 HTTP 的客户端替身状态，验证执行入口使用已探测版本、固定产品、检查授权范围及拒绝已关闭会话。
 
 上述单元验证不代表页面、插件独立运行、网络故障、实际查询、分页或权限流程已经通过；这些集成结果保持 `NOT RUN`。
+
+## 8. 第 5 步自动化验证
+
+`ds-opensearch` 27 项测试和 `sql-es` 22 项回归测试通过（合计 49 项），ES 编译与 OpenSearch 插件打包成功。本步未修改公共类、ES 插件、前端或数据库结构；没有启动 CloudDM、执行格式化或连接实库。
+
+| 范围 | 自动化证据 | 集成状态 |
+| --- | --- | --- |
+| 元数据 | 精确索引排序/过滤；排除 Alias、数据流及 backing index；嵌套/multi-field/derived、OpenSearch 特有及未知类型；保留定义属性 | NOT RUN |
+| 单次结果 | 空查询、缺失文档、HEAD、聚合空桶/null、count、大整数/小数、行数/字节限制、脱敏拒绝形态 | NOT RUN |
+| 写入计数 | created/updated/deleted=1、noop/not_found=0；by-query 更新+脚本删除计数；409/408/500 或 200 部分失败保留计数并失败；索引确认状态 | NOT RUN |
+| 执行边界 | HTTP 原始 body/编码参数、非 JSON HTTP 错误；资源范围变化、默认 Pipeline、隐式 Mapping 资源、只读/忙/关闭/真实版本策略 | NOT RUN |
+| 资源生命周期 | 真实 HC5 + 进程内 HTTP 模拟：断连写请求不重放、单连接取消后恢复、总期限覆盖预检查、超限恢复、关闭阻止后续写入、失败通知与状态复位 | NOT RUN |
+
+长期应用/实库用例见[元数据与基础执行验收](metadata-execution.cn.md)。回环 HTTP 模拟不证明真实集群兼容、权限、TLS、页面、Sidecar/Console 部署或全量分页；第 1 步实库原型仍只代表当时的原型范围。

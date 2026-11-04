@@ -33,6 +33,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchConfig;
 import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
+import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
@@ -81,9 +82,11 @@ public class OpenSearchSessionPolicyTest {
     }
 
     @Test
-    public void admittedRequestReachesTheExplicitNextStepBoundary() {
+    public void authorizedWriteHonorsReadOnlyBeforeDispatch() {
         QueryRequest query = new QueryRequest();
-        query.setQueryBody("GET /books/_search");
+        query.setResultConf(new QueryResultConf());
+        query.setQueryBody("DELETE /books/_doc/1");
+        session.setReadOnly(true);
         try (var behavior = new EsBehaviorAnalysisSpi(RestProduct.OPENSEARCH.parameters("3.2.0")).analysisBehaviorStream(new StringReader(query.getQueryBody()), Map.of(), 1, 0)) {
             query.setRelations(behavior.toList().get(0).getRelations());
         }
@@ -92,7 +95,7 @@ public class OpenSearchSessionPolicyTest {
             session.executeQuery(query, null);
             fail();
         } catch (ThirdPartyApiException expected) {
-            assertEquals(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED, expected.getMessageKey());
+            assertEquals(OpenSearchDsI18nKeys.OPENSEARCH_READ_ONLY, expected.getMessageKey());
         }
     }
 
@@ -112,6 +115,7 @@ public class OpenSearchSessionPolicyTest {
 
     private void assertRejected(String text, String key) {
         QueryRequest query = new QueryRequest();
+        query.setResultConf(new QueryResultConf());
         query.setDsType(DataSourceType.ElasticSearch);
         query.setQueryBody(text);
         try {

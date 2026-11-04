@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.ds.opensearch.execute;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,16 +26,22 @@ import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.sql.SqlParserParameters;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.drivers.DsObject;
-import com.clougence.sql.es.EsRequestParser;
-import com.clougence.sql.es.EsRequestPolicy;
-import com.clougence.sql.es.RestProduct;
+import com.clougence.sql.es.*;
+import com.clougence.utils.i18n.I18nUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class OpenSearchSession implements Session {
+    private static final I18nUtils           I18N           = I18nUtils.initI18n(OpenSearchDsI18nKeys.class);
+    private OpenSearchExecutionContext       activeExecution;
+    @Getter
+    private volatile String                  currentQueryId;
     @Getter
     private final String                     sessionId;
     @Getter
@@ -82,9 +89,53 @@ public class OpenSearchSession implements Session {
         }
     }
 
+    private OpenSearchExecutionContext beginExecution(long timeout, String queryId) {
+        synchronized (stateLock) {
+            checkOpen();
+            if (executing.get() > 0) {
+                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_SESSION_BUSY);
+            }
+            OpenSearchExecutionContext execution = new OpenSearchExecutionContext(timeout, client.cancellationSequence());
+            activeExecution = execution;
+            currentQueryId = queryId;
+            executing.incrementAndGet();
+            lastQueryTime = System.currentTimeMillis();
+            return execution;
+        }
+    }
+
+    private void endExecution() {
+        synchronized (stateLock) {
+            activeExecution = null;
+            currentQueryId = null;
+            executing.decrementAndGet();
+        }
+    }
+
+    List<String> readIndices() {
+        OpenSearchExecutionContext execution = beginExecution(dsConfig.getRequestTimeoutMs(), null);
+        try {
+            return client.listIndices(execution);
+        } finally {
+            endExecution();
+        }
+    }
+
+    JsonNode readIndexDefinition(String index) {
+        OpenSearchExecutionContext execution = beginExecution(dsConfig.getRequestTimeoutMs(), null);
+        try {
+            return client.readIndexDefinition(index, execution);
+        } finally {
+            endExecution();
+        }
+    }
+
     @Override
     public void cancel() {
         synchronized (stateLock) {
+            if (activeExecution != null) {
+                activeExecution.cancel();
+            }
             client.cancel();
         }
     }
@@ -101,6 +152,9 @@ public class OpenSearchSession implements Session {
         List<SessionCloseListener> listeners;
         synchronized (stateLock) {
             closed = true;
+            if (activeExecution != null) {
+                activeExecution.cancel();
+            }
             listeners = List.copyOf(closeListeners);
             closeListeners.clear();
         }
@@ -133,18 +187,75 @@ public class OpenSearchSession implements Session {
     }
 
     @Override
-    public String getCurrentQueryId() { return null; }
-
-    @Override
     public void executeQuery(QueryRequest query, ResultBuilder builder) {
-        synchronized (stateLock) {
-            checkOpen();
+        long start = System.currentTimeMillis();
+        boolean started = false;
+        try {
+            long timeout = dsConfig.getRequestTimeoutMs();
+            if (query.getResultConf().getQueryTimeoutSec() > 0) {
+                timeout = Math.min(timeout, query.getResultConf().getQueryTimeoutSec() * 1000L);
+            }
+            OpenSearchExecutionContext execution = beginExecution(timeout, query.getQueryId());
+            started = true;
+            executeCommand(query, builder, execution, start);
+        } catch (Exception e) {
+            ThirdPartyApiException failure;
+            if (e instanceof ThirdPartyApiException apiException) {
+                failure = apiException;
+            } else {
+                IOException safe = new IOException("OpenSearch execution failed (" + e.getClass().getSimpleName() + ")");
+                safe.setStackTrace(e.getStackTrace());
+                failure = ThirdPartyApiException.as().with(safe, OpenSearchDsI18nKeys.OPENSEARCH_QUERY_FAILED);
+            }
+            String msg = "Execute OpenSearch query failed, queryId=" + query.getQueryId();
+            log.error(msg, failure);
+            String detail = I18N.getMessage(failure.getMessageKey(), failure.getMessageArgs());
+            try {
+                var message = builder.newMessage(query);
+                // SessionAgent uses notify=true errors to finish the prepared audit as FAILURE.
+                message.receiveMessage(MessageLevel.Error, detail, true);
+                message.collectCost(System.currentTimeMillis() - start);
+                message.finishRecord(false, detail, failure);
+            } catch (Exception reportingFailure) {
+                failure.addSuppressed(reportingFailure);
+            }
+            throw failure;
+        } finally {
+            if (started) {
+                endExecution();
+            }
         }
-        var parameters = RestProduct.OPENSEARCH.parameters(client.getServerVersion());
-        var request = new EsRequestParser(parameters).parse(query.getQueryBody());
-        EsRequestPolicy.analyze(request, parameters).checkResolvedResources(query);
-        // Transport execution and result output are introduced in the next implementation step.
-        throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+    }
+
+    private void executeCommand(QueryRequest query, ResultBuilder builder, OpenSearchExecutionContext execution, long start) throws Exception {
+        if ((query.getQueryArgs() != null && !query.getQueryArgs().isEmpty()) || query.isUseCallable() || query.isUseExplain() || query.isUseCompile()) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_OPERATION_UNSUPPORTED);
+        }
+
+        SqlParserParameters parameters = RestProduct.OPENSEARCH.parameters(client.getServerVersion());
+        EsRequest request = new EsRequestParser(parameters).parse(query.getQueryBody());
+        EsRequestAnalysis analysis = EsRequestPolicy.analyze(request, parameters);
+        analysis.checkResolvedResources(query);
+        boolean write = analysis.operation().getAction() != BehaviorAction.READ;
+        if (readOnly && write) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_READ_ONLY);
+        }
+
+        for (String name : analysis.indices()) {
+            execution.checkActive();
+            if (analysis.operation() == EsOperation.CREATE_INDEX && name.equals(analysis.index().name())) {
+                continue;
+            }
+            if (request.method().equals("HEAD")
+                || List.of(EsOperation.READ_INDEX, EsOperation.DROP_INDEX, EsOperation.PUT_MAPPING, EsOperation.PUT_SETTINGS).contains(analysis.operation())) {
+                client.checkConcreteIndex(name, request.method().equals("HEAD"), execution);
+            } else {
+                boolean search = List.of(EsOperation.SEARCH, EsOperation.COUNT, EsOperation.UPDATE_BY_QUERY, EsOperation.DELETE_BY_QUERY).contains(analysis.operation());
+                client.checkIndex(name, write && name.equals(analysis.index().name()), search && name.equals(analysis.index().name()), execution);
+            }
+        }
+        OpenSearchJsonResponse response = client.execute(request, query.getResultConf().getFetchResultSetBytesLimit(), execution);
+        new OpenSearchResultWriter(query, builder, execution, start).write(request, analysis.operation(), response);
     }
 
     @Override

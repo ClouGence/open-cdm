@@ -16,6 +16,8 @@
 package com.clougence.clouddm.ds.opensearch;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.ds.opensearch.definition.ui.OpenSearchCmdTemplateSpi;
+import com.clougence.clouddm.ds.opensearch.definition.ui.OpenSearchDsBrowseSpi;
 import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchConfigSpi;
 import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchSerializationSpi;
 import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSessionFactory;
@@ -23,6 +25,7 @@ import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSessionSpi;
 import com.clougence.clouddm.ds.opensearch.execute.OpenSearchSupportSpi;
 import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.clouddm.ds.opensearch.language.OpenSearchLanguageSpi;
+import com.clougence.clouddm.ds.opensearch.metadata.OpenSearchFieldType;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -41,6 +44,7 @@ public class OpenSearchDsPlugin implements DsPlugin, SchemaPlugin {
     @Override
     public void init(SchemaBinder binder) {
         binder.initMappingService(DsType.OpenSearch);
+        binder.bindTypes(DsType.OpenSearch, OpenSearchFieldType.values(), OpenSearchFieldType::valueOfCode);
     }
 
     @Override
@@ -52,6 +56,8 @@ public class OpenSearchDsPlugin implements DsPlugin, SchemaPlugin {
         binder.bindDsSessionFactory(OpenSearchSessionFactory.class);
         binder.addPluginSpi(new OpenSearchSessionSpi());
         binder.addPluginSpi(new OpenSearchSupportSpi());
+        binder.addPluginSpi(new OpenSearchDsBrowseSpi());
+        binder.addPluginSpi(new OpenSearchCmdTemplateSpi());
         binder.bindPluginI18n(OpenSearchDsI18nKeys.class);
         binder.addPluginSpi(new OpenSearchConfigSpi());
         binder.addPluginSpi(new OpenSearchSerializationSpi(binder.getPluginClassLoader()));

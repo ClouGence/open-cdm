@@ -25,6 +25,7 @@ dependencies {
     compileOnly 'org.apache.httpcomponents.core5:httpcore5-h2:5.4.3'
     testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.6.4'
     testImplementation "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testRuntimeOnly 'org.locationtech.jts:jts-core:1.18.2'
     testRuntimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${JACKSON_VERSION}"
 }
 
