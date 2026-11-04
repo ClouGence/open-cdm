@@ -19,6 +19,7 @@ import com.clougence.utils.i18n.I18nResource;
 
 @I18nResource("/META-INF/clougence/i18n/opensearch-plugin")
 public interface OpenSearchDsI18nKeys {
+    String OPENSEARCH_TEMPLATE_UNSUPPORTED            = "OPENSEARCH_TEMPLATE_UNSUPPORTED";
     String OPENSEARCH_SESSION_BUSY                    = "OPENSEARCH_SESSION_BUSY";
     String OPENSEARCH_AUTH_INVALID                    = "OPENSEARCH_AUTH_INVALID";
     String OPENSEARCH_CLIENT_CLOSED                   = "OPENSEARCH_CLIENT_CLOSED";

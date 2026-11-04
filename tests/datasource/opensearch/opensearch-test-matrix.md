@@ -88,7 +88,7 @@
 | REST 编辑、拆句、补全、格式化 | `sql-es` 的 `RestApiProfile` / `RestDslLanguageSpi` 与两插件的固定产品绑定 | 共用语法；校验、分析、改写和执行入口使用产品/版本；长期用例见 [DSL 集成验收](rest-dsl-integration.cn.md) | PARTIAL：单元测试 PASS，集成 NOT RUN |
 | 基础查询/聚合、文档读写及索引管理 | 第 5 步：OpenSearchClient / Session / ResultWriter | API/参数白名单、更新计数、部分失败、异步任务边界逐项验证 | NOT RUN |
 | Scroll/PIT、结果展示与导出 | 第 6 步：OpenSearchSearchCursor / ResultWriter，复用现有缓存与导出服务 | 按版本、保守查询形状及平台限制选择策略；清理失败保留真实终态；[长期验收用例](pagination-export.cn.md) | PARTIAL：单元测试 PASS，实库/页面/文件导出 NOT RUN |
-| 权限、只读、审计与脱敏 | 未接入 | 跨索引引用、隐式 Pipeline、聚合与扩展输出；导出同样受控 | NOT RUN |
+| 权限、只读、审计与脱敏 | 第 7 步：插件安全规则注册、请求/响应门禁、模板与隐式资源检查，复用现有平台链路 | [安全验收用例](security-integration.cn.md)；自定义脚本语言边界尚待决定 | PARTIAL：单元测试 PASS，应用/实库/导出 NOT RUN |
 | 页面、文案、能力开关 | 未接入 | 按仓库规则完成 Web 构建及 @Browser 复测 | NOT RUN |
 | 工单/CI/CD、发布包和重启恢复 | 未接入 | 单独完成约定流程；alone、Console/Sidecar 和离线驱动方案 | NOT RUN |
 
@@ -169,3 +169,11 @@ OpenSearch 模块 45 项测试通过（原有 27 项 + 新增分页 18 项），
 | 取消与清理 | 完成响应解码与取消/关闭竞争、在途续页、输出失败、查询超时、重复取消、清理失败 suppressed、部分 PIT、关闭时阻塞输出的资源回收上限 | 实库上下文清理及部署环境 NOT RUN |
 
 测试采用真实 HC5 与进程内协议模拟，不把模拟服务的快照行为当作 OpenSearch 服务端正确性证据。[分页与导出验收](pagination-export.cn.md)规定真实多分片样本、快照后并发增删改、完整 ID 集合对比、排序和导出文件核对；待统一执行后回填结果。
+
+## 10. 第 7 步自动化验证
+
+OpenSearch 58 项、共享 DSL 25 项、脱敏模块 6 项、平台权限分类定向测试 1 项全部通过（共 90 项；本轮新增 21 项）。ES 编译与 OpenSearch 插件打包成功，包内包含安全规则 SPI / 请求门禁，未包含 HTTP 测试替身。当前分支缺失的 Client / MetaService 必要 imports 已补齐，未格式化。
+
+生产改动限于 `ds-opensearch`：安全规则注册、脱敏请求/响应门禁、创建索引模板检查、3.3+ 系统生成 Search Pipeline 检查、model_id 隐式资源拒绝。公共权限、审计、脱敏和导出代码没有新增产品分支；`sql-es` 仅增加测试，共享脚本规则按用户决定保持原样。
+
+[安全集成验收](security-integration.cn.md)保留命令权限矩阵、数据库账号预检查权限、18 项长期用例和限制。应用/实库/下载文件仍是 `NOT RUN`；自定义脚本引擎的资源边界待决定，元数据预检查不提供跨管理员并发配置修改的原子保证。不得据此宣称全部安全范围已经通过验收。

@@ -97,6 +97,9 @@ final class OpenSearchHttpStub implements AutoCloseable {
 
     static OpenSearchResponse metadata(HttpExchange exchange) {
         return switch (exchange.getRequestURI().getPath()) {
+            case "/_cluster/settings" -> json(200, "{\"transient\":{},\"persistent\":{},\"defaults\":{}}");
+            case "/_index_template" -> json(200, "{\"index_templates\":[]}");
+            case "/_template" -> json(200, "{}");
             case "/_resolve/index/books" -> json(200, "{\"indices\":[{\"name\":\"books\"}],\"aliases\":[],\"data_streams\":[]}");
             case "/books/_mapping" -> json(200, "{\"books\":{\"mappings\":{}}}");
             case "/books/_settings" -> json(200, "{\"books\":{\"settings\":{\"index\":{}}}}");

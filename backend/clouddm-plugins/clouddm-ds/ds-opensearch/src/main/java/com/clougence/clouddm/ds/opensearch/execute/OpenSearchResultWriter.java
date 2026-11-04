@@ -113,6 +113,9 @@ final class OpenSearchResultWriter {
                 table(List.of(JsonNodeFactory.instance.objectNode().set("count", body.get("count"))), "count");
             }
             case READ_INDEX -> {
+                if (query.isUsingValueProcess()) {
+                    throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_MASKING_UNSUPPORTED);
+                }
                 if (body.size() != 1 || !body.has(request.segments().get(0).value())) {
                     throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_RESPONSE_INVALID);
                 }

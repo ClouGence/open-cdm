@@ -274,6 +274,9 @@ public final class OpenSearchClient implements AutoCloseable {
             throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_METADATA_INVALID);
         }
         JsonNode values = settings.path(index).path("settings").path("index");
+        if (search) {
+            checkSystemSearchPipeline(context);
+        }
         String searchPipeline = values.path("search").path("default_pipeline").asText("");
         if (search && !searchPipeline.isEmpty() && !searchPipeline.equals("_none")) {
             throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_IMPLICIT_RESOURCE_UNSUPPORTED);
@@ -283,6 +286,61 @@ public final class OpenSearchClient implements AutoCloseable {
             if (write && !pipeline.isEmpty() && !pipeline.equals("_none")) {
                 throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_IMPLICIT_RESOURCE_UNSUPPORTED);
             }
+        }
+    }
+
+    void checkCreateIndex(String index, OpenSearchExecutionContext execution) {
+        JsonNode composable = metadata("/_index_template", Map.of(), execution);
+        if (!composable.path("index_templates").isArray()) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_METADATA_INVALID);
+        }
+        for (JsonNode template : composable.path("index_templates")) {
+            checkTemplatePatterns(index, template.path("index_template"));
+        }
+        // Simulation only resolves composable templates; legacy templates must also be checked.
+        JsonNode legacy = metadata("/_template", Map.of(), execution);
+        for (JsonNode template : legacy) {
+            checkTemplatePatterns(index, template);
+        }
+    }
+
+    private void checkTemplatePatterns(String index, JsonNode template) {
+        JsonNode patterns = template.path("index_patterns");
+        if (!patterns.isArray() || patterns.isEmpty()) {
+            throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_METADATA_INVALID);
+        }
+        for (JsonNode pattern : patterns) {
+            if (!pattern.isTextual()) {
+                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_METADATA_INVALID);
+            }
+            String regex = java.util.Arrays.stream(pattern.textValue().split("\\*", -1)).map(java.util.regex.Pattern::quote).collect(java.util.stream.Collectors.joining(".*"));
+            if (index.matches(regex)) {
+                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_TEMPLATE_UNSUPPORTED);
+            }
+        }
+    }
+
+    private void checkSystemSearchPipeline(OpenSearchExecutionContext execution) {
+        // This cluster feature first exists in 3.3; older versions need no cluster-settings permission.
+        String[] version = serverVersion.split("\\.");
+        if (version[0].equals("2") || Integer.parseInt(version[1]) < 3) {
+            return;
+        }
+        JsonNode settings = metadata("/_cluster/settings", Map.of("include_defaults", "true", "flat_settings", "true"), execution);
+        String key = "cluster.search.enabled_system_generated_factories";
+        for (String scope : List.of("transient", "persistent", "defaults")) {
+            if (!settings.path(scope).isObject()) {
+                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_METADATA_INVALID);
+            }
+            JsonNode factories = settings.path(scope).get(key);
+            if (factories == null || factories.isNull()) {
+                continue;
+            }
+            // Settings precedence is transient > persistent > node defaults, including an explicit empty list.
+            if (!factories.isArray() || !factories.isEmpty()) {
+                throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_IMPLICIT_RESOURCE_UNSUPPORTED);
+            }
+            return;
         }
     }
 
@@ -304,7 +362,7 @@ public final class OpenSearchClient implements AutoCloseable {
 
     private void checkMappingField(JsonNode field, boolean write) {
         String type = field.path("type").asText();
-        if (type.equals("semantic") || (write && (type.equals("percolator") || type.contains("{")))) {
+        if (type.equals("semantic") || field.has("model_id") || (write && (type.equals("percolator") || type.contains("{")))) {
             throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_IMPLICIT_RESOURCE_UNSUPPORTED);
         }
         for (String namespace : List.of("properties", "fields")) {

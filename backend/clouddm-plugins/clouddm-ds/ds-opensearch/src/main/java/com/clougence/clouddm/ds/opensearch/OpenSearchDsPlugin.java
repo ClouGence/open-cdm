@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.opensearch;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.ds.opensearch.definition.OpenSearchSecRulesSupportSpi;
 import com.clougence.clouddm.ds.opensearch.definition.ui.OpenSearchCmdTemplateSpi;
 import com.clougence.clouddm.ds.opensearch.definition.ui.OpenSearchDsBrowseSpi;
 import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchConfigSpi;
@@ -56,6 +57,7 @@ public class OpenSearchDsPlugin implements DsPlugin, SchemaPlugin {
         binder.bindDsSessionFactory(OpenSearchSessionFactory.class);
         binder.addPluginSpi(new OpenSearchSessionSpi());
         binder.addPluginSpi(new OpenSearchSupportSpi());
+        binder.addPluginSpi(new OpenSearchSecRulesSupportSpi());
         binder.addPluginSpi(new OpenSearchDsBrowseSpi());
         binder.addPluginSpi(new OpenSearchCmdTemplateSpi());
         binder.bindPluginI18n(OpenSearchDsI18nKeys.class);

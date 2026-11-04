@@ -241,6 +241,10 @@ public class OpenSearchSession implements Session {
             throw ThirdPartyApiException.as().with(OpenSearchDsI18nKeys.OPENSEARCH_READ_ONLY);
         }
 
+        OpenSearchRequestSecurity.checkMasking(request, analysis.operation(), query.isUsingValueProcess());
+        if (analysis.operation() == EsOperation.CREATE_INDEX) {
+            client.checkCreateIndex(analysis.index().name(), execution);
+        }
         for (String name : analysis.indices()) {
             execution.checkActive();
             if (analysis.operation() == EsOperation.CREATE_INDEX && name.equals(analysis.index().name())) {
