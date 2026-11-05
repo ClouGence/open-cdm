@@ -15,21 +15,34 @@
  */
 package com.clougence.sql.mongodb.parser.ast.commands.collection;
 
+import java.util.Collections;
+import java.util.List;
+
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
+import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 @Setter
 public class DeleteManyFunc extends CollectionFunc {
 
-    private String filter;
+    private String                    filter;
+
+    /** Nested find expressions rewritten to placeholders inside {@link #filter}. */
+    private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
 
     //option
-    private String writeConcern;
-    private String collation;
-    private String hint;
-    private String maxTimeMS;
-    private String let;
+    private String                    writeConcern;
+    private String                    collation;
+    private String                    hint;
+    private String                    maxTimeMS;
+    private String                    let;
+
+    public boolean hasFilterSubqueries() {
+        return this.filterSubqueries != null && !this.filterSubqueries.isEmpty();
+    }
 
     @Override
     public MongoFuncType getFuncType() { return MongoFuncType.DELETE_MANY; }

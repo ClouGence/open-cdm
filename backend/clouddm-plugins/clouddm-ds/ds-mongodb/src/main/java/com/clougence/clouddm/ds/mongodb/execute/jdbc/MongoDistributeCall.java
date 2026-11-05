@@ -23,6 +23,7 @@ import com.clougence.drivers.adapter.AdapterRequest;
 import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.CollectionFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.DataSizeFunc;
+import com.clougence.sql.mongodb.parser.ast.commands.collection.DeleteManyFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.RenameCollectionFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.db.MongoReadCommandFunc;
 import com.clougence.utils.future.CgFuture;
@@ -71,6 +72,9 @@ class MongoDistributeCall {
             case HOST_INFO:
             case DROP_DATABASE:
             case EXPLAIN:
+                if (func instanceof DeleteManyFunc deleteManyFunc) {
+                    MongoFilterSubqueryResolver.resolve(client, database, deleteManyFunc, sessionProvider);
+                }
                 return ClientCallForCommand.runCommand(sync, client, func.toBson(), request, receive, database);
             // adminCommand
             case ADMIN_COMMAND:
