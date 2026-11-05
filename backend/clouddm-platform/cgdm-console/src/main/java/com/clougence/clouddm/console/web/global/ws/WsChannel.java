@@ -15,10 +15,13 @@
  */
 package com.clougence.clouddm.console.web.global.ws;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.springframework.context.i18n.LocaleContext;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketMessage;
@@ -152,7 +155,9 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             return;
         }
 
+        LocaleContext previousContext = LocaleContextHolder.getLocaleContext();
         try {
+            LocaleContextHolder.setLocale((Locale) ws.getAttributes().get(WebSoInterceptor.WS_LOCALE));
             String textBody = msg.getPayload().toString().trim();
             if (StringUtils.isBlank(textBody) || StringUtils.equals(textBody, "[]") || StringUtils.equals(textBody, "{}")) {
                 log.warn("WS[" + WsUtils.getChannelKey(ws) + "]:RECEIVE user(" + curUser + "), empty message.");
@@ -164,6 +169,8 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             channelStore.handleMessage(ws, wsMsg);
         } catch (Exception e) {
             log.error("WS[" + WsUtils.getChannelKey(ws) + "]:RECEIVE user(" + curUser + "), handleError " + e.getMessage(), e);
+        } finally {
+            LocaleContextHolder.setLocaleContext(previousContext);
         }
     }
 

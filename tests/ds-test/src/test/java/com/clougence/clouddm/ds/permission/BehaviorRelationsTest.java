@@ -51,8 +51,6 @@ import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.reference.ObMyResou
 import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.analysis.reference.ObOraResourceRegistry;
 import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.analysis.sysobj.ObOraSysObjectRegistrySpi;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.OceanBaseVersion;
-import com.clougence.clouddm.ds.polardb.sql.parser.PolarDbXVersion;
-import com.clougence.clouddm.ds.polardb.sql.porx.PorXSysObjectRegistrySpi;
 import com.clougence.clouddm.ds.starrocks.sql.SrSysObjectRegistrySpi;
 import com.clougence.clouddm.ds.starrocks.sql.parser.StarRocksVersion;
 import com.clougence.clouddm.ds.tidb.sql.analysis.sysobj.TiSysObjectRegistrySpi;
@@ -75,6 +73,8 @@ import com.clougence.sql.mysql.analysis.sysobj.MySysObjectRegistrySpi;
 import com.clougence.sql.mysql.parser.MariaDbVersion;
 import com.clougence.sql.oracle.analysis.sysobj.OraSysObjectRegistrySpi;
 import com.clougence.sql.oracle.parser.OracleVersion;
+import com.clougence.sql.polardbx.PorXSysObjectRegistrySpi;
+import com.clougence.sql.polardbx.parser.PolarDbXVersion;
 import com.clougence.sql.postgres.analysis.reference.PgResourceRegistry;
 import com.clougence.sql.postgres.analysis.sysobj.PgSysObjectRegistrySpi;
 import com.clougence.sql.sqlserver.analysis.sysobj.MsSysObjectRegistrySpi;

@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
+import com.clougence.clouddm.console.web.component.approval.impl.CustomApprovalConfigServiceImpl;
 import com.clougence.clouddm.console.web.component.auth.impl.DmAuthLabelServiceImpl;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamServiceImpl;
@@ -45,6 +46,7 @@ import com.clougence.rdp.service.impl.*;
                                 "com.clougence.clouddm.api" })
 @Import({ DmAuthLabelServiceImpl.class,//
           DmEnvParamServiceImpl.class,//
+          CustomApprovalConfigServiceImpl.class,//
           LoginMFAServiceImpl.class,//
           CheckRulesServiceImpl.class,//
           ConsoleCacheServiceImpl.class,//
