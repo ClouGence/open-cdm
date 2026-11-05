@@ -219,6 +219,18 @@ final class IotdbBehaviorVisitor extends IotdbParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitTableAddColumnStatement(TableAddColumnStatementContext context) {
+        tableResource(BehaviorAction.ALTER, TargetType.Table, context.tableName());
+        return null;
+    }
+
+    @Override
+    public Void visitTableDropColumnStatement(TableDropColumnStatementContext context) {
+        tableResource(BehaviorAction.ALTER, TargetType.Table, context.tableName());
+        return null;
+    }
+
+    @Override
     public Void visitTableUpdateStatement(TableUpdateStatementContext context) {
         tableResource(BehaviorAction.UPDATE, TargetType.Table, context.tableName());
         return visitChildren(context);

@@ -25,7 +25,8 @@ treeStatement
     | INSERT INTO treeAbsolutePath LPAREN treeIdList RPAREN ALIGNED? VALUES valueRows        # treeInsertStatement
     | DELETE FROM treePathList (WHERE treeDeletePredicate)?                                  # treeDeleteStatement
     | (DROP | DELETE) TIMESERIES treePathList                                                # treeDropSeriesStatement
-    | CREATE TIMESERIES treeAbsolutePath (WITH treeProperties)?                             # treeCreateSeriesStatement
+    | CREATE TIMESERIES treeAbsolutePath treeAlias? (WITH treeProperties)? treeTags? treeAttributes?
+                                                                                            # treeCreateSeriesStatement
     | CREATE ALIGNED TIMESERIES treeAbsolutePath LPAREN treeColumn (COMMA treeColumn)* RPAREN # treeCreateAlignedStatement
     | (CREATE | SET) DATABASE treeAbsolutePath                                              # treeCreateDatabaseStatement
     | (DROP | DELETE) DATABASE treePathList                                                  # treeDropDatabaseStatement
@@ -47,11 +48,18 @@ treeRelativePath: treeNode (DOT treeNode)*;
 treeNode: treeWildcard | treeWildcard treeNodeSlice treeWildcard? | treeNodeSlice treeWildcard | treeId;
 treeNodeSlice: treeId | INTEGER;
 treeWildcard: STAR | DOUBLE_STAR;
-treeId: IDENTIFIER | TREE_IDENTIFIER | BACKTICK_IDENTIFIER | TIME | TIMESTAMP | DATE | DEVICE | TIMESERIES;
+treeId: IDENTIFIER | TREE_IDENTIFIER | BACKTICK_IDENTIFIER | TIME | TIMESTAMP | DATE | DEVICE | TIMESERIES
+    | ALIGNED | ALTER | ADD | COLUMN | COMMENT | TAGS | ATTRIBUTES;
 treeIdList: treeId (COMMA treeId)*;
 treeProperties: treeProperty (COMMA treeProperty)*;
 treeProperty: treeId EQ (treeId | treeLiteral);
-treeColumn: treeId treeId treeProperties?;
+treeAlias: LPAREN treeId RPAREN;
+treeColumn: treeId treeAlias? treeId treeColumnProperties? treeTags? treeAttributes?;
+treeColumnProperties: treeProperty (COMMA? treeProperty)*;
+treeTags: TAGS LPAREN treeStringProperties RPAREN;
+treeAttributes: ATTRIBUTES LPAREN treeStringProperties RPAREN;
+treeStringProperties: treeStringProperty (COMMA treeStringProperty)*;
+treeStringProperty: (treeId | treeString) EQ (treeId | treeLiteral);
 treeDeletePredicate
     : (TIME | TIMESTAMP) comparison treeTimeValue
     | LPAREN treeDeletePredicate RPAREN
@@ -92,7 +100,10 @@ tableStatement
     | CREATE DATABASE (IF NOT EXISTS)? tableId                                # tableCreateDatabaseStatement
     | DROP DATABASE (IF EXISTS)? tableId                                      # tableDropDatabaseStatement
     | CREATE TABLE (IF NOT EXISTS)? tableName LPAREN tableColumn (COMMA tableColumn)* RPAREN
+      (COMMENT TABLE_STRING)? (WITH LPAREN tableProperties RPAREN)?
                                                                              # tableCreateStatement
+    | ALTER TABLE (IF EXISTS)? tableName ADD COLUMN (IF NOT EXISTS)? tableColumn # tableAddColumnStatement
+    | ALTER TABLE (IF EXISTS)? tableName DROP COLUMN (IF EXISTS)? tableId       # tableDropColumnStatement
     | DROP TABLE (IF EXISTS)? tableName                                       # tableDropStatement
     | DROP VIEW (IF EXISTS)? tableName                                        # tableDropViewStatement
     | SHOW (VERSION | DATABASES | CURRENT_SQL_DIALECT | CURRENT_DATABASE)      # tableShowScopeStatement
@@ -116,11 +127,14 @@ tableSelectItem: tableId DOT STAR | STAR | tableExpression (AS? tableId)?;
 tableRelation: (tableName | LPAREN tableQuery RPAREN) (AS? tableId)?;
 tableJoin: ((INNER | (LEFT | RIGHT | FULL) OUTER?)? JOIN tableRelation ON tableExpression) | CROSS JOIN tableRelation;
 tableName: tableId (DOT tableId)?;
-tableId: IDENTIFIER | QUOTED_IDENTIFIER | TIME | TIMESTAMP | DATE | DEVICE | TAG | ATTRIBUTE | FIELD;
+tableId: IDENTIFIER | QUOTED_IDENTIFIER | TIME | TIMESTAMP | DATE | DEVICE | TAG | ATTRIBUTE | FIELD
+    | ALTER | ADD | COLUMN | COMMENT | TAGS | ATTRIBUTES;
 tableIdList: tableId (COMMA tableId)*;
 tableSortItem: tableExpression (ASC | DESC)? (NULLS (FIRST | LAST))?;
 tableAssignment: tableId EQ tableExpression;
-tableColumn: tableId tableId? (TIME | TAG | ATTRIBUTE | FIELD)?;
+tableColumn: tableId tableId? (TIME | TAG | ATTRIBUTE | FIELD)? (COMMENT TABLE_STRING)?;
+tableProperties: tableProperty (COMMA tableProperty)*;
+tableProperty: tableId EQ (tableLiteral | tableId);
 
 tableExpression
     : tableAtom

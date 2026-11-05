@@ -53,7 +53,7 @@ public final class IotdbLanguageSpi implements DsLanguageSpi {
     private static final List<String> TREE_COMMANDS  = List
         .of("SELECT", "SELECT LAST", "INSERT INTO", "DELETE FROM", "CREATE TIMESERIES", "CREATE ALIGNED TIMESERIES", "DROP TIMESERIES", "CREATE DATABASE", "DROP DATABASE", "SHOW DEVICES", "SHOW TIMESERIES", "SHOW DATABASES", "SHOW VERSION");
     private static final List<String> TABLE_COMMANDS = List
-        .of("SELECT", "INSERT INTO", "UPDATE", "DELETE FROM", "CREATE TABLE", "DROP TABLE", "DROP VIEW", "CREATE DATABASE", "DROP DATABASE", "SHOW TABLES", "SHOW DATABASES", "SHOW VERSION", "DESCRIBE");
+        .of("SELECT", "INSERT INTO", "UPDATE", "DELETE FROM", "CREATE TABLE", "ALTER TABLE", "DROP TABLE", "DROP VIEW", "CREATE DATABASE", "DROP DATABASE", "SHOW TABLES", "SHOW DATABASES", "SHOW VERSION", "DESCRIBE");
     private static final Pattern      PREFIX         = Pattern.compile("[\\p{L}\\p{N}_.@#$:]*\\z");
 
     private final MetaService         metaService;

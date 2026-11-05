@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.iotdb.metadata;
 import java.util.List;
 import java.util.Map;
 
+import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.ds.iotdb.i18n.IotdbI18nKeys;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsCaseType;
@@ -25,7 +26,7 @@ import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.i18n.I18nUtils;
 
-public class IotdbBrowseSpi implements DsBrowseSpi {
+public class IotdbBrowseSpi implements DsBrowseSpi, DsFeatureIDs {
 
     @Override
     public List<UmiTypes> getLevels() { return List.of(UmiTypes.Catalog, UmiTypes.Schema); }
@@ -53,6 +54,12 @@ public class IotdbBrowseSpi implements DsBrowseSpi {
 
     @Override
     public List<String> getMenus(DsMenuType targetType) {
-        return List.of();
+        return switch (targetType) {
+            case Instance, RdbCatalog, RdbSchema -> List.of(MENU_BROWSE_CONSOLE, MENU_BROWSE_REFRESH, MENU_BROWSE_COPY_NAME);
+            case Device, Timeseries -> List.of(MENU_BROWSE_COMMAND_TEMPLATE, MENU_BROWSE_REFRESH, MENU_BROWSE_COPY_NAME);
+            case RdbTable -> List.of(MENU_BROWSE_TABLE_REQUEST, MENU_BROWSE_TABLE_DROP, MENU_BROWSE_REFRESH, MENU_BROWSE_COPY_NAME);
+            case RdbView -> List.of(MENU_BROWSE_REFRESH, MENU_BROWSE_COPY_NAME);
+            default -> List.of();
+        };
     }
 }

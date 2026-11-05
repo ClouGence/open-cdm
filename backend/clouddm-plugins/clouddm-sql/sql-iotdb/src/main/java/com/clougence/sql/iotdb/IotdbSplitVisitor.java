@@ -99,6 +99,16 @@ final class IotdbSplitVisitor extends IotdbParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitTableAddColumnStatement(TableAddColumnStatementContext context) {
+        return SplitQueryType.ALTER_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitTableDropColumnStatement(TableDropColumnStatementContext context) {
+        return SplitQueryType.ALTER_TABLE;
+    }
+
+    @Override
     public SplitQueryType visitTableDropStatement(TableDropStatementContext context) {
         return SplitQueryType.DROP_TABLE;
     }

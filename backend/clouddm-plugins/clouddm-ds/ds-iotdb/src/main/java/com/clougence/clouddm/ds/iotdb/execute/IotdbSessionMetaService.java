@@ -190,7 +190,18 @@ final class IotdbSessionMetaService implements DsMetaService {
 
     @Override
     public List<String> requestObjectScript(Map<UmiTypes, Object> params, UmiTypes type, String name) {
-        throw IotdbSessionHook.unsupported("object script");
+        IotdbSqlDialect model = model(params);
+        String database = parameter(params, UmiTypes.Schema);
+        if (StringUtils.isBlank(database) || StringUtils.isBlank(name)) {
+            throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_OBJECT_SCRIPT_UNSUPPORTED, name);
+        }
+        if (model == IotdbSqlDialect.TREE && (type == UmiTypes.Timeseries || type == UmiTypes.Device)) {
+            return metadata(statement -> IotdbObjectScripts.tree(statement, database, type, name));
+        }
+        if (model == IotdbSqlDialect.TABLE && type == UmiTypes.Table) {
+            return metadata(statement -> IotdbObjectScripts.table(statement, database, name));
+        }
+        throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_OBJECT_SCRIPT_UNSUPPORTED, name);
     }
 
     private IotdbSqlDialect model(Map<UmiTypes, Object> params) {

@@ -100,7 +100,7 @@ final class IotdbTreeMetadata {
         return null;
     }
 
-    private static String addPathAttributes(Map<String, String> row, String path, UmiTypes type) {
+    static String addPathAttributes(Map<String, String> row, String path, UmiTypes type) {
         // Paths returned by IoTDB are already valid. Preserve quoted nodes verbatim.
         boolean quoted = false;
         int separator = path.length() - 1;
