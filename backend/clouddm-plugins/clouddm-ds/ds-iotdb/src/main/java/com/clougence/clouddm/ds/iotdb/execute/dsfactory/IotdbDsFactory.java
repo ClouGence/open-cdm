@@ -17,17 +17,19 @@
 package com.clougence.clouddm.ds.iotdb.execute.dsfactory;
 
 import java.net.URI;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Locale;
 import java.util.Properties;
 
+import com.clougence.clouddm.ds.iotdb.dsconf.IotdbConfig;
 import com.clougence.clouddm.ds.iotdb.dsconf.IotdbConfigSpi;
+import com.clougence.clouddm.ds.iotdb.dsconf.IotdbSqlDialect;
 import com.clougence.clouddm.ds.iotdb.i18n.IotdbI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,22 +39,64 @@ public class IotdbDsFactory implements DsFactory<Connection> {
     @Override
     public DsObject<Connection> create(Properties dsConfig) {
         String jdbcUrl = buildJdbcUrl(dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey(), ""));
+        IotdbSqlDialect dialect;
+        try {
+            String value = dsConfig.getProperty(IotdbSqlDialect.DRIVER_PROPERTY, IotdbSqlDialect.TREE.name());
+            dialect = IotdbSqlDialect.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_DIALECT_INVALID);
+        }
+        String database = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        if (dialect == IotdbSqlDialect.TREE && StringUtils.isNotBlank(database)) {
+            throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_TABLE_DATABASE_ONLY);
+        }
+
         Properties properties = new Properties();
         properties.setProperty("user", dsConfig.getProperty(DsConfigKeys.USER.getConfigKey(), ""));
         properties.setProperty("password", dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey(), ""));
-        properties.setProperty("network_timeout", "5000");
+        int networkTimeout = IotdbConfig.resolveNetworkTimeoutMs(dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey()));
+        properties.setProperty("network_timeout", Integer.toString(networkTimeout));
+        if (dialect == IotdbSqlDialect.TABLE) {
+            properties.setProperty(IotdbSqlDialect.DRIVER_PROPERTY, "table");
+        }
+
+        Connection connection = null;
         try {
             Class<?> driverClass = IotdbDsFactory.class.getClassLoader().loadClass("org.apache.iotdb.jdbc.IoTDBDriver");
             Driver driver = (Driver) driverClass.getDeclaredConstructor().newInstance();
-            Connection connection = driver.connect(jdbcUrl, properties);
+            connection = driver.connect(jdbcUrl, properties);
             if (connection == null) {
                 throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_ENDPOINT_INVALID);
             }
+            if (dialect == IotdbSqlDialect.TABLE) {
+                initTableSession(connection, database);
+            }
             return new DsObject<>(dsConfig, connection, this);
         } catch (ReflectiveOperationException | SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException closeError) {
+                    e.addSuppressed(closeError);
+                }
+            }
             String msg = "Open IoTDB JDBC connection failed";
             log.error(msg, e);
             throw ThirdPartyApiException.as().with(e, IotdbI18nKeys.IOTDB_CONNECTION_FAILED);
+        }
+    }
+
+    private void initTableSession(Connection connection, String database) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            // Older drivers can ignore the dialect property and open a Tree session.
+            try (ResultSet result = statement.executeQuery("SHOW CURRENT_SQL_DIALECT")) {
+                if (!result.next() || !IotdbSqlDialect.TABLE.name().equalsIgnoreCase(result.getString(1))) {
+                    throw new SQLException("IoTDB did not open a Table session");
+                }
+            }
+            if (StringUtils.isNotBlank(database)) {
+                statement.execute("USE \"" + database.replace("\"", "\"\"") + "\"");
+            }
         }
     }
 

@@ -40,7 +40,10 @@ public class IotdbConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
-        return dsConfig;
+        IotdbConfig config = (IotdbConfig) dsConfig;
+        config.requireDirectConnection();
+        config.setNetworkTimeoutMs(IotdbConfig.resolveNetworkTimeoutMs(defaultConfig.get(IotdbConfig.NETWORK_TIMEOUT_FIELD)));
+        return config;
     }
 
     @Override

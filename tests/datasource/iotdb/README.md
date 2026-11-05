@@ -24,9 +24,21 @@
 - `ds-iotdb` 注册 `DataSourceType.IoTDB`、`DsType.IoTDB`、配置 SPI 和 `IoTDB` 序列化 provider。数据源按现有 JDBC/分析库分类登记，入口暂时隐藏。
 - `sql-iotdb` 随数据源插件包加载，注册唯一的 `IoTDB SQL` 引擎。本步只装配引擎，拆句和行为分析在方言实现前明确拒绝执行。Tree/Table 元数据与方言分别接入后续步骤。
 - `IoTDB JDBC` 通过 `drivers.xml` 注册 1.3.7 与 2.0.11，默认 1.3.7 对应首个树模型基线。平台 Maven 下载器准备 Apache 发布的 `jar-with-dependencies`，让版本绑定一并加载 Thrift 等运行依赖。离线环境复用已准备的版本目录及其 `files.idx`。
-- 工厂从版本绑定的类加载器取得 JDBC 驱动。当前连接范围为主机、端口和用户名密码，验证使用 Tree 会话。模式上下文、Table 会话及 TLS/SSH 的支持范围在连接和会话步骤确认。
+- 工厂从版本绑定的类加载器取得 JDBC 驱动。连接字段和会话参数见下节。
 
 构建入口为 `cd backend && ./gradlew :sql-iotdb:build :ds-iotdb:build :ds-iotdb:customFatJar`。用平台插件加载器验证 `ds-iotdb-lib.jar`，结果见[版本与能力矩阵](iotdb-test-matrix.md)。
+
+## 连接配置
+
+| 配置 | 当前支持范围 |
+| --- | --- |
+| 地址与认证 | 使用 DataNode 的 JDBC RPC 主机和端口，默认端口 `6667`。使用用户名密码认证，凭据经 JDBC 属性传递。自定义 JDBC URL 不在本步范围。 |
+| 网络超时 | 高级配置中的 `networkTimeoutMs` 默认为 `5000` 毫秒，范围为 `1–2147483647`。映射为 JDBC `network_timeout`，建立连接与套接字读取共用此值。查询执行超时沿用平台独立配置。 |
+| TLS/SSH | 当前支持直连。表单通过配置 SPI 隐藏 TLS 和 SSH 控件，显式启用 TLS 或 SSH 的配置会被拒绝。 |
+| 连接模式与库 | 两种模式复用同一份实例配置。默认连接为 Tree，使用完整路径定位。2.x Table 连接按连接参数选择模式和可选初始库。工厂确认实际模式后执行带标识符引用的 `USE`，初始化失败时关闭该连接。 |
+| 驱动安装 | 选择与服务端对应的 `IoTDB JDBC` 版本。在线通过平台下载器准备驱动，离线在实际执行节点复制完整版本目录和 `files.idx`。 |
+
+JDBC 两个超时的定义见 [IoTDB 2.0.11 JDBC 连接实现](https://github.com/apache/iotdb/blob/v2.0.11/iotdb-client/jdbc/src/main/java/org/apache/iotdb/jdbc/IoTDBConnection.java#L78)。
 
 ## 样本准备和清理
 
