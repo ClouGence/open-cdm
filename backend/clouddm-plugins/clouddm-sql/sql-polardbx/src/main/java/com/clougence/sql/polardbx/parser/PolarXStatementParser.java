@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.parser;
+package com.clougence.sql.polardbx.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +24,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXLexer;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXLexer;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 
 public class PolarXStatementParser implements AntlrStatementParser {

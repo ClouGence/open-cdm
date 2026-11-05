@@ -155,7 +155,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             return;
         }
 
-        LocaleContext previousLocale = LocaleContextHolder.getLocaleContext();
+        LocaleContext previousContext = LocaleContextHolder.getLocaleContext();
         try {
             LocaleContextHolder.setLocale((Locale) ws.getAttributes().get(WebSoInterceptor.WS_LOCALE));
             String textBody = msg.getPayload().toString().trim();
@@ -170,7 +170,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
         } catch (Exception e) {
             log.error("WS[" + WsUtils.getChannelKey(ws) + "]:RECEIVE user(" + curUser + "), handleError " + e.getMessage(), e);
         } finally {
-            LocaleContextHolder.setLocaleContext(previousLocale);
+            LocaleContextHolder.setLocaleContext(previousContext);
         }
     }
 
