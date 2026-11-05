@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.parser;
+package com.clougence.sql.polardbx.parser;
 
-import static com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser.*;
+import static com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
+
+import java.util.Locale;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParserBaseVisitor;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 
 public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> {
@@ -38,6 +40,92 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitCheckTable(CheckTableContext ctx) {
         return SplitQueryType.ADMIN_TABLE;
+    }
+
+    @Override
+    public SplitQueryType visitCheckGlobalIndex(CheckGlobalIndexContext ctx) {
+        if (ctx.SHOW() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitInspectIndex(InspectIndexContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitDdlJobControl(DdlJobControlContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitRebalanceJobControl(RebalanceJobControlContext ctx) {
+        return SplitQueryType.ADMIN_JOB;
+    }
+
+    @Override
+    public SplitQueryType visitCreateCclRule(CreateCclRuleContext ctx) {
+        return SplitQueryType.CREATE_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitDropCclRule(DropCclRuleContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitClearCclRules(ClearCclRulesContext ctx) {
+        return SplitQueryType.DROP_POLICY;
+    }
+
+    @Override
+    public SplitQueryType visitShowDdl(ShowDdlContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowRule(ShowRuleContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowTopology(ShowTopologyContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowPartitions(ShowPartitionsContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowBroadcasts(ShowBroadcastsContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowTablegroup(ShowTablegroupContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowDistributedStatus(ShowDistributedStatusContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowCclRules(ShowCclRulesContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitSlowSqlCcl(SlowSqlCclContext ctx) {
+        if (ctx.SHOW() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        return SplitQueryType.SYSTEM_SETTING_WRITE;
     }
 
     @Override
@@ -96,6 +184,16 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
     }
 
     @Override
+    public SplitQueryType visitAlterUserReadStrategy(AlterUserReadStrategyContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
+    public SplitQueryType visitSetDefaultRole(SetDefaultRoleContext ctx) {
+        return SplitQueryType.ALTER_USER;
+    }
+
+    @Override
     public SplitQueryType visitDropTablespace(DropTablespaceContext ctx) {
         return SplitQueryType.DROP_TABLESPACE;
     }
@@ -148,6 +246,26 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitSetTransaction(SetTransactionContext ctx) {
         return SplitQueryType.TRANSACTION;
+    }
+
+    @Override
+    public SplitQueryType visitSetRole(SetRoleContext ctx) {
+        return SplitQueryType.SWITCH_ROLE;
+    }
+
+    @Override
+    public SplitQueryType visitSetCharset(SetCharsetContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetNames(SetNamesContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
+    }
+
+    @Override
+    public SplitQueryType visitSetAutocommit(SetAutocommitContext ctx) {
+        return SplitQueryType.SESSION_SETTING_WRITE;
     }
 
     @Override
@@ -248,6 +366,32 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitDropView(DropViewContext ctx) {
         return SplitQueryType.DROP_VIEW;
+    }
+
+    @Override
+    public SplitQueryType visitPolardbxExplainStatement(PolardbxExplainStatementContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitBaselineStatement(BaselineStatementContext ctx) {
+        if (ctx.LIST() != null) {
+            return SplitQueryType.PERFORMANCE;
+        }
+        if (ctx.HELP() != null) {
+            return SplitQueryType.METADATA;
+        }
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowTrace(ShowTraceContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitClearPlanCache(ClearPlanCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
     }
 
     @Override
@@ -392,7 +536,7 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowCharset(ShowCharsetContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -406,8 +550,10 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
         if (entity.equalsIgnoreCase("STATUS") || entity.equalsIgnoreCase("GLOBALSTATUS") || entity.equalsIgnoreCase("SESSIONSTATUS")) {
             return SplitQueryType.PERFORMANCE;
         }
-        if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES")) {
-            return SplitQueryType.SESSION_VARIABLE_RW;
+        if (entity.equalsIgnoreCase("VARIABLES") || entity.equalsIgnoreCase("SESSIONVARIABLES") || entity.equalsIgnoreCase("GLOBALVARIABLES")
+            || entity.equalsIgnoreCase("CHARACTERSET") || entity.equalsIgnoreCase("COLLATION")
+            || entity.equalsIgnoreCase("DATABASES") || entity.equalsIgnoreCase("SCHEMAS")) {
+            return SplitQueryType.METADATA;
         }
         return SplitQueryType.UNKNOWN;
     }
@@ -444,7 +590,7 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowEngines(ShowEnginesContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -454,17 +600,57 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowPlugins(ShowPluginsContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowPrivileges(ShowPrivilegesContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
     }
 
     @Override
     public SplitQueryType visitShowProcessList(ShowProcessListContext ctx) {
         return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowSlow(ShowSlowContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowProcedureCache(ShowProcedureCacheContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitShowHelp(ShowHelpContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitHelpStatement(HelpStatementContext ctx) {
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitClearSlow(ClearSlowContext ctx) {
+        return SplitQueryType.MAINTAIN_LOG;
+    }
+
+    @Override
+    public SplitQueryType visitClearProcedureCache(ClearProcedureCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitResizeProcedureCache(ResizeProcedureCacheContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
+    }
+
+    @Override
+    public SplitQueryType visitReloadProcedures(ReloadProceduresContext ctx) {
+        return SplitQueryType.ADMIN_PERFORMANCE;
     }
 
     @Override
@@ -489,12 +675,12 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowErrors(ShowErrorsContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
     public SplitQueryType visitShowCountErrors(ShowCountErrorsContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.PERFORMANCE;
     }
 
     @Override
@@ -509,7 +695,12 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitShowGrants(ShowGrantsContext ctx) {
-        return SplitQueryType.UNKNOWN;
+        return SplitQueryType.METADATA;
+    }
+
+    @Override
+    public SplitQueryType visitShowRoutingRules(ShowRoutingRulesContext ctx) {
+        return SplitQueryType.METADATA;
     }
 
     @Override
@@ -574,7 +765,34 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitSetVariable(SetVariableContext ctx) {
-        return SplitQueryType.SYSTEM_SETTING_WRITE;
+        return variableWriteType(ctx.variableClause(0));
+    }
+
+    static SplitQueryType variableWriteType(VariableClauseContext ctx) {
+        if (ctx.LOCAL_ID() != null) {
+            return SplitQueryType.SESSION_VARIABLE_RW;
+        }
+        if (ctx.GLOBAL_ID() != null) {
+            String name = ctx.GLOBAL_ID().getText().toUpperCase(Locale.ROOT);
+            if (name.startsWith("@@GLOBAL.") || name.startsWith("@@PERSIST.") || name.startsWith("@@PERSIST_ONLY.")) {
+                return SplitQueryType.SYSTEM_SETTING_WRITE;
+            }
+            return SplitQueryType.SESSION_SETTING_WRITE;
+        }
+        // Scope keywords carry across assignments; @@ qualifiers apply to one target only.
+        SplitQueryType scope = SplitQueryType.SESSION_SETTING_WRITE;
+        SetVariableContext statement = (SetVariableContext) ctx.getParent();
+        for (VariableClauseContext variable : statement.variableClause()) {
+            if (variable.GLOBAL() != null || variable.PERSIST() != null) {
+                scope = SplitQueryType.SYSTEM_SETTING_WRITE;
+            } else if (variable.SESSION() != null || variable.LOCAL() != null) {
+                scope = SplitQueryType.SESSION_SETTING_WRITE;
+            }
+            if (variable == ctx) {
+                break;
+            }
+        }
+        return scope;
     }
 
     public SplitQueryType visitChildren(RuleNode node) {

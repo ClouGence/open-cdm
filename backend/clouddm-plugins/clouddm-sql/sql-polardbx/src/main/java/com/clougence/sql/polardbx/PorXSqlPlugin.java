@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx;
+package com.clougence.sql.polardbx;
 
-import com.clougence.clouddm.ds.polardb.i18n.PorXSqlI18nKeys;
+import com.clougence.sql.polardbx.i18n.PorXSqlI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;

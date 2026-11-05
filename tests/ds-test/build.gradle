@@ -28,6 +28,7 @@ dependencies {
     testImplementation(project(':sql-iso-sql92'))
     testImplementation(project(':sql-iso-sql99'))
     testImplementation(project(':sql-iso-sql2003'))
+    testImplementation(project(':sql-polardbx'))
 
     testImplementation(project(':ds-mysql'))
     testImplementation(project(':ds-mariadb'))

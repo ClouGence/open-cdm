@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.analysis.security;
+package com.clougence.sql.polardbx.analysis.security;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
