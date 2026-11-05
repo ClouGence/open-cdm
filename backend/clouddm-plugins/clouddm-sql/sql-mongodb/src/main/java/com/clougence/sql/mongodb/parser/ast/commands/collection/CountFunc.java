@@ -30,7 +30,6 @@ import lombok.Setter;
 public class CountFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
     private String                    query;
-    /** Nested find expressions rewritten to placeholders inside {@link #query}. */
     private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
     private String                    limit;
     private String                    skip;

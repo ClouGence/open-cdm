@@ -31,7 +31,6 @@ public class DeleteManyFunc extends CollectionFunc implements MongoFilterSubquer
 
     private String                    filter;
 
-    /** Nested find expressions rewritten to placeholders inside {@link #filter}. */
     private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
 
     //option

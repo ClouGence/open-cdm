@@ -37,13 +37,10 @@ final class MongoFilterSubqueryResolver {
     }
 
     static void resolve(MongoClient client, String database, MongoFilterSubqueryHost host, MongoSessionProvider sessionProvider) {
-        if (host == null || !host.hasFilterSubqueries()) {
+        if (!host.hasFilterSubqueries()) {
             return;
         }
         String filter = host.getFilter();
-        if (filter == null) {
-            return;
-        }
         MongoDatabase mongoDatabase = client.getDatabase(database);
         try (ClientSession session = sessionProvider.startSession()) {
             List<MongoFilterSubquery> subqueries = host.getFilterSubqueries();
@@ -87,13 +84,8 @@ final class MongoFilterSubqueryResolver {
     }
 
     private static String toJsonArray(List<Object> values) {
-        // Wrap as {"v":[...]} then strip the outer object so Document.parse accepts Extended JSON values.
+        // Wrap as {"v":[...]} then strip the outer object so Extended JSON values stay parseable.
         String wrapped = new Document("v", values).toJson(EXTENDED_JSON);
-        int start = wrapped.indexOf('[');
-        int end = wrapped.lastIndexOf(']');
-        if (start < 0 || end < start) {
-            return "[]";
-        }
-        return wrapped.substring(start, end + 1);
+        return wrapped.substring(wrapped.indexOf('['), wrapped.lastIndexOf(']') + 1);
     }
 }

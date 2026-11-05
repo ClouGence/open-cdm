@@ -31,7 +31,6 @@ public class DistinctFunc extends CollectionFunc implements MongoFilterSubqueryH
 
     private String                    field;
     private String                    query;
-    /** Nested find expressions rewritten to placeholders inside {@link #query}. */
     private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
     private String                    collation;
 

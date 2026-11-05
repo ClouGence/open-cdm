@@ -28,17 +28,17 @@ import lombok.Setter;
 @Setter
 public class MongoFilterSubquery {
 
-    public static final String PLACEHOLDER_PREFIX = "__CDM_SQ_";
-    public static final String PLACEHOLDER_SUFFIX = "__";
+    private static final String PLACEHOLDER_PREFIX = "__CDM_SQ_";
+    private static final String PLACEHOLDER_SUFFIX = "__";
 
-    private String             collectionName;
-    private String             filter;
-    private String             projection;
-    private String             sort;
-    private String             skip;
-    private String             limit;
-    /** Dotted field path extracted by map, e.g. {@code _id} from {@code d => d._id}. */
-    private String             mapField;
+    private String              collectionName;
+    private String              filter;
+    private String              projection;
+    private String              sort;
+    private String              skip;
+    private String              limit;
+    /** Dotted field path from map, e.g. {@code _id} in {@code d => d._id}. */
+    private String              mapField;
 
     public static String placeholder(int index) {
         return PLACEHOLDER_PREFIX + index + PLACEHOLDER_SUFFIX;

@@ -31,7 +31,6 @@ public interface MongoFilterSubqueryHost {
     void setFilterSubqueries(List<MongoFilterSubquery> filterSubqueries);
 
     default boolean hasFilterSubqueries() {
-        List<MongoFilterSubquery> list = getFilterSubqueries();
-        return list != null && !list.isEmpty();
+        return !getFilterSubqueries().isEmpty();
     }
 }

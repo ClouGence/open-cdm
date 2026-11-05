@@ -31,7 +31,6 @@ public class DeleteOneFunc extends CollectionFunc implements MongoFilterSubquery
 
     private String                    filter;
 
-    /** Nested find expressions rewritten to placeholders inside {@link #filter}. */
     private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
 
     //option

@@ -30,7 +30,6 @@ import lombok.Setter;
 public class UpdateFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
     private String                    filter;
-    /** Nested find expressions rewritten to placeholders inside {@link #filter}. */
     private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
     private String                    update;
 

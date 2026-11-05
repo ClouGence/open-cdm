@@ -31,7 +31,6 @@ import lombok.Setter;
 public class FindAndModifyFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
     private String                    query;
-    /** Nested find expressions rewritten to placeholders inside {@link #query}. */
     private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
     private String                    sort;
     private String                    remove;
