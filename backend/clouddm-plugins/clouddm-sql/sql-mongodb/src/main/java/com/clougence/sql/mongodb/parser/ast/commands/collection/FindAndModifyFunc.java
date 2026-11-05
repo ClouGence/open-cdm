@@ -15,33 +15,50 @@
  */
 package com.clougence.sql.mongodb.parser.ast.commands.collection;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.clougence.sql.mongodb.parser.ast.CommandBuilder;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
+import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 @Setter
-public class FindAndModifyFunc extends CollectionFunc {
+public class FindAndModifyFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
-    private String query;
-    private String sort;
-    private String remove;
-    private String update;
+    private String                    query;
+    /** Nested find expressions rewritten to placeholders inside {@link #query}. */
+    private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
+    private String                    sort;
+    private String                    remove;
+    private String                    update;
     // new
-    private String new_;
-    private String fields;
-    private String upsert;
-    private String bypassDocumentValidation;
-    private String writeConcern;
-    private String maxTimeMS;
-    private String collation;
-    private String arrayFilters;
-    private String hint;
-    private String comment;
-    private String let;
+    private String                    new_;
+    private String                    fields;
+    private String                    upsert;
+    private String                    bypassDocumentValidation;
+    private String                    writeConcern;
+    private String                    maxTimeMS;
+    private String                    collation;
+    private String                    arrayFilters;
+    private String                    hint;
+    private String                    comment;
+    private String                    let;
 
     public FindAndModifyFunc(MongoFuncType type){
         super(type);
+    }
+
+    @Override
+    public String getFilter() { return this.query; }
+
+    @Override
+    public void setFilter(String filter) {
+        this.query = filter;
     }
 
     @Override

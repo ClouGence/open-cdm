@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Nested find expression embedded in a write filter value, e.g.
+ * Nested find expression embedded in a filter/query value, e.g.
  * {@code $in: db.coll.find(...).sort(...).limit(n).map(d => d._id)}.
  */
 @Getter

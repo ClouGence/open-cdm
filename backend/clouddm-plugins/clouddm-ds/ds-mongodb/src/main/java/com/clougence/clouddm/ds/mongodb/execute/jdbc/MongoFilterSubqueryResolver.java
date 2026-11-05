@@ -23,7 +23,7 @@ import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
 
 import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
-import com.clougence.sql.mongodb.parser.ast.commands.collection.DeleteManyFunc;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.FindFunc;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
@@ -36,24 +36,24 @@ final class MongoFilterSubqueryResolver {
     private MongoFilterSubqueryResolver(){
     }
 
-    static void resolve(MongoClient client, String database, DeleteManyFunc func, MongoSessionProvider sessionProvider) {
-        if (func == null || !func.hasFilterSubqueries()) {
+    static void resolve(MongoClient client, String database, MongoFilterSubqueryHost host, MongoSessionProvider sessionProvider) {
+        if (host == null || !host.hasFilterSubqueries()) {
             return;
         }
-        String filter = func.getFilter();
+        String filter = host.getFilter();
         if (filter == null) {
             return;
         }
         MongoDatabase mongoDatabase = client.getDatabase(database);
         try (ClientSession session = sessionProvider.startSession()) {
-            List<MongoFilterSubquery> subqueries = func.getFilterSubqueries();
+            List<MongoFilterSubquery> subqueries = host.getFilterSubqueries();
             for (int i = 0; i < subqueries.size(); i++) {
                 String placeholder = MongoFilterSubquery.placeholder(i);
                 String jsonArray = evaluateSubquery(mongoDatabase, session, subqueries.get(i));
                 filter = filter.replace(placeholder, jsonArray);
             }
         }
-        func.setFilter(filter);
+        host.setFilter(filter);
     }
 
     private static String evaluateSubquery(MongoDatabase database, ClientSession session, MongoFilterSubquery subquery) {

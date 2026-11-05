@@ -15,33 +15,42 @@
  */
 package com.clougence.sql.mongodb.parser.ast.commands.collection;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.clougence.sql.mongodb.parser.ast.CommandBuilder;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
+import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 @Setter
-public class FindFunc extends CollectionFunc {
+public class FindFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
-    private String filter;
-    private String sort;
-    private String projection;
-    private String hint;
-    private String skip;
-    private String limit;
+    private String                    filter;
+    /** Nested find expressions rewritten to placeholders inside {@link #filter}. */
+    private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
+    private String                    sort;
+    private String                    projection;
+    private String                    hint;
+    private String                    skip;
+    private String                    limit;
     //    private String batchSize;
-    private String comment;
-    private String maxTimeMS;
-    private String readConcern;
-    private String max;
-    private String min;
-    private String returnKey;
-    private String showRecordId;
-    private String allowDiskUse;
-    private String allowPartialResults;
-    private String collation;
-    private String let;
-    private String explain;
+    private String                    comment;
+    private String                    maxTimeMS;
+    private String                    readConcern;
+    private String                    max;
+    private String                    min;
+    private String                    returnKey;
+    private String                    showRecordId;
+    private String                    allowDiskUse;
+    private String                    allowPartialResults;
+    private String                    collation;
+    private String                    let;
+    private String                    explain;
 
     public FindFunc(MongoFuncType type){
         super(type);

@@ -30,6 +30,7 @@ import com.clougence.sql.mongodb.parser.antlr.MongoParser;
 import com.clougence.sql.mongodb.parser.antlr.MongoParserVisitor;
 import com.clougence.sql.mongodb.parser.ast.MongoConstant;
 import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncSet;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
@@ -228,7 +229,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
         }
 
         if (ctx.query != null) {
-            distFunc.setQuery(ctx.query.getText());
+            applyFilterObj(distFunc, ctx.query);
         }
         this.instStack.push(code(distFunc, ctx));
         return null;
@@ -269,7 +270,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitCountDocuments(MongoParser.CountDocumentsContext ctx) {
         CountDocumentsFunc func = new CountDocumentsFunc();
         if (ctx.filter != null) {
-            func.setFilter(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
         if (ctx.option != null) {
             for (MongoParser.PairContext pairContext : ctx.option.pair()) {
@@ -515,7 +516,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitCount(MongoParser.CountContext ctx) {
         CountFunc func = new CountFunc();
         if (ctx.filter != null) {
-            func.setQuery(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
         if (ctx.option != null) {
             for (MongoParser.PairContext pair : ctx.option.pair()) {
@@ -644,7 +645,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitFind(MongoParser.FindContext ctx) {
         FindFunc func = new FindFunc(MongoFuncType.FIND);
         if (ctx.filter != null) {
-            func.setFilter(ctx.filter.getText());
+            applyFilterJson(func, ctx.filter);
         }
         if (ctx.projection != null) {
             func.setProjection(ctx.projection.getText());
@@ -804,7 +805,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
         FindFunc func = new FindFunc(MongoFuncType.FIND_ONE);
         func.setLimit("1");
         if (ctx.filter != null) {
-            func.setFilter(ctx.filter.getText());
+            applyFilterJson(func, ctx.filter);
         }
         if (ctx.projection != null) {
             func.setProjection(ctx.projection.getText());
@@ -856,7 +857,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
             throw new UnsupportedOperationException("Replacement document must not contain atomic operators");
         }
         UpdateFunc func = new UpdateFunc(MongoFuncType.REPLACE_ONE, false);
-        func.setFilter(ctx.filter.getText());
+        applyFilterObj(func, ctx.filter);
         func.setUpdate(ctx.replacement.getText());
 
         if (ctx.options != null) {
@@ -891,7 +892,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
             func = new UpdateFunc(MongoFuncType.UPDATE, false);
         }
 
-        func.setFilter(ctx.filter.getText());
+        applyFilterObj(func, ctx.filter);
         if (ctx.objUpdate != null) {
             boolean anyMatch = ctx.objUpdate.pair().stream().map(MongoParser.PairContext::key).anyMatch(k -> {
                 return !getString(k.getText()).startsWith("$");
@@ -1045,7 +1046,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitFindOneAndReplace(MongoParser.FindOneAndReplaceContext ctx) {
         FindAndModifyFunc func = new FindAndModifyFunc(MongoFuncType.FIND_ONE_AND_REPLACE);
         if (ctx.filter != null) {
-            func.setQuery(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
         if (ctx.replace != null) {
             ctx.replace.pair().stream().map(MongoParser.PairContext::key).forEach((keyContext -> {
@@ -1103,7 +1104,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitFindOneAndUpdate(MongoParser.FindOneAndUpdateContext ctx) {
         FindAndModifyFunc func = new FindAndModifyFunc(MongoFuncType.FIND_ONE_AND_UPDATE);
         if (ctx.filter != null) {
-            func.setQuery(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
 
         if (ctx.objUpdate != null) {
@@ -1185,7 +1186,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitFindOneAndDelete(MongoParser.FindOneAndDeleteContext ctx) {
         FindAndModifyFunc func = new FindAndModifyFunc(MongoFuncType.FIND_ONE_AND_DELETE);
         if (ctx.filter != null) {
-            func.setQuery(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
         func.setRemove("true");
 
@@ -1213,7 +1214,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitDeleteOne(MongoParser.DeleteOneContext ctx) {
         DeleteOneFunc deleteOneFunc = new DeleteOneFunc();
         if (ctx.filter != null) {
-            deleteOneFunc.setFilter(ctx.filter.getText());
+            applyFilterObj(deleteOneFunc, ctx.filter);
         }
 
         if (ctx.option != null) {
@@ -1245,9 +1246,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitDeleteMany(MongoParser.DeleteManyContext ctx) {
         DeleteManyFunc func = new DeleteManyFunc();
         if (ctx.filter != null) {
-            List<MongoFilterSubquery> subqueries = new ArrayList<>();
-            func.setFilter(serializeObj(ctx.filter, subqueries));
-            func.setFilterSubqueries(subqueries);
+            applyFilterObj(func, ctx.filter);
         }
 
         if (ctx.option != null) {
@@ -1319,6 +1318,18 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     @Override
     public Object visitKeyWordId(MongoParser.KeyWordIdContext ctx) {
         return null;
+    }
+
+    private void applyFilterObj(MongoFilterSubqueryHost host, MongoParser.ObjContext filter) {
+        List<MongoFilterSubquery> subqueries = new ArrayList<>();
+        host.setFilter(serializeObj(filter, subqueries));
+        host.setFilterSubqueries(subqueries);
+    }
+
+    private void applyFilterJson(MongoFilterSubqueryHost host, MongoParser.JsonStringContext filter) {
+        List<MongoFilterSubquery> subqueries = new ArrayList<>();
+        host.setFilter(serializeValue(filter.value(), subqueries));
+        host.setFilterSubqueries(subqueries);
     }
 
     private String serializeObj(MongoParser.ObjContext ctx, List<MongoFilterSubquery> subqueries) {

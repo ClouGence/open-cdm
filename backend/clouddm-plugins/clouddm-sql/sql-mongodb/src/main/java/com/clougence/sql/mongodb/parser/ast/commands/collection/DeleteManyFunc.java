@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
 import lombok.Getter;
@@ -26,7 +27,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DeleteManyFunc extends CollectionFunc {
+public class DeleteManyFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
     private String                    filter;
 
@@ -39,10 +40,6 @@ public class DeleteManyFunc extends CollectionFunc {
     private String                    hint;
     private String                    maxTimeMS;
     private String                    let;
-
-    public boolean hasFilterSubqueries() {
-        return this.filterSubqueries != null && !this.filterSubqueries.isEmpty();
-    }
 
     @Override
     public MongoFuncType getFuncType() { return MongoFuncType.DELETE_MANY; }
