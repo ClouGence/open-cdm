@@ -15,7 +15,7 @@
  */
 package com.clougence.sql.doris.parser;
 
-/** Doris grammar compatibility levels supported by the parser. */
+/** Doris grammar compatibility levels and registered function releases. */
 public enum DorisVersion {
     DORIS_1(1),
     DORIS_2(2),
@@ -28,30 +28,6 @@ public enum DorisVersion {
 
     DorisVersion(int major){
         this.major = major;
-    }
-
-    public static DorisVersion parse(String version) {
-        String value = version == null ? "" : version;
-        int start = 0;
-        while (start < value.length() && !Character.isDigit(value.charAt(start))) {
-            start++;
-        }
-        int end = start;
-        while (end < value.length() && Character.isDigit(value.charAt(end))) {
-            end++;
-        }
-        if (start < end) {
-            try {
-                int major = Integer.parseInt(value.substring(start, end));
-                for (DorisVersion candidate : values()) {
-                    if (candidate.major == major) {
-                        return candidate;
-                    }
-                }
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return LATEST;
     }
 
     public static int parseExactVersion(String version) {
@@ -111,5 +87,29 @@ public enum DorisVersion {
 
     public String versionString() {
         return Integer.toString(this.major);
+    }
+
+    public static DorisVersion parse(String version) {
+        String value = version == null ? "" : version.trim();
+        int start = 0;
+        while (start < value.length() && !Character.isDigit(value.charAt(start))) {
+            start++;
+        }
+        int end = start;
+        while (end < value.length() && Character.isDigit(value.charAt(end))) {
+            end++;
+        }
+        if (start < end) {
+            try {
+                int major = Integer.parseInt(value.substring(start, end));
+                for (DorisVersion candidate : values()) {
+                    if (candidate.major == major) {
+                        return candidate;
+                    }
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return LATEST;
     }
 }

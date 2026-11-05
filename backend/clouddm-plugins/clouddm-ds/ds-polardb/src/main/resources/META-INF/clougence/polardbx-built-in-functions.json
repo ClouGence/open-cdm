@@ -1,0 +1,27 @@
+{
+  "description": "Ordinary PolarDB-X extensions to the MySQL catalog.",
+  "sources": ["https://github.com/polardb/polardbx-sql/tree/4b260597d931b98e8269bf1a2cae9d9dccc1591c/polardbx-optimizer/src/main/java/com/alibaba/polardbx/optimizer/core/function/calc/scalar", "https://help.aliyun.com/en/polardb/polardb-for-xscale/window-functions"],
+  "notes": ["Version values identify major product families; minor and patch releases are not tracked."],
+  "entries": [
+    {"versions": ["5"], "type": "FUNCTION", "name": ["TIME_TO_TSO"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["TO_MONTHS"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["TO_WEEKS"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["TSO_TO_TIME"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["VEC_DISTANCE"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["VEC_DISTANCE_COSINE"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["VEC_DISTANCE_EUCLIDEAN"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["VEC_DISTANCE_INNER_PRODUCT"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["VEC_FROMTEXT"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["VEC_TOTEXT"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["ROW_NUMBER"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["RANK"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["DENSE_RANK"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["PERCENT_RANK"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["CUME_DIST"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["FIRST_VALUE"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["LAST_VALUE"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["LAG"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["LEAD"]},
+    {"versions": ["5"], "type": "FUNCTION", "name": ["NTH_VALUE"]}
+  ]
+}

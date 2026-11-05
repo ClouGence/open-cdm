@@ -1,0 +1,14 @@
+{
+  "description": "cockroachdb function classifications for split, behavior and authorization.",
+  "sources": ["https://www.cockroachlabs.com/docs/v24.3/functions-and-operators", "https://github.com/cockroachdb/cockroach/blob/v24.3.0/pkg/sql/sem/builtins/builtins.go"],
+  "metadataFunctions": [],
+  "privilegedFunctions": [
+    {"versions": ["24"], "names": ["crdb_internal.force_retry", "crdb_internal.force_error"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["24"], "types": ["PROGRAM_CONTROL"], "names": ["crdb_internal.force_retry", "crdb_internal.force_error"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["24"], "names": ["crdb_internal.force_retry", "crdb_internal.force_error"], "action": "UNSAFE"}
+  ]
+}

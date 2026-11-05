@@ -28,5 +28,6 @@ public class PorXSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(PorXSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new PorXSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new PorXSysObjectRegistrySpi());
     }
 }

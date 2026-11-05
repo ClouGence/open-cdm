@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.cockroachdb.sql.analysis;
+package com.clougence.sql.common.registry;
 
-import java.util.Set;
+import java.util.List;
 
-/** CockroachDB pg_catalog functions verified against the 24.3 function catalog. */
-public final class CrdbSystemFunctions {
-    private static final Set<String> FUNCTIONS = Set.of("unique_rowid", "unordered_unique_rowid", "cluster_logical_timestamp", "experimental_uuid_v4", "follower_read_timestamp");
-    private CrdbSystemFunctions() {}
-    public static boolean contains(String name) { return FUNCTIONS.contains(name); }
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/** Function facts in the same named-release format as PostgreSQL resources. */
+public record BuiltinFunctionDefinition(List<String> versions, String type, @JsonProperty("name") List<String> nameParts, boolean caseInsensitive, boolean aggregate) {
+    public String name() {
+        return String.join(".", nameParts);
+    }
 }

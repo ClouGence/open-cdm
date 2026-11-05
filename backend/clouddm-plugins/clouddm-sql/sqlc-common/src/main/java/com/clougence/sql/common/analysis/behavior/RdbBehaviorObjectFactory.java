@@ -24,10 +24,10 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.utils.StringUtils;
 
 /**
@@ -43,6 +43,49 @@ public class RdbBehaviorObjectFactory {
         this.levels = levels;
         this.baseLine = Math.max(1, baseLine);
         this.baseColumn = Math.max(0, baseColumn);
+    }
+
+    public void applyFunctionBehavior(StatementBehavior behavior, BehaviorObject function, FunctionBehavior classification, ParserRuleContext context) {
+        BehaviorRelation relation = new BehaviorRelation();
+        relation.setSubject(function);
+        relation.setAction(classification.action());
+        behavior.getRelations().add(relation);
+
+        if (classification.targetType() != null && classification.targetAction() != null) {
+            TargetType targetType = classification.targetType();
+            UmiTypes ancestor = UmiTypes.Instance;
+            if (targetType == TargetType.Sequence || targetType == TargetType.Schema) {
+                ancestor = UmiTypes.Catalog;
+            }
+
+            BehaviorObject targetObject = unnamedObject(targetType, context, ancestor);
+            String literal = context.getText();
+            if (context.getStart() == context.getStop() && literal.length() >= 2 && literal.startsWith("'") && literal.endsWith("'") && literal.indexOf('\\') < 0
+                && (targetType == TargetType.File || targetType == TargetType.ConfigKey)) {
+                String name = literal.substring(1, literal.length() - 1).replace("''", "'");
+                if (targetType == TargetType.File) {
+                    name = name.replaceFirst("^/+", "");
+                }
+                targetObject = instanceObject(targetType, context, name);
+                targetObject.setObjectName(new ObjectName(null, null, name));
+            }
+
+            BehaviorRelation target = new BehaviorRelation();
+            target.setSubject(targetObject);
+            target.setAction(classification.targetAction());
+            behavior.getRelations().add(target);
+        }
+
+        if (classification.unsafe() && classification.action() != BehaviorAction.UNSAFE) {
+            BehaviorRelation unsafe = new BehaviorRelation();
+            unsafe.setSubject(function);
+            unsafe.setAction(BehaviorAction.UNSAFE);
+            behavior.getRelations().add(unsafe);
+        }
+
+        if (!classification.statementTypes().isEmpty() && (behavior.getStatementType() == SplitQueryType.UNKNOWN || behavior.getStatementType() == SplitQueryType.SELECT)) {
+            behavior.setStatementType(classification.statementTypes().iterator().next());
+        }
     }
 
     public BehaviorObject object(TargetType type, ParserRuleContext context, int identifierTokenType) {

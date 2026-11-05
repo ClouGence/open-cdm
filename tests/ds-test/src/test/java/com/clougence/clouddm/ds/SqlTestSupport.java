@@ -23,8 +23,11 @@ import java.util.function.Function;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.ads.sql.ads4my.AdsMySqlEngineSpi;
 import com.clougence.clouddm.ds.clickhouse.sql.ChSqlEngineSpi;
+import com.clougence.clouddm.ds.cloudberry.sql.CbSqlEngineSpi;
+import com.clougence.clouddm.ds.cockroachdb.sql.CrdbSqlEngineSpi;
 import com.clougence.clouddm.ds.dameng.sql.DmSqlEngineSpi;
 import com.clougence.clouddm.ds.gauss.sql.GaussSqlEngineSpi;
+import com.clougence.clouddm.ds.greenplum.sql.GpSqlEngineSpi;
 import com.clougence.clouddm.ds.hologres.sql.HgSqlEngineSpi;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.ds.maxcompute.sql.McSqlEngineSpi;
@@ -69,7 +72,9 @@ public final class SqlTestSupport {
         bind("gauss", DataSourceType.GaussDB, GaussSqlEngineSpi::new);
         bind("gauss_og", DataSourceType.GaussDBForOpenGauss, GaussSqlEngineSpi::new);
         bind("goldendb", DataSourceType.GoldenDBMySQL, MySqlEngineSpi::new);
-        bind("greenplum", DataSourceType.Greenplum, PgSqlEngineSpi::new);
+        bind("greenplum", DataSourceType.Greenplum, GpSqlEngineSpi::new);
+        bind("cloudberry", DataSourceType.Cloudberry, CbSqlEngineSpi::new);
+        bind("cockroachdb", DataSourceType.CockroachDB, CrdbSqlEngineSpi::new);
         bind("hana", DataSourceType.Hana, HanaSqlEngineSpi::new);
         bind("hologres", DataSourceType.Hologres, HgSqlEngineSpi::new);
         bind("mariadb", DataSourceType.MariaDB, MySqlEngineSpi::new);
@@ -79,6 +84,7 @@ public final class SqlTestSupport {
         bind("ob4my", DataSourceType.OceanBase, ObSqlEngineSpi::new);
         bind("ob4ora", DataSourceType.ObForOracle, ObOraSqlEngineSpi::new);
         bind("oracle", DataSourceType.Oracle, OraSqlEngineSpi::new);
+        bind("yashandb_oracle", DataSourceType.YashanDBOracle, OraSqlEngineSpi::new);
         bind("por4my", DataSourceType.PolarDbMySQL, MySqlEngineSpi::new);
         bind("por4pg", DataSourceType.PolarDBPg, PgSqlEngineSpi::new);
         bind("por4x", DataSourceType.PolarDbX, PorXSqlEngineSpi::new);
@@ -120,7 +126,7 @@ public final class SqlTestSupport {
     public static SqlParserParameters parserParameters(String datasource) {
         return switch (datasource) {
             case "adb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
-            case "mariadb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
+            case "mariadb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "10.6.18-MariaDB"));
             case "goldendb" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.25"));
             case "mysql" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));
             case "ob4my" -> new SqlParserParameters(Map.of(SqlParserParameters.VERSION, "8.0.46"));

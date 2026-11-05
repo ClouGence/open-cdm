@@ -1,0 +1,34 @@
+{
+  "description": "Dameng function classifications used by SQL splitting, behavior analysis and authorization.",
+  "sources": ["https://eco.dameng.com/document/dm/zh-cn/pm/sql-appendix"],
+  "metadataFunctions": [
+    {"versions": ["8"], "names": ["SF_GET_PARA_DOUBLE_VALUE", "SF_GET_PARA_STRING_VALUE", "SF_GET_PARA_VALUE", "SF_GET_SESSION_MPP_SELECT_LOCAL", "SF_GET_SESSION_PARA_DOUBLE_VALUE", "SF_GET_SESSION_PARA_STRING_VALUE", "SF_GET_SESSION_PARA_VALUE", "DBMS_SQLTUNE.REPORT_SQL_MONITOR", "DBMS_SQLTUNE.REPORT_SQL_MONITOR_LIST", "DBMS_SQLTUNE.REPORT_TUNING_TASK"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["8"], "names": ["CHECKPOINT", "SF_MPP_INST_ADD", "SF_MPP_INST_REMOVE", "DBMS_SQLTUNE.CREATE_TUNING_TASK", "DBMS_SQLTUNE.EXECUTE_TUNING_TASK", "DBMS_SQLTUNE.REPORT_SQL_MONITOR", "DBMS_SQLTUNE.REPORT_SQL_MONITOR_LIST", "DBMS_SQLTUNE.REPORT_TUNING_TASK"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["8"], "types": ["SESSION_VARIABLE_RW"], "names": ["SF_GET_SESSION_PARA_DOUBLE_VALUE"]},
+    {"versions": ["8"], "types": ["SESSION_VARIABLE_RW"], "names": ["SF_GET_SESSION_PARA_STRING_VALUE"]},
+    {"versions": ["8"], "types": ["SESSION_VARIABLE_RW"], "names": ["SF_GET_SESSION_PARA_VALUE"]},
+    {"versions": ["8"], "types": ["ADMIN"], "names": ["CHECKPOINT", "SF_MPP_INST_ADD"]},
+    {"versions": ["8"], "types": ["UNSAFE"], "names": ["SF_MPP_INST_REMOVE"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["8"], "action": "CHECKPOINT", "unsafe": false, "names": ["CHECKPOINT"], "targetType": "Instance", "targetAction": "CHECKPOINT"},
+    {"versions": ["8"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SF_GET_PARA_DOUBLE_VALUE"]},
+    {"versions": ["8"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SF_GET_PARA_STRING_VALUE"]},
+    {"versions": ["8"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SF_GET_PARA_VALUE"]},
+    {"versions": ["8"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SF_GET_SESSION_MPP_SELECT_LOCAL"]},
+    {"versions": ["8"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SF_GET_SESSION_PARA_DOUBLE_VALUE"]},
+    {"versions": ["8"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SF_GET_SESSION_PARA_STRING_VALUE"]},
+    {"versions": ["8"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SF_GET_SESSION_PARA_VALUE"]},
+    {"versions": ["8"], "action": "ALTER", "unsafe": false, "names": ["SF_MPP_INST_ADD"], "targetType": "Instance", "targetAction": "ALTER"},
+    {"versions": ["8"], "action": "UNSAFE", "unsafe": true, "names": ["SF_MPP_INST_REMOVE"], "targetType": "Instance", "targetAction": "UNSAFE"},
+    {"versions": ["8"], "action": "CREATE", "unsafe": false, "names": ["DBMS_SQLTUNE.CREATE_TUNING_TASK"]},
+    {"versions": ["8"], "action": "CALL", "unsafe": false, "names": ["DBMS_SQLTUNE.EXECUTE_TUNING_TASK"]},
+    {"versions": ["8"], "action": "CALL", "unsafe": false, "names": ["DBMS_SQLTUNE.REPORT_SQL_MONITOR"]},
+    {"versions": ["8"], "action": "CALL", "unsafe": false, "names": ["DBMS_SQLTUNE.REPORT_SQL_MONITOR_LIST"]},
+    {"versions": ["8"], "action": "CALL", "unsafe": false, "names": ["DBMS_SQLTUNE.REPORT_TUNING_TASK"]}
+  ]
+}

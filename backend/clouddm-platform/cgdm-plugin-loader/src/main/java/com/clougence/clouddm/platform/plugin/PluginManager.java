@@ -33,6 +33,7 @@ import com.clougence.clouddm.sdk.execute.tools.ToolFactory;
 import com.clougence.clouddm.sdk.service.Service;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecRulesSupportSpi;
+import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSpi;
@@ -316,6 +317,15 @@ public class PluginManager {
                 return list.get(0);
             }
         });
+    }
+
+    /** Datasource registries own their product and compatibility-version boundaries. */
+    public static SysObjectRegistrySpi findSysObjectRegistry(DataSourceType dsProduct, String engineName) {
+        SysObjectRegistrySpi datasourceRegistry = (SysObjectRegistrySpi) findOneSpi(dsProduct, SysObjectRegistrySpi.class);
+        if (datasourceRegistry != null) {
+            return datasourceRegistry;
+        }
+        return findSpi(SysObjectRegistrySpi.class, engineName);
     }
 
     public static SessionSpi findSessionSpi(DataSourceType dsProduct) {

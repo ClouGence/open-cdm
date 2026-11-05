@@ -17,65 +17,116 @@ package com.clougence.sql.common.registry;
 
 import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.function.ToIntFunction;
 
-/** Loads versioned built-in function names from a compact module-owned catalog. */
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+/** Register named-release JSON facts in the existing versioned resource registry. */
 public final class VersionedFunctionCatalogLoader {
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     private VersionedFunctionCatalogLoader(){
     }
 
-    public static void load(Class<?> owner, String resource, VersionedResourceRegistry<Boolean> registry) {
-        InputStream input = owner.getResourceAsStream(resource);
+    public static void load(Class<?> owner, String resource, VersionedResourceRegistry<Boolean> registry, ToIntFunction<String> versionCode) {
+        for (var function : BuiltinFunctionCatalogLoader.load(owner, resource)) {
+            for (String version : function.versions()) {
+                int code = versionCode.applyAsInt(version);
+                registry.register(FUNCTION, code, code, true, function.name());
+            }
+        }
+    }
+
+    public static void loadAnalysisResources(Class<?> owner, String resource, VersionedResourceRegistry<FunctionBehavior> registry, ToIntFunction<String> versionCode) {
+        var input = owner.getResourceAsStream(resource);
         if (input == null) {
-            throw new IllegalStateException("Missing registered function catalog: " + resource);
+            throw new IllegalStateException("Missing function analysis resource: " + resource);
         }
-        Set<String> names = new HashSet<>();
-        try (input; BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
-            String line;
-            int lineNumber = 0;
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-                String value = line.trim();
-                if (value.isEmpty() || value.startsWith("#")) {
-                    continue;
+
+        try (input) {
+            JsonNode root = JSON.readTree(input);
+            Map<Integer, Map<String, FunctionBehavior>> releases = new LinkedHashMap<>();
+            for (String field : List.of("metadataFunctions", "privilegedFunctions", "functionStatementTypes", "functionBehaviors")) {
+                JsonNode groups = root.path(field);
+                if (!groups.isArray()) {
+                    throw new IllegalStateException("Invalid function analysis groups: " + resource + "#" + field);
                 }
-                register(resource, lineNumber, value, names, registry);
+
+                for (JsonNode group : groups) {
+                    List<Integer> versions = new ArrayList<>();
+                    if (group.has("versions")) {
+                        if (!group.path("versions").isArray()) {
+                            throw new IllegalStateException("Invalid function analysis versions: " + resource);
+                        }
+
+                        group.path("versions").forEach(version -> versions.add(versionCode.applyAsInt(version.asText())));
+                    } else {
+                        // Cloud services can expose version-independent behavior without a server release.
+                        versions.add(versionCode.applyAsInt(null));
+                    }
+
+                    if (!group.path("names").isArray() || group.path("names").isEmpty()) {
+                        throw new IllegalStateException("Missing function analysis names: " + resource);
+                    }
+
+                    for (int version : versions) {
+                        Map<String, FunctionBehavior> functions = releases.computeIfAbsent(version, ignored -> new LinkedHashMap<>());
+                        for (JsonNode name : group.path("names")) {
+                            if (!name.isTextual() || name.asText().isBlank()) {
+                                throw new IllegalStateException("Invalid function analysis name: " + resource);
+                            }
+
+                            FunctionBehavior previous = functions.getOrDefault(name.asText(), FunctionBehavior.DEFAULT);
+                            functions.put(name.asText(), mergeAnalysis(previous, group, field));
+                        }
+                    }
+                }
             }
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to load registered function catalog: " + resource, e);
+            releases.forEach((version, functions) -> functions.forEach((name, behavior) -> registry.register(FUNCTION, version, version, behavior, name)));
+        } catch (IOException | IllegalArgumentException e) {
+            throw new IllegalStateException("Failed to load function analysis resources: " + resource, e);
         }
     }
 
-    private static void register(String resource, int lineNumber, String line, Set<String> names, VersionedResourceRegistry<Boolean> registry) {
-        String[] fields = line.split("\\|", -1);
-        if (fields.length != 2 || fields[1].isBlank()) {
-            throw invalid(resource, lineNumber, "expected <minimum>-<maximum>|<function>");
+    private static FunctionBehavior mergeAnalysis(FunctionBehavior previous, JsonNode group, String field) {
+        Set<SplitQueryType> types = new LinkedHashSet<>(previous.statementTypes());
+        for (JsonNode type : group.path("types")) {
+            types.add(SplitQueryType.valueOf(type.asText()));
         }
-        String[] versions = fields[0].split("-", -1);
-        if (versions.length != 2) {
-            throw invalid(resource, lineNumber, "expected a version range");
+
+        boolean metadata = previous.metadata() || "metadataFunctions".equals(field);
+        if (metadata) {
+            types.add(SplitQueryType.METADATA);
         }
-        try {
-            int minimumVersion = Integer.parseInt(versions[0]);
-            int maximumVersion = Integer.parseInt(versions[1]);
-            String name = fields[1].trim();
-            if (!names.add(name)) {
-                throw invalid(resource, lineNumber, "duplicate function: " + name);
-            }
-            registry.register(FUNCTION, minimumVersion, maximumVersion, true, name);
-        } catch (NumberFormatException e) {
-            throw invalid(resource, lineNumber, "invalid version range");
+
+        BehaviorAction action = previous.action();
+        TargetType targetType = previous.targetType();
+        BehaviorAction targetAction = previous.targetAction();
+        if (group.has("action")) {
+            action = BehaviorAction.valueOf(group.path("action").asText());
         }
+
+        if (group.hasNonNull("targetType")) {
+            targetType = TargetType.valueOf(group.path("targetType").asText());
+        }
+
+        if (group.hasNonNull("targetAction")) {
+            targetAction = BehaviorAction.valueOf(group.path("targetAction").asText());
+        }
+
+        boolean unsafe = previous.unsafe() || group.path("unsafe").asBoolean(false);
+        if (unsafe) {
+            types.add(SplitQueryType.UNSAFE);
+        }
+
+        boolean privileged = previous.privileged() || "privilegedFunctions".equals(field);
+        return new FunctionBehavior(types, action, targetType, targetAction, unsafe, metadata, privileged);
     }
 
-    private static IllegalStateException invalid(String resource, int lineNumber, String message) {
-        return new IllegalStateException("Invalid registered function catalog " + resource + ":" + lineNumber + ": " + message);
-    }
 }

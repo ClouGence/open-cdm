@@ -15,23 +15,22 @@
  */
 package com.clougence.clouddm.ds.oceanbase.sql.ob4my.parser;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
+
+import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.reference.ObMyResourceRegistry;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 
 public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
@@ -52,9 +51,20 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             // Each assignment can belong to a different management domain.
             return assignment.accept(splitVisitor());
         }
-        if (tree instanceof ObForMySqlParser.MysqlVariableContext variable
-            && !variable.getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
+        if (tree instanceof ObForMySqlParser.MysqlVariableContext variable && !variable.getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
             return SplitQueryType.SESSION_VARIABLE_RW;
+        }
+        if (tree instanceof ObForMySqlParser.FunctionCallContext function) {
+            boolean qualified = function instanceof ObForMySqlParser.UdfFunctionCallContext udf && udf.customFunctionName().fullId().uid().size() > 1;
+            if (!qualified) {
+                String name = function.getStart().getText();
+                FunctionBehavior classification = ObMyResourceRegistry.instance().functionClassification(name);
+                if (!classification.statementTypes().isEmpty()) {
+                    if (!"LAST_INSERT_ID".equalsIgnoreCase(name) || findContext(function, ObForMySqlParser.FunctionArgContext.class) != null) {
+                        return classification.statementTypes().iterator().next();
+                    }
+                }
+            }
         }
         if (tree instanceof ObForMySqlParser.UdfFunctionCallContext function) {
             ObForMySqlParser.FullIdContext fullId = function.customFunctionName().fullId();
@@ -144,8 +154,7 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
             ObForMySqlParser.AdministrationStatementContext admin = statement.administrationStatement();
             ObForMySqlParser.UtilityStatementContext utility = statement.utilityStatement();
-            if (admin != null && admin.outlineStatement() != null
-                || utility != null && utility.fullDescribeStatement() != null) {
+            if (admin != null && admin.outlineStatement() != null || utility != null && utility.fullDescribeStatement() != null) {
                 return Collections.singleton(statement.accept(splitVisitor()));
             }
         }
@@ -168,7 +177,7 @@ public class ObSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             if (variable.LOCAL_ID() != null) {
                 types.add(SplitQueryType.SESSION_VARIABLE_RW);
             } else if (variable.GLOBAL() != null || variable.PERSIST() != null
-                || variable.GLOBAL_ID() != null && variable.GLOBAL_ID().getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
+                       || variable.GLOBAL_ID() != null && variable.GLOBAL_ID().getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
                 types.add(SplitQueryType.SYSTEM_SETTING_WRITE);
             } else {
                 types.add(SplitQueryType.SESSION_SETTING_WRITE);

@@ -22,14 +22,14 @@ ext.prepareIdeaImports = { repoRoot, originals ->
         def process = new ProcessBuilder(providers.gradleProperty('ideaLauncher').get(),
                 'ideScript', scriptFile.absolutePath)
                 .redirectErrorStream(true).redirectOutput(logFile).start()
-        if (!process.waitFor(20, TimeUnit.SECONDS)) {
+        if (!process.waitFor(120, TimeUnit.SECONDS)) {
             process.destroyForcibly()
             throw new GradleException('IDEA launcher timed out. No files written.')
         }
         if (process.exitValue() != 0) {
             throw new GradleException("IDEA launcher failed: ${logFile.getText('UTF-8')}. No files written.")
         }
-        def deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30)
+        def deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(120)
         while (!resultFile.isFile() && System.nanoTime() < deadline) {
             Thread.sleep(50)
         }

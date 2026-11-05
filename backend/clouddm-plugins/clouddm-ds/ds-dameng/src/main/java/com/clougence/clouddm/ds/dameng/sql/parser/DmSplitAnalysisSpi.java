@@ -91,6 +91,12 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             return SplitQueryType.QUERY_LOCK;
         }
         if (tree instanceof DmSqlParser.FunctionCallContext ctx) {
+            for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
+                if (parent instanceof DmSqlParser.ExplainStatementContext) {
+                    return null;
+                }
+            }
+
             Optional<SplitQueryType> functionType = resources.functionType(ctx.name.getText());
             if (functionType.isPresent()) {
                 return functionType.get();

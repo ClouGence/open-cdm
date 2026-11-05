@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.starrocks.sql.analysis.reference.SrResourceRegistry;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
@@ -277,7 +278,16 @@ class SrJobBehaviorVisitor extends SrStatementBehaviorVisitor {
 
     @Override
     public Void visitSimpleFunctionCall(SimpleFunctionCallContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, ctx.qualifiedName()));
+        BehaviorObject function = object(TargetType.Function, ctx.qualifiedName());
+        BehaviorRelation relation = add(SplitQueryType.SELECT, BehaviorAction.CALL, function);
+        if (relation.getAction() == BehaviorAction.CALL) {
+            behavior().getRelations().remove(relation);
+            ParserRuleContext argument = ctx;
+            if (!ctx.expression().isEmpty()) {
+                argument = ctx.expression(0);
+            }
+            objects.applyFunctionBehavior(behavior(), function, SrResourceRegistry.instance().functionBehavior(ctx.qualifiedName().getText()), argument);
+        }
         return visitChildren(ctx);
     }
 
@@ -288,7 +298,10 @@ class SrJobBehaviorVisitor extends SrStatementBehaviorVisitor {
         if (path != null) {
             files.add(inputFile(path));
         }
-        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, ctx.FILES().getSymbol(), List.of(ctx.FILES().getText())), files);
+        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, ctx.FILES().getSymbol(), List.of(ctx.FILES().getText())));
+        for (BehaviorObject file : files) {
+            add(SplitQueryType.SELECT, BehaviorAction.READ, file);
+        }
         return null;
     }
 

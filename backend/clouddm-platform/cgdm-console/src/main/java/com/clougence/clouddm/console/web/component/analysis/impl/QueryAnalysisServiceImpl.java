@@ -232,7 +232,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
             this.rootUser = this.maskingEnabled && AuthDal.ROOT_USER_UID.equals(options.getCurrentUid());
             SecCheckerRules rules = this.maskingEnabled && !this.rootUser ? QueryAnalysisServiceImpl.this.rulesService.fetchCheckerRulesByDsId(options.getDsId()) : null;
             this.hasSensitiveRules = rules != null && rules.isValid() && CollectionUtils.isNotEmpty(rules.getSenRuleList());
-            this.registry = this.hasSensitiveRules ? PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngine.name()) : null;
+            this.registry = this.hasSensitiveRules ? PluginManager.findSysObjectRegistry(dsConfig.getDataSourceType(), sqlEngine.name()) : null;
             this.currentResourcePath = this.hasSensitiveRules ? DmDsUtils.currentResourcePath(options.getLevels()) : null;
             this.instanceResourcePath = this.hasSensitiveRules ? DmDsUtils.instanceResourcePath(options.getLevels()) : null;
         }

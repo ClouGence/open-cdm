@@ -33,6 +33,6 @@ public final class DrSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
 
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
-        return targetType == TargetType.Function && action == BehaviorAction.CALL && schema == null && resources.isSystemFunction(objectName);
+        return targetType == TargetType.Function && action == BehaviorAction.CALL && schema == null && resources.isSystemFunction(objectName, databaseVersion);
     }
 }

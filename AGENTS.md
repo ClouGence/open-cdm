@@ -173,6 +173,34 @@ cd frontend && npm run check-i18n
 - 业务异常抛出时要使用 ErrorMessageException 类型并配备国际化。
 - 初始化/升级脚本这一块，永远不能改历史 migration
 
+### 数据源 SQL 函数与权限资源模板
+
+- 新增或补齐数据源函数时，统一参考 PostgreSQL 的现有实现，保持最小改动：
+    - [postgres-built-in-functions.json](backend/clouddm-plugins/clouddm-sql/sql-postgres/src/main/resources/META-INF/clougence/postgres-built-in-functions.json)：登记内置函数名称及适用版本。
+    - [postgres-analysis-resources.json](backend/clouddm-plugins/clouddm-sql/sql-postgres/src/main/resources/META-INF/clougence/postgres-analysis-resources.json)：登记元数据函数、特权函数、语句分类和行为分类。
+    - [PgResourceRegistry](backend/clouddm-plugins/clouddm-sql/sql-postgres/src/main/java/com/clougence/sql/postgres/analysis/reference/PgResourceRegistry.java)
+      和 [PgSysObjectRegistrySpi](backend/clouddm-plugins/clouddm-sql/sql-postgres/src/main/java/com/clougence/sql/postgres/analysis/sysobj/PgSysObjectRegistrySpi.java)：资源注册、查询及权限判断的职责划分。
+- 各数据源使用对应的 `<datasource>-built-in-functions.json` 和 `<datasource>-analysis-resources.json`。
+  沿用上述 JSON 的字段结构、空格、缩进和紧凑条目排版，短数组保持单行，不机械地把每个数组元素拆成一行。
+- 内置目录中的 `entries` 使用 `versions`、`type`、`name`；分析资源沿用 `metadataFunctions`、`privilegedFunctions`、
+  `functionStatementTypes`、`functionBehaviors` 等分类，以及 `action`、`targetType`、`targetAction`、`unsafe` 等行为字段。
+  按数据源实际能力登记，不复制不适用的 PostgreSQL 对象或行为。
+- 版本信息必须依据官方对应版本资料，保留来源；只登记必要的大版本，不能把某一版本的目录视为所有版本通用，也不能编造版本范围。
+  产品版本与兼容内核版本分别处理，产品专属函数不能使用兼容内核版本判断。
+- 版本解析沿用 `SqlServerVersion` 一类的版本枚举、`LATEST` 和 `parse()` 写法。
+  未知版本沿用现有枚举解析约定，不另加正则门禁、第二套解析或自造版本编号。云服务按实际可识别的版本或兼容模式处理；
+  无可识别版本时，明确区分无版本的行为分类与函数可用性，不能用固定版本号伪装版本信息或据此默认放行。
+- 各数据源在自己的 `analysis/reference/*ResourceRegistry` 中统一维护资源，采用 `INSTANCE`、`instance()` 和私有构造器，
+  在构造器中加载资源，提供内置函数、普通函数及分类查询。已有注册器直接补齐，不另加重复封装或兼容转发层。
+- `SysObjectRegistrySpi` 只负责权限判断，通过对应 `ResourceRegistry` 查询；不得在 `static {}`、SQL 引擎类或权限注册器中加载函数资源，
+  不得使用 `loadNames()` 丢弃版本信息，也不得通过 `ignored -> 1` 等写法忽略真实版本。
+- 拆句、行为分析和权限判断共用同一个资源注册器。Visitor 仅在接入分类、补齐函数行为或保留限定名和引号等必要信息时修改；
+  入口迁移只调整 import 和调用点，不顺便重写解析逻辑，也不能提前跳过目录中的函数而遗漏权限行为。
+- 普通内置函数的 `CALL` 通过现有权限豁免入口处理；被访问表的查询权限仍正常校验。
+  自定义函数、限定名、带引号名称按各数据源真实语义判断；特权或不安全行为，以及函数实际访问的配置项、文件等资源仍须独立鉴权。
+- 不得只补 JSON：相关语句分类、行为分析和权限判断必须接通，并在现有回归中覆盖版本边界、未知版本、普通内置函数、
+  自定义函数、限定名、带引号名称和管理函数。整理变更时，按数据源将代码、JSON 和对应测试放在同组，公共实现与跨数据源测试单独归组。
+
 ## 前端规则
 
 - 前端以 Vue 3 和 Vue CLI 为主，优先沿用 `frontend/src/components/`、`frontend/src/services/`、`frontend/src/store/`、

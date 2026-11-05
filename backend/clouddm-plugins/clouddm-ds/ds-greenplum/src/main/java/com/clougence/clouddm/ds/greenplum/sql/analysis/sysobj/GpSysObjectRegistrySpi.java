@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.greenplum.sql.analysis.sysobj;
 
 import com.clougence.clouddm.ds.greenplum.sql.GpSqlEngineSpi;
+import com.clougence.clouddm.ds.greenplum.sql.analysis.reference.GpResourceRegistry;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
@@ -34,14 +35,16 @@ public final class GpSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
 
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
-        if (targetType == TargetType.Function && action == BehaviorAction.CALL && (schema == null || "pg_catalog".equals(schema))
-            && ("gp_array_agg".equals(objectName) || "median".equals(objectName) || "pivot_sum".equals(objectName))) {
-            return true;
+        if (targetType == TargetType.Function && action == BehaviorAction.CALL && (schema == null || "pg_catalog".equals(schema))) {
+            if (GpResourceRegistry.instance().contains(objectName, databaseVersion)) {
+                return true;
+            }
         }
+
         PostgresVersion version = PostgresVersion.parse(databaseVersion);
         if (targetType == TargetType.Function) {
             boolean systemFunction = schema == null ? resources.isSystemFunction(objectName, version) : resources.isSystemFunction(schema, objectName, version);
-            return systemFunction && action == resources.functionBehavior(objectName, version);
+            return systemFunction && action == BehaviorAction.CALL && resources.isOrdinaryFunction(objectName, version);
         }
         return (targetType == TargetType.Table || targetType == TargetType.View) && action == BehaviorAction.READ && resources.isSystemSchema(schema);
     }

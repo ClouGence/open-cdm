@@ -1,0 +1,20 @@
+{
+  "description": "cloudberry function classifications for split, behavior and authorization.",
+  "sources": ["https://cloudberry.apache.org/docs/1.x/sql-stmts/copy/", "https://cloudberry.apache.org/docs/next/sql-stmts/create-external-table/", "https://cloudberry.apache.org/core-internals/part-4-query-processing/ch17/"],
+  "metadataFunctions": [],
+  "privilegedFunctions": [
+    {"versions": ["1", "2"], "names": ["gp_read_error_log"]},
+    {"versions": ["1", "2"], "names": ["gp_truncate_error_log", "gp_truncate_persistent_error_log"]},
+    {"versions": ["1", "2"], "names": ["enable_xform", "disable_xform"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["1", "2"], "types": ["LOG_READ"], "names": ["gp_read_error_log"]},
+    {"versions": ["1", "2"], "types": ["MAINTAIN_LOG"], "names": ["gp_truncate_error_log", "gp_truncate_persistent_error_log"]},
+    {"versions": ["1", "2"], "types": ["SESSION_SETTING_WRITE"], "names": ["enable_xform", "disable_xform"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["1", "2"], "names": ["gp_read_error_log"], "action": "CALL", "targetType": "Table", "targetAction": "READ"},
+    {"versions": ["1", "2"], "names": ["gp_truncate_error_log", "gp_truncate_persistent_error_log"], "action": "UNSAFE", "targetType": "Table", "targetAction": "PURGE", "unsafe": true},
+    {"versions": ["1", "2"], "names": ["enable_xform", "disable_xform"], "action": "CONFIGURE", "targetType": "ConfigKey", "targetAction": "CONFIGURE"}
+  ]
+}

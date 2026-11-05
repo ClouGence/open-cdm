@@ -16,11 +16,11 @@
 package com.clougence.clouddm.ds.hologres.sql.analysis.sysobj;
 
 import com.clougence.clouddm.ds.hologres.sql.HgSqlEngineSpi;
+import com.clougence.clouddm.ds.hologres.sql.analysis.reference.HgResourceRegistry;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
 import com.clougence.sql.postgres.analysis.sysobj.PgSysObjectRegistrySpi;
-import com.clougence.sql.postgres.parser.PostgresVersion;
 
 public final class HgSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
     private final PgSysObjectRegistrySpi postgres = new PgSysObjectRegistrySpi();
@@ -32,6 +32,11 @@ public final class HgSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
 
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
-        return postgres.isPermissionExempt(action, targetType, catalog, schema, objectName, PostgresVersion.POSTGRES_12.versionString());
+        if (targetType == TargetType.Function && action == BehaviorAction.CALL && catalog == null && schema == null
+            && HgResourceRegistry.instance().contains(objectName, databaseVersion)) {
+            return true;
+        }
+
+        return postgres.isPermissionExempt(action, targetType, catalog, schema, objectName, databaseVersion);
     }
 }

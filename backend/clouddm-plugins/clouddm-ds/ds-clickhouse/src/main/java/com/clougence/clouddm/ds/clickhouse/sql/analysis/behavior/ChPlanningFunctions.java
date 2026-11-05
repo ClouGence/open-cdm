@@ -15,13 +15,16 @@
  */
 package com.clougence.clouddm.ds.clickhouse.sql.analysis.behavior;
 
+import com.clougence.clouddm.ds.clickhouse.sql.analysis.reference.ChResourceRegistry;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+
 /** Native function properties shared by query execution and EXPLAIN dependency analysis. */
 final class ChPlanningFunctions {
-    private ChPlanningFunctions() {
+    private ChPlanningFunctions(){
     }
 
     static boolean readsSetting(String name) {
-        return name.equals("getSetting") || name.equals("getSettingOrDefault");
+        return ChResourceRegistry.instance().functionBehavior(name).targetType() == TargetType.ConfigKey;
     }
 
     static boolean foldsLambda(String name) {

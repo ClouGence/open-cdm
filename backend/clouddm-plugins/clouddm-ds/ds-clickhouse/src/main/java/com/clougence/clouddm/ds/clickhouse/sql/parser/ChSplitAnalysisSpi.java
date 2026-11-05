@@ -15,16 +15,15 @@
  */
 package com.clougence.clouddm.ds.clickhouse.sql.parser;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
+
+import com.clougence.clouddm.ds.clickhouse.sql.analysis.reference.ChResourceRegistry;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -50,23 +49,43 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             // Executed child actions belong to the child, not the identity-switch node.
             return Set.of(SplitQueryType.SWITCH_USER);
         }
-        return super.collectTypes(context, script);
+        Set<SplitQueryType> types = new LinkedHashSet<>(super.collectTypes(context, script));
+        collectFunctionTypes(context, types);
+        return types;
+    }
+
+    private void collectFunctionTypes(ParseTree tree, Set<SplitQueryType> types) {
+        if (tree instanceof ClickHouseParser.CreateFunctionStmtContext || tree instanceof ClickHouseParser.CreateViewStmtContext
+            || tree instanceof ClickHouseParser.CreateMaterializedViewStmtContext || tree instanceof ClickHouseParser.HypotheticalIndexDeclarationContext
+            || tree instanceof ClickHouseParser.ExplainStmtContext explain && explain.ANALYZE() == null) {
+            return;
+        }
+        String name = null;
+        if (tree instanceof ClickHouseParser.ColumnExprFunctionContext function) {
+            name = function.identifier().getText();
+        } else if (tree instanceof ClickHouseParser.TableFunctionExprContext function) {
+            name = function.identifier().getText();
+        }
+        if (name != null) {
+            types.addAll(ChResourceRegistry.instance().functionBehavior(name).statementTypes());
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectFunctionTypes(tree.getChild(i), types);
+        }
     }
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
         // An outer AST can display even ANALYZE or destructive SQL without executing it.
         for (ParseTree current = tree; current != null; current = current.getParent()) {
-            if (current instanceof ClickHouseParser.CreateFunctionStmtContext
-                || current instanceof ClickHouseParser.HypotheticalIndexDeclarationContext) {
+            if (current instanceof ClickHouseParser.CreateFunctionStmtContext || current instanceof ClickHouseParser.HypotheticalIndexDeclarationContext) {
                 return null;
             }
             if (current instanceof ClickHouseParser.ExplainStmtContext explain && explain.ANALYZE() == null) {
                 return null;
             }
         }
-        if (tree instanceof ClickHouseParser.SystemDropReplicaStmtContext
-            || tree instanceof ClickHouseParser.SystemDropDatabaseReplicaStmtContext) {
+        if (tree instanceof ClickHouseParser.SystemDropReplicaStmtContext || tree instanceof ClickHouseParser.SystemDropDatabaseReplicaStmtContext) {
             return SplitQueryType.UNSAFE;
         }
         if (tree instanceof ClickHouseParser.SystemFlushDistributedStmtContext) {
@@ -84,16 +103,11 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof ClickHouseParser.AlterTableClauseStatisticsContext) {
             return SplitQueryType.ADMIN_PERFORMANCE;
         }
-        if (tree instanceof ClickHouseParser.AlterTableClauseAttachContext
-            || tree instanceof ClickHouseParser.AlterTableClauseDetachContext
-            || tree instanceof ClickHouseParser.AlterTableClauseDropDetachedContext
-            || tree instanceof ClickHouseParser.AlterTableClauseDropPartContext
-            || tree instanceof ClickHouseParser.AlterTableClauseMovePartContext
-            || tree instanceof ClickHouseParser.AlterTableClauseMovePartitionContext
-            || tree instanceof ClickHouseParser.AlterTableClauseReplaceContext
-            || tree instanceof ClickHouseParser.AlterTableClauseFreezePartitionContext
-            || tree instanceof ClickHouseParser.AlterTableClauseUnfreezeContext
-            || tree instanceof ClickHouseParser.AlterTableClauseMaterializeTTLContext
+        if (tree instanceof ClickHouseParser.AlterTableClauseAttachContext || tree instanceof ClickHouseParser.AlterTableClauseDetachContext
+            || tree instanceof ClickHouseParser.AlterTableClauseDropDetachedContext || tree instanceof ClickHouseParser.AlterTableClauseDropPartContext
+            || tree instanceof ClickHouseParser.AlterTableClauseMovePartContext || tree instanceof ClickHouseParser.AlterTableClauseMovePartitionContext
+            || tree instanceof ClickHouseParser.AlterTableClauseReplaceContext || tree instanceof ClickHouseParser.AlterTableClauseFreezePartitionContext
+            || tree instanceof ClickHouseParser.AlterTableClauseUnfreezeContext || tree instanceof ClickHouseParser.AlterTableClauseMaterializeTTLContext
             || tree instanceof ClickHouseParser.AlterTableClauseRewritePartsContext) {
             ParserRuleContext clause = (ParserRuleContext) tree;
             if (clause.getRuleContext(ClickHouseParser.PartitionClauseContext.class, 0) != null) {
@@ -101,10 +115,8 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             }
             return SplitQueryType.ADMIN_TABLE;
         }
-        if (tree instanceof ClickHouseParser.SystemShutdownStmtContext
-            || tree instanceof ClickHouseParser.SystemSuspendStmtContext
-            || tree instanceof ClickHouseParser.SystemReloadFunctionStmtContext
-            || tree instanceof ClickHouseParser.SystemReloadFunctionsStmtContext) {
+        if (tree instanceof ClickHouseParser.SystemShutdownStmtContext || tree instanceof ClickHouseParser.SystemSuspendStmtContext
+            || tree instanceof ClickHouseParser.SystemReloadFunctionStmtContext || tree instanceof ClickHouseParser.SystemReloadFunctionsStmtContext) {
             return SplitQueryType.UNSAFE;
         }
         if (tree instanceof ClickHouseParser.SystemListenStmtContext listen && listen.STOP() != null) {
@@ -154,8 +166,7 @@ public class ChSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof ClickHouseParser.QueryParameterContext) {
             return SplitQueryType.SESSION_VARIABLE_RW;
         }
-        if (tree instanceof ClickHouseParser.SettingExprContext setting
-            && setting.getParent().getParent() instanceof ClickHouseParser.SetStmtContext) {
+        if (tree instanceof ClickHouseParser.SettingExprContext setting && setting.getParent().getParent() instanceof ClickHouseParser.SetStmtContext) {
             return setting.accept(splitVisitor());
         }
         if (tree instanceof ClickHouseParser.ColumnExprFunctionContext function) {

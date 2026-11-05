@@ -29,6 +29,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.sqlserver.analysis.reference.MsSqlResourceRegistry;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerLexer;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerParser;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerParserBaseVisitor;
@@ -38,13 +39,15 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
     private final Parser                   parser;
     private final Map<UmiTypes, Object>    levels;
     private final int                      baseLine;
+    private final boolean                  executing;
     private final RdbBehaviorObjectFactory objects;
     private final StatementBehavior        behavior = new StatementBehavior();
 
-    MsStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    MsStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, boolean executing){
         this.parser = parser;
         this.levels = levels;
         this.baseLine = Math.max(1, baseLine);
+        this.executing = executing;
         this.objects = new RdbBehaviorObjectFactory(levels, baseLine, baseColumn);
         this.behavior.setStatementType(SplitQueryType.UNKNOWN);
     }
@@ -2240,6 +2243,34 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
         return null;
     }
 
+    private boolean executesFunction(ParseTree tree) {
+        if (!executing) {
+            return false;
+        }
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof SqlServerParser.Create_or_alter_functionContext || parent instanceof SqlServerParser.Create_or_alter_procedureContext
+                || parent instanceof SqlServerParser.Create_or_alter_triggerContext || parent instanceof SqlServerParser.Create_viewContext) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Void visitRowset_function(SqlServerParser.Rowset_functionContext ctx) {
+        BehaviorObject function = instanceNamed(TargetType.Function, ctx.getStart(), "OPENROWSET");
+        if (!executesFunction(ctx)) {
+            addUnary(SplitQueryType.SELECT, BehaviorAction.CALL, function);
+            return null;
+        }
+        int start = behavior.getRelations().size();
+        objects.applyFunctionBehavior(behavior, function, MsSqlResourceRegistry.instance().functionBehavior("OPENROWSET", null), ctx);
+        if (ctx.data_file != null) {
+            behavior.getRelations().get(start + 1).setSubject(instanceNamed(TargetType.File, ctx.data_file, unquote(ctx.data_file.getText())));
+        }
+        return null;
+    }
+
     private void functionCall(SqlServerParser.Function_callContext ctx) {
         BehaviorObject function;
         if (ctx instanceof SqlServerParser.SCALAR_FUNCTIONContext scalar) {
@@ -2249,7 +2280,24 @@ final class MsStatementBehaviorVisitor extends SqlServerParserBaseVisitor<Void> 
             // CAST/CONVERT are real built-in calls; grammar keywords such as CASE are not function_call nodes.
             function = instanceNamed(TargetType.Function, token, token.getText().toUpperCase(Locale.ROOT));
         }
-        addUnary(SplitQueryType.SELECT, BehaviorAction.CALL, function);
+        if (!executesFunction(ctx)) {
+            addUnary(SplitQueryType.SELECT, BehaviorAction.CALL, function);
+            return;
+        }
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN) {
+            behavior.setStatementType(SplitQueryType.SELECT);
+        }
+        String name = ctx.getStart().getText();
+        if (ctx instanceof SqlServerParser.SCALAR_FUNCTIONContext scalar) {
+            name = scalar.scalar_function_name().getText();
+        }
+        int start = behavior.getRelations().size();
+        var classification = MsSqlResourceRegistry.instance().functionBehavior(name, null);
+        objects.applyFunctionBehavior(behavior, function, classification, ctx);
+        var session = first(ctx, SqlServerParser.SESSION_CONTEXTContext.class);
+        if (session != null && classification.targetType() == TargetType.ConfigKey) {
+            behavior.getRelations().get(start + 1).setSubject(instanceNamed(TargetType.ConfigKey, session.key, unquote(session.key.getText())));
+        }
     }
 
     private BehaviorObject identity(Token token, boolean databaseScope, String name) {

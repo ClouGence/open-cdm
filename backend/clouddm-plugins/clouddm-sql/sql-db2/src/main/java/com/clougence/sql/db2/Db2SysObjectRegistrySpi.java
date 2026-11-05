@@ -1,0 +1,49 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.sql.db2;
+
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
+import com.clougence.sql.common.registry.FunctionBehavior;
+import com.clougence.sql.db2.analysis.reference.Db2ResourceRegistry;
+import com.clougence.sql.db2.parser.Db2Version;
+
+public final class Db2SysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
+    private final Db2ResourceRegistry resources = Db2ResourceRegistry.instance();
+
+    @Override
+    public String name() {
+        return Db2SqlEngineSpi.NAME;
+    }
+
+    @Override
+    protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
+        FunctionBehavior classification = resources.functionBehavior(objectName, databaseVersion);
+        if (targetType == TargetType.Function && (classification.action() != BehaviorAction.CALL || classification.privileged() || classification.unsafe())) {
+            return false;
+        }
+
+        if (action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && "SYSPROC".equalsIgnoreCase(schema)) {
+            return resources.functionBehavior(schema + "." + objectName, databaseVersion).metadata();
+        }
+
+        Db2Version release = Db2Version.parse(databaseVersion);
+
+        return action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && schema == null
+               && (classification.metadata() || resources.isSystemFunction(objectName, release));
+    }
+}

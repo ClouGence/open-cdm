@@ -35,7 +35,8 @@ public final class TiSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
         if (targetType == TargetType.Function && schema == null) {
             BehaviorAction expectedAction = resources.functionBehavior(objectName, false);
-            return action == expectedAction && !resources.isUserDefinedFunction(objectName, false);
+            return action == BehaviorAction.CALL && expectedAction == BehaviorAction.CALL && !resources.functionClassification(objectName).privileged()
+                   && !resources.isUserDefinedFunction(objectName, false);
         }
         if ((targetType == TargetType.Table || targetType == TargetType.View) && action == BehaviorAction.READ) {
             return resources.isMetadataTable(schema, objectName);

@@ -15,33 +15,28 @@
  */
 package com.clougence.clouddm.ds.clickhouse.sql.analysis.behavior;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.clickhouse.sql.analysis.reference.ChResourceRegistry;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 /** EXPLAIN separates syntax display, dependency analysis and actual query execution. */
 final class ChExplainBehaviorVisitor extends ChAccessBehaviorVisitor {
     private final Deque<Set<String>> commonTables = new ArrayDeque<>();
-    private final String instanceScope;
-    private boolean planning;
-    private boolean diagnostic;
+    private final String             instanceScope;
+    private boolean                  planning;
+    private boolean                  diagnostic;
 
-    ChExplainBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    ChExplainBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         super(parser, levels, baseLine, baseColumn);
         instanceScope = objects.instanceObject(TargetType.Instance, parser.getTokenStream().get(0)).getObjectPath();
     }
@@ -50,8 +45,7 @@ final class ChExplainBehaviorVisitor extends ChAccessBehaviorVisitor {
     public Void visitExplainStmt(ExplainStmtContext ctx) {
         diagnostic = true;
         if (ctx.CURRENT() != null) {
-            BehaviorObject transaction = objects.instanceObject(TargetType.Transaction,
-                ctx.CURRENT().getSymbol(), ctx.TRANSACTION().getSymbol(), "");
+            BehaviorObject transaction = objects.instanceObject(TargetType.Transaction, ctx.CURRENT().getSymbol(), ctx.TRANSACTION().getSymbol(), "");
             transaction.setObjectPath(instanceScope);
             add(SplitQueryType.TRANSACTION, BehaviorAction.READ, transaction);
             return null;
@@ -72,8 +66,7 @@ final class ChExplainBehaviorVisitor extends ChAccessBehaviorVisitor {
                 }
             } else if (ctx.SYNTAX() != null) {
                 ExplainSyntaxQueryContext query = ctx.explainSyntaxQuery();
-                if (query.selectUnionStmt() == null || !analyzerEnabled(ctx) || (option(ctx, "run_query_tree_passes", 0) != 0
-                        && option(ctx, "query_tree_passes", -1) != 0)) {
+                if (query.selectUnionStmt() == null || !analyzerEnabled(ctx) || (option(ctx, "run_query_tree_passes", 0) != 0 && option(ctx, "query_tree_passes", -1) != 0)) {
                     // Non-SELECT SYNTAX uses the legacy SELECT analyzer, never a DDL/DML executor.
                     analyzeSelects(query);
                 } else {
@@ -99,8 +92,7 @@ final class ChExplainBehaviorVisitor extends ChAccessBehaviorVisitor {
                     List<BehaviorRelation> sources = new ArrayList<>(behavior().getRelations().subList(first, behavior().getRelations().size()));
                     for (BehaviorRelation source : sources) {
                         if (source.getSubject().getObjectType() == TargetType.Table && source.getAction() == BehaviorAction.READ) {
-                            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, hypotheticalIndex(
-                                ctx.WHATIF().getSymbol(), ctx.WHATIF().getSymbol(), source.getSubject(), null));
+                            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, hypotheticalIndex(ctx.WHATIF().getSymbol(), ctx.WHATIF().getSymbol(), source.getSubject(), null));
                         }
                     }
                 } else {
@@ -242,8 +234,17 @@ final class ChExplainBehaviorVisitor extends ChAccessBehaviorVisitor {
 
     @Override
     public Void visitTableFunctionExpr(TableFunctionExprContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.CALL,
-            objects.object(TargetType.Function, ctx.identifier(), List.of(name(ctx.identifier()))));
+        BehaviorObject function = objects.object(TargetType.Function, ctx.identifier(), List.of(ctx.identifier().getText()));
+        FunctionBehavior rule = ChResourceRegistry.instance().functionBehavior(ctx.identifier().getText());
+        if (planning) {
+            // Table functions resolve source schemas during planning; keep the existing CALL gate.
+            rule = new FunctionBehavior(Set.of(), BehaviorAction.CALL, rule.targetType(), rule.targetAction(), rule.unsafe(), rule.metadata(), rule.privileged());
+        }
+        ParserRuleContext argument = ctx;
+        if (ctx.tableArgList() != null && !ctx.tableArgList().tableArgExpr().isEmpty()) {
+            argument = ctx.tableArgList().tableArgExpr(0);
+        }
+        objects.applyFunctionBehavior(behavior(), function, rule, argument);
         return visitChildren(ctx);
     }
 
@@ -301,8 +302,7 @@ final class ChExplainBehaviorVisitor extends ChAccessBehaviorVisitor {
         diagnostic = true;
         setType(SplitQueryType.ADMIN_PERFORMANCE);
         if (ctx.ALL() != null) {
-            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE,
-                hypotheticalIndex(ctx.ALL().getSymbol(), ctx.INDEXES().getSymbol(), null, null));
+            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE, hypotheticalIndex(ctx.ALL().getSymbol(), ctx.INDEXES().getSymbol(), null, null));
             return null;
         }
         BehaviorObject table = object(TargetType.Table, ctx.tableIdentifier());
@@ -326,8 +326,7 @@ final class ChExplainBehaviorVisitor extends ChAccessBehaviorVisitor {
         dependencies.add(table);
         for (BehaviorRelation relation : behavior().getRelations().subList(first, behavior().getRelations().size())) {
             BehaviorObject source = relation.getSubject();
-            if (dependencies.stream().noneMatch(existing -> existing.getObjectType() == source.getObjectType()
-                    && existing.getObjectPath().equals(source.getObjectPath()))) {
+            if (dependencies.stream().noneMatch(existing -> existing.getObjectType() == source.getObjectType() && existing.getObjectPath().equals(source.getObjectPath()))) {
                 dependencies.add(source);
             }
         }
@@ -353,8 +352,7 @@ final class ChExplainBehaviorVisitor extends ChAccessBehaviorVisitor {
             return;
         }
         List<BehaviorRelation> relations = behavior().getRelations();
-        relations.sort(Comparator.comparingInt((BehaviorRelation r) -> r.getSubject().getStartLine())
-            .thenComparingInt(r -> r.getSubject().getStartColumn()));
+        relations.sort(Comparator.comparingInt((BehaviorRelation r) -> r.getSubject().getStartLine()).thenComparingInt(r -> r.getSubject().getStartColumn()));
         Set<List<Object>> seen = new HashSet<>();
         relations.removeIf(relation -> {
             List<Object> key = new ArrayList<>();

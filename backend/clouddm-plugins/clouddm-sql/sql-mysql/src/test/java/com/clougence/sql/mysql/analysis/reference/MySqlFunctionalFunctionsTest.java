@@ -15,11 +15,7 @@
  */
 package com.clougence.sql.mysql.analysis.reference;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,6 +28,9 @@ import java.util.TreeMap;
 import org.junit.jupiter.api.Test;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.sql.mysql.parser.MySqlVersion;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class MySqlFunctionalFunctionsTest {
 
     @Test
@@ -44,20 +43,19 @@ public class MySqlFunctionalFunctionsTest {
     }
 
     @Test
-    public void lockingFunctionsUseDocumentedOperationalActions() {
+    public void lockingFunctionsUseDocumentedOperationalActions() throws IOException {
         MySqlResourceRegistry registry = MySqlResourceRegistry.instance();
 
         assertEquals(BehaviorAction.LOCK, registry.functionBehavior("get_lock", 50600));
         assertEquals(BehaviorAction.CALL, registry.functionBehavior("`IS_FREE_LOCK`", 50600));
-        assertEquals(BehaviorAction.CALL, registry.functionBehavior("RELEASE_ALL_LOCKS", 50704));
-        assertEquals(BehaviorAction.LOCK, registry.functionBehavior("RELEASE_ALL_LOCKS", 50705));
+        assertEquals(BehaviorAction.UNLOCK, registry.functionBehavior("RELEASE_ALL_LOCKS", 50704));
+        assertEquals(BehaviorAction.UNLOCK, registry.functionBehavior("RELEASE_ALL_LOCKS", 50705));
 
         Map<String, BehaviorAction> functions = registry.registeredFunctionBehaviors(80400);
-        assertEquals(21, functions.size());
+        assertEquals(loadAnalysisEvidence("8.4"), functions);
         assertEquals(BehaviorAction.LOCK, functions.get("SERVICE_GET_WRITE_LOCKS"));
         assertEquals(BehaviorAction.SWITCH, functions.get("GROUP_REPLICATION_SET_AS_PRIMARY"));
-        assertEquals(BehaviorAction.RESET,
-                functions.get("ASYNCHRONOUS_CONNECTION_FAILOVER_RESET"));
+        assertEquals(BehaviorAction.RESET, functions.get("ASYNCHRONOUS_CONNECTION_FAILOVER_RESET"));
         assertEquals(BehaviorAction.CONFIGURE, functions.get("SET_FIREWALL_MODE"));
     }
 
@@ -65,7 +63,43 @@ public class MySqlFunctionalFunctionsTest {
     public void everyFunctionalFunctionMustHaveOfficialEvidence() throws IOException {
         MySqlResourceRegistry registry = MySqlResourceRegistry.instance();
 
-        assertEquals(loadEvidence(), registry.registeredFunctionBehaviors(99999));
+        Map<String, BehaviorAction> registered = registry.registeredFunctionBehaviors(MySqlVersion.LATEST.exactVersion());
+        loadEvidence().forEach((name, action) -> {
+            if (name.contains("RELEASE")) {
+                action = BehaviorAction.UNLOCK;
+            }
+            assertEquals(action, registered.get(name), "preserve original vendor evidence for " + name);
+        });
+        assertEquals(loadAnalysisEvidence(MySqlVersion.LATEST.versionString()), registered);
+    }
+
+    private static Map<String, BehaviorAction> loadAnalysisEvidence(String version) throws IOException {
+        String resource = "/META-INF/clougence/mysql-analysis-resources.json";
+        Map<String, BehaviorAction> expected = new TreeMap<>();
+        try (InputStream input = MySqlFunctionalFunctionsTest.class.getResourceAsStream(resource)) {
+            assertNotNull(input, "missing analysis resource " + resource);
+            var entries = new ObjectMapper().readTree(input).path("functionBehaviors");
+            for (var entry : entries) {
+                String source = entry.path("source").asText();
+                assertTrue(source.startsWith("https://dev.mysql.com/") || source.startsWith("https://downloads.mysql.com/"), "vendor source required: " + entry);
+                assertFalse(entry.path("section").asText().isBlank(), "document section required: " + entry);
+                assertFalse(entry.path("verifiedAt").asText().isBlank(), "verification date required: " + entry);
+                boolean applicable = false;
+                for (var release : entry.path("versions")) {
+                    if (version.equals(release.asText())) {
+                        applicable = true;
+                    }
+                }
+                if (!applicable || "CALL".equals(entry.path("action").asText())) {
+                    continue;
+                }
+                BehaviorAction action = BehaviorAction.valueOf(entry.path("action").asText());
+                for (var name : entry.path("names")) {
+                    assertNull(expected.put(name.asText(), action), "duplicate classification evidence " + name);
+                }
+            }
+        }
+        return expected;
     }
 
     private static Map<String, BehaviorAction> loadEvidence() throws IOException {
@@ -88,8 +122,7 @@ public class MySqlFunctionalFunctionsTest {
                 String[] columns = line.split(",", -1);
                 assertTrue(columns.length >= 7, "invalid evidence row: " + line);
                 assertTrue(columns[4].startsWith("https://dev.mysql.com/")
-                                || columns[4].startsWith("https://downloads.mysql.com/"),
-                        "evidence URL must point to the database vendor website: " + line);
+                           || columns[4].startsWith("https://downloads.mysql.com/"), "evidence URL must point to the database vendor website: " + line);
                 assertFalse(columns[5].isBlank(), "evidence document section is required: " + line);
                 assertFalse(columns[6].isBlank(), "evidence verification date is required: " + line);
                 BehaviorAction previous = functions.put(columns[1], BehaviorAction.valueOf(columns[3]));

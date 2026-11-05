@@ -97,6 +97,15 @@ public final class SecDomainTextTest {
                     SecDomainResolveSpi resolveSpi = secDomainResolveSpi(fixture.datasource());
                     ContextInfo contextInfo = SqlTestSupport.contextInfo(fixture.datasource());
                     Stream<Executable> validations = cases.stream().map(testCase -> {
+                        if ("mariadb".equals(fixture.datasource()) && "mysql_flush_modern_options".equals(testCase.name())) {
+                            // MariaDB uses a bare connection name and does not support OPTIMIZER_COSTS.
+                            return () -> Assertions.assertThrows(RuntimeException.class, () -> {
+                                try (var domains = resolveSpi.resolveDomainStream(dataSourceType, new StringReader(testCase.sql), 1, 0, contextInfo)) {
+                                    domains.toList();
+                                }
+                            });
+                        }
+
                         return () -> assertCase(resourcePath, testCase, dataSourceType, resolveSpi, contextInfo);
                     });
                     Assertions.assertAll(resourcePath, validations);

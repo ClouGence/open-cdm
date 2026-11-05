@@ -18,11 +18,14 @@ package com.clougence.sql.oracle.analysis.sysobj;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.oracle.OraSqlEngineSpi;
+import com.clougence.sql.oracle.analysis.reference.OraResourceRegistry;
+import com.clougence.sql.oracle.parser.OracleVersion;
 import com.clougence.utils.StringUtils;
 
-/** Oracle virtual resources. */
 public final class OraSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
+    private final OraResourceRegistry resources = OraResourceRegistry.instance();
 
     @Override
     public String name() {
@@ -31,6 +34,14 @@ public final class OraSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi 
 
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
+        FunctionBehavior classification = resources.functionBehavior(objectName, databaseVersion);
+        if (targetType == TargetType.Function && (classification.action() != BehaviorAction.CALL || classification.privileged() || classification.unsafe())) {
+            return false;
+        }
+
+        if (action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && schema == null) {
+            return classification.metadata() || resources.isSystemFunction(objectName, OracleVersion.parse(databaseVersion));
+        }
         return action == BehaviorAction.READ && targetType == TargetType.Table && schema == null && StringUtils.equalsIgnoreCase("DUAL", objectName);
     }
 }

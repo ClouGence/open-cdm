@@ -21,7 +21,9 @@ import java.util.*;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.common.registry.ResourceRegistryDialect;
+import com.clougence.sql.common.registry.VersionedFunctionCatalogLoader;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
 
 /**
@@ -29,18 +31,17 @@ import com.clougence.sql.common.registry.VersionedResourceRegistry;
  */
 public final class DmResourceRegistry {
 
-    public static final int                                 DM8                         = 8;
-    private static final String                             BUILT_IN_FUNCTIONS_RESOURCE = "/META-INF/clougence/dameng-built-in-functions.json";
-    private static final String                             SYSTEM_RESOURCES            = "/META-INF/clougence/dameng-skip-permission-resources.json";
-    private static final String                             SYSTEM_CALLABLE_RESOURCES   = "/META-INF/clougence/dameng-system-callable-resources.json";
-    private static final DmResourceRegistry                 INSTANCE                    = new DmResourceRegistry(DmResourceDialect.INSTANCE);
+    public static final int                                   DM8                         = 8;
+    private static final String                               BUILT_IN_FUNCTIONS_RESOURCE = "/META-INF/clougence/dameng-built-in-functions.json";
+    private static final String                               SYSTEM_RESOURCES            = "/META-INF/clougence/dameng-skip-permission-resources.json";
+    private static final String                               SYSTEM_CALLABLE_RESOURCES   = "/META-INF/clougence/dameng-system-callable-resources.json";
+    private static final DmResourceRegistry                   INSTANCE                    = new DmResourceRegistry(DmResourceDialect.INSTANCE);
 
-    private final ResourceRegistryDialect                   dialect;
-    private final VersionedResourceRegistry<Boolean>        resources;
-    private final VersionedResourceRegistry<Boolean>        noParenthesesFunctions;
-    private final VersionedResourceRegistry<BehaviorAction> functionBehaviors;
-    private final VersionedResourceRegistry<Integer>        functionConfigArguments;
-    private final VersionedResourceRegistry<SplitQueryType> functionTypes;
+    private final ResourceRegistryDialect                     dialect;
+    private final VersionedResourceRegistry<Boolean>          resources;
+    private final VersionedResourceRegistry<Boolean>          noParenthesesFunctions;
+    private final VersionedResourceRegistry<FunctionBehavior> analysisFunctions;
+    private final VersionedResourceRegistry<Integer>          functionConfigArguments;
 
     public static DmResourceRegistry instance() {
         return INSTANCE;
@@ -50,14 +51,14 @@ public final class DmResourceRegistry {
         this.dialect = dialect;
         this.resources = new VersionedResourceRegistry<>(dialect);
         this.noParenthesesFunctions = new VersionedResourceRegistry<>(dialect);
-        this.functionBehaviors = new VersionedResourceRegistry<>(dialect);
+        this.analysisFunctions = new VersionedResourceRegistry<>(dialect);
         this.functionConfigArguments = new VersionedResourceRegistry<>(dialect);
-        this.functionTypes = new VersionedResourceRegistry<>(dialect);
         registerBuiltInFunctions();
         registerSystemResources(SYSTEM_RESOURCES);
         registerSystemResources(SYSTEM_CALLABLE_RESOURCES);
         registerNoParenthesesFunctions();
-        registerFunctionBehaviors();
+        VersionedFunctionCatalogLoader.loadAnalysisResources(DmResourceRegistry.class, "/META-INF/clougence/dameng-analysis-resources.json", analysisFunctions, Integer::parseInt);
+        registerFunctionConfigArguments();
     }
 
     public boolean isUserDefinedFunction(String functionName, boolean qualified) {
@@ -140,20 +141,27 @@ public final class DmResourceRegistry {
         return noParenthesesFunctions.contains(FUNCTION, DM8, functionName);
     }
 
+    public FunctionBehavior functionClassification(String functionName) {
+        if (functionName.contains("\"")) {
+            return FunctionBehavior.DEFAULT;
+        }
+        return analysisFunctions.find(FUNCTION, DM8, functionName).orElse(FunctionBehavior.DEFAULT);
+    }
+
     public BehaviorAction functionBehavior(String functionName) {
         return functionBehavior(functionName, DM8);
     }
 
     public BehaviorAction functionBehavior(String functionName, int exactVersion) {
-        return functionBehaviors.find(FUNCTION, exactVersion, functionName).orElse(BehaviorAction.CALL);
+        return analysisFunctions.find(FUNCTION, exactVersion, functionName).orElse(FunctionBehavior.DEFAULT).action();
     }
 
     public BehaviorAction functionBehavior(String packageName, String functionName) {
-        return functionBehaviors.find(FUNCTION, DM8, packageName, functionName).orElse(BehaviorAction.CALL);
+        return analysisFunctions.find(FUNCTION, DM8, packageName + "." + functionName).orElse(FunctionBehavior.DEFAULT).action();
     }
 
     public Optional<SplitQueryType> functionType(String functionName) {
-        return functionTypes.find(FUNCTION, DM8, functionName);
+        return functionClassification(functionName).statementTypes().stream().findFirst();
     }
 
     public Map<String, BehaviorAction> registeredFunctionBehaviors() {
@@ -162,7 +170,11 @@ public final class DmResourceRegistry {
 
     public Map<String, BehaviorAction> registeredFunctionBehaviors(int exactVersion) {
         Map<String, BehaviorAction> result = new LinkedHashMap<>();
-        functionBehaviors.registeredResources(FUNCTION, exactVersion).forEach((name, action) -> result.put(name.toUpperCase(Locale.ROOT), action));
+        analysisFunctions.registeredResources(FUNCTION, exactVersion).forEach((name, facts) -> {
+            if (facts.action() != BehaviorAction.CALL) {
+                result.put(name.toUpperCase(Locale.ROOT), facts.action());
+            }
+        });
         return Map.copyOf(result);
     }
 
@@ -210,31 +222,13 @@ public final class DmResourceRegistry {
         }
     }
 
-    private void registerFunctionBehaviors() {
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.CHECKPOINT, "CHECKPOINT");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_PARA_DOUBLE_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_PARA_STRING_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_PARA_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_SESSION_MPP_SELECT_LOCAL");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_SESSION_PARA_DOUBLE_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_SESSION_PARA_STRING_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "SF_GET_SESSION_PARA_VALUE");
-        functionTypes.register(FUNCTION, DM8, DM8, SplitQueryType.SESSION_VARIABLE_RW, "SF_GET_SESSION_PARA_DOUBLE_VALUE");
-        functionTypes.register(FUNCTION, DM8, DM8, SplitQueryType.SESSION_VARIABLE_RW, "SF_GET_SESSION_PARA_STRING_VALUE");
-        functionTypes.register(FUNCTION, DM8, DM8, SplitQueryType.SESSION_VARIABLE_RW, "SF_GET_SESSION_PARA_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.ALTER, "SF_MPP_INST_ADD");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.UNSAFE, "SF_MPP_INST_REMOVE");
+    private void registerFunctionConfigArguments() {
         functionConfigArguments.register(FUNCTION, DM8, DM8, 1, "SF_GET_PARA_DOUBLE_VALUE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 1, "SF_GET_PARA_STRING_VALUE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 1, "SF_GET_PARA_VALUE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 0, "SF_GET_SESSION_PARA_DOUBLE_VALUE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 0, "SF_GET_SESSION_PARA_STRING_VALUE");
         functionConfigArguments.register(FUNCTION, DM8, DM8, 0, "SF_GET_SESSION_PARA_VALUE");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.CREATE, "DBMS_SQLTUNE", "CREATE_TUNING_TASK");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.CALL, "DBMS_SQLTUNE", "EXECUTE_TUNING_TASK");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "DBMS_SQLTUNE", "REPORT_SQL_MONITOR");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "DBMS_SQLTUNE", "REPORT_SQL_MONITOR_LIST");
-        functionBehaviors.register(FUNCTION, DM8, DM8, BehaviorAction.READ, "DBMS_SQLTUNE", "REPORT_TUNING_TASK");
     }
 
     private void registerNoParenthesesFunctions() {

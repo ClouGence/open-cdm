@@ -57,8 +57,16 @@ public final class BehaviorRelations {
             Map.entry(BehaviorAction.DENY, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.REVOKE, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.TRANSFER, targetType -> SecDataAuthKind.MANAGE), //
-            Map.entry(BehaviorAction.LOCK, targetType -> null), //
-            Map.entry(BehaviorAction.UNLOCK, targetType -> null), //
+            Map.entry(BehaviorAction.LOCK, targetType -> switch (targetType) {
+                case Session, Instance, ConfigKey -> SecDataAuthKind.MANAGE;
+                case Function, Procedure, ProgramObject -> SecDataAuthKind.PROGRAM;
+                default -> null;
+            }), //
+            Map.entry(BehaviorAction.UNLOCK, targetType -> switch (targetType) {
+                case Session, Instance, ConfigKey -> SecDataAuthKind.MANAGE;
+                case Function, Procedure, ProgramObject -> SecDataAuthKind.PROGRAM;
+                default -> null;
+            }), //
             Map.entry(BehaviorAction.CONFIGURE, targetType -> SecDataAuthKind.MANAGE), //
             Map.entry(BehaviorAction.SWITCH, targetType -> {
                 if (targetType == TargetType.AvailabilityGroup || targetType == TargetType.Log) {
@@ -251,7 +259,7 @@ public final class BehaviorRelations {
                 case INSERT, UPDATE, DELETE, MERGE, REPLACE -> {
                     addRequest(requests, relation.getAction(), subject, registry, dbVersion);
                     targets.forEach(target -> {
-                        addRequest(requests, BehaviorAction.READ, target, registry, dbVersion);
+                        addRequest(requests, relatedObjectAction(subject, target), target, registry, dbVersion);
                     });
                 }
                 default -> {
@@ -301,6 +309,34 @@ public final class BehaviorRelations {
         String currentPath = DmDsUtils.normalizeResourcePath(currentResourcePath);
         String instancePath = DmDsUtils.normalizeResourcePath(instanceResourcePath);
         TargetType targetType = Objects.requireNonNullElse(object.getObjectType(), TargetType.Unknown);
+        ObjectName name = object.getObjectName();
+        if (targetType == TargetType.Function && name != null) {
+            List<String> rawParts = new ArrayList<>();
+            List<String> parts = new ArrayList<>();
+            for (String part : new String[] { name.getCatalog(), name.getSchema(), name.getObjectName() }) {
+                if (part == null) {
+                    continue;
+                }
+
+                rawParts.add(part);
+                if (part.length() >= 2) {
+                    char first = part.charAt(0);
+                    char last = part.charAt(part.length() - 1);
+                    if (first == '"' && last == '"' || first == '`' && last == '`' || first == '[' && last == ']') {
+                        String delimiter = String.valueOf(last);
+                        part = part.substring(1, part.length() - 1).replace(delimiter + delimiter, delimiter);
+                    }
+                }
+
+                parts.add(part);
+            }
+
+            String suffix = String.join("/", rawParts) + "/";
+            if (sourcePath.endsWith("/" + suffix)) {
+                // Exemption checks retain raw names; grants use the actual identifier without syntax quotes.
+                sourcePath = sourcePath.substring(0, sourcePath.length() - suffix.length()) + String.join("/", parts) + "/";
+            }
+        }
 
         if (EXPLICIT_PATH_TARGETS.contains(targetType) || Objects.equals(sourcePath, currentPath) || !sourcePath.startsWith(instancePath)) {
             return sourcePath;
@@ -310,7 +346,6 @@ public final class BehaviorRelations {
             return sourcePath;
         }
 
-        ObjectName name = object.getObjectName();
         if ((targetType == TargetType.ConfigKey || targetType == TargetType.ResourceGroup || targetType == TargetType.User || targetType == TargetType.Role
              || targetType == TargetType.UserOrRole || targetType == TargetType.File || targetType == TargetType.Function || targetType == TargetType.Query
              || targetType == TargetType.Log)
@@ -334,6 +369,9 @@ public final class BehaviorRelations {
             return sourcePath;
         }
         if (Objects.equals(sourcePath, instancePath)) {
+            if (name == null) {
+                return sourcePath;
+            }
             return currentPath;
         }
         if (!LEVELS_BASED_TARGETS.contains(targetType) || sourcePath.startsWith(currentPath)) {
@@ -372,6 +410,10 @@ public final class BehaviorRelations {
 
     private static BehaviorAction relatedObjectAction(BehaviorObject subject, BehaviorObject target) {
         TargetType subjectType = subject == null ? null : subject.getObjectType();
+        if (target != null && target.getObjectType() == TargetType.Function) {
+            return BehaviorAction.CALL;
+        }
+
         if (subjectType == TargetType.EventNotification && target != null && target.getObjectType() == TargetType.Queue) {
             return BehaviorAction.ALTER;
         }

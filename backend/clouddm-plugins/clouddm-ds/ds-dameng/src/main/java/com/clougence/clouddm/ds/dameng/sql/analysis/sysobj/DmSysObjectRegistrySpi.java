@@ -21,6 +21,7 @@ import com.clougence.clouddm.ds.dameng.sql.parser.DmVersion;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 /** Dameng permission-exempt resources backed by the parser resource registry. */
 public final class DmSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
@@ -41,10 +42,10 @@ public final class DmSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
 
         int version = DmResourceRegistry.DM8;
         if (targetType == TargetType.Function) {
-            BehaviorAction expectedAction = resources.functionBehavior(objectName, version);
+            FunctionBehavior classification = resources.functionClassification(objectName);
             boolean registered = schema == null && resources.isSystemFunction(objectName, version);
             if (schema != null) {
-                expectedAction = resources.functionBehavior(schema, objectName);
+                classification = resources.functionClassification(schema + "." + objectName);
                 registered = false;
                 if (catalog != null) {
                     registered = resources.isSystemFunction(catalog, schema, objectName, version);
@@ -53,7 +54,7 @@ public final class DmSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
                     registered = resources.isSystemFunction(schema, objectName, version);
                 }
             }
-            return registered && action == expectedAction;
+            return registered && action == BehaviorAction.CALL && classification.action() == BehaviorAction.CALL && !classification.privileged() && !classification.unsafe();
         }
         if (targetType == TargetType.Procedure && action == BehaviorAction.CALL) {
             if (catalog != null && schema != null && resources.isSystemProcedure(catalog, schema, objectName, version)) {

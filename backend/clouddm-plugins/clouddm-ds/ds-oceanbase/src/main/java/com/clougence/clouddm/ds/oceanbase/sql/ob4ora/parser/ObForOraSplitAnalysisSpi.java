@@ -15,9 +15,14 @@
  */
 package com.clougence.clouddm.ds.oceanbase.sql.ob4ora.parser;
 
+import java.util.Set;
+
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.analysis.reference.ObOraResourceRegistry;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForOracleParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
@@ -25,6 +30,35 @@ import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.oracle.parser.OraSplitAnalysisSpi;
 
 public class ObForOraSplitAnalysisSpi extends OraSplitAnalysisSpi {
+
+    @Override
+    protected Set<SplitQueryType> additionalTypes(ParseTree tree) {
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof ObForOracleParser.Explain_statementContext || parent instanceof ObForOracleParser.Create_function_bodyContext
+                || parent instanceof ObForOracleParser.Create_procedure_bodyContext || parent instanceof ObForOracleParser.Create_triggerContext
+                || parent instanceof ObForOracleParser.Create_viewContext) {
+                return Set.of();
+            }
+        }
+        ParserRuleContext name = null;
+        if (tree instanceof ObForOracleParser.Function_callContext call) {
+            name = call.routine_name();
+            if (name == null) {
+                name = call.id_expression();
+            }
+        } else if (tree instanceof ObForOracleParser.General_element_partContext part && !part.function_argument().isEmpty()) {
+            name = part.routine_name();
+            if (name == null) {
+                name = part.id_expression();
+            }
+        } else if (tree instanceof ObForOracleParser.Call_statementContext call && !call.routine_name().isEmpty()) {
+            name = call.routine_name(0);
+        }
+        if (name != null) {
+            return ObOraResourceRegistry.instance().functionBehavior(name.getText()).statementTypes();
+        }
+        return Set.of();
+    }
 
     @Override
     protected DslProvider dslProvider() {

@@ -1376,6 +1376,14 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         addWithNodes(sqlType, targetType, require, token, nodes);
     }
 
+    protected final void addFunctionTarget(SplitQueryType type, TargetType target, ParserRuleContext context, String name, BehaviorAction action) {
+        List<String> nodes = List.of();
+        if (name != null) {
+            nodes = List.of(name);
+        }
+        references.add(new MySqlObjectReference(type, target, true, line(context), column(context), endLine(context), endColumn(context), nodes, action, name == null));
+    }
+
     protected final void addInstanceBehaviorResource(SplitQueryType sqlType, TargetType targetType, boolean require, Token token, String name, BehaviorAction action) {
         List<String> nodes = new ArrayList<>();
         addPart(nodes, name);
@@ -1484,8 +1492,14 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
         }
         List<String> parts = new ArrayList<>();
         for (UidContext uid : ctx.uid()) {
-            addPart(parts, name(uid));
+            String name = name(uid);
+            if (targetType == TargetType.Function) {
+                name = uid.getText();
+            }
+
+            addPart(parts, name);
         }
+
         if (ctx.identifierAfterDot != null) {
             addPart(parts, ctx.identifierAfterDot.getText());
         }
@@ -1501,7 +1515,12 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             return;
         }
         List<String> parts = new ArrayList<>();
-        addPart(parts, name(ctx));
+        String name = name(ctx);
+        if (targetType == TargetType.Function) {
+            name = ctx.getText();
+        }
+
+        addPart(parts, name);
         add(sqlType, targetType, require, ctx, parts);
     }
 
@@ -1510,7 +1529,12 @@ public class MySqlObjectReferenceVisitor extends MySqlParserBaseVisitor<Void> {
             return;
         }
         List<String> parts = new ArrayList<>();
-        addPart(parts, unquoteIdentifier(token.getText()));
+        String name = token.getText();
+        if (targetType != TargetType.Function) {
+            name = unquoteIdentifier(name);
+        }
+
+        addPart(parts, name);
         List<String> nodes = resolveNodes(targetType, parts);
         addWithNodes(sqlType, targetType, require, token, nodes);
     }

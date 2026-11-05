@@ -37,6 +37,7 @@ dependencies {
     testImplementation(project(':ds-goldendb'))
     testImplementation(project(':ds-postgres'))
     testImplementation(project(':ds-greenplum'))
+    testImplementation(project(':ds-cloudberry'))
     testImplementation(project(':ds-polardb'))
     testImplementation(project(':ds-oracle'))
     testImplementation(project(':ds-dameng'))

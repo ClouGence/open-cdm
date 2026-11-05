@@ -31,6 +31,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.sqlserver.analysis.reference.MsSqlResourceRegistry;
 import com.clougence.sql.sqlserver.parser.antlr.SqlServerParser;
 
 public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
@@ -64,6 +65,19 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     }
 
     @Override
+    protected Set<SplitQueryType> additionalTypes(ParseTree tree) {
+        Set<SplitQueryType> types = new LinkedHashSet<>(super.additionalTypes(tree));
+        if (tree instanceof SqlServerParser.Function_callContext ctx) {
+            String name = ctx instanceof SqlServerParser.SCALAR_FUNCTIONContext scalar ? scalar.scalar_function_name().getText() : ctx.getStart().getText();
+            types.addAll(MsSqlResourceRegistry.instance().functionBehavior(name, null).statementTypes());
+        }
+        if (tree instanceof SqlServerParser.Rowset_functionContext) {
+            types.addAll(MsSqlResourceRegistry.instance().functionBehavior("OPENROWSET", parameters.version()).statementTypes());
+        }
+        return types;
+    }
+
+    @Override
     protected SplitQueryType additionalType(ParseTree tree) {
         if (tree instanceof SqlServerParser.Insert_statementContext insert && containsContext(insert.insert_statement_value(), SqlServerParser.Select_statementContext.class)) {
             return SplitQueryType.SELECT;
@@ -94,8 +108,7 @@ public class MsSqlSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             if (directToken(alterTable, SqlServerParser.CHECK) || directToken(alterTable, SqlServerParser.NOCHECK)) {
                 return directToken(alterTable, SqlServerParser.ADD) ? SplitQueryType.ADD_CONSTRAINT : SplitQueryType.ALTER_CONSTRAINT;
             }
-            if (directToken(alterTable, SqlServerParser.TRIGGER)
-                && (directToken(alterTable, SqlServerParser.ENABLE) || directToken(alterTable, SqlServerParser.DISABLE))) {
+            if (directToken(alterTable, SqlServerParser.TRIGGER) && (directToken(alterTable, SqlServerParser.ENABLE) || directToken(alterTable, SqlServerParser.DISABLE))) {
                 return SplitQueryType.ALTER_TRIGGER;
             }
             if (directToken(alterTable, SqlServerParser.REBUILD)) {

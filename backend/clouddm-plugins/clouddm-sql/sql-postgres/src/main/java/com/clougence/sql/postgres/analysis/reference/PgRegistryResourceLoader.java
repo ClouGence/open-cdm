@@ -19,14 +19,7 @@ import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
@@ -66,43 +59,38 @@ final class PgRegistryResourceLoader {
         }
     }
 
-    static void loadAnalysisResources(Class<?> owner, String resource, VersionedResourceRegistry<Boolean> metadataFunctions,
-                                      VersionedResourceRegistry<Set<SplitQueryType>> functionStatementTypes,
-                                      VersionedResourceRegistry<PgFunctionBehavior> functionBehaviors,
+    static void loadAnalysisResources(Class<?> owner, String resource, VersionedResourceRegistry<Boolean> metadataFunctions, VersionedResourceRegistry<Boolean> privilegedFunctions,
+                                      VersionedResourceRegistry<Set<SplitQueryType>> functionStatementTypes, VersionedResourceRegistry<PgFunctionBehavior> functionBehaviors,
                                       Set<String> performanceRelations, Set<String> systemSchemas) {
         JsonNode root = loadRoot(owner, resource);
-        loadMetadataFunctions(resource, root, metadataFunctions);
+        loadNamedFunctions(resource, root, "metadataFunctions", metadataFunctions);
+        loadNamedFunctions(resource, root, "privilegedFunctions", privilegedFunctions);
         loadFunctionStatementTypes(resource, root, functionStatementTypes);
         loadFunctionBehaviors(resource, root, functionBehaviors);
-        performanceRelations.addAll(parseNames(resource + "#performanceRelations",
-            requiredArray(resource, root, "performanceRelations")));
+        performanceRelations.addAll(parseNames(resource + "#performanceRelations", requiredArray(resource, root, "performanceRelations")));
         systemSchemas.addAll(parseNames(resource + "#systemSchemas", requiredArray(resource, root, "systemSchemas")));
     }
 
-    private static void loadMetadataFunctions(String resource, JsonNode root, VersionedResourceRegistry<Boolean> registry) {
-        JsonNode groups = requiredArray(resource, root, "metadataFunctions");
+    private static void loadNamedFunctions(String resource, JsonNode root, String field, VersionedResourceRegistry<Boolean> registry) {
+        JsonNode groups = requiredArray(resource, root, field);
         for (int i = 0; i < groups.size(); i++) {
-            String location = resource + "#metadataFunctions[" + i + "]";
+            String location = resource + "#" + field + "[" + i + "]";
             JsonNode group = groups.get(i);
-            register(registry, parseVersions(location, requiredArray(location, group, "versions")), true,
-                parseNames(location, requiredArray(location, group, "names")));
+            register(registry, parseVersions(location, requiredArray(location, group, "versions")), true, parseNames(location, requiredArray(location, group, "names")));
         }
     }
 
-    private static void loadFunctionStatementTypes(String resource, JsonNode root,
-                                                   VersionedResourceRegistry<Set<SplitQueryType>> registry) {
+    private static void loadFunctionStatementTypes(String resource, JsonNode root, VersionedResourceRegistry<Set<SplitQueryType>> registry) {
         JsonNode groups = requiredArray(resource, root, "functionStatementTypes");
         for (int i = 0; i < groups.size(); i++) {
             String location = resource + "#functionStatementTypes[" + i + "]";
             JsonNode group = groups.get(i);
             Set<SplitQueryType> types = parseStatementTypes(location, requiredArray(location, group, "types"));
-            register(registry, parseVersions(location, requiredArray(location, group, "versions")), types,
-                parseNames(location, requiredArray(location, group, "names")));
+            register(registry, parseVersions(location, requiredArray(location, group, "versions")), types, parseNames(location, requiredArray(location, group, "names")));
         }
     }
 
-    private static void loadFunctionBehaviors(String resource, JsonNode root,
-                                              VersionedResourceRegistry<PgFunctionBehavior> registry) {
+    private static void loadFunctionBehaviors(String resource, JsonNode root, VersionedResourceRegistry<PgFunctionBehavior> registry) {
         JsonNode groups = requiredArray(resource, root, "functionBehaviors");
         for (int i = 0; i < groups.size(); i++) {
             String location = resource + "#functionBehaviors[" + i + "]";
@@ -115,8 +103,7 @@ final class PgRegistryResourceLoader {
                 throw invalid(location, "unsafe must be a boolean");
             }
             PgFunctionBehavior behavior = new PgFunctionBehavior(action, targetType, targetAction, unsafeNode.booleanValue());
-            register(registry, parseVersions(location, requiredArray(location, group, "versions")), behavior,
-                parseNames(location, requiredArray(location, group, "names")));
+            register(registry, parseVersions(location, requiredArray(location, group, "versions")), behavior, parseNames(location, requiredArray(location, group, "names")));
         }
     }
 
@@ -160,8 +147,7 @@ final class PgRegistryResourceLoader {
         return List.copyOf(names);
     }
 
-    private static <T> void register(VersionedResourceRegistry<T> registry, Set<PostgresVersion> versions, T value,
-                                     List<String> names) {
+    private static <T> void register(VersionedResourceRegistry<T> registry, Set<PostgresVersion> versions, T value, List<String> names) {
         for (PostgresVersion version : versions) {
             int versionCode = Integer.parseInt(version.versionString());
             for (String name : names) {

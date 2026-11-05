@@ -29,6 +29,13 @@ public abstract class AbstractSysObjectRegistrySpi implements SysObjectRegistryS
         if (action == null || targetType == null || objectName == null || objectName.isBlank()) {
             return false;
         }
+        if (targetType == TargetType.Function) {
+            for (String part : new String[] { catalog, schema, objectName }) {
+                if (part != null && (part.startsWith("\"") || part.startsWith("`") || part.startsWith("["))) {
+                    return false;
+                }
+            }
+        }
         return isRegisteredResource(action, targetType, catalog, schema, objectName, dbVersion);
     }
 

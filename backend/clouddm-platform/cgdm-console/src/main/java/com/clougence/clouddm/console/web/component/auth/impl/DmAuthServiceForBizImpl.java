@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRelations;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorRequest;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
@@ -57,6 +58,7 @@ import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
+import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
@@ -134,8 +136,18 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         DmDsDO dsDO = levels.dsDO();
         long dsId = dsDO.getId();
         var sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(dsId);
-        String sqlEngineName = sqlEngine.name();
-        SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngineName);
+        SysObjectRegistrySpi registry = PluginManager.findSysObjectRegistry(dsDO.getDataSourceType(), sqlEngine.name());
+        final String databaseVersion;
+        boolean hasProgramCall = requests.stream()
+            .flatMap(request -> BehaviorRelations.flattenResourceIgnoringPermission(request.getRelations()).stream())
+            .anyMatch(request -> request.authKind() == SecDataAuthKind.PROGRAM);
+        if (registry != null && hasProgramCall
+            && (StringUtils.isBlank(dsDO.getVersion()) || dsDO.getDataSourceType() == DataSourceType.Greenplum || dsDO.getDataSourceType() == DataSourceType.CockroachDB)) {
+            databaseVersion = this.dsSchemaService.realTimeFetchVersion(dsDO, levels.levelsParam());
+        } else {
+            databaseVersion = dsDO.getVersion();
+        }
+
         String currentResourcePath = DmDsUtils.currentResourcePath(levels.levelsParam());
         String instanceResourcePath = DmDsUtils.instanceResourcePath(levels.levelsParam());
         for (QueryRequest request : requests) {
@@ -150,7 +162,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
                     return Collections.unmodifiableList(names);
                 };
                 Predicate<BehaviorRelation> isRelationPermitted = relation -> {
-                    List<BehaviorRequest> resources = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), List.of(relation));
+                    List<BehaviorRequest> resources = BehaviorRelations.flattenResource(registry, databaseVersion, List.of(relation));
                     for (BehaviorRequest resource : resources) {
                         String path = BehaviorRelations.resourcePath(resource.resource(), currentResourcePath, instanceResourcePath);
                         if (resource.authKind() == null) {
@@ -165,7 +177,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
                 };
                 resolver.resolve(request, listObjectNames, isRelationPermitted);
             }
-            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations());
+            List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, databaseVersion, request.getRelations());
             for (BehaviorRequest behavior : behaviors) {
                 if (behavior.authKind() == null) {
                     continue;

@@ -16,6 +16,7 @@
 package com.clougence.sql.db2.parser;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.db2.analysis.reference.Db2ResourceRegistry;
 import com.clougence.sql.db2.parser.antlr.Db2SqlParser;
 
 public class Db2SplitAnalysisSpi extends AbstractSplitAnalysisSpi {
@@ -40,6 +42,21 @@ public class Db2SplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return Db2SplitVisitor.INSTANCE;
+    }
+
+    @Override
+    protected Set<SplitQueryType> additionalTypes(ParseTree tree) {
+        Set<SplitQueryType> types = new LinkedHashSet<>(super.additionalTypes(tree));
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof Db2SqlParser.Explain_statementContext || parent instanceof Db2SqlParser.Create_view_statementContext) {
+                return types;
+            }
+        }
+        if (tree instanceof Db2SqlParser.Function_nameContext ctx
+            && (ctx.getParent() instanceof Db2SqlParser.Function_invocationContext || ctx.getParent() instanceof Db2SqlParser.Table_function_referenceContext)) {
+            types.addAll(Db2ResourceRegistry.instance().functionBehavior(ctx.getText(), null).statementTypes());
+        }
+        return types;
     }
 
     @Override

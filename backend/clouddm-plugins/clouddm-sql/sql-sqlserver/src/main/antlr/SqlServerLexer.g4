@@ -236,7 +236,7 @@ CONTRACT:                              C O N T R A C T ;
 CONTRACT_NAME:                         C O N T R A C T '_' N A M E ;
 CONTROL:                               C O N T R O L ;
 CONVERSATION:                          C O N V E R S A T I O N ;
-CONVERT:                               T R Y '_' ?   C O N V E R T ;
+CONVERT:                               (T R Y '_' ?)? C O N V E R T ;
 COOKIE:                                C O O K I E ;
 COPY_ONLY:                             C O P Y '_' O N L Y ;
 COUNT:                                 C O U N T ;

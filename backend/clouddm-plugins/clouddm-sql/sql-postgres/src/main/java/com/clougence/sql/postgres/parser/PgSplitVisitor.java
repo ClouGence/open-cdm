@@ -17,6 +17,7 @@ package com.clougence.sql.postgres.parser;
 
 import static com.clougence.sql.postgres.parser.antlr.PgSqlParser.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,14 +27,15 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.postgres.analysis.reference.PgResourceRegistry;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParserBaseVisitor;
 
 public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
 
     private final PostgresVersion     version;
-    private final PgResourceRegistry  resources             = PgResourceRegistry.instance();
-    private final Set<SplitQueryType> types                 = new LinkedHashSet<>();
+    private final PgResourceRegistry  resources = PgResourceRegistry.instance();
+    private final Set<SplitQueryType> types     = new LinkedHashSet<>();
     private boolean                   metadataReference;
     private boolean                   ordinaryRelation;
     private boolean                   requiresSelectCarrier;
@@ -1098,7 +1100,38 @@ public class PgSplitVisitor extends PgSqlParserBaseVisitor<SplitQueryType> {
         return SplitQueryType.UNKNOWN;
     }
 
+    protected FunctionBehavior extensionFunctionBehavior(List<String> names) {
+        return FunctionBehavior.DEFAULT;
+    }
+
     private void collectSystemFunctionTypes(Func_applicationContext ctx) {
+        List<String> names = new ArrayList<>();
+        Func_nameContext function = ctx.func_name();
+        if (function.type_function_name() != null) {
+            names.add(function.type_function_name().getText());
+        } else {
+            names.add(function.colid().getText());
+        }
+        if (function.indirection() != null) {
+            for (Indirection_elContext part : function.indirection().indirection_el()) {
+                if (part.attr_name() == null) {
+                    return;
+                }
+                names.add(part.attr_name().getText());
+            }
+        }
+        FunctionBehavior extension = extensionFunctionBehavior(names);
+        this.types.addAll(extension.statementTypes());
+        if (extension.metadata()) {
+            this.metadataReference = true;
+        } else if (!extension.statementTypes().isEmpty()) {
+            this.requiresSelectCarrier = true;
+        }
+
+        if (names.size() > 2 || names.size() == 2 && !"pg_catalog".equals(normalizeName(names.get(0)))) {
+            return;
+        }
+
         String name = normalizeFunctionName(ctx.func_name());
         if (resources.isMetadataFunction(name, version)) {
             this.metadataReference = true;

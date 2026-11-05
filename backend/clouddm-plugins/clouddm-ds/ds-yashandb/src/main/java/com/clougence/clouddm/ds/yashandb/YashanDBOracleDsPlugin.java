@@ -22,6 +22,7 @@ import com.clougence.clouddm.ds.yashandb.dsconf.oracle.YashanDBOracleConfigSpi;
 import com.clougence.clouddm.ds.yashandb.dsconf.oracle.YashanDBOracleSerializationSpi;
 import com.clougence.clouddm.ds.yashandb.execute.YashanDBSessionFactory;
 import com.clougence.clouddm.ds.yashandb.i18n.YashanDBDsI18nKeys;
+import com.clougence.clouddm.ds.yashandb.sql.YashanDBOracleSysObjectRegistrySpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.oracle.definition.OraDefService;
 import com.clougence.clouddm.dsfamily.oracle.definition.secrules.OraSecRulesSupportSpi;
@@ -94,6 +95,7 @@ public class YashanDBOracleDsPlugin implements DsPlugin, SchemaPlugin, DsFeature
         dsPlugin.bindDsSessionFactory(YashanDBSessionFactory.class);
         dsPlugin.bindDsDriverFamily("YashanDB JDBC Driver");
         dsPlugin.bindSqlEngine("Oracle SQL");
+        dsPlugin.addPluginSpi(new YashanDBOracleSysObjectRegistrySpi());
 
         dsPlugin.addPluginSpi(new OraSessionSpi());
         dsPlugin.addPluginSpi(new OraSupportSpi());

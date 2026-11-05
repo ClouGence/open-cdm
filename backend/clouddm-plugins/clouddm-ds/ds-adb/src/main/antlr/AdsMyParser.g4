@@ -2039,6 +2039,7 @@ authPlugin
 
 uid
     : simpleId
+    | {_input.LA(-1) == DOT}? scalarFunctionName
     //| DOUBLE_QUOTE_ID
     | REVERSE_QUOTE_ID
     | CHARSET_REVERSE_QOUTE_STRING

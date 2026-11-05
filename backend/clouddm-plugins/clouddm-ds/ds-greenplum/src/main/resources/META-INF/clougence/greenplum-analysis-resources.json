@@ -1,0 +1,20 @@
+{
+  "description": "greenplum function classifications for split, behavior and authorization.",
+  "sources": ["https://raw.githubusercontent.com/greenplum-db/gpdb-archive/482967c1b49028cf072c15935462f75bc3e4b045/gpdb-doc/markdown/ref_guide/sql_commands/COPY.html.md", "https://raw.githubusercontent.com/greenplum-db/gpdb-archive/482967c1b49028cf072c15935462f75bc3e4b045/src/backend/gpopt/utils/funcs.cpp"],
+  "metadataFunctions": [],
+  "privilegedFunctions": [
+    {"versions": ["7"], "names": ["gp_read_error_log"]},
+    {"versions": ["7"], "names": ["gp_truncate_error_log", "gp_truncate_persistent_error_log"]},
+    {"versions": ["7"], "names": ["enable_xform", "disable_xform"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["7"], "types": ["LOG_READ"], "names": ["gp_read_error_log"]},
+    {"versions": ["7"], "types": ["MAINTAIN_LOG"], "names": ["gp_truncate_error_log", "gp_truncate_persistent_error_log"]},
+    {"versions": ["7"], "types": ["SESSION_SETTING_WRITE"], "names": ["enable_xform", "disable_xform"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["7"], "names": ["gp_read_error_log"], "action": "CALL", "targetType": "Table", "targetAction": "READ"},
+    {"versions": ["7"], "names": ["gp_truncate_error_log", "gp_truncate_persistent_error_log"], "action": "UNSAFE", "targetType": "Table", "targetAction": "PURGE", "unsafe": true},
+    {"versions": ["7"], "names": ["enable_xform", "disable_xform"], "action": "CONFIGURE", "targetType": "ConfigKey", "targetAction": "CONFIGURE"}
+  ]
+}

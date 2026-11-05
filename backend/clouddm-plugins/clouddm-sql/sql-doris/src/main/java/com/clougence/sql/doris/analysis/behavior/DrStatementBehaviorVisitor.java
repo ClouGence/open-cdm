@@ -26,6 +26,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.doris.analysis.reference.DrResourceRegistry;
 import com.clougence.sql.doris.parser.antlr.DorisParserBaseVisitor;
 import com.clougence.sql.doris.parser.antlr.DorisParser.*;
@@ -45,7 +46,8 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     StatementBehavior behavior() {
         List<BehaviorRelation> reads = detachReadRelations();
-        addFunctionCalls();
+        boolean explaining = !descendants(root, ExplainContext.class).isEmpty();
+        addFunctionCalls(explaining);
         addExternalFileReads();
         behavior.getRelations().addAll(reads);
         return behavior;
@@ -67,16 +69,35 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
         return reads;
     }
 
-    private void addFunctionCalls() {
+    private void addFunctionCalls(boolean explaining) {
         for (ParserRuleContext ctx : descendants(root, ParserRuleContext.class)) {
             if (ctx instanceof FunctionCallExpressionContext function) {
                 FunctionIdentifierContext identifier = function.functionIdentifier();
                 String name = text(identifier.functionNameIdentifier());
-                add(SplitQueryType.SELECT, BehaviorAction.CALL, functionObject(identifier, name, identifier.dbName != null));
+                BehaviorObject subject = functionObject(identifier, name, identifier.dbName != null);
+                if (explaining) {
+                    add(SplitQueryType.PERFORMANCE, BehaviorAction.CALL, subject);
+                } else {
+                    ParserRuleContext argument = function;
+                    if (!function.arguments.isEmpty()) {
+                        argument = function.arguments.get(0);
+                    }
+                    objects.applyFunctionBehavior(behavior, subject, DrResourceRegistry.instance().functionBehavior(identifier.getText()), argument);
+                }
             } else if (ctx instanceof InsertIntoTVFContext function) {
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, functionObject(function.tvfName, text(function.tvfName), false));
             } else if (ctx instanceof TableValuedFunctionContext function) {
-                add(SplitQueryType.SELECT, BehaviorAction.CALL, functionObject(function.tvfName, text(function.tvfName), false));
+                String name = text(function.tvfName);
+                BehaviorObject subject = functionObject(function.tvfName, name, false);
+                FunctionBehavior classification = DrResourceRegistry.instance().functionBehavior(name);
+                if (explaining) {
+                    add(SplitQueryType.PERFORMANCE, BehaviorAction.CALL, subject);
+                } else if (classification.targetType() == TargetType.File) {
+                    // File properties are resolved separately by addExternalFileReads.
+                    add(SplitQueryType.SELECT, classification.action(), subject);
+                } else {
+                    objects.applyFunctionBehavior(behavior, subject, classification, function);
+                }
             } else if (ctx instanceof LateralViewContext lateral) {
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, functionObject(lateral.functionName, text(lateral.functionName), false));
             } else if (ctx instanceof UnnestFunctionContext function) {
@@ -85,10 +106,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
                 BehaviorObject subject = objects.object(TargetType.Function, token, List.of(token.getText()));
                 subject.setObjectName(new ObjectName(null, null, name));
                 add(SplitQueryType.SELECT, BehaviorAction.CALL, subject);
-            } else if (ctx instanceof SubstringContext || ctx instanceof PositionContext || ctx instanceof CastContext || ctx instanceof CharFunctionContext
-                       || ctx instanceof ConvertCharSetContext || ctx instanceof ConvertTypeContext || ctx instanceof GroupConcatContext || ctx instanceof TrimContext
-                       || ctx instanceof ExtractContext || ctx instanceof CurrentDateContext || ctx instanceof CurrentTimeContext || ctx instanceof CurrentTimestampContext
-                       || ctx instanceof LocalTimeContext || ctx instanceof LocalTimestampContext || ctx instanceof CurrentUserContext || ctx instanceof SessionUserContext) {
+            } else if (ctx instanceof SubstringContext || ctx instanceof PositionContext || ctx instanceof CharFunctionContext || ctx instanceof ConvertCharSetContext
+                       || ctx instanceof ConvertTypeContext || ctx instanceof GroupConcatContext || ctx instanceof TrimContext || ctx instanceof ExtractContext
+                       || ctx instanceof CurrentDateContext || ctx instanceof CurrentTimeContext || ctx instanceof CurrentTimestampContext || ctx instanceof LocalTimeContext
+                       || ctx instanceof LocalTimestampContext || ctx instanceof CurrentUserContext || ctx instanceof SessionUserContext) {
                 var token = ctx.getStart();
                 String name = resources.normalizeIdentifier(token.getText());
                 BehaviorObject subject = objects.object(TargetType.Function, token, List.of(token.getText()));
@@ -100,7 +121,7 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     private void addExternalFileReads() {
         for (TableValuedFunctionContext function : descendants(root, TableValuedFunctionContext.class)) {
-            String name = unquote(text(function.tvfName));
+            String name = text(function.tvfName);
             if (!resources.isExternalFileTableFunction(name)) {
                 continue;
             }
@@ -1316,9 +1337,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
             }
         } else if (context instanceof FunctionIdentifierContext function) {
             if (function.dbName != null) {
-                names.add(unquote(text(function.dbName)));
+                names.add(text(function.dbName));
             }
-            names.add(unquote(text(function.functionNameIdentifier())));
+
+            names.add(text(function.functionNameIdentifier()));
         } else {
             names.add(unquote(text(context)));
         }
@@ -1327,6 +1349,10 @@ final class DrStatementBehaviorVisitor extends DorisParserBaseVisitor<Void> {
 
     private BehaviorObject functionObject(ParserRuleContext context, String functionName, boolean qualified) {
         String name = resources.normalizeIdentifier(functionName);
+        if (functionName.startsWith("`") || functionName.startsWith("\"")) {
+            name = functionName;
+        }
+
         if (!resources.isUserDefinedFunction(name, qualified)) {
             BehaviorObject result = object(TargetType.Function, context);
             result.setObjectName(new ObjectName(null, null, name));

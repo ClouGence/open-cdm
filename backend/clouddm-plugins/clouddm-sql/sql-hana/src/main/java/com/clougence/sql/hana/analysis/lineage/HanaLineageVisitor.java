@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import com.clougence.sql.common.analysis.lineage.model.*;
-import com.clougence.sql.hana.analysis.HanaSqlFunctions;
-import com.clougence.sql.hana.parser.antlr.HanaParser;
-
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+
+import com.clougence.sql.common.analysis.lineage.model.*;
+import com.clougence.sql.hana.analysis.reference.HanaResourceRegistry;
+import com.clougence.sql.hana.parser.antlr.HanaParser;
 
 final class HanaLineageVisitor {
     private static final Set<String> SESSION_VALUES = Set
@@ -121,7 +121,7 @@ final class HanaLineageVisitor {
             throw new IllegalArgumentException("External value provenance is not available");
         }
         if (tree instanceof HanaParser.FunctionCallContext function
-            && (!HanaSqlFunctions.isBuiltIn(function.qualifiedName()) || function.qualifiedName().getText().equalsIgnoreCase("SESSION_CONTEXT"))) {
+            && (!HanaResourceRegistry.instance().isBuiltIn(function.qualifiedName()) || function.qualifiedName().getText().equalsIgnoreCase("SESSION_CONTEXT"))) {
             throw new IllegalArgumentException("Stored function result provenance is not available");
         }
         if (tree instanceof HanaParser.PrimaryContext primary && primary.qualifiedName() != null) {

@@ -527,6 +527,11 @@ DECIMAL: ([0-9]+ '.' [0-9]* | '.' [0-9]+) ([Ee] [+-]? [0-9]+)? | [0-9]+ [Ee] [+-
 INTEGER: [0-9]+;
 STRING: 'N'? '\'' ('\'\'' | ~'\'')* '\'';
 QUOTED_IDENTIFIER: '"' ('""' | ~'"')* '"';
+CURRENT_USER: 'CURRENT_USER';
+CURRENT_SCHEMA: 'CURRENT_SCHEMA';
+CURRENT_DATABASE: 'CURRENT_DATABASE';
+CURRENT_CONNECTION: 'CURRENT_CONNECTION';
+SESSION_USER: 'SESSION_USER';
 WORD: [#A-Z_\u0080-\uFFFF] [A-Z_0-9$#\u0080-\uFFFF]*;
 LINE_COMMENT: '--' ~[\r\n]* -> channel(HIDDEN);
 BLOCK_COMMENT_START: '/*' -> more, pushMode(IN_COMMENT);

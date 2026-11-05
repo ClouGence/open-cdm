@@ -1,0 +1,32 @@
+{
+  "description": "gauss function classifications used by split, behavior and authorization.",
+  "sources": ["https://docs.opengauss.org/en/docs/2.0.1/docs/Developerguide/server-signal-functions.html", "https://docs.opengauss.org/en/docs/latest/database_reference/querying_a_system_catalog.html", "https://github.com/opengauss-mirror/openGauss-server/blob/6.0.0/src/common/backend/catalog/builtin_funcs.ini"],
+  "metadataFunctions": [
+    {"versions": ["6"], "names": ["current_setting"]},
+    {"versions": ["6"], "names": ["current_database", "current_query", "current_schema", "current_schemas", "current_user", "definer_current_user", "get_current_ts_config", "getpgusername", "has_any_column_privilege", "has_any_privilege", "has_cek_privilege", "has_cmk_privilege", "has_column_privilege", "has_database_privilege", "has_directory_privilege", "has_foreign_data_wrapper_privilege", "has_function_privilege", "has_language_privilege", "has_nodegroup_privilege", "has_schema_privilege", "has_server_privilege", "has_table_privilege", "has_tablespace_privilege", "inet_server_addr", "inet_server_port", "pg_current_sessid", "pg_current_sessionid", "pg_current_userid", "pg_describe_object", "pg_get_function_identity_arguments", "pg_get_userbyid", "pg_has_role", "sessionid2pid", "txid_current", "txid_current_snapshot"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["6"], "names": ["set_config", "pg_reload_conf", "pg_cancel_backend", "pg_terminate_backend", "pg_advisory_lock", "pg_advisory_unlock", "pg_read_file", "pg_read_binary_file", "pg_ls_dir"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["6"], "types": ["METADATA"], "names": ["current_setting"]},
+    {"versions": ["6"], "types": ["SESSION_SETTING_WRITE"], "names": ["set_config"]},
+    {"versions": ["6"], "types": ["SYSTEM_SETTING_WRITE"], "names": ["pg_reload_conf"]},
+    {"versions": ["6"], "types": ["ADMIN"], "names": ["pg_cancel_backend", "pg_terminate_backend"]},
+    {"versions": ["6"], "types": ["SESSION_LOCK"], "names": ["pg_advisory_lock", "pg_advisory_unlock"]},
+    {"versions": ["6"], "types": ["DATA_IMPORT", "UNSAFE"], "names": ["pg_read_file", "pg_read_binary_file", "pg_ls_dir"]},
+    {"versions": ["6"], "types": ["METADATA"], "names": ["current_database", "current_query", "current_schema", "current_schemas", "current_user", "definer_current_user", "get_current_ts_config", "getpgusername", "has_any_column_privilege", "has_any_privilege", "has_cek_privilege", "has_cmk_privilege", "has_column_privilege", "has_database_privilege", "has_directory_privilege", "has_foreign_data_wrapper_privilege", "has_function_privilege", "has_language_privilege", "has_nodegroup_privilege", "has_schema_privilege", "has_server_privilege", "has_table_privilege", "has_tablespace_privilege", "inet_server_addr", "inet_server_port", "pg_current_sessid", "pg_current_sessionid", "pg_current_userid", "pg_describe_object", "pg_get_function_identity_arguments", "pg_get_userbyid", "pg_has_role", "sessionid2pid", "txid_current", "txid_current_snapshot"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["6"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["current_setting"]},
+    {"versions": ["6"], "action": "CONFIGURE", "targetType": "ConfigKey", "targetAction": "CONFIGURE", "unsafe": false, "names": ["set_config"]},
+    {"versions": ["6"], "action": "CONFIGURE", "targetType": "ConfigKey", "targetAction": "CONFIGURE", "unsafe": false, "names": ["pg_reload_conf"]},
+    {"versions": ["6"], "action": "TERMINATE", "targetType": "Session", "targetAction": "TERMINATE", "unsafe": false, "names": ["pg_cancel_backend"]},
+    {"versions": ["6"], "action": "TERMINATE", "targetType": "Session", "targetAction": "TERMINATE", "unsafe": false, "names": ["pg_terminate_backend"]},
+    {"versions": ["6"], "action": "LOCK", "targetType": "Session", "targetAction": "LOCK", "unsafe": false, "names": ["pg_advisory_lock"]},
+    {"versions": ["6"], "action": "UNLOCK", "targetType": "Session", "targetAction": "UNLOCK", "unsafe": false, "names": ["pg_advisory_unlock"]},
+    {"versions": ["6"], "action": "CALL", "targetType": "File", "targetAction": "READ", "unsafe": true, "names": ["pg_read_file"]},
+    {"versions": ["6"], "action": "CALL", "targetType": "File", "targetAction": "READ", "unsafe": true, "names": ["pg_read_binary_file"]},
+    {"versions": ["6"], "action": "CALL", "targetType": "File", "targetAction": "READ", "unsafe": true, "names": ["pg_ls_dir"]}
+  ]
+}

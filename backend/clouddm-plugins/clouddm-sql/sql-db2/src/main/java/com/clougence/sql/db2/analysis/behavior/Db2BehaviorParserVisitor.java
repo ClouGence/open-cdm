@@ -28,6 +28,8 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
+import com.clougence.sql.db2.analysis.reference.Db2ResourceRegistry;
 import com.clougence.sql.db2.parser.antlr.Db2SqlParser;
 import com.clougence.sql.db2.parser.antlr.Db2SqlParserBaseVisitor;
 
@@ -54,6 +56,7 @@ final class Db2BehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     public Void visit(ParseTree tree) {
         Db2StatementBehaviorVisitor visitor = new Db2StatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
         visitor.visit(tree);
+        visitor.scanFunctionCalls(tree);
         behaviors.add(visitor.behavior());
         return null;
     }
@@ -74,6 +77,30 @@ final class Db2StatementBehaviorVisitor extends Db2SqlParserBaseVisitor<Void> {
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    void scanFunctionCalls(ParseTree tree) {
+        if (explain) {
+            return;
+        }
+
+        for (Db2SqlParser.Function_nameContext ctx : descendants(tree, Db2SqlParser.Function_nameContext.class)) {
+            if (!(ctx.getParent() instanceof Db2SqlParser.Function_invocationContext) && !(ctx.getParent() instanceof Db2SqlParser.Table_function_referenceContext)) {
+                continue;
+            }
+
+            var parts = ctx.function_name_part();
+            List<String> names = parts.stream().map(part -> part.getText()).toList();
+            BehaviorObject function = objects.object(TargetType.Function, ctx, names);
+            FunctionBehavior classification = Db2ResourceRegistry.instance().functionBehavior(String.join(".", names), null);
+            for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
+                if (parent instanceof Db2SqlParser.Create_view_statementContext) {
+                    classification = FunctionBehavior.DEFAULT;
+                    break;
+                }
+            }
+            objects.applyFunctionBehavior(behavior, function, classification, ctx);
+        }
     }
 
     @Override

@@ -21,8 +21,10 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
+import com.clougence.clouddm.ds.polardb.sql.porx.analysis.reference.PorXResourceRegistry;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> {
     public static final AbstractParseTreeVisitor<SplitQueryType> INSTANCE = new PorXSplitVisitor();
@@ -292,6 +294,10 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
 
     @Override
     public SplitQueryType visitSimpleSelect(SimpleSelectContext ctx) {
+        SplitQueryType type = functionStatementType(ctx);
+        if (type != null) {
+            return type;
+        }
         return SplitQueryType.SELECT;
     }
 
@@ -575,6 +581,38 @@ public class PorXSplitVisitor extends PolardbXParserBaseVisitor<SplitQueryType> 
     @Override
     public SplitQueryType visitSetVariable(SetVariableContext ctx) {
         return SplitQueryType.SYSTEM_SETTING_WRITE;
+    }
+
+    private boolean hasFunctionArguments(ParseTree tree) {
+        if (tree instanceof FunctionArgContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (hasFunctionArguments(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private SplitQueryType functionStatementType(ParseTree tree) {
+        if (tree instanceof FunctionCallContext function) {
+            FunctionBehavior classification = FunctionBehavior.DEFAULT;
+            if (!(function instanceof UdfFunctionCallContext udf) || udf.customFunctionName().fullId().uid().size() == 1) {
+                classification = PorXResourceRegistry.instance().functionClassification(function.getStart().getText(), hasFunctionArguments(function));
+            }
+
+            if (!classification.statementTypes().isEmpty()) {
+                return classification.statementTypes().iterator().next();
+            }
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            SplitQueryType type = functionStatementType(tree.getChild(i));
+            if (type != null) {
+                return type;
+            }
+        }
+        return null;
     }
 
     public SplitQueryType visitChildren(RuleNode node) {

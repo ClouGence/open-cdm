@@ -28,6 +28,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.polardb.sql.porx.analysis.reference.PorXResourceRegistry;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.PorXSplitAnalysisSpi;
 import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParserBaseVisitor;
@@ -37,6 +38,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 public class PorXBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     @Override
@@ -83,6 +85,7 @@ final class PorXBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     public Void visit(ParseTree tree) {
         PorXStatementBehaviorVisitor visitor = new PorXStatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
         visitor.visit(tree);
+        visitor.scanFunctionCalls(tree);
         behaviors.add(visitor.behavior());
         return null;
     }
@@ -101,6 +104,46 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    @Override
+    public Void visitSimpleSelect(SimpleSelectContext ctx) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN) {
+            behavior.setStatementType(SplitQueryType.SELECT);
+        }
+        return visitChildren(ctx);
+    }
+
+    void scanFunctionCalls(ParseTree tree) {
+        if (behavior.getStatementType() == SplitQueryType.CREATE_PROG_OBJ || behavior.getStatementType() == SplitQueryType.ALTER_PROG_OBJ) {
+            return;
+        }
+
+        boolean deferred = !descendants(tree, FullDescribeStatementContext.class).isEmpty() || !descendants(tree, CreateViewContext.class).isEmpty()
+                           || !descendants(tree, AlterViewContext.class).isEmpty();
+        for (FunctionCallContext ctx : descendants(tree, FunctionCallContext.class)) {
+            BehaviorObject subject;
+            FunctionBehavior classification = FunctionBehavior.DEFAULT;
+            if (ctx instanceof UdfFunctionCallContext udf) {
+                subject = object(TargetType.Function, udf.customFunctionName().fullId());
+                if (udf.customFunctionName().fullId().uid().size() == 1) {
+                    classification = PorXResourceRegistry.instance()
+                        .functionClassification(udf.customFunctionName().getText(), !descendants(ctx, FunctionArgContext.class).isEmpty());
+                }
+            } else {
+                if (ctx instanceof SpecificFunctionCallContext specific
+                    && (specific.specificFunction() instanceof CaseFunctionCallContext || specific.specificFunction() instanceof SpecialTimeCallContext
+                        || specific.specificFunction() instanceof ValuesFunctionCallContext)) {
+                    continue;
+                }
+                subject = objects.object(TargetType.Function, ctx.getStart(), List.of(ctx.getStart().getText()));
+                classification = PorXResourceRegistry.instance().functionClassification(ctx.getStart().getText(), !descendants(ctx, FunctionArgContext.class).isEmpty());
+            }
+            if (deferred) {
+                classification = FunctionBehavior.DEFAULT;
+            }
+            objects.applyFunctionBehavior(behavior, subject, classification, ctx);
+        }
     }
 
     @Override
@@ -147,7 +190,15 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
         if (context == null) {
             return null;
         }
-        List<String> names = context.uid().stream().map(this::text).map(this::unquote).toList();
+        List<String> names = new ArrayList<>();
+        for (UidContext uid : context.uid()) {
+            String name = text(uid);
+            if (type != TargetType.Function) {
+                name = unquote(name);
+            }
+
+            names.add(name);
+        }
         return objects.object(type, context, names);
     }
 

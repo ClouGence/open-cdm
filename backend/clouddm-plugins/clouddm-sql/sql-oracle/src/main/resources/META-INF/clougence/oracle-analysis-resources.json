@@ -1,0 +1,24 @@
+{
+  "description": "oracle function classifications used by split, behavior and authorization.",
+  "sources": ["https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SYS_CONTEXT.html", "https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/UTL_HTTP.html", "https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_LOB.html", "https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/Database-Object-Names-and-Qualifiers.html"],
+  "metadataFunctions": [
+    {"versions": ["11", "12", "18", "19", "21", "23"], "names": ["SYS_CONTEXT", "USERENV"]},
+    {"versions": ["12", "18", "19", "21", "23"], "names": ["ORA_INVOKING_USER", "ORA_INVOKING_USERID"]},
+    {"versions": ["11", "12", "18", "19", "21", "23"], "names": ["SESSIONTIMEZONE", "USER"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["11", "12", "18", "19", "21", "23"], "names": ["UTL_HTTP.REQUEST", "DBMS_LOB.FILEEXISTS"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["11", "12", "18", "19", "21", "23"], "types": ["METADATA"], "names": ["SYS_CONTEXT", "USERENV"]},
+    {"versions": ["11", "12", "18", "19", "21", "23"], "types": ["DATA_IMPORT", "UNSAFE"], "names": ["UTL_HTTP.REQUEST", "DBMS_LOB.FILEEXISTS"]},
+    {"versions": ["12", "18", "19", "21", "23"], "types": ["METADATA"], "names": ["ORA_INVOKING_USER", "ORA_INVOKING_USERID"]},
+    {"versions": ["11", "12", "18", "19", "21", "23"], "types": ["METADATA"], "names": ["SESSIONTIMEZONE", "USER"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["11", "12", "18", "19", "21", "23"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SYS_CONTEXT"]},
+    {"versions": ["11", "12", "18", "19", "21", "23"], "action": "CALL", "targetType": "Session", "targetAction": "READ", "unsafe": false, "names": ["USERENV"]},
+    {"versions": ["11", "12", "18", "19", "21", "23"], "action": "CALL", "targetType": null, "targetAction": null, "unsafe": true, "names": ["UTL_HTTP.REQUEST"]},
+    {"versions": ["11", "12", "18", "19", "21", "23"], "action": "CALL", "targetType": "File", "targetAction": "READ", "unsafe": true, "names": ["DBMS_LOB.FILEEXISTS"]}
+  ]
+}
