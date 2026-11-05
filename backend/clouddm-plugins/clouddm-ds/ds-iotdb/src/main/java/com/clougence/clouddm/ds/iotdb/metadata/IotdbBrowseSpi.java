@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.iotdb.metadata;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.ds.iotdb.i18n.IotdbI18nKeys;
@@ -38,6 +39,28 @@ public class IotdbBrowseSpi implements DsBrowseSpi, DsFeatureIDs {
     public Map<UmiTypes, String> getLeafLabels() {
         I18nUtils i18n = I18nUtils.initI18n(IotdbI18nKeys.class);
         return Map.of(UmiTypes.Device, i18n.getMessage(IotdbI18nKeys.IOTDB_DEVICES), UmiTypes.Timeseries, i18n.getMessage(IotdbI18nKeys.IOTDB_TIMESERIES));
+    }
+
+    @Override
+    public boolean canBrowseLeaf(UmiTypes leafType, String leafName, Set<String> allowedResourceNames) {
+        if (leafType != UmiTypes.Device) {
+            return DsBrowseSpi.super.canBrowseLeaf(leafType, leafName, allowedResourceNames);
+        }
+        for (String path : allowedResourceNames) {
+            boolean quoted = false;
+            for (int i = path.length() - 1; i >= 0; i--) {
+                char ch = path.charAt(i);
+                if (ch == '`') {
+                    quoted = !quoted;
+                } else if (ch == '.' && !quoted) {
+                    if (path.substring(0, i).equals(leafName)) {
+                        return true;
+                    }
+                    break;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
