@@ -23,6 +23,8 @@ import com.clougence.clouddm.ds.iotdb.execute.IotdbSessionFactory;
 import com.clougence.clouddm.ds.iotdb.execute.IotdbSessionSpi;
 import com.clougence.clouddm.ds.iotdb.execute.IotdbSupportSpi;
 import com.clougence.clouddm.ds.iotdb.i18n.IotdbI18nKeys;
+import com.clougence.clouddm.ds.iotdb.metadata.IotdbBrowseSpi;
+import com.clougence.clouddm.ds.iotdb.metadata.IotdbFieldType;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -34,12 +36,13 @@ import com.clougence.sql.iotdb.IotdbSqlEngineSpi;
 
 @Plugin(name = "i18n::" + IotdbI18nKeys.PLUGIN_NAME_IOTDB, display = false, dsProduct = DataSourceType.IoTDB, includePackages = { "com.clougence.clouddm.ds.iotdb.execute.*",
                                                                                                                                   "org.apache.iotdb.*", "org.apache.thrift.*",
-                                                                                                                                  "org.apache.tsfile.*" })
+                                                                                                                                  "org.apache.tsfile.*", "org.antlr.v4.runtime.*" })
 public class IotdbDsPlugin implements DsPlugin, SchemaPlugin {
 
     @Override
     public void init(SchemaBinder binder) {
         binder.initMappingService(DsType.IoTDB);
+        binder.bindTypes(DsType.IoTDB, IotdbFieldType.values(), IotdbFieldType::valueOfCode);
     }
 
     @Override
@@ -53,5 +56,6 @@ public class IotdbDsPlugin implements DsPlugin, SchemaPlugin {
         binder.addPluginSpi(new IotdbSerializationSpi(binder.getPluginClassLoader()));
         binder.addPluginSpi(new IotdbSessionSpi());
         binder.addPluginSpi(new IotdbSupportSpi());
+        binder.addPluginSpi(new IotdbBrowseSpi());
     }
 }

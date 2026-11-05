@@ -22,16 +22,22 @@ import com.clougence.clouddm.ds.iotdb.dsconf.IotdbSqlDialect;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
+import com.clougence.utils.StringUtils;
 
 public class IotdbSessionSpi extends RdbSessionSpi {
 
     @Override
     public SessionContextDTO createSessionContext(DataSourceConfig config, Map<String, Object> params) {
         SessionContextDTO context = super.createSessionContext(config, params);
-        IotdbSqlDialect dialect = IotdbSqlDialect.TREE;
+        String dialectName = null;
         if (params != null) {
-            dialect = IotdbSqlDialect.parse((String) params.get(IotdbSqlDialect.DRIVER_PROPERTY));
+            dialectName = (String) params.get(IotdbSqlDialect.DRIVER_PROPERTY);
         }
+        if (dialectName == null && StringUtils.isNotBlank(context.getRdbCatalog())) {
+            dialectName = context.getRdbCatalog();
+        }
+        IotdbSqlDialect dialect = IotdbSqlDialect.parse(dialectName);
+        context.setRdbCatalog(dialect.name());
         context.setSqlParameters(Map.of(IotdbSqlDialect.DRIVER_PROPERTY, dialect.name()));
         return context;
     }

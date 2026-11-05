@@ -48,6 +48,8 @@ public enum DsMenuType {
     RdbDBLink(UmiTypes.DBLink.getTypeName()),
     RdbJob(UmiTypes.Job.getTypeName()),
     RdbScheduleJob(UmiTypes.ScheduleJob.getTypeName()),
+    Device(UmiTypes.Device.getTypeName()),
+    Timeseries(UmiTypes.Timeseries.getTypeName()),
     RdbParam("RDB_PARAM"),
     RdbParamGroup("RDB_PARAM_GROUP"),
     RdbReturns("RDB_RETURNS"),

@@ -15,10 +15,12 @@
  */
 package com.clougence.clouddm.ds.iotdb.execute;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.clougence.clouddm.ds.iotdb.dsconf.IotdbSqlDialect;
@@ -36,7 +38,6 @@ final class IotdbJdbcSession implements InvocationHandler {
     private final Connection              connection;
     private final Object                  client;
     private final Class<?>                thriftException;
-    private final Closeable               transport;
     private final Method                  getSqlDialect;
     private final AtomicReference<String> disconnectReason = new AtomicReference<>();
 
@@ -46,10 +47,6 @@ final class IotdbJdbcSession implements InvocationHandler {
         Method getClient = type.getMethod("getClient");
         this.client = getClient.invoke(connection);
         this.thriftException = type.getClassLoader().loadClass("org.apache.thrift.TException");
-        // JDBC abort is unsupported. Closing the transport unblocks an RPC before it has a query ID.
-        Field transportField = type.getDeclaredField("transport");
-        transportField.setAccessible(true);
-        this.transport = (Closeable) transportField.get(connection);
         Method dialectMethod;
         try {
             dialectMethod = type.getMethod("getSqlDialect");
@@ -62,6 +59,10 @@ final class IotdbJdbcSession implements InvocationHandler {
         Class<?> clientType = getClient.getReturnType();
         Object guardedClient = Proxy.newProxyInstance(clientType.getClassLoader(), new Class<?>[] { clientType }, this);
         type.getMethod("setClient", clientType).invoke(connection, guardedClient);
+    }
+
+    boolean supportsTableDialect() {
+        return getSqlDialect != null;
     }
 
     IotdbSqlDialect dialect() {
@@ -78,9 +79,9 @@ final class IotdbJdbcSession implements InvocationHandler {
     void disconnect(String reason) {
         if (disconnectReason.compareAndSet(null, reason)) {
             try {
-                transport.close();
-            } catch (IOException e) {
-                log.error("Close IoTDB transport failed", e);
+                connection.close();
+            } catch (SQLException e) {
+                log.error("Force-close IoTDB connection failed", e);
             }
         }
     }
@@ -102,9 +103,10 @@ final class IotdbJdbcSession implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        boolean closingSession = method.getName().equals("closeSession");
         if (isDisconnected()) {
-            // JDBC close() still marks the connection closed after its closeSession call.
-            if (method.getName().equals("closeSession")) {
+            // Skip the RPC on the busy client so JDBC close() can release the local transport immediately.
+            if (closingSession) {
                 return null;
             }
             checkRequest();
@@ -113,7 +115,7 @@ final class IotdbJdbcSession implements InvocationHandler {
             return method.invoke(client, args);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
-            if (thriftException.isInstance(cause)) {
+            if (!closingSession && thriftException.isInstance(cause)) {
                 // Both JDBC versions can reconnect and replay SQL when a Thrift exception escapes.
                 disconnect(IotdbI18nKeys.IOTDB_STATEMENT_RESULT_UNKNOWN);
                 throw ThirdPartyApiException.as().with(cause, disconnectReason.get());
