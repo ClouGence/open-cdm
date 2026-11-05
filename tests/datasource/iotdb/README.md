@@ -22,7 +22,7 @@
 ## 插件注册与驱动准备
 
 - `ds-iotdb` 注册 `DataSourceType.IoTDB`、`DsType.IoTDB`、配置 SPI 和 `IoTDB` 序列化 provider。数据源按现有 JDBC/分析库分类登记，入口暂时隐藏。
-- `sql-iotdb` 随数据源插件包加载，注册唯一的 `IoTDB SQL` 引擎。本步只装配引擎，拆句和行为分析在方言实现前明确拒绝执行。Tree/Table 元数据与方言分别接入后续步骤。
+- `sql-iotdb` 随数据源插件包加载，注册唯一的 `IoTDB SQL` 引擎，通过会话的 `sql_dialect` 选择 Tree 或 Table 解析器。语言服务复用编辑器上下文的模型和数据库。
 - `IoTDB JDBC` 通过 `drivers.xml` 注册 1.3.7 与 2.0.11，默认 1.3.7 对应首个树模型基线。平台 Maven 下载器准备 Apache 发布的 `jar-with-dependencies`，让版本绑定一并加载 Thrift 等运行依赖。离线环境复用已准备的版本目录及其 `files.idx`。
 - 工厂从版本绑定的类加载器取得 JDBC 驱动。连接字段和会话参数见下节。
 
@@ -59,6 +59,18 @@ JDBC 两个超时的定义见 [IoTDB 2.0.11 JDBC 连接实现](https://github.co
 | Table | 用 `SHOW TABLES DETAILS` 区分表与视图，用 `DESCRIBE DETAILS` 读取列顺序、类型和角色。树转表视图保留 `VIEW FROM TREE` 类型、只读属性以及 `SHOW CREATE VIEW` 返回的原生定义。 |
 
 树对象详情和列角色已通过 Sidecar 元数据接口返回。Console 的树对象详情转换、列角色展示和按模型组织对象页签纳入后续页面接入讨论。资源授权阶段需覆盖引用标识符中的路径分隔字符。
+
+## SQL 解析与语言服务
+
+| 模型 | 工作台首批语法 |
+| --- | --- |
+| Tree | `SELECT`、`SELECT LAST`、`ALIGN BY DEVICE`、常用表达式及分页、`INSERT ... VALUES`、按测点及时间条件的 `DELETE FROM`、创建普通或对齐测点、删除测点、基础库 DDL 和 `SHOW`。 |
+| Table | `SELECT`、限定表名、别名、常用连接及子查询、`INSERT ... VALUES/SELECT`、`UPDATE`、`DELETE`、基础库及表 DDL、`DROP VIEW`、`SHOW` 和 `DESCRIBE`。服务端决定可更新的列和可用于删除的条件。 |
+
+- 拆句按当前模型识别注释、字符串和引用标识符，语言服务保留原文及范围。提交 JDBC 前移除脚本分隔符，并以空白替换 Tree 注释以保留 SQL 位置。
+- Tree 行为分析提取投影和条件中的完整测点路径，分别标识删数据和删测点。通配符保留为选择器，资源范围归到已知库或模型。Table 提取真实库表，别名仅用于 SQL 表达式，子查询和 `INSERT ... SELECT` 分别标识读源和写入目标。
+- 语言服务支持语法诊断、模型关键字和当前库缓存中的对象名补全。Tree 支持设备与测点路径，Table 支持表和视图名。列级补全和跨库补全留待后续评估。
+- 脚本内切换模式或库、Tree `SELECT INTO`、表结构变更 `ALTER TABLE`、视图创建及绑定参数超出首批解析范围。语义 AST、SQL 重写、血缘和平台授权单列范围。授权阶段需验证通配符、原生测点别名、视图、跨库和特殊字符路径的归属。
 
 ## 样本准备和清理
 

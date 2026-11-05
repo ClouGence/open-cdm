@@ -28,9 +28,9 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 public class IotdbSqlEngineSpi implements SqlEngineSpi {
 
-    public static final String  NAME                 = "IoTDB SQL";
+    public static final String NAME        = "IoTDB SQL";
 
-    private static final String ANALYSIS_UNAVAILABLE = "IoTDB SQL analysis is not available";
+    static final String        SQL_DIALECT = "sql_dialect";
 
     @Override
     public String name() {
@@ -39,21 +39,27 @@ public class IotdbSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        return (reader, args, line, column) -> {
-            throw ThirdPartyApiException.as().with(new UnsupportedOperationException(ANALYSIS_UNAVAILABLE));
-        };
+        return new IotdbSplitAnalysisSpi(provider(SqlParserParameters.nullToEmpty(parameters).get(SQL_DIALECT)));
     }
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return (reader, levels, line, column) -> {
-            throw ThirdPartyApiException.as().with(new UnsupportedOperationException(ANALYSIS_UNAVAILABLE));
-        };
+        return new IotdbBehaviorAnalysisSpi(provider(SqlParserParameters.nullToEmpty(parameters).get(SQL_DIALECT)));
     }
 
     @Override
     public DslProvider dslProvider(SqlParserParameters parameters) {
-        return null;
+        return provider(SqlParserParameters.nullToEmpty(parameters).get(SQL_DIALECT));
+    }
+
+    static IotdbDslProvider provider(String model) {
+        if (model == null || model.isBlank() || model.equalsIgnoreCase("TREE")) {
+            return IotdbDslProvider.TREE;
+        }
+        if (model.equalsIgnoreCase("TABLE")) {
+            return IotdbDslProvider.TABLE;
+        }
+        throw ThirdPartyApiException.as().with("Invalid IoTDB SQL model");
     }
 
     @Override
