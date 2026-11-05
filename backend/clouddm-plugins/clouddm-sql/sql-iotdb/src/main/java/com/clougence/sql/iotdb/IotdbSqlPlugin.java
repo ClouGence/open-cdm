@@ -25,6 +25,7 @@ public class IotdbSqlPlugin implements DsPlugin {
 
     @Override
     public void loadPlugin(DsPluginBinder binder) {
+        binder.bindPluginI18n(IotdbSqlI18nKeys.class);
         binder.addGlobalSpi(new IotdbSqlEngineSpi());
     }
 }

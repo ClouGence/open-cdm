@@ -28,7 +28,7 @@ import com.clougence.schema.umi.struts.UmiTypes;
 
 public class KafkaQueryResourceResolver implements QueryResourceResolver {
     @Override
-    public void resolve(QueryRequest request, Function<UmiTypes, List<String>> objectNames, Predicate<BehaviorRelation> permitted) {
+    public void resolve(QueryRequest request, Function<UmiTypes, List<String>> objectNames, Predicate<BehaviorRelation> permitted, QueryResourceContext context) {
         if (request.getResolvedResources() != null) {
             return;
         }

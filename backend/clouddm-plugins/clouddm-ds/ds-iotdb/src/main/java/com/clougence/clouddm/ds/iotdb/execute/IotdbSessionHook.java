@@ -16,8 +16,10 @@
 package com.clougence.clouddm.ds.iotdb.execute;
 
 import java.sql.*;
+import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.ds.iotdb.dsconf.IotdbSqlDialect;
 import com.clougence.clouddm.ds.iotdb.i18n.IotdbI18nKeys;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
@@ -27,6 +29,11 @@ import com.clougence.clouddm.sdk.execute.session.SessionHook;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.schema.umi.special.rdb.RdbTable;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.schema.umi.struts.Value;
 
 final class IotdbSessionHook implements SessionHook {
 
@@ -126,6 +133,9 @@ final class IotdbSessionHook implements SessionHook {
         if (query.isUseCallable() || (query.getQueryArgs() != null && !query.getQueryArgs().isEmpty())) {
             throw unsupported("statement arguments");
         }
+        if (query.getRequester() == Requester.CONSOLE) {
+            verifyQueryScope(conn, query);
+        }
         Statement statement = conn.createStatement();
         long pageSize = query.getResultConf().getFetchPageSize();
         if (pageSize > 0) {
@@ -141,6 +151,51 @@ final class IotdbSessionHook implements SessionHook {
             }
         }
         return statement;
+    }
+
+    private void verifyQueryScope(Connection conn, QueryRequest query) throws SQLException {
+        var scope = query.getResolvedResources();
+        IotdbSqlDialect model = jdbc.dialect();
+        if (scope == null || !List.of(model.name()).equals(scope.get(TargetType.Catalog))) {
+            throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_QUERY_SCOPE_MISMATCH);
+        }
+        if (model == IotdbSqlDialect.TABLE) {
+            String database = conn.getSchema();
+            List<String> actual = List.of();
+            if (database != null && !database.isBlank()) {
+                actual = List.of(database);
+            }
+            if (!actual.equals(scope.getOrDefault(TargetType.Schema, List.of()))) {
+                throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_QUERY_SCOPE_MISMATCH);
+            }
+        }
+        // Recheck team targets on the execution connection in case they changed while the request was queued.
+        for (TargetType type : List.of(TargetType.Table, TargetType.Timeseries)) {
+            for (String path : scope.getOrDefault(type, List.of())) {
+                String[] parts = path.split("/");
+                if (parts.length != 4 || !model.name().equals(parts[1])) {
+                    throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_QUERY_SCOPE_MISMATCH);
+                }
+                verifyBaseObject(conn, model, parts[2], parts[3]);
+            }
+        }
+    }
+
+    private void verifyBaseObject(Connection conn, IotdbSqlDialect model, String database, String name) throws SQLException {
+        try (Statement statement = conn.createStatement()) {
+            Value value;
+            boolean base;
+            if (model == IotdbSqlDialect.TREE) {
+                value = IotdbTreeMetadata.detail(statement, database, UmiTypes.Timeseries, name);
+                base = value != null && name.equals(value.asValue()) && "BASE".equals(value.getAttributes().get("viewtype"));
+            } else {
+                value = IotdbTableMetadata.detail(statement, database, null, name);
+                base = value instanceof RdbTable table && table.getUmiType() == UmiTypes.Table && name.equals(table.getName()) && "BASE TABLE".equals(table.getTableType());
+            }
+            if (!base) {
+                throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_QUERY_SCOPE_MISMATCH);
+            }
+        }
     }
 
     @Override

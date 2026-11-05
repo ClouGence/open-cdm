@@ -20,6 +20,7 @@ import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.QueryResourceResolver;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -45,6 +46,11 @@ public class IotdbSqlEngineSpi implements SqlEngineSpi {
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
         return new IotdbBehaviorAnalysisSpi(provider(SqlParserParameters.nullToEmpty(parameters).get(SQL_DIALECT)));
+    }
+
+    @Override
+    public QueryResourceResolver queryResourceResolver() {
+        return new IotdbQueryResourceResolver();
     }
 
     @Override
