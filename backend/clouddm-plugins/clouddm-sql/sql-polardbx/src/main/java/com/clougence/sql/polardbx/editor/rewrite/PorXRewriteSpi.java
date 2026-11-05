@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.polardb.sql.porx.editor.rewrite;
+package com.clougence.sql.polardbx.editor.rewrite;
 
 import java.io.StringReader;
 import java.util.List;
@@ -23,8 +23,8 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.PolarXDslProvider;
-import com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr.PolardbXParser;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.DslHelper;
@@ -51,6 +51,11 @@ public class PorXRewriteSpi implements RewriteSpi {
 
     private boolean rewriterLimit(TokenStreamRewriter rewriter, ParseTree astTree, long maxLimit) {
         PolardbXParser.DmlStatementContext dmlStat = ((PolardbXParser.SqlStatementContext) astTree).dmlStatement();
+        // EXPLAIN ANALYZE and TRACE can be classified as SELECT without a top-level DML node.
+        // Preserve their SQL body so pagination does not change the plan or traced execution.
+        if (dmlStat == null) {
+            return false;
+        }
         if (dmlStat.selectStatement() != null) {
             PolardbXParser.SelectStatementContext s = dmlStat.selectStatement();
             if (s instanceof PolardbXParser.SimpleSelectContext) {

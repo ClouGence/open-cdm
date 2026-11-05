@@ -98,10 +98,14 @@ administrationStatement
     | cacheIndexStatement | flushStatement | killStatement
     | loadIndexIntoCache | resetStatement
     | shutdownStatement | dropRole
+    | clearStatement | resizeProcedureCache | reloadProcedures
+    | checkGlobalIndex | inspectIndex | ddlJobControl | rebalanceJobControl
+    | createCclRule | dropCclRule | clearCclRules | slowSqlCcl
     ;
 
 utilityStatement
     : simpleDescribeStatement | fullDescribeStatement
+    | explainAnalyzeStatement | polardbxExplainStatement | traceStatement | baselineStatement
     | helpStatement | useStatement | signalStatement
     | resignalStatement | diagnosticsStatement
     ;
@@ -172,7 +176,7 @@ createFunction
     ;
 
 createRole
-    : CREATE ROLE (IF NOT EXISTS)? roleName
+    : CREATE ROLE (IF NOT EXISTS)? roleName (',' roleName)*
     ;
 
 createServer
@@ -1182,6 +1186,7 @@ transactionMode
     : WITH CONSISTENT SNAPSHOT
     | READ WRITE
     | READ ONLY
+    | ISOLATION LEVEL (REPEATABLE READ | READ COMMITTED)
     ;
 
 lockTableElement
@@ -1484,6 +1489,14 @@ alterUser
         )?
         (WITH userResourceOption+)?
         (userPasswordOption | userLockOption)*                      #alterUserMysqlV57
+    | ALTER USER userName readStrategyOption                        #alterUserReadStrategy
+    ;
+
+// Cloud account options remain contextual identifiers outside this clause.
+readStrategyOption
+    : {"READ_STRATEGY".equalsIgnoreCase(_input.LT(1).getText())}? ID
+      (NONE | {"FOLLOWER".equalsIgnoreCase(_input.LT(1).getText())
+                || "STALE".equalsIgnoreCase(_input.LT(1).getText())}? ID)
     ;
 
 createUser
@@ -1657,9 +1670,60 @@ renameUserClause
     : fromFirst=userName TO toFirst=userName
     ;
 
+// PolarDB-X maintenance operates on indexes and tasks, not transaction state.
+checkGlobalIndex
+    : CHECK GLOBAL INDEX uid (ON tableName)? (SHOW | CORRECTION_BASED_ON_PRIMARY)?
+    ;
+
+inspectIndex
+    : INSPECT FULL? INDEX (FROM tableName)? (MODE '=' (STATIC | DYNAMIC | MIXED))?
+    ;
+
+ddlJobControl
+    : (PAUSE | CONTINUE | CANCEL | ROLLBACK) DDL unsignedInteger asyncOption?
+    ;
+
+rebalanceJobControl
+    : (PAUSE | CONTINUE | CANCEL) REBALANCE unsignedInteger asyncOption?
+    ;
+
+asyncOption
+    : ASYNC '=' TRUE
+    ;
+
+unsignedInteger
+    : DECIMAL_LITERAL | ZERO_DECIMAL | ONE_DECIMAL | TWO_DECIMAL
+    ;
+
+createCclRule
+    : CREATE CCL_RULE ifNotExists? uid
+      ON (uid | '*') '.' (uid | '*') TO userName
+      FOR (SELECT | UPDATE | INSERT | DELETE)
+      (FILTER BY KEYWORD '(' STRING_LITERAL (',' STRING_LITERAL)* ')')?
+      (FILTER BY TEMPLATE '(' STRING_LITERAL ')')?
+      WITH cclRuleOption (',' cclRuleOption)*
+    ;
+
+cclRuleOption
+    : (MAX_CONCURRENCY | WAIT_QUEUE_SIZE | WAIT_TIMEOUT) '=' unsignedInteger
+    | FAST_MATCH '=' (ZERO_DECIMAL | ONE_DECIMAL)
+    ;
+
+dropCclRule
+    : DROP CCL_RULE ifExists? uid (',' uid)*
+    ;
+
+clearCclRules
+    : CLEAR CCL_RULES
+    ;
+
+slowSqlCcl
+    : SLOW_SQL_CCL (GO (STRING_LITERAL (unsignedInteger (unsignedInteger unsignedInteger?)?)?)? | SHOW | BACK)
+    ;
+
 analyzeTable
     : ANALYZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-       TABLE tables
+       TABLE tables asyncOption?
     ;
 
 checkTable
@@ -1672,7 +1736,7 @@ checksumTable
 
 optimizeTable
     : OPTIMIZE actionOption=(NO_WRITE_TO_BINLOG | LOCAL)?
-      (TABLE | TABLES) tables
+      (TABLE | TABLES) tables asyncOption?
     ;
 
 repairTable
@@ -1705,6 +1769,10 @@ setStatement
     | SET (CHARACTER SET | CHARSET) (charsetName | DEFAULT)         #setCharset
     | SET NAMES
         (charsetName (COLLATE collationName)? | DEFAULT)            #setNames
+    | SET ROLE (DEFAULT | NONE | ALL (EXCEPT roleName (',' roleName)*)?
+      | roleName (',' roleName)*)                                   #setRole
+    | SET DEFAULT ROLE (NONE | ALL | roleName (',' roleName)*)
+      TO userName (',' userName)*                                  #setDefaultRole
     | setPasswordStatement                                          #setPassword
     | setTransactionStatement                                       #setTransaction
     | setAutocommitStatement                                        #setAutocommit
@@ -1713,10 +1781,12 @@ setStatement
     ;
 
 showStatement
-    : SHOW logFormat=(BINARY | MASTER) LOGS                         #showMasterLogs
-    | SHOW CHARSET (LIKE STRING_LITERAL)?                           #showCharset
-    | SHOW logFormat=(BINLOG | RELAYLOG)
-      EVENTS (IN filename=STRING_LITERAL)?
+    : SHOW (FULL? logFormat=BINARY LOGS (WITH streamName=STRING_LITERAL)?
+      | logFormat=MASTER LOGS)                                     #showMasterLogs
+    | SHOW CHARSET showFilter?                                      #showCharset
+    | SHOW (logFormat=BINLOG EVENTS (WITH streamName=STRING_LITERAL)?
+      | logFormat=RELAYLOG EVENTS)
+        (IN filename=STRING_LITERAL)?
         (FROM fromPosition=decimalLiteral)?
         (LIMIT
           (offset=decimalLiteral ',')?
@@ -1740,10 +1810,28 @@ showStatement
     | SHOW CREATE USER userName                                     #showCreateUser
     | SHOW ENGINE engineName engineOption=(STATUS | MUTEX)          #showEngine
     | SHOW STORAGE? ENGINES                                         #showEngines
-    | SHOW MASTER STATUS                                            #showStatus
+    | SHOW FULL? MASTER STATUS (WITH streamName=STRING_LITERAL)?     #showStatus
     | SHOW PLUGINS                                                  #showPlugins
     | SHOW PRIVILEGES                                               #showPrivileges
-    | SHOW FULL? PROCESSLIST                                        #showProcessList
+    | SHOW (FULL? PROCESSLIST
+      | FULL? PHYSICAL_PROCESSLIST
+      | PHYSICAL FULL? PROCESSLIST)
+      (WHERE expression)?                                          #showProcessList
+    | SHOW FULL? (SLOW | PHYSICAL_SLOW)
+      (WHERE expression)?
+      (LIMIT (offset=decimalLiteral ',')? rowCount=decimalLiteral)?  #showSlow
+    | SHOW PROCEDURE CACHE                                          #showProcedureCache
+    | SHOW (FULL? DDL | DDL RESULT)                                  #showDdl
+    | SHOW FULL? RULE (FROM tableName)?                              #showRule
+    | SHOW TOPOLOGY FROM tableName orderByClause?                    #showTopology
+    | SHOW PARTITIONS FROM tableName                                #showPartitions
+    | SHOW BROADCASTS                                               #showBroadcasts
+    | SHOW TABLEGROUP (WHERE expression)?                           #showTablegroup
+    | SHOW (DATASOURCES | NODE)                                     #showDistributedStatus
+    | SHOW (CCL_RULE uid (',' uid)* | CCL_RULES)                      #showCclRules
+    | SHOW TRACE ('(' expressions ')')? (WHERE expression)?
+      orderByClause? limitClause?                                   #showTrace
+    | SHOW HELP                                                     #showHelp
     | SHOW PROFILES                                                 #showProfiles
     | SHOW SLAVE HOSTS                                              #showSlaveHosts
     | SHOW AUTHORS                                                  #showAuthros
@@ -1757,7 +1845,11 @@ showStatement
     | SHOW showSchemaEntity
         (schemaFormat=(FROM | IN) uid)? showFilter?                 #showSchemaFilter
     | SHOW routine=(FUNCTION | PROCEDURE) CODE fullId               #showRoutine
-    | SHOW GRANTS (FOR (userName|CURRENT_USER ('(' ')')?))?         #showGrants
+    | SHOW GRANTS
+      (FOR (userName | CURRENT_USER ('(' ')')?)
+        (USING roleName (',' roleName)*)?)?                        #showGrants
+    | SHOW {"ROUTING_RULES".equalsIgnoreCase(_input.LT(1).getText())}? ID
+      (WHERE expression)?                                          #showRoutingRules
     | SHOW indexFormat=(INDEX | INDEXES | KEYS)
       tableFormat=(FROM | IN) tableName
         (schemaFormat=(FROM | IN) uid)? (WHERE expression)?         #showIndexes
@@ -1819,8 +1911,22 @@ flushStatement
     ;
 
 killStatement
-    : KILL connectionFormat=(CONNECTION | QUERY)?
-      decimalLiteral+
+    : KILL (connectionFormat=(CONNECTION | QUERY)? decimalLiteral | STRING_LITERAL)
+    ;
+
+// Command words are also listed in keywordsCanBeId to preserve ordinary identifiers.
+clearStatement
+    : CLEAR SLOW                                                    #clearSlow
+    | CLEAR PLANCACHE                                               #clearPlanCache
+    | CLEAR PROCEDURE CACHE                                         #clearProcedureCache
+    ;
+
+resizeProcedureCache
+    : RESIZE PROCEDURE CACHE decimalLiteral
+    ;
+
+reloadProcedures
+    : RELOAD PROCEDURES
     ;
 
 loadIndexIntoCache
@@ -1864,6 +1970,33 @@ loadedTableIndexes
       ( PARTITION '(' (partitionList=uidList | ALL) ')' )?
       ( indexFormat=(INDEX | KEY)? '(' indexList=uidList ')' )?
       (IGNORE LEAVES)?
+    ;
+
+// Plan-only wrappers are distinct from commands that execute the SQL body.
+polardbxExplainStatement
+    : EXPLAIN (LOGICALVIEW | LOGIC | SIMPLE | DETAIL | EXECUTE | PHYSICAL
+      | OPTIMIZER | SHARDING | COST | BASELINE | JSON_PLAN) describeObjectClause
+    ;
+
+explainAnalyzeStatement
+    : EXPLAIN ANALYZE selectStatement
+    ;
+
+traceStatement
+    : TRACE (selectStatement | withSelectStatement | insertStatement
+      | updateStatement | deleteStatement | replaceStatement)
+    ;
+
+baselineStatement
+    : BASELINE LIST (signedBaselineId (',' signedBaselineId)*)?
+    | BASELINE HELP
+    | BASELINE (ADD | FIX) SQL selectStatement
+    | BASELINE (LOAD | PERSIST | CLEAR | DELETE) (signedBaselineId (',' signedBaselineId)*)?
+    | BASELINE DELETE_PLAN signedBaselineId ',' signedBaselineId (',' signedBaselineId)*
+    ;
+
+signedBaselineId
+    : ('+' | '-')? unsignedInteger
     ;
 
 simpleDescribeStatement
@@ -1963,7 +2096,7 @@ customFunctionName
     ;
 
 roleName
-    : uid | STRING_LITERAL
+    : (uid | STRING_LITERAL) (host=LOCAL_ID)?
     ;
 
 fullColumnName
@@ -1976,7 +2109,18 @@ indexColumnName
     ;
 
 userName
-    : user=(STRING_LITERAL | ID | REVERSE_QUOTE_ID)  (host= LOCAL_ID)?;
+    : user=(STRING_LITERAL | ID | REVERSE_QUOTE_ID
+      | CORRECTION_BASED_ON_PRIMARY | INSPECT | STATIC | MIXED
+      | DDL | RESULT | PAUSE | CANCEL
+      | REBALANCE | ASYNC | RULE | TOPOLOGY
+      | BROADCASTS | TABLEGROUP | DATASOURCES | NODE
+      | CCL_RULE | CCL_RULES | KEYWORD | TEMPLATE
+      | MAX_CONCURRENCY | WAIT_QUEUE_SIZE | WAIT_TIMEOUT | FAST_MATCH
+      | SLOW_SQL_CCL | GO | BACK
+      | LOGICALVIEW | LOGIC | DETAIL | OPTIMIZER
+      | COST | BASELINE | JSON_PLAN | TRACE
+      | FIX | DELETE_PLAN | PLANCACHE
+    )  (host= LOCAL_ID)?;
 
 mysqlVariable
     : LOCAL_ID
@@ -2584,6 +2728,18 @@ keywordsCanBeId
     | UNDO_BUFFER_SIZE | UNINSTALL | UNKNOWN | UNTIL | UPGRADE | USER | USE_FRM | USER_RESOURCES
     | VALIDATION | VALUE | VAR_POP | VAR_SAMP | VARIABLES | VARIANCE | VERSION_TOKEN_ADMIN | VIEW | WAIT | WARNINGS | WITHOUT
     | WORK | WRAPPER | X509 | XA | XA_RECOVER_ADMIN | XML
+    // PolarDB-X non-reserved command words
+    | CLEAR | RESIZE | PROCEDURES | PHYSICAL | PHYSICAL_PROCESSLIST | PHYSICAL_SLOW
+    | CORRECTION_BASED_ON_PRIMARY | INSPECT | STATIC | MIXED
+    | DDL | RESULT | PAUSE | CANCEL
+    | REBALANCE | ASYNC | RULE | TOPOLOGY
+    | BROADCASTS | TABLEGROUP | DATASOURCES | NODE
+    | CCL_RULE | CCL_RULES | KEYWORD | TEMPLATE
+    | MAX_CONCURRENCY | WAIT_QUEUE_SIZE | WAIT_TIMEOUT | FAST_MATCH
+    | SLOW_SQL_CCL | GO | BACK
+    | LOGICALVIEW | LOGIC | DETAIL | OPTIMIZER
+    | COST | BASELINE | JSON_PLAN | TRACE
+    | FIX | DELETE_PLAN | PLANCACHE
     // MariaDB
     | VIA | LASTVAL | NEXTVAL | SETVAL | PREVIOUS | PERSISTENT | REPLICATION_MASTER_ADMIN | REPLICA | READ_ONLY_ADMIN | FEDERATED_ADMIN | BINLOG_MONITOR | BINLOG_REPLAY
     ;

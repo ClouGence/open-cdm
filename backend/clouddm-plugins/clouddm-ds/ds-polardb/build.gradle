@@ -16,14 +16,11 @@
 
 plugins {
     id 'com.clougence.plugin-conventions'
-    id 'antlr'
 }
 
 dependencies {
-    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
-
     // project
-    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
+    implementation project(':sql-polardbx')
     implementation project(':dsc-common-mysql')
     implementation project(':dsc-common-postgres')
 
@@ -41,7 +38,3 @@ dependencies {
 }
 
 description = 'ds-polardb'
-
-tasks.named('generateGrammarSource') {
-    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr']
-}
