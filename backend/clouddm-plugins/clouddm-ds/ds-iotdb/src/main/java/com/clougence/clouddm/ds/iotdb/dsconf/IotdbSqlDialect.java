@@ -15,10 +15,26 @@
  */
 package com.clougence.clouddm.ds.iotdb.dsconf;
 
+import java.util.Locale;
+
+import com.clougence.clouddm.ds.iotdb.i18n.IotdbI18nKeys;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+
 public enum IotdbSqlDialect {
 
     TREE,
     TABLE;
 
     public static final String DRIVER_PROPERTY = "sql_dialect";
+
+    public static IotdbSqlDialect parse(String value) {
+        if (value == null) {
+            return TREE;
+        }
+        try {
+            return valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_DIALECT_INVALID);
+        }
+    }
 }

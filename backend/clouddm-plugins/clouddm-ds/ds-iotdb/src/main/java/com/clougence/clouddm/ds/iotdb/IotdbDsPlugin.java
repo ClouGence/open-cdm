@@ -19,6 +19,9 @@ package com.clougence.clouddm.ds.iotdb;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.iotdb.dsconf.IotdbConfigSpi;
 import com.clougence.clouddm.ds.iotdb.dsconf.IotdbSerializationSpi;
+import com.clougence.clouddm.ds.iotdb.execute.IotdbSessionFactory;
+import com.clougence.clouddm.ds.iotdb.execute.IotdbSessionSpi;
+import com.clougence.clouddm.ds.iotdb.execute.IotdbSupportSpi;
 import com.clougence.clouddm.ds.iotdb.i18n.IotdbI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -45,7 +48,10 @@ public class IotdbDsPlugin implements DsPlugin, SchemaPlugin {
         binder.bindPluginI18n(IotdbI18nKeys.class);
         binder.bindDsDriverFamily("IoTDB JDBC");
         binder.bindSqlEngine(IotdbSqlEngineSpi.NAME);
+        binder.bindDsSessionFactory(IotdbSessionFactory.class);
         binder.addPluginSpi(new IotdbConfigSpi());
         binder.addPluginSpi(new IotdbSerializationSpi(binder.getPluginClassLoader()));
+        binder.addPluginSpi(new IotdbSessionSpi());
+        binder.addPluginSpi(new IotdbSupportSpi());
     }
 }

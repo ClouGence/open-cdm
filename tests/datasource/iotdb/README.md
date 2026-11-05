@@ -40,6 +40,16 @@
 
 JDBC 两个超时的定义见 [IoTDB 2.0.11 JDBC 连接实现](https://github.com/apache/iotdb/blob/v2.0.11/iotdb-client/jdbc/src/main/java/org/apache/iotdb/jdbc/IoTDBConnection.java#L78)。
 
+## 会话与执行
+
+| 行为 | 当前约定 |
+| --- | --- |
+| 模式与库 | 会话通过 `sqlParameters.sql_dialect` 选择模式，缺省为 `TREE`。Table 用 `rdbSchema` 保存当前库，执行 `USE` 后更新会话状态。显式重开时用该状态恢复模式和库。 |
+| 执行和取数 | 复用 JDBC 结果读取与分页，JDBC fetch size 以页面取数配置为提示，服务端决定每个实际批次。SQL 投影的重复列名需要不同别名。 |
+| 事务与更新计数 | 会话以立即提交模式执行，禁用事务控制、隔离级别切换和只读切换。成功写入沿用 JDBC 的 `-1`，表示无影响行数。 |
+| 超时与取消 | 查询超时传给 JDBC，并作为客户端执行截止时间。套接字超时、达到客户端截止时间或取消请求时，释放目标 JDBC 连接和资源配额。取消通过断开目标连接实现，页面后续执行需要显式重开会话。 |
+| 丢失响应 | JDBC 收到通信异常时，IoTDB 插件阻止驱动通过重连再次提交 SQL。Sidecar 保留逻辑会话以返回结果未知的错误，用户可先通过独立会话核查实际写入状态。 |
+
 ## 样本准备和清理
 
 从能够访问远端容器 RPC 端口的机器连接，先用 `SHOW VERSION` 回读版本，再选用对应版本的 `org.apache.iotdb:iotdb-jdbc`。2.x 的表会话指定 `sql_dialect=table`。管理员用于准备样本，后续验证使用作用域受限的维护账号和低权限账号。

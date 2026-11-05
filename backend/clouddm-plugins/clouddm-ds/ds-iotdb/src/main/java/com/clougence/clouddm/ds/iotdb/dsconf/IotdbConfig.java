@@ -31,16 +31,18 @@ import lombok.Setter;
 
 @Serialization(provider = IotdbSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IotdbConfig extends DataSourceConfig {
+public class IotdbConfig extends DataSourceConfig implements Cloneable {
 
-    static final String      NETWORK_TIMEOUT_FIELD      = "networkTimeoutMs";
-    private static final int DEFAULT_NETWORK_TIMEOUT_MS = 5000;
+    static final String               NETWORK_TIMEOUT_FIELD      = "networkTimeoutMs";
+    private static final int          DEFAULT_NETWORK_TIMEOUT_MS = 5000;
 
     @Getter
     @Setter
     @ConfigDef(name = NETWORK_TIMEOUT_FIELD, defaultValue = ""
                                                             + DEFAULT_NETWORK_TIMEOUT_MS, group = DsConfigGroup.ADVANCED, labelKey = IotdbI18nKeys.IOTDB_NETWORK_TIMEOUT_LABEL, descKey = IotdbI18nKeys.IOTDB_NETWORK_TIMEOUT_DESC, readOnly = false)
-    private int              networkTimeoutMs           = DEFAULT_NETWORK_TIMEOUT_MS;
+    private int                       networkTimeoutMs           = DEFAULT_NETWORK_TIMEOUT_MS;
+    private transient IotdbSqlDialect sessionDialect             = IotdbSqlDialect.TREE;
+    private transient String          sessionDatabase;
 
     public IotdbConfig(){
         setDataSourceType(DataSourceType.IoTDB);
@@ -48,7 +50,18 @@ public class IotdbConfig extends DataSourceConfig {
 
     @Override
     public Properties asDriverProperties() {
-        return asDriverProperties(IotdbSqlDialect.TREE, null);
+        return asDriverProperties(sessionDialect, sessionDatabase);
+    }
+
+    public IotdbConfig forSession(IotdbSqlDialect dialect, String database) {
+        try {
+            IotdbConfig config = (IotdbConfig) super.clone();
+            config.sessionDialect = dialect;
+            config.sessionDatabase = database;
+            return config;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 
     public Properties asDriverProperties(IotdbSqlDialect dialect, String database) {

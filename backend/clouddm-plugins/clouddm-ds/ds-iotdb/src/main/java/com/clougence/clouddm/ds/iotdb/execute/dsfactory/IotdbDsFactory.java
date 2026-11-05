@@ -18,7 +18,6 @@ package com.clougence.clouddm.ds.iotdb.execute.dsfactory;
 
 import java.net.URI;
 import java.sql.*;
-import java.util.Locale;
 import java.util.Properties;
 
 import com.clougence.clouddm.ds.iotdb.dsconf.IotdbConfig;
@@ -39,13 +38,7 @@ public class IotdbDsFactory implements DsFactory<Connection> {
     @Override
     public DsObject<Connection> create(Properties dsConfig) {
         String jdbcUrl = buildJdbcUrl(dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey(), ""));
-        IotdbSqlDialect dialect;
-        try {
-            String value = dsConfig.getProperty(IotdbSqlDialect.DRIVER_PROPERTY, IotdbSqlDialect.TREE.name());
-            dialect = IotdbSqlDialect.valueOf(value.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException e) {
-            throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_DIALECT_INVALID);
-        }
+        IotdbSqlDialect dialect = IotdbSqlDialect.parse(dsConfig.getProperty(IotdbSqlDialect.DRIVER_PROPERTY));
         String database = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         if (dialect == IotdbSqlDialect.TREE && StringUtils.isNotBlank(database)) {
             throw ThirdPartyApiException.as().with(IotdbI18nKeys.IOTDB_TABLE_DATABASE_ONLY);
