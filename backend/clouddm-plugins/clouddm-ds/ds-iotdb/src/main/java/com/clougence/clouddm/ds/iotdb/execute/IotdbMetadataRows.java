@@ -58,6 +58,13 @@ final class IotdbMetadataRows {
     static DsElement element(UmiTypes type, String name, IotdbSqlDialect model, Map<String, String> row) {
         Map<String, Object> attributes = new LinkedHashMap<>(row);
         attributes.put("model", model.name());
+        if (type == UmiTypes.Catalog || type == UmiTypes.Schema) {
+            if (model == IotdbSqlDialect.TREE) {
+                attributes.put("leafTypes", List.of("DEVICE", "TIMESERIES"));
+            } else {
+                attributes.put("leafTypes", List.of("TABLE", "VIEW"));
+            }
+        }
         if (type == UmiTypes.Timeseries) {
             attributes.put("quickQuery", "SELECT " + row.get("name") + " FROM " + row.get("device") + " LIMIT 20;");
         } else if (type == UmiTypes.Device) {

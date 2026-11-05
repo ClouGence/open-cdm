@@ -4667,5 +4667,10 @@
   "approval-team-empty-reason": "Unavailable: the team has no members",
   "approval-team-unavailable-reason": "Unavailable: {count} members are disabled, deleted, or have no work order permissions",
   "approval-team-approve-reason": "Unavailable: work order approval permission is missing for {members}",
-  "approval-team-execute-reason": "Unavailable: work order execution permission is missing for {members}"
+  "approval-team-execute-reason": "Unavailable: work order execution permission is missing for {members}",
+  "timeseries-permissions": "Timeseries permissions",
+  "object-browser-search-device-placeholder": "Search devices",
+  "object-browser-search-timeseries-placeholder": "Search full timeseries paths",
+  "object-browser-read-only": "Read only",
+  "permission-target-unavailable": "The requested resource is unavailable. Refresh the resource tree and select it again."
 }

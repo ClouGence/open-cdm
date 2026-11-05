@@ -1496,6 +1496,8 @@ export default {
     objectSearchPlaceholder() {
       const placeholderKeyMap = {
         TABLE: 'object-browser-search-table-placeholder',
+        DEVICE: 'object-browser-search-device-placeholder',
+        TIMESERIES: 'object-browser-search-timeseries-placeholder',
         VIEW: 'object-browser-search-view-placeholder',
         PROC: 'object-browser-search-procedure-placeholder',
         FUNC: 'object-browser-search-function-placeholder',
@@ -2503,10 +2505,17 @@ export default {
       if (objAttr && objAttr.rdb_tips) {
         tooltipText = `${tooltipText} ${objAttr.rdb_tips}`;
       }
+      if (objAttr?.readOnly === 'true') {
+        tooltipText = `${tooltipText} · ${this.$t('object-browser-read-only')}`;
+      }
+      if (objAttr?.datatype) {
+        tooltipText = `${tooltipText} (${objAttr.datatype})`;
+      }
 
       return (
         <div class='node' key={title}>
           {icon && <cc-svg-icon name={icon} />}
+          {objAttr?.readOnly === 'true' && <Icon type='ios-lock-outline' title={this.$t('object-browser-read-only')} />}
           {objAttr && objAttr.rdb_disabled === 'true' && <Icon type={'md-close-circle'} color='red' title='禁用' />}
           {objAttr && objAttr.rdb_invalid === 'true' && <Icon type={'md-close-circle'} color='red' title='编译未通过' />}
           <TreeNodeLabel
@@ -2956,7 +2965,7 @@ export default {
           this.copyText(this.selectedNode.objName || this.selectedNode.title);
           break;
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PERMISSIONS:
-          this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
+          this.browseApplyPermissions(node, tableNode && this.getRootNode(tableNode));
           break;
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_FAKER:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_TABLE_FAKER_INCREMENT:
@@ -3090,6 +3099,10 @@ export default {
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_INDEX_REFRESH:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PARTITION_REFRESH:
         case TABLE_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PRIMARY_REFRESH:
+          if (tableNode?.isRoot && tableNode.isLeaf) {
+            await this.listLeaf(true);
+            break;
+          }
           const refreshCache = true;
           this.rdbObjectDetail(
             this.currentTab.selectedTable.title,

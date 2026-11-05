@@ -23,10 +23,7 @@ import com.clougence.clouddm.ds.iotdb.execute.IotdbSessionFactory;
 import com.clougence.clouddm.ds.iotdb.execute.IotdbSessionSpi;
 import com.clougence.clouddm.ds.iotdb.execute.IotdbSupportSpi;
 import com.clougence.clouddm.ds.iotdb.i18n.IotdbI18nKeys;
-import com.clougence.clouddm.ds.iotdb.metadata.IotdbBrowseSpi;
-import com.clougence.clouddm.ds.iotdb.metadata.IotdbCmdTemplateSpi;
-import com.clougence.clouddm.ds.iotdb.metadata.IotdbDialect;
-import com.clougence.clouddm.ds.iotdb.metadata.IotdbFieldType;
+import com.clougence.clouddm.ds.iotdb.metadata.*;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -62,6 +59,7 @@ public class IotdbDsPlugin implements DsPlugin, SchemaPlugin {
         binder.addPluginSpi(new IotdbSessionSpi());
         binder.addPluginSpi(new IotdbSupportSpi());
         binder.addPluginSpi(new IotdbBrowseSpi());
+        binder.addGlobalSpi(new IotdbAuthInfoSpi());
         binder.addPluginSpi(new IotdbCmdTemplateSpi());
         binder.addPluginSpi(new IotdbLanguageSpi(binder.findGlobalService(MetaService.class)));
     }
