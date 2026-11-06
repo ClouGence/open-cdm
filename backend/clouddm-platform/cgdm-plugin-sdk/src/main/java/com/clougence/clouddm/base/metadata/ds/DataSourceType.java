@@ -64,6 +64,7 @@ public enum DataSourceType {
     ClickHouse("ck", "ClickHouse", DsClassify.RDB, 1, 40),
     Greenplum("gp", "Greenplum", DsClassify.RDB, 1, 50),
     Cloudberry("cb", "Cloudberry", DsClassify.RDB, 1, 60),
+    IoTDB("iotdb", "IoTDB", DsClassify.RDB, 1, 70),
 
     // non-relational db
     Redis("re", "Redis", DsClassify.CACHE, 2, 10),

@@ -59,6 +59,7 @@ import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.QueryResourceContext;
 import com.clougence.clouddm.sdk.sql.analysis.sysobj.SysObjectRegistrySpi;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -141,6 +142,10 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         for (QueryRequest request : requests) {
             var resolver = sqlEngine.queryResourceResolver();
             if (resolver != null) {
+                QueryResourceContext context = new QueryResourceContext(levels.levelsParam(),
+                    Objects.equals(dsDO.getUid(), uid),
+                    (parents, scope) -> this.dsSchemaService.listLevels(dsDO, parents, scope, true),
+                    (scope, name) -> this.dsSchemaService.realTimeFetchSelectObject(dsDO, scope, name));
                 Function<UmiTypes, List<String>> listObjectNames = type -> {
                     List<DsElement> elements = this.dsSchemaService.listLeaf(dsDO, levels.levelsParam(), type, null, true);
                     List<String> names = new ArrayList<>(elements.size());
@@ -163,7 +168,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
                     }
                     return true;
                 };
-                resolver.resolve(request, listObjectNames, isRelationPermitted);
+                resolver.resolve(request, listObjectNames, isRelationPermitted, context);
             }
             List<BehaviorRequest> behaviors = BehaviorRelations.flattenResource(registry, dsDO.getVersion(), request.getRelations());
             for (BehaviorRequest behavior : behaviors) {

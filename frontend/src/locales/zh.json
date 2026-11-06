@@ -4646,5 +4646,10 @@
   "approval-team-empty-reason": "无法选择：团队没有成员",
   "approval-team-unavailable-reason": "无法选择：{count} 位成员不可用（账号已停用、删除或无工单处理权限）",
   "approval-team-approve-reason": "无法选择：{members} 缺少工单审批权限",
-  "approval-team-execute-reason": "无法选择：{members} 缺少工单执行权限"
+  "approval-team-execute-reason": "无法选择：{members} 缺少工单执行权限",
+  "timeseries-permissions": "测点权限",
+  "object-browser-search-device-placeholder": "搜索设备",
+  "object-browser-search-timeseries-placeholder": "搜索完整测点路径",
+  "object-browser-read-only": "只读",
+  "permission-target-unavailable": "申请的资源当前不可用，请刷新资源树后重新选择。"
 }

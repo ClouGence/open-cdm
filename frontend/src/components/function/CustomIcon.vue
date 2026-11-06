@@ -174,7 +174,8 @@ export default {
         KingbaseESPostgreSQL: 'KingbaseES',
         KingbaseESMySQL: 'KingbaseES',
         KingbaseESOracle: 'KingbaseES',
-        KingbaseESSQLServer: 'KingbaseES'
+        KingbaseESSQLServer: 'KingbaseES',
+        IoTDB: 'CATALOG'
       };
 
       // Based on current theme

@@ -124,7 +124,7 @@ public abstract class AbstractDsSession implements Session {
         }
 
         ResultMessageBuild rb = builder.newMessage(query);
-        rb.receiveMessage(MessageLevel.Info, "Waiting for receive result. (" + messageString + " have passed.) ");
+        rb.receiveMessage(MessageLevel.Info, "Waiting for receive result. (" + messageString + " have passed.) ", false);
         rb.finishRecord(true);
 
         if (!signal.get()) {

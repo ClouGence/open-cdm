@@ -55,6 +55,7 @@ public enum DsType {
     SqlServer("ms", "SqlServer"),
     Db2("db2", "Db2"),
     ClickHouse("ck", "ClickHouse"),
+    IoTDB("iotdb", "IoTDB"),
     Kafka("ka", "Kafka"),
     Etcd("et", "Etcd"),
     RocketMQ("rmq", "RocketMQ"),

@@ -26,7 +26,7 @@ import com.clougence.schema.umi.struts.UmiTypes;
 
 public class EsQueryResourceResolver implements QueryResourceResolver {
     @Override
-    public void resolve(QueryRequest request, Function<UmiTypes, List<String>> objectNames, Predicate<BehaviorRelation> permitted) {
+    public void resolve(QueryRequest request, Function<UmiTypes, List<String>> objectNames, Predicate<BehaviorRelation> permitted, QueryResourceContext context) {
         List<BehaviorRelation> relations = request.getRelations();
         if (relations == null || relations.size() != 1) {
             throw ThirdPartyApiException.as().with(EsSqlI18nKeys.ES_RESOURCE_SCOPE_MISMATCH);

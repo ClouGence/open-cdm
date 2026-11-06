@@ -999,7 +999,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     String oldValue = status.getCurCatalog();
                     String newValue = (String) newLevels.levelsParam().get(UmiTypes.Catalog);
                     if (!StringUtils.equals(oldValue, newValue)) {
-                        keepSession = ctx.isSupportSwitchCatalog();
+                        keepSession = keepSession && ctx.isSupportSwitchCatalog();
                         changeTo.put(UmiTypes.Catalog, newValue);
                     }
                     break;
@@ -1008,7 +1008,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     String oldValue = status.getCurSchema();
                     String newValue = (String) newLevels.levelsParam().get(UmiTypes.Schema);
                     if (!StringUtils.equals(oldValue, newValue)) {
-                        keepSession = ctx.isSupportSwitchSchema();
+                        keepSession = keepSession && ctx.isSupportSwitchSchema();
                         changeTo.put(UmiTypes.Schema, newValue);
                     }
                     break;
@@ -1029,7 +1029,11 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         // auto commit
         if (ctx.getCtxDTO().isRdbAutoCommit()) {
-            this.switchCtxForAutoSession(queryDTO, consumer, ctx, levelsDef, changeTo);
+            if (keepSession) {
+                this.switchCtxForAutoSession(queryDTO, consumer, ctx, levelsDef, changeTo);
+            } else {
+                this.switchCtxForNewSession(queryDTO, consumer, ctx, levelsDef, changeTo);
+            }
             return;
         }
 

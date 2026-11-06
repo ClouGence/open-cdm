@@ -51,6 +51,10 @@ public enum UmiTypes {
     Job("JOB"),
     ScheduleJob("SCHEDULE_JOB"),
 
+    // time series
+    Device("DEVICE"),
+    Timeseries("TIMESERIES"),
+
     // mq
     Endpoint("ENDPOINT"),
     Topic("TOPIC"),
