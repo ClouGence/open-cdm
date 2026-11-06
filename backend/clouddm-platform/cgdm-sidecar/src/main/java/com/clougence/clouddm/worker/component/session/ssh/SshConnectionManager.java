@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.console.configs.ConfigRService;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 import com.jcraft.jsch.*;
 
@@ -70,7 +71,8 @@ public class SshConnectionManager {
             }
         }
 
-        Session session = jsch.getSession(config.getUsername(), config.getHost(), config.getPort());
+        String serverHost = HostAndPort.fromParts(config.getHost(), config.getPort()).getHost();
+        Session session = jsch.getSession(config.getUsername(), serverHost, config.getPort());
         if (StringUtils.isNotBlank(config.getPassword())) {
             session.setPassword(config.getPassword());
             session.setUserInfo(new StaticUserInfo(config.getPassword(), config.getPrivateKeyPassphrase()));
@@ -124,6 +126,7 @@ public class SshConnectionManager {
             throw new IllegalArgumentException("proxy host and port are required.");
         }
 
+        host = HostAndPort.fromParts(host, port).getHost();
         Proxy proxy;
         switch (proxyType) {
             case HTTP -> {
@@ -169,6 +172,7 @@ public class SshConnectionManager {
             if (StringUtils.isBlank(host) || StringUtils.isBlank(type) || StringUtils.isBlank(key)) {
                 continue;
             }
+            host = HostAndPort.fromParts(host, port).getHost();
             builder.append(port == 22 ? host : "[" + host + "]:" + port).append(' ').append(type).append(' ').append(key).append('\n');
         }
         if (builder.length() == 0) {

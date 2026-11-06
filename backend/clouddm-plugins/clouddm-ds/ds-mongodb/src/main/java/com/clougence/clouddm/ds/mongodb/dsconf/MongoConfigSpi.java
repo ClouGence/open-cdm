@@ -34,6 +34,7 @@ import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.clouddm.ds.mongodb.i18n.MongoConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 public class MongoConfigSpi extends AbstractDsConfigSpi {
@@ -101,8 +102,8 @@ public class MongoConfigSpi extends AbstractDsConfigSpi {
     @Override
     public Map<String, String> configMapFromUi(Map<String, String> configMap, Map<String, String> uiMap) {
         Map<String, String> data = new LinkedHashMap<>();
-        if (uiMap == null || (!uiMap.containsKey(MongoConfig.Fields.connectType) && !uiMap.containsKey(DataSourceConfig.Fields.host)
-                              && !uiMap.containsKey(ADDRESS_FIELD) && !uiMap.containsKey(PORT_FIELD))) {
+        if (uiMap == null || (!uiMap.containsKey(MongoConfig.Fields.connectType) && !uiMap.containsKey(DataSourceConfig.Fields.host) && !uiMap.containsKey(ADDRESS_FIELD)
+                              && !uiMap.containsKey(PORT_FIELD))) {
             return data;
         }
 
@@ -124,8 +125,10 @@ public class MongoConfigSpi extends AbstractDsConfigSpi {
             if (port == null) {
                 port = defaultPort();
             }
-            if (address != null && port != null) {
-                data.put(DataSourceConfig.Fields.host, address + ":" + port);
+            if (address != null && address.contains(",")) {
+                data.put(DataSourceConfig.Fields.host, address);
+            } else if (address != null && port != null) {
+                data.put(DataSourceConfig.Fields.host, HostAndPort.fromParts(address, Integer.parseInt(port)).toString());
             }
         }
         return data;

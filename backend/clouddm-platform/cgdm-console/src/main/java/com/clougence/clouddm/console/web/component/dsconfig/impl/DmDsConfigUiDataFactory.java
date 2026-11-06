@@ -35,6 +35,7 @@ import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.drivers.DriverFamily;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -145,7 +146,13 @@ public class DmDsConfigUiDataFactory {
         }
         String address = StringUtils.trimToNull(input.get(ADDRESS_FIELD));
         String port = StringUtils.trimToNull(input.get(PORT_FIELD));
-        data.put(DataSourceConfig.Fields.host, address + ":" + port);
+        if (address == null || address.contains("://") || address.contains(",") || address.contains(";")) {
+            data.put(DataSourceConfig.Fields.host, address);
+        } else if (port == null) {
+            data.put(DataSourceConfig.Fields.host, HostAndPort.parse(address).toString());
+        } else {
+            data.put(DataSourceConfig.Fields.host, HostAndPort.fromParts(address, Integer.parseInt(port)).toString());
+        }
         return data;
     }
 

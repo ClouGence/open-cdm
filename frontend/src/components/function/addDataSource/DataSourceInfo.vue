@@ -91,6 +91,7 @@ import DataSourceIcon from '@/components/function/DataSourceIcon';
 import { UiFormField } from '@/components/form';
 import { flattenDsSupportNameGroups, normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import { formatHostPort } from '@/utils/networkAddress';
 
 const emptyHostList = () => [
   {
@@ -760,7 +761,7 @@ export default {
       const port = this.formValueOrDefault(this.addDsUiForm, 'port', this.addDataSourceForm.port);
       let host = this.formValueOrDefault(this.addDsUiForm, field.field, this.addDataSourceForm.host);
       if (address) {
-        host = port ? `${address}:${port}` : address;
+        host = formatHostPort(address, port);
       }
       this.addDsUiForm.address = address;
       this.addDsUiForm.port = port;

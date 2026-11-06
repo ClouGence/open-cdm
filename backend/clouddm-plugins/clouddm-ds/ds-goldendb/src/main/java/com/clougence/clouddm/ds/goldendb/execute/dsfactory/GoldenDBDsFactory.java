@@ -22,6 +22,7 @@ import com.clougence.clouddm.ds.goldendb.dsconf.GoldenDBCompatibilityMode;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -134,10 +135,10 @@ public class GoldenDBDsFactory implements DsFactory<Connection> {
     private String buildJdbcUrl(Properties dsConfig) {
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String schema = StringUtils.defaultIfBlank(dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey()), "");
-        String[] hostPort = StringUtils.defaultIfBlank(host, "").split(":");
-        if (hostPort.length != 2 || StringUtils.isBlank(hostPort[0]) || StringUtils.isBlank(hostPort[1])) {
+        HostAndPort address = HostAndPort.parse(host);
+        if (address.getPort() < 0) {
             throw new IllegalArgumentException("GoldenDB host must include an explicit port.");
         }
-        return String.format("jdbc:goldendb://%s:%s/%s", hostPort[0], hostPort[1], schema);
+        return String.format("jdbc:goldendb://%s:%s/%s", address.formatHost(), address.getPort(), schema);
     }
 }

@@ -65,6 +65,24 @@ public class YashanDBMySQLDsFactoryTest {
     }
 
     @Test
+    void buildJdbcUrl_ipv6WithPort_preservesAddressAndPort() {
+        String url = this.factory.buildJdbcUrl(config("[2001:db8::10]:1691", "test", null));
+        assertEquals("jdbc:mysql://[2001:db8::10]:1691/test", url);
+    }
+
+    @Test
+    void buildJdbcUrl_ipv6WithoutPort_usesDefaultPort() {
+        String url = this.factory.buildJdbcUrl(config("2001:db8::10", "test", null));
+        assertEquals("jdbc:mysql://[2001:db8::10]:1690/test", url);
+    }
+
+    @Test
+    void buildJdbcUrl_bracketedIpv6WithoutPort_doesNotDuplicateBrackets() {
+        String url = this.factory.buildJdbcUrl(config("[::1]", "test", null));
+        assertEquals("jdbc:mysql://[::1]:1690/test", url);
+    }
+
+    @Test
     void buildJdbcUrl_customUrl_winsOverHostAndDatabase() {
         Properties props = config("10.9.18.77:1690", "test", null);
         props.setProperty(DsConfigKeys.CUSTOM_URL.getConfigKey(), "jdbc:mysql://127.0.0.1:3306/other");

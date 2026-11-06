@@ -23,6 +23,7 @@ import com.clickhouse.jdbc.ClickHouseDriver;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.Version;
 
@@ -143,14 +144,8 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String database = safeString(defaultSchema);
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            return buildJdbcUrl(ipPort[0], DEFAULT_HTTP_PORT, database);
-        } else if (ipPort.length == 2) {
-            return buildJdbcUrl(ipPort[0], ipPort[1], database);
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
-        }
+        HostAndPort address = HostAndPort.parse(host, Integer.parseInt(DEFAULT_HTTP_PORT));
+        return buildJdbcUrl(address.formatHost(), Integer.toString(address.getPort()), database);
     }
 
     private String buildJdbcUrl(String host, String port, String database) {

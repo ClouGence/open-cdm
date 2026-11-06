@@ -24,6 +24,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -144,10 +145,7 @@ public class GaussDBDsFactory implements DsFactory<Connection> {
             throw new IllegalArgumentException("Host must be specified for GaussDB connection.");
         }
 
-        String[] ipPort = host.split(":");
-        String hostPart = ipPort[0];
-        String portPart = (ipPort.length > 1) ? ipPort[1] : "8000"; // default GaussDB port
-
-        return String.format("jdbc:gaussdb://%s:%s/%s", hostPart, portPart, database);
+        HostAndPort address = HostAndPort.parse(host, 8000);
+        return String.format("jdbc:gaussdb://%s:%s/%s", address.formatHost(), address.getPort(), database);
     }
 }

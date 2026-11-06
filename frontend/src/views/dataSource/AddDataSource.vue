@@ -89,6 +89,7 @@ import { mapGetters, mapState } from 'vuex';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import { formatHostPort } from '@/utils/networkAddress';
 import DataSourceGroup from '../dataSourceGroup.json';
 
 const EMPTY_DATA_SOURCE_FORM = {
@@ -295,7 +296,7 @@ export default {
       }
       const isSeparate = this.separatePort(this.addDataSourceForm.type) || this.addDataSourceForm.type === 'Db2Fori';
       if (isSeparate && this.addDataSourceForm.host && this.addDataSourceForm.port) {
-        return `${this.addDataSourceForm.host}:${this.addDataSourceForm.port}`;
+        return formatHostPort(this.addDataSourceForm.address || this.addDataSourceForm.host, this.addDataSourceForm.port);
       }
       return this.addDataSourceForm.host || this.addDataSourceForm.publicHost || '';
     },
@@ -398,12 +399,12 @@ export default {
         const isSeparate = this.separatePort(this.addDataSourceForm.type);
         const host = isSeparate
           ? this.addDataSourceForm.host && this.addDataSourceForm.port
-            ? `${this.addDataSourceForm.host}:${this.addDataSourceForm.port}`
+            ? formatHostPort(this.addDataSourceForm.address || this.addDataSourceForm.host, this.addDataSourceForm.port)
             : ''
           : this.addDataSourceForm.host;
         const publicHost = isSeparate
           ? this.addDataSourceForm.publicHost && this.addDataSourceForm.publicPort
-            ? `${this.addDataSourceForm.publicHost}:${this.addDataSourceForm.publicPort}`
+            ? formatHostPort(this.addDataSourceForm.publicHost, this.addDataSourceForm.publicPort)
             : ''
           : this.addDataSourceForm.publicHost;
 
