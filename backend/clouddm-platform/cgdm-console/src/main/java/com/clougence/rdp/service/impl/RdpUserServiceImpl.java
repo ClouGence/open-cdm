@@ -567,10 +567,53 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         }
 
         String encryptPwd = CryptService.INSTANCE.encryptForOneWay(fo.getNewPassword()).getEncryptPassword();
-        authDal.userMapper().updatePasswdById(userDO.getId(), encryptPwd);
+        authDal.userMapper().updatePasswdAndClearNeedChangePwd(userDO.getId(), encryptPwd);
 
         mo.setSuccess(true);
         return mo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public UpdateUserInfoMO changePwdOnFirstLogin(String uid, String newPassword) {
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
+        if (userDO == null) {
+            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+        }
+
+        if (StringUtils.isBlank(newPassword)) {
+            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
+        }
+
+        if (!RdpAuthUtils.isErrorPasswd(userDO.getPassword(), newPassword)) {
+            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.RESET_WITH_SAME_PASSWORD_ERROR.name()));
+        }
+
+        ValidateResultMO validatePwdMO;
+        if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
+            validatePwdMO = validatePrimaryAccountPwd(newPassword);
+        } else {
+            String puid = null;
+            if (userDO.getParentId() != null) {
+                DmAuthUserDO primaryUser = this.authDal.userMapper().queryById(userDO.getParentId());
+                if (primaryUser != null) {
+                    puid = primaryUser.getUid();
+                }
+            }
+            validatePwdMO = validateSubAccountPwd(puid, newPassword);
+        }
+
+        if (validatePwdMO != null && !validatePwdMO.isSuccess()) {
+            return new UpdateUserInfoMO(false, validatePwdMO.getErrorMsg());
+        }
+
+        String encryptPwd = CryptService.INSTANCE.encryptForOneWay(newPassword).getEncryptPassword();
+        int updated = authDal.userMapper().updatePasswdAndClearNeedChangePwdIfRequired(userDO.getId(), encryptPwd);
+        if (updated == 0) {
+            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.FIRST_LOGIN_PWD_CHANGE_NOT_REQUIRED.name()));
+        }
+
+        return new UpdateUserInfoMO(true, null);
     }
 
     @Override
@@ -758,6 +801,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         userDO.setParentId(primaryUser.getId());
         userDO.setRoleId(fo.getRoleId());
         userDO.setDisable(Boolean.TRUE.equals(fo.getDisable()));
+        userDO.setNeedChangePwd(true);
         boolean loginLocked = Boolean.TRUE.equals(fo.getLoginLocked());
         userDO.setLoginLocked(loginLocked);
         userDO.setLoginFailCount(loginLocked ? 1 : 0);
