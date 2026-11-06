@@ -147,7 +147,8 @@ export default {
             monaco.editor.create(this.$refs.readOnlyEditor, {
               value: this.text, // The editor 's value
               language,
-              ...(language === 'json' ? { wordWrap: 'on' } : SQL_EDITOR_TYPOGRAPHY),
+              ...SQL_EDITOR_TYPOGRAPHY,
+              ...(language === 'json' ? { wordWrap: 'on' } : {}),
               fontSize: this.fontSize,
               scrollBeyondLastLine: false,
               readOnly: true,

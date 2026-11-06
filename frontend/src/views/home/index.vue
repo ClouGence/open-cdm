@@ -55,7 +55,7 @@
           :border="0"
           :max-height="360"
         />
-        <a-textarea v-else v-model:value="cellDetailContent" :rows="15" readonly style="font-family: monospace; font-size: 12px" />
+        <a-textarea v-else v-model:value="cellDetailContent" :rows="15" readonly :style="cellDetailTextStyle" />
         <div v-if="cellDetailLoading" class="cell-detail-loading">
           <a-spin :spinning="cellDetailLoading" />
           <span style="margin-left: 8px">{{ $t('zheng-zai-jia-zai') }}</span>
@@ -105,6 +105,7 @@ import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import AppSidebar from '@/components/layout/AppSidebar';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor.vue';
+import { SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
 import AppContentHeader from '@/components/layout/AppContentHeader';
 import AppUserActions from '@/components/layout/AppUserActions';
@@ -173,7 +174,20 @@ export default {
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
     isJsonCell() {
-      return ['JSON_DOCUMENT', 'JSON', 'JSONB'].includes(this.selectedCellDetail.column.columnType) && !this.selectedCellDetail.error;
+      if (this.selectedCellDetail.error) {
+        return false;
+      }
+      if (['JSON_DOCUMENT', 'JSON', 'JSONB'].includes(this.selectedCellDetail.column.columnType)) {
+        return true;
+      }
+      return this.looksLikeJson(this.cellDetailContent);
+    },
+    cellDetailTextStyle() {
+      return {
+        fontFamily: SQL_EDITOR_TYPOGRAPHY.fontFamily,
+        fontSize: `${SQL_EDITOR_TYPOGRAPHY.fontSize}px`,
+        lineHeight: `${SQL_EDITOR_TYPOGRAPHY.lineHeight}px`
+      };
     },
     isSqlRoute() {
       return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
@@ -297,6 +311,22 @@ export default {
         error: false,
         mask: false
       };
+    },
+    looksLikeJson(content) {
+      const text = typeof content === 'string' ? content.trim() : '';
+      if (!text.startsWith('{') && !text.startsWith('[')) {
+        return false;
+      }
+      // 分段加载期间内容不完整无法完整解析，按前缀判定
+      if (this.hasMoreData || this.cellDetailLoading) {
+        return true;
+      }
+      try {
+        JSON.parse(text);
+        return true;
+      } catch {
+        return false;
+      }
     },
     async handleLoadMoreCellData(isInitial = false) {
       if (this.cellDetailLoading) {
