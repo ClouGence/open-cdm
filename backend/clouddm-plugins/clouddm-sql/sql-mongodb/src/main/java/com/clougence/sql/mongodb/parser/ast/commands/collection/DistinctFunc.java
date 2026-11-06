@@ -15,6 +15,11 @@
  */
 package com.clougence.sql.mongodb.parser.ast.commands.collection;
 
+import java.util.Collections;
+import java.util.List;
+
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
 import lombok.Getter;
@@ -22,11 +27,20 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DistinctFunc extends CollectionFunc {
+public class DistinctFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
-    private String field;
-    private String query;
-    private String collation;
+    private String                    field;
+    private String                    query;
+    private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
+    private String                    collation;
+
+    @Override
+    public String getFilter() { return this.query; }
+
+    @Override
+    public void setFilter(String filter) {
+        this.query = filter;
+    }
 
     @Override
     public MongoFuncType getFuncType() { return MongoFuncType.DISTINCT; }

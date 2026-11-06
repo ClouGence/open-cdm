@@ -20,6 +20,7 @@ import java.sql.SQLException;
 
 import com.clougence.drivers.adapter.AdapterReceive;
 import com.clougence.drivers.adapter.AdapterRequest;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.CollectionFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.DataSizeFunc;
@@ -46,6 +47,7 @@ class MongoDistributeCall {
             case FIND:
             case AGGREGATE:
             case LIST_INDEXES:
+                resolveFilterSubqueries(client, database, func, sessionProvider);
                 return ClientCallForCollection.findFunc(sync, client, (CollectionFunc) func, request, receive, database, sessionProvider);
             case LIST_COLLECTIONS:
                 return ClientCallForDatabase.listCollections(sync, client, func.toBson(), request, receive, database, sessionProvider);
@@ -71,6 +73,7 @@ class MongoDistributeCall {
             case HOST_INFO:
             case DROP_DATABASE:
             case EXPLAIN:
+                resolveFilterSubqueries(client, database, func, sessionProvider);
                 return ClientCallForCommand.runCommand(sync, client, func.toBson(), request, receive, database);
             // adminCommand
             case ADMIN_COMMAND:
@@ -85,6 +88,12 @@ class MongoDistributeCall {
                 return ClientCallForCommand.runCommand(sync, client, func.toBson(), request, receive, ((MongoReadCommandFunc) func).getDatabase());
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    private static void resolveFilterSubqueries(MongoClient client, String database, AbstractMongoFunc func, MongoSessionProvider sessionProvider) {
+        if (func instanceof MongoFilterSubqueryHost host) {
+            MongoFilterSubqueryResolver.resolve(client, database, host, sessionProvider);
         }
     }
 }

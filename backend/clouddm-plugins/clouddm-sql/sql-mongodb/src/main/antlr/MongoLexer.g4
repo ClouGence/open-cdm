@@ -101,6 +101,9 @@ UPDATE_ONE: 'updateOne';
 UPDATE_MANY: 'updateMany';
 UPDATE: 'update';
 DROP: 'drop';
+MAP: 'map';
+TO_ARRAY: 'toArray';
+ARROW: '=>';
 
 
 // unsupported

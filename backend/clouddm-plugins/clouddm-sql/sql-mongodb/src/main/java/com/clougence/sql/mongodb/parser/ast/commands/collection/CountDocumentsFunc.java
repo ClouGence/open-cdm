@@ -15,7 +15,12 @@
  */
 package com.clougence.sql.mongodb.parser.ast.commands.collection;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.clougence.sql.mongodb.parser.ast.CommandBuilder;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
 import lombok.Getter;
@@ -23,14 +28,15 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CountDocumentsFunc extends CollectionFunc {
+public class CountDocumentsFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
-    private String filter = "{}";
+    private String                    filter           = "{}";
+    private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
 
-    private String limit;
-    private String skip   = "0";
-    private String hint;
-    private String maxTimeMS;
+    private String                    limit;
+    private String                    skip             = "0";
+    private String                    hint;
+    private String                    maxTimeMS;
 
     @Override
     public MongoFuncType getFuncType() { return MongoFuncType.COUNT_DOCUMENTS; }

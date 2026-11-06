@@ -15,6 +15,11 @@
  */
 package com.clougence.sql.mongodb.parser.ast.commands.collection;
 
+import java.util.Collections;
+import java.util.List;
+
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 
 import lombok.Getter;
@@ -22,16 +27,18 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DeleteOneFunc extends CollectionFunc {
+public class DeleteOneFunc extends CollectionFunc implements MongoFilterSubqueryHost {
 
-    private String filter;
+    private String                    filter;
+
+    private List<MongoFilterSubquery> filterSubqueries = Collections.emptyList();
 
     //option
-    private String writeConcern;
-    private String collation;
-    private String hint;
-    private String maxTimeMS;
-    private String let;
+    private String                    writeConcern;
+    private String                    collation;
+    private String                    hint;
+    private String                    maxTimeMS;
+    private String                    let;
 
     @Override
     public MongoFuncType getFuncType() { return MongoFuncType.DELETE_ONE; }
