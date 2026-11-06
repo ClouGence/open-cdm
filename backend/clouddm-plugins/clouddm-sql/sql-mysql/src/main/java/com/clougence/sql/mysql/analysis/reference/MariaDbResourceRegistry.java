@@ -17,14 +17,19 @@ package com.clougence.sql.mysql.analysis.reference;
 
 import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
 
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.registry.BuiltinFunctionCatalogLoader;
 import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.common.registry.VersionedFunctionCatalogLoader;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
 import com.clougence.sql.mysql.parser.MariaDbVersion;
+import com.clougence.sql.mysql.parser.MySqlVersion;
 
 public final class MariaDbResourceRegistry {
 
@@ -58,7 +63,27 @@ public final class MariaDbResourceRegistry {
         if (name.startsWith("`") || name.startsWith("\"")) {
             return FunctionBehavior.DEFAULT;
         }
-        return analysisFunctions.find(FUNCTION, version / 10000 * 10000, name).orElse(FunctionBehavior.DEFAULT);
+        FunctionBehavior classification = analysisFunctions.find(FUNCTION, version / 10000 * 10000, name).orElse(FunctionBehavior.DEFAULT);
+        FunctionBehavior compatible = MySqlResourceRegistry.instance().functionClassification(name, MySqlVersion.MYSQL_8_0.exactVersion());
+        if (classification == FunctionBehavior.DEFAULT) {
+            return compatible;
+        }
+
+        Set<SplitQueryType> types = new LinkedHashSet<>(compatible.statementTypes());
+        types.addAll(classification.statementTypes());
+        TargetType targetType = classification.targetType();
+        BehaviorAction targetAction = classification.targetAction();
+        if (targetType == null) {
+            targetType = compatible.targetType();
+            targetAction = compatible.targetAction();
+        }
+        return new FunctionBehavior(types,
+            classification.action(),
+            targetType,
+            targetAction,
+            classification.unsafe() || compatible.unsafe(),
+            classification.metadata() || compatible.metadata(),
+            classification.privileged() || compatible.privileged());
     }
 
     public boolean contains(String name, int version) {

@@ -103,6 +103,7 @@
     {"versions": ["6"], "type": "FUNCTION", "name": ["current_query"]},
     {"versions": ["6"], "type": "FUNCTION", "name": ["current_schema"]},
     {"versions": ["6"], "type": "FUNCTION", "name": ["current_schemas"]},
+    {"versions": ["6"], "type": "FUNCTION", "name": ["current_setting"]},
     {"versions": ["6"], "type": "FUNCTION", "name": ["current_user"]},
     {"versions": ["6"], "type": "FUNCTION", "name": ["date"]},
     {"versions": ["6"], "type": "FUNCTION", "name": ["date_part"]},

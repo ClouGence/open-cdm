@@ -11,7 +11,7 @@ Verify Issue #422: an ordinary query-only CloudDM account can use built-in scala
 - Local test deployment, `/#/sql`, account/role/resource authorization pages.
 - Query submission, authorization result, database execution and displayed result.
 - SQL Server is the reproducer; repeat on available PostgreSQL, MySQL, MariaDB, Greenplum, Cloudberry, CockroachDB, ClickHouse, Dameng, TiDB and StarRocks instances.
-- Does not certify every function overload or server version. Static source/permission coverage is documented in `docs/testing/builtin_function_permissions.md`.
+- Does not certify every function overload or server version.
 
 ## Preconditions
 
@@ -178,9 +178,17 @@ Closing some active test query pages did not immediately remove their QUERY sess
 
 The final browser log also contains three workspace-connection restoration errors. Explicitly opening/reconnecting the test connection recovered the affected flow, and the recorded permission scenarios completed. This run does not certify error-free workspace restoration or QUERY-session cleanup. The final page is left on the successful SQL Server ordinary-function query; unrelated query drafts remain.
 
-Doris native installation remains unresolved while its original Motherdata operation cannot be queried because `/mcp` returns HTTP 404. DB2/HANA require an unavailable Linux x86_64 environment; other unavailable proprietary/cloud products retain static-only coverage. These environments are NOT RUN for native/browser acceptance. See the source/version and native evidence in `docs/testing/builtin_function_permissions.md`.
+Doris native installation remains unresolved while its original Motherdata operation cannot be queried because `/mcp` returns HTTP 404. DB2/HANA require an unavailable Linux x86_64 environment; other unavailable proprietary/cloud products retain static-only coverage. These environments are NOT RUN for native/browser acceptance.
 
 ## Classified-function acceptance after analysis-resource wiring
+
+### BF-PERM-10 Metadata and getter/setter classification — P0
+
+- Inspect the account's current saved READ scope before deciding which table/configuration calls should be denied. An instance READ grant also authorizes its configuration keys and tables.
+- With only the intended READ scope, run VERSION on MySQL/MariaDB, TIDB_VERSION on TiDB, and has_schema_privilege on PostgreSQL/Greenplum/Cloudberry/CockroachDB, together with COUNT over the granted table. Expected: metadata classification alone does not require PROGRAM.
+- On MySQL/MariaDB/TiDB, compare LAST_INSERT_ID() with LAST_INSERT_ID(1). The getter succeeds; the setter retains Session CONFIGURE/MANAGE. ADB, PolarDB-X and OceanBase MySQL follow the same rule in static regression while actual product instances are unavailable.
+- Repeat an ungranted-table query, nested UDF, quoted function and harmless management/file negative. Actual resource permissions and dangerous effects remain independent of ordinary CALL exemption.
+- Refresh and repeat one positive and one PROGRAM negative. Restore the original query drafts and close only task-created pages/connections; preserve pre-existing grants.
 
 Use the same query-only account and single-table READ grants. Ordinary metadata values such as TiDB TIDB_VERSION may remain callable; classification does not imply a management permission unless the resource defines a corresponding action/target.
 
@@ -227,3 +235,17 @@ This run recorded **90 certified terminal outcomes on eleven actual products: 26
 Three logical attempts encountered the pre-existing worker session limit of 5 (CockroachDB, ClickHouse, SQL Server). They are retained as ENVIRONMENT_ERROR, excluded from the 90 outcomes, and were retried to verified terminal results after test connection cleanup/idle recovery. This run does not claim to fix or determine the root cause of that session-capacity behavior. The tools did not expose a network request trace, so HTTP status coverage is not certified independently of visible business results and application logs.
 
 Evidence: `/tmp/function_resource_auth_runtime_evidence.json`, `/tmp/function_resource_auth_runtime_summary.json`, `/tmp/function_resource_auth_environment_attempts.json`, `/tmp/function_resource_auth_native.json`, `/tmp/function_resource_auth_native_udf.json`, and the before/allowed/final-denied/final-success screenshots under `/tmp/function_resource_auth_*.png`. The allowed screenshot records a temporary test grant, not the final account grant state. Products without an actual usable instance, including Oracle/YashanDB, Db2, HANA, Gauss, Doris and the unavailable proprietary/cloud modes, remain static-only; a compatible engine was not counted as native product acceptance.
+
+## Acceptance after ordinary-function rule unification
+
+The refreshed artifacts were byte-checked against all 42 changed production classes/resources, including nested plugin libraries. The removed Dameng system-callable catalog is absent from the runtime archives. Full build/local publication and native IDEA formatting passed. DmAloneLauncher executions 89 and 90 reached RUNNING, FULL-mode startup, health `ok` and embedded-worker readiness; execution 90 is retained.
+
+Eleven existing native products passed 33 read-only SELECT probes. Browser verification on those products recorded **55 terminal SQL outcomes: 18 successful queries and 37 authorization denials**. This includes metadata calls together with granted-table aggregates, MySQL/MariaDB/TiDB LAST_INSERT_ID getter/setter distinctions, ungranted tables where the account has table-only READ, nested UDFs, quoted Dameng functions and harmless management/file calls. Refresh/re-entry repeated SQL Server positive and PROGRAM-negative cases. TiDB's UDF case remains an unknown-call permission check.
+
+The current account has permanent **instance-level DQL on Dameng**, confirmed in the saved authorization UI. Its SF_GET_PARA_VALUE call returned 10000 and DENIED_ROWS was readable under that existing grant. These are authorized successes, not ungranted-table denial evidence. Dameng UDF, quoted COUNT and EXPLAIN CHECKPOINT still denied PROGRAM. The concrete ConfigKey/table READ dependencies and ungranted-table boundaries remain covered statically. No authorization was changed to force a browser result.
+
+Three Cloudberry attempts in execution 89 hit the existing five-session limit; all were excluded and rerun successfully after a precise restart. Cleanup thereafter selected the original page before closing inactive test pages; no further capacity error occurred in execution 90. This does not establish or fix the session lifecycle cause. A separate attempt to open the pre-existing local Dameng source 40 failed before any SQL was sent; it is excluded from SQL outcomes and accounts for the one captured browser Console error. The tools do not expose a network trace, so HTTP status coverage is not independently certified.
+
+The two original query pages and original SQL Server draft were preserved. Task-created query pages, completed connections and the temporary administrator browser page were closed. No database objects or grants changed. MaxCompute was explicitly deferred; unavailable native/cloud products retain static-only coverage.
+
+Evidence: `/tmp/unified_function_ui_summary.json`, `/tmp/function_metadata_native_20261106.json`, `/tmp/unified_function_artifact_verification.json`, `/tmp/execution89_session_readonly_evidence.json`, `/tmp/unified_function_ui_success.png`, `/tmp/unified_function_ui_denied.png`, and `/tmp/unified_function_dameng_current_grant.png`.

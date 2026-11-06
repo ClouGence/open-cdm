@@ -42,7 +42,7 @@ public final class ObMySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi
         }
 
         FunctionBehavior classification = resources.functionClassification(objectName);
-        if (classification.privileged() || classification.action() != BehaviorAction.CALL) {
+        if (classification.action() != BehaviorAction.CALL || classification.privileged() || classification.unsafe()) {
             return false;
         }
 

@@ -40,7 +40,7 @@ public final class OraSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi 
         }
 
         if (action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && schema == null) {
-            return classification.metadata() || resources.isSystemFunction(objectName, OracleVersion.parse(databaseVersion));
+            return resources.isSystemFunction(objectName, OracleVersion.parse(databaseVersion));
         }
         return action == BehaviorAction.READ && targetType == TargetType.Table && schema == null && StringUtils.equalsIgnoreCase("DUAL", objectName);
     }

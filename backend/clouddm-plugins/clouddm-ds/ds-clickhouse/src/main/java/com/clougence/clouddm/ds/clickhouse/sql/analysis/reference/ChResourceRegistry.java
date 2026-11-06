@@ -70,7 +70,7 @@ public final class ChResourceRegistry {
 
     public boolean isOrdinaryFunction(String name) {
         FunctionBehavior rule = functionBehavior(name);
-        return !rule.privileged() && !rule.metadata() && rule.action() == BehaviorAction.CALL;
+        return !rule.privileged() && !rule.unsafe() && rule.action() == BehaviorAction.CALL;
     }
 
     public boolean isSystemFunction(String name, ClickHouseVersion release) {

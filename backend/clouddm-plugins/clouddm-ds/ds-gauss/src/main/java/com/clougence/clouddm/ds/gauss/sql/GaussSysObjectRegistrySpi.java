@@ -40,6 +40,6 @@ public final class GaussSysObjectRegistrySpi extends AbstractSysObjectRegistrySp
         GaussVersion release = GaussVersion.parse(databaseVersion);
 
         return action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && (schema == null || "pg_catalog".equalsIgnoreCase(schema))
-               && (classification.metadata() || resources.isSystemFunction(objectName, release));
+               && resources.isSystemFunction(objectName, release);
     }
 }

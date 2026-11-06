@@ -595,7 +595,8 @@ public class AdsMySplitVisitor extends AdsMyParserBaseVisitor<SplitQueryType> {
         if (tree instanceof FunctionCallContext function) {
             FunctionBehavior classification = FunctionBehavior.DEFAULT;
             if (!(function instanceof UdfFunctionCallContext udf) || udf.customFunctionName().fullId().uid().size() == 1) {
-                classification = AdsMyResourceRegistry.instance().functionClassification(function.getStart().getText());
+                classification = AdsMyResourceRegistry.instance()
+                    .functionClassification(function.getStart().getText(), function.getRuleContext(FunctionArgsContext.class, 0) != null);
             }
 
             if (!classification.statementTypes().isEmpty()) {

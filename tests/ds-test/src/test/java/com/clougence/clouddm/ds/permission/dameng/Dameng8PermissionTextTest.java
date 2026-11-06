@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -28,10 +29,14 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import com.clougence.clouddm.ds.SqlTestSupport;
 import com.clougence.clouddm.ds.TextCaseSupport;
+import com.clougence.clouddm.ds.dameng.sql.analysis.reference.DmResourceRegistry;
 import com.clougence.clouddm.ds.dameng.sql.analysis.sysobj.DmSysObjectRegistrySpi;
+import com.clougence.clouddm.ds.dameng.sql.parser.DmVersion;
 import com.clougence.clouddm.ds.permission.PermissionTextTest;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.sql.common.registry.BuiltinFunctionCatalogLoader;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Execution(ExecutionMode.CONCURRENT)
 public final class Dameng8PermissionTextTest {
@@ -42,6 +47,28 @@ public final class Dameng8PermissionTextTest {
     @Test
     public void permissionFixtureCompleteness() {
         PermissionTextTest.assertCompleteResourceDirectory(RESOURCE_DIRECTORY);
+    }
+
+    @TestFactory
+    public Stream<DynamicTest> builtInCatalogRetainsQualifiedNamesAndVersions() {
+        DmResourceRegistry registry = DmResourceRegistry.instance();
+        return BuiltinFunctionCatalogLoader.load(DmResourceRegistry.class, "/META-INF/clougence/dameng-built-in-functions.json")
+            .stream()
+            .map(function -> DynamicTest.dynamicTest(function.name(), () -> {
+                String[] nameParts = function.nameParts().toArray(String[]::new);
+                Assert.assertTrue(registry.isSystemFunction(DmVersion.DM_8, nameParts));
+                Assert.assertFalse(registry.isSystemFunction(DmVersion.DM_7, nameParts));
+            }));
+    }
+
+    @Test
+    public void systemCatalogOnlyRegistersNonFunctionObjects() throws Exception {
+        try (var input = DmResourceRegistry.class.getResourceAsStream("/META-INF/clougence/dameng-skip-permission-resources.json")) {
+            var entries = new ObjectMapper().readTree(input).get("entries");
+            for (var entry : entries) {
+                Assert.assertNotEquals("FUNCTION", entry.get("type").asText());
+            }
+        }
     }
 
     @TestFactory

@@ -99,7 +99,8 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
             if (ctx instanceof UdfFunctionCallContext udf) {
                 subject = object(TargetType.Function, udf.customFunctionName().fullId());
                 if (udf.customFunctionName().fullId().uid().size() == 1) {
-                    classification = AdsMyResourceRegistry.instance().functionClassification(udf.customFunctionName().getText());
+                    classification = AdsMyResourceRegistry.instance()
+                        .functionClassification(udf.customFunctionName().getText(), !descendants(ctx, FunctionArgContext.class).isEmpty());
                 }
             } else {
                 if (ctx instanceof SpecificFunctionCallContext specific
@@ -108,7 +109,7 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
                     continue;
                 }
                 subject = objects.object(TargetType.Function, ctx.getStart(), List.of(ctx.getStart().getText()));
-                classification = AdsMyResourceRegistry.instance().functionClassification(ctx.getStart().getText());
+                classification = AdsMyResourceRegistry.instance().functionClassification(ctx.getStart().getText(), !descendants(ctx, FunctionArgContext.class).isEmpty());
             }
             if (deferred) {
                 classification = FunctionBehavior.DEFAULT;

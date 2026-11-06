@@ -55,7 +55,7 @@ public final class DrResourceRegistry {
     public boolean isSystemFunction(String name, String version) {
         DorisVersion release = DorisVersion.parse(version);
         FunctionBehavior rule = functionBehavior(name);
-        return !rule.privileged() && !rule.metadata() && rule.action() == BehaviorAction.CALL && builtInFunctions.contains(FUNCTION, release.ordinal() + 1, name);
+        return !rule.privileged() && !rule.unsafe() && rule.action() == BehaviorAction.CALL && builtInFunctions.contains(FUNCTION, release.ordinal() + 1, name);
     }
 
     public boolean isUserDefinedFunction(String functionName, boolean qualified) {

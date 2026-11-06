@@ -33,7 +33,7 @@ public final class SrSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
         FunctionBehavior rule = resources.functionBehavior(objectName);
-        if (rule.privileged() || rule.metadata() || rule.action() != BehaviorAction.CALL) {
+        if (rule.privileged() || rule.unsafe() || rule.action() != BehaviorAction.CALL) {
             return false;
         }
         StarRocksVersion release = StarRocksVersion.parse(databaseVersion);

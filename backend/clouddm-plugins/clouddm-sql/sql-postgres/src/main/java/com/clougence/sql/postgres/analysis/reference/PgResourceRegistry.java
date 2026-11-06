@@ -68,7 +68,8 @@ public final class PgResourceRegistry {
     }
 
     public boolean isOrdinaryFunction(String functionName, PostgresVersion version) {
-        return functionBehavior(functionName, version) == BehaviorAction.CALL && !privilegedFunctions.contains(FUNCTION, versionCode(version), functionName);
+        PgFunctionBehavior behavior = functionBehavior(List.of(functionName), version);
+        return behavior.action() == BehaviorAction.CALL && !privilegedFunctions.contains(FUNCTION, versionCode(version), functionName) && !behavior.unsafe();
     }
 
     public boolean isMetadataFunction(String functionName, PostgresVersion version) {

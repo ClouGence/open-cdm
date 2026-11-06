@@ -32,18 +32,21 @@ public final class Db2SysObjectRegistrySpi extends AbstractSysObjectRegistrySpi 
 
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
-        FunctionBehavior classification = resources.functionBehavior(objectName, databaseVersion);
-        if (targetType == TargetType.Function && (classification.action() != BehaviorAction.CALL || classification.privileged() || classification.unsafe())) {
+        if (action != BehaviorAction.CALL || targetType != TargetType.Function || catalog != null) {
             return false;
         }
 
-        if (action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && "SYSPROC".equalsIgnoreCase(schema)) {
-            return resources.functionBehavior(schema + "." + objectName, databaseVersion).metadata();
+        String name = objectName;
+        if (schema != null) {
+            if (!"SYSPROC".equalsIgnoreCase(schema)) {
+                return false;
+            }
+
+            name = schema + "." + objectName;
         }
 
         Db2Version release = Db2Version.parse(databaseVersion);
-
-        return action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && schema == null
-               && (classification.metadata() || resources.isSystemFunction(objectName, release));
+        FunctionBehavior classification = resources.functionBehavior(name, databaseVersion);
+        return resources.isSystemFunction(name, release) && classification.action() == BehaviorAction.CALL && !classification.privileged() && !classification.unsafe();
     }
 }

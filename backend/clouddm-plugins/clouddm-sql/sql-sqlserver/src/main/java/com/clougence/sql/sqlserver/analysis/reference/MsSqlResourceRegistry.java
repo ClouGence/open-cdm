@@ -57,10 +57,6 @@ public final class MsSqlResourceRegistry {
         resources.register(PROCEDURE, 2008, 2022, true, "sys", "sp_getapplock");
         resources.register(PROCEDURE, 2008, 2022, true, "sys", "sp_releaseapplock");
         resources.register(PROCEDURE, 2016, 2022, true, "sys", "sp_set_session_context");
-        for (String function : List.of("CONTEXT_INFO", "XACT_STATE", "ORIGINAL_LOGIN", "SUSER_SNAME", "USER_NAME", "DB_NAME", "DB_ID", "OBJECT_ID", "SESSIONPROPERTY")) {
-            resources.register(FUNCTION, 2008, 2022, true, function);
-        }
-        resources.register(FUNCTION, 2016, 2022, true, "SESSION_CONTEXT");
     }
 
     public FunctionBehavior functionBehavior(String name, String databaseVersion) {
@@ -82,7 +78,7 @@ public final class MsSqlResourceRegistry {
     public boolean isBuiltinFunction(String name, int version) {
         FunctionBehavior classification = functionBehavior(name, Integer.toString(version));
         return classification.action() == BehaviorAction.CALL && !classification.privileged() && !classification.unsafe() && !MsSqlResourceDialect.INSTANCE.isQuotedIdentifier(name)
-               && (builtinFunctions.contains(FUNCTION, version, name) || resources.contains(FUNCTION, version, name));
+               && builtinFunctions.contains(FUNCTION, version, name);
     }
 
     private enum MsSqlResourceDialect implements ResourceRegistryDialect {

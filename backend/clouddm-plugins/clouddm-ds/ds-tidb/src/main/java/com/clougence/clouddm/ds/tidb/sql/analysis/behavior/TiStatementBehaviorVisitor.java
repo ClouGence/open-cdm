@@ -83,7 +83,20 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
         if (deferredFunction(tree)) {
             return FunctionBehavior.DEFAULT;
         }
-        return resources.functionClassification(name);
+        FunctionBehavior classification = resources.functionClassification(name);
+        if (classification.statementTypes().contains(SplitQueryType.SESSION_SETTING_WRITE)) {
+            if ("LAST_INSERT_ID".equalsIgnoreCase(name) && descendants(tree, FunctionArgContext.class).isEmpty()) {
+                return FunctionBehavior.DEFAULT;
+            }
+            return new FunctionBehavior(classification.statementTypes(),
+                BehaviorAction.CONFIGURE,
+                TargetType.Session,
+                BehaviorAction.CONFIGURE,
+                classification.unsafe(),
+                classification.metadata(),
+                classification.privileged());
+        }
+        return classification;
     }
 
     private boolean deferredFunction(ParseTree tree) {

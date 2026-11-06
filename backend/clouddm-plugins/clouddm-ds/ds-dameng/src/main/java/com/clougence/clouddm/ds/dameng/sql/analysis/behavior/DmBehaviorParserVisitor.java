@@ -27,6 +27,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.analysis.reference.DmResourceRegistry;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmSplitVisitor;
+import com.clougence.clouddm.ds.dameng.sql.parser.DmVersion;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
@@ -3877,7 +3878,8 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     } else {
                         TargetType type = TargetType.Table;
                         boolean systemNamespace = name.schema() == null || "SYS".equalsIgnoreCase(name.schema());
-                        if (systemNamespace && (name.name().toUpperCase(Locale.ROOT).startsWith("V$") || DmResourceRegistry.instance().isSystemView(name.name()))) {
+                        if (systemNamespace
+                            && (name.name().toUpperCase(Locale.ROOT).startsWith("V$") || DmResourceRegistry.instance().isSystemView(DmVersion.LATEST, name.name()))) {
                             type = TargetType.View;
                         }
                         addObject(result, object(type, table.qualifiedName(), schemaScoped(name)));
@@ -3961,10 +3963,14 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
             }
 
             List<BehaviorObject> targets = new ArrayList<>();
-            OptionalInt configArgument = DmResourceRegistry.instance().functionConfigArgument(name.name());
-            if (classification.metadata() && configArgument.isPresent() && function.functionArguments() != null
-                && configArgument.getAsInt() < function.functionArguments().functionArgument().size()) {
-                DmSqlParser.FunctionArgumentContext argument = function.functionArguments().functionArgument(configArgument.getAsInt());
+            int configArgument = switch (name.name().toUpperCase(Locale.ROOT)) {
+                case "SF_GET_PARA_DOUBLE_VALUE", "SF_GET_PARA_STRING_VALUE", "SF_GET_PARA_VALUE" -> 1;
+                case "SF_GET_SESSION_PARA_DOUBLE_VALUE", "SF_GET_SESSION_PARA_STRING_VALUE", "SF_GET_SESSION_PARA_VALUE" -> 0;
+                default -> -1;
+            };
+            if (classification.targetType() == TargetType.ConfigKey && configArgument >= 0 && function.functionArguments() != null
+                && configArgument < function.functionArguments().functionArgument().size()) {
+                DmSqlParser.FunctionArgumentContext argument = function.functionArguments().functionArgument(configArgument);
                 if (argument.expression() != null) {
                     Token key = stringArgument(List.of(argument.expression()), 0);
                     if (key != null) {
@@ -4352,10 +4358,23 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         if (name == null) {
             return false;
         }
-        if (name.catalog() == null && name.schema() == null) {
-            return "USER".equalsIgnoreCase(name.name()) || DmResourceRegistry.instance().isNoParenthesesFunction(name.name());
+        if (name.catalog() != null) {
+            return false;
         }
-        return name.catalog() == null && name.schema() != null && DmResourceRegistry.instance().isNoParenthesesFunction(name.schema(), name.name());
+
+        String functionName = name.name();
+        if (name.schema() != null) {
+            functionName = name.schema() + "." + functionName;
+        }
+        return switch (functionName.toUpperCase(Locale.ROOT)) {
+            case "CURDATE", "CURTIME", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "DBTIMEZONE", "GETDATE", "LOCALTIME", "LOCALTIMESTAMP", "NOW", "SESSIONTIMEZONE",
+                    "SYSDATE", "SYSTIMESTAMP", "UID", "USER", "DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER", "DBMS_RANDOM.RANDOM", "DBMS_RANDOM.RANDOM_NORMAL", "DBMS_RANDOM.VALUE",
+                    "DBMS_SESSION.UNIQUE_SESSION_ID", "DBMS_SPACE.EXTENT_SIZE_GET", "DBMS_SPACE.PAGE_N_GET", "DBMS_SPACE.TS_ALL_GET", "DBMS_SPACE.TS_N_GET",
+                    "DBMS_UTILITY.FORMAT_CALL_STACK", "DBMS_UTILITY.FORMAT_ERROR_BACKTRACE", "DBMS_UTILITY.FORMAT_ERROR_STACK", "DBMS_UTILITY.GET_TIME",
+                    "DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT" ->
+                true;
+            default -> false;
+        };
     }
 
     private Set<String> cteNames(ParseTree tree) {

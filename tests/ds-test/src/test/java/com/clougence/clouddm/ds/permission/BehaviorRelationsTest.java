@@ -258,6 +258,101 @@ public final class BehaviorRelationsTest {
     }
 
     @TestFactory
+    public Stream<DynamicTest> metadataClassificationDoesNotRequireProgramPermission() {
+        Map<String, String> cases = new LinkedHashMap<>();
+        cases.put("mysql", "VERSION()");
+        cases.put("mariadb", "VERSION()");
+        cases.put("adb", "VERSION()");
+        cases.put("por4x", "VERSION()");
+        cases.put("ob4my", "VERSION()");
+        cases.put("tidb", "TIDB_VERSION()");
+        cases.put("postgres", "has_schema_privilege('public','USAGE')");
+        cases.put("greenplum", "has_schema_privilege('public','USAGE')");
+        cases.put("cloudberry", "has_schema_privilege('public','USAGE')");
+        cases.put("cockroachdb", "has_schema_privilege('public','USAGE')");
+        cases.put("hologres", "user_display_name('codex_absent')");
+        cases.put("sqlserver", "OBJECT_ID('demo_table')");
+        cases.put("oracle", "SYS_CONTEXT('USERENV','SESSION_USER')");
+        cases.put("yashandb_oracle", "SYS_CONTEXT('USERENV','SESSION_USER')");
+        cases.put("ob4ora", "SYS_CONTEXT('USERENV','SESSION_USER')");
+        cases.put("hana", "SESSION_CONTEXT('APPLICATIONUSER')");
+        cases.put("db2", "MON_GET_TABLE(NULL,NULL,-1)");
+        cases.put("gauss", "current_setting('work_mem')");
+        cases.put("dameng", "SF_GET_PARA_VALUE(1,'MAX_SESSIONS')");
+        return cases.entrySet().stream().map(entry -> DynamicTest.dynamicTest(entry.getKey(), () -> {
+            List<BehaviorRequest> requests = functionRequests(entry.getKey(), entry.getValue());
+            Assert.assertTrue("Registered metadata CALL must remain visible: " + requests, requests.stream()
+                .anyMatch(request -> request.resource().getObjectType() == TargetType.Function && request.action() == BehaviorAction.CALL && request.authKind() == null));
+            Assert.assertFalse("Metadata alone is not a program permission: " + requests, requests.stream().anyMatch(request -> request.authKind() == SecDataAuthKind.PROGRAM));
+            Assert.assertTrue("Table query permission must remain: " + requests, requests.stream()
+                .anyMatch(request -> request.resource().getObjectType() == TargetType.Table && request.action() == BehaviorAction.READ
+                                     && request.authKind() == SecDataAuthKind.READ));
+        }));
+    }
+
+    @TestFactory
+    public Stream<DynamicTest> compatibleSessionSettersKeepTheirResourcePermission() {
+        return Stream.of("mysql", "mariadb", "adb", "por4x", "ob4my", "tidb").map(datasource -> DynamicTest.dynamicTest(datasource, () -> {
+            List<BehaviorRequest> requests = functionRequests(datasource, "LAST_INSERT_ID(1)");
+            Assert.assertTrue("Session mutation must retain its permission: " + requests, requests.stream()
+                .anyMatch(request -> request.resource().getObjectType() == TargetType.Session && request.action() == BehaviorAction.CONFIGURE && request.authKind() != null));
+            List<BehaviorRequest> getter = functionRequests(datasource, "LAST_INSERT_ID()");
+            Assert.assertFalse("The getter must remain an ordinary call: " + getter, getter.stream()
+                .anyMatch(request -> request.authKind() == SecDataAuthKind.PROGRAM || request.action() == BehaviorAction.CONFIGURE));
+        }));
+    }
+
+    @TestFactory
+    public Stream<DynamicTest> damengBareFunctionsRemainCallable() {
+        return Stream.of("SYSDATE", "CURRENT_DATE", "DBMS_RANDOM.VALUE", "DBMS_UTILITY.GET_TIME").map(expression -> DynamicTest.dynamicTest(expression, () -> {
+            List<BehaviorRequest> requests = functionRequests("dameng", expression);
+            Assert.assertTrue(requests.toString(), requests.stream()
+                .anyMatch(request -> request.resource().getObjectType() == TargetType.Function && request.action() == BehaviorAction.CALL));
+            Assert.assertFalse(requests.toString(), requests.stream().anyMatch(request -> request.authKind() == SecDataAuthKind.PROGRAM));
+            Assert.assertTrue(requests.toString(), requests.stream().anyMatch(request -> request.authKind() == SecDataAuthKind.READ));
+        }));
+    }
+
+    @TestFactory
+    public Stream<DynamicTest> damengConfigGettersResolveTheirOwnArgumentPosition() {
+        return Stream
+            .of("SF_GET_PARA_DOUBLE_VALUE", "SF_GET_PARA_STRING_VALUE", "SF_GET_PARA_VALUE", "SF_GET_SESSION_PARA_DOUBLE_VALUE", "SF_GET_SESSION_PARA_STRING_VALUE", "SF_GET_SESSION_PARA_VALUE")
+            .map(name -> DynamicTest.dynamicTest(name, () -> {
+                String arguments = "1,'MAX_SESSIONS'";
+                if (name.startsWith("SF_GET_SESSION_")) {
+                    arguments = "'MAX_SESSIONS'";
+                }
+
+                List<BehaviorRequest> requests = functionRequests("dameng", name + "(" + arguments + ")");
+                Assert.assertTrue(requests.toString(), requests.stream()
+                    .anyMatch(request -> request.resource().getObjectType() == TargetType.ConfigKey && request.action() == BehaviorAction.READ
+                                         && "MAX_SESSIONS".equals(request.resource().getObjectName().getObjectName()) && request.authKind() == SecDataAuthKind.READ));
+                Assert.assertFalse(requests.toString(), requests.stream().anyMatch(request -> request.authKind() == SecDataAuthKind.PROGRAM));
+            }));
+    }
+
+    @TestFactory
+    public Stream<DynamicTest> compatibleFileFunctionsKeepTheirResourcePermission() {
+        return Stream.of("mysql", "mariadb", "adb", "por4x", "ob4my", "tidb").map(datasource -> DynamicTest.dynamicTest(datasource, () -> {
+            List<BehaviorRequest> requests = functionRequests(datasource, "LOAD_FILE('/tmp/codex_absent')");
+            Assert.assertTrue("File reads must retain their permission: " + requests, requests.stream()
+                .anyMatch(request -> request.resource().getObjectType() == TargetType.File && request.action() == BehaviorAction.READ && request.authKind() != null));
+            Assert.assertTrue("Unsafe operations must retain their permission: " + requests, requests.stream().anyMatch(request -> request.authKind() == SecDataAuthKind.UNSAFE));
+        }));
+    }
+
+    @Test
+    public void tiDbNativeFunctionAvailabilityUsesItsProductVersion() throws Exception {
+        var registry = new TiSysObjectRegistrySpi();
+        for (String name : List.of("TIDB_VERSION", "TIDB_DECODE_KEY")) {
+            Assert.assertFalse(name, registry.isPermissionExempt(BehaviorAction.CALL, TargetType.Function, null, null, name, "5.7.25-TiDB-v7.5.6"));
+            Assert.assertTrue(name, registry.isPermissionExempt(BehaviorAction.CALL, TargetType.Function, null, null, name, "5.7.25-TiDB-v8.5.0"));
+            Assert.assertTrue(name, registry.isPermissionExempt(BehaviorAction.CALL, TargetType.Function, null, null, name, "unknown"));
+            Assert.assertFalse(name, registry.isPermissionExempt(BehaviorAction.CALL, TargetType.Function, null, "custom_schema", name, "8.5.0"));
+        }
+    }
+
+    @TestFactory
     public Stream<DynamicTest> protectedReadFunctionsKeepCallAndTargetPermissions() {
         Map<String, List<String>> cases = new LinkedHashMap<>();
         cases.put("greenplum", List.of("gp_read_error_log('other_schema.t')", "Table"));
@@ -265,7 +360,6 @@ public final class BehaviorRelationsTest {
         cases.put("clickhouse", List.of("joinGet('other_schema.t','value',1)", "Table"));
         cases.put("gauss", List.of("pg_read_file('/tmp/codex_absent')", "File"));
         cases.put("oracle", List.of("UTL_HTTP.REQUEST('http://example.invalid')", ""));
-        cases.put("hologres", List.of("user_display_name('codex_absent')", ""));
         cases.put("maxcompute", List.of("GET_USER_ID()", "Instance"));
         return cases.entrySet().stream().map(entry -> DynamicTest.dynamicTest(entry.getKey(), () -> {
             List<BehaviorRequest> requests = functionRequests(entry.getKey(), entry.getValue().get(0));
@@ -564,8 +658,7 @@ public final class BehaviorRelationsTest {
     @Test
     public void mysqlCompatibleRegistriesKeepNonOrdinaryCallsProtected() throws Exception {
         for (SysObjectRegistrySpi registry : List.of(new PorXSysObjectRegistrySpi(), new AdsMySysObjectRegistrySpi(), new ObMySysObjectRegistrySpi())) {
-            for (String name : List
-                .of("LOAD_FILE", "GET_LOCK", "RELEASE_LOCK", "BENCHMARK", "LAST_INSERT_ID", "NEXTVAL", "LBAC_CHECK", "ENCDB_REGISTER_MEK", "AI_EMBEDDING", "REMOTE_CALL")) {
+            for (String name : List.of("LOAD_FILE", "GET_LOCK", "RELEASE_LOCK", "BENCHMARK", "NEXTVAL", "LBAC_CHECK", "ENCDB_REGISTER_MEK", "AI_EMBEDDING", "REMOTE_CALL")) {
                 Assert.assertFalse(name, registry.isPermissionExempt(BehaviorAction.CALL, TargetType.Function, null, null, name, "8.0.46"));
             }
         }

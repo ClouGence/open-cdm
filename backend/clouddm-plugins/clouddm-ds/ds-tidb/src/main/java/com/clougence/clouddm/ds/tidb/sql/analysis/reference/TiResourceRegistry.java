@@ -18,11 +18,18 @@ package com.clougence.clouddm.ds.tidb.sql.analysis.reference;
 import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
 import static com.clougence.sql.common.registry.RegisteredResourceType.TABLE;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
+import com.clougence.clouddm.ds.tidb.sql.parser.TiDbVersion;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
-import com.clougence.sql.common.registry.*;
+import com.clougence.sql.common.registry.FunctionBehavior;
+import com.clougence.sql.common.registry.ResourceRegistryDialect;
+import com.clougence.sql.common.registry.VersionedFunctionCatalogLoader;
+import com.clougence.sql.common.registry.VersionedResourceRegistry;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceDialect;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
@@ -30,8 +37,9 @@ import com.clougence.sql.mysql.parser.MySqlVersion;
 /** TiDB-owned registered resource facts shared by split, resource, and behavior analysis. */
 public final class TiResourceRegistry {
 
-    private static final int                                  VERSION  = 8;
-    private static final TiResourceRegistry                   INSTANCE = new TiResourceRegistry(MySqlResourceDialect.INSTANCE, MySqlResourceRegistry.instance());
+    private static final String                               BUILT_IN_FUNCTIONS_RESOURCE = "/META-INF/clougence/tidb-built-in-functions.json";
+    private static final int                                  VERSION                     = 8;
+    private static final TiResourceRegistry                   INSTANCE                    = new TiResourceRegistry(MySqlResourceDialect.INSTANCE, MySqlResourceRegistry.instance());
 
     private final ResourceRegistryDialect                     dialect;
     private final MySqlResourceRegistry                       mysqlResources;
@@ -47,7 +55,7 @@ public final class TiResourceRegistry {
         this.mysqlResources = Objects.requireNonNull(mysqlResources, "mysqlResources");
         this.resources = new VersionedResourceRegistry<>(dialect);
         this.analysisFunctions = new VersionedResourceRegistry<>(dialect);
-        registerFunctions();
+        VersionedFunctionCatalogLoader.load(TiResourceRegistry.class, BUILT_IN_FUNCTIONS_RESOURCE, resources, Integer::parseInt);
         VersionedFunctionCatalogLoader.loadAnalysisResources(TiResourceRegistry.class, "/META-INF/clougence/tidb-analysis-resources.json", analysisFunctions, Integer::parseInt);
         registerSystemTables();
     }
@@ -57,14 +65,42 @@ public final class TiResourceRegistry {
     }
 
     public boolean isSystemFunction(String functionName) {
-        return resources.contains(FUNCTION, VERSION, functionName) || mysqlResources.isSystemFunction(functionName, MySqlVersion.LATEST);
+        return isSystemFunction(functionName, TiDbVersion.LATEST);
+    }
+
+    public boolean isSystemFunction(String functionName, TiDbVersion version) {
+        return resources.contains(FUNCTION, Integer.parseInt(version.versionString()), functionName) || mysqlResources.isSystemFunction(functionName, MySqlVersion.LATEST);
     }
 
     public FunctionBehavior functionClassification(String functionName) {
+        return functionClassification(functionName, TiDbVersion.LATEST);
+    }
+
+    public FunctionBehavior functionClassification(String functionName, TiDbVersion version) {
         if (dialect.isQuotedIdentifier(functionName)) {
             return FunctionBehavior.DEFAULT;
         }
-        return analysisFunctions.find(FUNCTION, VERSION, functionName).orElse(FunctionBehavior.DEFAULT);
+        FunctionBehavior classification = analysisFunctions.find(FUNCTION, Integer.parseInt(version.versionString()), functionName).orElse(FunctionBehavior.DEFAULT);
+        FunctionBehavior compatible = mysqlResources.functionClassification(functionName, MySqlVersion.LATEST.exactVersion());
+        if (classification == FunctionBehavior.DEFAULT) {
+            return compatible;
+        }
+
+        Set<SplitQueryType> types = new LinkedHashSet<>(compatible.statementTypes());
+        types.addAll(classification.statementTypes());
+        TargetType targetType = classification.targetType();
+        BehaviorAction targetAction = classification.targetAction();
+        if (targetType == null) {
+            targetType = compatible.targetType();
+            targetAction = compatible.targetAction();
+        }
+        return new FunctionBehavior(types,
+            classification.action(),
+            targetType,
+            targetAction,
+            classification.unsafe() || compatible.unsafe(),
+            classification.metadata() || compatible.metadata(),
+            classification.privileged() || compatible.privileged());
     }
 
     public BehaviorAction functionBehavior(String functionName, boolean qualified) {
@@ -95,10 +131,6 @@ public final class TiResourceRegistry {
         return resources.contains(TABLE, VERSION, schemaName, tableName);
     }
 
-    private void registerFunctions() {
-        register(resources, FUNCTION, true, "PASSWORD", "CURRENT_RESOURCE_GROUP", "FORMAT_NANO_TIME", "JSON_SUM_CRC32", "APPROX_COUNT_DISTINCT", "APPROX_PERCENTILE", "EMBED_TEXT", "LASTVAL", "NEXTVAL", "SETVAL", "SM3", "TIDB_BOUNDED_STALENESS", "TIDB_CURRENT_TSO", "TIDB_DECODE_BASE64_KEY", "TIDB_DECODE_BINARY_PLAN", "TIDB_DECODE_KEY", "TIDB_DECODE_PLAN", "TIDB_DECODE_SQL_DIGESTS", "TIDB_ENCODE_INDEX_KEY", "TIDB_ENCODE_RECORD_KEY", "TIDB_ENCODE_SQL_DIGEST", "TIDB_IS_DDL_OWNER", "TIDB_MVCC_INFO", "TIDB_PARSE_TSO", "TIDB_PARSE_TSO_LOGICAL", "TIDB_ROW_CHECKSUM", "TIDB_SHARD", "TIDB_VERSION", "TRANSLATE", "VEC_AS_TEXT", "VEC_COSINE_DISTANCE", "VEC_DIMS", "VEC_EMBED_COSINE_DISTANCE", "VEC_EMBED_L2_DISTANCE", "VEC_FROM_TEXT", "VEC_L1_DISTANCE", "VEC_L2_DISTANCE", "VEC_L2_NORM", "VEC_NEGATIVE_INNER_PRODUCT", "VITESS_HASH");
-    }
-
     private void registerSystemTables() {
         registerTables("mysql", "analyze_jobs", "analyze_options", "bind_info", "column_stats_usage", "columns_priv", "db", "default_roles", "expr_pushdown_blacklist", "global_grants", "global_priv", "global_variables", "help_topic", "opt_rule_blacklist", "password_history", "role_edges", "schema_index_usage", "stats_buckets", "stats_extended", "stats_feedback", "stats_fm_sketch", "stats_histograms", "stats_history", "stats_meta", "stats_meta_history", "stats_table_locked", "stats_top_n", "tables_priv", "tidb", "user");
         registerTables("sys", "schema_unused_indexes");
@@ -110,9 +142,4 @@ public final class TiResourceRegistry {
         }
     }
 
-    private static <T> void register(VersionedResourceRegistry<T> registry, RegisteredResourceType type, T value, String... names) {
-        for (String name : names) {
-            registry.register(type, VERSION, VERSION, value, name);
-        }
-    }
 }

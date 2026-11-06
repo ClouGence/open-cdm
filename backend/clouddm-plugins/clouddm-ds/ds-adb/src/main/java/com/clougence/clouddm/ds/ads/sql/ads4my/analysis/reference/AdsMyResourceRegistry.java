@@ -20,9 +20,14 @@ import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
 import java.util.Locale;
 
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.AdsMyVersion;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.common.registry.VersionedFunctionCatalogLoader;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
+import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
+import com.clougence.sql.mysql.parser.MySqlVersion;
 
 public final class AdsMyResourceRegistry {
 
@@ -43,11 +48,30 @@ public final class AdsMyResourceRegistry {
             .loadAnalysisResources(AdsMyResourceRegistry.class, ANALYSIS_RESOURCES, analysisFunctions, version -> AdsMyVersion.parse(version).ordinal() + 1);
     }
 
+    public FunctionBehavior functionClassification(String name, boolean hasArguments) {
+        if (!hasArguments && "LAST_INSERT_ID".equalsIgnoreCase(name)) {
+            return FunctionBehavior.DEFAULT;
+        }
+
+        FunctionBehavior classification = functionClassification(name);
+        if (classification.statementTypes().contains(SplitQueryType.SESSION_SETTING_WRITE)) {
+            return new FunctionBehavior(classification.statementTypes(),
+                BehaviorAction.CONFIGURE,
+                TargetType.Session,
+                BehaviorAction.CONFIGURE,
+                classification.unsafe(),
+                classification.metadata(),
+                classification.privileged());
+        }
+        return classification;
+    }
+
     public FunctionBehavior functionClassification(String name) {
         if (name.startsWith("`") || name.startsWith("\"")) {
             return FunctionBehavior.DEFAULT;
         }
-        return analysisFunctions.find(FUNCTION, AdsMyVersion.LATEST.ordinal() + 1, name).orElse(FunctionBehavior.DEFAULT);
+        return analysisFunctions.find(FUNCTION, AdsMyVersion.LATEST.ordinal() + 1, name)
+            .orElseGet(() -> MySqlResourceRegistry.instance().functionClassification(name, MySqlVersion.LATEST.exactVersion()));
     }
 
     public boolean isSystemFunction(String name, AdsMyVersion version) {

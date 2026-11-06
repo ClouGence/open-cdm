@@ -39,12 +39,7 @@ public final class MySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
     }
 
     public boolean isOrdinaryFunction(String catalog, String schema, String objectName, String databaseVersion) {
-        if (!isPermissionExempt(BehaviorAction.CALL, TargetType.Function, catalog, schema, objectName, databaseVersion)) {
-            return false;
-        }
-
-        MySqlVersion version = MySqlVersion.parse(databaseVersion);
-        return resources.functionClassification(objectName, version.exactVersion()).metadata() || resources.functionStatementType(objectName, version, true) == null;
+        return isPermissionExempt(BehaviorAction.CALL, TargetType.Function, catalog, schema, objectName, databaseVersion);
     }
 
     @Override
@@ -56,7 +51,7 @@ public final class MySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
 
             MariaDbVersion release = MariaDbVersion.parse(databaseVersion);
             FunctionBehavior classification = MariaDbResourceRegistry.instance().functionClassification(objectName, release.exactVersion());
-            if (classification.privileged()) {
+            if (classification.action() != BehaviorAction.CALL || classification.privileged() || classification.unsafe()) {
                 return false;
             }
 
@@ -74,23 +69,13 @@ public final class MySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
                 return false;
             }
 
-            if (resources.functionStatementType(objectName, baseline, true) != null && !classification.metadata()) {
-                return false;
-            }
-
-            if (resources.functionBehavior(objectName, baseline.exactVersion()) != BehaviorAction.CALL) {
-                return false;
-            }
             return true;
         }
 
         MySqlVersion version = MySqlVersion.parse(databaseVersion);
         if (targetType == TargetType.Function && action == BehaviorAction.CALL) {
             FunctionBehavior classification = resources.functionClassification(objectName, version.exactVersion());
-            if (classification.privileged() || classification.action() != BehaviorAction.CALL) {
-                return false;
-            }
-            if (resources.functionStatementType(objectName, version, false) != null && !classification.metadata()) {
+            if (classification.action() != BehaviorAction.CALL || classification.privileged() || classification.unsafe()) {
                 return false;
             }
             return schema == null ? !resources.isUserDefinedFunction(objectName, false, version) : resources.isSystemFunction(schema, objectName, version);

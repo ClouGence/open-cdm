@@ -97,7 +97,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
                 }
             }
 
-            Optional<SplitQueryType> functionType = resources.functionType(ctx.name.getText());
+            Optional<SplitQueryType> functionType = resources.functionClassification(ctx.name.getText()).statementTypes().stream().findFirst();
             if (functionType.isPresent()) {
                 return functionType.get();
             }
@@ -180,7 +180,7 @@ public class DmSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     private boolean isUserFunction(DmSqlParser.FunctionCallContext context) {
         String name = context.name.getText();
-        return resources.isUserDefinedFunction(name, name.indexOf('.') >= 0);
+        return name.indexOf('.') >= 0 || !resources.isSystemFunction(DmVersion.LATEST, name);
     }
 
     private boolean isColumnComment(ParseTree tree) {

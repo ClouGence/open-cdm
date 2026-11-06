@@ -40,7 +40,6 @@ public final class HanaSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi
 
         HanaVersion release = HanaVersion.parse(databaseVersion);
 
-        return action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && schema == null
-               && (classification.metadata() || resources.isSystemFunction(objectName, release));
+        return action == BehaviorAction.CALL && targetType == TargetType.Function && catalog == null && schema == null && resources.isSystemFunction(objectName, release);
     }
 }

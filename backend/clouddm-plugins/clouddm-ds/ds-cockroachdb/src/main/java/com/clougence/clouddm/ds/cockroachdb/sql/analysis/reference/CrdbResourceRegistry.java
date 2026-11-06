@@ -54,7 +54,7 @@ public final class CrdbResourceRegistry {
         CockroachDbVersion release = CockroachDbVersion.parse(databaseVersion);
 
         FunctionBehavior rule = analysis.find(FUNCTION, release.ordinal() + 1, name).orElse(FunctionBehavior.DEFAULT);
-        if (rule.privileged() || rule.metadata() || rule.action() != BehaviorAction.CALL) {
+        if (rule.privileged() || rule.unsafe() || rule.action() != BehaviorAction.CALL) {
             return false;
         }
         return functions.contains(FUNCTION, release.ordinal() + 1, name);

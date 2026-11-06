@@ -19,9 +19,14 @@ import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
 
 import java.util.Locale;
 
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.common.registry.VersionedFunctionCatalogLoader;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
+import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
+import com.clougence.sql.mysql.parser.MySqlVersion;
 import com.clougence.sql.polardbx.parser.PolarDbXVersion;
 
 public final class PorXResourceRegistry {
@@ -47,14 +52,26 @@ public final class PorXResourceRegistry {
         if (!hasArguments && "LAST_INSERT_ID".equalsIgnoreCase(name)) {
             return FunctionBehavior.DEFAULT;
         }
-        return functionClassification(name);
+
+        FunctionBehavior classification = functionClassification(name);
+        if (classification.statementTypes().contains(SplitQueryType.SESSION_SETTING_WRITE)) {
+            return new FunctionBehavior(classification.statementTypes(),
+                BehaviorAction.CONFIGURE,
+                TargetType.Session,
+                BehaviorAction.CONFIGURE,
+                classification.unsafe(),
+                classification.metadata(),
+                classification.privileged());
+        }
+        return classification;
     }
 
     public FunctionBehavior functionClassification(String name) {
         if (name.startsWith("`") || name.startsWith("\"")) {
             return FunctionBehavior.DEFAULT;
         }
-        return analysisFunctions.find(FUNCTION, PolarDbXVersion.LATEST.ordinal() + 1, name).orElse(FunctionBehavior.DEFAULT);
+        return analysisFunctions.find(FUNCTION, PolarDbXVersion.LATEST.ordinal() + 1, name)
+            .orElseGet(() -> MySqlResourceRegistry.instance().functionClassification(name, MySqlVersion.LATEST.exactVersion()));
     }
 
     public boolean isSystemFunction(String name, PolarDbXVersion version) {
