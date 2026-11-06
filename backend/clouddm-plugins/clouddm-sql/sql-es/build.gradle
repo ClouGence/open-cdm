@@ -24,6 +24,8 @@ dependencies {
     api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     api project(':cg-dslparser')
     api project(':sqlc-common')
+    testRuntimeOnly "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testRuntimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${JACKSON_VERSION}"
 }
 
 description = 'sql-es'

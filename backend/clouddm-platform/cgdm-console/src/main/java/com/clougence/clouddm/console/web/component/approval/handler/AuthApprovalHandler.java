@@ -33,6 +33,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ticket.ApplyAuth;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpAddAuthTicketFO;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
@@ -53,7 +54,7 @@ import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.clougence.utils.format.DateFormatType;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +88,7 @@ public class AuthApprovalHandler implements ApprovalHandler {
         }
 
         DmAuthApprovalDO authTicketInfo = authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
-        RdpAddAuthTicketFO fo = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
+        RdpAddAuthTicketFO fo = RdpConvertUtils.readAuthTicket(authTicketInfo.getApplyAuthInfo());
 
         this.authServiceForManage.appendUserAuth(ticketDO.getOwnerUid(), fo);
 
@@ -108,7 +109,7 @@ public class AuthApprovalHandler implements ApprovalHandler {
         List<PrimaryUserVO> userVOS = new ArrayList<>();
 
         DmAuthApprovalDO authTicketInfo = this.authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
-        RdpAddAuthTicketFO list = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
+        RdpAddAuthTicketFO list = RdpConvertUtils.readAuthTicket(authTicketInfo.getApplyAuthInfo());
 
         List<Long> idList = list.getApplyAuths().stream().map(ApplyAuth::getResId).toList();
 
@@ -159,7 +160,7 @@ public class AuthApprovalHandler implements ApprovalHandler {
         }
 
         DmAuthApprovalDO authTicketInfo = authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
-        RdpAddAuthTicketFO ticketFO = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
+        RdpAddAuthTicketFO ticketFO = RdpConvertUtils.readAuthTicket(authTicketInfo.getApplyAuthInfo());
 
         // find plugin
         AuthForm form = getAuthForm(ticketFO, ticketDO, authTicketInfo.getKindType());
@@ -201,8 +202,14 @@ public class AuthApprovalHandler implements ApprovalHandler {
         form.setApplyAuths(new ArrayList<>());
         for (ApplyAuth applyAuth : ticketFO.getApplyAuths()) {
             AuthForm.ApplyAuth auth = new AuthForm.ApplyAuth();
-            auth.setEndTime(applyAuth.getEndTime());
-            auth.setStartTime(applyAuth.getStartTime());
+            if (applyAuth.getEndTimeMs() != null) {
+                auth.setEndTime(DateFormatType.s_yyyyMMdd_HHmmss.format(new Date(applyAuth.getEndTimeMs())));
+            }
+
+            if (applyAuth.getStartTimeMs() != null) {
+                auth.setStartTime(DateFormatType.s_yyyyMMdd_HHmmss.format(new Date(applyAuth.getStartTimeMs())));
+            }
+
             auth.setAuthLabels(new ArrayList<>());
             List<AuthInfo> allAuthLabel = this.authServiceForManage.getAllAuthLabel(authKind);
             List<String> authLabels = applyAuth.getAuthLabels();

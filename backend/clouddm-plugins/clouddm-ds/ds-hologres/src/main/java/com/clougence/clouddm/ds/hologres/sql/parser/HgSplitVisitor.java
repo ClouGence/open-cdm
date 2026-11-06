@@ -15,7 +15,11 @@
  */
 package com.clougence.clouddm.ds.hologres.sql.parser;
 
+import java.util.List;
+
+import com.clougence.clouddm.ds.hologres.sql.analysis.reference.HgResourceRegistry;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
@@ -32,5 +36,10 @@ public class HgSplitVisitor extends PgSplitVisitor {
             return type;
         }
         return super.visitCallstmt(ctx);
+    }
+
+    @Override
+    protected FunctionBehavior extensionFunctionBehavior(List<String> names) {
+        return HgResourceRegistry.instance().functionBehavior(names);
     }
 }

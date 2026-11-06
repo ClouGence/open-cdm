@@ -17,14 +17,14 @@ package com.clougence.clouddm.ds.cloudberry.sql.parser;
 
 import static com.clougence.sql.postgres.parser.antlr.PgSqlLexer.LANGUAGE;
 
+import java.util.List;
+
+import com.clougence.clouddm.ds.cloudberry.sql.analysis.reference.CbResourceRegistry;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser.CreateplangstmtContext;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser.CreatetransformstmtContext;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser.DropstmtContext;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser.DroptransformstmtContext;
-import com.clougence.sql.postgres.parser.antlr.PgSqlParser.RenamestmtContext;
+import com.clougence.sql.postgres.parser.antlr.PgSqlParser.*;
 
 /** Cloudberry management classification that must not affect PostgreSQL. */
 public class CbSplitVisitor extends PgSplitVisitor {
@@ -62,5 +62,10 @@ public class CbSplitVisitor extends PgSplitVisitor {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         return super.visitRenamestmt(ctx);
+    }
+
+    @Override
+    protected FunctionBehavior extensionFunctionBehavior(List<String> names) {
+        return CbResourceRegistry.instance().functionBehavior(names);
     }
 }

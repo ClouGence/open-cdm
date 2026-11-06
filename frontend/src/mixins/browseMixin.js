@@ -1,5 +1,13 @@
 const browseMixin = {
   methods: {
+    browseApplyPermissions(node, leaf = null) {
+      const query = { type: 'apply', levels: JSON.stringify(this.browseGenLevelsData(node).map(String)) };
+      if (leaf) {
+        query.targetType = leaf.nodeType;
+        query.targetName = leaf.objName || leaf.title;
+      }
+      this.$router.push({ path: '/system/permission', query });
+    },
     browseGenLevelsData(node, levels = node.levels, field = 'id') {
       return levels.map((level) => node[level][field]);
     },

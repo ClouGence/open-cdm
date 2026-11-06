@@ -566,7 +566,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
             if (StringUtils.equalsIgnoreCase("true", enable)) {
                 SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(ctx.getLevels().dsDO().getId());
-                SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngine.name());
+                SysObjectRegistrySpi registry = PluginManager.findSysObjectRegistry(ctx.getLevels().dsDO().getDataSourceType(), sqlEngine.name());
                 boolean hasNonReadBehavior = BehaviorRelations.flattenResource(registry, parameters.version(), request.getRelations())
                     .stream()
                     .filter(behavior -> behavior.authKind() != null)
@@ -604,7 +604,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             BehaviorRequest denied = authResult.getDeniedRequests().get(0);
             String authLabel = denied.authKind().getAuthLabel();
             String authLabelI18n = DmI18nUtils.getMessage(authLabel);
-            String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), denied.resource().getObjectPath(), authLabelI18n);
+            String resourcePath = BehaviorRelations
+                .resourcePath(denied.resource(), DmDsUtils.currentResourcePath(ctx.getLevels().levelsParam()), DmDsUtils.instanceResourcePath(ctx.getLevels().levelsParam()));
+            String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), resourcePath, authLabelI18n);
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
@@ -999,7 +1001,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     String oldValue = status.getCurCatalog();
                     String newValue = (String) newLevels.levelsParam().get(UmiTypes.Catalog);
                     if (!StringUtils.equals(oldValue, newValue)) {
-                        keepSession = ctx.isSupportSwitchCatalog();
+                        keepSession = keepSession && ctx.isSupportSwitchCatalog();
                         changeTo.put(UmiTypes.Catalog, newValue);
                     }
                     break;
@@ -1008,7 +1010,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     String oldValue = status.getCurSchema();
                     String newValue = (String) newLevels.levelsParam().get(UmiTypes.Schema);
                     if (!StringUtils.equals(oldValue, newValue)) {
-                        keepSession = ctx.isSupportSwitchSchema();
+                        keepSession = keepSession && ctx.isSupportSwitchSchema();
                         changeTo.put(UmiTypes.Schema, newValue);
                     }
                     break;
@@ -1029,7 +1031,11 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         // auto commit
         if (ctx.getCtxDTO().isRdbAutoCommit()) {
-            this.switchCtxForAutoSession(queryDTO, consumer, ctx, levelsDef, changeTo);
+            if (keepSession) {
+                this.switchCtxForAutoSession(queryDTO, consumer, ctx, levelsDef, changeTo);
+            } else {
+                this.switchCtxForNewSession(queryDTO, consumer, ctx, levelsDef, changeTo);
+            }
             return;
         }
 
@@ -1275,7 +1281,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     }
                     consumer.accept(BuildResMsgUtils.buildConsoleMsg(queryDTO, message, MessageLevel.Info, true));
                 }
-            } else {
+            } else if (applyAutoCommit != null) {
                 this.queryService.commitSession(curUid, sessionId);
                 this.queryService.closeSession(curUid, sessionId);
 

@@ -41,7 +41,7 @@ public class EsBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     private StatementBehavior analyze(SplitScript script, Map<UmiTypes, Object> levels) {
         EsRequest request = new EsRequestParser(parameters).parse(script.getScript());
-        EsRequestAnalysis analysis = EsRequestPolicy.analyze(request);
+        EsRequestAnalysis analysis = EsRequestPolicy.analyze(request, parameters);
         String instance = "";
         if (levels != null && levels.get(UmiTypes.Instance) != null) {
             instance = levels.get(UmiTypes.Instance).toString();

@@ -15,11 +15,16 @@
  */
 package com.clougence.sql.mysql.analysis.sysobj;
 
+import java.util.Locale;
+
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.mysql.MySqlEngineSpi;
+import com.clougence.sql.mysql.analysis.reference.MariaDbResourceRegistry;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
+import com.clougence.sql.mysql.parser.MariaDbVersion;
 import com.clougence.sql.mysql.parser.MySqlVersion;
 import com.clougence.utils.StringUtils;
 
@@ -33,10 +38,46 @@ public final class MySysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
         return MySqlEngineSpi.NAME;
     }
 
+    public boolean isOrdinaryFunction(String catalog, String schema, String objectName, String databaseVersion) {
+        return isPermissionExempt(BehaviorAction.CALL, TargetType.Function, catalog, schema, objectName, databaseVersion);
+    }
+
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
+        if (databaseVersion != null && databaseVersion.toLowerCase(Locale.ROOT).contains("mariadb")) {
+            if (targetType != TargetType.Function || action != BehaviorAction.CALL || catalog != null || schema != null) {
+                return false;
+            }
+
+            MariaDbVersion release = MariaDbVersion.parse(databaseVersion);
+            FunctionBehavior classification = MariaDbResourceRegistry.instance().functionClassification(objectName, release.exactVersion());
+            if (classification.action() != BehaviorAction.CALL || classification.privileged() || classification.unsafe()) {
+                return false;
+            }
+
+            if (MariaDbResourceRegistry.instance().contains(objectName, release.exactVersion())) {
+                return true;
+            }
+
+            // Newer MySQL-only functions do not establish MariaDB compatibility.
+            MySqlVersion baseline = MySqlVersion.MYSQL_8_0;
+            if (!resources.isBuiltInFunction(objectName, MySqlVersion.MYSQL_5_6)) {
+                return false;
+            }
+
+            if (!resources.isBuiltInFunction(objectName, baseline)) {
+                return false;
+            }
+
+            return true;
+        }
+
         MySqlVersion version = MySqlVersion.parse(databaseVersion);
         if (targetType == TargetType.Function && action == BehaviorAction.CALL) {
+            FunctionBehavior classification = resources.functionClassification(objectName, version.exactVersion());
+            if (classification.action() != BehaviorAction.CALL || classification.privileged() || classification.unsafe()) {
+                return false;
+            }
             return schema == null ? !resources.isUserDefinedFunction(objectName, false, version) : resources.isSystemFunction(schema, objectName, version);
         }
         if (targetType == TargetType.Procedure && action == BehaviorAction.CALL) {

@@ -13,4 +13,11 @@ class CompatibleClipboardService extends BrowserClipboardService {
 // Install before the first editable, read-only or diff editor initializes the shared services.
 StandaloneServices.initialize({ clipboardService: new SyncDescriptor(CompatibleClipboardService) });
 
+// Monaco shares one theme across editable, read-only, and diff editors.
+const applyTheme = () => {
+  monaco.editor.setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'vs-dark' : 'vs');
+};
+applyTheme();
+new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
 export { monaco };

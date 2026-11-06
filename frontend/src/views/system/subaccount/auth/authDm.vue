@@ -105,11 +105,11 @@
                         class="auth-tabs__item"
                         :class="{
                           'is-active': curRightTreeTab === leafAuthTab,
-                          'is-disabled': !['Table', 'TABLE', 'Topic', 'TOPIC', 'AllType'].includes(curElementType)
+                          'is-disabled': !['Table', 'TABLE', 'Topic', 'TOPIC', 'Timeseries', 'TIMESERIES', 'AllType'].includes(curElementType)
                         }"
                         @click="handleAuthTabClick(leafAuthTab)"
                       >
-                        {{ leafAuthTab === 'TOPIC' ? $t('topic-permissions') : $t('biao-quan-xian') }}
+                        {{ leafAuthTabLabel }}
                       </span>
                     </div>
                     <div class="auth-tabs__extra">
@@ -175,7 +175,7 @@
                         :disableAll="previewMode || isView"
                       />
                     </div>
-                    <div v-show="['TABLE', 'TOPIC'].includes(curRightTreeTab)">
+                    <div v-show="['TABLE', 'TOPIC', 'TIMESERIES'].includes(curRightTreeTab)">
                       <v-tree
                         :emptyText="$t('zan-wu-shu-ju')"
                         :render="renderAuthNode"
@@ -315,6 +315,7 @@ import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { mapState } from 'vuex';
+import { filterLeafGroup } from '@/utils/datasourceBrowser';
 import i18n from '@/i18n';
 import { AUTH_ELEMENT_TYPES, ELEMENT_REVERSE_TYPE_MAP, ELEMENT_TYPE_MAP, ELEMENT_TYPE_REF_MAP, START_RECORD_NAMES_CONUT } from './constant';
 import { getResTypeToNames, findNodeByKey, fetchWithTimeout, flattenTree } from './utils';
@@ -529,10 +530,18 @@ export default {
       ];
     },
     leafAuthTab() {
-      if (this.getNodeDataSourceType(this.curNode) === 'Kafka') {
-        return 'TOPIC';
-      }
+      const nodeType = this.getNormalizedNodeType(this.curNode);
+      if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(nodeType)) return nodeType;
+      const dsType = this.getNodeDataSourceType(this.curNode);
+      const categories = this.dmGlobalSetting.dsSettingDef?.[dsType]?.categories || {};
+      const leaves = filterLeafGroup(Object.values(categories.leafGroup || {}).flat(), this.curNode?.objAttr);
+      if (leaves.some((leaf) => (leaf.type || leaf) === 'TIMESERIES')) return 'TIMESERIES';
+      if (leaves.some((leaf) => (leaf.type || leaf) === 'TOPIC')) return 'TOPIC';
       return 'TABLE';
+    },
+    leafAuthTabLabel() {
+      const labels = { TIMESERIES: 'timeseries-permissions', TOPIC: 'topic-permissions', TABLE: 'biao-quan-xian' };
+      return this.$t(labels[this.leafAuthTab]);
     },
     showCustomAuthTime() {
       return this.curRangeKey === 'custom';
@@ -566,7 +575,8 @@ export default {
         (name === 'Instance' && !['Instance', 'INSTANCE', 'AllType'].includes(this.curElementType)) ||
         (name === 'CATALOG' && !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(this.curElementType)) ||
         (name === 'SCHEMA' && !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(this.curElementType)) ||
-        (['TABLE', 'TOPIC'].includes(name) && !['Table', 'TABLE', 'Topic', 'TOPIC', 'AllType'].includes(this.curElementType))
+        (['TABLE', 'TOPIC', 'TIMESERIES'].includes(name) &&
+          !['Table', 'TABLE', 'Topic', 'TOPIC', 'Timeseries', 'TIMESERIES', 'AllType'].includes(this.curElementType))
       ) {
         return;
       }
@@ -714,13 +724,13 @@ export default {
       this.globalResourceOriginalEnabled = !!globalAuth;
       if (globalAuth) {
         this.globalResourceAuthId = globalAuth.id;
-        this.globalResourceOriginalStartTime = this.formatAuthTime(globalAuth.startTime);
-        this.globalResourceOriginalEndTime = this.formatAuthTime(globalAuth.endTime);
-        if (globalAuth.startTime) {
-          this.authTime.startTime = dayjs(globalAuth.startTime);
+        this.globalResourceOriginalStartTime = this.authTimeMs(globalAuth.startTimeMs);
+        this.globalResourceOriginalEndTime = this.authTimeMs(globalAuth.endTimeMs);
+        if (globalAuth.startTimeMs != null) {
+          this.authTime.startTime = dayjs(globalAuth.startTimeMs);
         }
-        if (globalAuth.endTime) {
-          this.authTime.endTime = dayjs(globalAuth.endTime);
+        if (globalAuth.endTimeMs != null) {
+          this.authTime.endTime = dayjs(globalAuth.endTimeMs);
         }
         this.syncAuthRangeKeyFromTime();
       }
@@ -733,8 +743,8 @@ export default {
       }
       await this.handleGetPreviewData();
     },
-    formatAuthTime(value) {
-      return value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : null;
+    authTimeMs(value) {
+      return value == null ? null : dayjs(value).valueOf();
     },
     syncAuthRangeKeyFromTime() {
       this.curRangeKey = this.authTime?.startTime || this.authTime?.endTime ? 'custom' : 'permanent';
@@ -928,8 +938,8 @@ export default {
             flattenAuthArr.forEach((authItem) => {
               if (authItem.checked && authDataTree.isEdit) {
                 appends.push({
-                  startTime: authDataTree?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
-                  endTime: authDataTree?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
+                  startTimeMs: authDataTree?.authTime?.startTime?.valueOf() ?? null,
+                  endTimeMs: authDataTree?.authTime?.endTime?.valueOf() ?? null,
                   resId: instanceItem?.objId,
                   authLabels: [authItem?.key],
                   resPaths: getResTypeToNames(authDataTree)
@@ -938,8 +948,6 @@ export default {
 
               if (authItem.action === 'deletes' && authDataTree.isEdit) {
                 deletes.push({
-                  startTime: authDataTree?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
-                  endTime: authDataTree?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
                   resId: instanceItem?.objId,
                   authLabels: [authItem?.key],
                   resPaths: getResTypeToNames(authDataTree)
@@ -982,14 +990,14 @@ export default {
       if (this.activeAuthTab !== 'DataSource') {
         return changes;
       }
-      const startTime = this.formatAuthTime(this.authStartTime);
-      const endTime = this.formatAuthTime(this.authEndTime);
+      const startTime = this.authTimeMs(this.authStartTime);
+      const endTime = this.authTimeMs(this.authEndTime);
       const authData = {
         resId: 0,
         resPaths: [],
         authLabels: [],
-        startTime,
-        endTime
+        startTimeMs: startTime,
+        endTimeMs: endTime
       };
       if (this.authTarget.resourceManage && !this.globalResourceOriginalEnabled) {
         changes.appends.push(authData);
@@ -1080,6 +1088,7 @@ export default {
           case 'TOPIC':
             iconType = 'TOPIC';
             break;
+          case 'TIMESERIES':
           case 'TABLE':
             iconType = 'TABLE';
             break;
@@ -1139,14 +1148,12 @@ export default {
       }
     },
     renderAuthNode(node) {
-      const style = {
-        color: '#000'
-      };
+      const style = {};
       if (this.previewMode && node?.isLeaf) {
         if (node?.action === 'deletes' || (this.isBatchRevoke && node?.action === 'appends')) {
-          style.color = 'red';
+          style.color = 'var(--error-color)';
         } else if (node?.action === 'appends') {
-          style.color = 'green';
+          style.color = 'var(--success-color)';
         }
       }
       return (
@@ -1262,8 +1269,6 @@ export default {
         .filter((item) => this.isPathPrefix(currentPath, item.resPaths))
         .map((item) => ({
           authId: item?.id || 0,
-          startTime: item?.startTime ? dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss') : null,
-          endTime: item?.endTime ? dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss') : null,
           resId,
           authLabels: item.authLabels,
           resPaths: item.resPaths
@@ -1340,6 +1345,8 @@ export default {
         Table: 'tableTree',
         Topic: 'tableTree',
         TOPIC: 'tableTree',
+        Timeseries: 'tableTree',
+        TIMESERIES: 'tableTree',
         TABLE: 'tableTree'
       };
       const normalizedTab =
@@ -1527,7 +1534,7 @@ export default {
           return;
         }
 
-        if (['TABLE', 'TOPIC'].includes(node?.objType)) {
+        if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(node?.objType)) {
           const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
           this.$refs.dataSourceTree?.setData(final);
           if (node?.key && shouldLoadAuthTree) {
@@ -1747,7 +1754,7 @@ export default {
       }
 
       return tree.map((node) => {
-        if (['TABLE', 'TOPIC'].includes(node.objType)) {
+        if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(node.objType)) {
           const { children, ...rest } = node;
           return rest;
         }
@@ -1811,7 +1818,7 @@ export default {
       return AUTH_ELEMENT_TYPES.includes(this.normalizeAuthElementType(elementType));
     },
     isResourceLeafNode(node) {
-      return !!node?.isLeaf || ['TABLE', 'TOPIC'].includes(this.getNormalizedNodeType(node));
+      return !!node?.isLeaf || ['TABLE', 'TOPIC', 'TIMESERIES'].includes(this.getNormalizedNodeType(node));
     },
     canUseLazyPlaceholder(node) {
       return !this.isResourceLeafNode(node);
@@ -1882,7 +1889,7 @@ export default {
     },
     async canLoadResourceChildren(node) {
       const nodeType = this.getNormalizedNodeType(node);
-      if (!node || ['TABLE', 'TOPIC'].includes(nodeType)) {
+      if (!node || ['TABLE', 'TOPIC', 'TIMESERIES'].includes(nodeType)) {
         return false;
       }
       if (nodeType === 'ENV' || nodeType === 'Env') {
@@ -2039,7 +2046,7 @@ export default {
           if (idx < typeLevels.length - 1) {
             return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]] || typeLevels[idx + 1]; // +1 elemenType pointing to subnodes;
           }
-          const leafGroup = categories.leafGroup?.[typeLevels[idx]] || [];
+          const leafGroup = filterLeafGroup(categories.leafGroup?.[typeLevels[idx]], node.objAttr);
           const leafTypes = leafGroup.map((leaf) => (typeof leaf === 'string' ? leaf : leaf?.type)).filter(Boolean);
           const tableLeafType = leafTypes.find((leafType) => this.normalizeAuthElementType(leafType) === 'Table');
           const authLeafType = tableLeafType || leafTypes.find((leafType) => this.isSupportedAuthElementType(leafType));
@@ -2245,8 +2252,8 @@ export default {
             const rawAuthData = Array.isArray(hasAutn.data) ? hasAutn.data : [];
             const authData = rawAuthData;
             authData.forEach((authWrap) => {
-              if (authWrap.startTime) this.authTime.startTime = dayjs(authWrap.startTime);
-              if (authWrap.endTime) this.authTime.endTime = dayjs(authWrap.endTime);
+              if (authWrap.startTimeMs != null) this.authTime.startTime = dayjs(authWrap.startTimeMs);
+              if (authWrap.endTimeMs != null) this.authTime.endTime = dayjs(authWrap.endTimeMs);
               const dsAuthKinds = Array.isArray(authWrap?.dsAuthKinds) ? authWrap.dsAuthKinds : [];
               if (dsAuthKinds.length) hasAuthList.push(...dsAuthKinds);
 
@@ -2260,8 +2267,8 @@ export default {
               if (!exists && allExistInFlatten) {
                 this.timeList[node.key].push({
                   auths: dsAuthKinds,
-                  startTime: authWrap.startTime ? dayjs(authWrap.startTime) : null,
-                  endTime: authWrap.endTime ? dayjs(authWrap.endTime) : null,
+                  startTime: authWrap.startTimeMs != null ? dayjs(authWrap.startTimeMs) : null,
+                  endTime: authWrap.endTimeMs != null ? dayjs(authWrap.endTimeMs) : null,
                   level: authWrap.level
                 });
               }
@@ -2313,6 +2320,8 @@ export default {
                 break;
               case 'Topic':
               case 'TOPIC':
+              case 'Timeseries':
+              case 'TIMESERIES':
               case 'Table':
               case 'TABLE':
                 this.$refs.tableTree?.setData(filterAuth);
@@ -2514,6 +2523,7 @@ export default {
           this.$refs.schemaTree.filter(this.rightTreeKeyword);
           break;
         case 'TOPIC':
+        case 'TIMESERIES':
         case 'TABLE':
           this.$refs.tableTree.filter(this.rightTreeKeyword);
           break;

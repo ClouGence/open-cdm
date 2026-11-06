@@ -4406,6 +4406,7 @@
   "query-json-view": "JSON 查看",
   "query-text-view": "文本查看",
   "query-format-too-large": "请求超过语言服务大小限制，无法格式化。",
+  "query-language-request-failed": "语言服务请求失败",
   "sqlResult": {
     "maximize": "最大化结果区",
     "restore": "恢复布局",
@@ -4645,5 +4646,17 @@
   "approval-team-empty-reason": "无法选择：团队没有成员",
   "approval-team-unavailable-reason": "无法选择：{count} 位成员不可用（账号已停用、删除或无工单处理权限）",
   "approval-team-approve-reason": "无法选择：{members} 缺少工单审批权限",
-  "approval-team-execute-reason": "无法选择：{members} 缺少工单执行权限"
+  "approval-team-execute-reason": "无法选择：{members} 缺少工单执行权限",
+  "ticket-create-similar": "创建相似工单",
+  "ticket-similar-load-failed": "无法读取原工单，请重试或返回工单列表。",
+  "ticket-similar-target-unavailable": "原工单的数据源已不可用，请重新选择目标实例和数据库。",
+  "appearance-light": "浅色",
+  "appearance-dark": "深色",
+  "appearance-system": "跟随系统",
+  "appearance-menu-label": "外观：{mode}",
+  "timeseries-permissions": "测点权限",
+  "object-browser-search-device-placeholder": "搜索设备",
+  "object-browser-search-timeseries-placeholder": "搜索完整测点路径",
+  "object-browser-read-only": "只读",
+  "permission-target-unavailable": "申请的资源当前不可用，请刷新资源树后重新选择。"
 }

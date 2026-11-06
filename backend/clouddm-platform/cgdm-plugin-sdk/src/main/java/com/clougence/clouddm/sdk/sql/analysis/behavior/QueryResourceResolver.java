@@ -28,5 +28,5 @@ public interface QueryResourceResolver {
      * Replace selector relations with concrete resources and pin the execution scope on the request.
      * Only enumeration may omit denied resources; mutations must retain every target for authorization.
      */
-    void resolve(QueryRequest request, Function<UmiTypes, List<String>> objectNames, Predicate<BehaviorRelation> permitted);
+    void resolve(QueryRequest request, Function<UmiTypes, List<String>> objectNames, Predicate<BehaviorRelation> permitted, QueryResourceContext context);
 }

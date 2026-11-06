@@ -15,17 +15,19 @@
  */
 package com.clougence.sql.hana;
 
-import com.clougence.sql.hana.i18n.HanaSqlI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.sql.hana.analysis.sysobj.HanaSysObjectRegistrySpi;
+import com.clougence.sql.hana.i18n.HanaSqlI18nKeys;
 
 @Plugin(name = "i18n::" + HanaSqlI18nKeys.SQL_ENGINE_SAP_HANA_SQL, display = false)
 public class HanaSqlPlugin implements DsPlugin {
 
     @Override
     public void loadPlugin(DsPluginBinder dsPlugin) {
+        dsPlugin.addGlobalSpi(new HanaSysObjectRegistrySpi());
         dsPlugin.bindGlobalI18n(HanaSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new HanaSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
     }

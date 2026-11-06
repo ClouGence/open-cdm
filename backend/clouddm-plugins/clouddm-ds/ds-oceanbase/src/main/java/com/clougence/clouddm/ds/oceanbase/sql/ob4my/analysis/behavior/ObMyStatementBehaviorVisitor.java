@@ -15,15 +15,7 @@
  */
 package com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.behavior;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -32,6 +24,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import com.clougence.clouddm.ds.oceanbase.sql.ob4my.analysis.reference.ObMyResourceRegistry;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParser;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParserBaseVisitor;
 import com.clougence.clouddm.ds.oceanbase.sql.parser.antlr.ObForMySqlParser.*;
@@ -39,12 +32,13 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Void> {
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
-    private final StatementBehavior        behavior = new StatementBehavior();
-    private final Set<String>               commonTables = new HashSet<>();
+    private final StatementBehavior        behavior     = new StatementBehavior();
+    private final Set<String>              commonTables = new HashSet<>();
     private boolean                        planning;
 
     ObMyStatementBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
@@ -124,15 +118,13 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
 
     @Override
     public Void visitShowTrace(ShowTraceContext ctx) {
-        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
-            objects.instanceObject(TargetType.Profile, ctx.TRACE().getSymbol(), "query_trace"));
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Profile, ctx.TRACE().getSymbol(), "query_trace"));
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitShowQueryResponseTime(ShowQueryResponseTimeContext ctx) {
-        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
-            objects.instanceObject(TargetType.Statistics, ctx.QUERY_RESPONSE_TIME().getSymbol(), "query_response_time"));
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, objects.instanceObject(TargetType.Statistics, ctx.QUERY_RESPONSE_TIME().getSymbol(), "query_response_time"));
         return null;
     }
 
@@ -198,8 +190,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
 
     @Override
     public Void visitUseStatement(UseStatementContext ctx) {
-        add(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH,
-            objects.object(TargetType.Schema, ctx.uid(), List.of(unquote(text(ctx.uid())))));
+        add(SplitQueryType.SWITCH_SCHEMA, BehaviorAction.SWITCH, objects.object(TargetType.Schema, ctx.uid(), List.of(unquote(text(ctx.uid())))));
         return null;
     }
 
@@ -210,8 +201,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         SplitQueryType type = SplitQueryType.SESSION_SETTING_WRITE;
         if (ctx.LOCAL_ID() != null) {
             type = SplitQueryType.SESSION_VARIABLE_RW;
-        } else if (ctx.GLOBAL() != null || ctx.PERSIST() != null
-            || ctx.GLOBAL_ID() != null && ctx.GLOBAL_ID().getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
+        } else if (ctx.GLOBAL() != null || ctx.PERSIST() != null || ctx.GLOBAL_ID() != null && ctx.GLOBAL_ID().getText().toUpperCase(Locale.ROOT).startsWith("@@GLOBAL.")) {
             type = SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         if (ctx.uid() != null) {
@@ -224,8 +214,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
 
     @Override
     public Void visitMysqlVariable(MysqlVariableContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.READ,
-            objects.instanceObject(TargetType.ConfigKey, ctx, variableName(ctx.getText())));
+        add(SplitQueryType.SELECT, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, ctx, variableName(ctx.getText())));
         return null;
     }
 
@@ -262,15 +251,13 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     private void configureCharset(Token start, Token stop, TerminalNode collate) {
         // BP7 writes all four keys for both NAMES and CHARSET; only their values differ.
         for (String key : List.of("character_set_client", "character_set_results", "character_set_connection")) {
-            add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE,
-                objects.instanceObject(TargetType.ConfigKey, start, stop, key));
+            add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, start, stop, key));
         }
         if (collate != null) {
             start = collate.getSymbol();
             stop = start;
         }
-        add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE,
-            objects.instanceObject(TargetType.ConfigKey, start, stop, "collation_connection"));
+        add(SplitQueryType.SESSION_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, start, stop, "collation_connection"));
     }
 
     @Override
@@ -300,8 +287,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     @Override
     public Void visitCreateUser(CreateUserContext ctx) {
         for (UserAuthOptionContext option : ctx.userAuthOption()) {
-            add(SplitQueryType.CREATE_USER, BehaviorAction.CREATE,
-                identity(TargetType.User, option.getRuleContext(UserNameContext.class, 0)));
+            add(SplitQueryType.CREATE_USER, BehaviorAction.CREATE, identity(TargetType.User, option.getRuleContext(UserNameContext.class, 0)));
         }
         return null;
     }
@@ -322,8 +308,8 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         }
         for (UserAuthOptionContext option : ctx.userAuthOption()) {
             BehaviorObject user = identity(TargetType.User, option.getRuleContext(UserNameContext.class, 0));
-            if (ctx.userLockOption().isEmpty() || !(option instanceof SimpleAuthOptionContext)
-                || ctx.REQUIRE() != null || !ctx.userResourceOption().isEmpty() || !ctx.userPasswordOption().isEmpty()) {
+            if (ctx.userLockOption().isEmpty() || !(option instanceof SimpleAuthOptionContext) || ctx.REQUIRE() != null || !ctx.userResourceOption().isEmpty()
+                || !ctx.userPasswordOption().isEmpty()) {
                 add(SplitQueryType.ALTER_USER, BehaviorAction.ALTER, user);
             }
             for (UserLockOptionContext lock : ctx.userLockOption()) {
@@ -351,8 +337,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     @Override
     public Void visitRenameUser(RenameUserContext ctx) {
         for (RenameUserClauseContext rename : ctx.renameUserClause()) {
-            add(SplitQueryType.RENAME_USER, BehaviorAction.RENAME, identity(TargetType.User, rename.fromFirst),
-                List.of(identity(TargetType.User, rename.toFirst)));
+            add(SplitQueryType.RENAME_USER, BehaviorAction.RENAME, identity(TargetType.User, rename.fromFirst), List.of(identity(TargetType.User, rename.toFirst)));
         }
         return null;
     }
@@ -417,14 +402,15 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
                 add(SplitQueryType.GRANT, BehaviorAction.GRANT, identity(TargetType.Role, role), recipients);
             }
         } else {
-            List<BehaviorObject> recipients = ctx.userAuthOption().stream()
-                .map(option -> identity(TargetType.UserOrRole, option.getRuleContext(UserNameContext.class, 0))).toList();
+            List<BehaviorObject> recipients = ctx.userAuthOption()
+                .stream()
+                .map(option -> identity(TargetType.UserOrRole, option.getRuleContext(UserNameContext.class, 0)))
+                .toList();
             add(SplitQueryType.GRANT, BehaviorAction.GRANT, privilegeScope(ctx.privilegeLevel(), ctx.privilegeObject), recipients);
             // BP7 also changes an existing account's password when credentials are supplied.
             for (UserAuthOptionContext option : ctx.userAuthOption()) {
                 if (changesPassword(option)) {
-                    add(SplitQueryType.GRANT, BehaviorAction.ALTER,
-                        identity(TargetType.UserOrRole, option.getRuleContext(UserNameContext.class, 0)));
+                    add(SplitQueryType.GRANT, BehaviorAction.ALTER, identity(TargetType.UserOrRole, option.getRuleContext(UserNameContext.class, 0)));
                 }
             }
         }
@@ -438,8 +424,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
             add(SplitQueryType.REVOKE, BehaviorAction.REVOKE, privilegeScope(ctx.privilegeLevel(), ctx.privilegeObject), recipients);
         } else if (ctx.ALL() != null) {
             // No ON clause: remove privileges across the tenant, not role memberships.
-            add(SplitQueryType.REVOKE, BehaviorAction.REVOKE,
-                unnamedRange(TargetType.Instance, ctx.ALL().getSymbol(), ctx.OPTION().getSymbol()), recipients);
+            add(SplitQueryType.REVOKE, BehaviorAction.REVOKE, unnamedRange(TargetType.Instance, ctx.ALL().getSymbol(), ctx.OPTION().getSymbol()), recipients);
         } else {
             for (RoleNameContext role : ctx.roleName()) {
                 add(SplitQueryType.REVOKE, BehaviorAction.REVOKE, identity(TargetType.Role, role), recipients);
@@ -594,8 +579,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         BehaviorObject table = table(ctx.tableName());
         if (ctx.DROP() != null) {
             // BP7 deletes table statistics with cascading column/index statistics here.
-            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP,
-                objects.childObject(TargetType.Statistics, ctx.tableName(), table, "statistics"));
+            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.DROP, objects.childObject(TargetType.Statistics, ctx.tableName(), table, "statistics"));
         } else {
             add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.ANALYZE, table);
         }
@@ -607,8 +591,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         BehaviorObject table = table(ctx.tableName());
         if (ctx.PARTITION() != null) {
             for (UidContext partition : ctx.uidList().uid()) {
-                add(SplitQueryType.ADMIN_PARTITION, BehaviorAction.ANALYZE,
-                    objects.childObject(TargetType.Partition, partition, table, unquote(text(partition))));
+                add(SplitQueryType.ADMIN_PARTITION, BehaviorAction.ANALYZE, objects.childObject(TargetType.Partition, partition, table, unquote(text(partition))));
             }
         } else {
             add(SplitQueryType.ADMIN_TABLE, BehaviorAction.ANALYZE, table);
@@ -636,8 +619,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     public Void visitFlushPlanCache(FlushPlanCacheContext ctx) {
         if (ctx.DATABASES() == null) {
             // SQL_ID filters entries across databases; it is not a unique plan identity.
-            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE,
-                objects.instanceObject(TargetType.Cache, ctx.PLAN().getSymbol(), ctx.CACHE().getSymbol(), "plan_cache"));
+            add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.PURGE, objects.instanceObject(TargetType.Cache, ctx.PLAN().getSymbol(), ctx.CACHE().getSymbol(), "plan_cache"));
         } else {
             Token databases = ctx.STRING_LITERAL(1).getSymbol();
             for (String database : unquote(databases.getText()).split(",")) {
@@ -679,8 +661,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
 
     @Override
     public Void visitShowRecyclebin(ShowRecyclebinContext ctx) {
-        add(SplitQueryType.METADATA, BehaviorAction.READ,
-            objects.instanceObject(TargetType.SchemaObject, ctx.RECYCLEBIN().getSymbol()));
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.instanceObject(TargetType.SchemaObject, ctx.RECYCLEBIN().getSymbol()));
         return null;
     }
 
@@ -725,8 +706,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         } else {
             restored = objects.unnamedObject(TargetType.Schema, source, UmiTypes.Catalog);
         }
-        add(SplitQueryType.ADMIN, BehaviorAction.RESTORE, restored,
-            List.of(objects.object(TargetType.Schema, source, List.of(unquote(text(source))))));
+        add(SplitQueryType.ADMIN, BehaviorAction.RESTORE, restored, List.of(objects.object(TargetType.Schema, source, List.of(unquote(text(source))))));
         return null;
     }
 
@@ -738,8 +718,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
             sources.add(objects.instanceObject(TargetType.Log, ctx.ARCHIVELOG().getSymbol(), "archive"));
         }
         // Backup identity and destination are runtime state, not the description text.
-        add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT,
-            objects.instanceObject(TargetType.Backup, ctx.BACKUP().getSymbol()), sources);
+        add(SplitQueryType.DATA_EXPORT, BehaviorAction.EXPORT, objects.instanceObject(TargetType.Backup, ctx.BACKUP().getSymbol()), sources);
         return null;
     }
 
@@ -751,8 +730,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
             start = ctx.DELETE().getSymbol();
             job = "backup_cleanup";
         }
-        add(SplitQueryType.ADMIN_JOB, BehaviorAction.TERMINATE,
-            objects.instanceObject(TargetType.Job, start, ctx.BACKUP().getSymbol(), job));
+        add(SplitQueryType.ADMIN_JOB, BehaviorAction.TERMINATE, objects.instanceObject(TargetType.Job, start, ctx.BACKUP().getSymbol(), job));
         return null;
     }
 
@@ -774,16 +752,14 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     @Override
     public Void visitAddBackupPolicy(AddBackupPolicyContext ctx) {
         Token policy = ctx.STRING_LITERAL(0).getSymbol();
-        add(SplitQueryType.CREATE_POLICY, BehaviorAction.CREATE,
-            objects.instanceObject(TargetType.Policy, policy, "backup_cleanup/" + unquote(policy.getText())));
+        add(SplitQueryType.CREATE_POLICY, BehaviorAction.CREATE, objects.instanceObject(TargetType.Policy, policy, "backup_cleanup/" + unquote(policy.getText())));
         return null;
     }
 
     @Override
     public Void visitDropBackupPolicy(DropBackupPolicyContext ctx) {
         Token policy = ctx.STRING_LITERAL().getSymbol();
-        add(SplitQueryType.DROP_POLICY, BehaviorAction.DROP,
-            objects.instanceObject(TargetType.Policy, policy, "backup_cleanup/" + unquote(policy.getText())));
+        add(SplitQueryType.DROP_POLICY, BehaviorAction.DROP, objects.instanceObject(TargetType.Policy, policy, "backup_cleanup/" + unquote(policy.getText())));
         return null;
     }
 
@@ -820,8 +796,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
                 keyStart = explicitKeys.get(key);
                 keyStop = keyStart;
             }
-            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE,
-                objects.instanceObject(TargetType.ConfigKey, keyStart, keyStop, "sql_throttle_" + key));
+            add(SplitQueryType.SYSTEM_SETTING_WRITE, BehaviorAction.CONFIGURE, objects.instanceObject(TargetType.ConfigKey, keyStart, keyStop, "sql_throttle_" + key));
         }
     }
 
@@ -891,30 +866,47 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         return visit(id);
     }
 
+    private FunctionBehavior functionClassification(String name, ParserRuleContext context) {
+        if (planning) {
+            return FunctionBehavior.DEFAULT;
+        }
+        for (ParseTree ancestor = context; ancestor != null; ancestor = ancestor.getParent()) {
+            if (ancestor instanceof CreateProcedureContext || ancestor instanceof CreateFunctionContext || ancestor instanceof CreateTriggerContext
+                || ancestor instanceof CreateEventContext || ancestor instanceof CreateViewContext || ancestor instanceof AlterViewContext) {
+                return FunctionBehavior.DEFAULT;
+            }
+        }
+        return ObMyResourceRegistry.instance().functionClassification(name, !descendants(context, FunctionArgContext.class).isEmpty());
+    }
+
     @Override
     public Void visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.CALL,
-            objects.object(TargetType.Function, ctx.scalarFunctionName(), List.of(unquote(text(ctx.scalarFunctionName())))));
+        objects.applyFunctionBehavior(behavior, objects
+            .object(TargetType.Function, ctx.scalarFunctionName(), List.of(text(ctx.scalarFunctionName()))), functionClassification(text(ctx.scalarFunctionName()), ctx), ctx);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
         Token name = ctx.aggregateFunction().getStart();
-        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, name, List.of(name.getText())));
+        objects.applyFunctionBehavior(behavior, objects.object(TargetType.Function, name, List.of(name.getText())), functionClassification(name.getText(), ctx), ctx);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitUdfFunctionCall(UdfFunctionCallContext ctx) {
-        add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, ctx.customFunctionName().fullId()));
+        FunctionBehavior classification = FunctionBehavior.DEFAULT;
+        if (ctx.customFunctionName().fullId().uid().size() == 1) {
+            classification = functionClassification(ctx.customFunctionName().getText(), ctx);
+        }
+        objects.applyFunctionBehavior(behavior, object(TargetType.Function, ctx.customFunctionName().fullId()), classification, ctx);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitNonAggregateFunctionCall(NonAggregateFunctionCallContext ctx) {
         Token name = ctx.nonAggregateFunction().getStart();
-        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, name, List.of(name.getText())));
+        objects.applyFunctionBehavior(behavior, objects.object(TargetType.Function, name, List.of(name.getText())), functionClassification(name.getText(), ctx), ctx);
         return visitChildren(ctx);
     }
 
@@ -922,10 +914,9 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
         SpecificFunctionContext function = ctx.specificFunction();
         // VALUES(column) refers to the proposed insert row, not a callable routine.
-        if (!(function instanceof CaseFunctionCallContext) && !(function instanceof SpecialTimeCallContext)
-            && !(function instanceof ValuesFunctionCallContext)) {
+        if (!(function instanceof CaseFunctionCallContext) && !(function instanceof SpecialTimeCallContext) && !(function instanceof ValuesFunctionCallContext)) {
             Token name = function.getStart();
-            add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, name, List.of(name.getText())));
+            objects.applyFunctionBehavior(behavior, objects.object(TargetType.Function, name, List.of(name.getText())), functionClassification(name.getText(), ctx), ctx);
         }
         return visitChildren(ctx);
     }
@@ -998,7 +989,15 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         if (context == null) {
             return null;
         }
-        List<String> names = context.uid().stream().map(this::text).map(this::unquote).toList();
+        List<String> names = new ArrayList<>();
+        for (UidContext uid : context.uid()) {
+            String name = text(uid);
+            if (type != TargetType.Function) {
+                name = unquote(name);
+            }
+
+            names.add(name);
+        }
         return objects.object(type, context, names);
     }
 
@@ -1007,8 +1006,7 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
     }
 
     private String unquote(String value) {
-        if (value.length() >= 2 && value.charAt(0) == value.charAt(value.length() - 1)
-            && "`\"'".indexOf(value.charAt(0)) >= 0) {
+        if (value.length() >= 2 && value.charAt(0) == value.charAt(value.length() - 1) && "`\"'".indexOf(value.charAt(0)) >= 0) {
             String quote = value.substring(0, 1);
             return value.substring(1, value.length() - 1).replace(quote + quote, quote);
         }
@@ -1019,16 +1017,12 @@ final class ObMyStatementBehaviorVisitor extends ObForMySqlParserBaseVisitor<Voi
         if (subject == null) {
             return;
         }
-        if (planning && subject.getObjectType() == TargetType.Function && action == BehaviorAction.CALL) {
-            action = BehaviorAction.READ;
-        }
         // Merge planning dependencies and repeated routine/variable references, keeping the first range.
         // Ordinary executable subqueries still retain their separate table-read occurrences.
         if ((planning || subject.getObjectType() == TargetType.Function || subject.getObjectType() == TargetType.ConfigKey)
             && (action == BehaviorAction.READ || action == BehaviorAction.CALL)) {
             for (BehaviorRelation existing : behavior.getRelations()) {
-                if (existing.getAction() == action && sameObject(existing.getSubject(), subject)
-                    && existing.getTarget().size() == targets.size()) {
+                if (existing.getAction() == action && sameObject(existing.getSubject(), subject) && existing.getTarget().size() == targets.size()) {
                     boolean sameTargets = true;
                     for (int i = 0; i < targets.size(); i++) {
                         sameTargets &= sameObject(existing.getTarget().get(i), targets.get(i));

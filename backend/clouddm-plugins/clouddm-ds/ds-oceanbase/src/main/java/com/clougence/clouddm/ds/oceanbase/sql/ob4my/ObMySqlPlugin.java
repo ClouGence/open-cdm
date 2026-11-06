@@ -28,5 +28,6 @@ public class ObMySqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(ObMySqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new ObSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new ObMySysObjectRegistrySpi());
     }
 }

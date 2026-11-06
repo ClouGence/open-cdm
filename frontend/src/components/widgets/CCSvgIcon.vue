@@ -3,7 +3,7 @@ export default {
   name: 'CCSvgIcon',
   computed: {
     iconName() {
-      const aliases = { TOPIC: 'SEQUENCE', MQ_TOPIC_PROP: 'COLUMN-DEFAULT' };
+      const aliases = { TOPIC: 'SEQUENCE', MQ_TOPIC_PROP: 'COLUMN-DEFAULT', DEVICE: 'TABLE', TIMESERIES: 'COLUMN-DEFAULT', IoTDB: 'CATALOG' };
       return `#icon-svg-${aliases[this.name] || this.name}`;
     }
   },
@@ -31,4 +31,8 @@ export default {
   </svg>
 </template>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.svg-icon {
+  fill: currentColor;
+}
+</style>

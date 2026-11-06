@@ -1,0 +1,21 @@
+{
+  "description": "polardbx function classifications for splitting, behavior analysis and permissions.",
+  "sources": ["https://help.aliyun.com/en/polardb/polardb-for-xscale/locking-function"],
+  "metadataFunctions": [
+    {"versions": ["5"], "names": ["VERSION", "CONNECTION_ID", "DATABASE", "SCHEMA", "CURRENT_USER", "USER"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["5"], "names": ["SLEEP", "BENCHMARK", "GET_LOCK", "RELEASE_LOCK", "RELEASE_ALL_LOCKS", "RELEASE_ALL_LOCK"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["5"], "types": ["METADATA"], "names": ["VERSION", "CONNECTION_ID", "DATABASE", "SCHEMA", "CURRENT_USER", "USER"]},
+    {"versions": ["5"], "types": ["PERFORMANCE"], "names": ["SLEEP"]},
+    {"versions": ["5"], "types": ["SESSION_SETTING_WRITE"], "names": ["LAST_INSERT_ID"]},
+    {"versions": ["5"], "types": ["PERFORMANCE"], "names": ["BENCHMARK"]},
+    {"versions": ["5"], "types": ["SESSION_LOCK"], "names": ["GET_LOCK", "RELEASE_LOCK", "RELEASE_ALL_LOCKS", "RELEASE_ALL_LOCK"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["5"], "action": "LOCK", "targetType": "Session", "targetAction": "LOCK", "unsafe": false, "names": ["GET_LOCK"]},
+    {"versions": ["5"], "action": "UNLOCK", "targetType": "Session", "targetAction": "UNLOCK", "unsafe": false, "names": ["RELEASE_LOCK", "RELEASE_ALL_LOCKS", "RELEASE_ALL_LOCK"]}
+  ]
+}

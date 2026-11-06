@@ -57,7 +57,6 @@ export default {
             language,
             ...SQL_EDITOR_TYPOGRAPHY,
             scrollBeyondLastLine: false,
-            theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
             minimap: {
               enabled: false
             },

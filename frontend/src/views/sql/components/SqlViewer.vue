@@ -104,24 +104,35 @@
       :class="`query-message ${tab.message.type}`"
       v-if="tab.message.text && tab.message.show && tab.connected && (!aiBinding || !aiNarrow || aiView === 'editor')"
     >
-      <div v-html="tab.message.text"></div>
-      <CustomIcon type="icon-v2-close2" @click="handleCloseError" hoverStyle />
+      <div class="query-message__text" v-html="tab.message.text"></div>
+      <CustomIcon class="query-message__action" type="icon-v2-close2" @click="handleCloseError" hoverStyle />
     </div>
     <div
       class="query-message"
       :class="tab.workspaceConnectionState === 'disconnected' ? 'Info' : 'Error'"
       v-if="!tab.connected && tab.msgContent && (!aiBinding || !aiNarrow || aiView === 'editor')"
     >
-      {{ tab.msgContent }}
+      <span class="query-message__text">{{ tab.msgContent }}</span>
       <Button
         v-if="!['connecting', 'reconnecting', 'disconnecting'].includes(tab.workspaceConnectionState)"
-        type="text"
+        class="query-message__action"
+        type="default"
         size="small"
         @click="handleClickDsStatusIcon"
       >
         {{ $t(tab.workspaceConnectionState === 'disconnected' ? 'sql-connection-open' : 'sql-connection-reconnect') }}
       </Button>
     </div>
+    <CCModal
+      v-model="operationConfirm.visible"
+      wrap-class-name="sql-operation-confirm"
+      :title="$t('cao-zuo-que-ren')"
+      :width="520"
+      @on-ok="confirmOperation"
+      @on-cancel="closeOperationConfirm"
+    >
+      {{ operationConfirm.message }}
+    </CCModal>
     <CCModal v-model="showNoPassedRuleModal" :title="$t('gui-ze-xiao-yan-shi-bai')" :width="800">
       <Table :columns="noPassedRuleColumns" :data="noPassedRuleList" border stripe>
         <template #lines="{ row }">
@@ -260,6 +271,7 @@ export default {
       currentWarnLevel: '',
       noPassedRuleList: [],
       showNoPassedRuleModal: false,
+      operationConfirm: { visible: false, message: '', callback: null },
       stopping: false,
       monacoEditor: null,
       editorTabKey: null,
@@ -721,17 +733,23 @@ export default {
 
       if (this.tab.support[confName].conf === 'Hint') {
         if (!this.tab.autoCommit || focus) {
-          this.$Modal.confirm({
-            title: this.tab.support[confName].hint,
-            onOk: () => {
-              callback.apply(this);
-            }
-          });
+          this.operationConfirm.message = this.tab.support[confName].hint;
+          this.operationConfirm.callback = callback;
+          this.operationConfirm.visible = true;
           return;
         }
       }
 
       callback();
+    },
+    confirmOperation() {
+      const callback = this.operationConfirm.callback;
+      this.closeOperationConfirm();
+      callback.apply(this);
+    },
+    closeOperationConfirm() {
+      this.operationConfirm.visible = false;
+      this.operationConfirm.callback = null;
     },
     //
     setEditorInstance(editor, tabKey) {
@@ -1281,6 +1299,10 @@ export default {
 };
 </script>
 <style lang="less">
+.sql-operation-confirm .ant-modal .ant-modal-content .ant-modal-footer {
+  justify-content: flex-end !important;
+}
+
 .sql-viewer {
   .sql-editor-stage {
     position: relative;
@@ -1387,19 +1409,33 @@ export default {
     max-height: 200px;
     overflow: auto;
     display: flex;
+    gap: 12px;
     justify-content: space-between;
     align-items: center;
+    color: var(--text-primary);
+    border-left: 3px solid var(--border-primary);
+
+    .query-message__text {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .query-message__action {
+      flex-shrink: 0;
+    }
 
     &.Error {
-      background: #ffdcdc;
+      background: var(--error-bg);
+      border-left-color: var(--error-color);
     }
 
     &.Warn {
-      background: #fffddc;
+      background: var(--warning-bg);
+      border-left-color: var(--warning-color);
     }
 
     &.Info {
-      background: #dedede;
+      background: var(--bg-secondary);
     }
   }
 }

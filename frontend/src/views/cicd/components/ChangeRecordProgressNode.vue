@@ -301,4 +301,30 @@ export default {
     --progress-node-width: 196px;
   }
 }
+
+[data-theme='dark'] .change-progress-node__product-logo {
+  filter: brightness(0) invert(1);
+}
+
+[data-theme='dark'] .change-progress-node__status {
+  &.is-success {
+    color: var(--success-color);
+    background: var(--success-bg);
+  }
+
+  &.is-muted {
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+  }
+
+  &.is-danger {
+    color: var(--error-color);
+    background: var(--error-bg);
+  }
+
+  &.is-progress {
+    color: var(--link-color);
+    background: var(--bg-secondary);
+  }
+}
 </style>

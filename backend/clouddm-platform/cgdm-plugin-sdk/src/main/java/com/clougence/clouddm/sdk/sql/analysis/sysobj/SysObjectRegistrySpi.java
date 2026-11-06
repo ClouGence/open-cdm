@@ -20,11 +20,11 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 
 /**
- * Named SQL-engine registry for resources which do not require object authorization.
+ * Registry for resources which do not require object authorization.
  *
- * <p>Implementations are registered by SQL parser plugins under the same name as their
- * {@code SqlEngineSpi}. The registry classifies derived resource requests and does not modify
- * behavior analysis results.</p>
+ * <p>SQL parser plugins register a global registry under their {@code SqlEngineSpi} name.
+ * Datasource plugins may register a plugin-scoped registry to add product-specific exemptions.
+ * The registry classifies derived resource requests without modifying behavior analysis results.</p>
  */
 public interface SysObjectRegistrySpi extends Spi {
 

@@ -1,0 +1,20 @@
+{
+  "description": "db2 function classifications used by split, behavior and authorization.",
+  "sources": ["https://www.ibm.com/docs/en/db2/11.5.x?topic=functions-mon-get-table-get-table-metrics", "https://www.ibm.com/docs/en/db2/11.5.x?topic=elements-identifiers"],
+  "metadataFunctions": [
+    {"versions": ["10", "11"], "names": ["MON_GET_CONNECTION", "MON_GET_DATABASE", "MON_GET_TABLE", "ENV_GET_INST_INFO", "SYSPROC.MON_GET_CONNECTION", "SYSPROC.MON_GET_DATABASE", "SYSPROC.MON_GET_TABLE", "SYSPROC.ENV_GET_INST_INFO"]},
+    {"versions": ["10"], "names": ["EVENT_MON_STATE", "IDENTITY_VAL_LOCAL", "VERIFY_GROUP_FOR_USER", "VERIFY_ROLE_FOR_USER", "VERIFY_TRUSTED_CONTEXT_ROLE_FOR_USER"]}
+  ],
+  "privilegedFunctions": [],
+  "functionStatementTypes": [
+    {"versions": ["10", "11"], "types": ["PERFORMANCE"], "names": ["MON_GET_CONNECTION", "MON_GET_DATABASE", "MON_GET_TABLE", "SYSPROC.MON_GET_CONNECTION", "SYSPROC.MON_GET_DATABASE", "SYSPROC.MON_GET_TABLE"]},
+    {"versions": ["10", "11"], "types": ["METADATA"], "names": ["ENV_GET_INST_INFO", "SYSPROC.ENV_GET_INST_INFO"]},
+    {"versions": ["10"], "types": ["METADATA"], "names": ["EVENT_MON_STATE", "IDENTITY_VAL_LOCAL", "VERIFY_GROUP_FOR_USER", "VERIFY_ROLE_FOR_USER", "VERIFY_TRUSTED_CONTEXT_ROLE_FOR_USER"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["10", "11"], "action": "CALL", "targetType": "Statistics", "targetAction": "READ", "unsafe": false, "names": ["MON_GET_CONNECTION", "SYSPROC.MON_GET_CONNECTION"]},
+    {"versions": ["10", "11"], "action": "CALL", "targetType": "Statistics", "targetAction": "READ", "unsafe": false, "names": ["MON_GET_DATABASE", "SYSPROC.MON_GET_DATABASE"]},
+    {"versions": ["10", "11"], "action": "CALL", "targetType": "Statistics", "targetAction": "READ", "unsafe": false, "names": ["MON_GET_TABLE", "SYSPROC.MON_GET_TABLE"]},
+    {"versions": ["10", "11"], "action": "CALL", "targetType": "Instance", "targetAction": "READ", "unsafe": false, "names": ["ENV_GET_INST_INFO", "SYSPROC.ENV_GET_INST_INFO"]}
+  ]
+}

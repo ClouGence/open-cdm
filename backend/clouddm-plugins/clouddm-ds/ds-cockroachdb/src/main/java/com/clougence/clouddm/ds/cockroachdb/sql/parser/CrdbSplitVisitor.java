@@ -15,8 +15,12 @@
  */
 package com.clougence.clouddm.ds.cockroachdb.sql.parser;
 
+import java.util.List;
+
+import com.clougence.clouddm.ds.cockroachdb.sql.analysis.reference.CrdbResourceRegistry;
 import com.clougence.clouddm.ds.cockroachdb.sql.parser.antlr.CrdbSqlParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
@@ -71,5 +75,10 @@ public class CrdbSplitVisitor extends PgSplitVisitor {
             return SplitQueryType.ALTER_USER;
         }
         return SplitQueryType.METADATA;
+    }
+
+    @Override
+    protected FunctionBehavior extensionFunctionBehavior(List<String> names) {
+        return CrdbResourceRegistry.instance().functionBehavior(names);
     }
 }

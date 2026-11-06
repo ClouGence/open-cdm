@@ -263,6 +263,7 @@ public class DmResAuthController {
         authObjectVO.setObjId(Long.parseLong(vo.getObjId()));
         authObjectVO.setObjName(vo.getObjName());
         authObjectVO.setObjType(vo.getObjType());
+        authObjectVO.setObjAttr(vo.getObjAttr());
         return authObjectVO;
     }
 }

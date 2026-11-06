@@ -1,0 +1,18 @@
+{
+  "description": "starrocks function effects shared by statement classification, behavior analysis and authorization.",
+  "sources": ["https://docs.starrocks.io/docs/sql-reference/sql-functions/utility-functions/sleep/", "https://github.com/StarRocks/starrocks/blob/main/fe/fe-core/src/main/java/com/starrocks/catalog/FunctionSet.java"],
+  "notes": ["These release-independent effect classifications do not establish function availability or grant permission exemptions. HTTP_REQUEST has a broad instance import target; its overload arguments are not guessed into a file URL."],
+  "metadataFunctions": [],
+  "privilegedFunctions": [
+    {"names": ["sleep"]},
+    {"names": ["http_request"]}
+  ],
+  "functionStatementTypes": [
+    {"types": ["PERFORMANCE"], "names": ["sleep"]},
+    {"types": ["DATA_IMPORT"], "names": ["http_request"]}
+  ],
+  "functionBehaviors": [
+    {"names": ["sleep"], "action": "CALL"},
+    {"names": ["http_request"], "action": "IMPORT", "targetType": "Instance", "targetAction": "IMPORT", "unsafe": true}
+  ]
+}

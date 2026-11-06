@@ -35,6 +35,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
     private final Parser                   parser;
@@ -78,12 +79,43 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
         return super.visit(tree);
     }
 
+    private FunctionBehavior functionClassification(String name, ParseTree tree) {
+        if (deferredFunction(tree)) {
+            return FunctionBehavior.DEFAULT;
+        }
+        FunctionBehavior classification = resources.functionClassification(name);
+        if (classification.statementTypes().contains(SplitQueryType.SESSION_SETTING_WRITE)) {
+            if ("LAST_INSERT_ID".equalsIgnoreCase(name) && descendants(tree, FunctionArgContext.class).isEmpty()) {
+                return FunctionBehavior.DEFAULT;
+            }
+            return new FunctionBehavior(classification.statementTypes(),
+                BehaviorAction.CONFIGURE,
+                TargetType.Session,
+                BehaviorAction.CONFIGURE,
+                classification.unsafe(),
+                classification.metadata(),
+                classification.privileged());
+        }
+        return classification;
+    }
+
+    private boolean deferredFunction(ParseTree tree) {
+        for (ParseTree ancestor = tree; ancestor != null; ancestor = ancestor.getParent()) {
+            if (ancestor instanceof CreateProcedureContext || ancestor instanceof CreateFunctionContext || ancestor instanceof CreateTriggerContext
+                || ancestor instanceof CreateEventContext || ancestor instanceof CreateViewContext || ancestor instanceof AlterViewContext
+                || ancestor instanceof FullDescribeStatementContext explain && explain.analyze == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void addFunctions(ParseTree tree) {
         for (ParserRuleContext context : descendants(tree, ParserRuleContext.class)) {
             if (context instanceof CurrentTimestampContext timestamp) {
                 Token token = timestamp.getStart();
-                add(SplitQueryType.SELECT, resources.functionBehavior(token.getText(), false), objects.object(TargetType.Function, token, List.of(unquote(token.getText()))), List
-                    .of());
+                objects.applyFunctionBehavior(behavior, objects
+                    .object(TargetType.Function, token, List.of(token.getText())), functionClassification(token.getText(), context), context);
                 continue;
             }
             if (!(context instanceof FunctionCallContext function)) {
@@ -96,18 +128,22 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
             if (function instanceof UdfFunctionCallContext udf) {
                 var name = udf.customFunctionName().fullId();
                 String functionName = text(name.uid(name.uid().size() - 1));
-                add(SplitQueryType.SELECT, resources.functionBehavior(functionName, name.uid().size() > 1), object(TargetType.Function, name), List.of());
+                if (name.uid().size() > 1) {
+                    add(SplitQueryType.SELECT, BehaviorAction.CALL, object(TargetType.Function, name), List.of());
+                } else {
+                    objects.applyFunctionBehavior(behavior, object(TargetType.Function, name), functionClassification(functionName, function), function);
+                }
             } else {
                 if (function instanceof SpecificFunctionCallContext specific
                     && (specific.specificFunction() instanceof CaseFunctionCallContext || specific.specificFunction() instanceof SpecialTimeCallContext)) {
                     continue;
                 }
                 var token = function.getStart();
-                add(SplitQueryType.SELECT, resources.functionBehavior(token.getText(), false), objects.object(TargetType.Function, token, List.of(unquote(token.getText()))), List
-                    .of());
+                objects.applyFunctionBehavior(behavior, objects
+                    .object(TargetType.Function, token, List.of(token.getText())), functionClassification(token.getText(), context), context);
             }
             String sequenceFunction = function.getStart().getText().toUpperCase(Locale.ROOT);
-            if (Set.of("NEXTVAL", "LASTVAL", "SETVAL").contains(sequenceFunction)) {
+            if (Set.of("NEXTVAL", "LASTVAL", "SETVAL").contains(sequenceFunction) && !deferredFunction(function)) {
                 List<FunctionArgContext> arguments = descendants(function, FunctionArgContext.class);
                 if (!arguments.isEmpty() && arguments.get(0).fullColumnName() != null) {
                     FullColumnNameContext sequence = arguments.get(0).fullColumnName();
@@ -1119,7 +1155,15 @@ final class TiStatementBehaviorVisitor extends TiDBParserBaseVisitor<Void> {
         if (context == null) {
             return null;
         }
-        List<String> names = context.uid().stream().map(this::text).map(this::unquote).toList();
+        List<String> names = new ArrayList<>();
+        for (var identifier : context.uid()) {
+            String name = text(identifier);
+            if (type != TargetType.Function) {
+                name = unquote(name);
+            }
+
+            names.add(name);
+        }
         return objects.object(type, context, names);
     }
 

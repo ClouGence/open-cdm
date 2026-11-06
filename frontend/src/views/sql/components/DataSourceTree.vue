@@ -1178,7 +1178,7 @@ export default {
           this.copyText(this.selectedNode.INSTANCE.attr.dsHost);
           break;
         case DS_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_PERMISSIONS:
-          this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
+          this.browseApplyPermissions(this.selectedNode);
           break;
         default:
           break;
@@ -1872,5 +1872,8 @@ export default {
   .data-source-container {
     background: var(--bg-primary);
   }
+}
+[data-theme='dark'] .data-source-toolbar-button :deep(svg) {
+  filter: brightness(0) invert(1);
 }
 </style>

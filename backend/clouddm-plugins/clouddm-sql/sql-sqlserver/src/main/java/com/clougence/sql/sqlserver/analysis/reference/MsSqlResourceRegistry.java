@@ -21,32 +21,47 @@ import static com.clougence.sql.common.registry.RegisteredResourceType.PROCEDURE
 import java.util.List;
 import java.util.Locale;
 
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.common.registry.ResourceRegistryDialect;
+import com.clougence.sql.common.registry.VersionedFunctionCatalogLoader;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
+import com.clougence.sql.sqlserver.parser.SqlServerVersion;
 
 /**
  * SQL Server-owned system resources that do not represent user-defined authorization objects.
  */
 public final class MsSqlResourceRegistry {
 
-    private static final int                         VERSION   = 0;
-    private static final MsSqlResourceRegistry       INSTANCE  = new MsSqlResourceRegistry();
-    private final VersionedResourceRegistry<Boolean> resources = new VersionedResourceRegistry<>(MsSqlResourceDialect.INSTANCE);
+    private static final String                               ANALYSIS_RESOURCES          = "/META-INF/clougence/sqlserver-analysis-resources.json";
+    private static final String                               BUILT_IN_FUNCTIONS_RESOURCE = "/META-INF/clougence/sqlserver-built-in-functions.json";
+    private static final int                                  VERSION                     = 0;
+    private static final MsSqlResourceRegistry                INSTANCE                    = new MsSqlResourceRegistry();
+
+    private final VersionedResourceRegistry<FunctionBehavior> analysisFunctions           = new VersionedResourceRegistry<>(name -> name.toLowerCase(Locale.ROOT));
+    private final VersionedResourceRegistry<Boolean>          builtinFunctions            = new VersionedResourceRegistry<>(MsSqlResourceDialect.INSTANCE);
+    private final VersionedResourceRegistry<Boolean>          resources                   = new VersionedResourceRegistry<>(MsSqlResourceDialect.INSTANCE);
+
+    public static MsSqlResourceRegistry instance() {
+        return INSTANCE;
+    }
 
     private MsSqlResourceRegistry(){
+        VersionedFunctionCatalogLoader.loadAnalysisResources(MsSqlResourceRegistry.class, ANALYSIS_RESOURCES, analysisFunctions, version -> Integer
+            .parseInt(SqlServerVersion.parse(version).versionString()));
+
+        VersionedFunctionCatalogLoader.load(MsSqlResourceRegistry.class, BUILT_IN_FUNCTIONS_RESOURCE, builtinFunctions, Integer::parseInt);
+
         resources.register(PROCEDURE, VERSION, VERSION, true, "sys", "sp_cdc_enable_db");
         resources.register(PROCEDURE, VERSION, VERSION, true, "sys", "sp_cdc_disable_db");
         resources.register(PROCEDURE, 2008, 2022, true, "sys", "sp_getapplock");
         resources.register(PROCEDURE, 2008, 2022, true, "sys", "sp_releaseapplock");
         resources.register(PROCEDURE, 2016, 2022, true, "sys", "sp_set_session_context");
-        for (String function : List.of("CONTEXT_INFO", "XACT_STATE", "ORIGINAL_LOGIN", "SUSER_SNAME", "USER_NAME", "DB_NAME", "DB_ID", "OBJECT_ID", "SESSIONPROPERTY")) {
-            resources.register(FUNCTION, 2008, 2022, true, function);
-        }
-        resources.register(FUNCTION, 2016, 2022, true, "SESSION_CONTEXT");
     }
 
-    public static MsSqlResourceRegistry instance() {
-        return INSTANCE;
+    public FunctionBehavior functionBehavior(String name, String databaseVersion) {
+        int code = Integer.parseInt(SqlServerVersion.parse(databaseVersion).versionString());
+        return analysisFunctions.find(FUNCTION, code, name).orElse(FunctionBehavior.DEFAULT);
     }
 
     public boolean isSystemProcedure(List<String> nameParts) {
@@ -61,7 +76,9 @@ public final class MsSqlResourceRegistry {
     }
 
     public boolean isBuiltinFunction(String name, int version) {
-        return resources.contains(FUNCTION, version, name);
+        FunctionBehavior classification = functionBehavior(name, Integer.toString(version));
+        return classification.action() == BehaviorAction.CALL && !classification.privileged() && !classification.unsafe() && !MsSqlResourceDialect.INSTANCE.isQuotedIdentifier(name)
+               && builtinFunctions.contains(FUNCTION, version, name);
     }
 
     private enum MsSqlResourceDialect implements ResourceRegistryDialect {

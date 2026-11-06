@@ -39,5 +39,6 @@ export default {
   myAuth: [],
   defaultRedirectUrl: '',
   publicKey: '',
+  themeMode: 'system',
   theme: 'light'
 };

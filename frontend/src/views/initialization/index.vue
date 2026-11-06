@@ -1,5 +1,5 @@
 <template>
-  <div class="initialization" :style="{ '--init-bg-pattern': `url(${backgroundPatternUrl})` }">
+  <div class="initialization" :class="{ 'is-dark': $store.state.theme === 'dark' }" :style="{ '--init-bg-pattern': `url(${backgroundPatternUrl})` }">
     <div class="init-left">
       <header class="init-topbar">
         <div class="init-header">
@@ -1044,6 +1044,15 @@ export default {
   background-size: cover;
 }
 
+.initialization.is-dark {
+  background-image: none;
+  --init-ink: var(--text-primary);
+  --init-body: var(--text-primary);
+  --init-muted: var(--text-secondary);
+  --init-hairline: var(--border-primary);
+  --init-canvas: var(--bg-primary);
+}
+
 .init-left {
   position: relative;
   display: flex;
@@ -1122,7 +1131,7 @@ export default {
   overflow: auto;
   padding: 80px 48px 40px;
   border-left: 1px solid var(--init-hairline);
-  background: #fff;
+  background: var(--bg-card);
   box-sizing: border-box;
 }
 
@@ -1157,7 +1166,7 @@ export default {
   margin: 24px 0 0;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-  background: #fff;
+  background: var(--bg-card);
   overflow: hidden;
   text-align: left;
 }
@@ -1169,8 +1178,8 @@ export default {
   margin: 0;
   padding: 10px 14px;
   border-bottom: 1px solid #eef0f3;
-  background: #f8fafc;
-  color: #344054;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
   line-height: 20px;
@@ -1192,9 +1201,9 @@ export default {
   overflow: auto;
   border: 0;
   border-radius: 0;
-  background: #fcfcfd;
+  background: var(--bg-secondary);
   padding: 14px 16px;
-  color: #344054;
+  color: var(--text-primary);
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 12px;
   line-height: 18px;
@@ -1214,7 +1223,7 @@ export default {
 }
 
 .error-message::-webkit-scrollbar-track {
-  background: #fcfcfd;
+  background: var(--bg-secondary);
 }
 
 .error-actions {
@@ -1288,7 +1297,7 @@ export default {
   height: 30px;
   border-radius: 50%;
   border: 1px solid var(--init-hairline);
-  background: #fff;
+  background: var(--bg-card);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1362,7 +1371,7 @@ export default {
 }
 
 .step-panel::-webkit-scrollbar-track {
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .wizard-footer {
@@ -1395,7 +1404,7 @@ export default {
   border-radius: 0;
   outline: none;
   background: transparent;
-  color: #1f1f1f;
+  color: var(--text-primary);
 }
 
 .warning-confirm-input::placeholder {

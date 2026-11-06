@@ -21,12 +21,13 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
-import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
+
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 
 public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
@@ -43,9 +44,9 @@ public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
         if (!(tree instanceof PolardbXParser.VariableClauseContext || tree instanceof PolardbXParser.MysqlVariableContext
-            || tree instanceof PolardbXParser.SetTransactionStatementContext || tree instanceof PolardbXParser.SlowSqlCclContext
-            || tree instanceof PolardbXParser.UdfFunctionCallContext || tree instanceof PolardbXParser.LockClauseContext
-            || tree instanceof PolardbXParser.SelectInsertValueContext || tree instanceof PolardbXParser.AtomTableItemContext)) {
+              || tree instanceof PolardbXParser.SetTransactionStatementContext || tree instanceof PolardbXParser.SlowSqlCclContext
+              || tree instanceof PolardbXParser.UdfFunctionCallContext || tree instanceof PolardbXParser.LockClauseContext
+              || tree instanceof PolardbXParser.SelectInsertValueContext || tree instanceof PolardbXParser.AtomTableItemContext)) {
             return null;
         }
         if (!isExecuted(tree)) {
@@ -93,11 +94,10 @@ public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
     private boolean isExecuted(ParseTree tree) {
         for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
             // ANALYZE and TRACE have separate contexts and execute their SQL bodies.
-            if (parent instanceof PolardbXParser.FullDescribeStatementContext
-                || parent instanceof PolardbXParser.PolardbxExplainStatementContext
-                || parent instanceof PolardbXParser.BaselineStatementContext
-                || parent instanceof PolardbXParser.RoutineBodyContext || parent instanceof PolardbXParser.CreateFunctionContext
-                || parent instanceof PolardbXParser.CreateViewContext || parent instanceof PolardbXParser.AlterViewContext) {
+            if (parent instanceof PolardbXParser.FullDescribeStatementContext || parent instanceof PolardbXParser.PolardbxExplainStatementContext
+                || parent instanceof PolardbXParser.BaselineStatementContext || parent instanceof PolardbXParser.RoutineBodyContext
+                || parent instanceof PolardbXParser.CreateFunctionContext || parent instanceof PolardbXParser.CreateViewContext
+                || parent instanceof PolardbXParser.AlterViewContext) {
                 return false;
             }
         }
@@ -112,8 +112,7 @@ public class PorXSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         String schema = name.uid(0).getText();
         String object = name.uid(1).getText();
         if (!(schema.equalsIgnoreCase("information_schema") || schema.equalsIgnoreCase("`information_schema`"))
-            || !(object.equalsIgnoreCase("PLAN_CACHE") || object.equalsIgnoreCase("`PLAN_CACHE`")
-                || object.equalsIgnoreCase("SPM") || object.equalsIgnoreCase("`SPM`"))) {
+            || !(object.equalsIgnoreCase("PLAN_CACHE") || object.equalsIgnoreCase("`PLAN_CACHE`") || object.equalsIgnoreCase("SPM") || object.equalsIgnoreCase("`SPM`"))) {
             return null;
         }
         // AtomTableItem also occurs in UPDATE/DELETE targets; only query sources qualify.

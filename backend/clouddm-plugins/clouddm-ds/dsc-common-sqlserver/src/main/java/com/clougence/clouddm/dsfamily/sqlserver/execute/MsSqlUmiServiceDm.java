@@ -54,6 +54,13 @@ public class MsSqlUmiServiceDm extends AbstractRdbUmiService<MsSqlMetaProviderDm
     }
 
     @Override
+    public Value fetchSelectObject(Map<UmiTypes, Object> levelsParam, String leafName) throws SQLException {
+        String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+        String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
+        return this.metadataSupplier.eGet().loadSelectObject(catalog, schema, leafName);
+    }
+
+    @Override
     public List<Value> listLeaf(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern) throws SQLException {
         String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));

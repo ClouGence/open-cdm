@@ -38,7 +38,12 @@ public class MyBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     public MyBehaviorAnalysisSpi(MySqlParserConfig config){
         this.provider = new MyDslProvider(config);
-        this.resources = MySqlResourceRegistry.instance();
+        if (config.isMariaDb()) {
+            this.resources = new MySqlResourceRegistry(config);
+        } else {
+            this.resources = MySqlResourceRegistry.instance();
+        }
+
         this.splitter = new MySplitAnalysisSpi(this.provider);
     }
 

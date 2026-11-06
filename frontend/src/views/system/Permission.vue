@@ -92,12 +92,12 @@
                       <span
                         class="auth-tabs__item"
                         :class="{
-                          'is-active': curRightTreeTab === 'TABLE',
-                          'is-disabled': !['Table', 'TABLE', 'AllType'].includes(curElementType)
+                          'is-active': curRightTreeTab === leafAuthTab,
+                          'is-disabled': !['Table', 'TABLE', 'Topic', 'TOPIC', 'Timeseries', 'TIMESERIES', 'AllType'].includes(curElementType)
                         }"
-                        @click="handleAuthTabClick('TABLE')"
+                        @click="handleAuthTabClick(leafAuthTab)"
                       >
-                        {{ $t('biao-quan-xian') }}
+                        {{ leafAuthTabLabel }}
                       </span>
                     </div>
                     <div class="auth-tabs__extra">
@@ -163,7 +163,7 @@
                         :disableAll="previewMode || isView"
                       />
                     </div>
-                    <div v-show="curRightTreeTab === 'TABLE'">
+                    <div v-show="['TABLE', 'TOPIC', 'TIMESERIES'].includes(curRightTreeTab)">
                       <v-tree
                         :emptyText="$t('zan-wu-shu-ju')"
                         :render="renderAuthNode"
@@ -269,6 +269,7 @@ import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { mapState } from 'vuex';
+import { filterLeafGroup } from '@/utils/datasourceBrowser';
 import i18n from '@/i18n';
 import {
   AUTH_ELEMENT_TYPES,
@@ -514,15 +515,28 @@ export default {
     showCustomAuthTime() {
       return this.curRangeKey === 'custom';
     },
+    leafAuthTab() {
+      const nodeType = this.getNormalizedNodeType(this.curNode);
+      if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(nodeType)) return nodeType;
+      const dsType = this.getNodeDataSourceType(this.curNode);
+      const categories = this.dmGlobalSetting.dsSettingDef?.[dsType]?.categories || {};
+      const leaves = filterLeafGroup(Object.values(categories.leafGroup || {}).flat(), this.curNode?.objAttr);
+      if (leaves.some((leaf) => (leaf.type || leaf) === 'TIMESERIES')) return 'TIMESERIES';
+      if (leaves.some((leaf) => (leaf.type || leaf) === 'TOPIC')) return 'TOPIC';
+      return 'TABLE';
+    },
+    leafAuthTabLabel() {
+      const labels = { TIMESERIES: 'timeseries-permissions', TOPIC: 'topic-permissions', TABLE: 'biao-quan-xian' };
+      return this.$t(labels[this.leafAuthTab]);
+    },
     disableAuthTab() {
       return () => this.previewMode;
     }
   },
   watch: {
-    '$route.query.type': {
-      handler(newVal) {
-        appLogger.debug(newVal);
-        if (newVal === 'apply') {
+    '$route.query': {
+      handler(query) {
+        if (query.type === 'apply') {
           this.goApplAuth();
         } else {
           this.initData();
@@ -589,7 +603,8 @@ export default {
         (name === 'Instance' && !['Instance', 'INSTANCE', 'AllType'].includes(this.curElementType)) ||
         (name === 'CATALOG' && !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(this.curElementType)) ||
         (name === 'SCHEMA' && !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(this.curElementType)) ||
-        (name === 'TABLE' && !['Table', 'TABLE', 'AllType'].includes(this.curElementType))
+        (['TABLE', 'TOPIC', 'TIMESERIES'].includes(name) &&
+          !['Table', 'TABLE', 'Topic', 'TOPIC', 'Timeseries', 'TIMESERIES', 'AllType'].includes(this.curElementType))
       ) {
         return;
       }
@@ -792,6 +807,8 @@ export default {
           case 'ENV':
             iconType = 'MachineENV';
             break;
+          case 'TIMESERIES':
+          case 'TOPIC':
           case 'TABLE':
             iconType = 'TABLE';
             break;
@@ -839,14 +856,12 @@ export default {
       );
     },
     renderAuthNode(node) {
-      const style = {
-        color: '#000'
-      };
+      const style = {};
       if (this.previewMode && node?.isLeaf) {
         if (node?.action === 'deletes') {
-          style.color = 'red';
+          style.color = 'var(--error-color)';
         } else if (node?.action === 'appends') {
-          style.color = 'green';
+          style.color = 'var(--success-color)';
         }
       }
       return (
@@ -974,7 +989,7 @@ export default {
           return;
         }
 
-        if (node?.objType === 'TABLE') {
+        if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(node?.objType)) {
           const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
           this.$refs.dataSourceTree.setData(final);
           if (node?.key && shouldLoadAuthTree) {
@@ -1148,7 +1163,7 @@ export default {
       }
 
       return tree.map((node) => {
-        if (node.objType === 'TABLE') {
+        if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(node.objType)) {
           const { children, ...rest } = node;
           return rest;
         }
@@ -1228,7 +1243,7 @@ export default {
       return AUTH_ELEMENT_TYPES.includes(this.normalizeAuthElementType(elementType));
     },
     isResourceLeafNode(node) {
-      return !!node?.isLeaf || this.getNormalizedNodeType(node) === 'TABLE';
+      return !!node?.isLeaf || ['TABLE', 'TOPIC', 'TIMESERIES'].includes(this.getNormalizedNodeType(node));
     },
     canUseLazyPlaceholder(node) {
       return !this.isResourceLeafNode(node);
@@ -1299,7 +1314,7 @@ export default {
     },
     async canLoadResourceChildren(node) {
       const nodeType = this.getNormalizedNodeType(node);
-      if (!node || nodeType === 'TABLE') {
+      if (!node || ['TABLE', 'TOPIC', 'TIMESERIES'].includes(nodeType)) {
         return false;
       }
       if (nodeType === 'ENV' || nodeType === 'Env') {
@@ -1328,7 +1343,7 @@ export default {
           if (idx < typeLevels.length - 1) {
             return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]] || typeLevels[idx + 1]; // +1 elemenType pointing to subnodes;
           }
-          const leafGroup = categories.leafGroup?.[typeLevels[idx]] || [];
+          const leafGroup = filterLeafGroup(categories.leafGroup?.[typeLevels[idx]], node.objAttr);
           const leafTypes = leafGroup.map((leaf) => (typeof leaf === 'string' ? leaf : leaf?.type)).filter(Boolean);
           const tableLeafType = leafTypes.find((leafType) => this.normalizeAuthElementType(leafType) === 'Table');
           const authLeafType = tableLeafType || leafTypes.find((leafType) => this.isSupportedAuthElementType(leafType));
@@ -1453,8 +1468,8 @@ export default {
           }
           const hasAuthList = [];
           hasAutn.data.forEach((authWrap) => {
-            if (authWrap.startTime) this.authTime.startTime = dayjs(authWrap.startTime);
-            if (authWrap.endTime) this.authTime.endTime = dayjs(authWrap.endTime);
+            if (authWrap.startTimeMs != null) this.authTime.startTime = dayjs(authWrap.startTimeMs);
+            if (authWrap.endTimeMs != null) this.authTime.endTime = dayjs(authWrap.endTimeMs);
             if (authWrap?.dsAuthKinds.length) hasAuthList.push(...authWrap.dsAuthKinds);
             if (!this.timeList[node.key]) {
               this.timeList[node.key] = [];
@@ -1465,8 +1480,8 @@ export default {
             if (!exists && allExistInFlatten) {
               this.timeList[node.key].push({
                 auths: authWrap?.dsAuthKinds,
-                startTime: authWrap.startTime ? dayjs(authWrap.startTime) : null,
-                endTime: authWrap.endTime ? dayjs(authWrap.endTime) : null,
+                startTime: authWrap.startTimeMs != null ? dayjs(authWrap.startTimeMs) : null,
+                endTime: authWrap.endTimeMs != null ? dayjs(authWrap.endTimeMs) : null,
                 level: authWrap.level
               });
             }
@@ -1504,6 +1519,10 @@ export default {
             case 'EXTERNAL_CATALOG':
               this.$refs.catalogTree.setData(filterAuth);
               break;
+            case 'Timeseries':
+            case 'TIMESERIES':
+            case 'Topic':
+            case 'TOPIC':
             case 'Table':
             case 'TABLE':
               this.$refs.tableTree.setData(filterAuth);
@@ -1692,6 +1711,8 @@ export default {
         case 'EXTERNAL_CATALOG':
           this.$refs.schemaTree.filter(this.rightTreeKeyword);
           break;
+        case 'TIMESERIES':
+        case 'TOPIC':
         case 'TABLE':
           this.$refs.tableTree.filter(this.rightTreeKeyword);
           break;
@@ -1713,6 +1734,10 @@ export default {
         CATALOG: 'catalogTree',
         EXTERNAL_CATALOG: 'catalogTree',
         Table: 'tableTree',
+        Topic: 'tableTree',
+        TOPIC: 'tableTree',
+        Timeseries: 'tableTree',
+        TIMESERIES: 'tableTree',
         TABLE: 'tableTree'
       };
       const normalizedTab =
@@ -1861,6 +1886,10 @@ export default {
       this.uid = this.$route.params.uid || this.userInfo.uid;
       this.subAccount = this.$route.params.uid ? this.$route.query.name : '';
       await this.listLevelsForDM();
+      if (this.$route.query.levels) {
+        await this.selectRequestedResource();
+        return;
+      }
       this.$nextTick(async () => {
         if (this.originLeftTree && this.originLeftTree.length > 0) {
           const firstRoot = this.originLeftTree[0];
@@ -1875,6 +1904,39 @@ export default {
           }
         }
       });
+    },
+    async selectRequestedResource() {
+      let levels;
+      try {
+        levels = JSON.parse(this.$route.query.levels);
+        if (!Array.isArray(levels) || levels.length < 2 || !levels.every((level) => typeof level === 'string')) {
+          throw new Error('Invalid resource levels');
+        }
+      } catch {
+        this.$Message.warning(this.$t('permission-target-unavailable'));
+        return;
+      }
+      let children = this.originLeftTree;
+      let selected = null;
+      for (let index = 0; index < levels.length; index++) {
+        selected = children.find((item) => String(item.objId) === levels[index] || item.objName === levels[index]);
+        if (!selected) break;
+        if (index < levels.length - 1 || this.$route.query.targetName) {
+          await this.listLevelsForDM(selected, { loadAuthTree: false });
+          children = findNodeByKey(this.originLeftTree, selected.key)?.children || [];
+        }
+      }
+      if (selected && this.$route.query.targetName) {
+        selected = children.find((item) => item.objName === this.$route.query.targetName && item.objType === this.$route.query.targetType);
+      }
+      if (!selected) {
+        this.$Message.warning(this.$t('permission-target-unavailable'));
+        return;
+      }
+      this.curNode = selected;
+      this.selectedNodeKey = selected.key;
+      this.lastLeftTreeClickNode = selected;
+      await this.handleGetAuthTreeForDm(selected);
     },
     async submitAuthApply() {
       if (this.isRootAccount) {
@@ -1921,8 +1983,8 @@ export default {
           if (authLabels.length > 0) {
             applyAuths.push({
               resPaths,
-              startTime: item?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
-              endTime: item?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
+              startTimeMs: item?.authTime?.startTime?.valueOf() ?? null,
+              endTimeMs: item?.authTime?.endTime?.valueOf() ?? null,
               authId: 1,
               resId,
               authLabels
@@ -2537,6 +2599,92 @@ export default {
   border: 1px solid #e6eaf0;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+}
+
+@media (max-width: 1279px) {
+  .auth-container-wrapper .auth-content .auth-container .auth .middle .auth-tree-container {
+    flex-direction: column;
+
+    .auth-main {
+      flex: none;
+      min-height: 360px;
+    }
+
+    .auth-tree-container-right {
+      flex: none;
+      width: 100%;
+      overflow: visible;
+
+      .setting {
+        height: auto;
+      }
+    }
+  }
+
+  .auth-container-wrapper .auth-content {
+    overflow-y: auto;
+
+    .auth-container {
+      height: auto;
+      min-height: 100%;
+
+      .auth {
+        height: auto;
+        min-height: 100%;
+
+        .left {
+          min-height: 480px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1023px) {
+  .auth-container-wrapper .auth-content .auth-container .auth {
+    flex-direction: column;
+
+    .left {
+      width: 100% !important;
+      min-width: 0;
+      max-width: none;
+      height: 320px;
+      min-height: 320px;
+    }
+
+    .divider {
+      display: none;
+    }
+
+    .middle {
+      flex: none;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .auth-container-wrapper .auth-content .auth-container .auth .middle .auth-tree-container {
+    .resource-summary,
+    .auth-tabs {
+      padding-right: 16px;
+      padding-left: 16px;
+    }
+
+    .auth-tabs {
+      flex-wrap: wrap;
+
+      &__items {
+        min-width: 0;
+        max-width: 100%;
+        gap: 16px;
+        overflow-x: auto;
+      }
+
+      &__item {
+        flex-shrink: 0;
+      }
+    }
+  }
 }
 
 :deep(.node),

@@ -15,11 +15,7 @@
  */
 package com.clougence.clouddm.ds.starrocks.sql.parser;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -28,6 +24,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.starrocks.sql.analysis.reference.SrResourceRegistry;
 import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -41,12 +38,8 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     // StarRocks 3.5.21 Config.java: getConfigInfo exposes these values without masking.
     // Credential IDs, public paths and switches are deliberately not treated as secrets.
-    private static final Set<String> SECRET_FE_CONFIGS = Set.of(
-        "authentication_ldap_simple_ssl_conn_trust_store_pwd", "authentication_ldap_simple_bind_root_pwd",
-        "auth_token", "default_master_key", "aws_s3_secret_key", "azure_blob_shared_key", "azure_blob_sas_token",
-        "azure_adls2_shared_key", "azure_adls2_sas_token", "azure_adls2_oauth2_client_secret",
-        "gcp_gcs_service_account_private_key", "ssl_keystore_password", "ssl_key_password",
-        "ssl_truststore_password", "oauth2_client_secret");
+    private static final Set<String> SECRET_FE_CONFIGS    = Set
+        .of("authentication_ldap_simple_ssl_conn_trust_store_pwd", "authentication_ldap_simple_bind_root_pwd", "auth_token", "default_master_key", "aws_s3_secret_key", "azure_blob_shared_key", "azure_blob_sas_token", "azure_adls2_shared_key", "azure_adls2_sas_token", "azure_adls2_oauth2_client_secret", "gcp_gcs_service_account_private_key", "ssl_keystore_password", "ssl_key_password", "ssl_truststore_password", "oauth2_client_secret");
 
     protected DslProvider dslProvider() {
         return SrDslProvider.INSTANCE;
@@ -73,20 +66,15 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             // Rule predicates are policy definitions, not executed queries.
             return Set.of(SplitQueryType.ADMIN_PERFORMANCE);
         }
-        if (statement instanceof StarRocksParser.SubmitTaskStatementContext
-            || statement instanceof StarRocksParser.CreatePipeStatementContext
-            || statement instanceof StarRocksParser.CreateViewStatementContext
-            || statement instanceof StarRocksParser.AlterViewStatementContext
-            || statement instanceof StarRocksParser.CreateMaterializedViewStatementContext
-            || statement instanceof StarRocksParser.CreateRoutineLoadStatementContext
+        if (statement instanceof StarRocksParser.SubmitTaskStatementContext || statement instanceof StarRocksParser.CreatePipeStatementContext
+            || statement instanceof StarRocksParser.CreateViewStatementContext || statement instanceof StarRocksParser.AlterViewStatementContext
+            || statement instanceof StarRocksParser.CreateMaterializedViewStatementContext || statement instanceof StarRocksParser.CreateRoutineLoadStatementContext
             || statement instanceof StarRocksParser.AlterRoutineLoadStatementContext) {
             // SQL definition bodies belong to children; load mappings/source options only define the job.
             return Set.of(statement.accept(splitVisitor()));
         }
-        boolean collectQueryActions = statement instanceof StarRocksParser.SetStatementContext
-            || statement instanceof StarRocksParser.DataCacheSelectStatementContext
-            || statement instanceof StarRocksParser.QueryStatementContext
-            || statement instanceof StarRocksParser.AlterPlanAdvisorAddStatementContext;
+        boolean collectQueryActions = statement instanceof StarRocksParser.SetStatementContext || statement instanceof StarRocksParser.DataCacheSelectStatementContext
+                                      || statement instanceof StarRocksParser.QueryStatementContext || statement instanceof StarRocksParser.AlterPlanAdvisorAddStatementContext;
         if (statement instanceof StarRocksParser.InsertStatementContext insert && insert.explainDesc() != null) {
             // ANALYZE runs the load before aborting its transaction; its source actions still execute.
             collectQueryActions = insert.explainDesc().ANALYZE() != null;
@@ -131,8 +119,7 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
             type = SplitQueryType.SESSION_VARIABLE_RW;
         } else if (tree instanceof StarRocksParser.SystemVariableContext variable) {
             // A SET target is already covered by SETTING_WRITE; only expression reads add RW.
-            if (!(variable.getParent() instanceof StarRocksParser.SetSystemVarContext)
-                && (variable.varType() == null || variable.varType().GLOBAL() == null)) {
+            if (!(variable.getParent() instanceof StarRocksParser.SetSystemVarContext) && (variable.varType() == null || variable.varType().GLOBAL() == null)) {
                 type = SplitQueryType.SESSION_VARIABLE_RW;
             }
         } else if (tree instanceof StarRocksParser.QueryRelationContext) {
@@ -140,6 +127,9 @@ public class SrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         }
         if (type == null) {
             type = additionalType(tree);
+        }
+        if (tree instanceof StarRocksParser.SimpleFunctionCallContext function) {
+            types.addAll(SrResourceRegistry.instance().functionBehavior(function.qualifiedName().getText()).statementTypes());
         }
         if (type != null) {
             types.add(type);

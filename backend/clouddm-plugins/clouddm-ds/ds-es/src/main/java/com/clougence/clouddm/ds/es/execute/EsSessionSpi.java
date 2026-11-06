@@ -23,6 +23,7 @@ import com.clougence.clouddm.ds.es.dsconf.EsConfig;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
+import com.clougence.sql.es.RestProduct;
 
 public class EsSessionSpi extends RdbSessionSpi {
     @Override
@@ -31,6 +32,7 @@ public class EsSessionSpi extends RdbSessionSpi {
         ((EsConfig) config).validate();
         SessionContextDTO context = new SessionContextDTO();
         context.setSessionId(UUID.randomUUID().toString().replace("-", ""));
+        context.setSqlParameters(RestProduct.ELASTICSEARCH.parameters(config.getVersion()).values());
         context.setMaxIdleTimeSec(config.getMaxIdleTimeSec());
         context.setRdbAutoCommit(true);
         context.setRdbReadOnly(Boolean.TRUE.equals(config.getReadOnly()));

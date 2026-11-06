@@ -22,13 +22,13 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.sql.polardbx.PorXSqlEngineSpi;
-import com.clougence.sql.polardbx.parser.antlr.PolardbXLexer;
-import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.dslpaser.parse.AstSplitScript;
+import com.clougence.sql.polardbx.PorXSqlEngineSpi;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXLexer;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 
 public class PolarXDslProvider implements DslProvider {
 

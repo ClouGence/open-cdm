@@ -29,12 +29,18 @@ final class EsQueryReferences {
     private static final Set<String>     AGGREGATIONS  = Set
         .of("avg", "sum", "min", "max", "value_count", "cardinality", "stats", "extended_stats", "percentiles", "percentile_ranks", "median_absolute_deviation", "weighted_avg", "boxplot", "string_stats", "geo_bounds", "geo_centroid", "terms", "multi_terms", "rare_terms", "significant_terms", "significant_text", "histogram", "date_histogram", "auto_date_histogram", "range", "date_range", "ip_range", "missing", "nested", "reverse_nested", "global", "sampler", "diversified_sampler", "geohash_grid", "geotile_grid", "geo_distance", "composite", "filter", "filters", "adjacency_matrix", "top_hits", "top_metrics", "bucket_sort", "bucket_selector", "bucket_script", "avg_bucket", "sum_bucket", "min_bucket", "max_bucket", "stats_bucket", "extended_stats_bucket", "percentiles_bucket", "derivative", "cumulative_sum", "serial_diff", "moving_fn");
     private final String                 index;
+    private final RestApiProfile         profile;
     private final List<EsIndexReference> reads         = new ArrayList<>();
 
     private boolean                      pageable      = true;
 
     EsQueryReferences(String index){
+        this(index, RestApiProfile.from(null));
+    }
+
+    EsQueryReferences(String index, RestApiProfile profile){
         this.index = index;
+        this.profile = profile;
     }
 
     boolean pageable() {
@@ -47,6 +53,11 @@ final class EsQueryReferences {
 
     void search(EsJsonValue value) {
         Map<String, EsJsonValue> fields = EsJsonAccess.fields(value, SEARCH_FIELDS);
+        for (String name : profile.excludedSearchFields()) {
+            if (fields.containsKey(name)) {
+                profile.unsupported(fields.get(name).range(), name);
+            }
+        }
         for (var entry : fields.entrySet()) {
             switch (entry.getKey()) {
                 case "query", "post_filter" -> query(entry.getValue());
@@ -65,7 +76,7 @@ final class EsQueryReferences {
                     for (EsJsonValue field : EsJsonAccess.object(entry.getValue()).values()) {
                         var options = EsJsonAccess.fields(field, Set.of("script", "ignore_failure"));
                         if (options.containsKey("script")) {
-                            script(options.get("script"));
+                            script(options.get("script"), profile);
                         }
                     }
                 }
@@ -86,6 +97,9 @@ final class EsQueryReferences {
         }
         var clause = clauses.entrySet().iterator().next();
         String type = clause.getKey();
+        if (profile.excludedQueryTypes().contains(type)) {
+            profile.unsupported(clause.getValue().range(), type);
+        }
         if (Set.of("script", "script_score", "function_score", "knn").contains(type)) {
             pageable = false;
         }
@@ -120,7 +134,7 @@ final class EsQueryReferences {
             case "script" -> {
                 var options = EsJsonAccess.fields(clause.getValue(), Set.of("script", "boost", "_name"));
                 if (options.containsKey("script")) {
-                    script(options.get("script"));
+                    script(options.get("script"), profile);
                 }
             }
             case "script_score" -> {
@@ -129,7 +143,7 @@ final class EsQueryReferences {
                     query(options.get("query"));
                 }
                 if (options.containsKey("script")) {
-                    script(options.get("script"));
+                    script(options.get("script"), profile);
                 }
             }
             case "function_score" -> functionScore(clause.getValue());
@@ -229,11 +243,14 @@ final class EsQueryReferences {
         }
     }
 
-    static void script(EsJsonValue value) {
+    static void script(EsJsonValue value, RestApiProfile profile) {
         if (value instanceof EsJsonString) {
             return;
         }
         var options = EsJsonAccess.fields(value, Set.of("source", "lang", "params", "options"));
+        if (options.containsKey("lang") && profile.excludedScriptLanguages().contains(EsJsonAccess.string(options.get("lang")))) {
+            profile.unsupported(options.get("lang").range(), EsJsonAccess.string(options.get("lang")));
+        }
         if (!options.containsKey("source")) {
             throw new EsParseException(value.range(), EsSqlI18nKeys.ES_BODY_OUT_OF_SCOPE);
         }
@@ -268,7 +285,7 @@ final class EsQueryReferences {
     private void scoreScript(EsJsonValue value) {
         var options = EsJsonAccess.fields(value, Set.of("script"));
         if (options.containsKey("script")) {
-            script(options.get("script"));
+            script(options.get("script"), profile);
         }
     }
 
@@ -305,6 +322,9 @@ final class EsQueryReferences {
 
     private void sort(EsJsonValue value) {
         if (value instanceof EsJsonString string) {
+            if (profile.excludedSorts().contains(string.value())) {
+                profile.unsupported(string.range(), string.value());
+            }
             if (string.value().equals("_doc")) {
                 pageable = false;
             }
@@ -315,6 +335,9 @@ final class EsQueryReferences {
             return;
         }
         for (var entry : EsJsonAccess.object(value).entrySet()) {
+            if (profile.excludedSorts().contains(entry.getKey())) {
+                profile.unsupported(entry.getValue().range(), entry.getKey());
+            }
             if (entry.getKey().equals("_doc")) {
                 pageable = false;
             }
@@ -324,7 +347,7 @@ final class EsQueryReferences {
             var options = EsJsonAccess.object(entry.getValue());
             if (entry.getKey().equals("_script") && options.containsKey("script")) {
                 pageable = false;
-                script(options.get("script"));
+                script(options.get("script"), profile);
             }
             if (options.containsKey("nested")) {
                 nestedSort(options.get("nested"));
@@ -402,13 +425,13 @@ final class EsQueryReferences {
     private void aggregationScripts(EsJsonValue value) {
         var options = EsJsonAccess.object(value);
         if (options.containsKey("script")) {
-            script(options.get("script"));
+            script(options.get("script"), profile);
         }
         for (String name : List.of("value", "weight")) {
             if (options.get(name) instanceof EsJsonObject source) {
                 var fields = EsJsonAccess.object(source);
                 if (fields.containsKey("script")) {
-                    script(fields.get("script"));
+                    script(fields.get("script"), profile);
                 }
             }
         }

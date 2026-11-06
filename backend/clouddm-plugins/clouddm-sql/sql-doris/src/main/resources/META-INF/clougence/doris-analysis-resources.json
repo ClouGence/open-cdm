@@ -1,0 +1,19 @@
+{
+  "description": "doris function effects shared by statement classification, behavior analysis and authorization.",
+  "sources": ["https://github.com/apache/doris/blob/master/gensrc/script/doris_builtins_functions.py", "https://doris.apache.org/docs/sql-manual/sql-functions/table-valued-functions/file/", "https://doris.apache.org/docs/dev/sql-manual/sql-functions/table-valued-functions/query/", "https://github.com/apache/doris/blob/master/fe/fe-core/src/main/java/org/apache/doris/tablefunction/TableValuedFunctionIf.java"],
+  "notes": ["These release-independent effect classifications do not establish function availability or grant permission exemptions."],
+  "metadataFunctions": [],
+  "privilegedFunctions": [
+    {"names": ["sleep"]},
+    {"names": ["file", "s3", "hdfs", "local", "http", "query"]}
+  ],
+  "functionStatementTypes": [
+    {"types": ["PERFORMANCE"], "names": ["sleep"]},
+    {"types": ["DATA_IMPORT"], "names": ["file", "s3", "hdfs", "local", "http", "query"]}
+  ],
+  "functionBehaviors": [
+    {"names": ["sleep"], "action": "CALL"},
+    {"names": ["file", "s3", "hdfs", "local", "http"], "action": "CALL", "targetType": "File", "targetAction": "READ", "unsafe": true},
+    {"names": ["query"], "action": "CALL", "targetType": "Table", "targetAction": "READ"}
+  ]
+}

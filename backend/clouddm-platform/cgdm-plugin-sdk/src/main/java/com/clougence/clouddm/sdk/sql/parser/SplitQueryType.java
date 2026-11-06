@@ -49,6 +49,9 @@ public enum SplitQueryType {
     TRUNCATE_TABLE,
     ADMIN_TABLE,
 
+    CREATE_TIMESERIES,
+    DROP_TIMESERIES,
+
     // DDL column
     ADD_COLUMN,
     ALTER_COLUMN,

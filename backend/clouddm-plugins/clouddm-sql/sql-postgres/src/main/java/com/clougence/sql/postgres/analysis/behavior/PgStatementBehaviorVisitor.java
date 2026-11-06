@@ -86,33 +86,52 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
 
     private void addFunction(Func_applicationContext ctx) {
         List<String> names = new ArrayList<>();
-        collectNames(ctx.func_name(), names);
+        collectNames(ctx.func_name(), names, true);
         PgFunctionBehavior rule = dialectFunctionBehavior.apply(names);
         if (PgFunctionBehavior.DEFAULT.equals(rule)) {
             rule = resources.functionBehavior(names, version);
         }
-        addUnary(rule.action(), functionObject(ctx.func_name(), names));
-        if (rule.targetType() == null || ctx.func_arg_list() == null)
-            return;
-        Func_arg_exprContext argument = ctx.func_arg_list().func_arg_expr(0);
-        SconstContext literal = first(argument, SconstContext.class);
-        BehaviorObject resource;
-        if (literal != null && text(argument).equals(text(literal))) {
-            String name = stringValue(literal);
-            if (rule.targetType() == TargetType.File)
-                name = name.replaceFirst("^/+", "");
-            if (name.isEmpty())
-                resource = objects.instanceObject(rule.targetType(), literal);
-            else {
-                resource = objects.instanceObject(rule.targetType(), literal, name);
-                resource.setObjectName(new ObjectName(null, null, name));
+        for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof ViewstmtContext || parent instanceof CreatefunctionstmtContext
+                || parent instanceof CreatematviewstmtContext view && view.with_data_() != null && view.with_data_().NO() != null) {
+                rule = PgFunctionBehavior.DEFAULT;
+                break;
             }
-        } else {
-            resource = objects.instanceObject(rule.targetType(), argument);
         }
-        addUnary(rule.targetAction(), resource);
-        if (rule.unsafe())
+
+        BehaviorObject function = functionObject(ctx.func_name(), names);
+        addUnary(rule.action(), function);
+        BehaviorObject resource = function;
+        if (rule.targetType() != null && rule.targetAction() != null) {
+            if (rule.targetType() == TargetType.Table) {
+                // String relation arguments resolve through the server search path, not the editor's selected schema.
+                resource = objects.instanceObject(TargetType.Table, ctx);
+            } else if (ctx.func_arg_list() == null) {
+                resource = objects.instanceObject(rule.targetType(), ctx);
+            } else {
+                Func_arg_exprContext argument = ctx.func_arg_list().func_arg_expr(0);
+                SconstContext literal = first(argument, SconstContext.class);
+                if (literal != null && text(argument).equals(text(literal)) && text(literal).indexOf('\\') < 0
+                    && (text(literal).startsWith("'") || text(literal).startsWith("E'") || text(literal).startsWith("e'"))) {
+                    String name = stringValue(literal);
+                    if (rule.targetType() == TargetType.File) {
+                        name = name.replaceFirst("^/+", "");
+                    }
+                    if (name.isEmpty()) {
+                        resource = objects.instanceObject(rule.targetType(), literal);
+                    } else {
+                        resource = objects.instanceObject(rule.targetType(), literal, name);
+                        resource.setObjectName(new ObjectName(null, null, name));
+                    }
+                } else {
+                    resource = objects.instanceObject(rule.targetType(), argument);
+                }
+            }
+            addUnary(rule.targetAction(), resource);
+        }
+        if (rule.unsafe()) {
             addUnary(BehaviorAction.UNSAFE, resource);
+        }
     }
 
     private void scanNestedBehaviors(ParseTree tree) {
@@ -147,7 +166,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
         for (Func_applicationContext function : descendants(ctx, Func_applicationContext.class)) {
             if (functions.add(function)) {
                 List<String> names = new ArrayList<>();
-                collectNames(function.func_name(), names);
+                collectNames(function.func_name(), names, true);
                 addUnary(BehaviorAction.CALL, functionObject(function.func_name(), names));
             }
         }
@@ -1486,7 +1505,7 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
             return null;
         }
         List<String> names = new ArrayList<>();
-        collectNames(context, names);
+        collectNames(context, names, type == TargetType.Function);
         if (type == TargetType.Publication || type == TargetType.Subscription || type == TargetType.PublicationSubscription || type == TargetType.Library
             || type == TargetType.Link) {
             BehaviorObject result = objects.unnamedObject(type, context, UmiTypes.Catalog);
@@ -1540,13 +1559,23 @@ final class PgStatementBehaviorVisitor extends PgSqlParserBaseVisitor<Void> {
     }
 
     private void collectNames(ParseTree tree, List<String> names) {
+        collectNames(tree, names, false);
+    }
+
+    private void collectNames(ParseTree tree, List<String> names, boolean preserveQuotes) {
         if (tree instanceof ColidContext || tree instanceof Attr_nameContext || tree instanceof Type_function_nameContext) {
             ParserRuleContext context = (ParserRuleContext) tree;
-            names.add(normalizeIdentifier(parser.getTokenStream().getText(context.getStart(), context.getStop())));
+            String name = parser.getTokenStream().getText(context.getStart(), context.getStop());
+            if (!preserveQuotes || !name.startsWith("\"")) {
+                name = normalizeIdentifier(name);
+            }
+
+            names.add(name);
             return;
         }
+
         for (int i = 0; i < tree.getChildCount(); i++) {
-            collectNames(tree.getChild(i), names);
+            collectNames(tree.getChild(i), names, preserveQuotes);
         }
     }
 

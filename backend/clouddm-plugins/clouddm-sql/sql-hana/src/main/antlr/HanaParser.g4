@@ -477,10 +477,11 @@ predicate: additiveExpression ((EQ | NE | LT | LE | GT | GE) additiveExpression
 additiveExpression: multiplicativeExpression ((PLUS | MINUS_OP | CONCAT) multiplicativeExpression)*;
 multiplicativeExpression: unaryExpression ((STAR | DIV | MOD) unaryExpression)*;
 unaryExpression: (PLUS | MINUS_OP)* primary;
-primary: literal | variable | parameterMarker | diagnosticPattern | functionCall | qualifiedName
+primary: literal | variable | parameterMarker | diagnosticPattern | contextFunction | functionCall | qualifiedName
     | LPAREN (query | expression) RPAREN | EXISTS LPAREN query RPAREN
     | CASE expression? (WHEN expression THEN expression)+ (ELSE expression)? END
     | CAST LPAREN expression AS dataType RPAREN;
+contextFunction: CURRENT_USER | CURRENT_SCHEMA | CURRENT_DATABASE | CURRENT_CONNECTION | SESSION_USER;
 functionCall: qualifiedName LPAREN ((DISTINCT | ALL)? (STAR | expression (COMMA expression)*))? RPAREN
     (OVER LPAREN (PARTITION BY expression (COMMA expression)*)? orderBy? RPAREN)?;
 variable: COLON COLON? identifier (DOT identifier)*;
@@ -488,7 +489,7 @@ parameterMarker: QUESTION;
 literal: STRING | INTEGER | DECIMAL | NULL | TRUE | FALSE | DEFAULT;
 columnNames: LPAREN identifier (COMMA identifier)* RPAREN;
 qualifiedName: identifier (DOT identifier)*;
-identifier: WORD | USER | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE | INVERTED | HASH | VALUE | INDIVIDUAL
+identifier: WORD | USER | contextFunction | QUOTED_IDENTIFIER | KEY | NEW | OLD | BTREE | CPBTREE | INVERTED | HASH | VALUE | INDIVIDUAL
     | CONNECT | PASSWORD | SAML | ASSERTION | JWT | HISTORY | NOW | ID | UTCTIMESTAMP | SYSTEM | CANCEL | DISCONNECT
     | ACTIONS | ACTIVATE | ADDRESS | ADMIN | ALERT | ALGORITHM | ALLOW | ANY | APPLICATION | APPLY | AT | ATTEMPTS
     | ATTRIBUTE | AUDIT | AUDITING | AUTHORIZATION | AUTO | BACKUP | CA | CATALOG | CERTIFICATE | CERTIFICATES

@@ -37,7 +37,7 @@ public final class PgSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
         PostgresVersion version = PostgresVersion.parse(databaseVersion);
         if (targetType == TargetType.Function) {
             boolean systemFunction = schema == null ? resources.isSystemFunction(objectName, version) : resources.isSystemFunction(schema, objectName, version);
-            return systemFunction && action == resources.functionBehavior(objectName, version);
+            return systemFunction && action == BehaviorAction.CALL && resources.isOrdinaryFunction(objectName, version);
         }
         return (targetType == TargetType.Table || targetType == TargetType.View) && action == BehaviorAction.READ && resources.isSystemSchema(schema);
     }

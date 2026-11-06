@@ -17,9 +17,11 @@ package com.clougence.clouddm.ds.tidb.sql.analysis.sysobj;
 
 import com.clougence.clouddm.ds.tidb.sql.TiSqlEngineSpi;
 import com.clougence.clouddm.ds.tidb.sql.analysis.reference.TiResourceRegistry;
+import com.clougence.clouddm.ds.tidb.sql.parser.TiDbVersion;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.sql.common.analysis.sysobj.AbstractSysObjectRegistrySpi;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 /** TiDB system objects which do not require user-object authorization. */
 public final class TiSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
@@ -34,8 +36,10 @@ public final class TiSysObjectRegistrySpi extends AbstractSysObjectRegistrySpi {
     @Override
     protected boolean isRegisteredResource(BehaviorAction action, TargetType targetType, String catalog, String schema, String objectName, String databaseVersion) {
         if (targetType == TargetType.Function && schema == null) {
-            BehaviorAction expectedAction = resources.functionBehavior(objectName, false);
-            return action == expectedAction && !resources.isUserDefinedFunction(objectName, false);
+            TiDbVersion version = TiDbVersion.parse(databaseVersion);
+            FunctionBehavior classification = resources.functionClassification(objectName, version);
+            return action == BehaviorAction.CALL && classification.action() == BehaviorAction.CALL && !classification.privileged() && !classification.unsafe()
+                   && resources.isSystemFunction(objectName, version);
         }
         if ((targetType == TargetType.Table || targetType == TargetType.View) && action == BehaviorAction.READ) {
             return resources.isMetadataTable(schema, objectName);

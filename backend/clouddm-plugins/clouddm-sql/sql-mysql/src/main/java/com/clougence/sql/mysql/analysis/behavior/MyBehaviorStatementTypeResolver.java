@@ -94,6 +94,14 @@ final class MyBehaviorStatementTypeResolver {
         if (contains(references, SplitQueryType.DATA_EXPORT)) {
             return SplitQueryType.DATA_EXPORT;
         }
+        for (MySqlObjectReference reference : references) {
+            SplitQueryType functionType = reference.sqlType();
+            if (reference.targetType() == TargetType.Function && functionType != null && functionType != SplitQueryType.UNKNOWN && functionType != SplitQueryType.CALL_PROG_OBJ
+                && functionType != SplitQueryType.SELECT) {
+                return functionType;
+            }
+        }
+
         List<MySqlObjectReference> dataObjects = references.stream()
             .filter(reference -> reference.targetType() == TargetType.Table || reference.targetType() == TargetType.View || reference.targetType() == TargetType.Materialized)
             .toList();

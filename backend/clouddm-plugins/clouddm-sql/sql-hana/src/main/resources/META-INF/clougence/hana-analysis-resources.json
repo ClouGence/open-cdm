@@ -1,0 +1,18 @@
+{
+  "description": "hana function classifications used by split, behavior and authorization.",
+  "sources": ["https://help.sap.com/doc/9b40bf74f8644b898fb07dabdd2a36ad/2.0.04/en-US/SAP_HANA_SQL_Reference_Guide_en.pdf"],
+  "metadataFunctions": [
+    {"versions": ["2"], "names": ["SESSION_CONTEXT"]},
+    {"versions": ["2"], "names": ["CURRENT_USER", "CURRENT_SCHEMA", "CURRENT_DATABASE", "CURRENT_CONNECTION", "CURRENT_IDENTITY_VALUE", "SESSION_USER"]},
+    {"versions": ["2"], "names": ["CURRENT_IDENTITY_VALUE", "CURRENT_OBJECT_SCHEMA", "CURRENT_SITE_ID", "CURRENT_TRANSACTION_ISOLATION_LEVEL", "CURRENT_UPDATE_STATEMENT_SEQUENCE", "CURRENT_UPDATE_TRANSACTION", "CURRENT_USER_ID"]}
+  ],
+  "privilegedFunctions": [],
+  "functionStatementTypes": [
+    {"versions": ["2"], "types": ["METADATA"], "names": ["SESSION_CONTEXT"]},
+    {"versions": ["2"], "types": ["METADATA"], "names": ["CURRENT_USER", "CURRENT_SCHEMA", "CURRENT_DATABASE", "CURRENT_CONNECTION", "CURRENT_IDENTITY_VALUE", "SESSION_USER"]},
+    {"versions": ["2"], "types": ["METADATA"], "names": ["CURRENT_IDENTITY_VALUE", "CURRENT_OBJECT_SCHEMA", "CURRENT_SITE_ID", "CURRENT_TRANSACTION_ISOLATION_LEVEL", "CURRENT_UPDATE_STATEMENT_SEQUENCE", "CURRENT_UPDATE_TRANSACTION", "CURRENT_USER_ID"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["2"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SESSION_CONTEXT"]}
+  ]
+}

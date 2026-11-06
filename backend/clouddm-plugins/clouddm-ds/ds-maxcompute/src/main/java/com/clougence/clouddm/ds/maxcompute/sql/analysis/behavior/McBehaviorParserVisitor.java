@@ -24,12 +24,14 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.maxcompute.sql.analysis.reference.McResourceRegistry;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserBaseVisitor;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 final class McBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     private final Parser                  parser;
@@ -53,12 +55,14 @@ final class McBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     public Void visit(ParseTree tree) {
         McStatementBehaviorVisitor visitor = new McStatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
         visitor.visit(tree);
+        visitor.scanFunctionCalls(tree);
         behaviors.add(visitor.behavior());
         return null;
     }
 }
 
 final class McStatementBehaviorVisitor extends McParserBaseVisitor<Void> {
+
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
     private final StatementBehavior        behavior = new StatementBehavior();
@@ -71,6 +75,31 @@ final class McStatementBehaviorVisitor extends McParserBaseVisitor<Void> {
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    void scanFunctionCalls(ParseTree tree) {
+        if (behavior.getStatementType() == SplitQueryType.CREATE_PROG_OBJ || behavior.getStatementType() == SplitQueryType.ALTER_PROG_OBJ) {
+            return;
+        }
+
+        for (Expr_funcContext ctx : descendants(tree, Expr_funcContext.class)) {
+            if (ctx.ident() == null) {
+                continue;
+            }
+
+            List<String> names = new ArrayList<>();
+            if (ctx.getParent() instanceof Expr_dot_method_callContext qualified && qualified.ident() != null) {
+                names.add(name(qualified.ident()));
+            }
+
+            names.add(name(ctx.ident()));
+            FunctionBehavior rule = FunctionBehavior.DEFAULT;
+            if (names.size() == 1) {
+                rule = McResourceRegistry.instance().functionBehavior(ctx.ident().getText());
+            }
+            objects.applyFunctionBehavior(behavior, objects.object(TargetType.Function, ctx.ident(), names), rule, ctx);
+
+        }
     }
 
     @Override

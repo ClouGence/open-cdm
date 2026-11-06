@@ -112,11 +112,16 @@ public abstract class AbstractSplitAnalysisSpi implements SplitAnalysisSpi {
         return null;
     }
 
-    private void collectAdditionalTypes(ParseTree tree, Set<SplitQueryType> types) {
+    protected Set<SplitQueryType> additionalTypes(ParseTree tree) {
         SplitQueryType type = additionalType(tree);
-        if (type != null) {
-            types.add(type);
+        if (type == null) {
+            return Set.of();
         }
+        return Set.of(type);
+    }
+
+    private void collectAdditionalTypes(ParseTree tree, Set<SplitQueryType> types) {
+        types.addAll(additionalTypes(tree));
         for (int i = 0; i < tree.getChildCount(); i++) {
             collectAdditionalTypes(tree.getChild(i), types);
         }

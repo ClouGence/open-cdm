@@ -56,7 +56,6 @@ export default {
         scrollBeyondLastLine: false,
         hideCursorInOverviewRuler: true,
         overviewRulerBorder: false,
-        theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
         },
@@ -132,7 +131,6 @@ export default {
         this.currentTab.text = editorText;
       }
       this.defaultOpts.value = editorText;
-      this.defaultOpts.theme = 'vs';
       if (this.monacoEditor) {
         this.handleDispose();
       }
@@ -547,6 +545,10 @@ export default {
     isHana() {
       return (this.currentTab?.dsType || this.currentTab?.node?.INSTANCE?.attr?.dsType) === 'Hana';
     },
+    usesServerStatementRanges() {
+      const dsType = this.currentTab?.dsType || this.currentTab?.node?.INSTANCE?.attr?.dsType;
+      return this.isHana() || getLanguage(dsType) === 'es';
+    },
     getDsLanguageCapability() {
       return this.currentTab?.support?.language || null;
     },
@@ -680,7 +682,7 @@ export default {
       if (model.getVersionId() === this.splitModelVersionId) {
         statement = this.findStatementAtPosition(position, model);
       }
-      if (!statement && !this.isHana() && this.currentTab?.dsType !== 'ElasticSearch') {
+      if (!statement && !this.usesServerStatementRanges()) {
         statement = this.findLocalStatementAtPosition(position, model);
       }
       if (!statement) {
@@ -1009,7 +1011,7 @@ export default {
       );
     },
     findSqlFragmentRanges(text) {
-      if (this.isHana() || this.currentTab?.dsType === 'ElasticSearch') {
+      if (this.usesServerStatementRanges()) {
         return [{ startOffset: 0, endOffset: text.length }];
       }
       const ranges = [];
@@ -1151,7 +1153,7 @@ export default {
         return false;
       }
       this.showLanguageServiceError(
-        response?.msg || response?.result?.msg || response?.entities?.[0]?.message || response?.code || '语言服务请求失败'
+        response?.msg || response?.result?.msg || response?.entities?.[0]?.message || response?.code || this.$t('query-language-request-failed')
       );
       return true;
     },
@@ -1480,7 +1482,7 @@ export default {
         };
       }
 
-      if (this.isHana() || this.currentTab?.dsType === 'ElasticSearch') {
+      if (this.usesServerStatementRanges()) {
         return { sql: '', position: null };
       }
       if (!position) {

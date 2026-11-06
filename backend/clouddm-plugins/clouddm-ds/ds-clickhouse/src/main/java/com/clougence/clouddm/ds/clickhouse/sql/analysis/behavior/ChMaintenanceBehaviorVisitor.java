@@ -15,11 +15,7 @@
  */
 package com.clougence.clouddm.ds.clickhouse.sql.analysis.behavior;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -27,7 +23,10 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParser.*;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 
@@ -35,7 +34,7 @@ import com.clougence.schema.umi.struts.UmiTypes;
 class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
     private final String instanceScope;
 
-    ChMaintenanceBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn) {
+    ChMaintenanceBehaviorVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
         super(parser, levels, baseLine, baseColumn);
         instanceScope = objects.instanceObject(TargetType.Instance, parser.getTokenStream().get(0)).getObjectPath();
     }
@@ -162,8 +161,8 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
             }
             add(type, BehaviorAction.DROP, target);
         } else if (clause instanceof AlterTableClauseReplaceContext ctx) {
-            add(type, BehaviorAction.REPLACE, partition(table, ctx.partitionClause(), false),
-                List.of(partition(object(TargetType.Table, ctx.tableIdentifier()), ctx.partitionClause(), false)));
+            add(type, BehaviorAction.REPLACE, partition(table, ctx.partitionClause(), false), List
+                .of(partition(object(TargetType.Table, ctx.tableIdentifier()), ctx.partitionClause(), false)));
         } else if (clause instanceof AlterTableClauseMovePartitionContext ctx) {
             BehaviorObject target;
             if (ctx.tableIdentifier() != null) {
@@ -306,8 +305,7 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
 
     @Override
     public Void visitSystemSyncMergesStmt(SystemSyncMergesStmtContext ctx) {
-        add(SplitQueryType.ADMIN_TABLE, BehaviorAction.READ,
-            runtime(TargetType.Job, ctx.tableIdentifier(), ctx.MERGES().getSymbol(), ctx.MERGES().getSymbol(), "merges"));
+        add(SplitQueryType.ADMIN_TABLE, BehaviorAction.READ, runtime(TargetType.Job, ctx.tableIdentifier(), ctx.MERGES().getSymbol(), ctx.MERGES().getSymbol(), "merges"));
         return null;
     }
 
@@ -334,15 +332,14 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
         if (ctx.UNLOAD() != null) {
             action = BehaviorAction.PURGE;
         }
-        add(SplitQueryType.ADMIN_PERFORMANCE, action,
-            runtime(TargetType.Cache, table, ctx.PRIMARY().getSymbol(), ctx.KEY().getSymbol(), "primary_key"));
+        add(SplitQueryType.ADMIN_PERFORMANCE, action, runtime(TargetType.Cache, table, ctx.PRIMARY().getSymbol(), ctx.KEY().getSymbol(), "primary_key"));
         return null;
     }
 
     @Override
     public Void visitSystemReplicatedSendsStmt(SystemReplicatedSendsStmtContext ctx) {
-        add(SplitQueryType.ALTER_REPLICATION, controlAction((TerminalNode) ctx.getChild(1)),
-            runtime(TargetType.Replication, ctx.tableIdentifier(), ctx.REPLICATED().getSymbol(), ctx.SENDS().getSymbol(), "replication/replicated_sends"));
+        add(SplitQueryType.ALTER_REPLICATION, controlAction((TerminalNode) ctx.getChild(1)), runtime(TargetType.Replication, ctx.tableIdentifier(), ctx.REPLICATED()
+            .getSymbol(), ctx.SENDS().getSymbol(), "replication/replicated_sends"));
         return null;
     }
 
@@ -363,8 +360,9 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
             stop = ctx.QUEUES().getSymbol();
             family = "replication_queues";
         }
-        add(SplitQueryType.ALTER_REPLICATION, controlAction((TerminalNode) ctx.getChild(1)),
-            runtime(TargetType.Replication, ctx.tableIdentifier(), start, stop, "replication/" + family));
+        add(SplitQueryType.ALTER_REPLICATION, //
+                controlAction((TerminalNode) ctx.getChild(1)), //
+                runtime(TargetType.Replication, ctx.tableIdentifier(), start, stop, "replication/" + family));
         return null;
     }
 
@@ -382,15 +380,14 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
 
     @Override
     public Void visitSystemSyncDatabaseReplicaStmt(SystemSyncDatabaseReplicaStmtContext ctx) {
-        add(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.READ,
-            child(TargetType.Replication, ctx.databaseIdentifier(), object(TargetType.Schema, ctx.databaseIdentifier()), "replication"));
+        add(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.READ, child(TargetType.Replication, ctx
+            .databaseIdentifier(), object(TargetType.Schema, ctx.databaseIdentifier()), "replication"));
         return null;
     }
 
     @Override
     public Void visitSystemRestartReplicaStmt(SystemRestartReplicaStmtContext ctx) {
-        add(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.RESET,
-            child(TargetType.Replica, ctx.tableIdentifier(), object(TargetType.Table, ctx.tableIdentifier()), "replicas"));
+        add(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.RESET, child(TargetType.Replica, ctx.tableIdentifier(), object(TargetType.Table, ctx.tableIdentifier()), "replicas"));
         return null;
     }
 
@@ -409,15 +406,15 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
 
     @Override
     public Void visitSystemRestoreDatabaseReplicaStmt(SystemRestoreDatabaseReplicaStmtContext ctx) {
-        add(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.RECOVER,
-            child(TargetType.Replica, ctx.databaseIdentifier(), object(TargetType.Schema, ctx.databaseIdentifier()), "replicas"));
+        add(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.RECOVER, child(TargetType.Replica, ctx
+            .databaseIdentifier(), object(TargetType.Schema, ctx.databaseIdentifier()), "replicas"));
         return null;
     }
 
     @Override
     public Void visitSystemReconnectZooKeeperStmt(SystemReconnectZooKeeperStmtContext ctx) {
-        add(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.RESET,
-            scoped(TargetType.Replication, ctx.ZOOKEEPER().getSymbol(), ctx.ZOOKEEPER().getSymbol(), instanceScope + "keeper/default/"));
+        add(SplitQueryType.ADMIN_REPLICATION, BehaviorAction.RESET, scoped(TargetType.Replication, ctx.ZOOKEEPER().getSymbol(), ctx.ZOOKEEPER().getSymbol(), instanceScope
+                                                                                                                                                             + "keeper/default/"));
         return null;
     }
 
@@ -471,8 +468,8 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
         if (ctx.systemOptionalTableTarget() != null) {
             table = ctx.systemOptionalTableTarget().tableIdentifier();
         }
-        add(SplitQueryType.ADMIN_TABLE, controlAction((TerminalNode) ctx.getChild(1)),
-            runtime(TargetType.Queue, table, ctx.DISTRIBUTED().getSymbol(), ctx.SENDS().getSymbol(), "distributed"));
+        add(SplitQueryType.ADMIN_TABLE, controlAction((TerminalNode) ctx.getChild(1)), runtime(TargetType.Queue, table, ctx.DISTRIBUTED().getSymbol(), ctx.SENDS()
+            .getSymbol(), "distributed"));
         return null;
     }
 
@@ -486,8 +483,7 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
     @Override
     public Void visitSystemFlushAsyncInsertStmt(SystemFlushAsyncInsertStmtContext ctx) {
         if (ctx.tableIdentifier().isEmpty()) {
-            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.FLUSH,
-                scoped(TargetType.Queue, ctx.ASYNC().getSymbol(), ctx.QUEUE().getSymbol(), instanceScope + "async_insert/"));
+            add(SplitQueryType.ADMIN_TABLE, BehaviorAction.FLUSH, scoped(TargetType.Queue, ctx.ASYNC().getSymbol(), ctx.QUEUE().getSymbol(), instanceScope + "async_insert/"));
         } else {
             for (TableIdentifierContext table : ctx.tableIdentifier()) {
                 add(SplitQueryType.ADMIN_TABLE, BehaviorAction.FLUSH, child(TargetType.Queue, table, object(TargetType.Table, table), "async_insert"));
@@ -516,15 +512,15 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
 
     @Override
     public Void visitSystemViewsStmt(SystemViewsStmtContext ctx) {
-        add(SplitQueryType.ADMIN, controlAction((TerminalNode) ctx.getChild(1)),
-            scoped(TargetType.Job, ctx.VIEWS().getSymbol(), ctx.VIEWS().getSymbol(), instanceScope + "refresh/"));
+        add(SplitQueryType.ADMIN, controlAction((TerminalNode) ctx.getChild(1)), scoped(TargetType.Job, ctx.VIEWS().getSymbol(), ctx.VIEWS().getSymbol(), instanceScope
+                                                                                                                                                          + "refresh/"));
         return null;
     }
 
     @Override
     public Void visitSystemReplicatedViewStmt(SystemReplicatedViewStmtContext ctx) {
-        add(SplitQueryType.ADMIN, controlAction((TerminalNode) ctx.getChild(1)),
-            child(TargetType.Replication, ctx.tableIdentifier(), object(TargetType.Materialized, ctx.tableIdentifier()), "replication/refresh"));
+        add(SplitQueryType.ADMIN, controlAction((TerminalNode) ctx.getChild(1)), child(TargetType.Replication, ctx
+            .tableIdentifier(), object(TargetType.Materialized, ctx.tableIdentifier()), "replication/refresh"));
         return null;
     }
 
@@ -553,8 +549,7 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
 
     @Override
     public Void visitSystemSyncTransactionLogStmt(SystemSyncTransactionLogStmtContext ctx) {
-        add(SplitQueryType.TRANSACTION, BehaviorAction.READ,
-            scoped(TargetType.Log, ctx.TRANSACTION().getSymbol(), ctx.LOG().getSymbol(), instanceScope + "transaction/"));
+        add(SplitQueryType.TRANSACTION, BehaviorAction.READ, scoped(TargetType.Log, ctx.TRANSACTION().getSymbol(), ctx.LOG().getSymbol(), instanceScope + "transaction/"));
         return null;
     }
 
@@ -633,8 +628,7 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
             for (ColumnExprContext term : and.columnExpr()) {
                 equalities(term, values);
             }
-        } else if (expression instanceof ColumnExprPrecedence3Context comparison
-                   && (comparison.EQ_SINGLE() != null || comparison.EQ_DOUBLE() != null)) {
+        } else if (expression instanceof ColumnExprPrecedence3Context comparison && (comparison.EQ_SINGLE() != null || comparison.EQ_DOUBLE() != null)) {
             ColumnExprContext left = comparison.columnExpr(0);
             ColumnExprContext right = comparison.columnExpr(1);
             if (left instanceof ColumnExprLiteralContext && right instanceof ColumnExprIdentifierContext) {
@@ -741,7 +735,7 @@ class ChMaintenanceBehaviorVisitor extends ChStatementBehaviorVisitor {
         for (BackupElementContext element : elements.backupElement()) {
             for (BackupPartitionContext partition : element.backupPartition()) {
                 if (partition.function != null) {
-                    add(type, BehaviorAction.CALL, objects.object(TargetType.Function, partition.function, List.of(name(partition.function))));
+                    add(type, BehaviorAction.CALL, objects.object(TargetType.Function, partition.function, List.of(partition.function.getText())));
                 }
                 visitChildren(partition);
             }

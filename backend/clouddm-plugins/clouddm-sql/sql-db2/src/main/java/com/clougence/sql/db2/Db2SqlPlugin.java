@@ -24,6 +24,7 @@ import com.clougence.sql.db2.i18n.Db2SqlI18nKeys;
 public class Db2SqlPlugin implements DsPlugin {
     @Override
     public void loadPlugin(DsPluginBinder dsPlugin) {
+        dsPlugin.addGlobalSpi(new Db2SysObjectRegistrySpi());
         dsPlugin.bindGlobalI18n(Db2SqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new Db2SqlEngineSpi());
     }

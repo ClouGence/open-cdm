@@ -399,7 +399,7 @@ export default {
 }
 
 .selected-region {
-  color: rgba(0, 0, 0, 0.88);
+  color: var(--text-primary);
   padding-right: 16px;
 }
 

@@ -15,6 +15,8 @@ import {
 import router from '@/router';
 import { buildSidebarMenu, flattenSidebarMenu } from '@/utils/buildSidebarMenu';
 
+let themeTransitionFrame = 0;
+
 function applyMenuItems(state, myCatLog = state.myCatLog, myAuth = state.myAuth) {
   const isDesktop = !!state.dmGlobalSetting.personal;
   const sidebarMenu = buildSidebarMenu({
@@ -117,20 +119,38 @@ export default {
     appLogger.debug(socket);
     state.socket = socket;
   },
-  [SET_THEME](state, theme) {
+  [SET_THEME](state, mode) {
+    if (!['light', 'dark', 'system'].includes(mode)) return;
+
+    let theme = mode;
+    if (mode === 'system') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    const root = document.documentElement;
+    const changing = root.getAttribute('data-theme') !== theme;
+    if (changing) {
+      root.classList.add('theme-changing');
+      cancelAnimationFrame(themeTransitionFrame);
+    }
+
+    state.themeMode = mode;
     state.theme = theme;
-    //RequestAnimationFrame: Ensure DOM changes are synchronized with browser rendering to avoid flashing and Carton
-    requestAnimationFrame(() => {
-      document.documentElement.setAttribute('data-theme', theme);
-    });
-    // Endurance of the walk to avoid blocking the main course
+    root.setAttribute('data-theme', theme);
+    if (changing) {
+      // Keep transitions disabled through the first paint, including Vue and Monaco updates.
+      themeTransitionFrame = requestAnimationFrame(() => {
+        themeTransitionFrame = requestAnimationFrame(() => {
+          root.classList.remove('theme-changing');
+          themeTransitionFrame = 0;
+        });
+      });
+    }
+
     try {
-      requestIdleCallback
-        ? requestIdleCallback(() => localStorage.setItem('app-theme', theme))
-        : setTimeout(() => localStorage.setItem('app-theme', theme), 0);
+      localStorage.setItem('app-theme', mode);
     } catch (err) {
       appLogger.debug(err);
-      localStorage.setItem('app-theme', theme);
     }
   }
 };

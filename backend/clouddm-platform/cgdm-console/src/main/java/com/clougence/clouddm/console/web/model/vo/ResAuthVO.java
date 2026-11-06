@@ -39,7 +39,7 @@ public class ResAuthVO {
 
     private List<String> dsAuthKinds;
 
-    private String       startTime;
+    private Long         startTimeMs;
 
-    private String       endTime;
+    private Long         endTimeMs;
 }

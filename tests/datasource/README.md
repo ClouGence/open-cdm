@@ -22,3 +22,5 @@ tests/datasource/<datasource>/
 
 - [`goldendb/`](goldendb/README.md)：GoldenDB MySQL/Oracle 兼容模式专项测试。
 - [`hana/`](hana/README.md)：HANA 2.0 Platform 固定验证基线、环境准备和能力矩阵；实际环境待部署。
+- [`iotdb/`](iotdb/README.md)：IoTDB 1.3.x 树模型与 2.x 双模型的接入基线、实库样本和能力矩阵。
+- [`opensearch/`](opensearch/README.md)：OpenSearch 2.x/3.x 版本矩阵、传输原型、3.9.0 直接连接/分页验证，以及独立插件注册和驱动准备；产品会话/查询待接入。

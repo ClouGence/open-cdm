@@ -16,6 +16,7 @@
 package com.clougence.sql.common.registry;
 
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 /**
  * Small dialect-neutral registry for versioned resource facts.
@@ -25,11 +26,15 @@ import java.util.*;
  */
 public final class VersionedResourceRegistry<T> {
 
-    private final ResourceRegistryDialect                   dialect;
+    private final UnaryOperator<String>                     normalizeIdentifier;
     private final Map<ResourceKey, List<VersionedValue<T>>> resources = new LinkedHashMap<>();
 
     public VersionedResourceRegistry(ResourceRegistryDialect dialect){
-        this.dialect = Objects.requireNonNull(dialect, "dialect");
+        this.normalizeIdentifier = Objects.requireNonNull(dialect, "dialect")::normalizeIdentifier;
+    }
+
+    public VersionedResourceRegistry(UnaryOperator<String> normalizeIdentifier){
+        this.normalizeIdentifier = Objects.requireNonNull(normalizeIdentifier, "normalizeIdentifier");
     }
 
     public void register(RegisteredResourceType type, int minimumVersion, int maximumVersion, T value, String... nameParts) {
@@ -83,7 +88,7 @@ public final class VersionedResourceRegistry<T> {
             if (part == null || part.isBlank()) {
                 throw new IllegalArgumentException("resource name part must not be blank");
             }
-            String value = dialect.normalizeIdentifier(part);
+            String value = normalizeIdentifier.apply(part);
             if (value == null || value.isBlank()) {
                 throw new IllegalArgumentException("normalized resource name part must not be blank");
             }

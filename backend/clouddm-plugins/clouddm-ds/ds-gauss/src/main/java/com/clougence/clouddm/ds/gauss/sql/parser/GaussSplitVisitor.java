@@ -29,6 +29,11 @@ public class GaussSplitVisitor extends GaussSqlParserBaseVisitor<SplitQueryType>
     }
 
     @Override
+    public SplitQueryType visitExplainstmt(ExplainstmtContext ctx) {
+        return SplitQueryType.PERFORMANCE;
+    }
+
+    @Override
     public SplitQueryType visitDostmt(DostmtContext ctx) {
         return SplitQueryType.BLOCK;
     }

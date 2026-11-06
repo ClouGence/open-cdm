@@ -209,6 +209,11 @@ app.config.globalProperties.$message = Toast;
 
 // Initialize the theme system
 store.dispatch('initTheme');
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (store.state.themeMode === 'system') {
+    store.dispatch('setTheme', 'system');
+  }
+});
 
 // Mount Application
 app.mount('#app');

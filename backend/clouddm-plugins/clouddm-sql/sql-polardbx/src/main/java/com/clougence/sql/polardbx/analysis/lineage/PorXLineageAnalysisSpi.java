@@ -22,9 +22,6 @@ import java.util.List;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.sql.polardbx.analysis.security.PorXSqlParserVisitor;
-import com.clougence.sql.polardbx.parser.PolarXDslProvider;
-import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageColumn;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageContext;
@@ -34,6 +31,9 @@ import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.lineage.AbstractLineageAnalysisSpi;
 import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
+import com.clougence.sql.polardbx.analysis.security.PorXSqlParserVisitor;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
 
 public class PorXLineageAnalysisSpi extends AbstractLineageAnalysisSpi {
 

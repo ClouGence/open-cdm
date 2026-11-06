@@ -26,6 +26,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.util.RdpLocal;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -68,6 +69,7 @@ public class WebSoInterceptor implements HandshakeInterceptor {
         }
 
         JwtCheckResult checkResult = this.sessionManager.preHandle(httpReq, httpRes, () -> wsHandlerClass.getAnnotation(RequestAuth.class), null);
+        map.put(WS_LOCALE, RdpLocal.getLocal());
 
         String puid = (String) httpReq.getAttribute(RdpUserService.PUID);
         String uid = (String) httpReq.getAttribute(RdpUserService.UID);

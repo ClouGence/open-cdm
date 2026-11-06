@@ -4427,6 +4427,7 @@
   "query-json-view": "JSON view",
   "query-text-view": "Text view",
   "query-format-too-large": "The request exceeds the language service size limit and cannot be formatted.",
+  "query-language-request-failed": "Language service request failed",
   "sqlResult": {
     "maximize": "Maximize results",
     "restore": "Restore layout",
@@ -4666,5 +4667,17 @@
   "approval-team-empty-reason": "Unavailable: the team has no members",
   "approval-team-unavailable-reason": "Unavailable: {count} members are disabled, deleted, or have no work order permissions",
   "approval-team-approve-reason": "Unavailable: work order approval permission is missing for {members}",
-  "approval-team-execute-reason": "Unavailable: work order execution permission is missing for {members}"
+  "approval-team-execute-reason": "Unavailable: work order execution permission is missing for {members}",
+  "ticket-create-similar": "Create similar ticket",
+  "ticket-similar-load-failed": "Could not load the original ticket. Retry or return to the ticket list.",
+  "ticket-similar-target-unavailable": "The original data source is unavailable. Select the target instance and database again.",
+  "appearance-light": "Light",
+  "appearance-dark": "Dark",
+  "appearance-system": "System",
+  "appearance-menu-label": "Appearance: {mode}",
+  "timeseries-permissions": "Timeseries permissions",
+  "object-browser-search-device-placeholder": "Search devices",
+  "object-browser-search-timeseries-placeholder": "Search full timeseries paths",
+  "object-browser-read-only": "Read only",
+  "permission-target-unavailable": "The requested resource is unavailable. Refresh the resource tree and select it again."
 }

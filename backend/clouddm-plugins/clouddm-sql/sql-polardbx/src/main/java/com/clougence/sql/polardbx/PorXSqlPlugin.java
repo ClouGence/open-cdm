@@ -15,11 +15,11 @@
  */
 package com.clougence.sql.polardbx;
 
-import com.clougence.sql.polardbx.i18n.PorXSqlI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.sql.polardbx.i18n.PorXSqlI18nKeys;
 
 @Plugin(name = "i18n::" + PorXSqlI18nKeys.SQL_ENGINE_POLARDB_X_SQL, display = false)
 public class PorXSqlPlugin implements DsPlugin {
@@ -28,5 +28,6 @@ public class PorXSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(PorXSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new PorXSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new PorXSysObjectRegistrySpi());
     }
 }

@@ -27,6 +27,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.common.parser.AbstractSplitAnalysisSpi;
+import com.clougence.sql.oracle.analysis.reference.OraResourceRegistry;
 import com.clougence.sql.oracle.parser.antlr.PlSqlParser;
 
 public class OraSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
@@ -37,6 +38,26 @@ public class OraSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     protected AbstractParseTreeVisitor<SplitQueryType> splitVisitor() {
         return OraSplitVisitor.INSTANCE;
+    }
+
+    @Override
+    protected Set<SplitQueryType> additionalTypes(ParseTree tree) {
+        Set<SplitQueryType> types = new LinkedHashSet<>(super.additionalTypes(tree));
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof PlSqlParser.Create_function_bodyContext || parent instanceof PlSqlParser.Create_procedure_bodyContext
+                || parent instanceof PlSqlParser.Create_triggerContext || parent instanceof PlSqlParser.Explain_statementContext || parent instanceof PlSqlParser.Create_viewContext
+                || parent instanceof PlSqlParser.Create_materialized_viewContext view && view.build_clause() != null && view.build_clause().DEFERRED() != null) {
+                return types;
+            }
+        }
+        if (tree instanceof PlSqlParser.Standard_functionContext standard) {
+            types.addAll(OraResourceRegistry.instance().functionBehavior(standard.getStart().getText(), null).statementTypes());
+        }
+        if (tree instanceof PlSqlParser.Function_callContext ctx && !ctx.function_argument().isEmpty()) {
+            String name = ctx.routine_name() == null ? ctx.id_expression().getText() : ctx.routine_name().getText();
+            types.addAll(OraResourceRegistry.instance().functionBehavior(name, null).statementTypes());
+        }
+        return types;
     }
 
     @Override

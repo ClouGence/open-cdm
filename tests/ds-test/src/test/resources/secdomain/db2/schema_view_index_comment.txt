@@ -40,7 +40,7 @@ expect:
 ----------
 [create_view]
 sql:
-create view app.v_employee select id, name from app.employee where active = 1
+create view app.v_employee as select id, name from app.employee where active = 1
 expect:
 {
   "contains": [

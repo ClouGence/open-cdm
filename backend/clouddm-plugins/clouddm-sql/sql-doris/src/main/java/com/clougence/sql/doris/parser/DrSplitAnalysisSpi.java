@@ -15,7 +15,10 @@
  */
 package com.clougence.sql.doris.parser;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
@@ -71,6 +74,9 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         if (tree instanceof TerminalNode token && token.getSymbol().getType() == DorisParser.COMMENT && tree.getParent() instanceof DorisParser.CreateTableContext) {
             type = SplitQueryType.COMMENT_TABLE;
         }
+        if (tree instanceof DorisParser.FunctionCallExpressionContext function) {
+            types.addAll(DrResourceRegistry.instance().functionBehavior(function.functionIdentifier().getText()).statementTypes());
+        }
         if (type != null) {
             types.add(type);
         }
@@ -86,9 +92,6 @@ public class DrSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
         }
         if (tree instanceof DorisParser.TableValuedFunctionContext function) {
             String name = function.tvfName.getText();
-            if (name.length() >= 2 && name.startsWith("`") && name.endsWith("`")) {
-                name = name.substring(1, name.length() - 1).replace("``", "`");
-            }
             if (resources.isImportTableFunction(name)) {
                 return SplitQueryType.DATA_IMPORT;
             }

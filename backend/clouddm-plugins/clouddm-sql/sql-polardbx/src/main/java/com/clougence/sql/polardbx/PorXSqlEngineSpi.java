@@ -15,11 +15,6 @@
  */
 package com.clougence.sql.polardbx;
 
-import com.clougence.sql.polardbx.analysis.behavior.PorXBehaviorAnalysisSpi;
-import com.clougence.sql.polardbx.analysis.security.PorXSecDomainResolveSpi;
-import com.clougence.sql.polardbx.editor.rewrite.PorXRewriteSpi;
-import com.clougence.sql.polardbx.parser.PolarXDslProvider;
-import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
@@ -29,6 +24,11 @@ import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.clouddm.sdk.sql.parser.SplitAnalysisSpi;
 import com.clougence.dslpaser.antlr.DslProvider;
+import com.clougence.sql.polardbx.analysis.behavior.PorXBehaviorAnalysisSpi;
+import com.clougence.sql.polardbx.analysis.security.PorXSecDomainResolveSpi;
+import com.clougence.sql.polardbx.editor.rewrite.PorXRewriteSpi;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
 
 /** @author mode */
 public class PorXSqlEngineSpi implements SqlEngineSpi {

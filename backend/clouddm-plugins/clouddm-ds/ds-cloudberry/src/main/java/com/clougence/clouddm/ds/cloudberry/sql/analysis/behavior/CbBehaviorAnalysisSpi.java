@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.Parser;
 
+import com.clougence.clouddm.ds.cloudberry.sql.analysis.reference.CbResourceRegistry;
 import com.clougence.clouddm.ds.cloudberry.sql.parser.CbDslProvider;
 import com.clougence.clouddm.ds.cloudberry.sql.parser.CbSplitAnalysisSpi;
 import com.clougence.clouddm.ds.cloudberry.sql.parser.CbSplitVisitor;
@@ -37,7 +38,7 @@ public class CbBehaviorAnalysisSpi extends PgBehaviorAnalysisSpi {
     }
 
     private CbBehaviorAnalysisSpi(CbDslProvider provider, PostgresVersion version){
-        super(provider, new CbSplitAnalysisSpi(version), name -> "median".equals(name) || "pivot_sum".equals(name), CbSplitVisitor::new);
+        super(provider, new CbSplitAnalysisSpi(version), CbResourceRegistry.instance()::contains, CbResourceRegistry.instance()::pgFunctionBehavior, CbSplitVisitor::new);
     }
 
     @Override

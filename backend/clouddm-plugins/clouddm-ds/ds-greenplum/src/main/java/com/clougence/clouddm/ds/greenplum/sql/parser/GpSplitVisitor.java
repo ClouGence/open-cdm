@@ -17,7 +17,11 @@ package com.clougence.clouddm.ds.greenplum.sql.parser;
 
 import static com.clougence.sql.postgres.parser.antlr.PgSqlLexer.LANGUAGE;
 
+import java.util.List;
+
+import com.clougence.clouddm.ds.greenplum.sql.analysis.reference.GpResourceRegistry;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.postgres.parser.PgSplitVisitor;
 import com.clougence.sql.postgres.parser.PostgresVersion;
 import com.clougence.sql.postgres.parser.antlr.PgSqlParser.*;
@@ -58,5 +62,10 @@ public class GpSplitVisitor extends PgSplitVisitor {
             return SplitQueryType.SYSTEM_SETTING_WRITE;
         }
         return super.visitRenamestmt(ctx);
+    }
+
+    @Override
+    protected FunctionBehavior extensionFunctionBehavior(List<String> names) {
+        return GpResourceRegistry.instance().functionBehavior(names);
     }
 }

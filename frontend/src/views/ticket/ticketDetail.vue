@@ -10,14 +10,28 @@
             </div>
           </div>
           <div class="ticket-overview__actions">
+            <Button @click="handleCopyTicketUrl">{{ $t('fu-zhi-lian-jie') }}</Button>
+            <Button
+              v-if="
+                ['DM_QUERY', 'DM_CHANGE'].includes(ticketDetail.approBiz) &&
+                ticketDetail.contentType === 'INLINE' &&
+                myAuth.includes('RDP_WORKER_ORDER_REQUEST')
+              "
+              @click="$router.push({ path: '/ticket_create', query: { sourceTicketId: ticketId } })"
+            >
+              {{ $t('ticket-create-similar') }}
+            </Button>
             <Button type="primary" v-if="ticketDetail.pcUrl" @click="handleGoToTheApproval">
               {{ thirdPartyName[ticketDetail.approType] }}
             </Button>
             <Button v-if="ticketDetail.canClose" @click="handleShowCloseTicketModal">
               {{ $t('guan-bi') }}
             </Button>
-            <Button class="refresh-btn" :loading="loading" @click="getTicketDetail('refresh')">
-              <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
+            <Button :disabled="loading" :aria-busy="loading" :aria-label="$t('shua-xin')" @click="getTicketDetail('refresh')">
+              <span class="ticket-refresh-icon" aria-hidden="true">
+                <Icon v-if="loading" type="ios-loading" class="ivu-load-loop" />
+                <CustomIcon v-else type="icon-v2-Refresh" />
+              </span>
             </Button>
           </div>
         </div>
@@ -1379,13 +1393,15 @@ export default {
     },
     formattedAuths() {
       return this.authList.map((authItem) => {
+        const startTime = authItem.startTimeMs == null ? null : dayjs(authItem.startTimeMs).format('YYYY-MM-DD HH:mm:ss');
+        const endTime = authItem.endTimeMs == null ? null : dayjs(authItem.endTimeMs).format('YYYY-MM-DD HH:mm:ss');
         let effectiveTime = this.$t('yong-jiu');
-        if (authItem.startTime && authItem.endTime) {
-          effectiveTime = `${authItem.startTime} - ${authItem.endTime}`;
-        } else if (authItem.startTime) {
-          effectiveTime = `${this.$t('cong-0')} ${authItem.startTime} ${this.$t('kai-shi-zhi-yong-jiu')}`;
-        } else if (authItem.endTime) {
-          effectiveTime = `${this.$t('cong-shen-pi-tong-guo-dao')} ${authItem.endTime} ${this.$t('jie-shu')}`;
+        if (startTime && endTime) {
+          effectiveTime = `${startTime} - ${endTime}`;
+        } else if (startTime) {
+          effectiveTime = `${this.$t('cong-0')} ${startTime} ${this.$t('kai-shi-zhi-yong-jiu')}`;
+        } else if (endTime) {
+          effectiveTime = `${this.$t('cong-shen-pi-tong-guo-dao')} ${endTime} ${this.$t('jie-shu')}`;
         }
         return {
           resId: authItem.resId,
@@ -2148,10 +2164,16 @@ export default {
         this.sqlContentAction = '';
       }
     },
+    handleCopyTicketUrl() {
+      this.copyText(window.location.href);
+    },
     handleShowCloseTicketModal() {
       this.showCloseTicketModal = true;
     },
     async getTicketDetail(type) {
+      if (this.loading) {
+        return;
+      }
       const showLoading = type !== 'auto';
       if (showLoading) {
         this.loading = true;
@@ -2160,54 +2182,46 @@ export default {
         ticketId: this.ticketId,
         refreshCache: type === 'refresh'
       };
-      const res = await this.$services.rdpTicketQueryTicketBaseInfo({ data, modal: showLoading });
+      try {
+        const res = await this.$services.rdpTicketQueryTicketBaseInfo({ data, modal: showLoading });
 
-      if (showLoading) {
-        this.loading = false;
-      }
-      if (res.success) {
-        this.ticketType = res.data?.approBiz;
-        this.ticketDetail = res.data;
-        this.ticketDetail.ticketProcessVOList.forEach((item) => {
-          item.execUserName = '';
-          item.execMsg = '';
-          if (item.stageContext) {
-            const stageContext = JSON.parse(item.stageContext);
-            item.execUserName = stageContext.execUserName ? stageContext.execUserName.join(', ') : '';
-            item.execUserNameList = stageContext.execUserName;
-            item.execMsg = stageContext.execMsg;
-          }
-          if (!item.execUserName && ['EXPLAIN', 'EXECUTION'].includes(item.ticketStage)) {
-            const systemHandler = this.$t('clouddm-system-handler');
-            item.execUserName = systemHandler;
-            item.execUserNameList = [systemHandler];
-          }
-        });
-        const validStepKeys = new Set(this.ticketProgressSteps.map((step) => step.key));
-        if (!this.ticketStepManuallySelected || !validStepKeys.has(this.selectedStepKey)) {
-          const currentStep = this.ticketProgressSteps.find((step) => ['active', 'failed'].includes(step.state));
-          const defaultStep = currentStep || this.ticketProgressSteps[this.ticketProgressSteps.length - 1];
-          this.selectedStepKey = defaultStep?.key || 'CREATE';
-          this.ticketStepManuallySelected = false;
-        }
-
-        switch (res.data?.approBiz) {
-          case 'DATA_SOURCE_AUTH':
-            const resAuth = await this.$services.rdpTicketQueryDataSourceAuthTicketDetail({ data: { ticketId: this.ticketId } });
-            if (resAuth.success) {
-              this.ticketDetail.applyAuths = resAuth.data.applyAuths;
-              this.authList = resAuth.data.applyAuths;
+        if (res.success) {
+          this.ticketType = res.data?.approBiz;
+          const ticketDetail = res.data;
+          ticketDetail.ticketProcessVOList.forEach((item) => {
+            item.execUserName = '';
+            item.execMsg = '';
+            if (item.stageContext) {
+              const stageContext = JSON.parse(item.stageContext);
+              item.execUserName = stageContext.execUserName ? stageContext.execUserName.join(', ') : '';
+              item.execUserNameList = stageContext.execUserName;
+              item.execMsg = stageContext.execMsg;
             }
-            break;
-          case 'DM_QUERY':
-          case 'DM_CHANGE':
-            const initializeSqlContent = !this.ticketSqlContentInitialized;
-            const resQuery = await this.$services.dmTicketQueryQueryTicketDetail({
-              data: {
-                ticketId: this.ticketId
+            if (!item.execUserName && ['EXPLAIN', 'EXECUTION'].includes(item.ticketStage)) {
+              const systemHandler = this.$t('clouddm-system-handler');
+              item.execUserName = systemHandler;
+              item.execUserNameList = [systemHandler];
+            }
+          });
+          switch (res.data?.approBiz) {
+            case 'DATA_SOURCE_AUTH':
+              const resAuth = await this.$services.rdpTicketQueryDataSourceAuthTicketDetail({ data: { ticketId: this.ticketId } });
+              if (!resAuth.success) {
+                return;
               }
-            });
-            if (resQuery.success) {
+              ticketDetail.applyAuths = resAuth.data.applyAuths;
+              this.authList = resAuth.data.applyAuths;
+              break;
+            case 'DM_QUERY':
+            case 'DM_CHANGE':
+              const resQuery = await this.$services.dmTicketQueryQueryTicketDetail({
+                data: {
+                  ticketId: this.ticketId
+                }
+              });
+              if (!resQuery.success) {
+                return;
+              }
               this.noPassedRuleList = resQuery.data.checkedList || [];
               this.analysisBehaviors = resQuery.data.behaviors || [];
               this.analysisSqlCount = resQuery.data.totalCount ?? null;
@@ -2216,20 +2230,33 @@ export default {
                 await this.queryAutoExecJobInfo();
                 await this.queryAutoExecTaskList();
               }
-              this.ticketDetail.ticketMessage = resQuery.data?.ticketMessage || '';
-              this.ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
-              this.ticketDetail.contentType = resQuery.data?.contentType || 'INLINE';
-              this.ticketDetail.attachmentId = resQuery.data?.attachmentId;
-              this.ticketDetail.attachmentFileName = resQuery.data?.attachmentFileName || '';
-              this.ticketDetail.attachmentFileSize = resQuery.data?.attachmentFileSize || 0;
-              if (initializeSqlContent) {
-                await this.loadTicketSqlContent();
-                this.ticketSqlContentInitialized = true;
-              }
-            }
-            break;
-          default:
-            break;
+              ticketDetail.ticketMessage = resQuery.data?.ticketMessage || '';
+              ticketDetail.rollBackSql = resQuery.data?.rollBackSql || '';
+              ticketDetail.contentType = resQuery.data?.contentType || 'INLINE';
+              ticketDetail.attachmentId = resQuery.data?.attachmentId;
+              ticketDetail.attachmentFileName = resQuery.data?.attachmentFileName || '';
+              ticketDetail.attachmentFileSize = resQuery.data?.attachmentFileSize || 0;
+              break;
+            default:
+              break;
+          }
+          this.ticketDetail = ticketDetail;
+          const validStepKeys = new Set(this.ticketProgressSteps.map((step) => step.key));
+          if (!this.ticketStepManuallySelected || !validStepKeys.has(this.selectedStepKey)) {
+            const currentStep = this.ticketProgressSteps.find((step) => ['active', 'failed'].includes(step.state));
+            const defaultStep = currentStep || this.ticketProgressSteps[this.ticketProgressSteps.length - 1];
+            this.selectedStepKey = defaultStep?.key || 'CREATE';
+            this.ticketStepManuallySelected = false;
+          }
+
+          if (['DM_QUERY', 'DM_CHANGE'].includes(ticketDetail.approBiz) && !this.ticketSqlContentInitialized) {
+            await this.loadTicketSqlContent();
+            this.ticketSqlContentInitialized = true;
+          }
+        }
+      } finally {
+        if (showLoading) {
+          this.loading = false;
         }
       }
     },
@@ -2571,9 +2598,9 @@ export default {
   }
 
   .ticket-status-total.analysis-status {
-    color: #1677ff;
-    border-color: #91caff;
-    background: #e6f4ff;
+    color: var(--ticket-running-color, #1677ff);
+    border-color: var(--ticket-running-border, #91caff);
+    background: var(--ticket-running-bg, #e6f4ff);
   }
 
   .ticket-detail-operators {
@@ -2808,8 +2835,8 @@ export default {
       }
 
       &.status-running {
-        color: #1677ff;
-        background: #e6f4ff;
+        color: var(--ticket-running-color, #1677ff);
+        background: var(--ticket-running-bg, #e6f4ff);
       }
 
       &.status-failed {
@@ -2987,6 +3014,12 @@ export default {
   color: var(--text-primary);
   background: var(--bg-card);
   overflow: hidden;
+}
+
+:global([data-theme='dark'] .ticket-detail-page) {
+  --ticket-running-color: var(--link-color);
+  --ticket-running-bg: color-mix(in srgb, var(--link-color) 12%, var(--bg-card));
+  --ticket-running-border: color-mix(in srgb, var(--link-color) 30%, var(--border-primary));
 }
 
 .ticket-detail-page .ticket-detail-container {
@@ -3230,6 +3263,15 @@ export default {
   margin: 0;
 }
 
+.ticket-refresh-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
 .ticket-state-badge,
 .analysis-item-status {
   width: fit-content;
@@ -3255,8 +3297,8 @@ export default {
 .ticket-state-badge--running,
 .analysis-item-status.status-running,
 .analysis-item-status.status-active {
-  color: #1677ff;
-  background: #e6f4ff;
+  color: var(--ticket-running-color, #1677ff);
+  background: var(--ticket-running-bg, #e6f4ff);
 }
 
 .ticket-state-badge--error,
@@ -4357,5 +4399,9 @@ export default {
   .ticket-execution-actions :deep(.ivu-btn) {
     transition-duration: 0.01ms;
   }
+}
+
+[data-theme='dark'] .ticket-meta-item__product-icon {
+  filter: brightness(0) invert(1);
 }
 </style>

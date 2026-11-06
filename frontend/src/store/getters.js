@@ -1,5 +1,6 @@
 import appLogger from '@/utils/logger';
 import { resolveVersionBadgeText } from '@/utils/version';
+import { filterLeafGroup } from '@/utils/datasourceBrowser';
 
 const RULE_KIND_CONF_MAP = {
   QUERY: 'queryConf',
@@ -22,7 +23,7 @@ export default {
     const levels = state.globalDsSetting[type]?.categories?.levels || [];
     return levels.includes('CATALOG') && levels.includes('SCHEMA');
   },
-  getLeafGroup: (state) => (type, level) => state.globalDsSetting[type]?.categories?.leafGroup?.[level],
+  getLeafGroup: (state) => (type, level, attributes) => filterLeafGroup(state.globalDsSetting[type]?.categories?.leafGroup?.[level], attributes),
   getLeafExpand: (state) => (type) => state.globalDsSetting[type]?.categories.leafExpand,
   getDsClassify: (state) => (type) => {
     if (state.globalDsSetting && state.globalDsSetting[type] && state.globalDsSetting[type].constant) {

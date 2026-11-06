@@ -25,6 +25,7 @@ export const separatePort = (type) =>
     'ElastiCache',
     'ClickHouse',
     'ElasticSearch',
+    'OpenSearch',
     'RabbitMQ',
     'RocketMQ',
     'Kafka',

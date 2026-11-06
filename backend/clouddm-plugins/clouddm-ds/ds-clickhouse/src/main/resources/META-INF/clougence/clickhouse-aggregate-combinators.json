@@ -1,0 +1,22 @@
+{
+  "description": "Source: ClickHouse 26.8.7.19 and 26.9.5.2 system.aggregate_function_combinators",
+  "sources": ["https://clickhouse.com/docs/sql-reference/aggregate-functions/combinators"],
+  "notes": ["Version values identify major product families; minor and patch releases are not tracked."],
+  "entries": [
+    {"versions": ["26"], "type": "FUNCTION", "name": ["ArgMax"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["ArgMin"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["Array"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["Distinct"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["ForEach"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["If"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["Map"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["Merge"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["Null"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["OrDefault"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["OrNull"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["Resample"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["SimpleState"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["State"]},
+    {"versions": ["26"], "type": "FUNCTION", "name": ["Tuple"]}
+  ]
+}
