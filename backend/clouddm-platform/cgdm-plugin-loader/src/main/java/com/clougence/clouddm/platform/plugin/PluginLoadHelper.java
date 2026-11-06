@@ -228,11 +228,6 @@ public class PluginLoadHelper {
                     return true;
                 }
             }
-            for (String faces : classInfo.interFaces) {
-                if (faces.equals(DsPlugin.class.getName())) {
-                    return true;
-                }
-            }
         }
         return false;
     }

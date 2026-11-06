@@ -255,8 +255,11 @@ cd frontend && npm run check-i18n
 
 **目标与触发条件**
 
-- 可重复执行的前端浏览器测试流程统一存放在仓库根目录 `tests/frontend/`。
-- 按业务域组织文档，路径使用 `tests/frontend/<业务域>/<流程名>.md`；文件名使用小写 snake_case，例如
+- 通用功能的前端浏览器测试流程存放在 open-cdm 仓库根目录 `tests/frontend/`。
+- 社区版与企业版差异相关的前端复测文档（例如版本标识、能力显隐、插件安装/移除及版本切换）统一存放在同级独立工程
+  `open-cdm-plugin` 的 `tests/frontend/`，例如 `open-cdm-plugin/tests/frontend/layout/workspace_edition.md`。
+  更新此类文档时，已有文档一并迁移并同步引用；差异用例引用通用测试流程，避免重复维护。
+- 两个工程均按业务域组织文档，使用各自的 `tests/frontend/<业务域>/<流程名>.md`；文件名使用小写 snake_case，例如
   `tests/frontend/cicd/release_flow_creation.md`。
 - 一个用户流程只维护一份长期有效的文档。重复测试同一流程时更新原文档，不按日期创建测试报告、`latest-report` 或单次结果文件。
 - 前端改动涉及用户可见行为、交互、布局、路由、权限、表单、状态流、文件处理或接口契约时，测试前必须查找并阅读相关流程文档，再按文档进行复测。
