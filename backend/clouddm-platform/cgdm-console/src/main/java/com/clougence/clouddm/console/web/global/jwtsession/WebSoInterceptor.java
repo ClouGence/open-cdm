@@ -44,7 +44,6 @@ public class WebSoInterceptor implements HandshakeInterceptor {
     public static final String  WS_LOCALE       = "WS_LOCALE";
     public static final String  WS_REQUEST_URI  = "WS_REQUEST_URI";
     public static final String  WS_CHECK_RESULT = "WS_CHECK_RESULT";
-    public static final String  WS_LOCALE       = "WS_LOCALE";
 
     @Resource
     private JwtManager          sessionManager;
