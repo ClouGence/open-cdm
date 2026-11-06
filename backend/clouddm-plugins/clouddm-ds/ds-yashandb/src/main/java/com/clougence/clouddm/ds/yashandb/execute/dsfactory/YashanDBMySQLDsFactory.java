@@ -22,6 +22,7 @@ import com.clougence.clouddm.ds.yashandb.dsconf.YashanDBCompatibilityMode;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,10 +50,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
 
-    private static final String                DRIVER_CLASS     = "com.mysql.cj.jdbc.Driver";
+    private static final String                    DRIVER_CLASS    = "com.mysql.cj.jdbc.Driver";
 
     /** Engine name YashanDB registers in {@code information_schema.ENGINES}, used to confirm the target instance is really YashanDB. */
-    private static final String                YASHANDB_ENGINE  = "YashanDB";
+    private static final String                    YASHANDB_ENGINE = "YashanDB";
 
     /**
      * This variant always corresponds to the MySQL compatibility mode.
@@ -64,7 +65,7 @@ public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
      * properties through to the yasdb driver).
      * </p>
      */
-    private static final YashanDBCompatibilityMode EXPECTED_MODE = YashanDBCompatibilityMode.MYSQL;
+    private static final YashanDBCompatibilityMode EXPECTED_MODE   = YashanDBCompatibilityMode.MYSQL;
 
     @Override
     public DsObject<Connection> create(Properties dsConfig) throws SQLException {
@@ -110,8 +111,7 @@ public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
      */
     private void validateCompatibilityMode(Connection connection) throws SQLException {
         boolean matched = false;
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT ENGINE FROM information_schema.ENGINES")) {
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT ENGINE FROM information_schema.ENGINES")) {
             while (resultSet.next()) {
                 if (StringUtils.equalsIgnoreCase(YASHANDB_ENGINE, resultSet.getString(1))) {
                     matched = true;
@@ -120,8 +120,8 @@ public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
             }
         }
         if (!matched) {
-            throw new SQLException("YashanDB compatibility mode mismatch, expected: " + EXPECTED_MODE.getServerMode()
-                                   + ", but the target instance does not expose the " + YASHANDB_ENGINE + " engine in information_schema.ENGINES.");
+            throw new SQLException("YashanDB compatibility mode mismatch, expected: " + EXPECTED_MODE.getServerMode() + ", but the target instance does not expose the "
+                                   + YASHANDB_ENGINE + " engine in information_schema.ENGINES.");
         }
     }
 
@@ -177,16 +177,10 @@ public class YashanDBMySQLDsFactory implements DsFactory<Connection> {
         // The database name may be filled in either the "default schema" or the "default database" field in the
         // UI; both are accepted. Measured: the YashanDB MySQL compatibility mode allows connecting without a
         // database name, so the URL is built the same way when both are empty.
-        String database = StringUtils.defaultIfBlank(dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey()),
-            dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey()));
+        String database = StringUtils
+            .defaultIfBlank(dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey()), dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey()));
 
-        String[] hostPort = StringUtils.defaultIfBlank(host, "").split(":");
-        if (hostPort.length == 1) {
-            return String.format("jdbc:mysql://%s:%s/%s", hostPort[0], EXPECTED_MODE.getDefaultPort(), StringUtils.defaultString(database));
-        }
-        if (hostPort.length == 2) {
-            return String.format("jdbc:mysql://%s:%s/%s", hostPort[0], hostPort[1], StringUtils.defaultString(database));
-        }
-        throw new IllegalArgumentException("Unsupported YashanDB host format: " + host);
+        HostAndPort address = HostAndPort.parse(host, Integer.parseInt(EXPECTED_MODE.getDefaultPort()));
+        return String.format("jdbc:mysql://%s:%s/%s", address.formatHost(), address.getPort(), StringUtils.defaultString(database));
     }
 }
