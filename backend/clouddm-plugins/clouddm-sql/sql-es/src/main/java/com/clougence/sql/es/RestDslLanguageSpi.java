@@ -128,49 +128,25 @@ public class RestDslLanguageSpi implements DsLanguageSpi {
         offset = Math.min(text.length(), offset + request.getCursorColNumber());
         EsCompletionContext context = EsCompletionContext.at(text, offset);
         RestApiProfile profile = RestApiProfile.from(product.parameters(new SqlParserParameters(request.getSqlParameters())));
-        List<String> candidates = new ArrayList<>(switch (context.kind()) {
-            case METHOD -> List.of("GET", "POST", "PUT", "DELETE", "HEAD");
-            case ENDPOINT -> switch (context.parent()) {
-                case "GET" -> List.of("_search", "_count", "_doc", "_source", "_mapping", "_settings", "_alias");
-                case "POST" -> List.of("_search", "_count", "_doc", "_create", "_update", "_update_by_query", "_delete_by_query");
-                case "PUT" -> List.of("_doc", "_create", "_mapping", "_settings");
-                case "DELETE" -> List.of("_doc");
-                case "HEAD" -> List.of("_doc", "_source");
-                default -> List.<String> of();
-            };
+        List<String> candidates = new ArrayList<>();
+        switch (context.kind()) {
+            case METHOD -> candidates.addAll(List.of("GET", "POST", "PUT", "DELETE", "HEAD"));
+            case ENDPOINT -> addEndpointCandidates(candidates, context.parent(), profile);
             case PARAMETER -> {
                 if (context.parent().endsWith("/_search")) {
-                    yield List.of("size", "from", "q", "routing", "timeout", "track_total_hits", "_source", "pretty");
+                    candidates.addAll(List.of("size", "from", "q", "routing", "timeout", "track_total_hits", "_source", "pretty"));
+                } else if (context.parent().endsWith("/_count")) {
+                    candidates.addAll(List.of("q", "routing", "pretty"));
+                } else {
+                    candidates.add("pretty");
                 }
-                if (context.parent().endsWith("/_count")) {
-                    yield List.of("q", "routing", "pretty");
-                }
-                yield List.of("pretty");
             }
-            case PROPERTY -> switch (context.parent()) {
-                case "" -> List.of("query", "size", "from", "sort", "_source", "fields", "aggs", "track_total_hits", "timeout");
-                case "query", "must", "filter", "should", "must_not" ->
-                    List.of("match_all", "match", "match_phrase", "term", "terms", "range", "bool", "exists", "prefix", "wildcard");
-                case "bool" -> List.of("must", "filter", "should", "must_not", "minimum_should_match");
-                case "exists" -> List.of("field");
-                case "aggs", "aggregations" -> List.<String> of();
-                default -> List.of("field", "size", "order", "gte", "gt", "lte", "lt");
-            };
-            default -> List.<String> of();
-        });
-        if (context.kind() == EsCompletionKind.ENDPOINT && (context.parent().equals("GET") || context.parent().equals("POST")) && profile.capabilities() != null
-            && profile.capabilities().legacyKnnSearch()) {
-            candidates.add("_knn_search");
+            case PROPERTY -> addPropertyCandidates(candidates, context.parent(), profile);
         }
-        if (context.kind() == EsCompletionKind.PROPERTY && context.parent().isEmpty() && profile.capabilities() != null && profile.capabilities().searchKnn()) {
-            candidates.add("knn");
-        }
+
         if (context.kind() == EsCompletionKind.PARAMETER
             && (context.parent().endsWith("/_mapping") || context.parent().endsWith("/_settings") || context.parent().matches("/[^/]+"))) {
             candidates.add(profile.preferredManagerTimeout());
-        }
-        if (context.kind() == EsCompletionKind.PROPERTY && context.parent().isEmpty()) {
-            candidates.removeAll(profile.excludedSearchFields());
         }
         for (String candidate : candidates) {
             add(request, result, context, candidate, CompletionItemKind.KEYWORD);
@@ -179,6 +155,41 @@ public class RestDslLanguageSpi implements DsLanguageSpi {
             completeMetadata(request, result, context);
         }
         return result;
+    }
+
+    private void addEndpointCandidates(List<String> candidates, String method, RestApiProfile profile) {
+        switch (method) {
+            case "GET" -> candidates.addAll(List.of("_search", "_count", "_doc", "_source", "_mapping", "_settings", "_alias"));
+            case "POST" -> candidates.addAll(List.of("_search", "_count", "_doc", "_create", "_update", "_update_by_query", "_delete_by_query"));
+            case "PUT" -> candidates.addAll(List.of("_doc", "_create", "_mapping", "_settings"));
+            case "DELETE" -> candidates.add("_doc");
+            case "HEAD" -> candidates.addAll(List.of("_doc", "_source"));
+        }
+
+        if ((method.equals("GET") || method.equals("POST")) && profile.capabilities() != null && profile.capabilities().legacyKnnSearch()) {
+            candidates.add("_knn_search");
+        }
+    }
+
+    private void addPropertyCandidates(List<String> candidates, String parent, RestApiProfile profile) {
+        switch (parent) {
+            case "" -> candidates.addAll(List.of("query", "size", "from", "sort", "_source", "fields", "aggs", "track_total_hits", "timeout"));
+            case "query", "must", "filter", "should", "must_not" ->
+                candidates.addAll(List.of("match_all", "match", "match_phrase", "term", "terms", "range", "bool", "exists", "prefix", "wildcard"));
+            case "bool" -> candidates.addAll(List.of("must", "filter", "should", "must_not", "minimum_should_match"));
+            case "exists" -> candidates.add("field");
+            case "aggs", "aggregations" -> {
+            }
+            default -> candidates.addAll(List.of("field", "size", "order", "gte", "gt", "lte", "lt"));
+        }
+
+        if (parent.isEmpty()) {
+            if (profile.capabilities() != null && profile.capabilities().searchKnn()) {
+                candidates.add("knn");
+            }
+
+            candidates.removeAll(profile.excludedSearchFields());
+        }
     }
 
     private void completeMetadata(CompletionRequest request, CompletionResult result, EsCompletionContext context) {
