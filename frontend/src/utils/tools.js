@@ -19,6 +19,7 @@ export const getLanguage = (type) => {
     case 'Valkey':
       return 'redis';
     case 'ElasticSearch':
+    case 'OpenSearch':
       return 'es';
     case 'Kafka':
       return 'kafka';

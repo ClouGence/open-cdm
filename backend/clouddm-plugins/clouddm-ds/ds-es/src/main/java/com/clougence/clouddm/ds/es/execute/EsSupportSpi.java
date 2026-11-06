@@ -47,7 +47,7 @@ public class EsSupportSpi implements RdbSupportSpi {
 
     @Override
     public RdbSupportLevel supportChangeReadOnly(DataSourceConfig dsConfig) {
-        return RdbSupportLevel.Allow;
+        return RdbSupportLevel.No;
     }
 
     @Override

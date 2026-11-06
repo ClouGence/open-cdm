@@ -65,6 +65,7 @@ public enum DsType {
     Redis("red", "Redis"),
     Valkey("vk", "Valkey"),
     ElasticSearch("es", "ElasticSearch"),
+    OpenSearch("os", "OpenSearch"),
     MongoDB("mdb", "MongoDB"),
     DynamoDB("dyn", "DynamoDB"),
     Tunnel("tn", "Tunnel"),

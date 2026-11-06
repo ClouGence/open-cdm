@@ -1,0 +1,8 @@
+<drivers>
+    <driver driverFamily="OpenSearch HTTP Client" version="5.6.4" default="true">
+        <driverName>com.clougence.clouddm.ds.opensearch.execute.dsfactory.OpenSearchDsFactory</driverName>
+        <resource type="maven">org.apache.httpcomponents.client5:httpclient5:5.6.4</resource>
+        <resource type="maven">org.apache.httpcomponents.core5:httpcore5:5.4.3</resource>
+        <resource type="maven">org.apache.httpcomponents.core5:httpcore5-h2:5.4.3</resource>
+    </driver>
+</drivers>

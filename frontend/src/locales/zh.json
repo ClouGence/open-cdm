@@ -4406,6 +4406,7 @@
   "query-json-view": "JSON 查看",
   "query-text-view": "文本查看",
   "query-format-too-large": "请求超过语言服务大小限制，无法格式化。",
+  "query-language-request-failed": "语言服务请求失败",
   "sqlResult": {
     "maximize": "最大化结果区",
     "restore": "恢复布局",

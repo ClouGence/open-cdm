@@ -4427,6 +4427,7 @@
   "query-json-view": "JSON view",
   "query-text-view": "Text view",
   "query-format-too-large": "The request exceeds the language service size limit and cannot be formatted.",
+  "query-language-request-failed": "Language service request failed",
   "sqlResult": {
     "maximize": "Maximize results",
     "restore": "Restore layout",
