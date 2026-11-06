@@ -1,0 +1,42 @@
+{
+  "description": "clickhouse function effects shared by statement classification, behavior analysis and authorization.",
+  "sources": ["https://clickhouse.com/docs/sql-reference/syntax", "https://clickhouse.com/docs/sql-reference/functions/other-functions", "https://clickhouse.com/docs/sql-reference/table-functions/file", "https://clickhouse.com/docs/sql-reference/table-functions/url", "https://clickhouse.com/docs/sql-reference/table-functions/remote", "https://clickhouse.com/docs/sql-reference/table-functions/executable", "https://clickhouse.com/docs/sql-reference/functions/ext-dict-functions"],
+  "notes": ["These release-independent effect classifications do not establish function availability or grant permission exemptions."],
+  "metadataFunctions": [
+    {"names": ["getSetting", "getSettingOrDefault", "getServerSetting"]}
+  ],
+  "privilegedFunctions": [
+    {"names": ["dictGetDate", "dictGetDateOrDefault", "dictGetDateTime", "dictGetDateTimeOrDefault", "dictGetFloat32", "dictGetFloat32OrDefault", "dictGetFloat64", "dictGetFloat64OrDefault", "dictGetIPv4", "dictGetIPv4OrDefault", "dictGetIPv6", "dictGetIPv6OrDefault", "dictGetInt8", "dictGetInt8OrDefault", "dictGetInt16", "dictGetInt16OrDefault", "dictGetInt32", "dictGetInt32OrDefault", "dictGetInt64", "dictGetInt64OrDefault", "dictGetString", "dictGetStringOrDefault", "dictGetUInt8", "dictGetUInt8OrDefault", "dictGetUInt16", "dictGetUInt16OrDefault", "dictGetUInt32", "dictGetUInt32OrDefault", "dictGetUInt64", "dictGetUInt64OrDefault", "dictGetUUID", "dictGetUUIDOrDefault"]},
+    {"names": ["getSetting", "getSettingOrDefault", "getServerSetting"]},
+    {"names": ["sleep", "sleepEachRow"]},
+    {"names": ["logTrace", "logDebug", "logInfo", "logWarning", "logError", "logFatal"]},
+    {"names": ["file"]},
+    {"names": ["dictGet", "dictGetOrDefault", "dictGetOrNull", "dictHas", "dictGetHierarchy", "joinGet", "joinGetOrNull"]},
+    {"names": ["url", "s3", "hdfs"]},
+    {"names": ["remote", "remoteSecure", "mysql", "postgresql", "odbc", "jdbc"]},
+    {"names": ["executable"]}
+  ],
+  "functionStatementTypes": [
+    {"types": ["SELECT"], "names": ["dictGetDate", "dictGetDateOrDefault", "dictGetDateTime", "dictGetDateTimeOrDefault", "dictGetFloat32", "dictGetFloat32OrDefault", "dictGetFloat64", "dictGetFloat64OrDefault", "dictGetIPv4", "dictGetIPv4OrDefault", "dictGetIPv6", "dictGetIPv6OrDefault", "dictGetInt8", "dictGetInt8OrDefault", "dictGetInt16", "dictGetInt16OrDefault", "dictGetInt32", "dictGetInt32OrDefault", "dictGetInt64", "dictGetInt64OrDefault", "dictGetString", "dictGetStringOrDefault", "dictGetUInt8", "dictGetUInt8OrDefault", "dictGetUInt16", "dictGetUInt16OrDefault", "dictGetUInt32", "dictGetUInt32OrDefault", "dictGetUInt64", "dictGetUInt64OrDefault", "dictGetUUID", "dictGetUUIDOrDefault"]},
+    {"types": ["SESSION_VARIABLE_RW"], "names": ["getSetting", "getSettingOrDefault", "getServerSetting"]},
+    {"types": ["PERFORMANCE"], "names": ["sleep", "sleepEachRow"]},
+    {"types": ["ADMIN_LOG"], "names": ["logTrace", "logDebug", "logInfo", "logWarning", "logError", "logFatal"]},
+    {"types": ["DATA_IMPORT"], "names": ["file"]},
+    {"types": ["SELECT"], "names": ["dictGet", "dictGetOrDefault", "dictGetOrNull", "dictHas", "dictGetHierarchy", "joinGet", "joinGetOrNull"]},
+    {"types": ["DATA_IMPORT"], "names": ["url", "s3", "hdfs"]},
+    {"types": ["DATA_IMPORT"], "names": ["remote", "remoteSecure", "mysql", "postgresql", "odbc", "jdbc"]},
+    {"types": ["DATA_IMPORT", "UNSAFE"], "names": ["executable"]}
+  ],
+  "functionBehaviors": [
+    {"names": ["dictGetDate", "dictGetDateOrDefault", "dictGetDateTime", "dictGetDateTimeOrDefault", "dictGetFloat32", "dictGetFloat32OrDefault", "dictGetFloat64", "dictGetFloat64OrDefault", "dictGetIPv4", "dictGetIPv4OrDefault", "dictGetIPv6", "dictGetIPv6OrDefault", "dictGetInt8", "dictGetInt8OrDefault", "dictGetInt16", "dictGetInt16OrDefault", "dictGetInt32", "dictGetInt32OrDefault", "dictGetInt64", "dictGetInt64OrDefault", "dictGetString", "dictGetStringOrDefault", "dictGetUInt8", "dictGetUInt8OrDefault", "dictGetUInt16", "dictGetUInt16OrDefault", "dictGetUInt32", "dictGetUInt32OrDefault", "dictGetUInt64", "dictGetUInt64OrDefault", "dictGetUUID", "dictGetUUIDOrDefault"], "action": "CALL", "targetType": "Dictionary", "targetAction": "READ"},
+    {"names": ["getSetting", "getSettingOrDefault", "getServerSetting"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ"},
+    {"names": ["sleep", "sleepEachRow"], "action": "CALL"},
+    {"names": ["logTrace", "logDebug", "logInfo", "logWarning", "logError", "logFatal"], "action": "CONFIGURE", "targetType": "Instance", "targetAction": "CONFIGURE"},
+    {"names": ["file"], "action": "IMPORT", "targetType": "File", "targetAction": "READ", "unsafe": true},
+    {"names": ["dictGet", "dictGetOrDefault", "dictGetOrNull", "dictHas", "dictGetHierarchy"], "action": "CALL", "targetType": "Dictionary", "targetAction": "READ"},
+    {"names": ["url", "s3", "hdfs"], "action": "IMPORT", "targetType": "File", "targetAction": "READ", "unsafe": true},
+    {"names": ["remote", "remoteSecure", "mysql", "postgresql", "odbc", "jdbc"], "action": "IMPORT", "targetType": "Endpoint", "targetAction": "READ", "unsafe": true},
+    {"names": ["executable"], "action": "CALL", "targetType": "Instance", "targetAction": "CALL", "unsafe": true},
+    {"names": ["joinGet", "joinGetOrNull"], "action": "CALL", "targetType": "Table", "targetAction": "READ"}
+  ]
+}

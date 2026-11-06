@@ -32,7 +32,7 @@ public class OpenSearchSerializationSpi implements SerializationService {
     public static final String PROVIDER_NAME = "OpenSearch";
     private final ObjectMapper objectMapper;
 
-    public OpenSearchSerializationSpi(ClassLoader classLoader) {
+    public OpenSearchSerializationSpi(ClassLoader classLoader){
         objectMapper = new ObjectMapper();
         objectMapper.setTypeFactory(TypeFactory.defaultInstance().withClassLoader(classLoader));
     }

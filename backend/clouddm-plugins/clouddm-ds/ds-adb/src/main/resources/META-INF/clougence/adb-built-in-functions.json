@@ -1,0 +1,24 @@
+{
+  "description": "Ordinary XIHE AnalyticDB for MySQL aggregate/bitmap extensions.",
+  "sources": ["https://help.aliyun.com/en/analyticdb/analyticdb-for-mysql/developer-reference/approximate-function", "https://help.aliyun.com/en/analyticdb/analyticdb-for-mysql/developer-reference/roaring-bitmap-functions", "https://www.alibabacloud.com/help/en/analyticdb/analyticdb-for-mysql/product-overview/untitled-document-1700636410292"],
+  "notes": ["Version values identify major product families; minor and patch releases are not tracked."],
+  "entries": [
+    {"versions": [], "type": "FUNCTION", "name": ["APPROX_DISTINCT"]},
+    {"versions": [], "type": "FUNCTION", "name": ["APPROX_PERCENTILE"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_AND"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_AND_AGG"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_AND_CARDINALITY_AGG"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_BUILD"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_BUILD_AGG"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_BUILD_RANGE"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_BUILD_VARBINARY"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_CARDINALITY"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_OR_AGG"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_OR_CARDINALITY_AGG"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_RANGE_CARDINALITY"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_SELECT"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_TO_VARBINARY"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_XOR_AGG"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["RB_XOR_CARDINALITY_AGG"]}
+  ]
+}

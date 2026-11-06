@@ -85,7 +85,6 @@ export default {
               renderSideBySideInlineBreakpoint: 0, // never collapse to inline view because of width
               useInlineViewWhenSpaceIsLimited: false, // keep two panes even on narrow screens
               readOnly: true,
-              theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
               minimap: {
                 enabled: false
               },

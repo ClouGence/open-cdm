@@ -1849,10 +1849,10 @@ class SrStatementBehaviorVisitor extends StarRocksBaseVisitor<Void> {
         List<String> names = new ArrayList<>();
         if (context instanceof QualifiedNameContext qualified) {
             for (IdentifierContext identifier : qualified.identifier()) {
-                names.add(name(identifier));
+                names.add(type == TargetType.Function ? identifier.getText() : name(identifier));
             }
         } else {
-            names.add(name(context));
+            names.add(type == TargetType.Function ? context.getText() : name(context));
         }
         return objects.object(type, context, names);
     }

@@ -49,7 +49,7 @@ export default {
   padding: 2px;
   border: 1px solid var(--border-primary);
   border-radius: 8px;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .flow-canvas-zoom button {

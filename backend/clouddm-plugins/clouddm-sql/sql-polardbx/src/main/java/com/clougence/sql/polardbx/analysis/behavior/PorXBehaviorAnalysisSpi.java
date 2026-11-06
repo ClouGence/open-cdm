@@ -21,17 +21,19 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import com.clougence.sql.polardbx.parser.PolarXDslProvider;
-import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
-import com.clougence.sql.polardbx.parser.PorXSplitVisitor;
-import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
-import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
-import com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
+import com.clougence.sql.polardbx.analysis.reference.PorXResourceRegistry;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.PorXSplitAnalysisSpi;
+import com.clougence.sql.polardbx.parser.PorXSplitVisitor;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser.*;
 
 public class PorXBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     @Override
@@ -78,6 +80,7 @@ final class PorXBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     public Void visit(ParseTree tree) {
         PorXStatementBehaviorVisitor visitor = new PorXStatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
         visitor.visit(tree);
+        visitor.scanFunctionCalls(tree);
         behaviors.add(visitor.behavior());
         return null;
     }
@@ -98,6 +101,36 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    void scanFunctionCalls(ParseTree tree) {
+        if (behavior.getStatementType() == SplitQueryType.CREATE_PROG_OBJ || behavior.getStatementType() == SplitQueryType.ALTER_PROG_OBJ) {
+            return;
+        }
+
+        for (FunctionCallContext ctx : descendants(tree, FunctionCallContext.class)) {
+            BehaviorObject subject;
+            FunctionBehavior classification = FunctionBehavior.DEFAULT;
+            if (ctx instanceof UdfFunctionCallContext udf) {
+                subject = object(TargetType.Function, udf.customFunctionName().fullId());
+                if (udf.customFunctionName().fullId().uid().size() == 1) {
+                    classification = PorXResourceRegistry.instance()
+                        .functionClassification(udf.customFunctionName().getText(), !descendants(ctx, FunctionArgContext.class).isEmpty());
+                }
+            } else {
+                if (ctx instanceof SpecificFunctionCallContext specific
+                    && (specific.specificFunction() instanceof CaseFunctionCallContext || specific.specificFunction() instanceof SpecialTimeCallContext
+                        || specific.specificFunction() instanceof ValuesFunctionCallContext)) {
+                    continue;
+                }
+                subject = objects.object(TargetType.Function, ctx.getStart(), List.of(ctx.getStart().getText()));
+                classification = PorXResourceRegistry.instance().functionClassification(ctx.getStart().getText(), !descendants(ctx, FunctionArgContext.class).isEmpty());
+            }
+            if (!isExecuted(ctx)) {
+                classification = FunctionBehavior.DEFAULT;
+            }
+            objects.applyFunctionBehavior(behavior, subject, classification, ctx);
+        }
     }
 
     @Override
@@ -249,9 +282,11 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
     @Override
     public Void visitGrantStatement(GrantStatementContext ctx) {
         if (ctx.privilegeLevel() != null) {
-            List<BehaviorObject> targets = ctx.userAuthOption().stream()
+            List<BehaviorObject> targets = ctx.userAuthOption()
+                .stream()
                 .flatMap(auth -> descendants(auth, UserNameContext.class).stream())
-                .map(user -> account(TargetType.UserOrRole, user)).toList();
+                .map(user -> account(TargetType.UserOrRole, user))
+                .toList();
             add(SplitQueryType.GRANT, BehaviorAction.GRANT, privilege(ctx.privilegeLevel(), ctx.privilegeObject), targets);
         } else {
             List<BehaviorObject> targets = recipients(ctx);
@@ -411,9 +446,8 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
             return null;
         }
         for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
-            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext
-                || parent instanceof InsertStatementContext || parent instanceof ReplaceStatementContext
-                || parent instanceof SingleUpdateStatementContext || parent instanceof SingleDeleteStatementContext) {
+            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext || parent instanceof InsertStatementContext
+                || parent instanceof ReplaceStatementContext || parent instanceof SingleUpdateStatementContext || parent instanceof SingleDeleteStatementContext) {
                 add(behavior.getStatementType(), BehaviorAction.READ, variable(ctx, ctx.getText()), List.of());
                 break;
             }
@@ -421,27 +455,10 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
         return null;
     }
 
-    @Override
-    public Void visitUdfFunctionCall(UdfFunctionCallContext ctx) {
-        if (!isExecuted(ctx)) {
-            return null;
-        }
-        for (ParseTree parent = ctx.getParent(); parent != null; parent = parent.getParent()) {
-            if (parent instanceof SelectStatementContext || parent instanceof SetVariableContext
-                || parent instanceof InsertStatementContext || parent instanceof ReplaceStatementContext
-                || parent instanceof SingleUpdateStatementContext || parent instanceof SingleDeleteStatementContext) {
-                add(behavior.getStatementType(), BehaviorAction.CALL, object(TargetType.Function, ctx.customFunctionName().fullId()), List.of());
-                return visitChildren(ctx);
-            }
-        }
-        return null;
-    }
-
     private boolean isExecuted(ParseTree tree) {
         for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
-            if (parent instanceof FullDescribeStatementContext || parent instanceof PolardbxExplainStatementContext
-                || parent instanceof BaselineStatementContext || parent instanceof RoutineBodyContext
-                || parent instanceof CreateFunctionContext || parent instanceof CreateViewContext || parent instanceof AlterViewContext) {
+            if (parent instanceof FullDescribeStatementContext || parent instanceof PolardbxExplainStatementContext || parent instanceof BaselineStatementContext
+                || parent instanceof RoutineBodyContext || parent instanceof CreateFunctionContext || parent instanceof CreateViewContext || parent instanceof AlterViewContext) {
                 return false;
             }
         }
@@ -494,8 +511,7 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
 
     @Override
     public Void visitClearPlanCache(ClearPlanCacheContext ctx) {
-        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.RESET,
-            objects.unnamedObject(TargetType.Cache, ctx.PLANCACHE().getSymbol(), UmiTypes.Schema), List.of());
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.RESET, objects.unnamedObject(TargetType.Cache, ctx.PLANCACHE().getSymbol(), UmiTypes.Schema), List.of());
         return null;
     }
 
@@ -736,22 +752,19 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
 
     @Override
     public Void visitShowProcedureCache(ShowProcedureCacheContext ctx) {
-        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
-            instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
         return null;
     }
 
     @Override
     public Void visitResizeProcedureCache(ResizeProcedureCacheContext ctx) {
-        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.CONFIGURE,
-            instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.CONFIGURE, instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
         return null;
     }
 
     @Override
     public Void visitClearProcedureCache(ClearProcedureCacheContext ctx) {
-        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.RESET,
-            instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
+        add(SplitQueryType.ADMIN_PERFORMANCE, BehaviorAction.RESET, instanceRange(TargetType.Cache, ctx.PROCEDURE().getSymbol(), ctx.CACHE().getSymbol()), List.of());
         return null;
     }
 
@@ -823,8 +836,7 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
 
     @Override
     public Void visitShowDdl(ShowDdlContext ctx) {
-        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ,
-            instanceRange(TargetType.Job, ctx.DDL().getSymbol(), ctx.getStop()), List.of());
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, instanceRange(TargetType.Job, ctx.DDL().getSymbol(), ctx.getStop()), List.of());
         return null;
     }
 
@@ -866,8 +878,7 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
 
     @Override
     public Void visitShowBroadcasts(ShowBroadcastsContext ctx) {
-        add(SplitQueryType.METADATA, BehaviorAction.READ,
-            objects.unnamedObject(TargetType.Table, ctx.BROADCASTS().getSymbol(), UmiTypes.Schema), List.of());
+        add(SplitQueryType.METADATA, BehaviorAction.READ, objects.unnamedObject(TargetType.Table, ctx.BROADCASTS().getSymbol(), UmiTypes.Schema), List.of());
         return null;
     }
 
@@ -1072,7 +1083,15 @@ final class PorXStatementBehaviorVisitor extends PolardbXParserBaseVisitor<Void>
         if (context == null) {
             return null;
         }
-        List<String> names = context.uid().stream().map(this::text).map(this::unquote).toList();
+        List<String> names = new ArrayList<>();
+        for (UidContext uid : context.uid()) {
+            String name = text(uid);
+            if (type != TargetType.Function) {
+                name = unquote(name);
+            }
+
+            names.add(name);
+        }
         return objects.object(type, context, names);
     }
 

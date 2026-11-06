@@ -66,10 +66,10 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
                                                   + "  left join SYS.ALL_TAB_COMMENTS on TAB.OWNER = SYS.ALL_TAB_COMMENTS.OWNER and TAB.TABLE_NAME = SYS.ALL_TAB_COMMENTS.TABLE_NAME and TAB.TABLE_TYPE = SYS.ALL_TAB_COMMENTS.TABLE_TYPE \n"
                                                   + "  left join ALL_OBJECTS on TAB.OWNER = ALL_OBJECTS.OWNER and TAB.TABLE_NAME = ALL_OBJECTS.OBJECT_NAME and TAB.TABLE_TYPE = ALL_OBJECTS.OBJECT_TYPE";
 
-    private static final String COLUMNS_LE_11G  = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME,DATA_TYPE,DATA_TYPE_OWNER,COLUMN_ID,DATA_LENGTH,CHAR_LENGTH,DATA_PRECISION,DATA_SCALE,NULLABLE,CHARACTER_SET_NAME,HIDDEN_COLUMN,VIRTUAL_COLUMN,COMM.COMMENTS,DATA_DEFAULT from SYS.DBA_TAB_COLS COLS\n"                   //
-                                                  + "left join SYS.DBA_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME\n";
-    private static final String COLUMNS_DEFAULT = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME,DATA_TYPE,DATA_TYPE_OWNER,COLUMN_ID,DATA_LENGTH,CHAR_LENGTH,DATA_PRECISION,DATA_SCALE,NULLABLE,CHARACTER_SET_NAME,HIDDEN_COLUMN,VIRTUAL_COLUMN,IDENTITY_COLUMN,COMM.COMMENTS,DATA_DEFAULT from SYS.DBA_TAB_COLS COLS\n"   //
-                                                  + "left join SYS.DBA_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME\n";
+    private static final String COLUMNS_LE_11G  = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME,DATA_TYPE,DATA_TYPE_OWNER,COLUMN_ID,DATA_LENGTH,CHAR_LENGTH,DATA_PRECISION,DATA_SCALE,NULLABLE,CHARACTER_SET_NAME,HIDDEN_COLUMN,VIRTUAL_COLUMN,COMM.COMMENTS,DATA_DEFAULT from SYS.ALL_TAB_COLS COLS\n"                   //
+                                                  + "left join SYS.ALL_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME\n";
+    private static final String COLUMNS_DEFAULT = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME,DATA_TYPE,DATA_TYPE_OWNER,COLUMN_ID,DATA_LENGTH,CHAR_LENGTH,DATA_PRECISION,DATA_SCALE,NULLABLE,CHARACTER_SET_NAME,HIDDEN_COLUMN,VIRTUAL_COLUMN,IDENTITY_COLUMN,COMM.COMMENTS,DATA_DEFAULT from SYS.ALL_TAB_COLS COLS\n"   //
+                                                  + "left join SYS.ALL_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME\n";
 
     private static final String SCHEMAS         = "select USERNAME from SYS.ALL_USERS";
     private static final String SCHEMAS_ALL     = SCHEMAS + " order by USERNAME asc";
@@ -254,7 +254,7 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
     }
 
     public List<Value> selectDbLinks(String schema) throws SQLException {
-        String sql = "select DB_LINK AS OBJECT_NAME,HOST  from dba_db_links where owner = ?";
+        String sql = "select DB_LINK AS OBJECT_NAME,HOST  from all_db_links where owner = ?";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, schema);
             try (ResultSet rs = ps.executeQuery()) {
@@ -270,6 +270,12 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
             try (ResultSet rs = ps.executeQuery()) {
                 return OraMetaProviderUtils.convertRoleName(rs);
             }
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 942 || e.getErrorCode() == 1031) {
+                log.debug("Role metadata unavailable: SYS.DBA_ROLES is not accessible", e);
+                return Collections.emptyList();
+            }
+            throw e;
         }
     }
 
@@ -637,7 +643,7 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
     }
 
     public Value loadJob(String schema, String leafName) throws SQLException {
-        String sql = "select JOB,LOG_USER,SCHEMA_USER,LAST_DATE,NEXT_DATE,BROKEN,INTERVAL,FAILURES,WHAT from dba_Jobs where SCHEMA_USER = ? and JOB = ?";
+        String sql = "select JOB,LOG_USER,SCHEMA_USER,LAST_DATE,NEXT_DATE,BROKEN,INTERVAL,FAILURES,WHAT from all_jobs where SCHEMA_USER = ? and JOB = ?";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, schema);
             ps.setString(2, leafName);
@@ -662,7 +668,7 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
     }
 
     public Value loadDbLink(String schema, String leafName) throws SQLException {
-        String sql = "select OWNER,DB_LINK,USERNAME,HOST,CREATED from SYS.DBA_DB_LINKS where OWNER = ? and DB_LINK = ?";
+        String sql = "select OWNER,DB_LINK,USERNAME,HOST,CREATED from SYS.ALL_DB_LINKS where OWNER = ? and DB_LINK = ?";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, schema);
             ps.setString(2, leafName);
@@ -719,6 +725,12 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
                 List<RdbRole> values = OraMetaProviderUtils.convertRole(rs);
                 return CollectionUtils.isNotEmpty(values) ? values.get(0) : null;
             }
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 942 || e.getErrorCode() == 1031) {
+                log.debug("Role metadata unavailable: SYS.DBA_ROLES is not accessible", e);
+                return null;
+            }
+            throw e;
         }
     }
 

@@ -15,10 +15,7 @@
  */
 package com.clougence.clouddm.ds.greenplum.execute;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -80,6 +77,14 @@ public class GpMetaProviderDm extends PgMetaProviderDm implements MetaDataServic
     public GpMetaProviderDm(Connection connection){
         super(connection);
         this.providerUtils = new GpMetaProviderUtils();
+    }
+
+    @Override
+    public String getVersion() throws SQLException {
+        try (Connection con = this.connectSupplier.eGet(); Statement statement = con.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT version()")) {
+            resultSet.next();
+            return resultSet.getString(1).trim().replaceFirst("^PostgreSQL\\s+", "");
+        }
     }
 
     protected List<RdbTable> findByPart(Connection conn, String schema, List<String> tabs, String conditions) throws SQLException {

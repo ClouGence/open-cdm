@@ -27,7 +27,7 @@ import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
-import com.clougence.sql.mysql.analysis.reference.MySqlObjectReference;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.mysql.analysis.reference.MySqlObjectReferenceVisitor;
 import com.clougence.sql.mysql.analysis.reference.MySqlResourceRegistry;
 import com.clougence.sql.mysql.parser.MySqlVersion;
@@ -199,33 +199,33 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
                 if (resources.isUserDefinedFunction(functionName, false, version)) {
                     add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, fullId);
                 } else {
-                    addFunction(fullId.getStart());
+                    addFunction(fullId.getStart(), ctx);
                 }
             } else {
                 add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, fullId);
             }
         } else {
             Token token = ctx.genericFunction().name.getStart();
-            addFunction(token);
+            addFunction(token, ctx);
         }
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
-        addFunction(ctx.aggregateFunction().getStart());
+        addFunction(ctx.aggregateFunction().getStart(), ctx);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitSpatialAggregateFunctionCall(SpatialAggregateFunctionCallContext ctx) {
-        addFunction(ctx.customFunctionName().getStart());
+        addFunction(ctx.customFunctionName().getStart(), ctx);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitNonKeywordFunctionCall(NonKeywordFunctionCallContext ctx) {
-        addFunction(ctx.getStart());
+        addFunction(ctx.getStart(), ctx);
         return visitChildren(ctx);
     }
 
@@ -233,53 +233,85 @@ final class MyBehaviorObjectReferenceVisitor extends MySqlObjectReferenceVisitor
     public Void visitSpecificFunctionCall(SpecificFunctionCallContext ctx) {
         SpecificFunctionContext function = ctx.specificFunction();
         if (!(function instanceof CaseFunctionCallContext)) {
-            addFunction(ctx.getStart());
+            addFunction(ctx.getStart(), ctx);
         }
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitKeywordFunctionCall(KeywordFunctionCallContext ctx) {
-        addFunction(ctx.getStart());
+        addFunction(ctx.getStart(), ctx);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitPasswordFunctionCall(PasswordFunctionCallContext ctx) {
-        addFunction(ctx.getStart());
+        addFunction(ctx.getStart(), ctx);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitNonAggregateFunctionCall(NonAggregateFunctionCallContext ctx) {
-        addFunction(ctx.getStart());
+        addFunction(ctx.getStart(), ctx);
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitJsonDualityObjectFunctionCall(JsonDualityObjectFunctionCallContext ctx) {
-        addFunction(ctx.getStart());
+        addFunction(ctx.getStart(), ctx);
         return visitChildren(ctx);
     }
 
-    private void addFunction(Token token) {
+    private void addFunction(Token token, ParserRuleContext context) {
         if (token == null) {
             return;
         }
-        BehaviorAction behavior = resources.functionBehavior(token.getText(), exactVersion);
-        SplitQueryType type = switch (behavior) {
-            case CALL -> SplitQueryType.CALL_PROG_OBJ;
-            case READ -> SplitQueryType.SELECT;
-            case LOCK -> SplitQueryType.QUERY_LOCK;
-            case CONFIGURE -> SplitQueryType.SYSTEM_SETTING_WRITE;
-            case ALTER, RESET, SWITCH -> SplitQueryType.ALTER_REPLICATION;
-            default -> throw new IllegalStateException("unsupported functional function action " + behavior);
-        };
         boolean quotedIdentifier = token.getType() == MySqlParser.REVERSE_QUOTE_ID || token.getType() == MySqlParser.DOUBLE_QUOTE_ID;
         if (quotedIdentifier || resources.isUserDefinedFunction(token.getText(), false, version)) {
-            add(type, TargetType.Function, true, token);
-        } else {
-            addInstanceBehaviorResource(type, TargetType.Function, true, token, token.getText(), behavior);
+            add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, token);
+            return;
+        }
+
+        for (ParseTree ancestor = context; ancestor != null; ancestor = ancestor.getParent()) {
+            if (ancestor instanceof CreateProcedureContext || ancestor instanceof CreateFunctionContext || ancestor instanceof CreateTriggerContext
+                || ancestor instanceof CreateEventContext || ancestor instanceof CreateViewContext view && view.MATERIALIZED() == null
+                || ancestor instanceof AlterViewContext alteredView && alteredView.MATERIALIZED() == null
+                || ancestor instanceof FullDescribeStatementContext explain && explain.analyze == null) {
+                add(SplitQueryType.CALL_PROG_OBJ, TargetType.Function, true, token);
+                return;
+            }
+        }
+
+        FunctionBehavior classification = resources.functionClassification(token.getText(), exactVersion);
+        List<FunctionArgContext> arguments = descendants(context, FunctionArgContext.class);
+        BehaviorAction action = classification.action();
+        SplitQueryType type = resources.functionStatementType(token.getText(), version, !arguments.isEmpty());
+        if (type == null) {
+            type = SplitQueryType.CALL_PROG_OBJ;
+        }
+
+        TargetType targetType = classification.targetType();
+        BehaviorAction targetAction = classification.targetAction();
+        if (type == SplitQueryType.SESSION_SETTING_WRITE) {
+            action = BehaviorAction.CONFIGURE;
+            targetType = TargetType.Session;
+            targetAction = BehaviorAction.CONFIGURE;
+        }
+
+        addInstanceBehaviorResource(type, TargetType.Function, true, token, token.getText(), action);
+        if (classification.unsafe()) {
+            addFunctionTarget(type, TargetType.Instance, context, null, BehaviorAction.UNSAFE);
+        }
+        if (targetType != null) {
+            String targetName = null;
+            if (!arguments.isEmpty() && targetType == TargetType.File) {
+                FunctionArgContext argument = arguments.get(0);
+                String literal = argument.getText();
+                if (argument.getStart() == argument.getStop() && literal.startsWith("'") && literal.endsWith("'") && literal.indexOf('\\') < 0) {
+                    targetName = literal.substring(1, literal.length() - 1).replace("''", "'").replaceFirst("^/+", "");
+                }
+            }
+            addFunctionTarget(type, targetType, context, targetName, targetAction);
         }
     }
 

@@ -28,8 +28,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.gauss.sql.analysis.reference.GaussResourceRegistry;
 import com.clougence.clouddm.ds.gauss.sql.parser.GaussDslProvider;
 import com.clougence.clouddm.ds.gauss.sql.parser.GaussSplitAnalysisSpi;
+import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParser;
 import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParserBaseVisitor;
 import com.clougence.clouddm.ds.gauss.sql.parser.antlr.GaussSqlParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
@@ -37,6 +39,7 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 public class GaussBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     @Override
@@ -83,12 +86,14 @@ final class GaussBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     public Void visit(ParseTree tree) {
         GaussStatementBehaviorVisitor visitor = new GaussStatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
         visitor.visit(tree);
+        visitor.scanFunctionCalls(tree);
         behaviors.add(visitor.behavior());
         return null;
     }
 }
 
 final class GaussStatementBehaviorVisitor extends GaussSqlParserBaseVisitor<Void> {
+
     private final Parser                   parser;
     private final RdbBehaviorObjectFactory objects;
     private final StatementBehavior        behavior = new StatementBehavior();
@@ -101,6 +106,18 @@ final class GaussStatementBehaviorVisitor extends GaussSqlParserBaseVisitor<Void
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    @Override
+    public Void visitExplainstmt(ExplainstmtContext ctx) {
+        if (GaussSplitAnalysisSpi.executesStatement(ctx)) {
+            return visitChildren(ctx);
+        }
+        for (Relation_exprContext table : descendants(ctx, Relation_exprContext.class)) {
+            add(SplitQueryType.PERFORMANCE, BehaviorAction.READ, object(TargetType.Table, table.qualified_name()), List.of());
+        }
+        behavior.setStatementType(SplitQueryType.PERFORMANCE);
+        return null;
     }
 
     @Override
@@ -122,6 +139,63 @@ final class GaussStatementBehaviorVisitor extends GaussSqlParserBaseVisitor<Void
         return null;
     }
 
+    void scanFunctionCalls(ParseTree tree) {
+        for (Func_applicationContext ctx : descendants(tree, Func_applicationContext.class)) {
+            if (executesFunction(ctx) && !(ctx.getParent() instanceof CallstmtContext)) {
+                BehaviorObject function = object(TargetType.Function, ctx.func_name());
+                var classification = functionClassification(ctx, ctx.func_name().getText());
+                int start = behavior.getRelations().size();
+                objects.applyFunctionBehavior(behavior, function, classification, ctx.func_name());
+                if (classification.targetType() != null && ctx.func_arg_list() != null) {
+                    var argument = ctx.func_arg_list().func_arg_expr(0);
+                    var token = argument.getStart();
+                    if (token == argument.getStop()
+                        && ((token.getType() == GaussSqlParser.StringConstant || token.getType() == GaussSqlParser.Integral) && !token.getText().contains("\\"))) {
+                        String value = token.getText();
+                        if (token.getType() == GaussSqlParser.StringConstant) {
+                            value = value.substring(1, value.length() - 1).replace("''", "'");
+                        }
+                        if (classification.targetType() == TargetType.File) {
+                            value = value.replaceFirst("^/+", "");
+                        }
+                        if (classification.targetType() != TargetType.Session || classification.targetAction() == BehaviorAction.TERMINATE) {
+                            BehaviorObject target = objects.instanceObject(classification.targetType(), token, value);
+                            target.setObjectName(new ObjectName(null, null, value));
+                            behavior.getRelations().get(start + 1).setSubject(target);
+                        }
+                    }
+                }
+            }
+
+        }
+        for (Func_expr_common_subexprContext ctx : descendants(tree, Func_expr_common_subexprContext.class)) {
+            var classification = functionClassification(ctx, ctx.getStart().getText());
+            if (classification.metadata() && executesFunction(ctx)) {
+                BehaviorObject function = objects.object(TargetType.Function, ctx, List.of(ctx.getStart().getText()));
+                objects.applyFunctionBehavior(behavior, function, classification, ctx);
+            }
+        }
+    }
+
+    private FunctionBehavior functionClassification(ParseTree tree, String name) {
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof ViewstmtContext || parent instanceof CreatematviewstmtContext view && view.with_data_() != null && view.with_data_().NO() != null) {
+                return FunctionBehavior.DEFAULT;
+            }
+        }
+        return GaussResourceRegistry.instance().functionBehavior(name, null);
+    }
+
+    private boolean executesFunction(ParseTree tree) {
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof CreatefunctionstmtContext || parent instanceof CreatetrigstmtContext
+                || parent instanceof ExplainstmtContext plan && !GaussSplitAnalysisSpi.executesStatement(plan)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public Void visitCallstmt(CallstmtContext ctx) {
         add(SplitQueryType.CALL_PROG_OBJ, BehaviorAction.CALL, object(TargetType.Procedure, ctx.func_application().func_name()), List.of());
@@ -133,18 +207,22 @@ final class GaussStatementBehaviorVisitor extends GaussSqlParserBaseVisitor<Void
             return null;
         }
         List<String> names = new ArrayList<>();
-        collectNames(context, names);
+        collectNames(context, names, type == TargetType.Function);
         return objects.object(type, context, names);
     }
 
-    private void collectNames(ParseTree tree, List<String> names) {
+    private void collectNames(ParseTree tree, List<String> names, boolean preserveQuotes) {
         if (tree instanceof ColidContext || tree instanceof Attr_nameContext || tree instanceof Type_function_nameContext) {
             ParserRuleContext context = (ParserRuleContext) tree;
-            names.add(unquote(parser.getTokenStream().getText(context.getStart(), context.getStop())));
+            String name = parser.getTokenStream().getText(context.getStart(), context.getStop());
+            if (!preserveQuotes) {
+                name = unquote(name);
+            }
+            names.add(name);
             return;
         }
         for (int i = 0; i < tree.getChildCount(); i++) {
-            collectNames(tree.getChild(i), names);
+            collectNames(tree.getChild(i), names, preserveQuotes);
         }
     }
 

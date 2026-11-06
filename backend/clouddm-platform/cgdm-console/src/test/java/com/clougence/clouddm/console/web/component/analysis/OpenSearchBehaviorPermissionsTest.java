@@ -15,18 +15,14 @@
  */
 package com.clougence.clouddm.console.web.component.analysis;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
 import org.junit.Test;
 
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorObject;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.ObjectName;
-import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 
 public class OpenSearchBehaviorPermissionsTest {
     @Test
@@ -39,8 +35,8 @@ public class OpenSearchBehaviorPermissionsTest {
         lookup.setObjectType(TargetType.Table);
         lookup.setObjectName(new ObjectName(null, null, "lookup"));
         lookup.setObjectPath("/1/7/lookup/");
-        for (BehaviorAction action : List.of(BehaviorAction.READ, BehaviorAction.INSERT, BehaviorAction.REPLACE, BehaviorAction.UPDATE, BehaviorAction.DELETE,
-            BehaviorAction.CREATE, BehaviorAction.ALTER, BehaviorAction.DROP)) {
+        for (BehaviorAction action : List
+            .of(BehaviorAction.READ, BehaviorAction.INSERT, BehaviorAction.REPLACE, BehaviorAction.UPDATE, BehaviorAction.DELETE, BehaviorAction.CREATE, BehaviorAction.ALTER, BehaviorAction.DROP)) {
             BehaviorRelation relation = new BehaviorRelation();
             relation.setSubject(subject);
             relation.setAction(action);

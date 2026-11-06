@@ -1,0 +1,20 @@
+{
+  "description": "OceanBase Oracle-mode function effects; availability remains in the separate major-family built-in catalog.",
+  "sources": ["https://en.oceanbase.com/docs/common-oceanbase-database-10000000001976250", "https://en.oceanbase.com/docs/common-oceanbase-database-10000000001275969", "https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000002016486", "https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000002016627"],
+  "metadataFunctions": [
+    {"versions": ["4"], "names": ["SYS_CONTEXT", "USERENV", "OB_VERSION", "OB_TRANSACTION_ID"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["4"], "names": ["DBMS_SESSION.SET_IDENTIFIER", "DBMS_SESSION.CLEAR_IDENTIFIER", "DBMS_SESSION.SET_CONTEXT", "DBMS_SESSION.CLEAR_CONTEXT", "DBMS_SESSION.CLEAR_ALL_CONTEXT", "DBMS_SESSION.RESET_PACKAGE", "DBMS_LOCK.REQUEST", "DBMS_LOCK.RELEASE"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["4"], "types": ["SESSION_SETTING_WRITE"], "names": ["DBMS_SESSION.SET_IDENTIFIER", "DBMS_SESSION.CLEAR_IDENTIFIER", "DBMS_SESSION.SET_CONTEXT", "DBMS_SESSION.CLEAR_CONTEXT", "DBMS_SESSION.CLEAR_ALL_CONTEXT", "DBMS_SESSION.RESET_PACKAGE"]},
+    {"versions": ["4"], "types": ["SESSION_LOCK"], "names": ["DBMS_LOCK.REQUEST", "DBMS_LOCK.RELEASE"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["4"], "action": "CALL", "targetType": "Instance", "targetAction": "READ", "unsafe": false, "names": ["SYS_CONTEXT", "USERENV", "OB_VERSION", "OB_TRANSACTION_ID"]},
+    {"versions": ["4"], "action": "CONFIGURE", "targetType": "Session", "targetAction": "CONFIGURE", "unsafe": false, "names": ["DBMS_SESSION.SET_IDENTIFIER", "DBMS_SESSION.CLEAR_IDENTIFIER", "DBMS_SESSION.SET_CONTEXT", "DBMS_SESSION.CLEAR_CONTEXT", "DBMS_SESSION.CLEAR_ALL_CONTEXT", "DBMS_SESSION.RESET_PACKAGE"]},
+    {"versions": ["4"], "action": "LOCK", "targetType": "Session", "targetAction": "LOCK", "unsafe": false, "names": ["DBMS_LOCK.REQUEST"]},
+    {"versions": ["4"], "action": "UNLOCK", "targetType": "Session", "targetAction": "UNLOCK", "unsafe": false, "names": ["DBMS_LOCK.RELEASE"]}
+  ]
+}

@@ -27,10 +27,16 @@
 
   // Business Colours
   --primary-color: @theme-map[primary-color];
+  --primary-button-bg: @theme-map[primary-button-bg];
   --info-color: @theme-map[info-color];
+  --link-color: @theme-map[link-color];
   --success-color: @theme-map[success-color];
   --warning-color: @theme-map[warning-color];
   --error-color: @theme-map[error-color];
+  --success-bg: @theme-map[success-bg];
+  --error-bg: @theme-map[error-bg];
+  --warning-bg: @theme-map[warning-bg];
+  --disabled-bg: @theme-map[disabled-bg];
 
   // Progress bar colour
   --progress-normal: @theme-map[progress-normal];
@@ -85,6 +91,22 @@
   color-scheme: dark;
 }
 
+// Override fixed fills in monochrome object sprites so each <use> inherits its own theme color.
+#icon-svg-TABLE path,
+#icon-svg-VIEW path,
+#icon-svg-SEQUENCE path,
+#icon-svg-TABLESPACE path,
+#icon-svg-MATERIALIZED path,
+#icon-svg-SYNONYM path,
+#icon-svg-FUNC path,
+#icon-svg-FUNC-PARAM-copy path,
+#icon-svg-FUNC-RETURN path,
+#icon-svg-PROC path,
+#icon-svg-PROC-PARAM path,
+#icon-svg-TRIGGER path {
+  fill: currentColor;
+}
+
 body {
   transition:
     background-color 0.2s ease,
@@ -107,4 +129,12 @@ body {
     background-color 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease;
+}
+
+// Switch all surfaces together; restore normal interaction transitions after the first paint.
+html.theme-changing,
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
+  transition: none !important;
 }

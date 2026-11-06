@@ -15,11 +15,17 @@
  */
 package com.clougence.clouddm.ds.clickhouse.sql.parser;
 
-/** ClickHouse compatibility levels that change EXPLAIN syntax. */
+/** ClickHouse EXPLAIN compatibility levels and registered function releases. */
 public enum ClickHouseVersion {
+    CH_1(1),
+    CH_18(18),
+    CH_19(19),
     CH_20(20),
+    CH_21(21),
     CH_22(22),
+    CH_23(23),
     CH_24(24),
+    CH_25(25),
     CH_26(26);
 
     public static final ClickHouseVersion LATEST = values()[values().length - 1];
@@ -29,41 +35,35 @@ public enum ClickHouseVersion {
         this.major = major;
     }
 
-    public static ClickHouseVersion parse(String version) {
-        int major = parseMajor(version);
-        if (major < 0) {
-            return LATEST;
-        }
-        ClickHouseVersion matched = CH_20;
-        for (ClickHouseVersion candidate : values()) {
-            if (candidate.major > major) {
-                break;
-            }
-            matched = candidate;
-        }
-        return matched;
-    }
-
     public static boolean ge(ClickHouseVersion source, ClickHouseVersion target) {
         return source.major >= target.major;
     }
 
-    private static int parseMajor(String version) {
-        if (version == null || version.isBlank()) {
-            return -1;
+    public String versionString() {
+        return Integer.toString(this.major);
+    }
+
+    public static ClickHouseVersion parse(String version) {
+        String value = version == null ? "" : version.trim();
+        int start = 0;
+        while (start < value.length() && !Character.isDigit(value.charAt(start))) {
+            start++;
         }
-        String value = version.trim();
-        int end = 0;
+        int end = start;
         while (end < value.length() && Character.isDigit(value.charAt(end))) {
             end++;
         }
-        if (end == 0) {
-            return -1;
+        if (start < end) {
+            try {
+                int major = Integer.parseInt(value.substring(start, end));
+                for (ClickHouseVersion candidate : values()) {
+                    if (candidate.major == major) {
+                        return candidate;
+                    }
+                }
+            } catch (NumberFormatException ignored) {
+            }
         }
-        try {
-            return Integer.parseInt(value.substring(0, end));
-        } catch (NumberFormatException e) {
-            return -1;
-        }
+        return LATEST;
     }
 }

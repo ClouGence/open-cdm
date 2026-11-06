@@ -38,7 +38,7 @@ final class OpenSearchPagingFixture implements Function<HttpExchange, OpenSearch
     int                  scrollSize;
     int                  failPage;
     int                  emptyPage;
-    int                  repeatSortAt = -1;
+    int                  repeatSortAt  = -1;
     int                  blockPage;
     boolean              pit;
     boolean              sorted;

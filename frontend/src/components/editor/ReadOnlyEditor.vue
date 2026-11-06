@@ -125,7 +125,7 @@ export default {
       return targetHeight;
     },
     borderStyle() {
-      return this.border > 0 ? `${this.border}px solid #ccc` : 'none';
+      return this.border > 0 ? `${this.border}px solid var(--border-primary)` : 'none';
     }
   },
   methods: {
@@ -153,7 +153,6 @@ export default {
               readOnly: true,
               domReadOnly: true,
               contextmenu: false,
-              theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
               padding: {
                 top: this.contentPadding,
                 bottom: this.contentPadding

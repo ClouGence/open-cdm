@@ -16,23 +16,26 @@
 package com.clougence.clouddm.ds.opensearch.execute;
 
 import static org.junit.Assert.*;
+
 import java.math.BigDecimal;
 import java.util.List;
+
 import org.junit.Test;
+
+import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.sql.es.EsRequestParser;
 import com.clougence.sql.es.EsRequestPolicy;
 import com.clougence.sql.es.RestProduct;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class OpenSearchResultWriterTest {
     private final RecordingOpenSearchResults results = new RecordingOpenSearchResults();
-    private final QueryResultConf limits = new QueryResultConf();
-    private boolean masking;
+    private final QueryResultConf            limits  = new QueryResultConf();
+    private boolean                          masking;
 
     @Test
     public void emptySearchAndMissingDocumentsHaveCompletedEmptyTables() throws Exception {
@@ -70,14 +73,14 @@ public class OpenSearchResultWriterTest {
         write("POST /books/_update/1\n{\"script\":{\"source\":\"ctx.op='delete'\"}}", 200, "{\"_index\":\"books\",\"result\":\"deleted\"}");
         write("DELETE /books/_doc/1", 200, "{\"_index\":\"books\",\"result\":\"deleted\"}");
         write("DELETE /books/_doc/1", 404, "{\"_index\":\"books\",\"result\":\"not_found\"}");
-        assertEquals(List.of(1L,1L,0L,1L,1L,0L), results.counts);
+        assertEquals(List.of(1L, 1L, 0L, 1L, 1L, 0L), results.counts);
     }
 
     @Test
     public void queryMutationCountsExcludeNoopsAndIncludeScriptDeletes() throws Exception {
         write("POST /books/_update_by_query", 200, "{\"updated\":3,\"deleted\":2,\"noops\":4,\"total\":9}");
         write("POST /books/_delete_by_query", 200, "{\"deleted\":0}");
-        assertEquals(List.of(5L,0L), results.counts);
+        assertEquals(List.of(5L, 0L), results.counts);
     }
 
     @Test
@@ -86,7 +89,7 @@ public class OpenSearchResultWriterTest {
         rejected("POST /books/_delete_by_query", 500, "{\"deleted\":4,\"failures\":[{\"status\":500}]}", OpenSearchDsI18nKeys.OPENSEARCH_PARTIAL_RESPONSE);
         rejected("POST /books/_delete_by_query", 408, "{\"deleted\":1,\"timed_out\":true}", OpenSearchDsI18nKeys.OPENSEARCH_REQUEST_TIMEOUT);
         rejected("PUT /books/_doc/1\n{}", 200, "{\"_index\":\"books\",\"result\":\"updated\",\"_shards\":{\"failed\":1}}", OpenSearchDsI18nKeys.OPENSEARCH_PARTIAL_RESPONSE);
-        assertEquals(List.of(3L,4L,1L,1L), results.counts);
+        assertEquals(List.of(3L, 4L, 1L, 1L), results.counts);
         assertEquals(4, results.completions.stream().filter("ResultCountBuild:false"::equals).count());
         assertFalse(results.completions.contains("ResultCountBuild:true"));
     }
@@ -109,7 +112,7 @@ public class OpenSearchResultWriterTest {
         write("PUT /books/_mapping\n{\"properties\":{}}", 200, "{\"acknowledged\":true}");
         write("PUT /books/_settings\n{\"number_of_replicas\":0}", 200, "{\"acknowledged\":true}");
         rejected("DELETE /books", 200, "{\"acknowledged\":false}", OpenSearchDsI18nKeys.OPENSEARCH_PARTIAL_RESPONSE);
-        assertEquals(List.of(0L,0L,0L,0L), results.counts);
+        assertEquals(List.of(0L, 0L, 0L, 0L), results.counts);
         assertEquals(3, results.completions.stream().filter("ResultCountBuild:true"::equals).count());
     }
 

@@ -50,7 +50,7 @@ public enum DmVersion {
         if (version == null || version.isBlank()) {
             return -1;
         }
-        String value = version.trim();
+        String value = version.trim().replaceFirst("^DM Database Server (?:x64|64) V(8)(?:\\D.*)?$", "$1");
         int start = 0;
         while (start < value.length() && !Character.isDigit(value.charAt(start))) {
             start++;

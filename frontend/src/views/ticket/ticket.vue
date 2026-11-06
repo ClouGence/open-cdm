@@ -1,6 +1,11 @@
 <template>
   <div class="ticket-create-container">
-    <div class="create-content-container">
+    <Spin v-if="prefillLoading" fix />
+    <Alert v-if="$route.query.sourceTicketId && !prefillLoading && prefillError" type="error" show-icon class="similar-ticket-notice">
+      {{ $t('ticket-similar-load-failed') }}
+      <Button type="text" @click="loadSimilarTicket">{{ $t('zhong-shi') }}</Button>
+    </Alert>
+    <div class="create-content-container" :inert="prefillLoading || prefillError">
       <div class="create-ticket-editor">
         <div class="create-ticket-editor-toolbar">
           <div class="create-ticket-editor-operator">
@@ -72,7 +77,12 @@
           </a-form-item>
         </a-form>
         <div class="create-ticket-form-btn">
-          <Button type="primary" :loading="loading" :disabled="loading || !ticketData.ticketEnable" @click="handleSubmitTicket(false)">
+          <Button
+            type="primary"
+            :loading="loading"
+            :disabled="loading || prefillLoading || prefillError || !ticketData.ticketEnable"
+            @click="handleSubmitTicket(false)"
+          >
             {{ $t('jiao-yan-0') }}
           </Button>
           <Button type="primary" ghost v-if="showForceBtn" :loading="loading" :disabled="loading" @click="handleSubmitTicket(true)">
@@ -182,6 +192,9 @@ export default {
   },
   data() {
     return {
+      prefillGeneration: 0,
+      prefillLoading: Boolean(this.$route.query.sourceTicketId),
+      prefillError: false,
       showForceBtn: false,
       RULE_WARN_LEVEL,
       noPassedRuleList: [],
@@ -238,20 +251,107 @@ export default {
       }
     };
   },
-  mounted() {
-    this.listAllDs();
-    this.ticketData.ticketTitle = `${this.$t('gong-dan')}${new Date().getTime()}`;
-
-    this.$nextTick(() => {
-      this.initializeHeights();
-    });
-    window.addEventListener('resize', this.handleWindowResize);
+  watch: {
+    '$route.query.sourceTicketId'() {
+      this.initializeForm();
+    }
   },
-  beforeDestroy() {
+  async mounted() {
+    window.addEventListener('resize', this.handleWindowResize);
+    const generation = this.prefillGeneration + 1;
+    await this.initializeForm();
+    if (generation === this.prefillGeneration) this.initializeHeights();
+  },
+  beforeUnmount() {
+    this.prefillGeneration++;
     clearTimeout(this.previewTimer);
     window.removeEventListener('resize', this.handleWindowResize);
   },
   methods: {
+    async initializeForm() {
+      const generation = this.prefillGeneration + 1;
+      clearTimeout(this.previewTimer);
+      Object.assign(this.$data, this.$options.data.call(this), { prefillGeneration: generation });
+      this.ticketData.ticketTitle = `${this.$t('gong-dan')}${new Date().getTime()}`;
+      if (this.$route.query.sourceTicketId) {
+        await this.loadSimilarTicket();
+      } else {
+        await this.listAllDs();
+        if (generation !== this.prefillGeneration) return;
+        await this.$refs.rawSqlEditor.createEditor();
+        if (generation === this.prefillGeneration) this.$refs.rawSqlEditor.setSql('');
+      }
+    },
+    async loadSimilarTicket() {
+      const generation = this.prefillGeneration;
+      const sourceTicketId = this.$route.query.sourceTicketId;
+      this.prefillLoading = true;
+      this.prefillError = true;
+      try {
+        await this.listAllDs();
+        if (generation !== this.prefillGeneration) return;
+        const [baseRes, detailRes] = await Promise.all([
+          this.$services.rdpTicketQueryTicketBaseInfo({ data: { ticketId: sourceTicketId } }),
+          this.$services.dmTicketQueryQueryTicketDetail({ data: { ticketId: sourceTicketId } })
+        ]);
+        if (generation !== this.prefillGeneration || !baseRes.success || !detailRes.success) return;
+        const source = baseRes.data;
+        if (!['DM_QUERY', 'DM_CHANGE'].includes(source.approBiz) || detailRes.data?.contentType !== 'INLINE') return;
+        const firstPage = await this.$services.dmTicketPreviewApprovalSql({
+          data: { ticketId: sourceTicketId, startLine: 1, lineCount: 1000 }
+        });
+        if (generation !== this.prefillGeneration || !firstPage.success) return;
+        const chunks = [firstPage.data.content || ''];
+        for (let startLine = 1001; startLine <= firstPage.data.totalLines; startLine += 4000) {
+          if (generation !== this.prefillGeneration) return;
+          const requests = [];
+          for (let offset = 0; offset < 4 && startLine + offset * 1000 <= firstPage.data.totalLines; offset++) {
+            requests.push(
+              this.$services.dmTicketPreviewApprovalSql({
+                data: { ticketId: sourceTicketId, startLine: startLine + offset * 1000, lineCount: 1000 }
+              })
+            );
+          }
+          const pages = await Promise.all(requests);
+          if (generation !== this.prefillGeneration || pages.some((page) => !page.success)) return;
+          chunks.push(...pages.map((page) => page.data.content || ''));
+        }
+        this.ticketData.ticketTitle = source.ticketTitle;
+        this.ticketData.description = source.description;
+        await this.$nextTick();
+        await this.$refs.rawSqlEditor.createEditor();
+        if (generation !== this.prefillGeneration) return;
+        this.$refs.rawSqlEditor.setSql(chunks.join('\n'));
+
+        const ds = this.allDsList.find((item) => String(item.objId) === String(source.dataSourceId));
+        if (ds) {
+          this.ticketData.instanceId = ds.objId;
+          await this.handleChangeInstance(null, true);
+          if (generation !== this.prefillGeneration) return;
+          const levels = source.targetInfo.split('/').slice(2);
+          let schema = levels[0];
+          if (this.ticketData.showCatalogSelect) {
+            const catalog = this.selectedDs.CATALOG_LIST.find((item) => item.objName === levels[0]);
+            if (catalog) {
+              this.ticketData.catalog = catalog.objName;
+              await this.listLevels(catalog.levels);
+              if (generation !== this.prefillGeneration) return;
+            }
+            schema = levels[1];
+          }
+          if (this.ticketData.showSchemaSelect && this.selectedDs.SCHEMA_LIST.some((item) => item.objName === schema)) {
+            this.ticketData.schema = schema;
+          }
+        } else {
+          this.$Message.warning(this.$t('ticket-similar-target-unavailable'));
+        }
+        this.prefillError = false;
+      } catch {
+        return;
+      } finally {
+        if (generation === this.prefillGeneration) this.prefillLoading = false;
+      }
+    },
     openSqlUploadModal() {
       this.showSqlUploadModal = true;
     },
@@ -334,6 +434,8 @@ export default {
       if (this.contentType !== 'ATTACHMENT' || !this.sqlAttachment) {
         return;
       }
+      const generation = this.prefillGeneration;
+      const attachmentId = this.sqlAttachment.attachmentId;
       this.previewLineCount = this.$refs.rawSqlEditor?.getVisibleLineCount() || 30;
       const res = await this.$services.dmTicketPreviewSqlFile({
         data: {
@@ -342,6 +444,7 @@ export default {
           lineCount: this.previewLineCount
         }
       });
+      if (generation !== this.prefillGeneration || attachmentId !== this.sqlAttachment?.attachmentId) return;
       if (res.success) {
         this.previewStartLine = res.data.startLine || 1;
         this.previewTotalLines = res.data.totalLines || 1;
@@ -390,16 +493,19 @@ export default {
       this.noPassedRuleList = [];
     },
     handleCatalogChange(isRefreshCache = false) {
-      const selectCatalog = this.selectedDs.CATALOG_LIST.find((catalog) => catalog.objName === this.ticketData.catalog);
-      this.listLevels(selectCatalog.levels, isRefreshCache);
+      if (this.prefillLoading) return;
+      const selectCatalog = this.selectedDs.CATALOG_LIST?.find((catalog) => catalog.objName === this.ticketData.catalog);
+      if (selectCatalog) this.listLevels(selectCatalog.levels, isRefreshCache);
     },
     async listAllDs() {
+      const generation = this.prefillGeneration;
       const [dsRes, envRes] = await Promise.all([
         this.$services.dmTicketListDsInsLevels(),
         this.$services.rdpDsEnvList({
           data: {}
         })
       ]);
+      if (generation !== this.prefillGeneration) return;
       if (envRes.success) {
         this.allEnvList = envRes.data;
       }
@@ -411,6 +517,8 @@ export default {
       }
     },
     async listLevels(levels, isRefreshCache = false) {
+      const generation = this.prefillGeneration;
+      const selectedDs = this.selectedDs;
       const res = await this.$services.dmTicketListDbLevels({
         data: {
           levels,
@@ -418,6 +526,7 @@ export default {
         }
       });
 
+      if (generation !== this.prefillGeneration || selectedDs !== this.selectedDs) return;
       if (res.success) {
         if (res.data && res.data.length) {
           if (res.data[0].objType === 'SCHEMA') {
@@ -554,12 +663,18 @@ export default {
       }
       this.currentMethod = 'listFirstLevel';
     },
-    async handleChangeInstance(e) {
+    async handleChangeInstance(e, restoring = false) {
+      if (this.prefillLoading && !restoring) return;
+      const generation = this.prefillGeneration;
+      const instanceId = this.ticketData.instanceId;
       this.instanceRequiredError = false;
       this.ticketData.database = null;
+      this.ticketData.catalog = '';
       this.ticketData.schema = null;
       this.ticketData.showCatalogSelect = false;
       this.ticketData.showSchemaSelect = false;
+      this.selectedDs = {};
+      if (!instanceId) return;
       this.allDsList.forEach((ds) => {
         if (ds.objId === this.ticketData.instanceId) {
           this.selectedDs = ds;
@@ -575,13 +690,14 @@ export default {
         },
         page: 'ticket'
       });
+      if (generation !== this.prefillGeneration || instanceId !== this.ticketData.instanceId) return;
       if (res.success && res.data) {
         this.ticketData.ticketEnable = res.data.openTicket;
       } else {
         this.ticketData.ticketEnable = true;
       }
       if (this.ticketData.ticketEnable) {
-        this.listLevels(this.selectedDs.levels);
+        await this.listLevels(this.selectedDs.levels);
       } else {
         this.ticketData.showCatalogSelect = false;
         this.ticketData.showSchemaSelect = false;
@@ -620,11 +736,17 @@ export default {
 </script>
 <style lang="less">
 .ticket-create-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+
+  .similar-ticket-notice {
+    flex: none;
+    margin: 16px 24px 0;
+  }
 
   .create-content-container {
     flex: 1;
@@ -815,7 +937,7 @@ export default {
     .create-ticket-content {
       width: 320px;
       flex-shrink: 0;
-      background: #f8fafc;
+      background: var(--bg-secondary);
       padding: 24px;
       border-radius: 10px;
       overflow-y: auto;
@@ -837,6 +959,41 @@ export default {
           margin-right: 12px;
         }
       }
+    }
+  }
+}
+
+@media (max-width: 1279px) {
+  .ticket-create-container .create-content-container .create-ticket-editor .create-ticket-editor-toolbar {
+    flex-wrap: wrap;
+
+    .ticket-ds-select {
+      flex-wrap: wrap;
+      gap: 8px 0;
+    }
+
+    .sql-mode-actions {
+      flex-wrap: wrap;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .ticket-create-container .create-content-container {
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 16px;
+    gap: 16px;
+
+    .create-ticket-editor {
+      flex: none;
+      min-height: 360px;
+    }
+
+    .create-ticket-content {
+      width: auto;
+      padding: 16px;
+      overflow: visible;
     }
   }
 }

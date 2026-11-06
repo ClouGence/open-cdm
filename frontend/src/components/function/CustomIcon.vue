@@ -113,11 +113,17 @@ export default {
       if (goldenDBTypes.includes(this.type)) {
         width = '100%';
       }
+      let filter = 'none';
+      if (this.disabled) {
+        filter = 'grayscale(100%)';
+      } else if (this.theme === 'dark' && this.iconName === 'Internal') {
+        filter = 'brightness(0) invert(1)';
+      }
       return {
         width,
         height: this.size,
         color: this.disabled ? '#A8A8A8' : this.color,
-        filter: this.disabled ? 'grayscale(100%)' : 'none'
+        filter
       };
     },
     bundledIcon() {

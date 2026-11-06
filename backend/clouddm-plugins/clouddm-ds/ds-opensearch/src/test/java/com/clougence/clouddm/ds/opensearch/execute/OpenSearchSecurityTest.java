@@ -32,16 +32,12 @@ import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
-import com.clougence.sql.es.EsBehaviorAnalysisSpi;
-import com.clougence.sql.es.EsRequestParser;
-import com.clougence.sql.es.EsRequestPolicy;
-import com.clougence.sql.es.EsSqlI18nKeys;
-import com.clougence.sql.es.RestProduct;
+import com.clougence.sql.es.*;
 
 public class OpenSearchSecurityTest {
-    private OpenSearchHttpStub stub;
-    private OpenSearchSession session;
-    private OpenSearchConfig config;
+    private OpenSearchHttpStub         stub;
+    private OpenSearchSession          session;
+    private OpenSearchConfig           config;
     private RecordingOpenSearchResults results;
 
     @Before
@@ -56,17 +52,20 @@ public class OpenSearchSecurityTest {
 
     @After
     public void close() {
-        if (session != null) { session.close(); }
-        if (stub != null) { stub.close(); }
+        if (session != null) {
+            session.close();
+        }
+        if (stub != null) {
+            stub.close();
+        }
     }
 
     @Test
     public void readOnlyBlocksEveryWriteOperationBeforeNetworkAndConfigCannotBeOverridden() {
         config.setReadOnly(true);
         session.setReadOnly(false);
-        for (String command : List.of("POST /books/_doc\n{}", "PUT /books/_doc/1\n{}", "PUT /books/_create/1\n{}",
-            "POST /books/_update/1\n{\"doc\":{}}", "DELETE /books/_doc/1", "POST /books/_update_by_query\n{}",
-            "POST /books/_delete_by_query\n{}", "PUT /books\n{}", "DELETE /books", "PUT /books/_mapping\n{}", "PUT /books/_settings\n{}")) {
+        for (String command : List
+            .of("POST /books/_doc\n{}", "PUT /books/_doc/1\n{}", "PUT /books/_create/1\n{}", "POST /books/_update/1\n{\"doc\":{}}", "DELETE /books/_doc/1", "POST /books/_update_by_query\n{}", "POST /books/_delete_by_query\n{}", "PUT /books\n{}", "DELETE /books", "PUT /books/_mapping\n{}", "PUT /books/_settings\n{}")) {
             reject(query(command, false), OpenSearchDsI18nKeys.OPENSEARCH_READ_ONLY);
         }
         assertTrue(stub.requests.isEmpty());
@@ -129,7 +128,9 @@ public class OpenSearchSecurityTest {
             stub.requests.clear();
             stub.responder = exchange -> {
                 OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-                if (meta != null) { return meta; }
+                if (meta != null) {
+                    return meta;
+                }
                 return OpenSearchHttpStub.json(status, "{\"error\":{\"reason\":\"secret-document\"}}");
             };
             reject(query("PUT /books/_doc/1\n{}", true), OpenSearchDsI18nKeys.OPENSEARCH_HTTP_ERROR);
@@ -138,7 +139,9 @@ public class OpenSearchSecurityTest {
         }
         stub.responder = exchange -> {
             OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-            if (meta != null) { return meta; }
+            if (meta != null) {
+                return meta;
+            }
             return OpenSearchHttpStub.json(200, "{\"count\":0}");
         };
         session.executeQuery(query("GET /books/_count", false), results.builder());
@@ -147,11 +150,8 @@ public class OpenSearchSecurityTest {
 
     @Test
     public void maskingRejectsUnsafeProjectionsAndMetadataBeforeAnyRequest() {
-        for (String command : List.of("GET /books", "GET /books/_mapping", "GET /books/_settings", "GET /books/_alias",
-            "GET /books/_search?stored_fields=secret", "GET /books/_doc/1?stored_fields=secret",
-            "GET /books/_search\n{\"aggs\":{\"x\":{\"terms\":{\"field\":\"secret\"}}}}",
-            "GET /books/_search\n{\"script_fields\":{\"copy\":{\"script\":{\"source\":\"1\"}}}}",
-            "GET /books/_search\n{\"highlight\":{\"fields\":{\"secret\":{}}}}")) {
+        for (String command : List
+            .of("GET /books", "GET /books/_mapping", "GET /books/_settings", "GET /books/_alias", "GET /books/_search?stored_fields=secret", "GET /books/_doc/1?stored_fields=secret", "GET /books/_search\n{\"aggs\":{\"x\":{\"terms\":{\"field\":\"secret\"}}}}", "GET /books/_search\n{\"script_fields\":{\"copy\":{\"script\":{\"source\":\"1\"}}}}", "GET /books/_search\n{\"highlight\":{\"fields\":{\"secret\":{}}}}")) {
             reject(query(command, true), OpenSearchDsI18nKeys.OPENSEARCH_MASKING_UNSUPPORTED);
         }
         assertTrue(stub.requests.isEmpty());
@@ -161,14 +161,18 @@ public class OpenSearchSecurityTest {
     public void unsafeNestedResponseFailsBeforeAnyRowsAndWriteMessagesDoNotEchoSource() {
         stub.responder = exchange -> {
             OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-            if (meta != null) { return meta; }
+            if (meta != null) {
+                return meta;
+            }
             return OpenSearchHttpStub.json(200, "{\"hits\":{\"hits\":[{\"_index\":\"books\",\"_id\":\"1\",\"_source\":{},\"inner_hits\":{\"secret\":\"value\"}}]}}");
         };
         reject(query("GET /books/_search", true), OpenSearchDsI18nKeys.OPENSEARCH_MASKING_UNSUPPORTED);
         assertTrue(results.rows.isEmpty());
         stub.responder = exchange -> {
             OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-            if (meta != null) { return meta; }
+            if (meta != null) {
+                return meta;
+            }
             return OpenSearchHttpStub.json(200, "{\"_index\":\"books\",\"result\":\"updated\",\"get\":{\"_source\":{\"secret\":\"value\"}}}");
         };
         session.executeQuery(query("POST /books/_update/1\n{\"doc\":{\"secret\":\"value\"},\"_source\":true}", true), results.builder());
@@ -183,7 +187,8 @@ public class OpenSearchSecurityTest {
             stub.responder = exchange -> {
                 if (exchange.getRequestURI().getPath().equals(endpoint)) {
                     if (endpoint.equals("/_index_template")) {
-                        return OpenSearchHttpStub.json(200, "{\"index_templates\":[{\"name\":\"t\",\"index_template\":{\"index_patterns\":[\"book*\"],\"composed_of\":[\"hidden-alias\"]}}]}");
+                        return OpenSearchHttpStub
+                            .json(200, "{\"index_templates\":[{\"name\":\"t\",\"index_template\":{\"index_patterns\":[\"book*\"],\"composed_of\":[\"hidden-alias\"]}}]}");
                     }
                     return OpenSearchHttpStub.json(200, "{\"legacy\":{\"index_patterns\":[\"*oks\"],\"aliases\":{\"other\":{}}}}");
                 }
@@ -203,7 +208,9 @@ public class OpenSearchSecurityTest {
                 return OpenSearchHttpStub.json(200, "{\"index_templates\":[{\"index_template\":{\"index_patterns\":[\"b.oks\"]}}]}");
             }
             OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-            if (meta != null) { return meta; }
+            if (meta != null) {
+                return meta;
+            }
             return OpenSearchHttpStub.json(200, "{\"acknowledged\":true}");
         };
         session.executeQuery(query("PUT /books\n{}", false), results.builder());
@@ -213,14 +220,18 @@ public class OpenSearchSecurityTest {
 
     @Test
     public void enabledSystemPipelinesAndMalformedSettingsFailClosed() {
-        for (String settings : List.of("{\"transient\":{},\"persistent\":{\"cluster.search.enabled_system_generated_factories\":[\"custom\"]},\"defaults\":{}}",
-            "{\"transient\":{},\"persistent\":{},\"defaults\":{\"cluster.search.enabled_system_generated_factories\":[\"*\"]}}", "{}")) {
+        for (String settings : List
+            .of("{\"transient\":{},\"persistent\":{\"cluster.search.enabled_system_generated_factories\":[\"custom\"]},\"defaults\":{}}", "{\"transient\":{},\"persistent\":{},\"defaults\":{\"cluster.search.enabled_system_generated_factories\":[\"*\"]}}", "{}")) {
             stub.responder = exchange -> {
-                if (exchange.getRequestURI().getPath().equals("/_cluster/settings")) { return OpenSearchHttpStub.json(200, settings); }
+                if (exchange.getRequestURI().getPath().equals("/_cluster/settings")) {
+                    return OpenSearchHttpStub.json(200, settings);
+                }
                 return OpenSearchHttpStub.metadata(exchange);
             };
             String key = OpenSearchDsI18nKeys.OPENSEARCH_IMPLICIT_RESOURCE_UNSUPPORTED;
-            if (settings.equals("{}")) { key = OpenSearchDsI18nKeys.OPENSEARCH_METADATA_INVALID; }
+            if (settings.equals("{}")) {
+                key = OpenSearchDsI18nKeys.OPENSEARCH_METADATA_INVALID;
+            }
             reject(query("GET /books/_search", false), key);
         }
         assertFalse(stub.requests.stream().anyMatch(r -> r.startsWith("GET /books/_search")));
@@ -230,10 +241,13 @@ public class OpenSearchSecurityTest {
     public void emptyTransientSystemPipelineListOverridesPersistentValue() {
         stub.responder = exchange -> {
             if (exchange.getRequestURI().getPath().equals("/_cluster/settings")) {
-                return OpenSearchHttpStub.json(200, "{\"transient\":{\"cluster.search.enabled_system_generated_factories\":[]},\"persistent\":{\"cluster.search.enabled_system_generated_factories\":[\"custom\"]},\"defaults\":{}}");
+                return OpenSearchHttpStub
+                    .json(200, "{\"transient\":{\"cluster.search.enabled_system_generated_factories\":[]},\"persistent\":{\"cluster.search.enabled_system_generated_factories\":[\"custom\"]},\"defaults\":{}}");
             }
             OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-            if (meta != null) { return meta; }
+            if (meta != null) {
+                return meta;
+            }
             return OpenSearchHttpStub.json(200, "{\"hits\":{\"hits\":[]}}");
         };
         session.executeQuery(query("GET /books/_search", true), results.builder());
@@ -261,7 +275,9 @@ public class OpenSearchSecurityTest {
                     return OpenSearchHttpStub.json(403, "{}");
                 }
                 OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-                if (meta != null) { return meta; }
+                if (meta != null) {
+                    return meta;
+                }
                 return OpenSearchHttpStub.json(200, "{\"hits\":{\"hits\":[]}}");
             };
             session.executeQuery(query("GET /books/_search", false), results.builder());

@@ -156,6 +156,16 @@ final class SrExplainBehaviorVisitor extends SrJobBehaviorVisitor {
     }
 
     @Override
+    public Void visitSimpleFunctionCall(SimpleFunctionCallContext ctx) {
+        if (!planning) {
+            return super.visitSimpleFunctionCall(ctx);
+        }
+
+        add(SplitQueryType.PERFORMANCE, BehaviorAction.CALL, object(TargetType.Function, ctx.qualifiedName()));
+        return visitChildren(ctx);
+    }
+
+    @Override
     public Void visitWindowFunction(WindowFunctionContext ctx) {
         Token function = ctx.getStart();
         add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, function, List.of(function.getText())));
@@ -173,8 +183,7 @@ final class SrExplainBehaviorVisitor extends SrJobBehaviorVisitor {
     @Override
     protected BehaviorRelation add(SplitQueryType type, BehaviorAction action, BehaviorObject subject, List<BehaviorObject> targets) {
         if (planning && subject != null && subject.getObjectType() == TargetType.Function && action == BehaviorAction.CALL) {
-            action = BehaviorAction.READ;
-            // Repeated lookups of the same function definition have one metadata dependency.
+            // Repeated planning calls keep one function dependency.
             for (BehaviorRelation existing : behavior().getRelations()) {
                 if (existing.getAction() == action && existing.getSubject().getObjectType() == TargetType.Function
                     && existing.getSubject().getObjectPath().equals(subject.getObjectPath()) && existing.getTarget().size() == targets.size()) {

@@ -1,0 +1,36 @@
+{
+  "description": "sqlserver function classifications used by split, behavior and authorization.",
+  "sources": ["https://learn.microsoft.com/en-us/sql/t-sql/functions/session-context-transact-sql", "https://learn.microsoft.com/en-us/sql/t-sql/functions/db-name-transact-sql", "https://learn.microsoft.com/en-us/sql/t-sql/functions/openrowset-bulk-transact-sql", "https://learn.microsoft.com/en-us/sql/t-sql/functions/metadata-functions-transact-sql"],
+  "metadataFunctions": [
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "names": ["DB_NAME", "DB_ID", "OBJECT_ID", "SESSION_CONTEXT", "CONTEXT_INFO", "XACT_STATE", "SUSER_SNAME", "USER_NAME", "ORIGINAL_LOGIN"]},
+    {"versions": ["2022"], "names": ["ASSEMBLYPROPERTY", "COLUMNPROPERTY", "CONNECTIONPROPERTY", "CURRENT_REQUEST_ID", "FILEGROUPPROPERTY", "FILEGROUP_ID", "FILEGROUP_NAME", "FILEPROPERTY", "FILEPROPERTYEX", "FILE_ID", "FILE_IDEX", "FILE_NAME", "FULLTEXTCATALOGPROPERTY", "FULLTEXTSERVICEPROPERTY", "INDEXKEY_PROPERTY", "IS_OBJECTSIGNED", "IS_SRVROLEMEMBER", "SCOPE_IDENTITY", "SESSIONPROPERTY", "USER_ID"]},
+    {"versions": ["2017", "2019", "2022", "2025"], "names": ["ASYMKEYPROPERTY", "CERTPROPERTY", "CURRENT_USER", "DATABASEPROPERTYEX", "IDENT_CURRENT", "INDEXPROPERTY", "IS_ROLEMEMBER", "LOGINPROPERTY", "OBJECTPROPERTY", "OBJECTPROPERTYEX", "OBJECT_DEFINITION", "OBJECT_NAME", "OBJECT_SCHEMA_NAME", "SERVERPROPERTY", "SESSION_USER", "SUSER_ID", "SUSER_NAME", "SUSER_SID", "SYMKEYPROPERTY", "SYSTEM_USER", "TYPEPROPERTY", "USER"]},
+    {"versions": ["2022", "2025"], "names": ["CURRENT_TIMEZONE", "CURRENT_TIMEZONE_ID"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "names": ["CURRENT_TRANSACTION_ID"]},
+    {"versions": [], "names": ["SESSION_ID"]},
+    {"versions": ["2025"], "names": ["VECTORPROPERTY"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "names": ["OPENROWSET", "CERTPRIVATEKEY"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "types": ["METADATA"], "names": ["DB_NAME", "DB_ID", "OBJECT_ID", "SESSION_CONTEXT", "CONTEXT_INFO", "XACT_STATE", "SUSER_SNAME", "USER_NAME", "ORIGINAL_LOGIN"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "types": ["DATA_IMPORT", "UNSAFE"], "names": ["OPENROWSET"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "types": ["ADMIN", "UNSAFE"], "names": ["CERTPRIVATEKEY"]},
+    {"versions": ["2022"], "types": ["METADATA"], "names": ["ASSEMBLYPROPERTY", "COLUMNPROPERTY", "CONNECTIONPROPERTY", "CURRENT_REQUEST_ID", "FILEGROUPPROPERTY", "FILEGROUP_ID", "FILEGROUP_NAME", "FILEPROPERTY", "FILEPROPERTYEX", "FILE_ID", "FILE_IDEX", "FILE_NAME", "FULLTEXTCATALOGPROPERTY", "FULLTEXTSERVICEPROPERTY", "INDEXKEY_PROPERTY", "IS_OBJECTSIGNED", "IS_SRVROLEMEMBER", "SCOPE_IDENTITY", "SESSIONPROPERTY", "USER_ID"]},
+    {"versions": ["2017", "2019", "2022", "2025"], "types": ["METADATA"], "names": ["ASYMKEYPROPERTY", "CERTPROPERTY", "CURRENT_USER", "DATABASEPROPERTYEX", "IDENT_CURRENT", "INDEXPROPERTY", "IS_ROLEMEMBER", "LOGINPROPERTY", "OBJECTPROPERTY", "OBJECTPROPERTYEX", "OBJECT_DEFINITION", "OBJECT_NAME", "OBJECT_SCHEMA_NAME", "SERVERPROPERTY", "SESSION_USER", "SUSER_ID", "SUSER_NAME", "SUSER_SID", "SYMKEYPROPERTY", "SYSTEM_USER", "TYPEPROPERTY", "USER"]},
+    {"versions": ["2022", "2025"], "types": ["METADATA"], "names": ["CURRENT_TIMEZONE", "CURRENT_TIMEZONE_ID"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "types": ["METADATA"], "names": ["CURRENT_TRANSACTION_ID"]},
+    {"versions": [], "types": ["METADATA"], "names": ["SESSION_ID"]},
+    {"versions": ["2025"], "types": ["METADATA"], "names": ["VECTORPROPERTY"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "action": "CALL", "targetType": "Catalog", "targetAction": "READ", "unsafe": false, "names": ["DB_NAME"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "action": "CALL", "targetType": "Catalog", "targetAction": "READ", "unsafe": false, "names": ["DB_ID"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "action": "CALL", "targetType": "Catalog", "targetAction": "READ", "unsafe": false, "names": ["OBJECT_ID"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "action": "CALL", "targetType": "ConfigKey", "targetAction": "READ", "unsafe": false, "names": ["SESSION_CONTEXT"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "action": "CALL", "targetType": "Session", "targetAction": "READ", "unsafe": false, "names": ["CONTEXT_INFO"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "action": "CALL", "targetType": "File", "targetAction": "READ", "unsafe": true, "names": ["OPENROWSET"]},
+    {"versions": ["2016", "2017", "2019", "2022", "2025"], "action": "CALL", "targetType": "Certificate", "targetAction": "READ", "unsafe": true, "names": ["CERTPRIVATEKEY"]}
+  ]
+}

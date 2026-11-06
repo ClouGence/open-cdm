@@ -329,12 +329,12 @@ export default {
   min-width: 112px;
   height: 48px;
   padding: 0 14px;
-  border: 1px solid #d8e4ef;
+  border: 1px solid var(--border-primary);
   border-radius: 7px;
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 700;
-  background: #fff;
+  background: var(--bg-card);
   cursor: pointer;
   transition:
     border-color 0.18s ease,
@@ -348,7 +348,7 @@ export default {
 
   &.is-selected {
     border-color: #13a86a;
-    background: #effbf5;
+    background: var(--success-bg);
     color: #0f9f55;
   }
 
@@ -377,7 +377,7 @@ export default {
   max-width: 720px;
   margin-top: 12px;
   padding-top: 18px;
-  border-top: 1px solid #edf2f7;
+  border-top: 1px solid var(--border-primary);
 }
 
 .im-test-result {
@@ -394,7 +394,7 @@ export default {
   max-width: 720px;
   margin-top: 28px;
   padding-top: 18px;
-  border-top: 1px solid #edf2f7;
+  border-top: 1px solid var(--border-primary);
 }
 
 .im-form-footer__right {

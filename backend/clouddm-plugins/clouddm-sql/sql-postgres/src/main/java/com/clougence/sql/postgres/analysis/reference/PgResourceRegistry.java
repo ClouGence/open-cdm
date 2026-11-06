@@ -33,6 +33,7 @@ public final class PgResourceRegistry {
     private static final String                                  BUILT_IN_FUNCTIONS     = "/META-INF/clougence/postgres-built-in-functions.json";
     private static final PgResourceRegistry                      INSTANCE               = new PgResourceRegistry();
 
+    private final VersionedResourceRegistry<Boolean>             privilegedFunctions    = new VersionedResourceRegistry<>(PgResourceDialect.INSTANCE);
     private final VersionedResourceRegistry<Boolean>             builtInFunctions       = new VersionedResourceRegistry<>(PgResourceDialect.INSTANCE);
     private final VersionedResourceRegistry<Boolean>             metadataFunctions      = new VersionedResourceRegistry<>(PgResourceDialect.INSTANCE);
     private final VersionedResourceRegistry<Set<SplitQueryType>> functionStatementTypes = new VersionedResourceRegistry<>(PgResourceDialect.INSTANCE);
@@ -48,8 +49,8 @@ public final class PgResourceRegistry {
         PgRegistryResourceLoader.loadBuiltInFunctions(PgResourceRegistry.class, BUILT_IN_FUNCTIONS, builtInFunctions);
         Set<String> registeredPerformanceRelations = new HashSet<>();
         Set<String> registeredSystemSchemas = new HashSet<>();
-        PgRegistryResourceLoader.loadAnalysisResources(PgResourceRegistry.class, ANALYSIS_RESOURCES, metadataFunctions,
-            functionStatementTypes, functionBehaviors, registeredPerformanceRelations, registeredSystemSchemas);
+        PgRegistryResourceLoader
+            .loadAnalysisResources(PgResourceRegistry.class, ANALYSIS_RESOURCES, metadataFunctions, privilegedFunctions, functionStatementTypes, functionBehaviors, registeredPerformanceRelations, registeredSystemSchemas);
         performanceRelations = Set.copyOf(registeredPerformanceRelations);
         systemSchemas = Set.copyOf(registeredSystemSchemas);
     }
@@ -64,6 +65,11 @@ public final class PgResourceRegistry {
 
     public boolean isSystemFunction(String schema, String functionName, PostgresVersion version) {
         return "pg_catalog".equals(normalizeIdentifier(schema)) && isSystemFunction(functionName, version);
+    }
+
+    public boolean isOrdinaryFunction(String functionName, PostgresVersion version) {
+        PgFunctionBehavior behavior = functionBehavior(List.of(functionName), version);
+        return behavior.action() == BehaviorAction.CALL && !privilegedFunctions.contains(FUNCTION, versionCode(version), functionName) && !behavior.unsafe();
     }
 
     public boolean isMetadataFunction(String functionName, PostgresVersion version) {

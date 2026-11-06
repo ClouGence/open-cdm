@@ -33,7 +33,7 @@ public class ModifyAuthForAppend {
 
     private List<String> authLabels;
 
-    private String       startTime;
+    private Long         startTimeMs;
 
-    private String       endTime;
+    private Long         endTimeMs;
 }

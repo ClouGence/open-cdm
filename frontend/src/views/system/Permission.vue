@@ -856,14 +856,12 @@ export default {
       );
     },
     renderAuthNode(node) {
-      const style = {
-        color: '#000'
-      };
+      const style = {};
       if (this.previewMode && node?.isLeaf) {
         if (node?.action === 'deletes') {
-          style.color = 'red';
+          style.color = 'var(--error-color)';
         } else if (node?.action === 'appends') {
-          style.color = 'green';
+          style.color = 'var(--success-color)';
         }
       }
       return (
@@ -1470,8 +1468,8 @@ export default {
           }
           const hasAuthList = [];
           hasAutn.data.forEach((authWrap) => {
-            if (authWrap.startTime) this.authTime.startTime = dayjs(authWrap.startTime);
-            if (authWrap.endTime) this.authTime.endTime = dayjs(authWrap.endTime);
+            if (authWrap.startTimeMs != null) this.authTime.startTime = dayjs(authWrap.startTimeMs);
+            if (authWrap.endTimeMs != null) this.authTime.endTime = dayjs(authWrap.endTimeMs);
             if (authWrap?.dsAuthKinds.length) hasAuthList.push(...authWrap.dsAuthKinds);
             if (!this.timeList[node.key]) {
               this.timeList[node.key] = [];
@@ -1482,8 +1480,8 @@ export default {
             if (!exists && allExistInFlatten) {
               this.timeList[node.key].push({
                 auths: authWrap?.dsAuthKinds,
-                startTime: authWrap.startTime ? dayjs(authWrap.startTime) : null,
-                endTime: authWrap.endTime ? dayjs(authWrap.endTime) : null,
+                startTime: authWrap.startTimeMs != null ? dayjs(authWrap.startTimeMs) : null,
+                endTime: authWrap.endTimeMs != null ? dayjs(authWrap.endTimeMs) : null,
                 level: authWrap.level
               });
             }
@@ -1985,8 +1983,8 @@ export default {
           if (authLabels.length > 0) {
             applyAuths.push({
               resPaths,
-              startTime: item?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
-              endTime: item?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
+              startTimeMs: item?.authTime?.startTime?.valueOf() ?? null,
+              endTimeMs: item?.authTime?.endTime?.valueOf() ?? null,
               authId: 1,
               resId,
               authLabels

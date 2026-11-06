@@ -7,6 +7,13 @@
     color: var(--text-primary);
   }
 
+  .ivu-btn[disabled],
+  .ant-btn[disabled] {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-disabled) !important;
+    border-color: var(--border-primary) !important;
+  }
+
   // Card styles
   .job-detail-wrapper,
   .job-detail-container,
@@ -184,6 +191,18 @@
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
 
+  .vl-overlay .vl-background {
+    background: var(--bg-primary);
+  }
+
+  .vl-overlay .vl-icon svg[stroke='#000'] {
+    stroke: var(--text-primary);
+  }
+
+  .vl-overlay .vl-icon svg[fill='#000'] {
+    fill: var(--text-primary);
+  }
+
   // Remove all inner table borders
   .ivu-table {
     // Remove all inner table borders
@@ -297,8 +316,8 @@
     }
 
     &-primary {
-      background-color: var(--primary-color) !important;
-      border-color: var(--primary-color) !important;
+      background-color: var(--primary-button-bg) !important;
+      border-color: var(--primary-button-bg) !important;
       color: #ffffff !important;
 
       span {
@@ -306,7 +325,7 @@
       }
 
       &.ivu-btn-ghost {
-        border-color: var(--primary-color) !important;
+        border-color: var(--primary-button-bg) !important;
         color: var(--primary-color) !important;
         background: transparent !important;
 
@@ -315,9 +334,9 @@
         }
 
         &:hover {
-          border-color: var(--primary-color) !important;
+          border-color: var(--primary-button-bg) !important;
           color: #ffffff !important;
-          background-color: var(--primary-color) !important;
+          background-color: var(--primary-button-bg) !important;
 
           span {
             color: #ffffff !important;
@@ -325,9 +344,12 @@
         }
       }
 
-      &:hover {
+      &:hover,
+      &:focus,
+      &:active {
         opacity: 0.92;
-        border-color: var(--primary-color) !important;
+        background-color: var(--primary-button-bg) !important;
+        border-color: var(--primary-button-bg) !important;
         color: #ffffff !important;
       }
     }
@@ -435,9 +457,9 @@
     &[disabled]:hover {
       background-color: var(--disabled-bg) !important;
       border-color: var(--border-primary) !important;
-      color: var(--text-disabled) !important;
+      color: var(--text-secondary) !important;
       cursor: not-allowed !important;
-      opacity: 0.6;
+      opacity: 1;
     }
   }
 
@@ -793,17 +815,6 @@
     color: var(--text-primary) !important;
   }
 
-  // Ensure that all p tags are displayed correctly in dark theme.
-  p {
-    color: var(--text-primary) !important;
-  }
-
-  // Ensure that all span tags are displayed correctly in dark theme.
-  // Exclude elements with inline styles to avoid overriding status colors and other special styles.
-  span:not([style*='color']) {
-    color: var(--text-primary) !important;
-  }
-
   // TableMapping Component Style
   .table-filter-nav-item {
     color: var(--text-primary) !important;
@@ -1126,9 +1137,14 @@
       }
 
       &-active {
-        background-color: var(--primary-color);
-        border-color: #ffffff !important;
+        background-color: var(--primary-button-bg) !important;
+        border-color: var(--primary-button-bg) !important;
         color: #ffffff !important;
+
+        &:hover {
+          background-color: var(--primary-button-bg) !important;
+          border-color: var(--primary-button-bg) !important;
+        }
       }
 
       a {
@@ -1284,6 +1300,59 @@
     background-color: var(--bg-tertiary);
     border-color: var(--border-primary);
     color: var(--text-primary);
+  }
+
+  .ivu-tag.ivu-tag-checked,
+  .ivu-tag.ivu-tag-primary {
+    background-color: var(--success-bg) !important;
+    border-color: color-mix(in srgb, var(--primary-color) 25%, var(--border-primary)) !important;
+    color: var(--primary-color) !important;
+
+    .ivu-tag-text,
+    .ivu-icon-ios-close {
+      color: inherit !important;
+    }
+  }
+
+  .ivu-tag.ivu-tag-error {
+    background-color: var(--error-bg) !important;
+    border-color: var(--error-color) !important;
+    color: var(--error-color) !important;
+
+    .ivu-tag-text {
+      color: inherit !important;
+    }
+  }
+
+  .ivu-tag.ivu-tag-warning {
+    background-color: var(--warning-bg) !important;
+    border-color: var(--warning-color) !important;
+    color: var(--warning-color) !important;
+
+    .ivu-tag-text {
+      color: inherit !important;
+    }
+  }
+
+  .ivu-tag.ivu-tag-success {
+    background-color: var(--success-bg) !important;
+    border-color: var(--success-color) !important;
+    color: var(--success-color) !important;
+
+    .ivu-tag-text {
+      color: inherit !important;
+    }
+  }
+
+  .ivu-modal-header-inner,
+  .ivu-modal-confirm-head-title,
+  .ivu-modal-confirm-body {
+    color: var(--text-primary);
+  }
+
+  .ivu-modal-header,
+  .ivu-modal-footer {
+    border-color: var(--border-primary);
   }
 
   // Partition Line
@@ -1542,18 +1611,20 @@
   .ant-switch {
     background-color: var(--text-disabled);
 
-    &-checked {
-      background-color: var(--primary-color);
+    &-checked:not([disabled]):not(.ivu-switch-disabled):not(.ant-switch-disabled) {
+      background-color: var(--primary-button-bg) !important;
+      border-color: var(--primary-button-bg) !important;
     }
 
     // Disabled switch
     &[disabled],
     &-disabled {
       background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
       cursor: not-allowed !important;
       opacity: 0.6;
 
-      &-checked {
+      &-checked:not([disabled]):not(.ivu-switch-disabled):not(.ant-switch-disabled) {
         background-color: var(--disabled-bg) !important;
         opacity: 0.6;
       }
@@ -1751,6 +1822,55 @@
         background-color: var(--bg-hover) !important;
       }
     }
+  }
+
+  .vtree-tree-node,
+  .vtree-tree-node__title {
+    color: var(--text-primary);
+  }
+
+  .vtree-tree-node__title:hover {
+    background-color: var(--bg-hover) !important;
+  }
+
+  .vtree-tree-node__title_selected,
+  .vtree-tree-node__title_selected:hover {
+    background-color: var(--bg-select) !important;
+  }
+
+  .vtree-tree-node__checkbox {
+    background-color: var(--bg-card) !important;
+    border-color: var(--text-tertiary) !important;
+  }
+
+  .vtree-tree-node__checkbox:hover,
+  .vtree-tree-node__checkbox:focus {
+    border-color: var(--primary-color) !important;
+  }
+
+  .vtree-tree-node__checkbox_checked,
+  .vtree-tree-node__checkbox_indeterminate,
+  .vtree-tree-node__checkbox_checked:hover,
+  .vtree-tree-node__checkbox_indeterminate:hover {
+    background-color: var(--primary-button-bg) !important;
+    border-color: var(--primary-button-bg) !important;
+  }
+
+  .vtree-tree-node__checkbox_disabled,
+  .vtree-tree-node__checkbox_disabled:hover {
+    background-color: var(--disabled-bg) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  .vtree-tree-node__checkbox_disabled.vtree-tree-node__checkbox_checked,
+  .vtree-tree-node__checkbox_disabled.vtree-tree-node__checkbox_indeterminate {
+    background-color: var(--primary-button-bg) !important;
+    border-color: var(--primary-button-bg) !important;
+  }
+
+  .vtree-tree-node__title_disabled,
+  .vtree-tree__empty-text_default {
+    color: var(--text-disabled);
   }
 
   .ant-tree,
@@ -3223,15 +3343,7 @@
   }
 
   .ivu-select-placeholder {
-    color: red !important;
-  }
-
-  .ivu-icon {
-    color: unset !important;
-
-    &:hover {
-      color: unset !important;
-    }
+    color: var(--text-tertiary) !important;
   }
 
   // ===== Authorization page: mask layer prevents white flicker =====
@@ -3554,11 +3666,7 @@
   span[style*='#ccc'],
   span[style*='#CCCCCC'],
   span[style*='rgb(204, 204, 204)'],
-  span[style*='rgb(204,204,204)'],
-  div[style*='#ccc'],
-  div[style*='#CCCCCC'],
-  div[style*='rgb(204, 204, 204)'],
-  div[style*='rgb(204,204,204)'] {
+  span[style*='rgb(204,204,204)'] {
     opacity: 0.5 !important;
     cursor: not-allowed !important;
   }
@@ -3659,5 +3767,405 @@
   .search-header {
     background: var(--bg-secondary) !important;
     border-bottom: 1px solid var(--border-primary) !important;
+  }
+
+  // Custom form controls do not inherit component-library surface styles.
+  .auth-container-wrapper .date-btns {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+
+    &:hover,
+    &.is-active {
+      border-color: var(--primary-button-bg) !important;
+      color: var(--primary-color) !important;
+    }
+
+    &.is-active {
+      background: var(--success-bg) !important;
+    }
+
+    &:disabled {
+      background: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-disabled) !important;
+    }
+  }
+
+  .add-datasource-card,
+  .datasource-config-layout,
+  .add-ds-ui-panel-preview,
+  .add-ds-name-form,
+  .release-flow-page,
+  .ssh-config-page,
+  .ssh-config-detail {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  .datasource-config-menu-child.active {
+    background: var(--bg-select) !important;
+    color: var(--primary-color) !important;
+  }
+
+  .add-datasource-type-card,
+  .release-flow-page .type-card,
+  .flow-create-type__option,
+  .flow-create-type__radio,
+  .notify-channel-btn {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .add-datasource-type-card:hover,
+  .add-datasource-type-card.active,
+  .release-flow-page .type-card:hover,
+  .release-flow-page .type-card.active,
+  .release-flow-page .channel-card.selected,
+  .flow-create-type__option--selected,
+  .flow-create-type__option--selected .flow-create-type__radio,
+  .notify-channel-btn.active {
+    background: var(--success-bg) !important;
+    border-color: var(--primary-button-bg) !important;
+    color: var(--primary-color) !important;
+    box-shadow: none !important;
+  }
+
+  .release-flow-page {
+    .page-section__title,
+    .panel-subheading {
+      color: var(--text-primary) !important;
+    }
+
+    .link-divider::before {
+      border-color: var(--border-primary) !important;
+    }
+
+    .link-divider span::before {
+      background: var(--success-bg) !important;
+    }
+
+    .link-divider span {
+      background: var(--bg-card) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--primary-color) !important;
+    }
+
+    .notice-section-label,
+    .subscription-title,
+    .field-label,
+    .flow-config-label,
+    .summary-title,
+    .summary-group h3,
+    .summary-row strong,
+    .work-order-config-value {
+      color: var(--text-primary) !important;
+    }
+
+    .flow-config-hint,
+    .init-radio-hint,
+    .summary-row,
+    .summary-subtitle {
+      color: var(--text-secondary) !important;
+    }
+
+    .release-config-section .ivu-select.ivu-select-disabled .ivu-select-selection,
+    .flow-notice-section .ivu-select-disabled .ivu-select-selection {
+      background: var(--disabled-bg) !important;
+      background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+    }
+
+    .flow-notice-section .ivu-select-disabled .ivu-select-placeholder,
+    .flow-notice-section .ivu-select-disabled .ivu-select-selected-value,
+    .flow-notice-section .ivu-select-disabled .ivu-select-input,
+    .flow-notice-section .ivu-select-disabled .ivu-select-arrow {
+      color: var(--text-disabled) !important;
+      -webkit-text-fill-color: var(--text-disabled) !important;
+    }
+
+    .subscription-row .ivu-switch-disabled {
+      background: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+    }
+  }
+
+  .ssh-config-list {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  .ssh-config-list__searchbar,
+  .ssh-config-detail__toolbar {
+    border-color: var(--border-primary) !important;
+  }
+
+  .ssh-config-item,
+  .ssh-basic-settings__title,
+  .certificate-input-field__drop-title {
+    color: var(--text-primary) !important;
+  }
+
+  .ssh-config-item:hover,
+  .ssh-config-item--active {
+    background: var(--bg-select) !important;
+    color: var(--primary-color) !important;
+  }
+
+  .ssh-config-item__meta,
+  .ssh-config-empty-list,
+  .ssh-config-empty-detail,
+  .certificate-input-field__tip {
+    color: var(--text-secondary) !important;
+  }
+
+  .ssh-private-key-textarea,
+  .certificate-input-field__textarea,
+  .maxcompute-endpoint-select,
+  .maxcompute-endpoint-menu {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .ssh-private-key-textarea:focus,
+  .certificate-input-field__textarea:focus,
+  .maxcompute-endpoint-select:hover,
+  .maxcompute-endpoint-select-opened {
+    border-color: var(--primary-button-bg) !important;
+  }
+
+  .ssh-private-key-textarea:disabled,
+  .maxcompute-endpoint-select-disabled {
+    background: var(--disabled-bg) !important;
+    color: var(--text-disabled) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  .maxcompute-endpoint-tabs {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  .maxcompute-endpoint-tab,
+  .maxcompute-endpoint-option {
+    color: var(--text-primary) !important;
+  }
+
+  .maxcompute-endpoint-tab-active,
+  .maxcompute-endpoint-option:hover,
+  .maxcompute-endpoint-option-selected {
+    background: var(--bg-select) !important;
+    color: var(--primary-color) !important;
+    box-shadow: none !important;
+  }
+
+  .certificate-input-field__error {
+    background: var(--error-bg) !important;
+    color: var(--error-color) !important;
+    border-color: var(--error-color) !important;
+  }
+
+  .driver-status-line,
+  .driver-status-line.is-checking,
+  .driver-status-line.is-ready,
+  .driver-status-line.is-downloading,
+  .driver-status-progress-circle::before {
+    background: var(--success-bg) !important;
+    border-color: color-mix(in srgb, var(--success-color) 30%, var(--border-primary)) !important;
+  }
+
+  .driver-status-line.is-unknown,
+  .driver-status-line.is-unprepared {
+    background: var(--warning-bg) !important;
+    border-color: color-mix(in srgb, var(--warning-color) 30%, var(--border-primary)) !important;
+  }
+
+  .driver-status-line.is-error {
+    background: var(--error-bg) !important;
+    border-color: color-mix(in srgb, var(--error-color) 30%, var(--border-primary)) !important;
+  }
+
+  .driver-status-resource {
+    color: var(--text-primary) !important;
+  }
+
+  .driver-status-line-detail,
+  .driver-status-line-detail-message {
+    color: var(--text-secondary) !important;
+  }
+
+  .driver-status-progress-text,
+  .driver-status-progress-circle-text {
+    color: var(--success-color) !important;
+  }
+
+  .driver-status-line.is-unknown .driver-status-progress-text,
+  .driver-status-line.is-unprepared .driver-status-progress-text {
+    color: var(--warning-color) !important;
+  }
+
+  .driver-status-line.is-error .driver-status-resource,
+  .driver-status-line.is-error .driver-status-progress-text,
+  .driver-status-line.is-error .driver-status-line-detail-message {
+    color: var(--error-color) !important;
+  }
+
+  .flow-config-section .config-list,
+  .flow-config-section .config-row {
+    background: var(--bg-card) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .flow-config-section .config-name,
+  .notify-config-modal,
+  .notify-config-label,
+  .notify-panel-title {
+    color: var(--text-primary) !important;
+  }
+
+  .flow-config-section .config-desc,
+  .notify-config-modal .service-label {
+    color: var(--text-secondary) !important;
+  }
+
+  .flow-config-section .config-status.success {
+    background: var(--success-bg) !important;
+    color: var(--success-color) !important;
+  }
+
+  .flow-config-section .config-status.muted {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-secondary) !important;
+  }
+
+  .callback-config-summary,
+  .config-modal-radio .ivu-radio-wrapper {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  .config-modal-radio .ivu-radio-wrapper-checked {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-button-bg) !important;
+    box-shadow: none !important;
+  }
+
+  .config-modal-radio .ivu-radio-wrapper-disabled {
+    background: var(--disabled-bg) !important;
+    color: var(--text-disabled) !important;
+  }
+
+  .batch-toolbar__button--add,
+  .batch-toolbar__button--delete {
+    background: var(--bg-secondary) !important;
+  }
+
+  .batch-inspector__header strong,
+  .batch-form-section h3 {
+    color: var(--text-primary) !important;
+  }
+
+  .batch-node__actions button:hover {
+    background: var(--bg-hover) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .ticket-detail-page {
+    .ticket-execution-status.is-FINISH,
+    .ticket-task-status.is-FINISH,
+    .analysis-item-status.status-finished {
+      background: var(--success-bg) !important;
+      color: var(--success-color) !important;
+    }
+
+    .ticket-execution-status.is-EXECUTING,
+    .ticket-task-status.is-EXECUTING {
+      background: color-mix(in srgb, var(--link-color) 12%, var(--bg-card)) !important;
+      color: var(--link-color) !important;
+    }
+
+    .ticket-execution-status.is-FAILED,
+    .ticket-execution-status.is-TERMINATION,
+    .ticket-task-status.is-FAILED,
+    .analysis-item-status.status-failed {
+      background: var(--error-bg) !important;
+      color: var(--error-color) !important;
+    }
+
+    .analysis-item-status.status-init {
+      background: var(--bg-tertiary) !important;
+      color: var(--text-secondary) !important;
+    }
+
+    .ticket-status-total:not(.analysis-status) {
+      background: var(--warning-bg) !important;
+      border-color: color-mix(in srgb, var(--warning-color) 30%, var(--border-primary)) !important;
+    }
+
+    .analysis-step.current-step {
+      background: var(--bg-select) !important;
+      border-color: var(--border-primary) !important;
+    }
+  }
+
+  .validation-content .rule-item {
+    background: var(--bg-card) !important;
+    border-color: var(--border-primary) !important;
+
+    .rule-name {
+      color: var(--text-primary) !important;
+    }
+
+    .lines-content {
+      background: var(--bg-tertiary) !important;
+      color: var(--text-secondary) !important;
+    }
+  }
+
+  .notify-config-title,
+  .callback-config-title,
+  .trigger-config-title,
+  .execution-config-title,
+  .config-section-heading,
+  .config-modal-label {
+    color: var(--text-primary) !important;
+  }
+
+  .config-modal-desc,
+  .notify-subscription-cell {
+    color: var(--text-secondary) !important;
+  }
+
+  .config-modal-list,
+  .config-modal-row,
+  .notify-subscription-grid,
+  .notify-subscription-cell {
+    border-color: var(--border-primary) !important;
+  }
+
+  .ivu-upload-drag {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+
+    &:hover,
+    &.ivu-upload-dragOver {
+      border-color: var(--primary-button-bg) !important;
+    }
+  }
+
+  .built-in-flow-icon,
+  .batch-node__level img[src='/dm.ico'] {
+    filter: brightness(0) invert(1);
+    opacity: 0.85;
+  }
+
+  .batch-form-section {
+    border-color: var(--border-primary) !important;
   }
 }

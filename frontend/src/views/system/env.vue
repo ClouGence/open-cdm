@@ -1066,7 +1066,7 @@ export default {
 }
 
 .ticket-type-card:disabled {
-  color: var(--text-disabled);
+  color: var(--text-secondary);
   background: var(--bg-secondary);
   cursor: not-allowed;
 }
@@ -1197,7 +1197,7 @@ export default {
 }
 
 .ticket-status-text-error {
-  color: var(--text-disabled);
+  color: var(--text-secondary);
 }
 
 .delete-tag {
@@ -1213,13 +1213,13 @@ export default {
 }
 
 .ticket-popover-label {
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--text-secondary);
   margin-right: 2px;
   text-align: right;
 }
 
 .ticket-popover-value {
-  color: rgba(0, 0, 0, 0.88);
+  color: var(--text-primary);
   word-break: break-all;
 
   &.deleted {
@@ -1241,7 +1241,7 @@ export default {
   }
 
   .ticket-status-text-error {
-    color: var(--text-disabled) !important;
+    color: var(--text-secondary) !important;
   }
 }
 </style>

@@ -521,7 +521,7 @@ export default {
 }
 
 .role-editor-section-title {
-  color: #17233d;
+  color: var(--text-primary);
   font-size: 18px;
   font-weight: 600;
   line-height: 24px;
@@ -530,7 +530,7 @@ export default {
 .role-basic-section {
   flex: 0 0 auto;
   padding-bottom: 20px;
-  border-bottom: 1px solid #edf0f5;
+  border-bottom: 1px solid var(--border-primary);
 
   .role-basic-header {
     display: flex;
@@ -555,7 +555,7 @@ export default {
     }
 
     :deep(.ivu-form-item-label) {
-      color: #253044;
+      color: var(--text-primary);
       font-size: 14px;
       font-weight: 600;
     }
@@ -602,7 +602,7 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: #253044;
+  color: var(--text-primary);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -612,9 +612,9 @@ export default {
   min-height: 0;
   overflow: hidden;
   padding: 0;
-  border: 1px solid #e5e8ef;
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--bg-card);
 }
 
 .role-auth-tree-shell {
@@ -628,8 +628,8 @@ export default {
   min-height: 0;
   overflow: auto;
   padding: 16px 12px;
-  border-right: 1px solid #edf0f5;
-  background: #ffffff;
+  border-right: 1px solid var(--border-primary);
+  background: var(--bg-card);
 }
 
 .role-auth-index-list {
@@ -647,7 +647,7 @@ export default {
   border-radius: 6px;
   padding: 7px 8px 7px 14px;
   background: transparent;
-  color: #4b5565;
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 13px;
   line-height: 18px;
@@ -661,8 +661,8 @@ export default {
 
   &:hover,
   &.active {
-    background: #effbf5;
-    color: #17233d;
+    background: var(--success-bg);
+    color: var(--text-primary);
   }
 
   &.active::before {
@@ -689,11 +689,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9ea7b4;
+  color: var(--text-tertiary);
 }
 
 :deep(.ant-tree) {
-  color: #253044;
+  color: var(--text-primary);
   font-size: 15px;
   line-height: 28px;
 }

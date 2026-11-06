@@ -26,6 +26,7 @@ public class GaussSqlPlugin implements DsPlugin {
 
     @Override
     public void loadPlugin(DsPluginBinder dsPlugin) {
+        dsPlugin.addGlobalSpi(new GaussSysObjectRegistrySpi());
         dsPlugin.bindGlobalI18n(GaussSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new GaussSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
     }

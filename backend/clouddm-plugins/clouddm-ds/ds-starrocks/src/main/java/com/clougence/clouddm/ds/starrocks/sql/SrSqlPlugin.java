@@ -28,5 +28,6 @@ public class SrSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(SrSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new SrSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new SrSysObjectRegistrySpi());
     }
 }

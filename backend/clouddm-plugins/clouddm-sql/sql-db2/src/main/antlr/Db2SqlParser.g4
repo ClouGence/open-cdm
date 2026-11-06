@@ -4619,7 +4619,7 @@ create_view_statement
     : CREATE or_replace? VIEW view_name ( column_name_list_paren
                                         | OF type_name (root_view_definition | subview_definition)
                                         )?
-            (WITH common_table_expression_list)? fullselect
+            AS (WITH common_table_expression_list)? fullselect
             create_view_seq*
     ;
 
@@ -5201,6 +5201,7 @@ expression
     : function_invocation
     | '(' expression_list ')'
     | constant_
+    | ('+' | '-') expression
     | expression '**' expression
     | expression ('*' | '/') expression
     | expression  '%' expression
@@ -5226,7 +5227,8 @@ expression
     ;
 
 function_invocation
-    : function_name '(' all_distinct? arg_list ')'
+    : function_name '(' (all_distinct? (arg_list | '*'))? ')'
+      (OVER '(' window_partition_clause? window_order_clause? window_aggregation_group_clause? ')')?
     ;
 
 all_distinct
@@ -5391,6 +5393,7 @@ expression_list_in_parentheses
 // ID
 id_
     : ID
+    | DOUBLE_QUOTE_ID
     | ACTIVE
     | ADDRESS
     | NAME
@@ -5518,7 +5521,62 @@ for_loop_name
     ;
 
 function_name
+    : function_name_part ('.' function_name_part)*
+    ;
+
+function_name_part
     : id_
+    | ASCII
+    | BIGINT
+    | BLOB
+    | CARDINALITY
+    | CHAR
+    | CLOB
+    | CONCAT
+    | COUNT
+    | DATE
+    | DAY
+    | DAYS
+    | DBCLOB
+    | DBPARTITIONNUM
+    | DEC
+    | DECFLOAT
+    | DECIMAL
+    | DOUBLE
+    | FIRST_VALUE
+    | FLOAT
+    | GRAPHIC
+    | GROUPING
+    | HOUR
+    | INSERT
+    | INT
+    | INTEGER
+    | LAST_VALUE
+    | LEFT
+    | LENGTH
+    | LOWER
+    | MAX
+    | MICROSECOND
+    | MINUTE
+    | MONTH
+    | NCHAR
+    | NCLOB
+    | NTH_VALUE
+    | NVARCHAR
+    | PARAMETER
+    | REAL
+    | REPEAT
+    | REPLACE
+    | RIGHT
+    | ROW_NUMBER
+    | SECOND
+    | SMALLINT
+    | TIME
+    | TIMESTAMP
+    | TRUNCATE
+    | VARCHAR
+    | VARGRAPHIC
+    | YEAR
     ;
 
 function_mapping_name

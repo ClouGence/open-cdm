@@ -28,5 +28,6 @@ public class ChSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(ChSqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new ChSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new ChSysObjectRegistrySpi());
     }
 }

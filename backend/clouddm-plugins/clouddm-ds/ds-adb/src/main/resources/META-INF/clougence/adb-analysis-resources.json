@@ -1,0 +1,17 @@
+{
+  "description": "adb function classifications for splitting, behavior analysis and permissions.",
+  "sources": ["https://www.alibabacloud.com/help/en/analyticdb/analyticdb-for-mysql/user-guide/configure-workload-management-rules", "https://static-aliyun-doc.oss-cn-hangzhou.aliyuncs.com/download%2Fpdf%2F122679%2F%25E8%25BF%259E%25E6%258E%25A5%25E6%2595%25B0%25E6%258D%25AE%25E5%25BA%2593_intl_zh-CN.pdf"],
+  "metadataFunctions": [
+    {"versions": ["3"], "names": ["VERSION", "CONNECTION_ID", "DATABASE", "SCHEMA", "CURRENT_USER", "USER"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["3"], "names": ["SLEEP"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["3"], "types": ["METADATA"], "names": ["VERSION", "CONNECTION_ID", "DATABASE", "SCHEMA", "CURRENT_USER", "USER"]},
+    {"versions": ["3"], "types": ["PERFORMANCE"], "names": ["SLEEP"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["3"], "action": "CALL", "targetType": "Instance", "targetAction": "READ", "unsafe": false, "names": ["VERSION"]}
+  ]
+}

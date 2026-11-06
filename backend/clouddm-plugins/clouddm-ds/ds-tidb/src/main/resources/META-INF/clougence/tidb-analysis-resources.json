@@ -1,0 +1,21 @@
+{
+  "description": "TiDB function classification consumed by split, behavior and permission registries.",
+  "sources": ["https://docs.pingcap.com/tidb/stable/miscellaneous-functions/", "https://docs.pingcap.com/tidb/stable/tidb-functions/", "https://docs.pingcap.com/tidb/stable/locking-functions/"],
+  "metadataFunctions": [
+    {"versions": ["8"], "names": ["TIDB_VERSION", "TIDB_CURRENT_TSO", "TIDB_IS_DDL_OWNER", "CURRENT_RESOURCE_GROUP"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["8"], "names": ["BENCHMARK", "GET_LOCK", "MASTER_POS_WAIT", "RELEASE_ALL_LOCKS", "RELEASE_LOCK", "SOURCE_POS_WAIT", "WAIT_FOR_EXECUTED_GTID_SET", "WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS", "NEXTVAL", "SETVAL", "TIDB_MVCC_INFO", "EMBED_TEXT"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["8"], "types": ["SESSION_LOCK"], "names": ["GET_LOCK", "RELEASE_LOCK", "RELEASE_ALL_LOCKS"]},
+    {"versions": ["8"], "types": ["PERFORMANCE"], "names": ["BENCHMARK"]},
+    {"versions": ["8"], "types": ["ADMIN_REPLICATION"], "names": ["MASTER_POS_WAIT", "SOURCE_POS_WAIT", "WAIT_FOR_EXECUTED_GTID_SET", "WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS"]},
+    {"versions": ["8"], "types": ["METADATA"], "names": ["TIDB_VERSION", "TIDB_CURRENT_TSO", "TIDB_IS_DDL_OWNER", "CURRENT_RESOURCE_GROUP"]},
+    {"versions": ["8"], "types": ["METADATA"], "names": ["TIDB_MVCC_INFO"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["8"], "action": "LOCK", "targetType": "Session", "targetAction": "LOCK", "unsafe": false, "names": ["GET_LOCK"]},
+    {"versions": ["8"], "action": "UNLOCK", "targetType": "Session", "targetAction": "UNLOCK", "unsafe": false, "names": ["RELEASE_LOCK", "RELEASE_ALL_LOCKS"]}
+  ]
+}

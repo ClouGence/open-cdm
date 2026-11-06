@@ -1,0 +1,14 @@
+{
+  "description": "Hologres product functions extending PostgreSQL.",
+  "sources": ["https://www.alibabacloud.com/help/en/hologres/developer-reference/general-purpose-aggregate-functions", "https://www.alibabacloud.com/help/en/hologres/user-guide/permission-query-functions"],
+  "notes": ["Version values identify major product families; minor and patch releases are not tracked."],
+  "entries": [
+    {"versions": [], "type": "FUNCTION", "name": ["approx_count_distinct"]},
+    {"versions": ["3"], "type": "FUNCTION", "name": ["approx_percentile"]},
+    {"versions": ["1", "2", "3"], "type": "FUNCTION", "name": ["hg_display_name_to_id"]},
+    {"versions": ["1", "2", "3"], "type": "FUNCTION", "name": ["max_by"]},
+    {"versions": ["1", "2", "3"], "type": "FUNCTION", "name": ["min_by"]},
+    {"versions": ["1", "2", "3"], "type": "FUNCTION", "name": ["uniq"]},
+    {"versions": ["1", "2", "3"], "type": "FUNCTION", "name": ["user_display_name"]}
+  ]
+}

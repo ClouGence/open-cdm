@@ -1272,8 +1272,8 @@ export default {
   border: 1px solid #e0e6ee;
   border-radius: 6px;
   padding: 0 12px;
-  background: #ffffff;
-  color: #1f2937;
+  background: var(--bg-card);
+  color: var(--text-primary);
   cursor: pointer;
   text-align: left;
   transition:
@@ -1283,13 +1283,13 @@ export default {
 
   &:hover {
     border-color: #41d28f;
-    background: #fbfffd;
+    background: var(--bg-hover);
     box-shadow: inset 0 0 0 1px #41d28f;
   }
 
   &.active {
     border-color: #18ae66;
-    background: #effbf5;
+    background: var(--sidebar-active-bg);
     box-shadow: inset 0 0 0 1px #18ae66;
   }
 }
@@ -1442,7 +1442,7 @@ export default {
   font-size: 14px;
   border-radius: 50%;
   top: -12px;
-  background: #ffffff;
+  background: var(--bg-card);
   text-align: center;
 }
 

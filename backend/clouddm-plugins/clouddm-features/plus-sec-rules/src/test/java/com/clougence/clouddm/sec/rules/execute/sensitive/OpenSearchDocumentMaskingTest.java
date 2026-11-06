@@ -42,8 +42,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OpenSearchDocumentMaskingTest {
     private SecValueProcessServiceProvider service;
-    private CheckerRule rule;
-    private QueryRequest query;
+    private CheckerRule                    rule;
+    private QueryRequest                   query;
     private final Map<String, ColMetaData> metadata = new LinkedHashMap<>();
 
     @Before
@@ -60,14 +60,14 @@ public class OpenSearchDocumentMaskingTest {
         config.setDsId(7);
         config.setDsType(DataSourceType.OpenSearch);
         config.setSenRuleList(List.of(rule));
-        ConfigService configs = (ConfigService) Proxy.newProxyInstance(ConfigService.class.getClassLoader(), new Class<?>[]{ConfigService.class}, (p, method, args) -> {
+        ConfigService configs = (ConfigService) Proxy.newProxyInstance(ConfigService.class.getClassLoader(), new Class<?>[] { ConfigService.class }, (p, method, args) -> {
             return switch (method.getName()) {
                 case "fetchSensitiveConfigByDs" -> config;
                 case "fetchDsLevelDef" -> List.of(UmiTypes.Instance, UmiTypes.Table);
                 default -> throw new AssertionError(method.getName());
             };
         });
-        CacheService cache = (CacheService) Proxy.newProxyInstance(CacheService.class.getClassLoader(), new Class<?>[]{CacheService.class}, (p, method, args) -> {
+        CacheService cache = (CacheService) Proxy.newProxyInstance(CacheService.class.getClassLoader(), new Class<?>[] { CacheService.class }, (p, method, args) -> {
             if (method.getName().equals("getObjectIfAbsent")) {
                 return ((EFunction<String, Object, Exception>) args[args.length - 1]).apply((String) args[0]);
             }
@@ -86,7 +86,9 @@ public class OpenSearchDocumentMaskingTest {
             column.setIndex(metadata.size());
             column.setJdbcType(JDBCType.VARCHAR);
             column.setColumnType("VARCHAR");
-            if (name.equals("_source")) { column.setColumnType(ColMetaData.JSON_DOCUMENT); }
+            if (name.equals("_source")) {
+                column.setColumnType(ColMetaData.JSON_DOCUMENT);
+            }
             metadata.put(name, column);
         }
     }

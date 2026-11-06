@@ -16,15 +16,18 @@
 package com.clougence.clouddm.ds.opensearch.execute;
 
 import static org.junit.Assert.*;
+
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import com.clougence.clouddm.ds.opensearch.dsconf.OpenSearchConfig;
 import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
 import com.clougence.clouddm.ds.opensearch.metadata.OpenSearchFieldType;
@@ -40,9 +43,9 @@ import com.clougence.sql.es.EsSqlI18nKeys;
 import com.clougence.sql.es.RestProduct;
 
 public class OpenSearchExecutionTest {
-    private OpenSearchHttpStub stub;
-    private OpenSearchSession session;
-    private OpenSearchConfig config;
+    private OpenSearchHttpStub         stub;
+    private OpenSearchSession          session;
+    private OpenSearchConfig           config;
     private RecordingOpenSearchResults results;
 
     @Before
@@ -56,21 +59,26 @@ public class OpenSearchExecutionTest {
 
     @After
     public void closeClient() {
-        if (session != null) { session.close(); }
-        if (stub != null) { stub.close(); }
+        if (session != null) {
+            session.close();
+        }
+        if (stub != null) {
+            stub.close();
+        }
     }
 
     @Test
     public void metadataListsOnlyConcreteIndicesAndPreservesOpenSearchFieldTypes() {
         stub.responder = exchange -> switch (exchange.getRequestURI().getPath()) {
-            case "/_resolve/index/*" -> OpenSearchHttpStub.json(200, "{\"indices\":[{\"name\":\"z-books\"},{\"name\":\"books\"},{\"name\":\".ds-logs\",\"data_stream\":\"logs\"}],\"aliases\":[{\"name\":\"alias\"}],\"data_streams\":[{\"name\":\"logs\"}]}");
+            case "/_resolve/index/*" -> OpenSearchHttpStub
+                .json(200, "{\"indices\":[{\"name\":\"z-books\"},{\"name\":\"books\"},{\"name\":\".ds-logs\",\"data_stream\":\"logs\"}],\"aliases\":[{\"name\":\"alias\"}],\"data_streams\":[{\"name\":\"logs\"}]}");
             case "/books" -> OpenSearchHttpStub.json(200, """
-                {"books":{"aliases":{},"settings":{"index":{"number_of_shards":"1"}},"mappings":{
-                  "properties":{"title":{"type":"text","fields":{"raw":{"type":"keyword"}}},
-                    "obj":{"properties":{"id":{"type":"unsigned_long"}}},"flat":{"type":"flat_object"},
-                    "vector":{"type":"knn_vector"},"unknown":{"type":"future_type"}},
-                  "derived":{"derived_value":{"type":"long","script":{"source":"emit(1)"}}}}}}
-                """);
+                    {"books":{"aliases":{},"settings":{"index":{"number_of_shards":"1"}},"mappings":{
+                      "properties":{"title":{"type":"text","fields":{"raw":{"type":"keyword"}}},
+                        "obj":{"properties":{"id":{"type":"unsigned_long"}}},"flat":{"type":"flat_object"},
+                        "vector":{"type":"knn_vector"},"unknown":{"type":"future_type"}},
+                      "derived":{"derived_value":{"type":"long","script":{"source":"emit(1)"}}}}}}
+                    """);
             default -> OpenSearchHttpStub.metadata(exchange);
         };
         var meta = session.getMetaService();
@@ -113,7 +121,7 @@ public class OpenSearchExecutionTest {
         respond(200, "{\"deleted\":2}");
         execute("POST /books/_delete_by_query?conflicts=proceed");
         assertTrue(stub.requests.contains("POST /books/_delete_by_query?conflicts=proceed\n"));
-        assertEquals(List.of(1L,2L), results.counts);
+        assertEquals(List.of(1L, 2L), results.counts);
         assertFalse(session.isExecuting());
         assertNull(session.getCurrentQueryId());
     }
@@ -147,9 +155,15 @@ public class OpenSearchExecutionTest {
         CountDownLatch release = new CountDownLatch(1);
         stub.responder = exchange -> {
             OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-            if (meta != null) { return meta; }
+            if (meta != null) {
+                return meta;
+            }
             arrived.countDown();
-            try { release.await(5, TimeUnit.SECONDS); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            try {
+                release.await(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
             return OpenSearchHttpStub.json(200, "{\"count\":0}");
         };
         var worker = Executors.newSingleThreadExecutor();
@@ -175,7 +189,11 @@ public class OpenSearchExecutionTest {
     public void overallDeadlineCoversPreflightAndLaterRequests() {
         config.setRequestTimeoutMs(150);
         stub.responder = exchange -> {
-            try { Thread.sleep(90); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            try {
+                Thread.sleep(90);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
             return OpenSearchHttpStub.metadata(exchange);
         };
         rejected("GET /books/_count", OpenSearchDsI18nKeys.OPENSEARCH_REQUEST_TIMEOUT);
@@ -192,7 +210,11 @@ public class OpenSearchExecutionTest {
         CountDownLatch release = new CountDownLatch(1);
         stub.responder = exchange -> {
             arrived.countDown();
-            try { release.await(5, TimeUnit.SECONDS); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            try {
+                release.await(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
             return OpenSearchHttpStub.metadata(exchange);
         };
         var worker = Executors.newSingleThreadExecutor();
@@ -270,7 +292,9 @@ public class OpenSearchExecutionTest {
     private void respond(int status, String body) {
         stub.responder = exchange -> {
             OpenSearchResponse meta = OpenSearchHttpStub.metadata(exchange);
-            if (meta != null) { return meta; }
+            if (meta != null) {
+                return meta;
+            }
             return OpenSearchHttpStub.json(status, body);
         };
     }

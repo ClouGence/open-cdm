@@ -1184,7 +1184,7 @@ export default {
   }
 
   // Icon Component Colour
-  .ivu-icon {
+  .user-center .ivu-icon {
     color: var(--text-secondary) !important;
 
     &:hover {

@@ -592,7 +592,6 @@ export default {
 
       setPageIcon(WEBSIDE_FAVICON);
       document.title = 'CloudDM';
-      this.$store.dispatch('setTheme', 'light');
       await this.applyCallbackQuery();
     }
   },
@@ -1073,6 +1072,7 @@ export default {
   }
 
   &.is-dark {
+    background-image: none;
     --login-ink: #f5f5f5;
     --login-muted: #9a9a9a;
     --login-hairline: #333333;

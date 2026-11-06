@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.Parser;
 
+import com.clougence.clouddm.ds.cockroachdb.sql.analysis.reference.CrdbResourceRegistry;
 import com.clougence.clouddm.ds.cockroachdb.sql.parser.CrdbDslProvider;
 import com.clougence.clouddm.ds.cockroachdb.sql.parser.CrdbSplitAnalysisSpi;
 import com.clougence.clouddm.ds.cockroachdb.sql.parser.CrdbSplitVisitor;
@@ -34,7 +35,8 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 public class CrdbBehaviorAnalysisSpi extends PgBehaviorAnalysisSpi {
     public CrdbBehaviorAnalysisSpi(PostgresVersion version){
-        super(new CrdbDslProvider(version), new CrdbSplitAnalysisSpi(version), CrdbSystemFunctions::contains, CrdbSplitVisitor::new);
+        super(new CrdbDslProvider(
+            version), new CrdbSplitAnalysisSpi(version), CrdbResourceRegistry.instance()::contains, CrdbResourceRegistry.instance()::pgFunctionBehavior, CrdbSplitVisitor::new);
     }
 
     @Override

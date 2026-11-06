@@ -36,8 +36,8 @@ import com.clougence.sql.iotdb.IotdbLanguageSpi;
 import com.clougence.sql.iotdb.IotdbSqlEngineSpi;
 
 @Plugin(name = "i18n::" + IotdbI18nKeys.PLUGIN_NAME_IOTDB, display = true, dsProduct = DataSourceType.IoTDB, includePackages = { "com.clougence.clouddm.ds.iotdb.execute.*",
-                                                                                                                                  "org.apache.iotdb.*", "org.apache.thrift.*",
-                                                                                                                                  "org.apache.tsfile.*", "org.antlr.v4.runtime.*" })
+                                                                                                                                 "org.apache.iotdb.*", "org.apache.thrift.*",
+                                                                                                                                 "org.apache.tsfile.*", "org.antlr.v4.runtime.*" })
 public class IotdbDsPlugin implements DsPlugin, SchemaPlugin {
 
     @Override

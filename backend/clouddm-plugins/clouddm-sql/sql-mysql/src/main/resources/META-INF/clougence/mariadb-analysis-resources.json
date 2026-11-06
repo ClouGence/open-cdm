@@ -1,0 +1,23 @@
+{
+  "description": "MariaDB-owned function classifications, independent of MySQL release compatibility.",
+  "sources": ["https://mariadb.com/docs/server/reference/sql-functions/secondary-functions/miscellaneous-functions/get_lock", "https://mariadb.com/docs/server/reference/sql-functions/string-functions/load_file", "https://mariadb.com/docs/server/reference/sql-functions/secondary-functions/miscellaneous-functions/sleep"],
+  "metadataFunctions": [
+    {"versions": ["10", "11", "12"], "names": ["VERSION", "DATABASE", "SCHEMA", "CONNECTION_ID", "CURRENT_USER", "USER"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["10", "11", "12"], "names": ["GET_LOCK", "RELEASE_LOCK", "RELEASE_ALL_LOCKS", "LOAD_FILE", "SLEEP", "BENCHMARK"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["10", "11", "12"], "types": ["SESSION_LOCK"], "names": ["GET_LOCK"]},
+    {"versions": ["10", "11", "12"], "types": ["SESSION_LOCK"], "names": ["RELEASE_LOCK", "RELEASE_ALL_LOCKS"]},
+    {"versions": ["10", "11", "12"], "types": ["DATA_IMPORT"], "names": ["LOAD_FILE"]},
+    {"versions": ["10", "11", "12"], "types": ["PERFORMANCE"], "names": ["SLEEP", "BENCHMARK"]},
+    {"versions": ["10", "11", "12"], "types": ["SESSION_SETTING_WRITE"], "names": ["LAST_INSERT_ID"]},
+    {"versions": ["10", "11", "12"], "types": ["METADATA"], "names": ["VERSION", "DATABASE", "SCHEMA", "CONNECTION_ID", "CURRENT_USER", "USER"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["10", "11", "12"], "action": "LOCK", "targetType": "Session", "targetAction": "LOCK", "unsafe": false, "names": ["GET_LOCK"]},
+    {"versions": ["10", "11", "12"], "action": "UNLOCK", "targetType": "Session", "targetAction": "UNLOCK", "unsafe": false, "names": ["RELEASE_LOCK", "RELEASE_ALL_LOCKS"]},
+    {"versions": ["10", "11", "12"], "action": "IMPORT", "targetType": "File", "targetAction": "READ", "unsafe": true, "names": ["LOAD_FILE"]}
+  ]
+}

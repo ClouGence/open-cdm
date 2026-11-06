@@ -1,5 +1,6 @@
 <template>
   <div class="app-user-actions" :class="[`app-user-actions--${placement}`, { 'app-user-actions--compact': compact }]">
+    <ThemeToggle />
     <template v-if="!isDesktop">
       <Tooltip v-if="placement === 'header'" :content="$t('wen-dang')" transfer placement="bottom">
         <button type="button" class="header-action-icon" @click="handleGoHelp('document')">
@@ -78,6 +79,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import LangSwitcher from '@/components/LangSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 import { LOGIN_TYPE } from '@/const';
 import { handleCopy } from '@/utils/clipboard';
 import { UPDATE_USERINFO } from '@/store/mutationTypes';
@@ -85,7 +87,7 @@ import { hasWebSocketInstance, webSocketClose } from '@/services/socket';
 
 export default {
   name: 'AppUserActions',
-  components: { LangSwitcher },
+  components: { LangSwitcher, ThemeToggle },
   props: {
     placement: {
       type: String,
@@ -290,5 +292,8 @@ export default {
     align-items: center;
     gap: 12px;
   }
+}
+[data-theme='dark'] .header-action-icon :deep(.icon-v2) {
+  filter: brightness(0) invert(1) !important;
 }
 </style>

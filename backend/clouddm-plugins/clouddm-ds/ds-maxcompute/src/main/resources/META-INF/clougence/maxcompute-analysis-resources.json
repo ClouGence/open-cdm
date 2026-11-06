@@ -1,0 +1,17 @@
+{
+  "description": "maxcompute function effects shared by statement classification, behavior analysis and authorization.",
+  "sources": ["https://www.alibabacloud.com/help/en/maxcompute/other-functions"],
+  "notes": ["These release-independent effect classifications do not establish function availability or grant permission exemptions."],
+  "metadataFunctions": [
+    {"names": ["GET_USER_ID"]}
+  ],
+  "privilegedFunctions": [
+    {"names": ["GET_USER_ID"]}
+  ],
+  "functionStatementTypes": [
+    {"types": ["METADATA"], "names": ["GET_USER_ID"]}
+  ],
+  "functionBehaviors": [
+    {"names": ["GET_USER_ID"], "action": "CALL", "targetType": "Instance", "targetAction": "READ"}
+  ]
+}

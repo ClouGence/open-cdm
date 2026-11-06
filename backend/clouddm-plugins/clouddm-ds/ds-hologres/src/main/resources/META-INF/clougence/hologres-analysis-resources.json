@@ -1,0 +1,18 @@
+{
+  "description": "hologres function classifications for split, behavior and authorization.",
+  "sources": ["https://www.alibabacloud.com/help/en/hologres/user-guide/permission-query-functions"],
+  "metadataFunctions": [
+    {"versions": ["1", "2", "3"], "names": ["user_display_name", "hg_display_name_to_id"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["1", "2", "3"], "names": ["apply_privileges"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["1", "2", "3"], "types": ["GRANT"], "names": ["apply_privileges"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["1", "2", "3"], "names": ["user_display_name", "hg_display_name_to_id"], "action": "CALL"},
+    {"versions": ["1", "2", "3"], "names": ["apply_privileges"], "action": "GRANT", "targetType": "Table", "targetAction": "GRANT", "unsafe": true}
+  ],
+  "notes": ["APPLY_PRIVILEGES copies privileges between two tables. Its destination is conservatively an unnamed schema table, with both GRANT and UNSAFE checks."]
+}

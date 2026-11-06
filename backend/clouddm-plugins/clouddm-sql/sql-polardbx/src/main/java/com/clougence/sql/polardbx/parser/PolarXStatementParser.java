@@ -24,9 +24,9 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.dslpaser.parse.AntlrStatementParser;
 import com.clougence.sql.polardbx.parser.antlr.PolardbXLexer;
 import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
-import com.clougence.dslpaser.parse.AntlrStatementParser;
 
 public class PolarXStatementParser implements AntlrStatementParser {
 

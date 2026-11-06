@@ -15,10 +15,9 @@
  */
 package com.clougence.clouddm.ds.opensearch.execute;
 
-import java.util.*;
-
 import java.nio.charset.StandardCharsets;
 import java.sql.JDBCType;
+import java.util.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.ds.opensearch.i18n.OpenSearchDsI18nKeys;
@@ -466,8 +465,7 @@ final class OpenSearchResultWriter {
                         JsonNode hitsTotal = response.path("hits").path("total");
                         if (hitsTotal.isIntegralNumber() && hitsTotal.canConvertToLong()) {
                             total = hitsTotal.longValue();
-                        } else if (hitsTotal.path("relation").asText().equals("eq") && hitsTotal.path("value").isIntegralNumber()
-                            && hitsTotal.path("value").canConvertToLong()) {
+                        } else if (hitsTotal.path("relation").asText().equals("eq") && hitsTotal.path("value").isIntegralNumber() && hitsTotal.path("value").canConvertToLong()) {
                             total = hitsTotal.path("value").longValue();
                         }
                         first = false;

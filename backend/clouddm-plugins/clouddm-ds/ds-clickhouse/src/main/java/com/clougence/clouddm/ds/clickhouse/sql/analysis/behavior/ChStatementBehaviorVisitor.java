@@ -25,6 +25,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.clickhouse.sql.analysis.reference.ChResourceRegistry;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParserBaseVisitor;
 import com.clougence.clouddm.ds.clickhouse.sql.parser.antlr.ClickHouseParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
@@ -168,30 +169,29 @@ class ChStatementBehaviorVisitor extends ClickHouseParserBaseVisitor<Void> {
 
     @Override
     public Void visitColumnExprFunction(ColumnExprFunctionContext ctx) {
-        add(SplitQueryType.SELECT, functionAction(ctx), objects.object(TargetType.Function, ctx.identifier(), List.of(name(ctx.identifier()))));
-        String function = name(ctx.identifier());
-        if (ChPlanningFunctions.readsSetting(function) && ctx.columnArgList() != null && !ctx.columnArgList().columnArgExpr().isEmpty()) {
-            ColumnExprContext argument = ctx.columnArgList().columnArgExpr(0).columnExpr();
-            if (argument instanceof ColumnExprLiteralContext literal && literal.literal().stringLiteral() != null) {
-                StringLiteralContext key = literal.literal().stringLiteral();
-                add(SplitQueryType.SESSION_VARIABLE_RW, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, key, name(key)));
-            } else if (argument != null) {
-                add(SplitQueryType.SESSION_VARIABLE_RW, BehaviorAction.READ, objects.instanceObject(TargetType.ConfigKey, argument));
+        BehaviorObject function = objects.object(TargetType.Function, ctx.identifier(), List.of(ctx.identifier().getText()));
+        if (functionAction(ctx) == BehaviorAction.CALL) {
+            ParserRuleContext argument = ctx;
+            if (ctx.columnArgList() != null && !ctx.columnArgList().columnArgExpr().isEmpty()) {
+                argument = ctx.columnArgList().columnArgExpr(0);
             }
+            objects.applyFunctionBehavior(behavior, function, ChResourceRegistry.instance().functionBehavior(ctx.identifier().getText()), argument);
+        } else {
+            add(SplitQueryType.SELECT, BehaviorAction.CALL, function);
         }
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitColumnExprWinFunction(ColumnExprWinFunctionContext ctx) {
-        add(SplitQueryType.SELECT, functionAction(ctx), objects.object(TargetType.Function, ctx.identifier(), List.of(name(ctx.identifier()))));
+        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, ctx.identifier(), List.of(ctx.identifier().getText())));
         return visitChildren(ctx);
     }
 
     @Override
     public Void visitColumnExprWinFunctionTarget(ColumnExprWinFunctionTargetContext ctx) {
         IdentifierContext function = ctx.identifier(0);
-        add(SplitQueryType.SELECT, functionAction(ctx), objects.object(TargetType.Function, function, List.of(name(function))));
+        add(SplitQueryType.SELECT, BehaviorAction.CALL, objects.object(TargetType.Function, function, List.of(function.getText())));
         return visitChildren(ctx);
     }
 

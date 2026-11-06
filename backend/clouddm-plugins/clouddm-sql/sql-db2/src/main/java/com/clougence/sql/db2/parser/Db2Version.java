@@ -32,7 +32,8 @@ public enum Db2Version {
         String value = version == null ? "" : version;
         for (Db2Version candidate : values()) {
             String major = Integer.toString(candidate.major);
-            if (value.equals(major) || value.startsWith(major + ".") || value.contains("v" + major + ".") || value.contains("V" + major + ".") || value.contains("SQL" + major)) {
+            if (value.equals(major) || value.startsWith(major + ".") || value.contains(" " + major + ".") || value.contains("v" + major + ".") || value.contains("V" + major + ".")
+                || value.contains("SQL" + major)) {
                 return candidate;
             }
         }

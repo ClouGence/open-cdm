@@ -566,7 +566,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
             if (StringUtils.equalsIgnoreCase("true", enable)) {
                 SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(ctx.getLevels().dsDO().getId());
-                SysObjectRegistrySpi registry = PluginManager.findSpi(SysObjectRegistrySpi.class, sqlEngine.name());
+                SysObjectRegistrySpi registry = PluginManager.findSysObjectRegistry(ctx.getLevels().dsDO().getDataSourceType(), sqlEngine.name());
                 boolean hasNonReadBehavior = BehaviorRelations.flattenResource(registry, parameters.version(), request.getRelations())
                     .stream()
                     .filter(behavior -> behavior.authKind() != null)
@@ -604,7 +604,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             BehaviorRequest denied = authResult.getDeniedRequests().get(0);
             String authLabel = denied.authKind().getAuthLabel();
             String authLabelI18n = DmI18nUtils.getMessage(authLabel);
-            String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), denied.resource().getObjectPath(), authLabelI18n);
+            String resourcePath = BehaviorRelations
+                .resourcePath(denied.resource(), DmDsUtils.currentResourcePath(ctx.getLevels().levelsParam()), DmDsUtils.instanceResourcePath(ctx.getLevels().levelsParam()));
+            String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NO_PERMISSION_MESSAGE.name(), resourcePath, authLabelI18n);
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
             consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
             consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
@@ -1279,7 +1281,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     }
                     consumer.accept(BuildResMsgUtils.buildConsoleMsg(queryDTO, message, MessageLevel.Info, true));
                 }
-            } else {
+            } else if (applyAutoCommit != null) {
                 this.queryService.commitSession(curUid, sessionId);
                 this.queryService.closeSession(curUid, sessionId);
 

@@ -3311,4 +3311,52 @@ export default {
     font-size: 12px;
   }
 }
+
+[data-theme='dark'] .flow-status-pill {
+  &.success {
+    color: var(--success-color);
+    background: var(--success-bg);
+  }
+
+  &.muted {
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+  }
+
+  &.danger {
+    color: var(--error-color);
+    background: var(--error-bg);
+  }
+}
+
+[data-theme='dark'] {
+  .flow-wrap,
+  .flow-wrap .flow-detail-content,
+  .flow-change-record-frame {
+    background: var(--bg-card);
+  }
+
+  .page-section__title,
+  .overview-flow-name,
+  .overview-meta-value,
+  .flow-summary-title {
+    color: var(--text-primary);
+  }
+
+  .overview-meta-label,
+  .flow-summary-label,
+  .flow-summary-description {
+    color: var(--text-secondary);
+  }
+
+  .detail-toolbar .detail-toolbar-btn:not(.detail-trigger-btn) {
+    background: var(--bg-secondary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+
+    :deep(span) {
+      color: inherit;
+    }
+  }
+}
 </style>

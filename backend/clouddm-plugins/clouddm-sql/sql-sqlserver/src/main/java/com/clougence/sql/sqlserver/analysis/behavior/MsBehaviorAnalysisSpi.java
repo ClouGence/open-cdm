@@ -24,6 +24,7 @@ import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.StatementBehavior;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -43,7 +44,13 @@ public class MsBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         if (Boolean.parseBoolean(this.parameters.get(SqlParserParameters.EXPECT_PLAN))) {
             behaviors.forEach(behavior -> {
                 behavior.setStatementType(SplitQueryType.SELECT);
-                behavior.getRelations().forEach(relation -> relation.setAction(BehaviorAction.READ));
+                behavior.getRelations().forEach(relation -> {
+                    if (relation.getSubject().getObjectType() == TargetType.Function) {
+                        relation.setAction(BehaviorAction.CALL);
+                    } else {
+                        relation.setAction(BehaviorAction.READ);
+                    }
+                });
             });
         }
         return behaviors.stream();
@@ -53,7 +60,7 @@ public class MsBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
         MsBehaviorParserVisitor[] holder = new MsBehaviorParserVisitor[1];
         DslHelper.doVisitor(MsSqlDslProvider.INSTANCE, queryReader, (lexer, parser) -> {
-            holder[0] = new MsBehaviorParserVisitor(parser, levels, baseLine, baseColumn);
+            holder[0] = new MsBehaviorParserVisitor(parser, levels, baseLine, baseColumn, !Boolean.parseBoolean(parameters.get(SqlParserParameters.EXPECT_PLAN)));
             return holder[0];
         });
         return holder[0].behaviors();

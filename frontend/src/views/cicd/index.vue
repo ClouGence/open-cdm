@@ -2120,4 +2120,25 @@ export default {
   font-weight: bold;
   justify-content: center;
 }
+
+[data-theme='dark'] .flow-product-icon {
+  filter: brightness(0) invert(1);
+}
+
+[data-theme='dark'] .flow-status-tag {
+  &.is-normal {
+    color: var(--success-color);
+    background: var(--success-bg);
+  }
+
+  &.is-archive {
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+  }
+
+  &.is-delete {
+    color: var(--error-color);
+    background: var(--error-bg);
+  }
+}
 </style>

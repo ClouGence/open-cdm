@@ -34,7 +34,7 @@ import com.clougence.utils.CollectionUtils;
  * The YashanDB data dictionary is broadly Oracle-compatible, but the columns of several views do not exactly
  * match Oracle (measured on YashanDB 23.4.7): {@code PRODUCT_COMPONENT_VERSION} and {@code ALL_MVIEW_LOGS} do
  * not exist; {@code ALL_TABLES} lacks the IOT / materialized-view-log columns; {@code ALL_VIEWS} lacks
- * {@code VIEW_TYPE}, {@code SUPERVIEW_NAME} and {@code EDITIONING_VIEW}; {@code DBA_TAB_COLS} lacks
+ * {@code VIEW_TYPE}, {@code SUPERVIEW_NAME} and {@code EDITIONING_VIEW}; {@code ALL_TAB_COLS} lacks
  * {@code CHARACTER_SET_NAME}; the length column of {@code ALL_MVIEWS} is {@code QYERT_LEN}; {@code ALL_SEQUENCES}
  * lacks {@code SESSION_FLAG} and {@code KEEP_VALUE}; and the maintained flag column is named
  * {@code DATABASE_MAINTAINED} instead of {@code ORACLE_MAINTAINED}.
@@ -49,27 +49,27 @@ import com.clougence.utils.CollectionUtils;
  */
 public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
 
-    private static final String YAS_TABLE   = "select TAB.OWNER,TAB.TABLE_NAME,TABLESPACE_NAME,TAB.TABLE_TYPE,TAB.LOG_TABLE,TAB.LOG_ROWIDS,TAB.LOG_PK,TAB.LOG_SEQ,COMMENTS,TAB.TEMPORARY,TAB.IOT_TYPE ,\n"
-                                              + "   TAB.STATUS as VALID_FLAG, TAB.CLUSTER_NAME, TAB.PCT_FREE, TAB.PCT_USED, TAB.INI_TRANS,TAB.MAX_TRANS, TAB.INITIAL_EXTENT, TAB.NEXT_EXTENT, TAB.MIN_EXTENTS, TAB.MAX_EXTENTS,\n"
-                                              + " PARTITIONED,  to_char(CREATED, 'yyyy-MM-dd HH24:MI:SS') as CREATE_TIME, to_char(LAST_DDL_TIME, 'yyyy-MM-dd HH24:MI:SS') as LAST_DDL_TIME from (\n"
-                                              + "  select OWNER,TABLE_NAME,TABLESPACE_NAME,'TABLE' TABLE_TYPE,null LOG_TABLE,null LOG_ROWIDS,null LOG_PK,null LOG_SEQ,TEMPORARY,null IOT_TYPE,\n"
-                                              + "   STATUS, null CLUSTER_NAME, PCT_FREE, null PCT_USED, INI_TRANS, MAX_TRANS, null INITIAL_EXTENT, null NEXT_EXTENT, null MIN_EXTENTS, null MAX_EXTENTS, PARTITIONED from SYS.ALL_TABLES\n"
-                                              + ") TAB\n"
-                                              + "left join SYS.ALL_TAB_COMMENTS on TAB.OWNER = SYS.ALL_TAB_COMMENTS.OWNER and TAB.TABLE_NAME = SYS.ALL_TAB_COMMENTS.TABLE_NAME and TAB.TABLE_TYPE = SYS.ALL_TAB_COMMENTS.TABLE_TYPE\n"
-                                              + "left join ALL_OBJECTS on TAB.OWNER = ALL_OBJECTS.OWNER and TAB.TABLE_NAME = ALL_OBJECTS.OBJECT_NAME and TAB.TABLE_TYPE = ALL_OBJECTS.OBJECT_TYPE";
+    private static final String YAS_TABLE       = "select TAB.OWNER,TAB.TABLE_NAME,TABLESPACE_NAME,TAB.TABLE_TYPE,TAB.LOG_TABLE,TAB.LOG_ROWIDS,TAB.LOG_PK,TAB.LOG_SEQ,COMMENTS,TAB.TEMPORARY,TAB.IOT_TYPE ,\n"
+                                                  + "   TAB.STATUS as VALID_FLAG, TAB.CLUSTER_NAME, TAB.PCT_FREE, TAB.PCT_USED, TAB.INI_TRANS,TAB.MAX_TRANS, TAB.INITIAL_EXTENT, TAB.NEXT_EXTENT, TAB.MIN_EXTENTS, TAB.MAX_EXTENTS,\n"
+                                                  + " PARTITIONED,  to_char(CREATED, 'yyyy-MM-dd HH24:MI:SS') as CREATE_TIME, to_char(LAST_DDL_TIME, 'yyyy-MM-dd HH24:MI:SS') as LAST_DDL_TIME from (\n"
+                                                  + "  select OWNER,TABLE_NAME,TABLESPACE_NAME,'TABLE' TABLE_TYPE,null LOG_TABLE,null LOG_ROWIDS,null LOG_PK,null LOG_SEQ,TEMPORARY,null IOT_TYPE,\n"
+                                                  + "   STATUS, null CLUSTER_NAME, PCT_FREE, null PCT_USED, INI_TRANS, MAX_TRANS, null INITIAL_EXTENT, null NEXT_EXTENT, null MIN_EXTENTS, null MAX_EXTENTS, PARTITIONED from SYS.ALL_TABLES\n"
+                                                  + ") TAB\n"
+                                                  + "left join SYS.ALL_TAB_COMMENTS on TAB.OWNER = SYS.ALL_TAB_COMMENTS.OWNER and TAB.TABLE_NAME = SYS.ALL_TAB_COMMENTS.TABLE_NAME and TAB.TABLE_TYPE = SYS.ALL_TAB_COMMENTS.TABLE_TYPE\n"
+                                                  + "left join ALL_OBJECTS on TAB.OWNER = ALL_OBJECTS.OWNER and TAB.TABLE_NAME = ALL_OBJECTS.OBJECT_NAME and TAB.TABLE_TYPE = ALL_OBJECTS.OBJECT_TYPE";
 
-    private static final String YAS_VIEW    = "select TAB.OWNER,TAB.TABLE_NAME,TABLESPACE_NAME,TAB.TABLE_TYPE,TAB.LOG_TABLE,TAB.LOG_ROWIDS,TAB.LOG_PK,TAB.LOG_SEQ,COMMENTS,TAB.TEMPORARY,TAB.SQL,\n"
-                                              + "  TAB.TEXT_LENGTH, TAB.SUPERVIEW_NAME, TAB.EDITIONING_VIEW, TAB.READ_ONLY,\n"
-                                              + "  to_char(CREATED, 'yyyy-MM-dd HH24:MI:SS') as CREATE_TIME,\n"
-                                              + "  to_char(LAST_DDL_TIME, 'yyyy-MM-dd HH24:MI:SS') as LAST_DDL_TIME,  status as VALID_FLAG from (\n"
-                                              + "  select OWNER,VIEW_NAME TABLE_NAME, TEXT SQL, null TABLESPACE_NAME,'VIEW' TABLE_TYPE,null LOG_TABLE,null LOG_ROWIDS,null LOG_PK,null LOG_SEQ, null TEMPORARY,\n"
-                                              + "  TEXT_LENGTH as TEXT_LENGTH, null SUPERVIEW_NAME, null EDITIONING_VIEW, READ_ONLY as READ_ONLY\n"
-                                              + "  from SYS.ALL_VIEWS) TAB\n"
-                                              + "left join SYS.ALL_TAB_COMMENTS on TAB.OWNER = SYS.ALL_TAB_COMMENTS.OWNER and TAB.TABLE_NAME = SYS.ALL_TAB_COMMENTS.TABLE_NAME and TAB.TABLE_TYPE = SYS.ALL_TAB_COMMENTS.TABLE_TYPE\n"
-                                              + "left join ALL_OBJECTS on TAB.OWNER = ALL_OBJECTS.OWNER and TAB.TABLE_NAME = ALL_OBJECTS.OBJECT_NAME and TAB.TABLE_TYPE = ALL_OBJECTS.OBJECT_TYPE";
+    private static final String YAS_VIEW        = "select TAB.OWNER,TAB.TABLE_NAME,TABLESPACE_NAME,TAB.TABLE_TYPE,TAB.LOG_TABLE,TAB.LOG_ROWIDS,TAB.LOG_PK,TAB.LOG_SEQ,COMMENTS,TAB.TEMPORARY,TAB.SQL,\n"
+                                                  + "  TAB.TEXT_LENGTH, TAB.SUPERVIEW_NAME, TAB.EDITIONING_VIEW, TAB.READ_ONLY,\n"
+                                                  + "  to_char(CREATED, 'yyyy-MM-dd HH24:MI:SS') as CREATE_TIME,\n"
+                                                  + "  to_char(LAST_DDL_TIME, 'yyyy-MM-dd HH24:MI:SS') as LAST_DDL_TIME,  status as VALID_FLAG from (\n"
+                                                  + "  select OWNER,VIEW_NAME TABLE_NAME, TEXT SQL, null TABLESPACE_NAME,'VIEW' TABLE_TYPE,null LOG_TABLE,null LOG_ROWIDS,null LOG_PK,null LOG_SEQ, null TEMPORARY,\n"
+                                                  + "  TEXT_LENGTH as TEXT_LENGTH, null SUPERVIEW_NAME, null EDITIONING_VIEW, READ_ONLY as READ_ONLY\n"
+                                                  + "  from SYS.ALL_VIEWS) TAB\n"
+                                                  + "left join SYS.ALL_TAB_COMMENTS on TAB.OWNER = SYS.ALL_TAB_COMMENTS.OWNER and TAB.TABLE_NAME = SYS.ALL_TAB_COMMENTS.TABLE_NAME and TAB.TABLE_TYPE = SYS.ALL_TAB_COMMENTS.TABLE_TYPE\n"
+                                                  + "left join ALL_OBJECTS on TAB.OWNER = ALL_OBJECTS.OWNER and TAB.TABLE_NAME = ALL_OBJECTS.OBJECT_NAME and TAB.TABLE_TYPE = ALL_OBJECTS.OBJECT_TYPE";
 
     /**
-     * YashanDB {@code DBA_TAB_COLS.DATA_TYPE} uses YashanDB's own type names
+     * YashanDB {@code ALL_TAB_COLS.DATA_TYPE} uses YashanDB's own type names
      * (BIGINT/TINYINT/DOUBLE/BOOLEAN/BIT/TIME/JSON), and the DATA_TYPE of view columns is even {@code UNKNOWN}.
      * None of these are covered by the Oracle family {@code OracleSqlTypes}; passing them straight to
      * {@code OracleSqlTypes.toOracleType(..)} throws UnsupportedOperationException (which is not swallowed by
@@ -88,24 +88,23 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
      * storage (a {@code BIT(64)} is reported as {@code RAW(8)}).
      * </p>
      */
-    private static final String YAS_DATA_TYPE
-            = "decode(COLS.DATA_TYPE," //
-              + "'BIGINT','NUMBER BIGINT'," //
-              + "'TINYINT','NUMBER BIGINT'," //
-              + "'DOUBLE','BINARY DOUBLE'," //
-              + "'BOOLEAN','PLSQL_BOOLEAN'," //
-              + "'BIT','RAW'," //
-              + "'TIME','DATE'," //
-              + "'JSON','CLOB'," //
-              + "'UNKNOWN','VARCHAR'," //
-              + "COLS.DATA_TYPE) as DATA_TYPE";
+    private static final String YAS_DATA_TYPE   = "decode(COLS.DATA_TYPE," //
+                                                  + "'BIGINT','NUMBER BIGINT'," //
+                                                  + "'TINYINT','NUMBER BIGINT'," //
+                                                  + "'DOUBLE','BINARY DOUBLE'," //
+                                                  + "'BOOLEAN','PLSQL_BOOLEAN'," //
+                                                  + "'BIT','RAW'," //
+                                                  + "'TIME','DATE'," //
+                                                  + "'JSON','CLOB'," //
+                                                  + "'UNKNOWN','VARCHAR'," //
+                                                  + "COLS.DATA_TYPE) as DATA_TYPE";
 
     /**
      * YashanDB stores the TIMESTAMP precision in {@code DATA_PRECISION} (Oracle stores it in
      * {@code DATA_SCALE}); align it to Oracle semantics here, otherwise {@code RdbColumn.datetimePrecision}
      * would be lost.
      */
-    private static final String YAS_DATA_SCALE = "case when COLS.DATA_TYPE like 'TIMESTAMP%' then COLS.DATA_PRECISION else COLS.DATA_SCALE end as DATA_SCALE";
+    private static final String YAS_DATA_SCALE  = "case when COLS.DATA_TYPE like 'TIMESTAMP%' then COLS.DATA_PRECISION else COLS.DATA_SCALE end as DATA_SCALE";
 
     /**
      * YashanDB reports {@code DATA_LENGTH} for BIT columns in <b>bits</b>, whereas the Oracle type it is
@@ -114,17 +113,16 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
      */
     private static final String YAS_DATA_LENGTH = "case when COLS.DATA_TYPE = 'BIT' then ceil(COLS.DATA_LENGTH/8) else COLS.DATA_LENGTH end as DATA_LENGTH";
 
-    private static final String YAS_COLUMNS = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME," + YAS_DATA_TYPE + ",COLS.DATA_TYPE_OWNER,COLS.COLUMN_ID," + YAS_DATA_LENGTH
-                                              + ",COLS.CHAR_LENGTH,COLS.DATA_PRECISION," + YAS_DATA_SCALE
-                                              + ",COLS.NULLABLE,null CHARACTER_SET_NAME,COLS.HIDDEN_COLUMN,COLS.VIRTUAL_COLUMN,COLS.IDENTITY_COLUMN,COMM.COMMENTS,COLS.DATA_DEFAULT from SYS.DBA_TAB_COLS COLS\n"
-                                              + "left join SYS.DBA_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME";
+    private static final String YAS_COLUMNS     = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME," + YAS_DATA_TYPE + ",COLS.DATA_TYPE_OWNER,COLS.COLUMN_ID," + YAS_DATA_LENGTH
+                                                  + ",COLS.CHAR_LENGTH,COLS.DATA_PRECISION," + YAS_DATA_SCALE
+                                                  + ",COLS.NULLABLE,null CHARACTER_SET_NAME,COLS.HIDDEN_COLUMN,COLS.VIRTUAL_COLUMN,COLS.IDENTITY_COLUMN,COMM.COMMENTS,COLS.DATA_DEFAULT from SYS.ALL_TAB_COLS COLS\n"
+                                                  + "left join SYS.ALL_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME";
 
-    private static final String YAS_MVIEWS  = "select TABLE_NAME, TABLE_TYPE, '' AS COMMENTS from (\n"
-                                              + "    select OWNER,MVIEW_NAME AS TABLE_NAME, 'MATERIALIZED' AS TABLE_TYPE from SYS.ALL_MVIEWS\n"
-                                              + ") TAB";
+    private static final String YAS_MVIEWS      = "select TABLE_NAME, TABLE_TYPE, '' AS COMMENTS from (\n"
+                                                  + "    select OWNER,MVIEW_NAME AS TABLE_NAME, 'MATERIALIZED' AS TABLE_TYPE from SYS.ALL_MVIEWS\n" + ") TAB";
 
     /** Whether to exclude database-maintained schemas from the schema list (YashanDB uses {@code DATABASE_MAINTAINED = 'Y'}). */
-    private final boolean excludeMaintainedSchemas;
+    private final boolean       excludeMaintainedSchemas;
 
     public YashanDBOracleMetaProviderDm(Connection connection){
         this(connection, true);
@@ -147,8 +145,8 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
     @Override
     public List<Value> selectSchemas() throws SQLException {
         // The maintained flag column of the YashanDB data dictionary is DATABASE_MAINTAINED (ORACLE_MAINTAINED on Oracle).
-        String sql = this.isExcludeMaintainedSchemas() ? "select USERNAME from SYS.ALL_USERS where DATABASE_MAINTAINED = 'N' order by USERNAME asc"
-                                                       : "select USERNAME from SYS.ALL_USERS order by USERNAME asc";
+        String sql = this
+            .isExcludeMaintainedSchemas() ? "select USERNAME from SYS.ALL_USERS where DATABASE_MAINTAINED = 'N' order by USERNAME asc" : "select USERNAME from SYS.ALL_USERS order by USERNAME asc";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             return OraMetaProviderUtils.convertSchema(rs);
         }
@@ -269,7 +267,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
     public Value loadJob(String schema, String leafName) throws SQLException {
         // YashanDB DBA_JOBS.JOB is a numeric column and needs an explicit conversion to avoid a type
         // conversion error caused by string comparison.
-        String sql = "select JOB,LOG_USER,SCHEMA_USER,LAST_DATE,NEXT_DATE,BROKEN,INTERVAL,FAILURES,WHAT from dba_Jobs where SCHEMA_USER = ? and JOB = TO_NUMBER(?)";
+        String sql = "select JOB,LOG_USER,SCHEMA_USER,LAST_DATE,NEXT_DATE,BROKEN,INTERVAL,FAILURES,WHAT from all_jobs where SCHEMA_USER = ? and JOB = TO_NUMBER(?)";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, schema);
             ps.setString(2, leafName);
@@ -306,9 +304,7 @@ public class YashanDBOracleMetaProviderDm extends OraMetaProviderDm {
         }
     }
 
-    protected boolean isExcludeMaintainedSchemas() {
-        return this.excludeMaintainedSchemas;
-    }
+    protected boolean isExcludeMaintainedSchemas() { return this.excludeMaintainedSchemas; }
 
     private void bindSchemaAndNames(PreparedStatement ps, String schema, List<String> names) throws SQLException {
         List<String> params = new ArrayList<>(names);

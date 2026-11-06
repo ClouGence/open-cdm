@@ -27,12 +27,14 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.ds.dameng.sql.analysis.reference.DmResourceRegistry;
 import com.clougence.clouddm.ds.dameng.sql.parser.DmSplitVisitor;
+import com.clougence.clouddm.ds.dameng.sql.parser.DmVersion;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParser;
 import com.clougence.clouddm.ds.dameng.sql.parser.antlr.DmSqlParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 final class DmBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     private final Map<UmiTypes, Object>   levels;
@@ -3876,7 +3878,8 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     } else {
                         TargetType type = TargetType.Table;
                         boolean systemNamespace = name.schema() == null || "SYS".equalsIgnoreCase(name.schema());
-                        if (systemNamespace && (name.name().toUpperCase(Locale.ROOT).startsWith("V$") || DmResourceRegistry.instance().isSystemView(name.name()))) {
+                        if (systemNamespace
+                            && (name.name().toUpperCase(Locale.ROOT).startsWith("V$") || DmResourceRegistry.instance().isSystemView(DmVersion.LATEST, name.name()))) {
                             type = TargetType.View;
                         }
                         addObject(result, object(type, table.qualifiedName(), schemaScoped(name)));
@@ -3933,13 +3936,21 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                 name = new NameParts(null, null, name.name());
                 nameContext = finalNamePart(context);
             }
-            BehaviorAction action = BehaviorAction.CALL;
-            if (name.catalog() == null && name.schema() == null) {
-                action = DmResourceRegistry.instance().functionBehavior(name.name());
-            } else if (name.catalog() == null) {
-                action = DmResourceRegistry.instance().functionBehavior(name.schema(), name.name());
+            boolean planning = false;
+            for (ParseTree parent = function.getParent(); parent != null; parent = parent.getParent()) {
+                if (parent instanceof DmSqlParser.ExplainStatementContext) {
+                    planning = true;
+                    break;
+                }
             }
-            SplitQueryType type = DmResourceRegistry.instance().functionType(name.name()).orElse(null);
+
+            FunctionBehavior classification = FunctionBehavior.DEFAULT;
+            if (localType == null && !planning) {
+                classification = DmResourceRegistry.instance().functionClassification(function.name.getText());
+            }
+
+            BehaviorAction action = classification.action();
+            SplitQueryType type = classification.statementTypes().stream().findFirst().orElse(null);
             if (type == null) {
                 type = switch (action) {
                     case CALL -> SplitQueryType.CALL_PROG_OBJ;
@@ -3950,21 +3961,50 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
                     default -> throw new IllegalStateException("unsupported functional function action " + action);
                 };
             }
+
             List<BehaviorObject> targets = new ArrayList<>();
-            OptionalInt configArgument = DmResourceRegistry.instance().functionConfigArgument(name.name());
-            if (configArgument.isPresent() && function.functionArguments() != null && configArgument.getAsInt() < function.functionArguments().functionArgument().size()) {
-                DmSqlParser.FunctionArgumentContext argument = function.functionArguments().functionArgument(configArgument.getAsInt());
+            int configArgument = switch (name.name().toUpperCase(Locale.ROOT)) {
+                case "SF_GET_PARA_DOUBLE_VALUE", "SF_GET_PARA_STRING_VALUE", "SF_GET_PARA_VALUE" -> 1;
+                case "SF_GET_SESSION_PARA_DOUBLE_VALUE", "SF_GET_SESSION_PARA_STRING_VALUE", "SF_GET_SESSION_PARA_VALUE" -> 0;
+                default -> -1;
+            };
+            if (classification.targetType() == TargetType.ConfigKey && configArgument >= 0 && function.functionArguments() != null
+                && configArgument < function.functionArguments().functionArgument().size()) {
+                DmSqlParser.FunctionArgumentContext argument = function.functionArguments().functionArgument(configArgument);
                 if (argument.expression() != null) {
                     Token key = stringArgument(List.of(argument.expression()), 0);
                     if (key != null) {
-                        addObject(targets, objects.instanceObject(TargetType.ConfigKey, key, stringValue(key)));
+                        String keyName = stringValue(key);
+                        BehaviorObject target = objects.instanceObject(TargetType.ConfigKey, key, keyName);
+                        target.setObjectName(new ObjectName(null, null, keyName));
+                        addObject(targets, target);
                     }
                 }
             }
-            addSystemFunctionTargets(targets, name, function);
-            BehaviorObject subject = localType == null ? routineObject(TargetType.Function, nameContext, name) : localMethodObject(TargetType.Function, nameContext, localType, name
-                .name());
-            add(type, action, subject, targets);
+            if (!planning) {
+                addSystemFunctionTargets(targets, name, function);
+            }
+            NameParts functionName = name;
+            if (nameContext == context && !packageMember && context.qualifiedName() != null) {
+                functionName = NameParts.from(context.qualifiedName(), true);
+            }
+
+            BehaviorObject subject;
+            if (localType == null) {
+                subject = routineObject(TargetType.Function, nameContext, functionName);
+            } else {
+                subject = localMethodObject(TargetType.Function, nameContext, localType, name.name());
+            }
+
+            if (classification.targetType() != null) {
+                int start = behavior.getRelations().size();
+                objects.applyFunctionBehavior(behavior, subject, classification, function);
+                if (!targets.isEmpty()) {
+                    behavior.getRelations().get(start + 1).setSubject(targets.get(0));
+                }
+            } else {
+                add(type, action, subject, targets);
+            }
         } else if (tree instanceof DmSqlParser.SpecialFunctionCallContext special) {
             Token name = special.getStart();
             NameParts local = new NameParts(null, null, NameParts.clean(name.getText()));
@@ -4107,7 +4147,9 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
     private void addSystemFunctionTargets(List<BehaviorObject> targets, NameParts name, DmSqlParser.FunctionCallContext function) {
         if (name.schema() == null && "SF_GET_SESSION_MPP_SELECT_LOCAL".equalsIgnoreCase(name.name())) {
-            addObject(targets, objects.instanceObject(TargetType.ConfigKey, function, "MPP_SELECT_LOCAL"));
+            BehaviorObject target = objects.instanceObject(TargetType.ConfigKey, function, "MPP_SELECT_LOCAL");
+            target.setObjectName(new ObjectName(null, null, "MPP_SELECT_LOCAL"));
+            addObject(targets, target);
             return;
         }
         if (function.functionArguments() == null) {
@@ -4316,10 +4358,23 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
         if (name == null) {
             return false;
         }
-        if (name.catalog() == null && name.schema() == null) {
-            return "USER".equalsIgnoreCase(name.name()) || DmResourceRegistry.instance().isNoParenthesesFunction(name.name());
+        if (name.catalog() != null) {
+            return false;
         }
-        return name.catalog() == null && name.schema() != null && DmResourceRegistry.instance().isNoParenthesesFunction(name.schema(), name.name());
+
+        String functionName = name.name();
+        if (name.schema() != null) {
+            functionName = name.schema() + "." + functionName;
+        }
+        return switch (functionName.toUpperCase(Locale.ROOT)) {
+            case "CURDATE", "CURTIME", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "DBTIMEZONE", "GETDATE", "LOCALTIME", "LOCALTIMESTAMP", "NOW", "SESSIONTIMEZONE",
+                    "SYSDATE", "SYSTIMESTAMP", "UID", "USER", "DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER", "DBMS_RANDOM.RANDOM", "DBMS_RANDOM.RANDOM_NORMAL", "DBMS_RANDOM.VALUE",
+                    "DBMS_SESSION.UNIQUE_SESSION_ID", "DBMS_SPACE.EXTENT_SIZE_GET", "DBMS_SPACE.PAGE_N_GET", "DBMS_SPACE.TS_ALL_GET", "DBMS_SPACE.TS_N_GET",
+                    "DBMS_UTILITY.FORMAT_CALL_STACK", "DBMS_UTILITY.FORMAT_ERROR_BACKTRACE", "DBMS_UTILITY.FORMAT_ERROR_STACK", "DBMS_UTILITY.GET_TIME",
+                    "DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT" ->
+                true;
+            default -> false;
+        };
     }
 
     private Set<String> cteNames(ParseTree tree) {
@@ -4552,12 +4607,17 @@ final class DmStatementBehaviorVisitor extends DmSqlParserBaseVisitor<Void> {
 
     private record NameParts(String catalog, String schema, String name) {
         private static NameParts from(DmSqlParser.QualifiedNameContext ctx) {
+            return from(ctx, false);
+        }
+
+        private static NameParts from(DmSqlParser.QualifiedNameContext ctx, boolean preserveQuotes) {
             if (ctx == null)
                 return new NameParts(null, null, null);
             List<String> parts = new ArrayList<>();
-            parts.add(clean(ctx.dottedName().identifier().getText()));
+            String first = ctx.dottedName().identifier().getText();
+            parts.add(preserveQuotes ? first : clean(first));
             for (DmSqlParser.DottedNamePartContext part : ctx.dottedName().dottedNamePart()) {
-                parts.add(clean(part.getText()));
+                parts.add(preserveQuotes ? part.getText() : clean(part.getText()));
             }
             return fromParts(parts);
         }

@@ -187,7 +187,7 @@ export default {
   min-height: 0;
   padding: 16px;
   overflow: auto;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .spec-rule-detail-layout {
@@ -201,8 +201,8 @@ export default {
 .spec-rule-config-card,
 .spec-rule-panel {
   min-width: 0;
-  background: #fff;
-  border: 1px solid #e5e6eb;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
 }
 
@@ -213,7 +213,7 @@ export default {
 
 .spec-rule-section-title,
 .spec-rule-panel-header {
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 16px;
   font-weight: 600;
 }
@@ -232,7 +232,7 @@ export default {
 
 .spec-rule-info-item dt {
   margin-bottom: 8px;
-  color: #5b667a;
+  color: var(--text-secondary);
   font-weight: 600;
   line-height: 22px;
 }
@@ -240,7 +240,7 @@ export default {
 .spec-rule-info-item dd {
   min-height: 32px;
   margin: 0;
-  color: #1f2937;
+  color: var(--text-primary);
   line-height: 22px;
   word-break: break-word;
 }
@@ -269,7 +269,7 @@ export default {
   align-items: center;
   height: 48px;
   padding: 0 18px;
-  border-bottom: 1px solid #e5e6eb;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .spec-rule-editor-content {
@@ -290,7 +290,7 @@ export default {
   align-items: center;
   justify-content: center;
   min-height: 58px;
-  color: #9aa3b2;
+  color: var(--text-tertiary);
 }
 
 @media (max-width: 1180px) {

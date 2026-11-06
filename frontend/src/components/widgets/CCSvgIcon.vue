@@ -31,4 +31,8 @@ export default {
   </svg>
 </template>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.svg-icon {
+  fill: currentColor;
+}
+</style>

@@ -15,14 +15,12 @@
  */
 package com.clougence.sql.hana.parser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
+
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.hana.analysis.reference.HanaResourceRegistry;
 import com.clougence.sql.hana.parser.antlr.HanaParser;
 import com.clougence.sql.hana.parser.antlr.HanaParserBaseVisitor;
 
@@ -34,6 +32,22 @@ final class HanaSplitVisitor extends HanaParserBaseVisitor<SplitQueryType> {
     private static final Set<String> DML               = Set.of("SELECT", "INSERT", "UPDATE", "DELETE", "MERGE");
 
     private static final Set<String> DATETIME_SETTINGS = Set.of("'DATE_FORMAT'", "'TIME_FORMAT'", "'SECONDDATE_FORMAT'", "'TIMESTAMP_FORMAT'");
+
+    void collectFunctionTypes(ParseTree tree, Set<SplitQueryType> types) {
+        if (tree instanceof HanaParser.CreateRoutineContext || tree instanceof HanaParser.CreateTriggerContext || tree instanceof HanaParser.ExplainStatementContext
+            || tree instanceof HanaParser.CreateViewContext) {
+            return;
+        }
+        if (tree instanceof HanaParser.FunctionCallContext function) {
+            types.addAll(HanaResourceRegistry.instance().functionBehavior(function.qualifiedName().getText(), null).statementTypes());
+        }
+        if (tree instanceof HanaParser.ContextFunctionContext function && tree.getParent() instanceof HanaParser.PrimaryContext) {
+            types.addAll(HanaResourceRegistry.instance().functionBehavior(function.getText(), null).statementTypes());
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            collectFunctionTypes(tree.getChild(i), types);
+        }
+    }
 
     private HanaSplitVisitor(){
     }

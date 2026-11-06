@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.Parser;
 
+import com.clougence.clouddm.ds.hologres.sql.analysis.reference.HgResourceRegistry;
 import com.clougence.clouddm.ds.hologres.sql.parser.HgPermissionCall;
 import com.clougence.clouddm.ds.hologres.sql.parser.HgSplitAnalysisSpi;
 import com.clougence.clouddm.ds.hologres.sql.parser.HgSplitVisitor;
@@ -33,7 +34,8 @@ import com.clougence.sql.postgres.parser.antlr.PgSqlParser;
 
 public class HgBehaviorAnalysisSpi extends PgBehaviorAnalysisSpi {
     public HgBehaviorAnalysisSpi(PostgresVersion version){
-        super(new PgDslProvider(version), new HgSplitAnalysisSpi(version), name -> false, HgSplitVisitor::new);
+        super(new PgDslProvider(
+            version), new HgSplitAnalysisSpi(version), HgResourceRegistry.instance()::contains, HgResourceRegistry.instance()::pgFunctionBehavior, HgSplitVisitor::new);
     }
 
     @Override

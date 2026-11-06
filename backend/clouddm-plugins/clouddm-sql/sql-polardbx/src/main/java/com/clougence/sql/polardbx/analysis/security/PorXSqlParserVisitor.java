@@ -28,8 +28,6 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
-import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
-import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
 import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
@@ -44,6 +42,8 @@ import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
 import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
 import com.clougence.sql.mysql.analysis.security.builder.enums.MyAttribute;
 import com.clougence.sql.mysql.analysis.security.domain.*;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParserBaseVisitor;
 
 public class PorXSqlParserVisitor extends PolardbXParserBaseVisitor<Void> {
 

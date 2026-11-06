@@ -23,12 +23,12 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import com.clougence.sql.polardbx.parser.PolarXDslProvider;
-import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteContext;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.parse.AstSplitScript;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
+import com.clougence.sql.polardbx.parser.antlr.PolardbXParser;
 
 public class PorXRewriteSpi implements RewriteSpi {
 

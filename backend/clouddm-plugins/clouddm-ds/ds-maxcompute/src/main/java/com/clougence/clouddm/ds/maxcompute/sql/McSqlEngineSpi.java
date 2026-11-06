@@ -32,6 +32,7 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 /** @author mode */
 public class McSqlEngineSpi implements SqlEngineSpi {
+
     public static final String        NAME = "MaxCompute SQL";
 
     private final SplitAnalysisSpi    splitAnalysisSpi;

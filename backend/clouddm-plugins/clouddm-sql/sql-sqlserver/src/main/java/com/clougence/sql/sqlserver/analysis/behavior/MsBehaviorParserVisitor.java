@@ -32,13 +32,15 @@ final class MsBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     private final Map<UmiTypes, Object>   levels;
     private final int                     baseLine;
     private final int                     baseColumn;
+    private final boolean                 executing;
     private final List<StatementBehavior> behaviors = new ArrayList<>();
 
-    MsBehaviorParserVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn){
+    MsBehaviorParserVisitor(Parser parser, Map<UmiTypes, Object> levels, int baseLine, int baseColumn, boolean executing){
         this.parser = parser;
         this.levels = levels;
         this.baseLine = baseLine;
         this.baseColumn = baseColumn;
+        this.executing = executing;
     }
 
     List<StatementBehavior> behaviors() {
@@ -47,7 +49,7 @@ final class MsBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
     @Override
     public Void visit(ParseTree tree) {
-        MsStatementBehaviorVisitor visitor = new MsStatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
+        MsStatementBehaviorVisitor visitor = new MsStatementBehaviorVisitor(parser, levels, baseLine, baseColumn, executing);
         visitor.analyze(tree);
         behaviors.add(visitor.behavior());
         return null;

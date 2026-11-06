@@ -18,6 +18,11 @@ package com.clougence.sql.hana.analysis;
 import java.util.*;
 import java.util.function.BiFunction;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
+
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.service.execute.MetaIndexedObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
@@ -28,14 +33,10 @@ import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.hana.analysis.reference.HanaResourceRegistry;
 import com.clougence.sql.hana.i18n.HanaSqlI18nKeys;
 import com.clougence.sql.hana.parser.antlr.HanaParser;
 import com.clougence.sql.hana.parser.antlr.HanaParserBaseVisitor;
-
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     private static final Comparator<BehaviorObject>                            SECURITY_SOURCE_ORDER = Comparator.comparingInt(BehaviorObject::getStartLine)
@@ -112,7 +113,6 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
         domain.setHasSelectAll(ctx.selectItem().stream().anyMatch(item -> item.STAR() != null));
         domain.setHasAs(ctx.selectItem().stream().anyMatch(item -> item.identifier() != null));
         domain.setSelectInSelect(ctx.selectItem().stream().anyMatch(item -> contains(item, HanaParser.QueryContext.class)));
-        domain.setFuncInSelect(ctx.selectItem().stream().anyMatch(item -> contains(item, HanaParser.FunctionCallContext.class)));
         domain.setSelectInFrom(contains(ctx.fromClause(), HanaParser.QueryContext.class));
         domain.setHasSubQuery(contains(ctx, HanaParser.QueryContext.class));
         if (ctx.fromClause() != null) {
@@ -142,11 +142,19 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
             .anyMatch(item -> descendants(item, HanaParser.AdditiveExpressionContext.class).stream().anyMatch(e -> e.multiplicativeExpression().size() > 1)
                               || descendants(item, HanaParser.MultiplicativeExpressionContext.class).stream().anyMatch(e -> e.unaryExpression().size() > 1)));
         domain.setSelectColumns(ctx.selectItem().stream().flatMap(item -> columnNamesIn(item).stream()).distinct().toList());
-        domain.setSelectFunc(ctx.selectItem()
-            .stream()
-            .flatMap(item -> descendants(item, HanaParser.FunctionCallContext.class).stream())
-            .map(f -> f.qualifiedName().getText())
-            .toList());
+        List<String> selectedFunctions = new ArrayList<>();
+        for (var item : ctx.selectItem()) {
+            for (var function : descendants(item, HanaParser.FunctionCallContext.class)) {
+                selectedFunctions.add(function.qualifiedName().getText());
+            }
+            for (var function : descendants(item, HanaParser.ContextFunctionContext.class)) {
+                if (function.getParent() instanceof HanaParser.PrimaryContext) {
+                    selectedFunctions.add(function.getText());
+                }
+            }
+        }
+        domain.setSelectFunc(selectedFunctions);
+        domain.setFuncInSelect(!selectedFunctions.isEmpty());
         domain.setSelectVariables(ctx.selectItem().stream().flatMap(item -> descendants(item, HanaParser.VariableContext.class).stream()).map(ParseTree::getText).toList());
         domain.setSelectValue(ctx.selectItem().stream().flatMap(item -> descendants(item, HanaParser.LiteralContext.class).stream()).map(ParseTree::getText).toList());
         configureWhere(domain, ctx.whereClause());
@@ -319,12 +327,42 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitContextFunction(HanaParser.ContextFunctionContext ctx) {
+        if (!(ctx.getParent() instanceof HanaParser.PrimaryContext)) {
+            return null;
+        }
+        BehaviorObject target = object(TargetType.Function, ctx, List.of(ctx.getText()));
+        if (executesFunction(ctx)) {
+            objects.applyFunctionBehavior(result.getBehavior(), target, HanaResourceRegistry.instance().functionBehavior(ctx.getText(), null), ctx);
+        } else {
+            addRelation(BehaviorAction.CALL, target);
+        }
+        RdbCallDomain domain = new RdbCallDomain();
+        configureName(domain, target);
+        domain.setFunc(true);
+        domain.setArgs(List.of());
+        domain.setEmptyArg(true);
+        addDomain(domain, RuleQueryType.CALL);
+        return null;
+    }
+
+    @Override
     public Void visitFunctionCall(HanaParser.FunctionCallContext ctx) {
         var function = ctx.qualifiedName();
-        if (!HanaSqlFunctions.isBuiltIn(function)) {
-            call(function, ctx.expression(), true);
-        }
+        call(function, ctx.expression(), true);
         return visitChildren(ctx);
+    }
+
+    private boolean executesFunction(ParseTree tree) {
+        if (explaining) {
+            return false;
+        }
+        for (ParseTree parent = tree.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof HanaParser.CreateRoutineContext || parent instanceof HanaParser.CreateTriggerContext || parent instanceof HanaParser.CreateViewContext) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void call(HanaParser.QualifiedNameContext name, List<HanaParser.ExpressionContext> args, boolean function) {
@@ -333,7 +371,23 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
             targetType = TargetType.Function;
         }
         BehaviorObject target = object(targetType, name);
-        addRelation(BehaviorAction.CALL, target);
+        if (function && executesFunction(name)) {
+            var classification = HanaResourceRegistry.instance().functionBehavior(name.getText(), null);
+            int start = result.getBehavior().getRelations().size();
+            objects.applyFunctionBehavior(result.getBehavior(), target, classification, name);
+            if (classification.targetType() == TargetType.ConfigKey && !args.isEmpty()) {
+                var argument = args.get(0);
+                Token token = argument.getStart();
+                if (token == argument.getStop() && token.getType() == HanaParser.STRING && !token.getText().contains("\\")) {
+                    String key = stringValue(token);
+                    BehaviorObject resource = objects.instanceObject(TargetType.ConfigKey, token, key);
+                    resource.setObjectName(new ObjectName(null, null, key));
+                    result.getBehavior().getRelations().get(start + 1).setSubject(resource);
+                }
+            }
+        } else {
+            addRelation(BehaviorAction.CALL, target);
+        }
         RdbCallDomain domain = new RdbCallDomain();
         configureName(domain, target);
         domain.setFunc(function);
@@ -1940,7 +1994,7 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
             }
         }
         for (var function : descendants(ctx, HanaParser.FunctionCallContext.class)) {
-            if (!HanaSqlFunctions.isBuiltIn(function.qualifiedName())) {
+            if (!HanaResourceRegistry.instance().isBuiltIn(function.qualifiedName())) {
                 references.add(object(TargetType.Function, function.qualifiedName()));
             }
         }
@@ -2766,6 +2820,9 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
     }
 
     private BehaviorObject object(TargetType type, HanaParser.QualifiedNameContext context) {
+        if (type == TargetType.Function) {
+            return object(type, context, context.identifier().stream().map(ParseTree::getText).toList());
+        }
         return object(type, context, names(context));
     }
 
@@ -2782,7 +2839,7 @@ final class HanaBehaviorParserVisitor extends HanaParserBaseVisitor<Void> {
 
     private BehaviorRelation addRelation(BehaviorAction action, BehaviorObject object) {
         BehaviorRelation relation = new BehaviorRelation();
-        if (explaining) {
+        if (explaining && object.getObjectType() != TargetType.Function) {
             action = BehaviorAction.READ;
         }
         relation.setAction(action);

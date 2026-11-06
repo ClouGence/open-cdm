@@ -25,6 +25,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.maxcompute.sql.analysis.reference.McResourceRegistry;
 import com.clougence.clouddm.ds.maxcompute.sql.parser.antlr.McParserParser;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
@@ -44,6 +45,9 @@ public class McSplitAnalysisSpi extends AbstractSplitAnalysisSpi {
 
     @Override
     protected SplitQueryType additionalType(ParseTree tree) {
+        if (tree instanceof McParserParser.Expr_funcContext function && function.ident() != null && !(function.getParent() instanceof McParserParser.Expr_dot_method_callContext)) {
+            return McResourceRegistry.instance().functionBehavior(function.ident().getText()).statementTypes().stream().findFirst().orElse(null);
+        }
         if (tree instanceof McParserParser.Select_stmtContext && hasDmlOwner(tree)) {
             return SplitQueryType.SELECT;
         }

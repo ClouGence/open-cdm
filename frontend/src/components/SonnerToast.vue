@@ -2,17 +2,17 @@
   <Sonner
     class="clouddm-toaster toaster group"
     position="bottom-right"
+    :theme="store.state.theme"
     :expand="false"
     close-button
     close-button-position="top-right"
     :close-button-aria-label="closeAriaLabel"
     :toast-options="{
       classes: {
-        toast:
-          'group toast group-[.toaster]:bg-white group-[.toaster]:text-[#171717] group-[.toaster]:border-[#dfdfdf] group-[.toaster]:shadow-lg group-[.toaster]:rounded-lg',
-        description: 'group-[.toast]:text-[#707070]',
+        toast: 'group toast clouddm-toast',
+        description: 'clouddm-toast-description',
         actionButton: 'group-[.toast]:bg-[#181d26] group-[.toast]:text-white',
-        cancelButton: 'group-[.toast]:bg-[#f5f5f5] group-[.toast]:text-[#707070]',
+        cancelButton: 'clouddm-toast-cancel',
         closeButton: 'sonner-close-button'
       }
     }"
@@ -56,7 +56,7 @@
     </template>
     <template #loading-icon>
       <svg class="size-5 animate-spin" viewBox="0 0 24 24" fill="none">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="#171717" stroke-width="4" />
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
         <path class="opacity-75" fill="#3ecf8e" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
       </svg>
     </template>
@@ -72,15 +72,22 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useStore } from 'vuex';
 import { Toaster as Sonner } from 'vue-sonner';
 import i18n from '@/i18n';
 
+const store = useStore();
 const closeAriaLabel = computed(() => i18n.global.t('guan-bi'));
 </script>
 
 <style>
 .clouddm-toaster [data-sonner-toast][data-styled='true'] {
   padding-right: 40px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+  box-shadow: var(--shadow-lg);
+  border-radius: 8px;
 }
 
 .clouddm-toaster [data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button {
@@ -100,11 +107,18 @@ const closeAriaLabel = computed(() => i18n.global.t('guan-bi'));
 }
 
 .clouddm-toaster [data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button:hover {
-  background: #f5f5f5;
-  color: #707070;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
 }
 
 .clouddm-toaster [data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button:focus-visible {
   box-shadow: 0 0 0 2px rgba(24, 29, 38, 0.12);
+}
+.clouddm-toast-description {
+  color: var(--text-secondary);
+}
+.clouddm-toast-cancel {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 </style>

@@ -28,5 +28,6 @@ public class AdsMySqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder dsPlugin) {
         dsPlugin.bindGlobalI18n(AdsMySqlI18nKeys.class);
         dsPlugin.addGlobalSpi(new AdsMySqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(new AdsMySysObjectRegistrySpi());
     }
 }

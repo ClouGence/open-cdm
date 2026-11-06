@@ -2483,8 +2483,8 @@ export default {
   display: flex;
   align-items: center;
   overflow: hidden;
-  color: rgba(0, 0, 0, 0.88);
-  background: #ffffff;
+  color: var(--text-primary);
+  background: var(--bg-primary);
   z-index: 9;
 }
 
@@ -2579,7 +2579,7 @@ export default {
   top: 0;
   height: 30px;
   z-index: 2;
-  background: #ffffff;
+  background: var(--bg-primary);
   padding-left: 8px;
   gap: 8px;
 
@@ -2669,7 +2669,7 @@ export default {
   .left {
     width: 280px;
     padding: 12px;
-    background: #fafafa;
+    background: var(--bg-secondary);
     border-radius: 8px;
   }
 

@@ -1873,4 +1873,7 @@ export default {
     background: var(--bg-primary);
   }
 }
+[data-theme='dark'] .data-source-toolbar-button :deep(svg) {
+  filter: brightness(0) invert(1);
+}
 </style>

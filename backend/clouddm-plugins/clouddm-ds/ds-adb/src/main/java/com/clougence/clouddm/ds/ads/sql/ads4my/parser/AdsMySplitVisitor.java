@@ -21,8 +21,10 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
+import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.reference.AdsMyResourceRegistry;
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.antlr.AdsMyParserBaseVisitor;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 public class AdsMySplitVisitor extends AdsMyParserBaseVisitor<SplitQueryType> {
 
@@ -290,6 +292,10 @@ public class AdsMySplitVisitor extends AdsMyParserBaseVisitor<SplitQueryType> {
 
     @Override
     public SplitQueryType visitSimpleSelect(SimpleSelectContext ctx) {
+        SplitQueryType type = functionStatementType(ctx);
+        if (type != null) {
+            return type;
+        }
         return SplitQueryType.SELECT;
     }
 
@@ -583,6 +589,27 @@ public class AdsMySplitVisitor extends AdsMyParserBaseVisitor<SplitQueryType> {
     @Override
     public SplitQueryType visitLoadDataStatement(LoadDataStatementContext ctx) {
         return SplitQueryType.DATA_IMPORT;
+    }
+
+    private SplitQueryType functionStatementType(ParseTree tree) {
+        if (tree instanceof FunctionCallContext function) {
+            FunctionBehavior classification = FunctionBehavior.DEFAULT;
+            if (!(function instanceof UdfFunctionCallContext udf) || udf.customFunctionName().fullId().uid().size() == 1) {
+                classification = AdsMyResourceRegistry.instance()
+                    .functionClassification(function.getStart().getText(), function.getRuleContext(FunctionArgsContext.class, 0) != null);
+            }
+
+            if (!classification.statementTypes().isEmpty()) {
+                return classification.statementTypes().iterator().next();
+            }
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            SplitQueryType type = functionStatementType(tree.getChild(i));
+            if (type != null) {
+                return type;
+            }
+        }
+        return null;
     }
 
     public SplitQueryType visitChildren(RuleNode node) {

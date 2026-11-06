@@ -17,6 +17,7 @@ package com.clougence.sql.postgres.parser;
 
 /** PostgreSQL grammar compatibility levels supported by the parser. */
 public enum PostgresVersion {
+    POSTGRES_11(11),
     POSTGRES_12(12),
     POSTGRES_13(13),
     POSTGRES_14(14),
@@ -28,7 +29,7 @@ public enum PostgresVersion {
     public static final PostgresVersion LATEST = values()[values().length - 1];
 
     /**
-     * Parse a version string (e.g. "12", "13", "14", "15", "16", "17", "18") to a {@link PostgresVersion}.
+     * Parse a version string (e.g. "11", "12", "13", "14", "15", "16", "17", "18") to a {@link PostgresVersion}.
      * Returns {@link #LATEST} if the string is null, blank, or does not match any known version.
      */
     public static PostgresVersion parse(String version) {

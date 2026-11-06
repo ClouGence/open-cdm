@@ -18,11 +18,11 @@ package com.clougence.sql.polardbx.analysis.security;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
-import com.clougence.sql.polardbx.parser.PolarXDslProvider;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.sql.mysql.analysis.security.MySecDomainResolveSpi;
 import com.clougence.sql.mysql.analysis.security.builder.MyBuilderFactory;
+import com.clougence.sql.polardbx.parser.PolarXDslProvider;
 
 public class PorXSecDomainResolveSpi extends MySecDomainResolveSpi {
 

@@ -24,12 +24,14 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import com.clougence.clouddm.ds.ads.sql.ads4my.analysis.reference.AdsMyResourceRegistry;
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.antlr.AdsMyParserBaseVisitor;
 import com.clougence.clouddm.ds.ads.sql.ads4my.parser.antlr.AdsMyParser.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.common.analysis.behavior.RdbBehaviorObjectFactory;
+import com.clougence.sql.common.registry.FunctionBehavior;
 
 final class AdsMyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
 
@@ -54,6 +56,7 @@ final class AdsMyBehaviorParserVisitor extends AbstractParseTreeVisitor<Void> {
     public Void visit(ParseTree tree) {
         AdsMyStatementBehaviorVisitor visitor = new AdsMyStatementBehaviorVisitor(parser, levels, baseLine, baseColumn);
         visitor.visit(tree);
+        visitor.scanFunctionCalls(tree);
         behaviors.add(visitor.behavior());
         return null;
     }
@@ -73,6 +76,46 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
 
     StatementBehavior behavior() {
         return behavior;
+    }
+
+    @Override
+    public Void visitSimpleSelect(SimpleSelectContext ctx) {
+        if (behavior.getStatementType() == SplitQueryType.UNKNOWN) {
+            behavior.setStatementType(SplitQueryType.SELECT);
+        }
+        return visitChildren(ctx);
+    }
+
+    void scanFunctionCalls(ParseTree tree) {
+        if (behavior.getStatementType() == SplitQueryType.CREATE_PROG_OBJ || behavior.getStatementType() == SplitQueryType.ALTER_PROG_OBJ) {
+            return;
+        }
+
+        boolean deferred = !descendants(tree, FullDescribeStatementContext.class).isEmpty() || !descendants(tree, CreateViewContext.class).isEmpty()
+                           || !descendants(tree, AlterViewContext.class).isEmpty();
+        for (FunctionCallContext ctx : descendants(tree, FunctionCallContext.class)) {
+            BehaviorObject subject;
+            FunctionBehavior classification = FunctionBehavior.DEFAULT;
+            if (ctx instanceof UdfFunctionCallContext udf) {
+                subject = object(TargetType.Function, udf.customFunctionName().fullId());
+                if (udf.customFunctionName().fullId().uid().size() == 1) {
+                    classification = AdsMyResourceRegistry.instance()
+                        .functionClassification(udf.customFunctionName().getText(), !descendants(ctx, FunctionArgContext.class).isEmpty());
+                }
+            } else {
+                if (ctx instanceof SpecificFunctionCallContext specific
+                    && (specific.specificFunction() instanceof CaseFunctionCallContext || specific.specificFunction() instanceof SpecialTimeCallContext
+                        || specific.specificFunction() instanceof ValuesFunctionCallContext)) {
+                    continue;
+                }
+                subject = objects.object(TargetType.Function, ctx.getStart(), List.of(ctx.getStart().getText()));
+                classification = AdsMyResourceRegistry.instance().functionClassification(ctx.getStart().getText(), !descendants(ctx, FunctionArgContext.class).isEmpty());
+            }
+            if (deferred) {
+                classification = FunctionBehavior.DEFAULT;
+            }
+            objects.applyFunctionBehavior(behavior, subject, classification, ctx);
+        }
     }
 
     @Override
@@ -127,7 +170,12 @@ final class AdsMyStatementBehaviorVisitor extends AdsMyParserBaseVisitor<Void> {
         }
         List<String> names = new ArrayList<>();
         for (UidContext uid : context.uid()) {
-            names.add(unquote(text(uid)));
+            String name = text(uid);
+            if (type != TargetType.Function) {
+                name = unquote(name);
+            }
+
+            names.add(name);
         }
         return objects.object(type, context, names);
     }

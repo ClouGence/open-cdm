@@ -29,7 +29,7 @@ final class EsQueryReferences {
     private static final Set<String>     AGGREGATIONS  = Set
         .of("avg", "sum", "min", "max", "value_count", "cardinality", "stats", "extended_stats", "percentiles", "percentile_ranks", "median_absolute_deviation", "weighted_avg", "boxplot", "string_stats", "geo_bounds", "geo_centroid", "terms", "multi_terms", "rare_terms", "significant_terms", "significant_text", "histogram", "date_histogram", "auto_date_histogram", "range", "date_range", "ip_range", "missing", "nested", "reverse_nested", "global", "sampler", "diversified_sampler", "geohash_grid", "geotile_grid", "geo_distance", "composite", "filter", "filters", "adjacency_matrix", "top_hits", "top_metrics", "bucket_sort", "bucket_selector", "bucket_script", "avg_bucket", "sum_bucket", "min_bucket", "max_bucket", "stats_bucket", "extended_stats_bucket", "percentiles_bucket", "derivative", "cumulative_sum", "serial_diff", "moving_fn");
     private final String                 index;
-    private final RestApiProfile profile;
+    private final RestApiProfile         profile;
     private final List<EsIndexReference> reads         = new ArrayList<>();
 
     private boolean                      pageable      = true;
@@ -38,7 +38,7 @@ final class EsQueryReferences {
         this(index, RestApiProfile.from(null));
     }
 
-    EsQueryReferences(String index, RestApiProfile profile) {
+    EsQueryReferences(String index, RestApiProfile profile){
         this.index = index;
         this.profile = profile;
     }

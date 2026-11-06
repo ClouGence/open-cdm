@@ -17,9 +17,10 @@ package com.clougence.sql.doris.analysis.reference;
 
 import static com.clougence.sql.common.registry.RegisteredResourceType.FUNCTION;
 
-import java.util.Set;
-
+import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
+import com.clougence.sql.common.registry.FunctionBehavior;
 import com.clougence.sql.common.registry.VersionedFunctionCatalogLoader;
 import com.clougence.sql.common.registry.VersionedResourceRegistry;
 import com.clougence.sql.doris.parser.DorisVersion;
@@ -27,21 +28,20 @@ import com.clougence.sql.doris.parser.DorisVersion;
 /** Doris-owned resource facts shared by split and behavior analysis. */
 public final class DrResourceRegistry {
 
-    private static final String                      BUILT_IN_FUNCTIONS = "/META-INF/clougence/doris-built-in-functions.txt";
-    private static final DrResourceRegistry          INSTANCE           = new DrResourceRegistry();
+    private static final String                               ANALYSIS_RESOURCES = "/META-INF/clougence/doris-analysis-resources.json";
+    private static final String                               BUILT_IN_FUNCTIONS = "/META-INF/clougence/doris-built-in-functions.json";
+    private static final DrResourceRegistry                   INSTANCE           = new DrResourceRegistry();
 
-    private final VersionedResourceRegistry<Boolean> builtInFunctions   = new VersionedResourceRegistry<>(DrResourceDialect.INSTANCE);
-    private final Set<String>                        importTableFunctions;
-    private final Set<String>                        externalFileTableFunctions;
+    private final VersionedResourceRegistry<FunctionBehavior> analysis           = new VersionedResourceRegistry<>(DrResourceDialect.INSTANCE);
+    private final VersionedResourceRegistry<Boolean>          builtInFunctions   = new VersionedResourceRegistry<>(DrResourceDialect.INSTANCE);
 
     public static DrResourceRegistry instance() {
         return INSTANCE;
     }
 
     private DrResourceRegistry(){
-        VersionedFunctionCatalogLoader.load(DrResourceRegistry.class, BUILT_IN_FUNCTIONS, builtInFunctions);
-        importTableFunctions = Set.of("file", "s3", "hdfs", "local", "http", "azure", "gcs", "jdbc", "odbc");
-        externalFileTableFunctions = Set.of("file", "s3", "hdfs", "local", "http", "azure", "gcs");
+        VersionedFunctionCatalogLoader.loadAnalysisResources(DrResourceRegistry.class, ANALYSIS_RESOURCES, analysis, version -> DorisVersion.parse(version).ordinal() + 1);
+        VersionedFunctionCatalogLoader.load(DrResourceRegistry.class, BUILT_IN_FUNCTIONS, builtInFunctions, version -> DorisVersion.parse(version).ordinal() + 1);
     }
 
     public String normalizeIdentifier(String identifier) {
@@ -49,7 +49,13 @@ public final class DrResourceRegistry {
     }
 
     public boolean isSystemFunction(String functionName) {
-        return builtInFunctions.contains(FUNCTION, versionCode(DorisVersion.LATEST), functionName);
+        return builtInFunctions.contains(FUNCTION, DorisVersion.LATEST.ordinal() + 1, functionName);
+    }
+
+    public boolean isSystemFunction(String name, String version) {
+        DorisVersion release = DorisVersion.parse(version);
+        FunctionBehavior rule = functionBehavior(name);
+        return !rule.privileged() && !rule.unsafe() && rule.action() == BehaviorAction.CALL && builtInFunctions.contains(FUNCTION, release.ordinal() + 1, name);
     }
 
     public boolean isUserDefinedFunction(String functionName, boolean qualified) {
@@ -57,18 +63,30 @@ public final class DrResourceRegistry {
     }
 
     public SplitQueryType functionStatementType(String functionName, boolean qualified) {
+        if (!qualified) {
+            FunctionBehavior rule = functionBehavior(functionName);
+            if (!rule.statementTypes().isEmpty()) {
+                return rule.statementTypes().iterator().next();
+            }
+        }
         return isUserDefinedFunction(functionName, qualified) ? SplitQueryType.CALL_PROG_OBJ : null;
     }
 
     public boolean isImportTableFunction(String functionName) {
-        return importTableFunctions.contains(normalizeIdentifier(functionName));
+        return functionBehavior(functionName).statementTypes().contains(SplitQueryType.DATA_IMPORT);
     }
 
     public boolean isExternalFileTableFunction(String functionName) {
-        return externalFileTableFunctions.contains(normalizeIdentifier(functionName));
+        return functionBehavior(functionName).targetType() == TargetType.File;
     }
 
-    private static int versionCode(DorisVersion version) {
-        return Integer.parseInt((version == null ? DorisVersion.LATEST : version).versionString());
+    public FunctionBehavior functionBehavior(String name) {
+        if (name == null) {
+            return FunctionBehavior.DEFAULT;
+        }
+        if (name.indexOf('.') >= 0 || name.startsWith("\"") || name.startsWith("[")) {
+            return FunctionBehavior.DEFAULT;
+        }
+        return analysis.find(FUNCTION, DorisVersion.LATEST.ordinal() + 1, name).orElse(FunctionBehavior.DEFAULT);
     }
 }

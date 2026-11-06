@@ -25,7 +25,8 @@ public enum SqlServerVersion {
     MSSQL_2016(13, 2016),
     MSSQL_2017(14, 2017),
     MSSQL_2019(15, 2019),
-    MSSQL_2022(16, 2022);
+    MSSQL_2022(16, 2022),
+    MSSQL_2025(17, 2025);
 
     public static final SqlServerVersion LATEST = values()[values().length - 1];
 
@@ -39,6 +40,7 @@ public enum SqlServerVersion {
 
     public static SqlServerVersion parse(String version) {
         String value = version == null ? "" : version.trim();
+        value = value.replaceFirst("^Microsoft SQL Server ([0-9]{4})(?:\\s.*)?$", "$1");
         int end = 0;
         while (end < value.length() && Character.isDigit(value.charAt(end))) {
             end++;

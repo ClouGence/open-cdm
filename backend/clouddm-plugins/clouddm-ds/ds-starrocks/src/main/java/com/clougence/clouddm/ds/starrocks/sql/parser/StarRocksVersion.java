@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.ds.starrocks.sql.parser;
 
-/** StarRocks grammar compatibility levels supported by the parser. */
+/** StarRocks grammar compatibility levels and registered function releases. */
 public enum StarRocksVersion {
     SR_1(1),
     SR_2(2),
@@ -31,8 +31,12 @@ public enum StarRocksVersion {
         this.major = major;
     }
 
+    public String versionString() {
+        return Integer.toString(this.major);
+    }
+
     public static StarRocksVersion parse(String version) {
-        String value = version == null ? "" : version;
+        String value = version == null ? "" : version.trim();
         int start = 0;
         while (start < value.length() && !Character.isDigit(value.charAt(start))) {
             start++;
@@ -41,22 +45,17 @@ public enum StarRocksVersion {
         while (end < value.length() && Character.isDigit(value.charAt(end))) {
             end++;
         }
-        int major = -1;
         if (start < end) {
             try {
-                major = Integer.parseInt(value.substring(start, end));
+                int major = Integer.parseInt(value.substring(start, end));
+                for (StarRocksVersion candidate : values()) {
+                    if (candidate.major == major) {
+                        return candidate;
+                    }
+                }
             } catch (NumberFormatException ignored) {
             }
         }
-        for (StarRocksVersion candidate : values()) {
-            if (candidate.major == major) {
-                return candidate;
-            }
-        }
         return LATEST;
-    }
-
-    public String versionString() {
-        return Integer.toString(this.major);
     }
 }

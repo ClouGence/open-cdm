@@ -3,9 +3,12 @@
     <div class="operator-character">
       <div class="left">
         <div class="operator-btn-group">
-          <Button size="small" type="primary" :disabled="isRunning" :loading="tab.running" @click="handleRun('run')">
+          <Button size="small" type="primary" :disabled="isRunning" :aria-busy="tab.running" @click="handleRun('run')">
             <div class="operator-btn-content">
-              <CustomIcon v-if="!tab.running" type="icon-v2-ConsoleRun" :color="tab.running ? '#999' : '#fff'" size="14px" right-margin="4px" />
+              <span class="operator-action-icon">
+                <LoadingOutlined v-if="tab.running" spin />
+                <CustomIcon v-else type="icon-v2-ConsoleRun" size="14px" />
+              </span>
               <span>{{ $t('zhi-hang') }}</span>
             </div>
           </Button>
@@ -15,15 +18,12 @@
               <span>{{ $t('zhi-hang-ji-hua') }}</span>
             </div>
           </Button>
-          <Button size="small" v-if="isSupportCancel" :disabled="isStoping" :loading="tab.stopping" @click="handleStop">
+          <Button size="small" v-if="isSupportCancel" :disabled="isStoping" :aria-busy="tab.stopping" @click="handleStop">
             <div class="operator-btn-content">
-              <CustomIcon
-                v-if="!tab.stopping"
-                type="icon-v2-ConsoleStop"
-                :color="tab.running ? '#999' : isDark ? '#fff' : '#000'"
-                size="14px"
-                right-margin="4px"
-              />
+              <span class="operator-action-icon">
+                <LoadingOutlined v-if="tab.stopping" spin />
+                <CustomIcon v-else type="icon-v2-ConsoleStop" :color="tab.running ? '#999' : isDark ? '#fff' : '#000'" size="14px" />
+              </span>
               <span>{{ $t('zhong-duan-zhi-hang') }}</span>
             </div>
           </Button>
@@ -105,6 +105,7 @@
   </div>
 </template>
 <script>
+import { LoadingOutlined } from '@ant-design/icons-vue';
 import { canFormatSql } from '@/components/editor/sqlFormat';
 import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
@@ -112,7 +113,7 @@ import browseMixin from '@/mixins/browseMixin';
 
 export default {
   name: 'Operators',
-  components: {},
+  components: { LoadingOutlined },
   mixins: [browseMixin],
   props: {
     tab: Object,
@@ -263,6 +264,15 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.operator-action-icon {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  align-items: center;
+  justify-content: center;
 }
 
 .operator-btn-content span {

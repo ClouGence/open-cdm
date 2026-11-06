@@ -1,0 +1,21 @@
+{
+  "description": "oceanbase-mysql function classifications for splitting, behavior analysis and permissions.",
+  "sources": ["https://docs.oceanbase.com/oceanbase-database/V4.4.2-oceanbase-4.3.1-ee"],
+  "metadataFunctions": [
+    {"versions": ["4"], "names": ["VERSION", "CONNECTION_ID", "DATABASE", "SCHEMA", "CURRENT_USER", "USER"]}
+  ],
+  "privilegedFunctions": [
+    {"versions": ["4"], "names": ["SLEEP", "BENCHMARK", "GET_LOCK", "RELEASE_LOCK", "RELEASE_ALL_LOCKS"]}
+  ],
+  "functionStatementTypes": [
+    {"versions": ["4"], "types": ["METADATA"], "names": ["VERSION", "CONNECTION_ID", "DATABASE", "SCHEMA", "CURRENT_USER", "USER"]},
+    {"versions": ["4"], "types": ["PERFORMANCE"], "names": ["SLEEP"]},
+    {"versions": ["4"], "types": ["SESSION_SETTING_WRITE"], "names": ["LAST_INSERT_ID"]},
+    {"versions": ["4"], "types": ["PERFORMANCE"], "names": ["BENCHMARK"]},
+    {"versions": ["4"], "types": ["SESSION_LOCK"], "names": ["GET_LOCK", "RELEASE_LOCK", "RELEASE_ALL_LOCKS"]}
+  ],
+  "functionBehaviors": [
+    {"versions": ["4"], "action": "LOCK", "targetType": "Session", "targetAction": "LOCK", "unsafe": false, "names": ["GET_LOCK"]},
+    {"versions": ["4"], "action": "UNLOCK", "targetType": "Session", "targetAction": "UNLOCK", "unsafe": false, "names": ["RELEASE_LOCK", "RELEASE_ALL_LOCKS"]}
+  ]
+}
