@@ -116,7 +116,9 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         for (DataSourceType dsType : DataSourceType.values()) {
             DsConfig dsConfig = this.dsConstantSettings(dsType);
             if (dsConfig != null) {
-                data.put(dsType, dsConfig.clone());
+                DsConfig copy = dsConfig.clone();
+                copy.getIsolations().forEach(isolation -> isolation.setI18n(DmI18nUtils.getMessage(isolation.getI18n())));
+                data.put(dsType, copy);
             }
         }
         return data;
@@ -156,7 +158,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             if (supportSpi != null) {
                 config.setIsolations(supportSpi.supportIsolation().stream().map(isolation -> {
                     I18nDmLabelKeys i18nKey = I18nDmLabelKeys.valueOf("RDB_ISOLATION_" + isolation.getName());
-                    return new DsIsolation(isolation.getName(), DmI18nUtils.getMessage(i18nKey.name()));
+                    return new DsIsolation(isolation.getName(), i18nKey.name());
                 }).collect(Collectors.toList()));
             } else {
                 config.setIsolations(Collections.emptyList());

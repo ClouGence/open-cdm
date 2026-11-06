@@ -61,6 +61,10 @@ public enum MetaInformationType {
     ExternalSchemaList(UmiTypes.ExternalSchema.getTypeName() + "List"),
     ExternalTableDetail(UmiTypes.ExternalTable.getTypeName()),
     ExternalTableList(UmiTypes.ExternalTable.getTypeName() + "List"),
+    DeviceDetail(UmiTypes.Device.getTypeName()),
+    DeviceList(UmiTypes.Device.getTypeName() + "List"),
+    TimeseriesDetail(UmiTypes.Timeseries.getTypeName()),
+    TimeseriesList(UmiTypes.Timeseries.getTypeName() + "List"),
     // for mq
     TopicDetail(UmiTypes.Topic.getTypeName()),
     TopicList(UmiTypes.Topic.getTypeName() + "List"),

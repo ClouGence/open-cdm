@@ -1,0 +1,10 @@
+<drivers>
+    <driver driverFamily="IoTDB JDBC" version="1.3.7" default="true">
+        <driverName>com.clougence.clouddm.ds.iotdb.execute.dsfactory.IotdbDsFactory</driverName>
+        <resource type="maven">org.apache.iotdb:iotdb-jdbc:jar-with-dependencies:1.3.7</resource>
+    </driver>
+    <driver driverFamily="IoTDB JDBC" version="2.0.11">
+        <driverName>com.clougence.clouddm.ds.iotdb.execute.dsfactory.IotdbDsFactory</driverName>
+        <resource type="maven">org.apache.iotdb:iotdb-jdbc:jar-with-dependencies:2.0.11</resource>
+    </driver>
+</drivers>

@@ -1,0 +1,18 @@
+CREATE DATABASE root.__FIXTURE_DB__;
+
+CREATE TIMESERIES root.__FIXTURE_DB__.line1.motor01.temperature
+    WITH DATATYPE=FLOAT, ENCODING=RLE, COMPRESSOR=SNAPPY;
+
+CREATE TIMESERIES root.__FIXTURE_DB__.line1.motor01.pressure
+    WITH DATATYPE=INT32, ENCODING=RLE, COMPRESSOR=SNAPPY;
+
+CREATE ALIGNED TIMESERIES root.__FIXTURE_DB__.line2.zone1.motor02 (
+    temperature FLOAT ENCODING=RLE COMPRESSOR=SNAPPY,
+    pressure INT32 ENCODING=RLE COMPRESSOR=SNAPPY
+);
+
+INSERT INTO root.__FIXTURE_DB__.line1.motor01(time, temperature, pressure)
+    VALUES (1, 21.5, 101), (2, 22.5, 102);
+
+INSERT INTO root.__FIXTURE_DB__.line2.zone1.motor02(time, temperature, pressure)
+    ALIGNED VALUES (1, 31.5, 201), (2, 32.5, 202);

@@ -15,11 +15,7 @@
  */
 package com.clougence.clouddm.ds.es.execute;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import com.clougence.clouddm.ds.es.definition.ui.EsCommandTemplates;
@@ -28,11 +24,11 @@ import com.clougence.clouddm.ds.es.metadata.EsFieldType;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
+import com.clougence.sql.es.RestProduct;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class EsMetaService implements DsMetaService {
@@ -51,7 +47,7 @@ public class EsMetaService implements DsMetaService {
     public String getVersion() { return session.readVersion().number(); }
 
     @Override
-    public Map<String, String> getSqlParserParameters() { return Map.of(SqlParserParameters.VERSION, getVersion()); }
+    public Map<String, String> getSqlParserParameters() { return RestProduct.ELASTICSEARCH.parameters(getVersion()).values(); }
 
     @Override
     public String getCurrentCatalog() { return null; }

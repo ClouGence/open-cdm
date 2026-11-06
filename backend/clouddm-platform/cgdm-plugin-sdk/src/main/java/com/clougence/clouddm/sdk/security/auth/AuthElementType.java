@@ -27,6 +27,7 @@ public enum AuthElementType {
     Catalog("CATALOG"),
     Schema("SCHEMA"),
     Table("TABLE"),
+    Timeseries("TIMESERIES"),
     Topic("TOPIC"),
     Column("COLUMN"),
     //

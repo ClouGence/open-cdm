@@ -4427,6 +4427,7 @@
   "query-json-view": "JSON view",
   "query-text-view": "Text view",
   "query-format-too-large": "The request exceeds the language service size limit and cannot be formatted.",
+  "query-language-request-failed": "Language service request failed",
   "sqlResult": {
     "maximize": "Maximize results",
     "restore": "Restore layout",
@@ -4673,5 +4674,10 @@
   "appearance-light": "Light",
   "appearance-dark": "Dark",
   "appearance-system": "System",
-  "appearance-menu-label": "Appearance: {mode}"
+  "appearance-menu-label": "Appearance: {mode}",
+  "timeseries-permissions": "Timeseries permissions",
+  "object-browser-search-device-placeholder": "Search devices",
+  "object-browser-search-timeseries-placeholder": "Search full timeseries paths",
+  "object-browser-read-only": "Read only",
+  "permission-target-unavailable": "The requested resource is unavailable. Refresh the resource tree and select it again."
 }

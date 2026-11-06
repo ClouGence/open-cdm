@@ -1176,7 +1176,7 @@ export default {
           tab.executeInfo = [];
           // Which side group to use according to node level
           const lastLevel = node.levels[node.levels.length - 1];
-          let leafGroup = this.getLeafGroup(tab.node.INSTANCE.attr.dsType, lastLevel);
+          const leafGroup = this.getLeafGroup(tab.node.INSTANCE.attr.dsType, lastLevel, tab.node[lastLevel].attr);
 
           if (leafGroup && leafGroup.length) {
             tab.leafGroup = leafGroup;

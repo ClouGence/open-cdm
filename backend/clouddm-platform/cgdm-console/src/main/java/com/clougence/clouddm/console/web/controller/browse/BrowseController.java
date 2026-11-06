@@ -50,8 +50,10 @@ import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
+import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -182,9 +184,8 @@ public class BrowseController {
 
         ResourceAccessInfo resourceAccessInfo = this.dmDsAuthService.getAllowBrowseInfo(levels, uid);
         if (!resourceAccessInfo.isAllAllow()) {
-            vos = vos.stream().filter(vo -> {
-                return resourceAccessInfo.getAllowQueryList().contains(vo.getObjName());
-            }).collect(Collectors.toList());
+            DsBrowseSpi browseSpi = PluginManager.findDsBrowseSpi(levels.dsDO().getDataSourceType());
+            vos = vos.stream().filter(vo -> browseSpi.canBrowseLeaf(leafType, vo.getObjName(), resourceAccessInfo.getAllowQueryList())).collect(Collectors.toList());
         }
         return ResWebDataUtils.buildSuccess(vos);
     }

@@ -25,5 +25,6 @@ public class EsSqlPlugin implements DsPlugin {
     public void loadPlugin(DsPluginBinder binder) {
         binder.bindGlobalI18n(EsSqlI18nKeys.class);
         binder.addGlobalSpi(new EsSqlEngineSpi());
+        binder.addGlobalSpi(new OpenSearchSqlEngineSpi());
     }
 }

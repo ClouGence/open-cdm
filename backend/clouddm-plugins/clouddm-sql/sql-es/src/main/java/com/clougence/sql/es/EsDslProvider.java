@@ -15,29 +15,32 @@
  */
 package com.clougence.sql.es;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.sql.es.antlr.EsLexer;
 import com.clougence.sql.es.antlr.EsParser;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
-import org.antlr.v4.runtime.tree.ParseTree;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class EsDslProvider implements DslProvider {
     private final EsRequestValidator     validator;
+    private final String                 engineName;
     private final EsAntlrStatementParser statementParser = new EsAntlrStatementParser();
 
     public EsDslProvider(SqlParserParameters parameters){
         this.validator = new EsRequestValidator(parameters);
+        this.engineName = RestApiProfile.from(parameters).engineName();
     }
 
     @Override
-    public String[] getDslName() { return new String[] { EsSqlEngineSpi.NAME }; }
+    public String[] getDslName() { return new String[] { engineName }; }
 
     @Override
     public Lexer createLexer(CharStream charStream) {

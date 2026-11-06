@@ -18,7 +18,6 @@ package com.clougence.clouddm.ds.es.execute;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -236,9 +235,9 @@ public class EsSession implements Session {
             dsConfig.setVersion(version.number());
         }
 
-        SqlParserParameters parameters = new SqlParserParameters(Map.of(SqlParserParameters.VERSION, version.number()));
+        SqlParserParameters parameters = RestProduct.ELASTICSEARCH.parameters(version.number());
         EsRequest request = new EsRequestParser(parameters).parse(query.getQueryBody());
-        EsRequestAnalysis analysis = EsRequestPolicy.analyze(request);
+        EsRequestAnalysis analysis = EsRequestPolicy.analyze(request, parameters);
         analysis.checkResolvedResources(query);
         boolean write = analysis.operation().getAction() != BehaviorAction.READ;
         if (readOnly && write) {

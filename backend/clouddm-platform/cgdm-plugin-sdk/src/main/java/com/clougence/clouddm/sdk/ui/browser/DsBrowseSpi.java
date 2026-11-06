@@ -17,6 +17,7 @@ package com.clougence.clouddm.sdk.ui.browser;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
@@ -33,6 +34,11 @@ public interface DsBrowseSpi extends Spi {
 
     /** Display labels only; resource types and authorization paths remain unchanged. */
     default Map<UmiTypes, String> getLeafLabels() { return Map.of(); }
+
+    /** Object listing only; SQL and object operations still require their own authorization. */
+    default boolean canBrowseLeaf(UmiTypes leafType, String leafName, Set<String> allowedResourceNames) {
+        return allowedResourceNames.contains(leafName);
+    }
 
     List<UmiTypes> getLeafExpand();
 

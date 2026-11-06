@@ -26,6 +26,7 @@ import cloudDmMark from '@/assets/logo-clouddm-mark.svg';
 import cockroachdbIcon from '@/assets/datasource/cockroachdb.svg';
 import etcdIcon from '@/assets/datasource/etcd.svg';
 import goldendbIcon from '@/assets/datasource/goldendb.png';
+import opensearchIcon from '@/assets/datasource/opensearch.svg';
 import valkeyIcon from '@/assets/datasource/valkey.svg';
 import yashandbIcon from '@/assets/datasource/yashandb.svg';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
@@ -38,6 +39,7 @@ const bundledIcons = {
   GoldenDB: goldendbIcon,
   GoldenDBMySQL: goldendbIcon,
   GoldenDBOracle: goldendbIcon,
+  OpenSearch: opensearchIcon,
   Valkey: valkeyIcon,
   YashanDBOracle: yashandbIcon,
   YashanDBMySQL: yashandbIcon
@@ -178,7 +180,8 @@ export default {
         KingbaseESPostgreSQL: 'KingbaseES',
         KingbaseESMySQL: 'KingbaseES',
         KingbaseESOracle: 'KingbaseES',
-        KingbaseESSQLServer: 'KingbaseES'
+        KingbaseESSQLServer: 'KingbaseES',
+        IoTDB: 'CATALOG'
       };
 
       // Based on current theme

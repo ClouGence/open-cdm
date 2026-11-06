@@ -105,11 +105,11 @@
                         class="auth-tabs__item"
                         :class="{
                           'is-active': curRightTreeTab === leafAuthTab,
-                          'is-disabled': !['Table', 'TABLE', 'Topic', 'TOPIC', 'AllType'].includes(curElementType)
+                          'is-disabled': !['Table', 'TABLE', 'Topic', 'TOPIC', 'Timeseries', 'TIMESERIES', 'AllType'].includes(curElementType)
                         }"
                         @click="handleAuthTabClick(leafAuthTab)"
                       >
-                        {{ leafAuthTab === 'TOPIC' ? $t('topic-permissions') : $t('biao-quan-xian') }}
+                        {{ leafAuthTabLabel }}
                       </span>
                     </div>
                     <div class="auth-tabs__extra">
@@ -175,7 +175,7 @@
                         :disableAll="previewMode || isView"
                       />
                     </div>
-                    <div v-show="['TABLE', 'TOPIC'].includes(curRightTreeTab)">
+                    <div v-show="['TABLE', 'TOPIC', 'TIMESERIES'].includes(curRightTreeTab)">
                       <v-tree
                         :emptyText="$t('zan-wu-shu-ju')"
                         :render="renderAuthNode"
@@ -315,6 +315,7 @@ import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { mapState } from 'vuex';
+import { filterLeafGroup } from '@/utils/datasourceBrowser';
 import i18n from '@/i18n';
 import { AUTH_ELEMENT_TYPES, ELEMENT_REVERSE_TYPE_MAP, ELEMENT_TYPE_MAP, ELEMENT_TYPE_REF_MAP, START_RECORD_NAMES_CONUT } from './constant';
 import { getResTypeToNames, findNodeByKey, fetchWithTimeout, flattenTree } from './utils';
@@ -529,10 +530,18 @@ export default {
       ];
     },
     leafAuthTab() {
-      if (this.getNodeDataSourceType(this.curNode) === 'Kafka') {
-        return 'TOPIC';
-      }
+      const nodeType = this.getNormalizedNodeType(this.curNode);
+      if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(nodeType)) return nodeType;
+      const dsType = this.getNodeDataSourceType(this.curNode);
+      const categories = this.dmGlobalSetting.dsSettingDef?.[dsType]?.categories || {};
+      const leaves = filterLeafGroup(Object.values(categories.leafGroup || {}).flat(), this.curNode?.objAttr);
+      if (leaves.some((leaf) => (leaf.type || leaf) === 'TIMESERIES')) return 'TIMESERIES';
+      if (leaves.some((leaf) => (leaf.type || leaf) === 'TOPIC')) return 'TOPIC';
       return 'TABLE';
+    },
+    leafAuthTabLabel() {
+      const labels = { TIMESERIES: 'timeseries-permissions', TOPIC: 'topic-permissions', TABLE: 'biao-quan-xian' };
+      return this.$t(labels[this.leafAuthTab]);
     },
     showCustomAuthTime() {
       return this.curRangeKey === 'custom';
@@ -566,7 +575,8 @@ export default {
         (name === 'Instance' && !['Instance', 'INSTANCE', 'AllType'].includes(this.curElementType)) ||
         (name === 'CATALOG' && !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(this.curElementType)) ||
         (name === 'SCHEMA' && !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(this.curElementType)) ||
-        (['TABLE', 'TOPIC'].includes(name) && !['Table', 'TABLE', 'Topic', 'TOPIC', 'AllType'].includes(this.curElementType))
+        (['TABLE', 'TOPIC', 'TIMESERIES'].includes(name) &&
+          !['Table', 'TABLE', 'Topic', 'TOPIC', 'Timeseries', 'TIMESERIES', 'AllType'].includes(this.curElementType))
       ) {
         return;
       }
@@ -1078,6 +1088,7 @@ export default {
           case 'TOPIC':
             iconType = 'TOPIC';
             break;
+          case 'TIMESERIES':
           case 'TABLE':
             iconType = 'TABLE';
             break;
@@ -1334,6 +1345,8 @@ export default {
         Table: 'tableTree',
         Topic: 'tableTree',
         TOPIC: 'tableTree',
+        Timeseries: 'tableTree',
+        TIMESERIES: 'tableTree',
         TABLE: 'tableTree'
       };
       const normalizedTab =
@@ -1521,7 +1534,7 @@ export default {
           return;
         }
 
-        if (['TABLE', 'TOPIC'].includes(node?.objType)) {
+        if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(node?.objType)) {
           const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
           this.$refs.dataSourceTree?.setData(final);
           if (node?.key && shouldLoadAuthTree) {
@@ -1741,7 +1754,7 @@ export default {
       }
 
       return tree.map((node) => {
-        if (['TABLE', 'TOPIC'].includes(node.objType)) {
+        if (['TABLE', 'TOPIC', 'TIMESERIES'].includes(node.objType)) {
           const { children, ...rest } = node;
           return rest;
         }
@@ -1805,7 +1818,7 @@ export default {
       return AUTH_ELEMENT_TYPES.includes(this.normalizeAuthElementType(elementType));
     },
     isResourceLeafNode(node) {
-      return !!node?.isLeaf || ['TABLE', 'TOPIC'].includes(this.getNormalizedNodeType(node));
+      return !!node?.isLeaf || ['TABLE', 'TOPIC', 'TIMESERIES'].includes(this.getNormalizedNodeType(node));
     },
     canUseLazyPlaceholder(node) {
       return !this.isResourceLeafNode(node);
@@ -1876,7 +1889,7 @@ export default {
     },
     async canLoadResourceChildren(node) {
       const nodeType = this.getNormalizedNodeType(node);
-      if (!node || ['TABLE', 'TOPIC'].includes(nodeType)) {
+      if (!node || ['TABLE', 'TOPIC', 'TIMESERIES'].includes(nodeType)) {
         return false;
       }
       if (nodeType === 'ENV' || nodeType === 'Env') {
@@ -2033,7 +2046,7 @@ export default {
           if (idx < typeLevels.length - 1) {
             return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]] || typeLevels[idx + 1]; // +1 elemenType pointing to subnodes;
           }
-          const leafGroup = categories.leafGroup?.[typeLevels[idx]] || [];
+          const leafGroup = filterLeafGroup(categories.leafGroup?.[typeLevels[idx]], node.objAttr);
           const leafTypes = leafGroup.map((leaf) => (typeof leaf === 'string' ? leaf : leaf?.type)).filter(Boolean);
           const tableLeafType = leafTypes.find((leafType) => this.normalizeAuthElementType(leafType) === 'Table');
           const authLeafType = tableLeafType || leafTypes.find((leafType) => this.isSupportedAuthElementType(leafType));
@@ -2307,6 +2320,8 @@ export default {
                 break;
               case 'Topic':
               case 'TOPIC':
+              case 'Timeseries':
+              case 'TIMESERIES':
               case 'Table':
               case 'TABLE':
                 this.$refs.tableTree?.setData(filterAuth);
@@ -2508,6 +2523,7 @@ export default {
           this.$refs.schemaTree.filter(this.rightTreeKeyword);
           break;
         case 'TOPIC':
+        case 'TIMESERIES':
         case 'TABLE':
           this.$refs.tableTree.filter(this.rightTreeKeyword);
           break;

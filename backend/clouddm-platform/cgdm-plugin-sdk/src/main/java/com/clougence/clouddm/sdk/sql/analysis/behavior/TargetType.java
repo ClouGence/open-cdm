@@ -50,6 +50,8 @@ public enum TargetType {
     Table(UmiTypes.Table),
     View(UmiTypes.View),
     Materialized(UmiTypes.Materialized),
+    Device(UmiTypes.Device),
+    Timeseries(UmiTypes.Timeseries),
     Tablespace(UmiTypes.TABLESPACE),
     Column(UmiTypes.Column),
     Index(UmiTypes.Index),

@@ -64,6 +64,7 @@ public enum DataSourceType {
     ClickHouse("ck", "ClickHouse", DsClassify.RDB, 1, 40),
     Greenplum("gp", "Greenplum", DsClassify.RDB, 1, 50),
     Cloudberry("cb", "Cloudberry", DsClassify.RDB, 1, 60),
+    IoTDB("iotdb", "IoTDB", DsClassify.RDB, 1, 70),
 
     // non-relational db
     Redis("re", "Redis", DsClassify.CACHE, 2, 10),
@@ -71,6 +72,7 @@ public enum DataSourceType {
     MongoDB("mdb", "MongoDB", DsClassify.DOCUMENT, 2, 20),
     Kafka("ka", "Kafka", DsClassify.MQ, 2, 30),
     ElasticSearch("es", "ElasticSearch", DsClassify.SEARCH, 2, 40),
+    OpenSearch("os", "OpenSearch", DsClassify.SEARCH, 2, 45),
     Etcd("et", "Etcd", DsClassify.CACHE, 2, 50),
 
     // cloud database
