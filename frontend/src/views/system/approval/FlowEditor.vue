@@ -71,89 +71,96 @@
               </div>
             </div>
           </div>
-          <aside v-if="selected" class="page-aside approval-inspector">
-            <header class="approval-inspector__header">
-              <h2 class="page-section__title">{{ $t('approval-stages') }}</h2>
-            </header>
-            <div class="approval-inspector__body">
-              <Form :key="selectedId" :model="selected" label-position="top">
-                <FormItem
-                  :label="$t('approval-participant-type')"
-                  prop="approverType"
-                  :rules="[{ required: true, message: $t('approval-complete-configuration'), trigger: 'change' }]"
-                  required
-                >
-                  <RadioGroup :model-value="selected.approverType" @on-change="changeNodeType">
-                    <Radio :label="participantTypes.TEAM" :disabled="!editable">{{ $t('approval-team') }}</Radio>
-                    <Radio :label="participantTypes.PERSON" :disabled="!editable">{{ $t('approval-person') }}</Radio>
-                  </RadioGroup>
-                </FormItem>
-                <FormItem
-                  v-if="selected.approverType === participantTypes.TEAM"
-                  :label="$t('approval-team')"
-                  prop="teamId"
-                  :rules="[{ required: true, message: $t('approval-select-team'), trigger: 'change' }]"
-                  required
-                >
-                  <Select
-                    v-model="selected.teamId"
-                    transfer-class-name="approval-team-dropdown"
-                    filterable
-                    :disabled="!editable"
-                    :placeholder="$t('approval-select-team')"
+          <div class="approval-settings">
+            <aside class="page-aside approval-inspector">
+              <header class="approval-inspector__header">
+                <h2 class="page-section__title">{{ $t('approval-stages') }}</h2>
+              </header>
+              <div class="approval-inspector__body">
+                <Form v-if="selected" :key="selectedId" :model="selected" label-position="top">
+                  <FormItem
+                    :label="$t('approval-participant-type')"
+                    prop="approverType"
+                    :rules="[{ required: true, message: $t('approval-complete-configuration'), trigger: 'change' }]"
+                    required
                   >
-                    <Option
-                      v-for="team in teams"
-                      :key="team.teamId"
-                      :value="team.teamId"
-                      :label="team.teamName + $t('approval-member-count', { count: team.memberUids.length })"
-                      :disabled="Boolean(teamDisabledReason(team, 'canApprove'))"
+                    <RadioGroup :model-value="selected.approverType" @on-change="changeNodeType">
+                      <Radio :label="participantTypes.TEAM" :disabled="!editable">{{ $t('approval-team') }}</Radio>
+                      <Radio :label="participantTypes.PERSON" :disabled="!editable">{{ $t('approval-person') }}</Radio>
+                    </RadioGroup>
+                  </FormItem>
+                  <FormItem
+                    v-if="selected.approverType === participantTypes.TEAM"
+                    :label="$t('approval-team')"
+                    prop="teamId"
+                    :rules="[{ required: true, message: $t('approval-select-team'), trigger: 'change' }]"
+                    required
+                  >
+                    <Select
+                      v-model="selected.teamId"
+                      transfer-class-name="approval-team-dropdown"
+                      filterable
+                      :disabled="!editable"
+                      :placeholder="$t('approval-select-team')"
                     >
-                      <Tooltip
-                        class="approval-team-option"
-                        :content="teamDisabledReason(team, 'canApprove')"
-                        :disabled="!teamDisabledReason(team, 'canApprove')"
-                        :max-width="320"
-                        placement="top"
-                        transfer
+                      <Option
+                        v-for="team in teams"
+                        :key="team.teamId"
+                        :value="team.teamId"
+                        :label="team.teamName + $t('approval-member-count', { count: team.memberUids.length })"
+                        :disabled="Boolean(teamDisabledReason(team, 'canApprove'))"
                       >
-                        <span class="approval-team-option__name">
-                          {{ team.teamName }}{{ $t('approval-member-count', { count: team.memberUids.length }) }}
-                        </span>
-                      </Tooltip>
-                    </Option>
-                  </Select>
-                </FormItem>
-                <FormItem
-                  v-else
-                  :label="$t('shen-pi-ren')"
-                  prop="userUid"
-                  :rules="[{ required: true, message: $t('approval-select-person'), trigger: 'change' }]"
-                  required
-                >
-                  <Select v-model="selected.userUid" filterable :disabled="!editable" :placeholder="$t('approval-select-person')">
-                    <Option v-for="person in approvers" :key="person.userUid" :value="person.userUid">{{ person.userName }}</Option>
-                  </Select>
-                </FormItem>
-                <FormItem
-                  v-if="selected.approverType === participantTypes.TEAM"
-                  :label="$t('approval-required')"
-                  prop="requiredCount"
-                  :rules="[{ type: 'number', required: true, min: 1, message: $t('approval-complete-configuration'), trigger: 'change' }]"
-                  required
-                >
-                  <InputNumber
-                    v-model="selected.requiredCount"
-                    :min="1"
-                    :max="Math.max(1, selectedMemberCount)"
-                    :precision="0"
-                    :disabled="!editable"
-                  />
-                  <span class="approval-count-label">{{ $t('approval-of-members', { count: selectedMemberCount }) }}</span>
-                </FormItem>
-              </Form>
-              <section class="page-section approval-confirmation">
+                        <Tooltip
+                          class="approval-team-option"
+                          :content="teamDisabledReason(team, 'canApprove')"
+                          :disabled="!teamDisabledReason(team, 'canApprove')"
+                          :max-width="320"
+                          placement="top"
+                          transfer
+                        >
+                          <span class="approval-team-option__name">
+                            {{ team.teamName }}{{ $t('approval-member-count', { count: team.memberUids.length }) }}
+                          </span>
+                        </Tooltip>
+                      </Option>
+                    </Select>
+                  </FormItem>
+                  <FormItem
+                    v-else
+                    :label="$t('shen-pi-ren')"
+                    prop="userUid"
+                    :rules="[{ required: true, message: $t('approval-select-person'), trigger: 'change' }]"
+                    required
+                  >
+                    <Select v-model="selected.userUid" filterable :disabled="!editable" :placeholder="$t('approval-select-person')">
+                      <Option v-for="person in approvers" :key="person.userUid" :value="person.userUid">{{ person.userName }}</Option>
+                    </Select>
+                  </FormItem>
+                  <FormItem
+                    v-if="selected.approverType === participantTypes.TEAM"
+                    :label="$t('approval-required')"
+                    prop="requiredCount"
+                    :rules="[{ type: 'number', required: true, min: 1, message: $t('approval-complete-configuration'), trigger: 'change' }]"
+                    required
+                  >
+                    <InputNumber
+                      v-model="selected.requiredCount"
+                      :min="1"
+                      :max="Math.max(1, selectedMemberCount)"
+                      :precision="0"
+                      :disabled="!editable"
+                    />
+                    <span class="approval-count-label">{{ $t('approval-of-members', { count: selectedMemberCount }) }}</span>
+                  </FormItem>
+                </Form>
+              </div>
+            </aside>
+            <aside class="page-aside approval-inspector approval-confirmation">
+              <header class="approval-inspector__header">
                 <h2 class="page-section__title">{{ $t('approval-confirmation-stage') }}</h2>
+              </header>
+              <div class="approval-inspector__body">
+                <p class="approval-confirmation__hint">{{ $t('approval-confirmation-hint') }}</p>
                 <Form :model="draft" label-position="top" class="approval-confirmation__fields">
                   <FormItem
                     :label="$t('approval-execution-mode')"
@@ -233,9 +240,9 @@
                     </div>
                   </FormItem>
                 </Form>
-              </section>
-            </div>
-          </aside>
+              </div>
+            </aside>
+          </div>
         </div>
       </section>
     </div>
@@ -644,8 +651,16 @@ export default {
   color: #c7ced6;
   cursor: not-allowed;
 }
+.approval-settings {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-self: start;
+  gap: 24px;
+}
 .approval-inspector {
   .flow-inspector();
+  height: auto;
 }
 .approval-inspector__header {
   display: flex;
@@ -677,8 +692,9 @@ export default {
 .approval-count-label {
   margin-left: 8px;
 }
-.approval-confirmation {
-  margin-top: 24px;
+.approval-confirmation__hint {
+  margin: 0 0 16px;
+  color: var(--text-secondary);
 }
 .approval-confirmation__fields {
   display: flex;
