@@ -54,15 +54,15 @@ Set `clougence.rdp.deploy.context-path` to the external browser URL, such as `ht
 
 For a non-root deployment, build the frontend with `VUE_APP_BASE_URL=/clouddm/` so static assets, HTTP APIs, and WebSocket traffic share the prefix. Use the defaults for root deployments. When switching this environment variable for existing build outputs, force a frontend build, for example `cd frontend && VUE_APP_BASE_URL=/clouddm/ npm run build:dm`, then repackage the resources so cached root-path outputs are not reused.
 
-For upgrades, drain and stop all old Console/Alone nodes in a maintenance window, let the new version apply the additive `V202611090001__dm_auth_session` migration, and restore ingress only after all nodes run the new version. Mixed authentication versions are unsupported. All users must sign in again. Missing tables or database failures reject authentication without falling back to JWT.
+For upgrades, drain and stop all old Console/Alone nodes in a maintenance window, back up the database, let the new version apply `V202611090001__dm_auth_session` and `V202611090002__remove_operation_password`, and restore ingress only after all nodes run the new version. Mixed authentication versions are unsupported. All users must sign in again. Missing tables or database failures reject authentication without falling back to JWT.
 
 Before changing the absolute lifetime, including switching between a finite value and `0`, stop ingress and drain nodes, clear existing rows in `dm_auth_session` in a transaction, then update every node consistently and restart. All users must sign in again. Do not update only one node or reuse old sessions after increasing the lifetime: old records could become valid again. Explicit positive values in existing configuration files remain effective; the unlimited default applies when the setting is absent. Revocation closes local connections; passive push on other nodes may lag by at most 30 seconds and stops when validation is stale or fails. WebSocket traffic alone cannot keep a session alive indefinitely.
 
 Logout revokes only the current local session and does not invoke upstream SSO global logout. Password changes, account disable/delete, and MFA enable/reset/close revoke all target-user sessions. Account names, contact details, roles, and AK/SK changes preserve Web sessions; permissions are checked again. Historical invalid MFA requires another authorized administrator to reset it, followed by a fresh login and MFA setup.
 
-Retain `jwt.secret` / `APP_WEB_JWT` for legacy operation-password endpoints; Web login does not use them. Retain OIDC Provider ID Token verification dependencies as well. Operation-password repairs and CSRF/Origin hardening are deferred; this migration does not promise that `oppassword=true` works. Application and proxy logs must not collect Cookies, authentication headers, tokens, or token hashes.
+Operation passwords and their JWT endpoints have been removed. `clougence.rdp.console.oppassword`, `jwt.secret`, and `APP_WEB_JWT` are no longer used, and initialization no longer asks for a JWT key. OIDC Provider ID Token verification remains independent. Application and proxy logs must not collect Cookies, authentication headers, tokens, or token hashes.
 
-For rollback, stop new nodes and drain ingress, rotate the old version's `jwt.secret`, clear the new session Cookie in browsers, and then restore old binaries. Keep the additive session table; do not run a destructive down migration. Rotating the secret prevents old login JWTs becoming valid again. Rollback also requires all users to sign in again.
+For rollback, stop new nodes and drain ingress, rotate the old version's `jwt.secret`, clear the new session Cookie in browsers, and then restore old binaries. Keep the session table. This upgrade drops the four operation-password and verification-state columns; restore the required schema and data from a pre-upgrade backup before rolling back to an older version. Rotating the secret prevents old login JWTs becoming valid again. Rollback also requires all users to sign in again.
 
 ## 2. Local Packaging
 
@@ -180,7 +180,6 @@ services:
       - cgdm_mysql_data:/var/lib/mysql
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_alone
       APP_SERVE_PORT: 8008
       MYSQL_EMBEDDED: "true"
@@ -235,7 +234,7 @@ The default Service type is `ClusterIP`. For local validation, use port forwardi
 kubectl -n cgdm port-forward svc/dm-alone 8222:8222
 ```
 
-Then open `http://localhost:8222`. If you need long-term external access, choose `NodePort`, `LoadBalancer`, or Ingress according to your cluster environment. In production, also replace the default password and JWT secret, and adjust PVC capacity based on data volume.
+Then open `http://localhost:8222`. If you need long-term external access, choose `NodePort`, `LoadBalancer`, or Ingress according to your cluster environment. In production, also replace the default password, and adjust PVC capacity based on data volume.
 
 ---
 
@@ -299,7 +298,6 @@ docker run -d --name dm_console \
   -p 8222:8222 \
   -p 8008:8008 \
   -e APP_WEB_PORT=8222 \
-  -e APP_WEB_JWT=ljgefdgjosdighjeroigh \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
   -e DB_HOST=dm_mysql \
@@ -360,7 +358,6 @@ services:
       - cgdm_console_data:/root/cgdm/console/data
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_console
       APP_SERVE_PORT: 8008
       # Override image defaults with packaged docker deployment values.
@@ -459,7 +456,7 @@ kubectl -n cgdm logs deploy/dm-sidecar
 kubectl -n cgdm logs statefulset/dm-mysql
 ```
 
-In production, also replace the default MySQL password and JWT secret, adjust PVC capacity based on data volume, and manage sensitive configuration with `Secret`.
+In production, also replace the default MySQL password, adjust PVC capacity based on data volume, and manage sensitive configuration with `Secret`.
 
 ---
 
