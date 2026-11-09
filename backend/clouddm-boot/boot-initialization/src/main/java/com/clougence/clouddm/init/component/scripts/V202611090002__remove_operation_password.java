@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo;
+package com.clougence.clouddm.init.component.scripts;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
+import java.util.List;
 
-/**
- * @author bucketli 2021/1/11 11:17
- */
-@Data
-public class ResetOpPasswdFO {
+import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
 
-    @NotBlank(message = "{notblank.oppassword}")
-    @Size(min = 8, max = 32, message = "operation password must between 8~32 character.")
-    private String opPassword;
+public class V202611090002__remove_operation_password extends AbstractUpgradeJavaMigration {
+
+    @Override
+    public List<String> collectScript() {
+        return List
+            .of("ALTER TABLE dm_auth_user DROP COLUMN op_password", "ALTER TABLE dm_auth_user DROP COLUMN last_try_op_verify_time", "ALTER TABLE dm_auth_user DROP COLUMN op_verify_fail_count", "ALTER TABLE dm_auth_user DROP COLUMN op_locked");
+    }
 }

@@ -44,7 +44,6 @@ public interface RdpUserService {
     String IS_MAINTAINER              = "is_maintainer";
     String ACCESSKEY                  = "accesskey";
 
-    long   OP_PASSWD_TOEKN_EXPIRE_MS  = 30 * 60 * 1000;
     long   MFA_TOKEN_EXPIRE_SEC       = 120;
     //
     int    DEFAULT_PWD_MIN_LENGTH     = 8;
@@ -74,10 +73,6 @@ public interface RdpUserService {
     ValidateResultMO validateSubAccountPwd(String puid, String pwd);
 
     ValidateResultMO validateByPolicy(PwdPolicyVO policy, String content);
-
-    UpdateUserInfoMO resetOpPasswd(ResetOpPasswdFO fo, String uid);
-
-    OpPasswdVerifyMO opPasswdVerify(String opPassword, String uid);
 
     UpdateUserInfoMO updateUserPhone(String uid, UpdateUserPhoneFO fo);
 

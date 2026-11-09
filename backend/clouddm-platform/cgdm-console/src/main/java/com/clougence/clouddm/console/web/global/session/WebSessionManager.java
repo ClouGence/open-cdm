@@ -21,7 +21,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
@@ -30,7 +29,6 @@ import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.util.RdpLocal;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
@@ -50,8 +48,6 @@ public class WebSessionManager {
 
     @Resource
     private ConsoleConfig          config;
-    @Resource
-    private JwtService             jwtService;
     @Resource
     private RdpUserService         userService;
     @Resource
@@ -235,20 +231,6 @@ public class WebSessionManager {
             return responseSystemError(errorMessage);
         }
 
-        if (requestAuth != null && requestAuth.checkOpPassword() && this.config.isOppassword()) {
-            if (StringUtils.isBlank(userDO.getOpPassword())) {
-                String errorMessage = "operate password not set. ";
-                log.error(errorMessage);
-                return responseNotSetOpPwd(errorMessage);
-            } else {
-                DecodedJWT opJwt = this.jwtService.verifyOpToken(request);
-                if (opJwt == null) {
-                    String errorMessage = "operate password cache invalid. ";
-                    log.error(errorMessage);
-                    return responseOpPwdInvalid(errorMessage);
-                }
-            }
-        }
         // check url authority
         DmAuthRoleDO role = this.roleService.fetchRoleById(userDO.getRoleId());
         if (role == null) {
@@ -332,22 +314,6 @@ public class WebSessionManager {
             .success(false)
             .message(message)
             .errorCode(401)
-            .build();
-    }
-
-    private SessionCheckResult responseOpPwdInvalid(String message) {
-        return SessionCheckResult.builder()//
-            .success(false)
-            .message(message)
-            .errorCode(499)
-            .build();
-    }
-
-    private SessionCheckResult responseNotSetOpPwd(String message) {
-        return SessionCheckResult.builder()//
-            .success(false)
-            .message(message)
-            .errorCode(498)
             .build();
     }
 

@@ -30,7 +30,6 @@ public class RdpGlobalSettingsVO {
     private boolean             onPremiseDeployMode;
 
     // for Auth
-    private boolean             authOpPassword;
 
     private boolean             enableWaterMark;
     private boolean             enableProductCluster;

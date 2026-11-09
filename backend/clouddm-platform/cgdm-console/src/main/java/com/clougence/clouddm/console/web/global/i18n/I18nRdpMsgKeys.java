@@ -132,8 +132,6 @@ public enum I18nRdpMsgKeys {
 
     // -- for Verify
     VERIFY_UNSUPPORTED_TYPE_ERROR,
-    VERIFY_OP_PASSWORD_ERROR,
-    VERIFY_OP_PASSWORD_NOT_SET_ERROR,
 
     // -- for Language
     LANGUAGE_MAX_REQUESTS,

@@ -289,7 +289,6 @@ public class DmHomeController {
         RdpGlobalSettingsVO vo = new RdpGlobalSettingsVO();
         vo.setFeatures(new HashMap<>());
         vo.getFeatures().putAll(PluginManager.getFeatures());
-        vo.setAuthOpPassword(this.config.isOppassword());
         vo.setEnableWaterMark(this.config.isEnableWaterMark());
         vo.setEnableProductCluster(this.config.isEnableProductCluster());
         vo.setEnableValidateDsExtraConf(config.getRdpDsConfigValidateEnable());

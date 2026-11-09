@@ -141,7 +141,7 @@ public class RdpResAuthController {
     // --------------------------------
     //      for Auth Manage
     // --------------------------------
-    @RequestAuth(checkOpPassword = true, value = RDP_AUTH_MANAGE)
+    @RequestAuth(value = RDP_AUTH_MANAGE)
     @RequestMapping(value = "/modifyUserAuth", method = RequestMethod.POST)
     public ResWebData<?> modifyUserAuth(@Valid @RequestBody ModifyUserAuthFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -157,7 +157,7 @@ public class RdpResAuthController {
         return ResWebDataUtils.buildSuccess(true);
     }
 
-    @RequestAuth(checkOpPassword = true, value = RDP_AUTH_MANAGE)
+    @RequestAuth(value = RDP_AUTH_MANAGE)
     @RequestMapping(value = "/batchModifyUserAuth", method = RequestMethod.POST)
     public ResWebData<?> batchModifyUserAuth(@Valid @RequestBody BatchModifyUserAuthFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);

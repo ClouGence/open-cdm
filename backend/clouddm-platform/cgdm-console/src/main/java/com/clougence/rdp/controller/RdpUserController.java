@@ -44,7 +44,6 @@ import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.session.SessionCookieService;
 import com.clougence.clouddm.console.web.global.session.SessionAccountPolicy;
@@ -72,8 +71,6 @@ import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.rdp.service.RdpOpAuditService;
-import com.clougence.rdp.service.enumeration.OpVerifyErrType;
-import com.clougence.rdp.service.model.OpPasswdVerifyMO;
 import com.clougence.rdp.service.model.UpdateUserInfoMO;
 import com.clougence.rdp.service.model.ValidateResultMO;
 import com.clougence.utils.StringUtils;
@@ -100,8 +97,6 @@ public class RdpUserController {
     private RdpUserService       rdpUserService;
     @Resource
     private RdpRoleService       rdpRoleService;
-    @Resource
-    private JwtService           jwtService;
     @Resource
     private SessionCookieService sessionCookieService;
     @Resource
@@ -247,27 +242,6 @@ public class RdpUserController {
 
         List<DmAuthRoleDO> roles = this.rdpRoleService.listRoleByUID(puid);
         return ResWebDataUtils.buildSuccess(roles.stream().map(RdpConvertUtils::convertToRoleInfoVO).collect(Collectors.toList()));
-    }
-
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/resetOpPasswd", method = { RequestMethod.POST })
-    public ResWebData<?> resetOpPasswd(@Valid @RequestBody ResetOpPasswdFO resetOpPasswdFO, HttpServletRequest request, HttpServletResponse response) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        //decrypt
-        resetOpPasswdFO.setOpPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), resetOpPasswdFO.getOpPassword()));
-
-        UpdateUserInfoMO resetOpPasswdMO = this.rdpUserService.resetOpPasswd(resetOpPasswdFO, uid);
-        if (resetOpPasswdMO.isSuccess()) {
-            addOpPwdTokenToCookie(response, uid);
-
-            this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
-                .getRemoteAddr(), uid, "", SecurityLevel.HIGH, AuditType.UPDATE_ACCOUNT_OP_PWD, ResourceType.ACCOUNT);
-
-            return ResWebDataUtils.buildSuccess();
-        } else {
-            return ResWebDataUtils.buildError(resetOpPasswdMO.getErrorMsg());
-        }
     }
 
     @RequestAuth(strategy = Ignore)
@@ -503,46 +477,4 @@ public class RdpUserController {
         return resWebData;
     }
 
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/opPasswdVerify", method = { RequestMethod.POST })
-    public ResWebData<?> opPasswdVerify(@Valid @RequestBody OpPasswdVerifyFO verifyFO, HttpServletRequest request, HttpServletResponse response) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        //decrypt
-        verifyFO.setOpPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), verifyFO.getOpPassword()));
-
-        OpPasswdVerifyMO verifyMO = this.rdpUserService.opPasswdVerify(verifyFO.getOpPassword(), uid);
-        if (verifyMO.isSuccess()) {
-            addOpPwdTokenToCookie(response, uid);
-            return ResWebDataUtils.buildSuccess();
-        } else {
-            if (verifyMO.getOpVerifyErrType() == OpVerifyErrType.OP_PASSWD_ERROR) {
-                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_ERROR.name()));
-            } else if (verifyMO.getOpVerifyErrType() == OpVerifyErrType.OP_PASSWD_NOT_SET) {
-                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
-            } else {
-                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
-            }
-        }
-    }
-
-    protected void addOpPwdTokenToCookie(HttpServletResponse response, String uid) {
-        DmAuthUserDO userDO = this.rdpUserService.getUserByUid(uid);
-        if (userDO == null) {
-            throw new IllegalArgumentException("user not exist.");
-        }
-
-        Cookie cookie = new Cookie(JwtService.opPwdToken, this.jwtService.genOpPwdToken(userDO));
-        // let fronted to extract jwt token as csrf token
-        cookie.setHttpOnly(false);
-        cookie.setMaxAge((int) (RdpUserService.OP_PASSWD_TOEKN_EXPIRE_MS / 1000));
-        cookie.setPath("/");
-
-        if (StringUtils.isNotBlank(consoleConfig.getLoginCookieDomain())) {
-            cookie.setDomain(consoleConfig.getLoginCookieDomain());
-        }
-
-        response.addCookie(cookie);
-    }
 }

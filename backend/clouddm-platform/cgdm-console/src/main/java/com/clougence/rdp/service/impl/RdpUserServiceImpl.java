@@ -61,7 +61,6 @@ import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.RdpVerifyService;
-import com.clougence.rdp.service.enumeration.OpVerifyErrType;
 import com.clougence.rdp.service.enumeration.UserOperationType;
 import com.clougence.rdp.service.model.*;
 import com.clougence.utils.StringUtils;
@@ -249,37 +248,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     //
     // -- for Current User Manager
     //
-
-    @Override
-    public UpdateUserInfoMO resetOpPasswd(ResetOpPasswdFO fo, String uid) {
-        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
-
-        if (userDO == null) {
-            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
-        }
-
-        String opPassword = CryptService.INSTANCE.encryptForOneWay(fo.getOpPassword()).getEncryptPassword();
-        authDal.userMapper().updateOpPasswdById(userDO.getId(), opPassword);
-        return new UpdateUserInfoMO(true, null);
-    }
-
-    @Override
-    public OpPasswdVerifyMO opPasswdVerify(String opPassword, String uid) {
-        DmAuthUserDO dmUserDO = authDal.userMapper().queryByUid(uid);
-        if (dmUserDO.getOpPassword() == null) {
-            return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_NOT_SET, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
-        }
-
-        PasswordInfo passInfo = new PasswordInfo();
-        passInfo.setEncryptPassword(dmUserDO.getOpPassword());
-        passInfo.setPlainPassword(opPassword);
-        boolean match = CryptService.INSTANCE.isMatchForOneWay(passInfo);
-        if (match) {
-            return new OpPasswdVerifyMO(true);
-        } else {
-            return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_ERROR, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_ERROR.name()));
-        }
-    }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)

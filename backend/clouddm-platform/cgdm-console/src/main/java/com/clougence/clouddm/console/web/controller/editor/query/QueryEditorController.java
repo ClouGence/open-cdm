@@ -111,7 +111,7 @@ public class QueryEditorController {
     @Resource
     private RdpOpAuditService    opAuditService;
 
-    @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
+    @RequestAuth(value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/createSession", method = RequestMethod.POST)
     public ResWebData<?> createSession(@Valid @RequestBody CreateSessionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -135,7 +135,7 @@ public class QueryEditorController {
         return ResWebDataUtils.buildSuccess(fo.getSessionId());
     }
 
-    @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
+    @RequestAuth(value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/fetchDsStatusConf", method = RequestMethod.POST)
     public ResWebData<DsStatusConfVO> fetchDsStatusConf(@Valid @RequestBody AvailableDsFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

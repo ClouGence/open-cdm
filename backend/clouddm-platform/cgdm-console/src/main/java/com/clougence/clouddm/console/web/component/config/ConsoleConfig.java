@@ -81,8 +81,6 @@ public class ConsoleConfig {
     private String         deployContextPath;
     @Value("${clougence.rdp.black.user_config:#{NULL}}")
     private String         userConfigBlacklist;
-    @Value("${clougence.rdp.console.oppassword:false}")
-    private boolean        oppassword;
     @Value("${clougence.rdp.inner-roles:Manager,DBA,Developers,PM}")
     private List<String>   innerRoles;
     @Value("${clougence.rdp.console.enable_watermark:false}")
