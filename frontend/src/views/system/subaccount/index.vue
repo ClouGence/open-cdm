@@ -527,42 +527,22 @@ export default {
       });
     },
     confirmMfaInvalidIfNeeded(payload) {
-      const fieldTypeMap = {
-        account: 'ACCOUNT',
-        phone: 'PHONE',
-        email: 'EMAIL'
-      };
-      const affectedFields = Object.keys(fieldTypeMap).filter((field) => {
-        const type = fieldTypeMap[field];
-        return (
-          Object.prototype.hasOwnProperty.call(payload, field) &&
-          this.originAccount.useMfa &&
-          this.originAccount.mfaStatus === 'ACTIVE' &&
-          (!this.originAccount.mfaAccountType || this.originAccount.mfaAccountType === type)
-        );
-      });
-      if (!affectedFields.length) {
+      const accountChanged = Object.prototype.hasOwnProperty.call(payload, 'account');
+      const activeMfa = this.originAccount.useMfa && this.originAccount.mfaStatus === 'ACTIVE';
+      const accountMfa = !this.originAccount.mfaAccountType || this.originAccount.mfaAccountType === 'ACCOUNT';
+      if (!accountChanged || !activeMfa || !accountMfa) {
         return Promise.resolve(false);
       }
-      const fieldNames = affectedFields.map((field) => this.mfaFieldLabel(field)).join('、');
       return new Promise((resolve) => {
         this.$Modal.confirm({
           title: this.$t('mfa-shi-xiao-que-ren'),
-          content: this.$t('mfa-guan-lian-ziduan-xiugai-tishi', [fieldNames]),
+          content: this.$t('mfa-guan-lian-ziduan-xiugai-tishi', [this.$t('zhang-hao')]),
           okText: this.$t('ji-xu'),
           cancelText: this.$t('qu-xiao'),
           onOk: () => resolve(true),
           onCancel: () => resolve(null)
         });
       });
-    },
-    mfaFieldLabel(field) {
-      const labelMap = {
-        account: this.$t('zhang-hao'),
-        phone: this.$t('shou-ji'),
-        email: this.$t('you-xiang')
-      };
-      return labelMap[field] || field;
     },
     generateRandomPwd() {
       const length = Math.max(this.passwordRule.minLength || DEFAULT_PASSWORD_MIN_LENGTH, this.passwordRule.strongPolicy ? 3 : 1);

@@ -587,23 +587,17 @@ export default {
           return;
         }
         const postFunc = field === 'phone' ? this.$services.rdpUserUpdateUserPhone : this.$services.rdpUserUpdateUserEmail;
-        const confirmMfaInvalid = await this.confirmMfaInvalidIfNeeded(this.inlineForm[field] === this.userInfo[field] ? [] : [field]);
-        if (confirmMfaInvalid === null) {
-          return;
-        }
         this.loading = true;
         try {
           const res = await postFunc({
             data: {
-              [field]: this.inlineForm[field],
-              confirmMfaInvalid
+              [field]: this.inlineForm[field]
             }
           });
           if (res.success) {
             this.$Message.success(this.$t('xiu-gai-cheng-gong'));
             this[UPDATE_USERINFO]({
-              [field]: this.inlineForm[field],
-              ...(confirmMfaInvalid ? { mfaStatus: 'INVALID' } : {})
+              [field]: this.inlineForm[field]
             });
             await this.$store.dispatch('getUserInfo');
             this.cancelInlineEdit();
@@ -684,41 +678,6 @@ export default {
       if (res.success) {
         this.$Message.success(this.$t('aksk-chong-zhi-cheng-gong'));
       }
-    },
-    confirmMfaInvalidIfNeeded(fields) {
-      const fieldTypeMap = {
-        account: 'ACCOUNT',
-        phone: 'PHONE',
-        email: 'EMAIL'
-      };
-      const affectedFields = fields.filter((field) => {
-        const type = fieldTypeMap[field];
-        const isActiveMfa = this.userInfo.useMfa && this.userInfo.mfaStatus === 'ACTIVE';
-        const isSameType = !this.userInfo.mfaAccountType || this.userInfo.mfaAccountType === type;
-        return isActiveMfa && isSameType;
-      });
-      if (!affectedFields.length) {
-        return Promise.resolve(false);
-      }
-      const fieldNames = affectedFields.map((field) => this.mfaFieldLabel(field)).join('、');
-      return new Promise((resolve) => {
-        this.$Modal.confirm({
-          title: this.$t('mfa-shi-xiao-que-ren'),
-          content: this.$t('mfa-guan-lian-ziduan-xiugai-tishi', [fieldNames]),
-          okText: this.$t('ji-xu'),
-          cancelText: this.$t('qu-xiao'),
-          onOk: () => resolve(true),
-          onCancel: () => resolve(null)
-        });
-      });
-    },
-    mfaFieldLabel(field) {
-      const labelMap = {
-        account: this.$t('zhang-hao'),
-        phone: this.$t('shou-ji'),
-        email: this.$t('you-xiang')
-      };
-      return labelMap[field] || field;
     },
     startMfaExpireTimer() {
       this.clearMfaExpireTimer();

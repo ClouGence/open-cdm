@@ -300,13 +300,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             }
         }
 
-        if (!StringUtils.equals(oldPhone, newPhone)) {
-            try {
-                this.loginMFAService.invalidateMFAIfAccountChanged(uid, Collections.singleton(MfaAccountType.PHONE), Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
-            } catch (ErrorMessageException e) {
-                return new UpdateUserInfoMO(false, e.getErrorMessage());
-            }
-        }
         // phone console_user,alert_config_detail,system
         authDal.userMapper().updateUserContactInfo(uid, newPhone, null);
 
@@ -337,13 +330,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             }
         }
 
-        if (!StringUtils.equals(oldEmail, newEmail)) {
-            try {
-                this.loginMFAService.invalidateMFAIfAccountChanged(uid, Collections.singleton(MfaAccountType.EMAIL), Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
-            } catch (ErrorMessageException e) {
-                return new UpdateUserInfoMO(false, e.getErrorMessage());
-            }
-        }
         // phone console_user,alert_config_detail,system
         authDal.userMapper().updateUserContactInfo(uid, null, newEmail);
 
@@ -836,13 +822,14 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             return mo;
         }
 
-        Set<MfaAccountType> changedMfaAccountTypes = changedMfaAccountTypes(oldUser, fo);
-        try {
-            this.loginMFAService.invalidateMFAIfAccountChanged(oldUser.getUid(), changedMfaAccountTypes, Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
-        } catch (ErrorMessageException e) {
-            mo.setSuccess(false);
-            mo.setErrorMsg(e.getErrorMessage());
-            return mo;
+        if (fo.getAccount() != null && !StringUtils.equals(oldUser.getAccount(), fo.getAccount())) {
+            try {
+                this.loginMFAService.invalidateMFAIfAccountChanged(oldUser.getUid(), Collections.singleton(MfaAccountType.ACCOUNT), Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
+            } catch (ErrorMessageException e) {
+                mo.setSuccess(false);
+                mo.setErrorMsg(e.getErrorMessage());
+                return mo;
+            }
         }
 
         UpdateUserInfoLO lo = new UpdateUserInfoLO();
@@ -887,20 +874,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         mo.setSuccess(true);
         mo.setErrorMsg(null);
         return mo;
-    }
-
-    private Set<MfaAccountType> changedMfaAccountTypes(DmAuthUserDO oldUser, UpdateSubAccountFO fo) {
-        Set<MfaAccountType> changedTypes = EnumSet.noneOf(MfaAccountType.class);
-        if (fo.getAccount() != null && !StringUtils.equals(oldUser.getAccount(), fo.getAccount())) {
-            changedTypes.add(MfaAccountType.ACCOUNT);
-        }
-        if (fo.getPhone() != null && !StringUtils.equals(oldUser.getPhone(), fo.getPhone())) {
-            changedTypes.add(MfaAccountType.PHONE);
-        }
-        if (fo.getEmail() != null && !StringUtils.equals(oldUser.getEmail(), fo.getEmail())) {
-            changedTypes.add(MfaAccountType.EMAIL);
-        }
-        return changedTypes;
     }
 
     @Override
