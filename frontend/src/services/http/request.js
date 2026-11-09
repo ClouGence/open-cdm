@@ -266,12 +266,6 @@ async function handleHttpError(err) {
         await Router.push({ name: 'Login' });
       }
       break;
-    case 498:
-      eventBus.emit('setOpPasswordModal');
-      break;
-    case 499:
-      eventBus.emit('showEnterOpPwdModal');
-      break;
     case 406:
       let errmsg = i18n.global.t('nin-mei-you-gai-quan-xian-de-cao-zuo-qing-lian-xi-zhu-zhang-hao-huo-guan-li-yuan');
       if (err.msg && typeof err.msg === 'string') {

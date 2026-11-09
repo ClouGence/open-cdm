@@ -253,7 +253,6 @@ import appLogger from '@/utils/logger';
 import { mapState, mapGetters } from 'vuex';
 import { generateData } from '@/utils';
 import copyMixin from '@/mixins/copyMixin';
-import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 
@@ -287,7 +286,7 @@ const EMPTY_SUB_ACCOUNT = {
 // Data and methodology are related to database management privileges.
 export default {
   name: 'SubAccount',
-  mixins: [copyMixin, enterOpPwdMixin, encryptMixin],
+  mixins: [copyMixin, encryptMixin],
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'myCatLog', 'myAuth']),
     canResetInvalidMfa() {

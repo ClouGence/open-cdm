@@ -15,9 +15,7 @@ export const userApi = {
   rdpUserWatermark: '/api/entry/user/waterMark',
   rdpUserQueryLoginUser: '/api/entry/user/queryLoginUser',
   rdpUserResourceSummary: '/api/entry/user/resourceSummary',
-  rdpUserResetOpPasswd: '/api/entry/user/resetOpPasswd',
   rdpUserDbOpAudits: '/api/entry/user/dbopaudits', // Data source operating records
-  rdpUserOpPasswdVerify: '/api/entry/user/opPasswdVerify',
   rdpUserListMyAuth: '/api/entry/user/listMyAuth',
   rdpUserListRules: '/api/entry/user/listRules', // Rule List
   rdpUserListMyAuthCategoryForMenu: '/api/entry/user/listMyAuthCategoryForMenu',

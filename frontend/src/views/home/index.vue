@@ -109,8 +109,7 @@ import { SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
 import AppContentHeader from '@/components/layout/AppContentHeader';
 import AppUserActions from '@/components/layout/AppUserActions';
-import { setApprovalProcessMixin, setOpPasswordMixin } from '@/mixins/modal';
-import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
+import { setApprovalProcessMixin } from '@/mixins/modal';
 import XEClipboard from 'xe-clipboard';
 import DmWaterMark from '@/components/widgets/DmWaterMark';
 import store from '@/store';
@@ -168,7 +167,7 @@ export default {
       dayjs
     };
   },
-  mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
+  mixins: [setApprovalProcessMixin],
   computed: {
     ...mapGetters(['isDesktop', 'displayVersion', 'isInternalUser']),
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'mySystemMenuItems']),
@@ -205,11 +204,6 @@ export default {
       const waterMark = await this.$services.rdpUserWatermark();
       this.watermarkStr = `${waterMark.data.user_name}_${waterMark.data.user_phone}`;
     }
-    this.$bus.on('setOpPasswordModal', (edit = false) => {
-      if (this.globalSetting.authOpPassword) {
-        this.setOpPasswordModal(edit);
-      }
-    });
     this.$bus.on('showCellDetailModal', async (data) => {
       appLogger.debug('showCellDetailModal', data);
       if (!this.showDetailModal) {
@@ -239,14 +233,11 @@ export default {
         }
       }
     });
-    this.$bus.on('showEnterOpPwdModal', this.showEnterOpPwdModal);
     this.$bus.on('dingDingSettingModal', this.setApprovalProcessModal);
     this.$bus.on(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL, (msg) => this.handleShowInactiveModal(msg));
     await this.checkVersion();
   },
   unmounted() {
-    this.$bus.off('setOpPasswordModal');
-    this.$bus.off('showEnterOpPwdModal');
     this.$bus.off('dingDingSettingModal');
     this.$bus.off('showCellDetailModal');
     this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL);
@@ -416,10 +407,6 @@ export default {
     _setApprovalProcessModal() {
       this.$store.dispatch('getUserInfo');
       this.setApprovalProcessModal();
-    },
-    _setOpPasswordModal() {
-      this.$store.dispatch('getUserInfo');
-      this.setOpPasswordModal(true);
     },
     goUserConfig() {
       this.$router.push({ name: 'User_Config' });

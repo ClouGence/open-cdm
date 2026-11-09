@@ -532,7 +532,6 @@
 import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
-import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { handleCopy } from '@/utils/clipboard';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import CCTitle from '@/components/widgets/CCTitle';
@@ -552,7 +551,7 @@ import { DEFAULT_DEVOPS_INFO, DEFAULT_FLOW_INFO, getRepoSelectionKey, getScmDisp
 
 export default {
   name: 'CicdFlowList',
-  mixins: [copyMixin, enterOpPwdMixin, encryptMixin],
+  mixins: [copyMixin, encryptMixin],
   data() {
     return {
       searchKeywords: '',
