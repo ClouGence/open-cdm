@@ -321,29 +321,23 @@ public class CallbackController {
     }
 
     protected Object redirectToMfa(HttpServletResponse response, String mfaPreActionToken) throws IOException {
-        String contextPath = this.config.getDeployContextPath();
-        if (StringUtils.isBlank(contextPath)) {
-            contextPath = "/";
-        } else if (!StringUtils.endsWith(contextPath, "/")) {
-            contextPath += "/";
-        }
-
-        String redirectUrl = contextPath + "#/login?mfa=1&" + "mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8);
-        response.sendRedirect(redirectUrl);
+        redirectToLogin(response, "mfa=1&mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8));
         return "needMfa.";
     }
 
     protected Object redirectToMfaRecovery(HttpServletResponse response, String mfaPreActionToken) throws IOException {
+        redirectToLogin(response, "mfaRecovery=1&mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8));
+        return "mfaInvalid.";
+    }
+
+    private void redirectToLogin(HttpServletResponse response, String query) throws IOException {
         String contextPath = this.config.getDeployContextPath();
         if (StringUtils.isBlank(contextPath)) {
             contextPath = "/";
         } else if (!StringUtils.endsWith(contextPath, "/")) {
             contextPath += "/";
         }
-
-        String redirectUrl = contextPath + "#/login?mfaRecovery=1&" + "mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8);
-        response.sendRedirect(redirectUrl);
-        return "mfaInvalid.";
+        response.sendRedirect(contextPath + "#/login?" + query);
     }
 
     protected Object redirectToHome(HttpServletRequest request, HttpServletResponse response, LoginMO login) throws IOException {
