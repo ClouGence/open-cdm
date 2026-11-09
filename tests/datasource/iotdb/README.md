@@ -4,7 +4,7 @@
 
 ## 首批范围
 
-- **树模型**首批覆盖连接、库与设备浏览、测点详情、查询，以及 SQL 方式的受控写入、按测点和时间删除数据、创建和删除测点。设备用于分组，测点授权使用完整路径。
+- **树模型**首批覆盖连接、库与测点浏览、测点详情、查询，以及 SQL 方式的受控写入、按测点和时间删除数据、创建和删除测点。设备元数据用于测点归属与 SQL 补全，测点授权使用完整路径。
 - **表模型**首批覆盖连接、库与表浏览、列角色、查询和受控 DML、基础 DDL。表级授权与树侧测点授权分开。目标版本支持树转表视图时，单列只读展示和授权边界。
 - 可视化结构和数据编辑、批量导入、血缘、脱敏、工单及 CI/CD 单列评估。已知语法与语义边界通过实库用例确定。
 - 左侧数据源栏为「实例 → 模型 → 库」。1.3.x 展示树模型，2.x 按已验证的模式展开。同一个实例下的会话、方言、元数据和授权都按模型区分。
@@ -14,7 +14,7 @@
 | 范围 | 复用点 | IoTDB 接入内容 |
 | --- | --- | --- |
 | 插件、驱动和会话 | [ClickHouse 插件](../../../backend/clouddm-plugins/clouddm-ds/ds-clickhouse/src/main/java/com/clougence/clouddm/ds/clickhouse/ChPlugin.java)、[DefaultRdbSession](../../../backend/clouddm-platform/cgdm-plugin-sdk/src/main/java/com/clougence/clouddm/sdk/execute/session/rdb/DefaultRdbSession.java) | 独立数据源和 SQL 插件，维护服务端与驱动版本组合。以实际驱动能力验证会话、取消、事务控件和结果转换。 |
-| 对象浏览 | [DsMetaService](../../../backend/clouddm-platform/cgdm-plugin-sdk/src/main/java/com/clougence/clouddm/sdk/execute/meta/DsMetaService.java)、[DsBrowseSpi](../../../backend/clouddm-platform/cgdm-plugin-sdk/src/main/java/com/clougence/clouddm/sdk/ui/browser/DsBrowseSpi.java)、[SQL 工作台](../../../frontend/src/views/sql/index.vue) | 树侧提供设备分组和测点叶子，表侧提供表、视图和列。模型、库与对象标识贯穿查询和浏览。 |
+| 对象浏览 | [DsMetaService](../../../backend/clouddm-platform/cgdm-plugin-sdk/src/main/java/com/clougence/clouddm/sdk/execute/meta/DsMetaService.java)、[DsBrowseSpi](../../../backend/clouddm-platform/cgdm-plugin-sdk/src/main/java/com/clougence/clouddm/sdk/ui/browser/DsBrowseSpi.java)、[SQL 工作台](../../../frontend/src/views/sql/index.vue) | 树侧在库下直接提供测点列表，表侧提供表、视图和列。模型、库与对象标识贯穿查询和浏览。 |
 | SQL 与授权 | [QueryAnalysisServiceImpl](../../../backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/component/analysis/impl/QueryAnalysisServiceImpl.java)、[DmAuthServiceForBizImpl](../../../backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/component/auth/impl/DmAuthServiceForBizImpl.java)、[子账号授权页](../../../frontend/src/views/system/subaccount/auth/authDm.vue) | 按模型拆句和提取对象，树侧按完整路径校验，表侧按库和表校验。数据库授权和 CloudDM 子账号授权分别验收。 |
 
 现有 [SQL 引擎选择](../../../backend/clouddm-platform/cgdm-console/src/main/java/com/clougence/clouddm/console/web/component/dsconfig/impl/DmDsConfigServiceImpl.java#L356) 基于数据源配置，[授权页](../../../frontend/src/views/system/subaccount/auth/authDm.vue#L104) 的叶子页签以表和 Topic 为主。双模型上下文和测点叶子的接入方式先按插件 SPI 评估。涉及核心类修改（枚举除外）或数据源专用分支时，先讨论具体类、调用链和回归范围。
@@ -75,6 +75,7 @@ JDBC 两个超时的定义见 [IoTDB 2.0.11 JDBC 连接实现](https://github.co
 ## 平台授权与执行拦截
 
 - 工作台通过 `QueryResourceResolver` 在执行前核对资源。Tree 从实时数据库列表确认完整测点路径的归属，授权路径为 `/TREE/<database>/<full-timeseries-path>/`。Table 按实际限定库名或当前库生成 `/TABLE/<database>/<table>/`，子查询读源单独检查。
+- 范围明确的元数据 SQL 使用现有查询权限校验。Tree 的设备、测点列表按实时库列表定位到所属库，不能定位到单个库时要求整个 Tree 模型的权限；Table 的表列表按指定库或当前库校验。实例、模型或对应库的查询授权可覆盖这些范围，单测点或单表授权不会上升为库级授权。子账号新增数据源时通过实例创建者授权取得查询能力，不要求其账号等于数据源归属账号。
 - 元数据查询复用 Sidecar 链路及配置的数据库账号。团队账号访问已有对象时，确认物理测点或普通表身份。SQL 投影别名 `AS` 和 Table 表别名保留实际对象授权，原生测点别名在本阶段拒绝执行。
 - Tree 的通配路径及通配测点投影、不能确认身份的对象、包含路径分隔字符的资源、范围不明确的团队元数据语句和未列入安全函数集合的函数调用会在执行前拒绝。首批函数为 `NOW`、`COUNT`、`SUM`、`AVG`、`MIN`、`MAX`、`MIN_VALUE`、`MAX_VALUE`、`FIRST_VALUE`、`LAST_VALUE`、`MIN_TIME`、`MAX_TIME`，实际语法及语义仍以服务端为准。
 - 团队账号查询树转表视图及 Tree 逻辑视图保持关闭。原生表模型的视图权限与树侧测点权限分别授权，因此访问开放前需另行验证视图来源和底层测点的团队授权。[IoTDB 表模型权限](https://iotdb.apache.org/UserGuide/latest-Table/User-Manual/Authority-Management_apache.html)
@@ -84,16 +85,16 @@ JDBC 两个超时的定义见 [IoTDB 2.0.11 JDBC 连接实现](https://github.co
 ## 维护 SQL 与对象脚本
 
 - 命令模板提供 Tree 普通及对齐测点的创建、写入、按时间删除数据和删测点示例，以及 Table 建表、增删列、FIELD 补写、ATTRIBUTE 更新和按 TAG 及时间删除的示例。示例中的 `root.demo` 和 `demo` 需替换为目标测试库。
-- 对象列表通过已有 `objAttr.quickQuery` 返回快捷查询。测点查询明确列出当前测点及所属设备，Table 查询按实际库表名正确引用，默认取 20 行。Device 返回设备元数据查询，View 访问继续经过平台授权。
+- 对象列表通过已有 `objAttr.quickQuery` 返回快捷查询。测点查询明确列出当前测点及所属设备，Table 查询按实际库表名正确引用，默认取 20 行。设备元数据仍可通过手写 SQL 查询，View 访问继续经过平台授权。
 - Tree 的 `requestScript` 支持普通测点、对齐测点及设备。设备脚本包含其直接所属测点，保留对齐方式、类型、编码、压缩、原生别名、标签及属性。模式模板、逻辑视图和含 deadband 的定义返回明确的范围外错误。
 - Table 对象脚本使用原生 `SHOW CREATE TABLE`，为返回定义补齐已读取对象的库名，保留列顺序、列角色、注释及 TTL。View 的结构维护和对象脚本尚未开放。
-- 菜单按对象类型声明。设备和测点提供命令模板、刷新及复制名称，Table 提供原生定义、删除、刷新及复制名称，View 提供刷新及复制名称。可视化结构编辑、数据编辑和导入仍按首批范围单列。
+- 页面菜单按对象类型声明。测点提供命令模板、刷新及复制名称，Table 提供原生定义、删除、刷新及复制名称，View 提供刷新及复制名称。可视化结构编辑、数据编辑和导入仍按首批范围单列。
 - 测点 DDL 成功后，通用回调清理所属模型及库下的元数据缓存，覆盖创建首个或删除最后一个测点引起的设备列表变化。Table 增删列复用现有表结构缓存回调。
 
 ## 工作台与授权页面
 
-- 实例沿用 Catalog/Schema 层级，按 TREE、TABLE 展开数据库。IoTDB 的模型及库节点在 `objAttr.leafTypes` 声明对象类型：Tree 为 DEVICE/TIMESERIES，Table 为 TABLE/VIEW。共享工作台和授权页据此筛选，未声明的数据源保持现有分类。
-- 树侧浏览设备和完整测点路径，复用测点快捷 SQL。表侧浏览表与视图，视图带只读提示，菜单不提供维护或权限申请。现有会话和语言服务携带 Catalog 和 Schema，页签标题及选库选项保留模型。
+- 实例沿用 Catalog/Schema 层级，按 TREE、TABLE 展开数据库。IoTDB 的模型及库节点在 `objAttr.leafTypes` 声明页面对象类型：Tree 仅为 TIMESERIES，Table 为 TABLE/VIEW。共享工作台和授权页据此筛选，未声明的数据源保持现有分类；设备元数据继续供 SQL 补全使用。
+- 树侧进入库直接浏览完整测点路径，不提供设备分类或设备展开层；测点使用显式测点快捷 SQL。表侧浏览表与视图，视图带只读提示，菜单不提供维护或权限申请。现有会话和语言服务携带 Catalog 和 Schema，页签标题及选库选项保留模型。插件浏览能力更新后，已有查询页签需要关闭重开以刷新缓存的对象分类。
 - 新增 Timeseries 授权类型，插件按独立权限定义注册查询、DML、DDL 和库操作。授权与申请页使用“测点权限”，对象身份仍为 TREE/库/完整测点路径，不按设备授权。IoTDB 的表授权不包含视图。
 - 右键申请复用通用权限申请页，传递并定位完整层级及对象；用户自行选择、预览和提交权限，资源不可用时提示重新选择。库表或测点名中的点号不拆分成授权目录。
 - 编辑器复用已有语言能力和会话支持声明；事务、执行计划、不支持的格式化及可视化维护不额外开放。数据源图标暂复用通用数据库图标。
