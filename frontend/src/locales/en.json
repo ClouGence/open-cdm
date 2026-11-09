@@ -3502,10 +3502,8 @@
   "yi-kai-qi": "Enabled",
   "yi-shi-xiao": "Invalid",
   "chong-xin-qi-yong": "Re-enable",
-  "mfa-shi-xiao-que-ren": "Confirm MFA invalidation",
-  "mfa-guan-lian-ziduan-xiugai-tishi": "{0} is linked to MFA sign-in. Changing it will invalidate MFA. Continue?",
   "mfa-yi-shi-xiao": "MFA is invalid",
-  "mfa-yi-shi-xiao-deng-lu-ti-shi": "Your MFA settings are invalid.\nGo to Profile > Security to re-enable or close MFA.",
+  "mfa-yi-shi-xiao-deng-lu-ti-shi": "Your MFA configuration is invalid.\nContact an administrator to reset MFA, then sign in again and re-enable MFA.",
   "mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu": "The MFA login state is invalid. Please sign in again.",
   "mfa-yi-shi-xiao-guan-bi-ti-shi": "Your MFA settings are invalid. After closing MFA, sign-in will no longer require MFA verification. Continue?",
   "mfa-code-you-xiao-qi-ti-shi": "MFA Code is valid for 10 minutes. Remaining {0}",
@@ -4679,5 +4677,10 @@
   "object-browser-search-device-placeholder": "Search devices",
   "object-browser-search-timeseries-placeholder": "Search full timeseries paths",
   "object-browser-read-only": "Read only",
-  "permission-target-unavailable": "The requested resource is unavailable. Refresh the resource tree and select it again."
+  "permission-target-unavailable": "The requested resource is unavailable. Refresh the resource tree and select it again.",
+  "jian-cha-hui-fu-zhuang-tai": "Check Recovery Status",
+  "zhong-zhi-shi-xiao-mfa": "Reset Invalid MFA",
+  "que-ding-zhong-zhi-shi-xiao-mfa-ma": "Reset the invalid MFA of this account?",
+  "zhong-zhi-shi-xiao-mfa-ti-shi": "This disables the invalid MFA configuration and revokes all sessions of the target account. The user must sign in again and re-enable MFA.",
+  "zhong-zhi-shi-xiao-mfa-cheng-gong": "Invalid MFA reset"
 }

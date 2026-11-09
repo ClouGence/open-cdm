@@ -3450,10 +3450,8 @@
   "yi-kai-qi": "已开启",
   "yi-shi-xiao": "已失效",
   "chong-xin-qi-yong": "重新启用",
-  "mfa-shi-xiao-que-ren": "MFA 失效确认",
-  "mfa-guan-lian-ziduan-xiugai-tishi": "{0} 已经关联 MFA 登录，改动将会导致 MFA 失效，是否继续？",
   "mfa-yi-shi-xiao": "MFA 已失效",
-  "mfa-yi-shi-xiao-deng-lu-ti-shi": "当前 MFA 配置已经失效，\n请前往个人资料安全页重新启用或关闭 MFA。",
+  "mfa-yi-shi-xiao-deng-lu-ti-shi": "当前 MFA 配置已经失效，\n请联系管理员重置 MFA 后重新登录，并在登录后重新启用 MFA。",
   "mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu": "MFA 登录状态无效，请重新登录。",
   "mfa-yi-shi-xiao-guan-bi-ti-shi": "当前 MFA 配置已经失效，关闭后登录将不再要求 MFA 验证，是否继续？",
   "mfa-code-you-xiao-qi-ti-shi": "MFA Code 10 分钟内有效，剩余 {0}",
@@ -4658,5 +4656,10 @@
   "object-browser-search-device-placeholder": "搜索设备",
   "object-browser-search-timeseries-placeholder": "搜索完整测点路径",
   "object-browser-read-only": "只读",
-  "permission-target-unavailable": "申请的资源当前不可用，请刷新资源树后重新选择。"
+  "permission-target-unavailable": "申请的资源当前不可用，请刷新资源树后重新选择。",
+  "jian-cha-hui-fu-zhuang-tai": "检查恢复状态",
+  "zhong-zhi-shi-xiao-mfa": "重置失效 MFA",
+  "que-ding-zhong-zhi-shi-xiao-mfa-ma": "确定重置该账号失效的 MFA 吗？",
+  "zhong-zhi-shi-xiao-mfa-ti-shi": "重置将关闭该账号当前失效的 MFA 并使其所有会话退出登录。该账号需要重新登录，并在登录后重新启用 MFA。",
+  "zhong-zhi-shi-xiao-mfa-cheng-gong": "失效的 MFA 已重置"
 }

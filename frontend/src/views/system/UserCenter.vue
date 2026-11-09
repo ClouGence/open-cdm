@@ -505,8 +505,8 @@ export default {
       this.errMsg = '';
       if (res?.success) {
         this.$Message.success(this.mfaMode === 'reset' ? this.$t('chong-zhi-duo-yin-zi-ren-zheng-cheng-gong') : this.$t('kai-qi-cheng-gong'));
-        this.$store.dispatch('getUserInfo');
-        this.handleCloseMfaModal();
+        // enabling or re-binding MFA revokes the current web session
+        this.$router.push({ path: '/login' });
       }
       this.mfaModalLoading = false;
     },

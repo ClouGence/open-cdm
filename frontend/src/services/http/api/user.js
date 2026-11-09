@@ -2,6 +2,7 @@ export const userApi = {
   login: '/login',
   logout: '/logout',
   loginMfaValid: '/loginMfaValid',
+  homeLoginMfaRecoveryStatus: '/loginMfaRecoveryStatus',
   requestJumpUrl: '/requestJumpUrl',
   getGlobalSettings: '/globalSettings',
   checkSupplement: '/checkSupplement',
@@ -31,6 +32,7 @@ export const userApi = {
 
   rdpUserManagerListSubAccounts: '/api/entry/user/manager/listSubAccounts',
   rdpUserManagerUpdateSubAccount: '/api/entry/user/manager/updateSubAccount',
+  rdpUserManagerResetInvalidMfa: '/api/entry/user/manager/resetInvalidMfa',
   rdpUserManagerCtrlAddSubAccount: '/api/entry/user/manager/ctrlAddSubAccount',
   rdpUserManagerAddSubAccount: '/api/entry/user/manager/addSubAccount',
   rdpUserManagerDeleteSubAccount: '/api/entry/user/manager/deleteSubAccount',

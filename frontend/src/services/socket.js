@@ -7,10 +7,8 @@ import i18n from '@/i18n';
 import eventBus from '@/utils/eventBus';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { isDmSystemBootstrapRequired } from '@/utils/dmGlobalSettings';
-import Cookies from 'js-cookie';
 
 let rws = null;
-const JWT_TOKEN_NAME = 'dm_jwt_token';
 const WS_POLICY_VIOLATION_CODE = 1008;
 const SYSTEM_STATUS_REQUEST_TIMEOUT_MS = 1500;
 let systemStatusCheckInProgress = false;
@@ -26,19 +24,9 @@ const DEFAULT_REQUEST_TIMEOUT = 5000;
 const hasWebSocketInstance = () => !!rws;
 
 const buildFullUrl = (url) => {
-  const jwtToken = Cookies.get(JWT_TOKEN_NAME);
-
   const params = new URLSearchParams();
-
-  // Add locale parameter
   params.append('locale', i18n.global.locale.value);
 
-  if (process.env.NODE_ENV === 'development' && jwtToken) {
-    // Add jwt token to query parameters (server may read from query string)
-    params.append(JWT_TOKEN_NAME, jwtToken);
-  }
-
-  // If a query parameter already exists in the URL, use & connection, otherwise use?
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}${params.toString()}`;
 };
@@ -101,7 +89,6 @@ const createWebSocket = (url) => {
     return;
   }
 
-  // Ws connection does not support plugging directly into headers, here via qeury string, giving priority to backend reading, resolving agent ws connection 401
   rws = new ReconnectingWebSocket(() => buildFullUrl(url), null, {
     debug: false,
     minReconnectionDelay: 3000,

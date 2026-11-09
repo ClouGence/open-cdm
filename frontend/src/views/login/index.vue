@@ -127,11 +127,11 @@
           </a-button>
         </div>
         <div class="completion-actions" v-if="showMfa && mfaInvalidMode">
-          <a-button :disabled="loginLoading" size="large" class="completion-submit mfa-invalid-action" @click="goHandleInvalidMfa">
-            {{ $t('qu-chu-li') }}
+          <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="checkMfaRecovery">
+            {{ $t('jian-cha-hui-fu-zhuang-tai') }}
           </a-button>
-          <a-button :disabled="loginLoading" size="large" class="completion-back" @click="redirectToHome">
-            {{ $t('shao-hou-chu-li') }}
+          <a-button :disabled="loginLoading" size="large" class="completion-back" @click="goReLogin">
+            {{ $t('chong-xin-deng-lu') }}
           </a-button>
         </div>
         <div class="login-provider-switcher" v-if="!showMfa && !isCompletionMode && loginDef.length > 1">
@@ -319,7 +319,7 @@ export default {
       const moreInfo = loginData.moreInfo || {};
       this.loginCallbackData = {
         completion: true,
-        token: loginData.token || submittedForm.token,
+        completionToken: loginData.completionToken || submittedForm.completionToken,
         account: moreInfo.account,
         user: moreInfo.name,
         phone: moreInfo.phone,
@@ -419,7 +419,7 @@ export default {
         loginType: this.currentLoginType,
         password: this.loginForm.password ? this.passwordEncrypt(this.loginForm.password) : '',
         registerInfo: isCompletionLogin ? this.loginForm.registerInfo : null,
-        token: isCompletionLogin ? this.loginCallbackData.token : null
+        completionToken: isCompletionLogin ? this.loginCallbackData.completionToken : null
       };
       try {
         const res = await this.$services.login({
@@ -435,8 +435,7 @@ export default {
             this.mfaInvalidMode = false;
             this.mfaPreActionToken = res.data.mfaPreActionToken;
           } else if (res.data.mfaInvalid) {
-            await this.getUserInfo();
-            this.handleMfaInvalidLogin();
+            this.handleMfaInvalidLogin(res.data.mfaPreActionToken);
           } else {
             await this.getUserInfo();
             await this.redirectToHome();
@@ -479,15 +478,30 @@ export default {
         this.loginLoading = false;
       }
     },
-    handleMfaInvalidLogin() {
+    handleMfaInvalidLogin(mfaPreActionToken) {
       this.showMfa = true;
       this.mfaInvalidMode = true;
       this.mfaCode = '';
-      this.mfaPreActionToken = '';
+      this.mfaPreActionToken = mfaPreActionToken || '';
       this.errMsg = '';
     },
-    goHandleInvalidMfa() {
-      this.$router.push({ path: '/settings/profile', query: { tab: 'security' } });
+    async checkMfaRecovery() {
+      if (this.loginLoading) {
+        return;
+      }
+      this.loginLoading = true;
+      try {
+        const res = await this.$services.homeLoginMfaRecoveryStatus({ data: { mfaPreActionToken: this.mfaPreActionToken }, modal: false });
+        if (!res.success) {
+          Toast.error(this.resolveErrorMessage(res));
+          await this.goReLogin();
+        }
+      } catch (error) {
+        Toast.error(this.resolveErrorMessage(error));
+        await this.goReLogin();
+      } finally {
+        this.loginLoading = false;
+      }
     },
     handleGoJump(loginDef = this.currentLoginDef) {
       if (!loginDef.available) {
@@ -531,6 +545,16 @@ export default {
     },
     async applyCallbackQuery() {
       const query = this.$route.query || {};
+      if (query.mfaRecovery === '1') {
+        const challengeToken = Array.isArray(query.mfaPreActionToken) ? query.mfaPreActionToken[0] : query.mfaPreActionToken;
+        await this.$router.replace({ name: 'Login', query: {} });
+        if (!challengeToken) {
+          Toast.error(this.$t('mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu'));
+          return;
+        }
+        this.handleMfaInvalidLogin(challengeToken);
+        return;
+      }
       if (query.mfa === '1') {
         const challengeToken = Array.isArray(query.mfaPreActionToken) ? query.mfaPreActionToken[0] : query.mfaPreActionToken;
         await this.$router.replace({ name: 'Login', query: {} });
@@ -545,11 +569,12 @@ export default {
         }
         this.mfaPreActionToken = challengeToken;
         this.showMfa = true;
-      } else if (query.token) {
+      } else if (query.completionToken) {
         this.loginCallbackData = {
           ...query,
           completion: true
         };
+        await this.$router.replace({ name: 'Login', query: {} });
         this.loginForm.account = this.loginCallbackData.account || this.loginCallbackData.sub || this.loginCallbackData.registerAccount || '';
         this.loginForm.registerInfo = {
           account: this.loginCallbackData.registerAccount || this.loginCallbackData.account,
@@ -935,19 +960,6 @@ export default {
 
         .completion-back {
           flex: 0 0 25%;
-        }
-
-        .mfa-invalid-action {
-          color: #ff2201;
-          border-color: #ff2201;
-          background: var(--login-surface);
-
-          &:hover,
-          &:focus {
-            color: #e2005a;
-            border-color: #e2005a;
-            background: var(--login-surface);
-          }
         }
       }
 
