@@ -34,6 +34,34 @@ Global images are hosted on Docker Hub and are suitable for regions outside main
 
 ---
 
+### Web login sessions and upgrades
+
+The Web console uses server sessions and accepts only the browser's `dm_session_token` Cookie. Old login JWTs, login headers, and URL login parameters are rejected. OpenAPI AK/SK, MCP, and Sidecar retain their respective authentication protocols.
+
+Alone/Console properties templates expose these settings in seconds. Every Console node must use the same values:
+
+| Setting | Default | Meaning |
+|---------|---------|---------|
+| `clougence.rdp.session.activity-window-sec` | `86400` | 24-hour activity validity window |
+| `clougence.rdp.session.renewal-threshold-sec` | `21600` | Eligible HTTP actions renew sessions with at most 6 hours remaining |
+| `clougence.rdp.session.absolute-lifetime-sec` | `604800` | Maximum 7 days from the original login |
+
+The window must be positive, the threshold must be positive and smaller than the window, and the absolute lifetime must be at least the window. The old `clougence.rdp.login.expire.sec` setting has been removed. This is threshold renewal, not an exact idle timeout: remaining validity after an eligible action is typically 6–24 hours, capped by the original login's absolute lifetime. Open pages, background polling, WebSocket messages, and passive push do not renew sessions. The login Cookie has a fixed lifetime of 7 days (or the configured absolute lifetime); renewal updates only the database, and server-side expiry still requires a new login.
+
+Set `clougence.rdp.deploy.context-path` to the external browser URL, such as `https://dm.example.com/clouddm`. The Cookie Path is `/clouddm`, and HTTPS enables Secure; local HTTP is supported. Cookies default to Host-Only, HttpOnly, and SameSite=Lax. Set `clougence.rdp.login.cookie.domain` only when subdomain sharing is required. Reverse proxies must forward both HTTP and WebSocket traffic; the frontend connects to the current site's `/clouddm/api/entry/ws/channel`. When rewriting backend paths, configure the external URL for Cookie scope; arbitrary forwarded headers do not determine Secure. Cookie scope changes require a new login.
+
+For a non-root deployment, build the frontend with `VUE_APP_BASE_URL=/clouddm/` so static assets, HTTP APIs, and WebSocket traffic share the prefix. Use the defaults for root deployments. When switching this environment variable for existing build outputs, force a frontend build, for example `cd frontend && VUE_APP_BASE_URL=/clouddm/ npm run build:dm`, then repackage the resources so cached root-path outputs are not reused.
+
+For upgrades, drain and stop all old Console/Alone nodes in a maintenance window, let the new version apply the additive `V202611090001__dm_auth_session` migration, and restore ingress only after all nodes run the new version. Mixed authentication versions are unsupported. All users must sign in again. Missing tables or database failures reject authentication without falling back to JWT.
+
+Before changing the absolute lifetime, stop ingress and drain nodes, clear existing rows in `dm_auth_session` in a transaction, then update every node consistently and restart. All users must sign in again. Do not update only one node or reuse old sessions after increasing the lifetime: old records could become valid again. Revocation closes local connections; passive push on other nodes may lag by at most 30 seconds and stops when validation is stale or fails. WebSocket traffic alone cannot keep a session alive indefinitely.
+
+Logout revokes only the current local session and does not invoke upstream SSO global logout. Password changes, account disable/delete, and MFA enable/reset/close revoke all target-user sessions. Account names, contact details, roles, and AK/SK changes preserve Web sessions; permissions are checked again. Historical invalid MFA requires another authorized administrator to reset it, followed by a fresh login and MFA setup.
+
+Retain `jwt.secret` / `APP_WEB_JWT` for legacy operation-password endpoints; Web login does not use them. Retain OIDC Provider ID Token verification dependencies as well. Operation-password repairs and CSRF/Origin hardening are deferred; this migration does not promise that `oppassword=true` works. Application and proxy logs must not collect Cookies, authentication headers, tokens, or token hashes.
+
+For rollback, stop new nodes and drain ingress, rotate the old version's `jwt.secret`, clear the new session Cookie in browsers, and then restore old binaries. Keep the additive session table; do not run a destructive down migration. Rotating the secret prevents old login JWTs becoming valid again. Rollback also requires all users to sign in again.
+
 ## 2. Local Packaging
 
 To deploy locally from the source repository, you should first package the project under `open-cdm/package`.

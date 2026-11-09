@@ -34,6 +34,34 @@ CloudDM 支持 **单机模式（Alone）** 和 **集群模式（Console + Sideca
 
 ---
 
+### Web 登录会话与升级
+
+Web 控制台使用服务端会话，只接受浏览器自动携带的 `dm_session_token` Cookie。旧登录 JWT、Header 和 URL 登录参数不再有效；OpenAPI 的 AK/SK、MCP 和 Sidecar 协议保持各自的认证方式。
+
+Alone/Console 的 properties 模板提供以下配置（单位：秒），所有 Console 节点必须一致：
+
+| 配置 | 默认值 | 含义 |
+|------|--------|------|
+| `clougence.rdp.session.activity-window-sec` | `86400` | 会话活动有效窗口 24 小时 |
+| `clougence.rdp.session.renewal-threshold-sec` | `21600` | 剩余不超过 6 小时时，合格 HTTP 操作触发续期 |
+| `clougence.rdp.session.absolute-lifetime-sec` | `604800` | 从首次登录起最多 7 天 |
+
+窗口必须为正，续期阈值必须大于零且小于窗口，最长寿命必须不小于窗口。旧 `clougence.rdp.login.expire.sec` 已移除，不再控制登录时长。这是阈值续期，不是精确空闲超时：最近一次合格操作后的剩余有效时间通常为 6–24 小时，且不能超过首次登录起的最长寿命。仅打开页面、后台轮询、WebSocket 消息和被动推送不会续期。Cookie 在登录时固定保留 7 天（或配置的最长寿命），续期只更新数据库，服务端过期后仍须重新登录。
+
+`clougence.rdp.deploy.context-path` 应填写浏览器访问的外部地址，例如 `https://dm.example.com/clouddm`。Cookie Path 为 `/clouddm`，HTTPS 地址启用 Secure；本地 HTTP 可用。Cookie 默认 Host-Only、HttpOnly、SameSite=Lax，仅需要跨子域共享时才显式设置 `clougence.rdp.login.cookie.domain`。反向代理需同时转发 HTTP 和 WebSocket；前端连接当前站点的 `/clouddm/api/entry/ws/channel`。代理重写后端路径时仍以外部地址配置 Cookie 作用域，不依赖任意传入的转发头判断 HTTPS。Cookie 作用域改变后用户需要重新登录。
+
+非根路径部署还需在构建前端时设置 `VUE_APP_BASE_URL=/clouddm/`，让静态资源、HTTP API 和 WebSocket 使用相同前缀；根路径使用默认值。已有构建输出切换该环境变量后需强制重新执行前端构建，例如 `cd frontend && VUE_APP_BASE_URL=/clouddm/ npm run build:dm`，再重新打包资源，避免构建缓存继续复用根路径产物。
+
+升级应在维护窗口排空并停止全部旧 Console/Alone 节点，再让新版本执行加性迁移 `V202611090001__dm_auth_session`，确认所有节点使用新版本后恢复入口。禁止新旧登录认证节点混跑，升级后所有用户重新登录。数据库缺表或不可用时认证失败，不回退到 JWT。
+
+修改最长寿命前，同样停止入口并排空节点，在事务中清空 `dm_auth_session` 现存会话，再统一修改所有节点配置并重启；用户全部重新登录。不得只修改一个节点或放宽配置后继续使用旧会话，避免旧记录重新有效。撤销后本节点连接关闭，其他节点被动推送最多滞后 30 秒；校验过旧或失败时停止推送。纯 WebSocket 使用不能保持登录永久有效。
+
+退出只撤销本系统当前会话，不联动上游 SSO 全局登出。改密、禁用/删除账号和 MFA 启用/重置/关闭撤销目标账号全部会话；账号名称、联系方式、角色和 AK/SK 变更保留 Web 会话，角色权限重新校验。历史失效 MFA 不会自动恢复：用户联系有权限的其他管理员重置失效配置后，重新登录并重新启用 MFA。
+
+`jwt.secret` / `APP_WEB_JWT` 暂时保留供遗留操作密码接口使用，不用于 Web 登录；OIDC Provider 的 ID Token 校验依赖也保留。操作密码功能修复与 CSRF/Origin 防护强化均延期，本次迁移不承诺 `oppassword=true` 可用。日志和反向代理访问记录不得采集 Cookie、认证 Header、令牌或令牌哈希。
+
+回滚前停止新节点并排空入口，轮换旧版本的 `jwt.secret`，清除浏览器新会话 Cookie，再恢复旧二进制；保留新增会话表，不执行破坏性 down migration。轮换密钥是为了防止回滚后旧登录 JWT 重新有效，回滚同样需要全量重新登录。
+
 ## 二、本地打包
 
 从源码仓库本地部署，需要先在 `open-cdm/package` 下执行打包。
