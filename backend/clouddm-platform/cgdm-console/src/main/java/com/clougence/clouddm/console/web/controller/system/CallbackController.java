@@ -34,7 +34,7 @@ import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
+import com.clougence.clouddm.console.web.global.session.SessionCookieService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.service.login.LoginDefService;
@@ -64,7 +64,6 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -75,21 +74,23 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/callback")
 public class CallbackController {
     @Resource
-    private AuthDal             authDal;
+    private AuthDal              authDal;
     @Resource
-    private NamingDao           namingDao;
+    private NamingDao            namingDao;
     @Resource
-    private ApprovalFlowService approvalFlowService;
+    private ApprovalFlowService  approvalFlowService;
     @Resource
-    private LoginDefService     loginDefService;
+    private LoginDefService      loginDefService;
     @Resource
-    private LoginService        loginRegService;
+    private LoginService         loginRegService;
     @Resource
-    private ConsoleConfig       config;
+    private ConsoleConfig        config;
     @Resource
-    private RdpOpAuditService   opAuditService;
+    private RdpOpAuditService    opAuditService;
     @Resource
-    private CsrfTokenService    csrfTokenService;
+    private CsrfTokenService     csrfTokenService;
+    @Resource
+    private SessionCookieService sessionCookieService;
 
     @RequestMapping(value = "/event", method = { RequestMethod.POST, RequestMethod.GET })
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
@@ -256,6 +257,14 @@ public class CallbackController {
                 return this.redirectToMfa(response, login.getMfaPreActionToken());
             }
 
+            if (login.isMfaInvalid()) {
+                if (StringUtils.isBlank(login.getMfaPreActionToken())) {
+                    String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
+                    return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
+                }
+                return this.redirectToMfaRecovery(response, login.getMfaPreActionToken());
+            }
+
             return this.redirectToHome(request, response, login);
         } catch (Exception e) {
             if (e instanceof ErrorMessageException) {
@@ -298,7 +307,7 @@ public class CallbackController {
             subAccount = subAccount.substring(0, domainSeparator);
         }
         String redirectUrl = contextPath + "#/login?" +//
-                             "token=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), StandardCharsets.UTF_8) + "&" +              //
+                             "completionToken=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), StandardCharsets.UTF_8) + "&" +              //
                              "sub=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), StandardCharsets.UTF_8) + "&" +                   //
                              "account=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getAccount(), ""), StandardCharsets.UTF_8) + "&" +//
                              "registerAccount=" + URLEncoder.encode(this.namingDao.genLoginAccount(), StandardCharsets.UTF_8) + "&" +                //
@@ -324,16 +333,27 @@ public class CallbackController {
         return "needMfa.";
     }
 
+    protected Object redirectToMfaRecovery(HttpServletResponse response, String mfaPreActionToken) throws IOException {
+        String contextPath = this.config.getDeployContextPath();
+        if (StringUtils.isBlank(contextPath)) {
+            contextPath = "/";
+        } else if (!StringUtils.endsWith(contextPath, "/")) {
+            contextPath += "/";
+        }
+
+        String redirectUrl = contextPath + "#/login?mfaRecovery=1&" + "mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8);
+        response.sendRedirect(redirectUrl);
+        return "mfaInvalid.";
+    }
+
     protected Object redirectToHome(HttpServletRequest request, HttpServletResponse response, LoginMO login) throws IOException {
-        if (login.isNeedMfa() || login.isNeedMore() || StringUtils.isBlank(login.getToken())) {
+        if (login.isNeedMfa() || login.isNeedMore() || login.getIssuedSession() == null) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
         }
 
-        int cookieAge = Math.max(JwtService.minLoginExpireSec, this.config.getLoginExpireTimeSec());
-        Cookie cookie = RdpWebUtils.newCookie(JwtService.jwtTokenName, login.getToken(), false, cookieAge);
-
-        response.addCookie(cookie);
+        this.sessionCookieService.write(response, login.getIssuedSession());
+        this.sessionCookieService.clearLegacy(response);
         if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
             response.sendRedirect(this.config.getDeployContextPath());
         } else {
@@ -357,7 +377,6 @@ public class CallbackController {
             return this.redirectOrDone(request, response, "/");
         }
 
-        response.addCookie(RdpWebUtils.newCookie(JwtService.jwtTokenName, StringUtils.EMPTY, true, 0));
         return this.redirectOrDone(request, response, "/");
     }
 

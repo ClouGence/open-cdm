@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.console.web.service.login;
 
-import java.util.Collection;
-
 import com.clougence.clouddm.console.web.constants.MfaAccountType;
 import com.clougence.clouddm.console.web.model.vo.MfaCodeVO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
@@ -35,9 +33,9 @@ public interface LoginMFAService {
 
     void closeInvalidMFA(String uid);
 
-    boolean isInvalidMFA(String uid);
+    void resetInvalidMFA(String targetUid);
 
-    void invalidateMFAIfAccountChanged(String uid, Collection<MfaAccountType> changedTypes, boolean confirmed);
+    boolean isInvalidMFA(String uid);
 
     DmAuthMFADO queryMFA(String uid);
 }

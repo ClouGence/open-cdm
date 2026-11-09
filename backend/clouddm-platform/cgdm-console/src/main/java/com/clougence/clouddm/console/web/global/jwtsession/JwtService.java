@@ -16,32 +16,15 @@
 package com.clougence.clouddm.console.web.global.jwtsession;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 public interface JwtService {
 
-    String jwtTokenName      = "dm_jwt_token";
-    String opPwdToken        = "dm_op_pwd_token";
-    String LOGIN_TYPE        = "loginType";
-    int    minLoginExpireSec = 1200;
-
-    DecodedJWT verify(HttpServletRequest request);
-
-    void refreshCookiePeriodOfValidity(HttpServletRequest request, HttpServletResponse response);
-
-    void refreshJwtTokenPeriodOfValidity(HttpServletRequest request, HttpServletResponse response, DmAuthUserDO user);
+    String opPwdToken = "dm_op_pwd_token";
 
     DecodedJWT verifyOpToken(HttpServletRequest request);
-
-    DecodedJWT verifyJwtToken(String jwtToken);
-
-    String genJwtToken(DmAuthUserDO user);
-
-    String genJwtToken(DmAuthUserDO user, LoginAuthType loginType);
 
     String genOpPwdToken(DmAuthUserDO user);
 

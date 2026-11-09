@@ -21,6 +21,7 @@ import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.LOGIN
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.regex.Pattern;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.concurrent.Executors;
@@ -51,13 +52,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MfaChallengeServiceImpl implements MfaChallengeService, UnifiedPostConstruct {
 
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-    private static final int          TOKEN_BYTES   = 32;
+    private static final SecureRandom SECURE_RANDOM          = new SecureRandom();
+    private static final int          TOKEN_BYTES            = 32;
+    private static final Pattern      CHALLENGE_TOKEN_FORMAT = Pattern.compile("^[A-Za-z0-9_-]{43}$");
 
     @Resource
-    private AuthDal                  authDal;
+    private AuthDal                   authDal;
 
-    private ScheduledExecutorService cleanerExecutor;
+    private ScheduledExecutorService  cleanerExecutor;
 
     @Override
     public void init() {
@@ -108,16 +110,33 @@ public class MfaChallengeServiceImpl implements MfaChallengeService, UnifiedPost
 
     @Override
     public DmAuthMfaChallengeDO requirePendingChallenge(String challengeToken, MfaPreActionType actionType) {
-        DmAuthMfaChallengeDO challengeDO = authDal.mfaChallengeMapper().queryByTokenHash(hashToken(challengeToken));
+        DmAuthMfaChallengeDO challengeDO = requirePending(challengeToken, actionType, false);
+        return challengeDO;
+    }
+
+    @Override
+    public DmAuthMfaChallengeDO requirePendingChallengeForUpdate(String challengeToken, MfaPreActionType actionType) {
+        return requirePending(challengeToken, actionType, true);
+    }
+
+    private DmAuthMfaChallengeDO requirePending(String challengeToken, MfaPreActionType actionType, boolean forUpdate) {
+        if (challengeToken == null || !CHALLENGE_TOKEN_FORMAT.matcher(challengeToken).matches()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(LOGIN_INVALID_TOKEN_ERROR.name()));
+        }
+        DmAuthMfaChallengeDO challengeDO = forUpdate ? authDal.mfaChallengeMapper().queryByTokenHashForUpdate(hashToken(challengeToken)) : authDal.mfaChallengeMapper()
+            .queryByTokenHash(hashToken(challengeToken));
         long nowMs = System.currentTimeMillis();
         if (challengeDO == null || !actionType.name().equals(challengeDO.getActionType())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(LOGIN_INVALID_TOKEN_ERROR.name()));
         }
-        if (challengeDO.getExpireTimeMs() < nowMs) {
+        if (challengeDO.getExpireTimeMs() <= nowMs) {
             throw new ErrorMessageException(ConsoleErrorCode.LOGIN_MFA_PRE_ACTION_TOKEN_EXPIRED.getCode(),
                 DmI18nUtils.getMessage(LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
         }
-        if (challengeDO.getRetryCount() >= MAX_RETRY_COUNT) {
+        // forUpdate runs after acquireAttempt already counted this attempt, so
+        // retryCount == MAX is still the last allowed attempt here
+        int limit = forUpdate ? MAX_RETRY_COUNT + 1 : MAX_RETRY_COUNT;
+        if (challengeDO.getRetryCount() >= limit) {
             throw new ErrorMessageException(ConsoleErrorCode.LOGIN_MFA_RETRY_LIMIT_EXCEEDED.getCode(),
                 DmI18nUtils.getMessage(LOGIN_MFA_RETRY_LIMIT_EXCEEDED.name(), MAX_RETRY_COUNT));
         }
@@ -126,16 +145,16 @@ public class MfaChallengeServiceImpl implements MfaChallengeService, UnifiedPost
 
     @Override
     public boolean acquireAttempt(DmAuthMfaChallengeDO challengeDO) {
-        int updated = authDal.mfaChallengeMapper().acquireAttempt(challengeDO.getId(), challengeDO.getChallengeTokenHash(), challengeDO.getActionType(),
-            System.currentTimeMillis(), MAX_RETRY_COUNT);
+        int updated = authDal.mfaChallengeMapper()
+            .acquireAttempt(challengeDO.getId(), challengeDO.getChallengeTokenHash(), challengeDO.getActionType(), System.currentTimeMillis(), MAX_RETRY_COUNT);
         return updated == 1;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public boolean consumeChallenge(DmAuthMfaChallengeDO challengeDO) {
-        int deleted = authDal.mfaChallengeMapper().deleteForConsume(challengeDO.getId(), challengeDO.getChallengeTokenHash(), challengeDO.getActionType(),
-            System.currentTimeMillis(), MAX_RETRY_COUNT);
+        int deleted = authDal.mfaChallengeMapper()
+            .deleteForConsume(challengeDO.getId(), challengeDO.getChallengeTokenHash(), challengeDO.getActionType(), System.currentTimeMillis(), MAX_RETRY_COUNT);
         return deleted == 1;
     }
 

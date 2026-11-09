@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.global.jwtsession;
+package com.clougence.clouddm.console.web.model.fo.user;
 
-import lombok.Builder;
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@Builder
-public class JwtCheckResult {
+@Getter
+@Setter
+public class ResetInvalidMfaFO {
 
-    private boolean success;
-    private String  message;
-    private int     errorCode;
-
+    @NotBlank
+    private String targetUid;
 }

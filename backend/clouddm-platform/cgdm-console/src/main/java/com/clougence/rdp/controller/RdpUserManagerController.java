@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
@@ -35,11 +34,11 @@ import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.ResetPasswdFO;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
+import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.console.web.model.lo.UpdateUserRoleLO;
 import com.clougence.clouddm.console.web.model.vo.ListUserVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
@@ -58,7 +57,6 @@ import com.clougence.rdp.service.model.ValidateResultMO;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -80,6 +78,8 @@ public class RdpUserManagerController {
     private DmAuthServiceForBiz rdpAuthServiceForBiz;
     @Resource
     private ConsoleConfig       consoleConfig;
+    @Resource
+    private LoginMFAService     loginMFAService;
     @Resource
     private RdpOpAuditService   rdpOpAuditService;
 
@@ -117,7 +117,7 @@ public class RdpUserManagerController {
 
         checkOperateUserAuth(uid, userDO.getUid());
 
-        UpdateUserInfoMO resetPasswdMO = this.rdpUserService.resetPassword(fo);
+        UpdateUserInfoMO resetPasswdMO = this.rdpUserService.resetPassword(fo, userDO.getUid());
         if (resetPasswdMO.isSuccess()) {
             return ResWebDataUtils.buildSuccess();
         } else {
@@ -139,7 +139,7 @@ public class RdpUserManagerController {
         return ResWebDataUtils.buildSuccess();
     }
 
-    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
+    @RequestAuth(renewSession = true, level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/addSubAccount", method = { RequestMethod.POST })
     public ResWebData<?> addSubAccount(@Valid @RequestBody AddSubAccountFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -158,7 +158,7 @@ public class RdpUserManagerController {
         }
     }
 
-    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
+    @RequestAuth(renewSession = true, level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/updateSubAccount", method = { RequestMethod.POST })
     public ResWebData<?> updateSubAccount(@Valid @RequestBody UpdateSubAccountFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -214,18 +214,17 @@ public class RdpUserManagerController {
 
         rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, userDO.getUid());
 
-        DmAuthUserDO rdpUserDO = authDal.userMapper().queryBySubAccount(fo.getAccount());
-        ResWebData<Boolean> resWebData = this.rdpUserService.deleteSubAccount(puid, fo);
+        ResWebData<Boolean> resWebData = this.rdpUserService.deleteSubAccount(puid, fo, userDO.getUid());
 
         if (resWebData.isSuccess()) {
             rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), userDO
-                .getUid(), fo, SecurityLevel.HIGH, AuditType.DELETE_SUB_ACCOUNT, ResourceType.ACCOUNT, rdpUserDO.getUsername());
+                .getUid(), fo, SecurityLevel.HIGH, AuditType.DELETE_SUB_ACCOUNT, ResourceType.ACCOUNT, userDO.getUsername());
         }
 
         return resWebData;
     }
 
-    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
+    @RequestAuth(renewSession = true, level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/updateUserRole", method = RequestMethod.POST)
     public ResWebData<?> updateUserRole(@Valid @RequestBody UpdateUserRoleFO fo, HttpServletRequest request, HttpServletResponse response) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -235,20 +234,6 @@ public class RdpUserManagerController {
         UpdateUserRoleLO lo = this.rdpUserService.updateUserRole(fo);
         rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo
             .getSubAccountUid(), lo, SecurityLevel.HIGH, AuditType.UPDATE_SUB_ACCOUNT_ROLE, ResourceType.ACCOUNT);
-
-        if (StringUtils.equals(uid, fo.getSubAccountUid())) {
-            Cookie cookie = new Cookie(JwtService.jwtTokenName, StringUtils.EMPTY);
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(0);
-            cookie.setPath("/");
-
-            if (StringUtils.isNotBlank(consoleConfig.getLoginCookieDomain())) {
-                cookie.setDomain(consoleConfig.getLoginCookieDomain());
-            }
-
-            response.addCookie(cookie);
-            return ResWebDataUtils.buildError(DmErrorCode.COMM_RELOAD_ACTION.code(), DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NEED_RELOGIN.name()));
-        }
 
         return ResWebDataUtils.buildSuccess();
     }
@@ -274,6 +259,21 @@ public class RdpUserManagerController {
             }
         }
         return resWebData;
+    }
+
+    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
+    @RequestMapping(value = "/resetInvalidMfa", method = RequestMethod.POST)
+    public ResWebData<?> resetInvalidMfa(@Valid @RequestBody ResetInvalidMfaFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        if (StringUtils.equals(uid, fo.getTargetUid())) {
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.RESET_INVALID_MFA_SELF_ERROR.name()));
+        }
+        this.rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, fo.getTargetUid());
+        this.loginMFAService.resetInvalidMFA(fo.getTargetUid());
+        rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo
+            .getTargetUid(), "", SecurityLevel.HIGH, AuditType.RESET_INVALID_MFA, ResourceType.ACCOUNT);
+        return ResWebDataUtils.buildSuccess();
     }
 
     private void checkOperateUserAuth(String operateUid, String uid) {

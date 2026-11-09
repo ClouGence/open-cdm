@@ -24,6 +24,8 @@ import org.springframework.context.annotation.Import;
 import com.clougence.clouddm.console.web.component.approval.impl.CustomApprovalConfigServiceImpl;
 import com.clougence.clouddm.console.web.component.auth.impl.DmAuthLabelServiceImpl;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.session.SessionConfig;
+import com.clougence.clouddm.console.web.global.session.SessionServiceImpl;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamServiceImpl;
 import com.clougence.clouddm.console.web.service.login.LoginMFAServiceImpl;
 import com.clougence.clouddm.console.web.service.sdk.ConsoleCacheServiceImpl;
@@ -48,6 +50,8 @@ import com.clougence.rdp.service.impl.*;
           DmEnvParamServiceImpl.class,//
           CustomApprovalConfigServiceImpl.class,//
           LoginMFAServiceImpl.class,//
+          SessionConfig.class,//
+          SessionServiceImpl.class,//
           CheckRulesServiceImpl.class,//
           ConsoleCacheServiceImpl.class,//
           ConsolePluginConfigServiceImpl.class,//

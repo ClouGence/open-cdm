@@ -65,7 +65,7 @@ public class DataEditorController {
     @Resource
     private DmAuthServiceForBiz dmAuthServiceForBiz;
 
-    @RequestAuth(DM_QUERY_CONSOLE)
+    @RequestAuth(renewSession = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/fetchData", method = RequestMethod.POST)
     public ResWebData<?> fetchData(@Valid @RequestBody SelectDataFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -118,7 +118,7 @@ public class DataEditorController {
         }
     }
 
-    @RequestAuth(DM_QUERY_CONSOLE)
+    @RequestAuth(renewSession = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/saveData", method = RequestMethod.POST)
     public ResWebData<?> saveData(@Valid @RequestBody ExecuteSqlFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

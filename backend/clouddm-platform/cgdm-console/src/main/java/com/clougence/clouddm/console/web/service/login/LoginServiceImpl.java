@@ -21,6 +21,8 @@ import java.time.ZoneId;
 import java.util.Date;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
@@ -30,14 +32,15 @@ import com.clougence.clouddm.console.web.constants.MfaPreActionType;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
+import com.clougence.clouddm.console.web.global.session.SessionAccountPolicy;
+import com.clougence.clouddm.console.web.global.session.SessionService;
 import com.clougence.clouddm.console.web.model.fo.LoginAutoRegisterFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
+import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaRecoveryFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
@@ -69,23 +72,27 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginServiceImpl implements LoginService {
 
     @Resource
-    private AuthDal             authDal;
+    private AuthDal                    authDal;
     @Resource
-    private SystemDal           systemDal;
+    private SystemDal                  systemDal;
     @Resource
-    private NamingDao           namingDao;
+    private NamingDao                  namingDao;
     @Resource
-    private ConsoleConfig       config;
+    private ConsoleConfig              config;
     @Resource
-    private JwtService          jwtService;
+    private CsrfTokenService           csrfTokenService;
     @Resource
-    private CsrfTokenService    csrfTokenService;
+    private RdpUserService             rdpUserService;
     @Resource
-    private RdpUserService      rdpUserService;
+    private LoginMFAService            loginMFAService;
     @Resource
-    private LoginMFAService     loginMFAService;
+    private MfaChallengeService        mfaChallengeService;
     @Resource
-    private MfaChallengeService mfaChallengeService;
+    private SessionService             sessionService;
+    @Resource
+    private SessionAccountPolicy       sessionAccountPolicy;
+    @Resource
+    private PlatformTransactionManager transactionManager;
 
     @Override
     public LoginMO login(LoginFO loginFO) {
@@ -214,8 +221,8 @@ public class LoginServiceImpl implements LoginService {
         request.setLoginPassword(Sm2Utils.decrypt(this.config.getPrivateKey(), loginFO.getPassword()));
         request.setLoginVerifyCode(loginFO.getVerifyCode());
         request.setAccessToken(loginFO.getAccessToken());
-        if (StringUtils.isNotBlank(loginFO.getToken())) {
-            DmAuthCsrfTokenDO csrfTokenDO = this.csrfTokenService.pullToken(loginFO.getToken());
+        if (StringUtils.isNotBlank(loginFO.getCompletionToken())) {
+            DmAuthCsrfTokenDO csrfTokenDO = this.csrfTokenService.pullToken(loginFO.getCompletionToken());
             if (csrfTokenDO != null) {
                 request.setAccessToken(csrfTokenDO.getSecretToken());
             }
@@ -252,7 +259,7 @@ public class LoginServiceImpl implements LoginService {
                 LoginMO mo = new LoginMO();
                 mo.setSuccess(true);
                 mo.setNeedMore(true);
-                mo.setToken(csrfToken);
+                mo.setCompletionToken(csrfToken);
                 mo.setMoreInfo(moreInfo);
                 mo.setErrMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_FIRST_TIME.name()));
                 return mo;
@@ -262,7 +269,7 @@ public class LoginServiceImpl implements LoginService {
                     this.checkRegisterInfoUnique(rootUser, moreInfo);
                     bindUser = this.addProviderUser(rootUser, loginType.getBindType(), loginUser, moreInfo);
                 } catch (Exception e) {
-                    this.csrfTokenService.storeSecretToken(loginFO.getToken(), loginData.getAccessToken());// restore
+                    this.csrfTokenService.storeSecretToken(loginFO.getCompletionToken(), loginData.getAccessToken());// restore
                     throw e;
                 }
             }
@@ -278,16 +285,41 @@ public class LoginServiceImpl implements LoginService {
         }
     }
 
-    private LoginMO loginDone(DmAuthUserDO user, LoginAuthType loginType) {
-        long nowMs = System.currentTimeMillis();
+    private LoginMO loginDone(DmAuthUserDO authenticatedUser, LoginAuthType loginType) {
+        // The locked portion must run inside a real transaction: a private
+        // @Transactional method on this bean would be a no-op self call.
+        return new TransactionTemplate(transactionManager).execute(status -> loginDoneLocked(authenticatedUser, loginType));
+    }
 
+    private LoginMO loginDoneLocked(DmAuthUserDO snapshot, LoginAuthType loginType) {
+        DmAuthUserDO user = this.authDal.userMapper().lockByUid(snapshot.getUid());
+        checkAccountStatus(user);
+        // reject if credentials, bind or MFA policy changed under us after main auth
+        if (!StringUtils.equals(user.getPassword(), snapshot.getPassword()) || user.isUseMfa() != snapshot.isUseMfa() || user.getBindType() != snapshot.getBindType()
+            || user.isAllowLocal() != snapshot.isAllowLocal()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
+        }
+        // the locked account must still be eligible for this login path
+        if (loginType == LoginAuthType.PASSWORD) {
+            if (user.getBindType() != AccountBindType.INTERNAL && !user.isAllowLocal()) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
+            }
+        } else if (user.getBindType() != loginType.getBindType()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
+        }
+        if (this.sessionAccountPolicy.isPasswordExpired(user)) {
+            Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
+        }
+
+        long nowMs = System.currentTimeMillis();
         this.authDal.userMapper().updateLoginLimitInfo(new Date(nowMs), 0, false, user.getId());
+
         LoginMO re = new LoginMO();
         re.setSuccess(true);
         re.setUid(user.getUid());
         re.setUsername(user.getUsername());
         re.setLoginType(loginType);
-
         if (user.getParentId() != null) {
             DmAuthUserDO rdpUserDO = authDal.userMapper().queryById(user.getParentId());
             if (rdpUserDO != null) {
@@ -298,50 +330,83 @@ public class LoginServiceImpl implements LoginService {
         if (user.isUseMfa() && !config.isMfaLoginDisabled()) {
             if (this.loginMFAService.isInvalidMFA(user.getUid())) {
                 re.setMfaInvalid(true);
-                re.setToken(this.jwtService.genJwtToken(user, loginType));
+                re.setMfaPreActionToken(this.mfaChallengeService.createChallenge(user.getUid(), MfaPreActionType.RECOVER_LOGIN, loginType));
             } else {
                 re.setNeedMfa(true);
                 re.setMfaPreActionToken(this.mfaChallengeService.createChallenge(user.getUid(), MfaPreActionType.LOGIN, loginType));
             }
         } else {
-            re.setToken(this.jwtService.genJwtToken(user, loginType));
+            re.setIssuedSession(this.sessionService.create(user.getUid(), loginType));
         }
-
         return re;
     }
 
     @Override
     public LoginMO loginMfaValid(LoginMfaValidFO validFO) {
-        DmAuthMfaChallengeDO challengeDO = mfaChallengeService.requirePendingChallenge(validFO.getMfaPreActionToken(), MfaPreActionType.LOGIN);
-        if (!mfaChallengeService.acquireAttempt(challengeDO)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(),
-                RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+        // acquireAttempt stays outside the transaction so failed attempts count
+        DmAuthMfaChallengeDO preCheck = mfaChallengeService.requirePendingChallenge(validFO.getMfaPreActionToken(), MfaPreActionType.LOGIN);
+        if (!mfaChallengeService.acquireAttempt(preCheck)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
         }
 
-        if (!loginMFAService.validMFA(challengeDO.getUid(), validFO.getMfaCode())) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.MFA_CODE_IS_INVALID.name()));
-        }
-
-        if (!mfaChallengeService.consumeChallenge(challengeDO)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(),
-                RdpUserService.MFA_TOKEN_EXPIRE_SEC));
-        }
-
-        DmAuthUserDO user = rdpUserService.getUserByUid(challengeDO.getUid());
-        LoginAuthType loginType = LoginAuthType.valueOfCode(challengeDO.getLoginType());
-        LoginMO re = new LoginMO();
-        re.setSuccess(true);
-        re.setUid(user.getUid());
-        re.setUsername(user.getUsername());
-        re.setLoginType(loginType);
-        re.setToken(jwtService.genJwtToken(user, loginType));
-        if (user.getParentId() != null) {
-            DmAuthUserDO primaryUser = authDal.userMapper().queryById(user.getParentId());
-            if (primaryUser != null) {
-                re.setPuid(primaryUser.getUid());
+        return new TransactionTemplate(transactionManager).execute(status -> {
+            DmAuthUserDO user = this.authDal.userMapper().lockByUid(preCheck.getUid());
+            checkAccountStatus(user);
+            if (this.sessionAccountPolicy.isPasswordExpired(user)) {
+                Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
             }
-        }
-        return re;
+
+            DmAuthMfaChallengeDO challengeDO = mfaChallengeService.requirePendingChallengeForUpdate(validFO.getMfaPreActionToken(), MfaPreActionType.LOGIN);
+            if (!user.isUseMfa() || config.isMfaLoginDisabled() || this.loginMFAService.isInvalidMFA(user.getUid())) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+            }
+            if (!loginMFAService.validMFA(user.getUid(), validFO.getMfaCode())) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.MFA_CODE_IS_INVALID.name()));
+            }
+            if (!mfaChallengeService.consumeChallenge(challengeDO)) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+            }
+
+            // the locked user must still allow this challenge's login path
+            LoginAuthType loginType = LoginAuthType.valueOfCode(challengeDO.getLoginType());
+            if (loginType == LoginAuthType.PASSWORD) {
+                if (user.getBindType() != AccountBindType.INTERNAL && !user.isAllowLocal()) {
+                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+                }
+            } else if (user.getBindType() != loginType.getBindType()) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+            }
+
+            LoginMO re = new LoginMO();
+            re.setSuccess(true);
+            re.setUid(user.getUid());
+            re.setUsername(user.getUsername());
+            re.setLoginType(loginType);
+            re.setIssuedSession(this.sessionService.create(user.getUid(), loginType));
+            if (user.getParentId() != null) {
+                DmAuthUserDO primaryUser = authDal.userMapper().queryById(user.getParentId());
+                if (primaryUser != null) {
+                    re.setPuid(primaryUser.getUid());
+                }
+            }
+            return re;
+        });
+    }
+
+    @Override
+    public boolean loginMfaRecoveryStatus(LoginMfaRecoveryFO fo) {
+        // pre-read only resolves the uid; authoritative state is re-checked under lock
+        DmAuthMfaChallengeDO preCheck = mfaChallengeService.requirePendingChallenge(fo.getMfaPreActionToken(), MfaPreActionType.RECOVER_LOGIN);
+        return Boolean.TRUE.equals(new TransactionTemplate(transactionManager).execute(status -> {
+            DmAuthUserDO user = this.authDal.userMapper().lockByUid(preCheck.getUid());
+            checkAccountStatus(user);
+            mfaChallengeService.requirePendingChallengeForUpdate(fo.getMfaPreActionToken(), MfaPreActionType.RECOVER_LOGIN);
+            if (!user.isUseMfa() || !this.loginMFAService.isInvalidMFA(user.getUid())) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+            }
+            return Boolean.TRUE;
+        }));
     }
 
     private LoginMO loginFailed(DmAuthUserDO user, ErrorMessageException e) {
@@ -470,53 +535,4 @@ public class LoginServiceImpl implements LoginService {
         return System.currentTimeMillis() - userDO.getLastTryLoginTime().getTime() > Long.parseLong(this.config.getResetLoginLimitationWaitTimeMin()) * 60 * 1000;
     }
 
-    //
-    //
-    //
-
-    @Override
-    public boolean isLogoutUsingJump(String uid) {
-        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
-        if (user.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-            return false;
-        }
-
-        return user.getBindType() != AccountBindType.INTERNAL;
-    }
-
-    @Override
-    public String logoutJumpUrl(String puid, String uid) {
-        String homePath;
-        if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
-            homePath = this.config.getDeployContextPath();
-        } else {
-            homePath = "/";
-        }
-
-        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
-        if (user.getAccountType() == AccountType.PRIMARY_ACCOUNT || user.getBindType() == AccountBindType.INTERNAL) {
-            return homePath;
-        }
-
-        String csrfToken = this.csrfTokenService.randomToken();
-        String redirectURL = RdpWebUtils.getContextPath() + ("callback/logout?" + //
-                                                             "uid=" + uid + "&" + //
-                                                             //"state=" + csrfToken + "&" +//
-                                                             "provider=" + user.getBindType().getProvider().name());
-
-        LoginProvider loginProvider = user.getBindType().getProvider();
-        LoginProviderSpi loginProviderSpi = PluginManager.findSpi(LoginProviderSpi.class, loginProvider.name());
-        if (loginProviderSpi == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
-        }
-
-        try {
-            String jumpUrl = loginProviderSpi.logoutJumpUrl(puid, csrfToken, redirectURL, user.getAccessToken());
-            AccountBindType bindType = user.getBindType();
-            return jumpUrl;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return "";
-        }
-    }
 }

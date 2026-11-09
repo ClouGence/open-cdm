@@ -89,8 +89,6 @@ public class ConsoleConfig {
     private boolean        enableWaterMark;
     @Value("${clougence.rdp.console.enable_product_cluster:false}")
     private boolean        enableProductCluster;
-    @Value("${clougence.rdp.login.expire.sec:86400}")
-    private int            loginExpireTimeSec;
     @Value("${clougence.rdp.login.cookie.domain:#{NULL}}")
     private String         loginCookieDomain;
     @Value("${clougence.rdp.crypt.publicKey:0443a779e887425e2fa3bcc92ed70e0fd17647c82191ef9b82e4ecc98cb83cd74b7e40b3334bfff818504f21e583a3846d236782bb12f36fb6663d7c391d232699}")

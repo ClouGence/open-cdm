@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.global.jwtsession;
+package com.clougence.clouddm.console.web.global.session;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.springframework.web.util.WebUtils;
-
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
@@ -31,6 +29,8 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
+import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.util.RdpLocal;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
@@ -39,19 +39,15 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.utils.StringUtils;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JwtManager {
+public class WebSessionManager {
 
-    public final static String     CSRF_TOKEN_NAME        = "csrf-token";
     @Resource
     private ConsoleConfig          config;
     @Resource
@@ -62,6 +58,14 @@ public class JwtManager {
     private DmAuthServiceForManage authServiceForManage;
     @Resource
     private RdpRoleService         roleService;
+    @Resource
+    private SessionService         sessionService;
+    @Resource
+    private SessionAccountPolicy   accountPolicy;
+    @Resource
+    private SessionCookieService   cookieService;
+
+    public static final String     SESSION_PRINCIPAL      = "DM_SESSION_PRINCIPAL";
 
     private final Set<String>      ignoreEndWithUrl       = new HashSet<>();
     private final Set<String>      includeVerifyStartWith = new HashSet<>();
@@ -73,7 +77,6 @@ public class JwtManager {
 
     protected void configUrl(Set<String> includeVerifyStartWith, Set<String> ignoreEndWithUrl) {
         includeVerifyStartWith.add(DmControllerUrlPrefix.CONSOLE_PREFIX);
-        includeVerifyStartWith.add("/logout");
         includeVerifyStartWith.add("/switchSaasMode");
 
         ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendcode");
@@ -82,7 +85,7 @@ public class JwtManager {
     }
 
     private boolean ignoreVerify(HttpServletRequest request) {
-        String uri = request.getRequestURI();
+        String uri = request.getRequestURI().substring(request.getContextPath().length());
 
         if (!this.includeVerifyStartWith.isEmpty()) {
             boolean includeTest = false;
@@ -103,19 +106,19 @@ public class JwtManager {
         return false;
     }
 
-    private boolean verifyAuth(HttpServletRequest request, RequestAuth requestAuth, DmAuthUserDO userDO) {
+    private boolean verifyAuth(RequestAuth requestAuth, DmAuthUserDO userDO, DmAuthRoleDO role) {
         if (userDO.isMaintainer() || userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             return true;
         }
 
         if (requestAuth != null) {
-            return testAuth(requestAuth, userDO.getRoleId());
+            return testAuth(requestAuth, role);
         } else {
             return false;
         }
     }
 
-    private boolean testAuth(RequestAuth authInfo, Long roleId) {
+    private boolean testAuth(RequestAuth authInfo, DmAuthRoleDO roleDO) {
         if (authInfo == null) {
             return false;
         }
@@ -124,7 +127,6 @@ public class JwtManager {
             return true;
         }
 
-        DmAuthRoleDO roleDO = this.roleService.fetchRoleById(roleId);
         if (roleDO == null) {
             return false;
         }
@@ -159,7 +161,7 @@ public class JwtManager {
         return null;
     }
 
-    public JwtCheckResult preHandle(HttpServletRequest request, HttpServletResponse response, Supplier<RequestAuth> authSupplier, Object handler) {
+    public SessionCheckResult preHandle(HttpServletRequest request, HttpServletResponse response, Supplier<RequestAuth> authSupplier, Object handler) {
         RequestAuth requestAuth = authSupplier.get();
         if (requestAuth != null) {
             RdpWebUtils.currentLocal().setAuthLabel(requestAuth.value());
@@ -180,38 +182,28 @@ public class JwtManager {
             return responseOk();
         }
 
-        if (beforeVerifyJwt(request, handler)) {
+        if (beforeVerifySession(request, handler)) {
             return responseOk();
         }
 
         // isLogin
-        DecodedJWT jwt = this.jwtService.verify(request);
-        if (jwt == null) {
-            //            boolean canBeIgnore = requestAuth != null && requestAuth.strategy() == RequestAuth.AuthStrategy.Ignore;
-            //            if (canBeIgnore) {
-            //                return responseOk();
-            //            } else {
+        SessionPrincipal principal = this.sessionService.authenticate(request);
+        if (principal == null) {
             return responseNotLogin(requestAuth, request, response, "NotLogin.");
-            //            }
         }
 
-        this.jwtService.refreshCookiePeriodOfValidity(request, response);
-
-        String uid = jwt.getId();
+        String uid = principal.getUid();
         if (StringUtils.isBlank(uid)) {
             String errorMessage = "Uid is blank,illegal login token.";
             log.error(errorMessage);
             return responseNotLogin(requestAuth, request, response, errorMessage);
         }
 
+        // CSRF check stays failure-closed: enabled config has no working verifier
         if (this.config.getActiveCsrfCheck()) {
-            boolean isCsrfVerifySuccess = verifyCsrfToken(request, jwt.getToken());
-            if (!isCsrfVerifySuccess) {
-                String errorMessage = "Csrf verify failed. Maybe there have csrf attacks. Received request url is " + //
-                                      request.getRequestURI() + ". Receive csrf token is:" + request.getHeader(CSRF_TOKEN_NAME) + ", jwt token is:" + jwt.getToken();
-                log.error(errorMessage);
-                return responseNotLogin(requestAuth, request, response, errorMessage);
-            }
+            String errorMessage = "Csrf verify failed.";
+            log.error(errorMessage);
+            return responseNotLogin(requestAuth, request, response, errorMessage);
         }
 
         DmAuthUserDO userDO = this.userService.getUserByUid(uid);
@@ -221,18 +213,20 @@ public class JwtManager {
         }
         if (userDO.isDisable()) {
             String errorMessage = "user (" + uid + ") is disabled.";
-            return JwtCheckResult.builder()//
+            return SessionCheckResult.builder()//
                 .success(false)
                 .message(errorMessage)
                 .errorCode(401)
                 .build();
         }
 
-        Claim akClaim = jwt.getClaim(RdpUserService.ACCESSKEY);
-        String ak = akClaim.asString();
-        if (ak == null || !ak.equals(userDO.getAccessKey())) {
-            String errorMessage = "user (" + uid + ") ak is not valid.";
-            return responseNotLogin(requestAuth, request, response, errorMessage);
+        if (accountPolicy.isPasswordExpired(userDO)) {
+            sessionService.revokeUserSessions(uid);
+            String path = request.getRequestURI().substring(request.getContextPath().length());
+            if (!path.equals(DmControllerUrlPrefix.CONSOLE_PREFIX + "/user/queryLoginUser")) {
+                return responseNotLogin(requestAuth, request, response, "Password expired.");
+            }
+            cookieService.clear(response);
         }
 
         if (userDO.getRoleId() == null) {
@@ -255,11 +249,13 @@ public class JwtManager {
                 }
             }
         }
-        // refresh token period of validity
-        this.jwtService.refreshJwtTokenPeriodOfValidity(request, response, userDO);
-
         // check url authority
-        if (verifyAuth(request, requestAuth, userDO)) {
+        DmAuthRoleDO role = this.roleService.fetchRoleById(userDO.getRoleId());
+        if (role == null) {
+            return responseSystemError("Account role is unavailable.");
+        }
+        if (verifyAuth(requestAuth, userDO, role)) {
+            request.setAttribute(SESSION_PRINCIPAL, principal);
             request.setAttribute(RdpUserService.UID, uid);
             request.setAttribute(RdpUserService.USER_ROLE, userDO.getRoleId());
             request.setAttribute(RdpUserService.IS_MAINTAINER, userDO.isMaintainer());
@@ -270,12 +266,19 @@ public class JwtManager {
                 primaryUser = userDO;
             } else {
                 primaryUser = this.userService.getUserById(userDO.getParentId());
+                if (primaryUser == null) {
+                    return responseNotLogin(requestAuth, request, response, "Primary account is unavailable.");
+                }
                 request.setAttribute(RdpUserService.PUID, primaryUser.getUid());
             }
 
             RdpWebUtils.currentLocal().setCurrentUser(userDO);
-            RdpWebUtils.currentLocal().setCurrentRole(userDO.getRoleId() == null ? null : this.roleService.fetchRoleById(userDO.getRoleId()));
+            RdpWebUtils.currentLocal().setCurrentRole(role);
             RdpWebUtils.currentLocal().setPrimaryUser(primaryUser);
+            RdpWebUtils.currentLocal().setSessionPrincipal(principal);
+            if (requestAuth != null && requestAuth.renewSession() && !"websocket".equalsIgnoreCase(request.getHeader("Upgrade"))) {
+                this.sessionService.renewIfNeeded(principal);
+            }
             return responseOk();
         } else {
             String[] auths = fetchAuthLabel(authSupplier);
@@ -302,76 +305,61 @@ public class JwtManager {
         }
     }
 
-    private boolean verifyCsrfToken(HttpServletRequest request, @Nonnull String jwtToken) {
-        Cookie coolieValue = WebUtils.getCookie(request, CSRF_TOKEN_NAME);
-        String headerValue = request.getHeader(CSRF_TOKEN_NAME);
-        String requestParameterValue = request.getParameter(CSRF_TOKEN_NAME);
-        String csrfToken = "";
-        if (coolieValue != null) {
-            jwtToken = coolieValue.getValue();
-        } else if (headerValue != null) {
-            jwtToken = headerValue;
-        } else if (requestParameterValue != null) {
-            jwtToken = requestParameterValue;
-        }
-
-        if (StringUtils.isEmpty(csrfToken)) {
-            return false;
-        }
-        return csrfToken.equals(jwtToken);
-    }
-
-    protected boolean beforeVerifyJwt(HttpServletRequest request, Object handler) {
+    protected boolean beforeVerifySession(HttpServletRequest request, Object handler) {
         return false;
     }
 
-    private JwtCheckResult responseOk() {
-        return JwtCheckResult.builder()//
+    private SessionCheckResult responseOk() {
+        return SessionCheckResult.builder()//
             .success(true)
             .message("ok.")
             .errorCode(200)
             .build();
     }
 
-    @SneakyThrows
-    private JwtCheckResult responseNotLogin(RequestAuth requestAuth, HttpServletRequest request, HttpServletResponse response, String message) {
+    private SessionCheckResult responseNotLogin(RequestAuth requestAuth, HttpServletRequest request, HttpServletResponse response, String message) {
         if (requestAuth != null && StringUtils.isNotBlank(requestAuth.failedRedirectUrlTo())) {
-            response.sendRedirect(requestAuth.failedRedirectUrlTo());
+            try {
+                response.sendRedirect(requestAuth.failedRedirectUrlTo());
+            } catch (IOException e) {
+                log.error("response redirect failed", e);
+                return responseSystemError(message);
+            }
         }
 
-        return JwtCheckResult.builder()//
+        return SessionCheckResult.builder()//
             .success(false)
             .message(message)
             .errorCode(401)
             .build();
     }
 
-    private JwtCheckResult responseOpPwdInvalid(String message) {
-        return JwtCheckResult.builder()//
+    private SessionCheckResult responseOpPwdInvalid(String message) {
+        return SessionCheckResult.builder()//
             .success(false)
             .message(message)
             .errorCode(499)
             .build();
     }
 
-    private JwtCheckResult responseNotSetOpPwd(String message) {
-        return JwtCheckResult.builder()//
+    private SessionCheckResult responseNotSetOpPwd(String message) {
+        return SessionCheckResult.builder()//
             .success(false)
             .message(message)
             .errorCode(498)
             .build();
     }
 
-    private JwtCheckResult responseNoPageAuthority(String message) {
-        return JwtCheckResult.builder()//
+    private SessionCheckResult responseNoPageAuthority(String message) {
+        return SessionCheckResult.builder()//
             .success(false)
             .message(message)
             .errorCode(406)
             .build();
     }
 
-    private JwtCheckResult responseSystemError(String message) {
-        return JwtCheckResult.builder()//
+    private SessionCheckResult responseSystemError(String message) {
+        return SessionCheckResult.builder()//
             .success(false)
             .message(message)
             .errorCode(500)

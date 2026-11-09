@@ -96,7 +96,7 @@ public interface RdpUserService {
     //
     // -- for Other Manager
 
-    UpdateUserInfoMO resetPassword(ResetPasswdFO fo);
+    UpdateUserInfoMO resetPassword(ResetPasswdFO fo, String targetUid);
 
     UpdateUserInfoMO resetPwdWithOriginPwd(ResetPwdWithOriginPwdFO fo, String targetUid, String puid);
 
@@ -114,7 +114,7 @@ public interface RdpUserService {
 
     CheckSubAccountMO checkSubAccount(String puid, CheckSubAccountFO fo);
 
-    ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo);
+    ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo, String targetUid);
 
     UpdateUserRoleLO updateUserRole(UpdateUserRoleFO fo);
 

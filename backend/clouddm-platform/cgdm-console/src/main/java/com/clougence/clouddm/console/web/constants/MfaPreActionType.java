@@ -19,5 +19,7 @@ public enum MfaPreActionType {
 
     LOGIN,
 
-    RESET_MFA_KEY
+    RESET_MFA_KEY,
+
+    RECOVER_LOGIN
 }

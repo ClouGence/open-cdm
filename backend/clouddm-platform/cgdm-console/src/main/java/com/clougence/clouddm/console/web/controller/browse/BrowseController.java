@@ -86,7 +86,7 @@ public class BrowseController {
     @Resource
     private DmDsWebService      dmDsService;
 
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestAuth(renewSession = true, strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/listLevels", method = RequestMethod.POST)
     public ResWebData<?> listLevels(@Valid @RequestBody BrowseLevelsFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -166,7 +166,7 @@ public class BrowseController {
         }
     }
 
-    @RequestAuth(DM_QUERY_CONSOLE)
+    @RequestAuth(renewSession = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/listLeaf", method = RequestMethod.POST)
     public ResWebData<?> listLeaf(@Valid @RequestBody BrowseLeafFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -190,7 +190,7 @@ public class BrowseController {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(DM_QUERY_CONSOLE)
+    @RequestAuth(renewSession = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/rdbObjectDetail", method = RequestMethod.POST)
     public ResWebData<?> rdbObjectDetail(@Valid @RequestBody BrowseDetailFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

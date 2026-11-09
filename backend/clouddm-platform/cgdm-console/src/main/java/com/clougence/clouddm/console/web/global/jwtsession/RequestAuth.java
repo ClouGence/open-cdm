@@ -43,6 +43,8 @@ public @interface RequestAuth {
 
     boolean checkOpPassword() default false;
 
+    boolean renewSession() default false;
+
     String failedRedirectUrlTo() default "";
 
     enum AuthStrategy {
