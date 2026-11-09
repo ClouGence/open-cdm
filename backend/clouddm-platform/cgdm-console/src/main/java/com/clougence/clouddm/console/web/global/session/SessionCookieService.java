@@ -45,7 +45,6 @@ public class SessionCookieService {
     public static final String   SESSION_COOKIE_NAME = "dm_session_token";
     private static final String  LEGACY_JWT_COOKIE   = "dm_jwt_token";
     private static final String  LEGACY_OP_COOKIE    = "dm_op_pwd_token";
-    private static final Pattern TOKEN_FORMAT        = Pattern.compile("^[A-Za-z0-9_-]{43}$");
     private static final Pattern INVALID_SCOPE_CHAR  = Pattern.compile("[\\x00-\\x1f\\x7f;]");
 
     @Resource
@@ -198,7 +197,7 @@ public class SessionCookieService {
                 continue;
             }
             String v = cookie.getValue();
-            if (v == null || !TOKEN_FORMAT.matcher(v).matches()) {
+            if (v == null || !SessionTokens.TOKEN_PATTERN.matcher(v).matches()) {
                 return null;
             }
             if (value != null && !value.equals(v)) {

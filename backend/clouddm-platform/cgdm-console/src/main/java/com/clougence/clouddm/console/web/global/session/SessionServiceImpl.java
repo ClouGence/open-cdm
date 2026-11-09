@@ -15,11 +15,6 @@
  */
 package com.clougence.clouddm.console.web.global.session;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +30,6 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthSessionDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.utils.HexadecimalUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.PreDestroy;
@@ -57,8 +51,6 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
 
     private static final int          AUTH_BY_IDS_BATCH = 500;
 
-    private static final SecureRandom SECURE_RANDOM     = new SecureRandom();
-    private static final int          TOKEN_BYTES       = 32;
     private static final int          CLEAN_BATCH       = 500;
 
     @Resource
@@ -79,14 +71,12 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
             throw new IllegalStateException("can not create session for absent or disabled user.");
         }
 
-        byte[] tokenBytes = new byte[TOKEN_BYTES];
-        SECURE_RANDOM.nextBytes(tokenBytes);
-        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+        String token = SessionTokens.newToken();
 
         long now = System.currentTimeMillis();
         DmAuthSessionDO session = new DmAuthSessionDO();
         session.setUid(uid);
-        session.setTokenHash(hashToken(token));
+        session.setTokenHash(SessionTokens.sha256Hex(token));
         session.setLoginType(loginType == null ? null : loginType.name());
         session.setGmtCreate(now);
         session.setRenewedTimeMs(now);
@@ -103,7 +93,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         if (token == null) {
             return null;
         }
-        return toValidPrincipal(authDal.sessionMapper().queryByTokenHash(hashToken(token)));
+        return toValidPrincipal(authDal.sessionMapper().queryByTokenHash(SessionTokens.sha256Hex(token)));
     }
 
     @Override
@@ -193,7 +183,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         if (token == null) {
             return;
         }
-        DmAuthSessionDO session = authDal.sessionMapper().queryByTokenHash(hashToken(token));
+        DmAuthSessionDO session = authDal.sessionMapper().queryByTokenHash(SessionTokens.sha256Hex(token));
         if (session == null) {
             return;
         }
@@ -235,12 +225,4 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         }
     }
 
-    private static String hashToken(String token) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return HexadecimalUtils.bytes2hex(digest.digest(token.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available.", e);
-        }
-    }
 }

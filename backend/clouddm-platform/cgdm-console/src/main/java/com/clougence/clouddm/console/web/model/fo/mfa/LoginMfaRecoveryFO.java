@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.fo.mfa;
 
+import com.clougence.clouddm.console.web.global.session.SessionTokens;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -25,6 +27,6 @@ import lombok.Setter;
 public class LoginMfaRecoveryFO {
 
     @NotBlank
-    @Pattern(regexp = "[A-Za-z0-9_-]{43}")
+    @Pattern(regexp = SessionTokens.PATTERN)
     private String mfaPreActionToken;
 }
