@@ -118,7 +118,21 @@ public class SessionCookieService {
 
     public void write(HttpServletResponse response, IssuedSession issued) {
         ResponseCookie.ResponseCookieBuilder b = scoped(SESSION_COOKIE_NAME, issued.getToken());
-        b.maxAge(sessionConfig.getAbsoluteLifetimeSec());
+        int maxAge = sessionConfig.getAbsoluteLifetimeSec();
+        if (maxAge == 0) {
+            maxAge = Integer.MAX_VALUE;
+        }
+        b.maxAge(maxAge);
+        response.addHeader("Set-Cookie", b.build().toString());
+    }
+
+    public void refreshIfUnlimited(HttpServletRequest request, HttpServletResponse response) {
+        if (sessionConfig.getAbsoluteLifetimeSec() != 0) {
+            return;
+        }
+        // Browsers cap persistent cookie lifetimes, so refresh the stable token's expiry.
+        ResponseCookie.ResponseCookieBuilder b = scoped(SESSION_COOKIE_NAME, extractToken(request));
+        b.maxAge(Integer.MAX_VALUE);
         response.addHeader("Set-Cookie", b.build().toString());
     }
 

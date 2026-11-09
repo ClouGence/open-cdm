@@ -265,7 +265,7 @@ public class WsSessionGuard implements UnifiedPostConstruct {
     }
 
     private long hardExpiry(SessionPrincipal principal) {
-        return Math.min(principal.getExpireTimeMs(), principal.getCreatedTimeMs() + this.sessionConfig.absoluteLifetimeMs());
+        return Math.min(principal.getExpireTimeMs(), this.sessionConfig.absoluteDeadlineMs(principal.getCreatedTimeMs()));
     }
 
     private void revokeAndClose(WsSessionState state) {

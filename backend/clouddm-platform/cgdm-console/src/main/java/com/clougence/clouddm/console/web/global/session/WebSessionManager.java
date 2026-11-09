@@ -276,8 +276,9 @@ public class WebSessionManager {
             RdpWebUtils.currentLocal().setCurrentRole(role);
             RdpWebUtils.currentLocal().setPrimaryUser(primaryUser);
             RdpWebUtils.currentLocal().setSessionPrincipal(principal);
-            if (requestAuth != null && requestAuth.renewSession() && !"websocket".equalsIgnoreCase(request.getHeader("Upgrade"))) {
+            if (!"websocket".equalsIgnoreCase(request.getHeader("Upgrade"))) {
                 this.sessionService.renewIfNeeded(principal);
+                this.cookieService.refreshIfUnlimited(request, response);
             }
             return responseOk();
         } else {

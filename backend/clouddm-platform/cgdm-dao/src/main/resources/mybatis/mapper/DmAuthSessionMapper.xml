@@ -56,8 +56,10 @@
             expire_time_ms  = #{oldExpireTimeMs}
             AND
             expire_time_ms  <![CDATA[ > ]]> #{nowMs}
-            AND
-            gmt_create + #{absoluteLifetimeMs} <![CDATA[ > ]]> #{nowMs}
+            <if test="absoluteLifetimeMs > 0">
+                AND
+                gmt_create + #{absoluteLifetimeMs} <![CDATA[ > ]]> #{nowMs}
+            </if>
     </update>
 
     <delete id="deleteByUid">

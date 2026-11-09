@@ -260,7 +260,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             }
 
             long now = System.currentTimeMillis();
-            if (state.isRevoked() || now >= principal.getExpireTimeMs() || now >= principal.getCreatedTimeMs() + this.sessionConfig.absoluteLifetimeMs()
+            if (state.isRevoked() || now >= principal.getExpireTimeMs() || now >= this.sessionConfig.absoluteDeadlineMs(principal.getCreatedTimeMs())
                 || System.nanoTime() - startNanos >= WsSessionState.FRESH_WINDOW_NANOS) {
                 failInbound(ws, state, "validation timeout");
                 return false;

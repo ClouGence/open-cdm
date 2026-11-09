@@ -122,7 +122,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         if (session.getExpireTimeMs() <= now) {
             return null;
         }
-        if (session.getGmtCreate() + sessionConfig.absoluteLifetimeMs() <= now) {
+        if (sessionConfig.absoluteDeadlineMs(session.getGmtCreate()) <= now) {
             return null;
         }
         return new SessionPrincipal(session
@@ -151,7 +151,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
     @Override
     public void renewIfNeeded(SessionPrincipal principal) {
         long now = System.currentTimeMillis();
-        long absoluteDeadline = principal.getCreatedTimeMs() + sessionConfig.absoluteLifetimeMs();
+        long absoluteDeadline = sessionConfig.absoluteDeadlineMs(principal.getCreatedTimeMs());
         if (principal.getExpireTimeMs() <= now || absoluteDeadline <= now) {
             return;
         }
@@ -215,7 +215,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
             long now = System.currentTimeMillis();
             int deleted = authDal.sessionMapper().deleteExpiredByExpire(now, CLEAN_BATCH);
             int budget = CLEAN_BATCH - deleted;
-            if (budget > 0) {
+            if (budget > 0 && sessionConfig.getAbsoluteLifetimeSec() > 0) {
                 deleted += authDal.sessionMapper().deleteExpiredByAbsolute(now - sessionConfig.absoluteLifetimeMs(), budget);
             }
             if (deleted > 0) {

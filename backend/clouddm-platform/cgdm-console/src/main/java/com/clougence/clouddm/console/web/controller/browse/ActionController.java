@@ -105,7 +105,7 @@ public class ActionController {
         }
     }
 
-    @RequestAuth(renewSession = true, value = DM_QUERY_CONSOLE)
+    @RequestAuth(value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/doAction", method = RequestMethod.POST)
     public ResWebData<?> doAction(@Valid @RequestBody BrowseActionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -222,7 +222,7 @@ public class ActionController {
         return ResWebDataUtils.buildSuccess(null);
     }
 
-    @RequestAuth(renewSession = true, value = RDP_DS_MANAGE)
+    @RequestAuth(value = RDP_DS_MANAGE)
     @RequestMapping(value = "/loadObject", method = RequestMethod.POST)
     public ResWebData<?> loadObjectTemplate(@Valid @RequestBody BrowseDetailFO detailFO, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

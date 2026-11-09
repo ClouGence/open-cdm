@@ -111,7 +111,7 @@ public class QueryEditorController {
     @Resource
     private RdpOpAuditService    opAuditService;
 
-    @RequestAuth(renewSession = true, checkOpPassword = true, value = DM_QUERY_CONSOLE)
+    @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/createSession", method = RequestMethod.POST)
     public ResWebData<?> createSession(@Valid @RequestBody CreateSessionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

@@ -308,7 +308,7 @@ public class DmDsController {
         return ResWebDataUtils.buildSuccess();
     }
 
-    @RequestAuth(renewSession = true, value = DM_QUERY_CONSOLE)
+    @RequestAuth(value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/testConnect", method = RequestMethod.POST)
     public ResWebData<?> testConnect(@Valid @RequestBody TestDsConnectionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

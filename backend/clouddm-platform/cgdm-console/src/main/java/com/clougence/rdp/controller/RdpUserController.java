@@ -318,7 +318,7 @@ public class RdpUserController {
         }
     }
 
-    @RequestAuth(renewSession = true, strategy = Ignore)
+    @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserPhone", method = RequestMethod.POST)
     public ResWebData<?> updateUserPhone(@RequestBody @Valid UpdateUserPhoneFO fo, HttpServletRequest request, HttpServletResponse response) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -340,7 +340,7 @@ public class RdpUserController {
         return ResWebDataUtils.buildSuccess();
     }
 
-    @RequestAuth(renewSession = true, strategy = Ignore)
+    @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserEmail", method = RequestMethod.POST)
     public ResWebData<?> updateUserEmail(@RequestBody @Valid UpdateUserEmailFO fo, HttpServletRequest request, HttpServletResponse response) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -366,7 +366,7 @@ public class RdpUserController {
         return ResWebDataUtils.buildSuccess();
     }
 
-    @RequestAuth(renewSession = true, strategy = Ignore)
+    @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserName", method = RequestMethod.POST)
     public ResWebData<?> updateUserName(@RequestBody @Valid UpdateUserNameFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -421,7 +421,7 @@ public class RdpUserController {
         this.sessionCookieService.clearLegacy(response);
     }
 
-    @RequestAuth(renewSession = true, strategy = Ignore)
+    @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserPhoneWithPwd", method = RequestMethod.POST)
     public ResWebData<?> updateUserPhoneWithPwd(@RequestBody @Valid UpdateUserPhoneWithPwdFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -446,7 +446,7 @@ public class RdpUserController {
         return ResWebDataUtils.buildSuccess();
     }
 
-    @RequestAuth(renewSession = true, strategy = Ignore)
+    @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserEmailWithPwd", method = RequestMethod.POST)
     public ResWebData<?> updateUserEmailWithPwd(@RequestBody @Valid UpdateUserEmailWithPwdFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

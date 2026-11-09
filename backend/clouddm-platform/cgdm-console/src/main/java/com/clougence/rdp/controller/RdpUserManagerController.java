@@ -139,7 +139,7 @@ public class RdpUserManagerController {
         return ResWebDataUtils.buildSuccess();
     }
 
-    @RequestAuth(renewSession = true, level = HIGH, value = RDP_USER_MANAGE)
+    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/addSubAccount", method = { RequestMethod.POST })
     public ResWebData<?> addSubAccount(@Valid @RequestBody AddSubAccountFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -158,7 +158,7 @@ public class RdpUserManagerController {
         }
     }
 
-    @RequestAuth(renewSession = true, level = HIGH, value = RDP_USER_MANAGE)
+    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/updateSubAccount", method = { RequestMethod.POST })
     public ResWebData<?> updateSubAccount(@Valid @RequestBody UpdateSubAccountFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -224,7 +224,7 @@ public class RdpUserManagerController {
         return resWebData;
     }
 
-    @RequestAuth(renewSession = true, level = HIGH, value = RDP_USER_MANAGE)
+    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/updateUserRole", method = RequestMethod.POST)
     public ResWebData<?> updateUserRole(@Valid @RequestBody UpdateUserRoleFO fo, HttpServletRequest request, HttpServletResponse response) {
         String uid = (String) request.getAttribute(RdpUserService.UID);

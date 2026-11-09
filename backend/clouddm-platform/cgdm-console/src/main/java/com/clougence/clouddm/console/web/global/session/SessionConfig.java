@@ -31,7 +31,7 @@ public class SessionConfig {
     @Value("${clougence.rdp.session.renewal-threshold-sec:21600}")
     private int renewalThresholdSec;
 
-    @Value("${clougence.rdp.session.absolute-lifetime-sec:604800}")
+    @Value("${clougence.rdp.session.absolute-lifetime-sec:0}")
     private int absoluteLifetimeSec;
 
     @PostConstruct
@@ -42,8 +42,8 @@ public class SessionConfig {
         if (renewalThresholdSec <= 0 || renewalThresholdSec >= activityWindowSec) {
             throw new IllegalStateException("clougence.rdp.session.renewal-threshold-sec must be positive and less than activity-window-sec.");
         }
-        if (absoluteLifetimeSec < activityWindowSec) {
-            throw new IllegalStateException("clougence.rdp.session.absolute-lifetime-sec must not be less than activity-window-sec.");
+        if (absoluteLifetimeSec != 0 && absoluteLifetimeSec < activityWindowSec) {
+            throw new IllegalStateException("clougence.rdp.session.absolute-lifetime-sec must be zero or not less than activity-window-sec.");
         }
     }
 
@@ -57,5 +57,12 @@ public class SessionConfig {
 
     public long absoluteLifetimeMs() {
         return absoluteLifetimeSec * 1000L;
+    }
+
+    public long absoluteDeadlineMs(long createdTimeMs) {
+        if (absoluteLifetimeSec == 0) {
+            return Long.MAX_VALUE;
+        }
+        return createdTimeMs + absoluteLifetimeMs();
     }
 }
