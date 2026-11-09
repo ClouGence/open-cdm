@@ -4637,7 +4637,6 @@
   "approval-required": "Required approvals",
   "approval-of-members": "approvals / {count} members",
   "approval-confirmation-stage": "Confirmation stage",
-  "approval-confirmation-hint": "Confirm execution once after all approval stages pass.",
   "approval-confirmation-participants": "Confirmers",
   "approval-execution-mode": "Execution mode",
   "approval-execution-manual": "Manual execution",

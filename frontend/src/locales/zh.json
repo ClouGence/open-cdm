@@ -4616,7 +4616,6 @@
   "approval-required": "通过人数",
   "approval-of-members": "人同意 / 共 {count} 人",
   "approval-confirmation-stage": "确认环节",
-  "approval-confirmation-hint": "全部审批通过后，仅在此确认执行一次。",
   "approval-confirmation-participants": "确认人",
   "approval-execution-mode": "执行方式",
   "approval-execution-manual": "手动执行",

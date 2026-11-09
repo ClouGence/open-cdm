@@ -160,7 +160,6 @@
                 <h2 class="page-section__title">{{ $t('approval-confirmation-stage') }}</h2>
               </header>
               <div class="approval-inspector__body">
-                <p class="approval-confirmation__hint">{{ $t('approval-confirmation-hint') }}</p>
                 <Form :model="draft" label-position="top" class="approval-confirmation__fields">
                   <FormItem
                     :label="$t('approval-execution-mode')"
@@ -691,10 +690,6 @@ export default {
 }
 .approval-count-label {
   margin-left: 8px;
-}
-.approval-confirmation__hint {
-  margin: 0 0 16px;
-  color: var(--text-secondary);
 }
 .approval-confirmation__fields {
   display: flex;
