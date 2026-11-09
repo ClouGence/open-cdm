@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
@@ -68,10 +67,6 @@ public class WebSessionManager {
 
     @PostConstruct
     public void init() throws Exception {
-        this.configUrl(this.includeVerifyStartWith, this.ignoreEndWithUrl);
-    }
-
-    protected void configUrl(Set<String> includeVerifyStartWith, Set<String> ignoreEndWithUrl) {
         includeVerifyStartWith.add(DmControllerUrlPrefix.CONSOLE_PREFIX);
         includeVerifyStartWith.add("/switchSaasMode");
 
@@ -142,8 +137,7 @@ public class WebSessionManager {
         return false;
     }
 
-    private String[] fetchAuthLabel(Supplier<RequestAuth> authSupplier) {
-        RequestAuth requestAuth = authSupplier.get();
+    private String[] fetchAuthLabel(RequestAuth requestAuth) {
         if (requestAuth != null) {
             if (requestAuth.strategy() == RequestAuth.AuthStrategy.Ignore || requestAuth.strategy() == RequestAuth.AuthStrategy.RefAnyOnes) {
                 return new String[] { requestAuth.strategy().name() };
@@ -157,8 +151,7 @@ public class WebSessionManager {
         return null;
     }
 
-    public SessionCheckResult preHandle(HttpServletRequest request, HttpServletResponse response, Supplier<RequestAuth> authSupplier, Object handler) {
-        RequestAuth requestAuth = authSupplier.get();
+    public SessionCheckResult preHandle(HttpServletRequest request, HttpServletResponse response, RequestAuth requestAuth) {
         if (requestAuth != null) {
             RdpWebUtils.currentLocal().setAuthLabel(requestAuth.value());
         }
@@ -175,10 +168,6 @@ public class WebSessionManager {
         }
 
         if (ignoreVerify(request)) {
-            return responseOk();
-        }
-
-        if (beforeVerifySession(request, handler)) {
             return responseOk();
         }
 
@@ -264,7 +253,7 @@ public class WebSessionManager {
             }
             return responseOk();
         } else {
-            String[] auths = fetchAuthLabel(authSupplier);
+            String[] auths = fetchAuthLabel(requestAuth);
             StringBuilder authStrB = new StringBuilder();
             if (auths != null) {
                 boolean first = true;
@@ -286,10 +275,6 @@ public class WebSessionManager {
 
             return responseNoPageAuthority(DmI18nUtils.getMessage(I18nRdpMsgKeys.AUTH_NO_AUTH_ERROR.name(), authStrB));
         }
-    }
-
-    protected boolean beforeVerifySession(HttpServletRequest request, Object handler) {
-        return false;
     }
 
     private SessionCheckResult responseOk() {

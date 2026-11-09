@@ -61,7 +61,6 @@ import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
@@ -107,8 +106,6 @@ public class RdpUserController {
     private RdpOpAuditService    rdpOpAuditService;
     @Resource
     private ConsoleConfig        consoleConfig;
-    @Resource
-    private SystemDal            systemDal;
     @Resource
     private LoginMFAService      loginMFAService;
 

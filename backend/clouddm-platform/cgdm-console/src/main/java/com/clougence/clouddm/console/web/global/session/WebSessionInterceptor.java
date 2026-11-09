@@ -55,17 +55,15 @@ public class WebSessionInterceptor implements HandlerInterceptor {
         SessionCheckResult checkResult = null;
         boolean success = false;
         try {
-            checkResult = sessionManager.preHandle(request, response, () -> {
-                if (handler instanceof HandlerMethod) {
-                    Method targetMethod = ((HandlerMethod) handler).getMethod();
-                    RequestAuth requestAuth = targetMethod.getAnnotation(RequestAuth.class);
-                    if (requestAuth == null) {
-                        requestAuth = targetMethod.getDeclaringClass().getAnnotation(RequestAuth.class);
-                    }
-                    return requestAuth;
+            RequestAuth requestAuth = null;
+            if (handler instanceof HandlerMethod handlerMethod) {
+                Method targetMethod = handlerMethod.getMethod();
+                requestAuth = targetMethod.getAnnotation(RequestAuth.class);
+                if (requestAuth == null) {
+                    requestAuth = targetMethod.getDeclaringClass().getAnnotation(RequestAuth.class);
                 }
-                return null;
-            }, handler);
+            }
+            checkResult = sessionManager.preHandle(request, response, requestAuth);
 
             if (checkResult.isSuccess()) {
                 success = true;

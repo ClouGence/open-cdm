@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.console.web.util;
 
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,25 +27,15 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.StringUtils;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 
 public class RdpWebUtils {
 
-    private static ConsoleConfig                  config;
     private static final ThreadLocal<RequestData> localData = ThreadLocal.withInitial(RequestData::new);
 
-    public static void initUtils(ConsoleConfig config) {
-        if (RdpWebUtils.config == null) {
-            RdpWebUtils.config = config;
-        }
-    }
-
     public static void initLocal(ConsoleConfig config, HttpServletRequest request) {
-        initUtils(config);
         localData.set(initData(config, request));
     }
 
@@ -182,30 +171,4 @@ public class RdpWebUtils {
         return null;
     }
 
-    @SneakyThrows
-    public static Cookie newCookie(String name, String value, boolean httpOnly, int expiry) {
-        checkInRequest();
-        Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(httpOnly);
-        cookie.setMaxAge(expiry);
-
-        // cookieDomain, first use LoginCookieDomain,second use DeployContextPath.
-        String cookieDomain = config.getLoginCookieDomain();
-        if (StringUtils.isBlank(cookieDomain) && StringUtils.isNotBlank(config.getDeployContextPath())) {
-            URL contextURL = new URL(config.getDeployContextPath());
-            cookieDomain = contextURL.getHost();
-        }
-
-        if (StringUtils.isNotBlank(config.getDeployContextPath())) {
-            URL contextURL = new URL(config.getDeployContextPath());
-            cookie.setDomain(cookieDomain);
-            cookie.setPath(StringUtils.isBlank(contextURL.getPath()) ? "/" : contextURL.getPath());
-        } else {
-            if (StringUtils.isNotBlank(cookieDomain)) {
-                cookie.setDomain(cookieDomain);
-            }
-            cookie.setPath("/");
-        }
-        return cookie;
-    }
 }

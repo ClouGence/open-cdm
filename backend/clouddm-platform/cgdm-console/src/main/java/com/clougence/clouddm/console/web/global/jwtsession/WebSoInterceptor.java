@@ -76,7 +76,7 @@ public class WebSoInterceptor implements HandshakeInterceptor {
         }
 
         try {
-            SessionCheckResult checkResult = this.sessionManager.preHandle(httpReq, httpRes, () -> wsHandlerClass.getAnnotation(RequestAuth.class), null);
+            SessionCheckResult checkResult = this.sessionManager.preHandle(httpReq, httpRes, wsHandlerClass.getAnnotation(RequestAuth.class));
             map.put(WS_LOCALE, RdpLocal.getLocal());
 
             String puid = (String) httpReq.getAttribute(RdpUserService.PUID);
