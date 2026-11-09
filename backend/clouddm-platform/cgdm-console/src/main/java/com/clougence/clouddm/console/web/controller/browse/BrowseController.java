@@ -166,7 +166,7 @@ public class BrowseController {
         }
     }
 
-    @RequestAuth(value = DM_QUERY_CONSOLE)
+    @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/listLeaf", method = RequestMethod.POST)
     public ResWebData<?> listLeaf(@Valid @RequestBody BrowseLeafFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -190,7 +190,7 @@ public class BrowseController {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(value = DM_QUERY_CONSOLE)
+    @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/rdbObjectDetail", method = RequestMethod.POST)
     public ResWebData<?> rdbObjectDetail(@Valid @RequestBody BrowseDetailFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);

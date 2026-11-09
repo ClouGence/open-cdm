@@ -116,7 +116,7 @@ public class TableEditorController {
         }
     }
 
-    @RequestAuth(value = DM_QUERY_CONSOLE)
+    @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/scriptExecute", method = RequestMethod.POST)
     public ResWebData<?> scriptExecute(@Valid @RequestBody EditorExecFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
