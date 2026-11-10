@@ -20,6 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
+
+import com.clougence.clouddm.console.web.util.RdpWebUtils;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.console.web.component.auth.DmUserService;
@@ -46,19 +50,18 @@ public class OpenApiSessionManager implements HandlerInterceptor {
 
     private static final int   SIGNATURE_ERROR         = 497;
 
-    private final String       OPEN_API_URI_PREFIX;
+    private final PathPattern  OPEN_API_URI_PREFIX;
 
     @Resource
     private DmUserService      dmUserService;
 
     public OpenApiSessionManager(String openApiUriPrefix){
-        this.OPEN_API_URI_PREFIX = openApiUriPrefix;
+        this.OPEN_API_URI_PREFIX = PathPatternParser.defaultInstance.parse(openApiUriPrefix + "/**");
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();
-        if (!uri.startsWith(OPEN_API_URI_PREFIX)) {
+        if (!OPEN_API_URI_PREFIX.matches(RdpWebUtils.getRequestPath(request))) {
             return true;
         }
 

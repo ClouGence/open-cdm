@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.http.server.PathContainer;
+import org.springframework.web.util.ServletRequestPathUtils;
+
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.session.SessionPrincipal;
@@ -160,6 +163,14 @@ public class RdpWebUtils {
             return data.currentUser.isMaintainer();
         }
         return false;
+    }
+
+    // Authentication must use the same decoded path segments and context path as MVC routing.
+    public static PathContainer getRequestPath(HttpServletRequest request) {
+        if (!ServletRequestPathUtils.hasParsedRequestPath(request)) {
+            ServletRequestPathUtils.parseAndCache(request);
+        }
+        return ServletRequestPathUtils.getParsedRequestPath(request).pathWithinApplication();
     }
 
     public static String getContextPath() {

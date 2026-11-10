@@ -20,6 +20,10 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.springframework.http.server.PathContainer;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
+
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
@@ -46,55 +50,49 @@ import lombok.extern.slf4j.Slf4j;
 public class WebSessionManager {
 
     @Resource
-    private ConsoleConfig          config;
+    private ConsoleConfig            config;
     @Resource
-    private RdpUserService         userService;
+    private RdpUserService           userService;
     @Resource
-    private DmAuthServiceForManage authServiceForManage;
+    private DmAuthServiceForManage   authServiceForManage;
     @Resource
-    private RdpRoleService         roleService;
+    private RdpRoleService           roleService;
     @Resource
-    private SessionService         sessionService;
+    private SessionService           sessionService;
     @Resource
-    private SessionAccountPolicy   accountPolicy;
+    private SessionAccountPolicy     accountPolicy;
     @Resource
-    private SessionCookieService   cookieService;
+    private SessionCookieService     cookieService;
 
-    public static final String     SESSION_PRINCIPAL      = "DM_SESSION_PRINCIPAL";
+    public static final String       SESSION_PRINCIPAL = "DM_SESSION_PRINCIPAL";
 
-    private final Set<String>      ignoreEndWithUrl       = new HashSet<>();
-    private final Set<String>      includeVerifyStartWith = new HashSet<>();
+    private final Set<PathPattern>   publicPaths       = new HashSet<>();
+    private final Set<PathPattern>   protectedPaths    = new HashSet<>();
+    private static final PathPattern LOGIN_USER_PATH   = PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/user/queryLoginUser");
 
     @PostConstruct
     public void init() throws Exception {
-        includeVerifyStartWith.add(DmControllerUrlPrefix.CONSOLE_PREFIX);
-        includeVerifyStartWith.add("/switchSaasMode");
+        protectedPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/**"));
+        protectedPaths.add(PathPatternParser.defaultInstance.parse("/switchSaasMode/**"));
 
-        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendcode");
-        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/dmGlobalSettings");
-        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/resource/fetch");
+        publicPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendcode"));
+        publicPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/dmGlobalSettings"));
+        publicPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/resource/fetch"));
     }
 
     private boolean ignoreVerify(HttpServletRequest request) {
-        String uri = request.getRequestURI().substring(request.getContextPath().length());
-
-        if (!this.includeVerifyStartWith.isEmpty()) {
-            boolean includeTest = false;
-            for (String include : this.includeVerifyStartWith) {
-                includeTest = includeTest || StringUtils.startsWithIgnoreCase(uri, include);
-            }
-            if (!includeTest) {
-                return true; // Do not include or ignore
-            }
-        }
-
-        for (String ignore : this.ignoreEndWithUrl) {
-            if (StringUtils.endsWithIgnoreCase(uri, ignore)) {
+        PathContainer path = RdpWebUtils.getRequestPath(request);
+        for (PathPattern publicPath : publicPaths) {
+            if (publicPath.matches(path)) {
                 return true;
             }
         }
-
-        return false;
+        for (PathPattern protectedPath : protectedPaths) {
+            if (protectedPath.matches(path)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean verifyAuth(RequestAuth requestAuth, DmAuthUserDO userDO, DmAuthRoleDO role) {
@@ -207,8 +205,7 @@ public class WebSessionManager {
 
         if (accountPolicy.isPasswordExpired(userDO)) {
             sessionService.revokeUserSessions(uid);
-            String path = request.getRequestURI().substring(request.getContextPath().length());
-            if (!path.equals(DmControllerUrlPrefix.CONSOLE_PREFIX + "/user/queryLoginUser")) {
+            if (!LOGIN_USER_PATH.matches(RdpWebUtils.getRequestPath(request))) {
                 return responseNotLogin(requestAuth, request, response, "Password expired.");
             }
             cookieService.clear(response);
