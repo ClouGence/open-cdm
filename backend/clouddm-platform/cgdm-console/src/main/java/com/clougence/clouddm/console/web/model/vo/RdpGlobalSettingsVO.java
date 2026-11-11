@@ -29,8 +29,6 @@ public class RdpGlobalSettingsVO {
     private boolean             outputDeployEnv;
     private boolean             onPremiseDeployMode;
 
-    // for Auth
-
     private boolean             enableWaterMark;
     private boolean             enableProductCluster;
     private boolean             enableValidateDsExtraConf;
