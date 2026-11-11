@@ -18,26 +18,33 @@ package com.clougence.sql.postgres.analysis.security;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.sdk.service.execute.MetaIndexedObject;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.sql.analysis.security.ContextInfo;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.dslpaser.parse.AstSplitScript;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.sql.postgres.analysis.security.builder.PgBuilderFactory;
 import com.clougence.sql.postgres.parser.PgDslProvider;
 import com.clougence.sql.postgres.parser.PgSplitAnalysisSpi;
 import com.clougence.sql.postgres.parser.PostgresVersion;
+import com.clougence.utils.StringUtils;
 
 public class PgSecDomainResolveSpi implements SecDomainResolveSpi, PgSecDomainOptionKeys {
 
@@ -103,6 +110,7 @@ public class PgSecDomainResolveSpi implements SecDomainResolveSpi, PgSecDomainOp
             } else {
                 build = builder.build(ctxInfo.getCuid(), ctxInfo.getDsId(), ctxInfo.getLevelsParam());
             }
+            this.resolveDropIndexOwner(build, ctxInfo);
             for (RuleDomain domain : build) {
                 domain.setDsType(dsType);
                 domain.setSplitScript(ss);
@@ -111,5 +119,35 @@ public class PgSecDomainResolveSpi implements SecDomainResolveSpi, PgSecDomainOp
         }
 
         return domainList;
+    }
+
+    private void resolveDropIndexOwner(List<RuleDomain> domains, ContextInfo ctxInfo) {
+        for (RuleDomain domain : domains) {
+            if (!(domain instanceof RdbIndexDomain index) || index.getSqlType() != RuleQueryType.DROP_INDEX) {
+                continue;
+            }
+            this.fillIndexOwner(index, ctxInfo);
+        }
+    }
+
+    private void fillIndexOwner(RdbIndexDomain index, ContextInfo ctxInfo) {
+        if (this.metaService == null || ctxInfo == null || ctxInfo.getLevelsParam() == null) {
+            throw new UnsupportedOperationException("unsupported SQL: cannot resolve owner table of index '" + index.getName() + "'.");
+        }
+
+        Map<UmiTypes, Object> levels = new HashMap<>(ctxInfo.getLevelsParam());
+        if (StringUtils.isNotBlank(index.getSchema())) {
+            levels.put(UmiTypes.Schema, index.getSchema());
+        }
+        MetaIndexedObject owner = this.metaService.fetchIndexedObject(ctxInfo.getCuid(), ctxInfo.getDsId(), levels, index.getName());
+        if (owner == null || StringUtils.isBlank(owner.getSchema()) || StringUtils.isBlank(owner.getName())) {
+            throw new UnsupportedOperationException("unsupported SQL: cannot resolve owner table of index '" + index.getName() + "'.");
+        }
+
+        index.setCatalog(owner.getCatalog());
+        index.setSchema(owner.getSchema());
+        index.setTableCatalog(owner.getCatalog());
+        index.setTableSchema(owner.getSchema());
+        index.setTableName(owner.getName());
     }
 }

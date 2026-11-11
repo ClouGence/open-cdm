@@ -45,7 +45,15 @@ public class DropIndexBuilder extends AbstractDomainBuilder {
         if (source == DomainSource.OBJ_NAME) {
             ObjNameDomain domain = (ObjNameDomain) list.get(0);
             if (domain.getType() == NameType.INDEX) {
-                indexDomain.setName(domain.getName());
+                List<String> names = domain.getNameList();
+                int size = names.size();
+                if (size >= 3) {
+                    indexDomain.setCatalog(names.get(size - 3));
+                    indexDomain.setSchema(names.get(size - 2));
+                } else if (size == 2) {
+                    indexDomain.setSchema(names.get(0));
+                }
+                indexDomain.setName(names.get(size - 1));
             } else {
                 Map<UmiTypes, String> map = BuilderUtil.parseTableName(domain.getNameList());
                 indexDomain.setTableSchema(map.get(UmiTypes.Schema));

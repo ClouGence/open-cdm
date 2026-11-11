@@ -168,26 +168,38 @@ public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDropstmt(DropstmtContext ctx) {
-        if (!"INDEX".equalsIgnoreCase(ctx.getChild(1).getText())) {
+        if (!isDropIndex(ctx)) {
             throw new UnsupportedOperationException("unsupported SQL: " + this.getText(ctx));
         }
         for (Any_nameContext anyName : ctx.any_name_list_().any_name()) {
             builder.enterDropIndex();
             builder.enterObjName(NameType.INDEX);
-            builder.addAttr(CommonAttribute.VALUE, getName(lastNamePart(anyName).getText()));
+            for (String namePart : indexNameParts(anyName)) {
+                builder.addAttr(CommonAttribute.VALUE, namePart);
+            }
             builder.exitObjName();
             builder.exitDropIndex();
         }
         return null;
     }
 
-    private ParseTree lastNamePart(Any_nameContext ctx) {
-        AttrsContext attrs = ctx.attrs();
-        if (attrs == null) {
-            return ctx.colid();
+    private boolean isDropIndex(DropstmtContext ctx) {
+        if (ctx.object_type_any_name() != null) {
+            return ctx.object_type_any_name().INDEX() != null;
         }
-        List<Attr_nameContext> names = attrs.attr_name();
-        return names.get(names.size() - 1);
+        // DROP INDEX [CONCURRENTLY] is parsed as its own alternative and INDEX is the second child.
+        return ctx.getChildCount() > 1 && "INDEX".equalsIgnoreCase(ctx.getChild(1).getText());
+    }
+
+    private List<String> indexNameParts(Any_nameContext ctx) {
+        List<String> nameParts = new ArrayList<>();
+        nameParts.add(getName(ctx.colid().getText()));
+        if (ctx.attrs() != null) {
+            for (Attr_nameContext attrName : ctx.attrs().attr_name()) {
+                nameParts.add(getName(attrName.getText()));
+            }
+        }
+        return nameParts;
     }
 
     private List<String> handleQualifiedName(Qualified_nameContext ctx) {

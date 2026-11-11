@@ -549,6 +549,38 @@ public class PgMetaProviderDm extends AbstractMetadataProvider implements MetaDa
         }
     }
 
+    public RdbIndex loadIndex(String catalog, String schema, String indexName) throws SQLException {
+        if (StringUtils.isBlank(schema) || StringUtils.isBlank(indexName)) {
+            return null;
+        }
+        String sql = "SELECT n.nspname AS table_schema, ct.relname AS table_name, ci.relname AS index_name, ct.relkind AS table_kind\n" + "FROM pg_catalog.pg_class ci\n"
+                     + "JOIN pg_catalog.pg_namespace n ON n.oid = ci.relnamespace\n" + "JOIN pg_catalog.pg_index i ON i.indexrelid = ci.oid\n"
+                     + "JOIN pg_catalog.pg_class ct ON ct.oid = i.indrelid\n" + "WHERE ci.relkind IN ('i', 'I') AND n.nspname = ? AND ci.relname = ?";
+        try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, schema);
+            ps.setString(2, indexName);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+
+                RdbIndex index = new RdbIndex();
+                index.setCatalog(catalog);
+                index.setSchema(rs.getString("table_schema"));
+                index.setTable(rs.getString("table_name"));
+                index.setName(rs.getString("index_name"));
+
+                String tableKind = rs.getString("table_kind");
+                UmiTypes objectType = UmiTypes.Table;
+                if ("m".equals(tableKind)) {
+                    objectType = UmiTypes.Materialized;
+                }
+                index.setIndexedObjectType(objectType);
+                return index;
+            }
+        }
+    }
+
     @Override
     protected Map<String, List<RdbForeignKey>> fetchForeignKeys(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
         String sql = FK.replace("###SCHEMA_NAME###", "?").replace("###TABLE_NAME###", buildWhereIn(tabs));

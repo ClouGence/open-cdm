@@ -107,6 +107,8 @@ public class PgUmiServiceDm extends AbstractRdbUmiService<PgMetaProviderDm> impl
                 List<String> procedureNames = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
                 List<RdbProcedure> procedures = this.metadataSupplier.eGet().loadProcedures(catalog, schema, procedureNames);
                 return CollectionUtils.isEmpty(procedures) ? null : procedures.get(0);
+            case Index:
+                return this.metadataSupplier.eGet().loadIndex(catalog, schema, leafName);
             default:
                 throw new UnsupportedOperationException("detailLeaf of " + leafType + " Unsupported.");
         }

@@ -109,6 +109,8 @@ public class HgPgUmiServiceDm extends AbstractRdbUmiService<HgMetaProviderDm> im
                 List<RdbFunction> defs = this.metadataSupplier.eGet().loadFunctions(catalog, schema, names);
                 return CollectionUtils.isEmpty(defs) ? null : defs.get(0);
             }
+            case Index:
+                return this.metadataSupplier.eGet().loadIndex(catalog, schema, leafName);
             default:
                 throw new UnsupportedOperationException("detailLeaf of " + leafType + " Unsupported.");
         }

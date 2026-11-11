@@ -102,6 +102,8 @@ public class GpUmiServiceDm extends AbstractRdbUmiService<GpMetaProviderDm> impl
                 List<RdbProcedure> procList = this.metadataSupplier.eGet().loadProcedures(catalog, schema, procNames);
                 return CollectionUtils.isEmpty(procList) ? null : procList.get(0);
             }
+            case Index:
+                return this.metadataSupplier.eGet().loadIndex(catalog, schema, leafName);
             default:
                 throw new UnsupportedOperationException("detailLeaf of " + leafType + " Unsupported.");
         }
