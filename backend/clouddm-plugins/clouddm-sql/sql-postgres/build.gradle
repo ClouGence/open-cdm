@@ -24,6 +24,10 @@ dependencies {
     api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     api project(':cg-dslparser')
     api project(':sqlc-common')
+
+    // for test
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testRuntimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4"
 }
 
 description = 'sql-postgres'

@@ -97,6 +97,31 @@ public class PgIndexDdlSecurityTest {
     }
 
     @Test
+    public void ifExistsMissingIndexDegradesToSchemaLevel() {
+        List<RuleDomain> domains = resolve("DROP INDEX IF EXISTS missing_idx;");
+        Assert.assertEquals(1, domains.size());
+
+        RdbIndexDomain index = (RdbIndexDomain) domains.get(0);
+        Assert.assertNull(index.getTableName());
+        Assert.assertEquals(CURRENT_SCHEMA, index.getSchema());
+    }
+
+    @Test
+    public void unquotedMixedCaseIndexIsFoldedToLowercase() {
+        List<RuleDomain> domains = resolve("DROP INDEX AccountsEmailIdx;");
+        Assert.assertEquals(1, domains.size());
+
+        RdbIndexDomain index = (RdbIndexDomain) domains.get(0);
+        Assert.assertEquals("accountsemailidx", index.getName());
+        Assert.assertEquals("accounts", index.getTableName());
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void materializedViewIndexOwnerIsRejected() {
+        resolve("DROP INDEX matview_idx;");
+    }
+
+    @Test
     public void createIndexKeepsTableAndPredicateSupport() {
         List<RuleDomain> domains = resolve("CREATE UNIQUE INDEX idx ON sensitive.accounts (email) WHERE email IS NOT NULL;");
         Assert.assertEquals(1, domains.size());
@@ -118,6 +143,15 @@ public class PgIndexDdlSecurityTest {
         RdbIndexDomain index = (RdbIndexDomain) domains.get(0);
         Assert.assertEquals("idx", index.getName());
         Assert.assertEquals("accounts", index.getTableName());
+    }
+
+    @Test
+    public void createIndexIncludeColumnsAreNotAudited() {
+        List<RuleDomain> domains = resolve("CREATE INDEX idx ON accounts (email) INCLUDE (extra_col) WITH (fillfactor = 70) TABLESPACE pg_default;");
+        Assert.assertEquals(1, domains.size());
+
+        RdbIndexDomain index = (RdbIndexDomain) domains.get(0);
+        Assert.assertEquals(List.of("email"), index.getColumns());
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -160,17 +194,19 @@ public class PgIndexDdlSecurityTest {
 
     private static Map<String, MetaIndexedObject> owners() {
         Map<String, MetaIndexedObject> owners = new HashMap<>();
-        owners.put("public.accounts_email_idx", owner(CURRENT_SCHEMA, "accounts"));
-        owners.put("sensitive.accounts_email_idx", owner("sensitive", "accounts"));
-        owners.put("public.idx_a", owner(CURRENT_SCHEMA, "table_a"));
-        owners.put("public.idx_b", owner(CURRENT_SCHEMA, "table_b"));
-        owners.put("Sensitive.AccountsIdx", owner("Sensitive", "Accounts"));
+        owners.put("public.accounts_email_idx", owner(CURRENT_SCHEMA, "accounts", UmiTypes.Table));
+        owners.put("sensitive.accounts_email_idx", owner("sensitive", "accounts", UmiTypes.Table));
+        owners.put("public.idx_a", owner(CURRENT_SCHEMA, "table_a", UmiTypes.Table));
+        owners.put("public.idx_b", owner(CURRENT_SCHEMA, "table_b", UmiTypes.Table));
+        owners.put("Sensitive.AccountsIdx", owner("Sensitive", "Accounts", UmiTypes.Table));
+        owners.put("public.accountsemailidx", owner(CURRENT_SCHEMA, "accounts", UmiTypes.Table));
+        owners.put("public.matview_idx", owner(CURRENT_SCHEMA, "some_matview", UmiTypes.Materialized));
         return owners;
     }
 
-    private static MetaIndexedObject owner(String schema, String table) {
+    private static MetaIndexedObject owner(String schema, String table, UmiTypes type) {
         MetaIndexedObject owner = new MetaIndexedObject();
-        owner.setType(UmiTypes.Table);
+        owner.setType(type);
         owner.setCatalog(CURRENT_CATALOG);
         owner.setSchema(schema);
         owner.setName(table);

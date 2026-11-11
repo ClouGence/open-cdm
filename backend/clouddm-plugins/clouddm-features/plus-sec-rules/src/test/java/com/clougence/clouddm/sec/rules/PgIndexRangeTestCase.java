@@ -67,6 +67,15 @@ public class PgIndexRangeTestCase {
         Assert.assertFalse(Utils.checkRangeIncludeDomain(range(TargetType.Schema, "/1/2/" + CURRENT_CATALOG, "sensitive"), checkerData(sql, domain)));
     }
 
+    @Test
+    public void ifExistsMissingIndexStillMatchesSchemaRange() {
+        String sql = "DROP INDEX CONCURRENTLY IF EXISTS missing_idx;";
+        RuleDomain domain = resolve(sql).get(0);
+
+        Assert.assertTrue(Utils.checkRangeIncludeDomain(range(TargetType.Schema, "/1/2/" + CURRENT_CATALOG, CURRENT_SCHEMA), checkerData(sql, domain)));
+        Assert.assertFalse(Utils.checkRangeIncludeDomain(range(TargetType.Table, "/1/2/" + CURRENT_CATALOG + "/" + CURRENT_SCHEMA, "accounts"), checkerData(sql, domain)));
+    }
+
     private List<RuleDomain> resolve(String sql) {
         try (StringReader reader = new StringReader(sql); Stream<RuleDomain> stream = this.resolveSpi.resolveDomainStream(DataSourceType.PostgreSQL, reader, 1, 0, contextInfo())) {
             return stream.toList();

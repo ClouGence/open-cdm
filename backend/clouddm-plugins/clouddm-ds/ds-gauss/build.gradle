@@ -35,6 +35,8 @@ dependencies {
     // for test
     testImplementation project(':cgdm-plugin-sdk')
     testImplementation project(':dsc-common-postgres')
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testRuntimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4"
 }
 
 description = 'ds-gauss'

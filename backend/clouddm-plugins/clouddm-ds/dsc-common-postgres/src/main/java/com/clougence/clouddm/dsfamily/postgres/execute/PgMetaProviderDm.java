@@ -549,11 +549,18 @@ public class PgMetaProviderDm extends AbstractMetadataProvider implements MetaDa
         }
     }
 
+    /**
+     * Load one index by exact schema + name for owner-table resolution of DROP INDEX audit.
+     * catalog is the current connection database (PG is single-database per connection); a fully
+     * qualified name whose catalog differs from the connection is rejected by the caller.
+     * The table_schema column is the index's namespace, which is always identical to the owning
+     * table's schema in PostgreSQL.
+     */
     public RdbIndex loadIndex(String catalog, String schema, String indexName) throws SQLException {
         if (StringUtils.isBlank(schema) || StringUtils.isBlank(indexName)) {
             return null;
         }
-        String sql = "SELECT n.nspname AS table_schema, ct.relname AS table_name, ci.relname AS index_name, ct.relkind AS table_kind\n" + "FROM pg_catalog.pg_class ci\n"
+        String sql = "SELECT n.nspname AS index_schema, ct.relname AS table_name, ci.relname AS index_name, ct.relkind AS table_kind\n" + "FROM pg_catalog.pg_class ci\n"
                      + "JOIN pg_catalog.pg_namespace n ON n.oid = ci.relnamespace\n" + "JOIN pg_catalog.pg_index i ON i.indexrelid = ci.oid\n"
                      + "JOIN pg_catalog.pg_class ct ON ct.oid = i.indrelid\n" + "WHERE ci.relkind IN ('i', 'I') AND n.nspname = ? AND ci.relname = ?";
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -566,14 +573,19 @@ public class PgMetaProviderDm extends AbstractMetadataProvider implements MetaDa
 
                 RdbIndex index = new RdbIndex();
                 index.setCatalog(catalog);
-                index.setSchema(rs.getString("table_schema"));
+                index.setSchema(rs.getString("index_schema"));
                 index.setTable(rs.getString("table_name"));
                 index.setName(rs.getString("index_name"));
 
                 String tableKind = rs.getString("table_kind");
-                UmiTypes objectType = UmiTypes.Table;
-                if ("m".equals(tableKind)) {
+                UmiTypes objectType;
+                if ("r".equals(tableKind) || "p".equals(tableKind)) {
+                    objectType = UmiTypes.Table;
+                } else if ("m".equals(tableKind)) {
                     objectType = UmiTypes.Materialized;
+                } else {
+                    // Unknown relkind: report as not found instead of silently treating it as a table.
+                    return null;
                 }
                 index.setIndexedObjectType(objectType);
                 return index;

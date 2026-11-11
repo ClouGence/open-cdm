@@ -24,6 +24,8 @@ import com.clougence.clouddm.sdk.service.secrules.RuleQueryType;
 import com.clougence.clouddm.sdk.service.secrules.SecQueryKind;
 import com.clougence.clouddm.sdk.sql.analysis.security.rdb.RdbIndexDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.sql.common.analysis.secrules.builder.enums.Attribute;
+import com.clougence.sql.common.analysis.secrules.builder.enums.CommonAttribute;
 import com.clougence.sql.common.analysis.secrules.builder.enums.DomainSource;
 import com.clougence.sql.common.analysis.secrules.builder.enums.NameType;
 import com.clougence.sql.common.analysis.secrules.builder.mode.ObjNameDomain;
@@ -31,12 +33,24 @@ import com.clougence.sql.common.analysis.secrules.builder.utils.BuilderUtil;
 
 public class DropIndexBuilder extends AbstractDomainBuilder {
 
-    RdbIndexDomain indexDomain = new RdbIndexDomain();
+    RdbIndexDomain  indexDomain = new RdbIndexDomain();
+
+    private boolean ifExists;
+
+    @Override
+    public void addAttr(Attribute attr, Object value) {
+        if (attr == CommonAttribute.IF_EXISTS) {
+            this.ifExists = true;
+        } else {
+            super.addAttr(attr, value);
+        }
+    }
 
     @Override
     public List<Domain> build() {
         indexDomain.setSqlType(RuleQueryType.DROP_INDEX);
         indexDomain.setAuditKind(SecQueryKind.DROP);
+        indexDomain.setIfExists(this.ifExists);
         return Collections.singletonList(indexDomain);
     }
 
@@ -47,6 +61,9 @@ public class DropIndexBuilder extends AbstractDomainBuilder {
             if (domain.getType() == NameType.INDEX) {
                 List<String> names = domain.getNameList();
                 int size = names.size();
+                if (size > 3) {
+                    throw new UnsupportedOperationException("unsupported index name, at most catalog.schema.index but got " + names);
+                }
                 if (size >= 3) {
                     indexDomain.setCatalog(names.get(size - 3));
                     indexDomain.setSchema(names.get(size - 2));

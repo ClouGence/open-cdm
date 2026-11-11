@@ -133,7 +133,51 @@ public class GaussSqlParserVisitor extends GaussSqlParserBaseVisitor<Void> {
 
     @Override
     public Void visitDropstmt(DropstmtContext ctx) {
-        return super.visitDropstmt(ctx);
+        if (!isDropIndex(ctx)) {
+            throw new UnsupportedOperationException("unsupported SQL: " + this.getText(ctx));
+        }
+        for (Any_nameContext anyName : ctx.any_name_list_().any_name()) {
+            builder.enterDropIndex();
+            if (ctx.IF_P() != null) {
+                builder.addAttr(CommonAttribute.IF_EXISTS, true);
+            }
+            builder.enterObjName(NameType.INDEX);
+            for (String namePart : indexNameParts(anyName)) {
+                builder.addAttr(CommonAttribute.VALUE, namePart);
+            }
+            builder.exitObjName();
+            builder.exitDropIndex();
+        }
+        return null;
+    }
+
+    private boolean isDropIndex(DropstmtContext ctx) {
+        // Non-CONCURRENTLY forms carry the object type in object_type_any_name; DROP INDEX CONCURRENTLY
+        // is parsed as its own alternative and exposes the INDEX token directly on the context.
+        return (ctx.object_type_any_name() != null && ctx.object_type_any_name().INDEX() != null) || ctx.INDEX() != null;
+    }
+
+    private List<String> indexNameParts(Any_nameContext ctx) {
+        List<String> nameParts = new ArrayList<>();
+        nameParts.add(normalizeIndexName(ctx.colid().getText()));
+        if (ctx.attrs() != null) {
+            for (Attr_nameContext attrName : ctx.attrs().attr_name()) {
+                nameParts.add(normalizeIndexName(attrName.getText()));
+            }
+        }
+        return nameParts;
+    }
+
+    /**
+     * Unquoted identifiers are case-folded to lowercase by GaussDB before metadata lookup,
+     * quoted identifiers keep their exact spelling. Only the DROP INDEX path performs the
+     * name-to-metadata reverse lookup, so folding is applied here instead of globally.
+     */
+    private String normalizeIndexName(String name) {
+        if (name.startsWith("\"")) {
+            return name.substring(1, name.length() - 1);
+        }
+        return name.toLowerCase(java.util.Locale.ROOT);
     }
 
     private List<String> handleQualifiedName(Qualified_nameContext ctx) {
@@ -548,10 +592,27 @@ public class GaussSqlParserVisitor extends GaussSqlParserBaseVisitor<Void> {
         return null;
     }
 
+    /**
+     * Only the semantic children are visited: unique_, the index name, relation_expr and index_params.
+     * The remaining clauses (include_, reloptions_, opttablespace, where_clause) are intentionally
+     * ignored: INCLUDE columns and partial-index predicate columns do not enter RdbIndexDomain.columns,
+     * and CONCURRENTLY / WITH options do not abort the parse.
+     */
     @Override
     public Void visitIndexstmt(IndexstmtContext ctx) {
         builder.handleCreateIndex(() -> {
-            dmVisitChildren(ctx);
+            if (ctx.unique_() != null) {
+                ctx.unique_().accept(this);
+            }
+            if (ctx.index_name_() != null) {
+                ctx.index_name_().accept(this);
+            } else if (ctx.name() != null) {
+                builder.enterObjName(NameType.INDEX);
+                ctx.name().accept(this);
+                builder.exitObjName();
+            }
+            ctx.relation_expr().accept(this);
+            ctx.index_params().accept(this);
         });
         return null;
     }

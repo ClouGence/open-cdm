@@ -132,7 +132,7 @@ public class PgSecDomainResolveSpi implements SecDomainResolveSpi, PgSecDomainOp
 
     private void fillIndexOwner(RdbIndexDomain index, ContextInfo ctxInfo) {
         if (this.metaService == null || ctxInfo == null || ctxInfo.getLevelsParam() == null) {
-            throw new UnsupportedOperationException("unsupported SQL: cannot resolve owner table of index '" + index.getName() + "'.");
+            throw new UnsupportedOperationException("cannot access metadata service to resolve owner table of index '" + index.getName() + "'.");
         }
 
         Map<UmiTypes, Object> levels = new HashMap<>(ctxInfo.getLevelsParam());
@@ -141,7 +141,28 @@ public class PgSecDomainResolveSpi implements SecDomainResolveSpi, PgSecDomainOp
         }
         MetaIndexedObject owner = this.metaService.fetchIndexedObject(ctxInfo.getCuid(), ctxInfo.getDsId(), levels, index.getName());
         if (owner == null || StringUtils.isBlank(owner.getSchema()) || StringUtils.isBlank(owner.getName())) {
-            throw new UnsupportedOperationException("unsupported SQL: cannot resolve owner table of index '" + index.getName() + "'.");
+            if (index.isIfExists()) {
+                // DROP INDEX IF EXISTS is a no-op when the index is missing; degrade to schema-level audit
+                // instead of rejecting the whole script. tableName stays empty so table-scoped rules miss.
+                if (StringUtils.isBlank(index.getSchema())) {
+                    index.setSchema(StringUtils.toString(levels.get(UmiTypes.Schema)));
+                }
+                index.setTableName(null);
+                return;
+            }
+            throw new UnsupportedOperationException("index metadata not found: '" + index.getName() + "'.");
+        }
+
+        if (owner.getType() != UmiTypes.Table) {
+            // Indexes on materialized views resolve to a Materialized owner; only plain tables are audited.
+            throw new UnsupportedOperationException("unsupported index owner type '" + owner.getType() + "' of index '" + index.getName() + "'.");
+        }
+
+        if (StringUtils.isNotBlank(index.getCatalog()) && !StringUtils.equals(index.getCatalog(), owner.getCatalog())) {
+            throw new UnsupportedOperationException("index '" + index.getName() + "' belongs to catalog '" + owner.getCatalog() + "', not '" + index.getCatalog() + "'.");
+        }
+        if (StringUtils.isNotBlank(index.getSchema()) && !StringUtils.equals(index.getSchema(), owner.getSchema())) {
+            throw new UnsupportedOperationException("index '" + index.getName() + "' belongs to schema '" + owner.getSchema() + "', not '" + index.getSchema() + "'.");
         }
 
         index.setCatalog(owner.getCatalog());

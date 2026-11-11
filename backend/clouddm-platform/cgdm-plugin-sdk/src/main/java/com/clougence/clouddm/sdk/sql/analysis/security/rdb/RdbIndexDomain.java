@@ -44,6 +44,8 @@ public class RdbIndexDomain extends RuleDomain {
 
     private List<String> columns;
 
+    private boolean      ifExists;
+
     //    @Override
     //    public String resolveName(TargetType targetType) {
     //        switch (targetType) {
