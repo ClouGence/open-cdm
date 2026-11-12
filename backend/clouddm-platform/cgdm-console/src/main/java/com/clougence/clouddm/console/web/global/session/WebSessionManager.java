@@ -203,7 +203,8 @@ public class WebSessionManager {
                 .build();
         }
 
-        if (accountPolicy.isPasswordExpired(userDO)) {
+        boolean passwordExpired = accountPolicy.isPasswordExpired(userDO);
+        if (passwordExpired) {
             sessionService.revokeUserSessions(uid);
             if (!LOGIN_USER_PATH.matches(RdpWebUtils.getRequestPath(request))) {
                 return responseNotLogin(requestAuth, request, response, "Password expired.");
@@ -244,7 +245,7 @@ public class WebSessionManager {
             RdpWebUtils.currentLocal().setCurrentRole(role);
             RdpWebUtils.currentLocal().setPrimaryUser(primaryUser);
             RdpWebUtils.currentLocal().setSessionPrincipal(principal);
-            if (!"websocket".equalsIgnoreCase(request.getHeader("Upgrade"))) {
+            if (!passwordExpired && !"websocket".equalsIgnoreCase(request.getHeader("Upgrade"))) {
                 this.sessionService.renewIfNeeded(principal);
                 this.cookieService.refreshIfUnlimited(request, response);
             }

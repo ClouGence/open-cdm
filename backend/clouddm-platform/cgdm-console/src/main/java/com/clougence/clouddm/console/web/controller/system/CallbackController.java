@@ -358,19 +358,15 @@ public class CallbackController {
 
     @RequestMapping(value = "/logout", method = { RequestMethod.POST, RequestMethod.GET })
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @SneakyThrows
-    public Object logout(@RequestParam(required = false) Map<String, String> params, HttpServletRequest request, HttpServletResponse response) {
-        String uid = params.getOrDefault("uid", null);
-        String state = params.getOrDefault("state", null);
-        String provider = params.getOrDefault("provider", null);
-
-        // for args
-        DmAuthCsrfTokenDO tokenDO = this.csrfTokenService.pullToken(state);
-        if (tokenDO == null) {
-            return this.redirectOrDone(request, response, "/");
+    public Object logout(@RequestParam(required = false) String state, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (StringUtils.isNotBlank(state)) {
+            this.csrfTokenService.pullToken(state);
         }
-
-        return this.redirectOrDone(request, response, "/");
+        String redirectUrl = this.config.getDeployContextPath();
+        if (StringUtils.isBlank(redirectUrl)) {
+            redirectUrl = "/";
+        }
+        return this.redirectOrDone(request, response, redirectUrl);
     }
 
     private Object redirectOrDone(HttpServletRequest request, HttpServletResponse response, String redirectUrl) throws IOException {

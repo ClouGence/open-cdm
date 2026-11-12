@@ -15,9 +15,6 @@
  */
 package com.clougence.clouddm.console.web.service.login;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 
 import org.springframework.stereotype.Service;
@@ -158,26 +155,30 @@ public class LoginServiceImpl implements LoginService {
         }
     }
 
+    private void checkPasswordExpiration(DmAuthUserDO user) {
+        if (this.sessionAccountPolicy.isPasswordExpired(user)) {
+            Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
+        }
+    }
+
+    private boolean isLoginAllowed(DmAuthUserDO user, LoginAuthType loginType) {
+        if (loginType == LoginAuthType.PASSWORD) {
+            return user.getBindType() == AccountBindType.INTERNAL || user.isAllowLocal();
+        }
+        return user.getBindType() == loginType.getBindType();
+    }
+
     private void checkByPassword(LoginFO loginFO, DmAuthUserDO user) {
         if (StringUtils.isBlank(loginFO.getPassword())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
         }
 
-        if (user.getParentId() != null) {
+        checkPasswordExpiration(user);
+        if (user.getParentId() != null && user.getLastDateUpdatePwd() == null) {
             Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
-            if (days != null) {
-                if (days > 0) {
-                    Date d = user.getLastDateUpdatePwd();
-                    if (d != null) {
-                        LocalDateTime lastUpdateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(d.getTime()), ZoneId.systemDefault());
-                        LocalDateTime limit = lastUpdateTime.plusDays(days);
-                        if (limit.isBefore(LocalDateTime.now())) {
-                            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
-                        }
-                    } else {
-                        this.authDal.userMapper().updateLastUpdatePwdTimeById(user.getId());
-                    }
-                }
+            if (days != null && days > 0) {
+                this.authDal.userMapper().updateLastUpdatePwdTimeById(user.getId());
             }
         }
 
@@ -300,17 +301,10 @@ public class LoginServiceImpl implements LoginService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
         }
         // the locked account must still be eligible for this login path
-        if (loginType == LoginAuthType.PASSWORD) {
-            if (user.getBindType() != AccountBindType.INTERNAL && !user.isAllowLocal()) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
-            }
-        } else if (user.getBindType() != loginType.getBindType()) {
+        if (!isLoginAllowed(user, loginType)) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
         }
-        if (this.sessionAccountPolicy.isPasswordExpired(user)) {
-            Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
-        }
+        checkPasswordExpiration(user);
 
         long nowMs = System.currentTimeMillis();
         this.authDal.userMapper().updateLoginLimitInfo(new Date(nowMs), 0, false, user.getId());
@@ -352,10 +346,7 @@ public class LoginServiceImpl implements LoginService {
         return new TransactionTemplate(transactionManager).execute(status -> {
             DmAuthUserDO user = this.authDal.userMapper().lockByUid(preCheck.getUid());
             checkAccountStatus(user);
-            if (this.sessionAccountPolicy.isPasswordExpired(user)) {
-                Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
-            }
+            checkPasswordExpiration(user);
 
             DmAuthMfaChallengeDO challengeDO = mfaChallengeService.requirePendingChallengeForUpdate(validFO.getMfaPreActionToken(), MfaPreActionType.LOGIN);
             if (!user.isUseMfa() || config.isMfaLoginDisabled() || this.loginMFAService.isInvalidMFA(user.getUid())) {
@@ -370,11 +361,7 @@ public class LoginServiceImpl implements LoginService {
 
             // the locked user must still allow this challenge's login path
             LoginAuthType loginType = LoginAuthType.valueOfCode(challengeDO.getLoginType());
-            if (loginType == LoginAuthType.PASSWORD) {
-                if (user.getBindType() != AccountBindType.INTERNAL && !user.isAllowLocal()) {
-                    throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
-                }
-            } else if (user.getBindType() != loginType.getBindType()) {
+            if (!isLoginAllowed(user, loginType)) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
             }
 

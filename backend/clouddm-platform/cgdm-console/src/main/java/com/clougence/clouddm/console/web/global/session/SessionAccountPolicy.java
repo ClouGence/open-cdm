@@ -19,27 +19,28 @@ public class SessionAccountPolicy {
     private SystemDal systemDal;
 
     public Long passwordValidDays(DmAuthUserDO user) {
-        if (user.getParentId() == null || user.getLastDateUpdatePwd() == null) {
+        LocalDateTime expiresAt = passwordExpiresAt(user);
+        if (expiresAt == null) {
             return null;
         }
-        Integer days = systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
-        if (days == null || days <= 0) {
-            return null;
-        }
-        LocalDateTime updated = LocalDateTime.ofInstant(user.getLastDateUpdatePwd().toInstant(), ZoneId.systemDefault());
-        long diffMinutes = ChronoUnit.MINUTES.between(LocalDateTime.now(), updated.plusDays(days));
+        long diffMinutes = ChronoUnit.MINUTES.between(LocalDateTime.now(), expiresAt);
         return (long) Math.floor(((double) diffMinutes) / 60 / 24);
     }
 
     public boolean isPasswordExpired(DmAuthUserDO user) {
+        LocalDateTime expiresAt = passwordExpiresAt(user);
+        return expiresAt != null && !expiresAt.isAfter(LocalDateTime.now());
+    }
+
+    private LocalDateTime passwordExpiresAt(DmAuthUserDO user) {
         if (user.getParentId() == null || user.getLastDateUpdatePwd() == null) {
-            return false;
+            return null;
         }
         Integer days = systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
         if (days == null || days <= 0) {
-            return false;
+            return null;
         }
         LocalDateTime updated = LocalDateTime.ofInstant(user.getLastDateUpdatePwd().toInstant(), ZoneId.systemDefault());
-        return !updated.plusDays(days).isAfter(LocalDateTime.now());
+        return updated.plusDays(days);
     }
 }

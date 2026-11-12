@@ -64,6 +64,7 @@ import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.dsfamily.definition.ui.browser.RdbUiMenuDef;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
@@ -177,6 +178,10 @@ public class DmHomeController {
     @RequestMapping(value = "/logout", method = { RequestMethod.GET, RequestMethod.POST })
     public Object logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         SessionPrincipal principal = this.sessionService.authenticate(request);
+        String redirectUrl = this.config.getDeployContextPath();
+        if (StringUtils.isBlank(redirectUrl)) {
+            redirectUrl = "/";
+        }
         this.sessionService.revokeCurrentSession(request);
         this.sessionCookieService.clear(response);
         this.sessionCookieService.clearLegacy(response);
@@ -193,11 +198,34 @@ public class DmHomeController {
                 }
                 auditService.logAndAddOperationAudit(//
                         puid, user.getUid(), request.getRequestURI(), request.getRemoteAddr(), user.getUid(), "", SecurityLevel.NORMAL, AuditType.LOGOUT, ResourceType.ACCOUNT);
+                if (principal.getLoginType() == LoginAuthType.OIDC && user.getBindType() == AccountBindType.OIDC
+                    && StringUtils.equalsIgnoreCase(request.getMethod(), "get")) {
+                    redirectUrl = this.oidcLogoutJumpUrl(puid, user, redirectUrl);
+                }
             }
         }
 
-        String redirectUrl = StringUtils.isNotBlank(this.config.getDeployContextPath()) ? this.config.getDeployContextPath() : "/";
         return this.redirectOrDone(request, response, redirectUrl);
+    }
+
+    private String oidcLogoutJumpUrl(String puid, DmAuthUserDO user, String homeUrl) {
+        try {
+            LoginProviderSpi provider = PluginManager.findSpi(LoginProviderSpi.class, LoginProvider.OIDC.name());
+            if (provider == null) {
+                log.warn("OIDC logout provider unavailable for user {}", user.getUid());
+                return homeUrl;
+            }
+            String state = this.csrfTokenService.randomToken();
+            String callbackUrl = RdpWebUtils.getContextPath() + "callback/logout?uid=" + user.getUid() + "&provider=" + LoginProvider.OIDC.name();
+            String jumpUrl = provider.logoutJumpUrl(puid, state, callbackUrl, user.getAccessToken());
+            if (StringUtils.isNotBlank(jumpUrl)) {
+                return jumpUrl;
+            }
+        } catch (Exception e) {
+            String msg = "OIDC logout redirect failed for user " + user.getUid();
+            log.error(msg, e);
+        }
+        return homeUrl;
     }
 
     private Object redirectOrDone(HttpServletRequest request, HttpServletResponse response, String redirectUrl) throws IOException {
