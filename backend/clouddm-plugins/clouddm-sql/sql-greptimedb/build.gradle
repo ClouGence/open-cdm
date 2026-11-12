@@ -16,10 +16,20 @@
 
 plugins {
     id 'com.clougence.java-conventions'
+    id 'antlr'
 }
 
 dependencies {
     compileOnly project(':cgdm-plugin-sdk')
+    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+    api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
+    api project(':sqlc-common')
 }
 
 description = 'sql-greptimedb'
+
+configurations.api.extendsFrom = configurations.api.extendsFrom - configurations.antlr
+
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.sql.greptimedb.antlr']
+}

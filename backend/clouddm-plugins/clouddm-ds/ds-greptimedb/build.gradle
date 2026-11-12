@@ -19,7 +19,9 @@ plugins {
 }
 
 dependencies {
-    implementation project(':dsc-common-mysql')
+    implementation(project(':dsc-common-mysql')) {
+        exclude module: 'sql-mysql'
+    }
     implementation project(':sql-greptimedb')
 }
 

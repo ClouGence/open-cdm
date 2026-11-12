@@ -16,7 +16,6 @@
 
 package com.clougence.sql.greptimedb;
 
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
@@ -28,7 +27,10 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 public class GreptimeSqlEngineSpi implements SqlEngineSpi {
 
-    public static final String NAME = "GreptimeDB SQL";
+    public static final String             NAME     = "GreptimeDB SQL";
+
+    private final SplitAnalysisSpi         split    = new GreptimeSplitAnalysisSpi();
+    private final BehaviorAnalysisSpi      behavior = new GreptimeBehaviorAnalysisSpi(split);
 
     @Override
     public String name() {
@@ -37,16 +39,12 @@ public class GreptimeSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public SplitAnalysisSpi splitAnalysisSpi(SqlParserParameters parameters) {
-        return (reader, args, baseLine, baseColumn) -> {
-            throw ThirdPartyApiException.as().with(GreptimeSqlI18nKeys.GREPTIMEDB_SQL_ANALYSIS_UNAVAILABLE);
-        };
+        return split;
     }
 
     @Override
     public BehaviorAnalysisSpi behaviorAnalysisSpi(SqlParserParameters parameters) {
-        return (reader, levels, baseLine, baseColumn) -> {
-            throw ThirdPartyApiException.as().with(GreptimeSqlI18nKeys.GREPTIMEDB_SQL_ANALYSIS_UNAVAILABLE);
-        };
+        return behavior;
     }
 
     @Override

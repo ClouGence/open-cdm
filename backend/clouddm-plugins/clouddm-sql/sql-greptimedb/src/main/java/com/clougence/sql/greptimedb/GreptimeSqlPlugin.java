@@ -25,7 +25,6 @@ public class GreptimeSqlPlugin implements DsPlugin {
 
     @Override
     public void loadPlugin(DsPluginBinder binder) {
-        binder.bindGlobalI18n(GreptimeSqlI18nKeys.class);
         binder.addGlobalSpi(new GreptimeSqlEngineSpi());
     }
 }
