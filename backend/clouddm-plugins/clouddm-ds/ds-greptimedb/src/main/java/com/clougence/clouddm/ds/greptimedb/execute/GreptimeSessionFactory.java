@@ -23,14 +23,13 @@ import com.clougence.clouddm.dsfamily.execute.RdbSessionFactory;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
-import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
 import com.clougence.drivers.DsObject;
 
 public class GreptimeSessionFactory extends RdbSessionFactory<GreptimeConfig> {
 
     @Override
     protected Session newSession(GreptimeConfig config, SessionContextDTO context, DsObject<Connection> resource, DsResourceManager resourceManager) throws Exception {
-        DefaultRdbSession session = new DefaultRdbSession(context.getSessionId(), config, resource, new GreptimeSessionHook(config.getVersion()));
+        GreptimeSession session = new GreptimeSession(context.getSessionId(), config, resource);
         session.initSession(resourceManager, context);
         return session;
     }

@@ -25,17 +25,23 @@ import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
+import com.clougence.clouddm.sdk.execute.session.result.ColReader;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 
 final class GreptimeSessionHook extends MyHooks {
 
-    GreptimeSessionHook(String version) {
+    GreptimeSessionHook(String version){
         super(version);
     }
 
     @Override
     public DsMetaService createMetaService(Session session) {
         return new GreptimeMetaService(session);
+    }
+
+    @Override
+    public ColReader createColReader() {
+        return new GreptimeColReader();
     }
 
     @Override
