@@ -19,7 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.utils.StringUtils;
+import com.clougence.utils.HostAndPort;
 import com.jcraft.jsch.JSchException;
 
 import jakarta.annotation.Resource;
@@ -33,7 +33,10 @@ public class SshTunnelManager {
     private SshConnectionManager sshConnectionManager;
 
     public SshTunnelHandle open(DataSourceConfig dsConfig) throws Exception {
-        HostAndPort target = parseHostAndPort(dsConfig.getHost());
+        HostAndPort target = HostAndPort.parse(dsConfig.getHost());
+        if (target.getPort() < 0) {
+            throw new IllegalArgumentException("datasource host must include target host and port when SSH proxy is enabled.");
+        }
         // Metadata calls can reuse this config after a previous tunnel has already closed.
         DataSourceConfig tunnelConfig = BeanUtils.instantiateClass(dsConfig.getClass());
         BeanUtils.copyProperties(dsConfig, tunnelConfig);
@@ -41,7 +44,7 @@ public class SshTunnelManager {
 
         try {
             int localPort = sshSession.setPortForwardingL(0, target.getHost(), target.getPort());
-            tunnelConfig.setHost(rewriteHost(dsConfig.getHost(), localPort));
+            tunnelConfig.setHost("127.0.0.1:" + localPort);
             log.info("finish open ssh tunnel for datasource, dsType={}, sshConfigId={}, targetHost={}, targetPort={}, localHost=127.0.0.1, localPort={}",//
                     dsConfig.getDataSourceType(), dsConfig.getSshConfigId(), target.getHost(), target.getPort(), localPort);
             return new SshTunnelHandle(tunnelConfig, sshSession);
@@ -59,40 +62,4 @@ public class SshTunnelManager {
         return Boolean.TRUE.equals(dsConfig.getSshProxyEnabled()) && dsConfig.getSshConfigId() != null;
     }
 
-    private HostAndPort parseHostAndPort(String host) {
-        if (StringUtils.isBlank(host)) {
-            throw new IllegalArgumentException("datasource host is required when SSH proxy is enabled.");
-        }
-
-        String[] parts = host.split(":");
-        if (parts.length < 2 || StringUtils.isBlank(parts[0]) || StringUtils.isBlank(parts[1])) {
-            throw new IllegalArgumentException("datasource host must include target host and port when SSH proxy is enabled.");
-        }
-
-        return new HostAndPort(parts[0], Integer.parseInt(parts[1]));
-    }
-
-    private String rewriteHost(String originalHost, int localPort) {
-        String[] parts = originalHost.split(":");
-        StringBuilder builder = new StringBuilder("127.0.0.1:").append(localPort);
-        for (int i = 2; i < parts.length; i++) {
-            builder.append(':').append(parts[i]);
-        }
-        return builder.toString();
-    }
-
-    private static class HostAndPort {
-
-        private final String host;
-        private final int    port;
-
-        private HostAndPort(String host, int port){
-            this.host = host;
-            this.port = port;
-        }
-
-        private String getHost() { return this.host; }
-
-        private int getPort() { return this.port; }
-    }
 }

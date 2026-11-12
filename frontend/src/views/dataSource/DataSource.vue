@@ -22,48 +22,7 @@
         {{ $t('qing-zai-xia-fang-zhong-fu-shu-ru-gai-shu-ju-yuan-ming-cheng') }}
       </Alert>
     </second-confirm-modal>
-    <CCModal
-      v-model="showAddDataSourceTypeModal"
-      :width="1040"
-      :title="$t('xuan-ze-shu-ju-yuan-lei-xing')"
-      class="add-datasource-type-modal"
-      @on-cancel="handleCloseAddDataSourceTypeModal"
-    >
-      <div class="add-datasource-type-modal-body">
-        <Input v-model="addDataSourceTypeSearchKey" class="add-datasource-type-search" clearable :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')">
-          <template #prefix>
-            <Icon type="ios-search" />
-          </template>
-        </Input>
-        <div class="add-datasource-type-grid" :class="{ 'is-empty': !filteredAddDataSourceTypes.length }">
-          <button
-            v-for="type in filteredAddDataSourceTypes"
-            :key="type.dsKey"
-            type="button"
-            class="add-datasource-type-card"
-            :class="{ active: selectedAddDataSourceType === type.dsKey }"
-            :aria-pressed="selectedAddDataSourceType === type.dsKey"
-            @click="handleSelectAddDataSourceType(type.dsKey)"
-          >
-            <span class="add-datasource-type-icon" :class="{ 'is-goldendb': ['GoldenDBMySQL', 'GoldenDBOracle'].includes(type.dsKey) }">
-              <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
-            </span>
-            <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
-          </button>
-          <div v-if="!filteredAddDataSourceTypes.length" class="add-datasource-type-empty">
-            {{ $t('zan-wu-shu-ju') }}
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <div class="add-datasource-type-footer">
-          <Button @click="handleCloseAddDataSourceTypeModal">{{ $t('qu-xiao') }}</Button>
-          <Button type="primary" :disabled="!selectedAddDataSourceType" @click="handleConfirmAddDataSourceType">
-            {{ $t('que-ding') }}
-          </Button>
-        </div>
-      </template>
-    </CCModal>
+    <DataSourceTypeModal v-model="showAddDataSourceTypeModal" @select="handleConfirmAddDataSourceType" />
     <div class="table-list-layout datasource-list-layout">
       <div class="table-list">
         <div class="content">
@@ -86,15 +45,18 @@
               :loading="refreshLoading"
               :scroll="{ x: 'max-content' }"
             >
+              <template #dataSourceType="{ row }">
+                <Tooltip
+                  class="datasource-type-icon"
+                  :content="findDsSupportName(row.dataSourceType, dmGlobalSetting.dsSupportNames)?.displayName || row.dataSourceType"
+                  placement="top"
+                  transfer
+                >
+                  <DataSourceIcon size="24px" :type="row.dataSourceType" leftMargin="0" />
+                </Tooltip>
+              </template>
               <template #instanceId="{ row }">
                 <div class="datasource-identity">
-                  <DataSourceIcon
-                    class="datasource-type-icon"
-                    size="24px"
-                    :type="row.dataSourceType"
-                    :instanceType="row.deployType"
-                    leftMargin="0"
-                  ></DataSourceIcon>
                   <div class="datasource-info-text">
                     <div class="datasource-main-info">
                       <Poptip
@@ -461,17 +423,19 @@
 </template>
 <script>
 import { mapGetters, mapState } from 'vuex';
+import { findDsSupportName } from '@/utils/datasourceSupport';
 import _ from '@/utils/lodash';
 import DataSourceHeader from '@/components/function/addDataSource/DataSourceHeader';
 import { isOracle } from '@/utils';
 import { SECOND_CONFIRM_EVENT_LIST } from '@/const';
 import SecondConfirmModal from '@/components/modal/SecondConfirmModal';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
-import { normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
+import DataSourceTypeModal from '@/components/function/addDataSource/DataSourceTypeModal';
 
 export default {
   name: 'DataSource',
   components: {
+    DataSourceTypeModal,
     SecondConfirmModal,
     DataSourceHeader,
     DataSourceIcon
@@ -565,8 +529,6 @@ export default {
       refreshLoading: false,
       showAddDataSource: false,
       showAddDataSourceTypeModal: false,
-      addDataSourceTypeSearchKey: '',
-      selectedAddDataSourceType: '',
       showDeleteDataSourceConfirm: false,
       dataSourceTypes: [],
       workerClusterList: [],
@@ -588,10 +550,17 @@ export default {
       },
       dataSourceColumn: [
         {
-          title: this.$t('shu-ju-yuan'),
+          title: this.$t('lei-xing'),
+          key: 'dataSourceType',
+          slot: 'dataSourceType',
+          width: 64,
+          align: 'center'
+        },
+        {
+          title: this.$t('ming-cheng'),
           key: 'instanceId',
           slot: 'instanceId',
-          minWidth: 420
+          minWidth: 340
         },
         {
           title: this.$t('huan-jing'),
@@ -670,23 +639,6 @@ export default {
     },
     canSubmitDesc() {
       return this.instanceDesc.trim().length > 0 && this.instanceDesc.trim() !== this.originalInstanceDesc.trim();
-    },
-    addDataSourceTypeGroups() {
-      return normalizeDsSupportNameGroups(this.dmGlobalSetting?.dsSupportNames || []);
-    },
-    flatAddDataSourceTypes() {
-      return this.addDataSourceTypeGroups.flatMap((group) => group);
-    },
-    filteredAddDataSourceTypes() {
-      const keyword = this.addDataSourceTypeSearchKey.trim().toLowerCase();
-      if (!keyword) {
-        return this.flatAddDataSourceTypes;
-      }
-      return this.flatAddDataSourceTypes.filter((type) => {
-        const displayName = String(type.displayName || '').toLowerCase();
-        const dsKey = String(type.dsKey || '').toLowerCase();
-        return displayName.includes(keyword) || dsKey.includes(keyword);
-      });
     }
   },
   methods: {
@@ -695,6 +647,7 @@ export default {
       Object.assign(this.searchKey, params);
     },
     isOracle,
+    findDsSupportName,
     async handleKvConfigs(row) {
       this.selectedRow = row;
       this.$router.push({
@@ -870,31 +823,14 @@ export default {
         });
     },
     handleShowAddDataSource() {
-      this.addDataSourceTypeSearchKey = '';
-      this.selectedAddDataSourceType = '';
       this.showAddDataSourceTypeModal = true;
     },
-    handleCloseAddDataSourceTypeModal() {
-      this.showAddDataSourceTypeModal = false;
-      this.addDataSourceTypeSearchKey = '';
-      this.selectedAddDataSourceType = '';
-    },
-    handleSelectAddDataSourceType(dsType) {
-      if (!dsType) {
-        return;
-      }
-      this.selectedAddDataSourceType = dsType;
-    },
-    handleConfirmAddDataSourceType() {
-      const dsType = this.selectedAddDataSourceType;
-      if (!dsType) {
-        return;
-      }
-      this.handleCloseAddDataSourceTypeModal();
+    handleConfirmAddDataSourceType(type) {
       this.$router.push({
         path: '/datasource/add',
         query: {
-          dsType
+          dsType: type.dsType,
+          deployType: type.deployType
         }
       });
     },
@@ -1202,152 +1138,18 @@ export default {
   overflow: auto;
 }
 
-.add-datasource-type-modal {
-  :deep(.ant-modal-content) {
-    overflow: hidden;
-    border: 1px solid #dfe7ef;
-    border-radius: 10px !important;
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
-  }
-
-  :deep(.ant-modal-body),
-  :deep(.ivu-modal-body) {
-    padding: 20px 24px 12px;
-  }
-
-  :deep(.ant-modal-footer),
-  :deep(.ivu-modal-footer) {
-    margin-top: 0;
-    padding: 8px 24px 20px;
-    border-top: 0;
-  }
-}
-
-.add-datasource-type-modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  height: 352px;
-  min-height: 352px;
-}
-
-.add-datasource-type-search {
-  width: 320px;
-  max-width: 100%;
-  flex: 0 0 auto;
-}
-
-.add-datasource-type-grid {
-  display: grid;
-  flex: 1 1 auto;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-content: start;
-  gap: 10px;
-  min-height: 0;
-  min-width: 0;
-  overflow-y: auto;
-  padding: 0 4px 0 0;
-
-  &.is-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  @media (max-width: 767px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (max-width: 479px) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.add-datasource-type-card {
-  display: flex;
-  min-width: 0;
-  min-height: 44px;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #e0e6ee;
-  border-radius: 6px;
-  padding: 0 12px;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  cursor: pointer;
-  text-align: left;
-  transition:
-    border-color 0.16s ease,
-    box-shadow 0.16s ease,
-    background-color 0.16s ease;
-
-  &:hover {
-    border-color: #41d28f;
-    background: var(--bg-hover);
-    box-shadow: inset 0 0 0 1px #41d28f;
-  }
-
-  &.active {
-    border-color: #18ae66;
-    background: var(--sidebar-active-bg);
-    box-shadow: inset 0 0 0 1px #18ae66;
-  }
-}
-
-.add-datasource-type-icon {
-  display: inline-flex;
-  width: 20px;
-  flex: 0 0 20px;
-  align-items: center;
-  justify-content: center;
-
-  &.is-goldendb {
-    width: 40px;
-    flex-basis: 40px;
-  }
-}
-
-.add-datasource-type-name {
-  min-width: 0;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 17px;
-  white-space: normal;
-  word-break: normal;
-  overflow-wrap: anywhere;
-}
-
-.add-datasource-type-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-.add-datasource-type-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-
-  button {
-    min-width: 92px;
-  }
-}
-
 .datasource-identity {
   display: flex;
   min-width: 0;
-  min-height: 32px;
+  min-height: 48px;
   align-items: center;
   gap: 8px;
 }
 
 .datasource-type-icon {
   display: inline-flex !important;
-  width: 48px;
-  flex: 0 0 48px !important;
+  width: 40px;
+  flex: 0 0 40px !important;
   align-items: center;
   justify-content: center;
 }

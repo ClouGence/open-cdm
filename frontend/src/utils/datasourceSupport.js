@@ -31,7 +31,8 @@ export const normalizeDsSupportName = (type, groupIndex = -1, order = 0) => {
         }
       : {
           dsKey: type.dsKey,
-          displayName: type.displayName || type.dsKey
+          displayName: type.displayName || type.dsKey,
+          deployTypes: type.deployTypes
         };
 
   if (!normalizedType.dsKey) {

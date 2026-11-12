@@ -23,6 +23,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -121,21 +122,10 @@ public class Db2JtOpenDsFactory implements DsFactory<Connection> {
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String defaultDb = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            if (StringUtils.isBlank(defaultDb)) {
-                return String.format("jdbc:as400://%s;", ipPort[0]);
-            } else {
-                return String.format("jdbc:as400://%s/%s;", ipPort[0], safeString(defaultDb).toUpperCase());
-            }
-        } else if (ipPort.length == 2) {
-            if (StringUtils.isBlank(defaultDb)) {
-                return String.format("jdbc:as400://%s:%s;", ipPort[0], ipPort[1]);
-            } else {
-                return String.format("jdbc:as400://%s:%s/%s;", ipPort[0], ipPort[1], safeString(defaultDb).toUpperCase());
-            }
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
+        HostAndPort address = HostAndPort.parse(host);
+        if (StringUtils.isBlank(defaultDb)) {
+            return String.format("jdbc:as400://%s;", address);
         }
+        return String.format("jdbc:as400://%s/%s;", address, safeString(defaultDb).toUpperCase());
     }
 }

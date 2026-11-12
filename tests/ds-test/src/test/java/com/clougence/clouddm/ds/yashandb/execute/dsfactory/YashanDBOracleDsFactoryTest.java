@@ -15,9 +15,7 @@
  */
 package com.clougence.clouddm.ds.yashandb.execute.dsfactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Properties;
 
@@ -83,4 +81,15 @@ public class YashanDBOracleDsFactoryTest {
         assertThrows(IllegalArgumentException.class, //
                 () -> this.factory.buildJdbcUrl(config("a:b:c", "yashandb")));
     }
+
+    @Test
+    void buildJdbcUrl_ipv6WithPort_keepsAddressAndPort() {
+        assertEquals("jdbc:yasdb://[2001:db8::1]:1689/yashandb", this.factory.buildJdbcUrl(config("[2001:db8::1]:1689", "yashandb")));
+    }
+
+    @Test
+    void buildJdbcUrl_bareIpv6_usesDefaultPort() {
+        assertEquals("jdbc:yasdb://[::1]:1688/yashandb", this.factory.buildJdbcUrl(config("::1", "yashandb")));
+    }
+
 }

@@ -43,6 +43,9 @@ public class DataSourceConfig {
     @ConfigDef(name = Fields.dataSourceType, //
             group = DsConfigGroup.SHADOW, labelKey = ConfigI18nKey.CONFIG_DS_TYPE_LABEL, descKey = ConfigI18nKey.CONFIG_DS_TYPE_DESC, readOnly = true)
     private DataSourceType dataSourceType;
+    @ConfigDef(name = Fields.deployType, defaultValue = "SELF_MAINTENANCE", //
+            group = DsConfigGroup.SHADOW, labelKey = ConfigI18nKey.CONFIG_DS_DEPLOY_TYPE_LABEL, descKey = ConfigI18nKey.CONFIG_DS_DEPLOY_TYPE_DESC, readOnly = true)
+    private DeployTypes    deployType;
     @ConfigDef(name = Fields.configVersion, defaultValue = "1", //
             group = DsConfigGroup.SHADOW, labelKey = ConfigI18nKey.CONFIG_RDB_CONFIG_VERSION_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_CONFIG_VERSION_DESC, readOnly = true)
     private Long           configVersion;

@@ -2791,7 +2791,7 @@ export default {
   justify-content: space-between;
   gap: 16px;
   margin: 14px 0;
-  color: #66758a;
+  color: var(--text-secondary);
   font-size: 13px;
   line-height: 20px;
 }

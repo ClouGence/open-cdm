@@ -3746,17 +3746,18 @@
 
   // Context menu
   .mx-context-menu {
-    background-color: var(--bg-secondary) !important;
-    .mx-context-menu-item:hover {
-      background-color: var(--bg-tertiary) !important;
-      cursor: pointer;
-    }
-    .mx-context-menu-item-sperator {
-      background-color: var(--bg-secondary) !important;
-      &:after {
-        background-color: var(--border-primary) !important;
-      }
-    }
+    --mx-menu-backgroud: var(--bg-secondary);
+    --mx-menu-hover-backgroud: var(--bg-tertiary);
+    --mx-menu-active-backgroud: var(--bg-select);
+    --mx-menu-open-backgroud: var(--bg-select);
+    --mx-menu-open-hover-backgroud: var(--bg-hover);
+    --mx-menu-divider: var(--border-primary);
+    --mx-menu-text: var(--text-primary);
+    --mx-menu-hover-text: var(--text-primary);
+    --mx-menu-active-text: var(--text-primary);
+    --mx-menu-open-text: var(--text-primary);
+    --mx-menu-open-hover-text: var(--text-primary);
+    --mx-menu-disabled-text: var(--text-disabled);
   }
 
   // To be transferred to related files
@@ -3809,6 +3810,7 @@
     color: var(--primary-color) !important;
   }
 
+  .add-datasource-deploy-card,
   .add-datasource-type-card,
   .release-flow-page .type-card,
   .flow-create-type__option,
@@ -3819,6 +3821,8 @@
     color: var(--text-primary) !important;
   }
 
+  .add-datasource-deploy-card:hover,
+  .add-datasource-deploy-card.active,
   .add-datasource-type-card:hover,
   .add-datasource-type-card.active,
   .release-flow-page .type-card:hover,
@@ -4157,6 +4161,10 @@
     &.ivu-upload-dragOver {
       border-color: var(--primary-button-bg) !important;
     }
+  }
+
+  #icon-v2-Aws path[fill='#252F3E'] {
+    fill: var(--text-primary);
   }
 
   .built-in-flow-icon,

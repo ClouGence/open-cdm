@@ -575,7 +575,7 @@ public class ApprovalFlowServiceImplTest {
     }
 
     @Test
-    public void shouldCountOneVoteOnceAndCancelRemainingTasksAtThreshold() {
+    public void shouldCompleteEveryApprovalNodeOnceBeforeConfirmation() {
         assertCustomVote(false);
     }
 
@@ -624,6 +624,10 @@ public class ApprovalFlowServiceImplTest {
         when(processMapper.queryByStage(11L, ApprovalStage.APPROVAL)).thenReturn(process);
         when(processMapper.queryByStage(11L, ApprovalStage.CONFIRM)).thenReturn(new DmApprovalProcessDO());
         when(processMapper.queryByStage(11L, ApprovalStage.EXECUTION)).thenReturn(new DmApprovalProcessDO());
+        doAnswer(invocation -> {
+            process.setStageContext(invocation.getArgument(1));
+            return null;
+        }).when(processMapper).updateContextById(eq(12L), anyString());
         DmApprovalProcessActivityDO activity = new DmApprovalProcessActivityDO();
         activity.setId(13L);
         activity.setProcessId(12L);
@@ -631,7 +635,14 @@ public class ApprovalFlowServiceImplTest {
         activity.setOrderNumber(1);
         activity.setTaskStatus("RUNNING");
         activity.setContext("{\"effectiveRequiredCount\":1}");
-        when(activities.listCustomActivities(11L, 12L)).thenReturn(List.of(activity));
+        DmApprovalProcessActivityDO nextActivity = new DmApprovalProcessActivityDO();
+        nextActivity.setId(16L);
+        nextActivity.setProcessId(12L);
+        nextActivity.setTicketId(11L);
+        nextActivity.setOrderNumber(2);
+        nextActivity.setTaskStatus("NEW");
+        nextActivity.setContext("{\"effectiveRequiredCount\":1}");
+        when(activities.listCustomActivities(11L, 12L)).thenReturn(List.of(activity, nextActivity));
         DmApprovalNodeTaskDO alice = new DmApprovalNodeTaskDO();
         alice.setId(14L);
         alice.setApproverUid("alice");
@@ -643,6 +654,13 @@ public class ApprovalFlowServiceImplTest {
         bob.setStatus(ApprovalNodeTaskStatus.PENDING);
         when(tasks.listByActivityIdForUpdate(13L)).thenReturn(List.of(alice, bob));
         when(tasks.listByActivityId(13L)).thenReturn(List.of(alice, bob));
+        DmApprovalNodeTaskDO nextAlice = new DmApprovalNodeTaskDO();
+        nextAlice.setId(17L);
+        nextAlice.setApproverUid("alice");
+        nextAlice.setApproverName("Alice");
+        nextAlice.setStatus(ApprovalNodeTaskStatus.WAITING);
+        when(tasks.listByActivityIdForUpdate(16L)).thenReturn(List.of(nextAlice));
+        when(tasks.listByActivityId(16L)).thenReturn(List.of(nextAlice));
         RdpApprovalFO request = new RdpApprovalFO();
         request.setTicketId(11L);
         request.setProcessActivityId(13L);
@@ -650,7 +668,10 @@ public class ApprovalFlowServiceImplTest {
         request.setComment("first decision");
 
         approvalService.submitApproval("primary", "alice", request);
-        ticket.setTicketStatus(ApprovalStatus.FINISHED);
+        if (rejected) {
+            ticket.setTicketStatus(ApprovalStatus.REJECTED);
+        }
+
         request.setComment("retry must not replace the first decision");
         approvalService.submitApproval("primary", "alice", request);
 
@@ -661,6 +682,8 @@ public class ApprovalFlowServiceImplTest {
         if (rejected) {
             assertEquals(ApprovalNodeTaskStatus.REJECTED, alice.getStatus());
             assertEquals("REFUSE", activity.getTaskStatus());
+            assertEquals("CANCELED", nextActivity.getTaskStatus());
+            assertEquals(ApprovalNodeTaskStatus.CANCELED, nextAlice.getStatus());
             verify(approvalStateService).finalizeApproval(11L, ApprovalStatus.REJECTED, "first decision");
             verify(approvalStateService).updateProcessStatus(11L, ApprovalStage.CONFIRM, ApprovalProcessStatus.CLOSED, null);
             verify(approvalStateService).updateProcessStatus(11L, ApprovalStage.EXECUTION, ApprovalProcessStatus.CLOSED, null);
@@ -668,6 +691,25 @@ public class ApprovalFlowServiceImplTest {
         } else {
             assertEquals(ApprovalNodeTaskStatus.APPROVED, alice.getStatus());
             assertEquals("COMPLETED", activity.getTaskStatus());
+            assertEquals("RUNNING", nextActivity.getTaskStatus());
+            assertEquals(ApprovalNodeTaskStatus.PENDING, nextAlice.getStatus());
+            assertEquals(ApprovalStatus.WAIT_APPROVAL, ticket.getTicketStatus());
+            assertEquals(Long.valueOf(16L), JsonUtils.toObj(process.getStageContext(), ApprovalStageMO.class).getCustomApproval().getCurrentActivityId());
+            verifyNoInteractions(approvalStateService);
+            verify(handler, never()).approvalApproved(anyLong(), any(), any());
+
+            request.setProcessActivityId(16L);
+            request.setComment("second decision");
+            approvalService.submitApproval("primary", "alice", request);
+            ticket.setTicketStatus(ApprovalStatus.FINISHED);
+            request.setComment("retry must not replace the second decision");
+            approvalService.submitApproval("primary", "alice", request);
+
+            assertEquals(ApprovalNodeTaskStatus.APPROVED, nextAlice.getStatus());
+            assertEquals("second decision", nextAlice.getComment());
+            assertEquals("COMPLETED", nextActivity.getTaskStatus());
+            verify(tasks, times(2)).updateById(nextAlice);
+            verify(approvalStateService).updateProcessStatus(eq(11L), eq(ApprovalStage.APPROVAL), eq(ApprovalProcessStatus.FINISH), anyString());
             verify(handler).approvalApproved(11L, ApprovalBiz.DM_QUERY, null);
         }
 

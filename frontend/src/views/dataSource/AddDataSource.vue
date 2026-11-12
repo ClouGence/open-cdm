@@ -1,47 +1,10 @@
 <template>
   <div class="content-wrapper add-datasource-page">
-    <CCModal
+    <DataSourceTypeModal
       v-model="showAddDataSourceTypeModal"
-      :width="1040"
-      :title="$t('xuan-ze-shu-ju-yuan-lei-xing')"
-      class="add-datasource-type-modal"
-      @on-cancel="handleCloseAddDataSourceTypeModal"
-    >
-      <div class="add-datasource-type-modal-body">
-        <Input v-model="addDataSourceTypeSearchKey" class="add-datasource-type-search" clearable :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')">
-          <template #prefix>
-            <Icon type="ios-search" />
-          </template>
-        </Input>
-        <div class="add-datasource-type-grid" :class="{ 'is-empty': !filteredAddDataSourceTypes.length }">
-          <button
-            v-for="type in filteredAddDataSourceTypes"
-            :key="type.dsKey"
-            type="button"
-            class="add-datasource-type-card"
-            :class="{ active: selectedAddDataSourceType === type.dsKey }"
-            :aria-pressed="selectedAddDataSourceType === type.dsKey"
-            @click="handleSelectAddDataSourceType(type.dsKey)"
-          >
-            <span class="add-datasource-type-icon" :class="{ 'is-goldendb': ['GoldenDBMySQL', 'GoldenDBOracle'].includes(type.dsKey) }">
-              <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
-            </span>
-            <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
-          </button>
-          <div v-if="!filteredAddDataSourceTypes.length" class="add-datasource-type-empty">
-            {{ $t('zan-wu-shu-ju') }}
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <div class="add-datasource-type-footer">
-          <Button @click="handleCloseAddDataSourceTypeModal">{{ $t('qu-xiao') }}</Button>
-          <Button type="primary" :disabled="!selectedAddDataSourceType" @click="handleConfirmAddDataSourceType">
-            {{ $t('que-ding') }}
-          </Button>
-        </div>
-      </template>
-    </CCModal>
+      :initial-selection="{ dsType: addDataSourceForm.type, deployType: addDataSourceForm.deployType }"
+      @select="handleConfirmAddDataSourceType"
+    />
     <div class="add-datasource-wrapper">
       <div class="add-datasource-content">
         <DataSourceInfo
@@ -80,19 +43,20 @@
   </div>
 </template>
 <script>
-import DataSourceIcon from '@/components/function/DataSourceIcon';
 import DataSourceInfo from '@/components/function/addDataSource/DataSourceInfo';
 import SuccessAdd from '@/components/function/addDataSource/SuccessAdd';
 import { separatePort, isMySQL } from '@/utils';
 import { isPostgreSQL } from '@/const/dataSource';
 import { mapGetters, mapState } from 'vuex';
 import { cloneDeep as deepClone } from '@/utils/lodash';
-import { normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
+import DataSourceTypeModal from '@/components/function/addDataSource/DataSourceTypeModal';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import { formatHostPort } from '@/utils/networkAddress';
 import DataSourceGroup from '../dataSourceGroup.json';
 
 const EMPTY_DATA_SOURCE_FORM = {
   fetchType: 'MANUALLY_FILL',
+  deployType: 'SELF_MAINTENANCE',
   dbName: '',
   noValidateDbName: '',
   driver: '',
@@ -146,7 +110,7 @@ const EMPTY_DATA_SOURCE_FORM = {
 export default {
   name: 'AddDataSource',
   components: {
-    DataSourceIcon,
+    DataSourceTypeModal,
     DataSourceInfo,
     SuccessAdd
   },
@@ -167,9 +131,7 @@ export default {
       driverReadyForAdd: true,
       driverRequiredForAdd: false,
       testConnectionLoading: false,
-      showAddDataSourceTypeModal: false,
-      addDataSourceTypeSearchKey: '',
-      selectedAddDataSourceType: ''
+      showAddDataSourceTypeModal: false
     };
   },
   computed: {
@@ -195,35 +157,13 @@ export default {
     },
     disableAddDataSource() {
       return this.driverRequiredForAdd && !this.driverReadyForAdd;
-    },
-    addDataSourceTypeGroups() {
-      return normalizeDsSupportNameGroups(this.dmGlobalSetting?.dsSupportNames || []);
-    },
-    flatAddDataSourceTypes() {
-      return this.addDataSourceTypeGroups.flatMap((group) => group);
-    },
-    filteredAddDataSourceTypes() {
-      const keyword = this.addDataSourceTypeSearchKey.trim().toLowerCase();
-      if (!keyword) {
-        return this.flatAddDataSourceTypes;
-      }
-      return this.flatAddDataSourceTypes.filter((type) => {
-        const displayName = String(type.displayName || '').toLowerCase();
-        const dsKey = String(type.dsKey || '').toLowerCase();
-        return displayName.includes(keyword) || dsKey.includes(keyword);
-      });
     }
   },
   beforeUnmount() {
     this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL, this.handleShowAddDataSourceTypeModal);
   },
   watch: {
-    '$route.query.dsType': {
-      handler() {
-        this.syncStepFromRoute();
-      }
-    },
-    '$route.query.dsId': {
+    '$route.query': {
       handler() {
         this.syncStepFromRoute();
       }
@@ -238,34 +178,14 @@ export default {
       if (this.editMode) {
         return;
       }
-      this.addDataSourceTypeSearchKey = '';
-      this.selectedAddDataSourceType = this.addDataSourceForm.type || this.$route.query.dsType || '';
       this.showAddDataSourceTypeModal = true;
     },
-    handleCloseAddDataSourceTypeModal() {
-      this.showAddDataSourceTypeModal = false;
-      this.addDataSourceTypeSearchKey = '';
-      this.selectedAddDataSourceType = '';
-    },
-    handleSelectAddDataSourceType(dsType) {
-      if (!dsType) {
-        return;
-      }
-      this.selectedAddDataSourceType = dsType;
-    },
-    handleConfirmAddDataSourceType() {
-      const dsType = this.selectedAddDataSourceType;
-      if (!dsType) {
-        return;
-      }
-      this.handleCloseAddDataSourceTypeModal();
-      if (dsType === this.$route.query.dsType) {
-        return;
-      }
+    handleConfirmAddDataSourceType(type) {
       this.$router.push({
         path: '/datasource/add',
         query: {
-          dsType
+          dsType: type.dsType,
+          deployType: type.deployType
         }
       });
     },
@@ -295,7 +215,7 @@ export default {
       }
       const isSeparate = this.separatePort(this.addDataSourceForm.type) || this.addDataSourceForm.type === 'Db2Fori';
       if (isSeparate && this.addDataSourceForm.host && this.addDataSourceForm.port) {
-        return `${this.addDataSourceForm.host}:${this.addDataSourceForm.port}`;
+        return formatHostPort(this.addDataSourceForm.address || this.addDataSourceForm.host, this.addDataSourceForm.port);
       }
       return this.addDataSourceForm.host || this.addDataSourceForm.publicHost || '';
     },
@@ -398,12 +318,12 @@ export default {
         const isSeparate = this.separatePort(this.addDataSourceForm.type);
         const host = isSeparate
           ? this.addDataSourceForm.host && this.addDataSourceForm.port
-            ? `${this.addDataSourceForm.host}:${this.addDataSourceForm.port}`
+            ? formatHostPort(this.addDataSourceForm.address || this.addDataSourceForm.host, this.addDataSourceForm.port)
             : ''
           : this.addDataSourceForm.host;
         const publicHost = isSeparate
           ? this.addDataSourceForm.publicHost && this.addDataSourceForm.publicPort
-            ? `${this.addDataSourceForm.publicHost}:${this.addDataSourceForm.publicPort}`
+            ? formatHostPort(this.addDataSourceForm.publicHost, this.addDataSourceForm.publicPort)
             : ''
           : this.addDataSourceForm.publicHost;
 
@@ -488,6 +408,7 @@ export default {
     handleReset() {
       this.addDataSourceForm = {
         fetchType: 'MANUALLY_FILL',
+        deployType: 'SELF_MAINTENANCE',
         host: '',
         publicHost: '',
         publicPort: '',
@@ -523,6 +444,7 @@ export default {
       if (dsType) {
         const changedType = this.addDataSourceForm.type !== dsType;
         this.addDataSourceForm.type = dsType;
+        this.addDataSourceForm.deployType = this.$route.query.deployType || 'SELF_MAINTENANCE';
         this.currentStep = 1;
         if (changedType && this.$refs.dataSourceInfo) {
           this.$refs.dataSourceInfo.handleDataSourceChange();
@@ -563,140 +485,6 @@ export default {
   overflow-y: hidden;
   padding: 0 !important;
   background: #ffffff;
-}
-
-.add-datasource-type-modal {
-  .ant-modal-content {
-    overflow: hidden;
-    border: 1px solid #dfe7ef;
-    border-radius: 10px !important;
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
-  }
-
-  .ant-modal-body,
-  .ivu-modal-body {
-    padding: 20px 24px 12px;
-  }
-
-  .ant-modal-footer,
-  .ivu-modal-footer {
-    margin-top: 0;
-    padding: 8px 24px 20px;
-    border-top: 0;
-  }
-}
-
-.add-datasource-type-modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  height: 352px;
-  min-height: 352px;
-}
-
-.add-datasource-type-search {
-  width: 320px;
-  max-width: 100%;
-  flex: 0 0 auto;
-}
-
-.add-datasource-type-grid {
-  display: grid;
-  flex: 1 1 auto;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-content: start;
-  gap: 10px;
-  min-height: 0;
-  min-width: 0;
-  overflow-y: auto;
-  padding: 0 4px 0 0;
-
-  &.is-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  @media (max-width: 767px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (max-width: 479px) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.add-datasource-type-card {
-  display: flex;
-  min-width: 0;
-  min-height: 44px;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #e0e6ee;
-  border-radius: 6px;
-  padding: 0 12px;
-  background: #ffffff;
-  color: #1f2937;
-  cursor: pointer;
-  text-align: left;
-  transition:
-    border-color 0.16s ease,
-    box-shadow 0.16s ease,
-    background-color 0.16s ease;
-
-  &:hover {
-    border-color: #41d28f;
-    background: #fbfffd;
-    box-shadow: inset 0 0 0 1px #41d28f;
-  }
-
-  &.active {
-    border-color: #18ae66;
-    background: #effbf5;
-    box-shadow: inset 0 0 0 1px #18ae66;
-  }
-}
-
-.add-datasource-type-icon {
-  display: inline-flex;
-  width: 20px;
-  flex: 0 0 20px;
-  align-items: center;
-  justify-content: center;
-
-  &.is-goldendb {
-    width: 40px;
-    flex-basis: 40px;
-  }
-}
-
-.add-datasource-type-name {
-  min-width: 0;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 17px;
-  white-space: normal;
-  word-break: normal;
-  overflow-wrap: anywhere;
-}
-
-.add-datasource-type-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-.add-datasource-type-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-
-  button {
-    min-width: 92px;
-  }
 }
 
 .add-datasource-wrapper {

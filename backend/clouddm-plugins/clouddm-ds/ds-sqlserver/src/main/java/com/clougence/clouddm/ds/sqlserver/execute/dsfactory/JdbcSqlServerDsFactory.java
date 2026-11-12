@@ -22,6 +22,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 
@@ -76,8 +77,7 @@ public class JdbcSqlServerDsFactory implements DsFactory<Connection> {
         String jdbcUrl = buildJdbcUrl(dsConfig);
         if (StringUtils.isNotBlank(trustServerCertificate)) {
             props.put(DsConfigKeys.MSSQL_TRUST_SERVER_CERTIFICATE.getConfigKey(), trustServerCertificate);
-        } else if (!StringUtils.containsIgnoreCase(jdbcUrl,
-            ";" + DsConfigKeys.MSSQL_TRUST_SERVER_CERTIFICATE.getConfigKey() + "=")) {
+        } else if (!StringUtils.containsIgnoreCase(jdbcUrl, ";" + DsConfigKeys.MSSQL_TRUST_SERVER_CERTIFICATE.getConfigKey() + "=")) {
             props.put(DsConfigKeys.MSSQL_TRUST_SERVER_CERTIFICATE.getConfigKey(), "true");
         }
         try {
@@ -118,20 +118,31 @@ public class JdbcSqlServerDsFactory implements DsFactory<Connection> {
 
         String dbName = "databaseName=" + safeString(defaultCatalog);
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
+        HostAndPort endpoint = HostAndPort.parse(host);
+        if (endpoint.getHost().contains(":")) {
+            // Microsoft JDBC accepts IPv6 through serverName, not the URL authority.
+            StringBuilder url = new StringBuilder("jdbc:sqlserver://;serverName=").append(endpoint.getHost()).append(';').append(dbName);
             if (StringUtils.isNotBlank(instanceName)) {
-                return String.format("jdbc:sqlserver://%s\\%s;" + dbName, ipPort[0], instanceName);
+                url.append(";instanceName=").append(instanceName);
             }
-            return String.format("jdbc:sqlserver://%s:1433;" + dbName, ipPort[0]);
-        } else if (ipPort.length == 2) {
-            if (StringUtils.isNotBlank(instanceName)) {
-                return String.format("jdbc:sqlserver://%s\\%s:%s;" + dbName, ipPort[0], instanceName, ipPort[1]);
+
+            if (endpoint.getPort() >= 0) {
+                url.append(";portNumber=").append(endpoint.getPort());
             }
-            return String.format("jdbc:sqlserver://%s:%s;" + dbName, ipPort[0], ipPort[1]);
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
+            return url.toString();
         }
+
+        if (endpoint.getPort() < 0) {
+            if (StringUtils.isNotBlank(instanceName)) {
+                return String.format("jdbc:sqlserver://%s\\%s;" + dbName, endpoint.getHost(), instanceName);
+            }
+            return String.format("jdbc:sqlserver://%s:1433;" + dbName, endpoint.getHost());
+        }
+
+        if (StringUtils.isNotBlank(instanceName)) {
+            return String.format("jdbc:sqlserver://%s\\%s:%s;" + dbName, endpoint.getHost(), instanceName, endpoint.getPort());
+        }
+        return String.format("jdbc:sqlserver://%s:%s;" + dbName, endpoint.getHost(), endpoint.getPort());
     }
 
     protected Connection createConnection(String jdbcUrl, Properties dsConfig) throws SQLServerException {

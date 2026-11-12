@@ -1608,6 +1608,7 @@
   "zi-dong-workeroperationi18nthisconfirmonlinetype-shi-bai": "自动{0}失败",
   "zi-duan-ming-cheng": "字段名称",
   "zi-fu-ji": "字符集",
+  "bu-shu-lei-xing": "部署类型",
   "zi-jian": "自建",
   "zi-jian-ji-fang": "自建机房",
   "zi-jian-ji-fang-tian-jia-ji-qi-de-bu-zhou-mu-qian-jin-zhi-chi-radhatcentosubuntumacos-xi-tong": "自建机房添加机器的步骤（目前仅支持Radhat，CentOS，Ubuntu，MacOS系统）",
@@ -4658,5 +4659,11 @@
   "object-browser-search-device-placeholder": "搜索设备",
   "object-browser-search-timeseries-placeholder": "搜索完整测点路径",
   "object-browser-read-only": "只读",
-  "permission-target-unavailable": "申请的资源当前不可用，请刷新资源树后重新选择。"
+  "permission-target-unavailable": "申请的资源当前不可用，请刷新资源树后重新选择。",
+  "wei-ruan-yun": "微软云",
+  "gu-ge-yun": "谷歌云",
+  "teng-xun-yun": "腾讯云",
+  "hua-wei-yun-deploy": "华为云",
+  "datasource-classify-document": "文档数据库",
+  "datasource-classify-search": "搜索引擎"
 }

@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
@@ -51,11 +52,13 @@ public class DmDsUtils {
     private static final Map<DataSourceType, Dialect>    DS_DIALECT_CACHE     = new ConcurrentHashMap<>();
     private static ObjectCacheDao                        ownerCacheService;
     private static ConsoleConfigService                  consoleService;
+    private static DmDsConfigService                     dsConfigService;
     private final static long                            MB_SIZE              = 1024L * 1024L;
 
     public static void initUtils(ApplicationContext spring) {
         ownerCacheService = spring.getBean(ObjectCacheDao.class);
         consoleService = spring.getBean(ConsoleConfigService.class);
+        dsConfigService = spring.getBean(DmDsConfigService.class);
     }
 
     public static Dialect getDialect(DataSourceType dsType) {
@@ -186,7 +189,7 @@ public class DmDsUtils {
         return spi.createQueryRequest(dsConfig);
     }
 
-    public static ResultLimit fetchResultLimit(Map<String, String> configMap, Requester requester) {
+    public static ResultLimit fetchResultLimit(Map<String, String> configMap, Requester requester, DataSourceConfig dsConfig) {
         ResultLimit limit = new ResultLimit();
         if (requester.isOnline()) {
             limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxRecordCount), 3000));
@@ -194,14 +197,14 @@ public class DmDsUtils {
             limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxColumnMegaByte), 4) * MB_SIZE);
             limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxElementMegaByte), 1) * MB_SIZE);
             limit.setFetchPageSize(30);
-            limit.setQueryTimeoutSec(30);// default 30 seconds for console
+            limit.setQueryTimeoutSec(Objects.requireNonNullElse(dsConfig.getOnlineMaxQueryTimeoutSec(), 30));
         } else {
             limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxRecordCount), 3000));
             limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxResultSetMegaByte), 200) * MB_SIZE);
             limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxColumnMegaByte), 4) * MB_SIZE);
             limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxElementMegaByte), 1) * MB_SIZE);
             limit.setFetchPageSize(-1);
-            limit.setQueryTimeoutSec(300);// default 5 minutes for task
+            limit.setQueryTimeoutSec(Objects.requireNonNullElse(dsConfig.getExportMaxQueryTimeoutSec(), 300));
         }
         return limit;
     }
@@ -212,6 +215,7 @@ public class DmDsUtils {
         }
 
         DsCacheEntry dsCache = ownerCacheService.queryByDsId(dsId);
+        DataSourceConfig dsConfig = dsConfigService.fetchDsConfigFromExists(dsCache.getDsNumId());
         Map<String, String> configMap = consoleService.fetchSettingsMap(Arrays.asList(//
                 RootUserConfig.Fields.defaultColumnDisplayChars, //
                 RootUserConfig.Fields.onlineMaxRecordCount,      //
@@ -222,7 +226,7 @@ public class DmDsUtils {
 
         queryList.forEach(query -> {
             query.setDsId(dsCache.getDsNumId());
-            ResultLimit limit = fetchResultLimit(configMap, query.getRequester());
+            ResultLimit limit = fetchResultLimit(configMap, query.getRequester(), dsConfig);
             query.getResultConf().setQueryTimeoutSec(limit.getQueryTimeoutSec());
             query.getResultConf().setFetchRecordCountLimit(limit.getFetchRecordCountLimit());
             query.getResultConf().setFetchResultSetBytesLimit(limit.getFetchResultSetBytesLimit());
