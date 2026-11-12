@@ -1834,10 +1834,10 @@ export default {
 .language-service-error {
   max-width: 360px;
   padding: 4px 8px;
-  border: 1px solid #ffccc7;
+  border: 1px solid var(--error-color);
   border-radius: 4px;
-  background: #fff2f0;
-  color: #cf1322;
+  background: var(--error-bg);
+  color: var(--error-color);
   font-size: 12px;
   line-height: 18px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);

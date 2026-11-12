@@ -143,7 +143,7 @@ export default {
   font-style: italic;
 }
 
-:global([data-theme='dark']) {
+[data-theme='dark'] {
   .execution-sql-text__keyword {
     color: #569cd6;
   }
