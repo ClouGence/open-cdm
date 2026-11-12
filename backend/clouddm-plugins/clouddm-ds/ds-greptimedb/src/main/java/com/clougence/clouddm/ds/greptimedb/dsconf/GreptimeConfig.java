@@ -19,6 +19,7 @@ package com.clougence.clouddm.ds.greptimedb.dsconf;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.ds.greptimedb.i18n.GreptimeConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 
@@ -28,13 +29,29 @@ import lombok.Setter;
 @Serialization(provider = GreptimeSerializationSpi.PROVIDER_NAME)
 public class GreptimeConfig extends DataSourceConfig {
 
-    static final String DEFAULT_SCHEMA_FIELD = "defaultSchema";
-    static final String DEFAULT_SCHEMA       = "public";
+    static final String DEFAULT_SCHEMA_FIELD       = "defaultSchema";
+    static final String DEFAULT_SCHEMA             = "public";
+    static final String CONNECT_TIMEOUT_MS_FIELD   = "connectTimeoutMs";
+    static final String SOCKET_TIMEOUT_SEC_FIELD   = "soTimeoutSec";
+    static final int    DEFAULT_CONNECT_TIMEOUT_MS = 5000;
+    static final int    DEFAULT_SOCKET_TIMEOUT_SEC = 10;
 
     @Getter
     @Setter
     @ConfigDef(name = DEFAULT_SCHEMA_FIELD, defaultValue = DEFAULT_SCHEMA, group = DsConfigGroup.GENERAL, labelKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
-    private String      defaultSchema        = DEFAULT_SCHEMA;
+    private String      defaultSchema              = DEFAULT_SCHEMA;
+
+    @Getter
+    @Setter
+    @ConfigDef(name = CONNECT_TIMEOUT_MS_FIELD, defaultValue = ""
+                                                               + DEFAULT_CONNECT_TIMEOUT_MS, group = DsConfigGroup.ADVANCED, labelKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
+    private int         connectTimeoutMs           = DEFAULT_CONNECT_TIMEOUT_MS;
+
+    @Getter
+    @Setter
+    @ConfigDef(name = SOCKET_TIMEOUT_SEC_FIELD, defaultValue = ""
+                                                               + DEFAULT_SOCKET_TIMEOUT_SEC, group = DsConfigGroup.ADVANCED, labelKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = GreptimeConfigI18nKeys.GREPTIMEDB_SOCKET_TIMEOUT_DESC, readOnly = false)
+    private int         soTimeoutSec               = DEFAULT_SOCKET_TIMEOUT_SEC;
 
     public GreptimeConfig(){
         setDataSourceType(DataSourceType.GreptimeDB);
@@ -48,6 +65,9 @@ public class GreptimeConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(getPassword()));
         properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(getDefaultSchema()));
+        properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), Integer.toString(connectTimeoutMs));
+        // Connector/J reads socketTimeout as a string in milliseconds.
+        properties.setProperty("socketTimeout", Long.toString(soTimeoutSec * 1000L));
         return properties;
     }
 }

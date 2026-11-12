@@ -22,7 +22,9 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.greptimedb.i18n.GreptimeConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.utils.StringUtils;
 
 public class GreptimeConfigSpi extends AbstractDsConfigSpi {
@@ -41,7 +43,27 @@ public class GreptimeConfigSpi extends AbstractDsConfigSpi {
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         GreptimeConfig config = (GreptimeConfig) dsConfig;
         config.setDefaultSchema(StringUtils.defaultIfBlank(defaultConfig.get(GreptimeConfig.DEFAULT_SCHEMA_FIELD), GreptimeConfig.DEFAULT_SCHEMA));
+        config.setConnectTimeoutMs(readTimeout(defaultConfig
+            .get(GreptimeConfig.CONNECT_TIMEOUT_MS_FIELD), GreptimeConfig.DEFAULT_CONNECT_TIMEOUT_MS, Integer.MAX_VALUE, GreptimeConfigI18nKeys.GREPTIMEDB_CONNECT_TIMEOUT_INVALID));
+        config.setSoTimeoutSec(readTimeout(defaultConfig
+            .get(GreptimeConfig.SOCKET_TIMEOUT_SEC_FIELD), GreptimeConfig.DEFAULT_SOCKET_TIMEOUT_SEC, Integer.MAX_VALUE /
+                                                                                                      1000, GreptimeConfigI18nKeys.GREPTIMEDB_SOCKET_TIMEOUT_INVALID));
         return config;
+    }
+
+    private int readTimeout(String value, int defaultValue, int maximum, String errorKey) {
+        if (StringUtils.isBlank(value)) {
+            return defaultValue;
+        }
+        try {
+            int timeout = Integer.parseInt(value.trim());
+            if (timeout > 0 && timeout <= maximum) {
+                return timeout;
+            }
+        } catch (NumberFormatException ignored) {
+            // Malformed values and out-of-range values use the same validation error.
+        }
+        throw ThirdPartyApiException.as().with(errorKey);
     }
 
     @Override

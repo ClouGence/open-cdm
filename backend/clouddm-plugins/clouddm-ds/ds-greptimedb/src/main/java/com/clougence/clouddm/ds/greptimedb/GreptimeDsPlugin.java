@@ -19,7 +19,9 @@ package com.clougence.clouddm.ds.greptimedb;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.ds.greptimedb.dsconf.GreptimeConfigSpi;
 import com.clougence.clouddm.ds.greptimedb.dsconf.GreptimeSerializationSpi;
+import com.clougence.clouddm.ds.greptimedb.execute.GreptimeSessionFactory;
 import com.clougence.clouddm.ds.greptimedb.i18n.GreptimeConfigI18nKeys;
+import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -29,7 +31,9 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 import com.clougence.sql.greptimedb.GreptimeSqlEngineSpi;
 
-@Plugin(name = "GreptimeDB", display = false, dsProduct = DataSourceType.GreptimeDB, includePackages = { "com.clougence.clouddm.dsfamily.mysql.execute.*" })
+@Plugin(name = "GreptimeDB", display = false, dsProduct = DataSourceType.GreptimeDB, includePackages = { "com.clougence.clouddm.dsfamily.execute.*",
+                                                                                                         "com.clougence.clouddm.dsfamily.mysql.execute.*",
+                                                                                                         "com.clougence.clouddm.ds.greptimedb.execute.*" })
 public class GreptimeDsPlugin implements DsPlugin, SchemaPlugin {
 
     @Override
@@ -41,9 +45,11 @@ public class GreptimeDsPlugin implements DsPlugin, SchemaPlugin {
     public void loadPlugin(DsPluginBinder binder) {
         SchemaFramework.install(this);
         binder.bindDsDriverFamily("MySQL Connector/J");
+        binder.bindDsSessionFactory(GreptimeSessionFactory.class);
         binder.bindSqlEngine(GreptimeSqlEngineSpi.NAME);
         binder.bindPluginI18n(GreptimeConfigI18nKeys.class);
         binder.addPluginSpi(new GreptimeConfigSpi());
         binder.addPluginSpi(new GreptimeSerializationSpi(binder.getPluginClassLoader()));
+        binder.addPluginSpi(new RdbSessionSpi());
     }
 }
