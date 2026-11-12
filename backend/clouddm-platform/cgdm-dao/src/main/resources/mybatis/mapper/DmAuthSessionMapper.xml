@@ -51,15 +51,9 @@
             renewed_time_ms = #{renewedTimeMs},
             expire_time_ms  = #{newExpireTimeMs}
         WHERE
-            id              = #{id}
+            id             = #{id}
             AND
-            expire_time_ms  = #{oldExpireTimeMs}
-            AND
-            expire_time_ms  <![CDATA[ > ]]> #{nowMs}
-            <if test="absoluteLifetimeMs > 0">
-                AND
-                gmt_create + #{absoluteLifetimeMs} <![CDATA[ > ]]> #{nowMs}
-            </if>
+            expire_time_ms = #{oldExpireTimeMs}
     </update>
 
     <delete id="deleteByUid">

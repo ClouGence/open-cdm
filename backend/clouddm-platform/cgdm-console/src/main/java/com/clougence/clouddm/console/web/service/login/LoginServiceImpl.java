@@ -330,7 +330,7 @@ public class LoginServiceImpl implements LoginService {
                 re.setMfaPreActionToken(this.mfaChallengeService.createChallenge(user.getUid(), MfaPreActionType.LOGIN, loginType));
             }
         } else {
-            re.setIssuedSession(this.sessionService.create(user.getUid(), loginType));
+            re.setSessionToken(this.sessionService.create(user.getUid(), loginType));
         }
         return re;
     }
@@ -370,7 +370,7 @@ public class LoginServiceImpl implements LoginService {
             re.setUid(user.getUid());
             re.setUsername(user.getUsername());
             re.setLoginType(loginType);
-            re.setIssuedSession(this.sessionService.create(user.getUid(), loginType));
+            re.setSessionToken(this.sessionService.create(user.getUid(), loginType));
             if (user.getParentId() != null) {
                 DmAuthUserDO primaryUser = authDal.userMapper().queryById(user.getParentId());
                 if (primaryUser != null) {

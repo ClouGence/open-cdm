@@ -58,7 +58,6 @@ import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -226,7 +225,7 @@ public class RdpUserManagerController {
 
     @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/updateUserRole", method = RequestMethod.POST)
-    public ResWebData<?> updateUserRole(@Valid @RequestBody UpdateUserRoleFO fo, HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<?> updateUserRole(@Valid @RequestBody UpdateUserRoleFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 

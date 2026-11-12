@@ -22,13 +22,11 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface SessionService {
 
     /**
-     * Creates a fresh session for a fully authenticated user. Contract: the
-     * caller MUST hold the user row lock (see DmAuthUserMapper.lockByUid) inside
-     * the surrounding transaction; the implementation re-asserts an active user
-     * under that same lock so a concurrent credential/account mutation cannot be
-     * overtaken by a late session insert.
+     * Creates a fresh session and returns its plaintext token. Contract: the
+     * caller MUST hold the user row lock (see DmAuthUserMapper.lockByUid) and
+     * have verified an active user inside the surrounding transaction.
      */
-    IssuedSession create(String uid, LoginAuthType loginType);
+    String create(String uid, LoginAuthType loginType);
 
     SessionPrincipal authenticate(HttpServletRequest request);
 
@@ -37,8 +35,6 @@ public interface SessionService {
     java.util.Map<Long, SessionPrincipal> authenticateByIds(java.util.Collection<Long> sessionIds);
 
     void renewIfNeeded(SessionPrincipal principal);
-
-    void revokeSession(Long sessionId);
 
     void revokeUserSessions(String uid);
 

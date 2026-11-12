@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.console.web.global.jwtsession;
 
-import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.http.server.ServerHttpRequest;
@@ -44,9 +43,7 @@ public class WebSoInterceptor implements HandshakeInterceptor {
 
     public static final String  WS_PUSER_ID     = "WS_PUSER_ID";
     public static final String  WS_USER_ID      = "WS_USER_ID";
-    public static final String  WS_USER_ROLE    = "WS_USER_ROLE";
     public static final String  WS_LOCALE       = "WS_LOCALE";
-    public static final String  WS_REQUEST_URI  = "WS_REQUEST_URI";
     public static final String  WS_CHECK_RESULT = "WS_CHECK_RESULT";
     public static final String  WS_SESSION_ID   = "WS_SESSION_ID";
 
@@ -65,11 +62,7 @@ public class WebSoInterceptor implements HandshakeInterceptor {
         String requestURI = httpReq.getRequestURI().substring(httpReq.getContextPath().length());
         Class<?> wsHandlerClass = this.socketMeta.getMetaDataByPath(requestURI);
         if (wsHandlerClass == null) {
-            map.put(WS_CHECK_RESULT, SessionCheckResult.builder()//
-                .success(false)
-                .message("Internal Error Maybe, WebSoMetadata is not init.")
-                .errorCode(500)
-                .build());
+            map.put(WS_CHECK_RESULT, new SessionCheckResult(false, "Internal Error Maybe, WebSoMetadata is not init.", 500));
             RdpWebUtils.cleanLocal();
             RdpLocal.setLocal(null);
             return false;
@@ -81,14 +74,9 @@ public class WebSoInterceptor implements HandshakeInterceptor {
 
             String puid = (String) httpReq.getAttribute(RdpUserService.PUID);
             String uid = (String) httpReq.getAttribute(RdpUserService.UID);
-            Object userRole = httpReq.getAttribute(RdpUserService.USER_ROLE);
             //
             if (StringUtils.isBlank(uid)) {
-                checkResult = SessionCheckResult.builder()//
-                    .success(false)
-                    .message("No Login.")
-                    .errorCode(401)
-                    .build();
+                checkResult = new SessionCheckResult(false, "No Login.", 401);
             } else {
                 map.put(WS_PUSER_ID, puid);
                 map.put(WS_USER_ID, uid);
@@ -97,16 +85,6 @@ public class WebSoInterceptor implements HandshakeInterceptor {
                     map.put(WS_SESSION_ID, principal.getSessionId());
                 }
             }
-            if (userRole != null) {
-                map.put(WS_USER_ROLE, userRole);
-            }
-            String languageTag = httpReq.getParameter("locale");
-            Locale locale = httpReq.getLocale();
-            if (StringUtils.isNotBlank(languageTag)) {
-                locale = Locale.forLanguageTag(languageTag);
-            }
-            map.put(WS_LOCALE, locale);
-            map.put(WS_REQUEST_URI, requestURI);
             map.put(WS_CHECK_RESULT, checkResult);
             return true;
         } finally {
@@ -118,8 +96,6 @@ public class WebSoInterceptor implements HandshakeInterceptor {
 
     @Override
     public void afterHandshake(ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse, WebSocketHandler webSocketHandler, Exception e) {
-        // thread state from session preHandle is already copied into ws attributes
-        RdpWebUtils.cleanLocal();
-        RdpLocal.setLocal(null);
+        // thread state from session preHandle is already cleared in beforeHandshake
     }
 }

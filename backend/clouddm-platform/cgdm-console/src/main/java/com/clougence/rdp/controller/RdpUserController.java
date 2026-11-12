@@ -257,7 +257,7 @@ public class RdpUserController {
 
     @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/resetSubAccountPwd", method = { RequestMethod.POST })
-    public ResWebData<?> resetSubAccountPwd(HttpServletRequest request, HttpServletResponse response, @RequestBody @Valid ResetSubAccountPwdFO resetPwdFO) {
+    public ResWebData<?> resetSubAccountPwd(HttpServletRequest request, @RequestBody @Valid ResetSubAccountPwdFO resetPwdFO) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         //decrypt
@@ -283,7 +283,7 @@ public class RdpUserController {
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserPhone", method = RequestMethod.POST)
-    public ResWebData<?> updateUserPhone(@RequestBody @Valid UpdateUserPhoneFO fo, HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<?> updateUserPhone(@RequestBody @Valid UpdateUserPhoneFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
@@ -305,7 +305,7 @@ public class RdpUserController {
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserEmail", method = RequestMethod.POST)
-    public ResWebData<?> updateUserEmail(@RequestBody @Valid UpdateUserEmailFO fo, HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<?> updateUserEmail(@RequestBody @Valid UpdateUserEmailFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
@@ -452,7 +452,7 @@ public class RdpUserController {
 
     @RequestAuth(level = HIGH, value = RDP_PRI_USER_AK_SK_W)
     @RequestMapping(value = "/resetUserAkSk", method = RequestMethod.POST)
-    public ResWebData<?> resetUserAkSk(@RequestBody @Valid ResetUserAkSkFO fo, HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<?> resetUserAkSk(@RequestBody @Valid ResetUserAkSkFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 

@@ -29,7 +29,6 @@ import com.clougence.clouddm.console.web.util.NamedThreadFactory;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthSessionDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.PreDestroy;
@@ -64,13 +63,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
 
     @Transactional(propagation = Propagation.MANDATORY)
     @Override
-    public IssuedSession create(String uid, LoginAuthType loginType) {
-        // contract: caller already holds the user row lock; re-assert inside it
-        DmAuthUserDO user = authDal.userMapper().lockByUid(uid);
-        if (user == null || user.isDisable()) {
-            throw new IllegalStateException("can not create session for absent or disabled user.");
-        }
-
+    public String create(String uid, LoginAuthType loginType) {
         String token = SessionTokens.newToken();
 
         long now = System.currentTimeMillis();
@@ -82,9 +75,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         session.setRenewedTimeMs(now);
         session.setExpireTimeMs(now + sessionConfig.activityWindowMs());
         authDal.sessionMapper().insert(session);
-
-        SessionPrincipal principal = new SessionPrincipal(session.getId(), uid, loginType, now, now, session.getExpireTimeMs());
-        return new IssuedSession(principal, token);
+        return token;
     }
 
     @Override
@@ -152,17 +143,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         if (target <= principal.getExpireTimeMs()) {
             return;
         }
-        authDal.sessionMapper().renewCas(principal.getSessionId(), principal.getExpireTimeMs(), target, now, now, sessionConfig.absoluteLifetimeMs());
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    @Override
-    public void revokeSession(Long sessionId) {
-        if (sessionId == null) {
-            return;
-        }
-        authDal.sessionMapper().deleteById(sessionId);
-        eventPublisher.publishEvent(new SessionRevokedEvent(sessionId, null));
+        authDal.sessionMapper().renewCas(principal.getSessionId(), principal.getExpireTimeMs(), target, now);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

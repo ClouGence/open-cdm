@@ -17,7 +17,6 @@ package com.clougence.rdp.service.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.global.session.IssuedSession;
 import com.clougence.clouddm.console.web.model.fo.LoginAutoRegisterFO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -42,7 +41,9 @@ public class LoginMO {
     private LoginAuthType       loginType;
     private String              requestId;
 
-    private IssuedSession       issuedSession;
+    @JsonIgnore
+    @JSONField(serialize = false)
+    private String              sessionToken;
 
     public LoginMO(){
     }
@@ -51,8 +52,4 @@ public class LoginMO {
         this.success = success;
         this.errMsg = errMsg;
     }
-
-    @JsonIgnore
-    @JSONField(serialize = false)
-    public IssuedSession getIssuedSession() { return issuedSession; }
 }

@@ -133,23 +133,22 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
         this.acceptChannel(ws);
     }
 
-    private WsChannelStore acceptChannel(WebSocketSession ws) {
+    private void acceptChannel(WebSocketSession ws) {
         if (!ws.isOpen()) {
-            return null;
+            return;
         }
 
         Long sessionId = (Long) ws.getAttributes().get(WebSoInterceptor.WS_SESSION_ID);
         String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
         String channelKey = WsUtils.getChannelKey(ws);
 
-        WsChannelStore channelStore = this.sessionMap.compute(sessionId, (k, old) -> {
+        this.sessionMap.compute(sessionId, (k, old) -> {
             WsChannelStore store = old != null ? old : new WsChannelStore(uid, this.editorApi);
             if (!store.containsChannel(channelKey)) {
                 store.acceptChannel(channelKey, ws);
             }
             return store;
         });
-        return channelStore;
     }
 
     @Override
@@ -268,12 +267,10 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
 
             ws.getAttributes().put(WebSoInterceptor.WS_USER_ID, user.getUid());
             ws.getAttributes().put(WebSoInterceptor.WS_PUSER_ID, primaryUser.getUid());
-            ws.getAttributes().put(WebSoInterceptor.WS_USER_ROLE, user.getRoleId());
 
             RdpWebUtils.currentLocal().setCurrentUser(user);
             RdpWebUtils.currentLocal().setCurrentRole(role);
             RdpWebUtils.currentLocal().setPrimaryUser(primaryUser);
-            RdpWebUtils.currentLocal().setSessionPrincipal(principal);
             return true;
         } catch (Exception e) {
             log.error("WS[" + WsUtils.getChannelKey(ws) + "]:INBOUND auth check failed", e);

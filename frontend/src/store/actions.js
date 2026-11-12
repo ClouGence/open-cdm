@@ -33,7 +33,7 @@ const initWebsocket = (globalSetting, loggedIn) => {
 
   const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   // cookies are always same-origin; dev proxy forwards /api (ws:true)
-  const basePath = new URL(process.env.VUE_APP_BASE_URL || '/', window.location.origin).pathname.replace(/\/$/, '');
+  const basePath = process.env.BASE_URL.replace(/\/$/, '');
 
   createWebSocket(`${wsProtocol}://${window.location.host}${basePath}/api/entry/ws/channel`);
 };

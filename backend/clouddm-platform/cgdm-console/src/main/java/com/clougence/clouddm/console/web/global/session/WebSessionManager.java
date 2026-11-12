@@ -100,33 +100,18 @@ public class WebSessionManager {
             return true;
         }
 
-        if (requestAuth != null) {
-            return testAuth(requestAuth, role);
-        } else {
-            return false;
-        }
-    }
-
-    private boolean testAuth(RequestAuth authInfo, DmAuthRoleDO roleDO) {
-        if (authInfo == null) {
+        if (requestAuth == null) {
             return false;
         }
 
-        if (authInfo.strategy() == RequestAuth.AuthStrategy.Ignore) {
+        // role is non-null here: preHandle rejects a missing role before authorization
+        if (requestAuth.strategy() == RequestAuth.AuthStrategy.Ignore || requestAuth.strategy() == RequestAuth.AuthStrategy.RefAnyOnes) {
             return true;
         }
 
-        if (roleDO == null) {
-            return false;
-        }
-
-        if (authInfo.strategy() == RequestAuth.AuthStrategy.RefAnyOnes) {
-            return true;
-        }
-
-        if (authInfo.strategy() == RequestAuth.AuthStrategy.RefRoleSet) {
-            for (String labelKey : authInfo.value()) {
-                if (roleDO.getRoleAuthLabels() != null && roleDO.getRoleAuthLabels().contains(labelKey)) {
+        if (requestAuth.strategy() == RequestAuth.AuthStrategy.RefRoleSet) {
+            for (String labelKey : requestAuth.value()) {
+                if (role.getRoleAuthLabels() != null && role.getRoleAuthLabels().contains(labelKey)) {
                     return true;
                 }
             }
@@ -196,11 +181,7 @@ public class WebSessionManager {
         }
         if (userDO.isDisable()) {
             String errorMessage = "user (" + uid + ") is disabled.";
-            return SessionCheckResult.builder()//
-                .success(false)
-                .message(errorMessage)
-                .errorCode(401)
-                .build();
+            return new SessionCheckResult(false, errorMessage, 401);
         }
 
         boolean passwordExpired = accountPolicy.isPasswordExpired(userDO);
@@ -244,7 +225,6 @@ public class WebSessionManager {
             RdpWebUtils.currentLocal().setCurrentUser(userDO);
             RdpWebUtils.currentLocal().setCurrentRole(role);
             RdpWebUtils.currentLocal().setPrimaryUser(primaryUser);
-            RdpWebUtils.currentLocal().setSessionPrincipal(principal);
             if (!passwordExpired && !"websocket".equalsIgnoreCase(request.getHeader("Upgrade"))) {
                 this.sessionService.renewIfNeeded(principal);
                 this.cookieService.refreshIfUnlimited(request, response);
@@ -276,11 +256,7 @@ public class WebSessionManager {
     }
 
     private SessionCheckResult responseOk() {
-        return SessionCheckResult.builder()//
-            .success(true)
-            .message("ok.")
-            .errorCode(200)
-            .build();
+        return new SessionCheckResult(true, "ok.", 200);
     }
 
     private SessionCheckResult responseNotLogin(RequestAuth requestAuth, HttpServletRequest request, HttpServletResponse response, String message) {
@@ -293,26 +269,14 @@ public class WebSessionManager {
             }
         }
 
-        return SessionCheckResult.builder()//
-            .success(false)
-            .message(message)
-            .errorCode(401)
-            .build();
+        return new SessionCheckResult(false, message, 401);
     }
 
     private SessionCheckResult responseNoPageAuthority(String message) {
-        return SessionCheckResult.builder()//
-            .success(false)
-            .message(message)
-            .errorCode(406)
-            .build();
+        return new SessionCheckResult(false, message, 406);
     }
 
     private SessionCheckResult responseSystemError(String message) {
-        return SessionCheckResult.builder()//
-            .success(false)
-            .message(message)
-            .errorCode(500)
-            .build();
+        return new SessionCheckResult(false, message, 500);
     }
 }

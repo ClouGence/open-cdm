@@ -248,20 +248,14 @@ public class CallbackController {
                 this.authDal.userMapper().updateUserName(login.getUid(), fetchUser.getUserName());
             }
 
-            if (login.isNeedMfa()) {
+            if (login.isNeedMfa() || login.isMfaInvalid()) {
                 if (StringUtils.isBlank(login.getMfaPreActionToken())) {
                     String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
                     return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
                 }
-                return this.redirectToMfa(response, login.getMfaPreActionToken());
-            }
-
-            if (login.isMfaInvalid()) {
-                if (StringUtils.isBlank(login.getMfaPreActionToken())) {
-                    String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
-                    return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
-                }
-                return this.redirectToMfaRecovery(response, login.getMfaPreActionToken());
+                String flag = login.isNeedMfa() ? "mfa" : "mfaRecovery";
+                sendLoginRedirect(response, flag + "=1&mfaPreActionToken=" + URLEncoder.encode(login.getMfaPreActionToken(), StandardCharsets.UTF_8));
+                return login.isNeedMfa() ? "needMfa." : "mfaInvalid.";
             }
 
             return this.redirectToHome(request, response, login);
@@ -279,34 +273,19 @@ public class CallbackController {
     }
 
     protected Object redirectToFailed(HttpServletRequest request, HttpServletResponse response, String errorCode, String errorMessage) throws IOException {
-        String contextPath = this.config.getDeployContextPath();
-        if (StringUtils.isBlank(contextPath)) {
-            contextPath = "/";
-        } else if (!StringUtils.endsWith(contextPath, "/")) {
-            contextPath += "/";
-        }
-
-        response.sendRedirect(contextPath + "#/login?" +//
-                              "error=" + URLEncoder.encode(StringUtils.defaultString(DmI18nUtils.getMessage(errorCode), errorCode), StandardCharsets.UTF_8) + "&" +//
-                              "error_description=" + URLEncoder.encode(StringUtils.defaultString(errorMessage, ""), StandardCharsets.UTF_8));
+        sendLoginRedirect(response, "error=" + URLEncoder.encode(StringUtils.defaultString(DmI18nUtils.getMessage(errorCode), errorCode), StandardCharsets.UTF_8) + "&" +//
+                                    "error_description=" + URLEncoder.encode(StringUtils.defaultString(errorMessage, ""), StandardCharsets.UTF_8));
         return "failed.";
     }
 
     protected Object redirectToLogin(HttpServletRequest request, HttpServletResponse response, String registerToken, String loginType, String primaryUid,
                                      UserData fetchUser) throws IOException {
-        String contextPath = this.config.getDeployContextPath();
-        if (StringUtils.isBlank(contextPath)) {
-            contextPath = "/";
-        } else if (!StringUtils.endsWith(contextPath, "/")) {
-            contextPath += "/";
-        }
         String subAccount = fetchUser.getAccount();
         int domainSeparator = StringUtils.lastIndexOf(subAccount, "@");
         if (domainSeparator > -1) {
             subAccount = subAccount.substring(0, domainSeparator);
         }
-        String redirectUrl = contextPath + "#/login?" +//
-                             "completionToken=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), StandardCharsets.UTF_8) + "&" +              //
+        String query = "completionToken=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), StandardCharsets.UTF_8) + "&" +              //
                              "sub=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), StandardCharsets.UTF_8) + "&" +                   //
                              "account=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getAccount(), ""), StandardCharsets.UTF_8) + "&" +//
                              "registerAccount=" + URLEncoder.encode(this.namingDao.genLoginAccount(), StandardCharsets.UTF_8) + "&" +                //
@@ -315,21 +294,11 @@ public class CallbackController {
                              "primaryUid=" + URLEncoder.encode(StringUtils.defaultString(primaryUid, ""), StandardCharsets.UTF_8) + "&" +            //
                              "loginType=" + URLEncoder.encode(StringUtils.defaultString(loginType, ""), StandardCharsets.UTF_8) + "&" +              //
                              "email=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getEmail(), ""), StandardCharsets.UTF_8);
-        response.sendRedirect(redirectUrl);
+        sendLoginRedirect(response, query);
         return "needMore.";
     }
 
-    protected Object redirectToMfa(HttpServletResponse response, String mfaPreActionToken) throws IOException {
-        redirectToLogin(response, "mfa=1&mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8));
-        return "needMfa.";
-    }
-
-    protected Object redirectToMfaRecovery(HttpServletResponse response, String mfaPreActionToken) throws IOException {
-        redirectToLogin(response, "mfaRecovery=1&mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8));
-        return "mfaInvalid.";
-    }
-
-    private void redirectToLogin(HttpServletResponse response, String query) throws IOException {
+    private void sendLoginRedirect(HttpServletResponse response, String query) throws IOException {
         String contextPath = this.config.getDeployContextPath();
         if (StringUtils.isBlank(contextPath)) {
             contextPath = "/";
@@ -340,12 +309,13 @@ public class CallbackController {
     }
 
     protected Object redirectToHome(HttpServletRequest request, HttpServletResponse response, LoginMO login) throws IOException {
-        if (login.isNeedMfa() || login.isNeedMore() || login.getIssuedSession() == null) {
+        // a session token is only issued once no further MFA/registration step remains
+        if (login.getSessionToken() == null) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
         }
 
-        this.sessionCookieService.write(response, login.getIssuedSession());
+        this.sessionCookieService.write(response, login.getSessionToken());
         this.sessionCookieService.clearLegacy(response);
         if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
             response.sendRedirect(this.config.getDeployContextPath());

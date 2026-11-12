@@ -291,7 +291,6 @@ export default {
     ...mapState(['userInfo', 'globalSetting', 'myCatLog', 'myAuth']),
     canResetInvalidMfa() {
       return (
-        this.accountFormMode === 'edit' &&
         this.newAccountForm.useMfa &&
         this.newAccountForm.mfaStatus !== 'ACTIVE' &&
         this.newAccountForm.uid !== this.userInfo?.uid &&
@@ -640,7 +639,7 @@ export default {
       this.accountFormVisible = true;
     },
     handleShowResetInvalidMfaConfirm() {
-      if (this.resetMfaLoading || !this.canResetInvalidMfa) {
+      if (this.resetMfaLoading) {
         return;
       }
       const targetUid = this.newAccountForm.uid;

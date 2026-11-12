@@ -24,7 +24,6 @@ import org.springframework.web.util.ServletRequestPathUtils;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
-import com.clougence.clouddm.console.web.global.session.SessionPrincipal;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -67,7 +66,6 @@ public class RdpWebUtils {
     @Setter
     public static class RequestData {
 
-        private SessionPrincipal sessionPrincipal;
         private String[]         authLabel;
         private DmAuthUserDO     currentUser;
         private DmAuthRoleDO     currentRole;

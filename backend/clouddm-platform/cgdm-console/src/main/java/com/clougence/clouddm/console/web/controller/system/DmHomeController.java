@@ -149,16 +149,13 @@ public class DmHomeController {
 
     protected ResWebData<?> commonLoginResult(LoginMO loginMO, HttpServletRequest request, HttpServletResponse response) {
         if (loginMO.isSuccess()) {
-            if (loginMO.getIssuedSession() != null) {
-                this.sessionCookieService.write(response, loginMO.getIssuedSession());
-                this.sessionCookieService.clearLegacy(response);
-            }
-
             if (StringUtils.isBlank(loginMO.getPuid()) && StringUtils.isNotBlank(loginMO.getUid())) {
                 loginMO.setPuid(loginMO.getUid());
             }
 
-            if (loginMO.getIssuedSession() != null) {
+            if (loginMO.getSessionToken() != null) {
+                this.sessionCookieService.write(response, loginMO.getSessionToken());
+                this.sessionCookieService.clearLegacy(response);
                 auditService.logAndAddOperationAudit(loginMO.getPuid(), loginMO.getUid(), request.getRequestURI(), request.getRemoteAddr(), loginMO
                     .getUid(), "", SecurityLevel.NORMAL, AuditType.LOGIN_SUCCESS, ResourceType.ACCOUNT);
             }

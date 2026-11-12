@@ -15,11 +15,11 @@
  */
 package com.clougence.clouddm.console.web.global.session;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class SessionCheckResult {
 
     private boolean success;

@@ -94,7 +94,7 @@ public class SessionCookieService {
             throw new IllegalStateException("invalid cookie path derived from clougence.rdp.deploy.context-path: " + deploy);
         }
         // fail fast on an invalid domain/path before the first request writes headers
-        scoped(SESSION_COOKIE_NAME, "").build();
+        scoped("").build();
     }
 
     private static boolean isValidDomain(String domain) {
@@ -115,31 +115,28 @@ public class SessionCookieService {
         return p;
     }
 
-    public void write(HttpServletResponse response, IssuedSession issued) {
-        ResponseCookie.ResponseCookieBuilder b = scoped(SESSION_COOKIE_NAME, issued.getToken());
+    public void write(HttpServletResponse response, String token) {
         int maxAge = sessionConfig.getAbsoluteLifetimeSec();
         if (maxAge == 0) {
             maxAge = Integer.MAX_VALUE;
         }
-        b.maxAge(maxAge);
-        response.addHeader("Set-Cookie", b.build().toString());
+        emit(response, token, maxAge);
     }
 
     public void refreshIfUnlimited(HttpServletRequest request, HttpServletResponse response) {
-        if (sessionConfig.getAbsoluteLifetimeSec() != 0) {
-            return;
-        }
         // Browsers cap persistent cookie lifetimes, so refresh the stable token's expiry.
-        ResponseCookie.ResponseCookieBuilder b = scoped(SESSION_COOKIE_NAME, extractToken(request));
-        b.maxAge(Integer.MAX_VALUE);
-        response.addHeader("Set-Cookie", b.build().toString());
+        if (sessionConfig.getAbsoluteLifetimeSec() == 0) {
+            emit(response, extractToken(request), Integer.MAX_VALUE);
+        }
     }
 
     public void clear(HttpServletResponse response) {
         // identical scope/flags as issuance so the browser actually drops it
-        ResponseCookie.ResponseCookieBuilder b = scoped(SESSION_COOKIE_NAME, "");
-        b.maxAge(0);
-        response.addHeader("Set-Cookie", b.build().toString());
+        emit(response, "", 0);
+    }
+
+    private void emit(HttpServletResponse response, String value, int maxAge) {
+        response.addHeader("Set-Cookie", scoped(value).maxAge(maxAge).build().toString());
     }
 
     /** Best-effort tombstones for legacy JWT cookies across their plausible scopes. */
@@ -171,8 +168,8 @@ public class SessionCookieService {
         response.addHeader("Set-Cookie", b.build().toString());
     }
 
-    private ResponseCookie.ResponseCookieBuilder scoped(String name, String value) {
-        ResponseCookie.ResponseCookieBuilder b = ResponseCookie.from(name, value).path(cookiePath).httpOnly(true).sameSite("Lax");
+    private ResponseCookie.ResponseCookieBuilder scoped(String value) {
+        ResponseCookie.ResponseCookieBuilder b = ResponseCookie.from(SESSION_COOKIE_NAME, value).path(cookiePath).httpOnly(true).sameSite("Lax");
         if (StringUtils.isNotBlank(cookieDomain)) {
             b.domain(cookieDomain);
         }

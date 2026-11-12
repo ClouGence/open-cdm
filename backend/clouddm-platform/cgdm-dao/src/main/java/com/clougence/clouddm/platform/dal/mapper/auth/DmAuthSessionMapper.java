@@ -29,8 +29,7 @@ public interface DmAuthSessionMapper extends BaseMapper<DmAuthSessionDO> {
 
     List<DmAuthSessionDO> queryByIds(@Param("ids") Collection<Long> ids);
 
-    int renewCas(@Param("id") Long id, @Param("oldExpireTimeMs") Long oldExpireTimeMs, @Param("newExpireTimeMs") Long newExpireTimeMs, @Param("renewedTimeMs") Long renewedTimeMs,
-                 @Param("nowMs") Long nowMs, @Param("absoluteLifetimeMs") Long absoluteLifetimeMs);
+    int renewCas(@Param("id") Long id, @Param("oldExpireTimeMs") Long oldExpireTimeMs, @Param("newExpireTimeMs") Long newExpireTimeMs, @Param("renewedTimeMs") Long renewedTimeMs);
 
     int deleteByUid(@Param("uid") String uid);
 
