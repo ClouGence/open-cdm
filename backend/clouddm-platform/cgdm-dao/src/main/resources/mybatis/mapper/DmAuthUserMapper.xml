@@ -12,16 +12,12 @@
         <result column="phone" property="phone"/>
         <result column="account" property="account"/>
         <result column="password" property="password"/>
-        <result column="op_password" property="opPassword"/>
         <result column="role_id" property="roleId"/>
         <result column="access_key" property="accessKey"/>
         <result column="secret_key" property="secretKey"/>
         <result column="last_try_login_time" property="lastTryLoginTime"/>
         <result column="login_fail_count" property="loginFailCount"/>
         <result column="login_locked" property="loginLocked"/>
-        <result column="last_try_op_verify_time" property="lastTryOpVerifyTime"/>
-        <result column="op_verify_fail_count" property="opVerifyFailCount"/>
-        <result column="op_locked" property="opLocked"/>
         <result column="account_type" property="accountType"
                 javaType="com.clougence.clouddm.platform.dal.model.auth.AccountType"/>
         <result column="bind_type" property="bindType"
@@ -58,16 +54,12 @@
         phone,
         account,
         password,
-        op_password,
         role_id,
         access_key,
         secret_key,
         last_try_login_time,
         login_fail_count,
         login_locked,
-        last_try_op_verify_time,
-        op_verify_fail_count,
-        op_locked,
         account_type,
         bind_type,
         bind_account,
@@ -647,15 +639,6 @@
             id = #{id}
     </update>
 
-    <update id="updateOpPasswdById">
-        UPDATE
-            dm_auth_user
-        SET
-            op_password = #{opPassword}
-        WHERE
-            id = #{id}
-    </update>
-
     <update id="updateAbilityByUid">
         UPDATE
             dm_auth_user
@@ -789,16 +772,12 @@
             dm_auth_user.phone,
             dm_auth_user.account,
             dm_auth_user.password,
-            dm_auth_user.op_password,
             dm_auth_user.role_id,
             dm_auth_user.access_key,
             dm_auth_user.secret_key,
             dm_auth_user.last_try_login_time,
             dm_auth_user.login_fail_count,
             dm_auth_user.login_locked,
-            dm_auth_user.last_try_op_verify_time,
-            dm_auth_user.op_verify_fail_count,
-            dm_auth_user.op_locked,
             dm_auth_user.account_type,
             dm_auth_user.bind_type,
             dm_auth_user.bind_account,

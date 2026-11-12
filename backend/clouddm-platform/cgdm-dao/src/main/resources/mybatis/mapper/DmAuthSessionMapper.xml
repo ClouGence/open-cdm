@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.auth.DmAuthSessionMapper">
+    <resultMap id="dmAuthSessionDO" type="com.clougence.clouddm.platform.dal.model.auth.DmAuthSessionDO">
+        <result column="id" property="id"/>
+        <result column="uid" property="uid"/>
+        <result column="token_hash" property="tokenHash"/>
+        <result column="login_type" property="loginType"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="renewed_time_ms" property="renewedTimeMs"/>
+        <result column="expire_time_ms" property="expireTimeMs"/>
+    </resultMap>
+
+    <sql id="dmAuthSession">
+        id,
+        uid,
+        token_hash,
+        login_type,
+        gmt_create,
+        renewed_time_ms,
+        expire_time_ms
+    </sql>
+
+    <select id="queryByTokenHash" resultMap="dmAuthSessionDO">
+        SELECT
+            <include refid="dmAuthSession"/>
+        FROM
+            dm_auth_session
+        WHERE
+            token_hash = #{tokenHash}
+        LIMIT 1
+    </select>
+
+    <select id="queryByIds" resultMap="dmAuthSessionDO">
+        SELECT
+            <include refid="dmAuthSession"/>
+        FROM
+            dm_auth_session
+        WHERE
+            id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </select>
+
+    <update id="renewCas">
+        UPDATE
+            dm_auth_session
+        SET
+            renewed_time_ms = #{renewedTimeMs},
+            expire_time_ms  = #{newExpireTimeMs}
+        WHERE
+            id             = #{id}
+            AND
+            expire_time_ms = #{oldExpireTimeMs}
+    </update>
+
+    <delete id="deleteByUid">
+        DELETE FROM
+            dm_auth_session
+        WHERE
+            uid = #{uid}
+    </delete>
+
+    <delete id="deleteExpiredByExpire">
+        DELETE FROM
+            dm_auth_session
+        WHERE
+            expire_time_ms <![CDATA[ <= ]]> #{nowMs}
+        LIMIT #{limit}
+    </delete>
+
+    <delete id="deleteExpiredByAbsolute">
+        DELETE FROM
+            dm_auth_session
+        WHERE
+            gmt_create <![CDATA[ <= ]]> #{cutoffGmtCreateMs}
+        LIMIT #{limit}
+    </delete>
+</mapper>

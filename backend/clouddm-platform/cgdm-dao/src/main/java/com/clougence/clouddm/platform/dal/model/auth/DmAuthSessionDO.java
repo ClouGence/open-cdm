@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.model;
+package com.clougence.clouddm.platform.dal.model.auth;
 
-import com.clougence.rdp.service.enumeration.OpVerifyErrType;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author bucketli 2021/1/11 11:18
- */
 @Getter
 @Setter
-public class OpPasswdVerifyMO {
+@TableName(value = "dm_auth_session")
+public class DmAuthSessionDO {
 
-    boolean         success;
+    @TableId(type = IdType.AUTO)
+    private Long   id;
 
-    OpVerifyErrType opVerifyErrType;
+    private String uid;
 
-    String          errorMsg;
+    private String tokenHash;
 
-    public OpPasswdVerifyMO(boolean success){
-        this.success = success;
-    }
+    private String loginType;
 
-    public OpPasswdVerifyMO(boolean success, OpVerifyErrType opVerifyErrType, String errorMsg){
-        this.success = success;
-        this.opVerifyErrType = opVerifyErrType;
-        this.errorMsg = errorMsg;
-    }
+    /** epoch millis, immutable once created */
+    private Long   gmtCreate;
+
+    private Long   renewedTimeMs;
+
+    private Long   expireTimeMs;
 }

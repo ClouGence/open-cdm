@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.global.jwtsession;
+package com.clougence.clouddm.console.web.global.session;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
@@ -24,9 +24,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.util.RdpLocal;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.utils.io.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,12 +37,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JwtInterceptor implements HandlerInterceptor {
+public class WebSessionInterceptor implements HandlerInterceptor {
 
     @Resource
-    private JwtManager    jwtManager;
+    private WebSessionManager sessionManager;
     @Resource
-    private ConsoleConfig config;
+    private ConsoleConfig     config;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -49,20 +52,29 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        JwtCheckResult checkResult = jwtManager.preHandle(request, response, () -> {
-            if (handler instanceof HandlerMethod) {
-                Method targetMethod = ((HandlerMethod) handler).getMethod();
-                RequestAuth requestAuth = targetMethod.getAnnotation(RequestAuth.class);
+        SessionCheckResult checkResult = null;
+        boolean success = false;
+        try {
+            RequestAuth requestAuth = null;
+            if (handler instanceof HandlerMethod handlerMethod) {
+                Method targetMethod = handlerMethod.getMethod();
+                requestAuth = targetMethod.getAnnotation(RequestAuth.class);
                 if (requestAuth == null) {
                     requestAuth = targetMethod.getDeclaringClass().getAnnotation(RequestAuth.class);
                 }
-                return requestAuth;
             }
-            return null;
-        }, handler);
+            checkResult = sessionManager.preHandle(request, response, requestAuth);
 
-        if (checkResult.isSuccess()) {
-            return true;
+            if (checkResult.isSuccess()) {
+                success = true;
+                return true;
+            }
+        } finally {
+            // failed preHandle never reaches afterCompletion; drop thread state now
+            if (!success) {
+                RdpWebUtils.cleanLocal();
+                RdpLocal.setLocal(null);
+            }
         }
 
         response.setStatus(checkResult.getErrorCode());
@@ -83,5 +95,6 @@ public class JwtInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) {
         RdpWebUtils.cleanLocal();
+        RdpLocal.setLocal(null);
     }
 }

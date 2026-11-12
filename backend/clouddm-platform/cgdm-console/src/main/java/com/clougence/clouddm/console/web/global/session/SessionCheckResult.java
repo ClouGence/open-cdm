@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.global.jwtsession;
+package com.clougence.clouddm.console.web.global.session;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
-public class JwtCheckResult {
+@AllArgsConstructor
+public class SessionCheckResult {
 
     private boolean success;
     private String  message;

@@ -34,12 +34,11 @@ import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
+import com.clougence.clouddm.console.web.global.session.SessionCookieService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.service.login.LoginDefService;
 import com.clougence.clouddm.console.web.service.login.LoginService;
-import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
@@ -64,7 +63,6 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -75,21 +73,23 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/callback")
 public class CallbackController {
     @Resource
-    private AuthDal             authDal;
+    private AuthDal              authDal;
     @Resource
-    private NamingDao           namingDao;
+    private NamingDao            namingDao;
     @Resource
-    private ApprovalFlowService approvalFlowService;
+    private ApprovalFlowService  approvalFlowService;
     @Resource
-    private LoginDefService     loginDefService;
+    private LoginDefService      loginDefService;
     @Resource
-    private LoginService        loginRegService;
+    private LoginService         loginRegService;
     @Resource
-    private ConsoleConfig       config;
+    private ConsoleConfig        config;
     @Resource
-    private RdpOpAuditService   opAuditService;
+    private RdpOpAuditService    opAuditService;
     @Resource
-    private CsrfTokenService    csrfTokenService;
+    private CsrfTokenService     csrfTokenService;
+    @Resource
+    private SessionCookieService sessionCookieService;
 
     @RequestMapping(value = "/event", method = { RequestMethod.POST, RequestMethod.GET })
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
@@ -248,12 +248,14 @@ public class CallbackController {
                 this.authDal.userMapper().updateUserName(login.getUid(), fetchUser.getUserName());
             }
 
-            if (login.isNeedMfa()) {
+            if (login.isNeedMfa() || login.isMfaInvalid()) {
                 if (StringUtils.isBlank(login.getMfaPreActionToken())) {
                     String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
                     return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
                 }
-                return this.redirectToMfa(response, login.getMfaPreActionToken());
+                String flag = login.isNeedMfa() ? "mfa" : "mfaRecovery";
+                sendLoginRedirect(response, flag + "=1&mfaPreActionToken=" + URLEncoder.encode(login.getMfaPreActionToken(), StandardCharsets.UTF_8));
+                return login.isNeedMfa() ? "needMfa." : "mfaInvalid.";
             }
 
             return this.redirectToHome(request, response, login);
@@ -271,34 +273,19 @@ public class CallbackController {
     }
 
     protected Object redirectToFailed(HttpServletRequest request, HttpServletResponse response, String errorCode, String errorMessage) throws IOException {
-        String contextPath = this.config.getDeployContextPath();
-        if (StringUtils.isBlank(contextPath)) {
-            contextPath = "/";
-        } else if (!StringUtils.endsWith(contextPath, "/")) {
-            contextPath += "/";
-        }
-
-        response.sendRedirect(contextPath + "#/login?" +//
-                              "error=" + URLEncoder.encode(StringUtils.defaultString(DmI18nUtils.getMessage(errorCode), errorCode), StandardCharsets.UTF_8) + "&" +//
-                              "error_description=" + URLEncoder.encode(StringUtils.defaultString(errorMessage, ""), StandardCharsets.UTF_8));
+        sendLoginRedirect(response, "error=" + URLEncoder.encode(StringUtils.defaultString(DmI18nUtils.getMessage(errorCode), errorCode), StandardCharsets.UTF_8) + "&" +//
+                                    "error_description=" + URLEncoder.encode(StringUtils.defaultString(errorMessage, ""), StandardCharsets.UTF_8));
         return "failed.";
     }
 
     protected Object redirectToLogin(HttpServletRequest request, HttpServletResponse response, String registerToken, String loginType, String primaryUid,
                                      UserData fetchUser) throws IOException {
-        String contextPath = this.config.getDeployContextPath();
-        if (StringUtils.isBlank(contextPath)) {
-            contextPath = "/";
-        } else if (!StringUtils.endsWith(contextPath, "/")) {
-            contextPath += "/";
-        }
         String subAccount = fetchUser.getAccount();
         int domainSeparator = StringUtils.lastIndexOf(subAccount, "@");
         if (domainSeparator > -1) {
             subAccount = subAccount.substring(0, domainSeparator);
         }
-        String redirectUrl = contextPath + "#/login?" +//
-                             "token=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), StandardCharsets.UTF_8) + "&" +              //
+        String query = "completionToken=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), StandardCharsets.UTF_8) + "&" +              //
                              "sub=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), StandardCharsets.UTF_8) + "&" +                   //
                              "account=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getAccount(), ""), StandardCharsets.UTF_8) + "&" +//
                              "registerAccount=" + URLEncoder.encode(this.namingDao.genLoginAccount(), StandardCharsets.UTF_8) + "&" +                //
@@ -307,33 +294,29 @@ public class CallbackController {
                              "primaryUid=" + URLEncoder.encode(StringUtils.defaultString(primaryUid, ""), StandardCharsets.UTF_8) + "&" +            //
                              "loginType=" + URLEncoder.encode(StringUtils.defaultString(loginType, ""), StandardCharsets.UTF_8) + "&" +              //
                              "email=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getEmail(), ""), StandardCharsets.UTF_8);
-        response.sendRedirect(redirectUrl);
+        sendLoginRedirect(response, query);
         return "needMore.";
     }
 
-    protected Object redirectToMfa(HttpServletResponse response, String mfaPreActionToken) throws IOException {
+    private void sendLoginRedirect(HttpServletResponse response, String query) throws IOException {
         String contextPath = this.config.getDeployContextPath();
         if (StringUtils.isBlank(contextPath)) {
             contextPath = "/";
         } else if (!StringUtils.endsWith(contextPath, "/")) {
             contextPath += "/";
         }
-
-        String redirectUrl = contextPath + "#/login?mfa=1&" + "mfaPreActionToken=" + URLEncoder.encode(mfaPreActionToken, StandardCharsets.UTF_8);
-        response.sendRedirect(redirectUrl);
-        return "needMfa.";
+        response.sendRedirect(contextPath + "#/login?" + query);
     }
 
     protected Object redirectToHome(HttpServletRequest request, HttpServletResponse response, LoginMO login) throws IOException {
-        if (login.isNeedMfa() || login.isNeedMore() || StringUtils.isBlank(login.getToken())) {
+        // a session token is only issued once no further MFA/registration step remains
+        if (login.getSessionToken() == null) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
         }
 
-        int cookieAge = Math.max(JwtService.minLoginExpireSec, this.config.getLoginExpireTimeSec());
-        Cookie cookie = RdpWebUtils.newCookie(JwtService.jwtTokenName, login.getToken(), false, cookieAge);
-
-        response.addCookie(cookie);
+        this.sessionCookieService.write(response, login.getSessionToken());
+        this.sessionCookieService.clearLegacy(response);
         if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
             response.sendRedirect(this.config.getDeployContextPath());
         } else {
@@ -345,20 +328,15 @@ public class CallbackController {
 
     @RequestMapping(value = "/logout", method = { RequestMethod.POST, RequestMethod.GET })
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @SneakyThrows
-    public Object logout(@RequestParam(required = false) Map<String, String> params, HttpServletRequest request, HttpServletResponse response) {
-        String uid = params.getOrDefault("uid", null);
-        String state = params.getOrDefault("state", null);
-        String provider = params.getOrDefault("provider", null);
-
-        // for args
-        DmAuthCsrfTokenDO tokenDO = this.csrfTokenService.pullToken(state);
-        if (tokenDO == null) {
-            return this.redirectOrDone(request, response, "/");
+    public Object logout(@RequestParam(required = false) String state, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (StringUtils.isNotBlank(state)) {
+            this.csrfTokenService.pullToken(state);
         }
-
-        response.addCookie(RdpWebUtils.newCookie(JwtService.jwtTokenName, StringUtils.EMPTY, true, 0));
-        return this.redirectOrDone(request, response, "/");
+        String redirectUrl = this.config.getDeployContextPath();
+        if (StringUtils.isBlank(redirectUrl)) {
+            redirectUrl = "/";
+        }
+        return this.redirectOrDone(request, response, redirectUrl);
     }
 
     private Object redirectOrDone(HttpServletRequest request, HttpServletResponse response, String redirectUrl) throws IOException {

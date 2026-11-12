@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.service.login;
 
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
+import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaRecoveryFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
 import com.clougence.rdp.service.model.LoginMO;
 
@@ -28,7 +29,5 @@ public interface LoginService {
 
     LoginMO loginMfaValid(LoginMfaValidFO validFO);
 
-    boolean isLogoutUsingJump(String uid);
-
-    String logoutJumpUrl(String puid, String uid);
+    boolean loginMfaRecoveryStatus(LoginMfaRecoveryFO fo);
 }

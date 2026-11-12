@@ -32,9 +32,9 @@ import com.clougence.clouddm.console.web.component.auth.DmUserService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
-import com.clougence.clouddm.console.web.constants.MfaAccountType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.global.session.SessionService;
 import com.clougence.clouddm.console.web.model.fo.*;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
@@ -61,7 +61,6 @@ import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.RdpVerifyService;
-import com.clougence.rdp.service.enumeration.OpVerifyErrType;
 import com.clougence.rdp.service.enumeration.UserOperationType;
 import com.clougence.rdp.service.model.*;
 import com.clougence.utils.StringUtils;
@@ -94,6 +93,8 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     private List<RdpNotifyService> notifyServices;
     @Resource
     private LoginMFAService        loginMFAService;
+    @Resource
+    private SessionService         sessionService;
 
     @Override
     public List<AuthInfo> allAuthLabelByUser(String puid, String uid) {
@@ -249,37 +250,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     //
 
     @Override
-    public UpdateUserInfoMO resetOpPasswd(ResetOpPasswdFO fo, String uid) {
-        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
-
-        if (userDO == null) {
-            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
-        }
-
-        String opPassword = CryptService.INSTANCE.encryptForOneWay(fo.getOpPassword()).getEncryptPassword();
-        authDal.userMapper().updateOpPasswdById(userDO.getId(), opPassword);
-        return new UpdateUserInfoMO(true, null);
-    }
-
-    @Override
-    public OpPasswdVerifyMO opPasswdVerify(String opPassword, String uid) {
-        DmAuthUserDO dmUserDO = authDal.userMapper().queryByUid(uid);
-        if (dmUserDO.getOpPassword() == null) {
-            return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_NOT_SET, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
-        }
-
-        PasswordInfo passInfo = new PasswordInfo();
-        passInfo.setEncryptPassword(dmUserDO.getOpPassword());
-        passInfo.setPlainPassword(opPassword);
-        boolean match = CryptService.INSTANCE.isMatchForOneWay(passInfo);
-        if (match) {
-            return new OpPasswdVerifyMO(true);
-        } else {
-            return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_ERROR, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_ERROR.name()));
-        }
-    }
-
-    @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public UpdateUserInfoMO updateUserPhone(String uid, UpdateUserPhoneFO fo) {
         DmAuthUserDO consoleUserDO = authDal.userMapper().queryByUid(uid);
@@ -300,13 +270,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             }
         }
 
-        if (!StringUtils.equals(oldPhone, newPhone)) {
-            try {
-                this.loginMFAService.invalidateMFAIfAccountChanged(uid, Collections.singleton(MfaAccountType.PHONE), Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
-            } catch (ErrorMessageException e) {
-                return new UpdateUserInfoMO(false, e.getErrorMessage());
-            }
-        }
         // phone console_user,alert_config_detail,system
         authDal.userMapper().updateUserContactInfo(uid, newPhone, null);
 
@@ -337,13 +300,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             }
         }
 
-        if (!StringUtils.equals(oldEmail, newEmail)) {
-            try {
-                this.loginMFAService.invalidateMFAIfAccountChanged(uid, Collections.singleton(MfaAccountType.EMAIL), Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
-            } catch (ErrorMessageException e) {
-                return new UpdateUserInfoMO(false, e.getErrorMessage());
-            }
-        }
         // phone console_user,alert_config_detail,system
         authDal.userMapper().updateUserContactInfo(uid, null, newEmail);
 
@@ -500,42 +456,35 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     // -- for Other Manager
     //
 
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
-    public UpdateUserInfoMO resetPassword(ResetPasswdFO fo) {
-        DmAuthUserDO userDO = null;
-        if (fo.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-            if (fo.getVerifyType() == VerifyType.SMS_VERIFY_CODE) {
-                userDO = this.authDal.userMapper().queryPrimaryByPhone(fo.getPhone());
-            } else if (fo.getVerifyType() == VerifyType.EMAIL_VERIFY_CODE) {
-                userDO = this.authDal.userMapper().queryPrimaryByEmail(fo.getEmail());
-            } else {
-                throw new IllegalArgumentException("Unsupported verify type:" + fo.getVerifyType());
-            }
-        } else if (fo.getAccountType() == AccountType.SUB_ACCOUNT) {
-            if (StringUtils.isBlank(fo.getAccount())) {
-                return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
-            }
-
-            userDO = this.authDal.userMapper().queryBySubAccount(fo.getAccount());
-        }
-
-        if (userDO == null) {
+    public UpdateUserInfoMO resetPassword(ResetPasswdFO fo, String targetUid) {
+        // lock the controller-authorized target and verify the FO still describes it
+        DmAuthUserDO lockedUser = this.authDal.userMapper().lockByUid(targetUid);
+        boolean identifierMatches = lockedUser != null && //
+                                    ((fo.getAccountType() == AccountType.PRIMARY_ACCOUNT //
+                                      && ((fo.getVerifyType() == VerifyType.SMS_VERIFY_CODE && StringUtils.equals(lockedUser.getPhone(), fo.getPhone()))
+                                          || (fo.getVerifyType() == VerifyType.EMAIL_VERIFY_CODE && StringUtils.equals(lockedUser.getEmail(), fo.getEmail())))) //
+                                     || (fo.getAccountType() == AccountType.SUB_ACCOUNT && StringUtils.equals(lockedUser.getAccount(), fo.getAccount())));
+        if (!identifierMatches) {
             return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
-        if (userDO.isDisable()) {
+        if (lockedUser.isDisable()) {
             return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_IS_DISABLED_ERROR.name()));
         }
 
         String password = CryptService.INSTANCE.encryptForOneWay(fo.getPassword()).getEncryptPassword();
-        authDal.userMapper().updatePasswdById(userDO.getId(), password);
+        authDal.userMapper().updatePasswdById(lockedUser.getId(), password);
+        this.sessionService.revokeUserSessions(lockedUser.getUid());
 
         return new UpdateUserInfoMO(true, null);
     }
 
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public UpdateUserInfoMO resetPwdWithOriginPwd(ResetPwdWithOriginPwdFO fo, String targetUid, String puid) {
-        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(targetUid);
+        DmAuthUserDO userDO = this.authDal.userMapper().lockByUid(targetUid);
 
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
         boolean notSame = RdpAuthUtils.isErrorPasswd(userDO.getPassword(), fo.getNewPassword());
@@ -568,13 +517,16 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
 
         String encryptPwd = CryptService.INSTANCE.encryptForOneWay(fo.getNewPassword()).getEncryptPassword();
         authDal.userMapper().updatePasswdById(userDO.getId(), encryptPwd);
+        this.sessionService.revokeUserSessions(userDO.getUid());
 
         mo.setSuccess(true);
         return mo;
     }
 
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public UpdateUserInfoMO resetSubAccountPwd(ResetSubAccountPwdFO fo, String operatorUid) {
+        // fresh operator check first; only the target row is locked to avoid inversion
         DmAuthUserDO opUserDO = this.authDal.userMapper().queryByUid(operatorUid);
 
         boolean re = RdpAuthUtils.isErrorPasswd(opUserDO.getPassword(), fo.getOperatorPwd());
@@ -585,10 +537,16 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             return mo;
         }
 
-        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(fo.getSubAccountUid());
+        DmAuthUserDO userDO = this.authDal.userMapper().lockByUid(fo.getSubAccountUid());
+        if (userDO == null) {
+            mo.setSuccess(false);
+            mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+            return mo;
+        }
 
         String encryptPwd = CryptService.INSTANCE.encryptForOneWay(fo.getNewPassword()).getEncryptPassword();
         authDal.userMapper().updatePasswdById(userDO.getId(), encryptPwd);
+        this.sessionService.revokeUserSessions(userDO.getUid());
 
         mo.setSuccess(true);
         return mo;
@@ -773,11 +731,13 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         return new AddSubAccountMO(true, null, userDO.getUid());
     }
 
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public UpdateUserInfoMO updateSubAccount(UpdateSubAccountFO fo, String puid) {
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
 
-        DmAuthUserDO oldUser = this.authDal.userMapper().queryByUid(fo.getTargetUid());
+        // locked even for profile-only edits: the write below is a full-row update
+        DmAuthUserDO oldUser = this.authDal.userMapper().lockByUid(fo.getTargetUid());
         if (oldUser == null) {
             mo.setSuccess(false);
             mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
@@ -836,15 +796,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             return mo;
         }
 
-        Set<MfaAccountType> changedMfaAccountTypes = changedMfaAccountTypes(oldUser, fo);
-        try {
-            this.loginMFAService.invalidateMFAIfAccountChanged(oldUser.getUid(), changedMfaAccountTypes, Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
-        } catch (ErrorMessageException e) {
-            mo.setSuccess(false);
-            mo.setErrorMsg(e.getErrorMessage());
-            return mo;
-        }
-
         UpdateUserInfoLO lo = new UpdateUserInfoLO();
         lo.setTargetUid(fo.getTargetUid());
         lo.setOldSubAccount(oldUser.getAccount());
@@ -882,25 +833,14 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         }
 
         this.authDal.userMapper().updateById(oldUser);
+        if (((internalAccount || allowLocal) && fo.getPassword() != null) || Boolean.TRUE.equals(fo.getDisable())) {
+            this.sessionService.revokeUserSessions(oldUser.getUid());
+        }
 
         mo.setConfigLO(lo);
         mo.setSuccess(true);
         mo.setErrorMsg(null);
         return mo;
-    }
-
-    private Set<MfaAccountType> changedMfaAccountTypes(DmAuthUserDO oldUser, UpdateSubAccountFO fo) {
-        Set<MfaAccountType> changedTypes = EnumSet.noneOf(MfaAccountType.class);
-        if (fo.getAccount() != null && !StringUtils.equals(oldUser.getAccount(), fo.getAccount())) {
-            changedTypes.add(MfaAccountType.ACCOUNT);
-        }
-        if (fo.getPhone() != null && !StringUtils.equals(oldUser.getPhone(), fo.getPhone())) {
-            changedTypes.add(MfaAccountType.PHONE);
-        }
-        if (fo.getEmail() != null && !StringUtils.equals(oldUser.getEmail(), fo.getEmail())) {
-            changedTypes.add(MfaAccountType.EMAIL);
-        }
-        return changedTypes;
     }
 
     @Override
@@ -943,12 +883,16 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
-    public ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo) {
-        DmAuthUserDO userDO = this.authDal.userMapper().queryBySubAccount(fo.getAccount());
+    public ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo, String targetUid) {
+        DmAuthUserDO userDO = this.authDal.userMapper().lockByUid(targetUid);
+        if (userDO == null || !StringUtils.equals(userDO.getAccount(), fo.getAccount())) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+        }
         rdpVerifyService.dropUserVerify(userDO.getUid());
         authDal.userMapper().deleteById(userDO.getId());
         authDal.resMapper().deleteByUser(userDO.getUid());
         authDal.mfaMapper().deleteByUid(userDO.getUid());
+        this.sessionService.revokeUserSessions(userDO.getUid());
 
         this.notifyServices.forEach(s -> s.notifyUser(puid, userDO.getUid(), UserOperationType.DELETE));
         return ResWebDataUtils.buildSuccess();
@@ -992,8 +936,13 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         if (!fo.getDisable()) {
             //rdpLicenseCheckService.checkSubAccountCount();
         }
-        this.authDal.userMapper().updateAbilityByUid(fo.getUid(), fo.getDisable());
+        DmAuthUserDO userDO = this.authDal.userMapper().lockByUid(fo.getUid());
+        if (userDO == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+        }
+        this.authDal.userMapper().updateAbilityByUid(userDO.getUid(), fo.getDisable());
         if (fo.getDisable()) {
+            this.sessionService.revokeUserSessions(userDO.getUid());
             this.notifyServices.forEach(s -> s.notifyUser(puid, fo.getUid(), UserOperationType.DISABLE));
         } else {
             this.notifyServices.forEach(s -> s.notifyUser(puid, fo.getUid(), UserOperationType.ENABLE));

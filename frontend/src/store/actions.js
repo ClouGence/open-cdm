@@ -32,9 +32,10 @@ const initWebsocket = (globalSetting, loggedIn) => {
   }
 
   const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const host = process.env.NODE_ENV === 'development' && process.env.VUE_APP_DM_HOST ? process.env.VUE_APP_DM_HOST : window.location.host;
+  // cookies are always same-origin; dev proxy forwards /api (ws:true)
+  const basePath = process.env.BASE_URL.replace(/\/$/, '');
 
-  createWebSocket(`${wsProtocol}://${host}/api/entry/ws/channel`);
+  createWebSocket(`${wsProtocol}://${window.location.host}${basePath}/api/entry/ws/channel`);
 };
 
 let aiCapabilitiesSequence = 0;

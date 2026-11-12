@@ -42,6 +42,10 @@ public class WsUtils {
             return;
         }
 
+        if (!WsSessionGuard.allowSend(ws)) {
+            return;
+        }
+
         String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
         String wsMessage = "WS[" + getChannelKey(ws) + "]:SEND from user(" + uid + ") to console, type:" + type.getCode();
 
@@ -52,6 +56,9 @@ public class WsUtils {
                 wsMsg.put("object", data);
                 wsMsg.put("type", type.name());
                 TextMessage textMessage = new TextMessage(JsonUtils.toJson(wsMsg));
+                if (!WsSessionGuard.allowSend(ws)) {
+                    return;
+                }
                 ws.sendMessage(textMessage);
 
                 log.info(wsMessage + " done.");

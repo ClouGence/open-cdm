@@ -24,11 +24,15 @@ public interface DmAuthMfaChallengeMapper extends BaseMapper<DmAuthMfaChallengeD
 
     DmAuthMfaChallengeDO queryByTokenHash(@Param("challengeTokenHash") String challengeTokenHash);
 
-    int acquireAttempt(@Param("id") Long id, @Param("challengeTokenHash") String challengeTokenHash, @Param("actionType") String actionType,
-                       @Param("nowMs") Long nowMs, @Param("maxRetryCount") Integer maxRetryCount);
+    DmAuthMfaChallengeDO queryByTokenHashForUpdate(@Param("challengeTokenHash") String challengeTokenHash);
 
-    int deleteForConsume(@Param("id") Long id, @Param("challengeTokenHash") String challengeTokenHash, @Param("actionType") String actionType,
-                         @Param("nowMs") Long nowMs, @Param("maxRetryCount") Integer maxRetryCount);
+    int acquireAttempt(@Param("id") Long id, @Param("challengeTokenHash") String challengeTokenHash, @Param("actionType") String actionType, @Param("nowMs") Long nowMs,
+                       @Param("maxRetryCount") Integer maxRetryCount);
+
+    int deleteForConsume(@Param("id") Long id, @Param("challengeTokenHash") String challengeTokenHash, @Param("actionType") String actionType, @Param("nowMs") Long nowMs,
+                         @Param("maxRetryCount") Integer maxRetryCount);
 
     int deleteExpired(@Param("nowMs") Long nowMs);
+
+    int deleteByUid(@Param("uid") String uid);
 }

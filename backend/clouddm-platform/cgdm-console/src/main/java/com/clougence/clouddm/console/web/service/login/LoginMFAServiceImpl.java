@@ -20,7 +20,6 @@ import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.*;
 import java.io.ByteArrayOutputStream;
 import java.text.MessageFormat;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Date;
 
 import org.springframework.stereotype.Service;
@@ -31,6 +30,7 @@ import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.constants.MfaAccountType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.session.SessionService;
 import com.clougence.clouddm.console.web.model.vo.MfaCodeVO;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
@@ -53,12 +53,14 @@ public class LoginMFAServiceImpl implements LoginMFAService {
     private static final long MFA_SETTING_EXPIRE_MS = 10 * 60 * 1000L;
 
     @Resource
-    private AuthDal authDal;
+    private AuthDal           authDal;
+    @Resource
+    private SessionService    sessionService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public MfaCodeVO initMFA(String uid, MfaAccountType mfaAccountType) {
-        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().lockByUid(uid);
         if (userDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_USER_NOT_EXIST.name()));
         }
@@ -93,8 +95,9 @@ public class LoginMFAServiceImpl implements LoginMFAService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public MfaCodeVO resetMFA(String uid, MfaAccountType mfaAccountType) {
-        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().lockByUid(uid);
         if (userDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_USER_NOT_EXIST.name()));
         }
@@ -141,7 +144,7 @@ public class LoginMFAServiceImpl implements LoginMFAService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void confirmFMA(String uid, boolean reset, int mfaCode) {
-        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().lockByUid(uid);
         if (userDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_USER_NOT_EXIST.name()));
         }
@@ -179,12 +182,14 @@ public class LoginMFAServiceImpl implements LoginMFAService {
         }
 
         authDal.userMapper().updateMfaStatus(userDO.getUid(), true);
+        // enabling or re-binding MFA invalidates existing sessions
+        this.sessionService.revokeUserSessions(uid);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void closeMFA(String uid) {
-        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().lockByUid(uid);
         if (userDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_USER_NOT_EXIST.name()));
         }
@@ -196,11 +201,17 @@ public class LoginMFAServiceImpl implements LoginMFAService {
 
         authDal.mfaMapper().deleteById(userMfaDO.getId());
         authDal.userMapper().updateMfaStatus(uid, false);
+        this.sessionService.revokeUserSessions(uid);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void closeInvalidMFA(String uid) {
+        DmAuthUserDO userDO = authDal.userMapper().lockByUid(uid);
+        if (userDO == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_USER_NOT_EXIST.name()));
+        }
+
         DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(uid);
         if (userMfaDO != null) {
             if (userMfaDO.getMfaStatus() == MfaStatus.ACTIVE) {
@@ -209,6 +220,25 @@ public class LoginMFAServiceImpl implements LoginMFAService {
             authDal.mfaMapper().deleteById(userMfaDO.getId());
         }
         authDal.userMapper().updateMfaStatus(uid, false);
+        this.sessionService.revokeUserSessions(uid);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public void resetInvalidMFA(String targetUid) {
+        // lock the target row first so no pre-lock consistent read can go stale
+        DmAuthUserDO userDO = authDal.userMapper().lockByUid(targetUid);
+        if (userDO == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_USER_NOT_EXIST.name()));
+        }
+        DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(targetUid);
+        if (userMfaDO != null && userMfaDO.getMfaStatus() == MfaStatus.ACTIVE) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_SETTING_INVALID.name()));
+        }
+        if (!userDO.isUseMfa()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_NOT_ENABLED.name()));
+        }
+        closeInvalidMFA(targetUid);
     }
 
     @Override
@@ -219,30 +249,6 @@ public class LoginMFAServiceImpl implements LoginMFAService {
         }
         DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(uid);
         return userMfaDO == null || userMfaDO.getMfaStatus() != MfaStatus.ACTIVE;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void invalidateMFAIfAccountChanged(String uid, Collection<MfaAccountType> changedTypes, boolean confirmed) {
-        if (changedTypes == null || changedTypes.isEmpty()) {
-            return;
-        }
-        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
-        if (userDO == null || !userDO.isUseMfa()) {
-            return;
-        }
-        DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(uid);
-        if (userMfaDO == null || userMfaDO.getMfaStatus() != MfaStatus.ACTIVE) {
-            return;
-        }
-        MfaAccountType mfaAccountType = parseMfaAccountType(userMfaDO.getMfaAccountType());
-        if (mfaAccountType != null && !changedTypes.contains(mfaAccountType)) {
-            return;
-        }
-        if (!confirmed) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_ACCOUNT_CHANGE_CONFIRM_REQUIRED.name()));
-        }
-        authDal.mfaMapper().updateStatusById(userMfaDO.getId(), MfaStatus.INVALID);
     }
 
     @Override
@@ -284,17 +290,6 @@ public class LoginMFAServiceImpl implements LoginMFAService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_ACCOUNT_EMPTY.name()));
         }
         return account;
-    }
-
-    private MfaAccountType parseMfaAccountType(String type) {
-        if (StringUtils.isBlank(type)) {
-            return null;
-        }
-        try {
-            return MfaAccountType.valueOf(type);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
     }
 
     private static final String ccTotpUriFormat = "otpauth://totp/{0}?secret={1}&issuer={2}";

@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.enumeration;
+package com.clougence.clouddm.console.web.model.fo.user;
 
-/**
- * @author bucketli 2021/1/11 11:18
- */
-public enum OpVerifyErrType {
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
-    OP_PASSWD_NOT_SET,
+@Getter
+@Setter
+public class ResetInvalidMfaFO {
 
-    OP_PASSWD_ERROR
+    @NotBlank
+    private String targetUid;
 }

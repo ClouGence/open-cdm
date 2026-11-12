@@ -2,6 +2,7 @@ export const userApi = {
   login: '/login',
   logout: '/logout',
   loginMfaValid: '/loginMfaValid',
+  homeLoginMfaRecoveryStatus: '/loginMfaRecoveryStatus',
   requestJumpUrl: '/requestJumpUrl',
   getGlobalSettings: '/globalSettings',
   checkSupplement: '/checkSupplement',
@@ -14,9 +15,7 @@ export const userApi = {
   rdpUserWatermark: '/api/entry/user/waterMark',
   rdpUserQueryLoginUser: '/api/entry/user/queryLoginUser',
   rdpUserResourceSummary: '/api/entry/user/resourceSummary',
-  rdpUserResetOpPasswd: '/api/entry/user/resetOpPasswd',
   rdpUserDbOpAudits: '/api/entry/user/dbopaudits', // Data source operating records
-  rdpUserOpPasswdVerify: '/api/entry/user/opPasswdVerify',
   rdpUserListMyAuth: '/api/entry/user/listMyAuth',
   rdpUserListRules: '/api/entry/user/listRules', // Rule List
   rdpUserListMyAuthCategoryForMenu: '/api/entry/user/listMyAuthCategoryForMenu',
@@ -31,6 +30,7 @@ export const userApi = {
 
   rdpUserManagerListSubAccounts: '/api/entry/user/manager/listSubAccounts',
   rdpUserManagerUpdateSubAccount: '/api/entry/user/manager/updateSubAccount',
+  rdpUserManagerResetInvalidMfa: '/api/entry/user/manager/resetInvalidMfa',
   rdpUserManagerCtrlAddSubAccount: '/api/entry/user/manager/ctrlAddSubAccount',
   rdpUserManagerAddSubAccount: '/api/entry/user/manager/addSubAccount',
   rdpUserManagerDeleteSubAccount: '/api/entry/user/manager/deleteSubAccount',

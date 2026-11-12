@@ -99,8 +99,6 @@ spec:
           env:
             - name: APP_WEB_PORT
               value: "8222"
-            - name: APP_WEB_JWT
-              value: "ljgefdgjosdighjeroigh"
             - name: APP_SERVE_NAME
               value: dm-alone
             - name: APP_SERVE_PORT

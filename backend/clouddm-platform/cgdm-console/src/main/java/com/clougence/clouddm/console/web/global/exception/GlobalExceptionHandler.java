@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.validation.ObjectError;
@@ -36,6 +37,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.util.SseResponseUtils;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.utils.ExceptionUtils;
@@ -69,6 +71,16 @@ public class GlobalExceptionHandler {
         errorMsgs.add(e.getMessage());
         String msgs = JsonUtils.toJson(errorMsgs);
         return writeErrorIfNecessary(request, response, ResWebDataUtils.buildError(DmErrorCode.COMM_SYSTEM_ERROR.code(), msgs));
+    }
+
+    @ExceptionHandler(value = DataAccessException.class)
+    @ResponseBody
+    public ResWebData<?> handleDataAccessException(HttpServletRequest request, HttpServletResponse response, DataAccessException e) {
+        // DB errors may carry SQL/parameter details; log type only, never payload
+        log.error("Database access failed, exception type: {}", e.getClass().getName());
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        return writeErrorIfNecessary(request, response, ResWebDataUtils
+            .buildError(DmErrorCode.COMM_SYSTEM_ERROR.code(), DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_SYSTEM_ERROR.name())));
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)

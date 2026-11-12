@@ -44,7 +44,6 @@ public interface RdpUserService {
     String IS_MAINTAINER              = "is_maintainer";
     String ACCESSKEY                  = "accesskey";
 
-    long   OP_PASSWD_TOEKN_EXPIRE_MS  = 30 * 60 * 1000;
     long   MFA_TOKEN_EXPIRE_SEC       = 120;
     //
     int    DEFAULT_PWD_MIN_LENGTH     = 8;
@@ -75,10 +74,6 @@ public interface RdpUserService {
 
     ValidateResultMO validateByPolicy(PwdPolicyVO policy, String content);
 
-    UpdateUserInfoMO resetOpPasswd(ResetOpPasswdFO fo, String uid);
-
-    OpPasswdVerifyMO opPasswdVerify(String opPassword, String uid);
-
     UpdateUserInfoMO updateUserPhone(String uid, UpdateUserPhoneFO fo);
 
     UpdateUserInfoMO updateUserEmail(String uid, UpdateUserEmailFO fo);
@@ -96,7 +91,7 @@ public interface RdpUserService {
     //
     // -- for Other Manager
 
-    UpdateUserInfoMO resetPassword(ResetPasswdFO fo);
+    UpdateUserInfoMO resetPassword(ResetPasswdFO fo, String targetUid);
 
     UpdateUserInfoMO resetPwdWithOriginPwd(ResetPwdWithOriginPwdFO fo, String targetUid, String puid);
 
@@ -114,7 +109,7 @@ public interface RdpUserService {
 
     CheckSubAccountMO checkSubAccount(String puid, CheckSubAccountFO fo);
 
-    ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo);
+    ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo, String targetUid);
 
     UpdateUserRoleLO updateUserRole(UpdateUserRoleFO fo);
 

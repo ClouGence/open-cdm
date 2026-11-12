@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo;
+package com.clougence.clouddm.console.web.global.session;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
 
 /**
- * @author bucketli 2021/1/11 11:17
+ * Handled after the revoking transaction commits. Either sessionId (single
+ * session) or uid (all sessions of the user) is set.
  */
-@Data
-public class OpPasswdVerifyFO {
+@Getter
+public class SessionRevokedEvent {
 
-    @NotBlank(message = "{notblank.oppassword}")
-    private String opPassword;
+    private final Long   sessionId;
+    private final String uid;
+
+    public SessionRevokedEvent(Long sessionId, String uid){
+        this.sessionId = sessionId;
+        this.uid = uid;
+    }
 }

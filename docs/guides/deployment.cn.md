@@ -34,6 +34,36 @@ CloudDM 支持 **单机模式（Alone）** 和 **集群模式（Console + Sideca
 
 ---
 
+### Web 登录会话与升级
+
+Web 控制台使用服务端会话，只接受浏览器自动携带的 `dm_session_token` Cookie。旧登录 JWT、Header 和 URL 登录参数不再有效；OpenAPI 的 AK/SK、MCP 和 Sidecar 协议保持各自的认证方式。
+
+Alone/Console 的 properties 模板提供以下配置（单位：秒），所有 Console 节点必须一致：
+
+| 配置 | 默认值 | 含义 |
+|------|--------|------|
+| `clougence.rdp.session.activity-window-sec` | `86400` | 会话活动有效窗口 24 小时 |
+| `clougence.rdp.session.renewal-threshold-sec` | `21600` | 剩余不超过 6 小时时，通过鉴权的 HTTP 请求触发续期 |
+| `clougence.rdp.session.absolute-lifetime-sec` | `0` | 默认无绝对上限；正数表示从首次登录起的最长寿命，如 `604800` 为 7 天 |
+
+窗口必须为正，续期阈值必须大于零且小于窗口；最长寿命允许为 `0`（无绝对上限），正数必须不小于窗口，负数无效。旧 `clougence.rdp.login.expire.sec` 已移除，不再控制登录时长。这是阈值续期，不是精确空闲超时：最近一次通过鉴权的 HTTP 请求后的剩余有效时间通常为 6–24 小时。页面的后台 HTTP 轮询也可以触发续期，因此持续有鉴权请求的页面可以保持登录。无绝对上限不等于永不过期：活动窗口过期、退出登录或安全事件撤销后仍须重新登录。配置正数时，续期还不能超过首次登录起的最长寿命。WebSocket 握手、消息和被动推送不主动续期。
+
+无绝对上限时使用持久化 Cookie，并在鉴权成功的 HTTP 响应中刷新它的浏览器有效期，令牌值保持不变；浏览器仍可按自身规则限制或清理 Cookie。配置正数时，Cookie 在登录时固定保留该最长寿命，正常续期只更新数据库。
+
+`clougence.rdp.deploy.context-path` 应填写浏览器访问的外部地址，例如 `https://dm.example.com/clouddm`。Cookie Path 为 `/clouddm`，HTTPS 地址启用 Secure；本地 HTTP 可用。Cookie 默认 Host-Only、HttpOnly、SameSite=Lax，仅需要跨子域共享时才显式设置 `clougence.rdp.login.cookie.domain`。反向代理需同时转发 HTTP 和 WebSocket；前端连接当前站点的 `/clouddm/api/entry/ws/channel`。代理重写后端路径时仍以外部地址配置 Cookie 作用域，不依赖任意传入的转发头判断 HTTPS。Cookie 作用域改变后用户需要重新登录。
+
+非根路径部署还需在构建前端时设置 `VUE_APP_BASE_URL=/clouddm/`，让静态资源、HTTP API 和 WebSocket 使用相同前缀；根路径使用默认值。已有构建输出切换该环境变量后需强制重新执行前端构建，例如 `cd frontend && VUE_APP_BASE_URL=/clouddm/ npm run build:dm`，再重新打包资源，避免构建缓存继续复用根路径产物。
+
+升级应在维护窗口排空并停止全部旧 Console/Alone 节点，备份数据库，再让新版本执行合并迁移 `V202611090001__dm_auth_session`（创建会话表并删除操作密码字段），确认所有节点使用新版本后恢复入口。禁止新旧登录认证节点混跑，升级后所有用户重新登录。数据库缺表或不可用时认证失败，不回退到 JWT。
+
+修改最长寿命前（包括有限值与 `0` 之间切换），同样停止入口并排空节点，在事务中清空 `dm_auth_session` 现存会话，再统一修改所有节点配置并重启；用户全部重新登录。不得只修改一个节点或放宽配置后继续使用旧会话，避免旧记录重新有效。已有配置文件显式设置正数时仍按该值执行；仅未配置时采用默认无绝对上限。撤销后本节点连接关闭，其他节点被动推送最多滞后 30 秒；校验过旧或失败时停止推送。纯 WebSocket 使用不能保持登录永久有效。
+
+退出只撤销本系统当前会话，不联动上游 SSO 全局登出。改密、禁用/删除账号和 MFA 启用/重置/关闭撤销目标账号全部会话；账号名称、联系方式、角色和 AK/SK 变更保留 Web 会话，角色权限重新校验。历史失效 MFA 不会自动恢复：用户联系有权限的其他管理员重置失效配置后，重新登录并重新启用 MFA。
+
+操作密码功能及其 JWT 接口已移除，`clougence.rdp.console.oppassword`、`jwt.secret` 和 `APP_WEB_JWT` 不再使用；初始化页面无需填写 JWT 密钥。OIDC Provider 的 ID Token 校验独立保留。日志和反向代理访问记录不得采集 Cookie、认证 Header、令牌或令牌哈希。
+
+回滚前停止新节点并排空入口，轮换旧版本的 `jwt.secret`，清除浏览器新会话 Cookie，再恢复旧二进制；保留新增会话表；本次升级会删除操作密码及其验证状态的四个字段，回滚旧版本前须从升级前备份恢复所需结构和数据。轮换密钥是为了防止回滚后旧登录 JWT 重新有效，回滚同样需要全量重新登录。
+
 ## 二、本地打包
 
 从源码仓库本地部署，需要先在 `open-cdm/package` 下执行打包。
@@ -150,7 +180,6 @@ services:
       - cgdm_mysql_data:/var/lib/mysql
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_alone
       APP_SERVE_PORT: 8008
       MYSQL_EMBEDDED: "true"
@@ -205,7 +234,7 @@ kubectl -n cgdm get pods,svc,pvc
 kubectl -n cgdm port-forward svc/dm-alone 8222:8222
 ```
 
-然后访问 `http://localhost:8222`。如果需要长期对外访问，请根据集群环境选择 `NodePort`、`LoadBalancer` 或 Ingress；生产环境还应替换默认密码、JWT 密钥，并按数据规模调整 PVC 容量。
+然后访问 `http://localhost:8222`。如果需要长期对外访问，请根据集群环境选择 `NodePort`、`LoadBalancer` 或 Ingress；生产环境还应替换默认密码，并按数据规模调整 PVC 容量。
 
 ---
 
@@ -269,7 +298,6 @@ docker run -d --name dm_console \
   -p 8222:8222 \
   -p 8008:8008 \
   -e APP_WEB_PORT=8222 \
-  -e APP_WEB_JWT=ljgefdgjosdighjeroigh \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
   -e DB_HOST=dm_mysql \
@@ -330,7 +358,6 @@ services:
       - cgdm_console_data:/root/cgdm/console/data
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_console
       APP_SERVE_PORT: 8008
       # Override image defaults with packaged docker deployment values.
@@ -429,7 +456,7 @@ kubectl -n cgdm logs deploy/dm-sidecar
 kubectl -n cgdm logs statefulset/dm-mysql
 ```
 
-生产环境还应替换默认 MySQL 密码、JWT 密钥，按数据规模调整 PVC 容量，并将敏感配置改为 `Secret` 管理。
+生产环境还应替换默认 MySQL 密码，按数据规模调整 PVC 容量，并将敏感配置改为 `Secret` 管理。
 
 ---
 

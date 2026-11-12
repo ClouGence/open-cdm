@@ -36,6 +36,17 @@
         LIMIT 1
     </select>
 
+    <select id="queryByTokenHashForUpdate" resultMap="dmAuthMfaChallengeDO">
+        SELECT
+            <include refid="dmAuthMfaChallenge"/>
+        FROM
+            dm_auth_mfa_challenge
+        WHERE
+            challenge_token_hash = #{challengeTokenHash}
+        LIMIT 1
+        FOR UPDATE
+    </select>
+
     <update id="acquireAttempt">
         UPDATE
             dm_auth_mfa_challenge
@@ -49,7 +60,7 @@
             AND
             action_type          = #{actionType}
             AND
-            expire_time_ms       <![CDATA[ >= ]]> #{nowMs}
+            expire_time_ms       <![CDATA[ > ]]> #{nowMs}
             AND
             retry_count          <![CDATA[ < ]]> #{maxRetryCount}
     </update>
@@ -64,7 +75,7 @@
             AND
             action_type          = #{actionType}
             AND
-            expire_time_ms       <![CDATA[ >= ]]> #{nowMs}
+            expire_time_ms       <![CDATA[ > ]]> #{nowMs}
             AND
             retry_count          <![CDATA[ <= ]]> #{maxRetryCount}
     </delete>
@@ -74,5 +85,12 @@
             dm_auth_mfa_challenge
         WHERE
             expire_time_ms <![CDATA[ < ]]> #{nowMs}
+    </delete>
+
+    <delete id="deleteByUid">
+        DELETE FROM
+            dm_auth_mfa_challenge
+        WHERE
+            uid = #{uid}
     </delete>
 </mapper>

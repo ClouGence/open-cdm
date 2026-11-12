@@ -37,5 +37,4 @@ public class UpdateSubAccountFO {
     private Boolean disable;
     private Boolean loginLocked;
     private Boolean allowLocal;
-    private Boolean confirmMfaInvalid;
 }

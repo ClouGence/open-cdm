@@ -25,6 +25,4 @@ public class UpdateUserPhoneFO {
     @NotBlank(message = "{notnull.phone}")
     @Pattern(regexp = "^\\d{1,20}$", message = "{pattern.phone}")
     private String phone;
-
-    private Boolean confirmMfaInvalid;
 }

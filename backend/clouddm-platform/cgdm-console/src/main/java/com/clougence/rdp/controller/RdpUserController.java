@@ -15,17 +15,11 @@
  */
 package com.clougence.rdp.controller;
 
-import static com.clougence.clouddm.console.web.global.jwtsession.JwtService.jwtTokenName;
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.Ignore;
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.RefAnyOnes;
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,19 +28,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
+import com.clougence.clouddm.console.web.global.session.WebSessionManager;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
-import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
+import com.clougence.clouddm.console.web.global.session.SessionCookieService;
+import com.clougence.clouddm.console.web.global.session.SessionAccountPolicy;
+import com.clougence.clouddm.console.web.global.session.SessionPrincipal;
 import com.clougence.clouddm.console.web.model.fo.*;
 import com.clougence.clouddm.console.web.model.fo.user.CheckSubAccountFO;
 import com.clougence.clouddm.console.web.model.fo.user.ResetSubAccountPwdFO;
@@ -60,7 +54,6 @@ import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
@@ -70,15 +63,12 @@ import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.rdp.service.RdpOpAuditService;
-import com.clougence.rdp.service.enumeration.OpVerifyErrType;
-import com.clougence.rdp.service.model.OpPasswdVerifyMO;
 import com.clougence.rdp.service.model.UpdateUserInfoMO;
 import com.clougence.rdp.service.model.ValidateResultMO;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.DateFormatType;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -93,23 +83,23 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserController {
 
     @Resource
-    private AuthDal             authDal;
+    private AuthDal              authDal;
     @Resource
-    private RdpUserService      rdpUserService;
+    private RdpUserService       rdpUserService;
     @Resource
-    private RdpRoleService      rdpRoleService;
+    private RdpRoleService       rdpRoleService;
     @Resource
-    private JwtService          jwtService;
+    private SessionCookieService sessionCookieService;
     @Resource
-    private DmAuthServiceForBiz rdpAuthService;
+    private SessionAccountPolicy accountPolicy;
     @Resource
-    private RdpOpAuditService   rdpOpAuditService;
+    private DmAuthServiceForBiz  rdpAuthService;
     @Resource
-    private ConsoleConfig       consoleConfig;
+    private RdpOpAuditService    rdpOpAuditService;
     @Resource
-    private SystemDal           systemDal;
+    private ConsoleConfig        consoleConfig;
     @Resource
-    private LoginMFAService     loginMFAService;
+    private LoginMFAService      loginMFAService;
 
     // --------------------------------
     //      for User Info
@@ -139,9 +129,9 @@ public class RdpUserController {
             userVO.setMfaStatus(mfaDO.getMfaStatus());
             userVO.setMfaAccountType(mfaDO.getMfaAccountType());
         }
-        DecodedJWT jwt = this.jwtService.verify(request);
-        userVO.setLoginType(jwt == null ? null : LoginAuthType.valueOfCode(jwt.getClaim(JwtService.LOGIN_TYPE).asString()));
-        this.fillPasswordValidDays(userVO, userDO.getLastDateUpdatePwd(), pUser.getUid());
+        SessionPrincipal principal = (SessionPrincipal) request.getAttribute(WebSessionManager.SESSION_PRINCIPAL);
+        userVO.setLoginType(principal == null ? null : principal.getLoginType());
+        userVO.setSubAccountPwdValidDays(this.accountPolicy.passwordValidDays(userDO));
 
         //if value is sub-zero,need logout
         if (userVO.getSubAccountPwdValidDays() != null && userVO.getSubAccountPwdValidDays() < 0) {
@@ -149,32 +139,6 @@ public class RdpUserController {
         }
 
         return ResWebDataUtils.buildSuccess(userVO);
-    }
-
-    public void fillPasswordValidDays(LoginUserVO userVO, Date lastDateUpdatePwd, String pUid) {
-        if (lastDateUpdatePwd == null || userVO.getAccountType() == null || userVO.getAccountType() != AccountType.SUB_ACCOUNT) {
-            return;
-        }
-
-        Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
-        if (days == null) {
-            return;
-        }
-
-        if (days <= 0) {
-            return;
-        }
-
-        LocalDateTime lastUpdateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastDateUpdatePwd.getTime()), ZoneId.systemDefault());
-        LocalDateTime limit = lastUpdateTime.plusDays(days);
-
-        Instant r = limit.toInstant(ZoneOffset.UTC);
-        Instant n = LocalDateTime.now().toInstant(ZoneOffset.UTC);
-
-        long diffMinutes = ChronoUnit.MINUTES.between(n, r);
-        double diffDays = ((double) diffMinutes) / 60 / 24;
-
-        userVO.setSubAccountPwdValidDays((long) (Math.floor(diffDays)));
     }
 
     @RequestAuth(strategy = RefAnyOnes)
@@ -270,27 +234,6 @@ public class RdpUserController {
     }
 
     @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/resetOpPasswd", method = { RequestMethod.POST })
-    public ResWebData<?> resetOpPasswd(@Valid @RequestBody ResetOpPasswdFO resetOpPasswdFO, HttpServletRequest request, HttpServletResponse response) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        //decrypt
-        resetOpPasswdFO.setOpPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), resetOpPasswdFO.getOpPassword()));
-
-        UpdateUserInfoMO resetOpPasswdMO = this.rdpUserService.resetOpPasswd(resetOpPasswdFO, uid);
-        if (resetOpPasswdMO.isSuccess()) {
-            addOpPwdTokenToCookie(response, uid);
-
-            this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
-                .getRemoteAddr(), uid, "", SecurityLevel.HIGH, AuditType.UPDATE_ACCOUNT_OP_PWD, ResourceType.ACCOUNT);
-
-            return ResWebDataUtils.buildSuccess();
-        } else {
-            return ResWebDataUtils.buildError(resetOpPasswdMO.getErrorMsg());
-        }
-    }
-
-    @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/resetPwdWithOriginPwd", method = { RequestMethod.POST })
     public ResWebData<?> resetPwdWithOriginPwd(HttpServletRequest request, HttpServletResponse response, @RequestBody @Valid ResetPwdWithOriginPwdFO resetPwdFO) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -314,7 +257,7 @@ public class RdpUserController {
 
     @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/resetSubAccountPwd", method = { RequestMethod.POST })
-    public ResWebData<?> resetSubAccountPwd(HttpServletRequest request, HttpServletResponse response, @RequestBody @Valid ResetSubAccountPwdFO resetPwdFO) {
+    public ResWebData<?> resetSubAccountPwd(HttpServletRequest request, @RequestBody @Valid ResetSubAccountPwdFO resetPwdFO) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         //decrypt
@@ -340,7 +283,7 @@ public class RdpUserController {
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserPhone", method = RequestMethod.POST)
-    public ResWebData<?> updateUserPhone(@RequestBody @Valid UpdateUserPhoneFO fo, HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<?> updateUserPhone(@RequestBody @Valid UpdateUserPhoneFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
@@ -354,8 +297,6 @@ public class RdpUserController {
         //            this.saasService.updateUserPhone(uid, fo.getPhone());
         //        }
 
-        logout(response);
-
         this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), uid, res
             .getConfigLO(), SecurityLevel.HIGH, AuditType.UPDATE_ACCOUNT_PHONE, ResourceType.ACCOUNT);
 
@@ -364,7 +305,7 @@ public class RdpUserController {
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/updateUserEmail", method = RequestMethod.POST)
-    public ResWebData<?> updateUserEmail(@RequestBody @Valid UpdateUserEmailFO fo, HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<?> updateUserEmail(@RequestBody @Valid UpdateUserEmailFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
@@ -381,8 +322,6 @@ public class RdpUserController {
         //        if (uid.equals(puid)) {
         //            this.saasService.updateUserEmail(uid, fo.getEmail());
         //        }
-
-        logout(response);
 
         this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), uid, res
             .getConfigLO(), SecurityLevel.HIGH, AuditType.UPDATE_ACCOUNT_EMAIL, ResourceType.ACCOUNT);
@@ -441,16 +380,8 @@ public class RdpUserController {
     }
 
     protected void logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie(jwtTokenName, StringUtils.EMPTY);
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-
-        if (StringUtils.isNotBlank(consoleConfig.getLoginCookieDomain())) {
-            cookie.setDomain(consoleConfig.getLoginCookieDomain());
-        }
-
-        response.addCookie(cookie);
+        this.sessionCookieService.clear(response);
+        this.sessionCookieService.clearLegacy(response);
     }
 
     @RequestAuth(strategy = Ignore)
@@ -521,7 +452,7 @@ public class RdpUserController {
 
     @RequestAuth(level = HIGH, value = RDP_PRI_USER_AK_SK_W)
     @RequestMapping(value = "/resetUserAkSk", method = RequestMethod.POST)
-    public ResWebData<?> resetUserAkSk(@RequestBody @Valid ResetUserAkSkFO fo, HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<?> resetUserAkSk(@RequestBody @Valid ResetUserAkSkFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
@@ -530,53 +461,9 @@ public class RdpUserController {
         if (resWebData.isSuccess()) {
             rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
                 .getRemoteAddr(), uid, fo, SecurityLevel.HIGH, AuditType.RESET_ACCOUNT_AK_SK, ResourceType.ACCOUNT);
-
-            logout(response);
         }
 
         return resWebData;
     }
 
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/opPasswdVerify", method = { RequestMethod.POST })
-    public ResWebData<?> opPasswdVerify(@Valid @RequestBody OpPasswdVerifyFO verifyFO, HttpServletRequest request, HttpServletResponse response) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        //decrypt
-        verifyFO.setOpPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), verifyFO.getOpPassword()));
-
-        OpPasswdVerifyMO verifyMO = this.rdpUserService.opPasswdVerify(verifyFO.getOpPassword(), uid);
-        if (verifyMO.isSuccess()) {
-            addOpPwdTokenToCookie(response, uid);
-            return ResWebDataUtils.buildSuccess();
-        } else {
-            if (verifyMO.getOpVerifyErrType() == OpVerifyErrType.OP_PASSWD_ERROR) {
-                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_ERROR.name()));
-            } else if (verifyMO.getOpVerifyErrType() == OpVerifyErrType.OP_PASSWD_NOT_SET) {
-                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
-            } else {
-                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
-            }
-        }
-    }
-
-    protected void addOpPwdTokenToCookie(HttpServletResponse response, String uid) {
-        DmAuthUserDO userDO = this.rdpUserService.getUserByUid(uid);
-        if (userDO == null) {
-            throw new IllegalArgumentException("user not exist.");
-        }
-
-        Cookie cookie = new Cookie(JwtService.opPwdToken, this.jwtService.genOpPwdToken(userDO));
-        // let fronted to extract jwt token as csrf token
-        cookie.setHttpOnly(false);
-        cookie.setMaxAge((int) (RdpUserService.OP_PASSWD_TOEKN_EXPIRE_MS / 1000));
-        cookie.setPath("/");
-
-        if (StringUtils.isNotBlank(consoleConfig.getLoginCookieDomain())) {
-            cookie.setDomain(consoleConfig.getLoginCookieDomain());
-        }
-
-        response.addCookie(cookie);
-    }
 }

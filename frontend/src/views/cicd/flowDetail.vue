@@ -620,7 +620,6 @@
 import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
-import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { handleCopy } from '@/utils/clipboard';
 import TicketEditor from '@/components/editor/TicketEditor';
@@ -648,7 +647,7 @@ export default {
     SqlFileUploadModal,
     FlowDependencyModal
   },
-  mixins: [copyMixin, enterOpPwdMixin, encryptMixin],
+  mixins: [copyMixin, encryptMixin],
   props: {
     pageMode: {
       type: String,
