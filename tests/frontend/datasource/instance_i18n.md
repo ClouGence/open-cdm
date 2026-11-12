@@ -127,6 +127,57 @@
 - 预期结果：请求头 `Accept-Language` 为 `en-US`；响应中的面板、字段、说明和选项均为英文；刷新后的结果保持一致。
 - 恢复/清理：关闭开发者工具，不提交表单。
 
+### CLOUD-SMOKE-01 部署分类与数据源目录
+
+- 风险/目的：P0，防止云产品仅更名但厂商或连接器映射错误。
+- 初始路由与状态：`/#/datasource`，管理账号，已部署当前构建，存量实例可见。
+- 测试数据与准备：复用存量实例；以运行环境实际加载的插件为准，不安装不必要的连接器；分类依据后端 `DataSourceType.deployTypes`，前端不维护云专属名单。
+- @Browser 操作：点击“新增”，依次点击左侧“自建”“阿里云”“腾讯云”“华为云”“亚马逊云”“谷歌云”“微软云”分类卡片，核对右侧目录；分别选择阿里云 MySQL、亚马逊云 MySQL、PostgreSQL 进入表单。
+- 预期结果：分类顺序为自建、阿里云、腾讯云、华为云、亚马逊云、谷歌云、微软云；默认“自建”，右侧搜索框下方使用 `AppPageTabs` 提供全部、关系型数据库（RDB）、缓存（CACHE）、文档数据库（DOCUMENT）、消息队列（MQ）、搜索引擎（SEARCH）筛选，默认全部；点击分类只显示当前部署类型下匹配的数据源，卡片不按分类标题分区，结果保留原顺序，分类读取现有 `dsSettingDef[dsType].classify`；Hologres、MaxCompute、AnalyticDB MySQL 不出现在自建目录，只在阿里云目录出现；OpenSearch 开源版本保留自建入口，OpenSearch 在亚马逊云和华为云目录展示；各分类直接展示对应数据源名称，不使用 Aurora、RDS 等别名；所有云分类只展示当前已加载且声明对应部署类型的连接器；没有连接器的产品不展示。实例列表分别展示“类型”（图标）与“名称”两列表头，不增加厂商/数据库类型副标题；单行内容区最小高度为 48px，名称与图标垂直居中，保留上下留白；鼠标悬停数据库图标时显示对应数据库类型名称（如 StarRocks、TiDB、达梦），移开后提示消失；表单分别显示“部署类型”和“数据源类型”两行，部署类型名称前使用与分类卡片一致的图标，厂商不拼接到数据库名称前；面包屑只显示产品名称；MySQL 使用 MySQL Connector/J，PostgreSQL 使用 PostgreSQL JDBC。没有地区、云授权或自动发现步骤。
+- 新增厂商的数据源归属（未加载对应插件时不展示）：
+  - 微软云：MySQL、PostgreSQL、SQL Server、Redis。
+  - 谷歌云：MySQL、PostgreSQL、SQL Server、Redis、Valkey、Kafka。
+  - 腾讯云：MySQL、PostgreSQL、SQL Server、ClickHouse、Redis、MongoDB、Kafka、Elasticsearch。
+  - 华为云：MySQL、PostgreSQL、SQL Server、MariaDB、GaussDB、Redis、MongoDB、Kafka、Elasticsearch、OpenSearch。
+- 来源与边界：参考 [Azure 数据服务](https://learn.microsoft.com/en-us/azure/architecture/guide/technology-choices/data-store-considerations)、[Cloud SQL](https://docs.cloud.google.com/sql/docs/introduction)、[Memorystore](https://docs.cloud.google.com/memorystore/docs)、[Google Managed Kafka](https://docs.cloud.google.com/managed-service-for-apache-kafka/docs/overview)、[腾讯云产品目录](https://intl.cloud.tencent.com/product)、[TCHouse-C](https://cloud.tencent.com/document/product/1299/47756)、[华为云产品目录](https://www.huaweicloud.com/intl/en-us/product/)、[华为云 CSS](https://support.huaweicloud.com/intl/en-us/productdesc-css/css_04_0001.html)。入口表示连接器复用，不表示已经验证各云实例或所有认证方式。
+- 恢复/清理：不提交，返回列表。
+
+### CLOUD-BOUNDARY-01 搜索、选择与取消
+
+- 风险/目的：P1，防止隐藏选项或另一分类的选择被提交。
+- 初始路由与状态：从实例列表或新增表单“切换”按钮打开选择弹窗。
+- 测试数据与准备：正常关键词 `MySQL`、带首尾空格和大小写变化的关键词、一个不会匹配产品的唯一字符串。
+- @Browser 操作：搜索并清空；选中产品后切换分类；选择其他产品后取消，再重新打开；在新增表单中确认同一 MySQL 类型下的另一云厂商，再刷新页面。
+- 预期结果：部署类型、分类 Tab 和关键词共同过滤，匹配产品名及底层类型；缓存 Tab 只显示 Redis、Valkey、Etcd 中当前部署类型支持的项，消息队列 Tab 只显示 Kafka，文档数据库 Tab 只显示 MongoDB；不支持的分类组合显示空结果，不隐藏 Tab。切换分类清空卡片选择，取消后重开默认全部分类并保留原表单类型。分类筛选期间搜索关键词继续生效，清空关键词只取消搜索条件，点击全部才取消分类条件；空结果显示“暂无数据”，不能确认；切换分类后确认按钮禁用；仅鼠标悬停数据源卡片时展示原有浅绿边框与背景，不启用确认，点击选中后展示深绿边框并启用确认。取消保留原表单产品；重新打开选中当前产品；确认切换及刷新后部署类型和数据源类型保持一致。
+- 恢复/清理：取消弹窗，离开未提交表单。
+
+### CLOUD-MAIN-01 保存、编辑和厂商区分
+
+- 风险/目的：P0，防止相同连接器下不同部署类型的实例混淆。
+- 初始路由与状态：`/#/datasource`，有实例管理权限。
+- 测试数据与准备：在隔离测试库创建专用数据库及仅有该库权限的临时账号；准备以本次唯一前缀命名的不同云分类的 MySQL 临时实例（至少覆盖一个新增厂商）。可用本地 MySQL 验证连接器复用，但不将其记录为真实云兼容性验证。
+- @Browser 操作：依次选择产品，手工填写隔离库地址和账号，测试连接并保存；返回列表，进入编辑，刷新；确认没有类型切换按钮。不要截图填写后的凭据区域。
+- 预期结果：各临时实例连接成功、列表不展示厂商/数据库类型副标题，也不额外加载部署类型；进入编辑页后由配置接口回填正确的部署类型与数据源类型。各实例均持久化 `dataSourceType=MySQL`，通过配置 KV 的 `deployType` 保存各自对应枚举值，例如 `MICROSOFT_AZURE_CLOUD_HOSTED`、`GOOGLE_CLOUD_HOSTED`、`TENCENT_CLOUD_HOSTED`、`HUAWEI_CLOUD_HOSTED`；不新增 云产品连接器枚举，不新增 `deploy_type` 或 `product_id` 列。存量实例编辑时归为“自建”，原配置保留。
+- 恢复/清理：通过页面逐条删除本次唯一前缀的临时实例并核对列表消失；再删除临时数据库与账号，不操作存量实例。
+
+### CLOUD-EXTREME-01 响应式与键盘操作
+
+- 风险/目的：P1，防止分类和较长产品名在窄屏不可用。
+- 初始路由与状态：选择弹窗已打开，分别使用 `1440x900`、`1024x768`、`390x844` 视口。
+- 测试数据与准备：七种部署分类及当前数据源目录，含 KingbaseES PostgreSQL、AnalyticDB MySQL 等较长名称。
+- @Browser 操作：切换分类、滚动产品列表，使用 Tab、Enter 和 Space 操作可聚焦控件；检查无结果状态与页脚；在窄屏横向滚动分类 Tab，确认所有分类可点击且卡片只纵向滚动；通过顶部外观菜单切换深色和浅色，比较左侧厂商与右侧数据源的默认、悬停和选中状态。
+- 预期结果：左侧分类卡片始终纵向排列，带服务器及各云厂商图标；桌面卡片高度为 40px、左栏宽度为 128px，右侧保留搜索和产品列表；窄屏产品列表减少列数，产品名不遮挡图标；列表内部滚动，页脚和七个分类可达，较矮视口下分类栏可独立滚动，卡片不被压缩；未选择时不能确认；键盘可选择分类和产品。控件不超出弹窗，页脚操作右对齐。深色模式下弹窗及未选中卡片使用主题细边框，无亮白描边；左右两侧卡片使用一致的深色表面与绿色状态反馈；亮色与深色模式下悬停未选中的厂商卡片均有背景、边框和文字反馈，移出恢复原样，仅点击才切换分类，搜索、文字及图标可辨认。
+- 恢复/清理：恢复视口，取消弹窗。
+
+### CLOUD-STATE-01 生命周期、权限和失败恢复
+
+- 风险/目的：P0，防止失败重试或编辑请求改变厂商和类型。
+- 初始路由与状态：使用上述临时实例和只读测试账号；网络失败仅在隔离环境模拟。
+- @Browser 操作：快速切换分类及产品，取消重开、前进后退和刷新；模拟配置加载失败后恢复并重新进入；只读账号尝试新增及编辑入口。
+- 预期结果：新增表单与 URL 中的 `deployType`、`dsType` 一致；编辑表单从配置接口回填部署类型，不额外回写部署类型到 URL；旧响应不覆盖最后选择；编辑不允许改变产品或厂商；只读账号不能创建或编辑。失败恢复后沿用正确产品，不回退为自建或另一数据库。
+- 恢复/清理：恢复网络、账号和视口；移除本次临时实例。
+- 跳过条件：缺少只读账号或安全网络模拟能力时，明确保留对应覆盖缺口；真实云连接只在具备对应厂商的授权云测试实例时执行。
+
 ## Cleanup
 
 1. 关闭所有未提交的新增、编辑页面。
@@ -139,3 +190,5 @@
 - @Browser 未登录或缺少实例管理权限时，新增、编辑场景标记 SKIP，并保留权限覆盖缺口。
 - 隔离环境无法安全模拟 500 或断网时，I18N-FAILURE-01 标记 SKIP，以接口契约和错误处理代码检查作为替代验证。
 - 目标插件不提供某个空面板时，不强行显示该面板；只检查真实可见面板，并记录数据源类型与缺失面板。
+
+- 部署类型通过 `configMap.deployType` 保存到既有配置 KV，未配置时默认为自建；`dm_ds` 不保留独立部署类型列。验证保存、刷新、编辑与列表的分类一致，连接器类型仍为 MySQL / PostgreSQL。

@@ -1608,6 +1608,7 @@
   "zi-dong-workeroperationi18nthisconfirmonlinetype-shi-bai": "Auto{0} failed",
   "zi-duan-ming-cheng": "Column Name",
   "zi-fu-ji": "Charset",
+  "bu-shu-lei-xing": "Deployment type",
   "zi-jian": "Self-managed",
   "zi-jian-ji-fang": "Self-managed",
   "zi-jian-ji-fang-tian-jia-ji-qi-de-bu-zhou-mu-qian-jin-zhi-chi-radhatcentosubuntumacos-xi-tong": "Follow the steps to add a Worker in a self-managed data center (currently only support Red Hat, CentOS, Ubuntu, MacOS systems)",
@@ -4679,5 +4680,11 @@
   "object-browser-search-device-placeholder": "Search devices",
   "object-browser-search-timeseries-placeholder": "Search full timeseries paths",
   "object-browser-read-only": "Read only",
-  "permission-target-unavailable": "The requested resource is unavailable. Refresh the resource tree and select it again."
+  "permission-target-unavailable": "The requested resource is unavailable. Refresh the resource tree and select it again.",
+  "wei-ruan-yun": "Microsoft Azure",
+  "gu-ge-yun": "Google Cloud",
+  "teng-xun-yun": "Tencent Cloud",
+  "hua-wei-yun-deploy": "Huawei Cloud",
+  "datasource-classify-document": "Document databases",
+  "datasource-classify-search": "Search engines"
 }

@@ -371,6 +371,7 @@ public class DmHomeController {
             DsSupportNameVO vo = new DsSupportNameVO();
             vo.setDsKey(dsType.getTypeName());
             vo.setDisplayName(resolveDsDisplayName(dsType));
+            vo.setDeployTypes(dsType.getDeployTypes());
             return vo;
         }).collect(Collectors.toList());
     }

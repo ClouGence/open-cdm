@@ -15,6 +15,10 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
+import java.util.Set;
+
+import com.clougence.clouddm.base.metadata.ds.DeployTypes;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +26,8 @@ import lombok.Setter;
 @Setter
 public class DsSupportNameVO {
 
-    private String dsKey;
-    private String displayName;
+    private String           dsKey;
+    private String           displayName;
+    private Set<DeployTypes> deployTypes;
 
 }
