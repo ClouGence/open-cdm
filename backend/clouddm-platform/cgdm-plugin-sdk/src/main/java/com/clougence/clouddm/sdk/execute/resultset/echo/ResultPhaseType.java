@@ -26,4 +26,5 @@ public enum ResultPhaseType {
     BeginReceive,
     // finish receive ResultSet
     FinishReceive,
+    MetadataChanged,
 }

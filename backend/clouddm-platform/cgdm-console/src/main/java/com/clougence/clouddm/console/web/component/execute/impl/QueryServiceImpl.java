@@ -16,7 +16,9 @@
 package com.clougence.clouddm.console.web.component.execute.impl;
 
 import java.util.*;
+
 import org.springframework.stereotype.Service;
+
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.AsyncWaitResult;
@@ -125,14 +127,17 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public boolean hasSession(String curUid, String sessionId) {
-        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
+    public DmExecSessionDO findActiveSession(String curUid, String sessionId) {
+        DmExecSessionDO sessionDO = getSessionInfo(curUid, sessionId);
         if (sessionDO == null) {
-            return false;
+            return null;
         }
 
         RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
-        return this.sessionRService.hasSession(sendDTO, sessionId);
+        if (!this.sessionRService.hasSession(sendDTO, sessionId)) {
+            return null;
+        }
+        return sessionDO;
     }
 
     @Override
@@ -270,17 +275,9 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public void asyncExecuteQuery(String curUid, String sessionId, String batchId, List<QueryRequest> queryRequest) {
-        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
-        if (sessionDO == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SESSION_NOT_EXIST_ERROR.name()));
-        }
-
-        // update SessionInfo
-        this.execDal.sessionMapper().updateSessionQueryTime(curUid, sessionId);
-
-        // record Statistics
-        //this.recordStatistics(sessionDO);
+    public void asyncExecuteQuery(DmExecSessionDO sessionDO, String batchId, List<QueryRequest> queryRequest) {
+        String sessionId = sessionDO.getSessionId();
+        this.execDal.sessionMapper().updateSessionQueryTime(sessionId, sessionDO.getWsn());
 
         // exec query
         try {

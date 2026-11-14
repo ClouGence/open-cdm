@@ -65,6 +65,7 @@ public enum DataSourceType {
     Greenplum("gp", "Greenplum", DsClassify.RDB, 1, 50),
     Cloudberry("cb", "Cloudberry", DsClassify.RDB, 1, 60),
     IoTDB("iotdb", "IoTDB", DsClassify.RDB, 1, 70),
+    GreptimeDB("gt", "GreptimeDB", DsClassify.RDB, 1, 80),
 
     // non-relational db
     Redis("re", "Redis", DsClassify.CACHE, 2, 10),
