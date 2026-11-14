@@ -118,6 +118,7 @@ final class GreptimeMetadata {
                 element.getObjAttr().put(RdbAttributeNames.COMMENT.getCodeKey(), rows.getString("table_comment"));
                 element.getObjAttr().put("engine", rows.getString("engine"));
                 element.getObjAttr().put("tableType", rows.getString("table_type"));
+                element.getObjAttr().put("quickQuery", "SELECT * FROM " + MySqlDialect.INSTANCE.fmtTableName(true, null, database, element.getObjName()) + " LIMIT 20;");
                 objects.add(element);
             }
             return objects;

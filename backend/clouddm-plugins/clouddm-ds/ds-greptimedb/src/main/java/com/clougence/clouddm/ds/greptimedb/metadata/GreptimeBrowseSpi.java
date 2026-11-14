@@ -40,7 +40,7 @@ public class GreptimeBrowseSpi extends MyDsBrowseSpi {
         return switch (targetType) {
             case Instance, RdbSchema -> List.of(MENU_BROWSE_CONSOLE, MENU_BROWSE_REFRESH, MENU_BROWSE_COPY_NAME, MENU_BROWSE_PERMISSIONS);
             case RdbTable -> List.of(MENU_BROWSE_TABLE_REQUEST, MENU_BROWSE_REFRESH, MENU_BROWSE_COPY_NAME, MENU_BROWSE_PERMISSIONS);
-            case RdbView -> List.of(MENU_BROWSE_VIEW_REQUEST, MENU_BROWSE_REFRESH, MENU_BROWSE_COPY_NAME, MENU_BROWSE_PERMISSIONS);
+            case RdbView -> List.of(MENU_BROWSE_VIEW_REQUEST, MENU_BROWSE_REFRESH, MENU_BROWSE_COPY_NAME);
             case RdbColumn, RdbPrimary, RdbIndex -> List.of(MENU_BROWSE_COPY_NAME);
             case Env -> super.getMenus(targetType);
             default -> List.of();

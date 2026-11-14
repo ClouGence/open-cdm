@@ -38,13 +38,13 @@ public class GreptimeConfig extends DataSourceConfig {
 
     @Getter
     @Setter
-    @ConfigDef(name = DEFAULT_SCHEMA_FIELD, defaultValue = DEFAULT_SCHEMA, group = DsConfigGroup.GENERAL, labelKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
+    @ConfigDef(name = DEFAULT_SCHEMA_FIELD, defaultValue = DEFAULT_SCHEMA, group = DsConfigGroup.GENERAL, labelKey = GreptimeConfigI18nKeys.GREPTIMEDB_DEFAULT_DATABASE_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
     private String      defaultSchema              = DEFAULT_SCHEMA;
 
     @Getter
     @Setter
     @ConfigDef(name = CONNECT_TIMEOUT_MS_FIELD, defaultValue = ""
-                                                               + DEFAULT_CONNECT_TIMEOUT_MS, group = DsConfigGroup.ADVANCED, labelKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
+                                                               + DEFAULT_CONNECT_TIMEOUT_MS, group = DsConfigGroup.ADVANCED, labelKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = GreptimeConfigI18nKeys.GREPTIMEDB_CONNECT_TIMEOUT_DESC, readOnly = false)
     private int         connectTimeoutMs           = DEFAULT_CONNECT_TIMEOUT_MS;
 
     @Getter
