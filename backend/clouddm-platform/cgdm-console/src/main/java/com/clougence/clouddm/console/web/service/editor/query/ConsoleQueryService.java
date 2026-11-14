@@ -465,8 +465,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         // 4.8. prepare Session
         String eventMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_SESSION_MESSAGE.name());
         consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, eventMsg, MessageLevel.Info));
-        boolean hasSession = this.queryService.hasSession(curUid, sessionId);
-        if (!hasSession) {
+        DmExecSessionDO session = this.queryService.findActiveSession(curUid, sessionId);
+        if (session == null) {
             // create session
             try {
                 this.queryService.createSession(curUid, ctx.getLevels(), ctx.getCtxDTO());
@@ -495,9 +495,10 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
                 return ExitCode.finish();
             }
+
+            session = this.queryService.getSessionInfo(curUid, sessionId);
         }
 
-        DmExecSessionDO session = this.queryService.getSessionInfo(curUid, sessionId);
         if (session == null || !Objects.equals(ctx.getLevels().dsDO().getId(), session.getDatasourceId())) {
             ctx.resetStatus();
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SESSION_NOT_EXIST_ERROR.name());
@@ -889,8 +890,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsDO.getDataSourceType());
         SqlEngineSpi engine = this.dmDsConfigService.fetchSqlEngineSpi(dsDO.getId());
 
-        if (this.queryService.hasSession(curUid, sessionId)) {
-            DmExecSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
+        DmExecSessionDO sessionInfo = this.queryService.findActiveSession(curUid, sessionId);
+        if (sessionInfo != null) {
             SessionContextDTO contextDTO = sessionInfo.toRdbCtx();
             QueryCtx queryCtx = new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, engine, supportSpi);
 
@@ -982,8 +983,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         DsLevels newLevels = this.dmDsConfigService.parseLevels(queryDTO.getLevels());
 
         // test need session but not have
-        boolean hasSession = this.queryService.hasSession(curUid, curSession);
-        if (!hasSession) {
+        if (this.queryService.findActiveSession(curUid, curSession) == null) {
             if (!queryDTO.isRdbAutoCommit()) {
                 Map<UmiTypes, String> changeTo = new HashMap<>();
                 if (newLevels.levelsDef().contains(UmiTypes.Catalog)) {
@@ -1156,7 +1156,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String hintMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_CANCEL_ING_MESSAGE.name());
         consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hintMessage, MessageLevel.Info));
 
-        if (this.queryService.hasSession(curUid, sessionId)) {
+        if (this.queryService.findActiveSession(curUid, sessionId) != null) {
             if (this.queryService.isExecuting(curUid, sessionId)) {
                 this.queryService.cancelQuery(curUid, sessionId);
                 String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_CANCEL_MESSAGE.name());
@@ -1181,7 +1181,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
 
-        if (this.queryService.hasSession(curUid, sessionId)) {
+        if (this.queryService.findActiveSession(curUid, sessionId) != null) {
             if (this.queryService.isExecuting(curUid, sessionId)) {
                 String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_IN_EXECUTING_ERROR.name(), sessionId);
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
@@ -1199,7 +1199,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
 
-        if (this.queryService.hasSession(curUid, sessionId)) {
+        if (this.queryService.findActiveSession(curUid, sessionId) != null) {
             if (this.queryService.isExecuting(curUid, sessionId)) {
                 String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_IN_EXECUTING_ERROR.name(), sessionId);
                 consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
@@ -1228,7 +1228,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String sessionId = queryDTO.getSessionId();
 
         // apply status
-        boolean hasSession = this.queryService.hasSession(curUid, sessionId);
+        boolean hasSession = this.queryService.findActiveSession(curUid, sessionId) != null;
         Boolean applyAutoCommit = null;
         RdbIsolation applyIsolation = null;
         Boolean applyReadOnly = null;
@@ -1326,7 +1326,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
 
-        if (this.queryService.hasSession(curUid, sessionId)) {
+        if (this.queryService.findActiveSession(curUid, sessionId) != null) {
             if (!this.queryService.isExecuting(curUid, sessionId)) {
                 StatusDTO status = this.queryService.getAndUpdateStatus(curUid, sessionId);
                 ctx.getCtxDTO().setRdbCatalog(status.getCurCatalog());

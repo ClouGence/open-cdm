@@ -33,7 +33,8 @@ public interface QueryService {
 
     void testSessionWorker(String curUid, String sessionId);
 
-    boolean hasSession(String curUid, String sessionId);
+    /** Returns the session record if it is open on Sidecar, or null if absent. */
+    DmExecSessionDO findActiveSession(String curUid, String sessionId);
 
     DmExecSessionDO getSessionInfo(String curUid, String sessionId);
 

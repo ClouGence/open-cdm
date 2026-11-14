@@ -127,14 +127,17 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public boolean hasSession(String curUid, String sessionId) {
-        DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
+    public DmExecSessionDO findActiveSession(String curUid, String sessionId) {
+        DmExecSessionDO sessionDO = getSessionInfo(curUid, sessionId);
         if (sessionDO == null) {
-            return false;
+            return null;
         }
 
         RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
-        return this.sessionRService.hasSession(sendDTO, sessionId);
+        if (!this.sessionRService.hasSession(sendDTO, sessionId)) {
+            return null;
+        }
+        return sessionDO;
     }
 
     @Override
