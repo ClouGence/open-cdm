@@ -68,6 +68,8 @@ public class GreptimeConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), Integer.toString(connectTimeoutMs));
         // Connector/J reads socketTimeout as a string in milliseconds.
         properties.setProperty("socketTimeout", Long.toString(soTimeoutSec * 1000L));
+        properties.setProperty("autoReconnect", "false");
+        properties.setProperty("autoReconnectForPools", "false");
         // The session enforces the deadline through result fetching. Connector/J's timer uses MySQL KILL QUERY.
         properties.setProperty("enableQueryTimeouts", "false");
         return properties;

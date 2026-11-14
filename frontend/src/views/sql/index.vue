@@ -143,6 +143,7 @@
                         @switch-tab="handleChangeTab"
                         @workspace-connection-error="handleWorkspaceConnectionError"
                         @workspace-connection-success="handleWorkspaceConnectionSuccess"
+                        @metadata-changed="refreshQueryMetadata"
                         @open-script="handleOpenSqlScript"
                       >
                         <template #connection-context>
@@ -982,7 +983,44 @@ export default {
         { message: this.$refs.sqlViewer?.onmessage }
       );
     },
-    async listLeaf(isRefreshCache = false, connectionAction = false) {
+    async refreshQueryMetadata(tab) {
+      const tree = this.$refs.dataSourceTree;
+      const parent = tree?.handleGetNode(this.getWorkspaceInstance(tab.node).key);
+      const connection = this.getWorkspaceConnection(tab.dsId);
+      if (!parent?.key || connection.blocked || connection.busy) return;
+
+      if (!(await this.listLevels(parent, {}, undefined, undefined, true, true))) return;
+      this.refreshTabSelectOptions(parent.key);
+
+      const current = this.currentTab;
+      const { leafType } = current;
+      if (current.type !== TAB_TYPE.QUERY || current.dsId !== tab.dsId || !leafType) return;
+      if (current.node?.SCHEMA && !current.selectOptions?.some((option) => option.value === current.node.SCHEMA.name)) {
+        current[leafType].treeData = [];
+        current.expandedKeys = [];
+        current.selectedTable = null;
+        await this.$refs.tableList?.handleSetData([]);
+        this.storeQueryTabs();
+        return;
+      }
+      const expanded = new Set(this.$refs.tableList?.handleGetExpandKeys());
+      const requestId = this.tableListRequestId + 1;
+      if (!(await this.listLeaf(true, false, true))) return;
+
+      const isCurrent = () => this.currentTab === current && current.leafType === leafType && this.tableListRequestId === requestId;
+      for (const node of current[leafType].treeData) {
+        if (!isCurrent()) return;
+        if (node.isLeaf || !expanded.has(node.key)) continue;
+        await this.rdbObjectDetail(node.title, { expand: false, selected: false, metadataRefresh: true }, undefined, true);
+        if (!isCurrent()) return;
+        node.expand = node.children.length > 0;
+        node.children.forEach((child) => {
+          child.expand = expanded.has(child.key);
+        });
+      }
+      if (expanded.size && isCurrent()) await this.$refs.tableList?.handleSetCurrentObjectPage();
+    },
+    async listLeaf(isRefreshCache = false, connectionAction = false, metadataRefresh = false) {
       const currentTab = this.currentTab;
       if (!currentTab.node?.INSTANCE) return false;
       const connection = this.getWorkspaceConnection(currentTab.dsId);
@@ -1013,6 +1051,7 @@ export default {
           }
         });
 
+        if (metadataRefresh && requestId !== this.tableListRequestId) return false;
         if (connection.generation !== generation || (connection.blocked && !connectionAction) || this.workspaceUnmounted || isCancel(leafRes)) {
           return false;
         }
@@ -1045,7 +1084,7 @@ export default {
 
           currentTab[leafType].treeData = leafList;
           currentTab[leafType].loaded = true;
-          if (!connectionAction) this.setWorkspaceConnectionState(currentTab.dsId, 'connected');
+          if (!connectionAction && !metadataRefresh) this.setWorkspaceConnectionState(currentTab.dsId, 'connected');
           if (this.currentTab.key === currentTab.key && currentTab.leafType === leafType && this.$refs.tableList) {
             await this.$refs.tableList.handleSetData(leafList);
             await this.$refs.tableList.handleFilter(currentTab[leafType].searchKey);
@@ -1058,7 +1097,7 @@ export default {
         if (requestId === this.tableListRequestId) this.tableListLoading = false;
         this.storeQueryTabs();
       }
-      if (!connectionAction && connection.generation === generation && !connection.blocked) {
+      if (!metadataRefresh && !connectionAction && connection.generation === generation && !connection.blocked) {
         this.setWorkspaceConnectionState(currentTab.dsId, 'failed', this.$t('sql-connection-open-failed'));
       }
       return false;
@@ -1551,9 +1590,10 @@ export default {
       }
     },
     async rdbObjectDetail(tableName, params = { expand: true, selected: true }, resolve = () => {}, isRefreshCache = false) {
-      const { expand, selected, selectedNode } = params;
+      const { expand, selected, selectedNode, metadataRefresh = false } = params;
       const currentTab = this.currentTab;
       const { node, leafType } = currentTab;
+      const requestId = this.tableListRequestId;
       const connection = this.getWorkspaceConnection(currentTab.dsId);
       if (connection.blocked || connection.busy) {
         resolve([]);
@@ -1570,6 +1610,7 @@ export default {
           }
         });
 
+        if (metadataRefresh && requestId !== this.tableListRequestId) return;
         if (this.currentTab !== currentTab || currentTab.leafType !== leafType || connection.blocked || connection.generation !== generation) {
           resolve();
           return;
@@ -1627,16 +1668,16 @@ export default {
               this.$refs.tableList.handleSetSelected(curNode);
             }
           }
-          this.setWorkspaceConnectionState(currentTab.dsId, 'connected');
+          if (!metadataRefresh) this.setWorkspaceConnectionState(currentTab.dsId, 'connected');
           resolve(children);
         } else {
-          this.setInstanceErrorIcon(node?.INSTANCE?.id);
+          if (!metadataRefresh) this.setInstanceErrorIcon(node?.INSTANCE?.id);
           // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
           resolve();
         }
       } catch (e) {
         appLogger.error(e);
-        this.setInstanceErrorIcon(node?.INSTANCE?.id);
+        if (!metadataRefresh) this.setInstanceErrorIcon(node?.INSTANCE?.id);
         // await this.$refs.tableList.handleSetData(this.currentTab[this.currentTab.leafType].treeData);
         resolve();
       }

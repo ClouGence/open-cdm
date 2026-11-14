@@ -703,8 +703,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
         consumer.accept(BuildResMsgUtils.buildClearHint(queryDTO));
 
+        boolean metadataChanged = ctx.isMetadataChanged();
         ctx.resetStatus();
         consumer.accept(BuildResMsgUtils.buildStatus(queryDTO, ctx, this.queryEditorService));
+        if (metadataChanged) {
+            consumer.accept(BuildResMsgUtils.buildMetadataChanged(queryDTO));
+        }
         consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
     }
 
@@ -838,6 +842,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                                 break;
                             case FinishReceive:
                                 this.executionDal.fileMapper().updateStatusByQueryId(rp.getQueryId(), FileStatus.Ready, "Finish");
+                                break;
+                            case MetadataChanged:
+                                ctx.setMetadataChanged(true);
                                 break;
                             case Cancel:
                                 this.executionDal.fileMapper().updateStatusByQueryId(rp.getQueryId(), FileStatus.Failed, "Cancel");

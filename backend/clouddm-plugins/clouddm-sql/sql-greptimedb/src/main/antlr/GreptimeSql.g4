@@ -120,7 +120,7 @@ valueExpression
     ;
 
 deleteStatement
-    : DELETE FROM objectName (AS? identifier)? (WHERE expression)?
+    : DELETE FROM objectName (AS? identifier)? WHERE expression
     ;
 
 createDatabase

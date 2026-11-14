@@ -187,6 +187,10 @@ public class BuildResMsgUtils {
         return dto;
     }
 
+    public static WsQueryResult buildMetadataChanged(WsQueryFO queryDTO) {
+        return fillResult(new WsQueryResult(), WsResultType.MetadataChanged, queryDTO);
+    }
+
     public static WsQueryResult buildConsoleMsg(WsRequestFO queryDTO, String message, MessageLevel level, boolean timestamp) {
         WsInfoResMsg dto = fillResult(new WsInfoResMsg(), WsResultType.Message, queryDTO);
 

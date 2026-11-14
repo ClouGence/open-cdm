@@ -23,6 +23,7 @@ import com.clougence.clouddm.ds.greptimedb.execute.GreptimeSessionFactory;
 import com.clougence.clouddm.ds.greptimedb.execute.GreptimeSupportSpi;
 import com.clougence.clouddm.ds.greptimedb.i18n.GreptimeConfigI18nKeys;
 import com.clougence.clouddm.ds.greptimedb.metadata.GreptimeBrowseSpi;
+import com.clougence.clouddm.ds.greptimedb.metadata.GreptimeCmdTemplateSpi;
 import com.clougence.clouddm.ds.greptimedb.metadata.GreptimeFieldType;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
@@ -55,6 +56,7 @@ public class GreptimeDsPlugin implements DsPlugin, SchemaPlugin {
         binder.addPluginSpi(new GreptimeConfigSpi());
         binder.addPluginSpi(new GreptimeSerializationSpi(binder.getPluginClassLoader()));
         binder.addPluginSpi(new GreptimeBrowseSpi());
+        binder.addPluginSpi(new GreptimeCmdTemplateSpi());
         binder.addPluginSpi(new RdbSessionSpi());
         binder.addPluginSpi(new GreptimeSupportSpi());
     }

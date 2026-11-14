@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.net.SocketTimeoutException;
 import java.sql.*;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -28,10 +29,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.clougence.clouddm.ds.greptimedb.dsconf.GreptimeConfig;
 import com.clougence.clouddm.ds.greptimedb.i18n.GreptimeConfigI18nKeys;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultPhaseType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.sdk.execute.session.SessionCallback;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbSession;
+import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.ExceptionUtils;
@@ -43,13 +46,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 final class GreptimeSession extends DefaultRdbSession {
 
-    private static final I18nUtils I18N          = I18nUtils.initI18n(GreptimeConfigI18nKeys.class);
+    private static final I18nUtils           I18N          = I18nUtils.initI18n(GreptimeConfigI18nKeys.class);
+    private static final Set<SplitQueryType> DDL_TYPES     = EnumSet
+        .of(SplitQueryType.CREATE_SCHEMA, SplitQueryType.ALTER_SCHEMA, SplitQueryType.DROP_SCHEMA, SplitQueryType.CREATE_TABLE, SplitQueryType.ALTER_TABLE, SplitQueryType.DROP_TABLE, SplitQueryType.CREATE_VIEW, SplitQueryType.DROP_VIEW);
 
-    private final Connection       connection;
-    private final Object           executionLock = new Object();
-    private final AtomicBoolean    closeNotified = new AtomicBoolean();
-    private volatile String        disconnectReason;
-    private Timeout                queryDeadline;
+    private final Connection                 connection;
+    private final Object                     executionLock = new Object();
+    private final AtomicBoolean              closeNotified = new AtomicBoolean();
+    private volatile String                  disconnectReason;
+    private Timeout                          queryDeadline;
 
     GreptimeSession(String id, GreptimeConfig config, DsObject<Connection> resource){
         super(id, config, resource, new GreptimeSessionHook(config.getVersion()));
@@ -160,13 +165,29 @@ final class GreptimeSession extends DefaultRdbSession {
 
     @Override
     protected boolean executeStatement(Statement statement, QueryRequest query, ResultBuilder builder) throws SQLException {
+        checkQuery();
         try {
-            checkQuery();
             boolean hasRows = super.executeStatement(statement, query, builder);
             checkQuery();
             return hasRows;
         } catch (SQLException e) {
-            throw handleJdbcError(e);
+            SQLException failure = handleJdbcError(e);
+            if (disconnectReason != null && !query.isUseExplain() && query.getQueryTypes() != null
+                && (query.hasQueryType(SplitQueryType.INSERT) || query.hasQueryType(SplitQueryType.DELETE) || query.hasQueryType(SplitQueryType.TRUNCATE_TABLE)
+                    || query.getQueryTypes().stream().anyMatch(DDL_TYPES::contains))) {
+                throw new SQLException(I18N.getMessage(GreptimeConfigI18nKeys.GREPTIMEDB_WRITE_RESULT_UNKNOWN), failure.getSQLState(), failure);
+            }
+            throw failure;
+        }
+    }
+
+    @Override
+    protected void afterQueryRequest(long beginTime, QueryRequest query, ResultBuilder builder) throws SQLException {
+        super.afterQueryRequest(beginTime, query, builder);
+        if (query.getRequester() == Requester.CONSOLE && !query.isUseExplain() && query.getQueryTypes() != null && query.getQueryTypes().stream().anyMatch(DDL_TYPES::contains)) {
+            var phase = builder.newPhase(query);
+            phase.onPhase(ResultPhaseType.MetadataChanged);
+            phase.finishRecord(true);
         }
     }
 

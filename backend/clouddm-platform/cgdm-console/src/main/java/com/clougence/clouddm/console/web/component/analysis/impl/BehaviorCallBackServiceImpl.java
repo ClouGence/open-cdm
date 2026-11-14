@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.console.web.component.analysis.BehaviorCallBackService;
 import com.clougence.clouddm.console.web.component.analysis.backfill.BehaviorCallBackHandler;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -28,6 +29,7 @@ import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAction;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorRelation;
 import com.clougence.utils.CollectionUtils;
+
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,7 +51,7 @@ public class BehaviorCallBackServiceImpl implements BehaviorCallBackService {
     @Override
     public void onSuccess(String queryId) {
         DmExecSqlAuditDO audit = this.execDal.sqlAuditMapper().queryByQueryId(queryId);
-        if (audit == null) {
+        if (audit == null || audit.getStatus() != SqlStatus.SUCCESS) {
             return;
         }
 
