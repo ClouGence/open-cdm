@@ -33,6 +33,7 @@ public class GreptimeSqlEngineSpi implements SqlEngineSpi {
     private final SplitAnalysisSpi      split    = new GreptimeSplitAnalysisSpi();
     private final BehaviorAnalysisSpi   behavior = new GreptimeBehaviorAnalysisSpi(split);
     private final QueryResourceResolver resolver = new GreptimeQueryResourceResolver();
+    private final RewriteSpi            rewrite  = new GreptimeRewriteSpi();
 
     @Override
     public QueryResourceResolver queryResourceResolver() {
@@ -71,6 +72,6 @@ public class GreptimeSqlEngineSpi implements SqlEngineSpi {
 
     @Override
     public RewriteSpi rewriteSpi(SqlParserParameters parameters) {
-        return null;
+        return rewrite;
     }
 }

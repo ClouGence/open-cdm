@@ -103,8 +103,8 @@ sortItem
     ;
 
 rowLimit
-    : LIMIT (NUMBER | ALL) (OFFSET NUMBER)?
-    | OFFSET NUMBER (LIMIT (NUMBER | ALL))?
+    : LIMIT count=(NUMBER | ALL) (OFFSET NUMBER)?
+    | OFFSET NUMBER (LIMIT count=(NUMBER | ALL))?
     ;
 
 insertStatement
