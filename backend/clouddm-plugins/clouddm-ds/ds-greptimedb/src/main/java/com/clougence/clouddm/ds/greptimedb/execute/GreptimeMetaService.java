@@ -66,6 +66,11 @@ final class GreptimeMetaService extends MyMetaService {
     public Map<String, String> getSqlParserParameters() { return Map.of(); }
 
     @Override
+    public String getCurrentSchema() {
+        return metadata(GreptimeMetadata::currentDatabase);
+    }
+
+    @Override
     public List<DsElement> listLevels(List<UmiTypes> levels, Map<UmiTypes, Object> params) {
         if (StringUtils.isNotBlank(database(params))) {
             return List.of();

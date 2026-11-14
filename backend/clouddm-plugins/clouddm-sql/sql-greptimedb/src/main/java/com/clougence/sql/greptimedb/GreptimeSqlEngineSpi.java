@@ -19,6 +19,7 @@ package com.clougence.sql.greptimedb;
 import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.SqlParserParameters;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.BehaviorAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.analysis.behavior.QueryResourceResolver;
 import com.clougence.clouddm.sdk.sql.analysis.lineage.LineageAnalysisSpi;
 import com.clougence.clouddm.sdk.sql.analysis.security.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.sql.editor.rewrite.RewriteSpi;
@@ -27,10 +28,16 @@ import com.clougence.dslpaser.antlr.DslProvider;
 
 public class GreptimeSqlEngineSpi implements SqlEngineSpi {
 
-    public static final String             NAME     = "GreptimeDB SQL";
+    public static final String          NAME     = "GreptimeDB SQL";
 
-    private final SplitAnalysisSpi         split    = new GreptimeSplitAnalysisSpi();
-    private final BehaviorAnalysisSpi      behavior = new GreptimeBehaviorAnalysisSpi(split);
+    private final SplitAnalysisSpi      split    = new GreptimeSplitAnalysisSpi();
+    private final BehaviorAnalysisSpi   behavior = new GreptimeBehaviorAnalysisSpi(split);
+    private final QueryResourceResolver resolver = new GreptimeQueryResourceResolver();
+
+    @Override
+    public QueryResourceResolver queryResourceResolver() {
+        return resolver;
+    }
 
     @Override
     public String name() {

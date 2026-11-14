@@ -497,6 +497,16 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             }
         }
 
+        DmExecSessionDO session = this.queryService.getSessionInfo(curUid, sessionId);
+        if (session == null || !Objects.equals(ctx.getLevels().dsDO().getId(), session.getDatasourceId())) {
+            ctx.resetStatus();
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SESSION_NOT_EXIST_ERROR.name());
+            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            return ExitCode.finish();
+        }
+
         // 4.9. execute query
         try {
             if (!ctx.getCtxDTO().isRdbAutoCommit()) {
@@ -511,7 +521,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                 this.auditService.prepareAudit(ctx.getLevels().dsDO().getId(), curUid, request);
             }
             String batchId = UUID.randomUUID().toString().replace("-", "");
-            this.queryService.asyncExecuteQuery(curUid, sessionId, batchId, requests);
+            this.queryService.asyncExecuteQuery(session, batchId, requests);
 
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_RESPONSE_MESSAGE.name());
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Info));

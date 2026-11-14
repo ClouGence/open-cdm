@@ -65,6 +65,20 @@ final class GreptimeMetadata {
         this.connection = connection;
     }
 
+    String currentDatabase() throws SQLException {
+        return query("SELECT DATABASE()", List.of(), rows -> {
+            if (rows.next()) {
+                return rows.getString(1);
+            }
+            return null;
+        });
+    }
+
+    boolean isBaseTable(String database, String name) throws SQLException {
+        return query(RELATIONS + "AND table_name = ?", List
+            .of(database, name), rows -> rows.next() && name.equals(rows.getString("table_name")) && "BASE TABLE".equals(rows.getString("table_type")));
+    }
+
     List<DsElement> databases(String database) throws SQLException {
         String sql = SCHEMATA + "ORDER BY schema_name";
         List<String> args = List.of();

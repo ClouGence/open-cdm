@@ -47,7 +47,7 @@ public interface QueryService {
 
     void cancelQuery(String curUid, String sessionId);
 
-    void asyncExecuteQuery(String curUid, String sessionId, String batchId, List<QueryRequest> queryRequest);
+    void asyncExecuteQuery(DmExecSessionDO sessionDO, String batchId, List<QueryRequest> queryRequest);
 
     ResultList syncExecuteQuery(String curUid, String sessionId, QueryRequest queryRequest);
 

@@ -47,7 +47,10 @@ final class GreptimeBehaviorVisitor extends GreptimeSqlBaseVisitor<Void> {
         String database = null;
         if (levels != null) {
             instance = StringUtils.trimToNull(Objects.toString(levels.get(UmiTypes.Instance), null));
-            database = StringUtils.trimToNull(Objects.toString(levels.get(UmiTypes.Schema), null));
+            String schema = Objects.toString(levels.get(UmiTypes.Schema), null);
+            if (StringUtils.isNotBlank(schema)) {
+                database = schema;
+            }
         }
         this.instancePath = StringUtils.defaultString(StringUtils.strip(instance, "/"));
         this.database = database;
@@ -70,7 +73,7 @@ final class GreptimeBehaviorVisitor extends GreptimeSqlBaseVisitor<Void> {
         }
 
         if (behavior.getRelations().isEmpty() && behavior.getStatementType() == SplitQueryType.SELECT) {
-            add(BehaviorAction.READ, resource(TargetType.Query, null, context));
+            add(BehaviorAction.READ, resource(TargetType.Query, new ObjectName(null, database, null), context));
         }
         statements.add(behavior);
         return null;
