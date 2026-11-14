@@ -46,8 +46,10 @@ The steps below are organized around relational data sources. For non-relational
 ### 6. Align Metadata, Object Paths, and Types
 
 - **Work**: Implement `MetaService` and metadata providers, define the catalog/database/schema hierarchy, and cover the initial set of objects, columns, defaults, comments, keys, indexes, routine parameters, and type mappings.
+  Once hand-written DDL in the SQL workspace is confirmed to have taken effect, automatically refresh the affected branches and expanded details in the current object tree. Reuse metadata cache invalidation by object path and the platform's `MetadataChanged` notification. Use individual statement outcomes to trigger refreshes. Changes within a SQL batch can be refreshed together when the batch finishes. See the [GreptimeDB implementation](../../backend/clouddm-plugins/clouddm-ds/ds-greptimedb/src/main/java/com/clougence/clouddm/ds/greptimedb/execute/GreptimeSession.java).
 - **Considerations**: Distinguish the connection target from context levels that can be switched within a connection. Object paths must agree with authorization and lineage. Do not join system views using only unqualified object names; constraint aggregation must preserve object identity and column order. Do not invent mappings for unknown types or assume an indexed object is always a table.
 - **Acceptance**: Verify regular-account visibility, identically named objects across databases/schemas, multicolumn constraints, quoting, and case handling. Check numeric precision, time zones/temporal precision, Unicode, binary values, LOBs, and NULL. The object tree and details match the actual database structure.
+  Run supported create, alter, and drop statements in the workspace and verify that the object lists and details update automatically. Cover failed statements, unknown outcomes, and partially successful batches. Verify that only DDL confirmed to have taken effect triggers a refresh.
 
 ### 7. Complete the SQL Dialect and Language Services
 
