@@ -24,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum KafkaCommandType {
     TOPICS("kafka-topics", List.of("--list", "--describe", "--create", "--delete")),
-    CONSUMER("kafka-console-consumer", List.of());
+    CONSUMER("kafka-console-consumer", List.of()),
+    PRODUCER("kafka-console-producer", List.of());
 
     private final String       command;
     private final List<String> actions;

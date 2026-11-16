@@ -14,6 +14,7 @@
 | --- | --- |
 | `kafka-topics` | `--list`、`--describe`、`--create`、`--delete`；`--topic`；创建时可指定 `--partitions`、`--replication-factor`、可重复的 `--config key=value`、`--if-not-exists`；删除时支持 `--if-exists` |
 | `kafka-console-consumer` | `--topic`、`--partition`、`--from-beginning`、`--offset latest`、`--max-messages`、`--timeout-ms` |
+| `kafka-console-producer`（语法与帮助） | 必填 `--topic`、`--value`，可选 `--key`、`--partition` |
 
 每类命令支持 `--help`，编辑器通过信息提示展示用法。不支持 Consumer Group 管理命令和消费参数 `--group`。
 
@@ -32,6 +33,7 @@
 选项参照 Apache Kafka 4.1 的 [TopicCommand](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/TopicCommand.java) 和 [ConsoleConsumerOptions](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/consumer/ConsoleConsumerOptions.java)，当前只实现上表列出的子集。
 
 - Topic 的 list/describe/delete 使用正则筛选，create 与 consumer 使用确切的 Topic 名称。
+- Producer 使用确切的 Topic 名称，消息值通过 `--value` 内联传入。`--value ''` 表示空字符串，`--key ''` 表示空字符串 Key。发送执行待接入。
 - `latest` 表示从末尾等待新消息，不代表历史最后 N 条。控制台允许省略 `--partition` 使用 `--offset latest`，应用于所有分区；原生 CLI 的显式 `--offset` 要求同时指定分区。
 - `--from-beginning` 与 `--offset` 互斥；暂不接受数值 offset 或 `--offset earliest`。
 - 未指定 `--max-messages` / `--timeout-ms` 时解析仍成功，并显示系统默认值提示。执行阶段负责补齐系统最大获取条数和系统查询超时（毫秒），将用户条数限制在系统上限内；显式用户超时优先。

@@ -41,6 +41,7 @@ public final class KafkaCommandSpec {
                 values.addAll(List.of("--topic", "--partition", "--offset", "--max-messages", "--timeout-ms"));
                 flags.add("--from-beginning");
             }
+            case PRODUCER -> values.addAll(List.of("--topic", "--value", "--key", "--partition"));
         }
         for (String name : values) {
             options.put(name, new KafkaOption(true, name.equals("--config")));
@@ -52,7 +53,7 @@ public final class KafkaCommandSpec {
     }
 
     public static List<String> allowed(KafkaCommandType type, String action) {
-        if (type == KafkaCommandType.CONSUMER || action == null) {
+        if (type.getActions().isEmpty() || action == null) {
             return List.copyOf(options(type).keySet());
         }
         List<String> allowed = new ArrayList<>(List.of("--help", action));

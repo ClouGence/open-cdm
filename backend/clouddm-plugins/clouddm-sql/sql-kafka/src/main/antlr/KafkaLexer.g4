@@ -19,6 +19,7 @@ channels { COMMENTS }
 
 TOPICS : 'kafka-topics' ('.sh')?;
 CONSUMER : 'kafka-console-consumer' ('.sh')?;
+PRODUCER : 'kafka-console-producer' ('.sh')?;
 
 HELP : '--help';
 LIST : '--list';
@@ -36,6 +37,8 @@ PARTITION : '--partition';
 OFFSET : '--offset';
 MAX_MESSAGES : '--max-messages';
 TIMEOUT_MS : '--timeout-ms';
+KEY : '--key';
+VALUE : '--value';
 UNKNOWN_OPTION : '--' ~[ \t\f\r\n;='"\\|&<>`]+;
 
 EQUAL : '=';
