@@ -35,11 +35,10 @@ public class KafkaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
     private StatementBehavior analyze(SplitScript script, Map<UmiTypes, Object> levels) {
         KafkaCommand command = new KafkaCommandParser().parse(script.getScript());
         SplitQueryType statementType = command.queryType();
-        BehaviorObject object = new BehaviorObject();
-        object.setObjectType(TargetType.Topic);
+        TargetType targetType = TargetType.Topic;
         String name = command.value("--topic");
         if (command.has("--help")) {
-            object.setObjectType(TargetType.Instance);
+            targetType = TargetType.Instance;
             name = null;
         }
         // Topic creation uses instance permissions. Regex selectors
@@ -48,14 +47,38 @@ public class KafkaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         if (levels != null && levels.get(UmiTypes.Instance) != null) {
             instance = levels.get(UmiTypes.Instance).toString();
         }
+
         instance = instance.replaceAll("^/+|/+$", "");
-        String path = "/";
+        String instancePath = "/";
         if (!instance.isEmpty()) {
-            path += instance + "/";
+            instancePath += instance + "/";
         }
+
+        String path = instancePath;
         if (statementType == SplitQueryType.LOG_READ || statementType == SplitQueryType.INSERT) {
             path += name + "/";
         }
+
+        BehaviorAction action = switch (statementType) {
+            case INSERT -> BehaviorAction.INSERT;
+            case CREATE_PUB_SUB -> BehaviorAction.CREATE;
+            case DROP_PUB_SUB -> BehaviorAction.DROP;
+            default -> BehaviorAction.READ;
+        };
+
+        StatementBehavior behavior = new StatementBehavior();
+        behavior.setStatementType(statementType);
+        addRelation(behavior, script, targetType, name, path, action);
+        if (statementType == SplitQueryType.LOG_READ && command.has("--group")) {
+            // Joining can rebalance members of the same group across topics.
+            addRelation(behavior, script, TargetType.Instance, null, instancePath, BehaviorAction.CONFIGURE);
+        }
+        return behavior;
+    }
+
+    private void addRelation(StatementBehavior behavior, SplitScript script, TargetType targetType, String name, String path, BehaviorAction action) {
+        BehaviorObject object = new BehaviorObject();
+        object.setObjectType(targetType);
         object.setObjectPath(path);
         object.setObjectName(new ObjectName(null, null, name));
         object.setStartLine(script.getBodyStartCodeLine());
@@ -65,15 +88,7 @@ public class KafkaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(object);
-        relation.setAction(switch (statementType) {
-            case INSERT -> BehaviorAction.INSERT;
-            case CREATE_PUB_SUB -> BehaviorAction.CREATE;
-            case DROP_PUB_SUB -> BehaviorAction.DROP;
-            default -> BehaviorAction.READ;
-        });
-        StatementBehavior behavior = new StatementBehavior();
-        behavior.setStatementType(statementType);
+        relation.setAction(action);
         behavior.getRelations().add(relation);
-        return behavior;
     }
 }

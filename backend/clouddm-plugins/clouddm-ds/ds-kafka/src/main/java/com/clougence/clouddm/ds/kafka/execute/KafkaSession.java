@@ -16,12 +16,7 @@
 package com.clougence.clouddm.ds.kafka.execute;
 
 import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -140,7 +135,8 @@ public class KafkaSession implements Session {
 
         KafkaCommand command = new KafkaCommandParser().parse(query.getQueryBody());
         SplitQueryType statementType = command.queryType();
-        if (readOnly && (statementType == SplitQueryType.INSERT || statementType == SplitQueryType.CREATE_PUB_SUB || statementType == SplitQueryType.DROP_PUB_SUB)) {
+        boolean joinsGroup = statementType == SplitQueryType.LOG_READ && command.has("--group");
+        if (readOnly && (joinsGroup || statementType == SplitQueryType.INSERT || statementType == SplitQueryType.CREATE_PUB_SUB || statementType == SplitQueryType.DROP_PUB_SUB)) {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_SESSION_READ_ONLY);
         }
 

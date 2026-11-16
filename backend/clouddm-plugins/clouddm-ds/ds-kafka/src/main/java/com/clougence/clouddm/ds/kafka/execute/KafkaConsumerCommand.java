@@ -50,10 +50,14 @@ public class KafkaConsumerCommand {
         effectiveMessage.receiveMessage(MessageLevel.Info, I18nUtils.initI18n(KafkaDsI18nKeys.class)
             .getMessage(KafkaDsI18nKeys.KAFKA_EFFECTIVE_COMMAND, new Object[] { query.getQueryBody() }), false);
         effectiveMessage.finishRecord(true);
-        try (KafkaRecordIterator records = new KafkaRecordIterator(session, clients.createConsumer(), timeoutMs)) {
-            records.assign(effective);
+
+        var consumer = clients.createConsumer(effective.value("--group"), effective.has("--from-beginning"));
+        try (KafkaRecordIterator records = new KafkaRecordIterator(session, consumer, timeoutMs, effective.commitsConsumerOffsets())) {
+            records.initialize(effective);
             new KafkaResultWriter(query, builder).table(List
                 .of(KafkaResultColumn.TOPIC, KafkaResultColumn.PARTITION, KafkaResultColumn.OFFSET, KafkaResultColumn.TIMESTAMP, KafkaResultColumn.TIMESTAMP_TYPE, KafkaResultColumn.KEY, KafkaResultColumn.VALUE), records, session::checkCancelled);
+            records.commitOffsets();
+
             if (records.isTimedOut()) {
                 var message = builder.newMessage(query);
                 String text = I18nUtils.initI18n(KafkaDsI18nKeys.class).getMessage(KafkaDsI18nKeys.KAFKA_CONSUMER_IDLE_TIMEOUT, new Object[] { timeoutMs });

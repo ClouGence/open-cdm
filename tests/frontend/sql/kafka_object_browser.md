@@ -2,7 +2,7 @@
 
 ## Purpose
 
-验证 Kafka 无 Catalog / Schema 的 Topic 浏览、独立授权、刷新和命令模板，防止已移除的 Consumer Group 功能再次暴露。
+验证 Kafka 无 Catalog / Schema 的 Topic 浏览、独立授权、刷新、命令模板和消费组权限。
 
 ## Scope
 
@@ -42,7 +42,7 @@
 
 - 初始状态：`/#/sql`，读取账号，编辑器为空，点号 Topic 已加载。
 - 操作：双击 Topic，再右键选择“命令模板”，检查编辑器内容。在空行输入 `kafka-console-` 触发补全，选择 Producer 后输入空格和 `--` 查看参数。选择 `--partition`，输入 `=` 后选择分区值。查看 `kafka-console-producer.sh --help` 和“语句示例”，在英文界面重复检查。输入并尝试运行 `kafka-consumer-groups --list`、`kafka-console-consumer --topic <测试Topic> --group g`。
-- 预期：快捷命令带确切 Topic 和 `--from-beginning --max-messages 10`。模板包含 list、describe、消费和默认注释的发送／创建／删除示例。发送示例包含确切的点号 Topic，describe/delete 使用字面量正则。补全包含 `kafka-console-producer` 及其 `--topic`、`--value`、`--key`、`--partition`、`--help`，分区值补全后得到 `--partition=0`。Producer 命令沿用关键字高亮，中英文帮助包含审计说明，示例中可查看发送及帮助命令。旧 Group 命令和 `--group` 参数报错且不执行。生成模板只填入编辑器，发送需取消注释并手动执行。
+- 预期：快捷命令带确切 Topic 和 `--from-beginning --max-messages 10`。模板包含 list、describe、消费和默认注释的发送／创建／删除示例。发送示例包含确切的点号 Topic，describe/delete 使用字面量正则。补全包含 `kafka-console-producer` 及其 `--topic`、`--value`、`--key`、`--partition`、`--help`，分区值补全后得到 `--partition=0`。Producer 命令沿用关键字高亮，中英文帮助包含审计说明，示例中可查看发送及帮助命令。`kafka-consumer-groups --list` 报语法错误，`--group` 语法有效，但读取账号没有实例管理权限，执行被拒绝。生成模板只填入编辑器，发送需取消注释并手动执行。
 - 恢复：清空编辑器，关闭窗口。
 
 ### KAFKA-BROWSE-04 — 权限边界（P0）

@@ -30,6 +30,8 @@ IF_EXISTS : '--if-exists';
 IF_NOT_EXISTS : '--if-not-exists';
 FROM_BEGINNING : '--from-beginning';
 TOPIC : '--topic';
+GROUP : '--group';
+CONSUMER_PROPERTY : '--consumer-property';
 PARTITIONS : '--partitions';
 REPLICATION_FACTOR : '--replication-factor';
 CONFIG : '--config';

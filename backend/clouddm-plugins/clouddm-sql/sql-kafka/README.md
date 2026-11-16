@@ -13,10 +13,10 @@
 | 命令（均兼容 `.sh` 后缀） | 操作与参数 |
 | --- | --- |
 | `kafka-topics` | `--list`、`--describe`、`--create`、`--delete`；`--topic`；创建时可指定 `--partitions`、`--replication-factor`、可重复的 `--config key=value`、`--if-not-exists`；删除时支持 `--if-exists` |
-| `kafka-console-consumer` | `--topic`、`--partition`、`--from-beginning`、`--offset latest`、`--max-messages`、`--timeout-ms` |
+| `kafka-console-consumer` | `--topic`、`--partition`、`--group`、`--from-beginning`、`--offset latest`、`--max-messages`、`--timeout-ms`、`--consumer-property enable.auto.commit=true\|false` |
 | `kafka-console-producer` | 必填 `--topic`、`--value`，可选 `--key`、`--partition` |
 
-每类命令支持 `--help`，编辑器通过信息提示展示用法。不支持 Consumer Group 管理命令和消费参数 `--group`。
+每类命令支持 `--help`，编辑器通过信息提示展示用法。消费命令可以加入 Consumer Group。Consumer Group 管理命令仍不支持。
 
 参数名大小写敏感，支持 `--name value` 和 `--name=value`。操作参数互斥；重复参数报错，只有 topic 创建的 `--config` 可重复且配置键不能重复。不接受未实现的原生选项，也不允许命令覆盖当前数据源的 Broker、认证或客户端配置。
 
@@ -42,7 +42,7 @@
 ## 会话、授权和审计接入
 
 - `KafkaBehaviorAnalysisSpi` 复用 ANTLR 拆句与参数校验，每条命令都产生资源行为；语法错误直接失败。
-- 消费消息、查询 Topic 和帮助命令要求读取权限；创建 Topic、删除 Topic 要求管理权限。`kafka-console-producer` 按 `INSERT` 分类，要求目标 Topic 的发送消息权限（`DM_DML`）。只读会话拒绝发送、创建和删除。
+- 消费消息、查询 Topic 和帮助命令要求读取权限。创建和删除 Topic 要求管理权限。加入消费组还需要实例管理权限，因为分区再平衡可能影响该组订阅的其他 Topic。`kafka-console-producer` 按 `INSERT` 分类，要求目标 Topic 的发送消息权限（`DM_DML`）。只读会话拒绝发送、创建、删除和加入消费组。
 - Topic 复用 Table 的对象授权路径（`/topicName/`），可独立授予读取、管理、发送消息权限并继承实例授权。读取消息和详情需要 Topic 读取权限，删除需要 Topic 管理权限；创建 Topic 始终需要实例管理权限。
 - `kafka-topics --list` 仅返回有读取权限的 Topic。正则 describe/delete 在授权前解析实际 Topic；describe 校验所有目标的读取权限，delete 校验所有目标的管理权限，任一无权则整条拒绝。执行沿用授权时固定的 Topic 名单，审计记录相同的实际对象；无匹配目标也不会在执行时重新扩展。
 - `KafkaSessionFactory` 通过平台资源管理器获取客户端并解析 TLS 文件；`KafkaSessionSpi` 和 `KafkaSupportSpi` 接入查询上下文、只读和中断能力。会话固定自动提交，不支持 JDBC 回调、SQL 执行计划、事务、Catalog 或 Schema 切换。
@@ -81,13 +81,15 @@ kafka-console-producer --topic orders --key order-123 --value '{"id":123}'
 kafka-console-consumer --topic orders --from-beginning --max-messages 10
 kafka-console-consumer --topic orders --partition 0 --offset latest --max-messages 10 --timeout-ms 5000
 kafka-console-consumer --topic orders
+kafka-console-consumer --topic orders --group sample-group --from-beginning --max-messages 10 --consumer-property enable.auto.commit=true
 ```
 
-- 每次执行手动分配指定分区，或执行开始时 Topic 的全部分区。不订阅、不加入 Consumer Group，不读取或提交组位点，不自动创建 Topic。执行期间新增的分区不会自动加入本次查询。
-- `--from-beginning` 从各分区当前保留的最早 offset 开始；默认和 `--offset latest` 从初始化时取得的末尾 offset 等待新消息。跨分区消息按 poll 返回顺序输出，不保证全局时间顺序，也不表示“历史最后 N 条”。
+- 省略 `--group` 时，手动分配指定分区或执行开始时 Topic 的全部分区，并独立读取。使用 `--group` 时订阅单个 Topic，由消费组分配分区，不能同时指定 `--partition`。两种模式都关闭自动创建 Topic。
+- 独立消费时，`--from-beginning` 从各分区最早可用位点读取，默认与 `--offset latest` 从末尾等待新消息。组消费优先从已提交位点继续，缺少有效位点时才使用上述起始策略。跨分区消息按 poll 返回顺序输出。
+- `--consumer-property` 仅接受 `enable.auto.commit=true` 或 `enable.auto.commit=false`。默认关闭提交。显式开启时需要指定 `--group`，查询正常结束后只提交已输出记录的下一条位点。取消或输出失败会跳过提交。提交时遇到超时或中断会报告结果未知。
 - 未指定 `--max-messages` 时补齐系统最大获取条数，显式值超过系统上限时下调；未配置正数系统上限时必须显式指定正数条数。条数最多为 `Integer.MAX_VALUE`，达到上限立即结束，不额外 poll。
 - `--timeout-ms` 沿用 [原生命令](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/consumer/ConsoleConsumer.java) 的“等待下一条消息的空闲超时”，不是整条命令的总耗时。缺省使用系统查询超时（秒转毫秒），系统未配置正数超时时使用客户端 API 超时；显式用户值优先。元数据查询还受客户端 API 超时约束。
-- 补齐或调整参数后保留原命令，通过统一重写标记与结果展示实际执行命令。空闲超时正常结束并提示，保留已读结果；认证、元数据超时、位点失效等错误按失败审计，不伪装为空结果。
+- 补齐或调整参数后保留原命令，通过统一重写标记与结果展示实际执行命令。空闲超时正常结束并提示，保留已读结果。认证、元数据超时和位点提交错误按失败审计。
 - 消息结果列为 `TOPIC`、`PARTITION`、`OFFSET`、`TIMESTAMP`（epoch 毫秒，未知为空）、`TIMESTAMP-TYPE`、`KEY`、`VALUE`。Key / Value 按 UTF-8 文本显示，非法 UTF-8 使用替换字符；空字节串与 null（含 tombstone）保持区分。暂不提供自定义反序列化。
 - 消费结果通过元数据 `refreshOnProgress` 开启接收期间的分页刷新，收到条数进度后补取当前页已缓存的数据；该能力默认关闭，Topic 管理及其他数据源的分页行为不变。
 - 输出复用系统表格、分页、流式和字节限制，不在内存中累积整次消费结果。正常完成、空闲超时、异常、页面中断和会话关闭均释放本次 Consumer；关闭等待最多 5 秒，后续查询创建新 Consumer，避免继承缓冲消息、位置或 wakeup 状态。
