@@ -8,7 +8,7 @@ import { getLanguage } from '@/utils/tools';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { requestWebSocket } from '@/services/socket';
 import { WS_TYPE } from '@/utils';
-import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
+import { getCompletionTriggerCharacters, getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
 import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 import { canFormatSql, formatSqlDocument } from './sqlFormat';
 
@@ -433,7 +433,7 @@ export default {
     },
     registerCompletion(lang) {
       const providerItem = monaco.languages.registerCompletionItemProvider(lang, {
-        triggerCharacters: [' ', '.', '`', '/', '$', '"', '?', '&'],
+        triggerCharacters: getCompletionTriggerCharacters(lang),
         provideCompletionItems: async (model, position) => {
           if (model !== this.monacoEditor?.getModel()) {
             return { suggestions: [] };

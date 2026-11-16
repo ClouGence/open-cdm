@@ -39,7 +39,7 @@ MAX_MESSAGES : '--max-messages';
 TIMEOUT_MS : '--timeout-ms';
 KEY : '--key';
 VALUE : '--value';
-UNKNOWN_OPTION : '--' ~[ \t\f\r\n;='"\\|&<>`]+;
+UNKNOWN_OPTION : '--' ~[ \t\f\r\n;='"\\|&<>`]*;
 
 EQUAL : '=';
 SEMICOLON : ';';
