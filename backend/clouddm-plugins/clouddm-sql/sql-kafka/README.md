@@ -70,7 +70,9 @@ kafka-console-producer --topic orders --key order-123 --value '{"id":123}'
 ```
 
 - 发送前通过 Admin 校验目标 Topic 和显式指定的分区。省略分区时由 Kafka Producer 选择分区。每次执行创建并关闭自己的 Producer，复用当前数据源的连接和认证配置。Key 和 Value 使用 UTF-8，省略 Key 时发送 null Key。
-- 使用 `acks=all`，Kafka 客户端 API 超时分别限制发送入队和投递。收到 Broker 确认后返回影响条数 1。若未收到确认，消息仍有可能已写入。
+- `send()` 的入队等待受系统查询剩余时间和 Kafka API 超时约束。入队后用系统查询剩余时间等待回执，Kafka 客户端的投递超时也继续生效。未配置系统查询超时时使用 Kafka API 超时。
+- 使用 `acks=all`。收到 Broker 确认后返回 `TOPIC`、`PARTITION`、`OFFSET` 及影响条数 1。入队后如因超时或取消未能确认，显示「发送结果未知」，并通过现有失败审计记录该提示。平台不自动重发，已有确认的发送保留成功回执。执行结束时关闭本次 Producer，关闭阶段不给未完成的投递额外等待时间。
+- `--help` 说明命令正文会进入审计，包含内联的 `--key` 和 `--value`。
 - 在 Broker 设置 [`auto.create.topics.enable=false`](https://kafka.apache.org/41/configuration/broker-configs/#brokerconfigs_auto.create.topics.enable)，或通过 [Kafka ACL](https://kafka.apache.org/41/security/authorization-and-acls/) 确保数据源连接身份在 Cluster 和目标 Topic 上均无有效 `CREATE` 权限。Producer 的元数据请求允许自动创建，Broker 侧约束可防止 Topic 在 Admin 预检通过后、发送前被删除时自动重建。
 
 ## 有界消息消费

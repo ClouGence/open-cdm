@@ -17,8 +17,10 @@ package com.clougence.clouddm.ds.kafka.execute;
 
 import java.util.List;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
@@ -70,7 +72,8 @@ public class KafkaSession implements Session {
     @Getter
     private volatile boolean                 executing;
     private boolean                          cancelled;
-    private KafkaFuture<?>                   pendingRequest;
+    private Future<?>                        pendingRequest;
+    private Thread                           producerSendThread;
     private Consumer<byte[], byte[]>         activeConsumer;
 
     public KafkaSession(SessionContextDTO context, KafkaConfig config, DsObject<KafkaClients> resource){
@@ -147,7 +150,7 @@ public class KafkaSession implements Session {
             switch (command.getType()) {
                 case TOPICS -> new KafkaTopicCommands(context).execute(command, query.getResolvedResources());
                 case CONSUMER -> new KafkaConsumerCommand(this, clients, query, builder).execute(command);
-                case PRODUCER -> new KafkaProducerCommand(context, clients).execute(command);
+                case PRODUCER -> new KafkaProducerCommand(this, context, clients).execute(command);
             }
             return;
         }
@@ -252,14 +255,42 @@ public class KafkaSession implements Session {
         }
     }
 
+    void dispatchProduce(CompletableFuture<?> receipt, Runnable dispatch) {
+        synchronized (stateLock) {
+            checkCancelled();
+            pendingRequest = receipt;
+            producerSendThread = Thread.currentThread();
+        }
+        try {
+            checkCancelled();
+            dispatch.run();
+        } finally {
+            synchronized (stateLock) {
+                producerSendThread = null;
+                if (receipt.isCancelled()) {
+                    // Clear the session's send interrupt before closing the client or reporting results.
+                    Thread.interrupted();
+                }
+            }
+        }
+    }
+
+    void clearPendingProduce(CompletableFuture<?> receipt) {
+        synchronized (stateLock) {
+            if (pendingRequest == receipt) {
+                pendingRequest = null;
+            }
+        }
+    }
+
     @Override
     public void cancel() {
         synchronized (stateLock) {
             if (executing) {
                 cancelled = true;
             }
-            if (pendingRequest != null) {
-                pendingRequest.cancel(false);
+            if (pendingRequest != null && pendingRequest.cancel(false) && producerSendThread != null) {
+                producerSendThread.interrupt();
             }
             if (activeConsumer != null) {
                 activeConsumer.wakeup();

@@ -56,15 +56,23 @@ public class KafkaAdminContext {
 
     public void checkActive() {
         session.checkCancelled();
-        if (System.nanoTime() >= deadline) {
+        if (remainingNanos() <= 0) {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_QUERY_TIMEOUT);
         }
     }
 
-    public <T> T await(IntFunction<KafkaFuture<T>> request) throws Exception {
+    long remainingNanos() {
+        return deadline - System.nanoTime();
+    }
+
+    int requestTimeoutMs() {
         checkActive();
-        long remaining = Math.max(1, TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime()));
-        int timeout = (int) Math.min(apiTimeoutMs, remaining);
+        long remaining = Math.max(1, TimeUnit.NANOSECONDS.toMillis(remainingNanos()));
+        return (int) Math.min(apiTimeoutMs, remaining);
+    }
+
+    public <T> T await(IntFunction<KafkaFuture<T>> request) throws Exception {
+        int timeout = requestTimeoutMs();
         return session.await(() -> request.apply(timeout), timeout);
     }
 
@@ -72,8 +80,8 @@ public class KafkaAdminContext {
         writer.table(columns, rows, this::checkActive);
     }
 
-    public void managementReport(List<KafkaResultColumn> columns, List<Object[]> rows) throws Exception {
-        // A completed/failed batch still needs its per-resource outcomes after timeout or interruption.
+    void outcomeTable(List<KafkaResultColumn> columns, List<Object[]> rows) throws Exception {
+        // Preserve known outcomes after timeout or cancellation.
         writer.table(columns, rows, () -> {
         });
     }

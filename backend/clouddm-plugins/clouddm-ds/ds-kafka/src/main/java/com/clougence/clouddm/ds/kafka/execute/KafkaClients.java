@@ -94,14 +94,14 @@ public class KafkaClients implements AutoCloseable {
         }
     }
 
-    synchronized Producer<String, String> createProducer() {
+    synchronized Producer<String, String> createProducer(int maxBlockMs) {
         if (this.closed) {
             throw ThirdPartyApiException.as().with(KafkaConfigI18nKeys.CONFIG_KAFKA_CLIENTS_CLOSED);
         }
         Properties producerProperties = new Properties();
         producerProperties.putAll(this.properties);
         String apiTimeoutMs = (String) producerProperties.remove(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG);
-        producerProperties.setProperty(ProducerConfig.MAX_BLOCK_MS_CONFIG, apiTimeoutMs);
+        producerProperties.setProperty(ProducerConfig.MAX_BLOCK_MS_CONFIG, Integer.toString(maxBlockMs));
         producerProperties.setProperty(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, apiTimeoutMs);
         producerProperties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "0");
         producerProperties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
