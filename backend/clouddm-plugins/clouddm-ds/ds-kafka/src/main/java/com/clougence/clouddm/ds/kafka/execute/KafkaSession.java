@@ -147,7 +147,7 @@ public class KafkaSession implements Session {
             switch (command.getType()) {
                 case TOPICS -> new KafkaTopicCommands(context).execute(command, query.getResolvedResources());
                 case CONSUMER -> new KafkaConsumerCommand(this, clients, query, builder).execute(command);
-                case PRODUCER -> throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_PRODUCER_UNAVAILABLE);
+                case PRODUCER -> new KafkaProducerCommand(context, clients).execute(command);
             }
             return;
         }

@@ -14,7 +14,7 @@
 | --- | --- |
 | `kafka-topics` | `--list`、`--describe`、`--create`、`--delete`；`--topic`；创建时可指定 `--partitions`、`--replication-factor`、可重复的 `--config key=value`、`--if-not-exists`；删除时支持 `--if-exists` |
 | `kafka-console-consumer` | `--topic`、`--partition`、`--from-beginning`、`--offset latest`、`--max-messages`、`--timeout-ms` |
-| `kafka-console-producer`（语法与帮助） | 必填 `--topic`、`--value`，可选 `--key`、`--partition` |
+| `kafka-console-producer` | 必填 `--topic`、`--value`，可选 `--key`、`--partition` |
 
 每类命令支持 `--help`，编辑器通过信息提示展示用法。不支持 Consumer Group 管理命令和消费参数 `--group`。
 
@@ -33,7 +33,7 @@
 选项参照 Apache Kafka 4.1 的 [TopicCommand](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/TopicCommand.java) 和 [ConsoleConsumerOptions](https://github.com/apache/kafka/blob/4.1/tools/src/main/java/org/apache/kafka/tools/consumer/ConsoleConsumerOptions.java)，当前只实现上表列出的子集。
 
 - Topic 的 list/describe/delete 使用正则筛选，create 与 consumer 使用确切的 Topic 名称。
-- Producer 使用确切的 Topic 名称，消息值通过 `--value` 内联传入。`--value ''` 表示空字符串，`--key ''` 表示空字符串 Key。发送执行待接入。
+- Producer 使用确切的 Topic 名称，消息值通过 `--value` 内联传入。`--value ''` 表示空字符串，`--key ''` 表示空字符串 Key。
 - `latest` 表示从末尾等待新消息，不代表历史最后 N 条。控制台允许省略 `--partition` 使用 `--offset latest`，应用于所有分区；原生 CLI 的显式 `--offset` 要求同时指定分区。
 - `--from-beginning` 与 `--offset` 互斥；暂不接受数值 offset 或 `--offset earliest`。
 - 未指定 `--max-messages` / `--timeout-ms` 时解析仍成功，并显示系统默认值提示。执行阶段负责补齐系统最大获取条数和系统查询超时（毫秒），将用户条数限制在系统上限内；显式用户超时优先。
@@ -62,6 +62,16 @@ kafka-topics --delete --topic 'orders.*' --if-exists
 - Topic 删除按正则匹配当前 Topic 列表，展示各 Topic 的 `DELETED`、`NOT_FOUND`、`FAILED` 或 `UNKNOWN` 状态。批量删除不具备原子性，部分失败仍按失败审计，并保留已知结果；`--if-exists` 只忽略 Topic 不存在错误。系统展示条数上限不缩小删除范围。
 - 表格复用系统条数、字节、分页和流式输出规则；达到条数上限时停止并提示，超过字节上限时报错并清理结果缓存。管理命令使用系统查询超时作为总期限（未配置则使用客户端 API 超时），每个 Admin 请求同时受客户端 API 超时限制。
 - 页面中断取消正在等待的 Admin future，结束当前执行后可复用会话；连接检查也支持中断。超时或中断无法撤销已发送到 Broker 的管理操作，应查询实际状态再决定是否重试。消费中断通过 `Consumer.wakeup()` 唤醒元数据请求或 poll。
+
+## 单条消息发送
+
+```sh
+kafka-console-producer --topic orders --key order-123 --value '{"id":123}'
+```
+
+- 发送前通过 Admin 校验目标 Topic 和显式指定的分区。省略分区时由 Kafka Producer 选择分区。每次执行创建并关闭自己的 Producer，复用当前数据源的连接和认证配置。Key 和 Value 使用 UTF-8，省略 Key 时发送 null Key。
+- 使用 `acks=all`，Kafka 客户端 API 超时分别限制发送入队和投递。收到 Broker 确认后返回影响条数 1。若未收到确认，消息仍有可能已写入。
+- 在 Broker 设置 [`auto.create.topics.enable=false`](https://kafka.apache.org/41/configuration/broker-configs/#brokerconfigs_auto.create.topics.enable)，或通过 [Kafka ACL](https://kafka.apache.org/41/security/authorization-and-acls/) 确保数据源连接身份在 Cluster 和目标 Topic 上均无有效 `CREATE` 权限。Producer 的元数据请求允许自动创建，Broker 侧约束可防止 Topic 在 Admin 预检通过后、发送前被删除时自动重建。
 
 ## 有界消息消费
 
