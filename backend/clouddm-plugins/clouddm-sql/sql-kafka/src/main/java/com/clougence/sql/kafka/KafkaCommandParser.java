@@ -101,14 +101,7 @@ public class KafkaCommandParser {
             require(command, "--value", head);
         }
         if (type == KafkaCommandType.CONSUMER) {
-            if (command.has("--from-beginning") && command.has("--offset")) {
-                KafkaToken token = locations.get("--offset");
-                throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_CONFLICT);
-            }
-            if (command.has("--offset") && !"latest".equals(command.value("--offset"))) {
-                KafkaToken token = locations.get("--offset");
-                throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_UNSUPPORTED);
-            }
+            validateConsumer(command, locations, head);
         }
         if (command.has("--config")) {
             validateConfigs(command, locations.get("--config"));
@@ -126,6 +119,30 @@ public class KafkaCommandParser {
             if (topic.length() > 249 || topic.equals(".") || topic.equals("..") || !topic.matches("[a-zA-Z0-9._-]+")) {
                 KafkaToken token = locations.get("--topic");
                 throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_TOPIC_INVALID);
+            }
+        }
+    }
+
+    private void validateConsumer(KafkaCommand command, Map<String, KafkaToken> locations, KafkaToken head) {
+        if (command.has("--from-beginning") && command.has("--offset")) {
+            KafkaToken token = locations.get("--offset");
+            throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_CONFLICT);
+        }
+        if (command.has("--offset") && !"latest".equals(command.value("--offset"))) {
+            KafkaToken token = locations.get("--offset");
+            throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_UNSUPPORTED);
+        }
+        if (command.has("--group") && command.has("--partition")) {
+            KafkaToken token = locations.get("--partition");
+            throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_GROUP_PARTITION_CONFLICT);
+        }
+        if (command.has("--consumer-property")) {
+            KafkaToken token = locations.get("--consumer-property");
+            if (!command.commitsConsumerOffsets() && !"enable.auto.commit=false".equals(command.value("--consumer-property"))) {
+                throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_CONSUMER_PROPERTY_UNSUPPORTED);
+            }
+            if (command.commitsConsumerOffsets()) {
+                require(command, "--group", head);
             }
         }
     }

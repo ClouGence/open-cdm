@@ -38,7 +38,7 @@ public final class KafkaCommandSpec {
                 flags.addAll(List.of("--if-exists", "--if-not-exists"));
             }
             case CONSUMER -> {
-                values.addAll(List.of("--topic", "--partition", "--offset", "--max-messages", "--timeout-ms"));
+                values.addAll(List.of("--topic", "--group", "--consumer-property", "--partition", "--offset", "--max-messages", "--timeout-ms"));
                 flags.add("--from-beginning");
             }
             case PRODUCER -> values.addAll(List.of("--topic", "--value", "--key", "--partition"));
