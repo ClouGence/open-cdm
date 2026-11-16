@@ -24,6 +24,7 @@ public interface KafkaDsI18nKeys {
 
     String KAFKA_AUTH_READ                   = "KAFKA_AUTH_READ";
     String KAFKA_AUTH_MANAGE                 = "KAFKA_AUTH_MANAGE";
+    String KAFKA_AUTH_WRITE                  = "KAFKA_AUTH_WRITE";
     String KAFKA_SESSION_BUSY                = "KAFKA_SESSION_BUSY";
     String KAFKA_SESSION_CLOSED              = "KAFKA_SESSION_CLOSED";
     String KAFKA_SESSION_READ_ONLY           = "KAFKA_SESSION_READ_ONLY";

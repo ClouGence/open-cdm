@@ -42,8 +42,8 @@
 ## 会话、授权和审计接入
 
 - `KafkaBehaviorAnalysisSpi` 复用 ANTLR 拆句与参数校验，每条命令都产生资源行为；语法错误直接失败。
-- 消费消息、查询 Topic 和帮助命令要求读取权限；创建 Topic、删除 Topic 要求管理权限。两项权限独立，管理权限不隐含读取消息权限。
-- Topic 复用 Table 的对象授权路径（`/topicName/`），可独立授予读取、管理权限并继承实例授权。读取消息和详情需要 Topic 读取权限，删除需要 Topic 管理权限；创建 Topic 始终需要实例管理权限。
+- 消费消息、查询 Topic 和帮助命令要求读取权限；创建 Topic、删除 Topic 要求管理权限。`kafka-console-producer` 按 `INSERT` 分类，要求目标 Topic 的发送消息权限（`DM_DML`）。只读会话拒绝发送、创建和删除。
+- Topic 复用 Table 的对象授权路径（`/topicName/`），可独立授予读取、管理、发送消息权限并继承实例授权。读取消息和详情需要 Topic 读取权限，删除需要 Topic 管理权限；创建 Topic 始终需要实例管理权限。
 - `kafka-topics --list` 仅返回有读取权限的 Topic。正则 describe/delete 在授权前解析实际 Topic；describe 校验所有目标的读取权限，delete 校验所有目标的管理权限，任一无权则整条拒绝。执行沿用授权时固定的 Topic 名单，审计记录相同的实际对象；无匹配目标也不会在执行时重新扩展。
 - `KafkaSessionFactory` 通过平台资源管理器获取客户端并解析 TLS 文件；`KafkaSessionSpi` 和 `KafkaSupportSpi` 接入查询上下文、只读和中断能力。会话固定自动提交，不支持 JDBC 回调、SQL 执行计划、事务、Catalog 或 Schema 切换。
 - `KafkaSession` 通过统一 `ResultBuilder` 输出表格、影响数量、帮助和失败消息；平台既有链路负责记录命令、行为、执行人、执行结果与耗时。错误消息显式通知审计，以失败状态结束；会话关闭释放客户端并通知关闭监听器。

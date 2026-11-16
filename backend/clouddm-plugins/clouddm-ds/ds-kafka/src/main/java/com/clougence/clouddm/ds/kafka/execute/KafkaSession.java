@@ -36,6 +36,7 @@ import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultMessageBuild;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.drivers.DsObject;
 import com.clougence.sql.kafka.KafkaCommand;
 import com.clougence.sql.kafka.KafkaCommandParser;
@@ -133,10 +134,13 @@ public class KafkaSession implements Session {
         if (query.isUseCallable() || query.isUseExplain() || query.isUseCompile()) {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_SESSION_UNSUPPORTED);
         }
+
         KafkaCommand command = new KafkaCommandParser().parse(query.getQueryBody());
-        if (!command.has("--help") && readOnly && (command.has("--create") || command.has("--delete"))) {
+        SplitQueryType statementType = command.queryType();
+        if (readOnly && (statementType == SplitQueryType.INSERT || statementType == SplitQueryType.CREATE_PUB_SUB || statementType == SplitQueryType.DROP_PUB_SUB)) {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_SESSION_READ_ONLY);
         }
+
         checkCancelled();
         if (!command.has("--help")) {
             KafkaAdminContext context = new KafkaAdminContext(this, clients.getAdmin(), query, builder);
@@ -147,6 +151,7 @@ public class KafkaSession implements Session {
             }
             return;
         }
+
         ResultMessageBuild message = builder.newMessage(query);
         String help = i18n.getMessage("KAFKA_HELP_" + command.getType().name()) + "\n" + i18n.getMessage(KafkaSqlI18nKeys.KAFKA_HELP_COMMON);
         message.receiveMessage(MessageLevel.Info, help, false);

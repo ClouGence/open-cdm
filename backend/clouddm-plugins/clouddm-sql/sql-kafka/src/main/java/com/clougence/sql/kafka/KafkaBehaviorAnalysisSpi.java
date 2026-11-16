@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.clougence.clouddm.sdk.sql.analysis.behavior.*;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.clouddm.sdk.sql.parser.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 
@@ -33,6 +34,7 @@ public class KafkaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
     private StatementBehavior analyze(SplitScript script, Map<UmiTypes, Object> levels) {
         KafkaCommand command = new KafkaCommandParser().parse(script.getScript());
+        SplitQueryType statementType = command.queryType();
         BehaviorObject object = new BehaviorObject();
         object.setObjectType(TargetType.Topic);
         String name = command.value("--topic");
@@ -51,7 +53,7 @@ public class KafkaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
         if (!instance.isEmpty()) {
             path += instance + "/";
         }
-        if (command.getType() == KafkaCommandType.CONSUMER && !command.has("--help")) {
+        if (statementType == SplitQueryType.LOG_READ || statementType == SplitQueryType.INSERT) {
             path += name + "/";
         }
         object.setObjectPath(path);
@@ -63,16 +65,14 @@ public class KafkaBehaviorAnalysisSpi implements BehaviorAnalysisSpi {
 
         BehaviorRelation relation = new BehaviorRelation();
         relation.setSubject(object);
-        relation.setAction(BehaviorAction.READ);
-        if (!command.has("--help")) {
-            if (command.has("--create")) {
-                relation.setAction(BehaviorAction.CREATE);
-            } else if (command.has("--delete")) {
-                relation.setAction(BehaviorAction.DROP);
-            }
-        }
+        relation.setAction(switch (statementType) {
+            case INSERT -> BehaviorAction.INSERT;
+            case CREATE_PUB_SUB -> BehaviorAction.CREATE;
+            case DROP_PUB_SUB -> BehaviorAction.DROP;
+            default -> BehaviorAction.READ;
+        });
         StatementBehavior behavior = new StatementBehavior();
-        behavior.setStatementType(command.queryType());
+        behavior.setStatementType(statementType);
         behavior.getRelations().add(relation);
         return behavior;
     }

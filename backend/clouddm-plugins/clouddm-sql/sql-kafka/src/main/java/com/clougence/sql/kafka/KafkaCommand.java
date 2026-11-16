@@ -70,6 +70,9 @@ public class KafkaCommand implements Statement {
         if (type == KafkaCommandType.CONSUMER) {
             return SplitQueryType.LOG_READ;
         }
+        if (type == KafkaCommandType.PRODUCER) {
+            return SplitQueryType.INSERT;
+        }
         if (has("--create")) {
             return SplitQueryType.CREATE_PUB_SUB;
         }
