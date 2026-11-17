@@ -17,13 +17,22 @@ package com.clougence.clouddm.console.web.global.session;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @Configuration
 public class SessionConfig {
+
+    @Resource
+    @Getter(AccessLevel.NONE)
+    private Environment environment;
 
     @Value("${clougence.rdp.session.activity-window-sec:86400}")
     private int activityWindowSec;
@@ -36,6 +45,9 @@ public class SessionConfig {
 
     @PostConstruct
     public void validate() {
+        if (environment.containsProperty("clougence.rdp.login.expire.sec")) {
+            log.warn("clougence.rdp.login.expire.sec has been removed and is ignored. Set clougence.rdp.session.activity-window-sec instead; current activity window is {} seconds.", activityWindowSec);
+        }
         if (activityWindowSec <= 0) {
             throw new IllegalStateException("clougence.rdp.session.activity-window-sec must be positive.");
         }
