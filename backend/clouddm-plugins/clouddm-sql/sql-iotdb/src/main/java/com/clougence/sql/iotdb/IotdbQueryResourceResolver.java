@@ -46,6 +46,7 @@ final class IotdbQueryResourceResolver implements QueryResourceResolver {
         IotdbDslProvider provider = IotdbSqlEngineSpi.provider(currentModel);
         boolean tree = provider == IotdbDslProvider.TREE;
         String model = tree ? "TREE" : "TABLE";
+        boolean treeMetadata = tree && request.hasQueryType(SplitQueryType.METADATA);
 
         validateFunctions(request, provider);
         List<BehaviorRelation> relations = request.getRelations();
@@ -62,7 +63,7 @@ final class IotdbQueryResourceResolver implements QueryResourceResolver {
                 throw unresolved();
             }
             TargetType type = resource.getObjectType();
-            if (tree && type == TargetType.Timeseries) {
+            if (tree && (type == TargetType.Timeseries || type == TargetType.Device)) {
                 String path = name.getObjectName();
                 if (!safeSegment(path) || path.indexOf('*') >= 0) {
                     throw unresolved();
@@ -70,15 +71,30 @@ final class IotdbQueryResourceResolver implements QueryResourceResolver {
                 if (databases == null) {
                     databases = context.listLevels().apply(List.of(UmiTypes.Catalog), Map.of(UmiTypes.Catalog, model)).stream().map(DsElement::getObjName).toList();
                 }
-                List<String> owners = databases.stream().filter(db -> path.startsWith(db + ".")).toList();
-                if (owners.size() != 1) {
-                    throw unresolved();
+                List<String> owners = databases.stream().filter(db -> path.equals(db) || path.startsWith(db + ".")).toList();
+                if (treeMetadata) {
+                    if (owners.size() > 1) {
+                        throw unresolved();
+                    }
+                    String database = null;
+                    String namespace = "/TREE/";
+                    if (!owners.isEmpty()) {
+                        database = owners.get(0);
+                        namespace += database + "/";
+                    }
+                    // Metadata selectors require the containing namespace, not a single measurement grant.
+                    resource.setObjectName(new ObjectName(model, database, path));
+                    resource.setObjectPath(namespace);
+                } else {
+                    if (owners.size() != 1) {
+                        throw unresolved();
+                    }
+                    resolveTree(relation, owners.get(0), path, context, objects);
                 }
-                resolveTree(relation, owners.get(0), path, context, objects);
             } else if (!tree && (type == TargetType.Table || type == TargetType.View)) {
                 resolveTable(relation, context, objects);
             } else {
-                resolveNamespace(relation, context.dataSourceOwner());
+                resolveNamespace(relation);
             }
         }
 
@@ -88,7 +104,7 @@ final class IotdbQueryResourceResolver implements QueryResourceResolver {
         if (!tree && database != null) {
             scope.put(TargetType.Schema, List.of(database));
         }
-        if (!context.dataSourceOwner()) {
+        if (!context.dataSourceOwner() && !treeMetadata) {
             for (BehaviorRelation relation : relations) {
                 TargetType type = relation.getSubject().getObjectType();
                 if ((type == TargetType.Table || type == TargetType.Timeseries) && relation.getAction() != BehaviorAction.CREATE) {
@@ -145,16 +161,19 @@ final class IotdbQueryResourceResolver implements QueryResourceResolver {
         }
     }
 
-    private void resolveNamespace(BehaviorRelation relation, boolean owner) {
+    private void resolveNamespace(BehaviorRelation relation) {
         BehaviorObject resource = relation.getSubject();
         ObjectName name = resource.getObjectName();
         String database = name.getSchema();
-        if (resource.getObjectType() == TargetType.Schema && relation.getAction() != BehaviorAction.READ) {
-            if (!safeSegment(database) || ("TREE".equals(name.getCatalog()) && database.indexOf('*') >= 0)
-                || !resource.getObjectPath().equals("/" + name.getCatalog() + "/" + database + "/")) {
+        String namespace = "/" + name.getCatalog() + "/";
+        if (database != null) {
+            if (!safeSegment(database) || ("TREE".equals(name.getCatalog()) && database.indexOf('*') >= 0)) {
                 throw unresolved();
             }
-        } else if (!owner) {
+            namespace += database + "/";
+        }
+        if (!namespace.equals(resource.getObjectPath())
+            || (resource.getObjectType() == TargetType.Schema && relation.getAction() != BehaviorAction.READ && database == null)) {
             throw unresolved();
         }
     }

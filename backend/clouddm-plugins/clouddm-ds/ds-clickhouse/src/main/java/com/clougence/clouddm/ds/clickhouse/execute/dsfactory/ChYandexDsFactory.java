@@ -23,6 +23,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -117,14 +118,8 @@ public class ChYandexDsFactory implements DsFactory<Connection> {
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            return String.format("jdbc:clickhouse://%s:9000/%s", ipPort[0], safeString(defaultSchema));
-        } else if (ipPort.length == 2) {
-            return String.format("jdbc:clickhouse://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultSchema));
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
-        }
+        HostAndPort address = HostAndPort.parse(host, 9000);
+        return String.format("jdbc:clickhouse://%s:%s/%s", address.formatHost(), address.getPort(), safeString(defaultSchema));
     }
 
     private String safeString(String value) {

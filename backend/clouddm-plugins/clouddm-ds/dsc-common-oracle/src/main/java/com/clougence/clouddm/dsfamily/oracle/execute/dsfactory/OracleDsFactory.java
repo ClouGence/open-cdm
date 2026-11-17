@@ -24,10 +24,12 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Properties;
 
+import com.clougence.clouddm.dsfamily.oracle.OracleHostAddress;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -166,21 +168,18 @@ public class OracleDsFactory implements DsFactory<Connection> {
         boolean tcps = StringUtils.containsIgnoreCase(dsConfig.getProperty("oracle.net.authentication_services"), "TCPS");
         String protocol = tcps ? "tcps" : "tcp";
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            ipPort = new String[] { ipPort[0], "1521" };
-        } else if (ipPort.length == 2) {
-            ipPort = new String[] { ipPort[0], ipPort[1] };
-        } else if (ipPort.length == 3) {
-            ipPort = new String[] { ipPort[0], ipPort[1] };
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
+        if (StringUtils.equalsIgnoreCase("tns", connType) || StringUtils.equalsIgnoreCase("oracle_tns", connType)) {
+            System.setProperty("oracle.net.tns_admin", tnsAdmin);
+            return "jdbc:oracle:thin:@" + tnsName;
         }
+
+        HostAndPort address = OracleHostAddress.parse(host).getAddress();
+        String[] ipPort = { address.formatHost(), String.valueOf(address.getPort()) };
 
         String jdbcUrl;
 
         if ((StringUtils.equalsIgnoreCase("sid", connType) || StringUtils.equalsIgnoreCase("oracle_sid", connType)) && StringUtils.isNotBlank(sid)) {
-            if (tcps) {
+            if (tcps || address.getHost().contains(":")) {
                 jdbcUrl = String.format("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=%s)(HOST=%s)(PORT=%s))(CONNECT_DATA=(SID=%s)))",//
                         protocol, ipPort[0], ipPort[1], sid);
             } else {
@@ -189,7 +188,7 @@ public class OracleDsFactory implements DsFactory<Connection> {
             }
 
         } else if ((StringUtils.equalsIgnoreCase("service", connType) || StringUtils.equalsIgnoreCase("oracle_service", connType)) && StringUtils.isNotBlank(serviceName)) {
-            if (tcps) {
+            if (tcps || address.getHost().contains(":")) {
                 jdbcUrl = String.format("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=%s)(HOST=%s)(PORT=%s))(CONNECT_DATA=(SERVICE_NAME=%s)))",//
                         protocol, ipPort[0], ipPort[1], serviceName);
             } else {
@@ -198,17 +197,13 @@ public class OracleDsFactory implements DsFactory<Connection> {
             }
 
         } else if ((StringUtils.equalsIgnoreCase("pdb", connType) || (StringUtils.equalsIgnoreCase("oracle_pdb", connType))) && StringUtils.isNotBlank(pdbName)) {
-            if (tcps) {
+            if (tcps || address.getHost().contains(":")) {
                 jdbcUrl = String.format("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=%s)(HOST=%s)(PORT=%s))(CONNECT_DATA=(SERVICE_NAME=%s)))",//
                         protocol, ipPort[0], ipPort[1], pdbName);
             } else {
                 jdbcUrl = String.format("jdbc:oracle:thin:@//%s:%s/%s",//
                         ipPort[0], ipPort[1], pdbName);
             }
-
-        } else if (StringUtils.equalsIgnoreCase("tns", connType) || (StringUtils.equalsIgnoreCase("oracle_tns", connType))) {
-            System.setProperty("oracle.net.tns_admin", tnsAdmin);
-            jdbcUrl = "jdbc:oracle:thin:@" + tnsName;
 
         } else {
             throw new IllegalArgumentException("unsupported Oracle connect type:" + connType);

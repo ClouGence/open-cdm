@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.ds.redis.execute.jdbc;
 
+import static com.clougence.utils.HostAndPort.parse;
+
 import java.lang.reflect.InvocationHandler;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -39,14 +41,8 @@ import redis.clients.jedis.*;
 public class JedisConnectionFactory implements AdapterFactory {
 
     private static HostAndPort passerIpPort(String host, int defaultPort) {
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            return new HostAndPort(ipPort[0], defaultPort);
-        } else if (ipPort.length == 2) {
-            return new HostAndPort(ipPort[0], Integer.parseInt(ipPort[1]));
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
-        }
+        var endpoint = parse(host, defaultPort);
+        return new HostAndPort(endpoint.getHost(), endpoint.getPort());
     }
 
     private static DefaultJedisClientConfig passerClientConfig(Map<String, String> dsConfig) {

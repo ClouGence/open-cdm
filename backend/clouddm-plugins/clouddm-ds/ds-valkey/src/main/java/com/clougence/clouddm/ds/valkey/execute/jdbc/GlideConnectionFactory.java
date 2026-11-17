@@ -24,6 +24,7 @@ import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.drivers.adapter.AdapterFactory;
 import com.clougence.drivers.adapter.AdapterTypeSupport;
 import com.clougence.drivers.adapter.TypeSupport;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ref.LinkedCaseInsensitiveMap;
 
@@ -31,7 +32,6 @@ import glide.api.GlideClient;
 import glide.api.models.configuration.GlideClientConfiguration;
 import glide.api.models.configuration.NodeAddress;
 import glide.api.models.configuration.ServerCredentials;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -39,17 +39,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class GlideConnectionFactory implements AdapterFactory {
-
-    private static int passerPort(String host, int defaultPort) {
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            return defaultPort;
-        } else if (ipPort.length == 2) {
-            return Integer.parseInt(ipPort[1]);
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
-        }
-    }
 
     private static GlideClient createGlideClient(Map<String, String> dsConfig) throws SQLException {
         String username = dsConfig.get(GlideKeys.USERNAME);
@@ -59,16 +48,14 @@ public class GlideConnectionFactory implements AdapterFactory {
         String sslMode = dsConfig.get(GlideKeys.SSL_MODE);
 
         String host = dsConfig.get(GlideKeys.SERVER);
-        String[] ipPort = host.split(":");
-        String hostName = ipPort[0];
-        int port = passerPort(host, 6379);
+        HostAndPort endpoint = HostAndPort.parse(host, 6379);
 
         int connTimeoutMs = StringUtils.isBlank(connTimeoutMsStr) ? 5000 : Integer.parseInt(connTimeoutMsStr);
         int soTimeoutMs = (StringUtils.isBlank(soTimeoutSecStr) ? 10 : Integer.parseInt(soTimeoutSecStr)) * 1000;
         boolean useTLS = StringUtils.isNotBlank(sslMode) && !SslMode.DISABLED.name().equals(sslMode);
 
         GlideClientConfiguration.GlideClientConfigurationBuilder builder = GlideClientConfiguration.builder()
-            .address(NodeAddress.builder().host(hostName).port(port).build())
+            .address(NodeAddress.builder().host(endpoint.getHost()).port(endpoint.getPort()).build())
             .useTLS(useTLS)
             .requestTimeout(connTimeoutMs);
         if (StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password)) {

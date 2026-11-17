@@ -46,6 +46,7 @@
         <result column="access_token" property="accessToken"/>
         <result column="marketplace_type" property="marketplaceType"/>
         <result column="use_mfa" property="useMfa"/>
+        <result column="need_change_pwd" property="needChangePwd"/>
     </resultMap>
 
     <sql id="rdpUser">
@@ -88,7 +89,8 @@
         saas_user_status,
         access_token,
         marketplace_type,
-        use_mfa
+        use_mfa,
+        need_change_pwd
     </sql>
 
     <resultMap id="approvalPersonDO" type="com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj">
@@ -645,6 +647,30 @@
             last_date_update_pwd = NOW()
         WHERE
             id = #{id}
+    </update>
+
+    <update id="updatePasswdAndClearNeedChangePwd">
+        UPDATE
+            dm_auth_user
+        SET
+            password             = #{password},
+            last_date_update_pwd = NOW(),
+            need_change_pwd      = 0
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updatePasswdAndClearNeedChangePwdIfRequired">
+        UPDATE
+            dm_auth_user
+        SET
+            password             = #{password},
+            last_date_update_pwd = NOW(),
+            need_change_pwd      = 0
+        WHERE
+            id              = #{id}
+            AND
+            need_change_pwd = 1
     </update>
 
     <update id="updateOpPasswdById">

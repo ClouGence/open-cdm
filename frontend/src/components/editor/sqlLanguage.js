@@ -6,6 +6,12 @@ import { esLanguage } from './esLanguage';
 const keywordCache = {};
 const registeredLanguages = new Set();
 const languageDefinitions = { kafka: kafkaLanguage, es: esLanguage };
+const defaultCompletionTriggerCharacters = [' ', '.', '`', '/', '$', '"', '?', '&'];
+
+export function getCompletionTriggerCharacters(languageId) {
+  const additionalCharacters = languageDefinitions[languageId]?.completion?.additionalTriggerCharacters || [];
+  return [...defaultCompletionTriggerCharacters, ...additionalCharacters];
+}
 
 export function getDsSetting(settings, dsType) {
   if (!dsType || !settings) {

@@ -53,6 +53,7 @@ public class QueryCtx {
     private long                   prepareCost;
     private long                   queryCost;
     private long                   receiveCost;
+    private boolean                metadataChanged;
     private final AtomicLong       receiveTimes;
 
     public QueryCtx(DsLevels levels, DataSourceConfig dsConfig, SessionContextDTO ctxDTO, Map<String, Object> ctxParams,//
@@ -79,6 +80,7 @@ public class QueryCtx {
         this.prepareCost = 0;
         this.queryCost = 0;
         this.receiveCost = 0;
+        this.metadataChanged = false;
         this.receiveTimes.set(0);
     }
 

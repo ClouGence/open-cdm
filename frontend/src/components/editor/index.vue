@@ -8,7 +8,7 @@ import { getLanguage } from '@/utils/tools';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { requestWebSocket } from '@/services/socket';
 import { WS_TYPE } from '@/utils';
-import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
+import { getCompletionTriggerCharacters, getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
 import { SQL_EDITOR_SCROLLBAR, SQL_EDITOR_TYPOGRAPHY } from './sqlEditorTypography';
 import { canFormatSql, formatSqlDocument } from './sqlFormat';
 
@@ -433,7 +433,7 @@ export default {
     },
     registerCompletion(lang) {
       const providerItem = monaco.languages.registerCompletionItemProvider(lang, {
-        triggerCharacters: [' ', '.', '`', '/', '$', '"', '?', '&'],
+        triggerCharacters: getCompletionTriggerCharacters(lang),
         provideCompletionItems: async (model, position) => {
           if (model !== this.monacoEditor?.getModel()) {
             return { suggestions: [] };
@@ -1834,10 +1834,10 @@ export default {
 .language-service-error {
   max-width: 360px;
   padding: 4px 8px;
-  border: 1px solid #ffccc7;
+  border: 1px solid var(--error-color);
   border-radius: 4px;
-  background: #fff2f0;
-  color: #cf1322;
+  background: var(--error-bg);
+  color: var(--error-color);
   font-size: 12px;
   line-height: 18px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);

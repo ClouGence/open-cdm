@@ -31,6 +31,7 @@ import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
+import com.clougence.clouddm.console.web.model.fo.FirstLoginPwdChangeFO;
 import com.clougence.clouddm.console.web.model.fo.LoginAutoRegisterFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
@@ -55,6 +56,7 @@ import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.rdp.service.model.AddSubAccountMO;
 import com.clougence.rdp.service.model.LoginMO;
+import com.clougence.rdp.service.model.UpdateUserInfoMO;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -118,10 +120,34 @@ public class LoginServiceImpl implements LoginService {
 
         try {
             this.checkByPassword(loginFO, user);
+            if (user.isNeedChangePwd()) {
+                return loginNeedChangePwd(user);
+            }
             return loginDone(user, LoginAuthType.PASSWORD);
         } catch (ErrorMessageException e) {
             return loginFailed(user, e);
         }
+    }
+
+    private LoginMO loginNeedChangePwd(DmAuthUserDO user) {
+        LoginMO re = new LoginMO();
+        re.setSuccess(true);
+        re.setNeedChangePwd(true);
+        re.setUid(user.getUid());
+        re.setUsername(user.getUsername());
+        re.setLoginType(LoginAuthType.PASSWORD);
+        re.setErrMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.FIRST_LOGIN_PWD_CHANGE_REQUIRED.name()));
+
+        Long parentId = user.getParentId();
+        if (parentId == null) {
+            return re;
+        }
+
+        DmAuthUserDO primaryUser = authDal.userMapper().queryById(parentId);
+        if (primaryUser != null) {
+            re.setPuid(primaryUser.getUid());
+        }
+        return re;
     }
 
     private void checkAccountStatus(DmAuthUserDO user) {
@@ -314,8 +340,7 @@ public class LoginServiceImpl implements LoginService {
     public LoginMO loginMfaValid(LoginMfaValidFO validFO) {
         DmAuthMfaChallengeDO challengeDO = mfaChallengeService.requirePendingChallenge(validFO.getMfaPreActionToken(), MfaPreActionType.LOGIN);
         if (!mfaChallengeService.acquireAttempt(challengeDO)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(),
-                RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
         }
 
         if (!loginMFAService.validMFA(challengeDO.getUid(), validFO.getMfaCode())) {
@@ -323,8 +348,7 @@ public class LoginServiceImpl implements LoginService {
         }
 
         if (!mfaChallengeService.consumeChallenge(challengeDO)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(),
-                RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
         }
 
         DmAuthUserDO user = rdpUserService.getUserByUid(challengeDO.getUid());
@@ -342,6 +366,39 @@ public class LoginServiceImpl implements LoginService {
             }
         }
         return re;
+    }
+
+    @Override
+    public LoginMO changeFirstLoginPwd(FirstLoginPwdChangeFO pwdChangeFO) {
+        DmAuthUserDO user = this.authDal.queryLocalUserByLoginText(pwdChangeFO.getAccount());
+        try {
+            checkAccountStatus(user);
+        } catch (ErrorMessageException e) {
+            return loginFailedNotLimit(user, e);
+        }
+
+        LoginFO loginFO = new LoginFO();
+        loginFO.setAccount(pwdChangeFO.getAccount());
+        loginFO.setPassword(pwdChangeFO.getOriginPassword());
+        try {
+            this.checkByPassword(loginFO, user);
+        } catch (ErrorMessageException e) {
+            return loginFailed(user, e);
+        }
+
+        if (!user.isNeedChangePwd()) {
+            return loginFailedNotLimit(user, new ErrorMessageException(//
+                DmI18nUtils.getMessage(I18nRdpMsgKeys.FIRST_LOGIN_PWD_CHANGE_NOT_REQUIRED.name())));
+        }
+
+        String newPwd = Sm2Utils.decrypt(this.config.getPrivateKey(), pwdChangeFO.getNewPassword());
+        UpdateUserInfoMO changeMO = this.rdpUserService.changePwdOnFirstLogin(user.getUid(), newPwd);
+        if (!changeMO.isSuccess()) {
+            return loginFailedNotLimit(user, new ErrorMessageException(changeMO.getErrorMsg()));
+        }
+
+        user.setNeedChangePwd(false);
+        return loginDone(user, LoginAuthType.PASSWORD);
     }
 
     private LoginMO loginFailed(DmAuthUserDO user, ErrorMessageException e) {

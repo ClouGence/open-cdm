@@ -19,12 +19,12 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import com.clougence.sql.kafka.antlr.KafkaLexer;
-import com.clougence.sql.kafka.antlr.KafkaParser;
-
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+
+import com.clougence.sql.kafka.antlr.KafkaLexer;
+import com.clougence.sql.kafka.antlr.KafkaParser;
 
 public class KafkaCommandParser {
     public KafkaCommand parse(String text) {
@@ -56,7 +56,7 @@ public class KafkaCommandParser {
             List<String> values = options.computeIfAbsent(name, key -> new ArrayList<>());
             if (optionContext.valueOption() != null) {
                 String value = KafkaWords.decode(optionContext.valueOption().argument().getText());
-                if (value.isBlank()) {
+                if (value.isBlank() && !name.equals("--value") && !name.equals("--key")) {
                     throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_VALUE_REQUIRED, name);
                 }
                 values.add(value);
@@ -76,7 +76,7 @@ public class KafkaCommandParser {
         }
         KafkaCommandType type = command.getType();
         List<String> actions = type.getActions().stream().filter(command::has).toList();
-        if (type != KafkaCommandType.CONSUMER && actions.size() != 1) {
+        if (!type.getActions().isEmpty() && actions.size() != 1) {
             throw new KafkaParseException(head.start(), head.end(), KafkaSqlI18nKeys.KAFKA_ACTION_REQUIRED, String.join(" / ", type.getActions()));
         }
         String action = null;
@@ -93,23 +93,20 @@ public class KafkaCommandParser {
                 validateNumber(option, command.value(option), token);
             }
         }
-        if (type == KafkaCommandType.CONSUMER || command.has("--create") || (type == KafkaCommandType.TOPICS && command.has("--delete"))) {
+        boolean exactTopic = type != KafkaCommandType.TOPICS || command.has("--create");
+        if (exactTopic || command.has("--delete")) {
             require(command, "--topic", head);
         }
+        if (type == KafkaCommandType.PRODUCER) {
+            require(command, "--value", head);
+        }
         if (type == KafkaCommandType.CONSUMER) {
-            if (command.has("--from-beginning") && command.has("--offset")) {
-                KafkaToken token = locations.get("--offset");
-                throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_CONFLICT);
-            }
-            if (command.has("--offset") && !"latest".equals(command.value("--offset"))) {
-                KafkaToken token = locations.get("--offset");
-                throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_UNSUPPORTED);
-            }
+            validateConsumer(command, locations, head);
         }
         if (command.has("--config")) {
             validateConfigs(command, locations.get("--config"));
         }
-        if (type == KafkaCommandType.TOPICS && command.has("--topic") && !command.has("--create")) {
+        if (!exactTopic && command.has("--topic")) {
             try {
                 Pattern.compile(command.value("--topic"));
             } catch (PatternSyntaxException e) {
@@ -117,11 +114,35 @@ public class KafkaCommandParser {
                 throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_PATTERN_INVALID);
             }
         }
-        if (command.has("--topic") && (type == KafkaCommandType.CONSUMER || command.has("--create"))) {
+        if (exactTopic) {
             String topic = command.value("--topic");
             if (topic.length() > 249 || topic.equals(".") || topic.equals("..") || !topic.matches("[a-zA-Z0-9._-]+")) {
                 KafkaToken token = locations.get("--topic");
                 throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_TOPIC_INVALID);
+            }
+        }
+    }
+
+    private void validateConsumer(KafkaCommand command, Map<String, KafkaToken> locations, KafkaToken head) {
+        if (command.has("--from-beginning") && command.has("--offset")) {
+            KafkaToken token = locations.get("--offset");
+            throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_CONFLICT);
+        }
+        if (command.has("--offset") && !"latest".equals(command.value("--offset"))) {
+            KafkaToken token = locations.get("--offset");
+            throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_OFFSET_UNSUPPORTED);
+        }
+        if (command.has("--group") && command.has("--partition")) {
+            KafkaToken token = locations.get("--partition");
+            throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_GROUP_PARTITION_CONFLICT);
+        }
+        if (command.has("--consumer-property")) {
+            KafkaToken token = locations.get("--consumer-property");
+            if (!command.commitsConsumerOffsets() && !"enable.auto.commit=false".equals(command.value("--consumer-property"))) {
+                throw new KafkaParseException(token.start(), token.end(), KafkaSqlI18nKeys.KAFKA_CONSUMER_PROPERTY_UNSUPPORTED);
+            }
+            if (command.commitsConsumerOffsets()) {
+                require(command, "--group", head);
             }
         }
     }

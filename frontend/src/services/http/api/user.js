@@ -2,6 +2,7 @@ export const userApi = {
   login: '/login',
   logout: '/logout',
   loginMfaValid: '/loginMfaValid',
+  loginPwdChange: '/loginPwdChange',
   requestJumpUrl: '/requestJumpUrl',
   getGlobalSettings: '/globalSettings',
   checkSupplement: '/checkSupplement',

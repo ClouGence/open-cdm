@@ -22,6 +22,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -116,20 +117,18 @@ public class JtdsSqlServerDsFactory implements DsFactory<Connection> {
             defaultCatalog = "master";
         }
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
+        HostAndPort endpoint = HostAndPort.parse(host);
+        if (endpoint.getPort() < 0) {
             if (StringUtils.isNotBlank(instanceName)) {
-                return String.format("jdbc:jtds:sqlserver://%s/%s;instance=%s", ipPort[0], safeString(defaultCatalog), instanceName);
+                return String.format("jdbc:jtds:sqlserver://%s/%s;instance=%s", endpoint.formatHost(), safeString(defaultCatalog), instanceName);
             }
-            return String.format("jdbc:jtds:sqlserver://%s:1433/%s", ipPort[0], safeString(defaultCatalog));
-        } else if (ipPort.length == 2) {
-            if (StringUtils.isNotBlank(instanceName)) {
-                return String.format("jdbc:jtds:sqlserver://%s:%s/%s;instance=%s", ipPort[0], ipPort[1], safeString(defaultCatalog), instanceName);
-            }
-            return String.format("jdbc:jtds:sqlserver://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultCatalog));
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
+            return String.format("jdbc:jtds:sqlserver://%s:1433/%s", endpoint.formatHost(), safeString(defaultCatalog));
         }
+
+        if (StringUtils.isNotBlank(instanceName)) {
+            return String.format("jdbc:jtds:sqlserver://%s:%s/%s;instance=%s", endpoint.formatHost(), endpoint.getPort(), safeString(defaultCatalog), instanceName);
+        }
+        return String.format("jdbc:jtds:sqlserver://%s:%s/%s", endpoint.formatHost(), endpoint.getPort(), safeString(defaultCatalog));
     }
 
     protected Connection createConnection(String jdbcUrl, Properties dsConfig) throws SQLException {

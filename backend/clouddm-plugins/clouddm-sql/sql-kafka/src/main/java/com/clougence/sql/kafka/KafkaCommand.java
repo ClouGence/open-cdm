@@ -63,12 +63,19 @@ public class KafkaCommand implements Statement {
         return values.get(0);
     }
 
+    public boolean commitsConsumerOffsets() {
+        return "enable.auto.commit=true".equals(value("--consumer-property"));
+    }
+
     public SplitQueryType queryType() {
         if (has("--help")) {
             return SplitQueryType.METADATA;
         }
         if (type == KafkaCommandType.CONSUMER) {
             return SplitQueryType.LOG_READ;
+        }
+        if (type == KafkaCommandType.PRODUCER) {
+            return SplitQueryType.INSERT;
         }
         if (has("--create")) {
             return SplitQueryType.CREATE_PUB_SUB;

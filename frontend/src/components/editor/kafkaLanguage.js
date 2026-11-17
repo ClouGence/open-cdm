@@ -1,4 +1,7 @@
 export const kafkaLanguage = {
+  completion: {
+    additionalTriggerCharacters: ['-', '=']
+  },
   configuration: {
     comments: { lineComment: '#' },
     wordPattern: /[\w.-]+/g,
@@ -11,7 +14,7 @@ export const kafkaLanguage = {
     tokenizer: {
       root: [
         [/#.*$/, 'comment'],
-        [/kafka-(?:topics|console-consumer)(?:\.sh)?\b/, 'keyword'],
+        [/kafka-(?:topics|console-(?:consumer|producer))(?:\.sh)?\b/, 'keyword'],
         [/--[a-z][a-z-]*/, 'attribute.name'],
         [/'/, 'string', '@singleString'],
         [/"/, 'string', '@doubleString'],

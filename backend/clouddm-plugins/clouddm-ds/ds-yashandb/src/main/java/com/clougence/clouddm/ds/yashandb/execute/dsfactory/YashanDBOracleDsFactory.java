@@ -28,6 +28,7 @@ import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -190,13 +191,7 @@ public class YashanDBOracleDsFactory implements DsFactory<Connection> {
             throw new IllegalArgumentException("YashanDB database name is required, please fill in the 'Catalog' field of the data source configuration.");
         }
 
-        String[] hostPort = host.split(":");
-        if (hostPort.length == 1) {
-            return String.format("jdbc:yasdb://%s:1688/%s", hostPort[0], database);
-        }
-        if (hostPort.length == 2) {
-            return String.format("jdbc:yasdb://%s:%s/%s", hostPort[0], hostPort[1], database);
-        }
-        throw new IllegalArgumentException("Unsupported YashanDB host format: " + host);
+        HostAndPort endpoint = HostAndPort.parse(host, 1688);
+        return String.format("jdbc:yasdb://%s:%s/%s", endpoint.formatHost(), endpoint.getPort(), database);
     }
 }

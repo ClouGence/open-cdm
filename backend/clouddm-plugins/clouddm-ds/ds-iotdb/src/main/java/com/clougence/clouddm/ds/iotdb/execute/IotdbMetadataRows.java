@@ -60,7 +60,7 @@ final class IotdbMetadataRows {
         attributes.put("model", model.name());
         if (type == UmiTypes.Catalog || type == UmiTypes.Schema) {
             if (model == IotdbSqlDialect.TREE) {
-                attributes.put("leafTypes", List.of("DEVICE", "TIMESERIES"));
+                attributes.put("leafTypes", List.of("TIMESERIES"));
             } else {
                 attributes.put("leafTypes", List.of("TABLE", "VIEW"));
             }

@@ -23,11 +23,11 @@
 
     <div class="login-panel">
       <div class="panel-header">
-        <h2 class="panel-title">{{ showMfa ? $t('duo-yin-zi-ren-zheng-yan-zheng-ma') : currentLoginTitle }}</h2>
-        <p class="panel-subtitle" v-if="!showMfa && !isCompletionMode">{{ $t('deng-lu-miao-shu') }}</p>
+        <h2 class="panel-title">{{ panelTitle }}</h2>
+        <p class="panel-subtitle" v-if="!showMfa && !isCompletionMode">{{ panelSubtitle }}</p>
       </div>
       <div class="panel-body">
-        <div class="input-wrapper mt-4" :class="{ 'is-completion': isCompletionMode }" v-if="!showMfa">
+        <div class="input-wrapper mt-4" :class="{ 'is-completion': isCompletionMode }" v-if="!showMfa && !showPwdChange">
           <template v-if="isCompletionMode">
             <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.name }">
               <span class="floating-label">{{ optionalLabel($t('yong-hu-ming')) }}</span>
@@ -99,7 +99,25 @@
           </p>
           <p v-else class="opacity-60 mfa-invalid-tip">{{ $t('mfa-yi-shi-xiao-deng-lu-ti-shi') }}</p>
         </div>
-        <div class="completion-actions" v-if="!showMfa && isCompletionMode">
+        <div class="input-wrapper mt-4" v-if="showPwdChange">
+          <div class="floating-field" :class="{ 'has-value': pwdChangeForm.newPassword }">
+            <span class="floating-label">{{ $t('xin-mi-ma') }}</span>
+            <a-input-password class="field-input" v-model:value="pwdChangeForm.newPassword" @keydown.enter="handleEnter3" size="large" />
+          </div>
+          <div class="floating-field" :class="{ 'has-value': pwdChangeForm.confirmPassword }">
+            <span class="floating-label">{{ $t('que-ren-mi-ma') }}</span>
+            <a-input-password class="field-input" v-model:value="pwdChangeForm.confirmPassword" @keydown.enter="handleEnter3" size="large" />
+          </div>
+        </div>
+        <div class="completion-actions" v-if="showPwdChange">
+          <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="handlePwdChange">
+            {{ $t('xiu-gai-mi-ma-bing-deng-lu') }}
+          </a-button>
+          <a-button :disabled="loginLoading" size="large" class="completion-back" @click="goReLogin">
+            {{ $t('chong-xin-deng-lu') }}
+          </a-button>
+        </div>
+        <div class="completion-actions" v-if="!showMfa && !showPwdChange && isCompletionMode">
           <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="handleLogin">
             {{ $t('bu-quan-xin-xi-bing-deng-lu') }}
           </a-button>
@@ -108,7 +126,7 @@
           </a-button>
         </div>
         <a-button
-          v-if="!showMfa && !isCompletionMode && !isJumpLogin(currentLoginType)"
+          v-if="!showMfa && !showPwdChange && !isCompletionMode && !isJumpLogin(currentLoginType)"
           :disabled="loginLoading || !currentLoginDef.available"
           :loading="loginLoading"
           type="primary"
@@ -134,7 +152,7 @@
             {{ $t('shao-hou-chu-li') }}
           </a-button>
         </div>
-        <div class="login-provider-switcher" v-if="!showMfa && !isCompletionMode && loginDef.length > 1">
+        <div class="login-provider-switcher" v-if="!showMfa && !showPwdChange && !isCompletionMode && loginDef.length > 1">
           <button
             v-for="item in loginDef"
             :key="item.loginType"
@@ -198,6 +216,21 @@ export default {
     currentLoginTitle() {
       return this.$t('huan-ying-hui-lai');
     },
+    panelTitle() {
+      if (this.showMfa) {
+        return this.$t('duo-yin-zi-ren-zheng-yan-zheng-ma');
+      }
+      if (this.showPwdChange) {
+        return this.$t('shou-ci-deng-lu-xiu-gai-mi-ma');
+      }
+      return this.currentLoginTitle;
+    },
+    panelSubtitle() {
+      if (this.showPwdChange) {
+        return this.$t('shou-ci-deng-lu-bi-xu-xiu-gai-chu-shi-mi-ma');
+      }
+      return this.$t('deng-lu-miao-shu');
+    },
     accountLabel() {
       if (this.currentLoginType === LOGIN_TYPE.LOGIN_PASSWORD) {
         return `${this.$t('zhang-hao')}/${this.$t('you-xiang')}/${this.$t('shou-ji-hao')}`;
@@ -228,6 +261,11 @@ export default {
       loginLoading: false,
       showMfa: false,
       mfaInvalidMode: false,
+      showPwdChange: false,
+      pwdChangeForm: {
+        newPassword: '',
+        confirmPassword: ''
+      },
       loginCallbackData: {},
       completionErrors: {
         phone: '',
@@ -430,6 +468,12 @@ export default {
           this.errMsg = '';
           if (res.data.needMore) {
             this.showCompleteForm(res.data, data);
+          } else if (res.data.needChangePwd) {
+            this.showPwdChange = true;
+            this.pwdChangeForm = {
+              newPassword: '',
+              confirmPassword: ''
+            };
           } else if (res.data.needMfa) {
             this.showMfa = true;
             this.mfaInvalidMode = false;
@@ -489,6 +533,66 @@ export default {
     goHandleInvalidMfa() {
       this.$router.push({ path: '/settings/profile', query: { tab: 'security' } });
     },
+    async handlePwdChange() {
+      const newPassword = this.pwdChangeForm.newPassword || '';
+      const confirmPassword = this.pwdChangeForm.confirmPassword || '';
+      if (!newPassword || !confirmPassword) {
+        Toast.error(this.$t('mi-ma-bu-neng-wei-kong'));
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        Toast.error(this.$t('liang-ci-shu-ru-de-mi-ma-bu-yi-zhi'));
+        return;
+      }
+      if (!this.publicKey) {
+        Toast.error(this.$t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan'));
+        return;
+      }
+
+      this.loginLoading = true;
+      try {
+        const res = await this.$services.loginPwdChange({
+          data: {
+            account: this.loginForm.account,
+            originPassword: this.passwordEncrypt(this.loginForm.password),
+            newPassword: this.passwordEncrypt(newPassword)
+          },
+          modal: false
+        });
+        if (res.success) {
+          this.showPwdChange = false;
+          this.pwdChangeForm = {
+            newPassword: '',
+            confirmPassword: ''
+          };
+          this.loginForm.password = '';
+          if (res.data.needMfa) {
+            this.showMfa = true;
+            this.mfaInvalidMode = false;
+            this.mfaPreActionToken = res.data.mfaPreActionToken;
+            return;
+          }
+          if (res.data.mfaInvalid) {
+            await this.getUserInfo();
+            this.handleMfaInvalidLogin();
+            return;
+          }
+          await this.getUserInfo();
+          await this.redirectToHome();
+        } else {
+          Toast.error(this.resolveErrorMessage(res));
+        }
+      } catch (error) {
+        Toast.error(this.resolveErrorMessage(error));
+      } finally {
+        this.loginLoading = false;
+      }
+    },
+    handleEnter3(arg) {
+      if (arg.keyCode === 13) {
+        this.handlePwdChange();
+      }
+    },
     handleGoJump(loginDef = this.currentLoginDef) {
       if (!loginDef.available) {
         Toast.error(this.resolveErrorMessage({ message: loginDef.errorInfo }));
@@ -501,6 +605,11 @@ export default {
       this.errMsg = '';
       this.showMfa = false;
       this.mfaInvalidMode = false;
+      this.showPwdChange = false;
+      this.pwdChangeForm = {
+        newPassword: '',
+        confirmPassword: ''
+      };
       this.mfaCode = '';
       this.mfaPreActionToken = '';
       this.loginCallbackData = {};
