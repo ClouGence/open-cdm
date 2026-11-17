@@ -42,10 +42,6 @@ public class WsUtils {
             return;
         }
 
-        if (!WsSessionGuard.allowSend(ws)) {
-            return;
-        }
-
         String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
         String wsMessage = "WS[" + getChannelKey(ws) + "]:SEND from user(" + uid + ") to console, type:" + type.getCode();
 

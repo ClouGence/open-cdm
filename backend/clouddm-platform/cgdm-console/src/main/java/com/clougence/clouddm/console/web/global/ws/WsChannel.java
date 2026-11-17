@@ -32,26 +32,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
-import com.clougence.clouddm.console.web.global.session.SessionAccountPolicy;
-import com.clougence.clouddm.console.web.global.session.SessionConfig;
 import com.clougence.clouddm.console.web.global.session.SessionCheckResult;
-import com.clougence.clouddm.console.web.global.session.SessionPrincipal;
-import com.clougence.clouddm.console.web.global.session.SessionService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
 import com.clougence.clouddm.console.web.global.jwtsession.WebSoInterceptor;
 import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
 import com.clougence.clouddm.console.web.model.vo.system.WsSysMsg;
-import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
-import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.editor.DsConsoleEditorService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpLocal;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
-import com.clougence.clouddm.console.web.util.RdpWebUtils;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -72,16 +60,6 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     private DsConsoleEditorService          editorApi;
     @Resource
     private WsSessionGuard                  sessionGuard;
-    @Resource
-    private SessionService                  sessionService;
-    @Resource
-    private RdpUserService                  userService;
-    @Resource
-    private RdpRoleService                  roleService;
-    @Resource
-    private SessionAccountPolicy            accountPolicy;
-    @Resource
-    private SessionConfig                   sessionConfig;
 
     @Override
     public void init() throws Exception {
@@ -203,7 +181,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             wsMsg.setChannelKey(WsUtils.getChannelKey(ws));
 
             if (wsMsg.getType() == WsType.WS_REQ_QUERY || wsMsg.getType() == WsType.WS_REQ_LANGUAGE) {
-                if (!this.authoritativeInbound(ws, sessionId)) {
+                if (!this.sessionGuard.revalidate(ws)) {
                     return;
                 }
             }
@@ -213,82 +191,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             log.error("WS[" + WsUtils.getChannelKey(ws) + "]:RECEIVE user(" + curUser + "), handleError " + e.getMessage(), e);
         } finally {
             LocaleContextHolder.setLocaleContext(previousContext);
-            RdpWebUtils.cleanLocal();
-            RdpLocal.setLocal(null);
         }
-    }
-
-    /**
-     * Authoritative per-message re-check for business requests; never trusts the handshake.
-     * Any failure revokes the ws state and closes asynchronously without dispatch.
-     */
-    private boolean authoritativeInbound(WebSocketSession ws, Long sessionId) {
-        long startNanos = System.nanoTime();
-        try {
-            WsSessionState state = (WsSessionState) ws.getAttributes().get(WsSessionGuard.WS_SESSION_STATE);
-            if (state == null || state.isRevoked()) {
-                this.sessionGuard.asyncClose(ws);
-                return false;
-            }
-
-            SessionPrincipal principal = this.sessionService.authenticateById(sessionId);
-            DmAuthUserDO user = principal == null ? null : this.userService.getUserByUid(principal.getUid());
-            if (principal == null || user == null || user.isDisable() || this.accountPolicy.isPasswordExpired(user) || user.getRoleId() == null) {
-                failInbound(ws, state, "account invalid");
-                return false;
-            }
-
-            DmAuthUserDO primaryUser = user;
-            if (user.getAccountType() != AccountType.PRIMARY_ACCOUNT) {
-                primaryUser = this.userService.getUserById(user.getParentId());
-                if (primaryUser == null) {
-                    failInbound(ws, state, "primary user missing");
-                    return false;
-                }
-            }
-            DmAuthRoleDO role = this.roleService.fetchRoleById(user.getRoleId());
-            if (role == null) {
-                failInbound(ws, state, "role missing");
-                return false;
-            }
-            // same bypass semantics as HTTP verifyAuth, but business label required for others
-            if (!user.isMaintainer() && user.getAccountType() != AccountType.PRIMARY_ACCOUNT
-                && (role.getRoleAuthLabels() == null || !role.getRoleAuthLabels().contains(DM_QUERY_CONSOLE))) {
-                failInbound(ws, state, "query label missing");
-                return false;
-            }
-
-            long now = System.currentTimeMillis();
-            if (state.isRevoked() || now >= principal.getExpireTimeMs() || now >= this.sessionConfig.absoluteDeadlineMs(principal.getCreatedTimeMs())
-                || System.nanoTime() - startNanos >= WsSessionState.FRESH_WINDOW_NANOS) {
-                failInbound(ws, state, "validation timeout");
-                return false;
-            }
-
-            ws.getAttributes().put(WebSoInterceptor.WS_USER_ID, user.getUid());
-            ws.getAttributes().put(WebSoInterceptor.WS_PUSER_ID, primaryUser.getUid());
-
-            RdpWebUtils.currentLocal().setCurrentUser(user);
-            RdpWebUtils.currentLocal().setCurrentRole(role);
-            RdpWebUtils.currentLocal().setPrimaryUser(primaryUser);
-            return true;
-        } catch (Exception e) {
-            log.error("WS[" + WsUtils.getChannelKey(ws) + "]:INBOUND auth check failed", e);
-            WsSessionState state = (WsSessionState) ws.getAttributes().get(WsSessionGuard.WS_SESSION_STATE);
-            if (state != null) {
-                state.markRevoked();
-            }
-            this.sessionGuard.asyncClose(ws);
-            return false;
-        }
-    }
-
-    private void failInbound(WebSocketSession ws, WsSessionState state, String reason) {
-        log.info("WS[" + WsUtils.getChannelKey(ws) + "]:INBOUND reject " + reason);
-        if (state != null) {
-            state.markRevoked();
-        }
-        this.sessionGuard.asyncClose(ws);
     }
 
     private void closeAndLog(WebSocketSession ws, String logMsg, CloseStatus closeStatus) {

@@ -39,7 +39,5 @@ public class DmAuthSessionDO {
     /** epoch millis, immutable once created */
     private Long   gmtCreate;
 
-    private Long   renewedTimeMs;
-
     private Long   expireTimeMs;
 }

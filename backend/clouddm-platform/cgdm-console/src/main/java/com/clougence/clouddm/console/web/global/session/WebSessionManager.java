@@ -25,7 +25,6 @@ import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
-import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -49,8 +48,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebSessionManager {
 
-    @Resource
-    private ConsoleConfig            config;
     @Resource
     private RdpUserService           userService;
     @Resource
@@ -161,19 +158,6 @@ public class WebSessionManager {
         }
 
         String uid = principal.getUid();
-        if (StringUtils.isBlank(uid)) {
-            String errorMessage = "Uid is blank,illegal login token.";
-            log.error(errorMessage);
-            return responseNotLogin(requestAuth, request, response, errorMessage);
-        }
-
-        // CSRF check stays failure-closed: enabled config has no working verifier
-        if (this.config.getActiveCsrfCheck()) {
-            String errorMessage = "Csrf verify failed.";
-            log.error(errorMessage);
-            return responseNotLogin(requestAuth, request, response, errorMessage);
-        }
-
         DmAuthUserDO userDO = this.userService.getUserByUid(uid);
         if (userDO == null) {
             String errorMessage = "user (" + uid + ") not exist.";

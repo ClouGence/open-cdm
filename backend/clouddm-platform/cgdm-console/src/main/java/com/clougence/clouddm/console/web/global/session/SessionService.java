@@ -15,6 +15,9 @@
  */
 package com.clougence.clouddm.console.web.global.session;
 
+import java.util.Collection;
+import java.util.Map;
+
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +35,7 @@ public interface SessionService {
 
     SessionPrincipal authenticateById(Long sessionId);
 
-    java.util.Map<Long, SessionPrincipal> authenticateByIds(java.util.Collection<Long> sessionIds);
+    Map<Long, SessionPrincipal> authenticateByIds(Collection<Long> sessionIds);
 
     void renewIfNeeded(SessionPrincipal principal);
 

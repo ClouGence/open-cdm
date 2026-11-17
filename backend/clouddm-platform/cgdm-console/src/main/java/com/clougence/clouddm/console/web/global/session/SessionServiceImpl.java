@@ -15,6 +15,9 @@
  */
 package com.clougence.clouddm.console.web.global.session;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,14 +35,6 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthSessionDO;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.PreDestroy;
-import java.util.Collection;
-
-import java.util.HashMap;
-
-import java.util.List;
-
-import java.util.Map;
-
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SessionServiceImpl implements SessionService, UnifiedPostConstruct {
 
-    private static final int          AUTH_BY_IDS_BATCH = 500;
-
-    private static final int          CLEAN_BATCH       = 500;
+    private static final int          CLEAN_BATCH = 500;
 
     @Resource
     private AuthDal                   authDal;
@@ -72,7 +65,6 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         session.setTokenHash(SessionTokens.sha256Hex(token));
         session.setLoginType(loginType == null ? null : loginType.name());
         session.setGmtCreate(now);
-        session.setRenewedTimeMs(now);
         session.setExpireTimeMs(now + sessionConfig.activityWindowMs());
         authDal.sessionMapper().insert(session);
         return token;
@@ -107,23 +99,16 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
             return null;
         }
         return new SessionPrincipal(session
-            .getId(), session.getUid(), LoginAuthType.valueOfCode(session.getLoginType()), session.getGmtCreate(), session.getRenewedTimeMs(), session.getExpireTimeMs());
+            .getId(), session.getUid(), LoginAuthType.valueOfCode(session.getLoginType()), session.getGmtCreate(), session.getExpireTimeMs());
     }
 
     @Override
     public Map<Long, SessionPrincipal> authenticateByIds(Collection<Long> sessionIds) {
         Map<Long, SessionPrincipal> valid = new HashMap<>();
-        if (sessionIds == null || sessionIds.isEmpty()) {
-            return valid;
-        }
-        List<Long> unique = sessionIds.stream().filter(java.util.Objects::nonNull).distinct().toList();
-        for (int i = 0; i < unique.size(); i += AUTH_BY_IDS_BATCH) {
-            List<Long> chunk = unique.subList(i, Math.min(i + AUTH_BY_IDS_BATCH, unique.size()));
-            for (DmAuthSessionDO session : authDal.sessionMapper().queryByIds(chunk)) {
-                SessionPrincipal principal = toValidPrincipal(session);
-                if (principal != null) {
-                    valid.put(principal.getSessionId(), principal);
-                }
+        for (DmAuthSessionDO s : authDal.sessionMapper().queryByIds(sessionIds)) {
+            SessionPrincipal p = toValidPrincipal(s);
+            if (p != null) {
+                valid.put(p.getSessionId(), p);
             }
         }
         return valid;
@@ -143,7 +128,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         if (target <= principal.getExpireTimeMs()) {
             return;
         }
-        authDal.sessionMapper().renewCas(principal.getSessionId(), principal.getExpireTimeMs(), target, now);
+        authDal.sessionMapper().renewCas(principal.getSessionId(), principal.getExpireTimeMs(), target);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -185,10 +170,6 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         try {
             long now = System.currentTimeMillis();
             int deleted = authDal.sessionMapper().deleteExpiredByExpire(now, CLEAN_BATCH);
-            int budget = CLEAN_BATCH - deleted;
-            if (budget > 0 && sessionConfig.getAbsoluteLifetimeSec() > 0) {
-                deleted += authDal.sessionMapper().deleteExpiredByAbsolute(now - sessionConfig.absoluteLifetimeMs(), budget);
-            }
             if (deleted > 0) {
                 log.info("Deleted {} expired auth sessions.", deleted);
             }

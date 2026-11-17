@@ -1,7 +1,6 @@
 import appLogger from '@/utils/logger';
 import axios from 'axios';
 import Toast from '@/utils/toast';
-import { Modal } from 'view-ui-plus';
 import { showActiveLicense } from '@/utils';
 import { addPending, cancelPending, removePending } from '@/services/http/cancelRequest';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
@@ -195,22 +194,6 @@ const request = async (opt) => {
             break;
           case '6001':
             eventBus.emit('dingDingSettingModal');
-            break;
-          case '10005':
-            if (modal) {
-              Modal.error({
-                title: i18n.global.t('cuo-wu'),
-                class: 'limit-height',
-                width: 500,
-                okText: i18n.global.t('zhong-xin-deng-lu'),
-                zIndex: 9999,
-                content: formatError(res.msg) || i18n.global.t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan'),
-                onOk: () => {
-                  Router.push({ name: 'Login' });
-                }
-              });
-              return res;
-            }
             break;
           default:
             if (SELF_HANDLED_ERROR_URLS.includes(requestUrl)) {

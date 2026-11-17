@@ -545,17 +545,7 @@ export default {
     },
     async applyCallbackQuery() {
       const query = this.$route.query || {};
-      if (query.mfaRecovery === '1') {
-        const challengeToken = Array.isArray(query.mfaPreActionToken) ? query.mfaPreActionToken[0] : query.mfaPreActionToken;
-        await this.$router.replace({ name: 'Login', query: {} });
-        if (!challengeToken) {
-          Toast.error(this.$t('mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu'));
-          return;
-        }
-        this.handleMfaInvalidLogin(challengeToken);
-        return;
-      }
-      if (query.mfa === '1') {
+      if (query.mfa === '1' || query.mfaRecovery === '1') {
         const challengeToken = Array.isArray(query.mfaPreActionToken) ? query.mfaPreActionToken[0] : query.mfaPreActionToken;
         await this.$router.replace({ name: 'Login', query: {} });
         this.loginCallbackData = {};
@@ -567,8 +557,12 @@ export default {
           Toast.error(this.$t('mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu'));
           return;
         }
-        this.mfaPreActionToken = challengeToken;
-        this.showMfa = true;
+        if (query.mfaRecovery === '1') {
+          this.handleMfaInvalidLogin(challengeToken);
+        } else {
+          this.mfaPreActionToken = challengeToken;
+          this.showMfa = true;
+        }
       } else if (query.completionToken) {
         this.loginCallbackData = {
           ...query,

@@ -249,10 +249,6 @@ public class CallbackController {
             }
 
             if (login.isNeedMfa() || login.isMfaInvalid()) {
-                if (StringUtils.isBlank(login.getMfaPreActionToken())) {
-                    String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
-                    return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), message);
-                }
                 String flag = login.isNeedMfa() ? "mfa" : "mfaRecovery";
                 sendLoginRedirect(response, flag + "=1&mfaPreActionToken=" + URLEncoder.encode(login.getMfaPreActionToken(), StandardCharsets.UTF_8));
                 return login.isNeedMfa() ? "needMfa." : "mfaInvalid.";
@@ -316,7 +312,6 @@ public class CallbackController {
         }
 
         this.sessionCookieService.write(response, login.getSessionToken());
-        this.sessionCookieService.clearLegacy(response);
         if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
             response.sendRedirect(this.config.getDeployContextPath());
         } else {
@@ -328,10 +323,7 @@ public class CallbackController {
 
     @RequestMapping(value = "/logout", method = { RequestMethod.POST, RequestMethod.GET })
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    public Object logout(@RequestParam(required = false) String state, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (StringUtils.isNotBlank(state)) {
-            this.csrfTokenService.pullToken(state);
-        }
+    public Object logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String redirectUrl = this.config.getDeployContextPath();
         if (StringUtils.isBlank(redirectUrl)) {
             redirectUrl = "/";

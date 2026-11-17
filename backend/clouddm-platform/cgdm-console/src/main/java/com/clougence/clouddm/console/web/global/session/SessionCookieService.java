@@ -15,11 +15,7 @@
  */
 package com.clougence.clouddm.console.web.global.session;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.net.URI;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
@@ -35,70 +31,41 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Single cookie scope/deletion policy for the session cookie and legacy JWT
- * tombstones. Never mutates request cookies.
+ * Single cookie scope/deletion policy for the session cookie. Never mutates
+ * request cookies.
  */
 @Slf4j
 @Service
 public class SessionCookieService {
 
-    public static final String   SESSION_COOKIE_NAME = "dm_session_token";
-    private static final String  LEGACY_JWT_COOKIE   = "dm_jwt_token";
-    private static final String  LEGACY_OP_COOKIE    = "dm_op_pwd_token";
-    private static final Pattern INVALID_SCOPE_CHAR  = Pattern.compile("[\\x00-\\x1f\\x7f;]");
+    public static final String SESSION_COOKIE_NAME = "dm_session_token";
 
     @Resource
-    private ConsoleConfig        consoleConfig;
+    private ConsoleConfig      consoleConfig;
     @Resource
-    private SessionConfig        sessionConfig;
+    private SessionConfig      sessionConfig;
 
-    private String               cookiePath;
-    private String               cookieDomain;
-    private String               legacyPublicHost;
-    private boolean              secure;
+    private String             cookiePath;
+    private String             cookieDomain;
+    private boolean            secure;
 
     @PostConstruct
     public void init() {
         this.cookieDomain = consoleConfig.getLoginCookieDomain();
-        if (StringUtils.isNotBlank(cookieDomain) && !isValidDomain(cookieDomain)) {
-            throw new IllegalStateException("invalid clougence.rdp.login.cookie.domain: " + cookieDomain);
-        }
 
         String deploy = consoleConfig.getDeployContextPath();
         if (StringUtils.isBlank(deploy)) {
             this.cookiePath = "/";
-        } else if (deploy.contains("://")) {
-            URL url;
-            try {
-                url = new URL(deploy);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException("invalid clougence.rdp.deploy.context-path: " + deploy, e);
-            }
-            String protocol = url.getProtocol();
-            if (!"http".equalsIgnoreCase(protocol) && !"https".equalsIgnoreCase(protocol)) {
-                throw new IllegalStateException("clougence.rdp.deploy.context-path must be http(s): " + deploy);
-            }
-            if (StringUtils.isBlank(url.getHost()) || url.getQuery() != null || url.getRef() != null || url.getUserInfo() != null) {
-                throw new IllegalStateException("invalid clougence.rdp.deploy.context-path: " + deploy);
-            }
-            this.cookiePath = normalizePath(url.getPath());
-            this.secure = "https".equalsIgnoreCase(protocol);
-            this.legacyPublicHost = url.getHost();
         } else {
-            if (deploy.contains("?") || deploy.contains("#")) {
-                throw new IllegalStateException("invalid clougence.rdp.deploy.context-path: " + deploy);
-            }
-            this.cookiePath = normalizePath(deploy);
+            URI u = URI.create(deploy);
+            this.cookiePath = normalizePath(u.getPath());
+            this.secure = "https".equalsIgnoreCase(u.getScheme());
         }
-        if (this.cookiePath == null || INVALID_SCOPE_CHAR.matcher(cookiePath).find()) {
+        if (this.cookiePath == null) {
             throw new IllegalStateException("invalid cookie path derived from clougence.rdp.deploy.context-path: " + deploy);
         }
         // fail fast on an invalid domain/path before the first request writes headers
         scoped("").build();
-    }
-
-    private static boolean isValidDomain(String domain) {
-        return !INVALID_SCOPE_CHAR.matcher(domain).find() && !domain.contains("/") && !domain.contains(":");
     }
 
     private static String normalizePath(String path) {
@@ -137,35 +104,6 @@ public class SessionCookieService {
 
     private void emit(HttpServletResponse response, String value, int maxAge) {
         response.addHeader("Set-Cookie", scoped(value).maxAge(maxAge).build().toString());
-    }
-
-    /** Best-effort tombstones for legacy JWT cookies across their plausible scopes. */
-    public void clearLegacy(HttpServletResponse response) {
-        Set<String> domains = new LinkedHashSet<>();
-        domains.add(null);
-        if (StringUtils.isNotBlank(cookieDomain)) {
-            domains.add(cookieDomain);
-        }
-        if (StringUtils.isNotBlank(legacyPublicHost) && !legacyPublicHost.equalsIgnoreCase(cookieDomain)) {
-            domains.add(legacyPublicHost);
-        }
-        Set<String> paths = new LinkedHashSet<>();
-        paths.add("/");
-        paths.add(cookiePath);
-        for (String domain : domains) {
-            for (String path : paths) {
-                emitTombstone(response, LEGACY_JWT_COOKIE, domain, path);
-                emitTombstone(response, LEGACY_OP_COOKIE, domain, path);
-            }
-        }
-    }
-
-    private void emitTombstone(HttpServletResponse response, String name, String domain, String path) {
-        ResponseCookie.ResponseCookieBuilder b = ResponseCookie.from(name, "").path(path).maxAge(0).httpOnly(true);
-        if (StringUtils.isNotBlank(domain)) {
-            b.domain(domain);
-        }
-        response.addHeader("Set-Cookie", b.build().toString());
     }
 
     private ResponseCookie.ResponseCookieBuilder scoped(String value) {

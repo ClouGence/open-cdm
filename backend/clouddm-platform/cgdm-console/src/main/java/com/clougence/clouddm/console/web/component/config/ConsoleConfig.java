@@ -67,8 +67,6 @@ public class ConsoleConfig {
     private boolean        autoUpdateInnerRules;
     @Value("${clougence.clouddm.console.openapi.timeout:120}")
     private Integer        openApiTimeout;
-    @Value("${clougence.rdp.console.csrf:false}")
-    private Boolean        activeCsrfCheck;
     @Value("${clougence.rdp.login.retry.max-count:5}")
     private int            retryLoginMaxCount;
     @Value("${clougence.rdp.login.mfa.disabled:false}")

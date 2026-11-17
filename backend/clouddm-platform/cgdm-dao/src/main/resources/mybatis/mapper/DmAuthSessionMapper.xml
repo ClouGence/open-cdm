@@ -8,7 +8,6 @@
         <result column="token_hash" property="tokenHash"/>
         <result column="login_type" property="loginType"/>
         <result column="gmt_create" property="gmtCreate"/>
-        <result column="renewed_time_ms" property="renewedTimeMs"/>
         <result column="expire_time_ms" property="expireTimeMs"/>
     </resultMap>
 
@@ -18,7 +17,6 @@
         token_hash,
         login_type,
         gmt_create,
-        renewed_time_ms,
         expire_time_ms
     </sql>
 
@@ -48,8 +46,7 @@
         UPDATE
             dm_auth_session
         SET
-            renewed_time_ms = #{renewedTimeMs},
-            expire_time_ms  = #{newExpireTimeMs}
+            expire_time_ms = #{newExpireTimeMs}
         WHERE
             id             = #{id}
             AND
@@ -71,11 +68,4 @@
         LIMIT #{limit}
     </delete>
 
-    <delete id="deleteExpiredByAbsolute">
-        DELETE FROM
-            dm_auth_session
-        WHERE
-            gmt_create <![CDATA[ <= ]]> #{cutoffGmtCreateMs}
-        LIMIT #{limit}
-    </delete>
 </mapper>

@@ -26,8 +26,7 @@ import com.clougence.utils.HexadecimalUtils;
 
 public final class SessionTokens {
 
-    public static final String        PATTERN       = "^[A-Za-z0-9_-]{43}$";
-    public static final Pattern       TOKEN_PATTERN = Pattern.compile(PATTERN);
+    public static final Pattern       TOKEN_PATTERN = Pattern.compile("^[A-Za-z0-9_-]{43}$");
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final int          TOKEN_BYTES   = 32;

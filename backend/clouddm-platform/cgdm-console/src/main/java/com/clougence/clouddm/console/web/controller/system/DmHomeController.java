@@ -142,9 +142,7 @@ public class DmHomeController {
     @RequestMapping(value = "/loginMfaRecoveryStatus", method = { RequestMethod.POST })
     public ResWebData<?> loginMfaRecoveryStatus(@Valid @RequestBody LoginMfaRecoveryFO fo) {
         this.loginService.loginMfaRecoveryStatus(fo);
-        Map<String, Object> result = new HashMap<>();
-        result.put("recoveryRequired", true);
-        return ResWebDataUtils.buildSuccess(result);
+        return ResWebDataUtils.buildSuccess();
     }
 
     protected ResWebData<?> commonLoginResult(LoginMO loginMO, HttpServletRequest request, HttpServletResponse response) {
@@ -155,7 +153,6 @@ public class DmHomeController {
 
             if (loginMO.getSessionToken() != null) {
                 this.sessionCookieService.write(response, loginMO.getSessionToken());
-                this.sessionCookieService.clearLegacy(response);
                 auditService.logAndAddOperationAudit(loginMO.getPuid(), loginMO.getUid(), request.getRequestURI(), request.getRemoteAddr(), loginMO
                     .getUid(), "", SecurityLevel.NORMAL, AuditType.LOGIN_SUCCESS, ResourceType.ACCOUNT);
             }
@@ -181,7 +178,6 @@ public class DmHomeController {
         }
         this.sessionService.revokeCurrentSession(request);
         this.sessionCookieService.clear(response);
-        this.sessionCookieService.clearLegacy(response);
 
         if (principal != null) {
             DmAuthUserDO user = this.userService.getUserByUid(principal.getUid());
@@ -212,8 +208,8 @@ public class DmHomeController {
                 log.warn("OIDC logout provider unavailable for user {}", user.getUid());
                 return homeUrl;
             }
-            String state = this.csrfTokenService.randomToken();
-            String callbackUrl = RdpWebUtils.getContextPath() + "callback/logout?uid=" + user.getUid() + "&provider=" + LoginProvider.OIDC.name();
+            String state = this.csrfTokenService.randomTokenWithoutSave();
+            String callbackUrl = RdpWebUtils.getContextPath() + "callback/logout";
             String jumpUrl = provider.logoutJumpUrl(puid, state, callbackUrl, user.getAccessToken());
             if (StringUtils.isNotBlank(jumpUrl)) {
                 return jumpUrl;

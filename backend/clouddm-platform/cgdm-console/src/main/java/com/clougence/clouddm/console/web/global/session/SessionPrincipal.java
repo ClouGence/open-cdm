@@ -26,15 +26,13 @@ public class SessionPrincipal {
     private final String        uid;
     private final LoginAuthType loginType;
     private final long          createdTimeMs;
-    private final long          renewedTimeMs;
     private final long          expireTimeMs;
 
-    public SessionPrincipal(Long sessionId, String uid, LoginAuthType loginType, long createdTimeMs, long renewedTimeMs, long expireTimeMs){
+    public SessionPrincipal(Long sessionId, String uid, LoginAuthType loginType, long createdTimeMs, long expireTimeMs){
         this.sessionId = sessionId;
         this.uid = uid;
         this.loginType = loginType;
         this.createdTimeMs = createdTimeMs;
-        this.renewedTimeMs = renewedTimeMs;
         this.expireTimeMs = expireTimeMs;
     }
 }

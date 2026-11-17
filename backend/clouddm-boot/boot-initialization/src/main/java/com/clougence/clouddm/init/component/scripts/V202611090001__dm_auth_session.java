@@ -32,13 +32,11 @@ public class V202611090001__dm_auth_session extends AbstractUpgradeJavaMigration
                             token_hash      char(64)    CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
                             login_type      varchar(32) NULL,
                             gmt_create      bigint      NOT NULL,
-                            renewed_time_ms bigint      NOT NULL,
                             expire_time_ms  bigint      NOT NULL,
                             PRIMARY KEY (id),
                             UNIQUE KEY uk_token_hash (token_hash),
                             KEY idx_uid (uid),
-                            KEY idx_expire_time_ms (expire_time_ms),
-                            KEY idx_gmt_create (gmt_create)
+                            KEY idx_expire_time_ms (expire_time_ms)
                         ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4
                     """, "ALTER TABLE dm_auth_user DROP COLUMN op_password", "ALTER TABLE dm_auth_user DROP COLUMN last_try_op_verify_time", "ALTER TABLE dm_auth_user DROP COLUMN op_verify_fail_count", "ALTER TABLE dm_auth_user DROP COLUMN op_locked");
     }

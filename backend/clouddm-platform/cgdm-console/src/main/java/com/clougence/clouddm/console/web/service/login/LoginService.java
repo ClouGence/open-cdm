@@ -29,5 +29,5 @@ public interface LoginService {
 
     LoginMO loginMfaValid(LoginMfaValidFO validFO);
 
-    boolean loginMfaRecoveryStatus(LoginMfaRecoveryFO fo);
+    void loginMfaRecoveryStatus(LoginMfaRecoveryFO fo);
 }

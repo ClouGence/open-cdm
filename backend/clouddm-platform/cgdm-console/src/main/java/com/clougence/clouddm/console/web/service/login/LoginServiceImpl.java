@@ -174,7 +174,6 @@ public class LoginServiceImpl implements LoginService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
         }
 
-        checkPasswordExpiration(user);
         if (user.getParentId() != null && user.getLastDateUpdatePwd() == null) {
             Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
             if (days != null && days > 0) {
@@ -300,10 +299,6 @@ public class LoginServiceImpl implements LoginService {
             || user.isAllowLocal() != snapshot.isAllowLocal()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
         }
-        // the locked account must still be eligible for this login path
-        if (!isLoginAllowed(user, loginType)) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
-        }
         checkPasswordExpiration(user);
 
         long nowMs = System.currentTimeMillis();
@@ -382,18 +377,17 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public boolean loginMfaRecoveryStatus(LoginMfaRecoveryFO fo) {
+    public void loginMfaRecoveryStatus(LoginMfaRecoveryFO fo) {
         // pre-read only resolves the uid; authoritative state is re-checked under lock
         DmAuthMfaChallengeDO preCheck = mfaChallengeService.requirePendingChallenge(fo.getMfaPreActionToken(), MfaPreActionType.RECOVER_LOGIN);
-        return Boolean.TRUE.equals(new TransactionTemplate(transactionManager).execute(status -> {
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
             DmAuthUserDO user = this.authDal.userMapper().lockByUid(preCheck.getUid());
             checkAccountStatus(user);
             mfaChallengeService.requirePendingChallengeForUpdate(fo.getMfaPreActionToken(), MfaPreActionType.RECOVER_LOGIN);
             if (!user.isUseMfa() || !this.loginMFAService.isInvalidMFA(user.getUid())) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
             }
-            return Boolean.TRUE;
-        }));
+        });
     }
 
     private LoginMO loginFailed(DmAuthUserDO user, ErrorMessageException e) {

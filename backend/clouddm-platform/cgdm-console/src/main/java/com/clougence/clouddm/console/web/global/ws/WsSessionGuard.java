@@ -120,28 +120,29 @@ public class WsSessionGuard implements UnifiedPostConstruct {
      */
     public boolean register(WebSocketSession ws) {
         Long sessionId = (Long) ws.getAttributes().get(WebSoInterceptor.WS_SESSION_ID);
-        if (sessionId == null) {
-            asyncClose(ws);
-            return false;
-        }
-
-        final WsSessionState[] box = new WsSessionState[1];
         this.states.compute(sessionId, (k, old) -> {
             WsSessionState state = old != null ? old : new WsSessionState(k, (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID));
             state.getConnections().add(ws);
             ws.getAttributes().put(WS_SESSION_STATE, state);
-            box[0] = state;
             return state;
         });
-        WsSessionState state = box[0];
+        return revalidate(ws);
+    }
+
+    public boolean revalidate(WebSocketSession ws) {
+        WsSessionState state = (WsSessionState) ws.getAttributes().get(WS_SESSION_STATE);
+        if (state == null || state.isRevoked()) {
+            asyncClose(ws);
+            return false;
+        }
 
         long checkedAtNanos = System.nanoTime();
         try {
-            SessionPrincipal principal = this.sessionService.authenticateById(sessionId);
+            SessionPrincipal principal = this.sessionService.authenticateById(state.getSessionId());
             DmAuthUserDO user = principal == null ? null : this.userService.getUserByUid(principal.getUid());
             String roleFingerprint = fingerprint(user);
             synchronized (state) {
-                if (state.isRevoked() || principal == null || roleFingerprint == null || System.nanoTime() - checkedAtNanos >= WsSessionState.FRESH_WINDOW_NANOS
+                if (state.isRevoked() || principal == null || roleFingerprint == null
                     || (state.getRoleFingerprint() != null && !state.getRoleFingerprint().equals(roleFingerprint))) {
                     state.markRevoked();
                 } else {
@@ -149,7 +150,7 @@ public class WsSessionGuard implements UnifiedPostConstruct {
                 }
             }
         } catch (Exception e) {
-            log.error("WS session registration failed", e);
+            log.error("WS session revalidation failed", e);
             state.markRevoked();
         }
         if (!state.isFresh()) {
@@ -233,10 +234,7 @@ public class WsSessionGuard implements UnifiedPostConstruct {
                         state.refresh(stampNanos, hardExpiry(principal), fingerprint);
                     }
                 }
-            }
-            for (Long sessionId : chunk) {
-                WsSessionState state = this.states.get(sessionId);
-                if (state != null && state.isRevoked()) {
+                if (state.isRevoked()) {
                     for (WebSocketSession ws : Set.copyOf(state.getConnections())) {
                         asyncClose(ws);
                     }

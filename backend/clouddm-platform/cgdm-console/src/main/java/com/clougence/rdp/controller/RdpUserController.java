@@ -107,7 +107,7 @@ public class RdpUserController {
 
     @RequestAuth(strategy = RefAnyOnes)
     @RequestMapping(value = "/queryLoginUser", method = RequestMethod.POST)
-    public ResWebData<?> queryLoginUser(HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<?> queryLoginUser(HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         if (uid == null) {
             return ResWebDataUtils.buildSuccess(null);
@@ -132,11 +132,6 @@ public class RdpUserController {
         SessionPrincipal principal = (SessionPrincipal) request.getAttribute(WebSessionManager.SESSION_PRINCIPAL);
         userVO.setLoginType(principal == null ? null : principal.getLoginType());
         userVO.setSubAccountPwdValidDays(this.accountPolicy.passwordValidDays(userDO));
-
-        //if value is sub-zero,need logout
-        if (userVO.getSubAccountPwdValidDays() != null && userVO.getSubAccountPwdValidDays() < 0) {
-            logout(response);
-        }
 
         return ResWebDataUtils.buildSuccess(userVO);
     }
@@ -244,7 +239,7 @@ public class RdpUserController {
 
         UpdateUserInfoMO mo = rdpUserService.resetPwdWithOriginPwd(resetPwdFO, uid, puid);
         if (mo.isSuccess()) {
-            logout(response);
+            this.sessionCookieService.clear(response);
 
             this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
                 .getRemoteAddr(), uid, "", SecurityLevel.HIGH, AuditType.UPDATE_ACCOUNT_PWD, ResourceType.ACCOUNT);
@@ -377,11 +372,6 @@ public class RdpUserController {
         }
 
         return ResWebDataUtils.buildSuccess();
-    }
-
-    protected void logout(HttpServletResponse response) {
-        this.sessionCookieService.clear(response);
-        this.sessionCookieService.clearLegacy(response);
     }
 
     @RequestAuth(strategy = Ignore)

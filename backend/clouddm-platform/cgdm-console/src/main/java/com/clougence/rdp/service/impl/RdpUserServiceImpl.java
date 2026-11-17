@@ -459,14 +459,9 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public UpdateUserInfoMO resetPassword(ResetPasswdFO fo, String targetUid) {
-        // lock the controller-authorized target and verify the FO still describes it
+        // lock the controller-authorized target
         DmAuthUserDO lockedUser = this.authDal.userMapper().lockByUid(targetUid);
-        boolean identifierMatches = lockedUser != null && //
-                                    ((fo.getAccountType() == AccountType.PRIMARY_ACCOUNT //
-                                      && ((fo.getVerifyType() == VerifyType.SMS_VERIFY_CODE && StringUtils.equals(lockedUser.getPhone(), fo.getPhone()))
-                                          || (fo.getVerifyType() == VerifyType.EMAIL_VERIFY_CODE && StringUtils.equals(lockedUser.getEmail(), fo.getEmail())))) //
-                                     || (fo.getAccountType() == AccountType.SUB_ACCOUNT && StringUtils.equals(lockedUser.getAccount(), fo.getAccount())));
-        if (!identifierMatches) {
+        if (lockedUser == null) {
             return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
@@ -885,7 +880,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Override
     public ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo, String targetUid) {
         DmAuthUserDO userDO = this.authDal.userMapper().lockByUid(targetUid);
-        if (userDO == null || !StringUtils.equals(userDO.getAccount(), fo.getAccount())) {
+        if (userDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
         rdpVerifyService.dropUserVerify(userDO.getUid());
