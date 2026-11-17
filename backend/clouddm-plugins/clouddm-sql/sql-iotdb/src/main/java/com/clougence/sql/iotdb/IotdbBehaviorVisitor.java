@@ -130,6 +130,20 @@ final class IotdbBehaviorVisitor extends IotdbParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitTreeCreateTemplateStatement(TreeCreateTemplateStatementContext context) {
+        TreeIdContext template = context.treeId();
+        add(BehaviorAction.CREATE, TargetType.Object, null, treeNode(template.getText()), template, false);
+        return null;
+    }
+
+    @Override
+    public Void visitTreeSetTemplateStatement(TreeSetTemplateStatementContext context) {
+        TreeAbsolutePathContext target = context.treeAbsolutePath();
+        add(BehaviorAction.ALTER, TargetType.Object, null, String.join(".", path(target)), target, false);
+        return null;
+    }
+
+    @Override
     public Void visitTreeCreateDatabaseStatement(TreeCreateDatabaseStatementContext context) {
         var target = context.treeAbsolutePath();
         treeResource(BehaviorAction.CREATE, TargetType.Schema, path(target), target);
