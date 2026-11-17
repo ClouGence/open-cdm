@@ -72,7 +72,7 @@ public class WebSessionManager {
         protectedPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/**"));
         protectedPaths.add(PathPatternParser.defaultInstance.parse("/switchSaasMode/**"));
 
-        publicPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendcode"));
+        publicPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendCode"));
         publicPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/dmGlobalSettings"));
         publicPaths.add(PathPatternParser.defaultInstance.parse(DmControllerUrlPrefix.CONSOLE_PREFIX + "/resource/fetch"));
     }
