@@ -562,6 +562,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         return new UpdateUserInfoMO(true, null);
     }
 
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public UpdateUserInfoMO resetSubAccountPwd(ResetSubAccountPwdFO fo, String operatorUid) {
         // fresh operator check first; only the target row is locked to avoid inversion
