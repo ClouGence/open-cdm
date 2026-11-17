@@ -21,11 +21,11 @@ singleCommand : separator* command separator* EOF;
 separator : SEMICOLON | EOL;
 
 command : commandName option*;
-commandName : TOPICS | CONSUMER;
+commandName : TOPICS | CONSUMER | PRODUCER;
 option : flagOption | valueOption;
 flagOption : HELP | LIST | DESCRIBE | CREATE | DELETE | IF_EXISTS | IF_NOT_EXISTS
            | FROM_BEGINNING;
 valueOption : valueName EQUAL? argument;
-valueName : TOPIC | PARTITIONS | REPLICATION_FACTOR | CONFIG | PARTITION
-          | OFFSET | MAX_MESSAGES | TIMEOUT_MS;
-argument : WORD | TOPICS | CONSUMER;
+valueName : TOPIC | GROUP | CONSUMER_PROPERTY | PARTITIONS | REPLICATION_FACTOR | CONFIG | PARTITION
+          | OFFSET | MAX_MESSAGES | TIMEOUT_MS | KEY | VALUE;
+argument : WORD | TOPICS | CONSUMER | PRODUCER;

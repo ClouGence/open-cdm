@@ -108,11 +108,12 @@ public class KafkaLanguageSpi implements DsLanguageSpi {
                 pending = option;
             }
         }
-        String insertionPrefix = "";
         if (pending == null && prefix.contains("=")) {
             int equals = prefix.indexOf('=');
             pending = prefix.substring(0, equals);
-            insertionPrefix = pending + "=";
+            prefix = prefix.substring(equals + 1);
+        } else if (pending != null && prefix.startsWith("=")) {
+            prefix = prefix.substring(1);
         }
         if (pending != null) {
             List<String> values = switch (pending) {
@@ -124,7 +125,7 @@ public class KafkaLanguageSpi implements DsLanguageSpi {
                 default -> List.of();
             };
             for (String value : values) {
-                add(result, insertionPrefix + value, prefix);
+                add(result, value, prefix);
             }
             return;
         }

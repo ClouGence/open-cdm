@@ -39,6 +39,7 @@ public class KafkaCommandTemplates {
             commands.add("kafka-topics --describe --topic " + topicPattern);
             commands.add(quickQuery(type, name));
             commands.add("kafka-console-consumer --topic " + quote(name) + " --partition 0 --offset latest --max-messages 10");
+            commands.add("# kafka-console-producer --topic " + quote(name) + " --key 'order-123' --value '{\"id\":123}'");
             commands.add("# kafka-topics --create --topic 'new_topic' --partitions 1 --replication-factor 1");
             commands.add("# kafka-topics --delete --topic " + topicPattern);
         } else {
