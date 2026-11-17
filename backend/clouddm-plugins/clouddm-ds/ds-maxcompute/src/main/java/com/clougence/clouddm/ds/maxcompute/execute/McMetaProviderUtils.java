@@ -260,7 +260,7 @@ public class McMetaProviderUtils {
         if (typeInfo == null) {
             return null;
         }
-        return McSqlTypes.toMcType(typeInfo.getTypeName());
+        return McSqlTypes.toMcType(typeInfo.getOdpsType().name());
     }
 
     public static RdbFunction convertFunctionInfo(String catalog, String schema, Function next) {

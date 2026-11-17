@@ -34,10 +34,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.service.cicd.ChangeCascadeService;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
-import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
-import com.clougence.clouddm.platform.dal.model.cicd.DmChangeTransferDO;
+import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -116,6 +113,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
         date = new Date(date.getTime() - 5 * 1000);
 
         try {
+            recoverFailedFinishChanges();
             int recovered = this.changeCascadeService.recoverStaleTransfers(new Date(System.currentTimeMillis() - STALE_TRANSFER_MILLIS));
             if (recovered > 0) {
                 log.warn("recovered " + recovered + " stale change transfers");
@@ -134,6 +132,35 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
             }
         } catch (Exception e) {
             log.warn("changeSchedule scanPendingJob and submit failed,msg:" + ExceptionUtils.getRootCauseMessage(e), e);
+        }
+    }
+
+    private void recoverFailedFinishChanges() {
+        // Common precondition failures did not run FINISH or increment try_times. Do not reset exhausted retries.
+        Map<String, List<DmChangeDO>> changesByOwner = new LinkedHashMap<>();
+        for (DmChangeDO change : this.changeFlowDal.changeMapper().queryFailedFinishChanges()) {
+            changesByOwner.computeIfAbsent(change.getOwnerUid(), key -> new ArrayList<>()).add(change);
+        }
+
+        for (Map.Entry<String, List<DmChangeDO>> entry : changesByOwner.entrySet()) {
+            Set<Long> flowIds = new HashSet<>();
+            for (DmChangeDO change : entry.getValue()) {
+                flowIds.add(change.getRefFlowId());
+            }
+
+            Set<Long> activeFlowIds = new HashSet<>();
+            for (DmChangeFlowDO flow : this.changeFlowDal.flowMapper().queryByIds(entry.getKey(), flowIds)) {
+                if (!flow.isDeleted() && flow.getChangeFlowStatus() == ChangeFlowStatus.NORMAL) {
+                    activeFlowIds.add(flow.getId());
+                }
+            }
+
+            for (DmChangeDO change : entry.getValue()) {
+                if (activeFlowIds.contains(change.getRefFlowId())
+                    && this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.READY, "") == 1) {
+                    log.info("recovered completed ticket change " + change.getId() + " for finishing");
+                }
+            }
         }
     }
 

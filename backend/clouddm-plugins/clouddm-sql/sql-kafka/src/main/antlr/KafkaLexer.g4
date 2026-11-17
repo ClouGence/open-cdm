@@ -19,6 +19,7 @@ channels { COMMENTS }
 
 TOPICS : 'kafka-topics' ('.sh')?;
 CONSUMER : 'kafka-console-consumer' ('.sh')?;
+PRODUCER : 'kafka-console-producer' ('.sh')?;
 
 HELP : '--help';
 LIST : '--list';
@@ -29,6 +30,8 @@ IF_EXISTS : '--if-exists';
 IF_NOT_EXISTS : '--if-not-exists';
 FROM_BEGINNING : '--from-beginning';
 TOPIC : '--topic';
+GROUP : '--group';
+CONSUMER_PROPERTY : '--consumer-property';
 PARTITIONS : '--partitions';
 REPLICATION_FACTOR : '--replication-factor';
 CONFIG : '--config';
@@ -36,7 +39,9 @@ PARTITION : '--partition';
 OFFSET : '--offset';
 MAX_MESSAGES : '--max-messages';
 TIMEOUT_MS : '--timeout-ms';
-UNKNOWN_OPTION : '--' ~[ \t\f\r\n;='"\\|&<>`]+;
+KEY : '--key';
+VALUE : '--value';
+UNKNOWN_OPTION : '--' ~[ \t\f\r\n;='"\\|&<>`]*;
 
 EQUAL : '=';
 SEMICOLON : ';';

@@ -114,6 +114,10 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
 
     void updatePasswdById(Long id, String password);
 
+    void updatePasswdAndClearNeedChangePwd(Long id, String password);
+
+    int updatePasswdAndClearNeedChangePwdIfRequired(Long id, String password);
+
     void updateAbilityByUid(String uid, boolean disable);
 
     void updateUserStatus(String uid, UserStatus userStatus);

@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.login;
 
+import com.clougence.clouddm.console.web.model.fo.FirstLoginPwdChangeFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaRecoveryFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
@@ -30,4 +31,6 @@ public interface LoginService {
     LoginMO loginMfaValid(LoginMfaValidFO validFO);
 
     void loginMfaRecoveryStatus(LoginMfaRecoveryFO fo);
+
+    LoginMO changeFirstLoginPwd(FirstLoginPwdChangeFO pwdChangeFO);
 }

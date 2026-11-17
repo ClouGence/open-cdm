@@ -95,6 +95,8 @@ public interface RdpUserService {
 
     UpdateUserInfoMO resetPwdWithOriginPwd(ResetPwdWithOriginPwdFO fo, String targetUid, String puid);
 
+    UpdateUserInfoMO changePwdOnFirstLogin(String uid, String newPassword);
+
     UpdateUserInfoMO resetSubAccountPwd(ResetSubAccountPwdFO fo, String operatorUid);
 
     List<DmAuthUserDO> listSubAccounts(String puid);

@@ -23,15 +23,19 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 
 import com.clougence.clouddm.ds.kafka.i18n.KafkaConfigI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 
 import lombok.extern.slf4j.Slf4j;
 
-/** Owns the session Admin; each created Consumer is owned and closed by its query execution thread. */
+/** Owns the session Admin. Query execution closes its own Consumer or Producer. */
 @Slf4j
 public class KafkaClients implements AutoCloseable {
 
@@ -65,17 +69,26 @@ public class KafkaClients implements AutoCloseable {
         return this.admin;
     }
 
-    public synchronized Consumer<byte[], byte[]> createConsumer() {
+    synchronized Consumer<byte[], byte[]> createConsumer(String groupId, boolean fromBeginning) {
         if (this.closed) {
             throw ThirdPartyApiException.as().with(KafkaConfigI18nKeys.CONFIG_KAFKA_CLIENTS_CLOSED);
         }
         Properties consumerProperties = new Properties();
         consumerProperties.putAll(this.properties);
-        consumerProperties.remove(ConsumerConfig.GROUP_ID_CONFIG);
         consumerProperties.remove(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG);
         consumerProperties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         consumerProperties.setProperty(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, "false");
-        consumerProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");
+        if (groupId == null) {
+            consumerProperties.remove(ConsumerConfig.GROUP_ID_CONFIG);
+            consumerProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");
+        } else {
+            consumerProperties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+            String offsetReset = "latest";
+            if (fromBeginning) {
+                offsetReset = "earliest";
+            }
+            consumerProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetReset);
+        }
         Thread thread = Thread.currentThread();
         ClassLoader contextClassLoader = thread.getContextClassLoader();
         try {
@@ -83,6 +96,33 @@ public class KafkaClients implements AutoCloseable {
             return new KafkaConsumer<>(consumerProperties, new ByteArrayDeserializer(), new ByteArrayDeserializer());
         } catch (KafkaException e) {
             String msg = "Create Kafka consumer failed";
+            log.error(msg, e);
+            throw ThirdPartyApiException.as().with(e);
+        } finally {
+            thread.setContextClassLoader(contextClassLoader);
+        }
+    }
+
+    synchronized Producer<String, String> createProducer(int maxBlockMs) {
+        if (this.closed) {
+            throw ThirdPartyApiException.as().with(KafkaConfigI18nKeys.CONFIG_KAFKA_CLIENTS_CLOSED);
+        }
+
+        Properties producerProperties = new Properties();
+        producerProperties.putAll(this.properties);
+        String apiTimeoutMs = (String) producerProperties.remove(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG);
+        producerProperties.setProperty(ProducerConfig.MAX_BLOCK_MS_CONFIG, Integer.toString(maxBlockMs));
+        producerProperties.setProperty(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, apiTimeoutMs);
+        producerProperties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "0");
+        producerProperties.setProperty(ProducerConfig.ACKS_CONFIG, "all");
+        Thread thread = Thread.currentThread();
+        ClassLoader contextClassLoader = thread.getContextClassLoader();
+
+        try {
+            thread.setContextClassLoader(KafkaClients.class.getClassLoader());
+            return new KafkaProducer<>(producerProperties, new StringSerializer(), new StringSerializer());
+        } catch (KafkaException e) {
+            String msg = "Create Kafka producer failed";
             log.error(msg, e);
             throw ThirdPartyApiException.as().with(e);
         } finally {

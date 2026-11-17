@@ -451,7 +451,7 @@ export default {
     justify-content: center;
     gap: 12px;
     color: var(--text-secondary);
-    background: #f5f7fa;
+    background: var(--main-bg);
     font-size: 14px;
   }
 

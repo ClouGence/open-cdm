@@ -28,6 +28,8 @@ treeStatement
     | CREATE TIMESERIES treeAbsolutePath treeAlias? (WITH treeProperties)? treeTags? treeAttributes?
                                                                                             # treeCreateSeriesStatement
     | CREATE ALIGNED TIMESERIES treeAbsolutePath LPAREN treeColumn (COMMA treeColumn)* RPAREN # treeCreateAlignedStatement
+    | CREATE DEVICE TEMPLATE treeId ALIGNED? (LPAREN treeColumn (COMMA treeColumn)* RPAREN)?  # treeCreateTemplateStatement
+    | SET DEVICE TEMPLATE treeId TO treeAbsolutePath                                       # treeSetTemplateStatement
     | (CREATE | SET) DATABASE treeAbsolutePath                                              # treeCreateDatabaseStatement
     | (DROP | DELETE) DATABASE treePathList                                                  # treeDropDatabaseStatement
     | SHOW (VERSION | DATABASES | CURRENT_SQL_DIALECT)                                      # treeShowScopeStatement
@@ -49,7 +51,7 @@ treeNode: treeWildcard | treeWildcard treeNodeSlice treeWildcard? | treeNodeSlic
 treeNodeSlice: treeId | INTEGER;
 treeWildcard: STAR | DOUBLE_STAR;
 treeId: IDENTIFIER | TREE_IDENTIFIER | BACKTICK_IDENTIFIER | TIME | TIMESTAMP | DATE | DEVICE | TIMESERIES
-    | ALIGNED | ALTER | ADD | COLUMN | COMMENT | TAGS | ATTRIBUTES;
+    | ALIGNED | ALTER | ADD | COLUMN | COMMENT | TAGS | ATTRIBUTES | TEMPLATE | TO;
 treeIdList: treeId (COMMA treeId)*;
 treeProperties: treeProperty (COMMA treeProperty)*;
 treeProperty: treeId EQ (treeId | treeLiteral);

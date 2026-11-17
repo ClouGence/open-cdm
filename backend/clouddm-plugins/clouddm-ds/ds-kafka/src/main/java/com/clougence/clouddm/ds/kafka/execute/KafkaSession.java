@@ -16,10 +16,7 @@
 package com.clougence.clouddm.ds.kafka.execute;
 
 import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -36,6 +33,7 @@ import com.clougence.clouddm.sdk.execute.session.*;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultMessageBuild;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.sql.parser.SplitQueryType;
 import com.clougence.drivers.DsObject;
 import com.clougence.sql.kafka.KafkaCommand;
 import com.clougence.sql.kafka.KafkaCommandParser;
@@ -69,7 +67,8 @@ public class KafkaSession implements Session {
     @Getter
     private volatile boolean                 executing;
     private boolean                          cancelled;
-    private KafkaFuture<?>                   pendingRequest;
+    private Future<?>                        pendingRequest;
+    private Thread                           producerSendThread;
     private Consumer<byte[], byte[]>         activeConsumer;
 
     public KafkaSession(SessionContextDTO context, KafkaConfig config, DsObject<KafkaClients> resource){
@@ -133,19 +132,25 @@ public class KafkaSession implements Session {
         if (query.isUseCallable() || query.isUseExplain() || query.isUseCompile()) {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_SESSION_UNSUPPORTED);
         }
+
         KafkaCommand command = new KafkaCommandParser().parse(query.getQueryBody());
-        if (!command.has("--help") && readOnly && (command.has("--create") || command.has("--delete"))) {
+        SplitQueryType statementType = command.queryType();
+        boolean joinsGroup = statementType == SplitQueryType.LOG_READ && command.has("--group");
+        if (readOnly && (joinsGroup || statementType == SplitQueryType.INSERT || statementType == SplitQueryType.CREATE_PUB_SUB || statementType == SplitQueryType.DROP_PUB_SUB)) {
             throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_SESSION_READ_ONLY);
         }
+
         checkCancelled();
         if (!command.has("--help")) {
             KafkaAdminContext context = new KafkaAdminContext(this, clients.getAdmin(), query, builder);
             switch (command.getType()) {
                 case TOPICS -> new KafkaTopicCommands(context).execute(command, query.getResolvedResources());
                 case CONSUMER -> new KafkaConsumerCommand(this, clients, query, builder).execute(command);
+                case PRODUCER -> new KafkaProducerCommand(this, context, clients).execute(command);
             }
             return;
         }
+
         ResultMessageBuild message = builder.newMessage(query);
         String help = i18n.getMessage("KAFKA_HELP_" + command.getType().name()) + "\n" + i18n.getMessage(KafkaSqlI18nKeys.KAFKA_HELP_COMMON);
         message.receiveMessage(MessageLevel.Info, help, false);
@@ -246,14 +251,42 @@ public class KafkaSession implements Session {
         }
     }
 
+    void dispatchProduce(CompletableFuture<?> receipt, Runnable dispatch) {
+        synchronized (stateLock) {
+            checkCancelled();
+            pendingRequest = receipt;
+            producerSendThread = Thread.currentThread();
+        }
+        try {
+            checkCancelled();
+            dispatch.run();
+        } finally {
+            synchronized (stateLock) {
+                producerSendThread = null;
+                if (receipt.isCancelled()) {
+                    // Clear the session's send interrupt before closing the client or reporting results.
+                    Thread.interrupted();
+                }
+            }
+        }
+    }
+
+    void clearPendingProduce(CompletableFuture<?> receipt) {
+        synchronized (stateLock) {
+            if (pendingRequest == receipt) {
+                pendingRequest = null;
+            }
+        }
+    }
+
     @Override
     public void cancel() {
         synchronized (stateLock) {
             if (executing) {
                 cancelled = true;
             }
-            if (pendingRequest != null) {
-                pendingRequest.cancel(false);
+            if (pendingRequest != null && pendingRequest.cancel(false) && producerSendThread != null) {
+                producerSendThread.interrupt();
             }
             if (activeConsumer != null) {
                 activeConsumer.wakeup();

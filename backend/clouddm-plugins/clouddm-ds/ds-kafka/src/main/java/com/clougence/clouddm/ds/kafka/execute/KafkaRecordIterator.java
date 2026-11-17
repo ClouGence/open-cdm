@@ -21,7 +21,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerGroupMetadata;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.InterruptException;
 import org.apache.kafka.common.errors.TimeoutException;
@@ -35,22 +37,26 @@ import lombok.Getter;
 
 /** Single-query cursor. All Consumer calls except wakeup run on the query thread. */
 public class KafkaRecordIterator implements Iterator<Object[]>, AutoCloseable {
-    private final KafkaSession                       session;
-    private final Consumer<byte[], byte[]>           consumer;
-    private final long                               timeoutNanos;
-    private final Duration                           metadataTimeout;
-    private Iterator<ConsumerRecord<byte[], byte[]>> batch = Collections.emptyIterator();
+    private final KafkaSession                           session;
+    private final Consumer<byte[], byte[]>               consumer;
+    private final long                                   timeoutNanos;
+    private final Duration                               metadataTimeout;
+    private final boolean                                commitOnSuccess;
+    private final Map<TopicPartition, OffsetAndMetadata> consumedOffsets = new HashMap<>();
+    private ConsumerGroupMetadata                        consumingGroup;
+    private Iterator<ConsumerRecord<byte[], byte[]>>     batch           = Collections.emptyIterator();
     @Getter
-    private boolean                                  timedOut;
+    private boolean                                      timedOut;
 
-    public KafkaRecordIterator(KafkaSession session, Consumer<byte[], byte[]> consumer, long timeoutMs){
+    public KafkaRecordIterator(KafkaSession session, Consumer<byte[], byte[]> consumer, long timeoutMs, boolean commitOnSuccess){
         this.session = session;
         this.consumer = consumer;
         this.timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeoutMs);
         this.metadataTimeout = Duration.ofMillis(Math.min(timeoutMs, session.getDsConfig().getApiTimeoutMs()));
+        this.commitOnSuccess = commitOnSuccess;
     }
 
-    public void assign(KafkaCommand command) {
+    void initialize(KafkaCommand command) {
         session.activateConsumer(consumer);
         try {
             String topic = command.value("--topic");
@@ -59,6 +65,12 @@ public class KafkaRecordIterator implements Iterator<Object[]>, AutoCloseable {
             if (partitions.isEmpty()) {
                 throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_TOPIC_NOT_FOUND, topic);
             }
+
+            if (command.has("--group")) {
+                consumer.subscribe(List.of(topic));
+                return;
+            }
+
             if (command.has("--partition")) {
                 TopicPartition partition = new TopicPartition(topic, Integer.parseInt(command.value("--partition")));
                 if (!partitions.contains(partition)) {
@@ -119,7 +131,15 @@ public class KafkaRecordIterator implements Iterator<Object[]>, AutoCloseable {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
+
         ConsumerRecord<byte[], byte[]> record = batch.next();
+        if (commitOnSuccess) {
+            if (consumingGroup == null) {
+                consumingGroup = consumer.groupMetadata();
+            }
+            consumedOffsets.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset() + 1, record.leaderEpoch(), ""));
+        }
+
         Long timestamp = null;
         if (record.timestamp() >= 0) {
             timestamp = record.timestamp();
@@ -133,6 +153,26 @@ public class KafkaRecordIterator implements Iterator<Object[]>, AutoCloseable {
             value = new String(record.value(), StandardCharsets.UTF_8);
         }
         return new Object[] { record.topic(), record.partition(), record.offset(), timestamp, record.timestampType().toString(), key, value };
+    }
+
+    void commitOffsets() {
+        if (consumedOffsets.isEmpty()) {
+            return;
+        }
+        session.checkCancelled();
+        // A new generation can reassign a previously consumed partition at a newer committed position.
+        if (!consumingGroup.equals(consumer.groupMetadata())) {
+            throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_CONSUMER_GROUP_CHANGED);
+        }
+
+        try {
+            consumer.commitSync(consumedOffsets, Duration.ofMillis(session.getDsConfig().getApiTimeoutMs()));
+        } catch (WakeupException | TimeoutException | InterruptException e) {
+            if (e instanceof InterruptException) {
+                Thread.interrupted();
+            }
+            throw ThirdPartyApiException.as().with(e, KafkaDsI18nKeys.KAFKA_CONSUMER_COMMIT_UNKNOWN);
+        }
     }
 
     @Override

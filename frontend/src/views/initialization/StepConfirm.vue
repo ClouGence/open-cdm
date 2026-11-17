@@ -114,8 +114,8 @@ export default {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  border: 1px solid #f0f0f0;
-  background: #fff;
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-card);
   box-sizing: border-box;
 }
 .summary-section {
@@ -126,7 +126,7 @@ export default {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-secondary);
 }
 .summary-item:last-child {
   border-bottom: none;
@@ -138,7 +138,7 @@ export default {
   width: 160px;
   min-height: 30px;
   flex-shrink: 0;
-  color: #595959;
+  color: var(--text-secondary);
   font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -149,7 +149,7 @@ export default {
   align-items: center;
   min-height: 30px;
   min-width: 0;
-  color: #262626;
+  color: var(--text-primary);
   word-break: break-all;
   font-size: 13px;
 }
@@ -162,7 +162,7 @@ export default {
 }
 .summary-edit-icon {
   flex: 0 0 auto;
-  color: #52c41a;
+  color: var(--primary-color);
   font-size: 13px;
 }
 .summary-value-input {
@@ -171,7 +171,7 @@ export default {
   border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
-  color: #262626;
+  color: var(--text-primary);
   font-size: 13px;
   line-height: 22px;
   outline: none;
@@ -185,11 +185,11 @@ export default {
 }
 .summary-value-input:hover,
 .summary-value-input:focus {
-  border-color: #b7eb8f;
-  background: #fcfffa;
+  border-color: var(--primary-color);
+  background: var(--bg-hover);
 }
 .summary-value-empty {
-  color: #bfbfbf;
+  color: var(--text-tertiary);
 }
 @media (max-width: 768px) {
   .summary-key {

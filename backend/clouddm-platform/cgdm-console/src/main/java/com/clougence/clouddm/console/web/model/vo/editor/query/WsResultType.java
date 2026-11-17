@@ -26,5 +26,6 @@ public enum WsResultType {
     Done,
     CancelDone,
     Status,
-    QueryScript
+    QueryScript,
+    MetadataChanged
 }

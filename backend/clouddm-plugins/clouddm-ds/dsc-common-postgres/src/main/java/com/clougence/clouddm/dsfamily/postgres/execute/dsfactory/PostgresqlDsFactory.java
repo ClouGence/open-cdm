@@ -24,6 +24,7 @@ import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -163,13 +164,7 @@ public class PostgresqlDsFactory implements DsFactory<Connection> {
             defaultCatalog = "postgres";
         }
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            return String.format("jdbc:postgresql://%s:5432/%s", ipPort[0], safeString(defaultCatalog));
-        } else if (ipPort.length == 2) {
-            return String.format("jdbc:postgresql://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultCatalog));
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
-        }
+        HostAndPort address = HostAndPort.parse(host, 5432);
+        return String.format("jdbc:postgresql://%s:%s/%s", address.formatHost(), address.getPort(), safeString(defaultCatalog));
     }
 }

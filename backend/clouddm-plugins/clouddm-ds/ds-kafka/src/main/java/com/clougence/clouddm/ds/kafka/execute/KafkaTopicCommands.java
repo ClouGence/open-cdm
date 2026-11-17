@@ -135,6 +135,7 @@ public class KafkaTopicCommands {
             int separator = config.indexOf('=');
             configs.put(config.substring(0, separator), config.substring(separator + 1));
         }
+
         NewTopic topic = new NewTopic(name, partitions, replication).configs(configs);
         String status = "CREATED";
         long affected = 1;
@@ -147,7 +148,8 @@ public class KafkaTopicCommands {
             status = "ALREADY_EXISTS";
             affected = 0;
         }
-        context.managementReport(List.of(KafkaResultColumn.TOPIC, KafkaResultColumn.STATUS), List.<Object[]> of(new Object[] { name, status }));
+
+        context.outcomeTable(List.of(KafkaResultColumn.TOPIC, KafkaResultColumn.STATUS), List.<Object[]> of(new Object[] { name, status }));
         context.affected(affected);
     }
 
@@ -156,7 +158,7 @@ public class KafkaTopicCommands {
             if (!command.has("--if-exists")) {
                 throw ThirdPartyApiException.as().with(KafkaDsI18nKeys.KAFKA_TOPIC_NOT_FOUND, command.value("--topic"));
             }
-            context.managementReport(List.of(KafkaResultColumn.TOPIC, KafkaResultColumn.STATUS), List.<Object[]> of(new Object[] { command.value("--topic"), "NOT_FOUND" }));
+            context.outcomeTable(List.of(KafkaResultColumn.TOPIC, KafkaResultColumn.STATUS), List.<Object[]> of(new Object[] { command.value("--topic"), "NOT_FOUND" }));
             context.affected(0);
             return;
         }
@@ -196,7 +198,9 @@ public class KafkaTopicCommands {
             }
             rows.add(new Object[] { topic, status, error });
         }
-        context.managementReport(List.of(KafkaResultColumn.TOPIC, KafkaResultColumn.STATUS, KafkaResultColumn.ERROR), rows);
+
+        context.outcomeTable(List.of(KafkaResultColumn.TOPIC, KafkaResultColumn.STATUS, KafkaResultColumn.ERROR), rows);
+
         if (failed) {
             throw ThirdPartyApiException.as().with(failure, KafkaDsI18nKeys.KAFKA_TOPIC_DELETE_FAILED);
         }

@@ -77,6 +77,7 @@ public class DmAuthUserDO {
     @Deprecated
     private String          marketplaceType;
     private boolean         useMfa;
+    private boolean         needChangePwd;
 
     @Override
     public boolean equals(Object o) {

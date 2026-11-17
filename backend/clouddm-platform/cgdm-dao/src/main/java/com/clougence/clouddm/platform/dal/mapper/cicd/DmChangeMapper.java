@@ -40,6 +40,8 @@ public interface DmChangeMapper extends BaseMapper<DmChangeDO> {
 
     List<DmChangeDO> queryReadyChangeListByDate(Date date, int limit);
 
+    List<DmChangeDO> queryFailedFinishChanges();
+
     List<DmChangeDO> queryByBatchIds(String ownerUid, Collection<Long> batchIds);
 
     List<DmChangeDO> queryByBatchIdForUpdate(String ownerUid, long batchId);

@@ -22,7 +22,7 @@ JAVA_OPTS="${JAVA_OPTS} -XX:-UseAdaptiveSizePolicy -XX:SurvivorRatio=2 -XX:NewRa
 JAVA_OPTS="${JAVA_OPTS} -XX:-OmitStackTraceInFastThrow"
 JAVA_OPTS="${JAVA_OPTS} -XX:+DisableExplicitGC"
 JAVA_OPTS="${JAVA_OPTS} -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=30000"
-JAVA_OPTS="${JAVA_OPTS} -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8"
+JAVA_OPTS="${JAVA_OPTS} -Dfile.encoding=UTF-8"
 
 # SETENV NEW OPTS
 JAVA_OPTS="${JAVA_OPTS} -Dnetwork.aliyun.vpc=false"

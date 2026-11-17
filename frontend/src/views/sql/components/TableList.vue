@@ -2412,6 +2412,9 @@ export default {
         await this.handleSetCurrentObjectPage();
       }
     },
+    handleGetExpandKeys() {
+      return this.$refs.tableTree?.getExpandKeys() || [];
+    },
     handleGenDataSetData(data) {
       if (this.$refs.genDataTree) {
         this.$refs.genDataTree.setData(data);

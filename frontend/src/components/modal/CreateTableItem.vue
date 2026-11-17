@@ -670,7 +670,7 @@ export default {
             @keyup.enter="handleInputConfirm()"
             :disabled="isReadOnly(schema)"
           />
-          <a-tag v-else style="background: #fff; borderstyle: dashed" @click="showInput">
+          <a-tag v-else style="background: var(--bg-card); border-style: dashed" @click="showInput">
             <PlusOutlined />
             {{ $t('xin-zeng') }}
           </a-tag>
@@ -710,7 +710,8 @@ export default {
           v-else-if="
             schema.type === 'SelectColumns' || schema.type === 'ReferenceRelation' || schema.type === 'PartitionDefineList' || schema.type === 'Tree'
           "
-          style="display: flex; width: 100%; border: 1px solid #ccc"
+          class="schema-list-editor"
+          :class="{ 'parameter-editor': schema.type === 'SelectColumns' && schema.field === 'params' && nodeType === 'params' }"
         >
           <div class="left" v-if="schema.type === 'Tree'" style="width: 200px; border-right: 1px solid #ccc; display: flex; flex-direction: column">
             <div style="width: 100%; display: flex">
@@ -743,8 +744,8 @@ export default {
               </template>
             </a-tree>
           </div>
-          <div class="left" v-else style="width: 200px; border-right: 1px solid #ccc">
-            <div style="width: 100%; display: flex; flex-wrap: wrap">
+          <div class="left schema-list-editor__sidebar" v-else>
+            <div class="schema-list-editor__actions">
               <a-button @click="handleAddColumn(schema)" size="small" style="flex: 1 1 50%" :disabled="isReadOnly(schema)">
                 {{ $t('zeng-jia') }}
               </a-button>
@@ -770,13 +771,14 @@ export default {
                 {{ $t('table-editor-move-down') }}
               </a-button>
             </div>
-            <div :style="`min-height: 80px;height: ${selectedData[schema.field] ? selectedData[schema.field].length * 20 : 0}px`">
+            <div class="schema-list-editor__items">
               <div
                 v-for="(column, index) in selectedData[schema.field]"
                 :key="column.key"
+                class="schema-list-editor__item"
                 :disabled="isReadOnly(schema)"
                 @click="handleClickColumn(index, column)"
-                :style="`background: ${column.key === selectedColumn.key ? '#ccc' : ''};height: 20px;margin-left: ${
+                :style="`background: ${column.key === selectedColumn.key ? 'var(--bg-select)' : ''};margin-left: ${
                   schema.type === 'PartitionDefineList' ? index * 5 : 0
                 }px;`"
               >
@@ -788,11 +790,11 @@ export default {
               </div>
             </div>
           </div>
-          <div class="right" style="flex: 1; padding: 5px">
+          <div class="right schema-list-editor__detail">
             <div v-if="selectedColumn && selectedColumn.key">
               <div v-for="childSchema in schema.children" :key="childSchema.field">
-                <div v-if="!childSchema.hide" style="display: flex; margin-top: 5px">
-                  <div style="width: 80px" v-if="!(childSchema.type === 'PartitionTemplateList' && !selectedColumnIndex)">
+                <div v-if="!childSchema.hide" class="schema-list-editor__field">
+                  <div class="schema-list-editor__field-label" v-if="!(childSchema.type === 'PartitionTemplateList' && !selectedColumnIndex)">
                     {{ childSchema.titleI18N }}:
                   </div>
                   <a-select
@@ -863,7 +865,7 @@ export default {
                           :key="template.key"
                           :disabled="isReadOnly(childSchema)"
                           @click="handleClickTemplate(index, template)"
-                          :style="`background: ${template.key === selectedTemplate.key ? '#ccc' : ''};height: 20px;`"
+                          :style="`background: ${template.key === selectedTemplate.key ? 'var(--bg-select)' : ''};height: 20px;`"
                         >
                           <div>{{ $t('mo-ban-0') }}({{ template.name }})</div>
                         </div>
@@ -1064,6 +1066,132 @@ export default {
   .right {
     flex: 1;
     border-left: 1px solid #ccc;
+  }
+}
+
+.schema-list-editor {
+  display: flex;
+  width: 100%;
+  border: 1px solid var(--border-primary);
+}
+
+.schema-list-editor__sidebar {
+  width: 200px;
+  border-right: 1px solid var(--border-primary);
+}
+
+.schema-list-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.schema-list-editor__items {
+  min-height: 80px;
+}
+
+.schema-list-editor__item {
+  height: 20px;
+}
+
+.schema-list-editor__detail {
+  flex: 1;
+  min-width: 0;
+  padding: 5px;
+}
+
+.schema-list-editor__field {
+  display: flex;
+  margin-top: 5px;
+}
+
+.schema-list-editor__field-label {
+  width: 80px;
+}
+
+.parameter-editor {
+  align-items: flex-start;
+  gap: 16px;
+  border: 0;
+
+  > .schema-list-editor__sidebar {
+    flex: 0 0 200px;
+    padding: 12px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--bg-secondary);
+
+    :deep(.ant-btn) {
+      height: 32px;
+      border: 1px solid var(--border-primary);
+      border-radius: 6px;
+    }
+  }
+
+  .schema-list-editor__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .schema-list-editor__items {
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .schema-list-editor__item {
+    height: auto;
+    min-height: 32px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+
+    > div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  > .schema-list-editor__detail {
+    padding: 0;
+  }
+
+  .schema-list-editor__field {
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 16px;
+  }
+
+  .schema-list-editor__field-label {
+    flex: 0 0 80px;
+  }
+}
+
+@media (max-width: 767px) {
+  .parameter-editor {
+    flex-direction: column;
+
+    > .schema-list-editor__sidebar {
+      flex-basis: auto;
+      width: 100%;
+    }
+
+    > .schema-list-editor__detail {
+      width: 100%;
+    }
+
+    .schema-list-editor__field {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .schema-list-editor__field-label {
+      grid-column: span 2;
+      width: auto;
+    }
   }
 }
 

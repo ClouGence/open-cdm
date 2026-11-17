@@ -43,8 +43,10 @@ public class KafkaCmdTemplateSpi implements CmdTemplateSpi {
         examples.add(new CmdExample(KafkaDsI18nKeys.KAFKA_EXAMPLE_LATEST_TITLE, "kafka-console-consumer --topic orders --max-messages 10 --timeout-ms 10000"));
         examples.add(new CmdExample(KafkaDsI18nKeys.KAFKA_EXAMPLE_PARTITION_TITLE,
             "kafka-console-consumer --topic orders --partition 0 --offset latest --max-messages 10 --timeout-ms 10000"));
+        examples.add(new CmdExample(KafkaDsI18nKeys.KAFKA_EXAMPLE_PRODUCE_TITLE, "kafka-console-producer --topic orders --key 'order-123' --value '{\"id\":123}'"));
         examples.add(new CmdExample(KafkaDsI18nKeys.KAFKA_EXAMPLE_TOPICS_HELP_TITLE, "kafka-topics --help"));
         examples.add(new CmdExample(KafkaDsI18nKeys.KAFKA_EXAMPLE_CONSUMER_HELP_TITLE, "kafka-console-consumer.sh --help"));
+        examples.add(new CmdExample(KafkaDsI18nKeys.KAFKA_EXAMPLE_PRODUCER_HELP_TITLE, "kafka-console-producer.sh --help"));
         return examples;
     }
 }

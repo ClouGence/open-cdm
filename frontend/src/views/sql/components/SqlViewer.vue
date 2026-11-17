@@ -192,7 +192,7 @@ export default {
     AiSqlPanel,
     SqlLoadingSkeleton
   },
-  emits: ['open-script', 'switch-tab', 'workspace-connection-error', 'workspace-connection-success'],
+  emits: ['open-script', 'switch-tab', 'workspace-connection-error', 'workspace-connection-success', 'metadata-changed'],
   props: {
     handleClickDsStatusIcon: Function,
     handleGetDsSetting: Function,
@@ -1067,6 +1067,10 @@ export default {
 
         if (queryData.object.resultType === 'CancelDone') {
           currentTab.stopping = false;
+        }
+
+        if (queryData.object.resultType === 'MetadataChanged') {
+          this.$emit('metadata-changed', currentTab);
         }
 
         if (queryData.object.resultType === 'QueryScript') {

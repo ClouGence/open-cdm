@@ -729,8 +729,9 @@ export default {
 
 .config-modal {
   .config {
-    border: 1px solid #ededed;
-    background: #fafafa;
+    border: 1px solid var(--border-secondary);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 10px;
     overflow-x: auto;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;

@@ -51,6 +51,7 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrat
 import com.clougence.clouddm.console.web.global.session.SessionCookieService;
 import com.clougence.clouddm.console.web.global.session.SessionPrincipal;
 import com.clougence.clouddm.console.web.global.session.SessionService;
+import com.clougence.clouddm.console.web.model.fo.FirstLoginPwdChangeFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.fo.RequestJumpUrlFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaRecoveryFO;
@@ -143,6 +144,13 @@ public class DmHomeController {
     public ResWebData<?> loginMfaRecoveryStatus(@Valid @RequestBody LoginMfaRecoveryFO fo) {
         this.loginService.loginMfaRecoveryStatus(fo);
         return ResWebDataUtils.buildSuccess();
+    }
+
+    @RequestAuth(strategy = AuthStrategy.Ignore)
+    @RequestMapping(value = "/loginPwdChange", method = { RequestMethod.POST })
+    public ResWebData<?> loginPwdChange(@Valid @RequestBody FirstLoginPwdChangeFO pwdChangeFO, HttpServletRequest request, HttpServletResponse response) {
+        LoginMO loginMO = this.loginService.changeFirstLoginPwd(pwdChangeFO);
+        return commonLoginResult(loginMO, request, response);
     }
 
     protected ResWebData<?> commonLoginResult(LoginMO loginMO, HttpServletRequest request, HttpServletResponse response) {
@@ -407,6 +415,7 @@ public class DmHomeController {
             DsSupportNameVO vo = new DsSupportNameVO();
             vo.setDsKey(dsType.getTypeName());
             vo.setDisplayName(resolveDsDisplayName(dsType));
+            vo.setDeployTypes(dsType.getDeployTypes());
             return vo;
         }).collect(Collectors.toList());
     }

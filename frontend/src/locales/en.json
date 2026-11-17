@@ -1608,6 +1608,7 @@
   "zi-dong-workeroperationi18nthisconfirmonlinetype-shi-bai": "Auto{0} failed",
   "zi-duan-ming-cheng": "Column Name",
   "zi-fu-ji": "Charset",
+  "bu-shu-lei-xing": "Deployment type",
   "zi-jian": "Self-managed",
   "zi-jian-ji-fang": "Self-managed",
   "zi-jian-ji-fang-tian-jia-ji-qi-de-bu-zhou-mu-qian-jin-zhi-chi-radhatcentosubuntumacos-xi-tong": "Follow the steps to add a Worker in a self-managed data center (currently only support Red Hat, CentOS, Ubuntu, MacOS systems)",
@@ -3494,6 +3495,9 @@
   "chong-xin-qi-yong": "Re-enable",
   "mfa-yi-shi-xiao": "MFA is invalid",
   "mfa-yi-shi-xiao-deng-lu-ti-shi": "Your MFA configuration is invalid.\nContact an administrator to reset MFA, then sign in again and re-enable MFA.",
+  "shou-ci-deng-lu-xiu-gai-mi-ma": "Change Initial Password",
+  "shou-ci-deng-lu-bi-xu-xiu-gai-chu-shi-mi-ma": "Change your initial password to continue.",
+  "xiu-gai-mi-ma-bing-deng-lu": "Change Password and Sign In",
   "mfa-deng-lu-zhuang-tai-wu-xiao-qing-zhong-xin-deng-lu": "The MFA login state is invalid. Please sign in again.",
   "mfa-yi-shi-xiao-guan-bi-ti-shi": "Your MFA settings are invalid. After closing MFA, sign-in will no longer require MFA verification. Continue?",
   "mfa-code-you-xiao-qi-ti-shi": "MFA Code is valid for 10 minutes. Remaining {0}",
@@ -4666,5 +4670,11 @@
   "zhong-zhi-shi-xiao-mfa": "Reset Invalid MFA",
   "que-ding-zhong-zhi-shi-xiao-mfa-ma": "Reset the invalid MFA of this account?",
   "zhong-zhi-shi-xiao-mfa-ti-shi": "This disables the invalid MFA configuration and revokes all sessions of the target account. The user must sign in again and re-enable MFA.",
-  "zhong-zhi-shi-xiao-mfa-cheng-gong": "Invalid MFA reset"
+  "zhong-zhi-shi-xiao-mfa-cheng-gong": "Invalid MFA reset",
+  "wei-ruan-yun": "Microsoft Azure",
+  "gu-ge-yun": "Google Cloud",
+  "teng-xun-yun": "Tencent Cloud",
+  "hua-wei-yun-deploy": "Huawei Cloud",
+  "datasource-classify-document": "Document databases",
+  "datasource-classify-search": "Search engines"
 }

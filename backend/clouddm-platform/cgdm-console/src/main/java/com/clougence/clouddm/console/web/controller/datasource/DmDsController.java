@@ -18,10 +18,7 @@ package com.clougence.clouddm.console.web.controller.datasource;
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.RDP_DAUTH_DS_MANAGER;
 import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.RDP_DAUTH_DS_READ;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_DS_MANAGE;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_DS_READ;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_DS_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +32,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DeployTypes;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
@@ -146,6 +144,7 @@ public class DmDsController {
         DataSourceType dsType = fo.getDsType();
         Map<String, String> defaultConfig = new LinkedHashMap<>();
         DmDsDO dsDO = null;
+        DeployTypes deployType = null;
 
         if (fo.getDsId() != null && fo.getDsId() > 0) {
             this.cacheDao.ownDataSource(puid, fo.getDsId());
@@ -153,6 +152,7 @@ public class DmDsController {
             dsDO = this.dmDsService.fetchAndCheckById(fo.getDsId());
             dsType = dsDO.getDataSourceType();
             DataSourceConfig dsConfig = this.dsConfigService.fetchFullDsConfigFromExists(fo.getDsId());
+            deployType = dsConfig.getDeployType();
             defaultConfig = DmDsConfigHelper.collectConfigs(dsConfig)
                 .stream()
                 .collect(Collectors.toMap(DsConfigKvDef::getConfigName, DsConfigKvDef::getConfigValue, (oldVal, newVal) -> newVal, LinkedHashMap::new));
@@ -163,6 +163,7 @@ public class DmDsController {
         String instanceId = dsDO == null ? dsType.getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15) : dsDO.getInstanceId();
         vo.setDsId(dsDO == null ? null : dsDO.getId());
         vo.setDsType(dsType);
+        vo.setDeployType(deployType);
         vo.setEnvId(dsDO == null ? null : dsDO.getDsEnvId());
         vo.setClusterId(dsDO == null ? null : dsDO.getBindClusterId());
         vo.setInstanceId(instanceId);

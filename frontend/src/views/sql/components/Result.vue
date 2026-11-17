@@ -2851,7 +2851,7 @@ export default {
   }
 }
 
-:global([data-theme='dark']) {
+[data-theme='dark'] {
   .result-container .result-info-container .result-info-messages .result-info .info {
     .level {
       color: #9cdcfe;

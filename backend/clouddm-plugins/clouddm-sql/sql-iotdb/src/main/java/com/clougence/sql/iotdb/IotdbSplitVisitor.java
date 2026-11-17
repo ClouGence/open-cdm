@@ -69,6 +69,16 @@ final class IotdbSplitVisitor extends IotdbParserBaseVisitor<SplitQueryType> {
     }
 
     @Override
+    public SplitQueryType visitTreeCreateTemplateStatement(TreeCreateTemplateStatementContext context) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
+    public SplitQueryType visitTreeSetTemplateStatement(TreeSetTemplateStatementContext context) {
+        return SplitQueryType.ADMIN;
+    }
+
+    @Override
     public SplitQueryType visitTreeDropSeriesStatement(TreeDropSeriesStatementContext context) {
         return SplitQueryType.DROP_TIMESERIES;
     }
