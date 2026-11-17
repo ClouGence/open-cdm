@@ -614,6 +614,10 @@ public class DmConvertUtils {
             mo.setType(BrowseIndexType.Other.name());
             mo.setTips("(" + StringUtils.join(rdbIndex.getColumnList().toArray(), ",") + ")");
         }
+        String indexType = rdbIndex.getAttribute(OBJ_UI_TIPS);
+        if (StringUtils.isNotBlank(indexType)) {
+            mo.setTips(mo.getTips() + " " + indexType);
+        }
 
         mo.setColumns(rdbIndex.getColumnList().stream().map(DmConvertUtils::convertToBrowseTermMO).collect(Collectors.toList()));
         return mo;

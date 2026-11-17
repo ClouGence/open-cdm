@@ -47,6 +47,7 @@ public class RdbAttributeNames extends AbstractAttributeNames {
     public static final UmiAttributeNames NULLABLE                   = check(new RdbAttributeNames("nul"));
     public static final UmiAttributeNames JDBC_TYPE                  = check(new RdbAttributeNames("jt"));
     public static final UmiAttributeNames COMMENT                    = check(new RdbAttributeNames("com"));
+    public static final UmiAttributeNames COLUMN_ROLE                = check(new RdbAttributeNames("cr"));
     public static final UmiAttributeNames INDEX                      = check(new RdbAttributeNames("i"));
     public static final UmiAttributeNames DATETIME_PRECISION         = check(new RdbAttributeNames("dp"));
     public static final UmiAttributeNames NUMERIC_PRECISION          = check(new RdbAttributeNames("np"));
