@@ -118,6 +118,21 @@
         LIMIT ${limit}
     </select>
 
+    <select id="queryFailedFinishChanges" resultMap="dmChangeDO">
+        SELECT
+            <include refid="dmChangeColumns"/>
+        FROM
+            dm_change
+        WHERE
+            current_step   = 'FINISH'
+            AND
+            current_status = 'FAILED'
+            AND
+            lock_status    = 0
+            AND
+            try_times      = 0
+    </select>
+
     <select id="queryByBatchIds" resultMap="dmChangeDO">
         SELECT
             <include refid="dmChangeColumns"/>

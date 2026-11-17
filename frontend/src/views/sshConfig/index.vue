@@ -220,6 +220,7 @@
 </template>
 
 <script>
+import { formatHostPort } from '@/utils/networkAddress';
 import { mapState } from 'vuex';
 import { encryptMixin } from '@/mixins/encryptMixin';
 
@@ -630,7 +631,7 @@ export default {
     formatEndpoint(row) {
       const username = row.username || '<username>';
       const host = row.host || 'localhost';
-      return `${username}@${host}:${row.port || 22}`;
+      return `${username}@${formatHostPort(host, row.port || 22)}`;
     }
   }
 };

@@ -23,6 +23,7 @@ import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 public abstract class AbstractDsConfigSpi implements DsConfigSpi {
@@ -62,12 +63,15 @@ public abstract class AbstractDsConfigSpi implements DsConfigSpi {
         if (StringUtils.isBlank(host)) {
             return;
         }
-        int index = host.lastIndexOf(':');
-        if (host.contains("://") || index <= 0 || index == host.length() - 1 || host.indexOf(':') != index) {
+        if (host.contains("://") || host.contains(",") || host.contains(";")) {
             uiMap.put(ADDRESS_FIELD, host);
-        } else {
-            uiMap.put(ADDRESS_FIELD, host.substring(0, index));
-            uiMap.put(PORT_FIELD, host.substring(index + 1));
+            return;
+        }
+
+        HostAndPort endpoint = HostAndPort.parse(host);
+        uiMap.put(ADDRESS_FIELD, endpoint.getHost());
+        if (endpoint.getPort() >= 0) {
+            uiMap.put(PORT_FIELD, String.valueOf(endpoint.getPort()));
         }
     }
 }

@@ -18,6 +18,10 @@
   color: var(--popover-text);
 }
 
+.ivu-poptip-popper .ivu-poptip-body-content-inner {
+  color: var(--popover-text);
+}
+
 .ivu-tooltip-popper .ivu-tooltip-inner {
   max-width: ~'min(300px, calc(100vw - 32px))';
   white-space: pre-wrap;
@@ -51,6 +55,28 @@
   }
 
   &[x-placement^='left'] .ivu-tooltip-arrow {
+    border-left-color: var(--popover-bg);
+  }
+}
+
+.ivu-poptip-popper {
+  &[x-placement^='top'] .ivu-poptip-arrow,
+  &[x-placement^='top'] .ivu-poptip-arrow::after {
+    border-top-color: var(--popover-bg);
+  }
+
+  &[x-placement^='right'] .ivu-poptip-arrow,
+  &[x-placement^='right'] .ivu-poptip-arrow::after {
+    border-right-color: var(--popover-bg);
+  }
+
+  &[x-placement^='bottom'] .ivu-poptip-arrow,
+  &[x-placement^='bottom'] .ivu-poptip-arrow::after {
+    border-bottom-color: var(--popover-bg);
+  }
+
+  &[x-placement^='left'] .ivu-poptip-arrow,
+  &[x-placement^='left'] .ivu-poptip-arrow::after {
     border-left-color: var(--popover-bg);
   }
 }

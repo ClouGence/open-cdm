@@ -32,10 +32,12 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.dsfamily.oracle.OracleHostAddress;
 import com.clougence.clouddm.dsfamily.oracle.i18n.OraConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties;
 import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientTimeZoneExtProperties;
 import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 public class OraConfigSpi extends AbstractDsConfigSpi {
@@ -130,25 +132,23 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         config.setTnsName(defaultConfig.get(OraConfig.Fields.tnsName));
         config.setClientTimeZone(defaultConfig.get(ClientTimeZoneExtProperties.CLIENT_TIME_ZONE_FIELD));
         config.setClientCharset(defaultConfig.get(ClientCharsetExtProperties.CLIENT_CHARSET_FIELD));
-        if (StringUtils.isNotBlank(config.getHost())) {
-            String[] ipPort = config.getHost().split(":");
-            if (ipPort.length == 3) {
-                config.setHost(ipPort[0] + ":" + ipPort[1]);
+        if (connectType != OraConnectType.TNS && StringUtils.isNotBlank(config.getHost())) {
+            OracleHostAddress endpoint = OracleHostAddress.parse(config.getHost());
+            config.setHost(endpoint.getAddress().toString());
+            if (endpoint.getDatabaseName() != null) {
                 switch (connectType) {
                     case SID:
-                        config.setSid(ipPort[2]);
+                        config.setSid(endpoint.getDatabaseName());
                         break;
                     case SERVICE:
-                        config.setServiceName(ipPort[2]);
+                        config.setServiceName(endpoint.getDatabaseName());
                         break;
                     case PDB:
-                        config.setPdbName(ipPort[2]);
+                        config.setPdbName(endpoint.getDatabaseName());
                         break;
                     default:
                         throw new IllegalArgumentException("unsupported Oracle connect type:" + connectType);
                 }
-            } else if (ipPort.length != 2) {
-                throw new IllegalArgumentException("unsupported Oracle host format:" + config.getHost());
             }
         }
         if (connectType == OraConnectType.PDB) {
@@ -213,7 +213,7 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         String port = uiMap.get(PORT_FIELD);
         String host = configMap.get(DataSourceConfig.Fields.host);
         if (StringUtils.isNotBlank(address) && StringUtils.isNotBlank(port)) {
-            host = address + ":" + port;
+            host = HostAndPort.fromParts(address, Integer.parseInt(port)).toString();
         }
 
         String connectTypeValue = uiMap.get(OraConfig.Fields.connectType);
@@ -276,27 +276,28 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         if (StringUtils.isBlank(host)) {
             return;
         }
-        String[] parts = host.split(":");
-        if (parts.length < 2) {
-            return;
-        }
-        uiMap.put(ADDRESS_FIELD, parts[0]);
-        uiMap.put(PORT_FIELD, parts[1]);
-
         OraConnectType connectType = OraConnectType.of(configMap.get(OraConfig.Fields.connectType));
         uiMap.put(OraConfig.Fields.connectType, connectType.getDriverTypeCode());
-        if (parts.length != 3) {
+        if (connectType == OraConnectType.TNS) {
+            return;
+        }
+
+        OracleHostAddress endpoint = OracleHostAddress.parse(host);
+        uiMap.put(ADDRESS_FIELD, endpoint.getAddress().getHost());
+        uiMap.put(PORT_FIELD, String.valueOf(endpoint.getAddress().getPort()));
+
+        if (endpoint.getDatabaseName() == null) {
             return;
         }
         switch (connectType) {
             case SID:
-                uiMap.putIfAbsent(OraConfig.Fields.sid, parts[2]);
+                uiMap.putIfAbsent(OraConfig.Fields.sid, endpoint.getDatabaseName());
                 break;
             case SERVICE:
-                uiMap.putIfAbsent(OraConfig.Fields.serviceName, parts[2]);
+                uiMap.putIfAbsent(OraConfig.Fields.serviceName, endpoint.getDatabaseName());
                 break;
             case PDB:
-                uiMap.putIfAbsent(OraConfig.Fields.pdbName, parts[2]);
+                uiMap.putIfAbsent(OraConfig.Fields.pdbName, endpoint.getDatabaseName());
                 break;
             default:
                 break;

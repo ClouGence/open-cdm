@@ -15,8 +15,12 @@
  */
 package com.clougence.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -99,4 +103,36 @@ public class StringUtilsTest {
         assert StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("\n\tExPlAiN SELECT 1", "EXPLAIN ");
         assert !StringUtils.startsWithIgnoreCaseIgnoringLeadingWhitespace("SELECT 1", "EXPLAIN ");
     }
+
+    @Test
+    public void hostAndPortFormatsIpv4DomainsAndIpv6() {
+        Map<String, String> endpoints = Map
+            .ofEntries(Map.entry("localhost", "localhost:5432"), Map.entry("localhost:15432", "localhost:15432"), Map.entry("127.0.0.1", "127.0.0.1:5432"), Map
+                .entry("127.0.0.1:15432", "127.0.0.1:15432"), Map.entry("::1", "[::1]:5432"), Map.entry("[::1]", "[::1]:5432"), Map.entry("[::1]:15432", "[::1]:15432"), Map
+                    .entry("2001:db8::10", "[2001:db8::10]:5432"), Map
+                        .entry("[2001:db8::10]:65535", "[2001:db8::10]:65535"), Map.entry("::ffff:192.0.2.1", "[::ffff:192.0.2.1]:5432"));
+        for (Map.Entry<String, String> endpoint : endpoints.entrySet()) {
+            assertEquals(endpoint.getValue(), HostAndPort.parse(endpoint.getKey(), 5432).toString());
+        }
+    }
+
+    @Test
+    public void hostAndPortKeepsBareIpv6AsAWholeHost() {
+        HostAndPort endpoint = HostAndPort.parse("2001:db8::5432");
+        assertEquals("2001:db8::5432", endpoint.getHost());
+        assertEquals(-1, endpoint.getPort());
+        assertEquals("[2001:db8::5432]", endpoint.toString());
+        assertEquals("[::1]:3306", HostAndPort.fromParts("::1", 3306).toString());
+        assertEquals("[::1]:3306", HostAndPort.fromParts("[::1]", 3306).toString());
+        assertThrows(IllegalArgumentException.class, () -> HostAndPort.fromParts("localhost:5432", 3306));
+    }
+
+    @Test
+    public void hostAndPortRejectsMalformedEndpoints() {
+        for (String address : List
+            .of("", "[::1", "[::1]extra", "[localhost]:5432", "[::1]:", "[::1]:abc", "[::1]:0", "[::1]:65536", "host:-1", ":5432", "2001:db8::xyz", "[::1]:5432:extra")) {
+            assertThrows(IllegalArgumentException.class, () -> HostAndPort.parse(address), address);
+        }
+    }
+
 }

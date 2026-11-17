@@ -69,6 +69,11 @@ public abstract class AbstractChangeAction implements ChangeAction {
             return false;
         }
 
+        // FINISH only follows a completed ticket; disabling the flow must not block its bookkeeping.
+        if (change.getCurrentStep() == ChangeStep.FINISH && !flowDO.isDeleted()) {
+            return true;
+        }
+
         DmChangeFlowDO gitOpsFlowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
         if (gitOpsFlowDO == null || gitOpsFlowDO.isDeleted()) {
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_DEVOPS_NOT_EXIST_ERROR.name(), locale, change.getChangeName());

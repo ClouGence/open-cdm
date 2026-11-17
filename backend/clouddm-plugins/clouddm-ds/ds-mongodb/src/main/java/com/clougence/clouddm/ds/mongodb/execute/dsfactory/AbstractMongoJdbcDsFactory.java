@@ -30,6 +30,7 @@ import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 import com.clougence.drivers.adapter.AdapterManager;
 import com.clougence.drivers.adapter.JdbcDriver;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 import com.mongodb.ServerAddress;
 
@@ -156,11 +157,8 @@ abstract class AbstractMongoJdbcDsFactory implements DsFactory<Connection> {
         String[] addrs = mongoAddress.trim().split(",");
         List<ServerAddress> serverAddrs = new ArrayList<>(4);
         for (String addr : addrs) {
-            String[] hostAndPort = addr.trim().split(":");
-            if (hostAndPort.length != 2 || StringUtils.isBlank(hostAndPort[0]) || StringUtils.isBlank(hostAndPort[1])) {
-                throw new IllegalArgumentException("unsupported MongoDB host format:" + mongoAddress);
-            }
-            serverAddrs.add(new ServerAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
+            HostAndPort endpoint = HostAndPort.parse(addr, 27017);
+            serverAddrs.add(new ServerAddress(endpoint.getHost(), endpoint.getPort()));
         }
         return serverAddrs;
     }
@@ -168,7 +166,7 @@ abstract class AbstractMongoJdbcDsFactory implements DsFactory<Connection> {
     private String buildHosts(List<ServerAddress> serverAddrs) {
         List<String> hosts = new ArrayList<>(serverAddrs.size());
         for (ServerAddress serverAddr : serverAddrs) {
-            hosts.add(serverAddr.getHost() + ":" + serverAddr.getPort());
+            hosts.add(HostAndPort.fromParts(serverAddr.getHost(), serverAddr.getPort()).toString());
         }
         return StringUtils.join(hosts, ",");
     }

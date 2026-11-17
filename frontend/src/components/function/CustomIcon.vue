@@ -21,6 +21,10 @@
 </template>
 
 <script>
+import azureCloudIcon from '@/assets/cloud/azure.svg';
+import googleCloudIcon from '@/assets/cloud/google-cloud.svg';
+import huaweiCloudIcon from '@/assets/cloud/huawei-cloud.svg';
+import tencentCloudIcon from '@/assets/cloud/tencent-cloud.svg';
 import cloudberryIcon from '@/assets/datasource/cloudberry.svg';
 import cloudDmMark from '@/assets/logo-clouddm-mark.svg';
 import cockroachdbIcon from '@/assets/datasource/cockroachdb.svg';
@@ -33,6 +37,10 @@ import { getPluginResourceUrl } from '@/utils/pluginResource';
 
 const goldenDBTypes = ['GoldenDB', 'GoldenDBMySQL', 'GoldenDBOracle'];
 const bundledIcons = {
+  AzureCloud: azureCloudIcon,
+  GoogleCloud: googleCloudIcon,
+  HuaweiCloud: huaweiCloudIcon,
+  TencentCloud: tencentCloudIcon,
   Cloudberry: cloudberryIcon,
   CockroachDB: cockroachdbIcon,
   Etcd: etcdIcon,

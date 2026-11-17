@@ -24,6 +24,7 @@ import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -132,14 +133,8 @@ public class MySqlDsFactory implements DsFactory<Connection> {
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            return String.format("jdbc:mysql://%s:3306/%s", ipPort[0], safeString(defaultSchema));
-        } else if (ipPort.length == 2) {
-            return String.format("jdbc:mysql://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultSchema));
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
-        }
+        HostAndPort address = HostAndPort.parse(host, 3306);
+        return String.format("jdbc:mysql://%s:%s/%s", address.formatHost(), address.getPort(), safeString(defaultSchema));
     }
 
 }

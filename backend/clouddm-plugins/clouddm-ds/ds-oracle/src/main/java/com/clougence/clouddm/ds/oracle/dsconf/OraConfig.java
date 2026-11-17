@@ -17,7 +17,11 @@ package com.clougence.clouddm.ds.oracle.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.dsfamily.oracle.OracleHostAddress;
 import com.clougence.clouddm.dsfamily.oracle.i18n.OraConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.clouddm.sdk.execute.dsconf.capability.ClientCharsetExtProperties;
@@ -84,26 +88,20 @@ public class OraConfig extends DataSourceConfig implements //
     public Properties asDriverProperties() {
         String ipStr = "";
         String portStr = "1521";
-        if (StringUtils.isNotBlank(getHost())) {
-            String[] ipPort = getHost().split(":");
-            if (ipPort.length == 2 || ipPort.length == 3) {
-                ipStr = ipPort[0];
-                if (StringUtils.isNotBlank(ipPort[1])) {
-                    portStr = ipPort[1];
-                }
-            }
-            if (ipPort.length == 3) {
+        if (this.connectType != OraConnectType.TNS && StringUtils.isNotBlank(getHost())) {
+            OracleHostAddress endpoint = OracleHostAddress.parse(getHost());
+            ipStr = endpoint.getAddress().formatHost();
+            portStr = String.valueOf(endpoint.getAddress().getPort());
+            if (endpoint.getDatabaseName() != null) {
                 if (this.connectType == OraConnectType.SID) {
-                    this.sid = ipPort[2];
+                    this.sid = endpoint.getDatabaseName();
                 } else if (this.connectType == OraConnectType.SERVICE) {
-                    this.serviceName = ipPort[2];
+                    this.serviceName = endpoint.getDatabaseName();
                 } else if (this.connectType == OraConnectType.PDB) {
-                    this.pdbName = ipPort[2];
+                    this.pdbName = endpoint.getDatabaseName();
                 } else {
                     throw new IllegalArgumentException("unsupported Oracle connect type:" + this.connectType);
                 }
-            } else if (ipPort.length != 2) {
-                throw new IllegalArgumentException("unsupported Oracle host format:" + getHost());
             }
         }
 

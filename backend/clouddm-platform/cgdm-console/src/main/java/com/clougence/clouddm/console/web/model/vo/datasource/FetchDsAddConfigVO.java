@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.datasource;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DeployTypes;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class FetchDsAddConfigVO {
 
     private Long                 dsId;
     private DataSourceType       dsType;
+    private DeployTypes          deployType;
     private Long                 envId;
     private Long                 clusterId;
     private String               instanceId;

@@ -22,6 +22,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -113,14 +114,8 @@ public class Db2JccDsFactory implements DsFactory<Connection> {
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String defaultDb = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
 
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            return String.format("jdbc:db2://%s:5000/%s", ipPort[0], safeString(defaultDb).toUpperCase());
-        } else if (ipPort.length == 2) {
-            return String.format("jdbc:db2://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultDb).toUpperCase());
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
-        }
+        HostAndPort address = HostAndPort.parse(host, 5000);
+        return String.format("jdbc:db2://%s:%s/%s", address.formatHost(), address.getPort(), safeString(defaultDb).toUpperCase());
     }
 
 }

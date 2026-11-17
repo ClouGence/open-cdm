@@ -51,6 +51,7 @@
 
 <script>
 import SshConfigList from '@/views/sshConfig/index.vue';
+import { formatHostPort } from '@/utils/networkAddress';
 
 export default {
   name: 'SshTunnelField',
@@ -163,7 +164,7 @@ export default {
       }
     },
     sshConfigLabel(item) {
-      const address = item.host ? `${item.host}${item.port ? `:${item.port}` : ''}` : '';
+      const address = formatHostPort(item.host, item.port);
       return address ? `${item.name} (${address})` : item.name;
     },
     handleSettings() {

@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.component.dsconfig.impl;
 
 import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.fieldOptionDef;
 import static com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi.*;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -167,7 +168,7 @@ public class DmDsConfigUiPanelFactory {
         // host&port
         DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
         DsConfigKvDef host = fields.get(DataSourceConfig.Fields.host);
-        String[] hostParts = splitHostPort(host.getConfigValue(), configSpi.defaultPort());
+        String[] hostParts = splitHostPort(host.getConfigValue(), configSpi);
         panel.addField(UiPanelField.builder()
             .field(host.getConfigName())
             .type(UiPanelFieldType.NetworkAddress)
@@ -220,15 +221,16 @@ public class DmDsConfigUiPanelFactory {
         return secTypes.get(0);
     }
 
-    private String[] splitHostPort(String host, String defaultPort) {
+    private String[] splitHostPort(String host, DsConfigSpi configSpi) {
         if (StringUtils.isBlank(host)) {
-            return new String[] { "", defaultPort };
+            return new String[] { "", configSpi.defaultPort() };
         }
-        int index = host.lastIndexOf(':');
-        if (host.contains("://") || index <= 0 || index == host.length() - 1 || host.indexOf(':') != index) {
-            return new String[] { host, defaultPort };
-        }
-        return new String[] { host.substring(0, index), host.substring(index + 1) };
+
+        Map<String, String> config = new LinkedHashMap<>();
+        config.put(DataSourceConfig.Fields.host, host);
+        Map<String, String> addressFields = new LinkedHashMap<>();
+        configSpi.customizeUiMap(addressFields, config);
+        return new String[] { addressFields.getOrDefault(ADDRESS_FIELD, host), addressFields.getOrDefault(PORT_FIELD, configSpi.defaultPort()) };
     }
 
     private ValueDef buildSecOption(SecurityType type, Map<String, DsConfigKvDef> allFields) {

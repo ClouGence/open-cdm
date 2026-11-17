@@ -23,6 +23,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -112,13 +113,7 @@ public class DmDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String[] ipPort = host.split(":");
-        if (ipPort.length == 1) {
-            return String.format("jdbc:dm://%s:5236", ipPort[0]);
-        } else if (ipPort.length == 2) {
-            return String.format("jdbc:dm://%s:%s", ipPort[0], ipPort[1]);
-        } else {
-            throw new IllegalArgumentException("unsupported host format:" + host);
-        }
+        HostAndPort address = HostAndPort.parse(host, 5236);
+        return String.format("jdbc:dm://%s:%s", address.formatHost(), address.getPort());
     }
 }

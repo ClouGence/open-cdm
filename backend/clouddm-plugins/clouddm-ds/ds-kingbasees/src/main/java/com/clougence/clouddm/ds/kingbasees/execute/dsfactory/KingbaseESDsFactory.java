@@ -26,6 +26,7 @@ import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.HostAndPort;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -196,13 +197,7 @@ public class KingbaseESDsFactory implements DsFactory<Connection> {
             defaultCatalog = "test";
         }
 
-        String[] hostPort = host.split(":");
-        if (hostPort.length == 1) {
-            return String.format("jdbc:kingbase8://%s:54321/%s", hostPort[0], safeString(defaultCatalog));
-        }
-        if (hostPort.length == 2) {
-            return String.format("jdbc:kingbase8://%s:%s/%s", hostPort[0], hostPort[1], safeString(defaultCatalog));
-        }
-        throw new IllegalArgumentException("Unsupported KingbaseES host format: " + host);
+        HostAndPort address = HostAndPort.parse(host, 54321);
+        return String.format("jdbc:kingbase8://%s:%s/%s", address.formatHost(), address.getPort(), safeString(defaultCatalog));
     }
 }

@@ -15,6 +15,10 @@
  */
 package com.clougence.clouddm.base.metadata.ds;
 
+import static com.clougence.clouddm.base.metadata.ds.DeployTypes.SELF_MAINTENANCE;
+
+import java.util.Set;
+
 import lombok.Getter;
 
 /**
@@ -23,19 +27,17 @@ import lombok.Getter;
  * Data source types are grouped by {@link #displayGroup}; groups are rendered from small to large. Within each group,
  * {@link #order} follows product popularity first, and keeps products from the same family adjacent where possible.
  * Cloud database group only contains services that are not intended for private deployment.
- *
- * @author wanshao create time is 2019/12/12 3:36 下午
  */
 @Getter
 public enum DataSourceType {
 
     // main db
-    MySQL("my", "MySQL", DsClassify.RDB, 0, 10),
-    Oracle("ora", "Oracle", DsClassify.RDB, 0, 20),
-    SQLServer("ms", "SQLServer", DsClassify.RDB, 0, 30),
-    PostgreSQL("pg", "PostgreSQL", DsClassify.RDB, 0, 40),
+    MySQL("my", "MySQL", DsClassify.RDB, 0, 10, DeployTypes.mysql()),
+    Oracle("ora", "Oracle", DsClassify.RDB, 0, 20, DeployTypes.oracle()),
+    SQLServer("ms", "SQLServer", DsClassify.RDB, 0, 30, DeployTypes.sqlServer()),
+    PostgreSQL("pg", "PostgreSQL", DsClassify.RDB, 0, 40, DeployTypes.postgresql()),
     CockroachDB("crdb", "CockroachDB", DsClassify.RDB, 0, 45),
-    MariaDB("mar", "MariaDB", DsClassify.RDB, 0, 50),
+    MariaDB("mar", "MariaDB", DsClassify.RDB, 0, 50, DeployTypes.mariaDb()),
     TiDB("ti", "TiDB", DsClassify.RDB, 0, 60),
     Dameng("dm", "Dameng", DsClassify.RDB, 0, 70),
     KingbaseESPostgreSQL("kespg", "KingbaseESPostgreSQL", DsClassify.RDB, 0, 75),
@@ -52,47 +54,53 @@ public enum DataSourceType {
     Db2Fori("db24i", "Db2Fori", DsClassify.RDB, 0, 120),
     Hana("hana", "Hana", DsClassify.RDB, 0, 130),
     GaussDBForOpenGauss("gsog", "GaussDBForOpenGauss", DsClassify.RDB, 0, 140),
-    GaussDB("gs", "GaussDB", DsClassify.RDB, 0, 150),
-    PolarDbMySQL("pom", "PolarDbMySQL", DsClassify.RDB, 0, 160),
-    PolarDbX("pox", "PolarDbX", DsClassify.RDB, 0, 170),
-    PolarDBPg("popg", "PolarDBPg", DsClassify.RDB, 0, 180),
+    GaussDB("gs", "GaussDB", DsClassify.RDB, 0, 150, DeployTypes.gaussDb()),
+    PolarDbMySQL("pom", "PolarDbMySQL", DsClassify.RDB, 0, 160, DeployTypes.polarDbMysql()),
+    PolarDbX("pox", "PolarDbX", DsClassify.RDB, 0, 170, DeployTypes.polarDbX()),
+    PolarDBPg("popg", "PolarDBPg", DsClassify.RDB, 0, 180, DeployTypes.polarDbPg()),
 
     // big data, analytics, olap
     StarRocks("sr", "StarRocks", DsClassify.RDB, 1, 10),
     Doris("drs", "Doris", DsClassify.RDB, 1, 20),
     SelectDB("sel", "SelectDB", DsClassify.RDB, 1, 30),
-    ClickHouse("ck", "ClickHouse", DsClassify.RDB, 1, 40),
-    Greenplum("gp", "Greenplum", DsClassify.RDB, 1, 50),
+    ClickHouse("ck", "ClickHouse", DsClassify.RDB, 1, 40, DeployTypes.clickHouse()),
+    Greenplum("gp", "Greenplum", DsClassify.RDB, 1, 50, DeployTypes.greenplum()),
     Cloudberry("cb", "Cloudberry", DsClassify.RDB, 1, 60),
     IoTDB("iotdb", "IoTDB", DsClassify.RDB, 1, 70),
 
     // non-relational db
-    Redis("re", "Redis", DsClassify.CACHE, 2, 10),
-    Valkey("vk", "Valkey", DsClassify.CACHE, 2, 15),
-    MongoDB("mdb", "MongoDB", DsClassify.DOCUMENT, 2, 20),
-    Kafka("ka", "Kafka", DsClassify.MQ, 2, 30),
-    ElasticSearch("es", "ElasticSearch", DsClassify.SEARCH, 2, 40),
-    OpenSearch("os", "OpenSearch", DsClassify.SEARCH, 2, 45),
+    Redis("re", "Redis", DsClassify.CACHE, 2, 10, DeployTypes.redis()),
+    Valkey("vk", "Valkey", DsClassify.CACHE, 2, 15, DeployTypes.valkey()),
+    MongoDB("mdb", "MongoDB", DsClassify.DOCUMENT, 2, 20, DeployTypes.mongoDb()),
+    Kafka("ka", "Kafka", DsClassify.MQ, 2, 30, DeployTypes.kafka()),
+    ElasticSearch("es", "ElasticSearch", DsClassify.SEARCH, 2, 40, DeployTypes.elasticsearch()),
+    OpenSearch("os", "OpenSearch", DsClassify.SEARCH, 2, 45, DeployTypes.openSearch()),
     Etcd("et", "Etcd", DsClassify.CACHE, 2, 50),
 
     // cloud database
-    AdbForMySQL("amy", "AdbForMySQL", DsClassify.RDB, 3, 10),
-    Redshift("rs", "Redshift", DsClassify.RDB, 3, 20),
-    Hologres("hg", "Hologres", DsClassify.RDB, 3, 30),
-    MaxCompute("mc", "MaxCompute", DsClassify.RDB, 3, 40),;
+    AdbForMySQL("amy", "AdbForMySQL", DsClassify.RDB, 3, 10, DeployTypes.adbForMysql()),
+    Redshift("rs", "Redshift", DsClassify.RDB, 3, 20, DeployTypes.redshift()),
+    Hologres("hg", "Hologres", DsClassify.RDB, 3, 30, DeployTypes.hologres()),
+    MaxCompute("mc", "MaxCompute", DsClassify.RDB, 3, 40, DeployTypes.maxCompute()),;
 
-    private final String     typeName;
-    private final String     shortName;
-    private final DsClassify classify;
-    private final int        displayGroup;
-    private final int        order;
+    private final String           typeName;
+    private final String           shortName;
+    private final DsClassify       classify;
+    private final int              displayGroup;
+    private final int              order;
+    private final Set<DeployTypes> deployTypes;
 
     DataSourceType(String shortName, String typeName, DsClassify classify, int displayGroup, int order){
+        this(shortName, typeName, classify, displayGroup, order, Set.of(SELF_MAINTENANCE));
+    }
+
+    DataSourceType(String shortName, String typeName, DsClassify classify, int displayGroup, int order, Set<DeployTypes> deployTypes){
         this.shortName = shortName;
         this.typeName = typeName;
         this.classify = classify;
         this.displayGroup = displayGroup;
         this.order = order;
+        this.deployTypes = deployTypes;
     }
 
     public static DataSourceType getTypeByName(String typeName) {

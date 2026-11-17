@@ -31,6 +31,8 @@
 </template>
 
 <script>
+import { formatHostPort, parseHostPort } from '@/utils/networkAddress';
+
 export default {
   name: 'NetworkAddressField',
   props: {
@@ -106,6 +108,12 @@ export default {
       const defaultHostValue = this.fieldDefaultValue('address') || this.defaultValue(this.field.defaultValue) || this.fieldDefaultValue('host');
       const sourceHost = this.fieldValueOrDefault(this.modelValue, 'host', defaultHostValue);
       const sourcePort = this.fieldValueOrDefault(this.modelValue, 'port', defaultPort);
+      // Local edits already contain separate values; do not reinterpret a partially typed IPv6 host.
+      if (sourceHost === this.hostValue && sourcePort === this.portValue) {
+        this.syncHostValue();
+        return;
+      }
+
       const parsed = this.parseHost(sourceHost, sourcePort);
       this.hostValue = parsed.host;
       this.portValue = parsed.port;
@@ -134,23 +142,17 @@ export default {
       return defaultValue || '';
     },
     parseHost(host, port) {
-      if (!this.shouldSeparatePort || !host || port) {
+      if (!this.shouldSeparatePort || !host) {
         return {
           host: host || '',
           port: port || ''
         };
       }
 
-      const match = String(host).match(/^(.+):([^:]+)$/);
-      if (!match) {
-        return {
-          host,
-          port: ''
-        };
-      }
+      const parsed = parseHostPort(host);
       return {
-        host: match[1],
-        port: match[2]
+        host: parsed.host,
+        port: port || parsed.port
       };
     },
     resolvedAddress(host = this.hostValue, port = this.portValue) {
@@ -169,7 +171,7 @@ export default {
       if (!host) {
         return '';
       }
-      return `${host}:${port}`;
+      return formatHostPort(host, port);
     },
     resolvedAddressContext(host = this.hostValue, port = this.portValue) {
       return {

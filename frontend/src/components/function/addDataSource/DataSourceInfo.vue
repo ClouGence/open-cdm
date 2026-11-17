@@ -32,6 +32,20 @@
               <Spin v-if="addDsConfigLoading" fix />
               <div class="datasource-config-content">
                 <div class="datasource-type-form-row">
+                  <div class="datasource-type-form-label">{{ $t('bu-shu-lei-xing') }}</div>
+                  <div class="datasource-type-form-control">
+                    <span class="datasource-type-form-value">
+                      <span aria-hidden="true">
+                        <svg v-if="addDataSourceForm.deployType === 'ALIBABA_CLOUD_HOSTED'" width="20" height="20" viewBox="0 0 1664 1024">
+                          <use xlink:href="#icon-v2-aliyun" width="4608" height="1024" />
+                        </svg>
+                        <CustomIcon v-else :type="currentDeployTypeIcon" size="20px" />
+                      </span>
+                      <span>{{ currentDeployTypeName }}</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="datasource-type-form-row">
                   <div class="datasource-type-form-label">{{ $t('shu-ju-yuan-lei-xing') }}</div>
                   <div class="datasource-type-form-control">
                     <span v-if="currentDataSourceType" class="datasource-type-form-value">
@@ -88,9 +102,12 @@
 <script>
 import { mapState } from 'vuex';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
+import CustomIcon from '@/components/function/CustomIcon';
 import { UiFormField } from '@/components/form';
-import { flattenDsSupportNameGroups, normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
+import { findDsSupportName, normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
+import { DEPLOY_TYPE_ICONS, DEPLOY_TYPE_LABELS } from '@/utils/datasourceDeploy';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import { formatHostPort } from '@/utils/networkAddress';
 
 const emptyHostList = () => [
   {
@@ -113,6 +130,7 @@ export default {
   name: 'DataSourceInfo',
   components: {
     DataSourceIcon,
+    CustomIcon,
     UiFormField
   },
   props: {
@@ -190,21 +208,19 @@ export default {
   },
   computed: {
     ...mapState(['dmGlobalSetting']),
-    flatDataSourceTypes() {
-      return flattenDsSupportNameGroups(this.dataSourceTypes);
+    currentDeployTypeIcon() {
+      return DEPLOY_TYPE_ICONS[this.addDataSourceForm.deployType];
+    },
+    currentDeployTypeName() {
+      return this.$t(DEPLOY_TYPE_LABELS[this.addDataSourceForm.deployType]);
     },
     currentDataSourceType() {
-      const currentType = this.addDataSourceForm.type;
-      const matchedType = this.flatDataSourceTypes.find((type) => type.dsKey === currentType);
-      if (matchedType) {
-        return matchedType;
+      const form = this.addDataSourceForm;
+      if (!form.type) {
+        return null;
       }
-      return currentType
-        ? {
-            dsKey: currentType,
-            displayName: currentType
-          }
-        : null;
+
+      return { dsKey: form.type, displayName: findDsSupportName(form.type, this.dmGlobalSetting.dsSupportNames)?.displayName || form.type };
     },
     currentDriverFamilies() {
       return this.driverFamilyMap[this.addDataSourceForm.type] || [];
@@ -431,6 +447,9 @@ export default {
     applyAddDsConfig(addDsConfig) {
       this.currentAddDsConfig = addDsConfig || {};
       this.$emit('config-loaded', this.currentAddDsConfig);
+      if (this.editMode && this.currentAddDsConfig.dsId) {
+        this.addDataSourceForm.deployType = this.currentAddDsConfig.deployType;
+      }
       if (this.currentAddDsConfig.dsType) {
         this.addDataSourceForm.type = this.currentAddDsConfig.dsType;
       }
@@ -760,7 +779,7 @@ export default {
       const port = this.formValueOrDefault(this.addDsUiForm, 'port', this.addDataSourceForm.port);
       let host = this.formValueOrDefault(this.addDsUiForm, field.field, this.addDataSourceForm.host);
       if (address) {
-        host = port ? `${address}:${port}` : address;
+        host = formatHostPort(address, port);
       }
       this.addDsUiForm.address = address;
       this.addDsUiForm.port = port;
@@ -831,7 +850,7 @@ export default {
         envId: this.addDataSourceForm.envId,
         instanceDesc: this.addDataSourceForm.instanceDesc,
         driver: this.addDataSourceForm.driver,
-        configMap: this.getAddDsConfigMap()
+        configMap: { ...this.getAddDsConfigMap(), deployType: this.addDataSourceForm.deployType }
       };
     }
   }
