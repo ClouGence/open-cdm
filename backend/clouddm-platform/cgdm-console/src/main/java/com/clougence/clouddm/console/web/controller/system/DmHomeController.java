@@ -49,6 +49,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
+import com.clougence.clouddm.console.web.model.fo.FirstLoginPwdChangeFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.fo.RequestJumpUrlFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
@@ -131,9 +132,16 @@ public class DmHomeController {
         return commonLoginResult(loginMO, request, response);
     }
 
+    @RequestAuth(strategy = AuthStrategy.Ignore)
+    @RequestMapping(value = "/loginPwdChange", method = { RequestMethod.POST })
+    public ResWebData<?> loginPwdChange(@Valid @RequestBody FirstLoginPwdChangeFO pwdChangeFO, HttpServletRequest request, HttpServletResponse response) {
+        LoginMO loginMO = this.loginService.changeFirstLoginPwd(pwdChangeFO);
+        return commonLoginResult(loginMO, request, response);
+    }
+
     protected ResWebData<?> commonLoginResult(LoginMO loginMO, HttpServletRequest request, HttpServletResponse response) {
         if (loginMO.isSuccess()) {
-            if (!loginMO.isNeedMore() && !loginMO.isNeedMfa()) {
+            if (!loginMO.isNeedMore() && !loginMO.isNeedMfa() && !loginMO.isNeedChangePwd()) {
                 fillResponseJwtToken(loginMO.getToken(), response);
             }
 
@@ -141,7 +149,7 @@ public class DmHomeController {
                 loginMO.setPuid(loginMO.getUid());
             }
 
-            if (loginMO.isSuccess() && !loginMO.isNeedMore() && !loginMO.isNeedMfa()) {
+            if (loginMO.isSuccess() && !loginMO.isNeedMore() && !loginMO.isNeedMfa() && !loginMO.isNeedChangePwd()) {
                 auditService.logAndAddOperationAudit(loginMO.getPuid(), loginMO.getUid(), request.getRequestURI(), request.getRemoteAddr(), loginMO
                     .getUid(), "", SecurityLevel.NORMAL, AuditType.LOGIN_SUCCESS, ResourceType.ACCOUNT);
             }
