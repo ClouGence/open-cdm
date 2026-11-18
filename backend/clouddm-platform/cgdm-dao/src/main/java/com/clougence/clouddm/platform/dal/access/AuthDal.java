@@ -32,6 +32,8 @@ public interface AuthDal {
 
     DmAuthResMapper resMapper();
 
+    DmAuthSessionMapper sessionMapper();
+
     DmAuthRoleMapper roleMapper();
 
     DmAuthUserMapper userMapper();

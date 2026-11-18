@@ -28,13 +28,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.file.mode.PluginResourceData;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
+import com.clougence.clouddm.console.web.global.session.SessionAccountPolicy;
+import com.clougence.clouddm.console.web.global.session.SessionPrincipal;
+import com.clougence.clouddm.console.web.global.session.SessionService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.resource.PluginResourceService;
 import com.clougence.clouddm.console.web.service.upload.UploadService4SqlFile;
@@ -56,7 +57,9 @@ public class ResourceController {
     @Resource
     private PluginResourceService resourceService;
     @Resource
-    private JwtService            jwtService;
+    private SessionService        sessionService;
+    @Resource
+    private SessionAccountPolicy  accountPolicy;
     @Resource
     private RdpUserService        userService;
     @Resource
@@ -126,16 +129,20 @@ public class ResourceController {
             return new LoginContext(userId, true);
         }
 
-        DecodedJWT jwt = this.jwtService.verify(httpRequest);
-        if (jwt == null || StringUtils.isBlank(jwt.getId())) {
+        SessionPrincipal principal = this.sessionService.authenticate(httpRequest);
+        if (principal == null) {
             return new LoginContext(null, false);
         }
 
-        DmAuthUserDO user = this.userService.getUserByUid(jwt.getId());
+        DmAuthUserDO user = this.userService.getUserByUid(principal.getUid());
         if (user == null || user.isDisable()) {
             return new LoginContext(null, false);
         }
-        return new LoginContext(jwt.getId(), true);
+        if (this.accountPolicy.isPasswordExpired(user)) {
+            this.sessionService.revokeUserSessions(user.getUid());
+            return new LoginContext(null, false);
+        }
+        return new LoginContext(user.getUid(), true);
     }
 
     private record LoginContext(String userId, boolean loggedIn) {

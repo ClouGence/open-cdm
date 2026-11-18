@@ -8,13 +8,7 @@
           :value="formValues[field.propertyKey] || ''"
           @input="(value) => onChange(field.propertyKey, normalizeInputValue(value))"
           :placeholder="field.description"
-        >
-          <template v-if="field.propertyKey === 'jwt.secret'" #suffix>
-            <a-button size="small" type="link" @click="generateJwt">
-              {{ $t('initialization.generate') }}
-            </a-button>
-          </template>
-        </a-input>
+        />
         <a-input-password
           v-else-if="field.inputType === 'password'"
           class="security-full-width-control"
@@ -59,14 +53,6 @@ export default {
     },
     onChange(key, value) {
       this.$emit('update:formValues', { [key]: value });
-    },
-    generateJwt() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let result = '';
-      for (let i = 0; i < 64; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      this.$emit('update:formValues', { 'jwt.secret': result });
     }
   }
 };

@@ -8,7 +8,7 @@
 
 - 页面与路由：登录页 `/#/login`，改密面板复用登录页右侧面板。
 - 入口：使用管理员新建的本地子账号在登录页输入账号与初始密码。
-- 关联接口与状态：`POST /login` 返回 `needChangePwd=true` 且不下发 `dm_jwt_token`；`POST /loginPwdChange` 校验原密码、写入新密码并清除 `dm_auth_user.need_change_pwd`；改密成功后返回 `needChangePwd=false` 并下发登录态。
+- 关联接口与状态：`POST /login` 返回 `needChangePwd=true` 且不下发 `dm_session_token` 会话 Cookie；`POST /loginPwdChange` 校验原密码、写入新密码并清除 `dm_auth_user.need_change_pwd`；改密成功后返回 `needChangePwd=false` 并下发登录态。
 - 关联源码：`frontend/src/views/login/index.vue`、`frontend/src/services/http/api/user.js`、`LoginServiceImpl`、`RdpUserServiceImpl`、`DmHomeController`、`DmAuthUserMapper.xml`。
 - 不覆盖：管理员重置密码接口、MFA 账号的二次验证链路、密码策略的后端实现细节、密码找回流程。
 
@@ -119,6 +119,6 @@
 
 ## Skip Conditions
 
-- @Browser 不可用或未登录管理员账号时，依赖登录的场景标记为 SKIP，可用接口级验证覆盖「needChangePwd 返回、JWT 不下发、并发只成功一次」，并记录覆盖缺口。
+- @Browser 不可用或未登录管理员账号时，依赖登录的场景标记为 SKIP，可用接口级验证覆盖「needChangePwd 返回、会话 Cookie 不下发、并发只成功一次」，并记录覆盖缺口。
 - 需要真实 MFA 的环境不具备时，MFA 相关场景标记为 SKIP，不得以普通账号结果替代。
 - 无法安全构造并发请求时，「并发提交」场景标记为 SKIP，并保留重复提交的单线程验证。

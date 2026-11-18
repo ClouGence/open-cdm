@@ -150,7 +150,6 @@ services:
       - cgdm_mysql_data:/var/lib/mysql
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_alone
       APP_SERVE_PORT: 8008
       MYSQL_EMBEDDED: "true"
@@ -205,7 +204,7 @@ kubectl -n cgdm get pods,svc,pvc
 kubectl -n cgdm port-forward svc/dm-alone 8222:8222
 ```
 
-然后访问 `http://localhost:8222`。如果需要长期对外访问，请根据集群环境选择 `NodePort`、`LoadBalancer` 或 Ingress；生产环境还应替换默认密码、JWT 密钥，并按数据规模调整 PVC 容量。
+然后访问 `http://localhost:8222`。如果需要长期对外访问，请根据集群环境选择 `NodePort`、`LoadBalancer` 或 Ingress；生产环境还应替换默认密码，并按数据规模调整 PVC 容量。
 
 ---
 
@@ -269,7 +268,6 @@ docker run -d --name dm_console \
   -p 8222:8222 \
   -p 8008:8008 \
   -e APP_WEB_PORT=8222 \
-  -e APP_WEB_JWT=ljgefdgjosdighjeroigh \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
   -e DB_HOST=dm_mysql \
@@ -330,7 +328,6 @@ services:
       - cgdm_console_data:/root/cgdm/console/data
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_console
       APP_SERVE_PORT: 8008
       # Override image defaults with packaged docker deployment values.
@@ -429,7 +426,7 @@ kubectl -n cgdm logs deploy/dm-sidecar
 kubectl -n cgdm logs statefulset/dm-mysql
 ```
 
-生产环境还应替换默认 MySQL 密码、JWT 密钥，按数据规模调整 PVC 容量，并将敏感配置改为 `Secret` 管理。
+生产环境还应替换默认 MySQL 密码，按数据规模调整 PVC 容量，并将敏感配置改为 `Secret` 管理。
 
 ---
 

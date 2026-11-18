@@ -2,7 +2,7 @@
 
 ## Purpose
 
-验证 SQL 工作台查询结果表格在有数据、单行和空结果情况下均可完整浏览所有列，确保已完成结果集切换时不再出现加载状态，确认执行信息长日志只在消息区内滚动、右侧操作栏始终可见，验证编辑器字号偏好可以在前端持久化，验证结果转置视图展示与单元格坐标功能正确，以及
+验证 SQL 工作台查询结果表格在有数据、单行和空结果情况下均可完整浏览所有列，确保已完成结果集切换时不再出现加载状态，确认执行信息长日志只在消息区内滚动、右侧操作栏始终可见，验证编辑器字号偏好可以在前端持久化，验证结果转置视图展示与单元格坐标功能正确，验证单元格详情弹窗按内容识别 JSON 并提供格式化视图，以及
 ClickHouse LowCardinality 字符串和空值可以正确显示。
 
 ## Scope
@@ -10,7 +10,7 @@ ClickHouse LowCardinality 字符串和空值可以正确显示。
 - 页面与路由：`/#/sql`。
 - 关联功能：SQL 执行、结果页签、结果加载状态、宽表横向滚动、固定序号列、空结果布局、执行信息长日志滚动、结果区收起/展开/最大化、结果转置视图和编辑器字号偏好。
 - 关联源码：`frontend/src/views/sql/components/Result.vue`、`frontend/src/views/sql/components/SqlViewer.vue`、
-  `frontend/src/components/editor/index.vue`、
+  `frontend/src/components/editor/index.vue`、`frontend/src/views/home/index.vue`、
   `backend/clouddm-plugins/clouddm-ds/ds-clickhouse/src/main/java/com/clougence/clouddm/ds/clickhouse/execute/ChColReader.java`。
 - 不覆盖：数据编辑、导出文件内容、数据库写入和超大结果集性能。
 
@@ -257,6 +257,15 @@ SELECT finalizeAggregation(sumState(toUInt64(42))) AS final_value;
     6. 切回正常视图，确认序号列、行右键菜单与单元格功能恢复；重新执行查询，确认新结果集默认正常朝向；新旧结果页签之间切换，确认转置状态按结果集页签隔离。
     7. 如环境存在 `STREAM` 接收模式的结果（如实时型数据源），确认结果工具栏不出现转置按钮。
 - 预期结果：转置后每个源列一行；复制/详情/截断续取按原始 `(rowNumber, colNumber)` 坐标取数；分页切换后展示与本页一致；列宽拖拽即时生效、长文本不撑破列宽；右键行菜单不出现；导出保持原始朝向；`STREAM` 结果无转置入口；控制台无新增错误。
+- 恢复/清理：关闭新增结果页签；无数据库写入。
+
+### QRG-MAIN-06 单元格详情 JSON 内容检测
+
+- 风险/目的：P1，确认文本类型列中存储的合法 JSON 在详情弹窗中默认以格式化 JSON 展示并可切换原文，非 JSON 或非法 JSON 内容不出现视图切换入口。
+- 初始路由与状态：进入 `/#/sql`，连接可用 MySQL 测试数据源；结果区无执行中的任务。
+- 测试数据：执行只读常量查询 `SELECT '{"a":1,"b":[2,3]}' AS json_text, 'not json {text' AS plain_text, '{invalid json' AS bad_json;`，三列均为文本类型。
+- @Browser 操作：点击 `json_text` 单元格的详情按钮，确认弹窗默认展示格式化 JSON 视图；点击"文本查看"切换回原文，再点"JSON 查看"切回格式化视图。分别打开 `plain_text` 和 `bad_json` 单元格详情，观察是否出现视图切换按钮。对已知 JSON 类型列（如 MySQL `JSON` 列）重复确认行为不变。
+- 预期结果：`json_text` 弹窗默认进入 JSON 格式化视图，按钮文案为"文本查看"，切换后展示原始字符串且按钮变回"JSON 查看"；`plain_text`（不以 `{`/`[` 开头）和 `bad_json`（`{` 开头但 `JSON.parse` 失败）均不出现视图切换按钮，仅展示原文、复制、关闭；复制仍取单元格原始值；控制台无新增错误。
 - 恢复/清理：关闭新增结果页签；无数据库写入。
 
 ## Cleanup

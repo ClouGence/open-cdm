@@ -13,33 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.model;
-
-import com.clougence.rdp.service.enumeration.OpVerifyErrType;
+package com.clougence.clouddm.console.web.global.session;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /**
- * @author bucketli 2021/1/11 11:18
+ * Handled after the revoking transaction commits. Either sessionId (single
+ * session) or uid (all sessions of the user) is set.
  */
 @Getter
-@Setter
-public class OpPasswdVerifyMO {
+public class SessionRevokedEvent {
 
-    boolean         success;
+    private final Long   sessionId;
+    private final String uid;
 
-    OpVerifyErrType opVerifyErrType;
-
-    String          errorMsg;
-
-    public OpPasswdVerifyMO(boolean success){
-        this.success = success;
-    }
-
-    public OpPasswdVerifyMO(boolean success, OpVerifyErrType opVerifyErrType, String errorMsg){
-        this.success = success;
-        this.opVerifyErrType = opVerifyErrType;
-        this.errorMsg = errorMsg;
+    public SessionRevokedEvent(Long sessionId, String uid){
+        this.sessionId = sessionId;
+        this.uid = uid;
     }
 }

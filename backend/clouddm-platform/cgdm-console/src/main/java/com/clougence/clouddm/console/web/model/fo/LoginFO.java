@@ -45,7 +45,7 @@ public class LoginFO {
     @JsonIgnore
     private String              accessToken;
 
-    private String              token;
+    private String              completionToken;
 
     private LoginAutoRegisterFO registerInfo;
 }

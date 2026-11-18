@@ -19,9 +19,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
-
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,8 +67,6 @@ public class ConsoleConfig {
     private boolean        autoUpdateInnerRules;
     @Value("${clougence.clouddm.console.openapi.timeout:120}")
     private Integer        openApiTimeout;
-    @Value("${clougence.rdp.console.csrf:false}")
-    private Boolean        activeCsrfCheck;
     @Value("${clougence.rdp.login.retry.max-count:5}")
     private int            retryLoginMaxCount;
     @Value("${clougence.rdp.login.mfa.disabled:false}")
@@ -81,16 +77,12 @@ public class ConsoleConfig {
     private String         deployContextPath;
     @Value("${clougence.rdp.black.user_config:#{NULL}}")
     private String         userConfigBlacklist;
-    @Value("${clougence.rdp.console.oppassword:false}")
-    private boolean        oppassword;
     @Value("${clougence.rdp.inner-roles:Manager,DBA,Developers,PM}")
     private List<String>   innerRoles;
     @Value("${clougence.rdp.console.enable_watermark:false}")
     private boolean        enableWaterMark;
     @Value("${clougence.rdp.console.enable_product_cluster:false}")
     private boolean        enableProductCluster;
-    @Value("${clougence.rdp.login.expire.sec:86400}")
-    private int            loginExpireTimeSec;
     @Value("${clougence.rdp.login.cookie.domain:#{NULL}}")
     private String         loginCookieDomain;
     @Value("${clougence.rdp.crypt.publicKey:0443a779e887425e2fa3bcc92ed70e0fd17647c82191ef9b82e4ecc98cb83cd74b7e40b3334bfff818504f21e583a3846d236782bb12f36fb6663d7c391d232699}")

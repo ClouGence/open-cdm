@@ -55,7 +55,7 @@
           :border="0"
           :max-height="360"
         />
-        <a-textarea v-else v-model:value="cellDetailContent" :rows="15" readonly style="font-family: monospace; font-size: 12px" />
+        <a-textarea v-else v-model:value="cellDetailContent" :rows="15" readonly :style="cellDetailTextStyle" />
         <div v-if="cellDetailLoading" class="cell-detail-loading">
           <a-spin :spinning="cellDetailLoading" />
           <span style="margin-left: 8px">{{ $t('zheng-zai-jia-zai') }}</span>
@@ -105,11 +105,11 @@ import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import AppSidebar from '@/components/layout/AppSidebar';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor.vue';
+import { SQL_EDITOR_TYPOGRAPHY } from '@/components/editor/sqlEditorTypography';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
 import AppContentHeader from '@/components/layout/AppContentHeader';
 import AppUserActions from '@/components/layout/AppUserActions';
-import { setApprovalProcessMixin, setOpPasswordMixin } from '@/mixins/modal';
-import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
+import { setApprovalProcessMixin } from '@/mixins/modal';
 import XEClipboard from 'xe-clipboard';
 import DmWaterMark from '@/components/widgets/DmWaterMark';
 import store from '@/store';
@@ -167,13 +167,26 @@ export default {
       dayjs
     };
   },
-  mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
+  mixins: [setApprovalProcessMixin],
   computed: {
     ...mapGetters(['isDesktop', 'displayVersion', 'isInternalUser']),
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
     isJsonCell() {
-      return ['JSON_DOCUMENT', 'JSON', 'JSONB'].includes(this.selectedCellDetail.column.columnType) && !this.selectedCellDetail.error;
+      if (this.selectedCellDetail.error) {
+        return false;
+      }
+      if (['JSON_DOCUMENT', 'JSON', 'JSONB'].includes(this.selectedCellDetail.column.columnType)) {
+        return true;
+      }
+      return this.looksLikeJson(this.cellDetailContent);
+    },
+    cellDetailTextStyle() {
+      return {
+        fontFamily: SQL_EDITOR_TYPOGRAPHY.fontFamily,
+        fontSize: `${SQL_EDITOR_TYPOGRAPHY.fontSize}px`,
+        lineHeight: `${SQL_EDITOR_TYPOGRAPHY.lineHeight}px`
+      };
     },
     isSqlRoute() {
       return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
@@ -191,11 +204,6 @@ export default {
       const waterMark = await this.$services.rdpUserWatermark();
       this.watermarkStr = `${waterMark.data.user_name}_${waterMark.data.user_phone}`;
     }
-    this.$bus.on('setOpPasswordModal', (edit = false) => {
-      if (this.globalSetting.authOpPassword) {
-        this.setOpPasswordModal(edit);
-      }
-    });
     this.$bus.on('showCellDetailModal', async (data) => {
       appLogger.debug('showCellDetailModal', data);
       if (!this.showDetailModal) {
@@ -225,14 +233,11 @@ export default {
         }
       }
     });
-    this.$bus.on('showEnterOpPwdModal', this.showEnterOpPwdModal);
     this.$bus.on('dingDingSettingModal', this.setApprovalProcessModal);
     this.$bus.on(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL, (msg) => this.handleShowInactiveModal(msg));
     await this.checkVersion();
   },
   unmounted() {
-    this.$bus.off('setOpPasswordModal');
-    this.$bus.off('showEnterOpPwdModal');
     this.$bus.off('dingDingSettingModal');
     this.$bus.off('showCellDetailModal');
     this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL);
@@ -297,6 +302,22 @@ export default {
         error: false,
         mask: false
       };
+    },
+    looksLikeJson(content) {
+      const text = typeof content === 'string' ? content.trim() : '';
+      if (!text.startsWith('{') && !text.startsWith('[')) {
+        return false;
+      }
+      // 分段加载期间内容不完整无法完整解析，按前缀判定
+      if (this.hasMoreData || this.cellDetailLoading) {
+        return true;
+      }
+      try {
+        JSON.parse(text);
+        return true;
+      } catch {
+        return false;
+      }
     },
     async handleLoadMoreCellData(isInitial = false) {
       if (this.cellDetailLoading) {
@@ -386,10 +407,6 @@ export default {
     _setApprovalProcessModal() {
       this.$store.dispatch('getUserInfo');
       this.setApprovalProcessModal();
-    },
-    _setOpPasswordModal() {
-      this.$store.dispatch('getUserInfo');
-      this.setOpPasswordModal(true);
     },
     goUserConfig() {
       this.$router.push({ name: 'User_Config' });

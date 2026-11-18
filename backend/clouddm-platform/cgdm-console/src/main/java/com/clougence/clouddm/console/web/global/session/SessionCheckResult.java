@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo;
+package com.clougence.clouddm.console.web.global.session;
 
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-/**
- * @author bucketli 2021/1/11 11:17
- */
 @Data
-public class OpPasswdVerifyFO {
+@AllArgsConstructor
+public class SessionCheckResult {
 
-    @NotBlank(message = "{notblank.oppassword}")
-    private String opPassword;
+    private boolean success;
+    private String  message;
+    private int     errorCode;
+
 }

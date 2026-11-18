@@ -125,16 +125,4 @@ public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstr
             this.authDal.csrfTokenMapper().updateToken(token, dbToken);
         }
     }
-
-    @Override
-    public String randomToken() {
-        String random = RandomStrUtils.fixedLenRandomStr(32);
-
-        DmAuthCsrfTokenDO tokenDO = new DmAuthCsrfTokenDO();
-        tokenDO.setToken(random);
-        tokenDO.setJumpUrl(null);
-        tokenDO.setSecretToken(random);
-        this.authDal.csrfTokenMapper().insert(tokenDO);
-        return random;
-    }
 }

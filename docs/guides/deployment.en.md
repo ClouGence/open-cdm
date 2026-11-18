@@ -150,7 +150,6 @@ services:
       - cgdm_mysql_data:/var/lib/mysql
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_alone
       APP_SERVE_PORT: 8008
       MYSQL_EMBEDDED: "true"
@@ -205,7 +204,7 @@ The default Service type is `ClusterIP`. For local validation, use port forwardi
 kubectl -n cgdm port-forward svc/dm-alone 8222:8222
 ```
 
-Then open `http://localhost:8222`. If you need long-term external access, choose `NodePort`, `LoadBalancer`, or Ingress according to your cluster environment. In production, also replace the default password and JWT secret, and adjust PVC capacity based on data volume.
+Then open `http://localhost:8222`. If you need long-term external access, choose `NodePort`, `LoadBalancer`, or Ingress according to your cluster environment. In production, also replace the default password, and adjust PVC capacity based on data volume.
 
 ---
 
@@ -269,7 +268,6 @@ docker run -d --name dm_console \
   -p 8222:8222 \
   -p 8008:8008 \
   -e APP_WEB_PORT=8222 \
-  -e APP_WEB_JWT=ljgefdgjosdighjeroigh \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
   -e DB_HOST=dm_mysql \
@@ -330,7 +328,6 @@ services:
       - cgdm_console_data:/root/cgdm/console/data
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_console
       APP_SERVE_PORT: 8008
       # Override image defaults with packaged docker deployment values.
@@ -429,7 +426,7 @@ kubectl -n cgdm logs deploy/dm-sidecar
 kubectl -n cgdm logs statefulset/dm-mysql
 ```
 
-In production, also replace the default MySQL password and JWT secret, adjust PVC capacity based on data volume, and manage sensitive configuration with `Secret`.
+In production, also replace the default MySQL password, adjust PVC capacity based on data volume, and manage sensitive configuration with `Secret`.
 
 ---
 

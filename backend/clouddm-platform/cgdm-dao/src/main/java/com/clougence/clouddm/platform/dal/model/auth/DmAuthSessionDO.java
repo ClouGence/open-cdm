@@ -13,17 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.global.jwtsession;
+package com.clougence.clouddm.platform.dal.model.auth;
 
-import lombok.Builder;
-import lombok.Data;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 
-@Data
-@Builder
-public class JwtCheckResult {
+import lombok.Getter;
+import lombok.Setter;
 
-    private boolean success;
-    private String  message;
-    private int     errorCode;
+@Getter
+@Setter
+@TableName(value = "dm_auth_session")
+public class DmAuthSessionDO {
 
+    @TableId(type = IdType.AUTO)
+    private Long   id;
+
+    private String uid;
+
+    private String tokenHash;
+
+    private String loginType;
+
+    /** epoch millis, immutable once created */
+    private Long   gmtCreate;
+
+    private Long   expireTimeMs;
 }

@@ -2287,7 +2287,8 @@ export default {
           right: 4px;
           top: 50%;
           transform: translateY(-50%);
-          background: rgba(255, 255, 255, 0.95);
+          background: var(--bg-secondary);
+          color: var(--text-primary);
           padding: 2px 4px;
           border-radius: 3px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -2805,7 +2806,8 @@ export default {
       right: 4px;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.95);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
       padding: 2px 4px;
       border-radius: 3px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

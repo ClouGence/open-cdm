@@ -32,7 +32,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtCheckResult;
+import com.clougence.clouddm.console.web.global.session.SessionCheckResult;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
 import com.clougence.clouddm.console.web.global.jwtsession.WebSoInterceptor;
@@ -54,10 +54,12 @@ import lombok.extern.slf4j.Slf4j;
 @ServerEndpoint(DmControllerUrlPrefix.CONSOLE_PREFIX + "/ws/channel")
 public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstruct {
 
-    private final Map<String, WsChannelStore> sessionMap = new ConcurrentHashMap<>();
-    private final AtomicBoolean               inited     = new AtomicBoolean(false);
+    private final Map<Long, WsChannelStore> sessionMap = new ConcurrentHashMap<>();
+    private final AtomicBoolean             inited     = new AtomicBoolean(false);
     @Resource
-    private DsConsoleEditorService            editorApi;
+    private DsConsoleEditorService          editorApi;
+    @Resource
+    private WsSessionGuard                  sessionGuard;
 
     @Override
     public void init() throws Exception {
@@ -89,50 +91,59 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     @Override
     public void afterConnectionEstablished(WebSocketSession ws) {
         boolean inited = this.inited.get();
+        SessionCheckResult checkResult = (SessionCheckResult) ws.getAttributes().get(WebSoInterceptor.WS_CHECK_RESULT);
+
+        // no payload may leave the socket before authoritative session registration
+        if (!inited || checkResult == null || !checkResult.isSuccess()) {
+            closeQuietly(ws, CloseStatus.POLICY_VIOLATION, "pre-handshake check failed");
+            return;
+        }
+        if (!this.sessionGuard.register(ws)) {
+            return;
+        }
+
         WsSysMsg status = new WsSysMsg();
         status.setCurUserId((String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID));
         status.setChannelKey(WsUtils.getChannelKey(ws));
         status.setServiceReady(inited);
         WsUtils.writeToSocket(ws, WsType.WS_SYS_STATUS, status);
 
-        if (inited) {
-            JwtCheckResult checkResult = (JwtCheckResult) ws.getAttributes().get(WebSoInterceptor.WS_CHECK_RESULT);
-            if (checkResult.isSuccess()) {
-                this.acceptChannel(ws);
-            } else {
-                WsUtils.writeToSocket(ws, WsType.WS_RES_ERROR, checkResult.getErrorCode() + " : " + checkResult.getMessage());
-                this.closeAndLog(ws, "from local WS_CHECK_RESULT failed.", CloseStatus.POLICY_VIOLATION);
-            }
-        } else {
-            this.closeAndLog(ws, "from local service is not ready yet.", CloseStatus.NORMAL);
-        }
+        this.acceptChannel(ws);
     }
 
-    private WsChannelStore acceptChannel(WebSocketSession ws) {
-        if (ws.isOpen()) {
-            String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
-            String channelKey = WsUtils.getChannelKey(ws);
-
-            WsChannelStore channelStore = this.sessionMap.computeIfAbsent(uid, s -> new WsChannelStore(uid, this.editorApi));
-            if (!channelStore.containsChannel(channelKey)) {
-                channelStore.acceptChannel(channelKey, ws);
-            }
-            return channelStore;
+    private void acceptChannel(WebSocketSession ws) {
+        if (!ws.isOpen()) {
+            return;
         }
 
-        return null;
+        Long sessionId = (Long) ws.getAttributes().get(WebSoInterceptor.WS_SESSION_ID);
+        String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
+        String channelKey = WsUtils.getChannelKey(ws);
+
+        this.sessionMap.compute(sessionId, (k, old) -> {
+            WsChannelStore store = old != null ? old : new WsChannelStore(uid, this.editorApi);
+            if (!store.containsChannel(channelKey)) {
+                store.acceptChannel(channelKey, ws);
+            }
+            return store;
+        });
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession ws, CloseStatus closeStatus) {
-        String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
-        if (StringUtils.isNotBlank(uid)) {
-            WsChannelStore channelStore = this.sessionMap.get(uid);
-            if (channelStore != null) {
-                channelStore.closeChannel(WsUtils.getChannelKey(ws));
-            }
-            this.closeAndLog(ws, "from closeStatus = " + closeStatus, CloseStatus.NORMAL);
+        removeChannel(ws);
+        this.sessionGuard.unregister(ws);
+    }
+
+    private void removeChannel(WebSocketSession ws) {
+        Long sessionId = (Long) ws.getAttributes().get(WebSoInterceptor.WS_SESSION_ID);
+        if (sessionId == null) {
+            return;
         }
+        this.sessionMap.computeIfPresent(sessionId, (k, store) -> {
+            store.closeChannel(WsUtils.getChannelKey(ws));
+            return store.getChannelMap().isEmpty() ? null : store;
+        });
     }
 
     @Override
@@ -148,7 +159,9 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     @Override
     public void handleMessage(WebSocketSession ws, WebSocketMessage<?> msg) {
         String curUser = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
-        WsChannelStore channelStore = this.acceptChannel(ws);
+        Long sessionId = (Long) ws.getAttributes().get(WebSoInterceptor.WS_SESSION_ID);
+        // lookup only; a removed connection is never re-registered by inbound traffic
+        WsChannelStore channelStore = sessionId == null ? null : this.sessionMap.get(sessionId);
 
         if (channelStore == null) {
             this.closeAndLog(ws, "session out of control.", CloseStatus.NORMAL);
@@ -166,6 +179,13 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
 
             WsMsg wsMsg = JSONObject.parseObject(textBody, WsMsg.class);
             wsMsg.setChannelKey(WsUtils.getChannelKey(ws));
+
+            if (wsMsg.getType() == WsType.WS_REQ_QUERY || wsMsg.getType() == WsType.WS_REQ_LANGUAGE) {
+                if (!this.sessionGuard.revalidate(ws)) {
+                    return;
+                }
+            }
+
             channelStore.handleMessage(ws, wsMsg);
         } catch (Exception e) {
             log.error("WS[" + WsUtils.getChannelKey(ws) + "]:RECEIVE user(" + curUser + "), handleError " + e.getMessage(), e);
@@ -175,20 +195,13 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     }
 
     private void closeAndLog(WebSocketSession ws, String logMsg, CloseStatus closeStatus) {
-        String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
-        if (StringUtils.isNotBlank(uid)) {
-            String channelKey = WsUtils.getChannelKey(ws);
-            WsChannelStore channelStore = this.sessionMap.get(uid);
-            if (channelStore != null) {
-                if (channelStore.containsChannel(channelKey)) {
-                    channelStore.closeChannel(channelKey);
-                }
-                if (channelStore.getChannelMap().isEmpty()) {
-                    this.sessionMap.remove(uid);
-                }
-            }
-        }
+        removeChannel(ws);
+        this.sessionGuard.unregister(ws);
+        closeQuietly(ws, closeStatus, logMsg);
+    }
 
+    private void closeQuietly(WebSocketSession ws, CloseStatus closeStatus, String logMsg) {
+        String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
         try {
             log.info("WS[" + WsUtils.getChannelKey(ws) + "]:CLOSED user(" + uid + "), " + logMsg);
             ws.close(closeStatus);
@@ -199,11 +212,15 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     }
 
     private void wsBroadcastChannel(WsType type, String uid, Object data) {
-        WsChannelStore channelStore = this.sessionMap.get(uid);
-        if (channelStore == null) {
+        boolean sent = false;
+        for (WsChannelStore channelStore : this.sessionMap.values()) {
+            if (uid != null && uid.equals(channelStore.getUid())) {
+                channelStore.broadcastWrite(type, data);
+                sent = true;
+            }
+        }
+        if (!sent) {
             log.info("WS[Broadcast]:SEND user(" + uid + "), WsType=" + type + ", Drop.");
-        } else {
-            channelStore.broadcastWrite(type, data);
         }
     }
 
@@ -215,11 +232,15 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             return;
         }
 
-        WsChannelStore channelStore = this.sessionMap.get(uid);
-        if (channelStore == null || !channelStore.containsChannel(channelKey)) {
+        boolean sent = false;
+        for (WsChannelStore channelStore : this.sessionMap.values()) {
+            if (uid != null && uid.equals(channelStore.getUid()) && channelStore.containsChannel(channelKey)) {
+                channelStore.directWrite(channelKey, type, data);
+                sent = true;
+            }
+        }
+        if (!sent) {
             log.info("WS[Direct]:SEND user(" + uid + "), WsType=" + type + ", Drop.");
-        } else {
-            channelStore.directWrite(channelKey, type, data);
         }
     }
 }

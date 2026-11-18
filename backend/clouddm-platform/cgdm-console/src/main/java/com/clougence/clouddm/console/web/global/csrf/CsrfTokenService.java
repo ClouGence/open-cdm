@@ -23,8 +23,6 @@ public interface CsrfTokenService {
 
     String pushToken(String secretToken);
 
-    String randomToken();
-
     String randomTokenWithoutSave();
 
     void storeJumpUrl(String token, String jumpUrl);
