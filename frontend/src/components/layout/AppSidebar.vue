@@ -57,36 +57,31 @@
       </button>
     </nav>
 
-    <footer v-if="displaySidebarVersion" class="app-sidebar-footer">
-      <span class="app-sidebar-version-chip">{{ displaySidebarVersion }}</span>
+    <footer class="app-sidebar-footer">
+      <AppVersionInfo />
     </footer>
   </aside>
 </template>
 
 <script>
-import appLogger from '@/utils/logger';
 import { mapGetters, mapState } from 'vuex';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
+import AppVersionInfo from '@/components/layout/AppVersionInfo';
 import { findSidebarParentKeys } from '@/utils/buildSidebarMenu';
 import { saveLastWorkbenchRoute } from '@/utils/workbenchRoute';
-import { resolveDisplayVersion } from '@/utils/version';
 
 export default {
   name: 'AppSidebar',
-  components: { AppBrandLogo },
+  components: { AppBrandLogo, AppVersionInfo },
   emits: ['check-version'],
   data() {
     return {
-      expandedGroups: {},
-      sidebarVersion: ''
+      expandedGroups: {}
     };
   },
   computed: {
     ...mapGetters(['isDesktop']),
-    ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl', 'dmGlobalSetting', 'aiCapabilitiesError']),
-    displaySidebarVersion() {
-      return this.sidebarVersion || resolveDisplayVersion(this.dmGlobalSetting);
-    },
+    ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl', 'aiCapabilitiesError']),
     activeKey() {
       const path = this.$route.path;
       if (path.indexOf('/sql') > -1) {
@@ -179,26 +174,7 @@ export default {
       deep: true
     }
   },
-  mounted() {
-    this.loadSidebarVersion();
-  },
   methods: {
-    async loadSidebarVersion() {
-      const cachedVersion = resolveDisplayVersion(this.dmGlobalSetting);
-      if (cachedVersion) {
-        this.sidebarVersion = cachedVersion;
-        return;
-      }
-
-      try {
-        const res = await this.$services.dmGlobalSettings();
-        if (res.success && res.data?.version) {
-          this.sidebarVersion = resolveDisplayVersion(res.data);
-        }
-      } catch (error) {
-        appLogger.error(error);
-      }
-    },
     handleGoHome() {
       if (this.myCatLog.includes('CAT_DM_CONSOLE')) {
         saveLastWorkbenchRoute(this.$route, this.userInfo?.uid);

@@ -22,6 +22,7 @@ dependencies {
     api 'org.codehaus.plexus:plexus-classworlds:2.6.0'
 
     testImplementation 'junit:junit:4.12'
+    testRuntimeOnly "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
 }
 
 description = 'cgdm-plugin-loader'
