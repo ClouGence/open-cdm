@@ -305,7 +305,6 @@ public class DmDsWebServiceImpl implements DmDsWebService {
     @Override
     public ResWebData<Long> addDs(String uid, DsConfigSubmitFO fo) {
         Map<String, String> configMap = resolveConfigMap(uid, fo);
-        validateNewRedisPassword(fo, configMap);
         ResWebData<Long> result = this.inTransaction(() -> {
             return this.persistAddDs(uid, fo, configMap);
         });
@@ -405,13 +404,7 @@ public class DmDsWebServiceImpl implements DmDsWebService {
     @Override
     public ConnectDsResultVO testConnect(String uid, DsConfigSubmitFO fo) {
         Map<String, String> configMap = resolveConfigMap(uid, fo);
-        Map<String, String> runtimeConfigMap;
-        if (fo.getDsId() == null || fo.getDsId() <= 0) {
-            validateNewRedisPassword(fo, configMap);
-            runtimeConfigMap = configMap;
-        } else {
-            runtimeConfigMap = mergeExistingConfig(fo.getDsId(), configMap);
-        }
+        Map<String, String> runtimeConfigMap = fo.getDsId() == null || fo.getDsId() <= 0 ? configMap : mergeExistingConfig(fo.getDsId(), configMap);
         DataSourceType dsType = DataSourceType.valueOf(runtimeConfigMap.get(DataSourceConfig.Fields.dataSourceType));
         ConnectDsResultVO result = new ConnectDsResultVO();
         try {
@@ -484,12 +477,6 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         authFO.setDeletes(Collections.emptyList());
 
         this.authServiceForManage.modifyUserAuth(this.userService.getPrimaryUid(uid), authFO);
-    }
-
-    private void validateNewRedisPassword(DsConfigSubmitFO fo, Map<String, String> configMap) {
-        if (fo.getDsType() == DataSourceType.Redis && StringUtils.isBlank(configMap.get(DataSourceConfig.Fields.password))) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_REDIS_PASSWORD_REQUIRED_ERROR.name()));
-        }
     }
 
     private Map<String, String> resolveConfigMap(String uid, DsConfigSubmitFO fo) {
