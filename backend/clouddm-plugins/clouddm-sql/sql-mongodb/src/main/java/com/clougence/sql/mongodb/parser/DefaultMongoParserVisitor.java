@@ -15,6 +15,7 @@
  */
 package com.clougence.sql.mongodb.parser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,11 +23,14 @@ import java.util.Stack;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.clougence.dslpaser.antlr.AbstractLocationParseTreeVisitor;
 import com.clougence.sql.mongodb.parser.antlr.MongoParser;
 import com.clougence.sql.mongodb.parser.antlr.MongoParserVisitor;
 import com.clougence.sql.mongodb.parser.ast.MongoConstant;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
+import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncSet;
 import com.clougence.sql.mongodb.parser.ast.MongoFuncType;
 import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
@@ -225,7 +229,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
         }
 
         if (ctx.query != null) {
-            distFunc.setQuery(ctx.query.getText());
+            applyFilterObj(distFunc, ctx.query);
         }
         this.instStack.push(code(distFunc, ctx));
         return null;
@@ -266,7 +270,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitCountDocuments(MongoParser.CountDocumentsContext ctx) {
         CountDocumentsFunc func = new CountDocumentsFunc();
         if (ctx.filter != null) {
-            func.setFilter(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
         if (ctx.option != null) {
             for (MongoParser.PairContext pairContext : ctx.option.pair()) {
@@ -512,7 +516,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitCount(MongoParser.CountContext ctx) {
         CountFunc func = new CountFunc();
         if (ctx.filter != null) {
-            func.setQuery(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
         if (ctx.option != null) {
             for (MongoParser.PairContext pair : ctx.option.pair()) {
@@ -641,7 +645,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitFind(MongoParser.FindContext ctx) {
         FindFunc func = new FindFunc(MongoFuncType.FIND);
         if (ctx.filter != null) {
-            func.setFilter(ctx.filter.getText());
+            applyFilterJson(func, ctx.filter);
         }
         if (ctx.projection != null) {
             func.setProjection(ctx.projection.getText());
@@ -801,7 +805,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
         FindFunc func = new FindFunc(MongoFuncType.FIND_ONE);
         func.setLimit("1");
         if (ctx.filter != null) {
-            func.setFilter(ctx.filter.getText());
+            applyFilterJson(func, ctx.filter);
         }
         if (ctx.projection != null) {
             func.setProjection(ctx.projection.getText());
@@ -853,7 +857,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
             throw new UnsupportedOperationException("Replacement document must not contain atomic operators");
         }
         UpdateFunc func = new UpdateFunc(MongoFuncType.REPLACE_ONE, false);
-        func.setFilter(ctx.filter.getText());
+        applyFilterObj(func, ctx.filter);
         func.setUpdate(ctx.replacement.getText());
 
         if (ctx.options != null) {
@@ -888,7 +892,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
             func = new UpdateFunc(MongoFuncType.UPDATE, false);
         }
 
-        func.setFilter(ctx.filter.getText());
+        applyFilterObj(func, ctx.filter);
         if (ctx.objUpdate != null) {
             boolean anyMatch = ctx.objUpdate.pair().stream().map(MongoParser.PairContext::key).anyMatch(k -> {
                 return !getString(k.getText()).startsWith("$");
@@ -1042,7 +1046,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitFindOneAndReplace(MongoParser.FindOneAndReplaceContext ctx) {
         FindAndModifyFunc func = new FindAndModifyFunc(MongoFuncType.FIND_ONE_AND_REPLACE);
         if (ctx.filter != null) {
-            func.setQuery(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
         if (ctx.replace != null) {
             ctx.replace.pair().stream().map(MongoParser.PairContext::key).forEach((keyContext -> {
@@ -1100,7 +1104,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitFindOneAndUpdate(MongoParser.FindOneAndUpdateContext ctx) {
         FindAndModifyFunc func = new FindAndModifyFunc(MongoFuncType.FIND_ONE_AND_UPDATE);
         if (ctx.filter != null) {
-            func.setQuery(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
 
         if (ctx.objUpdate != null) {
@@ -1182,7 +1186,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitFindOneAndDelete(MongoParser.FindOneAndDeleteContext ctx) {
         FindAndModifyFunc func = new FindAndModifyFunc(MongoFuncType.FIND_ONE_AND_DELETE);
         if (ctx.filter != null) {
-            func.setQuery(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
         func.setRemove("true");
 
@@ -1210,7 +1214,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitDeleteOne(MongoParser.DeleteOneContext ctx) {
         DeleteOneFunc deleteOneFunc = new DeleteOneFunc();
         if (ctx.filter != null) {
-            deleteOneFunc.setFilter(ctx.filter.getText());
+            applyFilterObj(deleteOneFunc, ctx.filter);
         }
 
         if (ctx.option != null) {
@@ -1242,7 +1246,7 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     public Object visitDeleteMany(MongoParser.DeleteManyContext ctx) {
         DeleteManyFunc func = new DeleteManyFunc();
         if (ctx.filter != null) {
-            func.setFilter(ctx.filter.getText());
+            applyFilterObj(func, ctx.filter);
         }
 
         if (ctx.option != null) {
@@ -1297,7 +1301,158 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     }
 
     @Override
+    public Object visitSubqueryValue(MongoParser.SubqueryValueContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Object visitMapLambda(MongoParser.MapLambdaContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Object visitMemberAccess(MongoParser.MemberAccessContext ctx) {
+        return null;
+    }
+
+    @Override
     public Object visitKeyWordId(MongoParser.KeyWordIdContext ctx) {
         return null;
+    }
+
+    private void applyFilterObj(MongoFilterSubqueryHost host, MongoParser.ObjContext filter) {
+        if (!containsSubquery(filter)) {
+            host.setFilter(filter.getText());
+            return;
+        }
+        List<MongoFilterSubquery> subqueries = new ArrayList<>();
+        host.setFilter(serializeObj(filter, subqueries));
+        host.setFilterSubqueries(subqueries);
+    }
+
+    private void applyFilterJson(MongoFilterSubqueryHost host, MongoParser.JsonStringContext filter) {
+        if (!containsSubquery(filter)) {
+            host.setFilter(filter.getText());
+            return;
+        }
+        List<MongoFilterSubquery> subqueries = new ArrayList<>();
+        host.setFilter(serializeValue(filter.value(), subqueries));
+        host.setFilterSubqueries(subqueries);
+    }
+
+    private String serializeObj(MongoParser.ObjContext ctx, List<MongoFilterSubquery> subqueries) {
+        if (!containsSubquery(ctx)) {
+            return ctx.getText();
+        }
+        if (ctx.pair().isEmpty()) {
+            return "{}";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        for (int i = 0; i < ctx.pair().size(); i++) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            MongoParser.PairContext pair = ctx.pair(i);
+            sb.append(pair.key().getText());
+            sb.append(':');
+            sb.append(serializeValue(pair.value(), subqueries));
+        }
+        sb.append('}');
+        return sb.toString();
+    }
+
+    private String serializeArr(MongoParser.ArrContext ctx, List<MongoFilterSubquery> subqueries) {
+        if (!containsSubquery(ctx)) {
+            return ctx.getText();
+        }
+        if (ctx.value().isEmpty()) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (int i = 0; i < ctx.value().size(); i++) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(serializeValue(ctx.value(i), subqueries));
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+
+    private String serializeValue(MongoParser.ValueContext ctx, List<MongoFilterSubquery> subqueries) {
+        if (ctx.subqueryValue() != null) {
+            int index = subqueries.size();
+            subqueries.add(buildFilterSubquery(ctx.subqueryValue()));
+            return MongoFilterSubquery.placeholder(index);
+        }
+        if (ctx.obj() != null) {
+            return serializeObj(ctx.obj(), subqueries);
+        }
+        if (ctx.arr() != null) {
+            return serializeArr(ctx.arr(), subqueries);
+        }
+        return ctx.getText();
+    }
+
+    private boolean containsSubquery(ParseTree tree) {
+        if (tree instanceof MongoParser.SubqueryValueContext) {
+            return true;
+        }
+        for (int i = 0; i < tree.getChildCount(); i++) {
+            if (containsSubquery(tree.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private MongoFilterSubquery buildFilterSubquery(MongoParser.SubqueryValueContext ctx) {
+        MongoFilterSubquery subquery = new MongoFilterSubquery();
+        String collectionName = (String) ctx.collectionName().accept(this);
+        subquery.setCollectionName(getString(collectionName));
+        if (ctx.filter != null) {
+            subquery.setFilter(ctx.filter.getText());
+        }
+        if (ctx.projection != null) {
+            subquery.setProjection(ctx.projection.getText());
+        }
+        if (ctx.findConstarint() != null) {
+            for (MongoParser.FindConstarintContext constraint : ctx.findConstarint()) {
+                applyFindConstraint(subquery, constraint);
+            }
+        }
+        if (ctx.mapLambda() != null) {
+            subquery.setMapField(resolveMapField(ctx.mapLambda()));
+        }
+        return subquery;
+    }
+
+    private void applyFindConstraint(MongoFilterSubquery subquery, MongoParser.FindConstarintContext constraint) {
+        if (constraint instanceof MongoParser.FindLimitConstraintContext limitCtx) {
+            subquery.setLimit(limitCtx.NUMBER().getText());
+            return;
+        }
+        if (constraint instanceof MongoParser.FindSkipConstraintContext skipCtx) {
+            subquery.setSkip(skipCtx.NUMBER().getText());
+            return;
+        }
+        if (constraint instanceof MongoParser.FindSortConstraintContext sortCtx) {
+            subquery.setSort(sortCtx.jsonString().getText());
+        }
+    }
+
+    private String resolveMapField(MongoParser.MapLambdaContext ctx) {
+        String param = ctx.ID().getText();
+        String access = ctx.memberAccess().getText();
+        if (access.equals(param)) {
+            return null;
+        }
+        String prefix = param + ".";
+        if (access.startsWith(prefix)) {
+            return access.substring(prefix.length());
+        }
+        throw new UnsupportedOperationException("Unsupported map expression: " + ctx.getText());
     }
 }
