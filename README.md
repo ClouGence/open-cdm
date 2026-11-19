@@ -11,10 +11,11 @@
 </p>
 
 <p align="center">
-  A free and open-source database management tool for teams, featuring an AI SQL assistant, access control, data masking, SQL auditing, CI/CD, and cross-region deployment.
+  CloudDM is a free, open-source database management tool that helps teams query data, manage access, and roll out reviewed database changes from a single web console.
 </p>
 
 <p align="center">
+  <a href="#quick-start"><b>Quick Start</b></a> •
 	<a href="https://www.cdmgr.com/"><b>Home</b></a> •
 	<a href="https://www.cdmgr.com/docs/intro/product_intro"><b>Docs</b></a> •
     <a href="https://www.cdmgr.com/blog"><b>Blog</b></a> •
@@ -27,7 +28,7 @@
     [<a target="_blank" href='docs/README.en.md'>English</a>]
 </p>
 
-![pic_en.png](docs/assets/en/pic.png)
+![CloudDM capabilities for secure database operations](docs/assets/en/pic.png)
 
 ---
 
@@ -48,45 +49,39 @@
 
 ## Core Capabilities
 
-### Data Query
+### Databases
 
-- Rich data source support covering many database types
-  - MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase
-  - SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum
-  - Hologres, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB
-- Unified web console access to databases, with support for transactions, isolation levels, and execution plans
-- Query editor, syntax highlighting, intelligent suggestions, execution plans, and result export
+![Overview of CloudDM's 44 supported DataSource types](docs/assets/supported-databases.en.png)
 
-### Database Management
+### Operation Rules and Data Masking
 
-- Supported database objects include databases, schemas, tables, columns, indexes, views, functions, stored procedures, triggers, users, roles, and more
-- Visual management of database objects such as create, delete, modify, and inspect properties
-- Management of different data sources through environments and clusters
+- Check SQL before execution and use rules to warn about or block risky statements.
+- Extend the built-in rules with scripts and apply custom masking to sensitive data.
 
 ### Access Control
 
-- Authorization model that separates **resources** and **functions**
-  - Resource permissions can be granted at the instance, database, schema, and table levels, depending on the statement type
-  - Function authorization uses role-based access control (RBAC) by granting roles to users
-- Supports **permission requests**, **permission grants**, and **temporary permissions**
+- Use role-based access control (RBAC) to assign feature permissions and grant resource access at the instance, database, schema, or table level. Handle access requests and issue temporary grants.
+- Integrate with OpenLDAP, Active Directory, or an OIDC provider for authentication. Review user activity in the audit log.
+
+### Tickets and Workflows
+
+- Use tickets to review SQL changes and access requests. Execute approved changes manually, immediately, or at a scheduled time.
+- Use CloudDM's built-in approval engine or connect DingTalk, Feishu, or WeCom.
 
 ### Database CI/CD
 
-- Provides three ways to trigger CI/CD workflows: **Git Push**, **Web Hook**, and **HttpCall**
-- Supports Gitee as the change repository
+- Configure release workflows and track incremental changes to database scripts.
+- Trigger releases through Git push, a webhook, or the HTTP API, and send change results to external systems via callbacks.
+- Use Gitee or [GitLab Self-Managed](docs/guides/gitlab-cicd.en.md) as the repository for database changes.
 
-### SQL Auditing
+### Database Operations
 
-- Supports **audit rules**, **security policies**, and **data masking**
-  - Includes 54 built-in rules and supports custom extensions through rule scripts
-- Supports SQL pre-checks before execution to warn about or block risky statements
+- Run queries and transactions in a web console with syntax highlighting, autocomplete, and favorites. Inspect execution plans and export query results.
+- Browse metadata and manage database objects such as tables and indexes.
 
-### Collaboration and Workflow
+### AI-Assisted Operations
 
-- Supports three workflow types: **SQL audit**, **permission tickets**, and **change workflows**
-- Supports **manual execution**, **immediate execution**, and **scheduled execution** for work orders
-- Workflow engines: built-in, DingTalk, Feishu, WeCom
-- Unified authentication / SSO: OpenLDAP / OpenID Connect (OIDC) / Windows AD / DingTalk / Feishu / WeCom
+Use the AI assistant to generate and explain SQL, analyze errors, and get optimization suggestions.
 
 ## Quick Start
 
@@ -181,7 +176,7 @@ http://localhost:8222
 
 > On first access after a fresh deployment, the initialization wizard will open; during an upgrade, the upgrade wizard will open.
 >
-> If you not change the account, the default account is **admin@cdmgr.com**
+> The default account is **admin@cdmgr.com**.
 
 ### Add Data Source
 
