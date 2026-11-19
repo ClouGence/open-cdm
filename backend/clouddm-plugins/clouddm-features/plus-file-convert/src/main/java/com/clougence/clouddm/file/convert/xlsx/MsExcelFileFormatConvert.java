@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -93,7 +92,7 @@ public class MsExcelFileFormatConvert implements FileFormatConvert {
             FileUtils.mkdirs(dstExcelFile.getParentFile());
             try (FileOutputStream fos = new FileOutputStream(dstExcelFile)) {
                 XlsxOption option = readXLSXOption(optionStr, metaData);
-                writeCnt += this.doExportToExcel(exportId, query, rowMeta, rr, fos, report, option);
+                writeCnt += this.doExportToExcel(exportId, query, metaData, rowMeta, rr, fos, report, option);
             }
 
             logger.info("convert done.");
@@ -101,29 +100,33 @@ public class MsExcelFileFormatConvert implements FileFormatConvert {
         }
     }
 
-    private long doExportToExcel(String trackId, QueryRequest query, Map<String, ColMetaData> meta, ResultReader rr, FileOutputStream fos,//
-                                 FileFormatConvertReport report, XlsxOption option) throws IOException {
+    private long doExportToExcel(String trackId, QueryRequest query, ColMetaData[] columns, Map<String, ColMetaData> meta, ResultReader rr,//
+                                 FileOutputStream fos, FileFormatConvertReport report, XlsxOption option) throws IOException {
         long rowCnt = rr.getRowCount();
         long lastReport = 0;
         AtomicLong lastFlashRowNumber = new AtomicLong(0);
         List<MsExcelRowData> rowBatch = new ArrayList<>();
 
+        List<Integer> selectedColumns = new ArrayList<>();
+        List<String> header = new ArrayList<>();
+        for (int c = 0; c < columns.length; c++) {
+            XlsxOption.ColumnOption columnOption = option.getColumns().get(c);
+            if (columnOption.isExport()) {
+                selectedColumns.add(c);
+                header.add(columnOption.getColumnName());
+            }
+        }
+
         ExcelWriter writer = FastExcel.write(fos).build();
         WriteSheet sheet = FastExcel.writerSheet("ResultSet").build();
-        sheet.setCustomWriteHandlerList(Collections.singletonList(new MsExcelCellWriteHandler(lastFlashRowNumber, rowBatch)));
+        sheet.setCustomWriteHandlerList(Collections.singletonList(new MsExcelCellWriteHandler(lastFlashRowNumber, rowBatch, selectedColumns)));
 
-        // reading data.
-        List<String> header = meta.values().stream().filter(colMetaData -> {
-            return option.getColumns().get(colMetaData.getIndex() - 1).isExport();
-        }).map(colMetaData -> {
-            return option.getColumns().get(colMetaData.getIndex() - 1).getColumnName();
-        }).collect(Collectors.toList());
         writer.write(Collections.singletonList(header), sheet);
 
         long offset = option.getOffset();
         long limit = option.getLimit() < 0 ? rowCnt : Math.max(1, option.getLimit());
         long writeCnt = 0;
-        int colSize = meta.size();
+        int colSize = columns.length;
         List<String> tmpCache = new ArrayList<>(3);
         for (int r = 0; r < rowCnt; r++) {
             rr.nextRow();
@@ -131,9 +134,9 @@ public class MsExcelFileFormatConvert implements FileFormatConvert {
                 continue;
             }
 
-            // read row data
+            // The result reader consumes every source column in order.
             MsExcelRowData rowData = new MsExcelRowData(writeCnt, colSize);
-            for (int c = 0; c < meta.size(); c++) {
+            for (int c = 0; c < colSize; c++) {
                 String prefix;
                 int maxFetch;
                 if (rr.nextDataType() == ResultType.Bytes) {
@@ -144,7 +147,7 @@ public class MsExcelFileFormatConvert implements FileFormatConvert {
                     maxFetch = 32767; // cell max length
                 }
 
-                ResultSetValue value = rr.readAsString(meta.get(header.get(c)), query.getResultConf(), 0, maxFetch);
+                ResultSetValue value = rr.readAsString(columns[c], query.getResultConf(), 0, maxFetch);
                 this.readResultColumnValue(prefix, value, c, rowData, tmpCache);
             }
             rowBatch.add(rowData);
@@ -163,14 +166,14 @@ public class MsExcelFileFormatConvert implements FileFormatConvert {
 
             // try flash write
             if (r % 500 == 0) {
-                this.doWriteExcel(query, meta, rowBatch, option, writer, sheet);
+                this.doWriteExcel(query, meta, rowBatch, selectedColumns, writer, sheet);
                 lastFlashRowNumber.getAndAdd(rowBatch.size());
                 rowBatch.clear();
             }
         }
 
         if (!rowBatch.isEmpty()) {
-            this.doWriteExcel(query, meta, rowBatch, option, writer, sheet);
+            this.doWriteExcel(query, meta, rowBatch, selectedColumns, writer, sheet);
             lastFlashRowNumber.getAndAdd(rowBatch.size());
             rowBatch.clear();
         }
@@ -181,17 +184,15 @@ public class MsExcelFileFormatConvert implements FileFormatConvert {
         return writeCnt;
     }
 
-    private void doWriteExcel(QueryRequest query, Map<String, ColMetaData> meta, List<MsExcelRowData> dataBatch, XlsxOption option,//
+    private void doWriteExcel(QueryRequest query, Map<String, ColMetaData> meta, List<MsExcelRowData> dataBatch, List<Integer> selectedColumns,//
                               ExcelWriter writer, WriteSheet sheet) {
         this.doMask(query, meta, dataBatch);
 
         List<List<String>> v = new ArrayList<>();
         for (MsExcelRowData batch : dataBatch) {
-            List<String> rowData = new ArrayList<>();
-            for (int i = 0; i < batch.getRowData().size(); i++) {
-                if (option.getColumns().get(i).isExport()) {
-                    rowData.add(batch.getRowData().get(i));
-                }
+            List<String> rowData = new ArrayList<>(selectedColumns.size());
+            for (int column : selectedColumns) {
+                rowData.add(batch.getRowData().get(column));
             }
             v.add(rowData);
         }

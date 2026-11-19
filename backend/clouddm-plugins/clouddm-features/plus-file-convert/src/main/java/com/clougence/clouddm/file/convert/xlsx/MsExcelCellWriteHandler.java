@@ -43,10 +43,12 @@ public class MsExcelCellWriteHandler implements CellWriteHandler {
 
     private final AtomicLong           lastRowId;
     private final List<MsExcelRowData> rowBatch;
+    private final List<Integer>        selectedColumns;
 
-    public MsExcelCellWriteHandler(AtomicLong lastRowId, List<MsExcelRowData> rowBatch){
+    public MsExcelCellWriteHandler(AtomicLong lastRowId, List<MsExcelRowData> rowBatch, List<Integer> selectedColumns){
         this.lastRowId = lastRowId;
         this.rowBatch = rowBatch;
+        this.selectedColumns = selectedColumns;
     }
 
     private MsExcelRowData findRowData(long rowIndex) {
@@ -68,7 +70,7 @@ public class MsExcelCellWriteHandler implements CellWriteHandler {
             return;
         }
 
-        String common = rowData.getRowComment().get(columnIndex);
+        String common = rowData.getRowComment().get(this.selectedColumns.get(columnIndex));
         if (StringUtils.isBlank(common)) {
             return;
         }
@@ -77,6 +79,6 @@ public class MsExcelCellWriteHandler implements CellWriteHandler {
         Drawing<?> drawingPatriarch = sheet.createDrawingPatriarch();
         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) columnIndex, ((int) rowIndex + 1), (short) 5, 6));
         comment.setString(new XSSFRichTextString(common));
-        sheet.getRow(relativeRowIndex).getCell(columnIndex).setCellComment(comment);
+        cell.setCellComment(comment);
     }
 }
