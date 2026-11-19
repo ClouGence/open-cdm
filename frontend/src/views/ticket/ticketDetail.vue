@@ -1107,11 +1107,11 @@ export default {
           key: 'execCount',
           width: 100
         },
-        // {
-        //   title: '影响行数',
-        //   key: 'affectLine',
-        //   width: 100
-        // },
+        {
+          title: this.$t('ying-xiang-hang-shu'),
+          key: 'affectLine',
+          width: 100
+        },
         // {
         //   title: '事务编号',
         //   key: 'transactionGroup',
@@ -1145,11 +1145,11 @@ export default {
           key: 'execCount',
           width: 100
         },
-        // {
-        //   title: '影响行数',
-        //   key: 'affectLine',
-        //   width: 100
-        // },
+        {
+          title: this.$t('ying-xiang-hang-shu'),
+          key: 'affectLine',
+          width: 100
+        },
         {
           title: this.$t('zhuang-tai'),
           slot: 'status',
