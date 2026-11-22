@@ -52,6 +52,9 @@ public class WsUtils {
                 wsMsg.put("object", data);
                 wsMsg.put("type", type.name());
                 TextMessage textMessage = new TextMessage(JsonUtils.toJson(wsMsg));
+                if (!WsSessionGuard.allowSend(ws)) {
+                    return;
+                }
                 ws.sendMessage(textMessage);
 
                 log.info(wsMessage + " done.");

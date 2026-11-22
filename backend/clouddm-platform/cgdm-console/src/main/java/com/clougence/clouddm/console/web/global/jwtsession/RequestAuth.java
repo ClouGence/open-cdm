@@ -41,8 +41,6 @@ public @interface RequestAuth {
 
     ResourceType resType() default ResourceType.PURE_URL;
 
-    boolean checkOpPassword() default false;
-
     String failedRedirectUrlTo() default "";
 
     enum AuthStrategy {

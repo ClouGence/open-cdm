@@ -40,6 +40,8 @@ public class AuthDalImpl implements AuthDal {
     @Resource
     private DmAuthResMapper          resMapper;
     @Resource
+    private DmAuthSessionMapper      sessionMapper;
+    @Resource
     private DmAuthRoleMapper         roleMapper;
     @Resource
     private DmAuthUserMapper         userMapper;
@@ -69,6 +71,11 @@ public class AuthDalImpl implements AuthDal {
     @Override
     public DmAuthResMapper resMapper() {
         return resMapper;
+    }
+
+    @Override
+    public DmAuthSessionMapper sessionMapper() {
+        return sessionMapper;
     }
 
     @Override

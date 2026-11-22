@@ -97,11 +97,11 @@ The system automatically enters the initialization wizard. After completing data
 
 ```bash
 # One-click startup
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.7.0
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.8.0
 
 # China registry acceleration
 docker run -d --name cgdm-alone -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.7.0
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.8.0
 ```
 
 Persistent data volumes:
@@ -114,7 +114,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.7.0
+  bladepipe/cgdm-alone:4.8.0
 
 # Mount to host directories
 mkdir -p /data/cgdm/{conf,logs,data,mysql}
@@ -125,7 +125,7 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.7.0
+  bladepipe/cgdm-alone:4.8.0
 ```
 
 When `/data/cgdm/conf` is empty, the container initializes it with the default configuration files on startup.
@@ -137,7 +137,7 @@ After the build is complete, deployment files named `docker-alone-xxx.yml` will 
 ```yml
 services:
   dm_alone:
-    image: clougence/cgdm-alone:4.7.0
+    image: clougence/cgdm-alone:4.8.0
     container_name: cgdm-alone
     restart: always
     ports:
@@ -150,7 +150,6 @@ services:
       - cgdm_mysql_data:/var/lib/mysql
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_alone
       APP_SERVE_PORT: 8008
       MYSQL_EMBEDDED: "true"
@@ -205,7 +204,7 @@ The default Service type is `ClusterIP`. For local validation, use port forwardi
 kubectl -n cgdm port-forward svc/dm-alone 8222:8222
 ```
 
-Then open `http://localhost:8222`. If you need long-term external access, choose `NodePort`, `LoadBalancer`, or Ingress according to your cluster environment. In production, also replace the default password and JWT secret, and adjust PVC capacity based on data volume.
+Then open `http://localhost:8222`. If you need long-term external access, choose `NodePort`, `LoadBalancer`, or Ingress according to your cluster environment. In production, also replace the default password, and adjust PVC capacity based on data volume.
 
 ---
 
@@ -269,7 +268,6 @@ docker run -d --name dm_console \
   -p 8222:8222 \
   -p 8008:8008 \
   -e APP_WEB_PORT=8222 \
-  -e APP_WEB_JWT=ljgefdgjosdighjeroigh \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
   -e DB_HOST=dm_mysql \
@@ -277,7 +275,7 @@ docker run -d --name dm_console \
   -e DB_DATABASE=cdmgr \
   -e DB_USERNAME=root \
   -e DB_PASSWORD=123456 \
-  bladepipe/cgdm-console:4.7.0
+  bladepipe/cgdm-console:4.8.0
 
 # Start Sidecar
 docker run -d --name dm_sidecar \
@@ -288,13 +286,13 @@ docker run -d --name dm_sidecar \
   -e DM_CLIENT_WSN=<replace_with_actual_value> \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
-  bladepipe/cgdm-sidecar:4.7.0
+  bladepipe/cgdm-sidecar:4.8.0
 ```
 
 For China deployment, simply replace the images with:
 
-- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-console:4.7.0`
-- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-sidecar:4.7.0`
+- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-console:4.8.0`
+- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-sidecar:4.8.0`
 
 ### 4.3 Use Docker Compose
 
@@ -316,7 +314,7 @@ services:
     command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
 
   dm_console:
-    image: clougence/cgdm-console:x86_64-4.7.0
+    image: clougence/cgdm-console:x86_64-4.8.0
     container_name: cgdm-console
     restart: always
     ports:
@@ -330,7 +328,6 @@ services:
       - cgdm_console_data:/root/cgdm/console/data
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_console
       APP_SERVE_PORT: 8008
       # Override image defaults with packaged docker deployment values.
@@ -341,7 +338,7 @@ services:
       DB_PASSWORD: 123456
 
   dm_sidecar:
-    image: clougence/cgdm-sidecar:x86_64-4.7.0
+    image: clougence/cgdm-sidecar:x86_64-4.8.0
     container_name: cgdm-sidecar
     restart: always
     depends_on:
@@ -429,7 +426,7 @@ kubectl -n cgdm logs deploy/dm-sidecar
 kubectl -n cgdm logs statefulset/dm-mysql
 ```
 
-In production, also replace the default MySQL password and JWT secret, adjust PVC capacity based on data volume, and manage sensitive configuration with `Secret`.
+In production, also replace the default MySQL password, adjust PVC capacity based on data volume, and manage sensitive configuration with `Secret`.
 
 ---
 

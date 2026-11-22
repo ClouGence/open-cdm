@@ -27,6 +27,8 @@ public interface MfaChallengeService {
 
     DmAuthMfaChallengeDO requirePendingChallenge(String challengeToken, MfaPreActionType actionType);
 
+    DmAuthMfaChallengeDO requirePendingChallengeForUpdate(String challengeToken, MfaPreActionType actionType);
+
     boolean acquireAttempt(DmAuthMfaChallengeDO challengeDO);
 
     boolean consumeChallenge(DmAuthMfaChallengeDO challengeDO);

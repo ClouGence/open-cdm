@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
+
+import com.clougence.clouddm.console.web.util.RdpWebUtils;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
@@ -41,25 +45,24 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public class McpSessionManager implements HandlerInterceptor {
 
-    private static final int COMMON_PARAMS_HAS_EMTPY = 499;
+    private static final int  COMMON_PARAMS_HAS_EMTPY = 499;
 
-    private static final int USER_NOT_EXIST          = 498;
+    private static final int  USER_NOT_EXIST          = 498;
 
-    private static final int SIGNATURE_ERROR         = 497;
+    private static final int  SIGNATURE_ERROR         = 497;
 
-    private final String     MCP_URI_PREFIX;
+    private final PathPattern MCP_URI_PREFIX;
 
     @Resource
-    private RdpUserService   rdpUserService;
+    private RdpUserService    rdpUserService;
 
     public McpSessionManager(String mcpUriPrefix){
-        this.MCP_URI_PREFIX = mcpUriPrefix;
+        this.MCP_URI_PREFIX = PathPatternParser.defaultInstance.parse(mcpUriPrefix + "/**");
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();
-        if (!uri.startsWith(MCP_URI_PREFIX)) {
+        if (!MCP_URI_PREFIX.matches(RdpWebUtils.getRequestPath(request))) {
             return true;
         }
 

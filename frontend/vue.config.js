@@ -16,21 +16,9 @@ let indexHtml = 'index.rdp.html';
 const PRODUCT = (process.env.VUE_PRODUCT || process.env.VUE_APP_PRODUCT || 'DM').toUpperCase();
 const APP_LOCALE = process.env.VUE_APP_I18N_LOCALE;
 const isDevelopment = process.env.NODE_ENV === 'development';
+const publicBasePath = new URL(process.env.VUE_APP_BASE_URL || '/', 'http://localhost').pathname.replace(/\/?$/, '/');
 
 console.log(PRODUCT, HOST, indexHtml);
-
-// Take out the host so that it can be later injected into the world.
-const getHostFromUrl = (url) => {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.host;
-  } catch (e) {
-    // If not complete URL, try to extract it directly
-    return url.replace(/^https?:\/\//, '');
-  }
-};
-
-const DM_HOST = getHostFromUrl(LOCAL_HOST_DM);
 
 // const isDev = process.env.NODE_ENV === 'dev' || 'development';
 // const isProd = process.env.NODE_ENV === 'prod' || 'production';
@@ -38,6 +26,7 @@ const DM_HOST = getHostFromUrl(LOCAL_HOST_DM);
 const resolve = (dir) => path.join(__dirname, dir);
 
 module.exports = {
+  publicPath: publicBasePath,
   pages: {
     index: {
       entry: `src/main.js`,
@@ -89,6 +78,9 @@ module.exports = {
         target: HOST
       },
       '/loginMfaValid': {
+        target: HOST
+      },
+      '/loginMfaRecoveryStatus': {
         target: HOST
       },
       '/list_org': {
@@ -198,9 +190,6 @@ module.exports = {
         $: 'jquery',
         jQuery: 'jquery',
         'windows.jQuery': 'jquery'
-      }),
-      new webpack.DefinePlugin({
-        'process.env.VUE_APP_DM_HOST': JSON.stringify(DM_HOST)
       })
     ],
     module: {

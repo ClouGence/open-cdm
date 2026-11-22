@@ -46,12 +46,15 @@ import com.clougence.clouddm.console.web.constants.SystemStatus;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
+import com.clougence.clouddm.console.web.global.session.SessionCookieService;
+import com.clougence.clouddm.console.web.global.session.SessionPrincipal;
+import com.clougence.clouddm.console.web.global.session.SessionService;
 import com.clougence.clouddm.console.web.model.fo.FirstLoginPwdChangeFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.fo.RequestJumpUrlFO;
+import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaRecoveryFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
 import com.clougence.clouddm.console.web.model.fo.user.CheckSubAccountBindInfoFO;
 import com.clougence.clouddm.console.web.model.vo.*;
@@ -62,6 +65,7 @@ import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.dsfamily.definition.ui.browser.RdbUiMenuDef;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
@@ -79,7 +83,6 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -90,27 +93,31 @@ import lombok.extern.slf4j.Slf4j;
 public class DmHomeController {
 
     @Resource
-    private DmAuthServiceForBiz authServiceForBiz;
+    private DmAuthServiceForBiz  authServiceForBiz;
     @Resource
-    private WhiteListService    whiteListService;
+    private WhiteListService     whiteListService;
     @Resource
-    private LoginDefService     loginDefService;
+    private LoginDefService      loginDefService;
     @Resource
-    private ConsoleConfig       config;
+    private ConsoleConfig        config;
     @Resource
-    private RdpUserService      userService;
+    private RdpUserService       userService;
     @Resource
-    private LoginService        loginService;
+    private LoginService         loginService;
     @Resource
-    private AuthDal             authDal;
+    private AuthDal              authDal;
     @Resource
-    private CsrfTokenService    csrfTokenService;
+    private CsrfTokenService     csrfTokenService;
     @Resource
-    private RdpOpAuditService   auditService;
+    private RdpOpAuditService    auditService;
     @Resource
-    private DmDsConfigService   dmDsConfigService;
+    private DmDsConfigService    dmDsConfigService;
     @Resource
-    private UserConfigService   userConfigService;
+    private UserConfigService    userConfigService;
+    @Resource
+    private SessionService       sessionService;
+    @Resource
+    private SessionCookieService sessionCookieService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/healthcheck")
@@ -133,6 +140,13 @@ public class DmHomeController {
     }
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
+    @RequestMapping(value = "/loginMfaRecoveryStatus", method = { RequestMethod.POST })
+    public ResWebData<?> loginMfaRecoveryStatus(@Valid @RequestBody LoginMfaRecoveryFO fo) {
+        this.loginService.loginMfaRecoveryStatus(fo);
+        return ResWebDataUtils.buildSuccess();
+    }
+
+    @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/loginPwdChange", method = { RequestMethod.POST })
     public ResWebData<?> loginPwdChange(@Valid @RequestBody FirstLoginPwdChangeFO pwdChangeFO, HttpServletRequest request, HttpServletResponse response) {
         LoginMO loginMO = this.loginService.changeFirstLoginPwd(pwdChangeFO);
@@ -141,15 +155,12 @@ public class DmHomeController {
 
     protected ResWebData<?> commonLoginResult(LoginMO loginMO, HttpServletRequest request, HttpServletResponse response) {
         if (loginMO.isSuccess()) {
-            if (!loginMO.isNeedMore() && !loginMO.isNeedMfa() && !loginMO.isNeedChangePwd()) {
-                fillResponseJwtToken(loginMO.getToken(), response);
-            }
-
             if (StringUtils.isBlank(loginMO.getPuid()) && StringUtils.isNotBlank(loginMO.getUid())) {
                 loginMO.setPuid(loginMO.getUid());
             }
 
-            if (loginMO.isSuccess() && !loginMO.isNeedMore() && !loginMO.isNeedMfa() && !loginMO.isNeedChangePwd()) {
+            if (loginMO.getSessionToken() != null) {
+                this.sessionCookieService.write(response, loginMO.getSessionToken());
                 auditService.logAndAddOperationAudit(loginMO.getPuid(), loginMO.getUid(), request.getRequestURI(), request.getRemoteAddr(), loginMO
                     .getUid(), "", SecurityLevel.NORMAL, AuditType.LOGIN_SUCCESS, ResourceType.ACCOUNT);
             }
@@ -165,25 +176,57 @@ public class DmHomeController {
         }
     }
 
-    @RequestAuth(strategy = AuthStrategy.RefAnyOnes, failedRedirectUrlTo = "/")
+    @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/logout", method = { RequestMethod.GET, RequestMethod.POST })
     public Object logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        response.addCookie(RdpWebUtils.newCookie(JwtService.jwtTokenName, StringUtils.EMPTY, true, 0));
-        auditService.logAndAddOperationAudit(//
-                puid, uid, request.getRequestURI(), request.getRemoteAddr(), uid, "", SecurityLevel.NORMAL, AuditType.LOGOUT, ResourceType.ACCOUNT);
-
-        String redirectUrl;
-        if (this.loginService.isLogoutUsingJump(uid)) {
-            redirectUrl = this.loginService.logoutJumpUrl(puid, uid);
-        } else if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
-            redirectUrl = this.config.getDeployContextPath();
-        } else {
+        SessionPrincipal principal = this.sessionService.authenticate(request);
+        String redirectUrl = this.config.getDeployContextPath();
+        if (StringUtils.isBlank(redirectUrl)) {
             redirectUrl = "/";
+        }
+        this.sessionService.revokeCurrentSession(request);
+        this.sessionCookieService.clear(response);
+
+        if (principal != null) {
+            DmAuthUserDO user = this.userService.getUserByUid(principal.getUid());
+            if (user != null) {
+                String puid = user.getUid();
+                if (user.getParentId() != null) {
+                    DmAuthUserDO primaryUser = this.authDal.userMapper().queryById(user.getParentId());
+                    if (primaryUser != null) {
+                        puid = primaryUser.getUid();
+                    }
+                }
+                auditService.logAndAddOperationAudit(//
+                        puid, user.getUid(), request.getRequestURI(), request.getRemoteAddr(), user.getUid(), "", SecurityLevel.NORMAL, AuditType.LOGOUT, ResourceType.ACCOUNT);
+                if (principal.getLoginType() == LoginAuthType.OIDC && user.getBindType() == AccountBindType.OIDC
+                    && StringUtils.equalsIgnoreCase(request.getMethod(), "get")) {
+                    redirectUrl = this.oidcLogoutJumpUrl(puid, user, redirectUrl);
+                }
+            }
         }
 
         return this.redirectOrDone(request, response, redirectUrl);
+    }
+
+    private String oidcLogoutJumpUrl(String puid, DmAuthUserDO user, String homeUrl) {
+        try {
+            LoginProviderSpi provider = PluginManager.findSpi(LoginProviderSpi.class, LoginProvider.OIDC.name());
+            if (provider == null) {
+                log.warn("OIDC logout provider unavailable for user {}", user.getUid());
+                return homeUrl;
+            }
+            String state = this.csrfTokenService.randomTokenWithoutSave();
+            String callbackUrl = RdpWebUtils.getContextPath() + "callback/logout";
+            String jumpUrl = provider.logoutJumpUrl(puid, state, callbackUrl, user.getAccessToken());
+            if (StringUtils.isNotBlank(jumpUrl)) {
+                return jumpUrl;
+            }
+        } catch (Exception e) {
+            String msg = "OIDC logout redirect failed for user " + user.getUid();
+            log.error(msg, e);
+        }
+        return homeUrl;
     }
 
     private Object redirectOrDone(HttpServletRequest request, HttpServletResponse response, String redirectUrl) throws IOException {
@@ -250,12 +293,6 @@ public class DmHomeController {
         }
     }
 
-    protected void fillResponseJwtToken(String token, HttpServletResponse response) {
-        int cookieMaxAge = Math.max(JwtService.minLoginExpireSec, this.config.getLoginExpireTimeSec());
-        Cookie cookie = RdpWebUtils.newCookie(JwtService.jwtTokenName, token, false, cookieMaxAge);
-        response.addCookie(cookie);
-    }
-
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/dmGlobalSettings", method = { RequestMethod.POST })
     public ResWebData<?> dmGlobalSettings() {
@@ -281,7 +318,6 @@ public class DmHomeController {
         RdpGlobalSettingsVO vo = new RdpGlobalSettingsVO();
         vo.setFeatures(new HashMap<>());
         vo.getFeatures().putAll(PluginManager.getFeatures());
-        vo.setAuthOpPassword(this.config.isOppassword());
         vo.setEnableWaterMark(this.config.isEnableWaterMark());
         vo.setEnableProductCluster(this.config.isEnableProductCluster());
         vo.setEnableValidateDsExtraConf(config.getRdpDsConfigValidateEnable());

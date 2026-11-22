@@ -220,6 +220,16 @@
         </FormItem>
         <FormItem v-if="accountFormMode === 'edit'" :label="$t('duo-yin-zi-ren-zheng')">
           <span class="readonly-status-text">{{ newAccountForm.useMfa ? $t('yi-qi-yong') : $t('wei-qi-yong') }}</span>
+          <Button
+            v-if="canResetInvalidMfa"
+            style="margin-left: 8px"
+            type="text"
+            size="small"
+            :loading="resetMfaLoading"
+            @click="handleShowResetInvalidMfaConfirm"
+          >
+            {{ $t('zhong-zhi-shi-xiao-mfa') }}
+          </Button>
         </FormItem>
         <FormItem v-if="accountFormMode === 'edit' && newAccountForm.loginLocked" :label="$t('suo-ding-shi-jian')">
           <div class="lock-time-row">
@@ -243,7 +253,6 @@ import appLogger from '@/utils/logger';
 import { mapState, mapGetters } from 'vuex';
 import { generateData } from '@/utils';
 import copyMixin from '@/mixins/copyMixin';
-import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 
@@ -277,9 +286,17 @@ const EMPTY_SUB_ACCOUNT = {
 // Data and methodology are related to database management privileges.
 export default {
   name: 'SubAccount',
-  mixins: [copyMixin, enterOpPwdMixin, encryptMixin],
+  mixins: [copyMixin, encryptMixin],
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'myCatLog', 'myAuth']),
+    canResetInvalidMfa() {
+      return (
+        this.newAccountForm.useMfa &&
+        this.newAccountForm.mfaStatus !== 'ACTIVE' &&
+        this.newAccountForm.uid !== this.userInfo?.uid &&
+        this.myAuth.includes('RDP_USER_MANAGE')
+      );
+    },
     accountFormTitle() {
       return this.accountFormMode === 'create' ? this.$t('chuang-jian-zi-zhang-hao') : this.$t('xiu-gai');
     },
@@ -351,6 +368,7 @@ export default {
       accountFormVisible: false,
       accountFormMode: 'create',
       showManageRoleModal: false,
+      resetMfaLoading: false,
       selectedSubaccount: {
         name: '',
         account: '',
@@ -498,14 +516,6 @@ export default {
         if (valid) {
           const payload = this.buildAccountPayload();
           const updatePayload = this.accountFormMode === 'edit' ? this.buildUpdateAccountPayload() : null;
-          const confirmMfaInvalid = this.accountFormMode === 'edit' ? await this.confirmMfaInvalidIfNeeded(updatePayload) : false;
-          if (confirmMfaInvalid === null) {
-            this.loading = false;
-            return;
-          }
-          if (confirmMfaInvalid) {
-            updatePayload.confirmMfaInvalid = true;
-          }
           const request =
             this.accountFormMode === 'create'
               ? this.$services.rdpUserManagerAddSubAccount({
@@ -525,44 +535,6 @@ export default {
         }
         this.loading = false;
       });
-    },
-    confirmMfaInvalidIfNeeded(payload) {
-      const fieldTypeMap = {
-        account: 'ACCOUNT',
-        phone: 'PHONE',
-        email: 'EMAIL'
-      };
-      const affectedFields = Object.keys(fieldTypeMap).filter((field) => {
-        const type = fieldTypeMap[field];
-        return (
-          Object.prototype.hasOwnProperty.call(payload, field) &&
-          this.originAccount.useMfa &&
-          this.originAccount.mfaStatus === 'ACTIVE' &&
-          (!this.originAccount.mfaAccountType || this.originAccount.mfaAccountType === type)
-        );
-      });
-      if (!affectedFields.length) {
-        return Promise.resolve(false);
-      }
-      const fieldNames = affectedFields.map((field) => this.mfaFieldLabel(field)).join('、');
-      return new Promise((resolve) => {
-        this.$Modal.confirm({
-          title: this.$t('mfa-shi-xiao-que-ren'),
-          content: this.$t('mfa-guan-lian-ziduan-xiugai-tishi', [fieldNames]),
-          okText: this.$t('ji-xu'),
-          cancelText: this.$t('qu-xiao'),
-          onOk: () => resolve(true),
-          onCancel: () => resolve(null)
-        });
-      });
-    },
-    mfaFieldLabel(field) {
-      const labelMap = {
-        account: this.$t('zhang-hao'),
-        phone: this.$t('shou-ji'),
-        email: this.$t('you-xiang')
-      };
-      return labelMap[field] || field;
     },
     generateRandomPwd() {
       const length = Math.max(this.passwordRule.minLength || DEFAULT_PASSWORD_MIN_LENGTH, this.passwordRule.strongPolicy ? 3 : 1);
@@ -665,6 +637,42 @@ export default {
       };
       this.resetDuplicateValid();
       this.accountFormVisible = true;
+    },
+    handleShowResetInvalidMfaConfirm() {
+      if (this.resetMfaLoading) {
+        return;
+      }
+      const targetUid = this.newAccountForm.uid;
+      this.$Modal.confirm({
+        title: this.$t('que-ding-zhong-zhi-shi-xiao-mfa-ma'),
+        content: this.$t('zhong-zhi-shi-xiao-mfa-ti-shi'),
+        okText: this.$t('que-ding'),
+        cancelText: this.$t('qu-xiao'),
+        onOk: () => {
+          this.handleResetInvalidMfa(targetUid);
+        }
+      });
+    },
+    async handleResetInvalidMfa(targetUid) {
+      if (this.resetMfaLoading) {
+        return;
+      }
+      this.resetMfaLoading = true;
+      try {
+        const res = await this.$services.rdpUserManagerResetInvalidMfa({
+          data: { targetUid },
+          msg: this.$t('zhong-zhi-shi-xiao-mfa-cheng-gong')
+        });
+        if (res.success) {
+          if (this.newAccountForm.uid === targetUid) {
+            this.newAccountForm.useMfa = false;
+            this.newAccountForm.mfaStatus = '';
+          }
+          await this.getSubAccountList();
+        }
+      } finally {
+        this.resetMfaLoading = false;
+      }
     },
     handleCloseModal() {
       this.newAccountForm = deepClone(EMPTY_SUB_ACCOUNT);

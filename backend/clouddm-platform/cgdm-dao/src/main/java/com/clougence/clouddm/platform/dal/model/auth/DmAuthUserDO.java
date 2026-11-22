@@ -44,16 +44,12 @@ public class DmAuthUserDO {
     private String          phone;
     private String          account;
     private String          password;
-    private String          opPassword;
     private Long            roleId;
     private String          accessKey;
     private String          secretKey;
     private Date            lastTryLoginTime;
     private int             loginFailCount;
     private boolean         loginLocked;
-    private Date            lastTryOpVerifyTime;
-    private int             opVerifyFailCount;
-    private boolean         opLocked;
     private AccountType     accountType;
     @TableField(typeHandler = AccountBindTypeTypeHandler.class)
     private AccountBindType bindType;

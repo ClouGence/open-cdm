@@ -68,7 +68,6 @@ if [ ! -f "$DST_CONF_FILE" ]; then
   echo "first startup: generating console.properties from env."
   mkdir -p /root/cgdm/console/conf
   APP_WEB_PORT_SED=$(sed_replacement_escape "${APP_WEB_PORT:-}")
-  APP_WEB_JWT_SED=$(sed_replacement_escape "${APP_WEB_JWT:-}")
   APP_SERVE_NAME_SED=$(sed_replacement_escape "${APP_SERVE_NAME:-}")
   APP_SERVE_PORT_SED=$(sed_replacement_escape "${APP_SERVE_PORT:-}")
   DB_HOST_SED=$(sed_replacement_escape "${DB_HOST:-}")
@@ -77,7 +76,6 @@ if [ ! -f "$DST_CONF_FILE" ]; then
   DB_USERNAME_SED=$(sed_replacement_escape "${DB_USERNAME:-}")
   DB_PASSWORD_SED=$(sed_replacement_escape "${DB_PASSWORD:-}")
   sed -e "s/%APP_WEB_PORT%/$APP_WEB_PORT_SED/g" \
-      -e "s/%APP_WEB_JWT%/$APP_WEB_JWT_SED/g" \
       -e "s/%APP_SERVE_NAME%/$APP_SERVE_NAME_SED/g" \
       -e "s/%APP_SERVE_PORT%/$APP_SERVE_PORT_SED/g" \
       -e "s/%DB_HOST%/$DB_HOST_SED/g" \

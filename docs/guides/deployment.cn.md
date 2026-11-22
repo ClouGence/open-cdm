@@ -97,11 +97,11 @@ http://localhost:8222
 
 ```bash
 # 一键启动
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.7.0
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.8.0
 
 # 中国镜像加速
 docker run -d --name cgdm-alone -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.7.0
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.8.0
 ```
 
 持久化数据卷：
@@ -114,7 +114,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.7.0
+  bladepipe/cgdm-alone:4.8.0
 
 # 挂载到宿主机目录
 mkdir -p /data/cgdm/{conf,logs,data,mysql}
@@ -125,7 +125,7 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:4.7.0
+  bladepipe/cgdm-alone:4.8.0
 ```
 
 当 `/data/cgdm/conf` 是空目录时，容器启动时会自动写入默认配置文件。
@@ -137,7 +137,7 @@ docker run -d --name cgdm-alone \
 ```yml
 services:
   dm_alone:
-    image: clougence/cgdm-alone:4.7.0
+    image: clougence/cgdm-alone:4.8.0
     container_name: cgdm-alone
     restart: always
     ports:
@@ -150,7 +150,6 @@ services:
       - cgdm_mysql_data:/var/lib/mysql
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_alone
       APP_SERVE_PORT: 8008
       MYSQL_EMBEDDED: "true"
@@ -205,7 +204,7 @@ kubectl -n cgdm get pods,svc,pvc
 kubectl -n cgdm port-forward svc/dm-alone 8222:8222
 ```
 
-然后访问 `http://localhost:8222`。如果需要长期对外访问，请根据集群环境选择 `NodePort`、`LoadBalancer` 或 Ingress；生产环境还应替换默认密码、JWT 密钥，并按数据规模调整 PVC 容量。
+然后访问 `http://localhost:8222`。如果需要长期对外访问，请根据集群环境选择 `NodePort`、`LoadBalancer` 或 Ingress；生产环境还应替换默认密码，并按数据规模调整 PVC 容量。
 
 ---
 
@@ -269,7 +268,6 @@ docker run -d --name dm_console \
   -p 8222:8222 \
   -p 8008:8008 \
   -e APP_WEB_PORT=8222 \
-  -e APP_WEB_JWT=ljgefdgjosdighjeroigh \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
   -e DB_HOST=dm_mysql \
@@ -277,7 +275,7 @@ docker run -d --name dm_console \
   -e DB_DATABASE=cdmgr \
   -e DB_USERNAME=root \
   -e DB_PASSWORD=123456 \
-  bladepipe/cgdm-console:4.7.0
+  bladepipe/cgdm-console:4.8.0
 
 # 启动 Sidecar
 docker run -d --name dm_sidecar \
@@ -288,13 +286,13 @@ docker run -d --name dm_sidecar \
   -e DM_CLIENT_WSN=<请替换为实际值> \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
-  bladepipe/cgdm-sidecar:4.7.0
+  bladepipe/cgdm-sidecar:4.8.0
 ```
 
 中国区部署时，只需将镜像替换为：
 
-- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-console:4.7.0`
-- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-sidecar:4.7.0`
+- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-console:4.8.0`
+- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-sidecar:4.8.0`
 
 ### 4.3 使用 Docker Compose
 
@@ -316,7 +314,7 @@ services:
     command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
 
   dm_console:
-    image: clougence/cgdm-console:x86_64-4.7.0
+    image: clougence/cgdm-console:x86_64-4.8.0
     container_name: cgdm-console
     restart: always
     ports:
@@ -330,7 +328,6 @@ services:
       - cgdm_console_data:/root/cgdm/console/data
     environment:
       APP_WEB_PORT: 8222
-      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_console
       APP_SERVE_PORT: 8008
       # Override image defaults with packaged docker deployment values.
@@ -341,7 +338,7 @@ services:
       DB_PASSWORD: 123456
 
   dm_sidecar:
-    image: clougence/cgdm-sidecar:x86_64-4.7.0
+    image: clougence/cgdm-sidecar:x86_64-4.8.0
     container_name: cgdm-sidecar
     restart: always
     depends_on:
@@ -429,7 +426,7 @@ kubectl -n cgdm logs deploy/dm-sidecar
 kubectl -n cgdm logs statefulset/dm-mysql
 ```
 
-生产环境还应替换默认 MySQL 密码、JWT 密钥，按数据规模调整 PVC 容量，并将敏感配置改为 `Secret` 管理。
+生产环境还应替换默认 MySQL 密码，按数据规模调整 PVC 容量，并将敏感配置改为 `Secret` 管理。
 
 ---
 

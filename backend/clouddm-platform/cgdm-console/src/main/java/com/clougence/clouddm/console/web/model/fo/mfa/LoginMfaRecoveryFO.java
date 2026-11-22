@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo;
+package com.clougence.clouddm.console.web.model.fo.mfa;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author bucketli 2021/1/11 11:17
- */
-@Data
-public class ResetOpPasswdFO {
+@Getter
+@Setter
+public class LoginMfaRecoveryFO {
 
-    @NotBlank(message = "{notblank.oppassword}")
-    @Size(min = 8, max = 32, message = "operation password must between 8~32 character.")
-    private String opPassword;
+    @NotBlank
+    private String mfaPreActionToken;
 }

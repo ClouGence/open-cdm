@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,14 +40,15 @@ import jakarta.annotation.Resource;
  * REST API for system initialization.
  * All endpoints are exposed while the system is in the Initial state and therefore bypass authentication.
  */
+@Profile("init")
 @RestController
 @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/init")
 public class InitController {
 
     @Resource
-    private SysInitService         initService;
+    private SysInitService    initService;
     @Resource
-    private SysInitDefService      defService;
+    private SysInitDefService defService;
 
     /**
      * Returns the default configuration field definitions.

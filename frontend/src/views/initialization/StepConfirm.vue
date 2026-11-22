@@ -37,12 +37,7 @@
 import { EditOutlined } from '@ant-design/icons-vue';
 
 const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
-const UPGRADE_HIDDEN_FIELD_KEYS = new Set([
-  'jwt.secret',
-  'clougence.init.admin.account',
-  'clougence.init.admin.email',
-  'clougence.init.admin.password'
-]);
+const UPGRADE_HIDDEN_FIELD_KEYS = new Set(['clougence.init.admin.account', 'clougence.init.admin.email', 'clougence.init.admin.password']);
 
 export default {
   name: 'StepConfirm',
