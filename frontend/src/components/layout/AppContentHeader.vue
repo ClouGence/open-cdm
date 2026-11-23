@@ -48,6 +48,25 @@ export default {
   name: 'AppContentHeader',
   components: { AppUserActions },
   emits: ['check-version'],
+  data() {
+    return {
+      currentClusterName: ''
+    };
+  },
+  watch: {
+    '$route.fullPath': {
+      immediate: true,
+      handler() {
+        this.syncClusterBreadcrumbName();
+      }
+    }
+  },
+  created() {
+    this.$bus.on(EVENT_BUS_NAME_LIST.SET_CLUSTER_BREADCRUMB_NAME, this.handleClusterBreadcrumbName);
+  },
+  beforeUnmount() {
+    this.$bus.off(EVENT_BUS_NAME_LIST.SET_CLUSTER_BREADCRUMB_NAME, this.handleClusterBreadcrumbName);
+  },
   computed: {
     ...mapGetters(['isDesktop']),
     ...mapState(['dmGlobalSetting', 'myCatLog', 'mySystemMenuItems', 'sidebarMenu', 'userInfo']),
@@ -103,7 +122,7 @@ export default {
         return this.$t('nav-ri-zhi');
       }
       if (path.indexOf('/data-access/cluster') === 0 || path.indexOf('/system/dmmachine') > -1) {
-        return this.$t('nav-cha-xun-ji-qi-lie-biao');
+        return this.$t('ji-qi-lie-biao');
       }
       if (path.indexOf('/data-access/rules') === 0 || path.indexOf('/system/dmrule') > -1 || path.indexOf('/system/dmspec') > -1) {
         return this.$t('an-quan-gui-fan');
@@ -180,7 +199,7 @@ export default {
         to: flowId ? `/cicd/${flowId}` : ''
       });
       const machineRoot = {
-        label: this.$t('nav-cha-xun-ji-qi-lie-biao'),
+        label: this.$t('ji-qi-lie-biao'),
         to: '/data-access/cluster'
       };
       const roleRoot = {
@@ -313,7 +332,7 @@ export default {
         return [{ ...machineRoot, to: this.$route.fullPath }];
       }
       if (/^\/data-access\/cluster\/list\/[^/]+$/.test(path)) {
-        return [machineRoot, { label: this.$t('ji-qi-lie-biao'), to: this.$route.fullPath }];
+        return [machineRoot, { label: this.currentClusterName || this.$t('ji-qi-lie-biao'), to: this.$route.fullPath }];
       }
       if (path === '/manager/role' || path === '/manager/role/') {
         return [{ ...roleRoot, to: this.$route.fullPath }];
@@ -406,6 +425,31 @@ export default {
         return '';
       }
       return findDsSupportName(dsType, this.dmGlobalSetting?.dsSupportNames)?.displayName || dsType;
+    },
+    syncClusterBreadcrumbName() {
+      const match = /^\/data-access\/cluster\/list\/([^/]+)$/.exec(this.$route.path);
+      if (!match) {
+        this.currentClusterName = '';
+        return;
+      }
+      const clusterId = decodeURIComponent(match[1]);
+      try {
+        const cached = localStorage.getItem(`dmcluster-${clusterId}`);
+        const parsed = cached ? JSON.parse(cached) : null;
+        this.currentClusterName = parsed?.clusterName || '';
+      } catch (e) {
+        this.currentClusterName = '';
+      }
+    },
+    handleClusterBreadcrumbName(payload) {
+      const match = /^\/data-access\/cluster\/list\/([^/]+)$/.exec(this.$route.path);
+      if (!match || !payload) {
+        return;
+      }
+      const clusterId = decodeURIComponent(match[1]);
+      if (String(payload.clusterId) === String(clusterId) && payload.clusterName) {
+        this.currentClusterName = payload.clusterName;
+      }
     }
   }
 };

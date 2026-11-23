@@ -222,7 +222,8 @@ export default [
   {
     path: '/data-access/cluster',
     name: 'System_Machine',
-    component: () => import(/* webpackChunkName: "system-cluster" */ '@/views/worker/Cluster')
+    component: () => import(/* webpackChunkName: "system-cluster" */ '@/views/worker/MachineList'),
+    meta: { requiredAuth: 'DM_WORKER_READ' }
   },
   {
     path: 'dmmachine',
@@ -231,7 +232,8 @@ export default [
   {
     path: '/data-access/cluster/list/:clusterId',
     name: 'System_Machine_List',
-    component: () => import(/* webpackChunkName: "system-cluster-list" */ '@/views/system/cluster/workerList')
+    component: () => import(/* webpackChunkName: "system-cluster-list" */ '@/views/system/cluster/workerList'),
+    meta: { requiredAuth: 'DM_WORKER_READ' }
   },
   {
     path: 'dmmachine/list/:clusterId',

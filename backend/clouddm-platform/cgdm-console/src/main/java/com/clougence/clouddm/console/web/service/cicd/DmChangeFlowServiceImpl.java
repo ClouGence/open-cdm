@@ -45,10 +45,10 @@ import com.clougence.clouddm.console.web.service.cicd.domain.DmScmDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
+import com.clougence.clouddm.platform.dal.access.entry.UserEntry;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
@@ -75,7 +75,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     @Resource
     private DmDsConfigService    dmDsConfigService;
     @Resource
-    private ObjectCacheDao       objectCacheDao;
+    private ObjectQueryDao       objectQueryDao;
     @Resource
     private DmImService          dmImService;
     @Resource
@@ -163,7 +163,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     }
 
     private ChangeFlowVO buildGroupedFlowVO(DmChangeFlowDO flow, Map<Long, String> flowNames, Map<Long, List<DmChangeFlowDO>> childFlowsByParentId) {
-        ChangeFlowVO vo = DmConvertUtils.convertToChangeFlowVO(flow, this.objectCacheDao);
+        ChangeFlowVO vo = DmConvertUtils.convertToChangeFlowVO(flow, this.objectQueryDao);
         if (flow.getRefParentFlowId() != null) {
             vo.setParentFlowName(flowNames.get(flow.getRefParentFlowId()));
         }
@@ -184,7 +184,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
 
         List<DmChangeFlowDO> res = this.changeFlowDal.flowMapper().listFlowByIds(ownerUid, ids);
         return res.stream().map(obj -> {
-            return DmConvertUtils.convertToChangeFlowVO(obj, objectCacheDao);
+            return DmConvertUtils.convertToChangeFlowVO(obj, objectQueryDao);
         }).collect(Collectors.toList());
     }
 
@@ -248,7 +248,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         strBuilder.append(fo.getScmRepoScript());
 
         strBuilder.append("\n");
-        DsCacheEntry dsEntry = this.objectCacheDao.queryByDsId(fo.getDsId());
+        DsEntry dsEntry = this.objectQueryDao.queryByDsId(fo.getDsId());
         strBuilder.append("(" + dsEntry.getDsType() + ") " + dsEntry.getDsInstId() + "[" + dsEntry.getDsInstDesc() + "] " + fo.getDsPath());
         return strBuilder.toString();
     }
@@ -565,7 +565,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         if (dsDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
-        this.objectCacheDao.ownDataSource(ownerUid, dsDO.getId());
+        this.objectQueryDao.ownDataSource(ownerUid, dsDO.getId());
         if (!StringUtils.equals(String.valueOf(dsDO.getDsEnvId()), dsLevels.envId())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
@@ -857,7 +857,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         vo.setFlowType(flow.getFlowType() == null ? ChangeFlowType.SCM : flow.getFlowType());
         vo.setDsType(flow.getDsType());
         vo.setFlowManagerUid(flow.getFlowManagerUid());
-        UserCacheEntry manager = this.objectCacheDao.queryByUid(flow.getFlowManagerUid());
+        UserEntry manager = this.objectQueryDao.queryByUid(flow.getFlowManagerUid());
         vo.setFlowManagerName(manager == null ? "UID:" + flow.getFlowManagerUid() : manager.getUserName());
         boolean manualOnly = !flow.isEnableWebhook() && !flow.isEnableTrigger();
         vo.setSelectable(manualOnly);
@@ -882,14 +882,14 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
 
         // for PM
         if (StringUtils.isNotBlank(fo.getNewAdminUid()) && !fo.getNewAdminUid().equals(flow.getFlowManagerUid())) {
-            UserCacheEntry user = this.objectCacheDao.queryByUid(fo.getNewAdminUid());
+            UserEntry user = this.objectQueryDao.queryByUid(fo.getNewAdminUid());
             if (user == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_USER_NOT_EXIST_ERROR.name()));
             }
             this.changeFlowDal.flowMapper().updateManagerByOwnerAndId(ownerUid, flowId, fo.getNewAdminUid());
 
             // message
-            UserCacheEntry operatorUser = this.objectCacheDao.queryByUid(fo.getNewAdminUid());
+            UserEntry operatorUser = this.objectQueryDao.queryByUid(fo.getNewAdminUid());
             String operatorMsg = String.format("[%s] %s", DmI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
             String textMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_CONFIG_PM_MESSAGE.name(), operatorMsg);
             messageList.add(textMsg);
@@ -1192,7 +1192,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         }
         ensureCascadeLifecycleIdle(ownerUid, lifecycleFlows);
 
-        UserCacheEntry operatorUser = this.objectCacheDao.queryByUid(operatorUid);
+        UserEntry operatorUser = this.objectQueryDao.queryByUid(operatorUid);
         String operatorMsg = String.format("[%s] %s", DmI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
         lifecycleFlows.forEach(item -> {
             String textMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_STATUS_ARCHIVE_MESSAGE.name(), operatorMsg, item.getFlowName());

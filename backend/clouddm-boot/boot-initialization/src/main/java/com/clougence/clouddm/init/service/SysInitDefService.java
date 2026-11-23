@@ -21,6 +21,7 @@ import java.util.*;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.component.config.ConsoleClusterProperties;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
@@ -89,6 +90,10 @@ public class SysInitDefService {
             copy.setDescription(def.getDescription());
 
             String value = runtimeProps.getProperty(def.getPropertyKey());
+            if (ConsoleClusterProperties.INSTANCE_ID_PROPERTY.equals(def.getPropertyKey())) {
+                value = ConsoleClusterProperties.resolveInstanceId(value);
+            }
+
             if (StringUtils.isBlank(value)) {
                 value = initDefaults.getProperty(def.getPropertyKey());
             }

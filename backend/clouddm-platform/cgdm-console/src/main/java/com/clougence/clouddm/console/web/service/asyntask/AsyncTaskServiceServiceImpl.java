@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.execute.AsyncTaskService;
 import com.clougence.clouddm.console.web.component.execute.asyntask.AsyncTaskConfig;
@@ -33,7 +34,6 @@ import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
 import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
-import com.clougence.utils.HostUtil;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -47,11 +47,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class AsyncTaskServiceServiceImpl implements AsyncTaskServiceService {
     @Resource
-    private ExecutionDal     executionDal;
+    private ConsoleClusterService cluster;
     @Resource
-    private AsyncTaskService asyncTaskService;
+    private ExecutionDal          executionDal;
     @Resource
-    private ConsoleConfig    config;
+    private AsyncTaskService      asyncTaskService;
+    @Resource
+    private ConsoleConfig         config;
 
     @Override
     public void submitTask(String uid, AsyncTaskConfig config) {
@@ -91,7 +93,7 @@ public class AsyncTaskServiceServiceImpl implements AsyncTaskServiceService {
     private void activateTask(int delay, List<DmExecAsyncTaskDO> taskList) {
         Runnable supplier = () -> {
             for (DmExecAsyncTaskDO task : taskList) {
-                this.executionDal.asyncTaskMapper().activateTask(task.getId(), getHostIp());
+                this.executionDal.asyncTaskMapper().activateTask(task.getId(), this.cluster.getConsoleInstanceId());
             }
             this.asyncTaskService.trigger();
         };
@@ -103,9 +105,7 @@ public class AsyncTaskServiceServiceImpl implements AsyncTaskServiceService {
         }
     }
 
-    private String getHostIp() { return HostUtil.getHostIp(); }
-
-    private static DmExecAsyncTaskDO genAsyncTaskConfig(String uid, AsyncTaskConfig config, AsyncTaskConfig depend) {
+    private DmExecAsyncTaskDO genAsyncTaskConfig(String uid, AsyncTaskConfig config, AsyncTaskConfig depend) {
         DmExecAsyncTaskDO taskDO = new DmExecAsyncTaskDO();
         taskDO.setTitle(config.getTitle());
         taskDO.setDescription(config.getDescription());
@@ -114,6 +114,7 @@ public class AsyncTaskServiceServiceImpl implements AsyncTaskServiceService {
         taskDO.setDependOnBizId(depend == null ? null : depend.getBizId());
         taskDO.setDependOnBizType(depend == null ? null : depend.getBizType());
         taskDO.setUid(uid);
+        taskDO.setConsoleInstanceId(this.cluster.getConsoleInstanceId());
         taskDO.setHandlerName(InstanceUtil.getSpringServiceAnnotationValue(config.getHandlerType()));
         taskDO.setHandlerType(config.getHandlerType().getName());
         taskDO.setConfigData(config.getConfigData());

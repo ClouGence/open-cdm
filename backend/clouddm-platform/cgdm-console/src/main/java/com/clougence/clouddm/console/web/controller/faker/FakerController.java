@@ -43,7 +43,7 @@ import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.faker.FakerService;
 import com.clougence.clouddm.console.web.util.DsResPathObj;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.ui.faker.FakerUiData;
@@ -66,7 +66,7 @@ public class FakerController {
     @Resource
     private DmDsConfigService       dmDsConfigService;
     @Resource
-    private ObjectCacheDao          objectCacheDao;
+    private ObjectQueryDao          objectQueryDao;
     @Resource
     private DmAuthServiceForBiz     dmAuthServiceForBiz;
 
@@ -182,7 +182,7 @@ public class FakerController {
         }
         // the object
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
-        this.objectCacheDao.ownDataSource(puid, dsLevels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, dsLevels.dsDO().getId());
         return dsLevels;
     }
 }

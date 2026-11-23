@@ -20,7 +20,6 @@ package com.clougence.clouddm.console.web.constants;
  **/
 public interface DmControllerUrlPrefix {
 
-    String CONSOLE_PREFIX    = "/api/entry";
-    String OPEN_API_PREFIX   = "/api/open";
-    String DM_MCP_API_PREFIX = "/api/mcp";
+    String CONSOLE_PREFIX  = "/api/entry";
+    String OPEN_API_PREFIX = "/api/open";
 }

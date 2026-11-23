@@ -33,8 +33,8 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevelLeaf;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -67,14 +67,14 @@ public class RemoteDsSchemaService implements DsSchemaService {
     @Resource
     private MetaDataService    metaService;
     @Resource
-    private ObjectCacheDao     cacheDao;
+    private ObjectQueryDao     objectQueryDao;
     @Resource
     private DmDsService        dsService;
 
     protected RSocketSendDTO genClusterSendDTO(DmDsDO dsDO) {
-        DsCacheEntry dsCacheEntry = this.cacheDao.queryByDsId(dsDO.getId());
+        DsEntry dsEntry = this.objectQueryDao.queryByDsId(dsDO.getId());
         RSocketSendDTO sendDTO = new RSocketSendDTO();
-        sendDTO.setClusterId(dsCacheEntry.getClusterId());
+        sendDTO.setClusterId(dsEntry.getClusterId());
         sendDTO.setUid(AuthDal.ROOT_USER_UID);
         sendDTO.setRSocketSendType(RSocketSendType.CLUSTER);
         return sendDTO;

@@ -56,7 +56,7 @@ public interface QueryService {
 
     boolean hasQueryResult(String curUid, String sessionId);
 
-    ResultList fetchQueryResult(String curUid, String sessionId);
+    ResultList fetchQueryResult(String curUid, String sessionId, String batchId);
 
     void changeCatalog(String curUid, String sessionId, String catalog);
 

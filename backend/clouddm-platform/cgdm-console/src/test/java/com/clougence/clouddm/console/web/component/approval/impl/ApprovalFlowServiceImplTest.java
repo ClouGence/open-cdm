@@ -22,12 +22,19 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.SimpleTransactionStatus;
 
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstructUtils;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.*;
 import com.clougence.clouddm.console.web.component.approval.handler.ChangeApprovalHandler;
@@ -35,6 +42,9 @@ import com.clougence.clouddm.console.web.component.approval.handler.QueryApprova
 import com.clougence.clouddm.console.web.component.approval.model.*;
 import com.clougence.clouddm.console.web.component.approval.schedule.ApprovalTaskProcessor;
 import com.clougence.clouddm.console.web.component.approval.schedule.ApprovalTaskScheduler;
+import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
+import com.clougence.clouddm.console.web.component.config.ProviderConfigRefresh;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.constants.DmConfirmActionType;
 import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
@@ -74,6 +84,89 @@ public class ApprovalFlowServiceImplTest {
     private DmAuthUserMapper        authUserMapper;
     private ApprovalStateService    approvalStateService;
     private ApprovalFlowServiceImpl flowService;
+
+    @Test
+    public void unifiedLifecycleBuildsHandlerIndicesBeforeStartingApprovalProviders() throws Exception {
+        ApprovalHandler handler = mock(ApprovalHandler.class);
+        when(handler.handleType()).thenReturn(ApprovalBiz.DM_QUERY);
+        ApprovalProviderServiceImpl provider = new ApprovalProviderServiceImpl();
+        ReflectionTestUtils.setField(provider, "handlers", List.of(handler));
+        ApprovalTaskProcessor processor = new ApprovalTaskProcessor();
+        ReflectionTestUtils.setField(processor, "handlers", List.of(handler));
+        ApprovalStarter starter = mock(ApprovalStarter.class);
+        doAnswer(invocation -> {
+            Map<?, ?> providerIndex = (Map<?, ?>) ReflectionTestUtils.getField(provider, "approvalHandlers");
+            Map<?, ?> processorIndex = (Map<?, ?>) ReflectionTestUtils.getField(processor, "approvalHandlers");
+            assertSame(handler, providerIndex.get(ApprovalBiz.DM_QUERY));
+            assertSame(handler, processorIndex.get(ApprovalBiz.DM_QUERY));
+            return null;
+        }).when(starter).init();
+
+        Map<String, UnifiedPostConstruct> lifecycle = new LinkedHashMap<>();
+        lifecycle.put("starter", starter);
+        lifecycle.put("provider", provider);
+        lifecycle.put("processor", processor);
+        ApplicationContext context = mock(ApplicationContext.class);
+        when(context.getBeansOfType(UnifiedPostConstruct.class)).thenReturn(lifecycle);
+        doReturn(ApprovalStarter.class).when(context).getType("starter");
+        doReturn(ApprovalProviderServiceImpl.class).when(context).getType("provider");
+        doReturn(ApprovalTaskProcessor.class).when(context).getType("processor");
+
+        UnifiedPostConstructUtils.doPostConstruct(context);
+
+        verify(starter).init();
+        verify(handler, times(2)).handleType();
+    }
+
+    @Test
+    public void approvalHandlerIndicesAreBuiltOnlyAfterInjectionInListOrder() {
+        ApprovalHandler queryHandler = mock(ApprovalHandler.class);
+        when(queryHandler.handleType()).thenReturn(ApprovalBiz.DM_QUERY);
+        ApprovalHandler changeHandler = mock(ApprovalHandler.class);
+        when(changeHandler.handleType()).thenReturn(ApprovalBiz.DM_CHANGE);
+        for (Object component : List.of(new ApprovalProviderServiceImpl(), new ApprovalTaskProcessor())) {
+            Map<?, ?> index = (Map<?, ?>) ReflectionTestUtils.getField(component, "approvalHandlers");
+            assertEquals(EnumMap.class, index.getClass());
+            assertTrue(index.isEmpty());
+            ReflectionTestUtils.setField(component, "handlers", List.of(changeHandler, queryHandler));
+            assertTrue(index.isEmpty());
+            verifyNoInteractions(changeHandler, queryHandler);
+
+            ReflectionTestUtils.invokeMethod(component, "init");
+
+            assertEquals(Map.of(ApprovalBiz.DM_QUERY, queryHandler, ApprovalBiz.DM_CHANGE, changeHandler), index);
+            InOrder order = inOrder(changeHandler, queryHandler);
+            order.verify(changeHandler).handleType();
+            order.verify(queryHandler).handleType();
+            clearInvocations(changeHandler, queryHandler);
+        }
+    }
+
+    @Test
+    public void approvalHandlerInitializationRejectsDuplicatesWithoutReplacingTheFirstHandler() {
+        for (Object component : List.of(new ApprovalProviderServiceImpl(), new ApprovalTaskProcessor())) {
+            ApprovalHandler first = mock(ApprovalHandler.class);
+            when(first.handleType()).thenReturn(ApprovalBiz.DM_QUERY);
+            ApprovalHandler duplicate = mock(ApprovalHandler.class);
+            when(duplicate.handleType()).thenReturn(ApprovalBiz.DM_QUERY);
+            ApprovalHandler remaining = mock(ApprovalHandler.class);
+            ReflectionTestUtils.setField(component, "handlers", List.of(first, duplicate, remaining));
+            try {
+                ReflectionTestUtils.invokeMethod(component, "init");
+                fail("duplicate approval business handlers must reject initialization");
+            } catch (IllegalStateException expected) {
+                assertEquals("ApprovalHandler about DM_QUERY already exists", expected.getMessage());
+            }
+
+            Map<?, ?> index = (Map<?, ?>) ReflectionTestUtils.getField(component, "approvalHandlers");
+            assertEquals(1, index.size());
+            assertSame(first, index.get(ApprovalBiz.DM_QUERY));
+            InOrder order = inOrder(first, duplicate);
+            order.verify(first).handleType();
+            order.verify(duplicate).handleType();
+            verifyNoInteractions(remaining);
+        }
+    }
 
     @Test
     public void shouldPreserveApprovalProviderResponseFields() {
@@ -139,7 +232,9 @@ public class ApprovalFlowServiceImplTest {
         SystemDal systemDal = mock(SystemDal.class);
         DmSysUserConfMapper configMapper = mock(DmSysUserConfMapper.class);
         when(systemDal.userConfMapper()).thenReturn(configMapper);
-        ApprovalProviderServiceImpl providerService = new ApprovalProviderServiceImpl(List.of());
+        ApprovalProviderServiceImpl providerService = new ApprovalProviderServiceImpl();
+        ReflectionTestUtils.setField(providerService, "handlers", List.of());
+        ReflectionTestUtils.invokeMethod(providerService, "init");
         ReflectionTestUtils.setField(providerService, "systemDal", systemDal);
 
         Map<ApprovalProvider, List<String>> requiredConfigs = Map
@@ -298,6 +393,216 @@ public class ApprovalFlowServiceImplTest {
     }
 
     @Test
+    public void shouldNotReplayExternalApprovalAfterUnknownOutcome() {
+        ApprovalHandler handler = mock(ApprovalHandler.class);
+        when(handler.handleType()).thenReturn(ApprovalBiz.DM_QUERY);
+        PlatformTransactionManager transactions = mock(PlatformTransactionManager.class);
+        SimpleTransactionStatus intentTransaction = new SimpleTransactionStatus();
+        SimpleTransactionStatus creationTransaction = new SimpleTransactionStatus();
+        when(transactions.getTransaction(any())).thenReturn(intentTransaction, creationTransaction, new SimpleTransactionStatus());
+        DmApprovalDO ticket = new DmApprovalDO();
+        ticket.setId(11L);
+        ticket.setDeleted(false);
+        ticket.setApproBiz(ApprovalBiz.DM_QUERY);
+        ticket.setApproType(ApprovalType.DingTalk);
+        ticket.setTicketStatus(ApprovalStatus.WAIT_APPROVAL);
+        when(approvalMapper.selectByIdForUpdate(11L)).thenReturn(ticket);
+        when(approvalMapper.queryById(11L)).thenReturn(ticket);
+        DmApprovalProcessDO process = new DmApprovalProcessDO();
+        process.setId(12L);
+        when(processMapper.queryByStage(11L, ApprovalStage.APPROVAL)).thenReturn(process);
+        doAnswer(invocation -> {
+            process.setStageContext(invocation.getArgument(1));
+            return 1;
+        }).when(processMapper).updateContextById(eq(12L), anyString());
+        doAnswer(invocation -> {
+            verify(transactions).commit(intentTransaction);
+            verify(transactions, never()).commit(creationTransaction);
+            verify(approvalMapper, times(2)).selectByIdForUpdate(11L);
+            throw new IllegalStateException("remote outcome unknown");
+        }).when(handler).createApproval(eq(11L), any());
+        ApprovalTaskProcessor processor = new ApprovalTaskProcessor();
+        ReflectionTestUtils.setField(processor, "handlers", List.of(handler));
+        ReflectionTestUtils.invokeMethod(processor, "init");
+        ReflectionTestUtils.setField(processor, "cluster", mock(ConsoleClusterService.class));
+        ReflectionTestUtils.setField(processor, "approvalDal", approvalDal);
+        ReflectionTestUtils.setField(processor, "txManager", transactions);
+        ReflectionTestUtils.setField(processor, "imSenderService", mock(ImSenderService.class));
+
+        try {
+            processor.processWaitApproval(ticket);
+            fail("expected the external request to fail");
+        } catch (IllegalStateException expected) {
+            assertEquals("remote outcome unknown", expected.getMessage());
+        }
+
+        verify(transactions).rollback(creationTransaction);
+        verify(transactions, never()).rollback(intentTransaction);
+        processor.processWaitApproval(ticket);
+
+        assertEquals(Boolean.TRUE, CustomApprovalService.parseStageContext(process).getExternalCreateStarted());
+        verify(handler, times(1)).createApproval(eq(11L), any());
+    }
+
+    @Test
+    public void shouldClaimExternalApprovalIntentWithoutPerRequestProviderRefresh() {
+        ApprovalHandler handler = mock(ApprovalHandler.class);
+        when(handler.handleType()).thenReturn(ApprovalBiz.DM_QUERY);
+        PlatformTransactionManager transactions = mock(PlatformTransactionManager.class);
+        SimpleTransactionStatus intentTransaction = new SimpleTransactionStatus();
+        SimpleTransactionStatus creationTransaction = new SimpleTransactionStatus();
+        when(transactions.getTransaction(any())).thenReturn(intentTransaction, creationTransaction);
+        ProviderConfigRefresh providerConfig = mock(ProviderConfigRefresh.class);
+
+        DmApprovalDO ticket = new DmApprovalDO();
+        ticket.setId(11L);
+        ticket.setPrimaryUid("primary");
+        ticket.setApproBiz(ApprovalBiz.DM_QUERY);
+        ticket.setApproType(ApprovalType.DingTalk);
+        ticket.setTicketStatus(ApprovalStatus.WAIT_APPROVAL);
+        ticket.setDeleted(false);
+        when(approvalMapper.selectByIdForUpdate(11L)).thenReturn(ticket);
+        when(approvalMapper.queryById(11L)).thenReturn(ticket);
+
+        DmApprovalProcessDO process = new DmApprovalProcessDO();
+        process.setId(12L);
+        when(processMapper.queryByStage(11L, ApprovalStage.APPROVAL)).thenReturn(process);
+        doAnswer(invocation -> {
+            process.setStageContext(invocation.getArgument(1));
+            return 1;
+        }).when(processMapper).updateContextById(eq(12L), anyString());
+
+        ApprovalTaskProcessor processor = new ApprovalTaskProcessor();
+        ReflectionTestUtils.setField(processor, "handlers", List.of(handler));
+        ReflectionTestUtils.invokeMethod(processor, "init");
+        ReflectionTestUtils.setField(processor, "cluster", mock(ConsoleClusterService.class));
+        ReflectionTestUtils.setField(processor, "approvalDal", approvalDal);
+        ReflectionTestUtils.setField(processor, "txManager", transactions);
+        ReflectionTestUtils.setField(processor, "imSenderService", mock(ImSenderService.class));
+
+        processor.processWaitApproval(ticket);
+
+        assertEquals(Boolean.TRUE, CustomApprovalService.parseStageContext(process).getExternalCreateStarted());
+        verifyNoInteractions(providerConfig);
+        verify(handler).createApproval(eq(11L), any());
+
+        var order = inOrder(transactions, approvalMapper, processMapper, handler);
+        order.verify(transactions).getTransaction(any());
+        order.verify(approvalMapper).selectByIdForUpdate(11L);
+        order.verify(processMapper).updateContextById(eq(12L), anyString());
+        order.verify(transactions).commit(intentTransaction);
+        order.verify(transactions).getTransaction(any());
+        order.verify(approvalMapper).selectByIdForUpdate(11L);
+        order.verify(handler).createApproval(eq(11L), any());
+        order.verify(transactions).commit(creationTransaction);
+    }
+
+    @Test
+    public void shouldRecheckExternalApprovalAfterIntentBeforeCallingTheHandler() {
+        for (String race : List.of("canceled", "closed", "deleted", "missing", "identity", "internal")) {
+            reset(approvalMapper, processMapper);
+            ApprovalHandler handler = mock(ApprovalHandler.class);
+            when(handler.handleType()).thenReturn(ApprovalBiz.DM_QUERY);
+            PlatformTransactionManager transactions = mock(PlatformTransactionManager.class);
+            SimpleTransactionStatus intentTransaction = new SimpleTransactionStatus();
+            SimpleTransactionStatus creationTransaction = new SimpleTransactionStatus();
+            when(transactions.getTransaction(any())).thenReturn(intentTransaction, creationTransaction);
+            AtomicBoolean intentCommitted = new AtomicBoolean();
+            doAnswer(invocation -> {
+                intentCommitted.set(true);
+                return null;
+            }).when(transactions).commit(intentTransaction);
+            DmApprovalDO observed = new DmApprovalDO();
+            observed.setId(11L);
+            observed.setDeleted(false);
+            observed.setApproBiz(ApprovalBiz.DM_QUERY);
+            observed.setApproType(ApprovalType.DingTalk);
+            observed.setTicketStatus(ApprovalStatus.WAIT_APPROVAL);
+            DmApprovalDO current = new DmApprovalDO();
+            current.setId(11L);
+            current.setDeleted(false);
+            current.setApproBiz(ApprovalBiz.DM_QUERY);
+            current.setApproType(ApprovalType.DingTalk);
+            current.setTicketStatus(ApprovalStatus.WAIT_APPROVAL);
+            switch (race) {
+                case "canceled" -> current.setTicketStatus(ApprovalStatus.CANCELED);
+                case "closed" -> current.setTicketStatus(ApprovalStatus.CLOSED);
+                case "deleted" -> current.setDeleted(true);
+                case "identity" -> current.setApproIdentity("already-created");
+                case "internal" -> current.setApproType(ApprovalType.Internal);
+            }
+
+            when(approvalMapper.selectByIdForUpdate(11L)).thenAnswer(invocation -> {
+                if (!intentCommitted.get()) {
+                    return observed;
+                }
+
+                if ("missing".equals(race)) {
+                    return null;
+                }
+                return current;
+            });
+
+            DmApprovalProcessDO process = new DmApprovalProcessDO();
+            process.setId(12L);
+            when(processMapper.queryByStage(11L, ApprovalStage.APPROVAL)).thenReturn(process);
+            doAnswer(invocation -> {
+                process.setStageContext(invocation.getArgument(1));
+                return 1;
+            }).when(processMapper).updateContextById(eq(12L), anyString());
+            ApprovalTaskProcessor processor = new ApprovalTaskProcessor();
+            ReflectionTestUtils.setField(processor, "handlers", List.of(handler));
+            ReflectionTestUtils.invokeMethod(processor, "init");
+            ReflectionTestUtils.setField(processor, "cluster", mock(ConsoleClusterService.class));
+            ReflectionTestUtils.setField(processor, "approvalDal", approvalDal);
+            ReflectionTestUtils.setField(processor, "txManager", transactions);
+            ReflectionTestUtils.setField(processor, "imSenderService", mock(ImSenderService.class));
+
+            processor.processWaitApproval(observed);
+
+            assertTrue(intentCommitted.get());
+            assertEquals(Boolean.TRUE, CustomApprovalService.parseStageContext(process).getExternalCreateStarted());
+            verify(approvalMapper, times(2)).selectByIdForUpdate(11L);
+            verify(handler, never()).createApproval(anyLong(), any());
+            verify(transactions).commit(intentTransaction);
+            verify(transactions).commit(creationTransaction);
+            verify(transactions, never()).rollback(any());
+        }
+    }
+
+    @Test
+    public void shouldRejectSchedulingOnAnotherConsole() {
+        ThreadPoolExecutor executor = mock(ThreadPoolExecutor.class);
+        ApprovalTaskScheduler scheduler = scheduler(executor);
+        ConsoleClusterService cluster = (ConsoleClusterService) ReflectionTestUtils.getField(scheduler, "cluster");
+        when(cluster.isSchedulerLeader()).thenReturn(false);
+
+        assertFalse(scheduler.trySchedule(11L));
+        ReflectionTestUtils.invokeMethod(scheduler, "doSchedule", ReflectionTestUtils.getField(scheduler, "activeScan"));
+
+        verifyNoInteractions(executor, approvalMapper);
+    }
+
+    @Test
+    public void shouldPrepareManualConfirmationOnTheReceivingConsole() {
+        ThreadPoolExecutor executor = mock(ThreadPoolExecutor.class);
+        doAnswer(invocation -> {
+            invocation.<Runnable> getArgument(0).run();
+            return null;
+        }).when(executor).execute(any(Runnable.class));
+        ApprovalTaskScheduler scheduler = scheduler(executor);
+        ConsoleClusterService cluster = (ConsoleClusterService) ReflectionTestUtils.getField(scheduler, "cluster");
+        when(cluster.isSchedulerLeader()).thenReturn(false);
+        Runnable preparation = mock(Runnable.class);
+
+        assertTrue(scheduler.submitControlTask(11L, preparation));
+
+        verify(preparation).run();
+        verifyNoInteractions(approvalMapper);
+        verify(cluster, never()).requireSchedulerLeader();
+    }
+
+    @Test
     public void shouldInspectIdleTicketsWithoutLoadingSqlOrWriting() {
         ThreadPoolExecutor executor = mock(ThreadPoolExecutor.class);
         doAnswer(invocation -> {
@@ -417,7 +722,9 @@ public class ApprovalFlowServiceImplTest {
 
     @Test
     public void shouldPreserveConfirmationContextAndSkipReorderedPeople() {
-        ApprovalTaskProcessor processor = new ApprovalTaskProcessor(Collections.emptyList());
+        ApprovalTaskProcessor processor = new ApprovalTaskProcessor();
+        ReflectionTestUtils.setField(processor, "handlers", Collections.emptyList());
+        ReflectionTestUtils.invokeMethod(processor, "init");
         ApprovalPersonService personService = mock(ApprovalPersonService.class);
         ReflectionTestUtils.setField(processor, "approvalDal", approvalDal);
         ReflectionTestUtils.setField(processor, "approvalPersonService", personService);
@@ -447,7 +754,9 @@ public class ApprovalFlowServiceImplTest {
 
     @Test
     public void shouldNotReplacePeopleAfterConfirmationCompletes() {
-        ApprovalTaskProcessor processor = new ApprovalTaskProcessor(Collections.emptyList());
+        ApprovalTaskProcessor processor = new ApprovalTaskProcessor();
+        ReflectionTestUtils.setField(processor, "handlers", Collections.emptyList());
+        ReflectionTestUtils.invokeMethod(processor, "init");
         ApprovalPersonService personService = mock(ApprovalPersonService.class);
         ReflectionTestUtils.setField(processor, "approvalDal", approvalDal);
         ReflectionTestUtils.setField(processor, "approvalPersonService", personService);
@@ -466,7 +775,9 @@ public class ApprovalFlowServiceImplTest {
 
     @Test
     public void shouldKeepExternalRefreshIntervalSemantics() {
-        ApprovalTaskProcessor processor = new ApprovalTaskProcessor(Collections.emptyList());
+        ApprovalTaskProcessor processor = new ApprovalTaskProcessor();
+        ReflectionTestUtils.setField(processor, "handlers", Collections.emptyList());
+        ReflectionTestUtils.invokeMethod(processor, "init");
         SystemDal systemDal = mock(SystemDal.class);
         DmSysUserConfMapper configMapper = mock(DmSysUserConfMapper.class);
         ApprovalProviderServiceImpl provider = mock(ApprovalProviderServiceImpl.class);
@@ -761,9 +1072,13 @@ public class ApprovalFlowServiceImplTest {
 
     private ApprovalTaskScheduler scheduler(ThreadPoolExecutor executor) {
         ApprovalTaskScheduler scheduler = new ApprovalTaskScheduler();
+        ConsoleClusterService cluster = mock(ConsoleClusterService.class);
+        when(cluster.isSchedulerLeader()).thenReturn(true);
+        ReflectionTestUtils.setField(scheduler, "cluster", cluster);
         ReflectionTestUtils.setField(scheduler, "approvalDal", approvalDal);
         ReflectionTestUtils.setField(scheduler, "threadPoolExecutor", executor);
         ReflectionTestUtils.setField(scheduler, "taskInQueueSet", ConcurrentHashMap.newKeySet());
+        ReflectionTestUtils.setField(scheduler, "controlTaskInQueueSet", ConcurrentHashMap.newKeySet());
         ReflectionTestUtils.setField(scheduler, "approvalFlowService", mock(ApprovalFlowService.class));
         DmDsWebService dsService = mock(DmDsWebService.class);
         DmDsDO datasource = new DmDsDO();
@@ -830,7 +1145,9 @@ public class ApprovalFlowServiceImplTest {
 
     @Test
     public void shouldIgnoreCloseCallbackForUnknownProviderTask() {
-        ApprovalProviderServiceImpl providerService = new ApprovalProviderServiceImpl(List.of());
+        ApprovalProviderServiceImpl providerService = new ApprovalProviderServiceImpl();
+        ReflectionTestUtils.setField(providerService, "handlers", List.of());
+        ReflectionTestUtils.invokeMethod(providerService, "init");
         ReflectionTestUtils.setField(providerService, "approvalDal", approvalDal);
         DmApprovalProcessActivityMapper activityMapper = mock(DmApprovalProcessActivityMapper.class);
         when(approvalDal.activityMapper()).thenReturn(activityMapper);

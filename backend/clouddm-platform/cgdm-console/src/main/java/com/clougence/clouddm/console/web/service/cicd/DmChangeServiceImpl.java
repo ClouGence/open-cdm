@@ -55,7 +55,7 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -83,7 +83,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     @Resource
     private ApprovalDal          approvalDal;
     @Resource
-    private ObjectCacheDao       objectCacheDao;
+    private ObjectQueryDao       objectQueryDao;
     @Resource
     private DmScmService         dmScmService;
     @Resource
@@ -143,7 +143,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
         // convert
         List<ChangeVO> vos = records.stream().map(obj -> {
-            return DmConvertUtils.convertToChangeVO(flowDO, obj, devopsMap, dsMap, scmMap, objectCacheDao);
+            return DmConvertUtils.convertToChangeVO(flowDO, obj, devopsMap, dsMap, scmMap, objectQueryDao);
         }).collect(Collectors.toList());
 
         Set<Long> batchIds = records.stream().map(DmChangeDO::getRefBatchId).filter(Objects::nonNull).collect(Collectors.toSet());

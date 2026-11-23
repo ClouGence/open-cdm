@@ -56,7 +56,7 @@ export function buildSidebarMenu({ myCatLog, myAuth, isDesktop, accountType, can
 
   const dataAccessChildren = [];
   if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_WORKER')) {
-    dataAccessChildren.push(linkItem('/data-access/cluster', '/#/data-access/cluster', 'nav-cha-xun-ji-qi-lie-biao', 'icon-v2-cluster'));
+    dataAccessChildren.push(linkItem('/data-access/cluster', '/#/data-access/cluster', 'ji-qi-lie-biao', 'icon-v2-cluster'));
   }
   if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_SECRULES')) {
     dataAccessChildren.push(linkItem('/data-access/rules', '/#/data-access/rules', 'an-quan-gui-fan', 'icon-v2-audit'));

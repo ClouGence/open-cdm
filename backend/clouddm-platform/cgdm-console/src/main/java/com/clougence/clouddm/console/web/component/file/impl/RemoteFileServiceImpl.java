@@ -31,6 +31,7 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultSetRService;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.file.RemoteFileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -68,6 +69,8 @@ public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostCons
     private ExecutionDal                execDal;
     @Resource
     private ResultSetRService           resultSetRService;
+    @Resource
+    private ConsoleClusterService       cluster;
     private ScheduledThreadPoolExecutor scheduledExecutor;
 
     @Override
@@ -79,11 +82,17 @@ public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostCons
 
     @Override
     public void stop() {
-
+        if (this.scheduledExecutor != null) {
+            this.scheduledExecutor.shutdownNow();
+        }
     }
 
     private void doClearJob() {
         try {
+            if (!this.cluster.isSchedulerLeader()) {
+                return;
+            }
+
             Integer capacityMegaBytes = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineResultCacheCapacityMegaByte, Integer.class);
             if (capacityMegaBytes == null) {
                 capacityMegaBytes = DEFAULT_RESULT_CACHE_CAPACITY_MEGABYTES;
@@ -150,6 +159,10 @@ public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostCons
         boolean snapshotComplete = true;
 
         for (DmExecFileDO file : files) {
+            if (!this.cluster.isSchedulerLeader()) {
+                return;
+            }
+
             try {
                 long fileSize = this.fetchFileSize(wsn, DmConvertUtils.createFileUri(file.getFileUri()).getPath());
                 if (fileSize < 0) {
@@ -167,6 +180,10 @@ public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostCons
         }
 
         for (DmExecFileDO file : files) {
+            if (!this.cluster.isSchedulerLeader()) {
+                return;
+            }
+
             Long fileSize = fileSizes.get(file.getUniqueId());
             if (file.getStatus() == FileStatus.Delete) {
                 try {
@@ -204,13 +221,16 @@ public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostCons
         long usageBeforeBytes = usageBytes;
         int deletedCount = 0;
         for (DmExecFileDO candidate : candidates) {
+            if (!this.cluster.isSchedulerLeader()) {
+                return;
+            }
+
             if (usageBytes <= capacityBytes) {
                 break;
             }
 
             DmExecFileDO current = this.execDal.fileMapper().queryFileByUniqueId(candidate.getUniqueId());
-            if (current == null || (current.getStatus() != FileStatus.Ready && current.getStatus() != FileStatus.Failed) || !current.getHeartbeat().before(activeFileSafePoint)
-                || current.getGmtModified().after(candidate.getGmtModified())) {
+            if (this.isCleanupCandidateInvalid(current, candidate, activeFileSafePoint)) {
                 continue;
             }
 
@@ -238,6 +258,21 @@ public class RemoteFileServiceImpl implements RemoteFileService, UnifiedPostCons
         }
 
         log.info("Result cache clear finished, worker={}, capacityBytes={}, usageBeforeBytes={}, usageAfterBytes={}, deletedCount={}", wsn, capacityBytes, usageBeforeBytes, usageBytes, deletedCount);
+    }
+
+    private boolean isCleanupCandidateInvalid(DmExecFileDO current, DmExecFileDO candidate, Date activeFileSafePoint) {
+        if (current == null) {
+            return true;
+        }
+
+        if (current.getStatus() != FileStatus.Ready && current.getStatus() != FileStatus.Failed) {
+            return true;
+        }
+
+        if (!current.getHeartbeat().before(activeFileSafePoint)) {
+            return true;
+        }
+        return current.getGmtModified().after(candidate.getGmtModified());
     }
 
     private boolean deleteFile(DmExecFileDO file) {

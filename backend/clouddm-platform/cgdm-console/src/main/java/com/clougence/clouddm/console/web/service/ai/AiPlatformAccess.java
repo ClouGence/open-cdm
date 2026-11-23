@@ -32,7 +32,7 @@ import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.model.ai.*;
 import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -49,7 +49,7 @@ import jakarta.annotation.Resource;
 @Component
 public class AiPlatformAccess {
     @Resource
-    private ObjectCacheDao      ownership;
+    private ObjectQueryDao      ownership;
     @Resource
     private DmDsConfigService   configuration;
     @Resource

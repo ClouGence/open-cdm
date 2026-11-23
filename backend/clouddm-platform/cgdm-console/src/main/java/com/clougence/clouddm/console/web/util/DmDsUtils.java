@@ -26,8 +26,8 @@ import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
@@ -50,13 +50,13 @@ public class DmDsUtils {
 
     private static final Map<DataSourceType, SessionSpi> DS_SESSION_SPI_CACHE = new ConcurrentHashMap<>();
     private static final Map<DataSourceType, Dialect>    DS_DIALECT_CACHE     = new ConcurrentHashMap<>();
-    private static ObjectCacheDao                        ownerCacheService;
+    private static ObjectQueryDao                        objectQueryDao;
     private static ConsoleConfigService                  consoleService;
     private static DmDsConfigService                     dsConfigService;
     private final static long                            MB_SIZE              = 1024L * 1024L;
 
     public static void initUtils(ApplicationContext spring) {
-        ownerCacheService = spring.getBean(ObjectCacheDao.class);
+        objectQueryDao = spring.getBean(ObjectQueryDao.class);
         consoleService = spring.getBean(ConsoleConfigService.class);
         dsConfigService = spring.getBean(DmDsConfigService.class);
     }
@@ -214,8 +214,8 @@ public class DmDsUtils {
             return;
         }
 
-        DsCacheEntry dsCache = ownerCacheService.queryByDsId(dsId);
-        DataSourceConfig dsConfig = dsConfigService.fetchDsConfigFromExists(dsCache.getDsNumId());
+        DsEntry dsEntry = objectQueryDao.queryByDsId(dsId);
+        DataSourceConfig dsConfig = dsConfigService.fetchDsConfigFromExists(dsEntry.getDsNumId());
         Map<String, String> configMap = consoleService.fetchSettingsMap(Arrays.asList(//
                 RootUserConfig.Fields.defaultColumnDisplayChars, //
                 RootUserConfig.Fields.onlineMaxRecordCount,      //
@@ -225,7 +225,7 @@ public class DmDsUtils {
         );
 
         queryList.forEach(query -> {
-            query.setDsId(dsCache.getDsNumId());
+            query.setDsId(dsEntry.getDsNumId());
             ResultLimit limit = fetchResultLimit(configMap, query.getRequester(), dsConfig);
             query.getResultConf().setQueryTimeoutSec(limit.getQueryTimeoutSec());
             query.getResultConf().setFetchRecordCountLimit(limit.getFetchRecordCountLimit());

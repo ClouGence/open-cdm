@@ -36,7 +36,7 @@ public interface ServerSideRegistry {
      */
     void register(RSocketRegisterInfo registerInfo);
 
-    void unRegister(String workerSeqNumber);
+    void unRegister(RSocketRegisterInfo registerInfo);
 
     /**
      * Get worker requester object to send data by wsn. Usually be used in server side

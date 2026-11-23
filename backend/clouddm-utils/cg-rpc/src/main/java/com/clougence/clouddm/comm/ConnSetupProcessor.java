@@ -19,18 +19,18 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.annotation.ConnectMapping;
 
-import com.clougence.clouddm.comm.component.RSocketExceptionManager;
 import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
 import com.clougence.clouddm.comm.constants.rsocket.ServerRouteNames;
 import com.clougence.clouddm.comm.model.auth.ConnAuthDTO;
 import com.clougence.clouddm.comm.model.rsocket.RSocketRegisterInfo;
-import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 
-import io.rsocket.exceptions.RejectedSetupException;
+import io.rsocket.exceptions.ConnectionErrorException;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author wanshao create time is 2021/1/7
@@ -38,54 +38,50 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ConnSetupProcessor {
 
-    private ServerSideRegistry      serverSideRegistry;
+    private final ServerSideRegistry serverSideRegistry;
+    private final ObjectReader       authReader;
 
-    private RSocketExceptionManager rSocketExceptionManager;
-
-    public ConnSetupProcessor(ServerSideRegistry serverSideRegistry, RSocketExceptionManager rSocketExceptionManager){
+    public ConnSetupProcessor(ServerSideRegistry serverSideRegistry){
         this.serverSideRegistry = serverSideRegistry;
-        this.rSocketExceptionManager = rSocketExceptionManager;
+        this.authReader = new ObjectMapper().readerFor(ConnAuthDTO.class);
     }
 
     @ConnectMapping(ServerRouteNames.CONN_SETUP)
     Mono<Void> channelConnect(RSocketRequester requester, @Payload String authInfoJson) {
+        return Mono.defer(() -> registerWorkerConnection(requester, authInfoJson)).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private Mono<Void> registerWorkerConnection(RSocketRequester requester, String authInfoJson) {
+        RSocketRegisterInfo registerInfo = new RSocketRegisterInfo();
         try {
-            // prepare register info
-            ConnAuthDTO authInfo = new ObjectMapper().readValue(authInfoJson, ConnAuthDTO.class);
+            ConnAuthDTO authInfo = authReader.readValue(authInfoJson);
             checkParams(authInfo);
-
-            final String clientIp = authInfo.getIp();
-            final String wsn = authInfo.getWsn();
-
-            RSocketRegisterInfo registerInfo = new RSocketRegisterInfo();
             registerInfo.setRequester(requester);
-            registerInfo.setWorkerSeqNumber(wsn);
-            registerInfo.setWorkerIp(clientIp);
-
+            registerInfo.setWorkerSeqNumber(authInfo.getWsn());
+            registerInfo.setWorkerIp(authInfo.getIp());
             serverSideRegistry.register(registerInfo);
-            requester.rsocket().onClose().doFirst(() -> {
-                try {
-                    log.warn("User worker CONNECTED,ip:" + clientIp + ",wsn:" + wsn);
-                } catch (Exception e) {
-                    log.error("worker (" + wsn + ") register error.msg:" + ExceptionUtils.getRootCauseMessage(e), e);
-                    // if register with exception, reject connection
-                    requester.rsocket().dispose();
-                }
-            }).doOnError(error -> {
-                // Warn when channels are closed by clients
-                log.warn("Process setup failed with exception. Worker wsn:" + wsn + ". Root cause is " + ExceptionUtils.getRootCauseMessage(error));
-            }).doFinally(consumer -> {
-                // Remove disconnected clients from the client list
-                serverSideRegistry.unRegister(wsn);
-                log.warn("user worker DISCONNECTED,ip:" + clientIp + ",wsn:" + wsn);
-            }).subscribe();
+            requester.rsocket()
+                .onClose()
+                .publishOn(Schedulers.boundedElastic())
+                .doFinally(signal -> serverSideRegistry.unRegister(registerInfo))
+                .subscribe(null, error -> log.debug("Worker connection closed: {}", authInfo.getWsn()));
+
+            return Mono.empty();
         } catch (Exception e) {
-            String errMsg = "channel connect error. Received auth info is " + authInfoJson + ". Root cause is:" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(errMsg, e);
-            rSocketExceptionManager.saveExcOrAlert(e);
-            return Mono.error(new RejectedSetupException("connection is not authenticated"));
+            log.warn("Worker registration failed: wsn={}", registerInfo.getWorkerSeqNumber(), e);
+            releaseFailedConnection(registerInfo, requester);
+            return Mono.error(new ConnectionErrorException("worker connection temporarily unavailable"));
         }
-        return Mono.empty();
+    }
+
+    private void releaseFailedConnection(RSocketRegisterInfo info, RSocketRequester requester) {
+        try {
+            serverSideRegistry.unRegister(info);
+        } catch (Exception e) {
+            log.warn("Release failed worker connection failed: wsn={}", info.getWorkerSeqNumber(), e);
+        } finally {
+            requester.rsocket().dispose();
+        }
     }
 
     protected void checkParams(ConnAuthDTO authInfo) {

@@ -31,7 +31,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -56,7 +56,7 @@ public class DmResAuthServiceImpl implements DmResAuthService {
     @Resource
     private AuthDal                   authDal;
     @Resource
-    private ObjectCacheDao            cacheDao;
+    private ObjectQueryDao            objectQueryDao;
     @Resource
     private DmAuthServiceForBiz       authServiceForBiz;
     @Resource

@@ -43,8 +43,8 @@ import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -81,7 +81,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     @Resource
     private DataSourceDal                       dsDal;
     @Resource
-    private ObjectCacheDao                      cacheDao;
+    private ObjectQueryDao                      objectQueryDao;
     @Resource
     private ConsoleConfigService                configService;
     @Resource
@@ -370,9 +370,9 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
     @Override
     public SqlParserParameters fetchSqlParserParameters(long dsId, Map<UmiTypes, Object> levelsParam) {
-        DsCacheEntry cacheEntry = this.cacheDao.queryByDsId(dsId);
+        DsEntry dsEntry = this.objectQueryDao.queryByDsId(dsId);
         RSocketSendDTO sendDTO = new RSocketSendDTO();
-        sendDTO.setClusterId(cacheEntry.getClusterId());
+        sendDTO.setClusterId(dsEntry.getClusterId());
         sendDTO.setUid(AuthDal.ROOT_USER_UID);
         sendDTO.setRSocketSendType(RSocketSendType.CLUSTER);
 
@@ -487,7 +487,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         if (StringUtils.isBlank(configKey)) {
             return;
         }
-        DsCacheEntry dmDsDO = this.cacheDao.queryByDsId(dsId);
+        DsEntry dmDsDO = this.objectQueryDao.queryByDsId(dsId);
         if (dmDsDO == null || dmDsDO.getDsType() == null) {
             return;
         }

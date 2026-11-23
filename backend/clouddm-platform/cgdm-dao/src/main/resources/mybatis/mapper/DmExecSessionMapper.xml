@@ -9,6 +9,7 @@
         <result column="last_query_time" property="lastQueryTime"/>
         <result column="uid" property="uid"/>
         <result column="session_id" property="sessionId"/>
+        <result column="active_batch_id" property="activeBatchId"/>
         <result column="config" property="config"/>
         <result column="wsn" property="wsn"/>
         <result column="cluster_id" property="clusterId"/>
@@ -21,6 +22,7 @@
         id,
         uid,
         session_id,
+        active_batch_id,
         wsn,
         cluster_id,
         datasource_id,
@@ -82,6 +84,45 @@
             session_id = #{sessionId}
             AND
             wsn        = #{wsn}
+    </update>
+
+    <update id="updateActiveBatchIfBatchNull">
+        UPDATE
+            dm_exec_session
+        SET
+            gmt_modified    = NOW(),
+            last_query_time = NOW(),
+            active_batch_id = #{batchId}
+        WHERE
+            uid             = #{uid}
+            AND
+            session_id      = #{sessionId}
+            AND
+            active_batch_id IS NULL
+    </update>
+
+    <update id="clearActiveBatchByBatch">
+        UPDATE
+            dm_exec_session
+        SET
+            gmt_modified    = NOW(),
+            active_batch_id = NULL
+        WHERE
+            uid             = #{uid}
+            AND
+            session_id      = #{sessionId}
+            AND
+            active_batch_id = #{batchId}
+    </update>
+
+    <update id="updateActiveBatchIdByWsn">
+        UPDATE
+            dm_exec_session
+        SET
+            gmt_modified    = NOW(),
+            active_batch_id = #{activeBatchId}
+        WHERE
+            wsn = #{wsn}
     </update>
 
     <update id="updateSessionConfig">

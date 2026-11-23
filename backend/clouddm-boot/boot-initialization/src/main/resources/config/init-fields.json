@@ -50,6 +50,14 @@
     },
     {
       "category": "connectivity",
+      "propertyKey": "clouddm.console.cluster.instance-id",
+      "labelKey": "INIT_FIELD_CONSOLE_INSTANCE_ID_LABEL",
+      "descriptionKey": "INIT_FIELD_CONSOLE_INSTANCE_ID_DESC",
+      "inputType": "text",
+      "required": true
+    },
+    {
+      "category": "connectivity",
       "propertyKey": "server.port",
       "labelKey": "INIT_FIELD_SERVER_PORT_LABEL",
       "descriptionKey": "INIT_FIELD_SERVER_PORT_DESC",

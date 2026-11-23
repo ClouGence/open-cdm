@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateClusterFO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
@@ -65,6 +66,8 @@ public class EmbeddedWorkerBootstrap {
     private NamingDao                    namingDao;
     @Resource
     private List<DmWorkerRegisterNotify> workerRegisterNotifiers;
+    @Resource
+    private ConsoleClusterService        consoleCluster;
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void init() {
@@ -203,8 +206,11 @@ public class EmbeddedWorkerBootstrap {
     }
 
     private void resetWorkerStatus(DmSysWorkerDO worker) {
-        worker.setConnStatus(WorkerConnStatus.NEW);
-        worker.setLastHeartbeatReportMs(null);
+        worker = this.systemDal.workerMapper().lockByWsn(worker.getWorkerSeqNumber());
+        worker.setOwnerInstanceId(this.consoleCluster.getInstanceId());
+        worker.setConnectionGeneration(worker.getConnectionGeneration() + 1);
+        worker.setConnStatus(WorkerConnStatus.CONNECTED);
+        worker.setLastHeartbeatReportMs(System.currentTimeMillis());
         worker.setLastHeartbeatPingMs(null);
         worker.setGmtModified(new Date());
         this.systemDal.workerMapper().updateById(worker);

@@ -30,11 +30,10 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.global.session.WebSessionInterceptor;
-import com.clougence.clouddm.console.web.global.session.WebSessionManager;
 import com.clougence.clouddm.console.web.global.handler.AiStreamInterceptor;
 import com.clougence.clouddm.console.web.global.handler.TimeCostInterceptor;
-import com.clougence.clouddm.console.web.global.mcp.McpSessionManager;
+import com.clougence.clouddm.console.web.global.session.WebSessionInterceptor;
+import com.clougence.clouddm.console.web.global.session.WebSessionManager;
 import com.clougence.rdp.component.openapi.OpenApiSessionManager;
 import com.clougence.utils.StringUtils;
 
@@ -103,11 +102,6 @@ public class WebConfigurer implements WebMvcConfigurer, WebSocketConfigurer {
     }
 
     @Bean
-    public McpSessionManager dmMcpSessionManager() {
-        return new McpSessionManager(DmControllerUrlPrefix.DM_MCP_API_PREFIX);
-    }
-
-    @Bean
     public AiStreamInterceptor dmAiStreamInterceptor() {
         return new AiStreamInterceptor();
     }
@@ -122,7 +116,6 @@ public class WebConfigurer implements WebMvcConfigurer, WebSocketConfigurer {
         registry.addInterceptor(new TimeCostInterceptor());
         registry.addInterceptor(dmWebSessionInterceptor());
         registry.addInterceptor(dmApiSessionManager());
-        registry.addInterceptor(dmMcpSessionManager());
         registry.addInterceptor(dmAiStreamInterceptor());
     }
 

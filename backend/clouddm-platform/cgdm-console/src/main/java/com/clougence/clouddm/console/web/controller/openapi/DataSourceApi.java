@@ -34,12 +34,9 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.mcp.McpApiProvider;
-import com.clougence.clouddm.console.web.global.mcp.model.McpTool;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsDetailFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsLeafFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsLevelsFO;
@@ -53,7 +50,7 @@ import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -73,7 +70,6 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author bucketli 2025/12/9 16:38:05
  */
-@McpApiProvider
 @RestController
 @RequestMapping(value = DmControllerUrlPrefix.OPEN_API_PREFIX + "/datasource")
 @Slf4j
@@ -92,11 +88,10 @@ public class DataSourceApi extends BasicApi {
     @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
-    private ObjectCacheDao      objectCacheDao;
+    private ObjectQueryDao      objectQueryDao;
     @Resource
     private DmAuthServiceForBiz dmAuthServiceForBiz;
 
-    @McpTool(DmMcpI18nKey.M_DS_SETTINGS)
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/dsSettings", method = { RequestMethod.POST })
     public ResWebData<List<DmConsoleSettingsVO>> dsSettings(HttpServletRequest request) {
@@ -121,7 +116,6 @@ public class DataSourceApi extends BasicApi {
         return ResWebDataUtils.buildSuccess(settings);
     }
 
-    @McpTool(DmMcpI18nKey.M_LIST_DS)
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/listDs", method = RequestMethod.POST)
     public ResApiData<List<DmApiDataSourceVO>> listDs(@RequestBody @Valid DmApiDsListFO fo, HttpServletRequest request) {
@@ -167,7 +161,6 @@ public class DataSourceApi extends BasicApi {
         return ResApiDataUtils.buildSuccess(requestId, list);
     }
 
-    @McpTool(DmMcpI18nKey.M_DETAIL_DS)
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/detailDs", method = RequestMethod.POST)
     public ResApiData<ApiDataSourceVO> detailDs(@RequestBody @Valid DmApiDsDetailFO fo, HttpServletRequest request) {
@@ -205,7 +198,6 @@ public class DataSourceApi extends BasicApi {
         return ResApiDataUtils.buildSuccess(requestId, apiVo);
     }
 
-    @McpTool(DmMcpI18nKey.M_LIST_LEVELS)
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/listLevels", method = RequestMethod.POST)
     public ResWebData<List<BrowseLevelsVO>> listLevels(@Valid @RequestBody DmApiDsLevelsFO fo, HttpServletRequest request) {
@@ -241,7 +233,7 @@ public class DataSourceApi extends BasicApi {
         } else {
             // ds object list
             DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-            this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+            this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
             DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels());
             this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, fo.isRefreshCache());
@@ -257,7 +249,6 @@ public class DataSourceApi extends BasicApi {
         }
     }
 
-    @McpTool(DmMcpI18nKey.M_LIST_LEAF)
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/listLeaf", method = RequestMethod.POST)
     public ResWebData<List<BrowseLevelsVO>> listLeaf(@Valid @RequestBody DmApiDsLeafFO fo, HttpServletRequest request) {
@@ -272,7 +263,7 @@ public class DataSourceApi extends BasicApi {
         }
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels());
         this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
 

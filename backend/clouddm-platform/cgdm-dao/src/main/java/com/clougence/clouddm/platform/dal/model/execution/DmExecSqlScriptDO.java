@@ -37,6 +37,7 @@ public class DmExecSqlScriptDO {
     private String          dsType;
     private String          name;
     private String          fileUri;
+    private String          sqlContent;
     private SqlScriptStatus status;
     private Long            version;
 }

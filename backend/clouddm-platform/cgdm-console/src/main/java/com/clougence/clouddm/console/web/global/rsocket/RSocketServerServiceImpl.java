@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.comm.ConsoleRSocketServer;
 import com.clougence.clouddm.comm.component.impl.RSocketApiManager;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.SystemUtils;
 
@@ -35,9 +36,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RSocketServerServiceImpl {
 
     @Resource
-    private ConsoleRSocketServer consoleRSocketServer;
+    private ConsoleRSocketServer  consoleRSocketServer;
     @Resource
-    private ApplicationContext   applicationContext;
+    private ConsoleClusterService cluster;
+    @Resource
+    private ApplicationContext    applicationContext;
 
     public void init() {
         String appMode = SystemUtils.getSystemProperty("app.mode", "distributed");
@@ -50,12 +53,24 @@ public class RSocketServerServiceImpl {
         ClassLoader appClassLoader = this.applicationContext.getClassLoader();
         RSocketApiManager.scanAllApiAndRegister(appClassLoader, "com.clougence.clouddm", applicationContext::getBean);
         consoleRSocketServer.start();
+        try {
+            cluster.markReady();
+        } catch (RuntimeException e) {
+            try {
+                consoleRSocketServer.stop();
+            } catch (RuntimeException cleanupError) {
+                e.addSuppressed(cleanupError);
+            }
+
+            throw e;
+        }
 
         log.info("Console rsocket server started.");
     }
 
     @PreDestroy
     public void stopRSocketServer() {
+        cluster.stop();
         consoleRSocketServer.stop();
     }
 }

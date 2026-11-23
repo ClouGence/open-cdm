@@ -64,7 +64,6 @@ import lombok.extern.slf4j.Slf4j;
 public class DmEnvParamServiceImpl implements DmEnvParamService {
     @Resource
     private CustomApprovalConfigService customConfig;
-
     @Resource
     private SystemDal                   systemDal;
     @Resource

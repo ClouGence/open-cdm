@@ -174,8 +174,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
             return;
         }
 
-        this.jobLog(Loglevel.WARING, I18nDmMsgKeys.AUTO_EXEC_TRANSACTION_SKIP_MESSAGE, dto.getJobId(),
-                taskDO.getExecOrder(), taskDO.getExecSql());
+        this.jobLog(Loglevel.WARING, I18nDmMsgKeys.AUTO_EXEC_TRANSACTION_SKIP_MESSAGE, dto.getJobId(), taskDO.getExecOrder(), taskDO.getExecSql());
     }
 
     private void jobPause(AutoExecMessageDTO dto) {
@@ -209,8 +208,8 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         if (this.execDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
             return;
         }
-        this.jobLog(Loglevel.ERROR, I18nDmMsgKeys.AUTO_EXEC_CREATE_SESSION_ERROR_MESSAGE, dto.getJobId(),
-                dto.getMessage());
+
+        this.jobLog(Loglevel.ERROR, I18nDmMsgKeys.AUTO_EXEC_CREATE_SESSION_ERROR_MESSAGE, dto.getJobId(), dto.getMessage());
 
         this.approvalStateService.failExecution(jobDO.getDependOnBizId(), null);
     }
@@ -220,8 +219,8 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         if (jobDO == null || this.execDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
             return;
         }
-        this.jobLog(Loglevel.ERROR, I18nDmMsgKeys.AUTO_EXEC_JOB_PREPARE_ERROR_MESSAGE, dto.getJobId(),
-                dto.getMessage());
+
+        this.jobLog(Loglevel.ERROR, I18nDmMsgKeys.AUTO_EXEC_JOB_PREPARE_ERROR_MESSAGE, dto.getJobId(), dto.getMessage());
         this.approvalStateService.failExecution(jobDO.getDependOnBizId(), null);
     }
 
@@ -247,8 +246,8 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         if (this.execDal.autoJobMapper().markJobFailedIfActive(dto.getJobId()) == 0) {
             return;
         }
-        this.jobLog(Loglevel.ERROR, I18nDmMsgKeys.AUTO_EXEC_JOB_FAILED_MESSAGE, dto.getJobId(),
-                taskDO.getExecOrder(), taskDO.getExecSql());
+
+        this.jobLog(Loglevel.ERROR, I18nDmMsgKeys.AUTO_EXEC_JOB_FAILED_MESSAGE, dto.getJobId(), taskDO.getExecOrder(), taskDO.getExecSql());
 
         this.approvalStateService.failExecution(jobDO.getDependOnBizId(), null);
     }
@@ -298,17 +297,26 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
     private void taskStart(AutoExecMessageDTO message) {
         DmExecAutoTaskDO taskDO = execDal.autoTaskMapper().queryByQueryId(message.getQueryId());
         // repeat message
-        if (taskDO == null || taskDO.getStatus() == AutoExecTaskStatus.EXECUTING) {
+        if (this.shouldIgnoreTaskStart(taskDO)) {
             return;
         }
+
+        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().queryByIdForUpdate(taskDO.getAutoExecJobId());
+        if (jobDO == null || (jobDO.getStatus() != AutoExecJobStatus.EXECUTING && jobDO.getStatus() != AutoExecJobStatus.PAUSING)) {
+            return;
+        }
+
         taskDO.setStatus(AutoExecTaskStatus.EXECUTING);
         taskDO.setGmtLastStart(message.getTime());
         execDal.autoTaskMapper().updateById(taskDO);
+        this.approvalStateService.markExecutionRunning(jobDO.getDependOnBizId());
+    }
 
-        DmExecAutoJobDO jobDO = this.execDal.autoJobMapper().selectById(taskDO.getAutoExecJobId());
-        if (jobDO != null) {
-            this.approvalStateService.markExecutionRunning(jobDO.getDependOnBizId());
+    private boolean shouldIgnoreTaskStart(DmExecAutoTaskDO taskDO) {
+        if (taskDO == null || taskDO.getStatus() == AutoExecTaskStatus.EXECUTING) {
+            return true;
         }
+        return taskDO.getStatus() == AutoExecTaskStatus.CANCELED || taskDO.getStatus() == AutoExecTaskStatus.FINISH;
     }
 
     private void jobLog(Loglevel logLevel, I18nDmMsgKeys messageKey, Long jobId, Object... args) {

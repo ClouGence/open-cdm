@@ -25,8 +25,8 @@ import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 
@@ -39,7 +39,7 @@ public class SqlAuditServiceImpl implements SqlAuditService {
     @Resource
     private ExecutionDal   executionDal;
     @Resource
-    private ObjectCacheDao objectCacheDao;
+    private ObjectQueryDao objectQueryDao;
 
     private final int      DEFAULT_PAGE_SIZE = 20;
     private final int      MAX_PAGE_SIZE     = 60;
@@ -63,15 +63,15 @@ public class SqlAuditServiceImpl implements SqlAuditService {
             return new DmPageVO<>(pageNumber, pageSize, total, new ArrayList<>());
         }
 
-        Map<Long, DsCacheEntry> dsCacheById = new HashMap<>();
-        auditDOs.stream().map(DmExecSqlAuditDO::getDsId).filter(Objects::nonNull).distinct().forEach(id -> dsCacheById.put(id, objectCacheDao.queryByDsId(id)));
+        Map<Long, DsEntry> dsCacheById = new HashMap<>();
+        auditDOs.stream().map(DmExecSqlAuditDO::getDsId).filter(Objects::nonNull).distinct().forEach(id -> dsCacheById.put(id, objectQueryDao.queryByDsId(id)));
 
         List<SqlAuditVO> auditVOS = auditDOs.stream().map(auditDO -> {
             SqlAuditVO vo = DmConvertUtils.convertToSqlAuditVO(auditDO);
-            DsCacheEntry dsCache = dsCacheById.get(auditDO.getDsId());
-            if (dsCache != null) {
-                vo.setDsResourceId(dsCache.getDsInstId());
-                vo.setDsRemark(dsCache.getDsInstDesc());
+            DsEntry dsEntry = dsCacheById.get(auditDO.getDsId());
+            if (dsEntry != null) {
+                vo.setDsResourceId(dsEntry.getDsInstId());
+                vo.setDsRemark(dsEntry.getDsInstDesc());
             }
             return vo;
         }).collect(Collectors.toList());

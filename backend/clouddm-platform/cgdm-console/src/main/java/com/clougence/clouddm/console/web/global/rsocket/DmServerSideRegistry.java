@@ -15,128 +15,219 @@
  */
 package com.clougence.clouddm.console.web.global.rsocket;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.messaging.rsocket.RSocketRequester;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.comm.component.RSocketExceptionManager;
 import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
+import com.clougence.clouddm.comm.model.RSocketAuthException;
+import com.clougence.clouddm.comm.model.RSocketRequestWrapperDTO;
 import com.clougence.clouddm.comm.model.auth.ConnAuthDTO;
+import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.comm.model.rsocket.RSocketRegisterInfo;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
-import com.clougence.utils.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Console-side registry responsible for authenticating, registering, and unregistering worker RSocket connections.
- * This class is still required in the single-console architecture; only the legacy consoleIp-based routing state is being phased out.
- *
- * @author wanshao create time is 2021/1/7
- **/
 @Slf4j
 public class DmServerSideRegistry implements ServerSideRegistry {
+    private final AuthDal                          authDal;
+    private final SystemDal                        systemDal;
+    private final ExecutionDal                     executionDal;
+    private final List<DmWorkerRegisterNotify>     notifyServices;
+    private final ConsoleClusterService            cluster;
+    private final RSocketExceptionManager          exceptionManager;
+    private final Map<String, RSocketRequester>    workerRequesterMap = new ConcurrentHashMap<>();
+    private final Map<String, RSocketRegisterInfo> connections        = new ConcurrentHashMap<>();
 
-    private final AuthDal                      authDal;
-    private final SystemDal                    systemDal;
-    private final RSocketExceptionManager      exceptionManager;
-    private final List<DmWorkerRegisterNotify> notifyServices;
-
-    public DmServerSideRegistry(AuthDal authDal, SystemDal systemDal, List<DmWorkerRegisterNotify> notifyServices, RSocketExceptionManager exceptionManager){
+    public DmServerSideRegistry(AuthDal authDal, SystemDal systemDal, ExecutionDal executionDal, List<DmWorkerRegisterNotify> notifyServices, ConsoleClusterService cluster,
+                                RSocketExceptionManager exceptionManager){
         this.authDal = authDal;
         this.systemDal = systemDal;
+        this.executionDal = executionDal;
         this.notifyServices = notifyServices;
+        this.cluster = cluster;
         this.exceptionManager = exceptionManager;
     }
 
-    /**
-     * key is wsn. Every wsn related to a unique user sidecar machine. todo need add metric here later
-     */
-    private final Map<String, RSocketRequester> workerRequesterMap = new ConcurrentHashMap<>();
-
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void register(RSocketRegisterInfo registerInfo) {
+    public void checkAuth(ConnAuthDTO auth) {
         try {
-            String workerSeqNumber = registerInfo.getWorkerSeqNumber();
-            DmSysWorkerDO workerStatusDO = systemDal.workerMapper().getByWsn(workerSeqNumber);
-            workerStatusDO.setWorkerIp(registerInfo.getWorkerIp());
-            systemDal.workerMapper().updateWorkerLivenessByWsn(workerStatusDO);
-            workerRequesterMap.put(registerInfo.getWorkerSeqNumber(), registerInfo.getRequester());
-            log.info("register successfully for worker (" + workerSeqNumber + "," + workerStatusDO.getWorkerSeqNumber() + ")");
-            this.notifyServices.forEach(s -> s.notifyRegister(workerSeqNumber));
+            DmAuthUserDO user = authDal.userMapper().queryByAccessKey(auth.getAk());
+            DmSysWorkerDO worker = systemDal.workerMapper().getByWsn(auth.getWsn());
+            if (hasInvalidWorkerCredentials(auth, user, worker)) {
+                throw new RSocketAuthException("worker credentials are invalid");
+            }
+        } catch (RSocketAuthException e) {
+            log.warn("Worker credentials rejected: wsn={}", auth.getWsn());
+            throw e;
         } catch (Exception e) {
-            String errMsg = "register rsocket request failed. msg:" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(errMsg, e);
-            exceptionManager.saveExcOrAlert(e);
+            reportFailure("authenticate", auth.getWsn(), e);
             throw e;
         }
     }
 
+    private boolean hasInvalidWorkerCredentials(ConnAuthDTO auth, DmAuthUserDO user, DmSysWorkerDO worker) {
+        if (user == null || user.isDisable() || worker == null) {
+            return true;
+        }
+
+        if (!worker.getUid().equals(user.getUid())) {
+            return true;
+        }
+        return !CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(user.getSecretKey()).equals(auth.getSk());
+    }
+
     @Override
-    public void checkAuth(ConnAuthDTO authInfo) {
+    @Transactional(rollbackFor = Throwable.class)
+    public void register(RSocketRegisterInfo info) {
+        if (!cluster.isAcceptingWork()) {
+            throw new IllegalStateException("console is not accepting connections");
+        }
+
+        boolean rejected = false;
         try {
-            DmAuthUserDO userDO = authDal.userMapper().queryByAccessKey(authInfo.getAk());
-            if (userDO == null) {
-                throw new IllegalArgumentException("no such user,ak:" + authInfo.getAk() + ".remote ip:" + authInfo.getIp());
+            DmSysWorkerDO worker = systemDal.workerMapper().lockByWsn(info.getWorkerSeqNumber());
+            if (worker == null) {
+                rejected = true;
+                throw new IllegalArgumentException("worker not found");
             }
 
-            String skInDb = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(userDO.getSecretKey());
-            if (!skInDb.equals(authInfo.getSk())) {
-                throw new IllegalArgumentException("user sk is not correct.remote ip:" + authInfo.getIp());
+            RSocketRegisterInfo previous = connections.get(info.getWorkerSeqNumber());
+            if (hasActiveOwner(worker, previous)) {
+                rejected = true;
+                throw new IllegalStateException("worker already has an active owner");
             }
 
-            DmSysWorkerDO workerDO = systemDal.workerMapper().getByWsn(authInfo.getWsn());
-            if (workerDO == null) {
-                throw new IllegalArgumentException("worker metadata is not exist.remote ip:" + authInfo.getIp());
+            info.setOwnerConsoleId(cluster.getInstanceId());
+            info.setConnectionGeneration(worker.getConnectionGeneration() + 1);
+            worker.setOwnerInstanceId(info.getOwnerConsoleId());
+            worker.setConnectionGeneration(info.getConnectionGeneration());
+            worker.setWorkerIp(info.getWorkerIp());
+            worker.setConnStatus(WorkerConnStatus.CONNECTED);
+            worker.setLastHeartbeatReportMs(System.currentTimeMillis());
+            systemDal.workerMapper().updateConnectionByWsn(worker);
+            executionDal.sessionMapper().updateActiveBatchIdByWsn(info.getWorkerSeqNumber(), DmExecSessionDO.INTERRUPTED_BATCH_ID);
+            notifyServices.forEach(notify -> notify.notifyRegister(info.getWorkerSeqNumber()));
+            connections.put(info.getWorkerSeqNumber(), info);
+            workerRequesterMap.put(info.getWorkerSeqNumber(), info.getRequester());
+            if (!cluster.isAcceptingWork()) {
+                rejected = true;
+                try {
+                    unRegister(info);
+                } finally {
+                    info.getRequester().rsocket().dispose();
+                }
+
+                throw new IllegalStateException("console stopped during worker registration");
             }
 
-            if (workerDO.getConnStatus() == WorkerConnStatus.CONNECTED && this.workerRequesterMap.containsKey(authInfo.getWsn())) {
-                // must throw refuse conn exception to make sure the sidecar can exit normally
-                String str = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(authInfo.getSendAuthTimeMs());
-                throw new RuntimeException("reject worker (" + authInfo.getWsn() + ") 's registration. Connection start time is " + str
-                                           + ". Maybe the wsn is wrong or another connection use the same wsn is working. Old resume connection will also be rejected after console restart.");
-            }
+            log.info("Worker registered: wsn={}, owner={}, generation={}", info.getWorkerSeqNumber(), info.getOwnerConsoleId(), info.getConnectionGeneration());
         } catch (Exception e) {
-            String errMsg = "try to accept a connection error.msg:" + ExceptionUtils.getRootCauseMessage(e);
-            log.warn(errMsg, e);
-            exceptionManager.saveExcOrAlert(e);
+            if (rejected) {
+                log.warn("Worker registration rejected: wsn={}, owner={}, message={}", info.getWorkerSeqNumber(), cluster.getInstanceId(), e.getMessage());
+            } else {
+                reportFailure("register", info.getWorkerSeqNumber(), e);
+            }
+
             throw e;
         }
     }
 
+    private boolean hasActiveOwner(DmSysWorkerDO worker, RSocketRegisterInfo previous) {
+        if (worker.getConnStatus() != WorkerConnStatus.CONNECTED || !cluster.isAlive(worker.getOwnerInstanceId())) {
+            return false;
+        }
+        boolean localDisposedOwner = previous != null && cluster.getInstanceId().equals(worker.getOwnerInstanceId())
+                                     && previous.getConnectionGeneration() == worker.getConnectionGeneration() && previous.getRequester().rsocket().isDisposed();
+        return !localDisposedOwner;
+    }
+
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void unRegister(String workerSeqNumber) {
+    public void unRegister(RSocketRegisterInfo info) {
+        if (info.getOwnerConsoleId() == null) {
+            return;
+        }
+
         try {
-            DmSysWorkerDO workerStatusDO = new DmSysWorkerDO();
-            workerStatusDO.setWorkerSeqNumber(workerSeqNumber);
-            workerStatusDO.setConnStatus(WorkerConnStatus.DISCONNECTED);
-            systemDal.workerMapper().updateWorkerLivenessByWsn(workerStatusDO);
-            workerRequesterMap.remove(workerSeqNumber);
-            log.info("unregister sidecar with worker sequence number " + workerSeqNumber + " and its ip is " + workerStatusDO.getWorkerIp());
+            connections.remove(info.getWorkerSeqNumber(), info);
+            workerRequesterMap.remove(info.getWorkerSeqNumber(), info.getRequester());
+            DmSysWorkerDO update = ownedUpdate(info);
+            update.setConnStatus(WorkerConnStatus.DISCONNECTED);
+            if (systemDal.workerMapper().updateConnectionByWsnAndOwner(update) == 1) {
+                log.info("Worker unregistered: wsn={}, owner={}, generation={}", info.getWorkerSeqNumber(), info.getOwnerConsoleId(), info.getConnectionGeneration());
+            }
         } catch (Exception e) {
-            String errMsg = "unregister rsocket request failed,msg:" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(errMsg, e);
-            exceptionManager.saveExcOrAlert(e);
+            reportFailure("unregister", info.getWorkerSeqNumber(), e);
             throw e;
         }
     }
 
+    private void reportFailure(String action, String wsn, Exception error) {
+        log.error("Worker connection {} failed: wsn={}, console={}", action, wsn, cluster.getInstanceId(), error);
+        exceptionManager.saveExcOrAlert(error);
+    }
+
+    private DmSysWorkerDO ownedUpdate(RSocketRegisterInfo info) {
+        DmSysWorkerDO update = new DmSysWorkerDO();
+        update.setWorkerSeqNumber(info.getWorkerSeqNumber());
+        update.setOwnerInstanceId(info.getOwnerConsoleId());
+        update.setConnectionGeneration(info.getConnectionGeneration());
+        return update;
+    }
+
+    public RSocketRegisterInfo connection(String wsn) {
+        return connections.get(wsn);
+    }
+
+    public void checkIncoming(RSocketRequestWrapperDTO request, RSocketRequester requester) {
+        WorkerIdentity identity = request.getWorkerIdentity();
+        if (identity == null || !cluster.isLeaseValid()) {
+            throw new IllegalStateException("worker connection is unavailable");
+        }
+
+        RSocketRegisterInfo connection = connections.get(identity.getWorkerSeqNumber());
+        DmSysWorkerDO worker = systemDal.workerMapper().getByWsn(identity.getWorkerSeqNumber());
+        if (isStaleConnection(connection, worker, requester)) {
+            throw new IllegalStateException("stale worker connection");
+        }
+
+        // Only the Console derives connection ownership; legacy Worker payloads contain no routing tokens.
+        identity.setOwnerConsoleId(connection.getOwnerConsoleId());
+        identity.setConnectionGeneration(connection.getConnectionGeneration());
+    }
+
+    private boolean isStaleConnection(RSocketRegisterInfo connection, DmSysWorkerDO worker, RSocketRequester requester) {
+        if (connection == null || worker == null) {
+            return true;
+        }
+
+        if (connection.getRequester().rsocket() != requester.rsocket() || requester.rsocket().isDisposed()) {
+            return true;
+        }
+
+        if (worker.getConnectionGeneration() != connection.getConnectionGeneration()) {
+            return true;
+        }
+        return !cluster.getInstanceId().equals(worker.getOwnerInstanceId());
+    }
+
     @Override
-    public RSocketRequester getRSocketRequester(String workerSeqNumber) {
-        return workerRequesterMap.get(workerSeqNumber);
+    public RSocketRequester getRSocketRequester(String wsn) {
+        return workerRequesterMap.get(wsn);
     }
 
     @Override

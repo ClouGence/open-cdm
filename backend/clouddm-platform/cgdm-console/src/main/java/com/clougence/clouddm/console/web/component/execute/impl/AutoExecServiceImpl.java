@@ -55,6 +55,7 @@ import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisFeature
 import com.clougence.clouddm.console.web.component.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
 import com.clougence.clouddm.console.web.component.approval.CustomApprovalService;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.execute.AutoExecService;
 import com.clougence.clouddm.console.web.component.execute.model.AutoExecCreateMO;
@@ -70,7 +71,7 @@ import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.platform.dal.access.*;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -106,6 +107,8 @@ public class AutoExecServiceImpl implements AutoExecService {
     private static final long          AUTO_EXEC_TASK_INSERT_MAX_BYTES  = 4L * 1024 * 1024;
     private static final int           TASK_FETCH_BATCH_SIZE            = 100;
     @Resource
+    private ConsoleClusterService      cluster;
+    @Resource
     private SystemDal                  systemDal;
     @Resource
     private MonitorDal                 monitorDal;
@@ -114,7 +117,7 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Resource
     private DataSourceDal              dsDal;
     @Resource
-    private ObjectCacheDao             cacheDao;
+    private ObjectQueryDao             objectQueryDao;
     @Resource
     private AutoExecRService           execRService;
     @Resource
@@ -266,6 +269,7 @@ public class AutoExecServiceImpl implements AutoExecService {
     public void dispatchJob(Long jobId) {
         TransactionTemplate tx = new TransactionTemplate(this.txManager);
         Boolean claimed = tx.execute(status -> {
+            this.cluster.requireSchedulerLeader();
             DmExecAutoJobDO pending = execDal.autoJobMapper().queryById(jobId);
             if (pending == null || pending.getStatus() != AutoExecJobStatus.INIT) {
                 return false;
@@ -315,19 +319,20 @@ public class AutoExecServiceImpl implements AutoExecService {
         }
 
         Map.Entry<RSocketSendDTO, AutoExecJobDTO> dispatch = tx.execute(status -> {
+            this.cluster.requireSchedulerLeader();
             DmExecAutoJobDO jobDO = execDal.autoJobMapper().queryByIdForUpdate(jobId);
             if (jobDO == null || jobDO.getStatus() != AutoExecJobStatus.PACKAGING) {
                 log.info("{} was dispatched by another console", jobId);
                 return null;
             }
 
-            DsCacheEntry dsCacheEntry = cacheDao.queryByDsId(jobDO.getDataSourceId());
-            if (dsCacheEntry.getClusterId() == null) {
+            DsEntry dsEntry = objectQueryDao.queryByDsId(jobDO.getDataSourceId());
+            if (dsEntry.getClusterId() == null) {
                 execDal.autoJobMapper().updateJobStatus(jobDO.getId(), AutoExecJobStatus.FAILED);
                 return null;
             }
 
-            RSocketSendDTO sendDTO = buildRSocketSendDTO(dsCacheEntry.getClusterId());
+            RSocketSendDTO sendDTO = buildRSocketSendDTO(dsEntry.getClusterId());
             AutoExecJobDTO autoExecJob = prepareJobData(jobDO, taskPackage);
 
             jobDO.setStatus(AutoExecJobStatus.WAIT_EXEC);
@@ -343,6 +348,7 @@ public class AutoExecServiceImpl implements AutoExecService {
         DmExecAutoJobDO dispatchedJob = this.execDal.autoJobMapper().queryById(jobId);
         this.approvalStateService.markExecutionDispatched(dispatchedJob.getDependOnBizId());
         try {
+            this.cluster.requireSchedulerLeader();
             this.execRService.dispatchJob(dispatch.getKey(), dispatch.getValue());
         } catch (Throwable e) {
             log.error("dispatch auto exec job failed, jobId: " + jobId, e);
@@ -629,7 +635,18 @@ public class AutoExecServiceImpl implements AutoExecService {
             vo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_ERROR_STATUS_MESSAGE.name()));
         }
 
+        boolean executionUnknown = this.isExecutionUnknown(job);
+        if (executionUnknown) {
+            vo.setNormal(false);
+            vo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CLUSTER_EXECUTION_UNKNOWN.name()));
+        }
+
         if (!canOperate) {
+            return vo;
+        }
+
+        if (executionUnknown) {
+            vo.setCanEnd(true);
             return vo;
         }
 
@@ -654,6 +671,11 @@ public class AutoExecServiceImpl implements AutoExecService {
         return vo;
     }
 
+    private boolean isExecutionUnknown(DmExecAutoJobDO job) {
+        return (job.getStatus() == AutoExecJobStatus.EXECUTING || job.getStatus() == AutoExecJobStatus.PAUSING)
+               && job.getLastReportTime().before(new Date(System.currentTimeMillis() - 5 * 60 * 1000));
+    }
+
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void stopJob(String bizId) {
@@ -665,16 +687,28 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Override
     public void endJob(String bizId) {
         DmExecAutoJobDO job = this.execDal.autoJobMapper().queryByDependOnBizId(bizId);
+        if (job == null) {
+            return;
+        }
+
+        job = this.execDal.autoJobMapper().queryByIdForUpdate(job.getId());
         if (job == null || job.getStatus() == AutoExecJobStatus.TERMINATION) {
             return;
         }
-        if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED) {
+
+        boolean executionUnknown = this.isExecutionUnknown(job);
+        if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED && !executionUnknown) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_RETRY_JOB_ERROR_MESSAGE.name()));
         }
 
         job.setStatus(AutoExecJobStatus.TERMINATION);
         execDal.autoJobMapper().updateById(job);
         execDal.autoTaskMapper().cancelAllWaitTask(job.getId());
+        if (executionUnknown) {
+            String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CLUSTER_EXECUTION_UNKNOWN.name());
+            this.monitorDal.bizLogMapper().insert(new DmMonBizLogDO(Loglevel.WARING, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId()));
+        }
+
         this.approvalStateService.cancelExecution(job.getDependOnBizId());
     }
 
@@ -759,7 +793,7 @@ public class AutoExecServiceImpl implements AutoExecService {
             return;
         }
 
-        if (status == AutoExecJobStatus.PAUSE || status == AutoExecJobStatus.FAILED || status == AutoExecJobStatus.FINISH) {
+        if (status == AutoExecJobStatus.PAUSE || status == AutoExecJobStatus.FAILED || status == AutoExecJobStatus.FINISH || status == AutoExecJobStatus.TERMINATION) {
             log.warn("{} was already stop", jobId);
             return;
         }

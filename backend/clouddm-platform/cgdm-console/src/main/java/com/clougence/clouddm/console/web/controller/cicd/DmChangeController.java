@@ -49,7 +49,7 @@ import com.clougence.clouddm.console.web.service.cicd.DmScmService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeBatchDO;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
@@ -81,7 +81,7 @@ public class DmChangeController {
     @Resource
     private ChangeCascadeService changeCascadeService;
     @Resource
-    private ObjectCacheDao       objectCacheDao;
+    private ObjectQueryDao       objectQueryDao;
 
     @RequestAuth(DM_CICD_FLOW_READ)
     @RequestMapping(value = "/changeList", method = RequestMethod.POST)
@@ -115,7 +115,7 @@ public class DmChangeController {
                 CollectionUtils.asMap(gitOpsFlowDO.getId(), gitOpsFlowDO), //
                 dsMap,                                                     //
                 scmMap,                                                    //
-                objectCacheDao                                             //
+                objectQueryDao                                             //
         );
         enrichCascadeInfo(puid, changeDO, vo);
         return ResWebDataUtils.buildSuccess(vo);

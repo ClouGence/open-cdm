@@ -16,7 +16,6 @@
 package com.clougence.clouddm.platform.dal.mapper.execution;
 
 import java.util.Date;
-import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -32,7 +31,7 @@ public interface DmExecSqlScriptMapper extends BaseMapper<DmExecSqlScriptDO> {
     DmExecSqlScriptDO detail(@Param("scriptId") long scriptId, @Param("ownerUid") String ownerUid);
 
     int updateByVersion(@Param("scriptId") long scriptId, @Param("ownerUid") String ownerUid, @Param("version") long version, @Param("name") String name,
-                        @Param("dsType") String dsType, @Param("fileUri") String fileUri, @Param("gmtModified") Date gmtModified);
+                        @Param("dsType") String dsType, @Param("sqlContent") String sqlContent, @Param("gmtModified") Date gmtModified);
 
     int markDeleting(@Param("scriptId") long scriptId, @Param("ownerUid") String ownerUid, @Param("version") long version, @Param("gmtModified") Date gmtModified);
 
@@ -40,5 +39,4 @@ public interface DmExecSqlScriptMapper extends BaseMapper<DmExecSqlScriptDO> {
 
     int deleteDeleting(@Param("scriptId") long scriptId);
 
-    List<String> listFileUris();
 }

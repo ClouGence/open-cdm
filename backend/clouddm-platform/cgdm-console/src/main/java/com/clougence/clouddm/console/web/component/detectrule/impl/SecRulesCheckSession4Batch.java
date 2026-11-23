@@ -28,9 +28,9 @@ import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckSessi
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
+import com.clougence.clouddm.platform.dal.access.entry.EnvEntry;
+import com.clougence.clouddm.platform.dal.access.entry.UserEntry;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.sdk.service.secrules.*;
 import com.clougence.clouddm.sdk.sql.analysis.behavior.TargetType;
@@ -45,9 +45,9 @@ final class SecRulesCheckSession4Batch implements SecRulesCheckSession {
     private final String                              specName;
     private final SecDomainResolveSpi                 resolveSpi;
     private final ContextInfo                         contextInfo;
-    private final DsCacheEntry                        dsCache;
-    private final UserCacheEntry                      userCache;
-    private final EnvCacheEntry                       envCache;
+    private final DsEntry                             dsEntry;
+    private final UserEntry                           userEntry;
+    private final EnvEntry                            envEntry;
     private final DsBrowseSpi                         browseSpi;
     private final SecRulesCheckerService              checkerSpi;
     private final String                              currentCatalog;
@@ -57,16 +57,16 @@ final class SecRulesCheckSession4Batch implements SecRulesCheckSession {
     private final List<PreparedRule>                  genericRules;
     private final Map<TargetType, List<PreparedRule>> rulesByTarget;
 
-    SecRulesCheckSession4Batch(DataSourceType dsType, String specName, SecDomainResolveSpi resolveSpi, ContextInfo contextInfo, DsCacheEntry dsCache, UserCacheEntry userCache,
-                               EnvCacheEntry envCache, DsBrowseSpi browseSpi, SecRulesCheckerService checkerSpi, SecRulesCheckContext context, List<PreparedRule> genericRules,
+    SecRulesCheckSession4Batch(DataSourceType dsType, String specName, SecDomainResolveSpi resolveSpi, ContextInfo contextInfo, DsEntry dsEntry, UserEntry userEntry,
+                               EnvEntry envEntry, DsBrowseSpi browseSpi, SecRulesCheckerService checkerSpi, SecRulesCheckContext context, List<PreparedRule> genericRules,
                                Map<TargetType, List<PreparedRule>> rulesByTarget){
         this.dsType = dsType;
         this.specName = specName;
         this.resolveSpi = resolveSpi;
         this.contextInfo = contextInfo;
-        this.dsCache = dsCache;
-        this.userCache = userCache;
-        this.envCache = envCache;
+        this.dsEntry = dsEntry;
+        this.userEntry = userEntry;
+        this.envEntry = envEntry;
         this.browseSpi = browseSpi;
         this.checkerSpi = checkerSpi;
         this.currentCatalog = context.getCurrentCatalog();
@@ -109,14 +109,14 @@ final class SecRulesCheckSession4Batch implements SecRulesCheckSession {
             checkerDomain.setCurrentSchema(this.currentSchema);
             checkerDomain.setStartLine(ruleDomain.getSplitScript().getBodyStartCodeLine());
             checkerDomain.setStartColumn(ruleDomain.getSplitScript().getBodyStartCodeColumn());
-            checkerDomain.getDomain().setEnvId(this.dsCache.getEnvId());
-            checkerDomain.getDomain().setEnvName(this.envCache.getEnvName());
-            checkerDomain.getDomain().setDsId(this.dsCache.getDsNumId());
-            checkerDomain.getDomain().setDsName(this.dsCache.getDsInstId());
-            checkerDomain.getDomain().setDsType(this.dsCache.getDsType());
-            checkerDomain.getDomain().setUserName(this.userCache.getUserName());
-            checkerDomain.getDomain().setUserRole(this.userCache.getRoleName());
-            checkerDomain.getDomain().setPrimaryUid(this.userCache.getParentUid());
+            checkerDomain.getDomain().setEnvId(this.dsEntry.getEnvId());
+            checkerDomain.getDomain().setEnvName(this.envEntry.getEnvName());
+            checkerDomain.getDomain().setDsId(this.dsEntry.getDsNumId());
+            checkerDomain.getDomain().setDsName(this.dsEntry.getDsInstId());
+            checkerDomain.getDomain().setDsType(this.dsEntry.getDsType());
+            checkerDomain.getDomain().setUserName(this.userEntry.getUserName());
+            checkerDomain.getDomain().setUserRole(this.userEntry.getRoleName());
+            checkerDomain.getDomain().setPrimaryUid(this.userEntry.getParentUid());
 
             this.doCheckDomain(checkerDomain, checkerRules, result);
         }

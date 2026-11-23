@@ -428,6 +428,40 @@ kubectl -n cgdm logs statefulset/dm-mysql
 
 In production, also replace the default MySQL password, adjust PVC capacity based on data volume, and manage sensitive configuration with `Secret`.
 
+### 4.5 Enabling Multiple Consoles
+
+Multi-Console HA applies only to separate **Console + Sidecar** deployments (not Alone). Default templates run a single Console; when scaling out, configure an external load balancer and keep separate config, log, and cache directories per replica.
+
+#### 1. Instance Configuration
+
+Every Console requires a stable, unique `clouddm.console.cluster.instance-id` (including single-node and Alone; reuse the same ID across restarts and upgrades to preserve task ownership). To enable multiple Consoles, configure:
+
+```properties
+clouddm.console.cluster.enabled=true
+clouddm.console.cluster.instance-id=console-a
+clouddm.console.cluster.advertise-url=http://console-a.internal:8222
+clouddm.console.cluster.secret=<shared-cluster-signing-secret>
+```
+
+- `advertise-url` must be this instance's internal HTTP address reachable directly by other Consoles (not the load balancer address).
+- Docker environment variables: `CONSOLE_INSTANCE_ID`, `CONSOLE_CLUSTER_ENABLED`, `CONSOLE_CLUSTER_ADVERTISE_URL` (falls back to `POD_IP` or container private IP if omitted), and `CONSOLE_CLUSTER_SECRET`.
+
+#### 2. Cluster Consistency
+
+- All Consoles must share the **same MySQL database**, release version, and JWT/encryption configuration.
+- Provision drivers, plugins, and RSocket trust settings on each Console individually; **online driver downloads are not synced across Consoles**, so ensure newly added or upgraded drivers are ready on every replica.
+
+#### 3. Load Balancer & Networking
+
+- **Web ingress (8222)**: Forward HTTP/WebSocket traffic to all Consoles, preserve WebSocket upgrades for `/api/entry/ws/channel`, and disable session affinity.
+- **Sidecar ingress (8008)**: Use private L4 TCP passthrough and preserve RSocket TLS between Console and Sidecar (do not terminate TLS at ingress).
+- **Readiness & peer access**: Use `GET /health/ready` (`200`) for readiness checks, and allow direct Console-to-Console access to each instance's internal HTTP address.
+
+#### 4. Operations & Failover Notes
+
+- After an ungraceful exit, the same `instance-id` can restart once its previous lease expires. A Console that loses its lease stops accepting new work and must be restarted before returning to ingress.
+- If the originating Console exits or a Worker session becomes invalid mid-execution, results during disconnection may be incomplete. CloudDM **never auto-resends SQL, commits, or rolls back**; verify the actual database state before reconnecting manually.
+
 ---
 
 ## 5. Access and Initialization

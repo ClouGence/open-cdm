@@ -33,6 +33,12 @@ public interface DmExecSessionMapper extends BaseMapper<DmExecSessionDO> {
 
     int updateSessionQueryTime(String sessionId, String wsn);
 
+    int updateActiveBatchIfBatchNull(String uid, String sessionId, String batchId);
+
+    int clearActiveBatchByBatch(String uid, String sessionId, String batchId);
+
+    void updateActiveBatchIdByWsn(String wsn, String activeBatchId);
+
     int deleteBySessionId(String sessionId);
 
     Integer getUserSessionCount(String userId);

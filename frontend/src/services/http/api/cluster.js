@@ -3,5 +3,6 @@ export const clusterApi = {
   dmClusterDelete: '/api/entry/cluster/delete',
   dmClusterListByCondition: '/api/entry/cluster/listByCondition',
   dmClusterUpdateDesc: '/api/entry/cluster/updateDesc',
+  dmClusterListConsoleInstances: '/api/entry/cluster/listConsoleInstances',
   dmClusterQueryById: '/api/entry/cluster/queryById'
 };

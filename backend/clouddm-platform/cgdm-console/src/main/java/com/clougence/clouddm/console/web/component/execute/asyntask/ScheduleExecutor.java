@@ -22,7 +22,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 
-import com.clougence.utils.ThreadUtils;
 import com.clougence.utils.future.CgFuture;
 import com.clougence.utils.timer.HashedWheelTimer;
 import com.clougence.utils.timer.Timeout;
@@ -62,34 +61,11 @@ public class ScheduleExecutor implements Closeable {
     public void close() {
         this.runTag.set(false);
 
-        long t = System.currentTimeMillis();
-        while (true) {
-            int terminated = 0;
-
-            for (Thread thread : this.workerThreads) {
-                if (!thread.isInterrupted()) {
-                    thread.interrupt();
-                }
-                if (thread.getState() == Thread.State.WAITING) {
-                    LockSupport.unpark(thread);
-                }
-
-                if (thread.getState() == Thread.State.TERMINATED) {
-                    terminated++;
-                }
-            }
-
-            if (terminated == this.workerThreads.length) {
-                break;
-            }
-
-            long cost = System.currentTimeMillis() - t;
-            if (cost > 3000) {
-                t = System.currentTimeMillis();
-                log.info("wait workerThread close...");
-            }
-
-            ThreadUtils.sleep(100);
+        this.timer.stop();
+        this.tasks.clear();
+        for (Thread thread : this.workerThreads) {
+            thread.interrupt();
+            LockSupport.unpark(thread);
         }
 
         log.info("workerThread closed.");
@@ -145,6 +121,10 @@ public class ScheduleExecutor implements Closeable {
         @Override
         public void run() {
             try {
+                if (this.future.isDone()) {
+                    return;
+                }
+
                 this.task.run();
 
                 if (!this.future.isDone()) {

@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.console.web.service.cluster;
 
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,11 +30,15 @@ import com.clougence.clouddm.api.sidecar.status.WorkerStatusRService;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
+import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
+import com.clougence.clouddm.comm.model.rsocket.RSocketRegisterInfo;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.HealthLevel;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.rsocket.DmServerSideRegistry;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
@@ -68,23 +72,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
 
-    private static final long    HEARTBEAT_TIMEOUT_MS = 15_000L;
+    private static final long     HEARTBEAT_TIMEOUT_MS = 15_000L;
+    private final AtomicBoolean   checking             = new AtomicBoolean();
+    private Thread                checker;
+    private boolean               stopped;
     @Resource
-    private SystemDal            systemDal;
+    private SystemDal             systemDal;
     @Resource
-    private WorkerDetector       workerDetector;
+    private WorkerDetector        workerDetector;
     @Resource
-    private NamingDao            namingDao;
+    private NamingDao             namingDao;
     @Resource
-    private RdpUserService       rdpUserService;
+    private RdpUserService        rdpUserService;
     @Resource
-    private ConsoleConfig        config;
+    private ConsoleConfig         config;
     @Resource
-    private AlertConfigService   alertConfigService;
+    private AlertConfigService    alertConfigService;
     @Resource
-    private DmDsWebService       dmDsService;
+    private DmDsWebService        dmDsService;
     @Resource
-    private WorkerStatusRService statusRService;
+    private WorkerStatusRService  statusRService;
+    @Resource
+    private ConsoleClusterService cluster;
+    @Resource
+    private DmServerSideRegistry  registry;
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
@@ -270,9 +281,14 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     }
 
     @Override
-    public void updateWorkerIp(long workerId, String workerIp) {
+    public void updateWorkerIp(WorkerIdentity identity, String workerIp) {
         if (StringUtils.isNotBlank(workerIp)) {
-            this.systemDal.workerMapper().updateWorkerIp(workerId, workerIp);
+            DmSysWorkerDO update = new DmSysWorkerDO();
+            update.setWorkerSeqNumber(identity.getWorkerSeqNumber());
+            update.setOwnerInstanceId(identity.getOwnerConsoleId());
+            update.setConnectionGeneration(identity.getConnectionGeneration());
+            update.setWorkerIp(workerIp);
+            this.systemDal.workerMapper().updateConnectionByWsnAndOwner(update);
         }
     }
 
@@ -282,9 +298,11 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     }
 
     @Override
-    public void updateWorkerMetric(Long workerId, MetricStats metricStats) {
+    public void updateWorkerMetric(WorkerIdentity identity, MetricStats metricStats) {
         ArgSysWorkerObj param = new ArgSysWorkerObj();
-        param.setWorkerId(workerId);
+        param.setWorkerSeqNumber(identity.getWorkerSeqNumber());
+        param.setOwnerInstanceId(identity.getOwnerConsoleId());
+        param.setConnectionGeneration(identity.getConnectionGeneration());
 
         // usageStats
         if (metricStats.getUsageStats() != null) {
@@ -347,51 +365,90 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     }
 
     @Override
-    public void upsertWorkerHeartbeat(String workerSeqNumber, String workerIp, Date workerSendTime) {
-        if (workerSendTime == null) {
-            return;
-        }
-
-        DmSysWorkerDO workerDO = new DmSysWorkerDO();
-        workerDO.setWorkerSeqNumber(workerSeqNumber);
-        workerDO.setWorkerIp(workerIp);
-        workerDO.setConnStatus(WorkerConnStatus.CONNECTED);
-        workerDO.setLastHeartbeatReportMs(workerSendTime.getTime());
-        this.systemDal.workerMapper().updateWorkerLivenessByWsn(workerDO);
-        log.debug("update worker status to connected by heartbeat......");
+    public void updateOwnedStatus(WorkerIdentity identity, WorkerState previousState, WorkerState targetState) {
+        DmSysWorkerDO worker = new DmSysWorkerDO();
+        worker.setWorkerSeqNumber(identity.getWorkerSeqNumber());
+        worker.setOwnerInstanceId(identity.getOwnerConsoleId());
+        worker.setConnectionGeneration(identity.getConnectionGeneration());
+        worker.setWorkerState(targetState);
+        worker.setLifeCycleState(LifeCycleState.CREATED);
+        this.systemDal.workerMapper().updateWorkerStateByWsn(worker, previousState);
     }
 
     @Override
-    public void init() {
-        Thread checkWorkerStatus = ThreadUtils.daemonThread(() -> {
-            while (true) {
+    public void upsertWorkerHeartbeat(WorkerIdentity identity) {
+        DmSysWorkerDO worker = new DmSysWorkerDO();
+        worker.setWorkerSeqNumber(identity.getWorkerSeqNumber());
+        worker.setOwnerInstanceId(identity.getOwnerConsoleId());
+        worker.setConnectionGeneration(identity.getConnectionGeneration());
+        worker.setWorkerIp(identity.getLocalIp());
+        worker.setLastHeartbeatReportMs(System.currentTimeMillis());
+        this.systemDal.workerMapper().updateConnectionByWsnAndOwner(worker);
+    }
+
+    @Override
+    public synchronized void init() {
+        if (this.stopped || this.checker != null) {
+            return;
+        }
+
+        checking.set(true);
+        checker = ThreadUtils.daemonThread(() -> {
+            while (checking.get()) {
                 try {
-                    long checkPointEpochMs = System.currentTimeMillis() - HEARTBEAT_TIMEOUT_MS;
-                    List<DmSysWorkerDO> statusList = this.systemDal.workerMapper().queryInactiveConnectedByHeartbeatReport(checkPointEpochMs);
-                    if (statusList != null) {
-                        for (DmSysWorkerDO statusDO : statusList) {
-                            this.systemDal.workerMapper().updateWorkerConnStatusById(statusDO.getId(), WorkerConnStatus.DISCONNECTED);
-                        }
-                    }
-
-                    List<DmSysWorkerDO> connectedWorkers = this.systemDal.workerMapper().queryByConnStatus(WorkerConnStatus.CONNECTED);
-                    if (connectedWorkers != null) {
-                        for (DmSysWorkerDO workerDO : connectedWorkers) {
-                            updateWorkerPing(workerDO);
-                        }
-                    }
-
+                    checkWorkerStatus();
                 } catch (Exception e) {
-                    log.error(e.getMessage(), e);
+                    log.error("Check worker status failed", e);
                 } finally {
                     ThreadUtils.sleep(10000);
                 }
             }
         });
 
-        checkWorkerStatus.setName("checkWorkerStatus");
-        checkWorkerStatus.setDaemon(true);
-        checkWorkerStatus.start();
+        checker.setName("checkWorkerStatus");
+        checker.setDaemon(true);
+        checker.start();
+    }
+
+    private void checkWorkerStatus() {
+        if (!cluster.isLeaseValid()) {
+            return;
+        }
+
+        List<DmSysWorkerDO> connectedWorkers = this.systemDal.workerMapper().queryByConnStatus(WorkerConnStatus.CONNECTED);
+        long heartbeatCutoffMillis = System.currentTimeMillis() - HEARTBEAT_TIMEOUT_MS;
+        for (DmSysWorkerDO worker : connectedWorkers) {
+            if (!cluster.getInstanceId().equals(worker.getOwnerInstanceId())) {
+                if (cluster.isAlive(worker.getOwnerInstanceId())) {
+                    continue;
+                }
+
+                DmSysWorkerDO disconnected = new DmSysWorkerDO();
+                disconnected.setWorkerSeqNumber(worker.getWorkerSeqNumber());
+                disconnected.setOwnerInstanceId(worker.getOwnerInstanceId());
+                disconnected.setConnectionGeneration(worker.getConnectionGeneration());
+                disconnected.setConnStatus(WorkerConnStatus.DISCONNECTED);
+                this.systemDal.workerMapper().updateConnectionByWsnAndOwner(disconnected);
+                continue;
+            }
+
+            if (worker.getLastHeartbeatReportMs() != null && worker.getLastHeartbeatReportMs() >= heartbeatCutoffMillis) {
+                updateWorkerPing(worker);
+                continue;
+            }
+
+            worker.setConnStatus(WorkerConnStatus.DISCONNECTED);
+            if (this.systemDal.workerMapper().updateConnStatusByWsnAndHeartbeat(worker, WorkerConnStatus.CONNECTED, heartbeatCutoffMillis) != 1) {
+                continue;
+            }
+
+            RSocketRegisterInfo connection = registry.connection(worker.getWorkerSeqNumber());
+            if (connection == null || connection.getConnectionGeneration() != worker.getConnectionGeneration()) {
+                continue;
+            }
+
+            connection.getRequester().rsocket().dispose();
+        }
     }
 
     private void updateWorkerPing(DmSysWorkerDO workerDO) {
@@ -405,8 +462,10 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
 
             DmSysWorkerDO updateDO = new DmSysWorkerDO();
             updateDO.setWorkerSeqNumber(workerDO.getWorkerSeqNumber());
+            updateDO.setOwnerInstanceId(workerDO.getOwnerInstanceId());
+            updateDO.setConnectionGeneration(workerDO.getConnectionGeneration());
             updateDO.setLastHeartbeatPingMs(System.currentTimeMillis() - startMs);
-            this.systemDal.workerMapper().updateWorkerLivenessByWsn(updateDO);
+            this.systemDal.workerMapper().updateConnectionByWsnAndOwner(updateDO);
         } catch (Exception e) {
             log.debug("update worker ({}) ping failed, root cause: {}", workerDO.getWorkerSeqNumber(), e.getMessage());
         }
@@ -423,7 +482,11 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     }
 
     @Override
-    public void stop() {
-
+    public synchronized void stop() {
+        this.stopped = true;
+        checking.set(false);
+        if (checker != null) {
+            checker.interrupt();
+        }
     }
 }

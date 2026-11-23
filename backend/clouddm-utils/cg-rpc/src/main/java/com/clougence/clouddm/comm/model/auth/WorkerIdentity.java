@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.comm.model.auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,4 +32,11 @@ public class WorkerIdentity {
     private String accessKey;
 
     private String localIp;
+
+    // Populated by Console after connection validation; for internal use only.
+    @JsonIgnore
+    private String ownerConsoleId;
+
+    @JsonIgnore
+    private long   connectionGeneration;
 }

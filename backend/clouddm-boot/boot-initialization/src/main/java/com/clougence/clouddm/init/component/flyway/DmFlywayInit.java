@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.component.config.ConsoleClusterProperties;
 import com.clougence.clouddm.init.component.log.InstallUpgradeLogBus;
 import com.clougence.clouddm.platform.dal.config.DmDalConfig;
 import com.clougence.utils.ExceptionUtils;
@@ -57,7 +59,7 @@ public class DmFlywayInit {
     @Resource
     private DataSource            dataSource;
 
-    public void doUpgrade() {
+    public void doUpgrade(String consoleInstanceId) {
         String currentSchema = fetchCurrentSchema();
         if (StringUtils.isBlank(currentSchema)) {
             throw new RuntimeException("Fetch currentSchema is empty.");
@@ -71,7 +73,8 @@ public class DmFlywayInit {
             InstallUpgradeLogBus.info("Pending migration script count=" + upgradeRequiredScripts.size());
         }
 
-        Flyway flyway = buildFlyway(new InstallUpgradeSqlLoggingDataSource(dataSource), currentSchema, new InstallUpgradeMigrationCallback());
+        Flyway flyway = buildFlyway(new InstallUpgradeSqlLoggingDataSource(dataSource), currentSchema, new InstallUpgradeMigrationCallback(), Map
+            .of(ConsoleClusterProperties.INSTANCE_ID_PROPERTY, consoleInstanceId));
         try {
             flyway.migrate();
         } catch (Exception e) {
@@ -93,8 +96,8 @@ public class DmFlywayInit {
         return listUpgradeRequiredScriptNames(dataSource, currentSchema);
     }
 
-    public void doUpgradeAndValidate() {
-        doUpgrade();
+    public void doUpgradeAndValidate(String consoleInstanceId) {
+        doUpgrade(consoleInstanceId);
         List<String> remainingScripts = listUpgradeRequiredScriptNames();
         if (!remainingScripts.isEmpty()) {
             throw new IllegalStateException("Upgrade verification failed. Pending scripts remain: " + String.join(", ", remainingScripts));
@@ -132,10 +135,10 @@ public class DmFlywayInit {
     }
 
     private static Flyway buildFlyway(DataSource dataSource, String currentSchema) {
-        return buildFlyway(dataSource, currentSchema, null);
+        return buildFlyway(dataSource, currentSchema, null, Map.of());
     }
 
-    private static Flyway buildFlyway(DataSource dataSource, String currentSchema, Callback callback) {
+    private static Flyway buildFlyway(DataSource dataSource, String currentSchema, Callback callback, Map<String, String> placeholders) {
         return Flyway.configure()
             .dataSource(dataSource)
             .locations(LOCATIONS)
@@ -148,6 +151,7 @@ public class DmFlywayInit {
             .sqlMigrationSuffixes(SQL_MIGRATION_SUFFIXES)
             .table(TABLE)
             .outOfOrder(true)
+            .placeholders(placeholders)
             .callbacks(callback == null ? new Callback[0] : new Callback[] { callback })
             .load();
     }

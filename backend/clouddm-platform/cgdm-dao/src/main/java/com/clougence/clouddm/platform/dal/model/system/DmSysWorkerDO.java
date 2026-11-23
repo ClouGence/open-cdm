@@ -20,8 +20,6 @@ import java.util.Date;
 import com.baomidou.mybatisplus.annotation.*;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
-import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
-import com.clougence.clouddm.platform.dal.model.system.DeployStatus;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 
 import lombok.Getter;
@@ -37,76 +35,80 @@ import lombok.Setter;
 public class DmSysWorkerDO {
 
     @TableId(type = IdType.AUTO)
-    private Long           id;
+    private Long             id;
 
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date           gmtCreate;
+    private Date             gmtCreate;
 
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date           gmtModified;
+    private Date             gmtModified;
 
-    private long           clusterId;
+    private long             clusterId;
 
-    private String         workerIp;
+    private String           workerIp;
 
-    private CloudOrIdcName cloudOrIdcName;
+    private String           ownerInstanceId;
 
-    private String         region;
+    private long             connectionGeneration;
 
-    private WorkerState    workerState;
+    private CloudOrIdcName   cloudOrIdcName;
+
+    private String           region;
+
+    private WorkerState      workerState;
 
     private WorkerConnStatus connStatus;
 
-    private Long           lastHeartbeatReportMs;
+    private Long             lastHeartbeatReportMs;
 
-    private Long           lastHeartbeatPingMs;
+    private Long             lastHeartbeatPingMs;
 
-    private Long           physicMemMb;
+    private Long             physicMemMb;
 
-    private Integer        physicCoreNum;
+    private Integer          physicCoreNum;
 
-    private Long           physicDiskGb;
+    private Long             physicDiskGb;
 
-    private Double         cpuUseRatio;
+    private Double           cpuUseRatio;
 
-    private Double         memUseRatio;
+    private Double           memUseRatio;
 
-    private Long           freeMemMb;
+    private Long             freeMemMb;
 
-    private Long           freeDiskGb;
+    private Long             freeDiskGb;
 
-    private Integer        sessionPoolUse;
+    private Integer          sessionPoolUse;
 
-    private Integer        sessionPoolMax;
+    private Integer          sessionPoolMax;
 
-    private Double         workerLoad;
+    private Double           workerLoad;
 
-    private String         scheduleIp;
+    private String           scheduleIp;
 
-    private String         workerName;
+    private String           workerName;
 
-    private String         workerSeqNumber;
+    private String           workerSeqNumber;
 
-    private String         workerDesc;
+    private String           workerDesc;
 
-    private Long           installConsoleJobId;
+    private Long             installConsoleJobId;
 
-    private Long           uninstallConsoleJobId;
+    private Long             uninstallConsoleJobId;
 
-    private Long           upgradeAllConsoleJobId;
+    private Long             upgradeAllConsoleJobId;
 
-    private DeployStatus   deployStatus;
+    private DeployStatus     deployStatus;
 
-    private String         externalIp;
+    private String           externalIp;
 
-    private String         uid;
+    private String           uid;
 
-    private Long           consoleJobId;
+    private Long             consoleJobId;
 
-    private LifeCycleState lifeCycleState;
+    private LifeCycleState   lifeCycleState;
 
-    private Date           installOrUpgradeDate;
+    private Date             installOrUpgradeDate;
 
-    private String         installOrUpgradeVersion;
+    private String           installOrUpgradeVersion;
 
 }

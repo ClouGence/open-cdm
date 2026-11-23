@@ -32,10 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.mcp.McpApiProvider;
-import com.clougence.clouddm.console.web.global.mcp.model.McpTool;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsQueryFO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.*;
@@ -55,7 +52,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
-@McpApiProvider
 @RestController
 @RequestMapping(value = DmControllerUrlPrefix.OPEN_API_PREFIX + "/query")
 @Slf4j
@@ -66,7 +62,6 @@ public class QueryApi {
     @Resource
     private ConsoleQueryApi      consoleQueryApi;
 
-    @McpTool(value = DmMcpI18nKey.M_EXECUTE_QUERY)
     @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/syncQuery", method = RequestMethod.POST)
     public ResWebData<DmApiQueryResultVO> syncQuery(@Valid @RequestBody DmApiDsQueryFO fo, HttpServletRequest request) {
@@ -183,9 +178,9 @@ public class QueryApi {
                 // Errors and warnings are relevant to an API caller regardless of the display mode they were
                 // produced for. Decide once per message so a message carrying several matching entities is
                 // reported a single time.
-                if (m.getEntities().stream().anyMatch(entity -> entity.getMode() == MessageMode.Console
-                        || entity.getLevel() == MessageLevel.Error
-                        || entity.getLevel() == MessageLevel.Warn)) {
+                if (m.getEntities()
+                    .stream()
+                    .anyMatch(entity -> entity.getMode() == MessageMode.Console || entity.getLevel() == MessageLevel.Error || entity.getLevel() == MessageLevel.Warn)) {
                     vo.getMsgList().add(m);
                 }
                 break;

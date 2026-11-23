@@ -41,21 +41,30 @@ public class FakerAsyncTask extends AsyncTask {
 
     @Resource
     private FakerService fakerService;
+    private boolean      statusChecked;
 
     @Override
     protected void executeTask(int retryCnt, String configData) {
         FakerAsyncTaskConfig taskConfig = JsonUtils.toObj(configData, FakerAsyncTaskConfig.class);
 
-        boolean hasInstance = this.fakerService.hasInstanceById(taskConfig.getUserId(), taskConfig.getSessionId());
-        if (!hasInstance) {
-            if (retryCnt == 0) {
-                this.updateMessage("the faker process is not exist.");
+        FakerStatusDTO statusDTO;
+        try {
+            boolean hasInstance = this.fakerService.hasInstanceById(taskConfig.getUserId(), taskConfig.getSessionId());
+            if (!hasInstance) {
+                if (retryCnt == 0) {
+                    this.updateMessage("the faker process is not exist.");
+                }
+                this.finishTask(null);
+                return;
             }
-            this.finishTask(null);
+
+            statusDTO = this.fakerService.tailStatus(taskConfig.getUserId(), taskConfig.getSessionId());
+        } catch (Exception e) {
+            // Status reads can be retried while the existing Worker reconnects; do not restart its job.
+            log.warn("Read faker status failed, sessionId={}", taskConfig.getSessionId(), e);
+            this.delayTask();
             return;
         }
-
-        FakerStatusDTO statusDTO = this.fakerService.tailStatus(taskConfig.getUserId(), taskConfig.getSessionId());
 
         FakerRunStatus status = statusDTO.getStatus();
         if (status.equals(FakerRunStatus.COMPLETE)) {
@@ -78,10 +87,11 @@ public class FakerAsyncTask extends AsyncTask {
             return;
         }
 
-        if (retryCnt == 0 && status.equals(FakerRunStatus.PAUSE)) {
+        if (!this.statusChecked && status.equals(FakerRunStatus.PAUSE)) {
             this.fakerService.resume(taskConfig.getUserId(), taskConfig.getSessionId());
         }
 
+        this.statusChecked = true;
         this.updateProcessAndMessage(taskConfig);
         this.notifyAsyncEvent();
         this.delayTask();

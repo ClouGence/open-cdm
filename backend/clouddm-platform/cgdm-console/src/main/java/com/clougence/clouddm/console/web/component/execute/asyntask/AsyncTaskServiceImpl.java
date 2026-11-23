@@ -29,14 +29,16 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.execute.AsyncTaskService;
+import com.clougence.clouddm.console.web.component.execute.control.ConsoleTaskRouter;
+import com.clougence.clouddm.console.web.component.execute.model.ConsoleTaskControlAction;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.util.RdpTimerUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
-import com.clougence.utils.HostUtil;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 import com.clougence.utils.future.CgFuture;
@@ -55,42 +57,63 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstruct {
     @Resource
-    private ExecutionDal         executionDal;
+    private ConsoleClusterService cluster;
     @Resource
-    private ConsoleConfig        config;
+    private ConsoleTaskRouter     taskRouter;
     @Resource
-    private ApplicationContext   applicationContext;
+    private ExecutionDal          executionDal;
+    @Resource
+    private ConsoleConfig         config;
+    @Resource
+    private ApplicationContext    applicationContext;
 
-    private ScheduleExecutor     scheduleExecutor;
-    private Map<Long, AsyncTask> scheduleTaskMap;
-    private AtomicInteger        requestSchedule;
-    private Thread               scheduleWorkThread;
+    private ScheduleExecutor      scheduleExecutor;
+    private Map<Long, AsyncTask>  scheduleTaskMap;
+    private AtomicInteger         requestSchedule;
+    private Thread                scheduleWorkThread;
+    private volatile boolean      stopped;
+    private boolean               runningTasksRestored;
 
     @Override
-    public void init() throws Exception {
-        this.executionDal.asyncTaskMapper().resetAsyncTaskStatus(getHostIp());
-        this.executionDal.asyncTaskMapper().resetInitAsyncTaskStatus(getHostIp());
-        this.executionDal.asyncTaskMapper().resetCancelingAsyncTaskStatus(getHostIp());
-        this.executionDal.asyncTaskMapper().resetPausingAsyncTaskStatus(getHostIp());
-        this.requestSchedule = new AtomicInteger();
-        this.scheduleTaskMap = new ConcurrentHashMap<>();
+    public synchronized void init() throws Exception {
+        if (this.stopped || this.scheduleExecutor != null) {
+            return;
+        }
 
-        ClassLoader classLoader = this.applicationContext.getClassLoader();
-        ThreadFactory timerTF = ThreadUtils.daemonThreadFactory(classLoader, "AsyncTask-Timer-%s");
-        ThreadFactory workerTF = ThreadUtils.daemonThreadFactory(classLoader, "AsyncTask-Process-%s");
-        this.scheduleExecutor = new ScheduleExecutor(this.config.getAsyncThreadCount(), timerTF, workerTF);
+        try {
+            this.requestSchedule = new AtomicInteger();
+            this.scheduleTaskMap = new ConcurrentHashMap<>();
 
-        this.scheduleWorkThread = ThreadUtils.daemonThread(classLoader, this::loopSchedule);
-        this.scheduleWorkThread.setName("AsyncTask-Dispatcher");
-        this.scheduleWorkThread.start();
+            ClassLoader classLoader = this.applicationContext.getClassLoader();
+            ThreadFactory timerTF = ThreadUtils.daemonThreadFactory(classLoader, "AsyncTask-Timer-%s");
+            ThreadFactory workerTF = ThreadUtils.daemonThreadFactory(classLoader, "AsyncTask-Process-%s");
+            this.scheduleExecutor = new ScheduleExecutor(this.config.getAsyncThreadCount(), timerTF, workerTF);
+
+            this.scheduleWorkThread = ThreadUtils.daemonThread(classLoader, this::loopSchedule);
+            this.scheduleWorkThread.setName("AsyncTask-Dispatcher");
+            this.scheduleWorkThread.start();
+        } catch (RuntimeException | Error e) {
+            this.stop();
+            throw e;
+        }
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
+        if (this.stopped) {
+            return;
+        }
 
+        this.stopped = true;
+        if (this.scheduleWorkThread != null) {
+            this.scheduleWorkThread.interrupt();
+            LockSupport.unpark(this.scheduleWorkThread);
+        }
+
+        if (this.scheduleExecutor != null) {
+            this.scheduleExecutor.close();
+        }
     }
-
-    private String getHostIp() { return HostUtil.getHostIp(); }
 
     //-------------------------------------------------------------------------
     //                                                        Process AsyncTask
@@ -128,7 +151,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
 
     protected void loopSchedule() {
         MDC.put("module", "async_task");
-        while (true) {
+        while (!this.stopped) {
             try {
                 doSchedule();
                 if (Thread.currentThread().isInterrupted()) {
@@ -143,6 +166,18 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
     }
 
     private void doSchedule() {
+        if (!this.cluster.isAcceptingWork()) {
+            return;
+        }
+
+        if (!this.runningTasksRestored) {
+            for (DmExecAsyncTaskDO task : this.executionDal.asyncTaskMapper().queryRunningTasks(this.cluster.getConsoleInstanceId())) {
+                submitTask(task);
+            }
+
+            this.runningTasksRestored = true;
+        }
+
         // wait 30% empty slots, avoid frequent queries.
         double freeSlotDouble = freeSlot();
         double queueSizeDouble = this.config.getAsyncTaskQueueSize();
@@ -153,7 +188,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
 
         do {
             this.requestSchedule.set(0);// clear request cnt, and query todo task.
-            List<DmExecAsyncTaskDO> doList = this.executionDal.asyncTaskMapper().queryWaitTask(freeSlot(), getHostIp());
+            List<DmExecAsyncTaskDO> doList = this.executionDal.asyncTaskMapper().queryWaitTask(freeSlot(), this.cluster.getConsoleInstanceId());
 
             // there is nothing to do.
             if (doList.isEmpty() && this.requestSchedule.get() == 0) {
@@ -176,6 +211,10 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
     }
 
     private void doScheduleOneTask(DmExecAsyncTaskDO t) {
+        if (!this.cluster.isAcceptingWork()) {
+            return;
+        }
+
         // check depend task
         if (StringUtils.isNotBlank(t.getDependOnBizId())) {
             DmExecAsyncTaskDO depTaskDO = this.executionDal.asyncTaskMapper().queryByBiz(t.getDependOnBizId(), t.getDependOnBizType());
@@ -203,12 +242,31 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
             log.info(String.format("[AsyncTask] The task [%s]%s update status WAIT_START -> RUNNING", t.getBizType(), t.getBizId()));
         }
 
+        submitTask(t);
+    }
+
+    private void submitTask(DmExecAsyncTaskDO t) {
+        if (this.scheduleTaskMap.containsKey(t.getId())) {
+            return;
+        }
+
         AsyncTask theTask = getTask(t);
+        if (t.getStatus() == AsyncTaskStatus.PAUSING) {
+            theTask.setInterrupted(InterruptedType.PAUSE);
+        } else if (t.getStatus() == AsyncTaskStatus.CANCELING) {
+            theTask.setInterrupted(InterruptedType.CANCEL);
+        }
+
         CgFutureObj<Object> theFuture = theTask.getFuture();
         theFuture.onFailed(f -> {
             // on failed, [RUNNING -> FAILURE or PAUSE]
             taskFutureCallBackOnFailed(f, theTask);
         }).onCompleted(f -> {
+            if (theTask.getInterruptedType() != null) {
+                taskFutureCallBackOnCancel(f, theTask);
+                return;
+            }
+
             // on finish, [RUNNING -> COMPLETE]
             taskFutureCallBackOnCompleted(f, theTask);
         }).onCancel(f -> {
@@ -345,6 +403,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
                 // from running to cancel
                 asyncTask.setInterrupted(type);
                 f.cancel();
+                return true;
             }
         }
         return false;
@@ -352,56 +411,78 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
 
     @Override
     public void pauseTask(long asyncTaskId, String reasons) {
-        if (this.cancelSchedule(asyncTaskId, reasons, InterruptedType.PAUSE)) {
-            // [RUNNING -> PAUSE]
-            return;
-        }
+        DmExecAsyncTaskDO task = this.executionDal.asyncTaskMapper().queryById(asyncTaskId);
+        switch (task.getStatus()) {
+            case BLOCK: {
+                if (this.executionDal.asyncTaskMapper().updateFromBlockTo(asyncTaskId, AsyncTaskStatus.PAUSE.name(), reasons) > 0) {
+                    task.setStatus(AsyncTaskStatus.PAUSE);
+                    DmGlobalEventBus.triggerDmAsyncEvent(task);
+                }
 
-        DmExecAsyncTaskDO t = this.executionDal.asyncTaskMapper().queryById(asyncTaskId);
-        switch (t.getStatus()) {
-            case BLOCK:
-                // [BLOCK -> CANCEL]
-                this.executionDal.asyncTaskMapper().updateFromBlockTo(asyncTaskId, AsyncTaskStatus.PAUSE.name(), reasons);
-                t.setStatus(AsyncTaskStatus.PAUSE);
-                DmGlobalEventBus.triggerDmAsyncEvent(t);
                 break;
-            case RUNNING:
-                throw new IllegalStateException("the pause failed, may be the task running on another console.");
-            default:
+            }
+            case RUNNING: {
+                if (this.taskRouter.forwardAsyncControl(task, ConsoleTaskControlAction.PAUSE_ASYNC, reasons)) {
+                    return;
+                }
+
+                if (this.cancelSchedule(asyncTaskId, reasons, InterruptedType.PAUSE)) {
+                    return;
+                }
+
+                DmExecAsyncTaskDO current = this.executionDal.asyncTaskMapper().queryById(asyncTaskId);
+                if (current.getStatus() == AsyncTaskStatus.RUNNING) {
+                    throw new IllegalStateException("the pause failed, may be the task running on another console.");
+                }
+
                 break;
+            }
+            default: {
+                break;
+            }
         }
     }
 
     @Override
     public void cancelTask(long asyncTaskId, String reasons) {
-        if (this.cancelSchedule(asyncTaskId, reasons, InterruptedType.CANCEL)) {
-            // [RUNNING -> CANCEL]
-            return;
+        DmExecAsyncTaskDO task = this.executionDal.asyncTaskMapper().queryById(asyncTaskId);
+        int changed;
+        switch (task.getStatus()) {
+            case INIT: {
+                changed = this.executionDal.asyncTaskMapper().updateFromInitTo(asyncTaskId, AsyncTaskStatus.CANCEL.name(), reasons);
+                break;
+            }
+            case BLOCK: {
+                changed = this.executionDal.asyncTaskMapper().updateFromBlockTo(asyncTaskId, AsyncTaskStatus.CANCEL.name(), reasons);
+                break;
+            }
+            case PAUSE: {
+                changed = this.executionDal.asyncTaskMapper().updateFromPauseTo(asyncTaskId, AsyncTaskStatus.CANCEL.name(), reasons);
+                break;
+            }
+            case RUNNING: {
+                if (this.taskRouter.forwardAsyncControl(task, ConsoleTaskControlAction.CANCEL_ASYNC, reasons)) {
+                    return;
+                }
+
+                if (this.cancelSchedule(asyncTaskId, reasons, InterruptedType.CANCEL)) {
+                    return;
+                }
+
+                DmExecAsyncTaskDO current = this.executionDal.asyncTaskMapper().queryById(asyncTaskId);
+                if (current.getStatus() == AsyncTaskStatus.RUNNING) {
+                    throw new IllegalStateException("the cancel failed, may be the task running on another console.");
+                }
+                return;
+            }
+            default: {
+                return;
+            }
         }
 
-        DmExecAsyncTaskDO t = this.executionDal.asyncTaskMapper().queryById(asyncTaskId);
-        switch (t.getStatus()) {
-            case INIT:
-                this.executionDal.asyncTaskMapper().updateFromInitTo(asyncTaskId, AsyncTaskStatus.CANCEL.name(), reasons);
-                t.setStatus(AsyncTaskStatus.CANCEL);
-                DmGlobalEventBus.triggerDmAsyncEvent(t);
-                break;
-            case BLOCK:
-                // [BLOCK -> CANCEL]
-                this.executionDal.asyncTaskMapper().updateFromBlockTo(asyncTaskId, AsyncTaskStatus.CANCEL.name(), reasons);
-                t.setStatus(AsyncTaskStatus.CANCEL);
-                DmGlobalEventBus.triggerDmAsyncEvent(t);
-                break;
-            case RUNNING:
-                throw new IllegalStateException("the pause failed, may be the task running on another console.");
-            case PAUSE:
-                // [PAUSE -> CANCEL]
-                this.executionDal.asyncTaskMapper().updateFromPauseTo(asyncTaskId, AsyncTaskStatus.CANCEL.name(), reasons);
-                t.setStatus(AsyncTaskStatus.CANCEL);
-                DmGlobalEventBus.triggerDmAsyncEvent(t);
-                break;
-            default:
-                break;
+        if (changed > 0) {
+            task.setStatus(AsyncTaskStatus.CANCEL);
+            DmGlobalEventBus.triggerDmAsyncEvent(task);
         }
     }
 
@@ -410,7 +491,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
         // [CANCEL/FAILURE -> WAIT_START]
         DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryById(asyncTaskId);
         if (taskDO.getStatus() == AsyncTaskStatus.FAILURE || taskDO.getStatus() == AsyncTaskStatus.CANCEL) {
-            this.executionDal.asyncTaskMapper().retryFailureOrCancelTask(asyncTaskId, reasons, getHostIp());
+            this.executionDal.asyncTaskMapper().retryFailureOrCancelTask(asyncTaskId, reasons, this.cluster.getConsoleInstanceId());
             taskDO.setStatus(AsyncTaskStatus.WAIT_START);
             DmGlobalEventBus.triggerDmAsyncEvent(taskDO);
             this.trigger();
@@ -422,7 +503,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService, UnifiedPostConstr
         // [PAUSE -> WAIT_START]
         DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryById(asyncTaskId);
         if (taskDO.getStatus() == AsyncTaskStatus.PAUSE) {
-            this.executionDal.asyncTaskMapper().resumePauseTask(asyncTaskId, reasons, getHostIp());
+            this.executionDal.asyncTaskMapper().resumePauseTask(asyncTaskId, reasons, this.cluster.getConsoleInstanceId());
             taskDO.setStatus(AsyncTaskStatus.WAIT_START);
             DmGlobalEventBus.triggerDmAsyncEvent(taskDO);
             this.trigger();

@@ -9,6 +9,7 @@ import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { isDmSystemBootstrapRequired } from '@/utils/dmGlobalSettings';
 
 let rws = null;
+let serviceReady = false;
 const WS_POLICY_VIOLATION_CODE = 1008;
 const SYSTEM_STATUS_REQUEST_TIMEOUT_MS = 1500;
 let systemStatusCheckInProgress = false;
@@ -92,28 +93,31 @@ const createWebSocket = (url) => {
   rws = new ReconnectingWebSocket(() => buildFullUrl(url), null, {
     debug: false,
     minReconnectionDelay: 3000,
-    maxReconnectionDelay: 3000
+    maxReconnectionDelay: 3000,
+    maxEnqueuedMessages: 0
   });
   const webSocket = rws;
   rws.addEventListener('open', () => {
-    if (!rws) {
+    if (rws !== webSocket) {
       return;
     }
 
-    if (rws.readyState === rws.OPEN) {
-      store?.commit(UPDATE_SOCKET_STATUS, { connected: true, msg: i18n.global.t('lian-jie-yi-jian-li') });
-      if (globalCallback.open) {
-        globalCallback.open();
-      }
-    }
+    serviceReady = false;
   });
 
   rws.addEventListener('message', (e) => {
+    if (rws !== webSocket) {
+      return;
+    }
+
     try {
       const data = JSON.parse(e.data);
       resolvePendingRequest(data);
       if (data && data.type === 'WS_SYS_STATUS' && data?.object?.serviceReady) {
+        serviceReady = true;
+        store?.commit(UPDATE_SOCKET_STATUS, { connected: true, msg: i18n.global.t('lian-jie-yi-jian-li') });
         eventBus.emit(EVENT_BUS_NAME_LIST.SOCKET_CONNECTION_OPEN);
+        globalCallback.open?.();
       }
 
       if (data && data.type === WS_TYPE.WS_RES_ASYNC_EVENT) {
@@ -142,6 +146,11 @@ const createWebSocket = (url) => {
   });
 
   rws.addEventListener('close', (e) => {
+    if (rws !== webSocket) {
+      return;
+    }
+
+    serviceReady = false;
     if (e.code === WS_POLICY_VIOLATION_CODE) {
       if (rws === webSocket) {
         webSocketClose();
@@ -208,39 +217,25 @@ const webSocketClose = () => {
     return;
   }
 
+  serviceReady = false;
   rws.close();
   rws = null;
   rejectPendingRequests(new Error('websocket closed'));
 };
 
 const sendWebSocket = (data, callback = {}) => {
-  if (!rws) {
-    return;
+  globalCallback = callback;
+  if (!serviceReady || !rws || rws.readyState !== rws.OPEN) {
+    callback.error?.(new Error(i18n.global.t('sql-connection-disconnected')));
+    return false;
   }
 
-  globalCallback = callback;
-  switch (rws.readyState) {
-    case rws.OPEN:
-      appLogger.debug('OPEN');
-      webSocketSend(data);
-      break;
-    case rws.CONNECTING:
-      appLogger.debug('CONNECTING');
-      setTimeout(() => {
-        webSocketSend(data, callback);
-      }, 1000);
-      break;
-    case rws.CLOSING:
-      appLogger.debug('CLOSING');
-      setTimeout(() => {
-        webSocketSend(data, callback);
-      });
-      break;
-    case rws.CLOSED:
-      appLogger.debug('CLOSED');
-      break;
-    default:
-      break;
+  try {
+    webSocketSend(data);
+    return true;
+  } catch (error) {
+    callback.error?.(error);
+    return false;
   }
 };
 
@@ -257,8 +252,8 @@ const requestWebSocket = ({ type, responseType, object, timeout = DEFAULT_REQUES
       return;
     }
 
-    if (!rws || rws.readyState !== rws.OPEN) {
-      reject(new Error('websocket is not connected'));
+    if (!serviceReady || !rws || rws.readyState !== rws.OPEN) {
+      reject(new Error(i18n.global.t('sql-connection-disconnected')));
       return;
     }
 

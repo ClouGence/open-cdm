@@ -18,14 +18,17 @@ package com.clougence.clouddm.console.web.global.rsocket;
 import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
 import com.clougence.clouddm.comm.model.RSocketAuthException;
 import com.clougence.clouddm.comm.model.auth.ConnAuthDTO;
-import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 import io.rsocket.SocketAcceptor;
+import io.rsocket.exceptions.ConnectionErrorException;
+import io.rsocket.exceptions.RejectedSetupException;
 import io.rsocket.plugins.SocketAcceptorInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author bucketli 2021/1/18 12:31
@@ -33,34 +36,32 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class DmConsoleSAInterceptor implements SocketAcceptorInterceptor {
 
-    private final int                JUDGE_RESUME_CONN_THRESHOLD_MS = 3000;
-
     private final ServerSideRegistry serverSideRegistry;
+    private final ObjectReader       authReader;
 
     public DmConsoleSAInterceptor(ServerSideRegistry serverSideRegistry){
         this.serverSideRegistry = serverSideRegistry;
+        this.authReader = new ObjectMapper().readerFor(ConnAuthDTO.class);
     }
 
     @Override
     public SocketAcceptor apply(SocketAcceptor socketAcceptor) {
         return (setup, sendingSocket) -> {
-            try {
-                ConnAuthDTO authInfo = new ObjectMapper().readValue(setup.getDataUtf8(), ConnAuthDTO.class);
-                checkParams(authInfo);
-
-                if (System.currentTimeMillis() - authInfo.getSendAuthTimeMs() > JUDGE_RESUME_CONN_THRESHOLD_MS) {
-                    log.info("receive an OLD RESUME connection. Resume connection can come in parallel, repeated connection will be rejected.");
-                } else {
-                    log.info("receive an NEW connection and try to init.");
+            String authData = setup.getDataUtf8();
+            return Mono.defer(() -> {
+                try {
+                    ConnAuthDTO authInfo = authReader.readValue(authData);
+                    checkParams(authInfo);
+                    serverSideRegistry.checkAuth(authInfo);
+                    return socketAcceptor.accept(setup, sendingSocket);
+                } catch (RSocketAuthException | IllegalArgumentException e) {
+                    log.warn("Worker connection authentication rejected", e);
+                    return Mono.error(new RejectedSetupException("worker credentials are invalid"));
+                } catch (Exception e) {
+                    log.warn("Worker connection authentication temporarily unavailable", e);
+                    return Mono.error(new ConnectionErrorException("console is temporarily unavailable"));
                 }
-
-                serverSideRegistry.checkAuth(authInfo);
-                return socketAcceptor.accept(setup, sendingSocket);
-            } catch (Exception e) {
-                String errMsg = "try to accept a connection error.msg:" + ExceptionUtils.getRootCauseMessage(e);
-                log.warn(errMsg, e);
-                return Mono.error(new RSocketAuthException(errMsg));
-            }
+            }).subscribeOn(Schedulers.boundedElastic());
         };
     }
 

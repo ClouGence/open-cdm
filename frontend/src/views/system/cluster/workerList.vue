@@ -6,21 +6,6 @@
           <div class="option border-radius-card">
             <div class="left">
               <div class="machine">
-                <div class="circle">
-                  <cc-iconfont name="machine" size="16" />
-                </div>
-                <div class="content">
-                  <div class="first">
-                    <div>{{ cluster.clusterDesc }}</div>
-                    <div>{{ cluster.clusterName }}</div>
-                  </div>
-                  <div class="second">
-                    <div>
-                      {{ CLUSTER_TYPE[cluster.cloudOrIdcName] && CLUSTER_TYPE[cluster.cloudOrIdcName].name }}
-                    </div>
-                    <div>{{ getRegionName }}</div>
-                  </div>
-                </div>
                 <Input
                   v-model="search"
                   class="text"
@@ -43,38 +28,6 @@
             <Table :columns="workerListColumns" :data="showWorkerList" size="small" border>
               <template #name="{ row }">
                 {{ row.workerName }}
-                <Poptip placement="right" transfer>
-                  <cc-iconfont :size="12" name="detail" />
-                  <template #content>
-                    <div class="worker-detail">
-                      <section>
-                        <div class="title">{{ $t('chu-kou-ip') }}:</div>
-                        <div>{{ row.publicIp }}</div>
-                      </section>
-                      <section>
-                        <div class="title">{{ $t('di-qu') }}:</div>
-                        <div>{{ $t('bu-xian') }}</div>
-                      </section>
-                      <section>
-                        <div class="title">{{ $t('chuang-jian-shi-jian') }}:</div>
-                        <div>{{ $filters.formatTime(row.gmtCreate, 'YYYY-MM-DD HH:mm:ss') }}</div>
-                      </section>
-                      <section>
-                        <div class="title">{{ $t('ji-qi-lei-xing') }}:</div>
-                        <div>{{ $t('xu-ni-ji') }}</div>
-                      </section>
-                      <section>
-                        <div class="title">{{ $t('ji-qi-wei-yi-biao-shi-fu') }}:</div>
-                        <div style="margin-right: 5px">{{ row.workerSeqNumber }}</div>
-                        <cc-iconfont
-                          :size="12"
-                          name="copy"
-                          @click="copyText(`${row.workerSeqNumber}`, $t('fu-zhi-ji-qi-wei-yi-biao-shi-fu-cheng-gong'))"
-                        />
-                      </section>
-                    </div>
-                  </template>
-                </Poptip>
               </template>
               <template #desc="{ row }">
                 {{ row.workerDesc }}
@@ -256,7 +209,8 @@ import { cloneDeep } from '@/utils/lodash';
 import AddMachineModal from '@/views/system/cluster/components/AddMachineModal';
 // import { Modal } from 'view-ui-plus';
 import { Modal } from 'ant-design-vue';
-import { CLUSTER_ENV, CLUSTER_TYPE, DEPLOY_STATUS, HEALTH_LEVEL_COLOR, WORKER_STATE } from '@/const';
+import { CLUSTER_ENV, DEPLOY_STATUS, HEALTH_LEVEL_COLOR, WORKER_STATE } from '@/const';
+import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 
@@ -268,8 +222,6 @@ export default {
   mixins: [copyMixin],
   data() {
     return {
-      CLUSTER_TYPE,
-      cluster: {},
       DEPLOY_STATUS,
       WORKER_STATE,
       HEALTH_LEVEL_COLOR,
@@ -354,33 +306,28 @@ export default {
       workerList: [],
       showWorkerList: [],
       selectedWorker: {},
-      showEditWorkerNameModal: false,
-      regions: []
+      showEditWorkerNameModal: false
     };
   },
   computed: {
-    ...mapState(['userInfo', 'myAuth']),
-    getRegionName() {
-      let regionName = '';
-      this.regions.forEach((region) => {
-        if (region.region === this.cluster.region) {
-          regionName = region.i18nName;
-        }
-      });
-      return regionName;
-    }
+    ...mapState(['userInfo', 'myAuth'])
   },
   methods: {
     hideConfModal() {
       this.showConfModal = false;
     },
-    listDmRegions() {
-      this.regions = [{ region: 'customer', i18nName: this.$t('bu-xian') }];
-    },
     async queryClusterById() {
       const res = await this.$services.dmClusterQueryById({ data: { clusterId: this.clusterId } });
-      if (res.success) {
-        this.cluster = res.data;
+      if (res.success && res.data) {
+        try {
+          localStorage.setItem(`dmcluster-${this.clusterId}`, JSON.stringify(res.data));
+        } catch (e) {
+          // ignore storage errors
+        }
+        this.$bus.emit(EVENT_BUS_NAME_LIST.SET_CLUSTER_BREADCRUMB_NAME, {
+          clusterId: this.clusterId,
+          clusterName: res.data.clusterName || ''
+        });
       }
     },
     handleClickAddBtn() {
@@ -612,7 +559,6 @@ export default {
     this.clusterId = this.$route.params.clusterId;
     this.queryClusterById();
     this.getWorkerList();
-    this.listDmRegions();
   }
 };
 </script>
@@ -626,68 +572,6 @@ export default {
   .machine {
     display: flex;
     align-items: center;
-
-    .circle {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: rgba(255, 193, 92, 1);
-      box-shadow: 0px 3px 12px 0px rgba(255, 192, 92, 1);
-      text-align: center;
-      line-height: 40px;
-      margin-left: 20px;
-    }
-
-    .content {
-      display: flex;
-      flex-direction: column;
-      margin: 0 10px;
-
-      & > div {
-        display: flex;
-      }
-
-      .first {
-        display: flex;
-        align-items: center;
-        margin-bottom: 6px;
-
-        & > div:first-child {
-          font-size: 14px;
-          font-weight: bold;
-          margin-right: 10px;
-        }
-      }
-
-      .second {
-        & > div {
-          border-radius: 14px;
-          padding: 0 5px;
-          background-color: rgba(224, 224, 224, 1);
-
-          &:first-child {
-            margin-right: 8px;
-          }
-        }
-      }
-    }
-  }
-}
-
-.worker-detail {
-  display: flex;
-  flex-direction: column;
-  padding: 10px 0;
-
-  section {
-    margin-left: 10px;
-    width: 250px;
-    display: flex;
-    margin-bottom: 5px;
-
-    .title {
-      font-weight: bold;
-    }
   }
 }
 
@@ -751,29 +635,5 @@ export default {
 
 .work-list-table-actions {
   display: flex;
-}
-
-.worker-detail {
-  display: flex;
-  flex-wrap: wrap;
-  width: 600px;
-
-  section {
-    display: flex;
-    height: 20px;
-    line-height: 20px;
-
-    .title {
-      color: #888;
-    }
-
-    div:last-child {
-      font-weight: bold;
-    }
-
-    &:not(:last-child) {
-      width: 50%;
-    }
-  }
 }
 </style>

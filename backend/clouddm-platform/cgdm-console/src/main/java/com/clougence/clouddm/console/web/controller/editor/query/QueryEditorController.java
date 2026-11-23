@@ -50,8 +50,8 @@ import com.clougence.clouddm.console.web.service.editor.model.FileSaveAsDTO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
@@ -80,13 +80,12 @@ import com.clougence.utils.i18n.I18nUtils;
 import com.clougence.utils.io.FileUtils;
 import com.clougence.utils.io.FilenameUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author mode create time is 2021/1/5
@@ -103,7 +102,7 @@ public class QueryEditorController {
     @Resource
     private DmDsConfigService    dmDsConfigService;
     @Resource
-    private ObjectCacheDao       objectCacheDao;
+    private ObjectQueryDao       objectQueryDao;
     @Resource
     private DmAuthServiceForBiz  dmAuthServiceForBiz;
     @Resource
@@ -118,7 +117,7 @@ public class QueryEditorController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
 
         RdbIsolation initIsolation = RdbIsolation.valueOfCode(fo.getInitIsolation());
         String sessionId = this.queryService.createSession(uid, fo.getLevels(), fo.getInitAutoCommit(), initIsolation);
@@ -142,7 +141,7 @@ public class QueryEditorController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsStatusConfVO vo = new DsStatusConfVO();
-        DsCacheEntry entry = this.objectCacheDao.queryByDsId(fo.getDsId());
+        DsEntry entry = this.objectQueryDao.queryByDsId(fo.getDsId());
         if (entry == null) {
             vo.setDsStatus(DataSourceStatus.Deleted);
             vo.setDsStatusMessage(DmConvertUtils.convertToDataSourceStatusI18n(DataSourceStatus.Deleted, null));
@@ -205,7 +204,7 @@ public class QueryEditorController {
         return ResWebDataUtils.buildSuccess(vo);
     }
 
-    private DsLanguageConfVO loadDsLanguage(DsCacheEntry entry, DataSourceConfig dsConfig, DsAvailableDTO status) {
+    private DsLanguageConfVO loadDsLanguage(DsEntry entry, DataSourceConfig dsConfig, DsAvailableDTO status) {
         DsLanguageConfVO language = new DsLanguageConfVO();
         language.setSupports(Set.of());
 

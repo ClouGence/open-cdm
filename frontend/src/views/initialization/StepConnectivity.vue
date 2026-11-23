@@ -1,7 +1,13 @@
 <template>
   <div class="step-connectivity">
     <a-form layout="horizontal" class="step-connectivity-form">
-      <a-form-item v-for="field in fieldDefs" :key="field.propertyKey" :label="field.label" :required="field.required">
+      <a-form-item
+        v-for="field in fieldDefs"
+        :key="field.propertyKey"
+        :label="field.label"
+        :required="field.required"
+        :tooltip="field.propertyKey === 'clouddm.console.cluster.instance-id' ? $t('initialization.consoleInstanceIdHelp') : undefined"
+      >
         <a-input
           v-if="field.inputType === 'text'"
           class="connectivity-full-width-control"
@@ -61,8 +67,8 @@ export default {
   width: 100%;
 }
 .step-connectivity-form :deep(.ant-form-item-label) {
-  flex: 0 0 136px;
-  max-width: 136px;
+  flex: 0 0 160px;
+  max-width: 160px;
   padding-right: 12px;
   text-align: left;
   line-height: 32px;
@@ -84,7 +90,7 @@ export default {
 }
 .step-connectivity-form :deep(.ant-form-item-control-wrapper) {
   flex: 1;
-  max-width: calc(100% - 136px);
+  max-width: calc(100% - 160px);
 }
 .step-connectivity-form :deep(.ant-form-item-control) {
   flex: 1 1 0;

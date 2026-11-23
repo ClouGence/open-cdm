@@ -31,7 +31,6 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.approval.ApprovalProvider;
 import com.clougence.clouddm.sdk.approval.ApprovalProviderSpi;
-import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.ThreadUtils;
@@ -41,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
+public class ApprovalStarter implements UnifiedPostConstruct {
     @Resource
     private AuthDal                     authDal;
     @Resource
@@ -63,7 +62,11 @@ public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
         List<DmAuthUserDO> users = this.authDal.userMapper().listPrimaryAccount();
         for (DmAuthUserDO rdpUserDO : users) {
             for (ApprovalProvider provider : ApprovalFlowService.SUPPORT_LIST) {
-                startProviderIfConfigured(rdpUserDO.getUid(), provider);
+                try {
+                    startProviderIfConfigured(rdpUserDO.getUid(), provider);
+                } catch (Exception e) {
+                    log.error("[ApprovalStarter] Switch " + provider.name() + " client was failed", e);
+                }
             }
         }
 
@@ -77,7 +80,6 @@ public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
         }
     }
 
-    @Override
     public void notifyUserConfig(String ownerUid, List<UserConfigMO> configList) {
         if (configList == null || configList.isEmpty()) {
             return;
@@ -114,7 +116,7 @@ public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
         }
     }
 
-    private void startProviderIfConfigured(String ownerUid, ApprovalProvider provider) {
+    private void startProviderIfConfigured(String ownerUid, ApprovalProvider provider) throws Exception {
         ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, provider.name());
         if (service == null) {
             return;
@@ -124,11 +126,7 @@ public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
             return;
         }
 
-        try {
-            service.start(ownerUid, new LifeSpiRequest());
-        } catch (Exception e) {
-            log.error("[ApprovalStarter] Switch " + provider.name() + " client was failed", e);
-        }
+        service.start(ownerUid, new LifeSpiRequest());
     }
 
     private static UserConfigTagType convertToConfigTagType(ApprovalProvider provider) {

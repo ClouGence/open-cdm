@@ -30,13 +30,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.cluster.*;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
+import com.clougence.clouddm.console.web.model.vo.cluster.ConsoleInstanceVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.utils.CollectionUtils;
 
 import jakarta.annotation.Resource;
@@ -54,9 +56,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ClusterController {
 
     @Resource
-    private ClusterService clusterService;
+    private ClusterService        clusterService;
     @Resource
-    private ObjectCacheDao objectCacheDao;
+    private ConsoleClusterService consoleClusterService;
+    @Resource
+    private ObjectQueryDao        objectQueryDao;
 
     @RequestAuth(level = HIGH, value = DM_WORKER_MANAGE)
     @RequestMapping(value = "/create", method = RequestMethod.POST)
@@ -72,7 +76,7 @@ public class ClusterController {
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public ResWebData<?> deleteCluster(@RequestBody @Valid DeleteClusterFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
+        this.objectQueryDao.ownCluster(puid, fo.getClusterId());
 
         this.clusterService.deleteCluster(fo.getClusterId());
         return ResWebDataUtils.buildSuccess();
@@ -82,10 +86,16 @@ public class ClusterController {
     @RequestMapping(value = "/updateDesc", method = RequestMethod.POST)
     public ResWebData<?> updateClusterDesc(@RequestBody @Valid UpdateClusterDescFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
+        this.objectQueryDao.ownCluster(puid, fo.getClusterId());
 
         this.clusterService.updateClusterDesc(fo.getClusterId(), fo.getClusterDesc());
         return ResWebDataUtils.buildSuccess();
+    }
+
+    @RequestAuth(DM_WORKER_READ)
+    @RequestMapping(value = "/listConsoleInstances", method = RequestMethod.POST)
+    public ResWebData<List<ConsoleInstanceVO>> listConsoleInstances() {
+        return ResWebDataUtils.buildSuccess(this.consoleClusterService.listInstances());
     }
 
     @RequestAuth(DM_WORKER_READ)
@@ -116,7 +126,7 @@ public class ClusterController {
     @RequestMapping(value = "/queryById", method = RequestMethod.POST)
     public ResWebData<?> queryById(@RequestBody @Valid QueryClusterFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
+        this.objectQueryDao.ownCluster(puid, fo.getClusterId());
 
         ClusterVO vo = this.clusterService.queryByClusterId(fo.getClusterId());
         return ResWebDataUtils.buildSuccess(vo);

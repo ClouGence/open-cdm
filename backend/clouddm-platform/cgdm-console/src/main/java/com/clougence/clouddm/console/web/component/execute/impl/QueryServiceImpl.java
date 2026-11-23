@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
+import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
+import com.clougence.clouddm.api.console.sqlaudit.Type;
 import com.clougence.clouddm.api.sidecar.session.execute.AsyncWaitResult;
 import com.clougence.clouddm.api.sidecar.session.execute.ExecuteRService;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
@@ -34,12 +37,13 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.service.security.AuditService;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.platform.dal.model.execution.DsSessionType;
@@ -69,13 +73,15 @@ public class QueryServiceImpl implements QueryService {
     @Resource
     private ExecutionDal      execDal;
     @Resource
-    private ObjectCacheDao    cacheDao;
+    private ObjectQueryDao    objectQueryDao;
     @Resource
     private DmDsConfigService dsConfigService;
     @Resource
     private ExecuteRService   sessionRService;
     @Resource
     private DmDsService       dsService;
+    @Resource
+    private AuditService      auditService;
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
         List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryConnectedByClusterId(bindClusterId);
@@ -105,6 +111,10 @@ public class QueryServiceImpl implements QueryService {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(DmExecSessionDO sessionDO) {
+        if (DmExecSessionDO.INTERRUPTED_BATCH_ID.equals(sessionDO.getActiveBatchId())) {
+            throw new ErrorMessageException(DmErrorCode.QUERY_SESSION_INTERRUPTED.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RECONNECT_REQUIRED.name()));
+        }
+
         DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(sessionDO.getWsn());
         if (worker != null) {
             return this.buildRSocketSendDTO(worker);
@@ -162,14 +172,14 @@ public class QueryServiceImpl implements QueryService {
         }
 
         // gen new session.
-        DsCacheEntry cacheEntry = this.cacheDao.queryByDsId(dsDO.getId());
-        RSocketSendDTO sendDTO = this.buildRSocketSendDTO(cacheEntry.getClusterId());
+        DsEntry dsEntry = this.objectQueryDao.queryByDsId(dsDO.getId());
+        RSocketSendDTO sendDTO = this.buildRSocketSendDTO(dsEntry.getClusterId());
         sessionDO = new DmExecSessionDO();
         sessionDO.setUid(curUid);
         sessionDO.setSessionId(sessionId);
         sessionDO.setSessionType(DsSessionType.QUERY);
         sessionDO.setWsn(sendDTO.getWorkerSeqNumber());
-        sessionDO.setClusterId(String.valueOf(cacheEntry.getClusterId()));
+        sessionDO.setClusterId(String.valueOf(dsEntry.getClusterId()));
         sessionDO.setDatasourceId(dsDO.getId());
         sessionDO.setDatasourceType(dsDO.getDataSourceType().getShortName());
         sessionDO.setConfig(JsonUtils.toJson(context));
@@ -277,18 +287,38 @@ public class QueryServiceImpl implements QueryService {
     @Override
     public void asyncExecuteQuery(DmExecSessionDO sessionDO, String batchId, List<QueryRequest> queryRequest) {
         String sessionId = sessionDO.getSessionId();
-        this.execDal.sessionMapper().updateSessionQueryTime(sessionId, sessionDO.getWsn());
-
-        // exec query
+        RSocketSendDTO sendDTO;
         try {
-            RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
             DmDsUtils.fillRequestConfig(queryRequest, sessionDO.getDatasourceId());
-            AsyncWaitResult result = this.sessionRService.asyncExecuteQuery(sendDTO, sessionId, batchId, queryRequest);
-            if (!result.isSuccess()) {
-                throw new ErrorMessageException(result.getMessage());
+            sendDTO = buildRSocketSendDTO(sessionDO);
+            // Claim result consumption before dispatch; an occupied session cannot execute another batch.
+            if (this.execDal.sessionMapper().updateActiveBatchIfBatchNull(sessionDO.getUid(), sessionId, batchId) != 1) {
+                throw new ErrorMessageException(DmErrorCode.QUERY_SESSION_INTERRUPTED.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RECONNECT_REQUIRED.name()));
             }
         } catch (Exception e) {
-            throw new ErrorMessageException(ExceptionUtils.getRootCauseMessage(e));
+            // No Worker RPC has started, so only this boundary can safely end prepared audits as errors.
+            for (QueryRequest request : queryRequest) {
+                try {
+                    SqlExecNotifyDTO audit = new SqlExecNotifyDTO();
+                    audit.setType(Type.SQL_END);
+                    audit.setStatus(SqlStatus.ERROR);
+                    audit.setQueryId(request.getQueryId());
+                    audit.setSessionId(sessionId);
+                    audit.setMessage(e.getMessage());
+                    audit.setTime(new Date());
+                    this.auditService.recordAudit(audit, null);
+                } catch (Exception auditError) {
+                    log.error("Complete undispatched query audit failed: sessionId={}, queryId={}", sessionId, request.getQueryId(), auditError);
+                }
+            }
+
+            throw e;
+        }
+
+        // An uncertain dispatch keeps its claim; another Console must never replay it.
+        AsyncWaitResult result = this.sessionRService.asyncExecuteQuery(sendDTO, sessionId, batchId, queryRequest);
+        if (!result.isSuccess()) {
+            throw new ErrorMessageException(result.getMessage());
         }
     }
 
@@ -300,18 +330,19 @@ public class QueryServiceImpl implements QueryService {
         }
         RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
 
-        // update SessionInfo
-        this.execDal.sessionMapper().updateSessionQueryTime(curUid, sessionId);
-
         // record Statistics
         //this.recordStatistics(sessionDO);
 
         // exec query
+        String batchId = UUID.randomUUID().toString();
         try {
             List<QueryRequest> queryList = Collections.singletonList(queryRequest);
 
             DmDsUtils.fillRequestConfig(queryList, sessionDO.getDatasourceId());
-            String batchId = "sync-" + System.currentTimeMillis();
+            if (this.execDal.sessionMapper().updateActiveBatchIfBatchNull(curUid, sessionId, batchId) != 1) {
+                throw new ErrorMessageException(DmErrorCode.QUERY_SESSION_INTERRUPTED.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RECONNECT_REQUIRED.name()));
+            }
+
             AsyncWaitResult result = this.sessionRService.asyncExecuteQuery(sendDTO, sessionId, batchId, queryList);
             if (!result.isSuccess()) {
                 throw new ErrorMessageException(result.getMessage());
@@ -325,8 +356,8 @@ public class QueryServiceImpl implements QueryService {
             ThreadUtils.sleep(500);
         }
 
-        ResultList result = this.sessionRService.lastResultList(sendDTO, sessionId);
-        this.updateSessionCtx(sessionDO, result.getStatus());
+        ResultList result = this.fetchQueryResult(curUid, sessionId, batchId);
+        this.execDal.sessionMapper().clearActiveBatchByBatch(curUid, sessionId, batchId);
         return result;
     }
 
@@ -353,15 +384,19 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public ResultList fetchQueryResult(String curUid, String sessionId) {
+    public ResultList fetchQueryResult(String curUid, String sessionId, String batchId) {
         DmExecSessionDO sessionDO = this.execDal.sessionMapper().queryBySessionId(curUid, sessionId);
-        if (sessionDO == null) {
-            return null;
+        if (sessionDO == null || !Objects.equals(batchId, sessionDO.getActiveBatchId())) {
+            throw new ErrorMessageException(DmErrorCode.QUERY_SESSION_INTERRUPTED.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RECONNECT_REQUIRED.name()));
         }
 
         RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
         ResultList result = this.sessionRService.lastResultList(sendDTO, sessionId);
         this.updateSessionCtx(sessionDO, result.getStatus());
+        if (result.getResultList().isEmpty() && !result.getStatus().isExecuting() && result.getStatus().getWaitQuerySize() == 0) {
+            // Release only this batch after execution and result delivery have both finished.
+            this.execDal.sessionMapper().clearActiveBatchByBatch(curUid, sessionId, batchId);
+        }
         return result;
     }
 

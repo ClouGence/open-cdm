@@ -19,12 +19,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
@@ -87,6 +88,8 @@ public class InitController {
         try {
             initService.applyConfig(config == null ? Collections.emptyMap() : config);
             return ResWebDataUtils.buildSuccess(null);
+        } catch (ErrorMessageException e) {
+            return ResWebDataUtils.buildError(e.getMessage());
         } catch (Exception e) {
             return ResWebDataUtils.buildError(initService.buildDetailedErrorMessage(e));
         }

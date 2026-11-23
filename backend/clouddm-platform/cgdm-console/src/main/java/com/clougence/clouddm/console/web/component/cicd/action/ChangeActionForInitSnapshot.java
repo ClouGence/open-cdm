@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.cicd.CicdSqlFileUtils;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
@@ -43,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ChangeActionForInitSnapshot extends AbstractChangeAction {
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void doAction(DmChangeDO change) throws Exception {
         if (!super.doCommonAction(change)) {
             return;

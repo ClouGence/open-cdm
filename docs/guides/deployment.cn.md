@@ -428,6 +428,40 @@ kubectl -n cgdm logs statefulset/dm-mysql
 
 生产环境还应替换默认 MySQL 密码，按数据规模调整 PVC 容量，并将敏感配置改为 `Secret` 管理。
 
+### 4.5 按需启用 Console 多活
+
+多活仅适用于独立 **Console + Sidecar** 部署（不支持 Alone）。默认模板为单 Console，扩容时需自行准备外部负载均衡并为每个副本分配独立的配置、日志与缓存目录。
+
+#### 1. 实例配置
+
+每个 Console 必须配置固定且唯一的 `clouddm.console.cluster.instance-id`（单节点和 Alone 同样必填；重启或升级时沿用原值以保留任务归属）。开启多活时，在各 Console 配置：
+
+```properties
+clouddm.console.cluster.enabled=true
+clouddm.console.cluster.instance-id=console-a
+clouddm.console.cluster.advertise-url=http://console-a.internal:8222
+clouddm.console.cluster.secret=<所有 Console 共用的签名密钥>
+```
+
+- `advertise-url` 必须为其他 Console 可直连的内部 HTTP 地址，不能填写负载均衡地址。
+- Docker 部署对应环境变量：`CONSOLE_INSTANCE_ID`、`CONSOLE_CLUSTER_ENABLED`、`CONSOLE_CLUSTER_ADVERTISE_URL`（未填时自动使用 `POD_IP` 或容器私网 IP）、`CONSOLE_CLUSTER_SECRET`。
+
+#### 2. 集群一致性要求
+
+- 所有 Console 必须使用**同一个 MySQL 库**、相同版本制品和相同的 JWT/加密配置。
+- 各 Console 所需的驱动、插件和 RSocket 证书需分别准备；**在线下载驱动不会自动同步到其他 Console**，新增或升级驱动后需在各副本补齐并确认就绪。
+
+#### 3. 负载均衡与网络
+
+- **Web 入口（8222）**：转发 HTTP/WebSocket 至所有 Console，保留 `/api/entry/ws/channel` 升级路径，关闭会话保持。
+- **Sidecar 入口（8008）**：私网四层 TCP 透传，保留 Console/Sidecar 间的 RSocket TLS（不要在入口终止 TLS）。
+- **健康检查与互通**：通过各实例 `GET /health/ready` 返回 `200` 判断就绪状态；允许 Console 间直连各自的内部 HTTP 地址。
+
+#### 4. 运维与故障说明
+
+- Console 故障退出后，同 `instance-id` 需等待旧租约过期后才能重启；失租节点会停止接收新请求，需重启后重新加入入口。
+- 执行期间若原 Console 退出或会话失效，断线期间结果可能不完整，系统**不会自动重发 SQL、提交或回滚**，请核对结果后手动重新连接。
+
 ---
 
 ## 五、访问与初始化

@@ -18,7 +18,6 @@ package com.clougence.clouddm.platform.dal.model.execution;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.platform.dal.model.execution.DsSessionType;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.tools.ToolSessionContextDTO;
 import com.clougence.utils.JsonUtils;
@@ -34,36 +33,40 @@ import lombok.Setter;
 @TableName(value = "dm_exec_session")
 public class DmExecSessionDO {
 
+    public static final String INTERRUPTED_BATCH_ID = "INTERRUPTED";
+
     @TableId(type = IdType.AUTO)
-    private Long          id;
+    private Long               id;
 
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date          gmtCreate;
+    private Date               gmtCreate;
 
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date          gmtModified;
+    private Date               gmtModified;
 
-    private Date          lastQueryTime;
+    private Date               lastQueryTime;
 
-    private String        uid;
+    private String             uid;
 
-    private String        sessionId;
+    private String             sessionId;
 
-    private DsSessionType sessionType;
+    private String             activeBatchId;
+
+    private DsSessionType      sessionType;
 
     //private String        channelKeys;
 
-    private String        wsn;
+    private String             wsn;
 
-    private String        clusterId;
+    private String             clusterId;
 
-    private Long          datasourceId;
+    private Long               datasourceId;
 
-    private String        datasourceType;
+    private String             datasourceType;
 
-    private String        config;
+    private String             config;
 
-    private String        attach;
+    private String             attach;
 
     public SessionContextDTO toRdbCtx() {
         SessionContextDTO contextDTO = JsonUtils.toObj(this.config, SessionContextDTO.class);

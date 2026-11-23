@@ -16,6 +16,7 @@
 package com.clougence.clouddm.comm.model.rsocket;
 
 import org.springframework.messaging.rsocket.RSocketRequester;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,4 +32,8 @@ public class RSocketRegisterInfo {
     private String           workerSeqNumber;
 
     private String           workerIp;
+
+    private String           ownerConsoleId;
+
+    private long             connectionGeneration;
 }

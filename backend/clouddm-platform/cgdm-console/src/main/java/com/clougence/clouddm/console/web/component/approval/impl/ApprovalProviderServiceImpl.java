@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
@@ -68,7 +70,8 @@ import lombok.extern.slf4j.Slf4j;
 */
 @Slf4j
 @Service
-public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
+@UnifiedPostConstructOrder(-1)
+public class ApprovalProviderServiceImpl implements ApprovalRefreshService, UnifiedPostConstruct {
     @Resource
     private PlatformTransactionManager              transactionManager;
     @Resource
@@ -84,11 +87,13 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
     @Resource
     private ApprovalStateService                    approvalStateService;
 
-    private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
+    @Resource
+    private List<ApprovalHandler>                   handlers;
+    private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers = new EnumMap<>(ApprovalBiz.class);
 
-    public ApprovalProviderServiceImpl(List<ApprovalHandler> approvalHandlers){
-        this.approvalHandlers = new EnumMap<>(ApprovalBiz.class);
-        for (ApprovalHandler approvalHandler : approvalHandlers) {
+    @Override
+    public void init() {
+        for (ApprovalHandler approvalHandler : this.handlers) {
             ApprovalBiz type = approvalHandler.handleType();
             if (this.approvalHandlers.putIfAbsent(type, approvalHandler) != null) {
                 throw new IllegalStateException("ApprovalHandler about " + type + " already exists");
@@ -198,7 +203,7 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
                 continue;
             }
 
-            ApprovalProviderSpi sdkService = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
+            ApprovalProviderSpi sdkService = PluginManager.findSpi(ApprovalProviderSpi.class, ApprovalType.valueOfProvider(type).name());
             LifeSpiResponse invoke = sdkService.status(ownerUid, new LifeSpiRequest());
             LifeSpiStatus info = JsonUtils.toObj(invoke.getBody(), LifeSpiStatus.class);
             if (!info.isRunning()) {
@@ -612,5 +617,10 @@ public class ApprovalProviderServiceImpl implements ApprovalRefreshService {
         this.systemDal.userConfMapper().updateUserConfig(ownerUid, templateListKey, configDO.getConfigValue());
         this.refreshTemplates(ownerUid, type);
         approvalService.useTemplate(ownerUid, templateId, null);
+    }
+
+    @Override
+    public void stop() {
+
     }
 }

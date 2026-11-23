@@ -55,7 +55,7 @@ import com.clougence.clouddm.console.web.service.security.CheckRulesService;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecRefererDO;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
@@ -90,7 +90,7 @@ public class DmSecRangeController {
     @Resource
     private DmDsConfigService dmDsConfigService;
     @Resource
-    private ObjectCacheDao    objectCacheDao;
+    private ObjectQueryDao    objectQueryDao;
 
     @RequestAuth(value = DM_SECRULES_READ)
     @RequestMapping(value = "/specFetchRange", method = RequestMethod.POST)
@@ -231,7 +231,7 @@ public class DmSecRangeController {
 
         // ds object list
         DsLevels dbLevels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, dbLevels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, dbLevels.dsDO().getId());
 
         List<BrowseLevelsVO> levels = this.browseService.listLevels(puid, uid, dbLevels, fo.isRefreshCache());
 
@@ -262,7 +262,7 @@ public class DmSecRangeController {
 
         // ds object list
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         List<BrowseLevelsVO> objects = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), false);
@@ -289,7 +289,7 @@ public class DmSecRangeController {
 
         // ds object list
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getTargetType());
         String leafName = fo.getTargetName();

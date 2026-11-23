@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.system.DmSysConsoleMapper">
+    <resultMap id="consoleDO" type="com.clougence.clouddm.platform.dal.model.system.DmSysConsoleDO">
+        <id column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="instance_id" property="instanceId"/>
+        <result column="console_instance_id" property="consoleInstanceId"/>
+        <result column="advertise_url" property="advertiseUrl"/>
+        <result column="state" property="state"/>
+        <result column="lease_until" property="leaseUntil"/>
+    </resultMap>
+
+    <sql id="console">
+        id,
+        gmt_create,
+        gmt_modified,
+        instance_id,
+        console_instance_id,
+        advertise_url,
+        state,
+        lease_until
+    </sql>
+
+    <insert id="insertConsole">
+        INSERT INTO
+            dm_sys_console (instance_id, console_instance_id, advertise_url, state, lease_until, gmt_create, gmt_modified)
+        VALUES
+            (
+                #{instanceId},
+                #{consoleInstanceId},
+                #{advertiseUrl},
+                #{state},
+                DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 10 SECOND),
+                CURRENT_TIMESTAMP(3),
+                CURRENT_TIMESTAMP(3)
+            )
+    </insert>
+
+    <update id="replaceExpiredConsole">
+        UPDATE
+            dm_sys_console
+        SET
+            instance_id   = #{instanceId},
+            advertise_url = #{advertiseUrl},
+            state         = #{state},
+            lease_until   = DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 10 SECOND),
+            gmt_modified  = CURRENT_TIMESTAMP(3)
+        WHERE
+            console_instance_id = #{consoleInstanceId}
+            AND
+            lease_until <![CDATA[ <= ]]> CURRENT_TIMESTAMP(3)
+    </update>
+
+    <select id="queryAliveByConsoleInstanceId" resultMap="consoleDO">
+        SELECT
+            <include refid="console"/>
+        FROM
+            dm_sys_console
+        WHERE
+            console_instance_id = #{consoleInstanceId}
+            AND
+            lease_until <![CDATA[ > ]]> CURRENT_TIMESTAMP(3)
+    </select>
+
+    <update id="updateStateAndLeaseUntil">
+        UPDATE
+            dm_sys_console
+        SET
+            state        = #{state},
+            lease_until  = DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 10 SECOND),
+            gmt_modified = CURRENT_TIMESTAMP(3)
+        WHERE
+            instance_id = #{instanceId}
+            AND
+            lease_until <![CDATA[ > ]]> CURRENT_TIMESTAMP(3)
+    </update>
+
+    <update id="updateStateAndLeaseUntilExcludingState">
+        UPDATE
+            dm_sys_console
+        SET
+            state        = #{state},
+            lease_until  = DATE_ADD(CURRENT_TIMESTAMP(3), INTERVAL 10 SECOND),
+            gmt_modified = CURRENT_TIMESTAMP(3)
+        WHERE
+            instance_id = #{instanceId}
+            AND
+            state       != #{excludedState}
+            AND
+            #{state}    != #{excludedState}
+    </update>
+
+    <select id="queryByInstanceIdAndLeaseUntilAfterNow" resultMap="consoleDO">
+        SELECT
+            <include refid="console"/>
+        FROM
+            dm_sys_console
+        WHERE
+            instance_id = #{instanceId}
+            AND
+            lease_until <![CDATA[ > ]]> CURRENT_TIMESTAMP(3)
+    </select>
+
+    <select id="listByStateAndLeaseUntilAfterNow" resultMap="consoleDO">
+        SELECT
+            <include refid="console"/>
+        FROM
+            dm_sys_console
+        WHERE
+            state       = #{state}
+            AND
+            lease_until <![CDATA[ > ]]> CURRENT_TIMESTAMP(3)
+    </select>
+
+    <select id="listConsolesWithStatus" resultMap="consoleDO">
+        SELECT
+            id,
+            gmt_create,
+            gmt_modified,
+            instance_id,
+            console_instance_id,
+            advertise_url,
+            CASE
+                WHEN lease_until <![CDATA[ > ]]> CURRENT_TIMESTAMP(3) THEN state
+                ELSE 'OFFLINE'
+            END AS state,
+            lease_until
+        FROM
+            dm_sys_console
+        ORDER BY
+            console_instance_id ASC
+    </select>
+
+    <select id="querySchedulerOwnerInstanceId" resultType="java.lang.String">
+        SELECT
+            owner_instance_id
+        FROM
+            dm_sys_console_scheduler
+        WHERE
+            id = 1
+    </select>
+
+    <update id="updateSchedulerOwnerInstanceId">
+        UPDATE
+            dm_sys_console_scheduler
+        SET
+            owner_instance_id = #{ownerInstanceId}
+        WHERE
+            id                = 1
+            AND
+            owner_instance_id <![CDATA[ <=> ]]> #{expectedOwnerInstanceId}
+    </update>
+
+    <update id="updateStateAndLeaseUntilToNow">
+        UPDATE
+            dm_sys_console
+        SET
+            state        = #{state},
+            lease_until  = CURRENT_TIMESTAMP(3),
+            gmt_modified = CURRENT_TIMESTAMP(3)
+        WHERE
+            instance_id = #{instanceId}
+    </update>
+</mapper>

@@ -47,9 +47,9 @@ import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
@@ -84,7 +84,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
     @Resource
     private DataSourceDal       dsDal;
     @Resource
-    private ObjectCacheDao      objectCacheDao;
+    private ObjectQueryDao      objectQueryDao;
     @Resource
     private QueryService        queryService;
     @Resource
@@ -212,7 +212,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         }
 
         if (!this.dmAuthServiceForBiz.checkResPathChildrenWithoutError(puid, uid, dsId, AuthKind.DataSource, RdpAuthUtils.genEmptyResPath(), SecDataAuthLabel.DM_DAUTH_QUERY)) {
-            DsCacheEntry entry = this.objectCacheDao.queryByDsId(dsId);
+            DsEntry entry = this.objectQueryDao.queryByDsId(dsId);
             String authRes = entry.getDsInstId() + "/";
             String dataAuthMsg = DmI18nUtils.getMessage(SecDataAuthLabel.DM_DAUTH_QUERY);
             String authMessage = DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), authRes, dataAuthMsg);

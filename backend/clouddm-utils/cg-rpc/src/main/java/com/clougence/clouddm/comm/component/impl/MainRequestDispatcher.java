@@ -25,9 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
 import org.slf4j.MDC;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.rsocket.RSocketRequester;
 
 import com.clougence.clouddm.comm.RSocketSerialization;
 import com.clougence.clouddm.comm.component.RSocketExceptionManager;
@@ -37,6 +39,7 @@ import com.clougence.clouddm.comm.component.RSocketThreadFactory;
 import com.clougence.clouddm.comm.constants.rsocket.RSocketLogNames;
 import com.clougence.clouddm.comm.constants.rsocket.RSocketRouteNames;
 import com.clougence.clouddm.comm.model.*;
+import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.comm.util.RSocketRespUtil;
 import com.clougence.utils.ClassUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -53,22 +56,25 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MainRequestDispatcher implements RSocketRequestDispatcher {
 
-    private final int                     CORE_SIZE           = 10;
-    private final int                     MAX_SIZE            = 100;
-    private final int                     WAIT_QUEUE_SIZE     = 1;
-    private final String                  THREAD_NAME         = "clouddm-rsocket-async-worker-pool";
+    private final int                                                    CORE_SIZE           = 10;
+    private final int                                                    MAX_SIZE            = 100;
+    private final int                                                    WAIT_QUEUE_SIZE     = 1;
+    private final String                                                 THREAD_NAME         = "clouddm-rsocket-async-worker-pool";
 
-    private static final int              LOG_COUNT_THRESHOLD = 100;
-    private final AtomicInteger           taskSubmitCount     = new AtomicInteger(0);
+    private static final int                                             LOG_COUNT_THRESHOLD = 100;
+    private final AtomicInteger                                          taskSubmitCount     = new AtomicInteger(0);
 
-    private final RSocketRequestManager   rSocketRequestManager;
-    private final RSocketExceptionManager rSocketExceptionManager;
-    private final RSocketSerialization    serialization;
+    private final RSocketRequestManager                                  rSocketRequestManager;
+    private final RSocketExceptionManager                                rSocketExceptionManager;
+    private final RSocketSerialization                                   serialization;
+    private final BiConsumer<RSocketRequestWrapperDTO, RSocketRequester> connectionGuard;
 
-    public MainRequestDispatcher(RSocketRequestManager rSocketRequestManager, RSocketExceptionManager rSocketExceptionManager, RSocketSerialization serialization){
+    public MainRequestDispatcher(RSocketRequestManager rSocketRequestManager, RSocketExceptionManager rSocketExceptionManager, RSocketSerialization serialization,
+                                 BiConsumer<RSocketRequestWrapperDTO, RSocketRequester> connectionGuard){
         this.rSocketRequestManager = rSocketRequestManager;
         this.rSocketExceptionManager = rSocketExceptionManager;
         this.serialization = serialization;
+        this.connectionGuard = connectionGuard;
     }
 
     private final ThreadPoolExecutor executorService = new ThreadPoolExecutor(CORE_SIZE,
@@ -82,10 +88,11 @@ public class MainRequestDispatcher implements RSocketRequestDispatcher {
     @MessageMapping(RSocketRouteNames.MAIN_REQUEST_DISPATCHER)
     @SneakyThrows
     @Override
-    public RSocketRespDTO<?> dispatchByRouteName(RSocketRequestWrapperDTO paramWrapper) {
+    public RSocketRespDTO<?> dispatchByRouteName(RSocketRequestWrapperDTO paramWrapper, RSocketRequester requester) {
         submitToAsyncWorkerPool(() -> {
             RSocketRespDTO<?> result;
             try {
+                connectionGuard.accept(paramWrapper, requester);
                 String apiMethodName = paramWrapper.getApiFullMethodName();
                 RSocketApiWrapper apiWrapper = RSocketApiManager.getWorkerDsApi(apiMethodName);
                 if (apiWrapper == null) {
@@ -106,7 +113,12 @@ public class MainRequestDispatcher implements RSocketRequestDispatcher {
                 for (int i = 0; i < parameters.length; i++) {
                     String paramJson = paramWrapper.getParamJsonValues().get(i);
                     RSocketParam obj = JsonUtils.toObj(paramJson, RSocketParam.class);
-                    deserializedParams.add(this.serialization.decode(obj.getSerializer(), obj.getData(), parameters[i].getParameterizedType()));
+                    Object decoded = this.serialization.decode(obj.getSerializer(), obj.getData(), parameters[i].getParameterizedType());
+                    if (i == 0 && decoded instanceof WorkerIdentity && paramWrapper.getWorkerIdentity() != null) {
+                        decoded = paramWrapper.getWorkerIdentity();
+                    }
+
+                    deserializedParams.add(decoded);
                 }
 
                 Object[] paramObjs = deserializedParams.toArray(new Object[0]);

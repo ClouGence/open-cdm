@@ -26,10 +26,10 @@ import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.detectrule.impl.SecRulesCheckSession4Batch.PreparedRule;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
+import com.clougence.clouddm.platform.dal.access.entry.EnvEntry;
+import com.clougence.clouddm.platform.dal.access.entry.UserEntry;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRule;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
@@ -55,7 +55,7 @@ public class SecRulesEngineImpl implements SecRulesEngine {
     @Resource
     private SecRulesService   secRulesService;
     @Resource
-    private ObjectCacheDao    objectCacheDao;
+    private ObjectQueryDao    objectQueryDao;
     @Resource
     private DmDsConfigService configService;
 
@@ -66,11 +66,11 @@ public class SecRulesEngineImpl implements SecRulesEngine {
             return SecRulesCheckSession4Disabled.getInstance();
         }
 
-        DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(context.getDsId());
-        return this.openQueryCheck(dsCache.getOwnerUid(), currentUid, dsConfig, context, dsCache);
+        DsEntry dsEntry = this.objectQueryDao.queryByDsId(context.getDsId());
+        return this.openQueryCheck(dsEntry.getOwnerUid(), currentUid, dsConfig, context, dsEntry);
     }
 
-    private SecRulesCheckSession openQueryCheck(String ownerUid, String currentUid, DataSourceConfig dsConfig, SecRulesCheckContext context, DsCacheEntry dsCache) {
+    private SecRulesCheckSession openQueryCheck(String ownerUid, String currentUid, DataSourceConfig dsConfig, SecRulesCheckContext context, DsEntry dsEntry) {
         if (!PluginManager.hasFeature(DsFeatureIDs.FUNC_RULE_CHECK_SUPPORT)) {
             log.warn("rule sec plugin is not init. or not exist.");
             return SecRulesCheckSession4Disabled.getInstance();
@@ -115,16 +115,16 @@ public class SecRulesEngineImpl implements SecRulesEngine {
         }
         rulesByTarget.replaceAll((target, r) -> List.copyOf(r));
 
-        UserCacheEntry userCache = this.objectCacheDao.queryByUid(context.getCurrentUID());
-        EnvCacheEntry envCache = this.objectCacheDao.queryByEnvId(dsCache.getEnvId());
+        UserEntry userEntry = this.objectQueryDao.queryByUid(context.getCurrentUID());
+        EnvEntry envEntry = this.objectQueryDao.queryByEnvId(dsEntry.getEnvId());
         DsBrowseSpi browseSpi = PluginManager.findDsBrowseSpi(dsType);
         return new SecRulesCheckSession4Batch(dsType,
             rules.getDsUseSpecName(),
             resolveSpi,
             contextInfo,
-            dsCache,
-            userCache,
-            envCache,
+            dsEntry,
+            userEntry,
+            envEntry,
             browseSpi,
             this.secRulesService.checkerSpi(),
             context,
