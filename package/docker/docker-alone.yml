@@ -13,6 +13,7 @@ services:
       - cgdm_mysql_data:/var/lib/mysql
     environment:
       APP_WEB_PORT: 8222
+      CONSOLE_INSTANCE_ID: dm-alone
       APP_SERVE_NAME: dm_alone
       APP_SERVE_PORT: 8008
       MYSQL_EMBEDDED: "true"

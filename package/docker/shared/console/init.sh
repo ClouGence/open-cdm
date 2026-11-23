@@ -86,6 +86,44 @@ if [ ! -f "$DST_CONF_FILE" ]; then
     /docker-entrypoint-init/copy_console.properties > "$DST_CONF_FILE"
 fi
 
+set_property() {
+  local key="$1"
+  local value="$2"
+  local escaped_key="${key//./\.}"
+  local escaped_value
+  escaped_value=$(sed_replacement_escape "$value")
+  if grep -q "^${escaped_key}=" "$DST_CONF_FILE"; then
+    sed -i "s/^${escaped_key}=.*/${key}=${escaped_value}/" "$DST_CONF_FILE"
+  else
+    printf '\n%s=%s\n' "$key" "$value" >> "$DST_CONF_FILE"
+  fi
+}
+
+if [ -n "${CONSOLE_CLUSTER_ENABLED:-}" ]; then
+  set_property clouddm.console.cluster.enabled "$CONSOLE_CLUSTER_ENABLED"
+fi
+
+if [ "${CONSOLE_CLUSTER_ENABLED:-false}" = "true" ]; then
+  if [ -z "${CONSOLE_CLUSTER_SECRET:-}" ]; then
+    echo "CONSOLE_CLUSTER_SECRET is required for multi-Console deployment." >&2
+    exit 1
+  fi
+
+  if [ -z "${CONSOLE_CLUSTER_ADVERTISE_URL:-}" ]; then
+    console_private_ip="${POD_IP:-}"
+    if [ -z "$console_private_ip" ]; then
+      read -r console_private_ip _ <<< "$(hostname -i)"
+    fi
+    if [[ "$console_private_ip" == *:* ]]; then
+      console_private_ip="[$console_private_ip]"
+    fi
+    CONSOLE_CLUSTER_ADVERTISE_URL="http://${console_private_ip}:${APP_WEB_PORT:-8222}"
+  fi
+
+  set_property clouddm.console.cluster.advertise-url "$CONSOLE_CLUSTER_ADVERTISE_URL"
+  set_property clouddm.console.cluster.secret "$CONSOLE_CLUSTER_SECRET"
+fi
+
 if [ -n "$DB_HOST" ]; then
   wait_for_db "$DB_HOST" "$DB_PORT"
 else

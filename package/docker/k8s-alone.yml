@@ -81,6 +81,8 @@ metadata:
   name: dm-alone
   namespace: cgdm
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
@@ -97,6 +99,8 @@ spec:
             - containerPort: 8222
             - containerPort: 8008
           env:
+            - name: CONSOLE_INSTANCE_ID
+              value: "dm-alone"
             - name: APP_WEB_PORT
               value: "8222"
             - name: APP_SERVE_NAME
