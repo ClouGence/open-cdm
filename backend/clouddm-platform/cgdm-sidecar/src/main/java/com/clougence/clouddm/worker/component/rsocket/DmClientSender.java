@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.rsocket;
+ */
+package com.clougence.clouddm.worker.component.rsocket;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -47,6 +48,7 @@ import com.clougence.utils.StringUtils;
 import com.google.common.base.Stopwatch;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.Disposable;
 
 /**
  * @author wanshao create time is 2021/1/11
@@ -93,12 +95,23 @@ public class DmClientSender implements RSocketClientSender {
             requestWrapperDTO.setParamJsonValues(jsonParamValues);
             // Though wait result here. Actually, server side have change the spring route
             // handler and process all request as fire-and-forget mode
-            requester.route(RSocketRouteNames.MAIN_REQUEST_DISPATCHER).data(requestWrapperDTO).retrieveMono(RSocketRespDTO.class).subscribe();
-            RSocketRespDTO<String> responseData = getAsyncResult(asyncRequestFuture);
-            stopwatch.stop();
-            log.debug("[worker->console] send request to console, method name:" + requestWrapperDTO.getApiFullMethodName() + ".request id:" + asyncRequestFuture.getRequestId()
-                      + ",elapse:" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms.");
-            return responseData;
+            Disposable closeListener = requester.rsocket()
+                .onClose()
+                .subscribe(null, asyncRequestFuture.getSettableFuture()::failed, () -> asyncRequestFuture.getSettableFuture().failed(new IOException("rsocket connection closed")));
+            try {
+                requester.route(RSocketRouteNames.MAIN_REQUEST_DISPATCHER)
+                    .data(requestWrapperDTO)
+                    .retrieveMono(RSocketRespDTO.class)
+                    .subscribe(null, asyncRequestFuture.getSettableFuture()::failed);
+                RSocketRespDTO<String> responseData = getAsyncResult(asyncRequestFuture);
+                stopwatch.stop();
+                log.debug("[worker->console] send request to console, method name:" + requestWrapperDTO.getApiFullMethodName() + ".request id:" + asyncRequestFuture.getRequestId()
+                          + ",elapse:" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms.");
+                return responseData;
+            } finally {
+                closeListener.dispose();
+                rSocketRequestManager.removeTimeoutFutureResult(asyncRequestFuture);
+            }
         } catch (Exception exception) {
             MDC.put("module", RSocketLogNames.RSOCKET_SEND_RECV_ERROR_LOG_NAME);
             String errMsg = "Sidecar's request is disposed,return fail result immediately.msg:" + ExceptionUtils.getRootCauseMessage(exception) + ".route name:"

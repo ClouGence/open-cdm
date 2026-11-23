@@ -29,6 +29,9 @@ import lombok.Setter;
 public class ArgSysWorkerObj {
 
     private Long        workerId;
+    private String      workerSeqNumber;
+    private String      ownerInstanceId;
+    private long        connectionGeneration;
     private String      workerIp;
     private WorkerState workerState;
     private String      workerDesc;

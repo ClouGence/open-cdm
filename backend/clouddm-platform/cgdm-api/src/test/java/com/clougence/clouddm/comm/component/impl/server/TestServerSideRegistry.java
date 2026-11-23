@@ -55,7 +55,8 @@ public class TestServerSideRegistry implements ServerSideRegistry {
     private final Map<String, RSocketRequester> workerRequesterMap = new ConcurrentHashMap<>();
 
     @Override
-    public void unRegister(String workerSeqNumber) {
+    public void unRegister(RSocketRegisterInfo registerInfo) {
+        String workerSeqNumber = registerInfo.getWorkerSeqNumber();
         log.warn("[TEST] begin to unregister worker with wsn: " + workerSeqNumber);
         // unregister
         testWorkerStatusMapper.getTestWorkerStatusDOMap().remove(workerSeqNumber);

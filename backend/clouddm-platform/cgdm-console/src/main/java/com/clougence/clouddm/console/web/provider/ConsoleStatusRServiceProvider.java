@@ -24,11 +24,7 @@ import com.clougence.clouddm.api.console.status.MetricStats;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
-import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
-import com.clougence.clouddm.platform.dal.access.entry.WorkerCacheEntry;
-import com.clougence.clouddm.platform.dal.model.LifeCycleState;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 
 import jakarta.annotation.Resource;
@@ -43,9 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsoleStatusRServiceProvider extends AbstractBasicProvider implements ConsoleStatusRService {
 
     @Resource
-    private WorkerService  workerService;
-    @Resource
-    private RdpUserService rdpUserService;
+    private WorkerService workerService;
 
     @Override
     public WorkerState fetchStatusAndHeartbeat(WorkerIdentity identity, Date heartbeat) {
@@ -56,9 +50,11 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
         DmSysWorkerDO workerDO = this.workerService.queryWorkerByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return WorkerState.NOT_EXIST;
-        } else {
-            return checkAndMaintainHb(workerDO, heartbeat, identity);
         }
+
+        log.debug("receive worker request,date:" + heartbeat);
+        this.workerService.upsertWorkerHeartbeat(identity);
+        return workerDO.getWorkerState();
     }
 
     @Override
@@ -76,11 +72,7 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
         WorkerState currentState = workerDO.getWorkerState();
 
         if (this.isUpdateToOnline(targetState, currentState) || this.isUpdateToOffline(targetState, currentState)) {
-            this.workerService.updateStatus(workerDO.getId(), targetState);
-
-            if (workerDO.getLifeCycleState() != LifeCycleState.CREATED) {
-                this.workerService.updateLifecycleState(workerDO.getId(), LifeCycleState.CREATED);
-            }
+            this.workerService.updateOwnedStatus(identity, currentState, targetState);
         }
     }
 
@@ -92,35 +84,13 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
         return targetState == WorkerState.OFFLINE && currentState == WorkerState.WAIT_TO_OFFLINE;
     }
 
-    private WorkerState checkAndMaintainHb(DmSysWorkerDO workerDO, Date sendDate, WorkerIdentity identity) {
-        DmAuthUserDO userDO = this.rdpUserService.getUserByAk(identity.getAccessKey());
-        if (userDO == null) {
-            log.error("worker ({}) access denied, access key not found", identity.getWorkerSeqNumber());
-            return WorkerState.NOT_EXIST;
-        }
-
-        if (!workerDO.getUid().equals(userDO.getUid())) {
-            log.error("worker (" + identity.getWorkerSeqNumber() + ") not belone user (" + identity.getAccessKey() + ")");
-            return WorkerState.NOT_EXIST;
-        }
-
-        log.debug("receive worker request,date:" + sendDate);
-        this.workerService.upsertWorkerHeartbeat(identity.getWorkerSeqNumber(), identity.getLocalIp(), sendDate);
-        return workerDO.getWorkerState();
-    }
-
     @Override
     public void reportAddress(WorkerIdentity identity, Date sendTime, String localIp) {
         if (!this.checkAccessKey(identity)) {
             return;
         }
 
-        WorkerCacheEntry workerDO = this.cacheDao.queryByWsn(identity.getWorkerSeqNumber());
-        if (workerDO == null) {
-            return;
-        }
-
-        this.workerService.updateWorkerIp(workerDO.getWorkerNumId(), localIp);
+        this.workerService.updateWorkerIp(identity, localIp);
     }
 
     @Override
@@ -129,12 +99,7 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
             return;
         }
 
-        WorkerCacheEntry workerDO = this.cacheDao.queryByWsn(identity.getWorkerSeqNumber());
-        if (workerDO == null) {
-            return;
-        }
-
         log.debug("receive worker metric request,date:" + sendTime);
-        this.workerService.updateWorkerMetric(workerDO.getWorkerNumId(), stats);
+        this.workerService.updateWorkerMetric(identity, stats);
     }
 }

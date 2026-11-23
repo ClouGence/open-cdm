@@ -32,12 +32,14 @@ import com.clougence.clouddm.comm.component.RSocketRequestDispatcher;
 import com.clougence.clouddm.comm.component.RSocketRequestManager;
 import com.clougence.clouddm.comm.component.impl.MainAsyncRequestManager;
 import com.clougence.clouddm.comm.component.impl.MainRequestDispatcher;
-import com.clougence.clouddm.comm.component.server.RSocketConnManager;
 import com.clougence.clouddm.comm.component.server.RSocketServerSender;
-import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleInternalClient;
+import com.clougence.clouddm.console.web.component.config.ConsoleClusterProperties;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 
 import io.rsocket.plugins.SocketAcceptorInterceptor;
@@ -54,11 +56,19 @@ public class ConsoleRSocketConfig {
     @Resource
     private AuthDal                      authDal;
     @Resource
+    private ExecutionDal                 executionDal;
+    @Resource
     private ApplicationContext           appCtx;
     @Resource
     private ConsoleConfig                config;
     @Resource
     private List<DmWorkerRegisterNotify> notifyServices;
+    @Resource
+    private ConsoleClusterService        cluster;
+    @Resource
+    private ConsoleClusterProperties     clusterProperties;
+    @Resource
+    private ConsoleInternalClient        internalClient;
 
     // server client share part
     @Bean
@@ -81,8 +91,7 @@ public class ConsoleRSocketConfig {
 
     @Bean
     public ConsoleRSocketServer consoleRSocketServer() {
-        return new ConsoleRSocketServer(consoleRSocketConnManager(),
-            consoleRSocketStrategies(),
+        return new ConsoleRSocketServer(consoleRSocketStrategies(),
             consoleRSocketRequestDispatcher(),
             consoleConnSetupProcessor(),
             consoleRSocketRequestManager(),
@@ -93,7 +102,7 @@ public class ConsoleRSocketConfig {
 
     @Bean
     public ConnSetupProcessor consoleConnSetupProcessor() {
-        return new ConnSetupProcessor(consoleServerSideRegistry(), new DmConsoleExceptionManager());
+        return new ConnSetupProcessor(consoleServerSideRegistry());
     }
 
     @Bean
@@ -103,12 +112,10 @@ public class ConsoleRSocketConfig {
 
     @Bean
     public RSocketRequestDispatcher consoleRSocketRequestDispatcher() {
-        return new MainRequestDispatcher(consoleRSocketRequestManager(), new DmConsoleExceptionManager(), RSocketSerializationImpl.DEFAULT);
-    }
-
-    @Bean
-    public RSocketConnManager consoleRSocketConnManager() {
-        return new DmConsoleConnManager(systemDal);
+        return new MainRequestDispatcher(consoleRSocketRequestManager(),
+            new DmConsoleExceptionManager(),
+            RSocketSerializationImpl.DEFAULT,
+            consoleServerSideRegistry()::checkIncoming);
     }
 
     public SocketAcceptorInterceptor consoleSocketAcceptorInterceptor() {
@@ -117,11 +124,17 @@ public class ConsoleRSocketConfig {
 
     @Bean
     public RSocketServerSender consoleRSocketServerSender() {
-        return new DmServerSender(consoleRSocketRequestManager(), this.systemDal, consoleServerSideRegistry(), RSocketSerializationImpl.DEFAULT);
+        return new DmServerSender(consoleRSocketRequestManager(),
+            this.systemDal,
+            consoleServerSideRegistry(),
+            RSocketSerializationImpl.DEFAULT,
+            cluster,
+            clusterProperties,
+            internalClient);
     }
 
     @Bean
-    public ServerSideRegistry consoleServerSideRegistry() {
-        return new DmServerSideRegistry(authDal, systemDal, notifyServices, new DmConsoleExceptionManager());
+    public DmServerSideRegistry consoleServerSideRegistry() {
+        return new DmServerSideRegistry(authDal, systemDal, executionDal, notifyServices, cluster, new DmConsoleExceptionManager());
     }
 }

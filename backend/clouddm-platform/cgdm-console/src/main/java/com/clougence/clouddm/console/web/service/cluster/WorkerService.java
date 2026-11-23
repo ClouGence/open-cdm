@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.clougence.clouddm.api.console.status.MetricStats;
 import com.clougence.clouddm.api.console.status.WorkerState;
+import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
@@ -56,11 +57,13 @@ public interface WorkerService {
 
     void updateLifecycleState(Long workerId, LifeCycleState lifeCycleState);
 
-    void updateWorkerIp(long workerId, String workerIp);
+    void updateWorkerIp(WorkerIdentity identity, String workerIp);
 
     void updateWorkerDesc(Long workerId, String desc);
 
-    void updateWorkerMetric(Long workerId, MetricStats metricStats);
+    void updateWorkerMetric(WorkerIdentity identity, MetricStats metricStats);
 
-    void upsertWorkerHeartbeat(String workerSeqNumber, String workerIp, java.util.Date workerSendTime);
+    void upsertWorkerHeartbeat(WorkerIdentity identity);
+
+    void updateOwnedStatus(WorkerIdentity identity, WorkerState previousState, WorkerState targetState);
 }

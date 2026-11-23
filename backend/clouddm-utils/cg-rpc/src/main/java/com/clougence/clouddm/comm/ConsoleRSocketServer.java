@@ -18,6 +18,7 @@ package com.clougence.clouddm.comm;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.time.Duration;
 
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
@@ -26,7 +27,6 @@ import com.clougence.clouddm.comm.component.RSocketLifeManager;
 import com.clougence.clouddm.comm.component.RSocketRequestDispatcher;
 import com.clougence.clouddm.comm.component.RSocketRequestManager;
 import com.clougence.clouddm.comm.component.RSocketStopListener;
-import com.clougence.clouddm.comm.component.server.RSocketConnManager;
 import com.clougence.clouddm.comm.constants.rsocket.RSocketConnConstants;
 import com.clougence.utils.ExceptionUtils;
 
@@ -34,6 +34,7 @@ import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.rsocket.plugins.SocketAcceptorInterceptor;
+import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +48,6 @@ public class ConsoleRSocketServer implements RSocketLifeManager {
 
     private final int                 SERVER_PORT;
 
-    private RSocketConnManager        rSocketConnManager;
-
     private RSocketStrategies         rSocketStrategies;
 
     private RSocketRequestDispatcher  rSocketRequestDispatcher;
@@ -61,10 +60,11 @@ public class ConsoleRSocketServer implements RSocketLifeManager {
 
     private SocketAcceptorInterceptor socketAcceptorInterceptor;
 
-    public ConsoleRSocketServer(RSocketConnManager rSocketConnManager, RSocketStrategies rSocketStrategies, RSocketRequestDispatcher rSocketRequestDispatcher,
-                                ConnSetupProcessor connSetupProcessor, RSocketRequestManager rSocketRequestManager, RSocketStopListener rSocketStopListener,
-                                SocketAcceptorInterceptor socketAcceptorInterceptor, int serverPort){
-        this.rSocketConnManager = rSocketConnManager;
+    private CloseableChannel          channel;
+
+    public ConsoleRSocketServer(RSocketStrategies rSocketStrategies, RSocketRequestDispatcher rSocketRequestDispatcher, ConnSetupProcessor connSetupProcessor,
+                                RSocketRequestManager rSocketRequestManager, RSocketStopListener rSocketStopListener, SocketAcceptorInterceptor socketAcceptorInterceptor,
+                                int serverPort){
         this.rSocketStrategies = rSocketStrategies;
         this.rSocketRequestDispatcher = rSocketRequestDispatcher;
         this.connSetupProcessor = connSetupProcessor;
@@ -75,23 +75,25 @@ public class ConsoleRSocketServer implements RSocketLifeManager {
     }
 
     @Override
-    @SneakyThrows
     public void start() {
         log.info("Console rsocket server begin to start on port " + SERVER_PORT + "......");
-        rSocketConnManager.resetWorkerStatusInDB();
         startSslServer();
     }
 
     @Override
     public void stop() {
         log.info("Console rsocket server vegin to stop on port " + SERVER_PORT + "......");
+        if (channel != null) {
+            channel.dispose();
+        }
+
         rSocketStopListener.doAfterStop();
     }
 
     protected void startSslServer() {
         SslContext sslContext = genSslContext();
         log.info("begin to start RSocket server...");
-        io.rsocket.core.RSocketServer.create()
+        channel = io.rsocket.core.RSocketServer.create()
             .interceptors(registry -> registry.forSocketAcceptor(socketAcceptorInterceptor))
             .acceptor(RSocketMessageHandler.responder(rSocketStrategies, connSetupProcessor, rSocketRequestDispatcher, rSocketRequestManager))
             .fragment(RSocketConnConstants.MTU_BYTE_SIZE)
@@ -101,7 +103,7 @@ public class ConsoleRSocketServer implements RSocketLifeManager {
                 .secure(ssl -> ssl.sslContext(sslContext))
                 .port(SERVER_PORT)
                 .doOnConnection(t -> log.info("NEW WORKER CONNECTED...."))))
-            .subscribe();
+            .block(Duration.ofSeconds(15));
         log.info("RSocket server is LISTENING at port " + SERVER_PORT);
     }
 

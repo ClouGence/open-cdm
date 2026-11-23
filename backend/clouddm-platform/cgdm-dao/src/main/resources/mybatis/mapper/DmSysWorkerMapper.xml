@@ -8,6 +8,8 @@
         <result column="gmt_modified" property="gmtModified"/>
         <result column="cluster_id" property="clusterId"/>
         <result column="worker_ip" property="workerIp"/>
+        <result column="owner_instance_id" property="ownerInstanceId"/>
+        <result column="connection_generation" property="connectionGeneration"/>
         <result column="cloud_or_idc_name" property="cloudOrIdcName"/>
         <result column="region" property="region"/>
         <result column="worker_state" property="workerState"/>
@@ -46,6 +48,8 @@
         gmt_modified,
         cluster_id,
         worker_ip,
+        owner_instance_id,
+        connection_generation,
         cloud_or_idc_name,
         region,
         worker_state,
@@ -421,7 +425,11 @@
             </if>
         </set>
         WHERE
-            id = #{workerId}
+            worker_seq_number     = #{workerSeqNumber}
+            AND
+            owner_instance_id     = #{ownerInstanceId}
+            AND
+            connection_generation = #{connectionGeneration}
     </update>
 
     <update id="updateInstallOrUpgradeInfo">
@@ -432,5 +440,94 @@
             install_or_upgrade_version = #{installOrUpgradeVersion}
         WHERE
             id = #{workerId}
+    </update>
+
+    <select id="lockByWsn" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_sys_worker
+        WHERE
+            worker_seq_number = #{workerSeqNumber}
+        FOR UPDATE
+    </select>
+
+    <update id="updateConnectionByWsn">
+        UPDATE
+            dm_sys_worker
+        SET
+            owner_instance_id        = #{ownerInstanceId},
+            connection_generation    = #{connectionGeneration},
+            worker_ip                = #{workerIp},
+            conn_status              = #{connStatus},
+            last_heartbeat_report_ms = #{lastHeartbeatReportMs},
+            gmt_modified             = NOW()
+        WHERE
+            worker_seq_number        = #{workerSeqNumber}
+    </update>
+
+    <update id="updateConnectionByWsnAndOwner">
+        UPDATE
+            dm_sys_worker
+        <set>
+            <if test="workerIp != null">
+                worker_ip = #{workerIp},
+            </if>
+            <if test="connStatus != null">
+                conn_status = #{connStatus},
+            </if>
+            <if test="lastHeartbeatReportMs != null">
+                last_heartbeat_report_ms = #{lastHeartbeatReportMs},
+            </if>
+            <if test="lastHeartbeatPingMs != null">
+                last_heartbeat_ping_ms = #{lastHeartbeatPingMs},
+            </if>
+            gmt_modified = NOW()
+        </set>
+        WHERE
+            worker_seq_number     = #{workerSeqNumber}
+            AND
+            owner_instance_id     <![CDATA[ <=> ]]> #{ownerInstanceId}
+            AND
+            connection_generation = #{connectionGeneration}
+    </update>
+
+    <update id="updateConnStatusByWsnAndHeartbeat">
+        UPDATE
+            dm_sys_worker
+        SET
+            conn_status  = #{worker.connStatus},
+            gmt_modified = NOW()
+        WHERE
+            worker_seq_number     = #{worker.workerSeqNumber}
+            AND
+            owner_instance_id     = #{worker.ownerInstanceId}
+            AND
+            connection_generation = #{worker.connectionGeneration}
+            AND
+            conn_status           = #{previousConnStatus}
+            AND
+            (
+                last_heartbeat_report_ms IS NULL
+                OR
+                last_heartbeat_report_ms <![CDATA[ < ]]> #{checkPoint}
+            )
+    </update>
+
+    <update id="updateWorkerStateByWsn">
+        UPDATE
+            dm_sys_worker
+        SET
+            worker_state     = #{worker.workerState},
+            life_cycle_state = #{worker.lifeCycleState},
+            gmt_modified     = NOW()
+        WHERE
+            worker_seq_number     = #{worker.workerSeqNumber}
+            AND
+            owner_instance_id     = #{worker.ownerInstanceId}
+            AND
+            connection_generation = #{worker.connectionGeneration}
+            AND
+            worker_state          = #{previousState}
     </update>
 </mapper>

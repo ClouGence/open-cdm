@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.comm.component;
 
+import org.springframework.messaging.rsocket.RSocketRequester;
+
 import com.clougence.clouddm.comm.model.RSocketRequestWrapperDTO;
 import com.clougence.clouddm.comm.model.RSocketRespDTO;
 
@@ -25,5 +27,5 @@ import com.clougence.clouddm.comm.model.RSocketRespDTO;
  **/
 public interface RSocketRequestDispatcher {
 
-    RSocketRespDTO<?> dispatchByRouteName(RSocketRequestWrapperDTO paramWrapper);
+    RSocketRespDTO<?> dispatchByRouteName(RSocketRequestWrapperDTO paramWrapper, RSocketRequester requester);
 }

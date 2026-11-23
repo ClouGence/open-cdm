@@ -12,9 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.rsocket;
-
-import jakarta.annotation.Resource;
+ */
+package com.clougence.clouddm.worker.component.rsocket;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -36,6 +35,8 @@ import com.clougence.clouddm.comm.component.client.RSocketClientAuthManager;
 import com.clougence.clouddm.comm.component.client.RSocketClientSender;
 import com.clougence.clouddm.comm.component.impl.MainAsyncRequestManager;
 import com.clougence.clouddm.comm.component.impl.MainRequestDispatcher;
+
+import jakarta.annotation.Resource;
 
 /**
  * @author wanshao create time is 2021/1/14
@@ -89,7 +90,8 @@ public class WorkerRSocketConfig {
 
     @Bean
     public RSocketRequestDispatcher sidecarRSocketRequestDispatcher() {
-        return new MainRequestDispatcher(sidecarRSocketRequestManager(), new DmClientExceptionManager(), RSocketSerializationImpl.DEFAULT);
+        return new MainRequestDispatcher(sidecarRSocketRequestManager(), new DmClientExceptionManager(), RSocketSerializationImpl.DEFAULT, (request, requester) -> {
+        });
     }
 
     @Bean

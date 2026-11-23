@@ -23,10 +23,10 @@ import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
-import com.clougence.clouddm.platform.dal.model.system.DeployStatus;
-import com.clougence.clouddm.platform.dal.model.system.ArgSysWorkerObj;
-import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.system.ArgSysWorkerObj;
+import com.clougence.clouddm.platform.dal.model.system.DeployStatus;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 
 /**
  * @author bucketli 2020-01-10 20:10
@@ -57,6 +57,17 @@ public interface DmSysWorkerMapper extends BaseMapper<DmSysWorkerDO> {
     List<DmSysWorkerDO> queryInactiveConnectedByHeartbeatReport(@Param("checkPointEpochMs") Long checkPointEpochMs);
 
     DmSysWorkerDO getByWsn(String workerSeqNumber);
+
+    DmSysWorkerDO lockByWsn(String workerSeqNumber);
+
+    int updateConnectionByWsn(DmSysWorkerDO worker);
+
+    int updateConnectionByWsnAndOwner(DmSysWorkerDO worker);
+
+    int updateWorkerStateByWsn(@Param("worker") DmSysWorkerDO worker, @Param("previousState") WorkerState previousState);
+
+    int updateConnStatusByWsnAndHeartbeat(@Param("worker") DmSysWorkerDO worker, @Param("previousConnStatus") WorkerConnStatus previousConnStatus,
+                                          @Param("checkPoint") long checkPoint);
 
     DmSysWorkerDO queryConnectedByWsn(String workerSeqNumber);
 

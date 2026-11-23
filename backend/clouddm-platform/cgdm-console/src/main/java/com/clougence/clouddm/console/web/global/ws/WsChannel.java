@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.global.ws;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.context.i18n.LocaleContext;
@@ -30,16 +30,24 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleInternalClient;
+import com.clougence.clouddm.console.web.component.cluster.model.ConsoleInternalAction;
+import com.clougence.clouddm.console.web.component.cluster.model.ConsoleInternalRequest;
+import com.clougence.clouddm.console.web.component.cluster.model.ConsoleNotification;
+import com.clougence.clouddm.console.web.component.config.ConsoleClusterProperties;
+import com.clougence.clouddm.console.web.constants.ConsoleInternalPaths;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
-import com.clougence.clouddm.console.web.global.session.SessionCheckResult;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
 import com.clougence.clouddm.console.web.global.jwtsession.WebSoInterceptor;
+import com.clougence.clouddm.console.web.global.session.SessionCheckResult;
 import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
 import com.clougence.clouddm.console.web.model.vo.system.WsSysMsg;
 import com.clougence.clouddm.console.web.service.editor.DsConsoleEditorService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
+import com.clougence.clouddm.platform.dal.model.system.DmSysConsoleDO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -60,27 +68,60 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     private DsConsoleEditorService          editorApi;
     @Resource
     private WsSessionGuard                  sessionGuard;
+    @Resource
+    private ConsoleClusterService           cluster;
+    @Resource
+    private ConsoleClusterProperties        clusterProperties;
+    @Resource
+    private ConsoleInternalClient           internalClient;
+    private ThreadPoolExecutor              notifications;
+    private boolean                         stopped;
 
     @Override
-    public void init() throws Exception {
-        this.inited.set(true);
-        // query request & response
-        DmGlobalEventBus.addQueryResultEventListen(o -> this.wsDirectChannel(WsType.WS_RES_QUERY, o));
-        // language request & response
-        DmGlobalEventBus.addLanguageResultEventListen(o -> this.wsDirectChannel(WsType.WS_RES_LANGUAGE, o));
-        // export info
-        DmGlobalEventBus.addQueryResultExportListen(o -> this.wsBroadcastChannel(WsType.WS_RES_EXPORT_EVENT, o.getUid(), o));
-        // operation audit export info
-        DmGlobalEventBus.addOpAuditExportListen(o -> this.wsBroadcastChannel(WsType.WS_RES_EXPORT_EVENT, o.getUid(), o));
-        // async task
-        DmGlobalEventBus.addDmAsyncEventListen(o -> this.wsBroadcastChannel(WsType.WS_RES_ASYNC_EVENT, o.getUid(), DmConvertUtils.convertToDmAsyncTaskVO(o)));
-        // driver download
-        DmGlobalEventBus.addDriverDownloadEventListen(o -> this.wsBroadcastChannel(WsType.WS_RES_DRIVER_DOWNLOAD_EVENT, o.uid(), o.progressVO()));
+    public synchronized void init() throws Exception {
+        if (this.stopped || this.notifications != null) {
+            return;
+        }
+
+        this.notifications = new ThreadPoolExecutor(2, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(256), r -> {
+            Thread thread = new Thread(r, "console-user-notification");
+            thread.setDaemon(true);
+            return thread;
+        }, new ThreadPoolExecutor.AbortPolicy());
+
+        try {
+            // query request & response
+            DmGlobalEventBus.addQueryResultEventListen(o -> this.wsDirectChannel(WsType.WS_RES_QUERY, o));
+            // language request & response
+            DmGlobalEventBus.addLanguageResultEventListen(o -> this.wsDirectChannel(WsType.WS_RES_LANGUAGE, o));
+            // export info
+            DmGlobalEventBus.addQueryResultExportListen(o -> this.wsBroadcastChannel(WsType.WS_RES_EXPORT_EVENT, o.getUid(), o));
+            // operation audit export info
+            DmGlobalEventBus.addOpAuditExportListen(o -> this.wsBroadcastChannel(WsType.WS_RES_EXPORT_EVENT, o.getUid(), o));
+            // async task
+            DmGlobalEventBus.addDmAsyncEventListen(o -> this.wsBroadcastChannel(WsType.WS_RES_ASYNC_EVENT, o.getUid(), DmConvertUtils.convertToDmAsyncTaskVO(o)));
+            // driver download
+            DmGlobalEventBus.addDriverDownloadEventListen(o -> this.wsBroadcastChannel(WsType.WS_RES_DRIVER_DOWNLOAD_EVENT, o.uid(), o.progressVO()));
+            this.inited.set(true);
+        } catch (Exception e) {
+            this.notifications.shutdownNow();
+            throw e;
+        }
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
+        this.stopped = true;
+        this.inited.set(false);
+        for (WsChannelStore store : this.sessionMap.values()) {
+            for (WebSocketSession ws : store.getChannelMap().values()) {
+                this.closeAndLog(ws, "console stopped or lost its lease", CloseStatus.SERVICE_RESTARTED);
+            }
+        }
 
+        if (this.notifications != null) {
+            this.notifications.shutdownNow();
+        }
     }
 
     @Override
@@ -90,14 +131,17 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
 
     @Override
     public void afterConnectionEstablished(WebSocketSession ws) {
-        boolean inited = this.inited.get();
-        SessionCheckResult checkResult = (SessionCheckResult) ws.getAttributes().get(WebSoInterceptor.WS_CHECK_RESULT);
+        if (!this.inited.get() || !this.cluster.isAcceptingWork()) {
+            this.closeAndLog(ws, "local service is not ready", CloseStatus.SERVICE_RESTARTED);
+            return;
+        }
 
-        // no payload may leave the socket before authoritative session registration
-        if (!inited || checkResult == null || !checkResult.isSuccess()) {
+        SessionCheckResult checkResult = (SessionCheckResult) ws.getAttributes().get(WebSoInterceptor.WS_CHECK_RESULT);
+        if (checkResult == null || !checkResult.isSuccess()) {
             closeQuietly(ws, CloseStatus.POLICY_VIOLATION, "pre-handshake check failed");
             return;
         }
+
         if (!this.sessionGuard.register(ws)) {
             return;
         }
@@ -105,7 +149,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
         WsSysMsg status = new WsSysMsg();
         status.setCurUserId((String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID));
         status.setChannelKey(WsUtils.getChannelKey(ws));
-        status.setServiceReady(inited);
+        status.setServiceReady(true);
         WsUtils.writeToSocket(ws, WsType.WS_SYS_STATUS, status);
 
         this.acceptChannel(ws);
@@ -212,6 +256,42 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     }
 
     private void wsBroadcastChannel(WsType type, String uid, Object data) {
+        broadcastLocal(type, uid, data);
+        if (!clusterProperties.isEnabled() || !cluster.isLeaseValid()) {
+            return;
+        }
+
+        ConsoleNotification notification = new ConsoleNotification();
+        notification.setUid(uid);
+        notification.setType(type);
+        notification.setData(data);
+        try {
+            notifications.execute(() -> notifyPeerConsoles(notification));
+        } catch (RejectedExecutionException e) {
+            log.warn("User notification queue is full: uid={}, type={}", uid, type);
+        }
+    }
+
+    private void notifyPeerConsoles(ConsoleNotification notification) {
+        ConsoleInternalRequest request = new ConsoleInternalRequest(ConsoleInternalAction.DELIVER_USER_EVENT, notification);
+        try {
+            for (DmSysConsoleDO member : cluster.readyMembers()) {
+                if (cluster.getInstanceId().equals(member.getInstanceId())) {
+                    continue;
+                }
+
+                try {
+                    internalClient.post(member, ConsoleInternalPaths.DISPATCH, request, System.currentTimeMillis() + 3000);
+                } catch (Exception e) {
+                    log.warn("User notification delivery failed: target={}, uid={}, type={}", member.getInstanceId(), notification.getUid(), notification.getType(), e);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("List notification recipients failed: uid={}, type={}", notification.getUid(), notification.getType(), e);
+        }
+    }
+
+    public void broadcastLocal(WsType type, String uid, Object data) {
         boolean sent = false;
         for (WsChannelStore channelStore : this.sessionMap.values()) {
             if (uid != null && uid.equals(channelStore.getUid())) {

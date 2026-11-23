@@ -26,6 +26,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructUtils;
 import com.clougence.clouddm.boot.config.FullAppConfig;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.constants.SystemStatus;
 import com.clougence.clouddm.console.web.global.exception.PrintErrorUncaughtExcHandler;
 import com.clougence.clouddm.init.InitApplication;
@@ -104,6 +105,7 @@ public class DmAloneLauncher {
         Thread workerInitThread = new Thread(() -> {
             try {
                 UnifiedPostConstructUtils.doPostConstruct(context, DmAloneLauncher::isWorkerClass);
+                context.getBean(ConsoleClusterService.class).markReady();
                 log.info("[DmAloneLauncher] Embedded worker plugins finished.");
             } catch (Throwable e) {
                 log.error("[DmAloneLauncher] Embedded worker bootstrap failed.", e);

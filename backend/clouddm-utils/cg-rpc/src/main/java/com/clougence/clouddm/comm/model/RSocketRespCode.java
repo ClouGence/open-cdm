@@ -27,7 +27,9 @@ public enum RSocketRespCode {
     /**
      * Error result enum.
      */
-    ERROR("0", "Request failure");
+    ERROR("0", "Request failure"),
+    EXECUTION_UNKNOWN("EXECUTION_UNKNOWN", "Worker RPC outcome unknown"),
+    OWNER_CHANGED_NOT_DISPATCHED("OWNER_CHANGED_NOT_DISPATCHED", "worker owner changed before dispatch");
 
     private String code;
     private String msg;
