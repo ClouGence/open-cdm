@@ -65,7 +65,7 @@ import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
@@ -101,7 +101,7 @@ public class DmDsController {
     @Resource
     private DmResAuthService          authService;
     @Resource
-    private ObjectCacheDao            cacheDao;
+    private ObjectQueryDao            objectQueryDao;
     @Resource
     private DmAuthServiceForBiz       authServiceForBiz;
     @Resource
@@ -147,7 +147,7 @@ public class DmDsController {
         DeployTypes deployType = null;
 
         if (fo.getDsId() != null && fo.getDsId() > 0) {
-            this.cacheDao.ownDataSource(puid, fo.getDsId());
+            this.objectQueryDao.ownDataSource(puid, fo.getDsId());
             this.authServiceForBiz.checkResAuth(puid, uid, fo.getDsId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_READ, AuthKind.DataSource);
             dsDO = this.dmDsService.fetchAndCheckById(fo.getDsId());
             dsType = dsDO.getDataSourceType();
@@ -187,7 +187,7 @@ public class DmDsController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         if (fo.getClusterId() != null) {
-            this.cacheDao.ownCluster(AuthDal.ROOT_USER_UID, fo.getClusterId());
+            this.objectQueryDao.ownCluster(AuthDal.ROOT_USER_UID, fo.getClusterId());
         }
 
         ResWebData<Long> result = this.dsService.addDs(uid, fo);
@@ -203,7 +203,7 @@ public class DmDsController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         if (fo.getClusterId() != null) {
-            this.cacheDao.ownCluster(puid, fo.getClusterId());
+            this.objectQueryDao.ownCluster(puid, fo.getClusterId());
         }
         return ResWebDataUtils.buildSuccess(this.dsService.testConnect(uid, fo));
     }
@@ -259,7 +259,7 @@ public class DmDsController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         long dataSourceId = fo.getDataSourceId();
 
-        this.cacheDao.ownDataSource(puid, dataSourceId);
+        this.objectQueryDao.ownDataSource(puid, dataSourceId);
         this.authServiceForBiz.checkResAuth(puid, uid, dataSourceId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
 
         DmDsDO dsDO = this.dsService.queryById(dataSourceId);
@@ -281,10 +281,10 @@ public class DmDsController {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_ID_REQUIRED_ERROR.name()));
         }
 
-        this.cacheDao.ownDataSource(puid, dsId);
+        this.objectQueryDao.ownDataSource(puid, dsId);
         this.authServiceForBiz.checkResAuth(puid, uid, dsId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
         if (fo.getClusterId() != null) {
-            this.cacheDao.ownCluster(puid, fo.getClusterId());
+            this.objectQueryDao.ownCluster(puid, fo.getClusterId());
         }
 
         ResWebData<Long> result = this.dsService.updateDs(uid, fo);
@@ -300,7 +300,7 @@ public class DmDsController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         long dataSourceId = fo.getDataSourceId();
 
-        this.cacheDao.ownDataSource(puid, dataSourceId);
+        this.objectQueryDao.ownDataSource(puid, dataSourceId);
         this.authServiceForBiz.checkResAuth(puid, uid, dataSourceId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
 
         UpdateDsDescLO updateLO = this.dsService.updateDataSourceDesc(puid, dataSourceId, fo.getInstanceDesc());
@@ -319,7 +319,7 @@ public class DmDsController {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
 
-        this.cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        this.objectQueryDao.ownDataSource(puid, fo.getDataSourceId());
         this.authServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
 
         DataSourceType dsType = null;

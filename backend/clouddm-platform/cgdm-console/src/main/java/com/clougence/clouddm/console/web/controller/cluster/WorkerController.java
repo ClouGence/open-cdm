@@ -38,7 +38,7 @@ import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.WorkerDetector;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 
 import jakarta.annotation.Resource;
@@ -58,7 +58,7 @@ public class WorkerController {
     @Resource
     private WorkerService  workerService;
     @Resource
-    private ObjectCacheDao objectCacheDao;
+    private ObjectQueryDao objectQueryDao;
     @Resource
     private WorkerDetector workerDetector;
 
@@ -66,7 +66,7 @@ public class WorkerController {
     @RequestMapping(value = "/listWorkers", method = RequestMethod.POST)
     public ResWebData<?> listWorkers(@Valid @RequestBody ListWorkersFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
+        this.objectQueryDao.ownCluster(puid, fo.getClusterId());
 
         List<DmSysWorkerDO> workerDOs = this.workerService.listWorkers(fo.getClusterId());
         List<WorkerVO> workerVOs = workerDOs.stream().map(w -> DmConvertUtils.convertToWorkerVO(w, this.workerDetector)).collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class WorkerController {
     @RequestMapping(value = "/updateWorkerDesc", method = RequestMethod.POST)
     public ResWebData<?> updateWorkerDesc(@Valid @RequestBody UpdateWorkerDescFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
+        this.objectQueryDao.ownWorker(puid, fo.getWorkerId());
 
         this.workerService.updateWorkerDesc(fo.getWorkerId(), fo.getDesc());
         return ResWebDataUtils.buildSuccess();
@@ -87,7 +87,7 @@ public class WorkerController {
     @RequestMapping(value = "/queryWorkerById", method = RequestMethod.POST)
     public ResWebData<?> queryWorkerById(@Valid @RequestBody QueryWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
+        this.objectQueryDao.ownWorker(puid, fo.getWorkerId());
 
         DmSysWorkerDO workerDO = this.workerService.getWorkerById(fo.getWorkerId());
         WorkerVO workerVO = DmConvertUtils.convertToWorkerVO(workerDO, this.workerDetector);
@@ -98,7 +98,7 @@ public class WorkerController {
     @RequestMapping(value = "/createInitialWorker", method = RequestMethod.POST)
     public ResWebData<?> createInitialWorker(@Valid @RequestBody CreateInitialWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
+        this.objectQueryDao.ownCluster(puid, fo.getClusterId());
 
         this.workerService.createInitialWorker(puid, fo);
         return ResWebDataUtils.buildSuccess();
@@ -108,7 +108,7 @@ public class WorkerController {
     @RequestMapping(value = "/deleteWorker", method = RequestMethod.POST)
     public ResWebData<?> deleteWorker(@Valid @RequestBody DeleteWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
+        this.objectQueryDao.ownWorker(puid, fo.getWorkerId());
 
         this.workerService.deleteWorker(fo.getWorkerId(), false);
         return ResWebDataUtils.buildSuccess();
@@ -118,7 +118,7 @@ public class WorkerController {
     @RequestMapping(value = "/waitToOffline", method = RequestMethod.POST)
     public ResWebData<?> waitToOffline(@Valid @RequestBody WaitToOfflineFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
+        this.objectQueryDao.ownWorker(puid, fo.getWorkerId());
 
         this.workerService.updateToWaitToOffline(fo.getWorkerId());
         return ResWebDataUtils.buildSuccess();
@@ -128,7 +128,7 @@ public class WorkerController {
     @RequestMapping(value = "/waitToOnline", method = RequestMethod.POST)
     public ResWebData<?> waitToOnline(@Valid @RequestBody WaitToOnlineFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
+        this.objectQueryDao.ownWorker(puid, fo.getWorkerId());
 
         this.workerService.updateToWaitToOnline(fo.getWorkerId());
         return ResWebDataUtils.buildSuccess();
@@ -138,7 +138,7 @@ public class WorkerController {
     @RequestMapping(value = "/downloadClientUrl", method = RequestMethod.POST)
     public ResWebData<?> downloadClientUrl(@Valid @RequestBody ClientUrlFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
+        this.objectQueryDao.ownWorker(puid, fo.getWorkerId());
 
         String downloadUrl = this.workerService.getClientDownloadUrl(fo.getWorkerId());
         return ResWebDataUtils.buildSuccess(downloadUrl);
@@ -149,7 +149,7 @@ public class WorkerController {
     public ResWebData<?> clientCoreConfig(@Valid @RequestBody ClientCoreConfFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
+        this.objectQueryDao.ownWorker(puid, fo.getWorkerId());
 
         WorkerDeployConfigVO coreConfig = this.workerService.getClientDeployCoreConfig(fo.getWorkerId(), puid);
         return ResWebDataUtils.buildSuccess(coreConfig);

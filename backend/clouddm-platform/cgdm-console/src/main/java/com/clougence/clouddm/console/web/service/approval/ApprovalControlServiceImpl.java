@@ -67,7 +67,7 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DmTeamUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.*;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
 import com.clougence.clouddm.platform.dal.model.approval.*;
 import com.clougence.clouddm.platform.dal.model.auth.*;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -127,7 +127,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Resource
     private ApprovalDal                 approvalDal;
     @Resource
-    private ObjectCacheDao              objectCacheDao;
+    private ObjectQueryDao              objectQueryDao;
     @Resource
     private QueryAnalysisService        queryAnalysisService;
     @Resource
@@ -1310,8 +1310,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     private void createExecJob(DmConfirmTicketFO fo, DmApprovalDO ticket, String jobBizId, Locale locale) {
-        DsCacheEntry dsCacheEntry = objectCacheDao.queryByDsId(ticket.getBindDsId());
-        Long dsEnvId = dsCacheEntry.getEnvId();
+        DsEntry dsEntry = objectQueryDao.queryByDsId(ticket.getBindDsId());
+        Long dsEnvId = dsEntry.getEnvId();
 
         List<String> levels = new ArrayList<>();
         levels.add(dsEnvId.toString());

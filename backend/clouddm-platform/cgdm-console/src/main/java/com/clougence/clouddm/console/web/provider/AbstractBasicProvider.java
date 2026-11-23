@@ -16,9 +16,12 @@
 package com.clougence.clouddm.console.web.provider;
 
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.WorkerCacheEntry;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
+import com.clougence.utils.SystemUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -30,26 +33,36 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractBasicProvider {
 
     @Resource
-    protected ObjectCacheDao cacheDao;
+    protected ObjectQueryDao objectQueryDao;
+    @Resource
+    private AuthDal          authDal;
+    @Resource
+    private SystemDal        systemDal;
 
     protected boolean checkAccessKey(WorkerIdentity identity) {
         if (identity == null) {
             return false;
         }
 
-        WorkerCacheEntry workerDO = this.cacheDao.queryByWsn(identity.getWorkerSeqNumber());
+        DmSysWorkerDO workerDO = this.systemDal.workerMapper().getByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return false;
         }
 
-        UserCacheEntry userDO = this.cacheDao.queryByAk(identity.getAccessKey());
-        if (userDO == null) {
+        // Network ownership is checked by checkIncoming; embedded calls derive the routing identity here.
+        if ("embedded".equals(SystemUtils.getSystemProperty("app.mode", "distributed"))) {
+            identity.setOwnerConsoleId(workerDO.getOwnerInstanceId());
+            identity.setConnectionGeneration(workerDO.getConnectionGeneration());
+        }
+
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByAccessKey(identity.getAccessKey());
+        if (userDO == null || userDO.isDisable()) {
             log.error("worker ({}) access denied, access key not found", identity.getWorkerSeqNumber());
             return false;
         }
 
-        if (!workerDO.getOwnerUid().equals(userDO.getUid())) {
-            log.error("worker (" + identity.getWorkerSeqNumber() + ") not belone user (" + identity.getAccessKey() + ")");
+        if (!workerDO.getUid().equals(userDO.getUid())) {
+            log.error("worker ({}) does not belong to the authenticated user", identity.getWorkerSeqNumber());
             return false;
         }
 

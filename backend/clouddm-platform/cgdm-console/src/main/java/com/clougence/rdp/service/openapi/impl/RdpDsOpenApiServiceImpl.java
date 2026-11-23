@@ -27,7 +27,7 @@ import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -52,7 +52,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
     @Resource
     private DmDsWebService      dsService;
     @Resource
-    private ObjectCacheDao      cacheDao;
+    private ObjectQueryDao      objectQueryDao;
 
     @Override
     public List<ApiDataSourceVO> listDs(String requestId, String puid, ApiListDsFO fo) {
@@ -102,7 +102,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
     @Override
     public ApiDataSourceVO queryDs(String puid, ApiQueryDsFO fo) {
-        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        objectQueryDao.ownDataSource(puid, fo.getDataSourceId());
         DmDsDO result = dsService.queryDsByIdWithoutPasswd(fo.getDataSourceId());
         ApiDataSourceVO apiVo = new ApiDataSourceVO();
         apiVo.convertFromDsVO(result);
@@ -112,13 +112,13 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
     @Override
     public void deleteDs(String puid, ApiDeleteDsFO fo) {
-        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        objectQueryDao.ownDataSource(puid, fo.getDataSourceId());
         dsService.delDataSource(puid, fo.getDataSourceId());
     }
 
     @Override
     public void updateDsDesc(String puid, ApiUpdateDsDescFO fo) {
-        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        objectQueryDao.ownDataSource(puid, fo.getDataSourceId());
         dsService.updateDataSourceDesc(puid, fo.getDataSourceId(), fo.getInstanceDesc());
     }
 
@@ -142,7 +142,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             throw new IllegalArgumentException("datasource data is illegal.");
         }
 
-        cacheDao.ownDataSource(puid, updateFO.getDataSourceId());
+        objectQueryDao.ownDataSource(puid, updateFO.getDataSourceId());
 
         updateFO.setSecurityFile(securityFile);
         updateFO.setSecretFile(secretFile);
@@ -152,7 +152,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
     @Override
     public List<ApiDsKvConfigVo> listDsKvConfs(String puid, ApiListDsKvConfigsByDsIdFO fo) {
-        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        objectQueryDao.ownDataSource(puid, fo.getDataSourceId());
 
         List<RdpDsKvConfigVO> confVos;
         if (StringUtils.isNotBlank(fo.getConfigName())) {
@@ -183,7 +183,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             throw new IllegalArgumentException("update config map and need create config map are both empty.");
         }
 
-        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        objectQueryDao.ownDataSource(puid, fo.getDataSourceId());
 
         UpsertDsKvConfigFO c = fo.genUpsertDsKvConfigFo();
         dsService.upsertDsConfigs(puid, c);

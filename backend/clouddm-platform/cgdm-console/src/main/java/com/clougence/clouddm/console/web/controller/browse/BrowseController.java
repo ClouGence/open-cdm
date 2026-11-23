@@ -47,7 +47,7 @@ import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DsResPath;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -78,7 +78,7 @@ public class BrowseController {
     @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
-    private ObjectCacheDao      objectCacheDao;
+    private ObjectQueryDao      objectQueryDao;
     @Resource
     private DmAuthServiceForBiz dmAuthServiceForBiz;
     @Resource
@@ -117,7 +117,7 @@ public class BrowseController {
         } else {
             // ds object list
             DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-            this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+            this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
             DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels());
             this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, fo.isRefreshCache());
@@ -150,7 +150,7 @@ public class BrowseController {
         } else if (fo.getLevels().size() == 2) {
             // the ds
             DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-            this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+            this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
             this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_QUERY);
 
             BrowseLevelsVO vo = this.browseService.detailDs(uid, levels);
@@ -158,7 +158,7 @@ public class BrowseController {
         } else {
             // the ds object
             DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-            this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+            this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
             this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_QUERY);
 
             BrowseLevelsVO vo = this.browseService.detailLevels(puid, uid, levels);
@@ -176,7 +176,7 @@ public class BrowseController {
         }
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels());
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
@@ -200,7 +200,7 @@ public class BrowseController {
         }
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), fo.getTargetName());
         this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
 

@@ -83,8 +83,8 @@ import com.clougence.clouddm.console.web.service.cicd.domain.DmScmDef;
 import com.clougence.clouddm.console.web.service.cluster.WorkerDetector;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.UserEntry;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeFlowType;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
@@ -1803,7 +1803,7 @@ public class DmConvertUtils {
         return scmVO;
     }
 
-    public static ChangeFlowVO convertToChangeFlowVO(DmChangeFlowDO flowDO, ObjectCacheDao ownerCacheService) {
+    public static ChangeFlowVO convertToChangeFlowVO(DmChangeFlowDO flowDO, ObjectQueryDao objectQueryDao) {
         ChangeFlowVO flowVO = new ChangeFlowVO();
         flowVO.setFlowId(flowDO.getId());
         flowVO.setFlowUid(flowDO.getFlowUid());
@@ -1822,7 +1822,7 @@ public class DmConvertUtils {
         flowVO.setCreateTime(WellKnowFormat.WKF_DATE10.format(flowDO.getGmtCreate()));
 
         String flowManagerUid = flowDO.getFlowManagerUid();
-        UserCacheEntry flowManager = ownerCacheService.queryByUid(flowManagerUid);
+        UserEntry flowManager = objectQueryDao.queryByUid(flowManagerUid);
         if (flowManager != null) {
             flowVO.setFlowManagerName(flowManager.getUserName());
         } else {
@@ -2013,7 +2013,7 @@ public class DmConvertUtils {
     }
 
     public static ChangeVO convertToChangeVO(DmChangeFlowDO flowDO, DmChangeDO obj, Map<Long, DmChangeFlowDO> devopsMap, Map<Long, DmDsDO> dsMap, Map<Long, DmGitOpsScmDO> scmMap,
-                                             ObjectCacheDao objectCacheDao) {
+                                             ObjectQueryDao objectQueryDao) {
         DmChangeFlowDO gitOpsFlowDO = devopsMap.get(obj.getRefFlowId());
         DmDsDO dsDO = dsMap.get(gitOpsFlowDO.getDsId());
         DmGitOpsScmDO scmDO = scmMap.get(gitOpsFlowDO.getRefScmId());
@@ -2024,7 +2024,7 @@ public class DmConvertUtils {
         vo.setParentChangeId(obj.getRefParentChangeId());
         vo.setFlowType(gitOpsFlowDO.getFlowType() == null ? ChangeFlowType.SCM : gitOpsFlowDO.getFlowType());
         vo.setFlowId(obj.getRefFlowId());
-        UserCacheEntry flowManager = objectCacheDao.queryByUid(gitOpsFlowDO.getFlowManagerUid());
+        UserEntry flowManager = objectQueryDao.queryByUid(gitOpsFlowDO.getFlowManagerUid());
         if (flowManager == null) {
             vo.setFlowManagerName("UID:" + gitOpsFlowDO.getFlowManagerUid());
         } else {

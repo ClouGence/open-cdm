@@ -16,9 +16,7 @@
 package com.clougence.clouddm.console.web.controller.cicd;
 
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_CICD_FLOW_MANAGE;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_CICD_FLOW_OPERATE;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_CICD_FLOW_READ;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,8 +51,8 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.UserEntry;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
@@ -85,7 +83,7 @@ public class DmChangeFlowController {
     @Resource
     private AuthDal             authDal;
     @Resource
-    private ObjectCacheDao      objectCacheDao;
+    private ObjectQueryDao      objectQueryDao;
     @Resource
     private DmChangeFlowService changeFlowService;
     @Resource
@@ -153,7 +151,7 @@ public class DmChangeFlowController {
 
         // ds object list
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
         List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, fo.isRefreshCache());
         return ResWebDataUtils.buildSuccess(vos);
     }
@@ -473,7 +471,7 @@ public class DmChangeFlowController {
         vo.setFlowType(flow.getFlowType() == null ? ChangeFlowType.SCM : flow.getFlowType());
         vo.setDsType(flow.getDsType());
         vo.setFlowManagerUid(flow.getFlowManagerUid());
-        UserCacheEntry manager = this.objectCacheDao.queryByUid(flow.getFlowManagerUid());
+        UserEntry manager = this.objectQueryDao.queryByUid(flow.getFlowManagerUid());
         vo.setFlowManagerName(manager == null ? "UID:" + flow.getFlowManagerUid() : manager.getUserName());
         vo.setSelectable(true);
         return vo;

@@ -33,8 +33,8 @@ import com.clougence.clouddm.console.web.model.fo.cicd.ChangeFlowParentConfigFO;
 import com.clougence.clouddm.console.web.model.fo.cicd.GuideCheckFlowFO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowRelationItemVO;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.UserEntry;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeBatchMapper;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeFlowMapper;
 import com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeMapper;
@@ -316,20 +316,20 @@ public class DmChangeFlowServiceImplHashTest {
         DmChangeMapper changeMapper = mock(DmChangeMapper.class);
         DmChangeBatchMapper batchMapper = mock(DmChangeBatchMapper.class);
         ChangeCascadeService changeCascadeService = mock(ChangeCascadeService.class);
-        ObjectCacheDao objectCacheDao = mock(ObjectCacheDao.class);
+        ObjectQueryDao objectQueryDao = mock(ObjectQueryDao.class);
         ImSenderService senderService = mock(ImSenderService.class);
         when(dal.flowMapper()).thenReturn(flowMapper);
         when(dal.changeMapper()).thenReturn(changeMapper);
         when(dal.batchMapper()).thenReturn(batchMapper);
         when(flowMapper.queryChildren(anyString(), anyLong())).thenReturn(Collections.emptyList());
         when(changeMapper.queryUnlockedChangesByFlowIds(anyString(), anyCollection())).thenReturn(Collections.emptyList());
-        UserCacheEntry operator = new UserCacheEntry();
+        UserEntry operator = new UserEntry();
         operator.setRoleName("admin");
         operator.setUserName("operator");
-        when(objectCacheDao.queryByUid("operator")).thenReturn(operator);
+        when(objectQueryDao.queryByUid("operator")).thenReturn(operator);
         DmChangeFlowServiceImpl service = new DmChangeFlowServiceImpl();
         ReflectionTestUtils.setField(service, "changeFlowDal", dal);
-        ReflectionTestUtils.setField(service, "objectCacheDao", objectCacheDao);
+        ReflectionTestUtils.setField(service, "objectQueryDao", objectQueryDao);
         ReflectionTestUtils.setField(service, "senderService", senderService);
         ReflectionTestUtils.setField(service, "changeCascadeService", changeCascadeService);
         return new RelationFixture(service, flowMapper, batchMapper, changeCascadeService);
@@ -382,8 +382,7 @@ public class DmChangeFlowServiceImplHashTest {
         private final DmChangeBatchMapper     batchMapper;
         private final ChangeCascadeService    changeCascadeService;
 
-        private RelationFixture(DmChangeFlowServiceImpl service, DmChangeFlowMapper flowMapper, DmChangeBatchMapper batchMapper,
-                                ChangeCascadeService changeCascadeService) {
+        private RelationFixture(DmChangeFlowServiceImpl service, DmChangeFlowMapper flowMapper, DmChangeBatchMapper batchMapper, ChangeCascadeService changeCascadeService){
             this.service = service;
             this.flowMapper = flowMapper;
             this.batchMapper = batchMapper;

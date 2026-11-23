@@ -91,7 +91,7 @@ public class ApprovalController {
     @Resource
     private DmDsConfigService      dmDsConfigService;
     @Resource
-    private ObjectCacheDao         objectCacheDao;
+    private ObjectQueryDao         objectQueryDao;
     @Resource
     private AuthDal                authDal;
     @Resource
@@ -297,7 +297,7 @@ public class ApprovalController {
 
         // ds object list
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
         List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, fo.isRefreshCache());
         List<BrowseLevelsVO> databases = new ArrayList<>();
         for (BrowseLevelsVO vo : vos) {

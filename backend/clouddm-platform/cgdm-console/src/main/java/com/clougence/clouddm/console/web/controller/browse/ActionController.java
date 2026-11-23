@@ -47,7 +47,7 @@ import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DsResPathObj;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -72,7 +72,7 @@ public class ActionController {
     @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
-    private ObjectCacheDao      objectCacheDao;
+    private ObjectQueryDao      objectQueryDao;
     @Resource
     private DmAuthServiceForBiz dmAuthServiceForBiz;
 
@@ -134,7 +134,7 @@ public class ActionController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
 
         List<TableEditorFieldForm> form = this.actionService.loadObjectEditorDef(puid, uid, levels, fo);
         return ResWebDataUtils.buildSuccess(form);
@@ -240,7 +240,7 @@ public class ActionController {
         }
         // the object
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
-        this.objectCacheDao.ownDataSource(puid, dsLevels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, dsLevels.dsDO().getId());
         return dsLevels;
     }
 }

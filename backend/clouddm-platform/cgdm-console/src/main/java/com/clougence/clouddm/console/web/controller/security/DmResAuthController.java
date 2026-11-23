@@ -46,7 +46,7 @@ import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -78,7 +78,7 @@ public class DmResAuthController {
     @Resource
     private DmDsWebService         dsService;
     @Resource
-    private ObjectCacheDao         cacheDao;
+    private ObjectQueryDao         objectQueryDao;
     @Resource
     private DmResAuthService       dmDsAuthService;
 
@@ -99,7 +99,7 @@ public class DmResAuthController {
         } else {
             // ds object list
             DsLevels levels = this.dsConfigService.parseLevels(fo.getResPaths());
-            this.cacheDao.ownDataSource(puid, levels.dsDO().getId());
+            this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, false);
             return ResWebDataUtils.buildSuccess(vos.stream().map(this::convertToAuthObjectVO).collect(Collectors.toList()));
         }
@@ -115,7 +115,7 @@ public class DmResAuthController {
         }
 
         DsLevels levels = this.dsConfigService.parseLevels(fo.getLevels());
-        this.cacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         List<BrowseLevelsVO> vos = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), false);
@@ -147,7 +147,7 @@ public class DmResAuthController {
         } else {
             // ds object list
             DsLevels levels = this.dsConfigService.parseLevels(fo.getResPaths());
-            this.cacheDao.ownDataSource(puid, levels.dsDO().getId());
+            this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, false);
             // filter
             ResourceAccessInfo resourceAccessInfo = this.dmDsAuthService.getAllowBrowseInfo(levels, fo.getUid());
@@ -170,7 +170,7 @@ public class DmResAuthController {
         }
 
         DsLevels levels = this.dsConfigService.parseLevels(fo.getLevels());
-        this.cacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         List<BrowseLevelsVO> vos = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), false);
@@ -207,7 +207,7 @@ public class DmResAuthController {
         } else {
             // ds object list
             DsLevels levels = this.dsConfigService.parseLevels(fo.getResPaths());
-            this.cacheDao.ownDataSource(puid, levels.dsDO().getId());
+            this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, false);
             // filter
             ResourceAccessInfo resourceAccessInfo = this.dmDsAuthService.getAllowBrowseInfo(levels, uid);
@@ -243,7 +243,7 @@ public class DmResAuthController {
         }
 
         DsLevels levels = this.dsConfigService.parseLevels(fo.getLevels());
-        this.cacheDao.ownDataSource(puid, levels.dsDO().getId());
+        this.objectQueryDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         List<BrowseLevelsVO> vos = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), false);

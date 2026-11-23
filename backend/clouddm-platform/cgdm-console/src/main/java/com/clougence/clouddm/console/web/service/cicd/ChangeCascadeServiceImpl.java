@@ -31,9 +31,9 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeTransferVO;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.UserEntry;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
@@ -57,7 +57,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
     @Resource
     private ChangeFlowDal     changeFlowDal;
     @Resource
-    private ObjectCacheDao    objectCacheDao;
+    private ObjectQueryDao    objectQueryDao;
     @Resource
     private SystemDal         systemDal;
     @Resource
@@ -251,7 +251,7 @@ public class ChangeCascadeServiceImpl implements ChangeCascadeService {
             if (!CollectionUtils.isEmpty(targetFlowIds)) {
                 for (DmChangeFlowDO flow : this.changeFlowDal.flowMapper().queryByIds(ownerUid, targetFlowIds)) {
                     targetFlows.put(flow.getId(), flow);
-                    UserCacheEntry manager = this.objectCacheDao.queryByUid(flow.getFlowManagerUid());
+                    UserEntry manager = this.objectQueryDao.queryByUid(flow.getFlowManagerUid());
                     String managerName;
                     if (manager == null) {
                         managerName = "UID:" + flow.getFlowManagerUid();

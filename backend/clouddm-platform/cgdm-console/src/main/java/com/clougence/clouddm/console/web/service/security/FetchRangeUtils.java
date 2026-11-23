@@ -33,9 +33,9 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.checkrules.SpecSaveRangeFO;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
-import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsEntry;
+import com.clougence.clouddm.platform.dal.access.entry.EnvEntry;
 import com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode;
 import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -50,11 +50,11 @@ import com.clougence.utils.StringUtils;
  */
 public class FetchRangeUtils {
 
-    private static ObjectCacheDao    ownerCacheService;
+    private static ObjectQueryDao    objectQueryDao;
     private static DmDsConfigService dsConfigService;
 
     public static void initUtils(ApplicationContext applicationContext) {
-        ownerCacheService = applicationContext.getBean(ObjectCacheDao.class);
+        objectQueryDao = applicationContext.getBean(ObjectQueryDao.class);
         dsConfigService = applicationContext.getBean(DmDsConfigService.class);
     }
 
@@ -109,12 +109,12 @@ public class FetchRangeUtils {
             range.setEnvironment(new SecRangeItem(MessageUtils.genEnvNameByEnvId(envId), envId));
         } else {
             String envId = levelPrefix[0];
-            EnvCacheEntry envCache = ownerCacheService.queryByEnvId(Long.parseLong(envId));
-            if (envCache == null) {
+            EnvEntry envEntry = objectQueryDao.queryByEnvId(Long.parseLong(envId));
+            if (envEntry == null) {
                 envNotExist(SecRangeVerify.Broken, range, envId);
                 range.setEnvironment(new SecRangeItem(MessageUtils.genEnvNameByEnvId(envId), envId));
             } else {
-                range.setEnvironment(new SecRangeItem(envCache.getEnvName(), envId));
+                range.setEnvironment(new SecRangeItem(envEntry.getEnvName(), envId));
             }
         }
     }
@@ -129,14 +129,14 @@ public class FetchRangeUtils {
             range.setInstance(new SecRangeItem(MessageUtils.genDsNameByDsId(dsId), dsId));
         } else {
             String dsId = levelPrefix[1];
-            DsCacheEntry dsCache = ownerCacheService.queryByDsId(Long.parseLong(dsId));
-            if (dsCache == null) {
+            DsEntry dsEntry = objectQueryDao.queryByDsId(Long.parseLong(dsId));
+            if (dsEntry == null) {
                 envNotExist(SecRangeVerify.Broken, range, dsId);
                 range.setInstance(new SecRangeItem(MessageUtils.genDsNameByDsId(dsId), dsId));
             } else {
-                String dsInstDesc = RdpConvertUtils.removeNoDescription(dsCache.getDsInstDesc());
-                range.setInstance(new SecRangeItem(dsCache.getDsInstId(), dsId, dsInstDesc));
-                range.setDsType(dsCache.getDsType());
+                String dsInstDesc = RdpConvertUtils.removeNoDescription(dsEntry.getDsInstDesc());
+                range.setInstance(new SecRangeItem(dsEntry.getDsInstId(), dsId, dsInstDesc));
+                range.setDsType(dsEntry.getDsType());
             }
         }
     }
@@ -152,13 +152,13 @@ public class FetchRangeUtils {
         boolean hasAnyVerify = false;
         if (range.getMatchMode() == SecMatchMode.EXACT) {
             for (String levelNode : levelNodes) {
-                EnvCacheEntry envCache = ownerCacheService.queryByEnvId(Long.parseLong(levelNode));
-                if (envCache == null) {
+                EnvEntry envEntry = objectQueryDao.queryByEnvId(Long.parseLong(levelNode));
+                if (envEntry == null) {
                     envNotExist(SecRangeVerify.Warn, range, levelNode);
                     range.getNodes().add(new SecRangeItem(MessageUtils.genEnvNameByEnvId(levelNode), levelNode));
                 } else {
                     hasAnyVerify = true;
-                    range.getNodes().add(new SecRangeItem(envCache.getEnvName(), levelNode));
+                    range.getNodes().add(new SecRangeItem(envEntry.getEnvName(), levelNode));
                 }
             }
         } else {
@@ -187,13 +187,13 @@ public class FetchRangeUtils {
         boolean hasAnyVerify = false;
         if (range.getMatchMode() == SecMatchMode.EXACT) {
             for (String levelNode : levelNodes) {
-                DsCacheEntry dsCache = ownerCacheService.queryByDsId(Long.parseLong(levelNode));
-                if (dsCache == null) {
+                DsEntry dsEntry = objectQueryDao.queryByDsId(Long.parseLong(levelNode));
+                if (dsEntry == null) {
                     dsNotExist(SecRangeVerify.Warn, range, levelNode);
                     range.getNodes().add(new SecRangeItem(MessageUtils.genDsNameByDsId(levelNode), levelNode));
                 } else {
                     hasAnyVerify = true;
-                    range.getNodes().add(new SecRangeItem(dsCache.getDsInstId(), levelNode, dsCache.getDsInstDesc()));
+                    range.getNodes().add(new SecRangeItem(dsEntry.getDsInstId(), levelNode, dsEntry.getDsInstDesc()));
                 }
             }
         } else {
@@ -373,8 +373,8 @@ public class FetchRangeUtils {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RANGE_VERIFY_MISSING_INSTANCE_MESSAGE.name()));
         }
 
-        DsCacheEntry dsCache = ownerCacheService.queryByDsId(fo.getDsId());
-        if (dsCache == null) {
+        DsEntry dsEntry = objectQueryDao.queryByDsId(fo.getDsId());
+        if (dsEntry == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
 
@@ -389,12 +389,12 @@ public class FetchRangeUtils {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RANGE_VERIFY_MISSING_INSTANCE_MESSAGE.name()));
         }
 
-        DsCacheEntry dsCache = ownerCacheService.queryByDsId(fo.getDsId());
-        if (dsCache == null) {
+        DsEntry dsEntry = objectQueryDao.queryByDsId(fo.getDsId());
+        if (dsEntry == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
 
-        DsBrowseSpi dsBrowseSpi = PluginManager.findDsBrowseSpi(dsCache.getDsType());
+        DsBrowseSpi dsBrowseSpi = PluginManager.findDsBrowseSpi(dsEntry.getDsType());
         if (dsBrowseSpi.getLevels().contains(UmiTypes.Catalog)) {
             return "/" + fo.getEnvId() + "/" + fo.getDsId() + "/" + fo.getCatalog();
         } else {
@@ -410,14 +410,14 @@ public class FetchRangeUtils {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RANGE_VERIFY_MISSING_INSTANCE_MESSAGE.name()));
         }
 
-        DsCacheEntry dsCache = ownerCacheService.queryByDsId(fo.getDsId());
-        if (dsCache == null) {
+        DsEntry dsEntry = objectQueryDao.queryByDsId(fo.getDsId());
+        if (dsEntry == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
 
         StringBuilder levelBuilder = new StringBuilder("/" + fo.getEnvId() + "/" + fo.getDsId());
 
-        DsBrowseSpi dsBrowseSpi = PluginManager.findDsBrowseSpi(dsCache.getDsType());
+        DsBrowseSpi dsBrowseSpi = PluginManager.findDsBrowseSpi(dsEntry.getDsType());
         if (dsBrowseSpi.getLevels().contains(UmiTypes.Catalog)) {
             if (StringUtils.isBlank(fo.getCatalog())) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RANGE_VERIFY_MISSING_CATALOG_MESSAGE.name()));
@@ -443,14 +443,14 @@ public class FetchRangeUtils {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RANGE_VERIFY_MISSING_INSTANCE_MESSAGE.name()));
         }
 
-        DsCacheEntry dsCache = ownerCacheService.queryByDsId(fo.getDsId());
-        if (dsCache == null) {
+        DsEntry dsEntry = objectQueryDao.queryByDsId(fo.getDsId());
+        if (dsEntry == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
 
         StringBuilder levelBuilder = new StringBuilder("/" + fo.getEnvId() + "/" + fo.getDsId());
 
-        DsBrowseSpi dsBrowseSpi = PluginManager.findDsBrowseSpi(dsCache.getDsType());
+        DsBrowseSpi dsBrowseSpi = PluginManager.findDsBrowseSpi(dsEntry.getDsType());
         if (dsBrowseSpi.getLevels().contains(UmiTypes.Catalog)) {
             if (StringUtils.isBlank(fo.getCatalog())) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RANGE_VERIFY_MISSING_CATALOG_MESSAGE.name()));
@@ -479,11 +479,11 @@ public class FetchRangeUtils {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RANGE_VERIFY_MISSING_INSTANCE_MESSAGE.name()));
         }
 
-        DsCacheEntry dsCache = ownerCacheService.queryByDsId(fo.getDsId());
-        if (dsCache == null) {
+        DsEntry dsEntry = objectQueryDao.queryByDsId(fo.getDsId());
+        if (dsEntry == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
 
-        return dsCache.getDsType();
+        return dsEntry.getDsType();
     }
 }

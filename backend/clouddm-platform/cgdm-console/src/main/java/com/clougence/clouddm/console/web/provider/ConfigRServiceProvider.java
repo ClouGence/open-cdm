@@ -35,7 +35,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.service.ssh.SshConfigService;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.EnvEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
@@ -132,10 +132,10 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
         if (!rules.isValid() || CollectionUtils.isEmpty(rules.getSenRuleList())) {
             return null;
         } else {
-            EnvCacheEntry envCache = this.cacheDao.queryByEnvId(rules.getEnvId());
+            EnvEntry envEntry = this.objectQueryDao.queryByEnvId(rules.getEnvId());
             SensitiveConfig config = new SensitiveConfig();
-            config.setEnvId(envCache.getEnvNumId());
-            config.setEnvName(envCache.getEnvName());
+            config.setEnvId(envEntry.getEnvNumId());
+            config.setEnvName(envEntry.getEnvName());
             config.setDsId(rules.getDsId());
             config.setDsName(rules.getDsName());
             config.setDsType(rules.getDsType());

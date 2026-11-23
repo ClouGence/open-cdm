@@ -25,8 +25,8 @@ import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectQueryDao;
+import com.clougence.clouddm.platform.dal.access.entry.UserEntry;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
@@ -49,7 +49,7 @@ public class DmDataSourceNotify implements RdpNotifyService {
     @Resource
     private DmAuthServiceForManage authServiceForManage;
     @Resource
-    private ObjectCacheDao         cacheDao;
+    private ObjectQueryDao         objectQueryDao;
     @Resource
     private RdpUserService         userService;
 
@@ -89,8 +89,8 @@ public class DmDataSourceNotify implements RdpNotifyService {
         authFO.setUpdates(Collections.emptyList());
         authFO.setDeletes(Collections.emptyList());
 
-        UserCacheEntry userCache = this.cacheDao.queryByUid(operatorUid);
-        this.authServiceForManage.modifyUserAuth(userCache.getParentUid(), authFO);
+        UserEntry userEntry = this.objectQueryDao.queryByUid(operatorUid);
+        this.authServiceForManage.modifyUserAuth(userEntry.getParentUid(), authFO);
     }
 
     public void onDsDelete(long dsId) {
