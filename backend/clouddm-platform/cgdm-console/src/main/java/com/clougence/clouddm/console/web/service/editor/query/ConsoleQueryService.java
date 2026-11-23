@@ -26,9 +26,6 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
-import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
-import com.clougence.clouddm.api.console.sqlaudit.Type;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPhaseOfBatch;
 import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
@@ -526,24 +523,19 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_RESPONSE_MESSAGE.name());
             consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Info));
-            this.queryExecutor.submitTask(() -> asyncQueryWaitResult(queryDTO, consumer, ctx)); // 4.9. wait result.
+            this.queryExecutor.submitTask(() -> {
+                try {
+                    return asyncQueryWaitResult(queryDTO, consumer, ctx, batchId);
+                } catch (Exception e) {
+                    log.error("Query result delivery interrupted, sessionId={}", sessionId, e);
+                    consumer.accept(BuildResMsgUtils
+                        .buildHintMsg(queryDTO, DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_STREAM_INTERRUPTED_ERROR.name()), MessageLevel.Error));
+                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                    return ExitCode.finish();
+                }
+            });
             return ExitCode.finish();
         } catch (Exception e) {
-            try {
-                String message = ExceptionUtils.getRootCauseMessage(e);
-                for (QueryRequest request : requests) {
-                    SqlExecNotifyDTO audit = new SqlExecNotifyDTO();
-                    audit.setType(Type.SQL_END);
-                    audit.setStatus(SqlStatus.ERROR);
-                    audit.setQueryId(request.getQueryId());
-                    audit.setSessionId(sessionId);
-                    audit.setMessage(message);
-                    audit.setTime(new Date());
-                    this.auditService.recordAudit(audit, null);
-                }
-            } catch (Throwable auditError) {
-                log.error("Failed to mark prepared SQL audits as error.", auditError);
-            }
             String errorKey = HostUtil.getHostIp() + ":" + UUID.randomUUID().toString().replace("-", "");
             log.error("errorKey: " + errorKey + ", error is ", e.getMessage(), e);
             ctx.resetStatus();
@@ -713,7 +705,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     // 4.11. wait result.
-    private ExitCode asyncQueryWaitResult(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx) {
+    private ExitCode asyncQueryWaitResult(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx, String batchId) {
         String primaryUid = queryDTO.getPrimaryUserId();
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
@@ -732,7 +724,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         ResultList result;
         do {
-            result = this.queryService.fetchQueryResult(curUid, sessionId);
+            result = this.queryService.fetchQueryResult(curUid, sessionId, batchId);
 
             for (Result r : result.getResultList()) {
                 if (!r.isSuccess()) {

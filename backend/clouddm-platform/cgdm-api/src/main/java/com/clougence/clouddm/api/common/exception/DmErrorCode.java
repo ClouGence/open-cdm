@@ -34,6 +34,9 @@ public enum DmErrorCode {
     // Plugin error 104xx
     PLUGIN_DAMAGED_ERROR("10401"),
 
+    // Query error
+    QUERY_SESSION_INTERRUPTED("QUERY_SESSION_INTERRUPTED"),
+
     //Ticket error
     TICKET_SQL_PARSE_FAILED("20001");
 

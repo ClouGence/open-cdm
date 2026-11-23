@@ -1294,7 +1294,12 @@ export default {
         appLogger.error(e);
       }
     },
-    onerror() {},
+    onerror(error) {
+      this.tab.running = false;
+      this.tab.stopping = false;
+      this.tab.result.pending = null;
+      this.tab.message = { text: error.message || this.$t('sql-connection-disconnected'), show: true, type: 'Error' };
+    },
     onopen() {},
     handleCloseError() {
       this.tab.message.show = false;
