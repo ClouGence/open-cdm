@@ -90,12 +90,7 @@
 
           <!-- Step 2: Connectivity Configuration -->
           <div v-show="hasConnectivityStep && currentStep === connectivityStepIndex" class="step-panel">
-            <StepConnectivity
-              :fieldDefs="connectivityFields"
-              :formValues="formValues"
-              :readonly="isConnectivityReadonly"
-              @update:formValues="updateFormValues"
-            />
+            <StepConnectivity :fieldDefs="connectivityFields" :formValues="formValues" @update:formValues="updateFormValues" />
           </div>
 
           <!-- Identification of steps -->
@@ -137,6 +132,7 @@
 
 <script>
 import appLogger from '@/utils/logger';
+import { createUuid } from '@/utils/uuid';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import StepDb from './StepDb.vue';
 import StepSecurity from './StepSecurity.vue';
@@ -151,6 +147,7 @@ import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '..
 
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
 const INIT_WORKFLOW_MODE_KEY = 'clougence.init.workflowMode';
+const CONSOLE_INSTANCE_ID_KEY = 'clouddm.console.cluster.instance-id';
 const ALONE_HIDDEN_FIELD_KEYS = new Set(['server.port', 'clouddm.rsocket.dns', 'clouddm.rsocket.console.port']);
 const INSTALL_PHASE_NOTICE_META = {
   DB_INIT: {
@@ -400,7 +397,14 @@ export default {
       return this.workflowMode === 'upgrade';
     },
     hasConnectivityStep() {
-      return !this.isUpgradeMode && !this.aloneMode;
+      return !this.isUpgradeMode && this.connectivityFields.length > 0;
+    },
+    consoleInstanceIdError() {
+      const field = this.connectivityFields.find((item) => item.propertyKey === CONSOLE_INSTANCE_ID_KEY);
+      if (field && !String(this.formValues[CONSOLE_INSTANCE_ID_KEY] || '').trim()) {
+        return field.description;
+      }
+      return '';
     },
     pageTitle() {
       return this.isUpgradeMode ? this.$t('initialization.upgradeTitle') : this.$t('initialization.title');
@@ -491,9 +495,6 @@ export default {
     },
     isDbFormReadonly() {
       return this.isUpgradeMode;
-    },
-    isConnectivityReadonly() {
-      return this.aloneMode;
     },
     canTestDb() {
       return !this.dbMissingFields.length;
@@ -673,9 +674,12 @@ export default {
         if (res.success) {
           this.fieldDefs = res.data;
           const values = {};
-          res.data.forEach((f) => {
+          this.fieldDefs.forEach((f) => {
             values[f.propertyKey] = f.defaultValue || '';
           });
+          if (values[CONSOLE_INSTANCE_ID_KEY] === '') {
+            values[CONSOLE_INSTANCE_ID_KEY] = `console-${createUuid()}`;
+          }
           this.formValues = values;
           this.dbTestResult = null;
           this.dbMissingFields = [];
@@ -835,12 +839,16 @@ export default {
         return this.formatSecurityMissingFieldsMessage();
       }
 
+      if (this.hasConnectivityStep && this.currentStep === this.connectivityStepIndex) {
+        return this.consoleInstanceIdError;
+      }
+
       return '';
     },
 
     getConfirmBlockedMessage() {
       if (this.isUpgradeMode) {
-        return '';
+        return this.consoleInstanceIdError;
       }
 
       if (this.dbMissingFields.length) {
@@ -859,7 +867,7 @@ export default {
         return this.dbTestResult.message || this.$t('initialization.dbTestNotPassed');
       }
 
-      return '';
+      return this.consoleInstanceIdError;
     },
 
     async nextStep() {

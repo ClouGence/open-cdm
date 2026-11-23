@@ -35,6 +35,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.crypt.PasswordInfo;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.config.ConsoleClusterProperties;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.service.system.InstallationReportState;
@@ -180,14 +182,33 @@ public class SysInitService {
         String modeKey = StringUtils.defaultString(executionConfig.get(INIT_WORKFLOW_MODE_KEY));
         boolean upgrade = StringUtils.equalsIgnoreCase(INIT_WORKFLOW_MODE_UPGRADE, modeKey);
 
-        if (upgrade) {
-            upgradeSystem(executionConfig);
+        String key = ConsoleClusterProperties.INSTANCE_ID_PROPERTY;
+        String consoleInstanceId;
+        if (executionConfig.containsKey(key)) {
+            String instanceId = executionConfig.get(key);
+            if (!Objects.equals(instanceId, ConsoleClusterProperties.resolveInstanceId(instanceId))) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_FIELD_CONSOLE_INSTANCE_ID_OVERRIDE));
+            }
+            consoleInstanceId = requireConsoleInstanceId(instanceId);
         } else {
-            applyInitConfig(executionConfig);
+            consoleInstanceId = requireConsoleInstanceId(ConsoleClusterProperties.resolveInstanceId(this.defService.loadSystemProperties().getProperty(key)));
+        }
+
+        if (upgrade) {
+            upgradeSystem(executionConfig, consoleInstanceId);
+        } else {
+            applyInitConfig(executionConfig, consoleInstanceId);
         }
 
         markInstallationReportPending(executionConfig, upgrade ? InstallationReportState.UPGRADE : InstallationReportState.INSTALL);
         scheduleRestart();
+    }
+
+    private String requireConsoleInstanceId(String instanceId) {
+        if (!ConsoleClusterProperties.isValidInstanceId(instanceId)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_FIELD_CONSOLE_INSTANCE_ID_DESC));
+        }
+        return instanceId;
     }
 
     private void markInstallationReportPending(Map<String, String> userConfig, String type) {
@@ -239,7 +260,7 @@ public class SysInitService {
         }
     }
 
-    public void applyInitConfig(Map<String, String> userConfig) {
+    private void applyInitConfig(Map<String, String> userConfig, String consoleInstanceId) {
         String jdbcUrl = userConfig.get(JDBC_URL_CONFIG_KEY);
         InstallUpgradeLogBus.start("install", jdbcUrl);
         try {
@@ -274,7 +295,7 @@ public class SysInitService {
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
                 String databaseName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
                 pendingScripts = DmFlywayInit.listUpgradeRequiredScriptNames(jdbcUrl, dbUser, dbPass, databaseName);
-                runFlywayMigration(jdbcUrl, dbUser, dbPass, bootstrapAdmin ? adminAccount : null, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
+                runFlywayMigration(jdbcUrl, dbUser, dbPass, consoleInstanceId, bootstrapAdmin ? adminAccount : null, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
             }
 
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && StringUtils.isNotBlank(adminAccount) && StringUtils.isNotBlank(adminEmail)
@@ -297,7 +318,7 @@ public class SysInitService {
         }
     }
 
-    public void upgradeSystem(Map<String, String> userConfig) throws Exception {
+    private void upgradeSystem(Map<String, String> userConfig, String consoleInstanceId) throws Exception {
         if (userConfig != null && !userConfig.isEmpty()) {
             replaceConfigLines(userConfig);
         }
@@ -319,7 +340,7 @@ public class SysInitService {
                 prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing);
             }
 
-            runUpgradeMigration(jdbcUrl, dbUser, dbPass);
+            runUpgradeMigration(jdbcUrl, dbUser, dbPass, consoleInstanceId);
             if (createIfMissing) {
                 runFixTasks(jdbcUrl, dbUser, dbPass, false);
             }
@@ -354,6 +375,8 @@ public class SysInitService {
 
         List<InitFieldDef> schema = this.defService.getFieldDefsSchema();
         List<String> cleanedLines = new ArrayList<>();
+        String instanceIdKey = ConsoleClusterProperties.INSTANCE_ID_PROPERTY;
+        boolean instanceIdPresent = false;
         for (int i = 0; i < lines.size(); i++) {
             String originalLine = lines.get(i);
             String line = originalLine.trim();
@@ -367,6 +390,10 @@ public class SysInitService {
                 continue;
             }
             String key = line.substring(0, eqIdx).trim();
+            if (instanceIdKey.equals(key)) {
+                instanceIdPresent = true;
+            }
+
             for (InitFieldDef def : schema) {
                 if (key.equals(def.getPropertyKey()) && shouldPersistInitField(key) && userConfig.containsKey(key)) {
                     String newValue = userConfig.get(key);
@@ -380,10 +407,14 @@ public class SysInitService {
             cleanedLines.add(originalLine);
         }
 
+        if (!instanceIdPresent && userConfig.containsKey(instanceIdKey)) {
+            cleanedLines.add(instanceIdKey + "=" + userConfig.get(instanceIdKey));
+        }
+
         Files.write(configFile, cleanedLines, StandardCharsets.UTF_8);
     }
 
-    private void runFlywayMigration(String jdbcUrl, String dbUser, String dbPass,//
+    private void runFlywayMigration(String jdbcUrl, String dbUser, String dbPass, String consoleInstanceId,//
                                     String adminAccount, String adminEmail, String adminPassword) {
         log.info("[SysInitService] Running Flyway migration with: {}", jdbcUrl);
         String previousAdminAccount = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY);
@@ -404,7 +435,7 @@ public class SysInitService {
             InstallUpgradeLogBus.info("Starting Flyway migration task.");
 
             try (ConfigurableApplicationContext ctx = app.run()) {
-                ctx.getBean(DmFlywayInit.class).doUpgrade();
+                ctx.getBean(DmFlywayInit.class).doUpgrade(consoleInstanceId);
                 log.info("[SysInitService] Flyway migration done.");
             }
         } catch (Exception e) {
@@ -417,7 +448,7 @@ public class SysInitService {
         }
     }
 
-    private void runUpgradeMigration(String jdbcUrl, String dbUser, String dbPass) {
+    private void runUpgradeMigration(String jdbcUrl, String dbUser, String dbPass, String consoleInstanceId) {
         log.info("[SysInitService] Running upgrade migration with: {}", jdbcUrl);
         try {
             SpringApplication app = new SpringApplication(InitTaskApplication.class);
@@ -429,7 +460,7 @@ public class SysInitService {
             InstallUpgradeLogBus.info("Starting upgrade migration task.");
 
             try (ConfigurableApplicationContext ctx = app.run()) {
-                ctx.getBean(DmFlywayInit.class).doUpgradeAndValidate();
+                ctx.getBean(DmFlywayInit.class).doUpgradeAndValidate(consoleInstanceId);
                 log.info("[SysInitService] Upgrade migration done.");
             }
         } catch (Exception e) {
