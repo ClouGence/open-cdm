@@ -15,7 +15,10 @@
  */
 package com.clougence.clouddm.console.web.service.editor.script;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -57,8 +60,6 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
     private static final long           FILE_GRACE_MS     = TimeUnit.HOURS.toMillis(1);
     @Resource
     private ExecutionDal                executionDal;
-    @Resource
-    private SqlScriptStorage            sqlScriptStorage;
     private ScheduledThreadPoolExecutor cleanExecutor;
 
     @Override
@@ -81,12 +82,13 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
         validateDsType(fo.getDsType());
         validateContent(fo.getSqlContent());
 
-        String fileUri = store(fo.getSqlContent());
         DmExecSqlScriptDO script = new DmExecSqlScriptDO();
         script.setOwnerUid(ownerUid);
         script.setName(name);
         script.setDsType(fo.getDsType());
-        script.setFileUri(fileUri);
+        // The retained file_uri column still requires a unique, non-null value.
+        script.setFileUri("db://sql-script/" + UUID.randomUUID());
+        script.setSqlContent(fo.getSqlContent());
         script.setStatus(SqlScriptStatus.Ready);
         script.setVersion(0L);
         Date modified = currentSecond();
@@ -95,11 +97,7 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
         try {
             this.executionDal.sqlScriptMapper().insert(script);
         } catch (DuplicateKeyException e) {
-            deleteStored(fileUri);
             throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_NAME_EXISTS_ERROR);
-        } catch (RuntimeException e) {
-            deleteStored(fileUri);
-            throw e;
         }
 
         return new SqlScriptMutationVO(script.getId(), 0L, modified);
@@ -115,22 +113,15 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
         if (!Objects.equals(current.getVersion(), fo.getVersion())) {
             throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_VERSION_CONFLICT_ERROR);
         }
-        touchStored(current.getFileUri(), fo.getScriptId());
-        String fileUri = store(fo.getSqlContent());
         Date modified = currentSecond();
         int updated;
         try {
-            updated = this.executionDal.sqlScriptMapper().updateByVersion(fo.getScriptId(), ownerUid, fo.getVersion(), name, fo.getDsType(), fileUri, modified);
+            updated = this.executionDal.sqlScriptMapper().updateByVersion(fo.getScriptId(), ownerUid, fo.getVersion(), name, fo.getDsType(), fo.getSqlContent(), modified);
         } catch (DuplicateKeyException e) {
-            deleteStored(fileUri);
             throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_NAME_EXISTS_ERROR);
-        } catch (RuntimeException e) {
-            deleteStored(fileUri);
-            throw e;
         }
 
         if (updated == 0) {
-            deleteStored(fileUri);
             if (this.executionDal.sqlScriptMapper().detail(fo.getScriptId(), ownerUid) == null) {
                 throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_NOT_EXIST_ERROR);
             }
@@ -159,30 +150,16 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
     @Override
     public SqlScriptDetailVO detail(String ownerUid, long scriptId) {
         DmExecSqlScriptDO script = requireScript(ownerUid, scriptId);
-        for (int attempt = 0; attempt < 2; attempt++) {
-            try {
-                SqlScriptDetailVO vo = new SqlScriptDetailVO();
-                copySummary(script, vo);
-                vo.setSqlContent(this.sqlScriptStorage.read(script.getFileUri()));
-                return vo;
-            } catch (RuntimeException e) {
-                DmExecSqlScriptDO latest = this.executionDal.sqlScriptMapper().detail(scriptId, ownerUid);
-                if (latest != null && !Objects.equals(script.getFileUri(), latest.getFileUri())) {
-                    script = latest;
-                    continue;
-                }
-                log.error("read SQL script failed, scriptId: {}", scriptId, e);
-                throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_STORAGE_ERROR);
-            }
-        }
-        throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_STORAGE_ERROR);
+        SqlScriptDetailVO vo = new SqlScriptDetailVO();
+        copySummary(script, vo);
+        vo.setSqlContent(script.getSqlContent());
+        return vo;
     }
 
     @Override
     public void delete(String ownerUid, long scriptId) {
         for (int attempt = 0; attempt < 3; attempt++) {
             DmExecSqlScriptDO script = requireScript(ownerUid, scriptId);
-            touchStored(script.getFileUri(), scriptId);
             Date modified = currentSecond();
             if (this.executionDal.sqlScriptMapper().markDeleting(scriptId, ownerUid, script.getVersion(), modified) > 0) {
                 return;
@@ -195,20 +172,11 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
         try {
             Date expireBefore = new Date(System.currentTimeMillis() - FILE_GRACE_MS);
             IPage<DmExecSqlScriptDO> deleting = this.executionDal.sqlScriptMapper().listDeleting(new Page<>(1, CLEAN_BATCH), expireBefore);
-            deleting.getRecords().forEach(this::tryDelete);
-            Set<String> references = new HashSet<>(this.executionDal.sqlScriptMapper().listFileUris());
-            this.sqlScriptStorage.cleanupOrphans(references);
+            for (DmExecSqlScriptDO script : deleting.getRecords()) {
+                this.executionDal.sqlScriptMapper().deleteDeleting(script.getId());
+            }
         } catch (Throwable e) {
             log.error("clean SQL scripts failed", e);
-        }
-    }
-
-    private void tryDelete(DmExecSqlScriptDO script) {
-        try {
-            this.sqlScriptStorage.delete(script.getFileUri());
-            this.executionDal.sqlScriptMapper().deleteDeleting(script.getId());
-        } catch (RuntimeException e) {
-            log.warn("delete SQL script will be retried, scriptId: {}", script.getId(), e);
         }
     }
 
@@ -239,32 +207,6 @@ public class SqlScriptServiceImpl implements SqlScriptService, UnifiedPostConstr
             throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_NAME_EMPTY_ERROR);
         }
         return normalized;
-    }
-
-    private String store(String content) {
-        try {
-            return this.sqlScriptStorage.put(content);
-        } catch (RuntimeException e) {
-            log.error("store SQL script failed", e);
-            throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_STORAGE_ERROR);
-        }
-    }
-
-    private void touchStored(String fileUri, long scriptId) {
-        try {
-            this.sqlScriptStorage.touch(fileUri);
-        } catch (RuntimeException e) {
-            log.error("touch SQL script failed, scriptId: {}", scriptId, e);
-            throw error(I18nDmMsgKeys.CONSOLE_QUERY_SCRIPT_STORAGE_ERROR);
-        }
-    }
-
-    private void deleteStored(String fileUri) {
-        try {
-            this.sqlScriptStorage.delete(fileUri);
-        } catch (RuntimeException e) {
-            log.warn("compensating SQL script delete failed; orphan cleanup will retry", e);
-        }
     }
 
     private SqlScriptSummaryVO toSummary(DmExecSqlScriptDO script) {

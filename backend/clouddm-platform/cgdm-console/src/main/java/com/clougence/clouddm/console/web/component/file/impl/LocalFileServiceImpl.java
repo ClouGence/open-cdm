@@ -217,6 +217,9 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
             attachment.setFileSize(fileSize);
             attachment.setFileHash(fileHash);
             this.systemDal.attachmentMapper().insert(attachment);
+            try (InputStream input = Files.newInputStream(source)) {
+                this.systemDal.writeAttachment(attachment.getId(), input, fileSize);
+            }
 
             target = uploadFile(attachment);
             Files.createDirectories(target.getParent());
@@ -284,7 +287,7 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
             return false;
         }
         if (attachment.getAttachmentStatus() == SysAttachmentStatus.EDITING) {
-            return !expired(attachment) && Files.isRegularFile(uploadFile(attachment));
+            return !expired(attachment);
         }
         return attachment.getAttachmentStatus() == SysAttachmentStatus.CONFIRMED;
     }
@@ -301,36 +304,8 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
         if (temporaryDirectory.equals(localFile) || !localFile.startsWith(temporaryDirectory)) {
             throw new IllegalArgumentException("cache file must be under the CloudDM temporary directory");
         }
-        synchronized (this.restoreLocks[Math.floorMod(attachment.getId().hashCode(), this.restoreLocks.length)]) {
-            if (!Files.isRegularFile(localFile)) {
-                try {
-                    Files.createDirectories(localFile.getParent());
-                    Path writingDirectory = localFile.getParent().resolveSibling(".writing");
-                    Files.createDirectories(writingDirectory);
-                    Path staging = Files.createTempFile(writingDirectory, localFile.getFileName() + ".writing-", "");
-                    try {
-                        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                        try (OutputStream output = new DigestOutputStream(Files.newOutputStream(staging), digest)) {
-                            if (!this.systemDal.readAttachment(attachment.getId(), output)) {
-                                throw fileNotFound();
-                            }
-                        } catch (Exception e) {
-                            throw new IllegalStateException("restore local file content failed", e);
-                        }
-                        String fileHash = HexFormat.of().formatHex(digest.digest());
-                        if (Files.size(staging) != attachment.getFileSize() || !fileHash.equals(attachment.getFileHash())) {
-                            throw new IllegalStateException("local file checksum mismatch");
-                        }
-                        move(staging, localFile);
-                    } finally {
-                        Files.deleteIfExists(staging);
-                    }
-                } catch (Exception e) {
-                    log.error("restore local file failed, fileId: {}", attachment.getId(), e);
-                    throw new IllegalStateException("restore local file failed, fileId: " + attachment.getId(), e);
-                }
-            }
-        }
+
+        this.restoreFile(attachment, localFile);
         try {
             return visitor.eApply(localFile);
         } catch (ErrorMessageException e) {
@@ -382,13 +357,7 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_FILE_EXPIRED_ERROR.name()));
         }
 
-        Path file = this.requireEditingFile(attachment);
-        try (InputStream input = Files.newInputStream(file)) {
-            this.systemDal.writeAttachment(fileId, input, attachment.getFileSize());
-        } catch (IOException e) {
-            log.error("persist local file failed, fileId: {}", fileId, e);
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_FILE_SAVE_FAILED_ERROR.name(), e.getMessage()));
-        }
+        this.requireEditingFile(attachment);
 
         if (this.systemDal.attachmentMapper().lock(fileId, approvalId, userUid, before) != 1) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_FILE_EXPIRED_ERROR.name()));
@@ -428,10 +397,45 @@ public class LocalFileServiceImpl implements LocalFileService, UnifiedPostConstr
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_SQL_FILE_EXPIRED_ERROR.name()));
         }
         Path file = uploadFile(attachment);
-        if (!Files.isRegularFile(file)) {
-            throw fileNotFound(attachment.getAttachmentType());
-        }
+        this.restoreFile(attachment, file);
         return file;
+    }
+
+    private void restoreFile(DmSysAttachmentDO attachment, Path localFile) {
+        synchronized (this.restoreLocks[Math.floorMod(attachment.getId().hashCode(), this.restoreLocks.length)]) {
+            if (Files.isRegularFile(localFile)) {
+                return;
+            }
+
+            try {
+                Files.createDirectories(localFile.getParent());
+                Path writingDirectory = localFile.getParent().resolveSibling(".writing");
+                Files.createDirectories(writingDirectory);
+                Path staging = Files.createTempFile(writingDirectory, localFile.getFileName() + ".writing-", "");
+                try {
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    try (OutputStream output = new DigestOutputStream(Files.newOutputStream(staging), digest)) {
+                        if (!this.systemDal.readAttachment(attachment.getId(), output)) {
+                            throw fileNotFound();
+                        }
+                    } catch (Exception e) {
+                        throw new IllegalStateException("restore local file content failed", e);
+                    }
+
+                    String fileHash = HexFormat.of().formatHex(digest.digest());
+                    if (Files.size(staging) != attachment.getFileSize() || !fileHash.equals(attachment.getFileHash())) {
+                        throw new IllegalStateException("local file checksum mismatch");
+                    }
+
+                    move(staging, localFile);
+                } finally {
+                    Files.deleteIfExists(staging);
+                }
+            } catch (Exception e) {
+                log.error("restore local file failed, fileId: {}", attachment.getId(), e);
+                throw new IllegalStateException("restore local file failed, fileId: " + attachment.getId(), e);
+            }
+        }
     }
 
     private static boolean expired(DmSysAttachmentDO attachment) {
