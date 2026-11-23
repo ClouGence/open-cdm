@@ -15,8 +15,6 @@
  */
 package com.clougence.rdp.service.openapi.model;
 
-import com.clougence.clouddm.console.web.global.mcp.model.McpField;
-
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
@@ -27,7 +25,6 @@ import lombok.Data;
 public class ApiQueryDsFO {
 
     @Min(value = 1, message = "{min.datasourceid}")
-    @McpField(value = RdpMcpLabelKeys.DATASOURCE_ID, required = true)
     private long dataSourceId;
 
 }

@@ -22,7 +22,6 @@ import java.util.Set;
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.LocaleContextHolder;
 
-import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
 import com.clougence.clouddm.platform.dal.i18n.I18nDaoKeys;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys;
@@ -56,7 +55,6 @@ public class DmI18nUtils {
         I18N_UTILS.loadResources("/i18n/validation");
         I18N_UTILS.loadResources("/i18n/sec-rule-message");
         I18N_UTILS.loadResources("/i18n/ai/messages");
-        I18N_UTILS.loadResources(DmMcpI18nKey.class);
         I18N_UTILS.loadResources(I18nDmLabelKeys.class);
         I18N_UTILS.loadResources(I18nDmMsgKeys.class);
         I18N_UTILS.loadResources(I18nDaoKeys.class);

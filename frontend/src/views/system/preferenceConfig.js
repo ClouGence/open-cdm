@@ -352,26 +352,6 @@ export const PREFERENCE_TABS = [
         ]
       }
     ]
-  },
-  {
-    name: 'mcp',
-    hidden: true,
-    labelKey: 'preference-tab-mcp',
-    sections: [
-      {
-        name: 'mcp-service',
-        titleKey: 'preference-section-mcp-service',
-        fields: [
-          {
-            key: 'dmEnableMCP',
-            labelKey: 'preference-mcp-enabled',
-            helpKey: 'preference-mcp-enabled-help',
-            widget: 'switch',
-            defaultValue: false
-          }
-        ]
-      }
-    ]
   }
 ];
 

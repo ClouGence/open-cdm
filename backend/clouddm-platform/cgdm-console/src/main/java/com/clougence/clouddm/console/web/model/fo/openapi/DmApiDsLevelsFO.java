@@ -17,9 +17,6 @@ package com.clougence.clouddm.console.web.model.fo.openapi;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
-import com.clougence.clouddm.console.web.global.mcp.model.McpField;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,9 +27,7 @@ import lombok.Setter;
 @Setter
 public class DmApiDsLevelsFO {
 
-    @McpField(value = DmMcpI18nKey.F_LEVELS_DESC, required = true)
     private List<String> levels;
 
-    @McpField(value = DmMcpI18nKey.F_REFRESH_CACHE_DESC)
     private boolean      refreshCache;
 }
