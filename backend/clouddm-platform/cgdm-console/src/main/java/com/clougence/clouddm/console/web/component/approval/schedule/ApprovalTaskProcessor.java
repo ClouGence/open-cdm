@@ -24,11 +24,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
 import com.clougence.clouddm.console.web.component.approval.*;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalAnalysisStateMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -72,8 +75,11 @@ import lombok.extern.slf4j.Slf4j;
 */
 @Slf4j
 @Service
-public class ApprovalTaskProcessor {
+@UnifiedPostConstructOrder(-1)
+public class ApprovalTaskProcessor implements UnifiedPostConstruct {
 
+    @Resource
+    private ConsoleClusterService                   cluster;
     @Resource
     private SystemDal                               systemDal;
     @Resource
@@ -96,16 +102,23 @@ public class ApprovalTaskProcessor {
     private CustomApprovalService                   customApprovalService;
     @Resource
     private PlatformTransactionManager              txManager;
-    private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
+    @Resource
+    private List<ApprovalHandler>                   handlers;
+    private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers = new EnumMap<>(ApprovalBiz.class);
 
-    public ApprovalTaskProcessor(List<ApprovalHandler> handlers){
-        this.approvalHandlers = new EnumMap<>(ApprovalBiz.class);
-        for (ApprovalHandler approvalHandler : handlers) {
+    @Override
+    public void init() {
+        for (ApprovalHandler approvalHandler : this.handlers) {
             ApprovalBiz type = approvalHandler.handleType();
             if (this.approvalHandlers.putIfAbsent(type, approvalHandler) != null) {
                 throw new IllegalStateException("ApprovalHandler about " + type + " already exists");
             }
         }
+    }
+
+    @Override
+    public void stop() {
+
     }
 
     // PRE_INIT_WAIT -> PRE_INIT_RUN
@@ -201,22 +214,88 @@ public class ApprovalTaskProcessor {
     }
 
     // WAIT_APPROVAL -> [WAIT_APPROVAL \ WAIT_CONFIRM \ REJECTED]
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void processWaitApproval(DmApprovalDO approvalDO) {
-        long ticketId = approvalDO.getId();
-        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.APPROVAL);
-        if (approvalDO.getApproType() != ApprovalType.Internal) {
-            if (StringUtils.isEmpty(approvalDO.getApproIdentity())) {
-                // avoid create multiple approval processes in multiple consoles
-                DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalDO.getId());
-                if (StringUtils.isEmpty(ticketDO.getApproIdentity())) {
-                    approvalHandler(approvalDO.getApproBiz()).createApproval(ticketDO.getId(), imSenderService);
-                }
-            }
-
-            getLastInfoIfNecessary(processDO, approvalDO);
+        if (approvalDO.getApproType() == ApprovalType.Internal) {
+            return;
         }
 
+        long ticketId = approvalDO.getId();
+        TransactionTemplate transaction = new TransactionTemplate(this.txManager);
+        transaction.setPropagationBehavior(Propagation.REQUIRES_NEW.value());
+        if (StringUtils.isBlank(approvalDO.getApproIdentity())) {
+            this.createExternalApprovalIfNecessary(ticketId, transaction);
+        }
+
+        DmApprovalDO ticket = this.approvalDal.approvalMapper().queryById(ticketId);
+        if (ticket != null && StringUtils.isNotBlank(ticket.getApproIdentity())) {
+            transaction.executeWithoutResult(status -> {
+                this.approvalDal.approvalMapper().selectByIdForUpdate(ticketId);
+                DmApprovalProcessDO process = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.APPROVAL);
+                ApprovalStageMO context = CustomApprovalService.parseStageContext(process);
+                if (context.getExecMsg() != null && Boolean.TRUE.equals(context.getExternalCreateStarted())) {
+                    context.setExecMsg(null);
+                    this.approvalDal.processMapper().updateContextById(process.getId(), JsonUtils.toJson(context));
+                }
+            });
+
+            this.getLastInfoIfNecessary(this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.APPROVAL), ticket);
+        }
+    }
+
+    private void createExternalApprovalIfNecessary(long ticketId, TransactionTemplate transaction) {
+        Boolean claimed = transaction.execute(status -> {
+            this.cluster.requireSchedulerLeader();
+            DmApprovalDO ticket = this.approvalDal.approvalMapper().selectByIdForUpdate(ticketId);
+            if (this.isApprovalCreationIntentBlocked(ticket)) {
+                return false;
+            }
+
+            DmApprovalProcessDO process = this.approvalDal.processMapper().queryByStage(ticketId, ApprovalStage.APPROVAL);
+            ApprovalStageMO context = CustomApprovalService.parseStageContext(process);
+            if (Boolean.TRUE.equals(context.getExternalCreateStarted())) {
+                return false;
+            }
+
+            // Commit the intent before the external call; an unknown outcome must not create another instance.
+            context.setExternalCreateStarted(true);
+            context.setExecMsg(DmI18nUtils.getMessage(I18nDmMsgKeys.CLUSTER_EXECUTION_UNKNOWN.name()));
+            this.approvalDal.processMapper().updateContextById(process.getId(), JsonUtils.toJson(context));
+            return true;
+        });
+
+        if (Boolean.TRUE.equals(claimed)) {
+            transaction.executeWithoutResult(status -> {
+                DmApprovalDO ticket = this.approvalDal.approvalMapper().selectByIdForUpdate(ticketId);
+                if (this.isExternalApprovalCreationBlocked(ticket)) {
+                    return;
+                }
+
+                this.cluster.requireSchedulerLeader();
+                this.approvalHandler(ticket.getApproBiz()).createApproval(ticketId, this.imSenderService);
+            });
+        }
+    }
+
+    private boolean isApprovalCreationIntentBlocked(DmApprovalDO ticket) {
+        if (ticket == null || ticket.getDeleted()) {
+            return true;
+        }
+
+        if (ticket.getTicketStatus() != ApprovalStatus.WAIT_APPROVAL) {
+            return true;
+        }
+        return StringUtils.isNotBlank(ticket.getApproIdentity());
+    }
+
+    private boolean isExternalApprovalCreationBlocked(DmApprovalDO ticket) {
+        if (ticket == null || ticket.getDeleted()) {
+            return true;
+        }
+
+        if (ticket.getTicketStatus() != ApprovalStatus.WAIT_APPROVAL || ticket.getApproType() == ApprovalType.Internal) {
+            return true;
+        }
+        return StringUtils.isNotBlank(ticket.getApproIdentity());
     }
 
     private void getLastInfoIfNecessary(DmApprovalProcessDO processDO, DmApprovalDO ticketDO) {

@@ -21,8 +21,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
@@ -61,42 +61,39 @@ import lombok.extern.slf4j.Slf4j;
 public class ChangeActionForApproval extends AbstractChangeAction {
 
     @Resource
-    private SystemDal           systemDal;
+    private SystemDal                  systemDal;
     @Resource
-    private ApprovalDal         approvalDal;
+    private ApprovalDal                approvalDal;
     @Resource
-    private NamingDao           namingDao;
+    private NamingDao                  namingDao;
     @Resource
-    private DmDsConfigService   dmDsConfigService;
+    private DmDsConfigService          dmDsConfigService;
     @Resource
-    private ApprovalFlowService approvalFlowService;
+    private ApprovalFlowService        approvalFlowService;
     @Resource
-    private ChangeSqlService    changeSqlService;
+    private ChangeSqlService           changeSqlService;
     @Resource
-    private LocalFileService    localFileService;
+    private LocalFileService           localFileService;
+    @Resource
+    private PlatformTransactionManager txManager;
 
     @Override
     public void doAction(DmChangeDO change) {
-        if (!super.doCommonAction(change)) {
-            return;
-        } else {
-            change = changeFlowDal.changeMapper().queryChangeById(change.getId());
-        }
-
         // message i18n
         String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
         Locale locale = I18nUtils.getLocale(language);
 
-        // create ticket
         DmApprovalDO ticket;
         try {
-            DmChangeFlowDO gitOpsFlowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
-            DsLevels dsLevels = this.dmDsConfigService.parseLevels(gitOpsFlowDO.getDsPath());
-            DmChangeDO currentChange = change;
-            ticket = this.changeSqlService.consumeSqlFile(change.getId(), sqlFile -> {
-                return this.createApproval(currentChange, dsLevels, sqlFile, locale);
+            ticket = new TransactionTemplate(this.txManager).execute(status -> {
+                if (!super.doCommonAction(change)) {
+                    return null;
+                }
+
+                DmChangeDO current = this.changeFlowDal.changeMapper().queryChangeById(change.getId());
+                return this.createTicketAndWait(current, locale);
             });
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             String message = null;
             if (e instanceof ErrorMessageException) {
                 message = ((ErrorMessageException) e).getErrorMessage();
@@ -105,10 +102,33 @@ public class ChangeActionForApproval extends AbstractChangeAction {
             }
 
             message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CREATE_TICKET_FAILED_MESSAGE.name(), locale, change.getChangeName(), message);
-            this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, message);
-            changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FAILED, message);
+            if (this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion() + 1, ChangeStatus.FAILED, message) == 1) {
+                try {
+                    this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, message);
+                } catch (Exception notificationError) {
+                    log.error("send failed change notification failed, changeId: " + change.getId(), notificationError);
+                }
+            }
             return;
         }
+
+        if (ticket == null) {
+            return;
+        }
+
+        log.info("changeAction[" + change.getId() + "] create Ticket " + ticket.getId() + ".");
+        String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CREATE_TICKET_MESSAGE.name(), locale, change.getChangeName(), ticket.getTicketTitle());
+        try {
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, message);
+        } catch (Exception e) {
+            log.error("send committed change notification failed, changeId: " + change.getId(), e);
+        }
+    }
+
+    private DmApprovalDO createTicketAndWait(DmChangeDO change, Locale locale) {
+        DmChangeFlowDO flow = this.changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
+        DsLevels dsLevels = this.dmDsConfigService.parseLevels(flow.getDsPath());
+        DmApprovalDO ticket = this.changeSqlService.consumeSqlFile(change.getId(), sqlFile -> this.createApproval(change, dsLevels, sqlFile, locale));
 
         // store step info
         DmChangeItemDO itemDO = new DmChangeItemDO();
@@ -122,11 +142,11 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         this.changeFlowDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.TICKET);
         this.changeFlowDal.changeItemMapper().insert(itemDO);
 
-        // next wait.
-        log.info("changeAction[" + change.getId() + "] create Ticket " + ticket.getId() + ".");
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CREATE_TICKET_MESSAGE.name(), locale, change.getChangeName(), ticket.getTicketTitle());
-        this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, message);
-        changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.WAIT, message);
+        if (this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.WAIT, message) != 1) {
+            throw new IllegalStateException("change state changed while creating ticket");
+        }
+        return ticket;
     }
 
     private ChangeTicketInfo createChangeTicketInfo(DmApprovalDO ticket) {
@@ -141,7 +161,6 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         return info;
     }
 
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public DmApprovalDO createApproval(DmChangeDO change, DsLevels dsLevels, Path sqlFile, Locale locale) {
         DmChangeFlowDO flowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
         DmDsDO dsDO = dsLevels.dsDO();

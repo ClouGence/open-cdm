@@ -66,13 +66,11 @@ public interface DmExecAutoJobMapper extends BaseMapper<DmExecAutoJobDO> {
 
     void updateReportTime(@Param("jobIdList") List<Long> jobIdList);
 
-    void updateOverOutJob(@Param("date") Date date);
+    List<DmExecAutoJobDO> queryByStatusesAndLastReportTimeBefore(List<AutoExecJobStatus> statuses, Date before);
+
+    int updateStatusByIdAndLastReportTimeBefore(long jobId, AutoExecJobStatus toStatus, List<AutoExecJobStatus> statuses, Date before);
 
     void updateQueryIdByJobId(@Param("jobId") Long jobId, @Param("queryId") String queryId);
-
-    void updateWorkerErrorJob(@Param("wsn") String wsn);
-
-    void updateWorkerWaitExecuteJob(@Param("wsn") String wsn);
 
     List<DmExecAutoJobDO> queryErrorJob(@Param("wsn") String wsn);
 }

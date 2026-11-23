@@ -30,6 +30,7 @@ public class ApprovalStageMO {
     private CustomApprovalContext    customApproval;
     private ApprovalExecutionContext customExecution;
     private ApprovalExecutionAttempt executionAttempt;
+    private Boolean                  externalCreateStarted;
     private List<String>             execUserName;
 
     private String                   execMsg;

@@ -18,8 +18,6 @@ package com.clougence.clouddm.platform.dal.model.execution;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
-import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskStatus;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,57 +33,52 @@ import lombok.Setter;
 public class DmExecAsyncTaskDO {
 
     @TableId(type = IdType.AUTO)
-    private Long                   id;
+    private Long                 id;
 
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date                   gmtCreate;
+    private Date                 gmtCreate;
 
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date                   gmtModified;
+    private Date                 gmtModified;
 
-    private String                 title;
+    private String               title;
 
-    private String                 description;
+    private String               description;
 
-    private String                 bizId;
+    private String               bizId;
 
-    private String                 bizType;
+    private String               bizType;
 
-    private String                 dependOnBizId;
+    private String               dependOnBizId;
 
-    private String                 dependOnBizType;
+    private String               dependOnBizType;
 
     @TableField(value = "owner_uid")
-    private String                 uid;
+    private String               uid;
 
-    private String                 handlerName;
+    private String               handlerName;
 
-    private String                 handlerType;
+    private String               handlerType;
 
-    private String                 configData;
+    private String               configData;
 
-    private boolean                showInDock;
+    private boolean              showInDock;
 
     private AsyncTaskProcessType processType;
 
-    private String                 processValue;
+    private String               processValue;
 
-    private boolean                fastFail;
+    private boolean              fastFail;
 
-    /**
-     * Legacy field from the old console ownership model for async tasks.
-     * Retained only for backward compatibility during single-console cleanup.
-     */
-    @Deprecated
-    private String                 consoleIp;
+    private String               consoleInstanceId;
 
     private AsyncTaskStatus      status;
 
-    private String                 statusMsg;
+    private String               statusMsg;
 
-    private Date                   timeOfStart;
+    private Date                 timeOfStart;
 
-    private Date                   timeOfLast;
+    private Date                 timeOfLast;
 
-    private Date                   timeOfFinish;
+    private Date                 timeOfFinish;
 }

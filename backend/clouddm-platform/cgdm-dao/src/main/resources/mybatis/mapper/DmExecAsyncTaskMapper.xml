@@ -15,6 +15,7 @@
         <result column="owner_uid" property="uid"/>
         <result column="handler_name" property="handlerName"/>
         <result column="handler_type" property="handlerType"/>
+        <result column="console_instance_id" property="consoleInstanceId"/>
         <result column="config_data" property="configData"/>
         <result column="show_in_dock" property="showInDock"/>
         <result column="process_type" property="processType"/>
@@ -40,6 +41,7 @@
         owner_uid,
         handler_name,
         handler_type,
+        console_instance_id,
         config_data,
         show_in_dock,
         process_type,
@@ -52,53 +54,17 @@
         time_of_finish
     </sql>
 
-    <update id="resetAsyncTaskStatus">
-        UPDATE
+    <select id="queryRunningTasks" resultMap="dmAsyncTaskDO">
+        SELECT
+            <include refid="dmAsyncTaskDOMap"/>
+        FROM
             dm_exec_async_task
-        SET
-            status       = 'WAIT_START',
-            gmt_modified = NOW()
         WHERE
-            console_ip = #{consoleIp}
+            console_instance_id = #{consoleInstanceId}
             AND
-            status     = 'RUNNING'
-    </update>
-
-    <update id="resetCancelingAsyncTaskStatus">
-        UPDATE
-            dm_exec_async_task
-        SET
-            status       = 'CANCEL',
-            gmt_modified = NOW()
-        WHERE
-            console_ip = #{consoleIp}
-            AND
-            status     = 'CANCELING'
-    </update>
-
-    <update id="resetPausingAsyncTaskStatus">
-        UPDATE
-            dm_exec_async_task
-        SET
-            status       = 'PAUSE',
-            gmt_modified = NOW()
-        WHERE
-            console_ip = #{consoleIp}
-            AND
-            status     = 'PAUSING'
-    </update>
-
-    <update id="resetInitAsyncTaskStatus">
-        UPDATE
-            dm_exec_async_task
-        SET
-            status       = 'CANCEL',
-            gmt_modified = NOW()
-        WHERE
-            console_ip = #{consoleIp}
-            AND
-            status     = 'INIT'
-    </update>
+            status IN ('RUNNING', 'CANCELING', 'PAUSING')
+        ORDER BY id
+    </select>
 
     <select id="queryWaitTask" resultMap="dmAsyncTaskDO">
         SELECT
@@ -106,9 +72,9 @@
         FROM
             dm_exec_async_task
         WHERE
-            status     = 'WAIT_START'
+            status              = 'WAIT_START'
             AND
-            console_ip = #{consoleIp}
+            console_instance_id = #{consoleInstanceId}
         ORDER BY
             gmt_create ASC
         LIMIT
@@ -229,10 +195,10 @@
         UPDATE
             dm_exec_async_task
         SET
-            status       = 'WAIT_START',
-            console_ip   = #{consoleIp},
-            status_msg   = #{message},
-            gmt_modified = NOW()
+            status              = 'WAIT_START',
+            console_instance_id = #{consoleInstanceId},
+            status_msg          = #{message},
+            gmt_modified        = NOW()
         WHERE
             (status = 'FAILURE' OR status = 'CANCEL')
             AND
@@ -243,10 +209,10 @@
         UPDATE
             dm_exec_async_task
         SET
-            status       = 'WAIT_START',
-            console_ip   = #{consoleIp},
-            status_msg   = #{message},
-            gmt_modified = NOW()
+            status              = 'WAIT_START',
+            console_instance_id = #{consoleInstanceId},
+            status_msg          = #{message},
+            gmt_modified        = NOW()
         WHERE
             status = 'PAUSE'
             AND
@@ -257,9 +223,9 @@
         UPDATE
             dm_exec_async_task
         SET
-            status       = 'WAIT_START',
-            console_ip   = #{consoleIp},
-            gmt_modified = NOW()
+            status              = 'WAIT_START',
+            console_instance_id = #{consoleInstanceId},
+            gmt_modified        = NOW()
         WHERE
             status = 'INIT'
             AND

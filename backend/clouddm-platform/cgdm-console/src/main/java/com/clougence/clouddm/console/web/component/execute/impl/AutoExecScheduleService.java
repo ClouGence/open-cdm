@@ -23,14 +23,17 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.component.approval.ApprovalStateService;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.execute.AutoExecService;
-import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -39,8 +42,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class AutoExecScheduleService implements UnifiedPostConstruct, DmWorkerRegisterNotify {
+public class AutoExecScheduleService implements UnifiedPostConstruct {
 
+    @Resource
+    private ConsoleClusterService       cluster;
+    @Resource
+    private ApprovalStateService        approvalStateService;
     @Resource
     private ExecutionDal                executionDal;
     @Resource
@@ -52,34 +59,61 @@ public class AutoExecScheduleService implements UnifiedPostConstruct, DmWorkerRe
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private Set<Long>                   taskInQueueSet;
     private final AtomicBoolean         inited = new AtomicBoolean();
+    private boolean                     stopped;
 
     @Override
-    public void init() {
-        if (!inited.compareAndSet(false, true)) {
+    public synchronized void init() {
+        if (this.stopped || !inited.compareAndSet(false, true)) {
             return;
         }
 
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.config.getAsyncTaskQueueSize());
-        ThreadFactory threadFactory = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "AutoExec-job-%s");
-        // if queue is full, ignore the latest additions
-        this.threadPoolExecutor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, queue, threadFactory, new ThreadPoolExecutor.AbortPolicy());
+        try {
+            LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.config.getAsyncTaskQueueSize());
+            ThreadFactory threadFactory = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "AutoExec-job-%s");
+            // if queue is full, ignore the latest additions
+            this.threadPoolExecutor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, queue, threadFactory, new ThreadPoolExecutor.AbortPolicy());
 
-        this.taskInQueueSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
-        this.scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2, threadFactory);
-        this.scheduledThreadPoolExecutor.scheduleWithFixedDelay(this::scanPendingJob, 5, 5, TimeUnit.SECONDS);
-        this.scheduledThreadPoolExecutor.scheduleWithFixedDelay(this::updateOverOutJob, 0, 1, TimeUnit.MINUTES);
-        log.info("TicketTaskScheduleServiceImpl started");
+            this.taskInQueueSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+            this.scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2, threadFactory);
+            this.scheduledThreadPoolExecutor.scheduleWithFixedDelay(this::scanPendingJob, 5, 5, TimeUnit.SECONDS);
+            this.scheduledThreadPoolExecutor.scheduleWithFixedDelay(this::updateOverOutJob, 0, 1, TimeUnit.MINUTES);
+            log.info("TicketTaskScheduleServiceImpl started");
+        } catch (RuntimeException | Error e) {
+            this.stop();
+            throw e;
+        }
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
+        if (this.stopped) {
+            return;
+        }
 
+        this.stopped = true;
+        this.inited.set(false);
+        if (this.scheduledThreadPoolExecutor != null) {
+            this.scheduledThreadPoolExecutor.shutdownNow();
+        }
+
+        if (this.threadPoolExecutor != null) {
+            this.threadPoolExecutor.shutdownNow();
+        }
     }
 
     private void updateOverOutJob() {
         try {
+            if (!this.cluster.isSchedulerLeader()) {
+                return;
+            }
+
             Date date = new Date(new Date().getTime() - 5 * 60 * 1000);
-            this.executionDal.autoJobMapper().updateOverOutJob(date);
+            List<AutoExecJobStatus> statuses = List.of(AutoExecJobStatus.PACKAGING, AutoExecJobStatus.WAIT_EXEC);
+            for (DmExecAutoJobDO job : this.executionDal.autoJobMapper().queryByStatusesAndLastReportTimeBefore(statuses, date)) {
+                if (this.executionDal.autoJobMapper().updateStatusByIdAndLastReportTimeBefore(job.getId(), AutoExecJobStatus.FAILED, statuses, date) == 1) {
+                    this.approvalStateService.failExecution(job.getDependOnBizId(), DmI18nUtils.getMessage(I18nDmMsgKeys.CLUSTER_EXECUTION_UNKNOWN.name()));
+                }
+            }
         } catch (Exception e) {
             log.error("updateOverOutJob failed, msg:" + ExceptionUtils.getRootCauseMessage(e), e);
         }
@@ -90,6 +124,10 @@ public class AutoExecScheduleService implements UnifiedPostConstruct, DmWorkerRe
         date = new Date(date.getTime() - 5 * 1000);
 
         try {
+            if (!this.cluster.isSchedulerLeader()) {
+                return;
+            }
+
             List<Long> doList = this.executionDal.autoJobMapper().listUnFinishJobIdList(date);
 
             // schedule task
@@ -121,10 +159,4 @@ public class AutoExecScheduleService implements UnifiedPostConstruct, DmWorkerRe
         }
     }
 
-    @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void notifyRegister(String wsn) {
-        this.executionDal.autoJobMapper().updateWorkerErrorJob(wsn);
-        this.executionDal.autoJobMapper().updateWorkerWaitExecuteJob(wsn);
-    }
 }

@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.CustomApprovalService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.service.approval.ApprovalControlService;
@@ -54,10 +55,10 @@ public class ApprovalTaskScheduler {
     private static final int            THREAD_COUNT_MULTIPLIER = 2;
     private static final int            QUEUE_SIZE_MULTIPLIER   = 3;
     private static final int            SCAN_BATCH_SIZE         = 20;
-
     private final ApprovalScanCursor    activeScan              = new ApprovalScanCursor(false, TimeUnit.SECONDS.toMillis(5));
     private final ApprovalScanCursor    idleScan                = new ApprovalScanCursor(true, TimeUnit.SECONDS.toMillis(60));
-
+    @Resource
+    private ConsoleClusterService       cluster;
     @Resource
     private ApprovalDal                 approvalDal;
     @Resource
@@ -113,7 +114,7 @@ public class ApprovalTaskScheduler {
     }
 
     private void doSchedule(ApprovalScanCursor scan) {
-        if (System.currentTimeMillis() < scan.getNextScanTime()) {
+        if (!this.cluster.isSchedulerLeader() || System.currentTimeMillis() < scan.getNextScanTime()) {
             return;
         }
 
@@ -140,6 +141,10 @@ public class ApprovalTaskScheduler {
     }
 
     public boolean trySchedule(Long approvalId) {
+        if (!this.cluster.isSchedulerLeader()) {
+            return false;
+        }
+
         ThreadPoolExecutor executor = this.threadPoolExecutor;
         if (executor == null || this.taskInQueueSet == null) {
             return false;
@@ -200,7 +205,10 @@ public class ApprovalTaskScheduler {
         }
 
         try {
-            executor.execute(task);
+            executor.execute(() -> {
+                this.cluster.requireSchedulerLeader();
+                task.run();
+            });
         } catch (RejectedExecutionException e) {
             // The PRE_INIT activity remains INIT and is submitted again by the next scheduler scan.
         }
@@ -213,6 +221,10 @@ public class ApprovalTaskScheduler {
     }
 
     private void runApproval(Long approvalId) {
+        if (!this.cluster.isSchedulerLeader()) {
+            return;
+        }
+
         DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryScheduleInfo(approvalId);
         if (approvalDO == null || ApprovalStatus.isEndStatus(approvalDO.getTicketStatus())) {
             return;

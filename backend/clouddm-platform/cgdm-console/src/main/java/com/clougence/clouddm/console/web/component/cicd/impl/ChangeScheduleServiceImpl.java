@@ -27,6 +27,7 @@ import com.clougence.clouddm.console.web.component.cicd.ChangeFlowConstants;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.cicd.action.*;
+import com.clougence.clouddm.console.web.component.cluster.ConsoleClusterService;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -50,6 +51,8 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
 
     private static final long             STALE_TRANSFER_MILLIS = TimeUnit.MINUTES.toMillis(15);
 
+    @Resource
+    private ConsoleClusterService         cluster;
     @Resource
     private SystemDal                     systemDal;
     @Resource
@@ -113,6 +116,10 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
         date = new Date(date.getTime() - 5 * 1000);
 
         try {
+            if (!this.cluster.isSchedulerLeader()) {
+                return;
+            }
+
             recoverFailedFinishChanges();
             int recovered = this.changeCascadeService.recoverStaleTransfers(new Date(System.currentTimeMillis() - STALE_TRANSFER_MILLIS));
             if (recovered > 0) {
@@ -165,6 +172,10 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
     }
 
     private void submitTransfer(DmChangeTransferDO transfer) {
+        if (!this.cluster.isSchedulerLeader()) {
+            return;
+        }
+
         Long transferId = transfer.getId();
         try {
             if (this.transferInQueueSet.contains(transferId) || !this.changeCascadeService.assignTransfer(transferId)) {
@@ -173,10 +184,13 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
             this.transferInQueueSet.add(transferId);
             this.threadPoolExecutor.execute(() -> {
                 try {
+                    this.cluster.requireSchedulerLeader();
                     this.changeCascadeService.processTransfer(transfer);
                 } catch (Throwable e) {
                     log.error("change transfer[" + transferId + "] failed " + e.getMessage(), e);
-                    this.changeCascadeService.markTransferFailure(transfer, e);
+                    if (this.cluster.isSchedulerLeader()) {
+                        this.changeCascadeService.markTransferFailure(transfer, e);
+                    }
                 } finally {
                     this.transferInQueueSet.remove(transferId);
                 }
@@ -200,6 +214,10 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
     }
 
     private void submitTask(DmChangeDO change) {
+        if (!this.cluster.isSchedulerLeader()) {
+            return;
+        }
+
         Long changeId = change.getId();
         try {
             // is running or on queue， avoid repeat ticket task
@@ -227,10 +245,18 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
     }
 
     private void doChange(DmChangeDO change) {
+        if (!this.cluster.isSchedulerLeader()) {
+            return;
+        }
+
         ChangeStep step = change.getCurrentStep();
         try {
             this.actionMap.get(step).doAction(change);
         } catch (Throwable e) {
+            if (!this.cluster.isSchedulerLeader()) {
+                return;
+            }
+
             log.error("changeAction[" + change.getId() + "] " + step + " failed " + e.getMessage(), e);
             DmChangeDO changeDO = this.changeFlowDal.changeMapper().queryChangeById(change.getId());
             this.changeFlowDal.changeMapper().increTryTimes(change.getId(), changeDO.getVersion(), e.getMessage());

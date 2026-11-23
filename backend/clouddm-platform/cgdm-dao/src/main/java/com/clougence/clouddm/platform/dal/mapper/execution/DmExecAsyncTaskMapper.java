@@ -26,37 +26,11 @@ import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
  */
 public interface DmExecAsyncTaskMapper extends BaseMapper<DmExecAsyncTaskDO> {
 
-    /**
-     * @deprecated Legacy consoleIp-based task ownership reset.
-     */
-    @Deprecated
-    int resetAsyncTaskStatus(String consoleIp);
-
-    /**
-     * @deprecated Legacy consoleIp-based task ownership reset.
-     */
-    @Deprecated
-    int resetCancelingAsyncTaskStatus(String consoleIp);
-
-    /**
-     * @deprecated Legacy consoleIp-based task ownership reset.
-     */
-    @Deprecated
-    int resetPausingAsyncTaskStatus(String consoleIp);
-
-    /**
-     * @deprecated Legacy consoleIp-based task ownership reset.
-     */
-    @Deprecated
-    int resetInitAsyncTaskStatus(String consoleIp);
-
     // --- AsyncTaskScheduleService ---
 
-    /**
-     * @deprecated Legacy consoleIp-based task ownership query.
-     */
-    @Deprecated
-    List<DmExecAsyncTaskDO> queryWaitTask(int limit, String consoleIp);
+    List<DmExecAsyncTaskDO> queryRunningTasks(String consoleInstanceId);
+
+    List<DmExecAsyncTaskDO> queryWaitTask(int limit, String consoleInstanceId);
 
     DmExecAsyncTaskDO queryByBiz(String bizId, String bizType);
 
@@ -78,23 +52,11 @@ public interface DmExecAsyncTaskMapper extends BaseMapper<DmExecAsyncTaskDO> {
 
     int updateFromPauseTo(long taskId, String toStatus, String message);
 
-    /**
-     * @deprecated Legacy consoleIp-based task reassignment.
-     */
-    @Deprecated
-    void retryFailureOrCancelTask(long taskId, String message, String consoleIp);
+    void retryFailureOrCancelTask(long taskId, String message, String consoleInstanceId);
 
-    /**
-     * @deprecated Legacy consoleIp-based task reassignment.
-     */
-    @Deprecated
-    void resumePauseTask(long taskId, String message, String consoleIp);
+    void resumePauseTask(long taskId, String message, String consoleInstanceId);
 
-    /**
-     * @deprecated Legacy consoleIp-based task activation.
-     */
-    @Deprecated
-    int activateTask(long taskId, String consoleIp);
+    int activateTask(long taskId, String consoleInstanceId);
 
     // --- DockTaskController --- 
 
@@ -110,5 +72,5 @@ public interface DmExecAsyncTaskMapper extends BaseMapper<DmExecAsyncTaskDO> {
 
     void updateProcess(long taskId, String processType, String processValue);
 
-    void updateFromInitTo(long taskId, String toStatus, String message);
+    int updateFromInitTo(long taskId, String toStatus, String message);
 }
