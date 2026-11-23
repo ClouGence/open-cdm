@@ -120,12 +120,6 @@ public class DmHomeController {
     private SessionCookieService sessionCookieService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/healthcheck")
-    public String healthCheck() {
-        return "ok";
-    }
-
-    @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/login", method = { RequestMethod.POST })
     public ResWebData<?> login(@Valid @RequestBody LoginFO loginFO, HttpServletRequest request, HttpServletResponse response) {
         LoginMO loginMO = this.loginService.login(loginFO);
@@ -199,8 +193,7 @@ public class DmHomeController {
                 }
                 auditService.logAndAddOperationAudit(//
                         puid, user.getUid(), request.getRequestURI(), request.getRemoteAddr(), user.getUid(), "", SecurityLevel.NORMAL, AuditType.LOGOUT, ResourceType.ACCOUNT);
-                if (principal.getLoginType() == LoginAuthType.OIDC && user.getBindType() == AccountBindType.OIDC
-                    && StringUtils.equalsIgnoreCase(request.getMethod(), "get")) {
+                if (principal.getLoginType() == LoginAuthType.OIDC && user.getBindType() == AccountBindType.OIDC && StringUtils.equalsIgnoreCase(request.getMethod(), "get")) {
                     redirectUrl = this.oidcLogoutJumpUrl(puid, user, redirectUrl);
                 }
             }
@@ -283,6 +276,7 @@ public class DmHomeController {
                                                                  "provider=" + authType.getBindType().getProvider().name());
             this.csrfTokenService.storeJumpUrl(csrfToken, redirectURL);
             LoginProviderSpi loginProviderSpi = PluginManager.findSpi(LoginProviderSpi.class, authType.getBindType().getProvider().name());
+
             return ResWebDataUtils.buildSuccess(loginProviderSpi.loginJumpUrl(rootUser.getUid(), csrfToken, redirectURL));
         } catch (Exception e) {
             if (e instanceof ErrorMessageException) {

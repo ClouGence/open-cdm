@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
@@ -49,22 +49,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserConfigServiceImpl implements UserConfigService {
 
-    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS         = 8;
-    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 4;
-    private static final int       DEFAULT_LANGUAGE_MAX_REQUEST_KB       = 1024;
-    private static final int       DEFAULT_SQL_FILE_MAX_SIZE             = 20;
-    private static final int       DEFAULT_DML_EXPLAIN_MAX_STATEMENTS    = 100;
-    private static final String    DEFAULT_LANGUAGE                      = "zh_CN";
+    private static final int           DEFAULT_LANGUAGE_MAX_REQUESTS         = 8;
+    private static final int           DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 4;
+    private static final int           DEFAULT_LANGUAGE_MAX_REQUEST_KB       = 1024;
+    private static final int           DEFAULT_SQL_FILE_MAX_SIZE             = 20;
+    private static final int           DEFAULT_DML_EXPLAIN_MAX_STATEMENTS    = 100;
+    private static final String        DEFAULT_LANGUAGE                      = "zh_CN";
 
     @Resource
-    private SystemDal              systemDal;
-    @Resource
-    private AuthDal                authDal;
-    @Resource
-    private ConsoleConfig          rdpConfig;
+    private PlatformTransactionManager txManager;
     @Resource
     @Lazy
-    private List<RdpNotifyService> notifyServices;
+    private ProviderConfigRefresh      providerConfig;
+    @Resource
+    private SystemDal                  systemDal;
+    @Resource
+    private AuthDal                    authDal;
+    @Resource
+    private ConsoleConfig              rdpConfig;
+    @Resource
+    @Lazy
+    private List<RdpNotifyService>     notifyServices;
 
     @Override
     public List<RdpUserConfigVO> queryUserConfigVosWithNewEntries(String uid) {
@@ -145,27 +150,29 @@ public class UserConfigServiceImpl implements UserConfigService {
         return resultConfigs;
     }
 
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public List<UpsertUserConfigLO> upsertConfigValue(String ownerUid, UpsertUserConfigFO config) {
         List<UserConfigMO> configList = new ArrayList<>();
         List<UpsertUserConfigLO> configLOs = new ArrayList<>();
-        List<UserConfigKvDef> defaultConfigs = fetchUserDefinedDefaultConfig(ownerUid);
+        new TransactionTemplate(this.txManager).executeWithoutResult(status -> {
+            List<UserConfigKvDef> defaultConfigs = fetchUserDefinedDefaultConfig(ownerUid);
 
-        if (CollectionUtils.isNotEmpty(config.getUpdateConfigs())) {
-            for (Map.Entry<String, String> configEntry : config.getUpdateConfigs().entrySet()) {
-                upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigs, configList, configLOs);
+            if (CollectionUtils.isNotEmpty(config.getUpdateConfigs())) {
+                for (Map.Entry<String, String> configEntry : config.getUpdateConfigs().entrySet()) {
+                    upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigs, configList, configLOs);
+                }
             }
-        }
 
-        if (CollectionUtils.isNotEmpty(config.getNeedCreateConfigs())) {
-            for (Map.Entry<String, String> configEntry : config.getNeedCreateConfigs().entrySet()) {
-                upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigs, configList, configLOs);
+            if (CollectionUtils.isNotEmpty(config.getNeedCreateConfigs())) {
+                for (Map.Entry<String, String> configEntry : config.getNeedCreateConfigs().entrySet()) {
+                    upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigs, configList, configLOs);
+                }
             }
-        }
 
-        this.notifyServices.forEach(s -> s.notifyUserConfig(ownerUid, configList));
+            this.notifyServices.forEach(s -> s.notifyUserConfig(ownerUid, configList));
+        });
 
+        this.providerConfig.notifyUserConfig(ownerUid, configList);
         return configLOs;
     }
 
@@ -327,8 +334,7 @@ public class UserConfigServiceImpl implements UserConfigService {
 
     @Override
     public int approvalExplainMaxSize() {
-        return this.systemDal
-            .fetchSystemConf(RootUserConfig.Fields.approvalDmlExplainMaxStatements, Integer.class, DEFAULT_DML_EXPLAIN_MAX_STATEMENTS);
+        return this.systemDal.fetchSystemConf(RootUserConfig.Fields.approvalDmlExplainMaxStatements, Integer.class, DEFAULT_DML_EXPLAIN_MAX_STATEMENTS);
     }
 
     @Override

@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.login;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,18 +33,16 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
-import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
 import jakarta.annotation.Resource;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
+public class LoginStarter implements UnifiedPostConstruct {
     @Resource
     private AuthDal         authDal;
     @Resource
@@ -72,12 +71,11 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
         notifyUserConfig(rootUser.getUid(), List.of(authTypeConfig));
     }
 
-    @SneakyThrows
-    @Override
     public void notifyUserConfig(String ownerUid, List<UserConfigMO> configList) {
         if (!this.authDal.isRootUser(ownerUid)) {
             return;
         }
+
         if (configList == null || configList.isEmpty()) {
             return;
         }
@@ -87,10 +85,18 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
             .findFirst()
             .orElse(null);
 
-        if (authTypeConf == null) {
-            this.restartModifiedProviders(ownerUid, configList);
-        } else {
-            this.refreshConfiguredProviders(ownerUid, authTypeConf);
+        try {
+            if (authTypeConf == null) {
+                this.restartModifiedProviders(ownerUid, configList);
+            } else {
+                this.refreshConfiguredProviders(ownerUid, authTypeConf);
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = "Restart login providers failed, ownerUid=" + ownerUid;
+            log.error(msg, e);
+            throw new IllegalStateException(msg, e);
         }
     }
 
@@ -122,13 +128,18 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
         Set<LoginProvider> newProviders = LoginDefService.parseProviders(authTypeConfig.getNewValue());
 
         Set<LoginProvider> removedProviders = new HashSet<>(oldProviders);
+        if (authTypeConfig.isInsert()) {
+            // A first or invalidated snapshot may still have clients from an older configuration.
+            removedProviders.addAll(EnumSet.allOf(LoginProvider.class));
+        }
+
         removedProviders.removeAll(newProviders);
         for (LoginProvider oldProvider : removedProviders) {
             stopProvider(ownerUid, oldProvider);
         }
 
         for (LoginProvider newProvider : newProviders) {
-            if (oldProviders.contains(newProvider)) {
+            if (authTypeConfig.isInsert() || oldProviders.contains(newProvider)) {
                 restartProvider(ownerUid, newProvider);
             } else {
                 startProviderIfEnabled(ownerUid, newProvider);

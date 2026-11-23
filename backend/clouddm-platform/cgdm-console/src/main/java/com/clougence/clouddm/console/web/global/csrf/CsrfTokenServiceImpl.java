@@ -69,8 +69,10 @@ public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstr
     @Override
     public DmAuthCsrfTokenDO pullToken(String state) {
         DmAuthCsrfTokenDO tokenDO = this.authDal.csrfTokenMapper().queryByToken(state);
-        this.authDal.csrfTokenMapper().deleteByToken(state);
-        return tokenDO;
+        if (tokenDO != null && this.authDal.csrfTokenMapper().deleteByToken(state) == 1) {
+            return tokenDO;
+        }
+        return null;
     }
 
     @Override
