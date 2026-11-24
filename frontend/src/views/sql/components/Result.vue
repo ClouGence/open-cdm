@@ -1740,7 +1740,10 @@ export default {
     },
     async confirmSqlExportOption() {
       if (!(this.insertOption.columns || []).some((c) => c.export)) {
-        Modal.warning({ content: this.$t('qing-zhi-shao-xuan-ze-yi-ge-yao-dao-chu-de-zi-duan') });
+        Modal.info({
+          title: this.$t('ti-shi'),
+          content: this.$t('qing-zhi-shao-xuan-ze-yi-ge-yao-dao-chu-de-zi-duan')
+        });
         return;
       }
       try {
@@ -1771,7 +1774,10 @@ export default {
     },
     async confirmExportOption() {
       if (!(this.insertOption.columns || []).some((c) => c.export)) {
-        Modal.warning({ content: this.$t('qing-zhi-shao-xuan-ze-yi-ge-yao-dao-chu-de-zi-duan') });
+        Modal.info({
+          title: this.$t('ti-shi'),
+          content: this.$t('qing-zhi-shao-xuan-ze-yi-ge-yao-dao-chu-de-zi-duan')
+        });
         return;
       }
       try {
