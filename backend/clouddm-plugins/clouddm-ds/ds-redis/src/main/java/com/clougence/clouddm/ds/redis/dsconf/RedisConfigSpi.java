@@ -53,6 +53,7 @@ public class RedisConfigSpi extends AbstractDsConfigSpi {
     @Override
     public List<SecurityType> securityTypes() {
         List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
         options.add(SecurityType.ONLY_PASSWD);
         options.add(SecurityType.USER_PASSWD);
         return options;
