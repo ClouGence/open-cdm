@@ -15,10 +15,13 @@
  */
 package com.clougence.clouddm.platform.plugin;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -37,14 +40,8 @@ public class PluginLoadHelperTest {
 
     @Test
     public void shouldDiscoverSqlPluginsOutsideClouddmPackage() throws Exception {
-        String classResource = SqlPluginScanFixture.class.getName().replace('.', '/') + ".class";
         File pluginJar = temporaryFolder.newFile("sql-plugin.jar");
-        try (JarOutputStream output = new JarOutputStream(java.nio.file.Files.newOutputStream(pluginJar.toPath()));
-                InputStream input = SqlPluginScanFixture.class.getClassLoader().getResourceAsStream(classResource)) {
-            output.putNextEntry(new JarEntry(classResource));
-            input.transferTo(output);
-            output.closeEntry();
-        }
+        writeSqlPlugin(pluginJar);
 
         Set<String> pluginClasses;
         try (JarResourceLoader resourceLoader = new JarResourceLoader(pluginJar)) {
@@ -53,4 +50,24 @@ public class PluginLoadHelperTest {
 
         assertTrue(pluginClasses.contains(SqlPluginScanFixture.class.getName()));
     }
+
+    @Test
+    public void shouldLoadOnlyTheSelectedPluginFile() throws Exception {
+        File directory = temporaryFolder.newFolder("selected-plugin");
+        writeSqlPlugin(new File(directory, "selected.jar"));
+        ClassLoader loader = getClass().getClassLoader();
+        assertEquals(0, PluginLoadHelper.loadPlugins(loader, "missing.jar", directory));
+        assertEquals(1, PluginLoadHelper.loadPlugins(loader, "selected.jar", directory));
+    }
+
+    private void writeSqlPlugin(File file) throws IOException {
+        String classResource = SqlPluginScanFixture.class.getName().replace('.', '/') + ".class";
+        try (JarOutputStream output = new JarOutputStream(Files.newOutputStream(file.toPath()));
+                InputStream input = SqlPluginScanFixture.class.getClassLoader().getResourceAsStream(classResource)) {
+            output.putNextEntry(new JarEntry(classResource));
+            input.transferTo(output);
+            output.closeEntry();
+        }
+    }
+
 }
