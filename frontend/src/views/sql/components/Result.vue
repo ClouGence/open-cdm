@@ -1739,6 +1739,13 @@ export default {
       }
     },
     async confirmSqlExportOption() {
+      if (!(this.insertOption.columns || []).some((c) => c.export)) {
+        Modal.info({
+          title: this.$t('ti-shi'),
+          content: this.$t('qing-zhi-shao-xuan-ze-yi-ge-yao-dao-chu-de-zi-duan')
+        });
+        return;
+      }
       try {
         const res = await this.$services.dmQueryExportResult({
           data: {
@@ -1766,6 +1773,13 @@ export default {
       }
     },
     async confirmExportOption() {
+      if (!(this.insertOption.columns || []).some((c) => c.export)) {
+        Modal.info({
+          title: this.$t('ti-shi'),
+          content: this.$t('qing-zhi-shao-xuan-ze-yi-ge-yao-dao-chu-de-zi-duan')
+        });
+        return;
+      }
       try {
         let offset = 0;
         let limit = -1;

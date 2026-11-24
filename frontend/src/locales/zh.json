@@ -1811,6 +1811,7 @@
   "zheng-zai-zhun-bei-shu-ju": "正在准备数据",
   "zheng-zai-zhuan-huan-wen-jian": "正在转换文件",
   "qing-xuan-ze-dao-chu-ge-shi": "请选择导出格式",
+  "qing-zhi-shao-xuan-ze-yi-ge-yao-dao-chu-de-zi-duan": "请至少选择一个要导出的字段",
   "dan-hang-dao-chu": "单行导出",
   "dan-ye-dao-chu": "单页导出",
   "quan-bu-dao-chu": "全部导出",
