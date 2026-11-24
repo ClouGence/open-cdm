@@ -3742,6 +3742,7 @@
   "zheng-zai-zhun-bei-shu-ju": "Preparing Data",
   "zheng-zai-zhuan-huan-wen-jian": "Converting File",
   "qing-xuan-ze-dao-chu-ge-shi": "Select an export format",
+  "qing-zhi-shao-xuan-ze-yi-ge-yao-dao-chu-de-zi-duan": "Please select at least one column to export",
   "dan-hang-dao-chu": "Single Row Export",
   "dan-ye-dao-chu": "Single Page Export",
   "quan-bu-dao-chu": "All Export",

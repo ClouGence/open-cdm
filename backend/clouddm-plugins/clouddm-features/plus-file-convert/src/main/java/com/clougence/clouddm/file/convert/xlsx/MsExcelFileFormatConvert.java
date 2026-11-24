@@ -117,6 +117,10 @@ public class MsExcelFileFormatConvert implements FileFormatConvert {
             }
         }
 
+        if (selectedColumns.isEmpty()) {
+            throw new IOException("No columns selected for export.");
+        }
+
         ExcelWriter writer = FastExcel.write(fos).build();
         WriteSheet sheet = FastExcel.writerSheet("ResultSet").build();
         sheet.setCustomWriteHandlerList(Collections.singletonList(new MsExcelCellWriteHandler(lastFlashRowNumber, rowBatch, selectedColumns)));
