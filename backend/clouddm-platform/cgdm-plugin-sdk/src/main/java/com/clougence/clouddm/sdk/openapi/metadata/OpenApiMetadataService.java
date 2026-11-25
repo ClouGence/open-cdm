@@ -15,14 +15,22 @@
  */
 package com.clougence.clouddm.sdk.openapi.metadata;
 
+import java.util.List;
+
 import com.clougence.clouddm.sdk.openapi.OpenApiCaller;
 import com.clougence.clouddm.sdk.service.Service;
 
 public interface OpenApiMetadataService extends Service {
+
+    /** Lists the caller's visible child namespaces under the given parent. */
+    List<OpenApiNamespace> listNamespaces(OpenApiCaller caller, OpenApiListNamespacesQuery query);
 
     /**
      * Lists tables and views the caller is authorized to browse. Apply the caller's permissions
      * and object-type filter before computing the page and total.
      */
     OpenApiTablePage listTables(OpenApiCaller caller, OpenApiListTablesQuery query);
+
+    /** Returns visible columns and keys whose full column list is visible. */
+    OpenApiTableDetail getTable(OpenApiCaller caller, OpenApiGetTableQuery query);
 }

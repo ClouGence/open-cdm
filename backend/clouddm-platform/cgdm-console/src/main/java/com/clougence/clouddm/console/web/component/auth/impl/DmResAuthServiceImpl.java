@@ -20,6 +20,7 @@ import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.DM_DA
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
@@ -167,51 +168,39 @@ public class DmResAuthServiceImpl implements DmResAuthService {
 
     @Override
     public ResourceAccessInfo getAllowBrowseInfo(DsLevels levels, String uid) {
+        return this.getAllowBrowseInfo(levels.dsDO().getId(), uid, levels.dbLevels());
+    }
+
+    @Override
+    public ResourceAccessInfo getAllowBrowseInfo(long dataSourceId, String uid, List<String> resourcePath) {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
+        if (userDO == null || userDO.isDisable()) {
+            return new ResourceAccessInfo(Set.of());
+        }
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || this.authServiceForManage.hasGlobalAuth(uid, AuthKind.DataSource, DM_DAUTH_QUERY)) {
             return new ResourceAccessInfo(true);
         }
 
-        Long dsId = levels.dsDO().getId();
-        String path = levels.asResPath().getResPath();
-        List<DmAuthResDO> parentAndSelfAuth = this.authDal.resMapper().queryByPathLike(dsId, uid, AuthKind.DataSource, Collections.singletonList(path));
-        List<DmAuthResDO> subAuth = this.authDal.resMapper().queryByLikePath(dsId, uid, AuthKind.DataSource, path);
-
-        parentAndSelfAuth = parentAndSelfAuth.stream().filter(auth -> {
-            return auth.getAuthLabels().contains(DM_DAUTH_QUERY) && auth.isEffective();
-        }).toList();
-
-        subAuth = subAuth.stream().filter(auth -> {
-            return auth.getAuthLabels().contains(DM_DAUTH_QUERY) && auth.isEffective();
-        }).toList();
-
-        if (!CollectionUtils.isEmpty(parentAndSelfAuth)) {
-            return new ResourceAccessInfo(true);
-        }
-
+        List<DmAuthResDO> grants = this.authDal.resMapper().queryByPathLike(dataSourceId, uid, AuthKind.DataSource, List.of());
         Set<String> allowQueryList = new HashSet<>();
-        int size = levels.levels().size() - 1;
-        for (DmAuthResDO resAuthDO : subAuth) {
-            switch (size) {
-                case 1: {
-                    if (resAuthDO.getLevelOne() != null) {
-                        allowQueryList.add(resAuthDO.getLevelOne());
-                    }
-                    break;
-                }
-                case 2: {
-                    if (resAuthDO.getLevelTwo() != null) {
-                        allowQueryList.add(resAuthDO.getLevelTwo());
-                    }
-                    break;
-                }
-                case 3: {
-                    if (resAuthDO.getLevelThree() != null) {
-                        allowQueryList.add(resAuthDO.getLevelThree());
-                    }
-                    break;
-                }
+        for (DmAuthResDO grant : grants) {
+            if (grant.getAuthLabels() == null || !grant.getAuthLabels().contains(DM_DAUTH_QUERY) || !grant.isEffective()) {
+                continue;
             }
+            if ("/".equals(grant.getResPath())) {
+                return new ResourceAccessInfo(true);
+            }
+
+            // Compare the stored levels literally, including names containing SQL wildcard characters.
+            List<String> grantPath = Stream.of(grant.getLevelOne(), grant.getLevelTwo(), grant.getLevelThree(), grant.getLevelFour()).takeWhile(Objects::nonNull).toList();
+            int commonLength = Math.min(grantPath.size(), resourcePath.size());
+            if (grantPath.isEmpty() || !grantPath.subList(0, commonLength).equals(resourcePath.subList(0, commonLength))) {
+                continue;
+            }
+            if (grantPath.size() <= resourcePath.size()) {
+                return new ResourceAccessInfo(true);
+            }
+            allowQueryList.add(grantPath.get(resourcePath.size()));
         }
 
         return new ResourceAccessInfo(allowQueryList);

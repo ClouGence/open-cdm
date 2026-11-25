@@ -308,10 +308,24 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             throw new IllegalArgumentException("levels format error.");
         }
 
-        String envId = levels.get(0);
         String dsId = levels.get(1);
+        return this.parseLevels(this.dsDal.dsMapper().selectById(dsId), levels);
+    }
 
-        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
+    @Override
+    public DsLevels parseLevels(long dataSourceId, List<String> namespacePath) {
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dataSourceId);
+        if (dsDO == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
+        }
+        List<String> levels = new ArrayList<>(namespacePath.size() + 2);
+        levels.add(String.valueOf(dsDO.getDsEnvId()));
+        levels.add(Long.toString(dataSourceId));
+        levels.addAll(namespacePath);
+        return this.parseLevels(dsDO, levels);
+    }
+
+    private DsLevels parseLevels(DmDsDO dsDO, List<String> levels) {
         if (dsDO == null || dsDO.getLifeCycleState() == LifeCycleState.DELETED || dsDO.getLifeCycleState() == LifeCycleState.DELETING) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
@@ -332,7 +346,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         }
 
         List<String> dbLevels = new ArrayList<>(levels.subList(2, levels.size()));
-        return new DsLevels(envId, dsDO, levels, dbLevels, curLevelsDef, curLevelsParam);
+        return new DsLevels(levels.get(0), dsDO, levels, dbLevels, curLevelsDef, curLevelsParam);
     }
 
     @Override

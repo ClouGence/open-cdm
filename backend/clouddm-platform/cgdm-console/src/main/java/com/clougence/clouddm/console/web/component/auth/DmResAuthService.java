@@ -46,4 +46,6 @@ public interface DmResAuthService {
 
     ResourceAccessInfo getAllowBrowseInfo(DsLevels levels, String uid);
 
+    ResourceAccessInfo getAllowBrowseInfo(long dataSourceId, String uid, List<String> resourcePath);
+
 }

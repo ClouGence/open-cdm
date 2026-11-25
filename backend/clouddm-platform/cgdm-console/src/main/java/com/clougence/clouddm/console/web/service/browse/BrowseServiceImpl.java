@@ -15,17 +15,20 @@
  */
 package com.clougence.clouddm.console.web.service.browse;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.DM_DAUTH_QUERY;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
+import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
+import com.clougence.clouddm.console.web.component.auth.model.ResourceAccessInfo;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
@@ -34,14 +37,19 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseObjectMO;
+import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseTableMO;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsTagDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
+import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.schema.umi.special.mq.MqValue;
 import com.clougence.schema.umi.special.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -58,13 +66,19 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class BrowseServiceImpl implements BrowseService {
     @Resource
-    private DataSourceDal     dsDal;
+    private DataSourceDal       dsDal;
     @Resource
-    private DmDsWebService    dmDsService;
+    private DmDsWebService      dmDsService;
     @Resource
-    private DmDsConfigService dmDsConfigService;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private DsSchemaService   dmDsSchemaService;
+    private DsSchemaService     dmDsSchemaService;
+    @Resource
+    private ObjectCacheDao      objectCacheDao;
+    @Resource
+    private DmResAuthService    resourceAuthorization;
+    @Resource
+    private DmAuthServiceForBiz authorization;
 
     /**
      * for service API '/browse/listLevels'
@@ -173,6 +187,24 @@ public class BrowseServiceImpl implements BrowseService {
         return dsObjects.stream().map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());
     }
 
+    @Override
+    public List<BrowseLevelsVO> listVisibleLevels(String puid, String uid, DsLevels levels, boolean refreshCache) {
+        long dataSourceId = levels.dsDO().getId();
+        this.objectCacheDao.ownDataSource(puid, dataSourceId);
+        ResourceAccessInfo allowed = this.requireBrowse(dataSourceId, uid, levels.dbLevels());
+        this.requireExistingNamespace(levels, refreshCache);
+
+        DsBrowseSpi browse = PluginManager.findDsBrowseSpi(levels.dsDO().getDataSourceType());
+        if (levels.dbLevels().size() >= browse.getLevels().size()) {
+            return List.of();
+        }
+        List<BrowseLevelsVO> children = this.listLevels(puid, uid, levels, refreshCache);
+        if (allowed.isAllAllow()) {
+            return children;
+        }
+        return children.stream().filter(child -> allowed.getAllowQueryList().contains(child.getObjName())).toList();
+    }
+
     /**
      * for service API '/browse/detailLevels'
      */
@@ -223,6 +255,29 @@ public class BrowseServiceImpl implements BrowseService {
         return dsObjects.stream().map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());
     }
 
+    @Override
+    public List<BrowseLevelsVO> listVisibleLeaves(String puid, String uid, DsLevels levels, List<UmiTypes> leafTypes, String pattern, boolean refreshCache) {
+        long dataSourceId = levels.dsDO().getId();
+        this.objectCacheDao.ownDataSource(puid, dataSourceId);
+        ResourceAccessInfo allowed = this.requireBrowse(dataSourceId, uid, levels.dbLevels());
+        UmiTypes parentType = this.requireExistingNamespace(levels, refreshCache);
+
+        DsBrowseSpi browse = PluginManager.findDsBrowseSpi(levels.dsDO().getDataSourceType());
+        List<UmiTypes> supported = browse.getLeafGroupMap().getOrDefault(parentType, List.of());
+        List<BrowseLevelsVO> visible = new ArrayList<>();
+        for (UmiTypes leafType : leafTypes) {
+            if (!supported.contains(leafType)) {
+                continue;
+            }
+            for (BrowseLevelsVO item : this.listLeaf(puid, uid, levels, leafType, pattern, refreshCache)) {
+                if (allowed.isAllAllow() || browse.canBrowseLeaf(leafType, item.getObjName(), allowed.getAllowQueryList())) {
+                    visible.add(item);
+                }
+            }
+        }
+        return visible;
+    }
+
     /**
      * for service API '/browse/rdbTableDetail'
      */
@@ -233,6 +288,11 @@ public class BrowseServiceImpl implements BrowseService {
         }
 
         DmDsDO dsDO = levels.dsDO();
+        this.objectCacheDao.ownDataSource(puid, dsDO.getId());
+        if (leafType == UmiTypes.Table || leafType == UmiTypes.View || leafType == UmiTypes.ExternalTable || leafType == UmiTypes.Materialized) {
+            return this.browseTableDetail(uid, levels, leafType, leafName, refreshCache);
+        }
+        this.authorization.checkBrowseAuth(puid, uid, dsDO.getId(), AuthKind.DataSource, RdpAuthUtils.genResPathByList(levels.dbLevels(), leafName), DM_DAUTH_QUERY);
         Value value = this.dmDsSchemaService.detailLeaf(dsDO, levels.levelsParam(), leafType, leafName, refreshCache);
         if (value == null) {
             return null;
@@ -240,12 +300,6 @@ public class BrowseServiceImpl implements BrowseService {
 
         BrowseObjectMO mo;
         switch (leafType) {
-            case Table:
-            case ExternalTable:
-            case View:
-            case Materialized:
-                mo = DmConvertUtils.convertToBrowseTableMO((RdbTable) value);
-                break;
             case Procedure:
                 mo = DmConvertUtils.convertToBrowseProcedureMo((RdbProcedure) value);
                 break;
@@ -266,6 +320,62 @@ public class BrowseServiceImpl implements BrowseService {
         }
 
         return mo;
+    }
+
+    private BrowseTableMO browseTableDetail(String uid, DsLevels levels, UmiTypes leafType, String leafName, boolean refreshCache) {
+        List<String> path = new ArrayList<>(levels.dbLevels());
+        path.add(leafName);
+        long dataSourceId = levels.dsDO().getId();
+        ResourceAccessInfo allowed = this.requireBrowse(dataSourceId, uid, path);
+        UmiTypes parentType = this.requireExistingNamespace(levels, refreshCache);
+        DsBrowseSpi browse = PluginManager.findDsBrowseSpi(levels.dsDO().getDataSourceType());
+        if (!browse.getLeafGroupMap().getOrDefault(parentType, List.of()).contains(leafType)) {
+            return null;
+        }
+        Value value = this.dmDsSchemaService.detailLeaf(levels.dsDO(), levels.levelsParam(), leafType, leafName, refreshCache);
+        if (!(value instanceof RdbTable table) || !leafName.equals(table.getName())) {
+            return null;
+        }
+        if ((leafType == UmiTypes.Table || leafType == UmiTypes.View) && table.getUmiType() != leafType) {
+            return null;
+        }
+        if (allowed.isAllAllow()) {
+            return DmConvertUtils.convertToBrowseTableMO(table, null);
+        }
+        BrowseTableMO detail = DmConvertUtils.convertToBrowseTableMO(table, allowed.getAllowQueryList());
+        if (detail.getColumns().isEmpty()) {
+            throw this.noBrowseAuthority(dataSourceId, path);
+        }
+        return detail;
+    }
+
+    private ResourceAccessInfo requireBrowse(long dataSourceId, String uid, List<String> path) {
+        ResourceAccessInfo allowed = this.resourceAuthorization.getAllowBrowseInfo(dataSourceId, uid, path);
+        if (!allowed.isAllAllow() && allowed.getAllowQueryList().isEmpty()) {
+            throw this.noBrowseAuthority(dataSourceId, path);
+        }
+        return allowed;
+    }
+
+    private ErrorMessageException noBrowseAuthority(long dataSourceId, List<String> path) {
+        String resource = RdpAuthUtils.genResPathByList(path).getResPath();
+        return new ErrorMessageException(DmErrorCode.O_AUTHORITY.code(), RdpAuthUtils.missDataAuthMsg(dataSourceId, resource, DM_DAUTH_QUERY));
+    }
+
+    private UmiTypes requireExistingNamespace(DsLevels levels, boolean refreshCache) {
+        UmiTypes parentType = UmiTypes.Instance;
+        Map<UmiTypes, Object> parent = new EnumMap<>(UmiTypes.class);
+        for (int i = 0; i < levels.levelsDef().size(); i++) {
+            String name = levels.dbLevels().get(i);
+            List<DsElement> children = this.dmDsSchemaService.listLevels(levels.dsDO(), levels.levelsDef().subList(0, i), parent, refreshCache);
+            DsElement child = children.stream()
+                .filter(item -> name.equals(item.getObjName()))
+                .findFirst()
+                .orElseThrow(() -> new ErrorMessageException(DmErrorCode.O_DATA.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.DS_SCHEMA_NOT_EXIST_ERROR.name(), name)));
+            parentType = child.getObjType();
+            parent.put(levels.levelsDef().get(i), name);
+        }
+        return parentType;
     }
 
     @Override

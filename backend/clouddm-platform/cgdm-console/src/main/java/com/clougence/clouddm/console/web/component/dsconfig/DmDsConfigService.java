@@ -74,6 +74,8 @@ public interface DmDsConfigService {
 
     DsLevels parseLevels(List<String> levels);
 
+    DsLevels parseLevels(long dataSourceId, List<String> namespacePath);
+
     /** levels need is `/ssss/sss` path */
     DsLevels parseLevels(String levels);
 }

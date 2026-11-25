@@ -180,7 +180,7 @@ with urlopen(request, timeout=30) as response:
 | --- | --- | --- |
 | `/metadata/listNamespaces` | `dataSourceId`，可选父级 `namespacePath` | 列出可见的数据库、Catalog 或 Schema，返回名称、层级类型和对应的 `namespacePath` |
 | `/metadata/listTables` | `dataSourceId`、`namespacePath`、`pageNumber`、`pageSize`，可选 `objectType` | 列出有权浏览的表或视图，返回 `tableName`、`objectType` 和可用的注释。`objectType` 可取 `TABLE` 或 `VIEW` |
-| `/metadata/getTable` | `dataSourceId`、`namespacePath`、`objectType`、`tableName` | 返回列定义，以及数据源支持的主键、索引等结构 |
+| `/metadata/getTable` | `dataSourceId`、`namespacePath`、`objectType`、`tableName` | 返回可见列的定义，以及仅由可见列组成的主键和索引 |
 
 `namespacePath` 是相对数据源的有序名称数组。省略父级路径或传入 `[]` 可从根层级浏览。获取路径后原样传给库表浏览和执行数据操作的接口。MySQL 的路径是数据库名，例如 `["sales"]`。PostgreSQL 的路径依次为数据库名和 Schema 名，例如 `["sales", "public"]`。
 
@@ -327,7 +327,7 @@ CloudDM 在执行前校验子账号的功能权限，以及该 SQL 实际操作�
     "objectType": "TABLE",
     "columns": [
       {"name": "item_id", "type": "BIGINT", "nullable": false},
-      {"name": "item_name", "type": "VARCHAR(128)", "nullable": false}
+      {"name": "item_name", "type": "VARCHAR", "nullable": false}
     ],
     "primaryKey": ["item_id"]
   }

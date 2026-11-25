@@ -31,6 +31,8 @@ public interface BrowseService {
     /** for service API '/browse/listLevels' */
     List<BrowseLevelsVO> listLevels(String puid, String uid, DsLevels levels, boolean refreshCache);
 
+    List<BrowseLevelsVO> listVisibleLevels(String puid, String uid, DsLevels levels, boolean refreshCache);
+
     /** for service API '/browse/listLevels' */
     List<BrowseLevelsVO> listDs(String puid, String uid, String envId);
 
@@ -39,6 +41,8 @@ public interface BrowseService {
 
     /** for service API '/browse/listLeaf' */
     List<BrowseLevelsVO> listLeaf(String puid, String uid, DsLevels levels, UmiTypes leafType, String pattern, boolean refreshCache);
+
+    List<BrowseLevelsVO> listVisibleLeaves(String puid, String uid, DsLevels levels, List<UmiTypes> leafTypes, String pattern, boolean refreshCache);
 
     /** for service API '/browse/detailLevels' */
     BrowseLevelsVO detailLevels(String puid, String uid, DsLevels levels);

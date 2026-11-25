@@ -17,6 +17,8 @@ package com.clougence.clouddm.console.web.service.browse.model.rdb;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,5 +32,8 @@ public class BrowseIndexMO implements BrowseTips {
     private List<BrowseTermMO> columns;
 
     private boolean            unique;
+
+    @JsonIgnore
+    private boolean            expression;
     private boolean            foreign;
 }

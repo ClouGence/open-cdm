@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.util;
 
+import static com.clougence.schema.umi.special.rdb.RdbAttributeNames.INDEX_CONTAINS_EXPRESSION;
 import static com.clougence.schema.umi.special.rdb.RdbAttributeNames.OBJ_UI_TIPS;
 
 import java.net.URI;
@@ -392,21 +393,44 @@ public class DmConvertUtils {
         return (list == null || list.isEmpty()) ? Collections.emptyList() : list;
     }
 
-    public static BrowseTableMO convertToBrowseTableMO(RdbTable rdbTable) {
+    public static BrowseTableMO convertToBrowseTableMO(RdbTable rdbTable, Set<String> allowedColumns) {
+        List<RdbColumn> columns = List.of();
+        if (rdbTable.getColumns() != null) {
+            columns = rdbTable.getColumns()
+                .values()
+                .stream()
+                .filter(column -> allowedColumns == null || allowedColumns.contains(column.getName()))
+                .sorted(Comparator.comparing(RdbColumn::getIndex, Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+        }
         RdbPrimaryKey primaryKey = rdbTable.getPrimaryKey();
-        List<String> keyCols = (primaryKey == null) ? Collections.emptyList() : primaryKey.getColumnList();
-
         List<RdbUniqueKey> uniqueKeys = notNullList(rdbTable.getUniqueKeys());
+        List<RdbIndex> indices = notNullList(rdbTable.getIndices());
+        List<RdbForeignKey> foreignKeys = notNullList(rdbTable.getForeignKeys());
+        if (allowedColumns != null) {
+            Set<String> visible = columns.stream().map(RdbColumn::getName).collect(Collectors.toSet());
+            if (primaryKey != null && !visibleIndexColumns(visible, primaryKey.getColumnList())) {
+                primaryKey = null;
+            }
+            uniqueKeys = uniqueKeys.stream()
+                .filter(key -> visibleIndexColumns(visible, key.getColumnList()) && !Boolean.parseBoolean(key.getAttribute(INDEX_CONTAINS_EXPRESSION)))
+                .toList();
+            indices = indices.stream()
+                .filter(index -> visibleIndexColumns(visible, index.getColumnList()) && !Boolean.parseBoolean(index.getAttribute(INDEX_CONTAINS_EXPRESSION)))
+                .toList();
+            // Constraint expressions and foreign keys can reference columns outside this visible set.
+            foreignKeys = List.of();
+        }
+
+        List<String> keyCols = (primaryKey == null) ? Collections.emptyList() : primaryKey.getColumnList();
         List<String> ukCols = uniqueKeys.stream().flatMap((Function<RdbUniqueKey, Stream<String>>) idx -> {
             return idx.getColumnList().stream();
         }).collect(Collectors.toList());
 
-        List<RdbIndex> indices = notNullList(rdbTable.getIndices());
         List<String> idxCols = indices.stream().flatMap((Function<RdbIndex, Stream<String>>) idx -> {
             return idx.getColumnList().stream();
         }).collect(Collectors.toList());
 
-        List<RdbForeignKey> foreignKeys = notNullList(rdbTable.getForeignKeys());
         List<String> fkCols = foreignKeys.stream().flatMap((Function<RdbForeignKey, Stream<String>>) idx -> {
             return idx.getColumnList().stream();
         }).collect(Collectors.toList());
@@ -417,13 +441,14 @@ public class DmConvertUtils {
         mo.setType(rdbTable.getTableType());
         mo.setTips(rdbTable.getComment());
 
-        if (CollectionUtils.isEmpty(rdbTable.getColumns())) {
-            mo.setColumns(Collections.emptyList());
-        } else {
-            mo.setColumns(rdbTable.getColumns().values().stream().sorted(Comparator.comparingInt(RdbColumn::getIndex)).map(col -> {
-                return DmConvertUtils.convertToBrowseColumnMOTipsType(col, keyCols, idxCols, ukCols, fkCols);
-            }).collect(Collectors.toList()));
-        }
+        mo.setColumns(columns.stream().map(col -> {
+            BrowseColumnMO column = DmConvertUtils.convertToBrowseColumnMOTipsType(col, keyCols, idxCols, ukCols, fkCols);
+            if (allowedColumns != null) {
+                column.setDbKey(keyCols.contains(col.getName()));
+                column.setDbUnique(ukCols.contains(col.getName()));
+            }
+            return column;
+        }).toList());
 
         if (primaryKey != null) {
             mo.setKeys(Collections.singletonList(DmConvertUtils.convertToBrowseKeyMO(primaryKey)));
@@ -444,14 +469,20 @@ public class DmConvertUtils {
         mo.setPartitions(Collections.emptyList());
 
         List<BrowseConstraintMO> constraints = new ArrayList<>();
-        constraints.addAll(notNullList(rdbTable.getCheckConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).toList());
-        constraints.addAll(notNullList(rdbTable.getUniqueConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).toList());
+        if (allowedColumns == null) {
+            constraints.addAll(notNullList(rdbTable.getCheckConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).toList());
+            constraints.addAll(notNullList(rdbTable.getUniqueConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).toList());
+        }
         mo.setConstraints(constraints);
 
         List<BrowseForeignKeyMO> fks = new ArrayList<>(foreignKeys.stream().map(fk -> convertToBrowseForeignMO(fk, rdbTable.getName())).toList());
         mo.setForeignKeys(fks);
 
         return mo;
+    }
+
+    private static boolean visibleIndexColumns(Set<String> visible, List<String> columns) {
+        return columns != null && !columns.isEmpty() && visible.containsAll(columns);
     }
 
     public static BrowseColumnMO convertToBrowseColumnMOTipsType(RdbColumn rdbColumn, List<String> keyCols, List<String> idxCols, List<String> ukCols, List<String> fkCols) {
@@ -462,6 +493,7 @@ public class DmConvertUtils {
         mo.setName(colName);
         mo.setDbType(sqlType == null ? "" : sqlType.getCodeKey());
         mo.setDataType(BrowseColumnType.DEFAULT);
+        mo.setNullable(!rdbColumn.hasConstraint(GeneralConstraintType.NonNull));
 
         mo.setDbKey(keyCols.contains(colName) || rdbColumn.hasConstraint(GeneralConstraintType.Primary));
         mo.setDbUnique(ukCols.contains(colName) || rdbColumn.hasConstraint(GeneralConstraintType.Unique));
@@ -594,6 +626,7 @@ public class DmConvertUtils {
             mo.setTips("(" + StringUtils.join(uniqueKey.getColumnList().toArray(), ",") + ") UNIQUE");
         }
         mo.setUnique(true);
+        mo.setExpression(Boolean.parseBoolean(uniqueKey.getAttribute(INDEX_CONTAINS_EXPRESSION)));
 
         mo.setColumns(uniqueKey.getColumnList().stream().map(DmConvertUtils::convertToBrowseTermMO).collect(Collectors.toList()));
         return mo;
@@ -602,6 +635,7 @@ public class DmConvertUtils {
     public static BrowseIndexMO convertToBrowseIndexMO(RdbIndex rdbIndex) {
         BrowseIndexMO mo = new BrowseIndexMO();
         mo.setName(rdbIndex.getName());
+        mo.setExpression(Boolean.parseBoolean(rdbIndex.getAttribute(INDEX_CONTAINS_EXPRESSION)));
 
         if (rdbIndex.getType() == RdbIndexType.Unique) {
             mo.setType(BrowseIndexType.Unique.name());
