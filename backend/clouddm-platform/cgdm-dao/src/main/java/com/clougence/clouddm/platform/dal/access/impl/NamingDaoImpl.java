@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.platform.dal.access.impl;
 
+import java.security.SecureRandom;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -38,12 +39,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class NamingDaoImpl implements NamingDao {
+
+    private static final SecureRandom CREDENTIAL_RANDOM     = new SecureRandom();
+    private static final String       CREDENTIAL_CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyz";
+
     @Resource
-    private SystemDal   systemDal;
+    private SystemDal                 systemDal;
     @Resource
-    private AuthDal     authDal;
+    private AuthDal                   authDal;
     @Resource
-    private ApprovalDal approvalDal;
+    private ApprovalDal               approvalDal;
 
     @Override
     public String genClusterName() {
@@ -95,10 +100,8 @@ public class NamingDaoImpl implements NamingDao {
 
     @Override
     public String genAccessKey() {
-        String namePattern = "ak%s";
-
         while (true) {
-            String ak = String.format(namePattern, fixedLenRandomStr(61));
+            String ak = generateCredential("ak");
             DmAuthUserDO userDO = authDal.userMapper().queryByAccessKey(ak);
             if (userDO == null) {
                 return ak;
@@ -119,8 +122,7 @@ public class NamingDaoImpl implements NamingDao {
 
     @Override
     public String genSecretKey() {
-        String namePattern = "sk%s";
-        return String.format(namePattern, fixedLenRandomStr(61));
+        return generateCredential("sk");
     }
 
     @Override
@@ -143,6 +145,14 @@ public class NamingDaoImpl implements NamingDao {
     @Override
     public String genUploadFileId() {
         return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    private static String generateCredential(String prefix) {
+        StringBuilder value = new StringBuilder(prefix);
+        for (int i = 0; i < 61; i++) {
+            value.append(CREDENTIAL_CHARACTERS.charAt(CREDENTIAL_RANDOM.nextInt(CREDENTIAL_CHARACTERS.length())));
+        }
+        return value.toString();
     }
 
     /**

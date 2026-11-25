@@ -16,21 +16,29 @@
 package com.clougence.clouddm.console.web.global.handler;
 
 import org.slf4j.MDC;
-import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.AsyncHandlerInterceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TimeCostInterceptor implements HandlerInterceptor {
+public class TimeCostInterceptor implements AsyncHandlerInterceptor {
 
     //before the actual handler will be executed
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        long startTime = System.currentTimeMillis();
-        request.setAttribute("req_start_time", startTime);
+        Long startTime = (Long) request.getAttribute("req_start_time");
+        if (startTime == null) {
+            startTime = System.currentTimeMillis();
+            request.setAttribute("req_start_time", startTime);
+        }
         MDC.put("req_start_time", String.valueOf(startTime));
         return true;
+    }
+
+    @Override
+    public void afterConcurrentHandlingStarted(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        MDC.remove("req_start_time");
     }
 
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception arg3) {

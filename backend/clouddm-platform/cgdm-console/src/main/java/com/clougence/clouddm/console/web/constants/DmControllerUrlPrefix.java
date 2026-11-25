@@ -22,5 +22,6 @@ public interface DmControllerUrlPrefix {
 
     String CONSOLE_PREFIX    = "/api/entry";
     String OPEN_API_PREFIX   = "/api/open";
+    String OPEN_API_V1_PREFIX = OPEN_API_PREFIX + "/v1";
     String DM_MCP_API_PREFIX = "/api/mcp";
 }

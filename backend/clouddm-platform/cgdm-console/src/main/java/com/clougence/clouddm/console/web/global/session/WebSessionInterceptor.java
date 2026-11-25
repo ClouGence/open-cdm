@@ -20,16 +20,15 @@ import java.lang.reflect.Method;
 
 import org.springframework.lang.Nullable;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.util.RdpLocal;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.utils.io.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,7 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class WebSessionInterceptor implements HandlerInterceptor {
+public class WebSessionInterceptor implements AsyncHandlerInterceptor {
 
     @Resource
     private WebSessionManager sessionManager;
@@ -72,8 +71,7 @@ public class WebSessionInterceptor implements HandlerInterceptor {
         } finally {
             // failed preHandle never reaches afterCompletion; drop thread state now
             if (!success) {
-                RdpWebUtils.cleanLocal();
-                RdpLocal.setLocal(null);
+                clearRequestContext();
             }
         }
 
@@ -93,7 +91,16 @@ public class WebSessionInterceptor implements HandlerInterceptor {
     }
 
     @Override
+    public void afterConcurrentHandlingStarted(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        clearRequestContext();
+    }
+
+    @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) {
+        clearRequestContext();
+    }
+
+    private void clearRequestContext() {
         RdpWebUtils.cleanLocal();
         RdpLocal.setLocal(null);
     }

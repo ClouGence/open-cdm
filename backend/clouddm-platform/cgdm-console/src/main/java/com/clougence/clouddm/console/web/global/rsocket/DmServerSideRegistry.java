@@ -33,6 +33,7 @@ import com.clougence.clouddm.comm.model.rsocket.RSocketRegisterInfo;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.utils.ExceptionUtils;
@@ -88,8 +89,8 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     public void checkAuth(ConnAuthDTO authInfo) {
         try {
             DmAuthUserDO userDO = authDal.userMapper().queryByAccessKey(authInfo.getAk());
-            if (userDO == null) {
-                throw new IllegalArgumentException("no such user,ak:" + authInfo.getAk() + ".remote ip:" + authInfo.getIp());
+            if (userDO == null || userDO.getAccountType() != AccountType.PRIMARY_ACCOUNT) {
+                throw new IllegalArgumentException("invalid worker account.remote ip:" + authInfo.getIp());
             }
 
             String skInDb = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(userDO.getSecretKey());
@@ -98,8 +99,8 @@ public class DmServerSideRegistry implements ServerSideRegistry {
             }
 
             DmSysWorkerDO workerDO = systemDal.workerMapper().getByWsn(authInfo.getWsn());
-            if (workerDO == null) {
-                throw new IllegalArgumentException("worker metadata is not exist.remote ip:" + authInfo.getIp());
+            if (workerDO == null || !userDO.getUid().equals(workerDO.getUid())) {
+                throw new IllegalArgumentException("worker metadata is unavailable for this account.remote ip:" + authInfo.getIp());
             }
 
             if (workerDO.getConnStatus() == WorkerConnStatus.CONNECTED && this.workerRequesterMap.containsKey(authInfo.getWsn())) {

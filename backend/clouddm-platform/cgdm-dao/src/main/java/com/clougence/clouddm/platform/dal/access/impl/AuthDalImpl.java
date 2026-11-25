@@ -42,6 +42,8 @@ public class AuthDalImpl implements AuthDal {
     @Resource
     private DmAuthSessionMapper      sessionMapper;
     @Resource
+    private DmOpenApiAuthMapper      openApiAuthMapper;
+    @Resource
     private DmAuthRoleMapper         roleMapper;
     @Resource
     private DmAuthUserMapper         userMapper;
@@ -76,6 +78,11 @@ public class AuthDalImpl implements AuthDal {
     @Override
     public DmAuthSessionMapper sessionMapper() {
         return sessionMapper;
+    }
+
+    @Override
+    public DmOpenApiAuthMapper openApiAuthMapper() {
+        return openApiAuthMapper;
     }
 
     @Override

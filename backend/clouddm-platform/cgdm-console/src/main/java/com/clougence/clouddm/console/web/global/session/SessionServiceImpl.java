@@ -164,6 +164,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         }
         cleanerExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("auth-session-cleaner", true));
         cleanerExecutor.scheduleAtFixedRate(this::cleanExpiredSessions, 60, 60, TimeUnit.SECONDS);
+        cleanerExecutor.scheduleWithFixedDelay(this::cleanExpiredOpenApiNonces, 60, 60, TimeUnit.SECONDS);
     }
 
     private void cleanExpiredSessions() {
@@ -175,6 +176,16 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
             }
         } catch (Exception e) {
             log.error("Clean expired auth sessions failed.", e);
+        }
+    }
+
+    private void cleanExpiredOpenApiNonces() {
+        try {
+            while (authDal.openApiAuthMapper().deleteExpiredNonces(CLEAN_BATCH) == CLEAN_BATCH) {
+                // Commit each batch before deleting the next one.
+            }
+        } catch (Exception e) {
+            log.error("Clean expired OpenAPI nonces failed.", e);
         }
     }
 
