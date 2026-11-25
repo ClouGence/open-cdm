@@ -98,6 +98,7 @@
                   >
                     <Select
                       v-model="selected.teamId"
+                      v-bind="portalSelectProps"
                       transfer-class-name="approval-team-dropdown"
                       filterable
                       :disabled="!editable"
@@ -132,7 +133,14 @@
                     :rules="[{ required: true, message: $t('approval-select-person'), trigger: 'change' }]"
                     required
                   >
-                    <Select v-model="selected.userUid" filterable :disabled="!editable" :placeholder="$t('approval-select-person')">
+                    <Select
+                      v-model="selected.userUid"
+                      v-bind="portalSelectProps"
+                      transfer-class-name="approval-person-dropdown"
+                      filterable
+                      :disabled="!editable"
+                      :placeholder="$t('approval-select-person')"
+                    >
                       <Option v-for="person in approvers" :key="person.userUid" :value="person.userUid">{{ person.userName }}</Option>
                     </Select>
                   </FormItem>
@@ -196,6 +204,7 @@
                       <Select
                         v-if="draft.executionAssignment.participantType === participantTypes.TEAM"
                         v-model="draft.executionAssignment.teamId"
+                        v-bind="portalSelectProps"
                         transfer-class-name="approval-team-dropdown"
                         filterable
                         :disabled="!editable"
@@ -225,6 +234,8 @@
                       <Select
                         v-else
                         v-model="draft.executionAssignment.userUid"
+                        v-bind="portalSelectProps"
+                        transfer-class-name="approval-person-dropdown"
                         filterable
                         :disabled="!editable"
                         :placeholder="$t('approval-select-person')"
@@ -283,6 +294,7 @@ export default {
     return {
       participantTypes: APPROVAL_PARTICIPANT_TYPES,
       executionModes: APPROVAL_EXECUTION_MODES,
+      portalSelectProps: { transfer: true, eventsEnabled: true },
       draft,
       selectedId: draft.nodes[0].nodeId,
       draggingId: '',
@@ -678,6 +690,13 @@ export default {
 }
 :global(.approval-team-dropdown) {
   max-width: min(360px, calc(100vw - 32px));
+}
+:global(.approval-person-dropdown) {
+  max-width: min(360px, calc(100vw - 32px));
+}
+:global(.approval-person-dropdown .ivu-select-item) {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .approval-team-option,
 .approval-team-option :deep(.ivu-tooltip-rel) {
