@@ -109,6 +109,11 @@ public class MongoHooks implements SessionHook {
         PreparedStatement stmt;
         stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         stmt.setFetchSize(200);
+        // Carry onlineMaxRecordCount into AdapterRequest.maxRows for nested filter subqueries.
+        long maxRows = query.getResultConf().getFetchRecordCountLimit();
+        if (maxRows > 0 && maxRows <= Integer.MAX_VALUE) {
+            stmt.setMaxRows((int) maxRows);
+        }
         return stmt;
     }
 

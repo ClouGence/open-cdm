@@ -315,6 +315,28 @@ value
     | NULL
     | ID LS_BRACKET (STRING | NUMBER) RS_BRACKET
     | NEW ID LS_BRACKET (value (COMMA value)*)? RS_BRACKET
+    | subqueryValue
+    ;
+
+// Nested find used as a JSON value, e.g. $in: db.coll.find(...).sort(...).limit(n).map(d => d._id)
+subqueryValue:
+    collectionName DOT FIND LS_BRACKET (filter = jsonString (COMMA projection = jsonString)?)? RS_BRACKET
+    (DOT findConstarint)*
+    (DOT MAP LS_BRACKET mapLambda RS_BRACKET)?
+    (DOT TO_ARRAY LS_BRACKET RS_BRACKET)?
+    ;
+
+mapLambda:
+    ID ARROW memberAccess
+    ;
+
+memberAccess:
+    memberName (DOT memberName)*
+    ;
+
+memberName:
+    ID
+    | keyWordId
     ;
 
 
@@ -361,6 +383,8 @@ keyWordId:
     | UPDATE_ONE
     | UPDATE_MANY
     | DROP
+    | MAP
+    | TO_ARRAY
     | RENAME_COLLECTION
     | REPLACE_ONE
     | VALIDATE
