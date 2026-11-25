@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.platform.plugin.info;
 
+import java.io.File;
+
 import com.clougence.utils.loader.CgClassLoader;
 import com.clougence.utils.loader.ResourceLoader;
 
@@ -23,10 +25,12 @@ public class LoadDef {
     public final ResourceLoader pluginResource;
     public final ClassLoader    appClassLoader;
     public final CgClassLoader  pluginLoader;
+    public final File           pluginFile;
 
-    public LoadDef(ClassLoader appLoader, ResourceLoader pluginResource){
+    public LoadDef(ClassLoader appLoader, ResourceLoader pluginResource, File pluginFile){
         this.pluginResource = pluginResource;
         this.appClassLoader = appLoader;
         this.pluginLoader = this.pluginResource.toClassLoader(appLoader);
+        this.pluginFile = pluginFile;
     }
 }

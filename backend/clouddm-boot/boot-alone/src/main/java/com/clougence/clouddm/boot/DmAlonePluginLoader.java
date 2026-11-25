@@ -23,6 +23,7 @@ import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.console.web.service.sdk.ConsoleCacheServiceImpl;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.openapi.metadata.OpenApiMetadataService;
 import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
@@ -53,6 +54,8 @@ public class DmAlonePluginLoader {
     @Resource
     private MetaService                metaService;
     @Resource
+    private OpenApiMetadataService     openApiMetadataService;
+    @Resource
     private SidecarSessionServicesImpl sessionServices;
 
     public void loadPlugin(ClassLoader parentClassLoader) throws Exception {
@@ -62,6 +65,7 @@ public class DmAlonePluginLoader {
         PluginManager.putService(ConfigService.class, this.sidecarConfigService);
         PluginManager.putService(CacheService.class, this.cacheService);
         PluginManager.putService(MetaService.class, this.metaService);
+        PluginManager.putService(OpenApiMetadataService.class, this.openApiMetadataService);
         PluginManager.putService(ApprovalRefreshService.class, this.refreshService);
         PluginManager.putService(ConsoleConfigService.class, this.consoleConfigService);
 

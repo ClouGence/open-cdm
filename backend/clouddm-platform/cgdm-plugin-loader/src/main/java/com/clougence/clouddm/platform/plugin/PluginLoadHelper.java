@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.jar.JarEntry;
-import java.util.zip.ZipException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.schema.SchemaFramework;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 import com.clougence.utils.io.input.AutoCloseInputStream;
@@ -63,30 +63,30 @@ public class PluginLoadHelper {
         return loadPlugins(appClassLoader, null, pluginPaths);
     }
 
-    public static int loadPlugins(ClassLoader appClassLoader, String pluginFileName, File... pluginPaths) {
+    public static synchronized int loadPlugins(ClassLoader appClassLoader, String pluginFileName, File... pluginPaths) {
         PluginManager.markStarting();
+        List<BaseMeta> allPlugins = new ArrayList<>();
+        List<PluginLoadResult> loadResults = new ArrayList<>();
         try {
-            List<BaseMeta> allPlugins = new ArrayList<>();
             for (File path : pluginPaths) {
-                allPlugins.addAll(scanPluginDirectory(appClassLoader, path, pluginFileName));
+                allPlugins.addAll(scanPluginDirectory(appClassLoader, path, pluginFileName, loadResults));
             }
 
             allPlugins.sort(Comparator.comparingInt(BaseMeta::getOrder));
 
             log.info("Total plugins discovered: {}", allPlugins.size());
             for (BaseMeta plugin : allPlugins) {
-                activatePlugin(plugin);
+                activatePlugin(plugin, loadResults);
             }
             SchemaFramework.install(new SchemaInitPlugin());
-            PluginManager.markReady();
-            return allPlugins.size();
-        } catch (Throwable e) {
-            PluginManager.markStarting();
-            throw e;
+        } finally {
+            PluginManager.publishPluginLoadResults(loadResults);
         }
+        PluginManager.markReady();
+        return allPlugins.size();
     }
 
-    private static List<BaseMeta> scanPluginDirectory(ClassLoader appClassLoader, File pluginPath, String pluginFileName) {
+    private static List<BaseMeta> scanPluginDirectory(ClassLoader appClassLoader, File pluginPath, String pluginFileName, List<PluginLoadResult> loadResults) {
         List<BaseMeta> result = new ArrayList<>();
         if (pluginPath == null || !pluginPath.exists() || !pluginPath.isDirectory()) {
             return result;
@@ -98,9 +98,13 @@ public class PluginLoadHelper {
         }
 
         for (File physicalPlugin : pluginEntries) {
-            ResourceLoader pluginLoader = scanPhysicalPlugin(physicalPlugin);
-            if (pluginLoader != null) {
-                result.addAll(loadPhysicalPluginFromLoader(appClassLoader, physicalPlugin, pluginLoader));
+            try {
+                ResourceLoader pluginLoader = scanPhysicalPlugin(physicalPlugin, loadResults);
+                if (pluginLoader != null) {
+                    result.addAll(loadPhysicalPluginFromLoader(appClassLoader, physicalPlugin, pluginLoader, loadResults));
+                }
+            } catch (IOException | RuntimeException e) {
+                recordLoadFailure(loadResults, physicalPlugin, null, null, null, e);
             }
         }
 
@@ -111,9 +115,9 @@ public class PluginLoadHelper {
         return StringUtils.isEmpty(pluginFileName) || pluginFileName.equals(file.getName());
     }
 
-    private static ResourceLoader scanPhysicalPlugin(File physicalPlugin) {
+    private static ResourceLoader scanPhysicalPlugin(File physicalPlugin, List<PluginLoadResult> loadResults) throws IOException {
         if (physicalPlugin.isDirectory()) {
-            return loadPluginsFromDir(physicalPlugin);
+            return loadPluginsFromDir(physicalPlugin, loadResults);
         } else if (isJarFile(physicalPlugin)) {
             return loadPluginsFromJar(physicalPlugin);
         } else {
@@ -121,7 +125,7 @@ public class PluginLoadHelper {
         }
     }
 
-    private static ResourceLoader loadPluginsFromDir(File physicalPlugin) {
+    private static ResourceLoader loadPluginsFromDir(File physicalPlugin, List<PluginLoadResult> loadResults) {
         MultiResourceLoader pluginLoader = new MultiResourceLoader();
         pluginLoader.addLoader(new PathResourceLoader(physicalPlugin));
 
@@ -129,9 +133,10 @@ public class PluginLoadHelper {
         if (classpathJarFiles != null && classpathJarFiles.length > 0) {
             Arrays.sort(classpathJarFiles, Comparator.comparing(File::getName, String.CASE_INSENSITIVE_ORDER));
             for (File classpathJarFile : classpathJarFiles) {
-                ResourceLoader nestedLoader = loadPluginsFromJar(classpathJarFile);
-                if (nestedLoader != null) {
-                    pluginLoader.addLoader(nestedLoader);
+                try {
+                    pluginLoader.addLoader(loadPluginsFromJar(classpathJarFile));
+                } catch (IOException | RuntimeException e) {
+                    recordLoadFailure(loadResults, classpathJarFile, null, null, null, e);
                 }
             }
         }
@@ -139,7 +144,7 @@ public class PluginLoadHelper {
         return pluginLoader;
     }
 
-    private static ResourceLoader loadPluginsFromJar(File jarFile) {
+    private static ResourceLoader loadPluginsFromJar(File jarFile) throws IOException {
         List<String> nestedList = new ArrayList<>();
         try (JarFile jarFileItem = new JarFile(jarFile)) {
             for (JarEntry jarEntry : jarFileItem) {
@@ -148,20 +153,8 @@ public class PluginLoadHelper {
                     nestedList.add(jarEntryName);
                 }
             }
-        } catch (ZipException e) {
-            log.error("the plugin package '{}' is corrupted, error: {}", jarFile, e.getMessage(), e);
-            return null;
-        } catch (IOException e) {
-            log.error("scan plugin package '{}' failed, error: {}", jarFile, e.getMessage(), e);
-            return null;
         }
-
-        try {
-            return new JarResourceLoader(jarFile, nestedList);
-        } catch (IOException e) {
-            log.error("create resource loader from '{}' failed, error: {}", jarFile, e.getMessage(), e);
-            return null;
-        }
+        return new JarResourceLoader(jarFile, nestedList);
     }
 
     private static boolean isJarFile(File file) {
@@ -172,8 +165,9 @@ public class PluginLoadHelper {
     //                          Load Physical Plugin
     // ---------------------------------------------
 
-    private static List<BaseMeta> loadPhysicalPluginFromLoader(ClassLoader appClassLoader, File physicalPlugin, ResourceLoader pluginLoader) {
-        LoadDef loadDef = new LoadDef(appClassLoader, pluginLoader);
+    private static List<BaseMeta> loadPhysicalPluginFromLoader(ClassLoader appClassLoader, File physicalPlugin, ResourceLoader pluginLoader,
+                                                               List<PluginLoadResult> loadResults) throws IOException {
+        LoadDef loadDef = new LoadDef(appClassLoader, pluginLoader, physicalPlugin);
 
         // load driver SPI
         try {
@@ -197,22 +191,18 @@ public class PluginLoadHelper {
             log.error("load plugin drivers.xml failed, {}", e.getMessage(), e);
         }
 
-        // load Plugins
-        try {
-            List<BaseMeta> result = new ArrayList<>();
-            Set<String> dsPluginClasses = scanPluginClasses(pluginLoader);
+        List<BaseMeta> result = new ArrayList<>();
+        List<String> sortedPluginClassNames = new ArrayList<>(scanPluginClasses(pluginLoader));
+        Collections.sort(sortedPluginClassNames);
 
-            List<String> sortedPluginClassNames = new ArrayList<>(dsPluginClasses);
-            Collections.sort(sortedPluginClassNames);
-
-            for (String pluginClassName : sortedPluginClassNames) {
+        for (String pluginClassName : sortedPluginClassNames) {
+            try {
                 result.add(lookupMeta(pluginClassName, loadDef));
+            } catch (IOException | RuntimeException e) {
+                recordLoadFailure(loadResults, physicalPlugin, pluginClassName, null, null, e);
             }
-            return result;
-        } catch (IOException e) {
-            log.error("scan plugins from '{}' failed, error: {}", physicalPlugin, e.getMessage(), e);
-            return Collections.emptyList();
         }
+        return result;
     }
 
     static Set<String> scanPluginClasses(ResourceLoader pluginLoader) throws IOException {
@@ -242,34 +232,52 @@ public class PluginLoadHelper {
         Annotations pluginMetadata = Annotations.ofClass(pluginClassStream);
 
         Annotation pluginInfo = pluginMetadata.getAnnotation(Plugin.class);
-        if (pluginInfo != null) {
-            List<Enum<?>> dsProduct = pluginInfo.getEnumArray("dsProduct", DataSourceType.values());
-            if (dsProduct.isEmpty()) {
-                return new FooMeta(pluginClass, pluginInfo, PluginManager.globalMeta(), loadDef);
-            } else if (dsProduct.size() == 1) {
-                return new DsMeta(pluginClass, pluginInfo, PluginManager.globalMeta(), loadDef);
-            } else {
-                log.error("Plugin dsProduct not support multi dsProduct, class=" + pluginClass);
-            }
+        if (pluginInfo == null) {
+            throw new IllegalArgumentException("Missing @Plugin annotation.");
         }
-        return null;
+        List<Enum<?>> dsProduct = pluginInfo.getEnumArray("dsProduct", DataSourceType.values());
+        if (dsProduct.isEmpty()) {
+            return new FooMeta(pluginClass, pluginInfo, PluginManager.globalMeta(), loadDef);
+        }
+        if (dsProduct.size() == 1) {
+            return new DsMeta(pluginClass, pluginInfo, PluginManager.globalMeta(), loadDef);
+        }
+        throw new IllegalArgumentException("A data source plugin must declare exactly one dsProduct.");
     }
 
     // ---------------------------------------------
     //                               activate Plugin
     // ---------------------------------------------
 
-    private static void activatePlugin(BaseMeta plugin) {
+    private static void activatePlugin(BaseMeta plugin, List<PluginLoadResult> loadResults) {
+        File pluginFile = plugin.getPluginFile();
+        String version = null;
+        try {
+            version = plugin.getPluginVersion();
+        } catch (IOException e) {
+            log.warn("Read plugin version from '{}' failed.", pluginFile, e);
+        }
+
+        String pluginName = plugin.getPluginName();
         try {
             loadOnePlugin(plugin);
+            if (plugin instanceof DsMeta dsMeta) {
+                PluginManager.addPlugin(dsMeta);
+            }
         } catch (Throwable e) {
-            log.error("load plugin failed, {}", e.getMessage(), e);
+            recordLoadFailure(loadResults, pluginFile, plugin.getPluginClass(), pluginName, version, e);
             return;
         }
 
-        if (plugin instanceof DsMeta) {
-            PluginManager.addPlugin((DsMeta) plugin);
-        }
+        loadResults.add(new PluginLoadResult(pluginFile.getAbsolutePath(), plugin.getPluginClass(), pluginName, version, true, null));
+        log.info("Loaded plugin '{}' (version {}) from '{}'.", pluginName, version, pluginFile);
+    }
+
+    private static void recordLoadFailure(List<PluginLoadResult> loadResults, File pluginFile, String pluginClass, String pluginName, String version, Throwable error) {
+        String reason = ExceptionUtils.getRootCause(error).toString();
+        loadResults.add(new PluginLoadResult(pluginFile.getAbsolutePath(), pluginClass, pluginName, version, false, reason));
+        String pluginLabel = StringUtils.defaultIfBlank(pluginClass, pluginFile.getName());
+        log.error("Load plugin '{}' from '{}' failed: {}", pluginLabel, pluginFile, reason, error);
     }
 
     private static void loadOnePlugin(BaseMeta plugin) throws ReflectiveOperationException {

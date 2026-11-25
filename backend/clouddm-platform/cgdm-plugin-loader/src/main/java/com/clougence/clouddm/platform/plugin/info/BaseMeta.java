@@ -15,11 +15,19 @@
  */
 package com.clougence.clouddm.platform.plugin.info;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URL;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import com.clougence.utils.loader.CgClassLoader;
 import com.clougence.utils.loader.ResourceLoader;
 import com.clougence.utils.reflect.Annotation;
+
+import lombok.Getter;
 
 public abstract class BaseMeta {
 
@@ -27,6 +35,8 @@ public abstract class BaseMeta {
     protected final ResourceLoader pluginResource;
     protected final CgClassLoader  pluginClassLoader;
     protected final GlobalMeta     globalMeta;
+    @Getter
+    private final File             pluginFile;
     //
     protected final Annotation     pluginInfo;
 
@@ -36,6 +46,7 @@ public abstract class BaseMeta {
         this.pluginClassLoader = loadDef.pluginLoader;
         this.globalMeta = globalMeta;
         this.pluginInfo = pluginInfo;
+        this.pluginFile = loadDef.pluginFile;
         this.configIncludeExclude(this.pluginClassLoader);
     }
 
@@ -44,6 +55,19 @@ public abstract class BaseMeta {
     public String getPluginName() { return this.pluginInfo.getString("name"); }
 
     public String getPluginClass() { return this.pluginClass; }
+
+    public String getPluginVersion() throws IOException {
+        String classResource = this.pluginClass.replace('.', '/') + ".class";
+        URL resource = this.pluginResource.getResource(classResource);
+        Manifest manifest;
+        // Resolve the archive that supplies the entry class, including JARs inside a plugin directory.
+        if (resource != null && resource.openConnection() instanceof JarURLConnection jar) {
+            manifest = jar.getManifest();
+        } else {
+            manifest = this.pluginResource.getManifest(classResource);
+        }
+        return manifest == null ? null : manifest.getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+    }
 
     public GlobalMeta getGlobalMeta() { return this.globalMeta; }
 

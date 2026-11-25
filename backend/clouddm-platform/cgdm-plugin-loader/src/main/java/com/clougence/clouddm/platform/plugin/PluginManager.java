@@ -76,7 +76,8 @@ public class PluginManager {
     private static final GlobalMeta                      globalMeta;
     private static final Map<String, DsMeta>             dsMetaMap;
     private static final Map<String, Map<Class<?>, Spi>> dsSpiCache;
-    private static final AtomicBoolean                   ready = new AtomicBoolean(false);
+    private static final AtomicBoolean                   ready             = new AtomicBoolean(false);
+    private static volatile List<PluginLoadResult>       pluginLoadResults = List.of();
 
     private PluginManager(){
     }
@@ -174,6 +175,13 @@ public class PluginManager {
     }
 
     public static boolean isReady() { return ready.get(); }
+
+    static void publishPluginLoadResults(List<PluginLoadResult> results) {
+        pluginLoadResults = List.copyOf(results);
+    }
+
+    /** Returns the outcomes of the latest completed plugin scan on this node. */
+    public static List<PluginLoadResult> getPluginLoadResults() { return pluginLoadResults; }
 
     public static DsPluginInfo findDsPlugin(DataSourceType dsProduct) {
         return dsProduct == null ? null : dsMetaMap.get(dsProduct.getTypeName());
