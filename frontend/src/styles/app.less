@@ -1272,28 +1272,110 @@ tr:hover .ivu-select-selection {
   font-size: 20px !important;
 }
 
-::-webkit-scrollbar {
-  width: 5px;
-  height: 8px;
-}
-::-webkit-scrollbar-thumb {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.3);
-}
-::-webkit-scrollbar-track {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.1);
+// Unified global progressive-expanding overlay scrollbars across all pages
+html,
+body,
+*:not(.monaco-editor):not(.monaco-editor *):not(textarea):not(select):not([data-native-scrollbar]) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-// Monaco renders its scrollbars as divs, so the browser scrollbar rules above do not apply.
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*:not(.monaco-editor):not(.monaco-editor *):not(textarea):not(select):not([data-native-scrollbar])::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.cc-global-sb-root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 90;
+}
+
+.cc-gsb-track {
+  position: fixed;
+  display: none;
+  pointer-events: auto;
+  background: transparent;
+  user-select: none;
+}
+
+.cc-gsb-track-v {
+  width: 16px;
+}
+
+.cc-gsb-track-h {
+  height: 16px;
+}
+
+.cc-gsb-thumb {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.22);
+  cursor: pointer;
+  will-change: transform, width, height;
+}
+
+.cc-gsb-thumb-v {
+  top: 0;
+  right: 3px;
+  width: 6px;
+  transition:
+    width 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    right 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 180ms ease;
+}
+
+.cc-gsb-track-v.is-active .cc-gsb-thumb-v {
+  width: 10px;
+  right: 2px;
+  background: rgba(17, 24, 39, 0.36);
+}
+
+.cc-gsb-track-v.is-dragging .cc-gsb-thumb-v {
+  width: 10px;
+  right: 2px;
+  background: rgba(17, 24, 39, 0.5);
+}
+
+.cc-gsb-thumb-h {
+  left: 0;
+  bottom: 3px;
+  height: 6px;
+  transition:
+    height 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    bottom 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 180ms ease;
+}
+
+.cc-gsb-track-h.is-active .cc-gsb-thumb-h {
+  height: 10px;
+  bottom: 2px;
+  background: rgba(17, 24, 39, 0.36);
+}
+
+.cc-gsb-track-h.is-dragging .cc-gsb-thumb-h {
+  height: 10px;
+  bottom: 2px;
+  background: rgba(17, 24, 39, 0.5);
+}
+
+// Monaco renders its scrollbars as divs, so mirror the native translucent pill style.
 .sql-editor-typography .monaco-scrollable-element > .scrollbar {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.1);
+  background: transparent !important;
 }
 
 .sql-editor-typography .monaco-scrollable-element > .scrollbar > .slider {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.3) !important;
+  border-radius: 999px;
+  background-color: rgba(17, 24, 39, 0.22) !important;
+  transition: background-color 150ms ease;
+}
+
+.sql-editor-typography .monaco-scrollable-element > .scrollbar:hover > .slider {
+  background-color: rgba(17, 24, 39, 0.36) !important;
 }
 
 .ivu-table-tip {

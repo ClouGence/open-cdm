@@ -15,11 +15,9 @@
  */
 package com.clougence.clouddm.dsfamily.db2.language;
 
-import java.util.Set;
-
+import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
-import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionResult;
@@ -30,13 +28,13 @@ import com.clougence.clouddm.sdk.language.validate.ValidateResult;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 
 public class Db2LanguageSpi implements DsLanguageSpi {
+    private final MetaService                 metaService;
+    private final Db2CompletionStrategyCenter completion = new Db2CompletionStrategyCenter();
+    private final Db2ValidateStrategyCenter   validate   = new Db2ValidateStrategyCenter();
+    private final SplitStrategyCenter         split      = new SplitStrategyCenter();
 
     public Db2LanguageSpi(MetaService metaService){
-    }
-
-    @Override
-    public Set<DsLanguageSupport> supports() {
-        return Set.of();
+        this.metaService = metaService;
     }
 
     private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
@@ -49,16 +47,20 @@ public class Db2LanguageSpi implements DsLanguageSpi {
 
     @Override
     public CompletionResult complete(CompletionRequest request) {
-        return initResult(request, new CompletionResult());
+        CompletionResult result = initResult(request, new CompletionResult());
+        result.getItems().addAll(this.completion.complete(request, this.metaService));
+        return result;
     }
 
     @Override
     public ValidateResult validate(ValidateRequest request) {
-        return initResult(request, new ValidateResult());
+        ValidateResult result = initResult(request, new ValidateResult());
+        result.getDiagnostics().addAll(this.validate.validate(request, this.metaService));
+        return result;
     }
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return initResult(request, new SplitResult());
+        return this.split.split(request);
     }
 }

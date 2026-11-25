@@ -49,6 +49,10 @@ public class DataEditorResultVO {
 
     private Integer                   pageSize;
 
+    private Integer                   maxPageSize;
+
+    private String                    resultId;
+
     private Boolean                   hasNext;
 
     private Boolean                   isFirst;

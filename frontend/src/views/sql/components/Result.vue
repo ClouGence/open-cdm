@@ -404,109 +404,8 @@
       </template>
     </CCModal>
 
-    <!-- Generic export modal (field selection only) -->
-    <CCModal v-model="showExportOptionModal" :title="exportModalTitle || $t('dao-chu')" :width="600" :mask-closable="false" transfer>
-      <div class="export-option-modal">
-        <div class="export-options-header" style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px">
-          <div style="display: flex; align-items: center">
-            <span style="width: 80px">{{ $t('dao-chu-fan-wei') }}:</span>
-            <a-radio-group v-model:value="exportRangeType" @change="handleExportRangeChange">
-              <a-radio value="single" :disabled="!isFromContextMenu">{{ $t('dan-hang-dao-chu') }}</a-radio>
-              <a-radio value="page">{{ $t('dan-ye-dao-chu') }}</a-radio>
-              <a-radio value="all">{{ $t('quan-bu-dao-chu') }}</a-radio>
-            </a-radio-group>
-          </div>
-          <div style="display: flex; align-items: center">
-            <span style="width: 80px">{{ $t('dao-chu-ge-shi') }}:</span>
-            <a-radio-group v-model:value="currentExportType">
-              <a-radio v-for="item in exportTypes" :key="item.name" :value="item.name">
-                <div style="display: inline-flex; align-items: center; gap: 6px">
-                  <CustomIcon v-if="item?.icon" :type="item.icon" size="14px" />
-                  <span>{{ item.description }}</span>
-                </div>
-              </a-radio>
-            </a-radio-group>
-          </div>
-        </div>
-        <div class="toolbar">
-          <a-input v-model:value="columnSearch" :placeholder="$t('zi-duan-ming')" allow-clear size="small" />
-        </div>
-        <a-table
-          :columns="exportTableColumns"
-          :dataSource="filteredColumns"
-          :pagination="false"
-          :scroll="{ y: 420 }"
-          size="small"
-          :rowKey="(record, index) => index"
-          class="export-table"
-        >
-          <template #headerCell="{ column }">
-            <template v-if="column.key === 'export'">
-              <a-checkbox v-model:checked="columnSelectAll" @change="toggleSelectAll" />
-            </template>
-          </template>
-          <template #bodyCell="{ column, record, index }">
-            <template v-if="column.key === 'export'">
-              <div>
-                <a-checkbox v-model:checked="record.export" />
-              </div>
-            </template>
-            <template v-if="column.key === 'originalColumnName'">
-              <div class="export-table-cell">
-                <span>{{ record.originalColumnName }}</span>
-              </div>
-            </template>
-            <template v-if="column.key === 'columnName'">
-              <div class="export-table-cell">
-                <a-input
-                  v-model:value="record.columnName"
-                  size="small"
-                  :placeholder="$t('qing-shu-ru-zi-duan-ming')"
-                  @blur="finishEditField(record, index)"
-                  @keyup.enter="finishEditField(record, index)"
-                  @keyup.escape="cancelEditField(record, index)"
-                />
-              </div>
-            </template>
-            <template v-if="column.key === 'modified'">
-              <div class="export-table-cell">
-                <span v-if="record.columnName !== record.originalColumnName" class="modified-indicator">{{ $t('yi-xiu-gai') }}</span>
-              </div>
-            </template>
-          </template>
-        </a-table>
-      </div>
-      <template #footer>
-        <Button @click="showExportOptionModal = false">{{ $t('guan-bi') }}</Button>
-        <Button type="primary" @click="confirmExportOption">{{ $t('que-ren-dao-chu') }}</Button>
-      </template>
-    </CCModal>
-
-    <CCModal
-      v-model="downloadFileNameModalVisible"
-      :title="$t('xia-zai-wen-jian')"
-      :width="480"
-      :mask-closable="false"
-      transfer
-      @on-cancel="closeDownloadFileNameModal"
-    >
-      <a-form layout="vertical">
-        <a-form-item :label="$t('wen-jian-ming')" :validate-status="downloadFileNameError ? 'error' : ''" :help="downloadFileNameError">
-          <a-input
-            v-model:value="downloadFileName"
-            :addon-after="downloadFileSuffix"
-            :placeholder="$t('qing-shu-ru')"
-            autofocus
-            @input="downloadFileNameError = ''"
-            @keyup.enter="confirmDownloadExportedFile"
-          />
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <Button :disabled="downloadLoading" @click="closeDownloadFileNameModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" :loading="downloadLoading" @click="confirmDownloadExportedFile">{{ $t('xia-zai') }}</Button>
-      </template>
-    </CCModal>
+    <!-- Shared export & download modals -->
+    <ResultExportModal ref="resultExportModal" @confirm="confirmExportOption" />
   </div>
 </template>
 <script lang="jsx">
@@ -520,6 +419,7 @@ import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { isMySQL } from '@/utils';
 import { mapGetters, mapState } from 'vuex';
 import CustomIcon from '@/components/function/CustomIcon.vue';
+import ResultExportModal from '@/views/sql/components/ResultExportModal.vue';
 import ExecutionSqlText from '@/views/sql/components/ExecutionSqlText.vue';
 import { getBaseEditorLanguage } from '@/components/editor/sqlLanguage';
 import ContextMenu from '@imengyu/vue3-context-menu';
@@ -536,7 +436,8 @@ export default {
     FullscreenExitOutlined,
     FullscreenOutlined,
     CustomIcon,
-    ExecutionSqlText
+    ExecutionSqlText,
+    ResultExportModal
     // AsyncJobDetail,
     // AsyncJobList
   },
@@ -550,14 +451,6 @@ export default {
       sqls: [],
       showInsertSqlModal: false,
       showSqlExportOptionModal: false,
-      showExportOptionModal: false,
-      downloadFileNameModalVisible: false,
-      downloadFileName: '',
-      downloadFileSuffix: '',
-      downloadFileNameError: '',
-      downloadTrackId: '',
-      downloadLoading: false,
-      exportModalTitle: '',
       currentExportType: '', // Export format
       exportRangeType: 'all', // Export range: 'single' single row, 'page' single page, 'all' all rows
       selectedRowIndex: null, // Selected row index for single-row export
@@ -1612,25 +1505,29 @@ export default {
       this.isFromContextMenu = false;
       this.exportRangeType = 'all';
       this.selectedRowIndex = null;
-
-      const jsonType = this.exportTypes.find((t) => t.name === 'application/json' || t.name === 'json');
-      this.currentExportType = jsonType?.name || (this.exportTypes.length > 0 ? this.exportTypes[0].name : '');
-
-      this.exportModalTitle = this.$t('dao-chu');
-      this.resetInsertOption();
-      this.showExportOptionModal = true;
+      const columns = Array.isArray(this.selectedTab?.columnList) ? this.selectedTab.columnList : [];
+      this.$refs.resultExportModal?.openExportModal({
+        columns,
+        tableName: 'table_name',
+        dataSourceType: this.tab.dataSourceType || this.tab.dsType || '',
+        allowSingleRow: false,
+        defaultRange: 'all',
+        title: this.$t('dao-chu')
+      });
     },
     handleRowExport(rowIndex) {
       this.isFromContextMenu = true;
       this.exportRangeType = 'single';
       this.selectedRowIndex = rowIndex;
-
-      const jsonType = this.exportTypes.find((t) => t.name === 'application/json' || t.name === 'json');
-      this.currentExportType = jsonType?.name || (this.exportTypes.length > 0 ? this.exportTypes[0].name : '');
-
-      this.exportModalTitle = this.$t('dao-chu');
-      this.resetInsertOption();
-      this.showExportOptionModal = true;
+      const columns = Array.isArray(this.selectedTab?.columnList) ? this.selectedTab.columnList : [];
+      this.$refs.resultExportModal?.openExportModal({
+        columns,
+        tableName: 'table_name',
+        dataSourceType: this.tab.dataSourceType || this.tab.dsType || '',
+        allowSingleRow: true,
+        defaultRange: 'single',
+        title: this.$t('dao-chu')
+      });
     },
     handleExportRangeChange() {
       if (!this.isFromContextMenu && this.exportRangeType === 'single') {
@@ -1765,12 +1662,15 @@ export default {
         appLogger.error('err:', error);
       }
     },
-    async confirmExportOption() {
+    async confirmExportOption({ dstFormatName, exportRangeType, option } = {}) {
       try {
+        const rangeType = exportRangeType || this.exportRangeType;
+        const formatName = dstFormatName || this.currentExportType;
+        const baseOption = option || this.insertOption;
         let offset = 0;
         let limit = -1;
 
-        if (this.exportRangeType === 'single') {
+        if (rangeType === 'single') {
           // Single-row export
           const receiveMode = this.selectedTab?.receiveMode || 'PAGE_FULL';
           const page = this.selectedTab?.page || 1;
@@ -1789,7 +1689,7 @@ export default {
             offset = (page - 1) * 50 + rowIndex;
             limit = 1;
           }
-        } else if (this.exportRangeType === 'page') {
+        } else if (rangeType === 'page') {
           // Single-page export
           const receiveMode = this.selectedTab?.receiveMode || 'PAGE_FULL';
           const page = this.selectedTab?.page || 1;
@@ -1812,7 +1712,7 @@ export default {
 
         // Update offset and limit from insertOption.
         const exportOption = {
-          ...this.insertOption,
+          ...baseOption,
           offset,
           limit
         };
@@ -1821,13 +1721,13 @@ export default {
           data: {
             resultId: this.selectedTab.resultId || '',
             dstFileName: '',
-            dstFormatName: this.currentExportType,
+            dstFormatName: formatName,
             option: exportOption
           }
         });
 
         if (res.success) {
-          this.showExportOptionModal = false;
+          this.$refs.resultExportModal?.closeExportModal();
           this.initTabExportState();
           this.selectedTab.exportState.exporting = true;
           this.selectedTab.exportState.downloadFile = {
@@ -1847,85 +1747,7 @@ export default {
       if (!downloadFile?.trackId) {
         return;
       }
-
-      let fileName = downloadFile.trackId;
-      if (downloadFile.file) {
-        try {
-          const decodedFilePath = decodeURIComponent(downloadFile.file.replace(/\+/g, '%20'));
-          fileName = decodedFilePath.split(/[\\/]/).pop() || fileName;
-        } catch (error) {
-          appLogger.debug(error);
-        }
-      }
-
-      const suffixIndex = fileName.lastIndexOf('.');
-      this.downloadFileName = fileName;
-      this.downloadFileSuffix = '';
-      if (suffixIndex > 0) {
-        this.downloadFileName = fileName.substring(0, suffixIndex);
-        this.downloadFileSuffix = fileName.substring(suffixIndex);
-      }
-      this.downloadTrackId = downloadFile.trackId;
-      this.downloadFileNameError = '';
-      this.downloadFileNameModalVisible = true;
-    },
-    closeDownloadFileNameModal() {
-      if (this.downloadLoading) {
-        return;
-      }
-      this.downloadFileNameModalVisible = false;
-      this.downloadFileNameError = '';
-      this.downloadTrackId = '';
-    },
-    async confirmDownloadExportedFile() {
-      if (this.downloadLoading) {
-        return;
-      }
-
-      const fileName = this.downloadFileName.trim();
-      if (!fileName) {
-        this.downloadFileNameError = this.$t('wen-jian-ming-bu-neng-wei-kong');
-        return;
-      }
-      const hasControlCharacter = Array.from(fileName).some((character) => character.charCodeAt(0) < 32);
-      if (fileName === '.' || fileName === '..' || /[<>:"/\\|?*]/.test(fileName) || hasControlCharacter) {
-        this.downloadFileNameError = this.$t('wen-jian-ming-bao-han-fei-fa-zi-fu');
-        return;
-      }
-
-      this.downloadLoading = true;
-      try {
-        const downloadFileName = `${fileName}${this.downloadFileSuffix}`;
-        const res = await this.$services.dmQueryDownloadResult({
-          data: {
-            resultId: this.downloadTrackId,
-            downloadFileName
-          },
-          responseType: 'blob',
-          modal: false
-        });
-
-        const blob = res && res.data instanceof Blob ? res.data : res;
-        if (!(blob instanceof Blob)) {
-          this.$Message.warning(this.$t('wen-jian-yi-shi-xiao'));
-          throw new Error('响应数据格式不正确');
-        }
-
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = downloadFileName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        this.downloadFileNameModalVisible = false;
-        this.downloadTrackId = '';
-      } catch (error) {
-        appLogger.error('err:', error);
-      } finally {
-        this.downloadLoading = false;
-      }
+      this.$refs.resultExportModal?.openDownloadModal(downloadFile);
     },
 
     initTabExportState() {

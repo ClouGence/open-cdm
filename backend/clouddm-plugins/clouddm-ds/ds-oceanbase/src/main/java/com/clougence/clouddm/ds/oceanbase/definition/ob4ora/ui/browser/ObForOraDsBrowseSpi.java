@@ -80,7 +80,7 @@ public class ObForOraDsBrowseSpi extends AbstractDsBrowseSpi {
             case RdbTable: {
                 List<String> menus = RdbUiMenuDef.DEFAULT_RDB_TABLE;
                 return filterMenus(menus, Arrays
-                    .asList(MENU_BROWSE_TABLE_CREATE, MENU_BROWSE_TABLE_ALTER, MENU_BROWSE_TABLE_FAKER, MENU_BROWSE_TABLE_FAKER_INCREMENT, MENU_BROWSE_TRIGGER_CREATE, MENU_BROWSE_TABLE_DATA));
+                    .asList(MENU_BROWSE_TABLE_CREATE, MENU_BROWSE_TABLE_ALTER, MENU_BROWSE_TABLE_FAKER, MENU_BROWSE_TABLE_FAKER_INCREMENT, MENU_BROWSE_TRIGGER_CREATE));
             }
             default:
                 return super.getMenus(targetType);

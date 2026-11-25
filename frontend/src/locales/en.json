@@ -4118,6 +4118,7 @@
   "preference-language-max-request-kb-help": "Skip language-service completion, validation, and split processing when the SQL content exceeds this size.",
   "preference-online-max-record-count": "Maximum Records",
   "preference-online-max-record-count-help": "Maximum records returned by one online query.",
+  "data-editor-page-size-limit-tip": "Limited by \"{label}\" ({max}). You can adjust it in System Settings → Preferences.",
   "preference-online-max-result-set-mb": "Maximum Result Set Size",
   "preference-online-max-result-set-mb-help": "Maximum total data size returned by one online query.",
   "preference-online-max-column-mb": "Maximum Column Size",

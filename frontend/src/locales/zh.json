@@ -4097,6 +4097,7 @@
   "preference-language-max-request-kb-help": "补全、校验和拆分请求中的 SQL 内容超过该大小时，前后端均跳过语言服务处理。",
   "preference-online-max-record-count": "最大记录数",
   "preference-online-max-record-count-help": "一次在线查询允许返回的最大记录数。",
+  "data-editor-page-size-limit-tip": "受「{label}」({max}) 限制，可在系统设置 → 偏好设置中调整",
   "preference-online-max-result-set-mb": "最大结果集大小",
   "preference-online-max-result-set-mb-help": "一次在线查询所有结果数据允许占用的最大空间。",
   "preference-online-max-column-mb": "单列最大大小",

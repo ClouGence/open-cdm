@@ -1394,31 +1394,31 @@
     border-color: var(--primary-color);
   }
 
-  // Scrollbar
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  // Unified global progressive-expanding overlay scrollbars (dark theme)
+  .cc-gsb-thumb {
+    background: rgba(255, 255, 255, 0.22);
   }
 
-  ::-webkit-scrollbar-track {
-    background-color: var(--bg-tertiary);
+  .cc-gsb-track-v.is-active .cc-gsb-thumb-v,
+  .cc-gsb-track-h.is-active .cc-gsb-thumb-h {
+    background: rgba(255, 255, 255, 0.36);
   }
 
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--border-primary);
-    border-radius: 4px;
-
-    &:hover {
-      background-color: var(--text-tertiary);
-    }
+  .cc-gsb-track-v.is-dragging .cc-gsb-thumb-v,
+  .cc-gsb-track-h.is-dragging .cc-gsb-thumb-h {
+    background: rgba(255, 255, 255, 0.52);
   }
 
   .sql-editor-typography .monaco-scrollable-element > .scrollbar {
-    background-color: var(--bg-tertiary);
+    background: transparent !important;
   }
 
   .sql-editor-typography .monaco-scrollable-element > .scrollbar > .slider {
-    background-color: var(--border-primary) !important;
+    background-color: rgba(255, 255, 255, 0.22) !important;
+  }
+
+  .sql-editor-typography .monaco-scrollable-element > .scrollbar:hover > .slider {
+    background-color: rgba(255, 255, 255, 0.38) !important;
   }
 
   // Code Editor

@@ -436,9 +436,14 @@ public class DmHomeController {
             if (dsConfig == null) {
                 return;
             }
+            boolean supportDataEditor = PluginManager.findDataEditorSpi(dsType) != null;
             Map<String, List<DsMenu>> copy = new HashMap<>();
             dsConfig.getMenus().forEach((k, v) -> {
                 List<DsMenu> dsMenus = v.stream().filter(predicate).filter(m -> {
+                    if (!supportDataEditor
+                        && (RdbUiMenuDef.MENU_BROWSE_TABLE_DATA.equalsIgnoreCase(m.getMenuId()) || RdbUiMenuDef.MENU_BROWSE_VIEW_DATA.equalsIgnoreCase(m.getMenuId()))) {
+                        return false;
+                    }
                     return isSubAccount || !RdbUiMenuDef.MENU_BROWSE_PERMISSIONS.equalsIgnoreCase(m.getMenuId());
                 }).collect(Collectors.toList());
 

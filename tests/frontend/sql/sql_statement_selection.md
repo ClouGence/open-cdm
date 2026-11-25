@@ -150,6 +150,42 @@
 - 恢复/清理：清空并关闭测试页签，恢复测试账号；无数据库写入。
 - 覆盖与状态：Main Flow、Boundaries、Repeat And Concurrency、Failure And Recovery、State Consistency；2026-10-01 @Browser 连接本地服务拒绝，BLOCKED。构建/离线检查不替代页面结果。
 
+### SSS-DM-01 达梦合法语句与语法诊断
+
+- 风险/目的：P0，确认达梦开启 VALIDATE 后不会误报常见合法语法，错误修复后不会保留旧诊断。
+- 初始路由与状态：`/#/sql`，连接隔离的本地达梦实例并打开 SYSDBA 查询窗口；插件包含 DmValidateStrategyCenter。
+- 数据与准备：使用 `WITH C AS (SELECT 1 AS ID FROM DUAL) SELECT ID FROM C;`、`SELECT "NAME" FROM "SYS"."SYSOBJECTS" FETCH FIRST 10 ROWS ONLY;`、`UPDATE CODEX_LANG_VALIDATE SET ID = 2 WHERE ID = 1;`。UPDATE 仅检查语法，不执行，也不创建同名表。
+- @Browser 操作：逐条输入上述语句，等待诊断；只执行两个 SELECT。随后输入 `SELECT * FROM;`，等待红色诊断，再改为 `SELECT 1 AS PROBE FROM DUAL;`。刷新页面后重新输入错误语句并再次修正。
+- 预期结果：合法语句无红色语法标记；CTE 返回 ID=1，系统表查询最多返回 10 条名称。错误语句出现红色诊断；修复后诊断清除，合法查询返回 PROBE=1；刷新后诊断能力仍正常。对象存在性和数据库权限错误不属于语法诊断。
+- 恢复/清理：清空本次测试 SQL，不执行 UPDATE，不修改业务数据或系统对象。
+
+### SSS-DM-02 达梦语句边界与错误隔离
+
+- 风险/目的：P0，确认语法错误不阻断其他语句，字符串分号不影响当前语句选择。
+- 初始路由与状态：沿用 SSS-DM-01 的达梦查询窗口。
+- 数据与准备：先输入 `SELECT * FROM;`，空行后输入 `SELECT 27 AS PROBE FROM DUAL;`；另用两行 `SELECT ';' AS MARK FROM DUAL;` 和 `SELECT 28 AS PROBE FROM DUAL;`。
+- @Browser 操作：将光标放到错误语句之后的合法 SELECT 并点击执行；再换成第二组语句，分别将光标移入每条语句并执行。
+- 预期结果：错误 SQL 保留红色诊断，后续合法 SQL 独立选中并返回 PROBE=27；第二组分别返回 MARK=';' 和 PROBE=28，当前语句框不在字符串内的分号处截断。
+- 恢复/清理：清空本次测试 SQL；不需要删除任何数据库对象。
+
+### SSS-DB2-01 真实元数据字段补全
+
+- 风险/目的：P0，防止语言 SPI 已接通而 DB2 元数据入口未实现，导致字段补全退化为空候选。
+- 初始路由与状态：`/#/sql`，本地隔离 DB2 连接正常，已加载最新插件；打开测试表所在 Schema 查询窗口。
+- 数据与准备：选择有已知字段的测试表；LUW 可使用 `SYSIBM.SYSDUMMY1` 的 `IBMREQD` 字段，先通过只读查询核对。LUW 测试不代表 z/OS 和 IBM i 的真实服务端兼容性验收。
+- @Browser 操作：分别输入 `SELECT * FROM SYSIBM.SYSDUMMY1 WHERE IBM`、`SELECT * FROM SYSIBM.SYSDUMMY1 ORDER BY IBM`、`SELECT * FROM SYSIBM.SYSDUMMY1 d WHERE d.IBM`，在末尾按 Control+Space。接受最后一项建议，补充 ` = 'Y';` 并执行。
+- 预期结果：每个场景均出现真实列 IBMREQD，不能只看到关键字或 No suggestions；接受后形成 `d.IBMREQD`，只读查询返回 IBMREQD=Y。后台无 `AbstractRdbUmiService.fetchSelectObject` 或 `AbstractMetadataProvider.fetchSelectObjectByPart` 的 UnsupportedOperationException。
+- 恢复/清理：清空本次查询草稿；不创建或修改数据库对象。其他版本使用对应测试表和字段，不假定系统表完全一致。
+
+### SSS-DM-03 普通表与视图字段元数据
+
+- 风险/目的：P0，确认达梦字段补全不再落入默认未实现入口，视图不走表的自增列解析。
+- 初始路由与状态：`/#/sql`，隔离达梦实例，查询窗口选择测试对象所在的 SYSDBA Schema。
+- 数据与准备：使用唯一后缀创建 `CREATE TABLE SYSDBA.CODEX_META_<suffix> (ID INT, NAME VARCHAR(20));` 和 `CREATE VIEW SYSDBA.CODEX_META_V_<suffix> AS SELECT ID, NAME FROM SYSDBA.CODEX_META_<suffix>;`。不用系统内部表作为普通表夹具。
+- @Browser 操作：分别输入表的 `WHERE NA` 和视图的 `v WHERE v.NA`，在末尾触发补全；接受 NAME 后补成合法条件并执行只读 SELECT。
+- 预期结果：表和视图均出现标记为列的 NAME；别名保留为 v.NAME。后台不出现默认未实现异常或 DmMetaProviderUtils.parseIdentity 异常。
+- 恢复/清理：只删除本次创建的视图，再删除本次测试表；清空测试草稿，不操作其他对象。
+
 ## Cleanup
 
 1. 清空并关闭未保存查询页签。

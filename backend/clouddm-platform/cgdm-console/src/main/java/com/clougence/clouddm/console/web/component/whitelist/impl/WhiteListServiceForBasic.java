@@ -15,6 +15,14 @@
  */
 package com.clougence.clouddm.console.web.component.whitelist.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.springframework.stereotype.Service;
+
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -24,14 +32,8 @@ import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -82,7 +84,7 @@ public class WhiteListServiceForBasic implements WhiteListService, DsFeatureIDs,
             this.addMenu(MENU_BROWSE_TABLE_DROP, false, true, true);
             this.addMenu(MENU_BROWSE_TABLE_RENAME, false, true, true);
             this.addMenu(MENU_BROWSE_TABLE_TRUNCATE, false, true, true);
-            //this.addMenu(MENU_BROWSE_TABLE_DATA, true, true, true);
+            this.addMenu(MENU_BROWSE_TABLE_DATA, true, true, true);
             //this.addMenu(MENU_BROWSE_TABLE_FAKER, false, false, false);
             //this.addMenu(MENU_BROWSE_TABLE_FAKER_INCREMENT, false, false, false);
             //this.addMenu(MENU_BROWSE_TABLE_IMPORT, false, false, false);
