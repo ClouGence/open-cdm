@@ -22,6 +22,7 @@ import org.bson.Document;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
 
+import com.clougence.drivers.adapter.AdapterRequest;
 import com.clougence.sql.mongodb.parser.ast.MongoFilterSubquery;
 import com.clougence.sql.mongodb.parser.ast.MongoFilterSubqueryHost;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.FindFunc;
@@ -31,38 +32,83 @@ import com.mongodb.client.MongoDatabase;
 
 final class MongoFilterSubqueryResolver {
 
-    private static final JsonWriterSettings EXTENDED_JSON = JsonWriterSettings.builder().outputMode(JsonMode.EXTENDED).build();
+    private static final JsonWriterSettings EXTENDED_JSON                = JsonWriterSettings.builder().outputMode(JsonMode.EXTENDED).build();
+    /** Fallback when AdapterRequest has no maxRows (same as onlineMaxRecordCount default). */
+    private static final int                DEFAULT_MAX_SUBQUERY_RESULTS = 1000;
+    /** Fallback when AdapterRequest has no timeoutSec (same as onlineMaxQueryTimeoutSec default). */
+    private static final int                DEFAULT_TIMEOUT_SEC          = 30;
 
     private MongoFilterSubqueryResolver(){
     }
 
-    static void resolve(MongoClient client, String database, MongoFilterSubqueryHost host, MongoSessionProvider sessionProvider) {
+    static void resolve(MongoClient client, String database, MongoFilterSubqueryHost host, AdapterRequest request, MongoSessionProvider sessionProvider) {
         if (!host.hasFilterSubqueries()) {
             return;
         }
+        int maxResults = resolveMaxResults(request);
+        int timeoutMs = resolveTimeoutMs(request);
+
         String filter = host.getFilter();
         MongoDatabase mongoDatabase = client.getDatabase(database);
         try (ClientSession session = sessionProvider.startSession()) {
             List<MongoFilterSubquery> subqueries = host.getFilterSubqueries();
             for (int i = 0; i < subqueries.size(); i++) {
                 String placeholder = MongoFilterSubquery.placeholder(i);
-                String jsonArray = evaluateSubquery(mongoDatabase, session, subqueries.get(i));
+                String jsonArray = evaluateSubquery(mongoDatabase, session, subqueries.get(i), maxResults, timeoutMs);
                 filter = filter.replace(placeholder, jsonArray);
             }
         }
         host.setFilter(filter);
     }
 
-    private static String evaluateSubquery(MongoDatabase database, ClientSession session, MongoFilterSubquery subquery) {
+    private static String evaluateSubquery(MongoDatabase database, ClientSession session, MongoFilterSubquery subquery, int maxResults, int timeoutMs) {
         FindFunc findFunc = subquery.toFindFunc();
+        findFunc.setMaxTimeMS(String.valueOf(timeoutMs));
+        findFunc.setLimit(String.valueOf(resolveFetchLimit(subquery.getLimit(), maxResults)));
+
         Document result = MongoUtils.runCommand(database, session, Document.parse(findFunc.toBson()));
         List<Object> mapped = new ArrayList<>();
         try (CursorResult cursorResult = new CursorResult(result, database, session)) {
             for (Document document : cursorResult) {
-                mapped.add(extractMappedValue(document, subquery.getMapField()));
+                Object value = extractMappedValue(document, subquery.getMapField());
+                // Skip missing mapped fields: $in:[null] also matches docs without that field.
+                if (value == null) {
+                    continue;
+                }
+                if (mapped.size() >= maxResults) {
+                    throw new UnsupportedOperationException("Filter subquery result exceeds max of " + maxResults + " values");
+                }
+                mapped.add(value);
             }
         }
         return toJsonArray(mapped);
+    }
+
+    private static int resolveMaxResults(AdapterRequest request) {
+        if (request != null && request.getMaxRows() > 0) {
+            return (int) Math.min(request.getMaxRows(), Integer.MAX_VALUE);
+        }
+        return DEFAULT_MAX_SUBQUERY_RESULTS;
+    }
+
+    private static int resolveTimeoutMs(AdapterRequest request) {
+        if (request != null && request.getTimeoutSec() > 0) {
+            return request.getTimeoutSec() * 1000;
+        }
+        return DEFAULT_TIMEOUT_SEC * 1000;
+    }
+
+    /** Fetch at most maxResults+1 docs so an unbounded nested find can still be detected and rejected. */
+    private static int resolveFetchLimit(String userLimit, int maxResults) {
+        int fetchLimit = maxResults + 1;
+        if (userLimit == null || userLimit.isEmpty()) {
+            return fetchLimit;
+        }
+        int parsed = Integer.parseInt(userLimit);
+        if (parsed < fetchLimit) {
+            return parsed;
+        }
+        return fetchLimit;
     }
 
     private static Object extractMappedValue(Document document, String mapField) {

@@ -47,7 +47,7 @@ class MongoDistributeCall {
             case FIND:
             case AGGREGATE:
             case LIST_INDEXES:
-                resolveFilterSubqueries(client, database, func, sessionProvider);
+                resolveFilterSubqueries(client, database, func, request, sessionProvider);
                 return ClientCallForCollection.findFunc(sync, client, (CollectionFunc) func, request, receive, database, sessionProvider);
             case LIST_COLLECTIONS:
                 return ClientCallForDatabase.listCollections(sync, client, func.toBson(), request, receive, database, sessionProvider);
@@ -73,7 +73,7 @@ class MongoDistributeCall {
             case HOST_INFO:
             case DROP_DATABASE:
             case EXPLAIN:
-                resolveFilterSubqueries(client, database, func, sessionProvider);
+                resolveFilterSubqueries(client, database, func, request, sessionProvider);
                 return ClientCallForCommand.runCommand(sync, client, func.toBson(), request, receive, database);
             // adminCommand
             case ADMIN_COMMAND:
@@ -91,9 +91,9 @@ class MongoDistributeCall {
         }
     }
 
-    private static void resolveFilterSubqueries(MongoClient client, String database, AbstractMongoFunc func, MongoSessionProvider sessionProvider) {
+    private static void resolveFilterSubqueries(MongoClient client, String database, AbstractMongoFunc func, AdapterRequest request, MongoSessionProvider sessionProvider) {
         if (func instanceof MongoFilterSubqueryHost host) {
-            MongoFilterSubqueryResolver.resolve(client, database, host, sessionProvider);
+            MongoFilterSubqueryResolver.resolve(client, database, host, request, sessionProvider);
         }
     }
 }

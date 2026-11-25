@@ -1316,6 +1316,11 @@ public class DefaultMongoParserVisitor extends AbstractLocationParseTreeVisitor<
     }
 
     @Override
+    public Object visitMemberName(MongoParser.MemberNameContext ctx) {
+        return null;
+    }
+
+    @Override
     public Object visitKeyWordId(MongoParser.KeyWordIdContext ctx) {
         return null;
     }

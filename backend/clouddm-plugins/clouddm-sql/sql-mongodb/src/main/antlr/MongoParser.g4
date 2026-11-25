@@ -331,7 +331,12 @@ mapLambda:
     ;
 
 memberAccess:
-    ID (DOT ID)*
+    memberName (DOT memberName)*
+    ;
+
+memberName:
+    ID
+    | keyWordId
     ;
 
 
