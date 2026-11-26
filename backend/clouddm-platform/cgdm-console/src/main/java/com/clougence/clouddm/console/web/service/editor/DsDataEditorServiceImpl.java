@@ -49,6 +49,7 @@ import com.clougence.clouddm.sdk.execute.resultset.echo.*;
 import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
@@ -502,6 +503,8 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             } else {
                 return Reload.success(result);
             }
+        } catch (ThirdPartyApiException e) {
+            return Reload.failed(PluginManager.findDsI18nUtil(dsDO.getDataSourceType()).getMessage(e.getMessageKey(), e.getMessageArgs()));
         } catch (Exception e) {
             return Reload.failed(e.getMessage());
         }

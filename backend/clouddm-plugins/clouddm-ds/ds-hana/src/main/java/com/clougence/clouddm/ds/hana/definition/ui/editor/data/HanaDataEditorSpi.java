@@ -52,16 +52,17 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
 
     @Override
     public boolean isReadOnly(RdbTable tableMeta) {
-        return tableMeta.getUmiType() != UmiTypes.Table || HanaDataEditorUtils.keyColumns(tableMeta).isEmpty();
+        return whereColumns(tableMeta).isEmpty();
     }
 
     @Override
     public void configTableHeader(RdbTable table, List<DataEditorColumn> headers, Map<String, RdbColumn> columns, I18nUtils i18nUtils) {
-        List<String> keys = HanaDataEditorUtils.keyColumns(table);
+        List<String> whereColumns = whereColumns(table);
+        boolean tableReadOnly = whereColumns.isEmpty();
         for (DataEditorColumn header : headers) {
             RdbColumn column = columns.get(header.getColumn());
-            boolean readOnly = isReadOnly(table) || HanaDataEditorUtils.generated(column) || !HanaDataEditorUtils.editable(column);
-            header.setWhereKey(keys.contains(column.getName()));
+            boolean readOnly = tableReadOnly || HanaDataEditorUtils.generated(column) || !HanaDataEditorUtils.editable(column);
+            header.setWhereKey(whereColumns.contains(column.getName()));
             header.setSpareWhere(false);
             header.setInsertReadOnly(readOnly);
             header.setUpdateReadOnly(readOnly);
@@ -138,6 +139,31 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
     }
 
     @Override
+    public String buildUpdate(RdbTable table, Map<String, String> whereData, Map<String, String> setData) {
+        if (!HanaDataEditorUtils.keyColumns(table).isEmpty()) {
+            return super.buildUpdate(table, whereData, setData);
+        }
+
+        Dialect dialect = getDialect();
+        StringBuilder where = buildWhere(dialect, table, whereData);
+        StringBuilder set = buildSet(dialect, table, setData);
+        String tableName = dialect.fmtTableName(true, table.getCatalog(), table.getSchema(), table.getName());
+        return "UPDATE TOP 1 " + tableName + " SET " + set + " WHERE " + where;
+    }
+
+    @Override
+    public String buildDelete(RdbTable table, Map<String, String> whereData) {
+        if (!HanaDataEditorUtils.keyColumns(table).isEmpty()) {
+            return super.buildDelete(table, whereData);
+        }
+
+        Dialect dialect = getDialect();
+        StringBuilder where = buildWhere(dialect, table, whereData);
+        String tableName = dialect.fmtTableName(true, table.getCatalog(), table.getSchema(), table.getName());
+        return "DELETE FROM " + tableName + " WHERE " + where + " AND (SELECT COUNT(*) FROM " + tableName + " WHERE " + where + ") = 1";
+    }
+
+    @Override
     protected StringBuilder buildSet(Dialect dialect, RdbTable table, Map<String, String> data) {
         StringJoiner assignments = new StringJoiner(", ");
         for (String name : data.keySet()) {
@@ -155,15 +181,39 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
 
     @Override
     protected StringBuilder buildWhere(Dialect dialect, RdbTable table, Map<String, String> data) {
-        requireEditableTable(table);
+        List<String> columns = whereColumns(table);
+        if (columns.isEmpty()) {
+            throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_ROW_KEY_REQUIRED);
+        }
+        boolean keyless = HanaDataEditorUtils.keyColumns(table).isEmpty();
+
         StringJoiner predicates = new StringJoiner(" AND ");
-        for (String key : HanaDataEditorUtils.keyColumns(table)) {
-            if (!data.containsKey(key) || data.get(key) == null) {
-                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_ROW_KEY_MISSING, key);
+        for (String column : columns) {
+            String value = data.get(column);
+            if (!data.containsKey(column) || !keyless && value == null) {
+                throw ThirdPartyApiException.as().with(HanaDsI18nKeys.HANA_ROW_KEY_MISSING, column);
             }
-            predicates.add(dialect.fmtName(true, key) + " = " + HanaDataEditorUtils.literal(table.getColumns().get(key), data.get(key)));
+
+            String name = dialect.fmtName(true, column);
+            if (value == null) {
+                predicates.add(name + " IS NULL");
+            } else {
+                predicates.add(name + " = " + HanaDataEditorUtils.literal(table.getColumns().get(column), value));
+            }
         }
         return new StringBuilder(predicates.toString());
+    }
+
+    private List<String> whereColumns(RdbTable table) {
+        if (table.getUmiType() != UmiTypes.Table) {
+            return List.of();
+        }
+
+        List<String> keys = HanaDataEditorUtils.keyColumns(table);
+        if (keys.isEmpty()) {
+            return HanaDataEditorUtils.fallbackWhereColumns(table);
+        }
+        return keys;
     }
 
     private void requireEditableTable(RdbTable table) {
@@ -189,6 +239,11 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
 
     @Override
     public Reload afterExecute(RdbTable table, QueryRequest request, EditorResultSet result, SqlData data) {
+        List<String> keys = HanaDataEditorUtils.keyColumns(table);
+        if (keys.isEmpty()) {
+            return Reload.success(result);
+        }
+
         Map<String, String> row = new HashMap<>(data.getWhereData());
         row.putAll(data.getUpdateData());
         if (data.getDmlType() == DataEditorSqlType.INSERT && CollectionUtils.isNotEmpty(result.getGeneratedKeys())) {
@@ -202,7 +257,7 @@ public class HanaDataEditorSpi extends DsFamilyDataEditorSpi {
             }
         }
         // Missing generated/default keys affect reloading, not the already committed write.
-        if (HanaDataEditorUtils.keyColumns(table).stream().anyMatch(key -> row.get(key) == null)) {
+        if (keys.stream().anyMatch(key -> row.get(key) == null)) {
             return Reload.success(result);
         }
         String sql = "SELECT " + buildSelect(getDialect(), table) + " FROM " + getDialect().fmtTableName(true, table.getCatalog(), table.getSchema(), table.getName()) + " WHERE "

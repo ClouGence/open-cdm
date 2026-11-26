@@ -57,6 +57,13 @@ public final class HanaDataEditorUtils {
         return Collections.emptyList();
     }
 
+    public static List<String> fallbackWhereColumns(RdbTable table) {
+        return table.getColumns().values().stream().filter(column -> switch ((HanaTypes) column.getSqlType()) {
+            case VARCHAR, NVARCHAR, TINYINT, SMALLINT, INTEGER, BIGINT, DECIMAL, BOOLEAN, DATE, TIME, SECONDDATE, TIMESTAMP -> true;
+            default -> false;
+        }).map(RdbColumn::getName).toList();
+    }
+
     public static boolean generated(RdbColumn column) {
         return StringUtils.isNotBlank(column.getAttribute(HanaAttributeNames.GENERATION_TYPE))
                || StringUtils.isNotBlank(column.getAttribute(HanaAttributeNames.GENERATION_ALWAYS_AS));
