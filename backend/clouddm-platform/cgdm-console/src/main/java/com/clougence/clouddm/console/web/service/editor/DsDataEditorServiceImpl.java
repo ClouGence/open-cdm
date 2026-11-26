@@ -40,12 +40,16 @@ import com.clougence.clouddm.console.web.service.editor.model.DataEditorUpdateDT
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.echo.*;
 import com.clougence.clouddm.sdk.execute.session.MessageLevel;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
@@ -73,6 +77,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class DsDataEditorServiceImpl implements DsDataEditorService {
 
+    @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
     private DsSchemaService     dsSchemaService;
@@ -80,6 +85,8 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     private QueryService        queryService;
     @Resource
     private DmAuthServiceForBiz authCheckService;
+    @Resource
+    private ExecutionDal        executionDal;
 
     /** for service API '/editor/data/fetchData' */
     @Override
@@ -90,6 +97,12 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
         String table = selectFO.getTargetName();
         UmiTypes targetType = UmiTypes.valueOfCode(selectFO.getTargetType());
+
+        // enforce onlineMaxRecordCount limit on pageSize
+        int maxPageSize = DmDsUtils.fetchOnlineMaxRecordCount();
+        if (maxPageSize > 0 && (selectFO.getPageSize() == null || selectFO.getPageSize() > maxPageSize)) {
+            selectFO.setPageSize(maxPageSize);
+        }
 
         // create session/request
         String sessionId = null;
@@ -122,9 +135,9 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             List<RdbColumn> columns = new ArrayList<>(rdbTable.getColumns().values());
 
             // execute select
-            DataEditorSpi spi = PluginManager.findDataEditorSpi(dsDO.getDataSourceType());
+            DataEditorSpi spi = requireDataEditorSpi(dsDO.getDataSourceType());
             String selectSQL = spi.buildSelect(rdbTable, selectFO.getCondition(), selectFO.getOrderBy(), selectFO.getOffset(), selectFO.getPageSize());
-            EditorResultSet dmlResult = doFetchData(puid, uid, clientIp, sessionId, levels, dsConfig, sessionCtx, selectSQL, table);
+            EditorResultSet dmlResult = doFetchData(puid, uid, clientIp, sessionId, levels, dsConfig, sessionCtx, selectSQL, table, true);
             if (!dmlResult.isSuccess()) {
                 throw new ErrorMessageException(dmlResult.getMessage());
             }
@@ -160,6 +173,8 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
                 }
             }
             resultVO.setReadOnly(readOnly);
+            resultVO.setMaxPageSize(maxPageSize > 0 ? maxPageSize : null);
+            resultVO.setResultId(dmlResult.getResultId());
             return resultVO;
         } finally {
             this.queryService.closeSession(uid, sessionId);
@@ -219,7 +234,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         }
 
         RdbTable tableMeta;
-        if (PluginManager.findDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata()) {
+        if (requireDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata()) {
             tableMeta = (RdbTable) this.dsSchemaService.detailLeaf(dsDO, levelsParam, targetType, table, true);
             if (tableMeta == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_TABLE_NOT_EXIST_ERROR.name(), table));
@@ -246,7 +261,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         DataEditorUpdateDTO updateData = EditorConvertUtils.convertRenewDataFO2DTO(data);
 
         RdbTable tableMeta;
-        if (PluginManager.findDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata()) {
+        if (requireDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata()) {
             tableMeta = (RdbTable) this.dsSchemaService.detailLeaf(dsDO, levelsParam, targetType, table, true);
             if (tableMeta == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_TABLE_NOT_EXIST_ERROR.name(), table));
@@ -285,8 +300,8 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             EditorResultSet result = reload.getResult();
             Map<String, Object> refreshData = new HashMap<>();
             boolean refresh = checkAndFillRefresh(updateData.getUpdateData(), tableMeta, refreshData, updateData.getDmlType());
-            if (reload.isEnable() && (!refresh || PluginManager.findDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata())) {
-                result = doFetchData(puid, uid, clientIp, sessionId, levels, dsConfig, sessionCtx, reload.getReloadSql(), table);
+            if (reload.isEnable() && (!refresh || requireDataEditorSpi(dsDO.getDataSourceType()).requiresServerMetadata())) {
+                result = doFetchData(puid, uid, clientIp, sessionId, levels, dsConfig, sessionCtx, reload.getReloadSql(), table, false);
             }
 
             DataEditorResultDTO resultDTO = EditorConvertUtils.convertToDataEditorResultDTO(result);
@@ -323,25 +338,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         // execute sql
         try {
             ResultList result = this.queryService.syncExecuteQuery(uid, sessionId, request);
-            for (Result r : result.getResultList()) {
-                if (r.getResultType() == ResultType.ResultSet) {
-                    return EditorConvertUtils.convertToEditorResultSet((ResultSet) r);
-                }
-                if (r.getResultType() == ResultType.Message) {
-                    ResultMessage resultMessage = (ResultMessage) r;
-                    if (resultMessage.getLevel() == MessageLevel.Error) {
-                        EditorResultSet resultDTO = new EditorResultSet();
-                        resultDTO.setSuccess(false);
-                        resultDTO.setMessage(resultMessage.getMessage());
-                        return resultDTO;
-                    }
-                }
-            }
-
-            EditorResultSet resultDTO = new EditorResultSet();
-            resultDTO.setSuccess(false);
-            resultDTO.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_QUERY_MISSING_RESULT_ERROR.name()));
-            return resultDTO;
+            return extractEditorResultSet(result, null);
         } catch (Exception e) {
             EditorResultSet resultDTO = new EditorResultSet();
             resultDTO.setSuccess(false);
@@ -351,7 +348,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     }
 
     private EditorResultSet doFetchData(String puid, String uid, String clientIp, String sessionId, DsLevels levels, DataSourceConfig dsConfig, SessionContextDTO sessionCtx,
-                                        String fetchSql, String table) {
+                                        String fetchSql, String table, boolean cacheResult) {
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
         // create session/request
@@ -360,20 +357,64 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         request.setQueryArgs(Collections.emptyList());
         request.setQueryTypes(Set.of(SplitQueryType.SELECT));
         request.setRequester(Requester.CONSOLE);
+        request.getResultConf().setReceiveMode(ReceiveMode.PAGE_FULL);
+        if (cacheResult) {
+            request.getResultConf().setCacheResult(true);
+        }
         request.setUsingValueProcess(!this.authCheckService
             .checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE));
 
         // execute sql
         try {
             ResultList result = this.queryService.syncExecuteQuery(uid, sessionId, request);
-            for (Result r : result.getResultList()) {
-                if (r.getResultType() == ResultType.ResultSet) {
-                    EditorResultSet editorResult = EditorConvertUtils.convertToEditorResultSet((ResultSet) r);
-                    editorResult.setDisplayChars(request.getResultConf().getDisplayChars());
-                    return editorResult;
-                }
+            EditorResultSet editorResult = extractEditorResultSet(result, request.getResultConf().getDisplayChars());
+            if (cacheResult && editorResult.isSuccess()) {
+                registerCacheFileIfPresent(puid, uid, result);
+            }
+            return editorResult;
+        } catch (Exception e) {
+            EditorResultSet resultDTO = new EditorResultSet();
+            resultDTO.setSuccess(false);
+            resultDTO.setMessage(e.getMessage());
+            return resultDTO;
+        }
+    }
 
-                if (r.getResultType() == ResultType.Message) {
+    private void registerCacheFileIfPresent(String puid, String uid, ResultList result) {
+        if (result == null || result.getResultList() == null) {
+            return;
+        }
+        for (Result r : result.getResultList()) {
+            if (r.getResultType() == ResultType.ResultSetMeta) {
+                ResultSetMeta rm = (ResultSetMeta) r;
+                if (StringUtils.isNotBlank(rm.getCacheFileUri()) && StringUtils.isNotBlank(rm.getResultId())) {
+                    DmExecFileDO fileDO = new DmExecFileDO();
+                    fileDO.setFileUri(rm.getCacheFileUri());
+                    fileDO.setFileFormat(rm.getCacheFileFormat() != null ? rm.getCacheFileFormat().name() : null);
+                    fileDO.setInnerFormat(true);
+                    fileDO.setOwnerUid(puid);
+                    fileDO.setUserId(uid);
+                    fileDO.setStatus(FileStatus.Ready);
+                    fileDO.setQueryId(rm.getQueryId());
+                    fileDO.setUniqueId(rm.getResultId());
+                    fileDO.setHeartbeat(new Date());
+                    this.executionDal.fileMapper().insert(fileDO);
+                }
+                break;
+            }
+        }
+    }
+
+    private EditorResultSet extractEditorResultSet(ResultList result, Integer displayChars) {
+        ResultSetMeta meta = null;
+        List<ResultSet> resultSets = new ArrayList<>();
+        if (result != null && result.getResultList() != null) {
+            for (Result r : result.getResultList()) {
+                if (r.getResultType() == ResultType.ResultSetMeta) {
+                    meta = (ResultSetMeta) r;
+                } else if (r.getResultType() == ResultType.ResultSet) {
+                    resultSets.add((ResultSet) r);
+                } else if (r.getResultType() == ResultType.Message) {
                     ResultMessage resultMessage = (ResultMessage) r;
                     if (resultMessage.getLevel() == MessageLevel.Error) {
                         EditorResultSet resultDTO = new EditorResultSet();
@@ -383,17 +424,20 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
                     }
                 }
             }
-
-            EditorResultSet resultDTO = new EditorResultSet();
-            resultDTO.setSuccess(false);
-            resultDTO.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_QUERY_MISSING_RESULT_ERROR.name()));
-            return resultDTO;
-        } catch (Exception e) {
-            EditorResultSet resultDTO = new EditorResultSet();
-            resultDTO.setSuccess(false);
-            resultDTO.setMessage(e.getMessage());
-            return resultDTO;
         }
+
+        if (meta != null || !resultSets.isEmpty()) {
+            EditorResultSet editorResult = EditorConvertUtils.convertToEditorResultSet(meta, resultSets);
+            if (displayChars != null) {
+                editorResult.setDisplayChars(displayChars);
+            }
+            return editorResult;
+        }
+
+        EditorResultSet resultDTO = new EditorResultSet();
+        resultDTO.setSuccess(false);
+        resultDTO.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_QUERY_MISSING_RESULT_ERROR.name()));
+        return resultDTO;
     }
 
     private Reload doExecuteDml(String puid, String uid, String clientIp, String sessionId, DsLevels levels,//
@@ -448,7 +492,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
                 return Reload.failed(result.getMessage());
             }
 
-            PluginManager.findDataEditorSpi(levels.dsDO().getDataSourceType()).validateUpdateCount(result.getUpdateCount());
+            requireDataEditorSpi(levels.dsDO().getDataSourceType()).validateUpdateCount(result.getUpdateCount());
             if (DataEditorSqlType.DELETE.equals(updateData.getDmlType())) {
                 return Reload.success(result);
             }
@@ -459,6 +503,8 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             } else {
                 return Reload.success(result);
             }
+        } catch (ThirdPartyApiException e) {
+            return Reload.failed(PluginManager.findDsI18nUtil(dsDO.getDataSourceType()).getMessage(e.getMessageKey(), e.getMessageArgs()));
         } catch (Exception e) {
             return Reload.failed(e.getMessage());
         }
@@ -506,8 +552,16 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         }
     }
 
+    private static DataEditorSpi requireDataEditorSpi(DataSourceType dsType) {
+        DataEditorSpi spi = PluginManager.findDataEditorSpi(dsType);
+        if (spi == null) {
+            throw new ErrorMessageException("Data editor is not supported for datasource type: " + (dsType == null ? "null" : dsType.getTypeName()));
+        }
+        return spi;
+    }
+
     private static String selectCount(DmDsDO dsDO, String catalog, String schema, String table, UmiTypes targetType, String condition) {
-        DataEditorSpi spi = PluginManager.findDataEditorSpi(dsDO.getDataSourceType());
+        DataEditorSpi spi = requireDataEditorSpi(dsDO.getDataSourceType());
 
         RdbTable tableMeta = new RdbTable();
         tableMeta.setCatalog(catalog);
@@ -518,7 +572,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     }
 
     private static List<DataEditorChangeDTO> buildDML(DmDsDO dsDO, RdbTable tableMeta, List<DataEditorUpdateDTO> dataSet, boolean sem) {
-        DataEditorSpi spi = PluginManager.findDataEditorSpi(dsDO.getDataSourceType());
+        DataEditorSpi spi = requireDataEditorSpi(dsDO.getDataSourceType());
         Map<DataEditorSqlType, List<DataEditorUpdateDTO>> groupMap = dataSet.stream().collect(Collectors.groupingBy(DataEditorUpdateDTO::getDmlType));
         List<DataEditorChangeDTO> sqlScript = new ArrayList<>();
         if (groupMap.containsKey(DataEditorSqlType.DELETE)) {

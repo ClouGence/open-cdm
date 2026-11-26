@@ -73,3 +73,34 @@ The runner obtains `SqlEngineSpi` from `SqlTestSupport` according to the resourc
 - `doris/selectdb_basic.txt` -> `selectdb`
 
 Do not put concrete `SqlEngineSpi` class names in scripts.
+
+## Real Metadata Entry Contracts
+
+The script fixtures above supply column metadata directly. They cannot catch a
+missing datasource implementation of `fetchSelectObject`.
+
+Run the separate metadata contracts from the repository root:
+
+```bash
+cd backend
+./gradlew :s-test:test --tests '*SelectObjectContractTest' --tests '*Db2SelectObjectLookupTest' --tests '*DmSelectObjectLookupTest'
+```
+
+`SelectObjectContractTest` covers the 34 data-editing datasource implementations.
+It creates each actual MetaService and UMI implementation, rejects default
+unsupported service/provider methods, exercises object lookup with empty JDBC
+metadata, and checks that SQLExceptions propagate without being replaced by
+UnsupportedOperationException. Version responses are fixture inputs for SQL
+selection, not proof of real-server compatibility.
+
+The JDBC fixture returns rows only for version/current-database queries and no
+object rows. Providers that synthesize an object from SHOW COLUMNS may return an
+object with no columns instead of null. `Db2SelectObjectLookupTest` separately
+checks successful table/view/materialized lookup, column mapping, fallback order,
+and the missing-object path through the real shared DB2 service/provider chain.
+`DmSelectObjectLookupTest` checks table/view selection and verifies that a view
+uses its own column loader, avoiding table identity decoding for view columns.
+
+When a datasource opens data editing or changes its MetaService binding, update
+the parameter matrix. These offline checks complement, rather than replace,
+database integration and @Browser acceptance.

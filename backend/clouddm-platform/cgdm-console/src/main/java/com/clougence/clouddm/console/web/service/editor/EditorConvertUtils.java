@@ -67,27 +67,58 @@ public class EditorConvertUtils {
         return dto;
     }
 
-    public static EditorResultSet convertToEditorResultSet(ResultSet r) {
+    public static EditorResultSet convertToEditorResultSet(ResultSetMeta meta, List<ResultSet> resultSets) {
         EditorResultSet dto = new EditorResultSet();
+        List<ResultSetRow> allRows = new ArrayList<>();
+        long totalCostMs = 0;
+        int totalFetchCount = 0;
+        String resultId = meta != null ? meta.getResultId() : null;
+        String sql = meta != null ? meta.getQuerySql() : null;
+        boolean success = meta == null || meta.isSuccess();
+        String message = meta != null ? meta.getMessage() : null;
 
-        dto.setFetchTimeMs(r.getCostTimeMs());
-        dto.setResultId(r.getResultId());
-        dto.setFetchCount(r.getFetchCount());
+        if (resultSets != null) {
+            for (ResultSet rs : resultSets) {
+                if (rs == null) {
+                    continue;
+                }
+                if (resultId == null) {
+                    resultId = rs.getResultId();
+                }
+                if (sql == null) {
+                    sql = rs.getQuerySql();
+                }
+                if (!rs.isSuccess()) {
+                    success = false;
+                    if (StringUtils.isNotBlank(rs.getMessage())) {
+                        message = rs.getMessage();
+                    }
+                }
+                totalCostMs += rs.getCostTimeMs();
+                totalFetchCount += rs.getFetchCount();
+                if (rs.getRowSet() != null) {
+                    allRows.addAll(rs.getRowSet());
+                }
+            }
+        }
 
-        dto.setSuccess(r.isSuccess());
-        dto.setMessage(r.getMessage());
-
+        dto.setFetchTimeMs(totalCostMs);
+        dto.setResultId(resultId);
+        dto.setFetchCount(totalFetchCount > 0 ? totalFetchCount : allRows.size());
+        dto.setSuccess(success);
+        dto.setMessage(message);
         dto.setUpdateCountResult(false);
         dto.setUpdateCount(0);
-        //dto.setGeneratedKeys(r.getGeneratedKeys());
+        dto.setSql(sql);
+        dto.setColumnList(meta != null && meta.getColumnList() != null ? new ArrayList<>(meta.getColumnList()) : Collections.emptyList());
+        dto.setColumnType(meta != null && meta.getColumnType() != null ? new ArrayList<>(meta.getColumnType()) : Collections.emptyList());
+        dto.setRowSet(allRows);
+        dto.setCacheFile(meta != null ? meta.getCacheFileUri() : null);
+        return dto;
+    }
 
-        dto.setSql(r.getQuerySql());
-        //dto.setColumnList(r.getColumnList());
-        //dto.setColumnType(r.getColumnType());
-        //dto.setRowSet(r.getRowSet());
-        //dto.setCacheFile(r.getCacheFileUri());
-        throw new UnsupportedOperationException("convertToEditorResultSet not support ResultSetRows temporarily");
-        //return dto;
+    public static EditorResultSet convertToEditorResultSet(ResultSet r) {
+        return convertToEditorResultSet(null, r == null ? Collections.emptyList() : Collections.singletonList(r));
     }
 
     public static DataEditorResultDTO convertToDataEditorResultDTO(EditorResultSet result) {

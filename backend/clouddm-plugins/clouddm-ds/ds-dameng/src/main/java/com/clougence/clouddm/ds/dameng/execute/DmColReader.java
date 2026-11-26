@@ -39,7 +39,7 @@ public class DmColReader extends AbstractColReader {
             case "varchar":
             case "nvarchar2":
                 return STRING_VALUE_FETCHER;
-            case " rowid":
+            case "rowid":
                 return STRING_VALUE_FETCHER;
             case "byte":
             case "tinyint":
@@ -62,6 +62,7 @@ public class DmColReader extends AbstractColReader {
                 return DOUBLE_VALUE_FETCHER;
             case "real":
                 return FLOAT_VALUE_FETCHER;
+            case "date":
             case "data":
                 return DATE_VALUE_FETCHER;
             case "time":

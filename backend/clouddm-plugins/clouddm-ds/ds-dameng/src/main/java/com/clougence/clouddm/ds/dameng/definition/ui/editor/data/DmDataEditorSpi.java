@@ -37,14 +37,24 @@ import com.clougence.utils.i18n.I18nUtils;
 
 public class DmDataEditorSpi extends DsFamilyDataEditorSpi {
 
+    private static final String ROWID_ALIAS = "__CDM_ROWID__";
+
     @Override
     protected Dialect getDialect() { return DmDialect.INSTANCE; }
+
+    @Override
+    public String buildSelect(RdbTable tableMeta, String condition, String orderBy, Integer offset, Integer limit) {
+        String sql = super.buildSelect(tableMeta, condition, orderBy, offset, limit);
+        int safeOffset = offset == null || offset < 0 ? 0 : offset;
+        int safeLimit = limit == null || limit <= 0 ? 50 : limit;
+        return sql + " limit " + safeLimit + " offset " + safeOffset;
+    }
 
     @Override
     protected StringBuilder buildSelect(Dialect dialect, RdbTable tableMeta) {
         StringBuilder sb = super.buildSelect(dialect, tableMeta);
         if (tableMeta.getUmiType() == UmiTypes.Table) {
-            sb.insert(0, "ROWID, ");
+            sb.insert(0, "CAST(ROWID AS VARCHAR) AS \"" + ROWID_ALIAS + "\", ");
         }
         return sb;
     }
@@ -55,7 +65,8 @@ public class DmDataEditorSpi extends DsFamilyDataEditorSpi {
 
         StringBuilder setSql = this.buildSet(dialect, tableMeta, setData);
         String tableName = dialect.fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
-        return String.format("update %s set %s where rowid = '%s'", tableName, setSql, whereData.get("ROWID"));
+        String rid = whereData.containsKey(ROWID_ALIAS) ? whereData.get(ROWID_ALIAS) : whereData.get("ROWID");
+        return String.format("update %s set %s where rowid = '%s'", tableName, setSql, rid);
     }
 
     @Override
@@ -63,7 +74,8 @@ public class DmDataEditorSpi extends DsFamilyDataEditorSpi {
         Dialect dialect = this.getDialect();
 
         String tableName = dialect.fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
-        return String.format("delete from %s where rowid = '%s'", tableName, whereData.get("ROWID"));
+        String rid = whereData.containsKey(ROWID_ALIAS) ? whereData.get(ROWID_ALIAS) : whereData.get("ROWID");
+        return String.format("delete from %s where rowid = '%s'", tableName, rid);
     }
 
     @Override
@@ -94,7 +106,7 @@ public class DmDataEditorSpi extends DsFamilyDataEditorSpi {
 
         if (rdbTable.getUmiType() == UmiTypes.Table) {
             DataEditorColumn idColumn = new DataEditorColumn();
-            idColumn.setColumn("ROWID");
+            idColumn.setColumn(ROWID_ALIAS);
             idColumn.setInsertReadOnly(true);
             idColumn.setUpdateReadOnly(true);
             idColumn.setWhereKey(true);
@@ -117,7 +129,8 @@ public class DmDataEditorSpi extends DsFamilyDataEditorSpi {
     @Override
     public Reload afterExecute(RdbTable tableMeta, QueryRequest request, EditorResultSet result, SqlData sqlData) {
         Map<String, String> outParams = result.getOutParams();
-        String rid = outParams != null && outParams.containsKey("1") ? outParams.get("1") : sqlData.getWhereData().get("ROWID");
+        String fallbackRid = sqlData.getWhereData().containsKey(ROWID_ALIAS) ? sqlData.getWhereData().get(ROWID_ALIAS) : sqlData.getWhereData().get("ROWID");
+        String rid = outParams != null && outParams.containsKey("1") ? outParams.get("1") : fallbackRid;
         Dialect dialect = getDialect();
         StringBuilder builder = new StringBuilder();
         builder.append("select ");

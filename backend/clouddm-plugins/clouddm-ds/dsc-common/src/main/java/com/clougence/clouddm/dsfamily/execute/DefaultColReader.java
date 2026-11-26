@@ -55,6 +55,7 @@ public class DefaultColReader extends AbstractColReader {
             case VARCHAR:
             case NVARCHAR:
             case DATALINK:
+            case ROWID:
                 return STRING_VALUE_FETCHER;
             case CLOB:
             case NCLOB:

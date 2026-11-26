@@ -86,35 +86,6 @@
       display: block;
       overflow-x: hidden !important;
       overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: transparent transparent;
-
-      &::-webkit-scrollbar:horizontal {
-        display: none;
-        height: 0;
-      }
-
-      &:hover {
-        scrollbar-color: rgba(50, 50, 50, 0.35) transparent;
-      }
-
-      &::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background-color: transparent;
-        border-radius: 3px;
-      }
-
-      &:hover::-webkit-scrollbar-thumb {
-        background-color: rgba(50, 50, 50, 0.35);
-      }
-
-      &::-webkit-scrollbar-track {
-        background: transparent;
-      }
     }
 
     .ctree-tree__block-area,
@@ -215,22 +186,6 @@
         min-width: 0;
         height: 100%;
         overflow: hidden;
-      }
-    }
-  }
-
-  [data-theme='dark'] & {
-    .datasource-tree,
-    .table-list-tree {
-      .ctree-tree__scroll-area,
-      .vtree-tree__scroll-area {
-        &:hover {
-          scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
-        }
-
-        &:hover::-webkit-scrollbar-thumb {
-          background-color: rgba(255, 255, 255, 0.25);
-        }
       }
     }
   }

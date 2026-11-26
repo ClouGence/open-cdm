@@ -34,6 +34,20 @@ public abstract class Db2MetaProviderForBasic extends AbstractMetadataProvider {
         super(connection);
     }
 
+    @Override
+    protected List<RdbTable> fetchSelectObjectByPart(Connection conn, String catalog, String schema, List<String> tabs) throws SQLException {
+        List<RdbTable> objects = this.fetchTableByPart(conn, catalog, schema, tabs);
+        if (!objects.isEmpty()) {
+            return objects;
+        }
+
+        objects = this.fetchViewByPart(conn, catalog, schema, tabs);
+        if (!objects.isEmpty()) {
+            return objects;
+        }
+        return this.fetchMaterializedByPart(conn, catalog, schema, tabs);
+    }
+
     public abstract List<Value> selectSchemas() throws SQLException;
 
     public abstract Value selectSchema(String schema) throws SQLException;

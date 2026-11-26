@@ -76,8 +76,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = DataAccessException.class)
     @ResponseBody
     public ResWebData<?> handleDataAccessException(HttpServletRequest request, HttpServletResponse response, DataAccessException e) {
-        // DB errors may carry SQL/parameter details; log type only, never payload
-        log.error("Database access failed, exception type: {}", e.getClass().getName());
+        log.error("Database access failed, exception type: {}", e.getClass().getName(), e);
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         return writeErrorIfNecessary(request, response, ResWebDataUtils
             .buildError(DmErrorCode.COMM_SYSTEM_ERROR.code(), DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_SYSTEM_ERROR.name())));

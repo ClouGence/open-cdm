@@ -15,12 +15,9 @@
  */
 package com.clougence.clouddm.ds.dameng.language;
 
-import java.util.Set;
-
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
-import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionResult;
@@ -33,15 +30,11 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 public class DmLanguageSpi implements DsLanguageSpi {
     private final MetaService                metaService;
     private final DmCompletionStrategyCenter completion = new DmCompletionStrategyCenter();
+    private final DmValidateStrategyCenter   validate   = new DmValidateStrategyCenter();
     private final SplitStrategyCenter        split      = new SplitStrategyCenter();
 
     public DmLanguageSpi(MetaService metaService){
         this.metaService = metaService;
-    }
-
-    @Override
-    public Set<DsLanguageSupport> supports() {
-        return Set.of(DsLanguageSupport.COMPLETE, DsLanguageSupport.SPLIT);
     }
 
     private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
@@ -61,7 +54,9 @@ public class DmLanguageSpi implements DsLanguageSpi {
 
     @Override
     public ValidateResult validate(ValidateRequest request) {
-        return initResult(request, new ValidateResult());
+        ValidateResult result = initResult(request, new ValidateResult());
+        result.getDiagnostics().addAll(this.validate.validate(request, this.metaService));
+        return result;
     }
 
     @Override

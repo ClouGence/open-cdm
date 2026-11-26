@@ -209,6 +209,11 @@ public class DmDsUtils {
         return limit;
     }
 
+    public static int fetchOnlineMaxRecordCount() {
+        Map<String, String> configMap = consoleService.fetchSettingsMap(Collections.singletonList(RootUserConfig.Fields.onlineMaxRecordCount));
+        return safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxRecordCount), 3000);
+    }
+
     public static void fillRequestConfig(List<QueryRequest> queryList, long dsId) {
         if (CollectionUtils.isEmpty(queryList)) {
             return;

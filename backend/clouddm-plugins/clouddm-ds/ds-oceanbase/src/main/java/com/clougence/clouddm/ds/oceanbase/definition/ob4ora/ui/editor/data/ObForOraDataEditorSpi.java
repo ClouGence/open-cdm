@@ -44,27 +44,29 @@ public class ObForOraDataEditorSpi extends DsFamilyDataEditorSpi {
     @Override
     public String buildSelect(RdbTable tableMeta, String condition, String orderBy, Integer offset, Integer limit) {
         Dialect dialect = this.getDialect();
-        String tableName = getDialect().fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
+        String tableName = dialect.fmtTableName(true, tableMeta.getCatalog(), tableMeta.getSchema(), tableMeta.getName());
+        StringBuilder colSql = super.buildSelect(dialect, tableMeta);
+        boolean includeRowId = tableMeta.getUmiType() == UmiTypes.Table;
 
-        StringBuilder selectSql = this.buildSelect(dialect, tableMeta);
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("select %s from %s", selectSql, tableName));
-        //        sb.append(" where rowid in ( select rd from ( select rowid as rd, rownum as sn from ");
-        //        sb.append(tableName);
-        sb.append(" WHERE rownum <= ");
-        sb.append(limit + offset);
-        sb.append("and rownum > ");
-        sb.append(offset);
-        //        sb.append(" ");
+        String innerSelectCols = includeRowId ? "ROWID as \"ROWID\", " + colSql : colSql.toString();
+        String outerSelectCols = includeRowId ? "\"ROWID\", " + colSql : colSql.toString();
+
+        StringBuilder innerSql = new StringBuilder();
+        innerSql.append("select ").append(innerSelectCols).append(" from ").append(tableName);
         if (StringUtils.isNotBlank(condition)) {
-            sb.append(" and ");
-            sb.append(condition);
+            innerSql.append(" where ").append(condition);
         }
         if (StringUtils.isNotBlank(orderBy)) {
-            sb.append(" order by ");
-            sb.append(orderBy);
+            innerSql.append(" order by ").append(orderBy);
         }
-        return sb.toString();
+
+        int safeOffset = offset == null || offset < 0 ? 0 : offset;
+        int safeLimit = limit == null || limit <= 0 ? 50 : limit;
+        if (safeOffset == 0) {
+            return "select " + outerSelectCols + " from (" + innerSql + ") where rownum <= " + safeLimit;
+        }
+        int endRow = safeOffset + safeLimit;
+        return "select " + outerSelectCols + " from (select cdm_t.*, rownum as cdm_rn from (" + innerSql + ") cdm_t where rownum <= " + endRow + ") where cdm_rn > " + safeOffset;
     }
 
     @Override
