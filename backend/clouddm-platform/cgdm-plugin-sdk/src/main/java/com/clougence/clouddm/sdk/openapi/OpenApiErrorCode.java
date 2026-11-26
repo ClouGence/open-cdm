@@ -20,4 +20,5 @@ public enum OpenApiErrorCode {
     INVALID_ARGUMENT,
     FORBIDDEN,
     NOT_FOUND,
+    STATE_CONFLICT,
 }

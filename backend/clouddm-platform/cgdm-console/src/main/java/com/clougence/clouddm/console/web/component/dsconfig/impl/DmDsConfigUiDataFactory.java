@@ -109,7 +109,7 @@ public class DmDsConfigUiDataFactory {
         return data;
     }
 
-    private String defaultDriverSpec(DataSourceType dsType) {
+    public String defaultDriverSpec(DataSourceType dsType) {
         DsPluginInfo dsPlugin = PluginManager.findDsPlugin(dsType);
         if (dsPlugin == null || dsPlugin.getBindDrivers() == null || dsPlugin.getBindDrivers().isEmpty()) {
             return null;

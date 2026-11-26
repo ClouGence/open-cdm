@@ -35,6 +35,8 @@ public interface DmDsWebService {
 
     ResWebData<Long> addDs(String uid, DsConfigSubmitFO fo);
 
+    ResWebData<Long> addDs(String ownerUid, String uid, DsConfigSubmitFO fo);
+
     ResWebData<Long> updateDs(String uid, DsConfigSubmitFO fo);
 
     ConnectDsResultVO testConnect(String uid, DsConfigSubmitFO fo);

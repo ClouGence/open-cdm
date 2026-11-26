@@ -304,23 +304,26 @@ public class DmDsWebServiceImpl implements DmDsWebService {
 
     @Override
     public ResWebData<Long> addDs(String uid, DsConfigSubmitFO fo) {
+        return this.addDs(AuthDal.ROOT_USER_UID, uid, fo);
+    }
+
+    @Override
+    public ResWebData<Long> addDs(String ownerUid, String uid, DsConfigSubmitFO fo) {
         Map<String, String> configMap = resolveConfigMap(uid, fo);
-        ResWebData<Long> result = this.inTransaction(() -> {
-            return this.persistAddDs(uid, fo, configMap);
-        });
+        ResWebData<Long> result = this.inTransaction(() -> this.persistAddDs(ownerUid, uid, fo, configMap));
 
         this.deleteCertificates(uid, fo);
         return result;
     }
 
-    private ResWebData<Long> persistAddDs(String uid, DsConfigSubmitFO fo, Map<String, String> configMap) {
+    private ResWebData<Long> persistAddDs(String ownerUid, String uid, DsConfigSubmitFO fo, Map<String, String> configMap) {
         DmDsDO entity = resolveSubmitEntity(fo, configMap);
         DataSourceConfig dsConfig = this.configService.fetchDsConfigFromNotExist(entity, configMap);
 
         entity.setDataSourceType(dsConfig.getDataSourceType());
         entity.setHost(dsConfig.getHost());
-        entity.setUid(AuthDal.ROOT_USER_UID);
-        entity.setOwner(AuthDal.ROOT_USER_UID);
+        entity.setUid(ownerUid);
+        entity.setOwner(ownerUid);
         entity.setSecurityType(dsConfig.getSecurityType() == null ? SecurityType.USER_PASSWD : dsConfig.getSecurityType());
         entity.setLifeCycleState(LifeCycleState.CREATED);
         entity.setStatus(DataSourceStatus.Normal);
@@ -378,6 +381,10 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         Map<String, String> mergedConfigMap = mergeExistingConfig(oldDs.getId(), configMap);
         DmDsDO entity = resolveSubmitEntity(fo, mergedConfigMap);
         DataSourceConfig dsConfig = this.configService.fetchDsConfigFromNotExist(entity, mergedConfigMap);
+        String userName = dsConfig.getUserName();
+        if (userName == null && configMap.containsKey(DataSourceConfig.Fields.userName)) {
+            userName = "";
+        }
 
         DmDsDO updateDO = new DmDsDO();
         updateDO.setId(oldDs.getId());
@@ -388,7 +395,7 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         updateDO.setStatusMessage("");
         updateDO.setDriver(dsConfig.getDriverVersion());
         updateDO.setVersion(dsConfig.getVersion());
-        updateDO.setAccessKey(dsConfig.getUserName());
+        updateDO.setAccessKey(userName);
         updateDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(StringUtils.defaultString(dsConfig.getPassword())));
         updateDO.setBindClusterId(fo.getClusterId());
         updateDO.setDsEnvId(fo.getEnvId());

@@ -46,6 +46,8 @@ public interface DmDsMapper extends BaseMapper<DmDsDO> {
 
     DmDsDO queryDsIdentityById(Long id);
 
+    DmDsDO selectByIdForUpdate(@Param("id") long id);
+
     List<DmDsDO> listByDesc(String dataSourceDesc);
 
     List<DmDsDO> listByCondition(ArgDsQueryParamObj dsQueryParam);

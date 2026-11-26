@@ -31,6 +31,8 @@ import lombok.Data;
 public class ArgDsQueryParamObj {
 
     private DataSourceType dataSourceType;
+    private String         ownerUid;
+    private Long           envId;
     private LifeCycleState lifeCycleState;
     private String         dataSourceDescLike;
     private String         dsHostLike;

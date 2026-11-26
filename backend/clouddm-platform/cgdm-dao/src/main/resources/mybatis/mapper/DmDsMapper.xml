@@ -142,6 +142,16 @@
         ORDER BY gmt_create DESC
     </select>
 
+    <select id="selectByIdForUpdate" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            id = #{id}
+        FOR UPDATE
+    </select>
+
     <select id="listByIdsIncludeDeleted" resultMap="rdpDataSourceDO">
         SELECT
             <include refid="rdpDataSource"/>
@@ -259,6 +269,14 @@
             dm_ds
         WHERE
             life_cycle_state != 'DELETED'
+            <if test="ownerUid != null">
+                AND
+                uid = #{ownerUid}
+            </if>
+            <if test="envId != null">
+                AND
+                ds_env_id = #{envId}
+            </if>
             <if test="dataSourceType != null">
                 AND
                 data_source_type = #{dataSourceType,javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType}

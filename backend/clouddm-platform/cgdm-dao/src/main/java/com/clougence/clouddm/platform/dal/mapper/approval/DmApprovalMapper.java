@@ -67,6 +67,8 @@ public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
     long countActiveByTemplate(@Param("primaryUid") String primaryUid, @Param("identity") String identity, @Param("approvalType") String approvalType,
                                @Param("terminalStatuses") List<String> terminalStatuses);
 
+    boolean existsActiveByDataSource(@Param("primaryUid") String primaryUid, @Param("dataSourceId") long dataSourceId, @Param("terminalStatuses") List<String> terminalStatuses);
+
     List<DmApprovalDO> listCustomTickets(@Param("primaryUid") String primaryUid, @Param("pendingOnly") boolean pendingOnly);
 
     List<DmApprovalDO> listPendingByBizIds(@Param("primaryUid") String primaryUid, @Param("bizIds") List<String> bizIds);

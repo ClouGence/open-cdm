@@ -497,6 +497,26 @@
         </if>
     </select>
 
+    <select id="existsActiveByDataSource" resultType="boolean">
+        SELECT EXISTS (
+            SELECT
+                1
+            FROM
+                dm_approval
+            WHERE
+                primary_uid = #{primaryUid}
+                AND
+                bind_ds_id  = #{dataSourceId}
+                AND
+                deleted     = false
+                AND
+                ticket_status NOT IN
+                <foreach collection="terminalStatuses" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+        )
+    </select>
+
     <select id="listPendingByBizIds" resultMap="DmApprovalDO">
         SELECT
             id,

@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.console.web.global.session.SessionTokens;
@@ -53,6 +54,7 @@ public class OpenApiIdempotencyService {
         record.setRequestHash(SessionTokens.sha256Hex(Objects.toString(queryString, "") + "\n" + SessionTokens.sha256Hex(request.getBody())));
 
         TransactionTemplate transaction = new TransactionTemplate(this.transactionManager);
+        transaction.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         return transaction.execute(status -> {
             // Keep the row locked through authorization and execution, including across Console nodes.
             this.idempotencyMapper.reserve(record);

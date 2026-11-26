@@ -23,6 +23,7 @@ import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.console.web.service.sdk.ConsoleCacheServiceImpl;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.openapi.datasource.OpenApiDataSourceService;
 import com.clougence.clouddm.sdk.openapi.metadata.OpenApiMetadataService;
 import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
@@ -39,19 +40,21 @@ import lombok.extern.slf4j.Slf4j;
 public class DmConsolePluginLoader {
 
     @Resource
-    private ConsoleCacheServiceImpl cacheService;
+    private ConsoleCacheServiceImpl  cacheService;
     @Resource
-    private ApprovalRefreshService  refreshService;
+    private ApprovalRefreshService   refreshService;
     @Resource
-    private ConsoleConfigService    consoleConfigService;
+    private ConsoleConfigService     consoleConfigService;
     @Resource
-    private MetaService             metaService;
+    private MetaService              metaService;
     @Resource
-    private OpenApiMetadataService  openApiMetadataService;
+    private OpenApiMetadataService   openApiMetadataService;
     @Resource
-    private SessionService          sessionServices;
+    private OpenApiDataSourceService openApiDataSourceService;
     @Resource
-    private ConfigService           pluginConfigService;
+    private SessionService           sessionServices;
+    @Resource
+    private ConfigService            pluginConfigService;
 
     public void loadPlugin(ClassLoader parentClassLoader) throws Exception {
         this.cacheService.init();
@@ -60,6 +63,7 @@ public class DmConsolePluginLoader {
         PluginManager.putService(CacheService.class, this.cacheService);
         PluginManager.putService(MetaService.class, this.metaService);
         PluginManager.putService(OpenApiMetadataService.class, this.openApiMetadataService);
+        PluginManager.putService(OpenApiDataSourceService.class, this.openApiDataSourceService);
         PluginManager.putService(ApprovalRefreshService.class, this.refreshService);
         PluginManager.putService(ConsoleConfigService.class, this.consoleConfigService);
 

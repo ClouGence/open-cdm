@@ -167,8 +167,12 @@ with urlopen(request, timeout=30) as response:
 | `/datasource/getDataSource` | `dataSourceId` | 返回数据源摘要和可用的版本信息。具有管理权限的调用方可获取连接地址 |
 | `/datasource/createDataSource` | `dataSourceType`、`envId`、`clusterId`、`instanceDesc`、`host`，以及适用的 `port`、`securityType`、`userName` 和 `password` | 写操作。登记数据源，返回 `dataSourceId`、`instanceId` 和 `lifeCycleState` |
 | `/datasource/updateDataSource` | `dataSourceId`，以及要修改的 `instanceDesc`、`envId`、`clusterId`、`host`、`port`、`securityType`、`userName` 或 `password` | 写操作。更新获准的字段，返回 `dataSourceId`，登记时选择的数据源类型保持固定 |
-| `/datasource/testConnection` | `dataSourceId` | 用已登记的配置测试连通性，返回测试结论及可公开的失败原因 |
+| `/datasource/testConnection` | `dataSourceId` | 用已登记的配置测试连通性。返回布尔值 `success`，成功时返回 `version`，失败时返回原因码 `CONNECTION_FAILED` 或 `CLUSTER_UNAVAILABLE` |
 | `/datasource/deleteDataSource` | `dataSourceId` | 写操作。注销 CloudDM 中的登记，返回 `dataSourceId` 和 `lifeCycleState`。存在活动业务依赖时返回 `STATE_CONFLICT` |
+
+`listDataSourceTypes` 的 `operations` 列出各类型支持的管理操作。登记和连接字段更新支持 MySQL 和 PostgreSQL。其他已登记类型可更新显示名、环境和集群。
+
+`getDataSourceConfigSpec` 返回连接字段和必填项。认证方式对应的必填字段见 `requiredFieldsBySecurityType`。传入 `clusterId` 时，`defaultDriver.available` 表示默认驱动在所选集群的可用状态。
 
 | 响应字段 | 取值 |
 | --- | --- |

@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Pattern;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -104,6 +105,7 @@ public class OpenApiGatewayController {
                 case INVALID_ARGUMENT -> completedError(HttpStatus.BAD_REQUEST, requestId, code, "Invalid request parameters.");
                 case FORBIDDEN -> completedError(HttpStatus.FORBIDDEN, requestId, code, "The caller lacks permission for this operation.");
                 case NOT_FOUND -> completedError(HttpStatus.NOT_FOUND, requestId, code, "The requested resource was not found.");
+                case STATE_CONFLICT -> completedError(HttpStatus.CONFLICT, requestId, code, "The operation conflicts with the current resource state.");
             };
         } catch (RuntimeException e) {
             return CompletableFuture.completedFuture(internalError(requestId, e));
@@ -148,7 +150,11 @@ public class OpenApiGatewayController {
     }
 
     private ResponseEntity<String> internalError(String requestId, Throwable error) {
-        log.error("OpenAPI request {} failed.", requestId, error);
+        if (error instanceof DataAccessException) {
+            log.error("OpenAPI request {} failed with database error {}.", requestId, error.getClass().getSimpleName());
+        } else {
+            log.error("OpenAPI request {} failed.", requestId, error);
+        }
         return error(HttpStatus.INTERNAL_SERVER_ERROR, requestId, "INTERNAL_ERROR", "OpenAPI request failed.");
     }
 }
