@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
-import com.clougence.clouddm.api.common.crypt.PasswordInfo;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
@@ -62,7 +61,10 @@ import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.enumeration.UserOperationType;
-import com.clougence.rdp.service.model.*;
+import com.clougence.rdp.service.model.AddSubAccountMO;
+import com.clougence.rdp.service.model.CheckSubAccountMO;
+import com.clougence.rdp.service.model.UpdateUserInfoMO;
+import com.clougence.rdp.service.model.ValidateResultMO;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -733,7 +735,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public AddSubAccountMO addSubAccountForInternal(String puid, AddSubAccountFO fo) {
-        DmAuthUserDO primaryUser = this.authDal.userMapper().queryByUid(puid);
+        DmAuthUserDO primaryUser = lockSubAccountOwner(puid, true);
 
         try {
             this.addSubAccountCheck(fo, primaryUser, false, false);
@@ -776,6 +778,11 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     public UpdateUserInfoMO updateSubAccount(UpdateSubAccountFO fo, String puid) {
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
 
+        DmAuthUserDO primaryUser = null;
+        if (fo.getAccount() != null || fo.getPhone() != null || fo.getEmail() != null) {
+            primaryUser = lockSubAccountOwner(puid, fo.getAccount() != null);
+        }
+
         // locked even for profile-only edits: the write below is a full-row update
         DmAuthUserDO oldUser = this.authDal.userMapper().lockByUid(fo.getTargetUid());
         if (oldUser == null) {
@@ -783,7 +790,9 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
             return mo;
         }
-        DmAuthUserDO primaryUser = this.authDal.userMapper().queryByUid(puid);
+        if (primaryUser == null) {
+            primaryUser = this.authDal.userMapper().queryByUid(puid);
+        }
         if (fo.getRoleId() != null) {
             DmAuthRoleDO roleDO = this.rdpRoleService.fetchRoleById(fo.getRoleId());
             if (roleDO == null) {
@@ -881,6 +890,14 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         mo.setSuccess(true);
         mo.setErrorMsg(null);
         return mo;
+    }
+
+    private DmAuthUserDO lockSubAccountOwner(String puid, boolean changesAccount) {
+        // Login names are global. Contact details are unique within the primary account.
+        if (changesAccount && !AuthDal.ROOT_USER_UID.equals(puid)) {
+            this.authDal.userMapper().lockByUid(AuthDal.ROOT_USER_UID);
+        }
+        return this.authDal.userMapper().lockByUid(puid);
     }
 
     @Override

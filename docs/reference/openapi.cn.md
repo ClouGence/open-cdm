@@ -209,15 +209,15 @@ CloudDM 在执行前校验子账号的功能权限，以及该 SQL 实际操作�
 
 | 接口 | 请求参数 | 响应和用途 |
 | --- | --- | --- |
-| `/account/listSubAccounts` | `pageNumber`、`pageSize`，可选 `userNameOrSubAccountPrefix`、`roleId`、`enabled` | 查询可管理的子账号，返回 `uid`、`account`、`userName`、`roleId` 和 `enabled` |
+| `/account/listSubAccounts` | `pageNumber`、`pageSize`，可选 `userNameOrSubAccountPrefix`、`roleId`、`enabled` | 查询可见的子账号，返回 `uid`、`account`、`userName`、`roleId` 和 `enabled` |
 | `/account/getSubAccount` | `uid` | 获取单个子账号的资料、角色和启停状态 |
 | `/account/listAssignableRoles` | `{}` | 返回调用账号可分配角色的 `roleId` 和 `roleName` |
 | `/account/createSubAccount` | `account`、`userName`、`roleId`、`initialPassword` | 写操作。建立本地子账号，返回 `uid`、登录名、角色和启停状态 |
-| `/account/updateSubAccount` | `uid`，以及要修改的 `userName`、`email` 或 `phone` | 写操作。更新传入的资料字段，返回 `uid` |
+| `/account/updateSubAccount` | `uid`，以及要修改的 `userName`、`email` 或 `phone` | 写操作。更新传入的资料字段，返回 `uid`。`email` 和 `phone` 可传空字符串清空 |
 | `/account/setSubAccountRole` | `uid`、`roleId` | 写操作。将可分配角色绑定到子账号，返回 `uid` 和 `roleId` |
 | `/account/setSubAccountEnabled` | `uid`、布尔值 `enabled` | 写操作。启用或停用子账号，返回 `uid` 和 `enabled` |
 
-本组接口适用于调用方管理范围内的普通本地子账号。角色由管理员配置，通过 `listAssignableRoles` 获取可用的 `roleId`。
+本组接口适用于与调用方同属一个主账号的普通本地子账号。写入目标的角色和可分配角色的功能权限须在调用方的角色权限范围内。通过 `listAssignableRoles` 获取可用的 `roleId`。角色绑定和启停适用于调用方管理的其他子账号。
 
 ## 接口样例
 

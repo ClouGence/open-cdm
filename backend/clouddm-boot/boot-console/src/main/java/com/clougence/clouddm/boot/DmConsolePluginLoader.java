@@ -23,6 +23,7 @@ import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.console.web.service.sdk.ConsoleCacheServiceImpl;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.openapi.account.OpenApiAccountService;
 import com.clougence.clouddm.sdk.openapi.datasource.OpenApiDataSourceService;
 import com.clougence.clouddm.sdk.openapi.metadata.OpenApiMetadataService;
 import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
@@ -52,6 +53,8 @@ public class DmConsolePluginLoader {
     @Resource
     private OpenApiDataSourceService openApiDataSourceService;
     @Resource
+    private OpenApiAccountService    openApiAccountService;
+    @Resource
     private SessionService           sessionServices;
     @Resource
     private ConfigService            pluginConfigService;
@@ -64,6 +67,7 @@ public class DmConsolePluginLoader {
         PluginManager.putService(MetaService.class, this.metaService);
         PluginManager.putService(OpenApiMetadataService.class, this.openApiMetadataService);
         PluginManager.putService(OpenApiDataSourceService.class, this.openApiDataSourceService);
+        PluginManager.putService(OpenApiAccountService.class, this.openApiAccountService);
         PluginManager.putService(ApprovalRefreshService.class, this.refreshService);
         PluginManager.putService(ConsoleConfigService.class, this.consoleConfigService);
 
