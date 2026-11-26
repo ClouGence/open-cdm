@@ -27,10 +27,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.util.NamedThreadFactory;
-import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.mapper.openapi.DmOpenApiIdempotencyMapper;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthSessionDO;
 import com.clougence.utils.StringUtils;
 
@@ -43,16 +44,18 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SessionServiceImpl implements SessionService, UnifiedPostConstruct {
 
-    private static final int          CLEAN_BATCH = 500;
+    private static final int           CLEAN_BATCH = 500;
 
     @Resource
-    private AuthDal                   authDal;
+    private AuthDal                    authDal;
     @Resource
-    private SessionConfig             sessionConfig;
+    private SessionConfig              sessionConfig;
     @Resource
-    private ApplicationEventPublisher eventPublisher;
+    private ApplicationEventPublisher  eventPublisher;
+    @Resource
+    private DmOpenApiIdempotencyMapper idempotencyMapper;
 
-    private ScheduledExecutorService  cleanerExecutor;
+    private ScheduledExecutorService   cleanerExecutor;
 
     @Transactional(propagation = Propagation.MANDATORY)
     @Override
@@ -98,8 +101,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         if (sessionConfig.absoluteDeadlineMs(session.getGmtCreate()) <= now) {
             return null;
         }
-        return new SessionPrincipal(session
-            .getId(), session.getUid(), LoginAuthType.valueOfCode(session.getLoginType()), session.getGmtCreate(), session.getExpireTimeMs());
+        return new SessionPrincipal(session.getId(), session.getUid(), LoginAuthType.valueOfCode(session.getLoginType()), session.getGmtCreate(), session.getExpireTimeMs());
     }
 
     @Override
@@ -165,6 +167,7 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
         cleanerExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("auth-session-cleaner", true));
         cleanerExecutor.scheduleAtFixedRate(this::cleanExpiredSessions, 60, 60, TimeUnit.SECONDS);
         cleanerExecutor.scheduleWithFixedDelay(this::cleanExpiredOpenApiNonces, 60, 60, TimeUnit.SECONDS);
+        cleanerExecutor.scheduleWithFixedDelay(this::cleanExpiredOpenApiIdempotency, 60, 60, TimeUnit.SECONDS);
     }
 
     private void cleanExpiredSessions() {
@@ -186,6 +189,16 @@ public class SessionServiceImpl implements SessionService, UnifiedPostConstruct 
             }
         } catch (Exception e) {
             log.error("Clean expired OpenAPI nonces failed.", e);
+        }
+    }
+
+    private void cleanExpiredOpenApiIdempotency() {
+        try {
+            while (idempotencyMapper.deleteExpired(CLEAN_BATCH) == CLEAN_BATCH) {
+                // Commit each batch before deleting the next one.
+            }
+        } catch (Exception e) {
+            log.error("Clean expired OpenAPI idempotency records failed.", e);
         }
     }
 

@@ -30,4 +30,9 @@ public interface OpenApiSpi extends Spi {
 
     /** Handles a request authenticated by the host. Pass the supplied caller to host services. */
     CompletionStage<OpenApiResponse> handle(OpenApiRequest request, OpenApiCaller caller);
+
+    /** Returns the transactional write for a management path, or null for paths handled by {@link #handle}. */
+    default OpenApiWriteOperation findWrite(String path) {
+        return null;
+    }
 }

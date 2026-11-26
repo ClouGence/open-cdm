@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.openapi.DmOpenApiIdempotencyMapper">
+    <resultMap id="idempotencyDO" type="com.clougence.clouddm.platform.dal.model.openapi.DmOpenApiIdempotencyDO">
+        <result column="request_hash" property="requestHash"/>
+        <result column="http_status" property="httpStatus"/>
+        <result column="response_body" property="responseBody"/>
+    </resultMap>
+
+    <sql id="recordKey">
+        caller_uid      = #{record.callerUid}
+        AND
+        operation_path  = #{record.operationPath}
+        AND
+        idempotency_key = #{record.idempotencyKey}
+    </sql>
+
+    <insert id="reserve">
+        INSERT INTO
+            dm_openapi_idempotency (caller_uid, operation_path, idempotency_key)
+        VALUES
+            (#{callerUid}, #{operationPath}, #{idempotencyKey})
+        ON DUPLICATE KEY UPDATE
+            idempotency_key = idempotency_key
+    </insert>
+
+    <select id="queryCompleted" resultMap="idempotencyDO">
+        SELECT
+            request_hash,
+            http_status,
+            response_body
+        FROM
+            dm_openapi_idempotency
+        WHERE
+            <include refid="recordKey"/>
+            AND
+            expire_time_ms <![CDATA[ > ]]> UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000
+        FOR UPDATE
+    </select>
+
+    <update id="complete">
+        UPDATE
+            dm_openapi_idempotency
+        SET
+            request_hash   = #{record.requestHash},
+            http_status    = #{record.httpStatus},
+            response_body  = #{record.responseBody},
+            expire_time_ms = UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000 + #{retentionMs}
+        WHERE
+            <include refid="recordKey"/>
+    </update>
+
+    <delete id="deleteExpired">
+        DELETE FROM
+            dm_openapi_idempotency
+        WHERE
+            expire_time_ms <![CDATA[ <= ]]> UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000
+        ORDER BY expire_time_ms
+        LIMIT #{limit}
+    </delete>
+</mapper>

@@ -23,21 +23,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.console.web.service.openapi.OpenApiIdempotencyService;
 import com.clougence.clouddm.console.web.service.openapi.OpenApiRequestAuthenticator;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.openapi.OpenApiCaller;
-import com.clougence.clouddm.sdk.openapi.OpenApiRequest;
-import com.clougence.clouddm.sdk.openapi.OpenApiSpi;
+import com.clougence.clouddm.sdk.openapi.*;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -49,10 +45,14 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class OpenApiGatewayController {
 
-    private static final int MAX_BODY_BYTES = 2 * 1024 * 1024;
+    private static final int            MAX_BODY_BYTES          = 2 * 1024 * 1024;
+    private static final Pattern        IDEMPOTENCY_KEY_PATTERN = Pattern.compile("[!-~]{1,128}");
 
     @Resource
     private OpenApiRequestAuthenticator authenticator;
+
+    @Resource
+    private OpenApiIdempotencyService   idempotencyService;
 
     @RequestMapping({ OPEN_API_V1_PREFIX, OPEN_API_V1_PREFIX + "/**" })
     public CompletionStage<ResponseEntity<String>> dispatch(HttpServletRequest request) {
@@ -61,9 +61,11 @@ public class OpenApiGatewayController {
         if (!PluginManager.isReady() || spi == null) {
             return completedError(HttpStatus.NOT_FOUND, requestId, "NOT_FOUND", "OpenAPI is unavailable.");
         }
+
         if (!"POST".equals(request.getMethod())) {
             return completedError(HttpStatus.METHOD_NOT_ALLOWED, requestId, "INVALID_ARGUMENT", "OpenAPI requests must use POST.");
         }
+
         if (!isJson(request.getContentType())) {
             return completedError(HttpStatus.BAD_REQUEST, requestId, "INVALID_ARGUMENT", "OpenAPI requests require application/json.");
         }
@@ -83,11 +85,26 @@ public class OpenApiGatewayController {
 
             String jsonBody = StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(body)).toString();
             OpenApiRequest openApiRequest = new OpenApiRequest(request.getMethod(), path, requestId, jsonBody, idempotencyKey);
-            return spi.handle(openApiRequest, caller)
-                .thenApply(result -> response(result.getStatusCode()).body(result.getBody()))
-                .exceptionally(error -> internalError(requestId, error));
+            OpenApiWriteOperation write = spi.findWrite(path);
+            if (write != null) {
+                if (idempotencyKey == null || !IDEMPOTENCY_KEY_PATTERN.matcher(idempotencyKey).matches()) {
+                    return completedError(HttpStatus.BAD_REQUEST, requestId, "INVALID_ARGUMENT", "Idempotency-Key must contain 1 to 128 visible ASCII characters.");
+                }
+                ResponseEntity<String> result = idempotencyService.execute(openApiRequest, caller, request.getQueryString(), write)
+                    .map(OpenApiGatewayController::response)
+                    .orElseGet(() -> error(HttpStatus.CONFLICT, requestId, "STATE_CONFLICT", "Idempotency-Key has already been used with different request content."));
+                return CompletableFuture.completedFuture(result);
+            }
+            return spi.handle(openApiRequest, caller).thenApply(OpenApiGatewayController::response).exceptionally(error -> internalError(requestId, error));
         } catch (IOException e) {
             return completedError(HttpStatus.BAD_REQUEST, requestId, "INVALID_ARGUMENT", "Could not read the UTF-8 request body.");
+        } catch (OpenApiException e) {
+            String code = e.getCode().name();
+            return switch (e.getCode()) {
+                case INVALID_ARGUMENT -> completedError(HttpStatus.BAD_REQUEST, requestId, code, "Invalid request parameters.");
+                case FORBIDDEN -> completedError(HttpStatus.FORBIDDEN, requestId, code, "The caller lacks permission for this operation.");
+                case NOT_FOUND -> completedError(HttpStatus.NOT_FOUND, requestId, code, "The requested resource was not found.");
+            };
         } catch (RuntimeException e) {
             return CompletableFuture.completedFuture(internalError(requestId, e));
         }
@@ -124,6 +141,10 @@ public class OpenApiGatewayController {
 
     private static ResponseEntity.BodyBuilder response(int statusCode) {
         return ResponseEntity.status(statusCode).contentType(MediaType.APPLICATION_JSON).cacheControl(CacheControl.noStore());
+    }
+
+    private static ResponseEntity<String> response(OpenApiResponse result) {
+        return response(result.getStatusCode()).body(result.getBody());
     }
 
     private ResponseEntity<String> internalError(String requestId, Throwable error) {

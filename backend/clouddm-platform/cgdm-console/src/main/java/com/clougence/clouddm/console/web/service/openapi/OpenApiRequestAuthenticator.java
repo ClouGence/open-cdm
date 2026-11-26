@@ -44,13 +44,13 @@ import jakarta.servlet.http.HttpServletRequest;
 @Service
 public class OpenApiRequestAuthenticator {
 
-    private static final String   SIGNATURE_METHOD = "HmacSHA256";
-    private static final Duration SIGNATURE_WINDOW = Duration.ofMinutes(5);
+    private static final String   SIGNATURE_METHOD      = "HmacSHA256";
+    private static final Duration SIGNATURE_WINDOW      = Duration.ofMinutes(5);
     private static final int      MAX_ACCESS_KEY_LENGTH = 128;
-    private static final int      MAX_NONCE_LENGTH = 128;
+    private static final int      MAX_NONCE_LENGTH      = 128;
 
     @Resource
-    private AuthDal authDal;
+    private AuthDal               authDal;
 
     public OpenApiCaller authenticate(HttpServletRequest request, String path, String idempotencyKey, byte[] body) {
         String accessKeyId = request.getHeader("AccessKeyId");
@@ -58,7 +58,7 @@ public class OpenApiRequestAuthenticator {
         String timestamp = request.getHeader("Timestamp");
         String signature = request.getHeader("Signature");
         if (StringUtils.isBlank(accessKeyId) || accessKeyId.length() > MAX_ACCESS_KEY_LENGTH || !SIGNATURE_METHOD.equals(request.getHeader("SignatureMethod"))
-                || StringUtils.isBlank(nonce) || nonce.length() > MAX_NONCE_LENGTH || timestamp == null || signature == null) {
+            || StringUtils.isBlank(nonce) || nonce.length() > MAX_NONCE_LENGTH || timestamp == null || signature == null) {
             return null;
         }
 
@@ -81,10 +81,9 @@ public class OpenApiRequestAuthenticator {
             return null;
         }
 
-        String signingInput = String.join("\n", request.getMethod(), path, Objects.toString(request.getQueryString(), ""), accessKeyId,
-            SIGNATURE_METHOD, timestamp, nonce, Objects.toString(idempotencyKey, ""));
-        if (!matchesSignature(subAccount.getSecretKey(), signingInput, body, providedSignature)
-                || !consumeNonce(accessKeyId, nonce, signedAt.plus(SIGNATURE_WINDOW))) {
+        String signingInput = String.join("\n", request.getMethod(), path, Objects.toString(request.getQueryString(), ""), accessKeyId, SIGNATURE_METHOD, timestamp, nonce, Objects
+            .toString(idempotencyKey, ""));
+        if (!matchesSignature(subAccount.getSecretKey(), signingInput, body, providedSignature) || !consumeNonce(accessKeyId, nonce, signedAt.plus(SIGNATURE_WINDOW))) {
             return null;
         }
 
