@@ -600,7 +600,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     }
 
     @Override
-    public List<ListUserVO> listSubAccounts(String puid, ListSubAccountsFO fo) {
+    public List<ListUserVO> listSubAccounts(String puid, String operatorUid, ListSubAccountsFO fo) {
         DmAuthUserDO parentUser = this.authDal.userMapper().queryByUid(puid);
 
         String prefix = StringUtils.isBlank(fo.getUserNameOrSubAccountPrefix()) ? null : fo.getUserNameOrSubAccountPrefix();
@@ -611,8 +611,9 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             roleMap.put(role.getId(), role);
         }
 
+        DmAuthUserDO operator = puid.equals(operatorUid) ? parentUser : this.authDal.userMapper().queryByUid(operatorUid);
         return subAccounts.stream().map(u -> {
-            ListUserVO vo = RdpConvertUtils.convertToListUserVO(u, roleMap);
+            ListUserVO vo = RdpConvertUtils.convertToListUserVO(u, parentUser, operator, roleMap);
             fillMfaInfo(vo, u.getUid());
             return vo;
         }).collect(Collectors.toList());

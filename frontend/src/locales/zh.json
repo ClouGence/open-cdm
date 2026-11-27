@@ -3419,6 +3419,8 @@
   "qing-que-ren-shi-fou-yao-ting-zhi-gai-ren-wu-tiao-du-ting-zhi-hou-ding-shi-ren-wu-jiang-zhong-zhi": "请确认是否要停止该任务调度，停止后定时任务将中止",
   "shu-xing": "属性",
   "aksk-guan-li": "AccessKey/SecretKey 管理",
+  "openapi-credentials": "OpenAPI 凭据",
+  "openapi-access-key-id": "AccessKeyId",
   "an-quan": "安全",
   "duo-yin-zi-ren-zheng": "MFA",
   "chong-zhi": "重置",

@@ -15,10 +15,11 @@
  */
 package com.clougence.clouddm.console.web.service.sdk;
 
+import static com.clougence.clouddm.console.web.util.RdpAuthUtils.canAssignRole;
+import static com.clougence.clouddm.console.web.util.RdpAuthUtils.isAdministratorRole;
 import static com.clougence.clouddm.sdk.openapi.OpenApiErrorCode.*;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_USER_MANAGE;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_USER_READ;
-import static com.clougence.clouddm.sdk.security.auth.def.SecSysRole.ADMIN_ROLE_NAME;
 
 import java.util.Comparator;
 import java.util.List;
@@ -37,7 +38,6 @@ import com.clougence.clouddm.console.web.model.fo.user.AddSubAccountFO;
 import com.clougence.clouddm.console.web.model.fo.user.UpdateSubAccountFO;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
@@ -241,16 +241,6 @@ public class ConsoleOpenApiAccountService implements OpenApiAccountService {
             return null;
         }
         return this.roleService.fetchRoleById(user.getRoleId());
-    }
-
-    private static boolean canAssignRole(DmAuthRoleDO operator, DmAuthRoleDO role) {
-        return role != null && operator.getOwnerUid().equals(role.getOwnerUid()) && !isAdministratorRole(role)
-               && RdpConvertUtils.removeSelectedRoleAuthLabelsMeta(operator.getRoleAuthLabels())
-                   .containsAll(RdpConvertUtils.removeSelectedRoleAuthLabelsMeta(role.getRoleAuthLabels()));
-    }
-
-    private static boolean isAdministratorRole(DmAuthRoleDO role) {
-        return role != null && role.isInnerTag() && ADMIN_ROLE_NAME.equals(role.getRoleName());
     }
 
     private static boolean isLocalAccount(DmAuthUserDO user) {

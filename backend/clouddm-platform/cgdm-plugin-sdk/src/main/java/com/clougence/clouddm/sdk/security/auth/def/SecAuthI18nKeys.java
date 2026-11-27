@@ -83,6 +83,7 @@ public interface SecAuthI18nKeys {
     String AUTH_KEY_RDP_ENV_MANAGE                  = "AUTH_KEY_RDP_ENV_MANAGE";
     String AUTH_KEY_RDP_USER_READ                   = "AUTH_KEY_RDP_USER_READ";
     String AUTH_KEY_RDP_USER_MANAGE                 = "AUTH_KEY_RDP_USER_MANAGE";
+    String AUTH_KEY_RDP_OPENAPI_CREDENTIAL_MANAGE   = "AUTH_KEY_RDP_OPENAPI_CREDENTIAL_MANAGE";
     String AUTH_KEY_RDP_ROLE_READ                   = "AUTH_KEY_RDP_ROLE_READ";
     String AUTH_KEY_RDP_ROLE_MANAGE                 = "AUTH_KEY_RDP_ROLE_MANAGE";
     String AUTH_KEY_RDP_AUTH_REQUEST                = "AUTH_KEY_RDP_AUTH_REQUEST";

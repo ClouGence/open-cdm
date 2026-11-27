@@ -128,7 +128,8 @@ public class RdpUserManagerController {
     @RequestMapping(value = "/listSubAccounts", method = { RequestMethod.POST })
     public ResWebData<?> listSubAccounts(@Valid @RequestBody ListSubAccountsFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        List<ListUserVO> users = this.rdpUserService.listSubAccounts(puid, fo);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        List<ListUserVO> users = this.rdpUserService.listSubAccounts(puid, uid, fo);
         return ResWebDataUtils.buildSuccess(users);
     }
 

@@ -89,6 +89,15 @@
                   <Button v-if="myAuth.includes('RDP_USER_MANAGE')" type="text" size="small" @click="handleShowModifyAccount(row)">
                     {{ $t('xiu-gai') }}
                   </Button>
+                  <Button
+                    v-if="row.canManageOpenApiCredentials"
+                    type="text"
+                    size="small"
+                    :aria-label="$t('openapi-credentials')"
+                    @click="openOpenApiCredentials(row)"
+                  >
+                    {{ $t('aksk') }}
+                  </Button>
                   <Button v-if="myAuth.includes('RDP_USER_MANAGE')" type="text" size="small" @click="handleShowDeleteConfirm(row)">
                     {{ $t('shan-chu') }}
                   </Button>
@@ -245,6 +254,42 @@
         </Button>
       </template>
     </CCModal>
+    <CCModal
+      :model-value="openApiCredentialTarget !== null"
+      :title="$t(confirmOpenApiCredentialReset ? 'que-ren-chong-zhi-aksk' : 'openapi-credentials')"
+      :width="520"
+      :closable="!openApiCredentialLoading"
+      :keyboard="!openApiCredentialLoading"
+      @on-cancel="closeOpenApiCredentials"
+    >
+      <Form v-if="openApiCredentialTarget" class="account-form" :label-width="100">
+        <FormItem :label="$t('zhang-hao')">
+          <span class="openapi-credential-account">{{ openApiCredentialTarget.account }}</span>
+        </FormItem>
+        <p v-if="confirmOpenApiCredentialReset">{{ $t('chong-zhi-aksk-hou-jiu-de-aksk-jiang-li-ji-shi-xiao-que-ren-yao-ji-xu-ma') }}</p>
+        <template v-else-if="openApiCredential">
+          <FormItem :label="$t('openapi-access-key-id')">
+            <Input :model-value="openApiCredential.accessKeyId" :aria-label="$t('openapi-access-key-id')" readonly />
+          </FormItem>
+          <FormItem :label="$t('sk')">
+            <Input :model-value="openApiCredential.secretKey" :aria-label="$t('sk')" type="password" password readonly autocomplete="off" />
+          </FormItem>
+          <p>{{ $t('wei-bao-zheng-nin-de-zhang-hao-an-quan-qing-wu-bi-bao-guan-hao-nin-de-aksk') }}</p>
+        </template>
+      </Form>
+      <template #footer>
+        <template v-if="confirmOpenApiCredentialReset">
+          <Button :disabled="openApiCredentialLoading" @click="confirmOpenApiCredentialReset = false">{{ $t('qu-xiao') }}</Button>
+          <Button type="error" :loading="openApiCredentialLoading" @click="requestOpenApiCredential(true)">{{ $t('chong-zhi-aksk') }}</Button>
+        </template>
+        <template v-else>
+          <Button :disabled="openApiCredentialLoading" @click="closeOpenApiCredentials">{{ $t('guan-bi') }}</Button>
+          <Button :disabled="openApiCredentialLoading" @click="confirmOpenApiCredentialReset = true">{{ $t('chong-zhi-aksk') }}</Button>
+          <Button v-if="openApiCredential" type="primary" @click="copyText(JSON.stringify(openApiCredential))">{{ $t('fu-zhi') }}</Button>
+          <Button v-else type="primary" :loading="openApiCredentialLoading" @click="requestOpenApiCredential(false)">{{ $t('huo-qu-aksk') }}</Button>
+        </template>
+      </template>
+    </CCModal>
   </div>
 </template>
 
@@ -307,7 +352,16 @@ export default {
       return !this.isExternalAccount || this.newAccountForm.allowLocal;
     },
     accountTableColumns() {
-      return this.subAccountColumns;
+      const hasCredentialActions = this.subAccountList.some((row) => row.canManageOpenApiCredentials);
+      return [
+        ...this.subAccountColumns,
+        {
+          title: this.$t('cao-zuo'),
+          slot: 'action',
+          fixed: 'right',
+          width: hasCredentialActions ? 240 : 190
+        }
+      ];
     },
     accountTableData() {
       return this.showSubAccountList;
@@ -356,12 +410,6 @@ export default {
           title: this.$t('jiao-se'),
           slot: 'roleName',
           minWidth: 120
-        },
-        {
-          title: this.$t('cao-zuo'),
-          slot: 'action',
-          fixed: 'right',
-          width: 190
         }
       ],
       subAccountListLoading: false,
@@ -369,6 +417,10 @@ export default {
       accountFormMode: 'create',
       showManageRoleModal: false,
       resetMfaLoading: false,
+      openApiCredentialTarget: null,
+      openApiCredential: null,
+      openApiCredentialLoading: false,
+      confirmOpenApiCredentialReset: false,
       selectedSubaccount: {
         name: '',
         account: '',
@@ -410,6 +462,42 @@ export default {
         return row.bindAccount || row.account || '';
       }
       return row.account || '';
+    },
+    openOpenApiCredentials(row) {
+      this.openApiCredentialTarget = { uid: row.uid, account: this.displayAccount(row) || row.uid };
+    },
+    closeOpenApiCredentials() {
+      this.openApiCredentialTarget = null;
+      this.openApiCredential = null;
+      this.openApiCredentialLoading = false;
+      this.confirmOpenApiCredentialReset = false;
+    },
+    async requestOpenApiCredential(reset) {
+      const target = this.openApiCredentialTarget;
+      if (!target || this.openApiCredentialLoading) {
+        return;
+      }
+
+      let request = this.$services.rdpUserManagerIssueOpenApiCredential;
+      if (reset) {
+        request = this.$services.rdpUserManagerResetOpenApiCredential;
+        this.openApiCredential = null;
+      }
+      this.openApiCredentialLoading = true;
+      try {
+        const res = await request({ data: { targetUid: target.uid } });
+        if (target === this.openApiCredentialTarget && res.success) {
+          this.openApiCredential = res.data;
+          this.confirmOpenApiCredentialReset = false;
+          if (reset) {
+            this.$Message.success(this.$t('aksk-chong-zhi-cheng-gong'));
+          }
+        }
+      } finally {
+        if (target === this.openApiCredentialTarget) {
+          this.openApiCredentialLoading = false;
+        }
+      }
     },
     emptyText() {
       return '(空)';
@@ -738,6 +826,9 @@ export default {
       this.accountFormVisible = true;
     }
   },
+  deactivated() {
+    this.closeOpenApiCredentials();
+  },
   async created() {
     await this.getRoleList();
     await this.getSubAccountList();
@@ -1023,6 +1114,10 @@ export default {
   :deep(.ivu-form-item) {
     margin-bottom: 12px;
   }
+}
+
+.openapi-credential-account {
+  overflow-wrap: anywhere;
 }
 
 .form-section-title {

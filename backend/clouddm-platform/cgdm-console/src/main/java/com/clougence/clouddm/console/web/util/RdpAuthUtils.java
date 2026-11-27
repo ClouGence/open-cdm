@@ -15,8 +15,12 @@
  */
 package com.clougence.clouddm.console.web.util;
 
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_OPENAPI_CREDENTIAL_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecSysRole.ADMIN_ROLE_NAME;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.context.ApplicationContext;
 
@@ -28,6 +32,9 @@ import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.utils.StringUtils;
@@ -128,5 +135,34 @@ public class RdpAuthUtils {
         info.setEncryptPassword(encryptPwd);
         info.setPlainPassword(plainPwd);
         return !CryptService.INSTANCE.isMatchForOneWay(info);
+    }
+
+    public static boolean isAdministratorRole(DmAuthRoleDO role) {
+        return role != null && role.isInnerTag() && ADMIN_ROLE_NAME.equals(role.getRoleName());
+    }
+
+    public static boolean canAssignRole(DmAuthRoleDO operatorRole, DmAuthRoleDO targetRole) {
+        return operatorRole != null && targetRole != null && operatorRole.getOwnerUid().equals(targetRole.getOwnerUid()) && !isAdministratorRole(targetRole)
+               && RdpConvertUtils.removeSelectedRoleAuthLabelsMeta(operatorRole.getRoleAuthLabels())
+                   .containsAll(RdpConvertUtils.removeSelectedRoleAuthLabelsMeta(targetRole.getRoleAuthLabels()));
+    }
+
+    public static boolean isSubAccountOf(DmAuthUserDO primary, DmAuthUserDO target) {
+        return primary != null && primary.getAccountType() == AccountType.PRIMARY_ACCOUNT && target != null && target.getAccountType() == AccountType.SUB_ACCOUNT
+               && Objects.equals(primary.getId(), target.getParentId());
+    }
+
+    public static boolean canManageSubAccountCredentials(DmAuthUserDO primary, DmAuthUserDO operator, DmAuthUserDO target, DmAuthRoleDO operatorRole, DmAuthRoleDO targetRole) {
+        if (!isSubAccountOf(primary, target) || primary.isDisable() || operator == null || operator.isDisable()) {
+            return false;
+        }
+
+        if (Objects.equals(primary.getUid(), operator.getUid())) {
+            return true;
+        }
+
+        return isSubAccountOf(primary, operator) && !target.isMaintainer() && operatorRole != null && primary.getUid().equals(operatorRole.getOwnerUid())
+               && operatorRole.getRoleAuthLabels() != null && operatorRole.getRoleAuthLabels().contains(RDP_OPENAPI_CREDENTIAL_MANAGE)
+               && canAssignRole(operatorRole, targetRole);
     }
 }

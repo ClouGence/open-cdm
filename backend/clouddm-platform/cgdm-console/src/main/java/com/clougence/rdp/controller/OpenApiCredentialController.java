@@ -16,7 +16,7 @@
 package com.clougence.rdp.controller;
 
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_USER_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_OPENAPI_CREDENTIAL_MANAGE;
 
 import java.util.Map;
 
@@ -52,13 +52,13 @@ public class OpenApiCredentialController {
     @Resource
     private RdpOpAuditService        auditService;
 
-    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
+    @RequestAuth(level = HIGH, value = RDP_OPENAPI_CREDENTIAL_MANAGE)
     @PostMapping("/issueOpenApiCredential")
     public ResWebData<?> issueOpenApiCredential(@Valid @RequestBody OpenApiCredentialFO fo, HttpServletRequest request, HttpServletResponse response) {
         return writeCredential(fo.getTargetUid(), false, request, response);
     }
 
-    @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
+    @RequestAuth(level = HIGH, value = RDP_OPENAPI_CREDENTIAL_MANAGE)
     @PostMapping("/resetOpenApiCredential")
     public ResWebData<?> resetOpenApiCredential(@Valid @RequestBody OpenApiCredentialFO fo, HttpServletRequest request, HttpServletResponse response) {
         return writeCredential(fo.getTargetUid(), true, request, response);
@@ -67,7 +67,7 @@ public class OpenApiCredentialController {
     private ResWebData<?> writeCredential(String targetUid, boolean reset, HttpServletRequest request, HttpServletResponse response) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        OpenApiCredentialVO credential = credentialService.writeCredential(puid, targetUid, reset);
+        OpenApiCredentialVO credential = credentialService.writeCredential(puid, uid, targetUid, reset);
 
         auditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), targetUid, Map
             .of("openApiCredential", reset ? "reset" : "issue"), HIGH, AuditType.UPDATE_SUB_ACCOUNT, ResourceType.ACCOUNT);

@@ -3472,6 +3472,8 @@
   "qing-shu-ru-qu-xiao-yuan-yin": "Please enter the cancellation reason",
   "qu-xiao-zhi-fu": "Cancel payment",
   "aksk-guan-li": "AccessKey/SecretKey Management",
+  "openapi-credentials": "OpenAPI credentials",
+  "openapi-access-key-id": "AccessKeyId",
   "an-quan": "Security",
   "duo-yin-zi-ren-zheng": "Multi-factor Authentication",
   "kai-qi-duo-yin-zi-ren-zheng": "Set Up Multi-factor Authentication",

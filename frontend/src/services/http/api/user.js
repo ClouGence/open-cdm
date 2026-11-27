@@ -32,6 +32,8 @@ export const userApi = {
   rdpUserManagerListSubAccounts: '/api/entry/user/manager/listSubAccounts',
   rdpUserManagerUpdateSubAccount: '/api/entry/user/manager/updateSubAccount',
   rdpUserManagerResetInvalidMfa: '/api/entry/user/manager/resetInvalidMfa',
+  rdpUserManagerIssueOpenApiCredential: '/api/entry/user/manager/issueOpenApiCredential',
+  rdpUserManagerResetOpenApiCredential: '/api/entry/user/manager/resetOpenApiCredential',
   rdpUserManagerCtrlAddSubAccount: '/api/entry/user/manager/ctrlAddSubAccount',
   rdpUserManagerAddSubAccount: '/api/entry/user/manager/addSubAccount',
   rdpUserManagerDeleteSubAccount: '/api/entry/user/manager/deleteSubAccount',

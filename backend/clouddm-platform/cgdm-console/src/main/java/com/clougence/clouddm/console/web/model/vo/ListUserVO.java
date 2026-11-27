@@ -61,4 +61,6 @@ public class ListUserVO {
     private MfaStatus       mfaStatus;
 
     private String          mfaAccountType;
+
+    private boolean         canManageOpenApiCredentials;
 }

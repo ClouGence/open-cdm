@@ -83,10 +83,13 @@ public class RdpConvertUtils {
         }
     }
 
-    public static ListUserVO convertToListUserVO(DmAuthUserDO userDO, Map<Long, DmAuthRoleDO> roleMap) {
+    public static ListUserVO convertToListUserVO(DmAuthUserDO userDO, DmAuthUserDO primaryUser, DmAuthUserDO operator, Map<Long, DmAuthRoleDO> roleMap) {
         if (userDO == null) {
             return null;
         }
+
+        DmAuthRoleDO roleDO = roleMap.get(userDO.getRoleId());
+        DmAuthRoleDO operatorRole = operator == null ? null : roleMap.get(operator.getRoleId());
 
         ListUserVO vo = new ListUserVO();
         vo.setUid(userDO.getUid());
@@ -96,8 +99,7 @@ public class RdpConvertUtils {
         vo.setUsername(userDO.getUsername());
 
         vo.setRoleId(userDO.getRoleId());
-        if (roleMap.containsKey(userDO.getRoleId())) {
-            DmAuthRoleDO roleDO = roleMap.get(userDO.getRoleId());
+        if (roleDO != null) {
             if (roleDO.isInnerTag()) {
                 vo.setInnerRole(true);
                 vo.setRoleName(DmI18nUtils.getMessage(roleDO.getRoleName()));
@@ -105,6 +107,7 @@ public class RdpConvertUtils {
                 vo.setRoleName(roleDO.getAliasName());
             }
         }
+        vo.setCanManageOpenApiCredentials(RdpAuthUtils.canManageSubAccountCredentials(primaryUser, operator, userDO, operatorRole, roleDO));
 
         vo.setBindType(userDO.getBindType());
         vo.setBindAccount(userDO.getBindAccount());

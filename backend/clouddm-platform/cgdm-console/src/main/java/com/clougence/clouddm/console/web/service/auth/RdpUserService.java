@@ -101,7 +101,7 @@ public interface RdpUserService {
 
     List<DmAuthUserDO> listSubAccounts(String puid);
 
-    List<ListUserVO> listSubAccounts(String puid, ListSubAccountsFO fo);
+    List<ListUserVO> listSubAccounts(String puid, String operatorUid, ListSubAccountsFO fo);
 
     AddSubAccountMO addSubAccountForBind(String puid, AccountBindType bindType, DmAuthUserDO bindUser);
 

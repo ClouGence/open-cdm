@@ -63,6 +63,9 @@ public interface SecRoleAuthLabel {
     @AuthLabel(order = 3, category = CAT_RDP_USER, i18nKey = AUTH_KEY_RDP_AUTH_MANAGE, tag = { SecSysRole.DBA_ROLE_NAME }, include = RDP_AUTH_READ)
     String RDP_AUTH_MANAGE                 = "RDP_AUTH_MANAGE";
 
+    @AuthLabel(order = 4, category = CAT_RDP_USER, i18nKey = AUTH_KEY_RDP_OPENAPI_CREDENTIAL_MANAGE, include = RDP_USER_READ)
+    String RDP_OPENAPI_CREDENTIAL_MANAGE   = "RDP_OPENAPI_CREDENTIAL_MANAGE";
+
     // ================================ CAT_RDP_ROLE ==============================================
 
     @AuthLabel(order = 0, category = CAT_RDP_ROLE, i18nKey = AUTH_KEY_RDP_ROLE_READ, tag = { SecSysRole.DBA_ROLE_NAME })

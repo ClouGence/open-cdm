@@ -15,20 +15,22 @@
  */
 package com.clougence.clouddm.console.web.service.openapi;
 
-import java.util.Objects;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.openapi.OpenApiCredentialVO;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 
@@ -36,20 +38,24 @@ import jakarta.annotation.Resource;
 public class OpenApiCredentialService {
 
     @Resource
-    private AuthDal authDal;
+    private AuthDal   authDal;
     @Resource
     private NamingDao namingDao;
 
-    @Transactional
-    public OpenApiCredentialVO writeCredential(String primaryUid, String targetUid, boolean reset) {
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public OpenApiCredentialVO writeCredential(String primaryUid, String operatorUid, String targetUid, boolean reset) {
         DmAuthUserDO primary = authDal.userMapper().queryByUid(primaryUid);
         DmAuthUserDO target = authDal.userMapper().lockByUid(targetUid);
-        if (primary == null || primary.getAccountType() != AccountType.PRIMARY_ACCOUNT || target == null || target.getAccountType() != AccountType.SUB_ACCOUNT
-            || !Objects.equals(primary.getId(), target.getParentId())) {
+        if (!RdpAuthUtils.isSubAccountOf(primary, target)) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
-        if (!reset) {
+        DmAuthUserDO operator = primaryUid.equals(operatorUid) ? primary : authDal.userMapper().queryByUid(operatorUid);
+        if (!RdpAuthUtils.canManageSubAccountCredentials(primary, operator, target, this.findRole(operator), this.findRole(target))) {
+            throw new ErrorMessageException(DmErrorCode.O_AUTHORITY.code(), DmI18nUtils.getMessage(I18nRdpMsgKeys.OPENAPI_CREDENTIAL_SCOPE_FORBIDDEN.name()));
+        }
+
+        if (!reset && StringUtils.isNotBlank(target.getAccessKey()) && StringUtils.isNotBlank(target.getSecretKey())) {
             String secretKey = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(target.getSecretKey());
             return new OpenApiCredentialVO(target.getAccessKey(), secretKey);
         }
@@ -59,5 +65,12 @@ public class OpenApiCredentialService {
         String storedSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(secretKey);
         authDal.userMapper().updateUserAkSk(target.getUid(), accessKeyId, storedSecretKey);
         return new OpenApiCredentialVO(accessKeyId, secretKey);
+    }
+
+    private DmAuthRoleDO findRole(DmAuthUserDO user) {
+        if (user == null || user.getRoleId() == null) {
+            return null;
+        }
+        return authDal.roleMapper().selectById(user.getRoleId());
     }
 }
