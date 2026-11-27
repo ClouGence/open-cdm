@@ -33,6 +33,7 @@ public class QueryResultConf extends ResultLimit implements Cloneable {
     private boolean        refreshStatus     = false;
     private boolean        returnAutoIncrKey = false;
     private ReceiveMode    receiveMode       = ReceiveMode.PAGINATED;
+    private long           fetchEchoBytesLimit;
 
     // display format
     private int            displayChars;
@@ -58,6 +59,7 @@ public class QueryResultConf extends ResultLimit implements Cloneable {
         conf.refreshStatus = this.refreshStatus;
         conf.returnAutoIncrKey = this.returnAutoIncrKey;
         conf.receiveMode = this.receiveMode;
+        conf.fetchEchoBytesLimit = this.fetchEchoBytesLimit;
         conf.displayChars = this.displayChars;
         conf.dataFormat = this.dataFormat;
         conf.timeFormat = this.timeFormat;

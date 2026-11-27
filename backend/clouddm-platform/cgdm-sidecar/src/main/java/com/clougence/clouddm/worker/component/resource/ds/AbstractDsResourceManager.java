@@ -16,9 +16,9 @@
 package com.clougence.clouddm.worker.component.resource.ds;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.clougence.clouddm.api.sidecar.session.drivers.DriverRef;
@@ -43,8 +43,8 @@ public abstract class AbstractDsResourceManager implements DsResourceManager {
 
     @Resource
     private SslConfigManager                 sslConfigManager;
-    private final Map<String, AtomicInteger> resourceCounter = new ConcurrentHashMap<>();
-    private final Map<String, Integer>       resourceLimited = new ConcurrentHashMap<>();
+    private final Map<String, AtomicInteger> resourceCounter = new HashMap<>();
+    private final Map<String, Integer>       resourceLimited = new HashMap<>();
 
     @Override
     public <C extends DataSourceConfig, T extends AutoCloseable> DsObject<T> requestResource(C dsConfig) throws Exception {
@@ -62,49 +62,41 @@ public abstract class AbstractDsResourceManager implements DsResourceManager {
         }
 
         final String dsId = dsConfig.getInstanceId();
-        Integer limit = this.resourceLimited.get(dsId);
-        if (limit == null) {
-            synchronized (this) {
-                limit = this.resourceLimited.get(dsId);
-                if (limit == null) {
-                    limit = getMaxConnections(dsConfig);
-                    log.info("requestResource '" + dsId + "' limit is " + limit);
-                    this.resourceLimited.put(dsId, limit);
-                    this.resourceCounter.put(dsId, new AtomicInteger(0));
-                }
-            }
-        }
-
-        final AtomicInteger counter = this.resourceCounter.get(dsId);
-        synchronized (this) {
-            if (limit > 0 && counter.get() >= limit) {
-                throw new IndexOutOfBoundsException("the ds '" + dsId + "' usage reached " + counter.get() + "/" + limit);
-            } else {
-                counter.incrementAndGet();//++
-            }
-        }
-
         DsPluginInfo pluginInfo = PluginManager.findDsPlugin(dsConfig.getDataSourceType());
         if (pluginInfo == null) {
             throw new UnsupportedOperationException("no plugin found for dsType '" + dsConfig.getDataSourceType() + "'.");
+        }
+
+        final AtomicInteger counter;
+        synchronized (this) {
+            Integer limit = this.resourceLimited.get(dsId);
+            if (limit == null) {
+                limit = getMaxConnections(dsConfig);
+                log.info("requestResource '" + dsId + "' limit is " + limit);
+                this.resourceLimited.put(dsId, limit);
+                this.resourceCounter.put(dsId, new AtomicInteger(0));
+            }
+            counter = this.resourceCounter.get(dsId);
+            if (limit > 0 && counter.get() >= limit) {
+                throw new IndexOutOfBoundsException("the ds '" + dsId + "' usage reached " + counter.get() + "/" + limit);
+            }
+            counter.incrementAndGet();
         }
 
         try (LeasedDsFactory<?> dsFactory = pluginInfo.createDriver(driverRef.getDriverFamily(), driverRef.getDriverVersion())) {
             Properties properties = dsConfig.asDriverProperties();
             properties.setProperty(DsConfigKeys.CLIENT_NAME.getConfigKey(), "CloudDM Client");
             DsObject<T> apply = (DsObject<T>) dsFactory.create(properties);
-            apply.addCloseListener(() -> doClose(dsId, counter));//--
+            apply.addCloseListener(() -> doClose(dsId, counter));
             return apply;
         } catch (Exception e) {
-            counter.decrementAndGet();//--
+            this.doClose(dsId, counter);
             throw e;
         }
     }
 
-    private void doClose(String dsId, AtomicInteger counter) {
-        counter.decrementAndGet();
-
-        if (counter.get() <= 0) {
+    private synchronized void doClose(String dsId, AtomicInteger counter) {
+        if (counter.decrementAndGet() == 0) {
             this.resourceLimited.remove(dsId);
             this.resourceCounter.remove(dsId);
         }

@@ -17,7 +17,9 @@ package com.clougence.clouddm.worker.component.session.result;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
+import com.clougence.clouddm.sdk.execute.session.QueryFailure;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder;
 import com.clougence.clouddm.worker.component.session.SessionSupport;
@@ -27,16 +29,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultResultBuilder implements ResultBuilder {
 
-    private final AtomicBoolean           finished  = new AtomicBoolean(false);
-    private final AtomicInteger           resultIdx = new AtomicInteger();
-    private final String                  sessionId;
-    private final ResultListenerContainer listeners;
-    private final SessionSupport          ss;
+    private final AtomicBoolean                          finished  = new AtomicBoolean(false);
+    private final AtomicInteger                          resultIdx = new AtomicInteger();
+    private final String                                 sessionId;
+    private final ResultListenerContainer                listeners;
+    private final SessionSupport                         ss;
+    private final BiConsumer<QueryRequest, QueryFailure> failureListener;
 
-    public DefaultResultBuilder(String sessionId, SessionSupport ss, ResultListenerContainer listeners){
+    public DefaultResultBuilder(String sessionId, SessionSupport ss, ResultListenerContainer listeners, BiConsumer<QueryRequest, QueryFailure> failureListener){
         this.sessionId = sessionId;
         this.listeners = listeners;
         this.ss = ss;
+        this.failureListener = failureListener;
     }
 
     public boolean isPending() { return !this.finished.get(); }
@@ -106,6 +110,11 @@ public class DefaultResultBuilder implements ResultBuilder {
         ImplResultMessageBuild build = new ImplResultMessageBuild(null, this.sessionId, query, this.listeners);
         build.initBuild();
         return build;
+    }
+
+    @Override
+    public void reportQueryFailure(QueryRequest query, QueryFailure failure) {
+        this.failureListener.accept(query, failure);
     }
 
     public BatchBuild newBatch(String batchId) {

@@ -36,6 +36,7 @@ public class ResultSet extends Result {
 
     public ResultSet cloneEmpty() {
         ResultSet empty = new ResultSet();
+        empty.setBatchId(this.getBatchId());
         empty.setResultId(this.getResultId());
         empty.setSessionId(this.getSessionId());
         empty.setQueryId(this.getQueryId());

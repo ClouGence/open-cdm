@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.service.editor.query;
 
+import static com.clougence.clouddm.sdk.openapi.OpenApiErrorCode.*;
+
 import java.io.StringReader;
 import java.util.*;
 import java.util.function.Consumer;
@@ -25,6 +27,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
@@ -66,14 +69,16 @@ import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.echo.*;
-import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
+import com.clougence.clouddm.sdk.openapi.OpenApiException;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.SecDataAuthKind;
+import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
@@ -316,23 +321,11 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private static final RuleLevel[] CHECK_LEVELS_NORMAL = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET, RuleLevel.SUGGEST };
 
     private List<QueryRequest> prepareQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, boolean isExplain, SqlParserParameters parameters) {
-        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
-            .currentUid(queryDTO.getCurrentUserId())
-            .dataSourceId(ctx.getLevels().dsDO().getId())
-            .levels(ctx.getLevels().levelsParam())
-            .parameters(parameters)
-            .build();
-        int codeLine = queryDTO.getBasicCodeLine();
-        int codeColumn = queryDTO.getBasicCodeColumn();
-        List<QueryArg> queryArgs = queryDTO.getQueryArgs();
         List<QueryRequest> requests;
-        try (StringReader reader = new StringReader(queryDTO.getQueryString())) {
-            try (Stream<QueryRequest> analyzed = this.analysisService.analysisRequestsStream(ctx.getDsConfig(), reader, queryArgs, codeLine, codeColumn, options)) {
-                requests = analyzed.collect(Collectors.toCollection(ArrayList::new));
-            }
+        try (StringReader reader = new StringReader(queryDTO.getQueryString()); Stream<QueryRequest> analyzed = this.analyzeQueryRequests(queryDTO, ctx, parameters, reader)) {
+            requests = analyzed.collect(Collectors.toCollection(ArrayList::new));
         }
 
-        //
         SessionSpi sessionSpi = ctx.getSessionSpi();
         QueryRequest temp = sessionSpi.createQueryRequest(ctx.getDsConfig());
         temp.setRequester(Requester.CONSOLE);
@@ -356,27 +349,41 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         temp.setUseExplain(isExplain);
 
         for (int i = 0; i < requests.size(); i++) {
-            QueryRequest analyzed = requests.get(i);
-            QueryRequest clone = temp.clone();
-            clone.setQueryId(sessionSpi.newQueryId());
-            clone.setUseExplain(isExplain);
-            clone.setQueryBody(analyzed.getQueryBody());
-            clone.setQueryArgs(analyzed.getQueryArgs());
-            clone.setQueryTypes(analyzed.getQueryTypes());
-            clone.setRelations(analyzed.getRelations());
-            clone.setDsType(analyzed.getDsType());
-            clone.setColumnList(analyzed.getColumnList());
-            clone.setUsingValueProcess(analyzed.isUsingValueProcess());
-            clone.setHasRewrite(analyzed.isHasRewrite());
-            clone.setRewriteTag(analyzed.getRewriteTag());
-            clone.setOriginalBody(analyzed.getOriginalBody());
+            QueryRequest request = this.buildQueryRequest(temp, requests.get(i), sessionSpi);
             if (isExplain) {
-                this.prepareQueryRequests4Explain(queryDTO, ctx, clone, rewriteSpi, parameters);
+                this.prepareQueryRequests4Explain(queryDTO, ctx, request, rewriteSpi, parameters);
             }
-            clone.getResultConf().setRefreshStatus(i == requests.size() - 1);
-            requests.set(i, clone);
+            request.getResultConf().setRefreshStatus(i == requests.size() - 1);
+            requests.set(i, request);
         }
         return requests;
+    }
+
+    private Stream<QueryRequest> analyzeQueryRequests(WsQueryFO queryDTO, QueryCtx ctx, SqlParserParameters parameters, StringReader reader) {
+        AnalysisQueryOptions options = AnalysisQueryOptions.builder()
+            .currentUid(queryDTO.getCurrentUserId())
+            .dataSourceId(ctx.getLevels().dsDO().getId())
+            .levels(ctx.getLevels().levelsParam())
+            .parameters(parameters)
+            .build();
+        return this.analysisService.analysisRequestsStream(ctx.getDsConfig(), reader, queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn(), options);
+    }
+
+    private QueryRequest buildQueryRequest(QueryRequest template, QueryRequest analyzed, SessionSpi sessionSpi) {
+        QueryRequest request = template.clone();
+        request.setQueryId(sessionSpi.newQueryId());
+        request.setUseExplain(template.isUseExplain());
+        request.setQueryBody(analyzed.getQueryBody());
+        request.setQueryArgs(analyzed.getQueryArgs());
+        request.setQueryTypes(analyzed.getQueryTypes());
+        request.setRelations(analyzed.getRelations());
+        request.setDsType(analyzed.getDsType());
+        request.setColumnList(analyzed.getColumnList());
+        request.setUsingValueProcess(analyzed.isUsingValueProcess());
+        request.setHasRewrite(analyzed.isHasRewrite());
+        request.setRewriteTag(analyzed.getRewriteTag());
+        request.setOriginalBody(analyzed.getOriginalBody());
+        return request;
     }
 
     private void prepareQueryRequests4Explain(WsQueryFO queryDTO, QueryCtx ctx, QueryRequest request, RewriteSpi rewriteSpi, SqlParserParameters parameters) {
@@ -560,22 +567,16 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     // 4.6. operate of query on specialCheck
-    private boolean specialCheck(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx,//
-                                 SqlParserParameters parameters, List<QueryRequest> requestScripts) {
-        // 6.2 at team all statements must be clear
+    private void checkStatementKinds(WsQueryFO queryDTO, QueryCtx ctx, SqlParserParameters parameters, List<QueryRequest> requestScripts, boolean dataSourceReadOnly) {
         String curOwnerUid = queryDTO.getPrimaryUserId();
         for (QueryRequest request : requestScripts) {
             Set<SplitQueryType> queryTypes = request.getQueryTypes();
             if (CollectionUtils.isEmpty(queryTypes) || queryTypes.contains(SplitQueryType.UNKNOWN)) {
-                String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), request.getQueryBody());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), request.getQueryBody()));
             }
 
             String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
-            if (StringUtils.equalsIgnoreCase("true", enable)) {
+            if (dataSourceReadOnly || StringUtils.equalsIgnoreCase("true", enable)) {
                 SqlEngineSpi sqlEngine = this.dmDsConfigService.fetchSqlEngineSpi(ctx.getLevels().dsDO().getId());
                 SysObjectRegistrySpi registry = PluginManager.findSysObjectRegistry(ctx.getLevels().dsDO().getDataSourceType(), sqlEngine.name());
                 boolean hasNonReadBehavior = BehaviorRelations.flattenResource(registry, parameters.version(), request.getRelations())
@@ -583,11 +584,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     .filter(behavior -> behavior.authKind() != null)
                     .anyMatch(behavior -> behavior.authKind() != SecDataAuthKind.READ);
                 if (hasNonReadBehavior) {
-                    String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
-                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
-                    consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                    return false;
+                    throw new ErrorMessageException(DmErrorCode.O_AUTHORITY.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name()));
                 }
             }
         }
@@ -595,20 +592,25 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         // 6.3 disallow `use xxx` or `set search_path = xxx` or `alter session set container = xxx`
         for (QueryRequest request : requestScripts) {
             if (request.hasQueryType(SplitQueryType.SWITCH_CATALOG) || request.hasQueryType(SplitQueryType.SWITCH_SCHEMA)) {
-                String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_SWITCH_CTX_ERROR.name());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_SWITCH_CTX_ERROR.name()));
             } else if (request.hasQueryType(SplitQueryType.TRANSACTION) && ctx.getCtxDTO().isRdbAutoCommit()) {
-                String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, msg, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                return false;
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
             }
         }
+    }
 
+    private boolean specialCheck(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx,//
+                                 SqlParserParameters parameters, List<QueryRequest> requestScripts) {
+        try {
+            this.checkStatementKinds(queryDTO, ctx, parameters, requestScripts, false);
+        } catch (ErrorMessageException e) {
+            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, e.getErrorMessage(), MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            return false;
+        }
+
+        String curOwnerUid = queryDTO.getPrimaryUserId();
         String curUserUid = queryDTO.getCurrentUserId();
         QueryRelationAuthResult authResult = this.authCheckService.checkQueryRelationAuth(curOwnerUid, curUserUid, ctx.getLevels(), requestScripts);
         if (!authResult.isPassed()) {
@@ -873,9 +875,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     public QueryCtx createQueryCtx(WsQueryFO queryDTO) {
+        return this.createQueryCtx(queryDTO, this.dmDsConfigService.parseLevels(queryDTO.getLevels()));
+    }
+
+    public QueryCtx createQueryCtx(WsQueryFO queryDTO, DsLevels levels) {
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
-        DsLevels levels = this.dmDsConfigService.parseLevels(queryDTO.getLevels());
         DmDsDO dsDO = levels.dsDO();
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
 
@@ -940,6 +945,64 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             contextDTO.setRdbReadOnly(queryDTO.isRdbReadOnly());
             return new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, engine, supportSpi);
         }
+    }
+
+    public QueryRequest prepareOpenApiQuery(WsQueryFO query, QueryCtx ctx, SqlParserParameters parameters) {
+        QueryRequest request;
+        List<QueryRequest> requests;
+        try {
+            List<QueryRequest> analyzedRequests;
+            try (StringReader reader = new StringReader(query.getQueryString()); Stream<QueryRequest> analyzed = this.analyzeQueryRequests(query, ctx, parameters, reader)) {
+                analyzedRequests = analyzed.limit(2).toList();
+            }
+
+            if (analyzedRequests.size() != 1) {
+                throw new OpenApiException(INVALID_ARGUMENT);
+            }
+
+            SessionSpi sessionSpi = ctx.getSessionSpi();
+            QueryRequest template = sessionSpi.createQueryRequest(ctx.getDsConfig());
+            template.setRequester(Requester.CONSOLE);
+            template.setUseExplain(false);
+            template.getResultConf().setCacheResult(false);
+            template.getResultConf().setReceiveMode(query.getReceiveMode() == null ? ReceiveMode.PAGE_FULL : query.getReceiveMode());
+
+            request = this.buildQueryRequest(template, analyzedRequests.get(0), sessionSpi);
+            request.getResultConf().setRefreshStatus(true);
+            requests = List.of(request);
+            this.checkStatementKinds(query, ctx, parameters, requests, Boolean.TRUE.equals(ctx.getDsConfig().getReadOnly()));
+        } catch (AntlerSyntaxException e) {
+            throw new OpenApiException(INVALID_ARGUMENT);
+        } catch (ErrorMessageException e) {
+            if (DmErrorCode.O_AUTHORITY.code().equals(e.getErrorCode())) {
+                throw new OpenApiException(FORBIDDEN);
+            }
+            throw new OpenApiException(INVALID_ARGUMENT);
+        }
+
+        var levels = ctx.getLevels();
+        String puid = query.getPrimaryUserId();
+        String uid = query.getCurrentUserId();
+        if (request.hasQueryType(SplitQueryType.SWITCH_ROLE) || request.hasQueryType(SplitQueryType.SWITCH_USER)) {
+            throw new OpenApiException(INVALID_ARGUMENT);
+        }
+
+        if (!this.authCheckService.checkQueryRelationAuth(puid, uid, levels, requests).isPassed()) {
+            throw new OpenApiException(FORBIDDEN);
+        }
+
+        // A statement with no permission-bearing relation still needs authorization for its namespace.
+        if (BehaviorRelations.flattenResourceIgnoringPermission(request.getRelations()).stream().noneMatch(behavior -> behavior.authKind() != null)
+            && (!request.getQueryTypes().equals(Set.of(SplitQueryType.SELECT))
+                || !this.authCheckService.checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_QUERY))) {
+            throw new OpenApiException(FORBIDDEN);
+        }
+
+        if (this.rulesCheck(query, ctx, parameters).hasAnyTarget(CHECK_LEVELS_NORMAL)) {
+            throw new OpenApiException(SQL_RULE_BLOCKED);
+        }
+
+        return request;
     }
 
     private SecRulesCheckResult rulesCheck(WsQueryFO fo, QueryCtx ctx, SqlParserParameters parameters) {

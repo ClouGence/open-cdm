@@ -77,6 +77,7 @@ class ImplResultSetMetaBuild extends AbstractResultBuild<ResultSetMeta> implemen
         r.setResultType(ResultType.ResultSetMeta);
         r.setColumnList(new LinkedList<>());
         r.setColumnType(new LinkedList<>());
+        r.setValueTypes(new LinkedList<>());
         return r;
     }
 
@@ -115,6 +116,7 @@ class ImplResultSetMetaBuild extends AbstractResultBuild<ResultSetMeta> implemen
 
                 this.get().getColumnList().add(m.getMeta().getColumn());
                 this.get().getColumnType().add(m.getMeta().getColumnType());
+                this.get().getValueTypes().add(m.getFetcher() == null ? null : m.getFetcher().getType());
             }
 
             // init storage

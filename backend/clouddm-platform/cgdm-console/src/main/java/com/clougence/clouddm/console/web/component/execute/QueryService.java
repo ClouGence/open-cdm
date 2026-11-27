@@ -42,6 +42,8 @@ public interface QueryService {
 
     void closeSession(String curUid, String sessionId);
 
+    void closeEphemeralSession(String curUid, String sessionId);
+
     void commitSession(String curUid, String sessionId);
 
     void rollbackSession(String curUid, String sessionId);
@@ -49,6 +51,8 @@ public interface QueryService {
     void cancelQuery(String curUid, String sessionId);
 
     void asyncExecuteQuery(DmExecSessionDO sessionDO, String batchId, List<QueryRequest> queryRequest);
+
+    void asyncExecuteQuery(DmExecSessionDO sessionDO, String batchId, List<QueryRequest> queryRequest, Runnable beforeSubmit);
 
     ResultList syncExecuteQuery(String curUid, String sessionId, QueryRequest queryRequest);
 

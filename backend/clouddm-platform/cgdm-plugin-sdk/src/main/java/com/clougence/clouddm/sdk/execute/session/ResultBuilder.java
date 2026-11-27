@@ -38,6 +38,10 @@ public interface ResultBuilder {
 
     ResultMessageBuild newMessage(QueryRequest query);
 
+    /** Reports the execution outcome after the session's failure handling has run. */
+    default void reportQueryFailure(QueryRequest query, QueryFailure failure) {
+    }
+
     void finished();
 
     interface ResultBuild {

@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import com.clougence.clouddm.sdk.execute.session.QueryFailure;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
 import lombok.Getter;
@@ -32,6 +33,7 @@ public class QueryBatch {
     private Queue<QueryRequest> requests;
     private boolean             canceled;
     private long                beginTime;
+    private QueryFailure        failure;
 
     public QueryBatch(String batchId, List<QueryRequest> requests){
         this.batchId = batchId;

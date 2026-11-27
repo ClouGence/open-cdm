@@ -165,6 +165,7 @@ public abstract class AbstractDsSession implements Session {
                 throwQueryRequest(beginTime, query, builder, e);
             } finally {
                 triggerFailed(e);
+                builder.reportQueryFailure(query, QueryFailure.fromException(e));
             }
         } finally {
             receiveSignal.set(true);

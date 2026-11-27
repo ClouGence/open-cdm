@@ -106,6 +106,10 @@ public class OpenApiGatewayController {
                 case FORBIDDEN -> completedError(HttpStatus.FORBIDDEN, requestId, code, "The caller lacks permission for this operation.");
                 case NOT_FOUND -> completedError(HttpStatus.NOT_FOUND, requestId, code, "The requested resource was not found.");
                 case STATE_CONFLICT -> completedError(HttpStatus.CONFLICT, requestId, code, "The operation conflicts with the current resource state.");
+                case SQL_RULE_BLOCKED -> completedError(HttpStatus.UNPROCESSABLE_CONTENT, requestId, code, "The SQL was blocked by CloudDM rules.");
+                case SQL_EXECUTION_FAILED -> completedError(HttpStatus.UNPROCESSABLE_CONTENT, requestId, code, "The SQL operation failed.");
+                case RATE_LIMITED -> completedError(HttpStatus.TOO_MANY_REQUESTS, requestId, code, "Too many concurrent SQL operations.");
+                case EXECUTION_TIMEOUT -> completedError(HttpStatus.GATEWAY_TIMEOUT, requestId, code, "The SQL operation timed out.");
             };
         } catch (RuntimeException e) {
             return CompletableFuture.completedFuture(internalError(requestId, e));

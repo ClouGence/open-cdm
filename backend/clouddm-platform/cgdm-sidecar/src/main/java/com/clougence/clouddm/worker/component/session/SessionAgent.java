@@ -79,7 +79,7 @@ public class SessionAgent implements Session {
         ResultListenerContainer container = new ResultListenerContainer();
         container.addListener(ResultListenerKey.RESULT_LISTENER, this::watchResult);
         container.addListener(ResultListenerKey.AUDIT_LISTENER, this::watchAudit);
-        this.resultBuilder = new DefaultResultBuilder(this.session.getSessionId(), this.ss, container);
+        this.resultBuilder = new DefaultResultBuilder(this.session.getSessionId(), this.ss, container, this::recordQueryFailure);
 
         this.updateStatus();
     }
@@ -87,6 +87,13 @@ public class SessionAgent implements Session {
     private void watchResult(QueryRequest query, Result res) {
         this.resultCache.add(res);
         this.statusMap.setEventGoods(this.statusMap.getEventGoods() + 1);
+    }
+
+    private void recordQueryFailure(QueryRequest query, QueryFailure failure) {
+        QueryBatch batch = this.current;
+        if (batch != null && batch.getBatchId().equals(query.getBatchId()) && batch.getFailure() == null) {
+            batch.setFailure(failure);
+        }
     }
 
     private void watchAudit(QueryRequest query, Result res) {
@@ -152,14 +159,14 @@ public class SessionAgent implements Session {
 
     // ----------- begin for Query -----------
 
-    private void batchPhase(String batchId, ResultPhaseType phase, long cost) {
+    private void batchPhase(String batchId, ResultPhaseType phase, long cost, QueryFailure failure) {
         BatchBuild build = this.resultBuilder.newBatch(batchId);
         switch (phase) {
             case Before:
                 build.onBegin();
                 break;
             case After:
-                build.onEnd();
+                build.onEnd(failure);
                 break;
             case Cancel:
                 build.onCancel();
@@ -202,8 +209,8 @@ public class SessionAgent implements Session {
         }
 
         if (queryRequest.isEmpty()) {
-            this.batchPhase(batchId, ResultPhaseType.Before, 0);
-            this.batchPhase(batchId, ResultPhaseType.After, 0);
+            this.batchPhase(batchId, ResultPhaseType.Before, 0, null);
+            this.batchPhase(batchId, ResultPhaseType.After, 0, null);
             result.setSuccess(true);
             return result;
         } else {
@@ -265,7 +272,7 @@ public class SessionAgent implements Session {
                 this.statusMap.setWaitQuerySize(nextBatch.getRequests().size());
                 this.current = nextBatch;
                 nextBatch.setBeginTime(System.currentTimeMillis());
-                this.batchPhase(this.current.getBatchId(), ResultPhaseType.Before, 0);
+                this.batchPhase(this.current.getBatchId(), ResultPhaseType.Before, 0, null);
             } else if (this.current.getRequests().isEmpty()) {
                 this.current = null;
                 this.statusMap.setWaitQuerySize(0);
@@ -325,7 +332,7 @@ public class SessionAgent implements Session {
 
         if (batch.getRequests().isEmpty()) {
             cost = System.currentTimeMillis() - batch.getBeginTime();
-            this.batchPhase(batch.getBatchId(), ResultPhaseType.After, cost);
+            this.batchPhase(batch.getBatchId(), ResultPhaseType.After, cost, batch.getFailure());
         }
 
         // use ResultListenerKey.AUDIT_LISTENER to finish the query audit.
@@ -337,6 +344,13 @@ public class SessionAgent implements Session {
         this.statusMap.setCurQueryId(null);
         this.statusMap.setWaitQuerySize(this.statusMap.getWaitQuerySize() - 1);
 
+        if (batch.getFailure() == null) {
+            if (isCancel) {
+                batch.setFailure(QueryFailure.CANCELED);
+            } else {
+                batch.setFailure(QueryFailure.fromException(e));
+            }
+        }
         long cost = System.currentTimeMillis() - time;
         if (isCancel) {
             this.queryPhase(request, ResultPhaseType.Cancel, cost);
@@ -346,7 +360,7 @@ public class SessionAgent implements Session {
 
         if (batch.getRequests().isEmpty()) {
             cost = System.currentTimeMillis() - batch.getBeginTime();
-            this.batchPhase(batch.getBatchId(), ResultPhaseType.After, cost);
+            this.batchPhase(batch.getBatchId(), ResultPhaseType.After, cost, batch.getFailure());
         }
 
         // use ResultListenerKey.AUDIT_LISTENER to finish the query audit.

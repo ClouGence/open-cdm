@@ -214,6 +214,15 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void closeSession(String curUid, String sessionId) {
+        this.closeSession(curUid, sessionId, false);
+    }
+
+    @Override
+    public void closeEphemeralSession(String curUid, String sessionId) {
+        this.closeSession(curUid, sessionId, true);
+    }
+
+    private void closeSession(String curUid, String sessionId, boolean discardRecord) {
         if (StringUtils.isBlank(sessionId)) {
             return;
         }
@@ -223,10 +232,17 @@ public class QueryServiceImpl implements QueryService {
             return;
         }
 
-        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(sessionDO.getWsn());
-        if (worker != null) {
-            RSocketSendDTO sendDTO = this.buildRSocketSendDTO(worker);
-            this.sessionRService.closeSession(sendDTO, sessionId);
+        try {
+            DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(sessionDO.getWsn());
+            if (worker != null) {
+                RSocketSendDTO sendDTO = this.buildRSocketSendDTO(worker);
+                this.sessionRService.closeSession(sendDTO, sessionId);
+            }
+        } catch (RuntimeException e) {
+            if (discardRecord) {
+                this.execDal.sessionMapper().deleteBySessionId(sessionId);
+            }
+            throw e;
         }
 
         this.execDal.sessionMapper().deleteBySessionId(sessionId);
@@ -276,6 +292,11 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void asyncExecuteQuery(DmExecSessionDO sessionDO, String batchId, List<QueryRequest> queryRequest) {
+        this.asyncExecuteQuery(sessionDO, batchId, queryRequest, () -> {});
+    }
+
+    @Override
+    public void asyncExecuteQuery(DmExecSessionDO sessionDO, String batchId, List<QueryRequest> queryRequest, Runnable beforeSubmit) {
         String sessionId = sessionDO.getSessionId();
         this.execDal.sessionMapper().updateSessionQueryTime(sessionId, sessionDO.getWsn());
 
@@ -283,6 +304,7 @@ public class QueryServiceImpl implements QueryService {
         try {
             RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
             DmDsUtils.fillRequestConfig(queryRequest, sessionDO.getDatasourceId());
+            beforeSubmit.run();
             AsyncWaitResult result = this.sessionRService.asyncExecuteQuery(sendDTO, sessionId, batchId, queryRequest);
             if (!result.isSuccess()) {
                 throw new ErrorMessageException(result.getMessage());

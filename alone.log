@@ -1,0 +1,42 @@
+2026-11-26 14:37:59.324 [main] WARN  c.c.clouddm.sdk.execute.session.AbstractDsSession - triggerFailed, session 'outcome-fixture, message SQLException: fixture pre-execution error
+java.sql.SQLException: fixture pre-execution error
+	at QueryFailureFixture.beforeQueryRequest(QueryFailureSmoke.java:124)
+	at com.clougence.clouddm.sdk.execute.session.AbstractDsSession.executeQuery(AbstractDsSession.java:158)
+	at QueryFailureSmoke.main(QueryFailureSmoke.java:62)
+2026-11-26 14:37:59.330 [main] WARN  c.c.clouddm.sdk.execute.session.AbstractDsSession - triggerFailed, session 'outcome-fixture, message SQLTimeoutException: fixture JDBC timeout
+java.lang.IllegalStateException: java.sql.SQLTimeoutException: fixture JDBC timeout
+	at QueryFailureFixture.execQuery(QueryFailureSmoke.java:130)
+	at com.clougence.clouddm.sdk.execute.session.AbstractDsSession.executeQuery(AbstractDsSession.java:159)
+	at QueryFailureSmoke.main(QueryFailureSmoke.java:64)
+Caused by: java.sql.SQLTimeoutException: fixture JDBC timeout
+	... 3 common frames omitted
+2026-11-26 14:37:59.330 [main] WARN  c.c.clouddm.sdk.execute.session.AbstractDsSession - triggerFailed, session 'outcome-fixture, message SQLException: fixture post-execution error
+java.sql.SQLException: fixture post-execution error
+	at QueryFailureFixture.afterQueryRequest(QueryFailureSmoke.java:140)
+	at com.clougence.clouddm.sdk.execute.session.AbstractDsSession.executeQuery(AbstractDsSession.java:160)
+	at QueryFailureSmoke.main(QueryFailureSmoke.java:66)
+2026-11-26 14:37:59.330 [main] WARN  c.c.clouddm.sdk.execute.session.AbstractDsSession - triggerFailed, session 'outcome-fixture, message SQLException: fixture execution error
+java.sql.SQLException: fixture execution error
+	at QueryFailureFixture.execQuery(QueryFailureSmoke.java:129)
+	at com.clougence.clouddm.sdk.execute.session.AbstractDsSession.executeQuery(AbstractDsSession.java:159)
+	at QueryFailureSmoke.main(QueryFailureSmoke.java:68)
+2026-11-26 14:37:59.335 [main] WARN  c.c.clouddm.sdk.execute.session.AbstractDsSession - triggerFailed, session 'outcome-fixture, message SQLException: fixture execution error
+java.sql.SQLException: fixture execution error
+	at QueryFailureFixture.execQuery(QueryFailureSmoke.java:129)
+	at com.clougence.clouddm.sdk.execute.session.AbstractDsSession.executeQuery(AbstractDsSession.java:159)
+	at com.clougence.clouddm.worker.component.session.SessionAgent.doQuery(SessionAgent.java:314)
+	at com.clougence.clouddm.worker.component.session.SessionAgent.asyncExecQuery(SessionAgent.java:286)
+	at com.clougence.clouddm.worker.component.session.SessionAgent.submitQueries(SessionAgent.java:229)
+	at QueryFailureSmoke.main(QueryFailureSmoke.java:72)
+2026-11-26 14:37:59.337 [main] INFO  c.c.clouddm.sdk.execute.session.AbstractDsSession - triggerCompleted, session 'outcome-fixture
+2026-11-26 14:37:59.338 [main] WARN  c.c.clouddm.sdk.execute.session.AbstractDsSession - triggerFailed, session 'outcome-fixture, message SQLTimeoutException: fixture JDBC timeout
+java.lang.IllegalStateException: java.sql.SQLTimeoutException: fixture JDBC timeout
+	at QueryFailureFixture.execQuery(QueryFailureSmoke.java:130)
+	at com.clougence.clouddm.sdk.execute.session.AbstractDsSession.executeQuery(AbstractDsSession.java:159)
+	at com.clougence.clouddm.worker.component.session.SessionAgent.doQuery(SessionAgent.java:314)
+	at com.clougence.clouddm.worker.component.session.SessionAgent.asyncExecQuery(SessionAgent.java:286)
+	at com.clougence.clouddm.worker.component.session.SessionAgent.submitQueries(SessionAgent.java:229)
+	at QueryFailureSmoke.main(QueryFailureSmoke.java:77)
+Caused by: java.sql.SQLTimeoutException: fixture JDBC timeout
+	... 6 common frames omitted
+2026-11-26 14:37:59.420 [main] INFO  c.c.clouddm.sdk.execute.session.AbstractDsSession - triggerCompleted, session 'outcome-fixture

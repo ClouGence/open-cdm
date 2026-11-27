@@ -223,13 +223,8 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
     /** close by outside */
     @Override
     public void closeSessionById(String sessionId) {
-        if (this.sessionMap.containsKey(sessionId)) {
-            Session rdbSession = this.sessionMap.get(sessionId);
-            if (rdbSession == null) {
-                return;
-            }
-
-            this.sessionMap.remove(sessionId);
+        Session rdbSession = this.sessionMap.remove(sessionId);
+        if (rdbSession != null) {
             this.counter.decrementAndGet();
             try {
                 rdbSession.close();

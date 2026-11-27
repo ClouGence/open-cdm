@@ -227,8 +227,8 @@ public class DmDsUtils {
         queryList.forEach(query -> {
             query.setDsId(dsCache.getDsNumId());
             ResultLimit limit = fetchResultLimit(configMap, query.getRequester(), dsConfig);
-            query.getResultConf().setQueryTimeoutSec(limit.getQueryTimeoutSec());
-            query.getResultConf().setFetchRecordCountLimit(limit.getFetchRecordCountLimit());
+            query.getResultConf().setQueryTimeoutSec((int) boundedLimit(limit.getQueryTimeoutSec(), query.getResultConf().getQueryTimeoutSec()));
+            query.getResultConf().setFetchRecordCountLimit(boundedLimit(limit.getFetchRecordCountLimit(), query.getResultConf().getFetchRecordCountLimit()));
             query.getResultConf().setFetchResultSetBytesLimit(limit.getFetchResultSetBytesLimit());
             query.getResultConf().setFetchColumnBytesLimit(limit.getFetchColumnBytesLimit());
             query.getResultConf().setFetchElementBytesLimit(limit.getFetchElementBytesLimit());
@@ -244,5 +244,12 @@ public class DmDsUtils {
 
     private static int safeGetConfSize(String val, int defaultVal) {
         return StringUtils.isBlank(val) ? defaultVal : Integer.parseInt(val);
+    }
+
+    private static long boundedLimit(long configured, long requested) {
+        if (requested <= 0) {
+            return configured;
+        }
+        return configured > 0 ? Math.min(configured, requested) : requested;
     }
 }

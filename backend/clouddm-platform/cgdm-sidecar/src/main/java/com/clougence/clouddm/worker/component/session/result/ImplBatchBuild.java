@@ -18,6 +18,7 @@ package com.clougence.clouddm.worker.component.session.result;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPhaseOfBatch;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultPhaseType;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
+import com.clougence.clouddm.sdk.execute.session.QueryFailure;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +49,9 @@ class ImplBatchBuild extends AbstractResultBuild<ResultPhaseOfBatch> implements 
     }
 
     @Override
-    public void onEnd() {
+    public void onEnd(QueryFailure failure) {
         this.get().setPhaseType(ResultPhaseType.After);
+        this.get().setFailure(failure);
     }
 
     @Override

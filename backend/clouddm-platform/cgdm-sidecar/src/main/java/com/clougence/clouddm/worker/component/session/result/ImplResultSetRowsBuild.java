@@ -56,6 +56,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
     private final ValueFetcherContext[] columnFetcherCtx;
     private Map<String, ColMetaData>    cacheRowMeta;
     private long                        fetcherDataSize;
+    private long                        echoBytes;
 
     public ImplResultSetRowsBuild(String resultId, String sessionID, QueryRequest query, ResultListenerContainer listeners, //
                                   SessionSupport ss, ResultStorage localCache, List<ValueFetcherContext> metaCtx){
@@ -105,6 +106,7 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
 
     @Override
     public void receiveRow(boolean silent, java.sql.ResultSet rs) throws SQLException, IOException {
+        silent = silent || this.isEchoFull();
         List<ResultSetValue> data = silent ? Collections.emptyList() : new ArrayList<>();
         try (RowStorage row = this.localCache.nextRsRow()) {
             for (int i = 0; i < this.columnList.length; i++) {
@@ -144,16 +146,14 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
             long incremented = this.rowId.getAndIncrement();
 
             if (!silent) {
-                ResultSetRow rowDTO = new ResultSetRow();
-                rowDTO.setRowId(String.valueOf(incremented));
-                rowDTO.setData(data);
-                this.get().getRowSet().add(rowDTO);
+                this.addEchoRow(incremented, data);
             }
         }
     }
 
     @Override
     public void receiveRow(boolean silent, Map<String, Object> rs) throws SQLException, IOException {
+        silent = silent || this.isEchoFull();
         List<ResultSetValue> data = silent ? Collections.emptyList() : new ArrayList<>();
         try (RowStorage row = this.localCache.nextRsRow()) {
             for (int i = 0; i < this.columnList.length; i++) {
@@ -193,12 +193,38 @@ class ImplResultSetRowsBuild extends AbstractResultBuild<ResultSet> implements R
             long incremented = this.rowId.incrementAndGet();
 
             if (!silent) {
-                ResultSetRow rowDTO = new ResultSetRow();
-                rowDTO.setRowId(String.valueOf(incremented));
-                rowDTO.setData(data);
-                this.get().getRowSet().add(rowDTO);
+                this.addEchoRow(incremented, data);
             }
         }
+    }
+
+    private boolean isEchoFull() {
+        long limit = this.query.getResultConf().getFetchEchoBytesLimit();
+        return limit > 0 && this.echoBytes >= limit;
+    }
+
+    private void addEchoRow(long rowId, List<ResultSetValue> values) {
+        long limit = this.query.getResultConf().getFetchEchoBytesLimit();
+        if (limit > 0) {
+            // Leave room for JSON field names and escaped characters on the Worker response.
+            long bytes = 48;
+            for (ResultSetValue value : values) {
+                bytes += 128;
+                if (value.getValue() != null) {
+                    bytes += 6L * value.getValue().length();
+                }
+            }
+            if (bytes > limit - this.echoBytes) {
+                this.echoBytes = limit;
+                return;
+            }
+            this.echoBytes += bytes;
+        }
+
+        ResultSetRow rowDTO = new ResultSetRow();
+        rowDTO.setRowId(String.valueOf(rowId));
+        rowDTO.setData(values);
+        this.get().getRowSet().add(rowDTO);
     }
 
     @Override

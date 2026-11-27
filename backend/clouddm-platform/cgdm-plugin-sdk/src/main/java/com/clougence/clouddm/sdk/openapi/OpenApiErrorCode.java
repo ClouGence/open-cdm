@@ -21,4 +21,8 @@ public enum OpenApiErrorCode {
     FORBIDDEN,
     NOT_FOUND,
     STATE_CONFLICT,
+    SQL_RULE_BLOCKED,
+    SQL_EXECUTION_FAILED,
+    RATE_LIMITED,
+    EXECUTION_TIMEOUT,
 }
